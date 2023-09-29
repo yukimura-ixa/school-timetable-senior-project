@@ -4,7 +4,6 @@ import adduserIcon from '../public/adduser.svg';
 
 test('render button tests', () => {
     render(<Button
-            icon={adduserIcon}
             title={'My button'}
          />);
     const getTitle = screen.getByText('My button');

@@ -5,6 +5,7 @@ interface TextField {
   height: string | number;
   placeHolder: string;
   disabled: boolean;
+  label: string;
   handleChange;
 }
 function TextField({
@@ -12,8 +13,9 @@ function TextField({
   height = 'auto',
   placeHolder = "",
   disabled = false,
+  label,
   handleChange,
-}: TextField) {
+}: TextField): JSX.Element {
   const textFieldStyleProperty: object = {
     width: width,
     height: height,
@@ -21,14 +23,17 @@ function TextField({
     borderColor: "#E0E1E8",
   };
   return (
-    <input
-      className="rounded text-field px-[15px] py-[10px]"
-      type='text'
-      style={textFieldStyleProperty}
-      placeholder={placeHolder}
-      onChange={handleChange}
-      disabled={disabled}
-    />
+    <div className="flex flex-col text-left gap-2">
+      <label className="font-medium">{label}</label>
+      <input
+        className="rounded text-field px-[15px] py-[10px]"
+        type='text'
+        style={textFieldStyleProperty}
+        placeholder={placeHolder}
+        onChange={handleChange}
+        disabled={disabled}
+      />
+    </div>
   );
 }
 

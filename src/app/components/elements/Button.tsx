@@ -31,7 +31,7 @@ function Button({
   height = 0,
   disabled = false,
   handleClick,
-}: ButtonData) {
+}: ButtonData): JSX.Element {
   const [isHover, setIsHover] = useState(false); //Hover state ใช้กับปุ่ม
   // interface สำหรับเก็บค่า object property rgb จากการคืนค่าของฟังก์ชัน hexToRGB
   interface buttonColor {
@@ -84,7 +84,7 @@ function Button({
       ) : (
         <div
           className={`flex items-center justify-center px-[15px] py-[10px] rounded ${
-            disabled ? null : "cursor-pointer"
+            disabled ? null : "cursor-pointer duration-300"
           } select-none`}
           style={buttonStyleProperty}
           onClick={handleClick}
@@ -96,7 +96,7 @@ function Button({
             {title === "" ? (
               <p style={textStyleProperty}>Button</p>
             ) : (
-              <p style={textStyleProperty}>{`rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`}</p>
+              <p style={textStyleProperty}>{title}</p>
             )}
           </div>
         </div>

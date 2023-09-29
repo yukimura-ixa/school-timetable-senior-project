@@ -10,3 +10,6 @@
 .text-field::-webkit-inner-spin-button{
     -webkit-appearance: none;
 }
+.text-field::placeholder{
+  font-size: 14px;
+}
