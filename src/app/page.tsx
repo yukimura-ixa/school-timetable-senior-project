@@ -3,9 +3,14 @@ import Image from "next/image";
 import Button from "./components/elements/Button";
 // Svg icon
 import adduserIcon from "../../public/adduser.svg";
+import TextField from "./components/elements/TextField";
+import { useState } from "react";
 export default function Home() {
-  const hexToRGB = (hex) => {
-    console.log(hex)
+  const [text, setText] = useState("");
+  const handleChange = (event:any) => {
+    if(typeof event.target.value !== 'string'){
+      setText(event.target.value); 
+    }
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -110,13 +115,19 @@ export default function Home() {
             </span>
           </h2>
           <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
+            {text}
           </p>
         </a>
         <Button 
             title="Add user"
             icon={adduserIcon}
+            buttonColor="#2F80ED"
           />
+          <br></br>
+        <TextField 
+          width={300}
+          handleChange={handleChange} 
+          placeHolder="ชื่อจริง"/>
       </div>
     </main>
   );

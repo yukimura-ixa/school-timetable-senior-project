@@ -96,7 +96,7 @@ function Button({
             {title === "" ? (
               <p style={textStyleProperty}>Button</p>
             ) : (
-              <p style={textStyleProperty}>{title}</p>
+              <p style={textStyleProperty}>{`rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`}</p>
             )}
           </div>
         </div>
