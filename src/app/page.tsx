@@ -1,11 +1,11 @@
 "use client";
 import Image from "next/image";
-import Button from "./components/elements/Button";
+import Button from "./components/elements/static/Button";
 // Svg icon
-import adduserIcon from "../../public/svg/adduser.svg";
-import TextField from "./components/elements/TextField";
+import adduserIcon from "@/svg/adduser.svg";
+import TextField from "@/app/components/elements/input/field/TextField";
 import { useState } from "react";
-import Dropdown from "./components/elements/Dropdown";
+import Dropdown from "@/app/components/elements/input/selected_input/Dropdown";
 export default function Home() {
   const [text, setText] = useState("");
   const [selectedName, setSelectedName] = useState();

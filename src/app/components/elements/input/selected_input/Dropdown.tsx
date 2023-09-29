@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 //SVG Icon
-import arrowdownIcon from "../../../../public/svg/arrowdown.svg";
+import arrowdownIcon from "@/svg/arrowdown.svg";
 //Image Next
 import Image from "next/image";
 

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Button from '@/app/components/elements/Button';
+import Button from '@/app/components/elements/static/Button';
 import adduserIcon from '../public/adduser.svg';
 
 test('render button tests', () => {
