@@ -27,7 +27,7 @@ function Button({
   titleColor = "#FFF",
   fontSize = 16,
   fontWeight = 300,
-  width = 0,
+  width=null,
   height = 0,
   disabled = false,
   handleClick,
@@ -49,8 +49,8 @@ function Button({
       ? `rgb(${buttonRGB.r - 10}, ${buttonRGB.g - 10}, ${buttonRGB.b - 10})`
       : `rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`,
     color: `rgb(${titleRGB.r}, ${titleRGB.g}, ${titleRGB.b})`,
-    width: width === 0 ? "auto" : width,
-    height: height === 0 ? "auto" : height,
+    width: width === null ? 'fit-content' : width,
+    height: height === 0 ? 45 : height,
     opacity: disabled ? 0.5 : 1,
   };
   //style property ใช้เก็บค่าของ component props (ใส่ใน tailwind ไม่ได้ง่ะ ;-;)
@@ -73,7 +73,7 @@ function Button({
           style={buttonStyleProperty}
         >
           <div className="flex gap-[10px]">
-            {icon === "" ? null : <Image src={icon} alt="icon" />}
+            {icon === "" ? null : <Image src={icon} alt="iconfromprops" />}
             {title === "" ? (
               <p style={textStyleProperty}>Button</p>
             ) : (

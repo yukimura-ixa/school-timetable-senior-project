@@ -17,7 +17,7 @@ interface Dropdown{
 function Dropdown({
     data,
     renderItem: ItemElement, //ทำการ Map ให้เป็นชื่อที่ขึ้นต้นด้วย Capital letter
-    width='100%',
+    width = null,
     height='auto',
     currentValue,
     placeHolder="Options",
@@ -37,7 +37,7 @@ function Dropdown({
         px-[15px] py-[10px]
         cursor-pointer
         select-none
-        gap-[10px]
+        gap-5
         hover:bg-slate-100
         duration-300
         z-50
@@ -45,11 +45,11 @@ function Dropdown({
         //กดเพื่อ set state toggle dropdown
         onClick={() => setIsHidden(!isHidden)} //กดปุ๊ปจะเซ็ทค่าเป็นค่าตรงข้ามกับ boolean ปัจจุบัน ด้วยนิเสธ '!'
         style={{
-            width: width,
+            width: width === null ? 'fit-content' : width,
             height: height,
         }}
       >
-        <div className="w-full flex justify-left"
+        <div className="flex justify-left"
         //กำหนดสีของ Placeholder เป็นสีเทากลางๆ แต่ถ้าเลือกค่าแล้ว text จะเป็นสีดำ
         style={{color : typeof currentValue === 'undefined' ? "#676E85" : "#000"}}
         >
@@ -59,7 +59,7 @@ function Dropdown({
         <Image
         className={`
             duration-300
-            ${isHidden ? null : 'rotate-180'}
+            ${isHidden ? 'rotate-180' : null}
         `}
         src={arrowdownIcon} alt="arrowicon" />
       </div>
@@ -78,13 +78,13 @@ function Dropdown({
             mt-1
             bg-white
             overflow-y-scroll
-            gap-2
+            gap-3
             duration-300
             transition-all ease-out
-            ${isHidden ? `scale-y-0 translate-y-[-75px]` : null} 
+            ${isHidden ? null : `scale-y-0 translate-y-[-75px]`} 
             `} //เช็คสถานะของ isHidden เพื่อเปิด Dropdown List
           style={{
-            width: width,
+            width:  width === null ? 'fit-content' : width,
             height: data.length < 3 ? 'auto' : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
           }}
         >
@@ -102,7 +102,7 @@ function Dropdown({
                   hover:text-[#3B8FEE]
                 `}
                 key={`${item}(${index})`}
-                onClick={() => {setIsHidden(true), handleChange(item)}} 
+                onClick={() => {setIsHidden(false), handleChange(item)}} 
                 //เมื่อกดเลือกข้อมูลใน List Dropdown จะพับกลับขึ้นไปแล้วเรียก handleChange
                 //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้องการ
               >
