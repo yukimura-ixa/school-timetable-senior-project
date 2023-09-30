@@ -1,12 +1,16 @@
 "use client";
+import React, { useState } from "react";
 import Image from "next/image";
 import Button from "./components/elements/static/Button";
 // Svg icon
 import adduserIcon from "@/svg/adduser.svg";
+// component
 import TextField from "@/app/components/elements/input/field/TextField";
-import { useState } from "react";
 import Dropdown from "@/app/components/elements/input/selected_input/Dropdown";
 import MiniButton from "./components/elements/static/MiniButton";
+import SearchBar from "./components/elements/input/field/SearchBar";
+import CheckBox from "./components/elements/input/selected_input/CheckBox";
+import Table from "./components/templates/Table";
 export default function Home() {
   const [text, setText] = useState("");
   const [selectedName, setSelectedName] = useState();
@@ -14,7 +18,7 @@ export default function Home() {
     fName: string;
     lName: string;
   }
-  const name: name[] = [
+  const [nameList, setNameList] = useState([
     {
       fName: "Danny",
       lName: "Lee",
@@ -28,36 +32,88 @@ export default function Home() {
       lName: "Carlton",
     },
     {
+      fName: "Ricardo",
+      lName: "Kaka",
+    },
+    {
       fName: "Billy",
       lName: "Harrington",
     },
-  ];
+  ]);
+
+  //TextField Handle Change Test
   const handleChange = (event: any) => {
     setText(event.target.value);
   };
+
+  //Select Dropdown Item Test
   const dropDownSelected = (name: name) => {
     setSelectedName(() => `${name.fName} ${name.lName}`);
   };
+
+  //Search Dropdown Test
+  const [searchText, setSearchText] = useState();
+  const handleChangeText = (event: any) => {
+    let text = event.target.value;
+    setSearchText(text);
+    searchName(text)
+  }
+  const searchName = (name: string) => {
+    //ใช้ logic เพื่อทำการ filter item list ที่เราได้มา เพราะมันอาจจะไม่ซ้ำรูปแบบกัน
+    const copyNameList = [
+      {
+        fName: "Danny",
+        lName: "Lee",
+      },
+      {
+        fName: "Ricardo",
+        lName: "Milos",
+      },
+      {
+        fName: "Ricardo",
+        lName: "Kaka",
+      },
+      {
+        fName: "Tim",
+        lName: "Carlton",
+      },
+      {
+        fName: "Billy",
+        lName: "Harrington",
+      },
+    ];
+    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
+    let res = copyNameList.filter(item => `${item.fName} ${item.lName}`.match(name));
+    setNameList(res);
+    console.log(res);
+  }
+
+  //Render Dropdown Test
   const renderItem = ({ data }): JSX.Element => (
     <p>
       {data.fName} {data.lName}
     </p>
   );
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex flex-col items-center justify-between p-24">
       <div className="mb-32 grid text-center gap-10 lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
         <p>{selectedName} was selected.</p>
         <p>{text} was typed.</p>
+        <p>this is search text '{searchText}'</p>
         <Dropdown
           // width="100%"
-          data={name}
+          data={nameList}
           renderItem={renderItem}
-          currentValue={`MR. ${selectedName}`}
+          currentValue={selectedName}
           handleChange={dropDownSelected}
+          useSearchBar={true}
+          searchFunciton={handleChangeText}
         />
         <Button title="Add user" icon={adduserIcon} buttonColor="#2F80ED" />
+        <SearchBar placeHolder="ค้นหาวิชาเรียน" handleChange={handleChangeText}/>
+        <CheckBox />
         <br></br>
-        <div className="flex gap-10">
+        <div className="flex flex-col items-start gap-10">
           Minibutton Component :
           <MiniButton
             title="Default"
@@ -80,6 +136,9 @@ export default function Home() {
           placeHolder="อเนก"
           label="ชื่อจริง (Firstname) :"
         />
+      </div>
+      <div className="w-full h-screen">
+          <Table />
       </div>
     </main>
   );
