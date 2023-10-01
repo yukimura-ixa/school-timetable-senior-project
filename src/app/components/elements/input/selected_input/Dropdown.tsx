@@ -73,6 +73,7 @@ function Dropdown({
         className={`
             absolute
             flex
+            z-50
             flex-col
             justify-left
             items-center

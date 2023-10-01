@@ -54,10 +54,6 @@ function Button({
     opacity: disabled ? 0.5 : 1,
   };
   //style property ใช้เก็บค่าของ component props (ใส่ใน tailwind ไม่ได้ง่ะ ;-;)
-  const textStyleProperty: object = {
-    fontSize: fontSize,
-    fontWeight: fontWeight,
-  };
   return (
     <>
       {/* 
@@ -67,7 +63,7 @@ function Button({
        */}
       {disabled ? (
         <div
-          className={`flex items-center justify-center px-[15px] py-[10px] rounded ${
+          className={`flex items-center justify-center p-3 rounded ${
             disabled ? null : "cursor-pointer"
           } select-none`}
           style={buttonStyleProperty}
@@ -75,9 +71,9 @@ function Button({
           <div className="flex gap-[10px]">
             {icon === "" ? null : <Image src={icon} alt="iconfromprops" />}
             {title === "" ? (
-              <p style={textStyleProperty}>Button</p>
+              <p className="text-sm">Button</p>
             ) : (
-              <p style={textStyleProperty}>{title}</p>
+              <p className="text-sm">{title}</p>
             )}
           </div>
         </div>
@@ -94,9 +90,9 @@ function Button({
           <div className="flex gap-[10px]">
             {icon === "" ? null : <Image src={icon} alt="icon" />}
             {title === "" ? (
-              <p style={textStyleProperty}>Button</p>
+              <p className="text-sm">Button</p>
             ) : (
-              <p style={textStyleProperty}>{title}</p>
+              <p className="text-sm">{title}</p>
             )}
           </div>
         </div>
