@@ -137,7 +137,7 @@ export default function Home() {
           label="ชื่อจริง (Firstname) :"
         />
       </div>
-      <div className="w-full h-screen">
+      <div className="w-full">
           <Table />
       </div>
     </main>
