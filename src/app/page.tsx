@@ -122,6 +122,25 @@ export default function Home() {
       {data.fName} {data.lName}
     </p>
   );
+  const sortData = (data: any[], orderState: boolean, orderType: string) => {
+    switch(orderType){
+      case 'IDs':
+        console.log(orderType);
+        return data.sort((a, b) => orderState? a.id.localeCompare(b.id) : b.id.localeCompare(a.id))
+      case 'Firstname':
+        console.log(orderType);
+        return data.sort((a, b) => orderState? a.firstName.toLowerCase().localeCompare(b.firstName) : b.firstName.toLowerCase().localeCompare(a.firstName))
+      case 'Lastname':
+        console.log(orderType);
+        return data.sort((a, b) => orderState? a.lastName.toLowerCase().localeCompare(b.lastName) : b.lastName.toLowerCase().localeCompare(a.lastName))
+      case 'Department':
+        console.log(orderType);
+        return data.sort((a, b) => orderState? a.department.toLowerCase().localeCompare(b.department) : b.department.toLowerCase().localeCompare(a.department))
+      default:
+        console.log('else')
+        return data.sort((a, b) => a.id.localeCompare(b.id))
+    }
+  }
   return (
     <main className="flex flex-col items-center justify-between p-24">
       <div className="mb-32 grid text-center gap-10 lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
@@ -177,6 +196,7 @@ export default function Home() {
         <Table
           tableHead={tableHead}
           data={tableData}
+          orderByFunction={sortData}
           tableData={({ data, handleChange, index }) => (
             <>
               <td

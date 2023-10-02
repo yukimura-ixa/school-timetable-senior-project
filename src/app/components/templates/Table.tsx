@@ -16,20 +16,24 @@ interface Table {
   tableData: Function;
   orderByFunction: Function;
 }
-function Table({ data, tableHead, tableData: TableData, orderByFunction }: Table): JSX.Element {
-  const [isHover, setIsHover] = useState(false); //เช็ค Hover ข้อมูล
-  const [hoverPoint, setHoverPoint] = useState(-1); //เก็บค่า Index ที่ Hover
+function Table({
+  data,
+  tableHead,
+  tableData: TableData,
+  orderByFunction,
+}: Table): JSX.Element {
+  const [renderData, setRenderData] = useState([]);
   const [checkedList, setCheckedList] = useState([]); //เก็บค่าของ checkbox
-  const handleChange = (event: any) => {    
+  const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
-        ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
+      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
         //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => data.map((item, index) => index))
-        : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
+        setCheckedList(() => renderData.map((item, index) => index))
+      : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
-  }
-  const ClickToSelect = (index:number) => {
+  };
+  const ClickToSelect = (index: number) => {
     //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม index ลงไปใน checkList
     setCheckedList(() =>
       //ก่อนอื่นเช็คว่า index ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
@@ -41,20 +45,34 @@ function Table({ data, tableHead, tableData: TableData, orderByFunction }: Table
         : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม index ที่ติ๊กเข้าไป
           [...checkedList, index]
     );
-  }
+  };
+  useEffect(() => {
+    checkedList.sort();
+  }, [checkedList]) //ตรงนี้เป็นการ sort Checklist
   //เราจะใช้การ order by data id ASC เป็นค่าเริ่มต้น ที่เหลือก็แล้วแต่จะโปรด
   const [orderedIndex, setOrderedIndex] = useState(-1); //ตั้ง default ที่ -1
+  const [orderType, setOrderType] = useState('');
   const [orderState, setOrderState] = useState(true); //true = ASC false = DESC
-  const toggleOrdered = (index:number, type:string) => {
+  const toggleOrdered = (index: number, type: string) => {
     //ถ้ากด order ที่ไม่ใช่อันเดิม ให้เซ็ต index ของอันใหม่ละก็ตั้ง orderState กลับเป็น true
-    if (orderedIndex !== index){ 
-        setOrderedIndex(index)
-        setOrderState(true)
-    } else { //ถ้ากด order ช่องเดิมซ้ำๆ
-        setOrderState(!orderState) //สั่งให้ toggle boolean
+    if (orderedIndex !== index) {
+      setOrderedIndex(index);
+      setOrderType(type);
+      setOrderState(true);
+    } else {
+      //ถ้ากด order ช่องเดิมซ้ำๆ
+      setOrderState(!orderState); //สั่งให้ toggle boolean
     }
-  }
-  
+    console.log(orderState);
+  };
+  useEffect(() => {
+    setRenderData(() => orderByFunction(data, orderState, orderType))
+  }, [orderType, orderState])
+  //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox 
+  const removeMultiData = () => {
+    setRenderData(() => renderData.filter((item, index) => !checkedList.includes(index)));
+    setCheckedList(() => []);
+  };
   return (
     <>
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
@@ -66,7 +84,10 @@ function Table({ data, tableHead, tableData: TableData, orderByFunction }: Table
                   เลือก {checkedList.length} รายการ
                 </p>
               </div>
-              <div className="flex w-fit items-center p-3 gap-3 h-full border rounded-lg border-gray-500 bg-white cursor-pointer select-none">
+              <div
+                onClick={() => removeMultiData()}
+                className="flex w-fit items-center p-3 gap-3 h-full border rounded-lg border-gray-300 bg-white hover:bg-gray-200 hover:border-gray-200 duration-300 cursor-pointer select-none"
+              >
                 <Image src={graytrash} alt="graytrashicon" />
                 <p className="text-sm">ลบ</p>
               </div>
@@ -74,13 +95,18 @@ function Table({ data, tableHead, tableData: TableData, orderByFunction }: Table
           )}
         </div>
         <div className="flex gap-3">
-            <SearchBar height={'100%'} width={'100%'}/>
+          <SearchBar height={"100%"} width={"100%"} />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
-              ทั้งหมด {data.length} รายการ
+              ทั้งหมด {renderData.length} รายการ
             </p>
           </div>
-          <Button title="Add user" icon={adduserIcon} buttonColor="#2F80ED" height={'100%'} />
+          <Button
+            title="Add user"
+            icon={adduserIcon}
+            buttonColor="#2F80ED"
+            height={"100%"}
+          />
         </div>
       </div>
       {/* <div className="w-full flex-row-reverse flex h-[60px] py-[10px] pl-[15px]">
@@ -99,33 +125,40 @@ function Table({ data, tableHead, tableData: TableData, orderByFunction }: Table
                 //ตรงนี้เช็คว่า array length ของ checkList กับ data ยาวเท่ากันไหม
                 //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
                 //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
-                checked={checkedList.length === data.length}
+                checked={
+                  checkedList.length === renderData.length && renderData.length !== 0
+                }
               />
             </th>
             {tableHead.map((item, index) => (
-              <th className="text-left px-6 select-none cursor-pointer" key={item} onClick={() => toggleOrdered(index, item)}>
+              <th
+                className="text-left px-6 select-none cursor-pointer"
+                key={item}
+                onClick={() => {toggleOrdered(index, item)}}
+              >
                 <div className="flex gap-1">
-                    <p className="">{item}</p>
-                    {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
-                    {orderedIndex == index ? <Image className="duration-300" src={arrowdownIcon} alt="arrowicon" style={{transform : `rotate(${orderState ? '180deg' : '0deg'})`}} /> : null}
+                  <p className="">{item}</p>
+                  {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
+                  {orderedIndex == index ? (
+                    <Image
+                      className="duration-300"
+                      src={arrowdownIcon}
+                      alt="arrowicon"
+                      style={{
+                        transform: `rotate(${orderState ? "180deg" : "0deg"})`,
+                      }}
+                    />
+                  ) : null}
                 </div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody className="text-sm">
-          {data.map((item, index) => (
+          {renderData.map((item, index) => (
             <tr
               className="relative h-[60px] border-b bg-[#FFF] hover:bg-[#EAF2FF] hover:text-[#3B8FEE] cursor-pointer"
               key={item.id}
-              //ตรงนี้คือ Hover แล้วจะขึ้นรูปดินสอกับถังขยะ
-              onMouseEnter={() => {
-                setIsHover(true), setHoverPoint(index);
-              }}
-              //Hover point -1 ตั้งไว้เป็น default เฉยๆ เพราะคิดว่ามันไม่ตรงกับ index ของข้อมูล
-              onMouseLeave={() => {
-                setIsHover(false), setHoverPoint(-1);
-              }}
             >
               <th>
                 <input
@@ -139,14 +172,11 @@ function Table({ data, tableHead, tableData: TableData, orderByFunction }: Table
                 />
               </th>
               {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
-              <TableData data={item} handleChange={ClickToSelect} index={index} />
-              {/* ตรงนี้คือไอคอนดินสอกับถังขยะ สำหรับแก้ไขข้อมูลและลบข้อมูลเฉพาะตัว */}
-              {isHover && hoverPoint === index ? (
-                <div className="flex justify-between w-fit h-full gap-5 absolute right-5 bg-[#EAF2FF]">
-                  <Image src={bluepencil} alt="editicon" />
-                  <Image src={bluetrash} alt="deleteicon" />
-                </div>
-              ) : null}
+              <TableData
+                data={item}
+                handleChange={ClickToSelect}
+                index={index}
+              />
             </tr>
           ))}
         </tbody>
