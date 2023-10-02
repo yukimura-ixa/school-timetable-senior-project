@@ -7,8 +7,8 @@ import {
 } from "@/raw-data/menubar-data";
 import arrow from "@/svg/arrow/arrowdown.svg";
 function Menubar() {
-    const [indexPoint, setIndexPoint] = useState(0);
-    const [isOpen, setIsOpen] = useState(true)
+    const [indexPoint, setIndexPoint] = useState(-1);
+    const [isOpen, setIsOpen] = useState(false)
   return (
     <>
       <div className="flex flex-col gap-8 w-[250px] h-screen px-5 py-8 bg-[#F1F3F9]">
@@ -30,14 +30,14 @@ function Menubar() {
           ))}
         </div>
         {/* schedule */}
-        <div className="flex flex-col w-full h-fit border-b border-[#C8C9CD]">
+        <div className="flex flex-col w-full h-fit border-b border-[#C8C9CD] select-none">
           <p className="text-[#676E85] mb-2">ตารางสอน</p>
           {scheduleMenu.map((item, index) => (
             <React.Fragment key={item.id}>
               <div className="w-full flex flex-col">
                 <div
                   className="flex items-center justify-between w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#676E85] hover:bg-slate-200 duration-300"
-                  onClick={() => {setIndexPoint(index), setIsOpen(true)}}
+                  onClick={() => {setIndexPoint(index), setIsOpen(index === indexPoint ? false : true)}}
                 >
                   <Image src={item.icon} alt="tablesetting" />
                   <div className="flex gap-5 justify-between w-full">
