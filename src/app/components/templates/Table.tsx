@@ -2,13 +2,11 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
 //SVG
-import bluepencil from "@/svg/bluepencil.svg";
-import bluetrash from "@/svg/bluetrash.svg";
-import graytrash from "@/svg/graytrash.svg";
+import graytrash from "@/svg/crud/graytrash.svg";
 import Button from "../elements/static/Button";
-import adduserIcon from "@/svg/adduser.svg";
+import adduserIcon from "@/svg/user/adduser.svg";
 import SearchBar from "../elements/input/field/SearchBar";
-import arrowdownIcon from "@/svg/arrowdown.svg";
+import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
 
 interface Table {
   data: any[]; //ชุดข้อมูลที่ส่งมาให้ table ใช้
@@ -63,7 +61,7 @@ function Table({
       //ถ้ากด order ช่องเดิมซ้ำๆ
       setOrderState(!orderState); //สั่งให้ toggle boolean
     }
-    console.log(orderState);
+    //console.log(orderState);
   };
   useEffect(() => {
     setRenderData(() => orderByFunction(data, orderState, orderType))
@@ -145,7 +143,7 @@ function Table({
                       src={arrowdownIcon}
                       alt="arrowicon"
                       style={{
-                        transform: `rotate(${orderState ? "180deg" : "0deg"})`,
+                        transform: `rotate(${orderState ? "0deg" : "180deg"})`,
                       }}
                     />
                   ) : null}

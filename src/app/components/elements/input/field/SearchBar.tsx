@@ -1,7 +1,7 @@
 import React from 'react'
 
 //SVG
-import searchicon from '@/svg/searchicon.svg';
+import searchicon from '@/svg/crud/searchicon.svg';
 
 import Image from 'next/image';
 

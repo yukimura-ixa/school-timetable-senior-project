@@ -2,7 +2,7 @@ import { hexToRGB } from "@/app/functions/componentFunctions";
 import React, { useState } from "react";
 
 //SVG
-import closeicon from "@/svg/closeicon.svg";
+import closeicon from "@/svg/crud/closeicon.svg";
 import Image from "next/image";
 
 interface MiniButton {

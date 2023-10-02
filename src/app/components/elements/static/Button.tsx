@@ -62,7 +62,7 @@ function Button({
         ถ้าไม่ส่งอะไรมา (default is false) หรือส่ง false ผ่าน prop ปุ่มจะกดได้ปกติ
        */}
       {disabled ? (
-        <div
+        <button
           className={`flex items-center justify-center p-3 rounded ${
             disabled ? null : "cursor-pointer"
           } select-none`}
@@ -76,9 +76,9 @@ function Button({
               <p className="text-sm">{title}</p>
             )}
           </div>
-        </div>
+        </button>
       ) : (
-        <div
+        <button
           className={`flex items-center justify-center px-[15px] py-[10px] rounded ${
             disabled ? null : "cursor-pointer duration-300"
           } select-none`}
@@ -95,7 +95,7 @@ function Button({
               <p className="text-sm">{title}</p>
             )}
           </div>
-        </div>
+        </button>
       )}
     </>
   );

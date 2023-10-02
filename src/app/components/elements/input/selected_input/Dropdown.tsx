@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 //SVG Icon
-import arrowdownIcon from "@/svg/arrowdown.svg";
+import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
 //Image Next
 import Image from "next/image";
 import SearchBar from "@/app/components/elements/input/field/SearchBar";
