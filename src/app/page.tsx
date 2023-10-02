@@ -13,6 +13,7 @@ import CheckBox from "./components/elements/input/selected_input/CheckBox";
 import Table from "./components/templates/Table";
 import Navbar from "./components/templates/Navbar";
 import Menubar from "./components/templates/Menubar";
+import NotFoundPage from "./pages/NotFoundPage";
 export default function Home() {
   const [text, setText] = useState("");
   const [selectedName, setSelectedName] = useState();
@@ -149,6 +150,7 @@ export default function Home() {
             <Navbar />
       </div>
       <Menubar />
+      <NotFoundPage />
       <div className="mb-32 grid text-center gap-10 lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
         <p>{selectedName} was selected.</p>
         <p>{text} was typed.</p>
