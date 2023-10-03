@@ -1,3 +1,4 @@
+"use client"
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
@@ -64,7 +65,7 @@ function Table({
     //console.log(orderState);
   };
   useEffect(() => {
-    setRenderData(() => orderByFunction(data, orderState, orderType))
+    setRenderData(() => orderByFunction(renderData.length == 0 ? data : renderData, orderState, orderType))
   }, [orderType, orderState])
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox 
   const removeMultiData = () => {

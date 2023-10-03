@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 
 //Import functions
-import { hexToRGB } from "@/app/functions/componentFunctions";
+import { hexToRGB } from "@/functions/componentFunctions";
 
 // ใช้กับ props ที่รับมาให้ component
 interface ButtonData {
