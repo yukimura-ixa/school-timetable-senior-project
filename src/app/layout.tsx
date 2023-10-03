@@ -1,10 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Kanit } from "next/font/google";
 import Navbar from "@/components/templates/Navbar";
 import Menubar from "@/components/templates/Menubar";
 
-const inter = Inter({ subsets: ["latin"] });
+// const inter = Inter({ subsets: ["latin"] });
+const kanit = Kanit({ subsets: ['thai'], weight : '300' });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`overflow-scroll xl:overflow-x-hidden ${inter.className}`}>
+      <body className={`overflow-scroll xl:overflow-x-hidden ${kanit.className}`}>
         <Navbar />
         <div className="flex justify-center w-[1280px] xl:w-full h-auto">
           <Menubar />

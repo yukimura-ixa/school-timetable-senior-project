@@ -11,7 +11,7 @@ const TeacherManage = (props: Props) => {
         className="font-bold px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
       >
-        {data.id}
+        {data.TeacherID}
       </td>
       <td
         className="px-6 whitespace-nowrap select-none"
@@ -35,9 +35,9 @@ const TeacherManage = (props: Props) => {
   )
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){
-      case 'id':
+      case 'TeacherID':
         console.log(orderType);
-        return data.sort((a, b) => orderState? a.id - b.id : b.id - a.id)
+        return data.sort((a, b) => orderState? a.TeacherID - b.TeacherID : b.TeacherID - a.TeacherID)
       case 'FirstName':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.FirstName.toLowerCase().localeCompare(b.FirstName) : b.FirstName.toLowerCase().localeCompare(a.FirstName))
@@ -49,14 +49,14 @@ const TeacherManage = (props: Props) => {
         return data.sort((a, b) => orderState? a.Department.toLowerCase().localeCompare(b.Department) : b.Department.toLowerCase().localeCompare(a.Department))
       default:
         console.log('else')
-        return data.sort((a, b) => a.id - b.id)
+        return data.sort((a, b) => a.TeacherID - b.TeacherID)
     }
   }
   return (
     <>
       <Table
         data={teacherData}
-        tableHead={["id", "FirstName", "LastName", "Department"]}
+        tableHead={["TeacherID", "FirstName", "LastName", "Department"]}
         tableData={tableData}
         orderByFunction={sortData}
       />

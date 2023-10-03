@@ -13,39 +13,46 @@ export const managementMenu = [
     {
         id : "teachertable",
         icon : usericon,
-        title : "ข้อมูลรายชื่อครู"
+        title : "ข้อมูลรายชื่อครู",
+        link : "/management/teacher"
     },
     {
         id : "subjecttable",
         icon : book,
-        title : "ข้อมูลรายวิชา"
+        title : "ข้อมูลรายวิชา",
+        link : "/management/subject"
     },
     {
         id : "roomtable",
         icon : mapicon,
-        title : "ข้อมูลสถานที่เรียน"
+        title : "ข้อมูลสถานที่เรียน",
+        link : "/management/rooms"
     },
     {
         id : "gradeleveltable",
         icon : gradhat,
-        title : "ข้อมูลชั้นเรียน"
+        title : "ข้อมูลชั้นเรียน",
+        link : "/management/gradelevel"
     }
 ]
 export const scheduleMenu = [
     {
         id : "timetableconfig",
         icon : tablesetting,
-        title : "ตั้งค่าตารางสอน"
+        title : "ตั้งค่าตารางสอน",
+        semester : 2,
     },
     {
         id : "arrangetimetable",
         icon : calandar,
-        title : "จัดตารางสอน"
+        title : "จัดตารางสอน",
+        semester : 2,
     },
     {
         id : "showtimetable",
         icon : table,
-        title : "แสดงตารางสอน"
+        title : "แสดงตารางสอน",
+        semester : 2,
     },
 ]
 export const othersMenu = [

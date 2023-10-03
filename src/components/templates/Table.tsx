@@ -101,7 +101,7 @@ function Table({
             </p>
           </div>
           <Button
-            title="Add user"
+            title="เพิ่ม"
             icon={adduserIcon}
             buttonColor="#2F80ED"
             height={"100%"}
