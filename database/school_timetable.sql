@@ -37,6 +37,7 @@ CREATE TABLE `gradelevel` (
 
 LOCK TABLES `gradelevel` WRITE;
 /*!40000 ALTER TABLE `gradelevel` DISABLE KEYS */;
+INSERT INTO `gradelevel` VALUES ('101',1,1,'regular'),('102',1,2,'regular'),('103',1,3,'regular'),('201',2,1,'regular'),('202',2,2,'regular'),('203',2,3,'regular'),('301',3,1,'regular'),('302',3,2,'regular'),('303',3,3,'regular'),('401',4,1,'scimath'),('402',4,2,'scimath'),('501',5,1,'scimath'),('502',5,2,'scimath'),('601',6,1,'scimath'),('602',6,2,'scimath');
 /*!40000 ALTER TABLE `gradelevel` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -50,8 +51,8 @@ DROP TABLE IF EXISTS `room`;
 CREATE TABLE `room` (
   `RoomID` varchar(100) NOT NULL,
   `RoomName` varchar(100) NOT NULL,
-  `Building` varchar(100) NOT NULL,
-  `Floor` varchar(100) DEFAULT NULL,
+  `Building` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '-',
+  `Floor` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '-',
   PRIMARY KEY (`RoomID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -62,6 +63,7 @@ CREATE TABLE `room` (
 
 LOCK TABLES `room` WRITE;
 /*!40000 ALTER TABLE `room` DISABLE KEYS */;
+INSERT INTO `room` VALUES ('1','สนามกีฬา','-',NULL),('10','คอม 1','-',NULL),('2','ห้องนาฎศิลป์','-',NULL),('3','322','-',NULL),('4','323','-',NULL),('5','324','-',NULL),('6','325','-',NULL),('7','332','-',NULL),('8','334','-',NULL),('9','335','-',NULL);
 /*!40000 ALTER TABLE `room` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -98,12 +100,13 @@ DROP TABLE IF EXISTS `teacher`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `teacher` (
-  `TeacherID` varchar(100) NOT NULL,
+  `TeacherID` int NOT NULL AUTO_INCREMENT,
+  `Title` enum('นาย','นาง','นางสาว') NOT NULL,
   `FirstName` varchar(100) NOT NULL,
   `LastName` varchar(100) NOT NULL,
-  `Department` varchar(100) NOT NULL,
+  `Department` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '-',
   PRIMARY KEY (`TeacherID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -112,7 +115,33 @@ CREATE TABLE `teacher` (
 
 LOCK TABLES `teacher` WRITE;
 /*!40000 ALTER TABLE `teacher` DISABLE KEYS */;
+INSERT INTO `teacher` VALUES (1,'นาย','พูลศักดิ์','พ่อบุตรดี','-'),(2,'นาง','พัชรีรัตน์','โวเบ้า','-'),(3,'นาง','สุภาพรณ์','วงศ์ทรรศนกุล','-'),(4,'นาง','รุ่งราตรี','ธรรมดวงศรี','-'),(5,'นาง','วรารักษ์','สังกาชาติ','-'),(6,'นาง','มิตรศิลป์','คณาบุตร','-'),(7,'นาง','นงค์รักษ์','พ่อบุตรดี','-'),(8,'นางสาว','สุอาภา','วรคันทักษ์','-'),(9,'นาง','อนัญญา','คูสกุล','-'),(10,'นาง','ชนัดดา','ตาสำโรง','-');
 /*!40000 ALTER TABLE `teacher` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `teachersubject`
+--
+
+DROP TABLE IF EXISTS `teachersubject`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `teachersubject` (
+  `TeacherID` varchar(100) NOT NULL,
+  `SubjectID` varchar(100) NOT NULL,
+  `Semester` enum('1','2') NOT NULL,
+  `AcademicYear` year NOT NULL,
+  `TeachHour` int NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `teachersubject`
+--
+
+LOCK TABLES `teachersubject` WRITE;
+/*!40000 ALTER TABLE `teachersubject` DISABLE KEYS */;
+/*!40000 ALTER TABLE `teachersubject` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -150,4 +179,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-10-02 15:55:32
+-- Dump completed on 2023-10-04  0:01:23
