@@ -41,29 +41,34 @@ export const scheduleMenu = [
         icon : tablesetting,
         title : "ตั้งค่าตารางสอน",
         semester : 2,
+        link : "/schedule/tableconfig"
     },
     {
         id : "arrangetimetable",
         icon : calandar,
         title : "จัดตารางสอน",
         semester : 2,
+        link : "/schedule/timeslot"
     },
     {
         id : "showtimetable",
         icon : table,
         title : "แสดงตารางสอน",
         semester : 2,
+        link : "/schedule/display_timetable"
     },
 ]
 export const othersMenu = [
     {
         id : "printtimetable",
         icon : printericon,
-        title : "ปรินท์ตารางสอน"
+        title : "ปรินท์ตารางสอน",
+        link : "/others/print"
     },
     {
         id : "timetable-docs",
         icon : infoicon,
-        title : "คู่มือการใช้งาน"
+        title : "คู่มือการใช้งาน",
+        link : "others/docs"
     },
 ]
