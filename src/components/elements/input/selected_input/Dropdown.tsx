@@ -113,7 +113,7 @@ function Dropdown({
         <>
           {data.map((item: any, index: number) => {
             return (
-              <div
+              <ul
                 className={`
                     w-[100%]
                     bg-white
@@ -131,7 +131,7 @@ function Dropdown({
               >
                 {/* Component ที่ส่งมาให้ใช้งาน รับ props เป็น data */}
                 <ItemElement data={item} />
-              </div>
+              </ul>
             );
           })}
         </>

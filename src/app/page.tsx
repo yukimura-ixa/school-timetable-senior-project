@@ -120,9 +120,9 @@ export default function Home() {
 
   //Render Dropdown Test
   const renderItem = ({ data }): JSX.Element => (
-    <p>
+    <li>
       {data.fName} {data.lName}
-    </p>
+    </li>
   );
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){

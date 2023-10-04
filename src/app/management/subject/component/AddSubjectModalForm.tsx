@@ -80,7 +80,7 @@ function AddSubjectModalForm({ closeModal, addData }: props) {
                         <div className='flex flex-col w-full gap-3'>
                             <p className='text-sm font-bold'>เลือกกลุ่มสาระ (Category) :</p>
                             <Dropdown
-                                data={["คณิตศาสตร์", "วิทยาศาสตร์", "ภาษาไทย", "สุขศึกษาและพลศึกษา"]}
+                                data={["คณิตศาสตร์", "วิทยาศาสตร์", "ภาษาไทย", "สุขศึกษาและพลศึกษา", "การงานอาชีพและเทคโนโลยี", "ศิลปะ", "สังคมศึกษาฯ"]}
                                 renderItem={
                                     ({ data }): JSX.Element => (
                                         <p>

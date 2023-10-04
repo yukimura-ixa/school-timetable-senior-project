@@ -76,6 +76,7 @@ function Table({
     setRenderData(() => renderData.filter((item, index) => !checkedList.includes(index)));
     setCheckedList(() => []);
   };
+  //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data:any) => {
     setRenderData(() => [...renderData, data])
   }
