@@ -56,7 +56,7 @@ const SubjectManage = (props: Props) => {
     <>
       <Table
         data={subjectData}
-        tableHead={["SubjectID", "SubjectName", "Credit", "Category"]}
+        tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "กลุ่มสาระ"]}
         tableData={tableData}
         orderByFunction={sortData}
       />

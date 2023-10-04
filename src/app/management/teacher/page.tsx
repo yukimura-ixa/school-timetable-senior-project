@@ -56,7 +56,7 @@ const TeacherManage = (props: Props) => {
     <>
       <TeacherTable
         data={teacherData}
-        tableHead={["TeacherID", "FirstName", "LastName", "Department"]}
+        tableHead={["รหัสประจำตัว", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
         tableData={tableData}
         orderByFunction={sortData}
       />

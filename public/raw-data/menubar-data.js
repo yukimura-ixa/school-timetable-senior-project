@@ -62,7 +62,7 @@ export const othersMenu = [
     {
         id : "printtimetable",
         icon : printericon,
-        title : "ปรินท์ตารางสอน",
+        title : "พิมพ์ตารางสอน",
         link : "/others/print"
     },
     {
