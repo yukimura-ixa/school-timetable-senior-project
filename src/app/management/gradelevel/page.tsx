@@ -54,12 +54,12 @@ const GradeLevelManage = (props: Props) => {
   }
   return (
     <>
-      <Table
+      {/* <Table
         data={gradeLevelData}
         tableHead={["GradeLevelID", "Year", "Number", "Program"]}
         tableData={tableData}
         orderByFunction={sortData}
-      />
+      /> */}
     </>
   );
 }

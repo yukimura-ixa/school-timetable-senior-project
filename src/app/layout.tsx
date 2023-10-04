@@ -21,13 +21,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`overflow-scroll xl:overflow-x-hidden ${kanit.className}`}>
         <Navbar />
-        <div className="flex justify-center w-[1280px] xl:w-full h-auto">
+        <main className="flex justify-center w-[1280px] xl:w-full h-auto">
           <Menubar />
           {/* Content */}
-          <div className="w-[1190px] h-auto px-16 py-8">
+          <span className="w-[1190px] h-auto px-16 py-8">
             {children}
-          </div>
-        </div>
+          </span>
+        </main>
       </body>
     </html>
   );

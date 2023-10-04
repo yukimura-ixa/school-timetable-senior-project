@@ -4,34 +4,37 @@ import React, { useState, useEffect } from "react";
 
 //SVG
 import graytrash from "@/svg/crud/graytrash.svg";
-import Button from "../elements/static/Button";
+import Button from "@/components/elements/static/Button";
 import adduserIcon from "@/svg/user/adduser.svg";
-import SearchBar from "../elements/input/field/SearchBar";
+import SearchBar from "@/components/elements/input/field/SearchBar";
 import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
 import addicon from '@/svg/crud/addicon.svg';
 import pencilicon from '@/svg/crud/pencilicon.svg';
+//comp
+import AddSubjectModalForm from "@/app/management/subject/component/AddSubjectModalForm";
 interface Table {
   data: any[]; //ชุดข้อมูลที่ส่งมาให้ table ใช้
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Function;
   orderByFunction: Function;
 }
-function Table({
+function SubjectTable({
   data,
   tableHead,
   tableData: TableData,
   orderByFunction,
 }: Table): JSX.Element {
+  const [modalActive, setModalActive] = useState<boolean>(false);
   const [renderData, setRenderData] = useState([]);
   const [checkedList, setCheckedList] = useState([]); //เก็บค่าของ checkbox
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
-        //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => renderData.map((item, index) => index))
+      //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
+      setCheckedList(() => renderData.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
-        setCheckedList(() => []);
+      setCheckedList(() => []);
   };
   const ClickToSelect = (index: number) => {
     //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม index ลงไปใน checkList
@@ -40,10 +43,10 @@ function Table({
       //ขยาย...เพราะเราต้องติ๊กเข้าติ๊กออก ต้อง toggle ค่า
       checkedList.includes(index) //คำสั่ง includes return เป็น boolean
         ? //เมื่อเป็นจริง (มีการติ๊กในแถวนั้นๆมาก่อนแล้ว แล้วกดติ๊กซ้ำ)
-          //ทำการวาง array ทับโดยการ filter index นั้นออกไป
-          checkedList.filter((item) => item != index)
+        //ทำการวาง array ทับโดยการ filter index นั้นออกไป
+        checkedList.filter((item) => item != index)
         : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม index ที่ติ๊กเข้าไป
-          [...checkedList, index]
+        [...checkedList, index]
     );
   };
   useEffect(() => {
@@ -73,8 +76,12 @@ function Table({
     setRenderData(() => renderData.filter((item, index) => !checkedList.includes(index)));
     setCheckedList(() => []);
   };
+  const addData = (data:any) => {
+    setRenderData(() => [...renderData, data])
+  }
   return (
     <>
+      {modalActive ? <AddSubjectModalForm closeModal={() => setModalActive(false)} addData={addData}/> : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
         <div className="flex gap-3">
           {/* แสดงจำนวน checkbox ที่เลือก */}
@@ -86,7 +93,7 @@ function Table({
                 </p>
               </div>
               <div
-                onClick={() => {}}
+                onClick={() => { }}
                 className="flex w-fit items-center p-3 gap-3 h-full border rounded-lg border-gray-300 bg-white hover:bg-gray-200 hover:border-gray-200 duration-300 cursor-pointer select-none"
               >
                 <Image src={pencilicon} alt="graytrashicon" />
@@ -114,6 +121,7 @@ function Table({
             icon={addicon}
             buttonColor="#2F80ED"
             height={"100%"}
+            handleClick={() => setModalActive(true)}
           />
         </div>
       </div>
@@ -142,7 +150,7 @@ function Table({
               <th
                 className="text-left px-6 select-none cursor-pointer"
                 key={item}
-                onClick={() => {toggleOrdered(index, item)}}
+                onClick={() => { toggleOrdered(index, item) }}
               >
                 <div className="flex gap-1">
                   <p className="">{item}</p>
@@ -184,6 +192,7 @@ function Table({
                 data={item}
                 handleChange={ClickToSelect}
                 index={index}
+                key={item}
               />
             </tr>
           ))}
@@ -193,4 +202,4 @@ function Table({
   );
 }
 
-export default Table;
+export default SubjectTable;

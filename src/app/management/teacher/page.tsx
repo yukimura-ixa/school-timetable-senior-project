@@ -1,7 +1,7 @@
 "use client"
-import React from "react";
-import Table from "@/components/templates/Table";
+import React, {useState} from "react";
 import {teacherData} from '@/raw-data/teacher-table';
+import TeacherTable from "@/app/management/teacher/component/TeacherTable";
 type Props = {};
 
 const TeacherManage = (props: Props) => {
@@ -54,7 +54,7 @@ const TeacherManage = (props: Props) => {
   }
   return (
     <>
-      <Table
+      <TeacherTable
         data={teacherData}
         tableHead={["TeacherID", "FirstName", "LastName", "Department"]}
         tableData={tableData}

@@ -54,12 +54,12 @@ const RoomsManage = (props: Props) => {
   }
   return (
     <>
-      <Table
+      {/* <Table
         data={roomsData}
         tableHead={["RoomID", "RoomName", "Building", "Floor"]}
         tableData={tableData}
         orderByFunction={sortData}
-      />
+      /> */}
     </>
   );
 };

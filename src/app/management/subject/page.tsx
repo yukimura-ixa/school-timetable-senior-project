@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 import {subjectData} from '@/raw-data/subject-table';
-import Table from '@/components/templates/Table';
+import Table from '@/app/management/subject/component/SubjectTable';
 type Props = {}
 
 const SubjectManage = (props: Props) => {
