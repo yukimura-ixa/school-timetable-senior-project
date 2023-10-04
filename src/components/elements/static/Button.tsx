@@ -87,7 +87,7 @@ function Button({
           onMouseEnter={() => setIsHover(true)}
           onMouseLeave={() => setIsHover(false)}
         >
-          <div className="flex gap-[10px]">
+          <div className="flex gap-[10px] items-center">
             {icon === "" ? null : <Image src={icon} alt="icon" />}
             {title === "" ? (
               <p className="text-sm">Button</p>

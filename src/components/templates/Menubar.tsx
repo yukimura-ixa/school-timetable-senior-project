@@ -9,11 +9,11 @@ import {
 } from "@/raw-data/menubar-data";
 import arrow from "@/svg/arrow/arrowdown.svg";
 function Menubar() {
-  const [indexPoint, setIndexPoint] = useState(-1);
-  const [isOpen, setIsOpen] = useState(false);
+  const [indexPoint, setIndexPoint] = useState<number>(-1);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   return (
     <>
-      <div className="flex flex-col gap-8 w-[250px] h-screen px-5 py-8 bg-[#F1F3F9]">
+      <aside className="flex flex-col gap-8 w-[250px] h-screen px-5 py-8 bg-[#F1F3F9]">
         {/* management */}
         <div className="flex flex-col w-full h-fit border-b border-[#C8C9CD]">
           <p className="text-[#676E85] mb-2">การจัดการข้อมูล</p>
@@ -88,7 +88,7 @@ function Menubar() {
             </React.Fragment>
           ))}
         </div>
-      </div>
+      </aside>
     </>
   );
 }

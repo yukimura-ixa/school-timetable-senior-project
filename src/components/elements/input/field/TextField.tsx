@@ -24,9 +24,9 @@ function TextField({
   };
   return (
     <div className="flex flex-col text-left gap-2">
-      <label className="font-medium">{label}</label>
+      <label className="text-sm font-bold">{label}</label>
       <input
-        className="rounded text-field px-[15px] py-[10px]"
+        className="rounded text-field px-[15px] py-[10px] text-sm placeholder:text-sm"
         type='text'
         style={textFieldStyleProperty}
         placeholder={placeHolder}
