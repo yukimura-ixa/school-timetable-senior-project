@@ -24,9 +24,6 @@ function AddSubjectModalForm({ closeModal, addData }: props) {
     const handleChangeCredit = (event: any) => {
         setCredit(() => event.target.value)
     }
-    const handleChangeCategory = (event: any) => {
-        setCategory(() => event.target.value)
-    }
     const handleSubmit = () => {
         type subject = {
             SubjectID: string;
