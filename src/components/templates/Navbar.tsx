@@ -7,7 +7,7 @@ import profilepic from "@/svg/profilepic.svg";
 function Navbar() {
   return (
     <>
-      <nav className="flex w-[1280px] xl:w-full justify-center">
+      <nav className="flex w-[1280px] xl:w-full justify-center border-b">
         <div className="flex w-full xl:w-[1440px] h-full justify-between bg-white px-3 py-3">
           {/* Leftside */}
           <span className="flex w-fit justify-between items-center gap-10">
@@ -15,14 +15,14 @@ function Navbar() {
               ระบบจัดตารางเรียนตารางสอน
             </h1>
             <ul className="flex w-fit justify-between gap-5">
-              <li className="hover:bg-slate-100 p-2 rounded-xl duration-300">
+              <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
                 <Link href={'/'}>
-                  <p className="text-md cursor-pointer">เมนูทั้งหมด</p>
+                  <p className="text-md">เมนูทั้งหมด</p>
                 </Link>
               </li>
-              <li className="hover:bg-slate-100 p-2 rounded-xl duration-300">
+              <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
                 <Link href={'/'}>
-                  <p className="text-md cursor-pointer">แดชบอร์ด</p>
+                  <p className="text-md">แดชบอร์ด</p>
                 </Link>
               </li>
             </ul>

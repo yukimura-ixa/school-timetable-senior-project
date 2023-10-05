@@ -7,6 +7,7 @@ interface TextField {
   disabled: boolean;
   label: string;
   handleChange;
+  value: string;
 }
 function TextField({
   width = "auto",
@@ -15,6 +16,7 @@ function TextField({
   disabled = false,
   label,
   handleChange,
+  value
 }: TextField): JSX.Element {
   const textFieldStyleProperty: object = {
     width: width,
@@ -32,6 +34,7 @@ function TextField({
         placeholder={placeHolder}
         onChange={handleChange}
         disabled={disabled}
+        value={value}
       />
     </div>
   );

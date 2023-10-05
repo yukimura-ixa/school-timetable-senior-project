@@ -1,7 +1,6 @@
 "use client"
 import React from 'react'
 import {roomsData} from '@/raw-data/rooms-table';
-import Table from '@/components/templates/Table';
 type Props = {}
 
 const RoomsManage = (props: Props) => {

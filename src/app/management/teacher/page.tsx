@@ -6,7 +6,7 @@ type Props = {};
 
 const TeacherManage = (props: Props) => {
   const tableData = ({ data, handleChange, index }) => (
-    <>
+    <React.Fragment>
       <td
         className="font-bold px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
@@ -31,24 +31,23 @@ const TeacherManage = (props: Props) => {
       >
         {data.Department}
       </td>
-    </>
+    </React.Fragment>
   )
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){
-      case 'TeacherID':
+      case 'รหัสประจำตัว':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.TeacherID - b.TeacherID : b.TeacherID - a.TeacherID)
-      case 'FirstName':
+      case 'ชื่อ':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.FirstName.toLowerCase().localeCompare(b.FirstName) : b.FirstName.toLowerCase().localeCompare(a.FirstName))
-      case 'LastName':
+      case 'นามสกุล':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.LastName.toLowerCase().localeCompare(b.LastName) : b.LastName.toLowerCase().localeCompare(a.LastName))
-      case 'Department':
+      case 'กลุ่มสาระ':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.Department.toLowerCase().localeCompare(b.Department) : b.Department.toLowerCase().localeCompare(a.Department))
       default:
-        console.log('else')
         return data.sort((a, b) => a.TeacherID - b.TeacherID)
     }
   }

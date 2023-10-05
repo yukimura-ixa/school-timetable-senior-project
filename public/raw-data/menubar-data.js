@@ -81,6 +81,6 @@ export const othersMenu = [
             Icon : AiFillInfoCircle,
         },
         title : "คู่มือการใช้งาน",
-        link : "others/docs"
+        link : "/others/docs"
     },
 ]
