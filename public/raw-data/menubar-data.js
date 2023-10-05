@@ -1,36 +1,38 @@
-import usericon from '@/svg/user/usericon.svg';
-import book from '@/svg/edu/book.svg';
-import gradhat from '@/svg/edu/gradhat.svg';
-import mapicon from '@/svg/map.svg';
-
-import tablesetting from '@/svg/table/tablesitting.svg';
-import calandar from '@/svg/table/calendar.svg';
-import table from '@/svg/table/table.svg';
-
-import printericon from '@/svg/doc/printericon.svg';
-import infoicon from '@/svg/infoicon.svg';
+import { BiSolidBook, BiSolidUser, BiSolidFileFind } from 'react-icons/bi';
+import { BsTable } from 'react-icons/bs'
+import { SiGoogleclassroom } from 'react-icons/si';
+import { AiFillSetting, AiFillPrinter, AiFillInfoCircle } from 'react-icons/ai'
+import { HiAcademicCap } from 'react-icons/hi2';
 export const managementMenu = [
     {
         id : "teachertable",
-        icon : usericon,
+        IconStyle : {
+            Icon : BiSolidUser,
+        },
         title : "ข้อมูลรายชื่อครู",
         link : "/management/teacher"
     },
     {
         id : "subjecttable",
-        icon : book,
+        IconStyle : {
+            Icon : BiSolidBook,
+        },
         title : "ข้อมูลรายวิชา",
         link : "/management/subject"
     },
     {
         id : "roomtable",
-        icon : mapicon,
+        IconStyle : {
+            Icon : SiGoogleclassroom,
+        },
         title : "ข้อมูลสถานที่เรียน",
         link : "/management/rooms"
     },
     {
         id : "gradeleveltable",
-        icon : gradhat,
+        IconStyle : {
+            Icon : HiAcademicCap,
+        },
         title : "ข้อมูลชั้นเรียน",
         link : "/management/gradelevel"
     }
@@ -38,21 +40,27 @@ export const managementMenu = [
 export const scheduleMenu = [
     {
         id : "timetableconfig",
-        icon : tablesetting,
+        IconStyle : {
+            Icon : AiFillSetting,
+        },
         title : "ตั้งค่าตารางสอน",
         semester : 2,
         link : "/schedule/tableconfig"
     },
     {
         id : "arrangetimetable",
-        icon : calandar,
+        IconStyle : {
+            Icon : BsTable,
+        },
         title : "จัดตารางสอน",
         semester : 2,
         link : "/schedule/timeslot"
     },
     {
         id : "showtimetable",
-        icon : table,
+        IconStyle : {
+            Icon : BiSolidFileFind,
+        },
         title : "แสดงตารางสอน",
         semester : 2,
         link : "/schedule/display_timetable"
@@ -61,13 +69,17 @@ export const scheduleMenu = [
 export const othersMenu = [
     {
         id : "printtimetable",
-        icon : printericon,
+        IconStyle : {
+            Icon : AiFillPrinter,
+        },
         title : "พิมพ์ตารางสอน",
         link : "/others/print"
     },
     {
         id : "timetable-docs",
-        icon : infoicon,
+        IconStyle : {
+            Icon : AiFillInfoCircle,
+        },
         title : "คู่มือการใช้งาน",
         link : "others/docs"
     },

@@ -1,18 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import Button from "./components/elements/static/Button";
 // Svg icon
 import adduserIcon from "@/svg/user/adduser.svg";
 // component
-import TextField from "@/app/components/elements/input/field/TextField";
-import Dropdown from "@/app/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
-import Table from "@/components/templates/Table";
 import Navbar from "@/components/templates/Navbar";
 import Menubar from "@/components/templates/Menubar";
-import NotFoundPage from "@/pages/NotFoundPage";
 export default function Home() {
   const [text, setText] = useState("");
   const [selectedName, setSelectedName] = useState();

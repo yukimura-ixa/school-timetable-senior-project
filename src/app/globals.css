@@ -15,3 +15,20 @@
 .text-field::placeholder{
   font-size: 14px;
 }
+
+/* เอาไว้เปลี่ยน fill ของ icon */
+.hoverfill:hover > .iconhover {
+  fill : white
+}
+/* ตั้งชื่อ class มั่วไปหน่อย เอาไว้ selector เปลี่ยนสี element ลึกๆซักอันของ menubar */
+.texthover:hover > div > span > .changetext{
+  color: white;
+  fill: white
+}
+.texthover:hover > div > .changetext{
+  color: white;
+  fill: white
+}
+.semester-text:hover > p {
+  color: white;
+}

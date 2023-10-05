@@ -3,9 +3,8 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
 //SVG
-import graytrash from "@/svg/crud/graytrash.svg";
+import redtrash from "@/svg/crud/redtrash.svg";
 import Button from "@/components/elements/static/Button";
-import adduserIcon from "@/svg/user/adduser.svg";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
 import addicon from '@/svg/crud/addicon.svg';
@@ -88,24 +87,24 @@ function Table({
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div className="flex w-fit h-full items-center p-3 bg-red-100 rounded-lg text-center select-none">
-                <p className="text-red-500 text-sm">
+              <div className="flex w-fit h-full items-center p-3 bg-cyan-100 hover:bg-cyan-200 duration-300 rounded-lg text-center select-none">
+                <p className="text-cyan-500 text-sm">
                   {checkedList.length === renderData.length ? `เลือกท้ังหมด (${checkedList.length})` : `เลือก (${checkedList.length})`}
                 </p>
               </div>
               <div
                 onClick={() => { }}
-                className="flex w-fit items-center p-3 gap-3 h-full border rounded-lg border-gray-300 bg-white hover:bg-gray-200 hover:border-gray-200 duration-300 cursor-pointer select-none"
+                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-yellow-100 hover:bg-yellow-200 duration-300 cursor-pointer select-none"
               >
                 <Image src={pencilicon} alt="graytrashicon" />
-                <p className="text-sm">แก้ไข</p>
+                <p className="text-sm text-yellow-700">แก้ไข</p>
               </div>
               <div
                 onClick={() => removeMultiData()}
-                className="flex w-fit items-center p-3 gap-3 h-full border rounded-lg border-gray-300 bg-white hover:bg-gray-200 hover:border-gray-200 duration-300 cursor-pointer select-none"
+                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 hover:bg-red-200 duration-300 cursor-pointer select-none"
               >
-                <Image src={graytrash} alt="graytrashicon" />
-                <p className="text-sm">ลบ</p>
+                <Image src={redtrash} alt="graytrashicon" />
+                <p className="text-sm text-red-500">ลบ</p>
               </div>
             </>
           )}
