@@ -1,31 +1,34 @@
 "use client"
-import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
-//SVG
-import redtrash from "@/svg/crud/redtrash.svg";
-import Button from "@/components/elements/static/Button";
-import SearchBar from "@/components/elements/input/field/SearchBar";
-import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
-import addicon from '@/svg/crud/addicon.svg';
-import pencilicon from '@/svg/crud/pencilicon.svg';
+//ICON
+import { IoIosArrowDown } from 'react-icons/io'
+import { MdModeEditOutline } from 'react-icons/md';
+import { BiSolidTrashAlt } from 'react-icons/bi';
+import { BsCheckLg } from 'react-icons/bs';
 //comp
-import AddSubjectModalForm from "@/app/management/subject/component/AddSubjectModalForm";
+import AddModalForm from "@/app/management/subject/component/AddModalForm";
+// import Button from "@/components/elements/static/Button";
+import SearchBar from "@/components/elements/input/field/SearchBar";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import EditModalForm from "./EditModalForm";
 interface Table {
   data: any[]; //ชุดข้อมูลที่ส่งมาให้ table ใช้
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Function;
   orderByFunction: Function;
 }
-function SubjectTable({
+function Table({
   data,
   tableHead,
   tableData: TableData,
   orderByFunction,
 }: Table): JSX.Element {
-  const [modalActive, setModalActive] = useState<boolean>(false);
+  const [AddModalActive, setAddModalActive] = useState<boolean>(false);
+  const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
+  const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [renderData, setRenderData] = useState([]);
-  const [checkedList, setCheckedList] = useState([]); //เก็บค่าของ checkbox
+  const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
@@ -75,34 +78,51 @@ function SubjectTable({
     setRenderData(() => renderData.filter((item, index) => !checkedList.includes(index)));
     setCheckedList(() => []);
   };
+  //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data:any) => {
     setRenderData(() => [...renderData, data])
   }
+  const editMultiData = (data: any) => {
+    //copy array มาก่อน
+    let dataCopy = [...renderData]
+    //loop ข้อมูลเฉพาะตัวที่แก้ไข
+    for(let i=0;i<checkedList.length;i++){
+      //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
+      dataCopy.splice(checkedList[i], 1, data[i])
+    }
+    //วาง array ทับลงไปใหม่
+    setRenderData(() => [...dataCopy]);
+    //clear checkbox
+    setCheckedList(() => []);
+  }
   return (
     <>
-      {modalActive ? <AddSubjectModalForm closeModal={() => setModalActive(false)} addData={addData}/> : null}
+      {AddModalActive ? <AddModalForm closeModal={() => setAddModalActive(false)} addData={addData}/> : null}
+      {deleteModalActive ? <ConfirmDeleteModal closeModal={() => setDeleteModalActive(false)} deleteData={removeMultiData} dataAmount={checkedList.length}/> : null}
+      {editModalActive ? <EditModalForm closeModal={() => setEditModalActive(false)} conFirmEdit={editMultiData} data={renderData.filter((item, index) => checkedList.includes(index))}/> : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
         <div className="flex gap-3">
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div className="flex w-fit h-full items-center p-3 bg-cyan-100 rounded-lg text-center select-none">
+              <div className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 duration-300 rounded-lg text-center select-none">
+                <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
                   {checkedList.length === renderData.length ? `เลือกท้ังหมด (${checkedList.length})` : `เลือก (${checkedList.length})`}
                 </p>
               </div>
               <div
-                onClick={() => { }}
-                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-yellow-100 hover:border-gray-200 duration-300 cursor-pointer select-none"
+                onClick={() => setEditModalActive(true)}
+                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-yellow-100 hover:bg-yellow-200 duration-300 cursor-pointer select-none"
               >
-                <Image src={pencilicon} alt="graytrashicon" />
+                <MdModeEditOutline className="fill-yellow-700" />
                 <p className="text-sm text-yellow-700">แก้ไข</p>
               </div>
               <div
-                onClick={() => removeMultiData()}
-                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 duration-300 cursor-pointer select-none"
+                onClick={() => setDeleteModalActive(true)}
+                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 hover:bg-red-200 duration-300 cursor-pointer select-none"
               >
-                <Image src={redtrash} alt="graytrashicon" />
+                <BiSolidTrashAlt className="fill-red-500" />
                 <p className="text-sm text-red-500">ลบ</p>
               </div>
             </>
@@ -115,13 +135,14 @@ function SubjectTable({
               ทั้งหมด {renderData.length} รายการ
             </p>
           </div>
-          <Button
-            title="เพิ่ม"
-            icon={addicon}
+          {/* <Button
+            title="เพิ่มครู"
             buttonColor="#2F80ED"
+            width={100}
             height={"100%"}
             handleClick={() => setModalActive(true)}
-          />
+          /> */}
+          <button className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm" onClick={() => setAddModalActive(true)}>เพิ่มวิชา</button>
         </div>
       </div>
       {/* <div className="w-full flex-row-reverse flex h-[60px] py-[10px] pl-[15px]">
@@ -151,18 +172,14 @@ function SubjectTable({
                 key={item}
                 onClick={() => { toggleOrdered(index, item) }}
               >
-                <div className="flex gap-1">
+                <div className="flex gap-1 items-center">
                   <p className="">{item}</p>
                   {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
                   {orderedIndex == index ? (
-                    <Image
-                      className="duration-300"
-                      src={arrowdownIcon}
-                      alt="arrowicon"
-                      style={{
-                        transform: `rotate(${orderState ? "0deg" : "180deg"})`,
-                      }}
-                    />
+                    <IoIosArrowDown className={`fill-cyan-400 duration-500`}
+                    style={{
+                      transform: `rotate(${orderState ? "0deg" : "180deg"})`,
+                    }}/>
                   ) : null}
                 </div>
               </th>
@@ -172,7 +189,7 @@ function SubjectTable({
         <tbody className="text-sm">
           {renderData.map((item, index) => (
             <tr
-              className="relative h-[60px] border-b bg-[#FFF] hover:bg-[#EAF2FF] hover:text-[#3B8FEE] cursor-pointer"
+              className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
               key={item.id}
             >
               <th>
@@ -201,4 +218,4 @@ function SubjectTable({
   );
 }
 
-export default SubjectTable;
+export default Table;

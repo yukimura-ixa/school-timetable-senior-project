@@ -1,11 +1,12 @@
 import React from "react";
 
-interface TextField {
+interface NumberField {
   width: string | number;
   height: string | number;
   placeHolder: string;
   disabled: boolean;
   label: string;
+  value: number;
   handleChange;
 }
 function NumberField({
@@ -13,9 +14,10 @@ function NumberField({
   height = 'auto',
   placeHolder = "",
   disabled = false,
+  value,
   label,
   handleChange,
-}: TextField): JSX.Element {
+}: NumberField): JSX.Element {
   const numberFieldStyleProperty: object = {
     width: width,
     height: height,
@@ -32,6 +34,7 @@ function NumberField({
         placeholder={placeHolder}
         onChange={handleChange}
         disabled={disabled}
+        value={value}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import { MdModeEditOutline } from 'react-icons/md';
 import { BiSolidTrashAlt } from 'react-icons/bi';
 import { BsCheckLg } from 'react-icons/bs';
 //comp
-import AddModalForm from "@/app/management/teacher/component/AddModalForm";
+import AddModalForm from "@/app/management/rooms/component/AddModalForm";
 // import Button from "@/components/elements/static/Button";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
@@ -142,7 +142,7 @@ function Table({
             height={"100%"}
             handleClick={() => setModalActive(true)}
           /> */}
-          <button className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm" onClick={() => setAddModalActive(true)}>เพิ่มครู</button>
+          <button className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm" onClick={() => setAddModalActive(true)}>เพิ่มวิชา</button>
         </div>
       </div>
       {/* <div className="w-full flex-row-reverse flex h-[60px] py-[10px] pl-[15px]">

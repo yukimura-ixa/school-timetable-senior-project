@@ -1,4 +1,5 @@
 import TextField from "@/components/elements/input/field/TextField";
+import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
@@ -12,16 +13,20 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
   const [confirmText, setConfirmText] = useState<string>("");
   const [editData, setEditData] = useState<[]>(data);
 
-  const handleChangeFirstName = (value:string, index:number) => {
-    editData[index].FirstName = value
+  const handleChangeSubjectID = (value:string, index:number) => {
+    editData[index].SubjectID = value
     setEditData([...editData]);
   };
-  const handleChangeLastName = (value:string, index:number) => {
-    editData[index].LastName = value
+  const handleChangeSubjectName = (value:string, index:number) => {
+    editData[index].SubjectName = value
     setEditData([...editData]);
   };
-  const handleChangeDepartment = (value:string, index:number) => {
-    editData[index].Department = value
+  const handleChangeCredit = (value:string, index:number) => {
+    editData[index].Credit = value
+    setEditData([...editData]);
+  };
+  const handleChangeCategory = (value:string, index:number) => {
+    editData[index].Category = value
     setEditData([...editData]);
   };
   const handleChangeConfirmText = (event: any) => {
@@ -35,7 +40,7 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
   };
   const handleEnterKeyDown = (event:any) => {
     if(event.key === 'Enter') {
-      closeModal();
+      conFirmEdit();
     }
   }
   return (
@@ -73,28 +78,37 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
                 <TextField
                   width="auto"
                   height="auto"
-                  label={`ชื่อ`}
-                  value={item.FirstName}
+                  label={`รหัสวิชา`}
+                  value={item.SubjectID}
                   handleChange={(e:any) => {
-                    handleChangeFirstName(e.target.value, index)
+                    handleChangeSubjectID(e.target.value, index)
                   }}
                 />
                 <TextField
                   width="auto"
                   height="auto"
-                  label={`นามสกุล`}
-                  value={item.LastName}
+                  label={`ชื่อวิชา`}
+                  value={item.SubjectName}
                   handleChange={(e:any) => {
-                    handleChangeLastName(e.target.value, index)
+                    handleChangeSubjectName(e.target.value, index)
+                  }}
+                />
+                <TextField
+                  width="auto"
+                  height="auto"
+                  label={`หน่วยกิต`}
+                  value={item.Credit}
+                  handleChange={(e:any) => {
+                    handleChangeCredit(e.target.value, index)
                   }}
                 />
                 <TextField
                   width="auto"
                   height="auto"
                   label={`กลุ่มสาระ`}
-                  value={item.Department}
+                  value={item.Category}
                   handleChange={(e:any) => {
-                    handleChangeDepartment(e.target.value, index)
+                    handleChangeCategory(e.target.value, index)
                   }}
                 />
               </div>

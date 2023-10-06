@@ -35,20 +35,19 @@ const SubjectManage = (props: Props) => {
   )
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){
-      case 'SubjectID':
+      case 'รหัสวิชา':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.SubjectID.localeCompare(b.SubjectID) : b.SubjectID.localeCompare(a.SubjectID))
-      case 'SubjectName':
+      case 'ชื่อวิชา':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.SubjectName.toLowerCase().localeCompare(b.SubjectName) : b.SubjectName.toLowerCase().localeCompare(a.SubjectName))
-      case 'Credit':
+      case 'หน่วยกิต':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.Credit- b.Credit : b.Credit - a.Credit)
-      case 'Category':
+      case 'กลุ่มสาระ':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.Category.toLowerCase().localeCompare(b.Category) : b.Category.toLowerCase().localeCompare(a.Category))
       default:
-        console.log('else')
         return data.sort((a, b) => a.SubjectID - b.SubjectID)
     }
   }

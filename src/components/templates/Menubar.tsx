@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import React, { useState } from "react";
 import Link from "next/link";
 import {
@@ -8,11 +7,13 @@ import {
   othersMenu,
 } from "@/raw-data/menubar-data";
 import { IoIosArrowDown } from 'react-icons/io'
+import { usePathname } from "next/navigation";
 function Menubar() {
+  const pathName = usePathname()
   const [indexPoint, setIndexPoint] = useState<number>(-1);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const [linkSelected, setLinkSelected] = useState<string>('/management/teacher');
+  const [linkSelected, setLinkSelected] = useState<string>(pathName);
   return (
     <>
       <aside className="flex flex-col gap-8 w-[270px] h-auto px-5 py-8 bg-[#F1F3F9]">

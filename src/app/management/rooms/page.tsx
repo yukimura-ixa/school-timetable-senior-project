@@ -1,6 +1,7 @@
 "use client"
 import React from 'react'
 import {roomsData} from '@/raw-data/rooms-table';
+import Table from '@/app/management/rooms/component/RoomsTable';
 type Props = {}
 
 const RoomsManage = (props: Props) => {
@@ -34,31 +35,30 @@ const RoomsManage = (props: Props) => {
   )
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){
-      case 'RoomID':
+      case 'รหัสห้อง':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.RoomID.toLowerCase().localeCompare(b.RoomID) : b.RoomID.toLowerCase().localeCompare(a.RoomID))
-      case 'RoomName':
+      case 'ชื่อห้อง':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.RoomName.toLowerCase().localeCompare(b.RoomName) : b.RoomName.toLowerCase().localeCompare(a.RoomName))
-      case 'Building':
+      case 'อาคาร':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.Building.toLowerCase().localeCompare(b.Building) : b.Building.toLowerCase().localeCompare(a.Building))
-      case 'Floor':
+      case 'ชั้น':
         console.log(orderType);
         return data.sort((a, b) => orderState? a.Floor.toLowerCase().localeCompare(b.Floor) : b.Floor.toLowerCase().localeCompare(a.Floor))
       default:
-        console.log('else')
         return  data.sort((a, b) => a.RoomID.toLowerCase().localeCompare(b.RoomID))
     }
   }
   return (
     <>
-      {/* <Table
+      <Table
         data={roomsData}
-        tableHead={["RoomID", "RoomName", "Building", "Floor"]}
+        tableHead={["รหัสห้อง", "ชื่อห้อง", "อาคาร", "ชั้น"]}
         tableData={tableData}
         orderByFunction={sortData}
-      /> */}
+      />
     </>
   );
 };

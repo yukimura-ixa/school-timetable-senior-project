@@ -110,12 +110,14 @@ function Dropdown({
           <p>Not Found.</p>
         </div>
         :
-        <>
+        <div className="bg-white">
           {data.map((item: any, index: number) => {
             return (
               <ul
                 className={`
                     w-[100%]
+                    z-50
+                    h-auto
                     bg-white
                     flex
                     justify-left
@@ -134,7 +136,7 @@ function Dropdown({
               </ul>
             );
           })}
-        </>
+        </div>
         }
       </div>
     </div>

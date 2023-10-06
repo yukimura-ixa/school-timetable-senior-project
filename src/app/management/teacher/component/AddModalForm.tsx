@@ -8,7 +8,7 @@ type props = {
   closeModal: any;
   addData: any;
 };
-function AddTeacherModalForm({ closeModal, addData }: props) {
+function AddModalForm({ closeModal, addData }: props) {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [department, setDepartment] = useState<string>("");
@@ -39,9 +39,15 @@ function AddTeacherModalForm({ closeModal, addData }: props) {
     setFirstName(""), setLastName(""), setDepartment("");
     closeModal();
   };
+  const handleEnterKeyDown = (event:any) => {
+    if(event.key === 'Enter') {
+      handleSubmit();
+    }
+  }
   return (
     <>
       <div
+        onKeyDown={handleEnterKeyDown}
         style={{ backgroundColor: "rgba(0,0,0,0.75" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
@@ -87,4 +93,4 @@ function AddTeacherModalForm({ closeModal, addData }: props) {
   );
 }
 
-export default AddTeacherModalForm;
+export default AddModalForm;

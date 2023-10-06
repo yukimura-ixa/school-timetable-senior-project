@@ -19,15 +19,9 @@ const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount }: props) => {
             closeModal();
         }
     }
-    const handleEnterKeyDown = (event:any) => {
-      if(event.key === 'Enter') {
-        confirmed();
-      }
-    }
   return (
     <>
       <div
-        onKeyDown={handleEnterKeyDown}
         style={{ backgroundColor: "rgba(0,0,0,0.75" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >

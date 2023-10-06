@@ -1,4 +1,6 @@
+import NumberField from "@/components/elements/input/field/NumberField";
 import TextField from "@/components/elements/input/field/TextField";
+import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
@@ -12,16 +14,20 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
   const [confirmText, setConfirmText] = useState<string>("");
   const [editData, setEditData] = useState<[]>(data);
 
-  const handleChangeFirstName = (value:string, index:number) => {
-    editData[index].FirstName = value
+  const handleChangeGradeLevelID = (value:string, index:number) => {
+    editData[index].GradeLevelID = value
     setEditData([...editData]);
   };
-  const handleChangeLastName = (value:string, index:number) => {
-    editData[index].LastName = value
+  const handleChangeYear = (value:string, index:number) => {
+    editData[index].Year = value
     setEditData([...editData]);
   };
-  const handleChangeDepartment = (value:string, index:number) => {
-    editData[index].Department = value
+  const handleChangeNumber = (value:string, index:number) => {
+    editData[index].Number = value
+    setEditData([...editData]);
+  };
+  const handleChangeProgram = (value:string, index:number) => {
+    editData[index].Program = value
     setEditData([...editData]);
   };
   const handleChangeConfirmText = (event: any) => {
@@ -35,7 +41,7 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
   };
   const handleEnterKeyDown = (event:any) => {
     if(event.key === 'Enter') {
-      closeModal();
+      confirmed();
     }
   }
   return (
@@ -73,28 +79,37 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
                 <TextField
                   width="auto"
                   height="auto"
-                  label={`ชื่อ`}
-                  value={item.FirstName}
+                  label={`รหัสชั้นเรียน`}
+                  value={item.GradeLevelID}
                   handleChange={(e:any) => {
-                    handleChangeFirstName(e.target.value, index)
+                    handleChangeGradeLevelID(e.target.value, index)
+                  }}
+                />
+                <NumberField
+                  width="auto"
+                  height="auto"
+                  label={`มัธยมปีที่`}
+                  value={item.Year}
+                  handleChange={(e:any) => {
+                    handleChangeYear(e.target.value, index)
+                  }}
+                />
+                <NumberField
+                  width="auto"
+                  height="auto"
+                  label={`ห้อง`}
+                  value={item.Number}
+                  handleChange={(e:any) => {
+                    handleChangeNumber(e.target.value, index)
                   }}
                 />
                 <TextField
                   width="auto"
                   height="auto"
-                  label={`นามสกุล`}
-                  value={item.LastName}
+                  label={`สายการเรียน`}
+                  value={item.Program}
                   handleChange={(e:any) => {
-                    handleChangeLastName(e.target.value, index)
-                  }}
-                />
-                <TextField
-                  width="auto"
-                  height="auto"
-                  label={`กลุ่มสาระ`}
-                  value={item.Department}
-                  handleChange={(e:any) => {
-                    handleChangeDepartment(e.target.value, index)
+                    handleChangeProgram(e.target.value, index)
                   }}
                 />
               </div>
