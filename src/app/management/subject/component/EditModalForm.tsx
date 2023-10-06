@@ -72,7 +72,7 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
                   // handleChange={}
                 /> */}
                 <div className="flex flex-col items-center justify-between mr-5">
-                    <p className="text-sm font-bold">รายการ</p>
+                    <p className="text-sm font-bold">รายการที่</p>
                     <p>{index+1}</p>
                 </div>
                 <TextField
