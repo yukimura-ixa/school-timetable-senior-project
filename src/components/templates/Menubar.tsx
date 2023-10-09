@@ -26,17 +26,17 @@ function Menubar() {
                 {item.link === linkSelected
                 ?
                 <Link href={item.link} onClick={() => setLinkSelected(item.link)}
-                  className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer border-r-8 border-cyan-600 bg-cyan-400 text-white duration-500`}
+                  className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 text-cyan-600 duration-500`}
                   style={{
                     marginBottom: index == managementMenu.length - 1 ? "10px" : 0,
                   }}
                 >
-                  <item.IconStyle.Icon className={`fill-white`} />
+                  <item.IconStyle.Icon className={`fill-[#0891B2]`} />
                   <p className="text-md">{item.title}</p>
                 </Link>
                 :
                 <Link href={item.link} onClick={() => setLinkSelected(item.link)}
-                className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer hover:border-r-8 hover:border-cyan-600 text-[#4F4F4F] hover:bg-cyan-400 hover:text-white duration-500`}
+                className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#4F4F4F] hover:bg-cyan-100 hover:text-cyan-600 duration-500`}
                 style={{
                   marginBottom: index == managementMenu.length - 1 ? "10px" : 0,
                 }}
@@ -57,7 +57,7 @@ function Menubar() {
             <React.Fragment key={item.id}>
               <div className="w-full flex flex-col relative">
                 <div
-                  className="flex items-center justify-between w-full gap-5 h-[45px] p-[10px] cursor-pointer texthover hover:bg-cyan-400 duration-500"
+                  className="flex items-center justify-between w-full gap-5 h-[45px] p-[10px] cursor-pointer texthover hover:bg-cyan-100 duration-500"
                   onClick={() => {
                     setIndexPoint(index),
                       setIsOpen(index === indexPoint ? !isOpen : true);
@@ -82,22 +82,22 @@ function Menubar() {
                   {/* เทอม 1 */}
                 {`${item.link}/1` === linkSelected
                 ?
-                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-400 duration-500 semester-text">
-                <p className="text-md text-white">เทอม 1</p>
+                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 duration-500 semester-text">
+                <p className="text-md text-cyan-600">เทอม 1</p>
                 </Link>
                 :
-                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-400 duration-500 semester-text">
+                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-100 duration-500 semester-text">
                 <p className="text-md text-[#4f4f4f]">เทอม 1</p>
                 </Link>
                 }
                 {/* เทอม 2 */}
                 {`${item.link}/2` === linkSelected
                 ?
-                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-400 duration-500 semester-text">
-                <p className="text-md text-white">เทอม 2</p>
+                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 duration-500 semester-text">
+                <p className="text-md text-cyan-600">เทอม 2</p>
                 </Link>
                 :
-                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-400 duration-500 semester-text">
+                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-100 duration-500 semester-text">
                 <p className="text-md text-[#4f4f4f]">เทอม 2</p>
                 </Link>
                 }
@@ -115,7 +115,7 @@ function Menubar() {
               {item.link === linkSelected 
               ?
               <div onClick={() => setLinkSelected(item.link)}
-                className={`border-r-8 border-cyan-600 bg-cyan-400 text-white flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer duration-500`}
+                className={`border-r-8 border-cyan-600 bg-cyan-100 text-cyan-600 flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer duration-500`}
                 style={{
                   marginBottom: index == othersMenu.length - 1 ? "10px" : 0,
                 }}
@@ -125,7 +125,7 @@ function Menubar() {
               </div>
               :
               <div onClick={() => setLinkSelected(item.link)}
-                className={`hoverfill hover:border-r-8 hover:border-cyan-600 hover:bg-cyan-400 hover:text-white flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#4F4F4F] duration-500`}
+                className={`hoverfill hover:border-r-8 hover:border-cyan-600 hover:bg-cyan-100 hover:text-cyan-600 flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#4F4F4F] duration-500`}
                 style={{
                   marginBottom: index == othersMenu.length - 1 ? "10px" : 0,
                 }}

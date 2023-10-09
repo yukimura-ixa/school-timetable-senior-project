@@ -18,17 +18,17 @@
 
 /* เอาไว้เปลี่ยน fill ของ icon */
 .hoverfill:hover > .iconhover {
-  fill : white
+  fill : #0891B2
 }
 /* ตั้งชื่อ class มั่วไปหน่อย เอาไว้ selector เปลี่ยนสี element ลึกๆซักอันของ menubar */
 .texthover:hover > div > span > .changetext{
-  color: white;
-  fill: white
+  color: rgb(8 145 178);
+  fill: rgb(8 145 178);
 }
 .texthover:hover > div > .changetext{
   color: white;
-  fill: white
+  fill: #0891B2
 }
 .semester-text:hover > p {
-  color: white;
+  color: #0891B2;
 }
