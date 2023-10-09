@@ -45,7 +45,6 @@ function Dropdown({
         gap-5
         hover:bg-slate-100
         duration-300
-        z-50
         "
         //กดเพื่อ set state toggle dropdown
         onClick={() => setIsHidden(!isHidden)} //กดปุ๊ปจะเซ็ทค่าเป็นค่าตรงข้ามกับ boolean ปัจจุบัน ด้วยนิเสธ '!'
@@ -73,7 +72,7 @@ function Dropdown({
         className={`
             absolute
             flex
-            z-50
+            z-10
             flex-col
             justify-left
             items-center
@@ -116,7 +115,6 @@ function Dropdown({
               <ul
                 className={`
                     w-[100%]
-                    z-50
                     h-auto
                     bg-white
                     flex

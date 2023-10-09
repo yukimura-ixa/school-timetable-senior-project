@@ -44,8 +44,7 @@ export const scheduleMenu = [
             Icon : AiFillSetting,
         },
         title : "ตั้งค่าตารางสอน",
-        semester : 2,
-        link : "/schedule/tableconfig"
+        link : "/schedule/tableconfig/semester"
     },
     {
         id : "arrangetimetable",
@@ -53,8 +52,7 @@ export const scheduleMenu = [
             Icon : BsTable,
         },
         title : "จัดตารางสอน",
-        semester : 2,
-        link : "/schedule/timeslot"
+        link : "/schedule/timeslot/semester"
     },
     {
         id : "showtimetable",
@@ -62,8 +60,7 @@ export const scheduleMenu = [
             Icon : BiSolidFileFind,
         },
         title : "แสดงตารางสอน",
-        semester : 2,
-        link : "/schedule/display_timetable"
+        link : "/schedule/display_timetable/semester"
     },
 ]
 export const othersMenu = [

@@ -16,7 +16,7 @@ function Menubar() {
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
   return (
     <>
-      <aside className="flex flex-col gap-8 w-[270px] h-auto px-5 py-8 bg-[#F1F3F9]">
+      <aside className="flex flex-col gap-8 w-[270px] min-h-screen px-5 py-8 bg-[#F1F3F9]">
         {/* management */}
         <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
           <p className="text-[#4F4F4F] mb-2 font-bold select-none">การจัดการข้อมูล</p>
@@ -73,18 +73,34 @@ function Menubar() {
                 </div>
                 {/* select semester */}
                 <div
-                  className={`flex flex-col items-end w-full duration-500 ease-out transition-transform
+                  className={`flex flex-col items-end gap-2 py-1 w-full duration-500 ease-out transition-transform
                     ${indexPoint === index && isOpen
                       ? null
                       : "hidden"
                     }`}
                 >
-                  <div className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-400 duration-500 semester-text">
-                    <p className="text-md text-[#4f4f4f]">เทอม 1</p>
-                  </div>
-                  <div className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-400 duration-500 semester-text">
-                    <p className="text-md text-[#4f4f4f]">เทอม 2</p>
-                  </div>
+                  {/* เทอม 1 */}
+                {`${item.link}/1` === linkSelected
+                ?
+                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-400 duration-500 semester-text">
+                <p className="text-md text-white">เทอม 1</p>
+                </Link>
+                :
+                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-400 duration-500 semester-text">
+                <p className="text-md text-[#4f4f4f]">เทอม 1</p>
+                </Link>
+                }
+                {/* เทอม 2 */}
+                {`${item.link}/2` === linkSelected
+                ?
+                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-400 duration-500 semester-text">
+                <p className="text-md text-white">เทอม 2</p>
+                </Link>
+                :
+                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-400 duration-500 semester-text">
+                <p className="text-md text-[#4f4f4f]">เทอม 2</p>
+                </Link>
+                }
                 </div>
               </div>
             </React.Fragment>
