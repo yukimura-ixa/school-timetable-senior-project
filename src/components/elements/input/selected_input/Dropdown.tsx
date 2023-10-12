@@ -55,10 +55,10 @@ function Dropdown({
       >
         <div className="flex justify-left"
           //กำหนดสีของ Placeholder เป็นสีเทากลางๆ แต่ถ้าเลือกค่าแล้ว text จะเป็นสีดำ
-          style={{ color: typeof currentValue === 'undefined' ? "#676E85" : "#000" }}
+          style={{ color: typeof currentValue === 'undefined' || currentValue === "" ? "#676E85" : "#000" }}
         >
           {/* ถ้าไม่มีการใส่ currentValue เข้ามา จะสั่งให้วาง placeHolder เอาไว้ */}
-          {typeof currentValue === 'undefined' ? placeHolder : currentValue}
+          {typeof currentValue === 'undefined' || currentValue === "" ? placeHolder : currentValue}
         </div>
         <Image
           className={`
@@ -75,13 +75,13 @@ function Dropdown({
             z-10
             flex-col
             justify-left
-            items-center
             border-[1px]
             cursor-pointer
             select-none
             mt-1
             bg-white
             gap-3
+            pt-3
             overflow-y-scroll
             duration-300
             transition-all ease-out

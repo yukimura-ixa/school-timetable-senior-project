@@ -12,7 +12,7 @@ interface SearchBar {
     fill: string; //HEX
     handleChange: Function; //ส่งฟังก์ชั่นจับ event ของ input เสยๆ ส่วนข้างในฟังก์ชั่นอาจจะใส่ Logic Search ลงไป จุ๊บมัวฟ์
 }
-function SearchBar({ width = null, height, placeHolder = "Search", fill = "#EDEEF3", handleChange }) {
+function SearchBar({ width = null, height, placeHolder = "ค้นหา", fill = "#EDEEF3", handleChange }) {
     return (
         <div className='flex items-center rounded relative'>
             <input type='text' className='text-field pl-[45px]' placeholder={placeHolder}

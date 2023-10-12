@@ -1,71 +1,46 @@
 "use client"
 import Dropdown from '@/components/elements/input/selected_input/Dropdown';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation'
 // import { useRouter } from 'next/router'
 import React, {useState} from 'react'
+import ClassifySubject from '../../page/ClassifySubject';
+
 type Props = {}
 
 function TimeSlot({}: Props) {
-  const pathName = usePathname();
-  const [category, setCategory] = useState<string>("");
+  const [page, setPage] = useState<string>("Classify");
   return (
-    <>
-      <div className='flex w-full h-fit border-b'>
-        <div className='flex w-fit h-fit bg-cyan-100'>
+    <div className='flex flex-col gap-3'>
+      <div className='flex pt-5 w-full h-fit border-b'>
+        {page === "Classify" 
+        ?
+        <>
+        <button onClick={() => setPage("Classify")} className='flex w-fit h-[60px] bg-gray-100 items-center px-3 cursor-pointer focus:outline-none'>
           <p>จำแนกวิชาเรียน</p>
-        </div>
-        <div className='flex w-fit bg-cyan-100'>
+        </button>
+          <button onClick={() => setPage("Arrange")} className='flex w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
           <p>จัดตารางสอน</p>
-        </div>
+        </button>
+        </>
+        : 
+        <>
+        <button onClick={() => setPage("Classify")} className='flex w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
+          <p>จำแนกวิชาเรียน</p>
+        </button>
+        <button onClick={() => setPage("Arrange")} className='flex w-fit h-[60px] bg-gray-100 items-center px-3 cursor-pointer focus:outline-none'>
+          <p>จัดตารางสอน</p>
+        </button>
+        </>
+        }
       </div>
-      {/* เลือกครู */}
-      <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-        <div className="flex items-center gap-4">
-          <p className="text-md">เลือกคุณครู</p>
-        </div>
-        <div className="flex flex-col justify-between gap-3">
-          <Dropdown
-            data={["ภาษาไทย", "คณิตศาสตร์"]}
-            renderItem={
-              ({ data }): JSX.Element => (
-                <li className="w-[70px]">
-                    {data}
-                </li>
-            )
-            }
-            width ={300}
-            height ={50}
-            currentValue={category}
-            handleChange={(data:any) => {
-              setCategory(data);
-            }}
-          />
-          <Dropdown
-            data={["นาย อัครเดช ปัญญาเลิศ", "นาย อเนก ประสงค์"]}
-            renderItem={
-              ({ data }): JSX.Element => (
-                <li className="w-[70px]">
-                    {data}
-                </li>
-            )
-            }
-            width ={500}
-            height ={50}
-            currentValue={category}
-            handleChange={(data:any) => {
-              setCategory(data);
-            }}
-          />
-        </div>
-      </div>     
-      {/* Teacher name */}
-      <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-        <div className="flex items-center gap-4">
-          <p className="text-md">ชื่อ - นามสกุล</p>
-        </div>
-        <p className="text-md text-gray-500">อัครเดช ปัญญาเลิศ</p>
-      </div>
-    </>
+      {page === "Classify" 
+      ?
+        <ClassifySubject />
+      :
+        null
+      }
+    </div>
   )
 }
 
