@@ -33,7 +33,7 @@ const SelectedValue = ({values = [2565, 2566, 2567, 2568]}: Props) => {
     <>
     <div className="relative flex justify-between w-fit h-[45px] border border-[#EDEEF3] items-center gap-5 px-3 select-none">
         <MdArrowBackIosNew className="cursor-pointer" onClick={() => previousValue()} />
-        <p className='text-lg text-gray-600'>{selectedValue[index]}</p>
+        <p className='text-md text-gray-600'>{selectedValue[index]}</p>
         <MdArrowForwardIos className="cursor-pointer" onClick={() => fowardValue()} />
     </div>
     </>
