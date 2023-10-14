@@ -57,7 +57,7 @@ function MiniButton({
         onMouseLeave={() => setIsHover(false)}
       >
         <p style={{ color: titleRGBString }}>{title}</p>
-        {isSelected ? <IoIosRemoveCircle className="fill-gray-300" /> : null}
+        {isSelected ? <IoIosRemoveCircle className="fill-red-500" /> : null}
       </div>
     </div>
   );

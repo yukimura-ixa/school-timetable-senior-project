@@ -12,8 +12,9 @@ type Props = {
 const ClassroomResponsibility = (props: Props) => {
   const router = useRouter();
   const [classRoomModalActive, setClassRoomModalActive] = useState<boolean>(false) //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
-  const [classRoomList, setClassRoomList] = useState<string[]>(["ม.2", "ม.3", "ม.5"]) //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
-  const changeClassList = (item: string[]) => {
+  // const [selectedClass, setSelectedClass] = useState<number>(2); //เซ็ทไว้ดึงข้อมูลห้องเรียนทั้งหมดว่ามีกี่ห้อง -> ส่งไปที่ Modal
+  const [classRoomList, setClassRoomList] = useState<number[]>([1, 4, 9]) //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
+  const changeClassList = (item: number[]) => {
     setClassRoomList(() => item);
     setClassRoomModalActive(false)
 } 
@@ -65,14 +66,14 @@ const ClassroomResponsibility = (props: Props) => {
               <div className="flex flex-row justify-between items-center gap-5">
                 <div className="flex gap-4">
                   {/* Map ห้องเรียนข้องแต่ละชั้นเรียน */}
-                  {["1", "3", "4", "6"].map((room) => (
+                  {[1, 3, 4, 6].map((room) => (
                     <React.Fragment key={room}>
                       <MiniButton
                         height={30}
                         border={true}
                         borderColor="#EDEEF3"
                         titleColor="#4F515E"
-                        title={`${gradeLevel.substring(2)}/${room}`}
+                        title={`ม.${gradeLevel.substring(2)}/${room}`}
                       />
                     </React.Fragment>
                   ))}

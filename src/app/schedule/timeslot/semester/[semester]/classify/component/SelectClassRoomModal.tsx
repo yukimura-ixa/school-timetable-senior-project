@@ -4,19 +4,19 @@ import React, { useState } from "react";
 import { AiOutlineClose } from 'react-icons/ai';
 type props = {
   closeModal: any;
-  classList: string[];
+  classList: number[];
   confirmChange: any;
 };
 function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
     //เลือกชั้นเรียนที่รับผิดชอบแล้ว
-    const [selectedClassList, setSelectedClassList] = useState<string[]>(classList);
+    const [selectedClassList, setSelectedClassList] = useState<number[]>(classList);
     //ชั้นเรียนที่ยังไม่เลือก
-    const [unSelectedClassList, setUnSelectedClassList] = useState<string[]>([
-        "ม.1", "ม.2", "ม.3", "ม.4", "ม.5", "ม.6"
+    const [unSelectedClassList, setUnSelectedClassList] = useState<number[]>([
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
     ].filter((item) => !selectedClassList.includes(item)));
-    const addSelectedClassList = (item:string) => {
+    const addSelectedClassList = (item:number) => {
         //ตัวแปร newList จะเพิ่มของใหม่ลงไปพร้อมกับ sort แล้ว set state
-        let newList = [...selectedClassList, item].sort((a, b) => a.localeCompare(b))
+        let newList = [...selectedClassList, item].sort();
         setSelectedClassList(() => newList)
         //จากนั้น copy ตัวที่จะลบมาไว้ แล้ว Splice ออกโดยการใช้ indexOf เพื่อเช็ค index ของไอเทม
         let unSelected = [...unSelectedClassList]
@@ -24,9 +24,9 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
         //วาง array ที่ลบแล้วลงไป
         setUnSelectedClassList(() => unSelected)
     }
-    const removeSelectedClassList = (item:string) => {
+    const removeSelectedClassList = (item:number) => {
         //ทำงานเหมือนกันกับ addSelectedClassList
-        let newList = [...unSelectedClassList, item].sort((a, b) => a.localeCompare(b))
+        let newList = [...unSelectedClassList, item].sort();
         setUnSelectedClassList(() => newList)
         let selected = [...selectedClassList]
         selected.splice(selectedClassList.indexOf(item), 1)
@@ -53,7 +53,7 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
             <div className={`flex items-center flex-wrap gap-4 w-full ${selectedClassList.length === 0 ? "h-[45px]" : null} border border-gray-300 px-3 py-3 rounded`}>
                 {selectedClassList.map((item) => (
                     <React.Fragment key={item}>
-                        <MiniButton handleClick={() => removeSelectedClassList(item)} height={25} border={true} isSelected={true} borderColor="#c7c7c7" title={item} />
+                        <MiniButton handleClick={() => removeSelectedClassList(item)} height={25} border={true} isSelected={true} borderColor="#c7c7c7" title={`ม.2/${item}`} />
                     </React.Fragment>
                 ))}
             </div>
@@ -64,7 +64,7 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
             <div className={`flex items-center flex-wrap gap-4 w-full ${unSelectedClassList.length === 0 ? "h-[45px]" : null} border border-gray-300 px-3 py-3 rounded`}>
                 {unSelectedClassList.map((item) => (
                     <React.Fragment key={item}>
-                        <MiniButton handleClick={() => addSelectedClassList(item)} width={45} height={25} border={true} borderColor="#c7c7c7" title={item} />
+                        <MiniButton handleClick={() => addSelectedClassList(item)} height={25} border={true} borderColor="#c7c7c7" title={`ม.2/${item}`} />
                     </React.Fragment>
                 ))}
             </div>
