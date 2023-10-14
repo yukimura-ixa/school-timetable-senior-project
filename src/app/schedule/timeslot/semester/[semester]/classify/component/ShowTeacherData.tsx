@@ -1,11 +1,16 @@
+"use client"
 import Dropdown from '@/components/elements/input/selected_input/Dropdown';
 import MiniButton from '@/components/elements/static/MiniButton';
 import React, {useState} from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
-import SelectClassModal from '../components/SelectClassModal';
-type Props = {}
+import SelectClassModal from '../../../../components/SelectClassModal';
+import { usePathname, useRouter } from 'next/navigation';
+type Props = {
+}
 
-const ClassifySubject = (props: Props) => {
+const ShowTeacherData = (props: Props) => {
+    const router = useRouter();
+    const pathName = usePathname();
     const [classModalActive, setClassModalActive] = useState<boolean>(false) //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
     const [searchText, setSearchText] = useState(""); //ข้อความค้นหาใน dropdown เลือกครู
     // const [category, setCategory] = useState<string>("");
@@ -93,7 +98,7 @@ const ClassifySubject = (props: Props) => {
         setClassModalActive(false)
     } 
   return (
-    <>  
+    <>
         {classModalActive ? <SelectClassModal confirmChange={changeClassList} closeModal={() => setClassModalActive(false)} classList={classList}/> : null}
         <div className='flex flex-col gap-3'>
         {/* เลือกครู */}
@@ -177,7 +182,7 @@ const ClassifySubject = (props: Props) => {
                     <u onClick={() => setClassModalActive(true)} className='text-cyan-500 cursor-pointer select-none'>เลือก</u>
                 </div>
             </div>
-            <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3] cursor-pointer hover:bg-gray-50 duration-300">
+            <div onClick={() => {router.push(`${pathName}/teacher_responsibility`)}} className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3] cursor-pointer hover:bg-gray-50 duration-300">
                 <div className="flex items-center gap-4">
                     <p className="text-md">ห้องเรียนที่รับผิดชอบ</p>
                 </div>
@@ -190,4 +195,4 @@ const ClassifySubject = (props: Props) => {
   )
 }
 
-export default ClassifySubject;
+export default ShowTeacherData;
