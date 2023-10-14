@@ -80,24 +80,24 @@ function Menubar() {
                     }`}
                 >
                   {/* เทอม 1 */}
-                {`${item.link}/1` === linkSelected
+                {`${item.link}/1/classify` === linkSelected
                 ?
-                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 duration-500 semester-text">
+                <Link onClick={() => setLinkSelected(`${item.link}/1/classify`)} href={`${item.link}/1/classify`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 duration-500 semester-text">
                 <p className="text-md text-cyan-600">เทอม 1</p>
                 </Link>
                 :
-                <Link onClick={() => setLinkSelected(`${item.link}/1`)} href={`${item.link}/1`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-100 duration-500 semester-text">
+                <Link onClick={() => setLinkSelected(`${item.link}/1/classify`)} href={`${item.link}/1/classify`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-100 duration-500 semester-text">
                 <p className="text-md text-[#4f4f4f]">เทอม 1</p>
                 </Link>
                 }
                 {/* เทอม 2 */}
-                {`${item.link}/2` === linkSelected
+                {`${item.link}/2/classify` === linkSelected
                 ?
-                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 duration-500 semester-text">
+                <Link onClick={() => setLinkSelected(`${item.link}/2/classify`)} href={`${item.link}/2/classify`} className="w-[165px] px-3 py-2 cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 duration-500 semester-text">
                 <p className="text-md text-cyan-600">เทอม 2</p>
                 </Link>
                 :
-                <Link onClick={() => setLinkSelected(`${item.link}/2`)} href={`${item.link}/2`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-100 duration-500 semester-text">
+                <Link onClick={() => setLinkSelected(`${item.link}/2/classify`)} href={`${item.link}/2/classify`} className="w-[165px] px-3 py-2 cursor-pointer hover:bg-cyan-100 duration-500 semester-text">
                 <p className="text-md text-[#4f4f4f]">เทอม 2</p>
                 </Link>
                 }
