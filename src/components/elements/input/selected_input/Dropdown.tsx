@@ -77,6 +77,7 @@ function Dropdown({
             justify-left
             border-[1px]
             cursor-pointer
+            overflow-hidden
             select-none
             mt-1
             bg-white
@@ -125,7 +126,7 @@ function Dropdown({
                     hover:text-[#3B8FEE]
                   `}
                 key={`${item}(${index})`}
-                onClick={() => { setIsHidden(false), handleChange(item) }}
+                onClick={() => { setIsHidden(false), handleChange(item, index) }}
                 //เมื่อกดเลือกข้อมูลใน List Dropdown จะพับกลับขึ้นไปแล้วเรียก handleChange
                 //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้องการ
               >

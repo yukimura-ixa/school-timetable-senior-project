@@ -13,6 +13,7 @@ interface MiniButton {
   borderColor: string;
   isSelected: boolean;
   handleClick: any;
+  hoverable: boolean;
 }
 function MiniButton({
   title = "Button",
@@ -23,6 +24,7 @@ function MiniButton({
   border = false,
   borderColor = "#222222",
   isSelected=false,
+  hoverable=false,
   handleClick
 }: MiniButton): JSX.Element {
   interface RGBColor {
@@ -53,10 +55,10 @@ function MiniButton({
           borderColor: borderRGBString,
           backgroundColor: buttonRGBString,
         }}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
+        onMouseEnter={() => {hoverable ? setIsHover(true) : null}}
+        onMouseLeave={() => {hoverable ? setIsHover(false) : null}}
       >
-        <p style={{ color: titleRGBString }}>{title}</p>
+        <p className="text-sm" style={{ color: titleRGBString }}>{title}</p>
         {isSelected ? <IoIosRemoveCircle className="fill-red-500" /> : null}
       </div>
     </div>
