@@ -1,4 +1,3 @@
-import TextField from '@/components/elements/input/field/TextField';
 import React, {useState} from 'react'
 import { AiOutlineClose } from 'react-icons/ai';
 
@@ -10,61 +9,43 @@ type props = {
 }
 
 const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount, clearCheckList }: props) => {
-    const [confirmText, setConfirmText] = useState<string>('');
-    const handleChangeConfirmText = (event: any) => {
-        setConfirmText(() => event.target.value);
-      };
     const confirmed = () => {
-        if(confirmText === "ยืนยัน"){
-            deleteData();
-            closeModal();
-        }
-    }
-    const handleEnterKeyDown = (event:any) => {
-      if(event.key === 'Enter') {
-        confirmed();
-      }
+      deleteData();
+      closeModal();
     }
     const cancel = () => {
-      clearCheckList();
-      closeModal()
+      if(dataAmount === 1){
+        clearCheckList();
+      }
+      closeModal();
     }
   return (
     <>
       <div
-        onKeyDown={handleEnterKeyDown}
-        style={{ backgroundColor: "rgba(0,0,0,0.75" }}
+        style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
-        <div className="flex flex-col w-[550px] h-auto p-[50px] gap-10 bg-white rounded">
+        <div className="flex flex-col w-fit h-fit p-7 gap-10 bg-white rounded">
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none">ลบข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancel} />
           </div>
-          {/* inputfield */}
-          <div className="flex flex-col gap-3">
-            <TextField
-              width="auto"
-              height="auto"
-              placeHolder="ยืนยัน"
-              label={`พิมพ์ "ยืนยัน" เพื่อลบข้อมูลที่เลือกทั้งหมด ${dataAmount} รายการ`}
-              handleChange={handleChangeConfirmText}
-            />
-            {confirmText === "ยืนยัน" 
-            ?
-            <span className="w-full flex justify-end mt-5">
-              {/* <Button title="ยืนยัน" width={150} handleClick={handleSubmit} /> */}
-              <button className=" w-[150px] bg-yellow-400 hover:bg-yellow-500 duration-500 text-white py-2 px-4 rounded"
+          <div className="flex w-full h-auto justify-between items-center">
+            <p className="text-lg select-none font-bold">คุณต้องการลบข้อมูลที่เลือกทั้งหมด {dataAmount} รายการใช่หรือไม่</p>
+          </div>
+          <span className="w-full flex gap-3 justify-end">
+              <button className=" w-[100px] bg-red-500 hover:bg-red-600 duration-500 text-white py-2 px-4 rounded"
+              onClick={() => cancel()}
+              >
+                ยกเลิก
+              </button>
+              <button className=" w-[100px] bg-gray-500 hover:bg-gray-600 duration-500 text-white py-2 px-4 rounded"
               onClick={() => confirmed()}
               >
                 ยืนยัน
               </button>
-            </span>
-            :
-            null
-            }
-          </div>
+          </span>
         </div>
       </div>
     </>

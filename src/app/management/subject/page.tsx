@@ -1,11 +1,13 @@
 "use client";
 import React from "react";
 import Table from "@/app/management/subject/component/SubjectTable";
+import { BiEdit } from "react-icons/bi";
+import { TbTrash } from "react-icons/tb";
 
 type Props = {};
 
 const SubjectManage = (props: Props) => {
-  const tableData = ({ data, handleChange, index }) => (
+  const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <>
       <td
         className="font-bold px-6 whitespace-nowrap select-none"
@@ -31,6 +33,19 @@ const SubjectManage = (props: Props) => {
       >
         {data.Category}
       </td>
+      {checkList.length < 1
+      ?
+      <>
+      <td
+        className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5"
+      >
+        <BiEdit className="fill-[#A16207]" size={18} onClick={() => {editData(), handleChange(index)}}/>
+        <TbTrash className="text-red-500" size={18} onClick={() => {deleteData(), handleChange(index)}}/>
+      </td>
+      </>
+      :
+      null
+      }
     </>
   );
   const sortData = (data: any[], orderState: boolean, orderType: string) => {

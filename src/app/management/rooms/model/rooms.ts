@@ -1,6 +1,5 @@
 type rooms = {
-    RoomID: number;
     RoomName: string;
-    Building: number;
+    Building: string;
     Floor: number
 }
