@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react";
-
+import axios from 'axios';
 //ICON
 import { IoIosArrowDown } from 'react-icons/io'
 import { MdModeEditOutline } from 'react-icons/md';
@@ -12,29 +12,44 @@ import AddModalForm from "@/app/management/subject/component/AddModalForm";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import EditModalForm from "./EditModalForm";
+import MiniButton from "@/components/elements/static/MiniButton";
 interface Table {
-  data: any[]; //ชุดข้อมูลที่ส่งมาให้ table ใช้
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Function;
   orderByFunction: Function;
 }
 function Table({
-  data,
   tableHead,
   tableData: TableData,
   orderByFunction,
 }: Table): JSX.Element {
+  const [pageOfData, setPageOfData] = useState<number>(1);
   const [AddModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [renderData, setRenderData] = useState([]);
+  const [subjectData, setSubjectData] = useState<subject[]>([]);
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
+  useEffect(() => {
+    const getData = () => {
+      axios
+        .get("http://localhost:3000/api/subject", {
+        })
+        .then((res) => {
+          let data: subject[] = res.data;
+          setSubjectData(() => data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    return () => getData();
+  }, []);
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
       //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-      setCheckedList(() => renderData.map((item, index) => index))
+      setCheckedList(() => subjectData.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
       setCheckedList(() => []);
   };
@@ -71,35 +86,47 @@ function Table({
     //console.log(orderState);
   };
   useEffect(() => {
-    setRenderData(() => orderByFunction(renderData.length == 0 ? data : renderData, orderState, orderType))
+    setSubjectData(() => orderByFunction(subjectData, orderState, orderType))
   }, [orderType, orderState])
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox 
   const removeMultiData = () => {
-    setRenderData(() => renderData.filter((item, index) => !checkedList.includes(index)));
+    setSubjectData(() => subjectData.filter((item, index) => !checkedList.includes(index)));
     setCheckedList(() => []);
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data:any) => {
-    setRenderData(() => [...renderData, data])
+    setSubjectData(() => [...subjectData, data])
   }
   const editMultiData = (data: any) => {
     //copy array มาก่อน
-    let dataCopy = [...renderData]
+    let dataCopy = [...subjectData]
     //loop ข้อมูลเฉพาะตัวที่แก้ไข
     for(let i=0;i<checkedList.length;i++){
       //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
       dataCopy.splice(checkedList[i], 1, data[i])
     }
     //วาง array ทับลงไปใหม่
-    setRenderData(() => [...dataCopy]);
+    setSubjectData(() => [...dataCopy]);
     //clear checkbox
     setCheckedList(() => []);
+  }
+  const numberOfPage = ():number[] => {
+    let allPage = Math.round(subjectData.length / 10)
+    let page:number[] = subjectData.filter((item, index) => (index < allPage)).map((item, index) => index + 1)
+    return page;
+  }
+  const nextPage = ():void => {
+    let allPage = Math.round(subjectData.length / 10)
+    setPageOfData(() => pageOfData + 1 > allPage ? allPage  : pageOfData + 1)
+  }
+  const previousPage = ():void => {
+    setPageOfData(() => pageOfData - 1 < 1 ? 1 : pageOfData - 1)
   }
   return (
     <>
       {AddModalActive ? <AddModalForm closeModal={() => setAddModalActive(false)} addData={addData}/> : null}
       {deleteModalActive ? <ConfirmDeleteModal closeModal={() => setDeleteModalActive(false)} deleteData={removeMultiData} dataAmount={checkedList.length}/> : null}
-      {editModalActive ? <EditModalForm closeModal={() => setEditModalActive(false)} conFirmEdit={editMultiData} data={renderData.filter((item, index) => checkedList.includes(index))}/> : null}
+      {editModalActive ? <EditModalForm closeModal={() => setEditModalActive(false)} conFirmEdit={editMultiData} data={subjectData.filter((item, index) => checkedList.includes(index))}/> : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
         <div className="flex gap-3">
           {/* แสดงจำนวน checkbox ที่เลือก */}
@@ -108,7 +135,7 @@ function Table({
               <div className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 duration-300 rounded-lg text-center select-none">
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
-                  {checkedList.length === renderData.length ? `เลือกท้ังหมด (${checkedList.length})` : `เลือก (${checkedList.length})`}
+                  {checkedList.length === subjectData.length ? `เลือกท้ังหมด (${checkedList.length})` : `เลือก (${checkedList.length})`}
                 </p>
               </div>
               <div
@@ -132,7 +159,7 @@ function Table({
           <SearchBar height={"100%"} width={"100%"} />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
-              ทั้งหมด {renderData.length} รายการ
+              ทั้งหมด {subjectData.length} รายการ
             </p>
           </div>
           {/* <Button
@@ -162,7 +189,7 @@ function Table({
                 //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
                 //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
                 checked={
-                  checkedList.length === renderData.length && renderData.length !== 0
+                  checkedList.length === subjectData.length && subjectData.length !== 0
                 }
               />
             </th>
@@ -187,16 +214,16 @@ function Table({
           </tr>
         </thead>
         <tbody className="text-sm">
-          {renderData.map((item, index) => (
+          {subjectData.map((item, index) => (
             <tr
               className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-              key={item.id}
+              key={`${item.SubjectCode} ${item.SubjectName}`}
             >
               <th>
                 <input
                   className="cursor-pointer"
                   type="checkbox"
-                  value={item.id}
+                  value={item.SubjectCode}
                   name="itemdata"
                   onChange={() => ClickToSelect(index)}
                   //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
@@ -211,9 +238,23 @@ function Table({
                 key={item}
               />
             </tr>
-          ))}
+          )).filter((item, index) => index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) && index <= (pageOfData * 10 - 1))}
         </tbody>
       </table>
+      <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
+        {pageOfData == 1 ? null : <MiniButton handleClick={previousPage} title={"Prev"} border={true} />}
+        {numberOfPage().map((page) => (
+          <>
+            {pageOfData ==  page 
+            ?
+            <MiniButton title={page.toString()} width={30} buttonColor="#A5F3FC" titleColor="#0E7490" />
+            :
+            <MiniButton handleClick={() => setPageOfData(() => page)} width={30} title={page.toString()} />
+            }
+          </>
+        ))}
+        {pageOfData == Math.round(subjectData.length / 10) ? null : <MiniButton title={"Next"} handleClick={nextPage} border={true} />}
+      </div>
     </>
   );
 }

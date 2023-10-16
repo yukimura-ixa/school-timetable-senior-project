@@ -2,7 +2,7 @@ import mysql from "mysql2";
 const pool = mysql.createPool({
   host: "localhost",
   user: "root",
-  password: "admin",
+  password: "root",
   database: "school_timetable",
   waitForConnections: true,
   connectionLimit: 10,
@@ -12,9 +12,4 @@ const pool = mysql.createPool({
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
 });
-
-export async function GET(request: Request) {
-  const [rows, f] = await pool.promise().query("SELECT * FROM `teacher`");
-
-  return Response.json({ rows });
-}
+export default pool;

@@ -1,29 +1,17 @@
 import TextField from "@/components/elements/input/field/TextField";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
 type props = {
   closeModal: any;
   conFirmEdit: any;
   data: any;
+  clearCheckList: any;
 };
 
-const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
+const EditModalForm = ({ closeModal, conFirmEdit, data, clearCheckList }: props) => {
   const [confirmText, setConfirmText] = useState<string>("");
-  const [editData, setEditData] = useState<[]>(data);
-
-  const handleChangeFirstName = (value:string, index:number) => {
-    editData[index].FirstName = value
-    setEditData([...editData]);
-  };
-  const handleChangeLastName = (value:string, index:number) => {
-    editData[index].LastName = value
-    setEditData([...editData]);
-  };
-  const handleChangeDepartment = (value:string, index:number) => {
-    editData[index].Department = value
-    setEditData([...editData]);
-  };
+  const [editData, setEditData] = useState<teacher[]>(Object.assign([], data));
   const handleChangeConfirmText = (event: any) => {
     setConfirmText(() => event.target.value);
   };
@@ -33,31 +21,39 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
       closeModal();
     }
   };
-  const handleEnterKeyDown = (event:any) => {
-    if(event.key === 'Enter') {
-      closeModal();
+  const handleEnterKeyDown = (event: any) => {
+    if (event.key === "Enter") {
+      confirmed();
     }
+  };
+  const cancelEdit = () => {
+    clearCheckList();
+    closeModal();
   }
   return (
     <>
       <div
         onKeyDown={handleEnterKeyDown}
-        style={{ backgroundColor: "rgba(0,0,0,0.75" }}
+        style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
-        <div className={`relative flex flex-col w-auto ${data.length > 5 ? 'h-[700px]' : 'h-auto'} overflow-y-scroll overflow-x-hidden p-[50px] gap-10 bg-white rounded`}>
+        <div
+          className={`relative flex flex-col w-auto ${
+            data.length > 5 ? "h-[700px]" : "h-auto"
+          } overflow-y-scroll overflow-x-hidden p-[50px] gap-10 bg-white rounded`}
+        >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
             <p
               className="text-lg select-none"
-              onClick={() => console.log(data)}
+              // onClick={() => {console.log(editData), console.log(editData2)}}
             >
               แก้ไขข้อมูล
             </p>
-            <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
+            <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
-          {editData.map((item:any, index:number) => (
-            <>
+          {editData.map((item: any, index: number) => (
+            <React.Fragment key={`Edit${index}`}>
               <div className="flex flex-row gap-3 h-14 w-full">
                 {/* <TextField
                   width="auto"
@@ -67,25 +63,27 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
                   // handleChange={}
                 /> */}
                 <div className="flex flex-col items-center justify-between mr-5">
-                    <p className="text-sm font-bold">รายการที่</p>
-                    <p>{index+1}</p>
+                  <p className="text-sm font-bold">รายการที่</p>
+                  <p>{index + 1}</p>
                 </div>
                 <TextField
                   width="auto"
                   height="auto"
                   label={`ชื่อ`}
-                  value={item.FirstName}
-                  handleChange={(e:any) => {
-                    handleChangeFirstName(e.target.value, index)
+                  value={item.Firstname}
+                  handleChange={(e: any) => {
+                    let value = e.target.value
+                    setEditData(() => editData.map((item, ind) => index === ind ? {...item, Firstname : value} : item))
                   }}
                 />
                 <TextField
                   width="auto"
                   height="auto"
                   label={`นามสกุล`}
-                  value={item.LastName}
-                  handleChange={(e:any) => {
-                    handleChangeLastName(e.target.value, index)
+                  value={item.Lastname}
+                  handleChange={(e: any) => {
+                    let value = e.target.value
+                    setEditData(() => editData.map((item, ind) => index === ind ? {...item, Lastname : value} : item))
                   }}
                 />
                 <TextField
@@ -93,12 +91,13 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
                   height="auto"
                   label={`กลุ่มสาระ`}
                   value={item.Department}
-                  handleChange={(e:any) => {
-                    handleChangeDepartment(e.target.value, index)
+                  handleChange={(e: any) => {
+                    let value = e.target.value
+                    setEditData(() => editData.map((item, ind) => index === ind ? {...item, Department : value} : item))
                   }}
                 />
               </div>
-            </>
+            </React.Fragment>
           ))}
           {/* inputfield */}
           <div className="flex flex-col gap-3 mt-3">

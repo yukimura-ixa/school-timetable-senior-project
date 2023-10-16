@@ -6,7 +6,7 @@ export function createPool() {
   return mysql.createPool({
     host: "localhost",
     user: "root",
-    password: "1234",
+    password: "root",
     database: "school_timetable",
     waitForConnections: true,
     connectionLimit: 10,

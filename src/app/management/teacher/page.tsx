@@ -1,29 +1,24 @@
+// "use server"
 "use client"
-import React, {useState} from "react";
-import {teacherData} from '@/raw-data/teacher-table';
+import React, {useState, useEffect} from "react";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
+import { BiEdit } from "react-icons/bi";
+import { TbTrash } from "react-icons/tb";
 type Props = {};
-
 const TeacherManage = (props: Props) => {
-  const tableData = ({ data, handleChange, index }) => (
-    <React.Fragment>
+  const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
+    <React.Fragment key={`${data.TeacherID} ${data.Firstname}`}>
       <td
-        className="font-bold px-6 whitespace-nowrap select-none"
+        className="px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
       >
-        {data.TeacherID}
+        {data.Firstname}
       </td>
       <td
         className="px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
       >
-        {data.FirstName}
-      </td>
-      <td
-        className="px-6 whitespace-nowrap select-none"
-        onClick={() => handleChange(index)}
-      >
-        {data.LastName}
+        {data.Lastname}
       </td>
       <td
         className="px-6 whitespace-nowrap select-none"
@@ -31,21 +26,30 @@ const TeacherManage = (props: Props) => {
       >
         {data.Department}
       </td>
+      {checkList.length < 1
+      ?
+      <>
+      <td
+        className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5"
+      >
+        <BiEdit size={18} onClick={() => {editData(), handleChange(index)}}/>
+        <TbTrash size={18} onClick={() => {deleteData(), handleChange(index)}}/>
+      </td>
+      </>
+      :
+      null
+      }
     </React.Fragment>
   )
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){
       case 'รหัสประจำตัว':
-        console.log(orderType);
         return data.sort((a, b) => orderState? a.TeacherID - b.TeacherID : b.TeacherID - a.TeacherID)
       case 'ชื่อ':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.FirstName.toLowerCase().localeCompare(b.FirstName) : b.FirstName.toLowerCase().localeCompare(a.FirstName))
+        return data.sort((a, b) => orderState? a.Firstname.toLowerCase().localeCompare(b.Firstname) : b.Firstname.toLowerCase().localeCompare(a.Firstname))
       case 'นามสกุล':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.LastName.toLowerCase().localeCompare(b.LastName) : b.LastName.toLowerCase().localeCompare(a.LastName))
+        return data.sort((a, b) => orderState? a.Lastname.toLowerCase().localeCompare(b.Lastname) : b.Lastname.toLowerCase().localeCompare(a.Lastname))
       case 'กลุ่มสาระ':
-        console.log(orderType);
         return data.sort((a, b) => orderState? a.Department.toLowerCase().localeCompare(b.Department) : b.Department.toLowerCase().localeCompare(a.Department))
       default:
         return data.sort((a, b) => a.TeacherID - b.TeacherID)
@@ -54,8 +58,7 @@ const TeacherManage = (props: Props) => {
   return (
     <>
       <TeacherTable
-        data={teacherData}
-        tableHead={["รหัสประจำตัว", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
+        tableHead={["ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
         tableData={tableData}
         orderByFunction={sortData}
       />

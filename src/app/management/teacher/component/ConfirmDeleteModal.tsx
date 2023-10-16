@@ -5,10 +5,11 @@ import { AiOutlineClose } from 'react-icons/ai';
 type props = {
     closeModal: any;
     deleteData: any;
+    clearCheckList:any;
     dataAmount: number;
 }
 
-const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount }: props) => {
+const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount, clearCheckList }: props) => {
     const [confirmText, setConfirmText] = useState<string>('');
     const handleChangeConfirmText = (event: any) => {
         setConfirmText(() => event.target.value);
@@ -24,6 +25,10 @@ const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount }: props) => {
         confirmed();
       }
     }
+    const cancel = () => {
+      clearCheckList();
+      closeModal()
+    }
   return (
     <>
       <div
@@ -35,7 +40,7 @@ const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount }: props) => {
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none">ลบข้อมูล</p>
-            <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
+            <AiOutlineClose className="cursor-pointer" onClick={cancel} />
           </div>
           {/* inputfield */}
           <div className="flex flex-col gap-3">

@@ -9,9 +9,13 @@ type props = {
   addData: any;
 };
 function AddModalForm({ closeModal, addData }: props) {
+  const [prefix, setPrefix] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [department, setDepartment] = useState<string>("");
+  const handleChangePrefix = (event: any) => {
+    setPrefix(() => event.target.value);
+  };
   const handleChangeFirstName = (event: any) => {
     setFirstName(() => event.target.value);
   };
@@ -22,21 +26,15 @@ function AddModalForm({ closeModal, addData }: props) {
     setDepartment(() => event.target.value);
   };
   const handleSubmit = () => {
-    type teacher = {
-      TeacherID: number;
-      FirstName: string;
-      LastName: string;
-      Department: string;
-    };
     const teacherData: teacher = {
-      TeacherID: 1,
-      FirstName: firstName,
-      LastName: lastName,
+      Prefix: prefix,
+      Firstname: firstName,
+      Lastname: lastName,
       Department: department,
     };
     console.log(teacherData);
     addData(teacherData);
-    setFirstName(""), setLastName(""), setDepartment("");
+    setFirstName(""), setLastName(""), setDepartment(""); setPrefix("");
     closeModal();
   };
   const handleEnterKeyDown = (event:any) => {
@@ -59,18 +57,25 @@ function AddModalForm({ closeModal, addData }: props) {
           </div>
           {/* inputfield */}
           <div className="flex flex-col gap-3">
+          <TextField
+              width="auto"
+              height="auto"
+              placeHolder="ex. นาย"
+              label="คำนำหน้าชื่อ (Prefix) :"
+              handleChange={handleChangePrefix}
+            />
             <TextField
               width="auto"
               height="auto"
               placeHolder="ex. อเนก"
-              label="ชื่อ (FirstName) :"
+              label="ชื่อ (Firstname) :"
               handleChange={handleChangeFirstName}
             />
             <TextField
               width="auto"
               height="auto"
               placeHolder="ex. ประสงค์"
-              label="นามสกุล (LastName) :"
+              label="นามสกุล (Lastname) :"
               handleChange={handleChangeLastName}
             />
             <TextField

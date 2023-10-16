@@ -66,7 +66,7 @@ function AddModalForm({ closeModal, addData }: props) {
               width="auto"
               height="auto"
               placeHolder="ex. ค12102"
-              label="รหัสวิชา (SubjectID) :"
+              label="รหัสวิชา (SubjectCode) :"
               handleChange={handleChangeSubjectID}
             />
             <TextField

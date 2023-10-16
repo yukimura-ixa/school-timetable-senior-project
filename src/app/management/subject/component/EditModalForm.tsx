@@ -11,10 +11,10 @@ type props = {
 
 const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
   const [confirmText, setConfirmText] = useState<string>("");
-  const [editData, setEditData] = useState<[]>(data);
+  const [editData, setEditData] = useState<subject[]>(data);
 
   const handleChangeSubjectID = (value:string, index:number) => {
-    editData[index].SubjectID = value
+    editData[index].SubjectCode = value
     setEditData([...editData]);
   };
   const handleChangeSubjectName = (value:string, index:number) => {
@@ -22,7 +22,7 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
     setEditData([...editData]);
   };
   const handleChangeCredit = (value:string, index:number) => {
-    editData[index].Credit = value
+    editData[index].Credit = parseInt(value)
     setEditData([...editData]);
   };
   const handleChangeCategory = (value:string, index:number) => {
@@ -79,7 +79,7 @@ const EditModalForm = ({ closeModal, conFirmEdit, data }: props) => {
                   width="auto"
                   height="auto"
                   label={`รหัสวิชา`}
-                  value={item.SubjectID}
+                  value={item.SubjectCode}
                   handleChange={(e:any) => {
                     handleChangeSubjectID(e.target.value, index)
                   }}
