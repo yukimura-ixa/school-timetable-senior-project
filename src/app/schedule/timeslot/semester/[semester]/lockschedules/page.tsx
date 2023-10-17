@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { HiLockClosed } from 'react-icons/hi2'
-import LockSchedule from './component/LockSchedule'
+import LockSchedule from './component/LockSchedule';
 import { usePathname, useRouter } from 'next/navigation'
 
 type Props = {}

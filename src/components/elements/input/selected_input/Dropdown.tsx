@@ -82,6 +82,7 @@ function Dropdown({
             mt-1
             bg-white
             gap-3
+            ${useSearchBar ? 'pt-5' : null}
             overflow-y-scroll
             duration-300
             transition-all ease-out
