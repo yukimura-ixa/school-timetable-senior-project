@@ -12,6 +12,12 @@ const TeacherManage = (props: Props) => {
         className="px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
       >
+        {data.Prefix}
+      </td>
+      <td
+        className="px-6 whitespace-nowrap select-none"
+        onClick={() => handleChange(index)}
+      >
         {data.Firstname}
       </td>
       <td
@@ -32,8 +38,8 @@ const TeacherManage = (props: Props) => {
       <td
         className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5"
       >
-        <BiEdit size={18} onClick={() => {editData(), handleChange(index)}}/>
-        <TbTrash size={18} onClick={() => {deleteData(), handleChange(index)}}/>
+        <BiEdit className="fill-[#A16207]" size={18} onClick={() => {editData(), handleChange(index)}}/>
+        <TbTrash className="text-red-500" size={18} onClick={() => {deleteData(), handleChange(index)}}/>
       </td>
       </>
       :
@@ -58,7 +64,7 @@ const TeacherManage = (props: Props) => {
   return (
     <>
       <TeacherTable
-        tableHead={["ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
+        tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
         tableData={tableData}
         orderByFunction={sortData}
       />

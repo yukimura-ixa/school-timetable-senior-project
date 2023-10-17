@@ -8,7 +8,6 @@ import { BiSolidTrashAlt } from 'react-icons/bi';
 import { BsCheckLg } from 'react-icons/bs';
 //comp
 import AddModalForm from "@/app/management/rooms/component/AddModalForm";
-// import Button from "@/components/elements/static/Button";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import EditModalForm from "./EditModalForm";
@@ -94,10 +93,10 @@ function Table({
     setCheckedList(() => []);
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
-  const addData = (data:any) => {
-    setRoomsData(() => [...roomsData, data])
-  }
-  const editMultiData = (data: any) => {
+  const addData = (data: rooms[]): void => {
+    setRoomsData(() => [...roomsData, ...data]);
+  };
+  const editMultiData = (data: rooms) => {
     //copy array มาก่อน
     let dataCopy = [...roomsData]
     //loop ข้อมูลเฉพาะตัวที่แก้ไข
@@ -111,12 +110,12 @@ function Table({
     setCheckedList(() => []);
   }
   const numberOfPage = ():number[] => {
-    let allPage = Math.round(roomsData.length / 10)
+    let allPage = Math.ceil(roomsData.length / 10)
     let page:number[] = roomsData.filter((item, index) => (index < allPage)).map((item, index) => index + 1)
     return page;
   }
   const nextPage = ():void => {
-    let allPage = Math.round(roomsData.length / 10)
+    let allPage = Math.ceil(roomsData.length / 10)
     setPageOfData(() => pageOfData + 1 > allPage ? allPage  : pageOfData + 1)
   }
   const previousPage = ():void => {
@@ -124,18 +123,41 @@ function Table({
   }
   return (
     <>
-      {AddModalActive ? <AddModalForm closeModal={() => setAddModalActive(false)} addData={addData}/> : null}
-      {deleteModalActive ? <ConfirmDeleteModal closeModal={() => setDeleteModalActive(false)} deleteData={removeMultiData} dataAmount={checkedList.length}/> : null}
-      {editModalActive ? <EditModalForm closeModal={() => setEditModalActive(false)} conFirmEdit={editMultiData} data={roomsData.filter((item, index) => checkedList.includes(index))}/> : null}
+      {AddModalActive ? (
+        <AddModalForm
+          closeModal={() => setAddModalActive(false)}
+          addData={addData}
+        />
+      ) : null}
+      {deleteModalActive ? (
+        <ConfirmDeleteModal
+          closeModal={() => setDeleteModalActive(false)}
+          deleteData={removeMultiData}
+          clearCheckList={() => setCheckedList(() => [])}
+          dataAmount={checkedList.length}
+        />
+      ) : null}
+      {editModalActive ? (
+        <EditModalForm
+          closeModal={() => setEditModalActive(false)}
+          conFirmEdit={editMultiData}
+          clearCheckList={() => setCheckedList(() => [])}
+          data={roomsData.filter((item, index) =>
+            checkedList.includes(index)
+          )}
+        />
+      ) : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
         <div className="flex gap-3">
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 duration-300 rounded-lg text-center select-none">
+              <div onClick={() => setCheckedList(() => [])} className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none">
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
-                  {checkedList.length === roomsData.length ? `เลือกท้ังหมด (${checkedList.length})` : `เลือก (${checkedList.length})`}
+                  {checkedList.length === roomsData.length
+                    ? `เลือกท้ังหมด (${checkedList.length})`
+                    : `เลือก (${checkedList.length})`}
                 </p>
               </div>
               <div
@@ -162,19 +184,9 @@ function Table({
               ทั้งหมด {roomsData.length} รายการ
             </p>
           </div>
-          {/* <Button
-            title="เพิ่มครู"
-            buttonColor="#2F80ED"
-            width={100}
-            height={"100%"}
-            handleClick={() => setModalActive(true)}
-          /> */}
-          <button className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm" onClick={() => setAddModalActive(true)}>เพิ่มวิชา</button>
+          <button className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm" onClick={() => setAddModalActive(true)}>เพิ่มห้องเรียน</button>
         </div>
       </div>
-      {/* <div className="w-full flex-row-reverse flex h-[60px] py-[10px] pl-[15px]">
-        <SearchBar height={'100%'} width={'100%'}/>
-      </div> */}
       <table className="table-auto w-full">
         <thead>
           <tr className="h-[60px] bg-[#F1F3F9]">
@@ -217,13 +229,12 @@ function Table({
           {roomsData.map((item, index) => (
             <tr
               className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-              key={item.RoomID}
+              key={`${item.RoomID} ${item.RoomName}`}
             >
               <th>
                 <input
                   className="cursor-pointer"
                   type="checkbox"
-                  value={item.RoomID}
                   name="itemdata"
                   onChange={() => ClickToSelect(index)}
                   //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
@@ -232,28 +243,31 @@ function Table({
               </th>
               {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
               <TableData
-                data={item}
-                handleChange={ClickToSelect}
-                index={index}
-                key={item}
-              />
+                  data={item}
+                  handleChange={ClickToSelect}
+                  editData={() => setEditModalActive(true)}
+                  deleteData={() => setDeleteModalActive(true)}
+                  checkList={checkedList}
+                  index={index}
+                  key={item}
+                />
             </tr>
           )).filter((item, index) => index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) && index <= (pageOfData * 10 - 1))}
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        {pageOfData == 1 ? null : <MiniButton handleClick={previousPage} title={"Prev"} border={true} />}
+        <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
         {numberOfPage().map((page) => (
           <>
             {pageOfData ==  page 
             ?
-            <MiniButton title={page.toString()} width={30} buttonColor="#A5F3FC" titleColor="#0E7490" />
+            <MiniButton title={page.toString()} width={30} buttonColor="#000" titleColor="#FFF" />
             :
             <MiniButton handleClick={() => setPageOfData(() => page)} width={30} title={page.toString()} />
             }
           </>
         ))}
-        {pageOfData == Math.round(roomsData.length / 10) ? null : <MiniButton title={"Next"} handleClick={nextPage} border={true} />}
+        <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
     </>
   );

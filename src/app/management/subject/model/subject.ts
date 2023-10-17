@@ -1,7 +1,7 @@
 type subject = {
     SubjectCode : string;
     SubjectName : string;
-    Credit : number;
+    Credit : string;
     Category: string;
-    SubjectProgram : number;
+    SubjectProgram : string;
 }

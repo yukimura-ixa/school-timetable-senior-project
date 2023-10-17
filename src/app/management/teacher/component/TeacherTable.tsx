@@ -8,11 +8,9 @@ import { BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
 //comp
 import AddModalForm from "@/app/management/teacher/component/AddModalForm";
-// import Button from "@/components/elements/static/Button";
 import SearchBar from "@/components/elements/input/field/SearchBar";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
-import EditModalForm from "./EditModalForm";
-import Button from "@/components/elements/static/Button";
+import ConfirmDeleteModal from "../../teacher/component/ConfirmDeleteModal";
+import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -33,8 +31,7 @@ function Table({
   useEffect(() => {
     const getData = () => {
       axios
-        .get("http://localhost:3000/api/teacher", {
-        })
+        .get("http://localhost:3000/api/teacher", {})
         .then((res) => {
           // let status:number = res.status;
           let data: teacher[] = res.data;
@@ -93,17 +90,17 @@ function Table({
     setTeacherData(() => orderByFunction(teacherData, orderState, orderType));
   }, [orderType, orderState]);
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = ():void => {
+  const removeMultiData = (): void => {
     setTeacherData(() =>
       teacherData.filter((item, index) => !checkedList.includes(index))
     );
     setCheckedList(() => []);
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
-  const addData = (data: any):void => {
-    setTeacherData(() => [...teacherData, data]);
+  const addData = (data: teacher[]): void => {
+    setTeacherData(() => [...teacherData, ...data]);
   };
-  const editMultiData = (data: any):void => {
+  const editMultiData = (data: any): void => {
     //copy array มาก่อน
     let dataCopy = [...teacherData];
     //loop ข้อมูลเฉพาะตัวที่แก้ไข
@@ -116,18 +113,20 @@ function Table({
     //clear checkbox
     setCheckedList(() => []);
   };
-  const numberOfPage = ():number[] => {
-    let allPage = Math.round(teacherData.length / 10)
-    let page:number[] = teacherData.filter((item, index) => (index < allPage)).map((item, index) => index + 1)
+  const numberOfPage = (): number[] => {
+    let allPage = Math.ceil(teacherData.length / 10);
+    let page: number[] = teacherData
+      .filter((item, index) => index < allPage)
+      .map((item, index) => index + 1);
     return page;
-  }
-  const nextPage = ():void => {
-    let allPage = Math.round(teacherData.length / 10)
-    setPageOfData(() => pageOfData + 1 > allPage ? allPage  : pageOfData + 1)
-  }
-  const previousPage = ():void => {
-    setPageOfData(() => pageOfData - 1 < 1 ? 1 : pageOfData - 1)
-  }
+  };
+  const nextPage = (): void => {
+    let allPage = Math.ceil(teacherData.length / 10);
+    setPageOfData(() => (pageOfData + 1 > allPage ? allPage : pageOfData + 1));
+  };
+  const previousPage = (): void => {
+    setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
+  };
   return (
     <>
       {AddModalActive ? (
@@ -159,7 +158,7 @@ function Table({
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 duration-300 rounded-lg text-center select-none">
+              <div onClick={() => setCheckedList(() => [])} className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none">
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
                   {checkedList.length === teacherData.length
@@ -185,7 +184,11 @@ function Table({
           )}
         </div>
         <div className="flex gap-3">
-          <SearchBar height={"100%"} width={"100%"} />
+          <SearchBar
+            height={"100%"}
+            width={"100%"}
+            placeHolder="ค้นหาชื่อครู"
+          />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
               ทั้งหมด {teacherData.length} รายการ
@@ -199,9 +202,6 @@ function Table({
           </button>
         </div>
       </div>
-      {/* <div className="w-full flex-row-reverse flex h-[60px] py-[10px] pl-[15px]">
-        <SearchBar height={'100%'} width={'100%'}/>
-      </div> */}
       <table className="table-auto w-full">
         <thead>
           <tr className="h-[60px] bg-[#F1F3F9]">
@@ -249,34 +249,39 @@ function Table({
           </tr>
         </thead>
         <tbody className="text-sm">
-          {teacherData.map((item, index) => (
-            <tr
-              className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-              key={`Data${index}`}
-            >
-              <th>
-                <input
-                  className="cursor-pointer"
-                  type="checkbox"
-                  value={item.TeacherID}
-                  name="itemdata"
-                  onChange={() => ClickToSelect(index)}
-                  //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                  checked={checkedList.includes(index)}
+          {teacherData
+            .map((item, index) => (
+              <tr
+                className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
+                key={`Data${index}`}
+              >
+                <th>
+                  <input
+                    className="cursor-pointer"
+                    type="checkbox"
+                    name="itemdata"
+                    onChange={() => ClickToSelect(index)}
+                    //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
+                    checked={checkedList.includes(index)}
+                  />
+                </th>
+                {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
+                <TableData
+                  data={item}
+                  handleChange={ClickToSelect}
+                  editData={() => setEditModalActive(true)}
+                  deleteData={() => setDeleteModalActive(true)}
+                  checkList={checkedList}
+                  index={index}
+                  key={item}
                 />
-              </th>
-              {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
-              <TableData
-                data={item}
-                handleChange={ClickToSelect}
-                editData={() => setEditModalActive(true)}
-                deleteData={() => setDeleteModalActive(true)}
-                checkList={checkedList}
-                index={index}
-                key={item}
-              />
-            </tr>
-          )).filter((item, index) => index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) && index <= (pageOfData * 10 - 1))}
+              </tr>
+            ))
+            .filter(
+              (item, index) =>
+                index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
+                index <= pageOfData * 10 - 1
+            )}
           {/* Filter บรรทัดบนคือแบ่งหน้าของข้อมูลที่ Fetch มาทั้งหมดเป็น หน้าละ 10
           index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) คือ ถ้า pageOfData เท่ากับ 1 ให้ return 0
           เพราะหน้าแรกต้องเอา index ที่ 0 มาใช้ ส่วน pageOfData * 10 - 10 คือหน้าต่อๆไปต้องใช้ index เลข 2 หลักแต่ถ้า * 10 เฉยๆจะเท่ากับ index สุดท่ายของข้อมูล
@@ -286,18 +291,26 @@ function Table({
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        {pageOfData == 1 ? null : <MiniButton handleClick={previousPage} title={"Prev"} border={true} />}
+      <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
         {numberOfPage().map((page) => (
           <>
-            {pageOfData ==  page 
-            ?
-            <MiniButton title={page.toString()} width={30} buttonColor="#A5F3FC" titleColor="#0E7490" />
-            :
-            <MiniButton handleClick={() => setPageOfData(() => page)} width={30} title={page.toString()} />
-            }
+            {pageOfData == page ? (
+              <MiniButton
+                title={page.toString()}
+                width={30}
+                buttonColor="#222"
+                titleColor="#FFF"
+              />
+            ) : (
+              <MiniButton
+                handleClick={() => setPageOfData(() => page)}
+                width={30}
+                title={page.toString()}
+              />
+            )}
           </>
         ))}
-        {pageOfData == Math.round(teacherData.length / 10) ? null : <MiniButton title={"Next"} handleClick={nextPage} border={true} />}
+        <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
     </>
   );

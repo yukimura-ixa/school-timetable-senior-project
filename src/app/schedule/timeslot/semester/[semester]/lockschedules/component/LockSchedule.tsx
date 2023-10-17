@@ -1,14 +1,17 @@
-"use client";
-import MiniButton from "@/components/elements/static/MiniButton";
-import React from "react";
-import { MdAddCircle } from "react-icons/md";
-import { TbSettings } from "react-icons/tb";
+"use client"
+import MiniButton from '@/components/elements/static/MiniButton'
+import React, { useState } from 'react'
+import { MdAddCircle } from 'react-icons/md'
+import { TbSettings } from 'react-icons/tb'
+import AddLockSchduleModal from './AddLockSchduleModal'
 
-type Props = {};
+type Props = {}
 
 const LockSchedule = (props: Props) => {
+  const [addLockSchduleModalActive, SetAddLockSchduleModalActive] = useState<boolean>(false);
   return (
     <>
+      {addLockSchduleModalActive ? <AddLockSchduleModal closeModal={() => SetAddLockSchduleModalActive(false)} /> : null}
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
         {[1].map((item) => (
           <>
@@ -117,13 +120,13 @@ const LockSchedule = (props: Props) => {
             </div>
           </>
         ))}
-        <div className="flex justify-center cursor-pointer items-center p-4 gap-3 w-[49%] h-[214px] border border-[#EDEEF3] rounded hover:bg-gray-100 duration-300">
+        <div onClick={() => SetAddLockSchduleModalActive(true)} className="flex justify-center cursor-pointer items-center p-4 gap-3 w-[49%] h-[214px] border border-[#EDEEF3] rounded hover:bg-gray-100 duration-300">
           <MdAddCircle size={24} className="fill-gray-500" />
           <p className="text-lg font-bold">เพิ่มคาบล็อก</p>
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default LockSchedule;
+export default LockSchedule
