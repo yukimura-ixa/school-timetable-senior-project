@@ -33,11 +33,8 @@ function Table({
       axios
         .get("http://localhost:3000/api/teacher", {})
         .then((res) => {
-          // let status:number = res.status;
           let data: teacher[] = res.data;
           setTeacherData(() => [...data]);
-          // console.log(`${status} OK`)
-          // console.log(data)
         })
         .catch((err) => {
           console.log(err);

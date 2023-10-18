@@ -17,7 +17,7 @@ function ClassifySubject (props: Props) {
           <button className='flex w-fit h-[60px] bg-gray-100 items-center px-3 cursor-pointer focus:outline-none'>
             <p>จำแนกวิชาเรียน</p>
           </button>
-          <button onClick={() => {router.replace(`${pathName.substring(0, 29)}/lockschedule`)}} className='flex gap-3 w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
+          <button onClick={() => {router.replace(`${pathName.substring(0, 29)}/lockschedules`)}} className='flex gap-3 w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
             <HiLockClosed className="fill-gray-700" />
             <p>ล็อกคาบสอน</p>
           </button>

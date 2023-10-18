@@ -9,7 +9,7 @@ type props = {
 };
 function SelectClassModal({ closeModal, classList, confirmChange }: props) {
     //เลือกชั้นเรียนที่รับผิดชอบแล้ว
-    const [selectedClassList, setSelectedClassList] = useState<string[]>(classList);
+    const [selectedClassList, setSelectedClassList] = useState<string[]>(classList.map(item => `ม.${item.Year}`));
     //ชั้นเรียนที่ยังไม่เลือก
     const [unSelectedClassList, setUnSelectedClassList] = useState<string[]>([
         "ม.1", "ม.2", "ม.3", "ม.4", "ม.5", "ม.6"

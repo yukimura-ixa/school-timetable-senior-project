@@ -11,6 +11,7 @@ type props = {
 function AddModalForm({ closeModal, addData }: props) {
   const [teachers, setTeachers] = useState<teacher[]>([
     {
+      TeacherID : null,
       Prefix: "",
       Firstname: "",
       Lastname: "",
@@ -19,6 +20,7 @@ function AddModalForm({ closeModal, addData }: props) {
   ]);
   const addList = () => {
     let struct: teacher = {
+      TeacherID : null,
       Prefix: "",
       Firstname: "",
       Lastname: "",

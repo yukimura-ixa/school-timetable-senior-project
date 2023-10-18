@@ -1,10 +1,11 @@
 "use client"
 import Dropdown from '@/components/elements/input/selected_input/Dropdown';
 import MiniButton from '@/components/elements/static/MiniButton';
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { MdArrowForwardIos } from 'react-icons/md'
 import SelectClassModal from '../../../../components/SelectClassModal';
 import { usePathname, useRouter } from 'next/navigation';
+import axios from 'axios';
 type Props = {
 }
 
@@ -14,77 +15,44 @@ const ShowTeacherData = (props: Props) => {
     const [classModalActive, setClassModalActive] = useState<boolean>(false) //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
     const [searchText, setSearchText] = useState(""); //ข้อความค้นหาใน dropdown เลือกครู
     // const [category, setCategory] = useState<string>("");
-    const [teacher, setTeacher] = useState<teacher>(); //ข้อมูลของคุณครูที่เลือกเป็น object
+    const [teacher, setTeacher] = useState<any>({
+        TeacherID: null,
+        Prefix: "",
+        Firstname: "",
+        Lastname: "",
+        Department: "",
+    }); //ข้อมูลของคุณครูที่เลือกเป็น object
     const [teacherLabel, setTeacherLabel] = useState<string>(""); //ใช้ตอนเลือก dropdown แล้วให้แสดงข้อมูลที่เลือก
-    const [teacherFilterData, setTeacherFilterData] = useState([
+    const [teacherFilterData, setTeacherFilterData] = useState<teacher[]>([]); //ข้อมูลสำหรับ filter ค้นหาชื่อแล้วค่อย set ลง data ที่นำไปแสดง
+    const [teacherData, setTeacherData] = useState<teacher[]>([]); //ข้อมูลที่นำไปแสดง
+    const [classList, setClassList] = useState<any[]>([
         {
-            TeacherID : 0,
-            FirstName : "ชาติ",
-            LastName : "แสงกระจ่าง",
-            Department : "ภาษาไทย"
+            Year: "",
+            ClassRoom : [
+                "",
+                "",
+                ""
+            ]
         },
-        {
-            TeacherID : 1,
-            FirstName : "พงษ์สิทธิ์",
-            LastName : "โชตวาณิช",
-            Department : "สังคมศึกษาฯ"
-        },
-        {
-            TeacherID : 2,
-            FirstName : "ชัญญา",
-            LastName : "วัฒนโกศล",
-            Department : "ศิลปะ"
-        },
-        {
-            TeacherID : 3,
-            FirstName : "ศศิรา",
-            LastName : "ต้นทอง",
-            Department : "วิทยาศาสตร์"
-        },
-        {
-            TeacherID : 4,
-            FirstName : "กลวัชร",
-            LastName : "ไชยสงคราม",
-            Department : "การงานอาชีพและเทคโนโลยี"
-        },
-    ]); //ข้อมูลสำหรับ filter ค้นหาชื่อแล้วค่อย set ลง data ที่นำไปแสดง
-    const [teacherData, setTeacherData] = useState([
-        {
-            TeacherID : 0,
-            FirstName : "ชาติ",
-            LastName : "แสงกระจ่าง",
-            Department : "ภาษาไทย"
-        },
-        {
-            TeacherID : 1,
-            FirstName : "พงษ์สิทธิ์",
-            LastName : "โชตวาณิช",
-            Department : "สังคมศึกษาฯ"
-        },
-        {
-            TeacherID : 2,
-            FirstName : "ชัญญา",
-            LastName : "วัฒนโกศล",
-            Department : "ศิลปะ"
-        },
-        {
-            TeacherID : 3,
-            FirstName : "ศศิรา",
-            LastName : "ต้นทอง",
-            Department : "วิทยาศาสตร์"
-        },
-        {
-            TeacherID : 4,
-            FirstName : "กลวัชร",
-            LastName : "ไชยสงคราม",
-            Department : "การงานอาชีพและเทคโนโลยี"
-        },
-    ]); //ข้อมูลที่นำไปแสดง
-    const [classList, setClassList] = useState<string[]>(["ม.2", "ม.3", "ม.5"]) //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
+    ]) //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
+    useEffect(() => {
+        const getData = () => {
+            axios.get('http://localhost:3000/api/teacher')
+            .then((res) => {
+                let data: teacher[] = res.data;
+                setTeacherData(() => [...data]);
+                setTeacherFilterData(() => [...data]);
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+        }
+        return () => getData();
+    }, [])
     const searchName = (name: string) => {
         //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
         let res = teacherFilterData.filter((item) =>
-        `${item.FirstName} ${item.LastName} - ${item.Department}`.match(name)
+        `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
         );
         setTeacherData(res);
     };
@@ -96,7 +64,18 @@ const ShowTeacherData = (props: Props) => {
     const changeClassList = (item: string[]) => {
         setClassList(() => item);
         setClassModalActive(false)
-    } 
+    }
+    const getClassifyTeacher = async (TeacherID: number) => {
+        await axios.get(`http://localhost:3000/api/classify?teacherID=${TeacherID}`)
+        .then((res) => {
+            let teacher = res.data.Teacher[0];
+            let grade = res.data.Grade;
+            console.log(teacher);
+            setTeacher(teacher);
+            setClassList(grade);
+        })
+        .catch((err) => console.log(err));
+    }
   return (
     <>
         {classModalActive ? <SelectClassModal confirmChange={changeClassList} closeModal={() => setClassModalActive(false)} classList={classList}/> : null}
@@ -104,31 +83,15 @@ const ShowTeacherData = (props: Props) => {
         {/* เลือกครู */}
         <div className="flex w-full h-fit justify-between p-4 items-center border border-[#EDEEF3]">
             <div className="flex items-center gap-4">
-            <p className="text-md">เลือกคุณครู</p>
+            <p className="text-md" onClick={() => console.log(teacher)}>เลือกคุณครู</p>
             </div>
             <div className="flex flex-row justify-between gap-3">
-            {/* <Dropdown
-                data={["ภาษาไทย", "คณิตศาสตร์"]}
-                renderItem={
-                ({ data }): JSX.Element => (
-                    <li className="w-full">
-                        {data}
-                    </li>
-                )
-                }
-                width ={200}
-                height ={40}
-                currentValue={category}
-                handleChange={(data:any) => {
-                setCategory(data);
-                }}
-            /> */}
             <Dropdown
                 data={teacherData}
                 renderItem={
                 ({ data }): JSX.Element => (
                     <li className="w-full">
-                        {data.FirstName} {data.LastName} - {data.Department}
+                        {data.Firstname} {data.Lastname} - {data.Department}
                     </li>
                 )
                 }
@@ -136,8 +99,9 @@ const ShowTeacherData = (props: Props) => {
                 height ={40}
                 currentValue={teacherLabel}
                 handleChange={(data:any) => {
-                    setTeacher(data);
-                    setTeacherLabel(`${data.FirstName} ${data.LastName} - ${data.Department}`)
+                    getClassifyTeacher(data.TeacherID)
+                    // setTeacher(data)
+                    setTeacherLabel(`${data.Firstname} ${data.Lastname} - ${data.Department}`)
                 }}
                 placeHolder='เลือกคุณครู'
                 useSearchBar={true}
@@ -155,7 +119,7 @@ const ShowTeacherData = (props: Props) => {
                 <div className="flex items-center gap-4">
                 <p className="text-md">ชื่อ - นามสกุล</p>
                 </div>
-                <p className="text-md text-gray-500">{teacher.FirstName} {teacher.LastName}</p>
+                <p className="text-md text-gray-500">{teacher.Firstname} {teacher.Lastname}</p>
             </div>
             <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
                 <div className="flex items-center gap-4">
@@ -176,7 +140,7 @@ const ShowTeacherData = (props: Props) => {
                 <div className='flex flex-row gap-3'>
                     {classList.map((item) => (
                         <React.Fragment key={item}>
-                            <MiniButton width={45} height={25} border={true} borderColor="#c7c7c7" title={item} />
+                            <MiniButton width={45} height={25} border={true} borderColor="#c7c7c7" title={`ม.${item.Year}`} />
                         </React.Fragment>
                     ))}
                     <u onClick={() => setClassModalActive(true)} className='text-cyan-500 cursor-pointer select-none'>เลือก</u>
