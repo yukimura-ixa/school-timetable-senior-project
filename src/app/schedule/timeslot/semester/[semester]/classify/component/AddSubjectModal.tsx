@@ -1,20 +1,50 @@
 import NumberField from "@/components/elements/input/field/NumberField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash, TbTrashFilled } from "react-icons/tb";
 type Props = {
   closeModal: any;
+  addSubjectToClass: any;
+  classRoomData: any;
 };
 
 const AddSubjectModal = (props: Props) => {
-  const [subjectList, setSubjectList] = useState([]);
+  const [subject, setSubject] = useState<subject[]>([]);
+  const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [subjectList, setSubjectList] = useState([]); //เก็บวิชาที่เพิ่มใหม่
   const addSubjectToList = (item: any) => {
     setSubjectList(() => [...subjectList, item]);
   };
   const removeFromSubjectList = (index:number) => {
     setSubjectList(() => subjectList.filter((item, ind) => ind != index))
   };
+  useEffect(() => {
+    const getSubject = () => {
+      axios.get('http://localhost:3000/api/subject')
+      .then((res) => {
+        let data:subject[] = res.data;
+        setSubject(() => data);
+        setSubjectFilter(() => data);
+      })
+      .catch((err) => console.log(err))
+    }
+    return () => getSubject();
+  },[])
+  const searchName = (name: string) => {
+    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
+    let res = subjectFilter.filter((item) =>
+    `${item.SubjectCode} - ${item.SubjectName}`.match(name)
+    );
+    setSubject(res);
+  };
+  const searchHandle = (event:any) => {
+    let text = event.target.value;
+    setSearchText(text);
+    searchName(text);
+  }
   return (
     <>
       <div
@@ -37,7 +67,7 @@ const AddSubjectModal = (props: Props) => {
               />
             </div>
             <p className="text-xs text-gray-300">
-              เลือกวิชาเรียนที่ต้องสอนในห้อง ม.2/1
+              เลือกวิชาเรียนที่ต้องสอนในห้อง ม.{props.classRoomData.Year}/{props.classRoomData.GradeID.toString()[2]}
             </p>
           </div>
           {/* กดเพื้อเพิ่มวิชา */}
@@ -48,9 +78,13 @@ const AddSubjectModal = (props: Props) => {
                 addSubjectToList(
                   //Add default value to array
                   {
-                    subjectID: "",
-                    subjectName: "",
-                    timeSlotAmount: 1,
+                    SubjectID: null,
+                    SubjectCode: "",
+                    SubjectName: "",
+                    Credit: null,
+                    Category: "",
+                    SubjectProgram: "",
+                    TeachHour: 1
                   }
                 )
               }
@@ -58,48 +92,32 @@ const AddSubjectModal = (props: Props) => {
               เพิ่มวิชา
             </u>
           </div>
-          <div className="flex flex-col-reverse gap-3">
+          <div className="flex flex-col gap-3">
             {subjectList.map((item, index) => (
-              <React.Fragment key={`${item.subjectID} ${index}`}>
+              <React.Fragment key={`${item.subjectCode} ${index}`}>
                 {/* List วิชาต่างๆ */}
                 <div className="flex justify-between items-center">
                   <Dropdown
-                    data={[
-                      {
-                        subjectID: "ค33101",
-                        subjectName: "คณิตศาสตร์พิ้นฐาน",
-                      },
-                      {
-                        subjectID: "ศ33102",
-                        subjectName: "ศิลปะ",
-                      },
-                      {
-                        subjectID: "ว30221",
-                        subjectName: "เคมี 1",
-                      },
-                      {
-                        subjectID: "ส22106",
-                        subjectName: "ประวัติศาสตร์ 3",
-                      },
-                    ]}
+                    data={subject}
                     renderItem={({ data }): JSX.Element => (
                       <li className="text-sm">
-                        {data.subjectID} - {data.subjectName}
+                        {data.SubjectCode} - {data.SubjectName}
                       </li>
                     )}
                     width={200}
                     height={"fit-content"}
                     currentValue={`${
-                      item.subjectID === ""
+                      item.SubjectCode === ""
                         ? ""
-                        : `${item.subjectID} - ${item.subjectName}`
+                        : `${item.SubjectCode} - ${item.SubjectName}`
                     }`}
                     placeHolder="เลือกวิชา"
                     handleChange={(item: any) => {
                       let data = {
-                        subjectID: item.subjectID,
-                        subjectName: item.subjectName,
-                        timeSlotAmount: subjectList[index].timeSlotAmount,
+                        ...item,
+                        SubjectCode: item.SubjectCode,
+                        SubjectName: item.SubjectName,
+                        TeachHour: subjectList[index].TeachHour,
                       };
                       setSubjectList(() =>
                         subjectList.map((item, ind) =>
@@ -108,7 +126,7 @@ const AddSubjectModal = (props: Props) => {
                       );
                     }}
                     useSearchBar={true}
-                    // searchFunciton
+                    searchFunciton={searchHandle}
                   />
                   <div className="flex justify-between gap-5 items-center">
                     <div className="flex gap-2 items-center">
@@ -116,12 +134,11 @@ const AddSubjectModal = (props: Props) => {
                       <NumberField
                         width={40}
                         height={35}
-                        value={item.timeSlotAmount}
+                        value={item.TeachHour}
                         handleChange={(e:any) => {
                             let data = {
-                                subjectID: subjectList[index].subjectID,
-                                subjectName: subjectList[index].subjectName,
-                                timeSlotAmount: parseInt(e.target.value),
+                                ...subjectList[index],
+                                TeachHour: parseInt(e.target.value),
                               };
                               setSubjectList(() =>
                                 subjectList.map((item, ind) =>
@@ -145,7 +162,7 @@ const AddSubjectModal = (props: Props) => {
           </div>
           <span className="w-full flex justify-end">
               {/* <Button title="ยืนยัน" width={150} handleClick={handleSubmit} /> */}
-              <button className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded">
+              <button onClick={() => props.addSubjectToClass(subjectList)} className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded">
                 ยืนยัน
               </button>
           </span>

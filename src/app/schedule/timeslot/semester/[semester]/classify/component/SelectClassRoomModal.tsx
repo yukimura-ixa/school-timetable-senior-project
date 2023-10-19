@@ -1,5 +1,6 @@
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { useState } from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 import { AiOutlineClose } from 'react-icons/ai';
 type props = {
@@ -8,32 +9,22 @@ type props = {
   confirmChange: any;
 };
 function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
-    const classRoomOfClass:object[] = [
-      {
-        m1 : [1, 2, 3, 4, 5, 6, 7]
-      },
-      {
-        m2 : [1, 2, 3, 4, 5, 6, 7]
-      },
-      {
-        m3 : [1, 2, 3, 4, 5, 6, 7]
-      },
-      {
-        m4 : [1, 2, 3, 4, 5, 6, 7]
-      },
-      {
-        m5 : [1, 2, 3, 4, 5, 6, 7]
-      },
-      {
-        m6 : [1, 2, 3, 4, 5, 6]
+    useEffect(() => {
+      const getData = () => {
+      axios.get('http://localhost:3000/api/classroom_of_allclass')
+      .then((res) => {
+        let data = res.data;
+        setUnSelectedList(() => data.filter((item) => item.Year == 2)[0].rooms.filter((item) => !selectedList.includes(item)))
+        console.log(data);
+      })
+      .catch((err) => console.log(err))
       }
-    ]
+      return () => getData();
+    }, [])
     //เลือกห้องเรียนที่รับผิดชอบแล้ว
     const [selectedList, setSelectedList] = useState<number[]>(classList);
     //ห้องเรียนที่ยังไม่เลือก
-    const [unSelectedList, setUnSelectedList] = useState<number[]>([
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
-    ].filter((item) => !selectedList.includes(item)));
+    const [unSelectedList, setUnSelectedList] = useState<number[]>([]);
     const addSelectedList = (item:number) => {
         //ตัวแปร newList จะเพิ่มของใหม่ลงไปพร้อมกับ sort แล้ว set state
         let newList = [...selectedList, item].sort();
@@ -62,7 +53,7 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
           {/* Content */}
           <div className="flex flex-col w-full gap-3 h-auto">
             <div className="flex justify-between">
-                <p className="text-lg select-none">เลือกห้องเรียน</p>
+                <p className="text-lg select-none" onClick={() => console.log(unSelectedList)}>เลือกห้องเรียน</p>
                 <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
             </div>
             <p className="text-xs text-gray-300">เลือกห้องเรียนของคุณครูที่รับผิดชอบในห้องนั้นๆ</p> 

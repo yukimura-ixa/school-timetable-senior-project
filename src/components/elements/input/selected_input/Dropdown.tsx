@@ -53,7 +53,7 @@ function Dropdown({
           height: height,
         }}
       >
-        <div className="flex justify-left"
+        <div className="flex justify-left text-sm"
           //กำหนดสีของ Placeholder เป็นสีเทากลางๆ แต่ถ้าเลือกค่าแล้ว text จะเป็นสีดำ
           style={{ color: typeof currentValue === 'undefined' || currentValue === "" ? "#676E85" : "#000" }}
         >
