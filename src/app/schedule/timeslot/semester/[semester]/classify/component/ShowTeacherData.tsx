@@ -105,7 +105,7 @@ const ShowTeacherData = (props: Props) => {
                 </div>
                 <p className="text-md text-gray-500">35 คาบ</p>
             </div>
-            <div onClick={() => {router.push(`${pathName}/teacher_responsibility`)}} className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3] cursor-pointer hover:bg-gray-50 duration-300">
+            <div onClick={() => {router.push(`${pathName}/teacher_responsibility?TeacherID=${teacher.TeacherID}`)}} className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3] cursor-pointer hover:bg-gray-50 duration-300">
                 <div className="flex items-center gap-4">
                     <p className="text-md">วิชาที่รับผิดชอบทั้งหมด</p>
                 </div>

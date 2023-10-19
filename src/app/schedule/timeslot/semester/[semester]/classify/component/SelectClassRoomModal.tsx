@@ -7,17 +7,19 @@ type props = {
   closeModal: any;
   classList: number[];
   confirmChange: any;
+  year:number
 };
-function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
+function SelectClassRoomModal({ closeModal, classList, confirmChange, year }: props) {
     useEffect(() => {
       const getData = () => {
-      axios.get('http://localhost:3000/api/classroom_of_allclass')
-      .then((res) => {
-        let data = res.data;
-        setUnSelectedList(() => data.filter((item) => item.Year == 2)[0].rooms.filter((item) => !selectedList.includes(item)))
-        console.log(data);
-      })
-      .catch((err) => console.log(err))
+        axios.get('http://localhost:3000/api/classroom_of_allclass')
+        .then((res) => {
+          let data = res.data;
+          // console.log(data.filter((item) => item.Year == year)[0].rooms.filter((item) => !classList.includes(item)))
+          // console.log(classList)
+          setUnSelectedList(() => data.filter((item) => item.Year == year)[0].rooms.filter((item) => !classList.includes(item)))
+        })
+        .catch((err) => console.log(err))
       }
       return () => getData();
     }, [])
@@ -46,36 +48,36 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange }: props) {
   return (
     <>
       <div
-        style={{ backgroundColor: "rgba(0,0,0,0.75" }}
+        style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
         <div className="flex flex-col w-[550px] h-auto p-[50px] gap-8 bg-white rounded">
           {/* Content */}
           <div className="flex flex-col w-full gap-3 h-auto">
             <div className="flex justify-between">
-                <p className="text-lg select-none" onClick={() => console.log(unSelectedList)}>เลือกห้องเรียน</p>
+                <p className="text-lg select-none" onClick={() => {}}>เลือกห้องเรียน</p>
                 <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
             </div>
             <p className="text-xs text-gray-300">เลือกห้องเรียนของคุณครูที่รับผิดชอบในห้องนั้นๆ</p> 
           </div>
           {/* ระดับชั้นที่เลือกแล้ว */}
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-gray-500">ห้องเรียนที่เลือกแล้ว (ม.2)</p>
+            <p className="text-sm text-gray-500">ห้องเรียนที่เลือกแล้ว (ม.{year})</p>
             <div className={`flex items-center flex-wrap gap-4 w-full ${selectedList.length === 0 ? "h-[45px]" : null} border border-gray-300 px-3 py-3 rounded`}>
                 {selectedList.map((item) => (
                     <React.Fragment key={item}>
-                        <MiniButton handleClick={() => removeSelectedList(item)} height={25} border={true} isSelected={true} borderColor="#c7c7c7" title={`ม.2/${item}`} />
+                        <MiniButton handleClick={() => removeSelectedList(item)} height={25} border={true} isSelected={true} borderColor="#c7c7c7" title={`ม.${year}/${item}`} />
                     </React.Fragment>
                 ))}
             </div>
           </div>
           {/* เลือกระดับชั้นจากที่นี่ */}
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-gray-500">เลือกห้องได้จากที่นี่ (ม.2)</p>
+            <p className="text-sm text-gray-500">เลือกห้องได้จากที่นี่ (ม.{year})</p>
             <div className={`flex items-center flex-wrap gap-4 w-full ${unSelectedList.length === 0 ? "h-[45px]" : null} border border-gray-300 px-3 py-3 rounded`}>
                 {unSelectedList.map((item) => (
                     <React.Fragment key={item}>
-                        <MiniButton handleClick={() => addSelectedList(item)} height={25} border={true} borderColor="#c7c7c7" title={`ม.2/${item}`} />
+                        <MiniButton handleClick={() => addSelectedList(item)} height={25} border={true} borderColor="#c7c7c7" title={`ม.${year}/${item}`} />
                     </React.Fragment>
                 ))}
             </div>

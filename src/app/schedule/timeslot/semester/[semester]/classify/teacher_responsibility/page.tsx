@@ -3,6 +3,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { TbArrowBackUp } from "react-icons/tb";
+import { useSearchParams } from "next/navigation";
 import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
 import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
@@ -12,92 +13,24 @@ type Props = {
 };
 
 const ClassroomResponsibility = (props: Props) => {
+  const params = useSearchParams();
+  const searchTeacherID = params.get("TeacherID");
   const [data, setData] = useState({
     Teacher: {
-      TeacherID: 3,
-      Prefix: "นาง",
-      Firstname: "สุภาพรณ์",
-      Lastname: "วงศ์ทรรศนกุล",
-      Department: "ภาษาไทย",
+      TeacherID: null,
+      Prefix: "",
+      Firstname: "",
+      Lastname: "",
+      Department: "",
     },
     Grade: [
       {
         Year: 1,
-        ClassRooms: [
-          {
-            GradeID: 101,
-            Subjects: [
-              {
-                SubjectID: 5,
-                SubjectCode: "ท21102",
-                SubjectName: "ภาษาไทยพื้นฐาน",
-                TeachHour: 4,
-              },
-              {
-                SubjectID: 65,
-                SubjectCode: "ก22901",
-                SubjectName: "แนะแนว",
-                TeachHour: 2,
-              },
-            ],
-          },
-          {
-            GradeID: 105,
-            Subjects: [
-              {
-                SubjectID: 5,
-                SubjectCode: "ท21102",
-                SubjectName: "ภาษาไทยพื้นฐาน",
-                TeachHour: 3,
-              },
-              {
-                SubjectID: 65,
-                SubjectCode: "ก22901",
-                SubjectName: "แนะแนว",
-                TeachHour: 1,
-              },
-            ],
-          },
-        ],
+        ClassRooms: [],
       },
       {
         Year: 2,
-        ClassRooms: [
-          {
-            GradeID: 101,
-            Subjects: [
-              {
-                SubjectID: 5,
-                SubjectCode: "ท21102",
-                SubjectName: "ภาษาไทยพื้นฐาน",
-                TeachHour: 4,
-              },
-              {
-                SubjectID: 65,
-                SubjectCode: "ก22901",
-                SubjectName: "แนะแนว",
-                TeachHour: 2,
-              },
-            ],
-          },
-          {
-            GradeID: 103,
-            Subjects: [
-              {
-                SubjectID: 5,
-                SubjectCode: "ท21102",
-                SubjectName: "ภาษาไทยพื้นฐาน",
-                TeachHour: 3,
-              },
-              {
-                SubjectID: 65,
-                SubjectCode: "ก22901",
-                SubjectName: "แนะแนว",
-                TeachHour: 1,
-              },
-            ],
-          },
-        ],
+        ClassRooms: [],
       },
       {
         Year: 3,
@@ -105,16 +38,7 @@ const ClassroomResponsibility = (props: Props) => {
       },
       {
         Year: 4,
-        ClassRooms: [
-          {
-            GradeID: 404,
-            Subjects: [],
-          },
-          {
-            GradeID: 405,
-            Subjects: [],
-          },
-        ],
+        ClassRooms: [],
       },
       {
         Year: 5,
@@ -126,18 +50,42 @@ const ClassroomResponsibility = (props: Props) => {
       },
     ],
   });
+  useEffect(() => {
+    const getData = () => {
+      axios
+        .get(`http://localhost:3000/api/classify?TeacherID=${searchTeacherID}`)
+        .then((res) => {
+          let teacher = res.data.Teacher;
+          let grade_classify = res.data.Grade;
+          let grade_upadted = data.Grade.map((grade) =>
+            grade_classify.map((year) => year.Year).includes(grade.Year)
+              ? grade_classify.filter((item) => item.Year == grade.Year)[0]
+              : grade
+          );
+          setData(() => ({
+            Teacher: teacher,
+            Grade: grade_upadted,
+          }));
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    return () => getData();
+  }, []);
   const router = useRouter();
-  const [cardHidden, setCardHidden] = useState<number[]>([0, 1, 2, 3, 4, 5]);
   const [classRoomModalActive, setClassRoomModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
   const [addSubjectModalActive, setAddSubjectModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
   // const [selectedClass, setSelectedClass] = useState<number>(2); //เซ็ทไว้ดึงข้อมูลห้องเรียนทั้งหมดว่ามีกี่ห้อง -> ส่งไปที่ Modal
   const [classRoomList, setClassRoomList] = useState<number[]>([]); //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
+  // ยังไม่เสร็จ
   const changeClassRoomList = (item: number[]) => {
     setClassRoomList(() => item);
     setClassRoomModalActive(false);
   };
+  const [cardHidden, setCardHidden] = useState<number[]>([0, 1, 2, 3, 4, 5]); //ใช้สำหรับ การ์ด ม1-ม6
   const hiddenCard = (index: number) => {
     if (cardHidden.includes(index)) {
       setCardHidden(() => cardHidden.filter((item) => item !== index));
@@ -163,21 +111,27 @@ const ClassroomResponsibility = (props: Props) => {
         item.GradeID == classRoomForAddSubj.GradeID
           ? { ...item, Subjects: [...newSubject] }
           : item
-      );//map เพื่อนำข้อมูลวิชาที่เพิ่มใหม่ไปใส่ใน object ที่ชั้นเรียนและห้องเรียนที่เราต้องการ (Property ClassRooms)
+      ); //map เพื่อนำข้อมูลวิชาที่เพิ่มใหม่ไปใส่ใน object ที่ชั้นเรียนและห้องเรียนที่เราต้องการ (Property ClassRooms)
     setData(() => ({
       ...data,
       Grade: data.Grade.map((grade) =>
         grade.Year == classRoomForAddSubj.Year
-          ? {...grade, ClassRooms : addToClassRoom}
+          ? { ...grade, ClassRooms: addToClassRoom }
           : grade
-       ),
-    }));//เช็คชั้นเรียนที่ตรงกันแล้วเอา addToClassRoom ลงมาใส่
-    setAddSubjectModalActive(false)
+      ),
+    })); //เช็คชั้นเรียนที่ตรงกันแล้วเอา addToClassRoom ลงมาใส่
+    setAddSubjectModalActive(false);
   };
   const [classRoomForAddSubj, setClassRoomForAddSubj] = useState({
     Year: null,
     GradeID: null,
   });
+  const addClassRoomtoClass = (Year, Classrooms) => {
+    setClassRoomModalActive(true)
+    setYear(() => Year)
+    setClassRoomList(() => Classrooms.map((item) => item.GradeID).map((item) => parseInt(item.toString()[2])))
+}
+  const [year, setYear] = useState<number>(null)
   return (
     <>
       {classRoomModalActive ? (
@@ -185,6 +139,7 @@ const ClassroomResponsibility = (props: Props) => {
           confirmChange={changeClassRoomList}
           closeModal={() => setClassRoomModalActive(false)}
           classList={classRoomList}
+          year={year}
         />
       ) : null}
       {addSubjectModalActive ? (
@@ -198,7 +153,7 @@ const ClassroomResponsibility = (props: Props) => {
         <h1
           className="text-lg flex items-center gap-3"
           onClick={() => {
-            console.log(data.Grade);
+            console.log(classRoomList)
           }}
         >
           เลือกห้องเรียน
@@ -281,7 +236,7 @@ const ClassroomResponsibility = (props: Props) => {
                     ))}
                   </div>
                   <IoMdAddCircle
-                    onClick={() => {setClassRoomModalActive(true)}}
+                    onClick={() => {addClassRoomtoClass(grade.Year, grade.ClassRooms)}}
                     size={24}
                     className="fill-gray-500 cursor-pointer"
                   />
