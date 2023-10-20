@@ -84,7 +84,7 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange, year }: pr
           </div>
           <span className="w-full flex justify-end">
               {/* <Button title="ยืนยัน" width={150} handleClick={handleSubmit} /> */}
-              <button onClick={() => confirmChange(selectedList)} className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded">
+              <button onClick={() => confirmChange(selectedList.map((item) => parseInt(`${year}${item < 10 ? `0${item}` : item}`)), year)} className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded">
                 ยืนยัน
               </button>
           </span>

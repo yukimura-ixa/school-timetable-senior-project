@@ -17,15 +17,19 @@ const ClassroomResponsibility = (props: Props) => {
   const searchTeacherID = params.get("TeacherID");
   const [data, setData] = useState({
     Teacher: {
-      TeacherID: null, Prefix: "", Firstname: "", Lastname: "", Department: "",
+      TeacherID: null,
+      Prefix: "",
+      Firstname: "",
+      Lastname: "",
+      Department: "",
     },
     Grade: [
-      {Year: 1, ClassRooms: [],},
-      {Year: 2, ClassRooms: [],},
-      {Year: 3, ClassRooms: [],},
-      {Year: 4, ClassRooms: [],},
-      {Year: 5, ClassRooms: [],},
-      {Year: 6, ClassRooms: [],},
+      { Year: 1, ClassRooms: [] },
+      { Year: 2, ClassRooms: [] },
+      { Year: 3, ClassRooms: [] },
+      { Year: 4, ClassRooms: [] },
+      { Year: 5, ClassRooms: [] },
+      { Year: 6, ClassRooms: [] },
     ],
   });
   useEffect(() => {
@@ -59,8 +63,41 @@ const ClassroomResponsibility = (props: Props) => {
   // const [selectedClass, setSelectedClass] = useState<number>(2); //เซ็ทไว้ดึงข้อมูลห้องเรียนทั้งหมดว่ามีกี่ห้อง -> ส่งไปที่ Modal
   const [classRoomList, setClassRoomList] = useState<number[]>([]); //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
   // ยังไม่เสร็จ
-  const changeClassRoomList = (item: number[]) => {
-    setClassRoomList(() => item);
+  const changeClassRoomList = (rooms: number[], year: number) => {
+    //ข้อจำกัดคือ ถ้าลบห้องเรียนแล้วเพิ่มใหม่ ก็ต้องเพิ่มวิชาใหม่
+    setClassRoomList(() => rooms);
+    // มึนชิบหาย
+    setData(() => ({
+      ...data,
+      Grade: data.Grade.map((item) =>
+        item.Year == year //เช็คก่อนว่าเพิ่มชั้นเรียนของปีอะไร
+          ? {
+              ...item,
+              ClassRooms:
+                //เช็คว่ามีห้องเรียนเพิ่มเข้ามาใหม่หรือเปล่า ถ้ามีก็จะนำห้องใหม่เข้ามาโดยให้ข้อมูลของ rooms นั้น filter โดยการเช็คเลขห้องว่า ถ้ามีอยู่แล้วก็ไม่ต้องใส่เพิ่มมา
+                item.ClassRooms.length <= rooms.length
+                  ? [
+                      ...item.ClassRooms, //[201, 202]
+                      ...rooms //[201, 202, 203] res = [203]
+                        .map((item) => ({ GradeID: item, Subjects: [] })) //map ห้องที่เพิ่มใหม่เข้าไป
+                        .filter(
+                          (room) =>
+                            !item.ClassRooms.map((gid) => gid.GradeID).includes(
+                              room.GradeID
+                            )
+                        ), //ตรงนี้กรองห้องที่ซ้ำกันออกไป
+                    ]
+                  : item.ClassRooms.filter((item) =>
+                      rooms.map((gid) => gid).includes(item.GradeID)
+                    ).length == 0 //เช็คว่าถ้ากดลบห้องเรียนออกจากชั้นนั้นหมด
+                  ? [] //จะให้คืนเป็น []
+                  : item.ClassRooms.filter((item) =>
+                      rooms.map((gid) => gid).includes(item.GradeID)
+                    ), //ถ้าไม่ใช้ก็แค่กรอบห้องเรียนที่เรานำออก
+            }
+          : item
+      ),
+    }));
     setClassRoomModalActive(false);
   };
   const [cardHidden, setCardHidden] = useState<number[]>([0, 1, 2, 3, 4, 5]); //ใช้สำหรับ การ์ด ม1-ม6
@@ -72,15 +109,6 @@ const ClassroomResponsibility = (props: Props) => {
     }
   };
   const addSubjectToClassRoom = (subj: any) => {
-    // //เพิ่มรายวิชาจาก modal
-    // let newSubject = [
-    //   ...data.Grade.filter(
-    //     (item) => item.Year == classRoomForAddSubj.Year
-    //   )[0].ClassRooms.filter(
-    //     (item) => item.GradeID === classRoomForAddSubj.GradeID
-    //   )[0].Subjects,
-    //   ...subj,
-    // ]; // filter เพื่อเอา array ของ subject แล้วใส่วิชาที่เพิ่มใหม่ลงไป
     let addToClassRoom = data.Grade.filter(
       (item) => item.Year == classRoomForAddSubj.Year
     )
@@ -105,16 +133,22 @@ const ClassroomResponsibility = (props: Props) => {
     GradeID: null,
   });
   const addClassRoomtoClass = (Year, Classrooms) => {
-    setClassRoomModalActive(true)
-    setYear(() => Year)
-    setClassRoomList(() => Classrooms.map((item) => item.GradeID).map((item) => parseInt(item.toString()[2])))
-  }
-  const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState([])
+    setClassRoomModalActive(true);
+    setYear(() => Year);
+    setClassRoomList(() =>
+      Classrooms.map((item) => item.GradeID).map((item) =>
+        parseInt(item.toString()[2])
+      )
+    );
+  };
+  const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState(
+    []
+  );
   const setCurrentSubject = (subj) => {
     console.log(subj);
-    setCurrentSubjectInClassRoom(subj)
-  }
-  const [year, setYear] = useState<number>(null)
+    setCurrentSubjectInClassRoom(subj);
+  };
+  const [year, setYear] = useState<number>(null);
   return (
     <>
       {classRoomModalActive ? (
@@ -137,7 +171,7 @@ const ClassroomResponsibility = (props: Props) => {
         <h1
           className="text-lg flex items-center gap-3"
           onClick={() => {
-            console.log(classRoomList)
+            console.log(classRoomList);
           }}
         >
           เลือกห้องเรียน
@@ -207,11 +241,11 @@ const ClassroomResponsibility = (props: Props) => {
                           titleColor="#000dff"
                           handleClick={() => {
                             setAddSubjectModalActive(true),
-                            setClassRoomForAddSubj(() => ({
+                              setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
-                            }));
-                            setCurrentSubject(room.Subjects)
+                              }));
+                            setCurrentSubject(room.Subjects);
                           }}
                           title={`ม.${grade.Year}/${
                             room.GradeID.toString()[2]
@@ -221,7 +255,9 @@ const ClassroomResponsibility = (props: Props) => {
                     ))}
                   </div>
                   <IoMdAddCircle
-                    onClick={() => {addClassRoomtoClass(grade.Year, grade.ClassRooms)}}
+                    onClick={() => {
+                      addClassRoomtoClass(grade.Year, grade.ClassRooms);
+                    }}
                     size={24}
                     className="fill-gray-500 cursor-pointer"
                   />
@@ -243,11 +279,11 @@ const ClassroomResponsibility = (props: Props) => {
                           titleColor="#000dff"
                           handleClick={() => {
                             setAddSubjectModalActive(true),
-                            setClassRoomForAddSubj(() => ({
+                              setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
-                            }));
-                            setCurrentSubject(room.Subjects)
+                              }));
+                            setCurrentSubject(room.Subjects);
                           }}
                           title={`ม.${grade.Year}/${
                             room.GradeID.toString()[2]
