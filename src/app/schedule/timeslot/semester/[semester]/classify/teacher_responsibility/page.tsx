@@ -17,37 +17,15 @@ const ClassroomResponsibility = (props: Props) => {
   const searchTeacherID = params.get("TeacherID");
   const [data, setData] = useState({
     Teacher: {
-      TeacherID: null,
-      Prefix: "",
-      Firstname: "",
-      Lastname: "",
-      Department: "",
+      TeacherID: null, Prefix: "", Firstname: "", Lastname: "", Department: "",
     },
     Grade: [
-      {
-        Year: 1,
-        ClassRooms: [],
-      },
-      {
-        Year: 2,
-        ClassRooms: [],
-      },
-      {
-        Year: 3,
-        ClassRooms: [],
-      },
-      {
-        Year: 4,
-        ClassRooms: [],
-      },
-      {
-        Year: 5,
-        ClassRooms: [],
-      },
-      {
-        Year: 6,
-        ClassRooms: [],
-      },
+      {Year: 1, ClassRooms: [],},
+      {Year: 2, ClassRooms: [],},
+      {Year: 3, ClassRooms: [],},
+      {Year: 4, ClassRooms: [],},
+      {Year: 5, ClassRooms: [],},
+      {Year: 6, ClassRooms: [],},
     ],
   });
   useEffect(() => {
@@ -94,22 +72,22 @@ const ClassroomResponsibility = (props: Props) => {
     }
   };
   const addSubjectToClassRoom = (subj: any) => {
-    //เพิ่มรายวิชาจาก modal
-    let newSubject = [
-      ...data.Grade.filter(
-        (item) => item.Year == classRoomForAddSubj.Year
-      )[0].ClassRooms.filter(
-        (item) => item.GradeID === classRoomForAddSubj.GradeID
-      )[0].Subjects,
-      ...subj,
-    ]; // filter เพื่อเอา array ของ subject แล้วใส่วิชาที่เพิ่มใหม่ลงไป
+    // //เพิ่มรายวิชาจาก modal
+    // let newSubject = [
+    //   ...data.Grade.filter(
+    //     (item) => item.Year == classRoomForAddSubj.Year
+    //   )[0].ClassRooms.filter(
+    //     (item) => item.GradeID === classRoomForAddSubj.GradeID
+    //   )[0].Subjects,
+    //   ...subj,
+    // ]; // filter เพื่อเอา array ของ subject แล้วใส่วิชาที่เพิ่มใหม่ลงไป
     let addToClassRoom = data.Grade.filter(
       (item) => item.Year == classRoomForAddSubj.Year
     )
       .map((item) => item.ClassRooms)[0]
       .map((item) =>
         item.GradeID == classRoomForAddSubj.GradeID
-          ? { ...item, Subjects: [...newSubject] }
+          ? { ...item, Subjects: [...subj] }
           : item
       ); //map เพื่อนำข้อมูลวิชาที่เพิ่มใหม่ไปใส่ใน object ที่ชั้นเรียนและห้องเรียนที่เราต้องการ (Property ClassRooms)
     setData(() => ({
@@ -130,7 +108,12 @@ const ClassroomResponsibility = (props: Props) => {
     setClassRoomModalActive(true)
     setYear(() => Year)
     setClassRoomList(() => Classrooms.map((item) => item.GradeID).map((item) => parseInt(item.toString()[2])))
-}
+  }
+  const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState([])
+  const setCurrentSubject = (subj) => {
+    console.log(subj);
+    setCurrentSubjectInClassRoom(subj)
+  }
   const [year, setYear] = useState<number>(null)
   return (
     <>
@@ -147,6 +130,7 @@ const ClassroomResponsibility = (props: Props) => {
           classRoomData={classRoomForAddSubj}
           closeModal={() => setAddSubjectModalActive(false)}
           addSubjectToClass={addSubjectToClassRoom}
+          currentSubject={currentSubjectInClassRoom}
         />
       ) : null}
       <div className="flex w-full h-[80px] justify-between items-center border-b border-[#EDEEF3] mb-7">
@@ -223,10 +207,11 @@ const ClassroomResponsibility = (props: Props) => {
                           titleColor="#000dff"
                           handleClick={() => {
                             setAddSubjectModalActive(true),
-                              setClassRoomForAddSubj(() => ({
+                            setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
-                              }));
+                            }));
+                            setCurrentSubject(room.Subjects)
                           }}
                           title={`ม.${grade.Year}/${
                             room.GradeID.toString()[2]
@@ -258,10 +243,11 @@ const ClassroomResponsibility = (props: Props) => {
                           titleColor="#000dff"
                           handleClick={() => {
                             setAddSubjectModalActive(true),
-                              setClassRoomForAddSubj(() => ({
+                            setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
-                              }));
+                            }));
+                            setCurrentSubject(room.Subjects)
                           }}
                           title={`ม.${grade.Year}/${
                             room.GradeID.toString()[2]

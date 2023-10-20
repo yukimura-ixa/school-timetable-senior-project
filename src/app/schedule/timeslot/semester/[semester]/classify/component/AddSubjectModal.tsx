@@ -8,13 +8,14 @@ type Props = {
   closeModal: any;
   addSubjectToClass: any;
   classRoomData: any;
+  currentSubject:any
 };
 
 const AddSubjectModal = (props: Props) => {
   const [subject, setSubject] = useState<subject[]>([]);
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
   const [searchText, setSearchText] = useState<string>("");
-  const [subjectList, setSubjectList] = useState([]); //เก็บวิชาที่เพิ่มใหม่
+  const [subjectList, setSubjectList] = useState(props.currentSubject || []); //เก็บวิชาที่เพิ่มใหม่
   const addSubjectToList = (item: any) => {
     setSubjectList(() => [...subjectList, item]);
   };
