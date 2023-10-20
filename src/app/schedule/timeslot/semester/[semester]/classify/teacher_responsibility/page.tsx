@@ -93,7 +93,7 @@ const ClassroomResponsibility = (props: Props) => {
                   ? [] //จะให้คืนเป็น []
                   : item.ClassRooms.filter((item) =>
                       rooms.map((gid) => gid).includes(item.GradeID)
-                    ), //ถ้าไม่ใช้ก็แค่กรอบห้องเรียนที่เรานำออก
+                    ), //ถ้าไม่ใช้ก็แค่กรองห้องเรียนที่เรานำออก
             }
           : item
       ),
