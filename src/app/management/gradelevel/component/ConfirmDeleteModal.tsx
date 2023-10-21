@@ -8,7 +8,7 @@ type props = {
     dataAmount: number;
 }
 
-const ConfirmDeleteModal = ({ closeModal, deleteData, dataAmount, clearCheckList }: props) => {
+function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckList }: props) {
     const confirmed = () => {
       deleteData();
       closeModal();

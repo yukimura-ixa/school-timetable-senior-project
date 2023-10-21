@@ -6,7 +6,7 @@ import { TbTrash } from "react-icons/tb";
 
 type Props = {};
 
-const SubjectManage = (props: Props) => {
+function SubjectManage (props: Props) {
   const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <>
       <td

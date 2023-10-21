@@ -5,7 +5,7 @@ import { BiEdit } from 'react-icons/bi';
 import { TbTrash } from 'react-icons/tb';
 type Props = {}
 
-const GradeLevelManage = (props: Props) => {
+function GradeLevelManage (props: Props) {
   const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <React.Fragment key={`${data.TeacherID} ${data.Firstname}`}>
       <td

@@ -20,7 +20,7 @@ const LockSchedulePage = (props: Props) => {
             <HiLockClosed className="fill-gray-700" />
             <p>ล็อกคาบสอน</p>
           </button>
-          <button className='flex w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
+          <button onClick={() => {router.replace(`${pathName.substring(0, 29)}/arrange`)}} className='flex w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
             <p>จัดตารางสอน</p>
           </button>
         </div>

@@ -5,7 +5,7 @@ import TeacherTable from "@/app/management/teacher/component/TeacherTable";
 import { BiEdit } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
 type Props = {};
-const TeacherManage = (props: Props) => {
+function TeacherManage (props: Props) {
   const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <React.Fragment key={`${data.TeacherID} ${data.Firstname}`}>
       <td

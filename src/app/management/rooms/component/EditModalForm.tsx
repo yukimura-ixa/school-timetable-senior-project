@@ -11,12 +11,12 @@ type props = {
   clearCheckList: any;
 };
 
-const EditModalForm = ({
+function EditModalForm ({
   closeModal,
   conFirmEdit,
   data,
   clearCheckList,
-}: props) => {
+}: props) {
   const [editData, setEditData] = useState<rooms[]>(data);
   const confirmed = () => {
     conFirmEdit(editData);

@@ -6,7 +6,7 @@ import { BiEdit } from 'react-icons/bi';
 import { TbTrash } from 'react-icons/tb';
 type Props = {}
 
-const RoomsManage = (props: Props) => {
+function RoomsManage (props: Props) {
   const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <>
       <td
