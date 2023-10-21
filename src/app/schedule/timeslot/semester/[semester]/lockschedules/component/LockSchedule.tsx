@@ -18,14 +18,14 @@ const LockSchedule = (props: Props) => {
       Teachers: [
         {
           TeacherID: 88,
-          FirstName: "อเนก",
-          LastName: "ประสงค์",
+          Firstname: "อเนก",
+          Lastname: "ประสงค์",
           Department: "คณิตศาสตร์",
         },
         {
           TeacherID: 1,
-          FirstName: "อัครเดช",
-          LastName: "ปัญญาเลิศ",
+          Firstname: "อัครเดช",
+          Lastname: "ปัญญาเลิศ",
           Department: "ภาษาไทย",
         },
       ],
@@ -67,14 +67,14 @@ const LockSchedule = (props: Props) => {
       Teachers: [
         {
           TeacherID: 25,
-          FirstName: "อำนวย",
-          LastName: "ความสะดวก",
+          Firstname: "อำนวย",
+          Lastname: "ความสะดวก",
           Department: "ศิลปะ",
         },
         {
           TeacherID: 96,
-          FirstName: "ชาคริต",
-          LastName: "จะพักคิดถึงคิดแคท",
+          Firstname: "ชาคริต",
+          Lastname: "จะพักคิดถึงคิดแคท",
           Department: "การงานอาชีพและเทคโนโลยี",
         },
       ],
@@ -220,7 +220,7 @@ const LockSchedule = (props: Props) => {
                           border={true}
                           borderColor="#c7c7c7"
                           titleColor="#4F515E"
-                          title={`${teacher.FirstName} - ${
+                          title={`${teacher.Firstname} - ${
                             teacher.Department.length > 10
                               ? `${teacher.Department.substring(0, 10)}...`
                               : teacher.Department
