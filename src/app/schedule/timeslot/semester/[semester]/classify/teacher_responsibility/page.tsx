@@ -12,7 +12,7 @@ type Props = {
   backPage: Function;
 };
 
-const ClassroomResponsibility = (props: Props) => {
+function ClassroomResponsibility (props: Props) {
   const params = useSearchParams();
   const searchTeacherID = params.get("TeacherID");
   const [data, setData] = useState({

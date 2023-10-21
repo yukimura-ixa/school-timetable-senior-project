@@ -11,7 +11,7 @@ type Props = {
   currentSubject:any
 };
 
-const AddSubjectModal = (props: Props) => {
+function AddSubjectModal (props: Props) {
   const [subject, setSubject] = useState<subject[]>([]);
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
   const [searchText, setSearchText] = useState<string>("");

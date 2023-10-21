@@ -7,7 +7,7 @@ import AddLockSchduleModal from "./AddLockSchduleModal";
 
 type Props = {};
 
-const LockSchedule = (props: Props) => {
+function LockSchedule (props: Props) {
   const [addLockSchduleModalActive, SetAddLockSchduleModalActive] =
     useState<boolean>(false);
   const [lockScheduleData, setLockScheduledata] = useState([

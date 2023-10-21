@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 type Props = {}
 
-const LockSchedulePage = (props: Props) => {
+function LockSchedulePage (props: Props) {
     const router = useRouter();
     const pathName = usePathname();
   return (

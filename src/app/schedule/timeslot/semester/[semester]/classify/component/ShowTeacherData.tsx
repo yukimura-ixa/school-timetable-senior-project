@@ -9,7 +9,7 @@ import axios from 'axios';
 type Props = {
 }
 
-const ShowTeacherData = (props: Props) => {
+function ShowTeacherData (props: Props) {
     const router = useRouter();
     const pathName = usePathname();
     const [searchText, setSearchText] = useState(""); //ข้อความค้นหาใน dropdown เลือกครู

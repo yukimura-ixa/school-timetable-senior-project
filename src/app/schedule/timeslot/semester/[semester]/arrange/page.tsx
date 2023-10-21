@@ -2,6 +2,8 @@
 import { usePathname, useRouter } from 'next/navigation';
 import React from 'react'
 import { HiLockClosed } from 'react-icons/hi2'
+import SelectTeacherTimetable from './component/SelectTeacherTimetable';
+import TimeSlot from './component/TimeSlot';
 
 type Props = {}
 
@@ -23,7 +25,8 @@ const ArrangeTimetable = (props: Props) => {
             <p>จัดตารางสอน</p>
           </button>
         </div>
-        {/* <ShowTeacherData /> */}
+        <SelectTeacherTimetable />
+        <TimeSlot />
       </div>
     </>
   )
