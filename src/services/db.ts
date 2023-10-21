@@ -1,12 +1,16 @@
 // get the client
-import mysql from 'mysql2/promise';
-let pool = null;
+import { Pool } from "mysql2";
+import mysql from "mysql2/promise";
+let pool: Pool | undefined;
 // Create the connection pool. The pool-specific settings are the defaults
-export function createPool() {
-  return mysql.createPool({
-    host: "localhost",
-    user: "root",
-    password: "root",
+export async function getPool(): Promise<Pool> {
+  if (pool) {
+    return pool;
+  }
+  pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
     database: "school_timetable",
     waitForConnections: true,
     connectionLimit: 10,
@@ -16,11 +20,6 @@ export function createPool() {
     enableKeepAlive: true,
     keepAliveInitialDelay: 0,
   });
-}
 
-export function getPool() {
-  if (!pool) {
-    pool = createPool();
-  }
   return pool;
 }

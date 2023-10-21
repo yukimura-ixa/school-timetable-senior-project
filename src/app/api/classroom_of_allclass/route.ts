@@ -1,7 +1,8 @@
-import pool from "../conn";
+import { getPool } from "@/services/db";
 
 export async function GET(request: Request) {
-  const [data, f] = await pool.promise().query(`SELECT * FROM \`gradelevel\``);
+  const pool = await getPool();
+  const [data, f] = await pool.query(`SELECT * FROM \`gradelevel\``);
   let resToJson = JSON.parse(JSON.stringify(data));
   let rooms_of_class = [
     {
