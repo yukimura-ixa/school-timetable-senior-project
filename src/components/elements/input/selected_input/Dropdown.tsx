@@ -107,7 +107,7 @@ function Dropdown({
             cursor-default
           `}
         >
-          <p>Not Found.</p>
+          <p>ไม่พบข้อมูล</p>
         </div>
         :
         <div className="bg-white">

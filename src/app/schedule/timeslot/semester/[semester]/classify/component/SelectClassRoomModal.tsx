@@ -15,8 +15,6 @@ function SelectClassRoomModal({ closeModal, classList, confirmChange, year }: pr
         axios.get('http://localhost:3000/api/classroom_of_allclass')
         .then((res) => {
           let data = res.data;
-          // console.log(data.filter((item) => item.Year == year)[0].rooms.filter((item) => !classList.includes(item)))
-          // console.log(classList)
           setUnSelectedList(() => data.filter((item) => item.Year == year)[0].rooms.filter((item) => !classList.includes(item)))
         })
         .catch((err) => console.log(err))

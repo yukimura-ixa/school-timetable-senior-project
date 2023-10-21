@@ -62,7 +62,7 @@ const ShowTeacherData = (props: Props) => {
                 data={teacherData}
                 renderItem={
                 ({ data }): JSX.Element => (
-                    <li className="w-full">
+                    <li className="w-full text-sm">
                         {data.Firstname} {data.Lastname} - {data.Department}
                     </li>
                 )
