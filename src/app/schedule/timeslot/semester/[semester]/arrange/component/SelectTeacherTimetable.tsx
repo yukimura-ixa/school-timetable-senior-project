@@ -8,7 +8,9 @@ function SelectTeacherTimetable(props: Props) {
   const [teachers, setTeachers] = useState([]);
   const [teachersFilter, setTeachersFilter] = useState([]);
   const [teacherCurrentValue, setTeacherCurrentValue] = useState("");
+  const [classRoomValue, setClassRoomValue] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [allClassRoom, setAllClassRoom] = useState([]);
   useEffect(() => {
     const getData = () => {
       axios
@@ -21,9 +23,45 @@ function SelectTeacherTimetable(props: Props) {
         .catch((err) => {
           console.log(err);
         });
+      axios
+        .get("http://localhost:3000/api/classroom_of_allclass")
+        .then((res) => {
+          let data = res.data.map((item) =>
+              item.rooms.map((room) =>
+                parseInt(`${item.Year}${room < 10 ? `0${room}` : room}`)
+              )
+            );
+          let spreadMap = [
+            ...data[0],
+            ...data[1],
+            ...data[2],
+            ...data[3],
+            ...data[4],
+            ...data[5],
+          ];
+          setAllClassRoom(() => spreadMap);
+          // console.log(mapClassRoom());
+        })
+        .catch((err) => console.log(err));
     };
     return () => getData();
   }, []);
+  // const mapClassRoom = () => {
+  //   let classRoomsmap = allClassRoom.map((item) =>
+  //     item.rooms.map((room) =>
+  //       parseInt(`${item.Year}${room < 10 ? `0${room}` : room}`)
+  //     )
+  //   );
+  //   let spreadMap = [
+  //     ...classRoomsmap[0],
+  //     ...classRoomsmap[1],
+  //     ...classRoomsmap[2],
+  //     ...classRoomsmap[3],
+  //     ...classRoomsmap[4],
+  //     ...classRoomsmap[5],
+  //   ];
+  //   return classRoomsmap;
+  // };
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
     let res = teachersFilter.filter((item) =>
@@ -65,21 +103,17 @@ function SelectTeacherTimetable(props: Props) {
         <div className="flex justify-between items-center">
           <p>เลือกชั้นเรียน</p>
           <Dropdown
-            data={teachers}
+            data={allClassRoom}
             width={200}
             renderItem={({ data }): JSX.Element => (
-              <li className="w-full text-sm">
-                {data.SubjectCode} {data.SubjectName}
-              </li>
+              <li className="w-full text-sm">ม.{data.toString().slice(0, 1)}/{data.toString().slice(2)}</li>
             )}
             placeHolder={"ตัวเลือก"}
-            currentValue={""}
+            currentValue={classRoomValue}
             handleChange={(data: any) => {
-            //   setTeacherCurrentValue(
-            //     `${data.Firstname} ${data.Lastname} - ${data.Department}`
-            //   );
+              setClassRoomValue(`ม.${data.toString().slice(0, 1)}/${data.toString().slice(2)}`);
             }}
-            useSearchBar={true}
+            // useSearchBar={true}
             // searchFunciton={searchHandle}
           />
         </div>
