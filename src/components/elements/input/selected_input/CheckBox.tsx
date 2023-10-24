@@ -2,9 +2,9 @@ import React from 'react'
 
 interface CheckBox {
     label: string;
-    value: string;
+    value: string | number;
     name: string;
-    handleClick: Function;
+    handleClick: any;
     checked:boolean;
 }
 function CheckBox({

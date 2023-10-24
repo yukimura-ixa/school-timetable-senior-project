@@ -2,17 +2,13 @@
 import React from 'react'
 import {roomsData} from '@/raw-data/rooms-table';
 import Table from '@/app/management/rooms/component/RoomsTable';
+import { BiEdit } from 'react-icons/bi';
+import { TbTrash } from 'react-icons/tb';
 type Props = {}
 
-const RoomsManage = (props: Props) => {
-  const tableData = ({ data, handleChange, index }) => (
+function RoomsManage (props: Props) {
+  const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <>
-      <td
-        className="font-bold px-6 whitespace-nowrap select-none"
-        onClick={() => handleChange(index)}
-      >
-        {data.RoomID}
-      </td>
       <td
         className="px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
@@ -31,31 +27,37 @@ const RoomsManage = (props: Props) => {
       >
         {data.Floor}
       </td>
+      {checkList.length < 1
+      ?
+      <>
+      <td
+        className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5"
+      >
+        <BiEdit className="fill-[#A16207]" size={18} onClick={() => {editData(), handleChange(index)}}/>
+        <TbTrash className="text-red-500" size={18} onClick={() => {deleteData(), handleChange(index)}}/>
+      </td>
+      </>
+      :
+      null
+      }
     </>
   )
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
     switch(orderType){
-      case 'รหัสห้อง':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.RoomID.toLowerCase().localeCompare(b.RoomID) : b.RoomID.toLowerCase().localeCompare(a.RoomID))
       case 'ชื่อห้อง':
-        console.log(orderType);
         return data.sort((a, b) => orderState? a.RoomName.toLowerCase().localeCompare(b.RoomName) : b.RoomName.toLowerCase().localeCompare(a.RoomName))
       case 'อาคาร':
-        console.log(orderType);
         return data.sort((a, b) => orderState? a.Building.toLowerCase().localeCompare(b.Building) : b.Building.toLowerCase().localeCompare(a.Building))
       case 'ชั้น':
-        console.log(orderType);
         return data.sort((a, b) => orderState? a.Floor.toLowerCase().localeCompare(b.Floor) : b.Floor.toLowerCase().localeCompare(a.Floor))
       default:
-        return  data.sort((a, b) => a.RoomID.toLowerCase().localeCompare(b.RoomID))
+        return  data.sort((a, b) => a.RoomName.toLowerCase().localeCompare(b.RoomName))
     }
   }
   return (
     <>
       <Table
-        data={roomsData}
-        tableHead={["รหัสห้อง", "ชื่อห้อง", "อาคาร", "ชั้น"]}
+        tableHead={["ชื่อห้อง", "อาคาร", "ชั้น"]}
         tableData={tableData}
         orderByFunction={sortData}
       />

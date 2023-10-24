@@ -1,17 +1,19 @@
-"use client"
-import React from 'react'
-import {subjectData} from '@/raw-data/subject-table';
-import Table from '@/app/management/subject/component/SubjectTable';
-type Props = {}
+"use client";
+import React from "react";
+import Table from "@/app/management/subject/component/SubjectTable";
+import { BiEdit } from "react-icons/bi";
+import { TbTrash } from "react-icons/tb";
 
-const SubjectManage = (props: Props) => {
-  const tableData = ({ data, handleChange, index }) => (
+type Props = {};
+
+function SubjectManage (props: Props) {
+  const tableData = ({ data, handleChange, index, editData, deleteData, checkList }) => (
     <>
       <td
         className="font-bold px-6 whitespace-nowrap select-none"
         onClick={() => handleChange(index)}
       >
-        {data.SubjectID}
+        {data.SubjectCode}
       </td>
       <td
         className="px-6 whitespace-nowrap select-none"
@@ -31,36 +33,58 @@ const SubjectManage = (props: Props) => {
       >
         {data.Category}
       </td>
+      {checkList.length < 1
+      ?
+      <>
+      <td
+        className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5"
+      >
+        <BiEdit className="fill-[#A16207]" size={18} onClick={() => {editData(), handleChange(index)}}/>
+        <TbTrash className="text-red-500" size={18} onClick={() => {deleteData(), handleChange(index)}}/>
+      </td>
+      </>
+      :
+      null
+      }
     </>
-  )
+  );
   const sortData = (data: any[], orderState: boolean, orderType: string) => {
-    switch(orderType){
-      case 'รหัสวิชา':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.SubjectID.localeCompare(b.SubjectID) : b.SubjectID.localeCompare(a.SubjectID))
-      case 'ชื่อวิชา':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.SubjectName.toLowerCase().localeCompare(b.SubjectName) : b.SubjectName.toLowerCase().localeCompare(a.SubjectName))
-      case 'หน่วยกิต':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.Credit- b.Credit : b.Credit - a.Credit)
-      case 'กลุ่มสาระ':
-        console.log(orderType);
-        return data.sort((a, b) => orderState? a.Category.toLowerCase().localeCompare(b.Category) : b.Category.toLowerCase().localeCompare(a.Category))
+    switch (orderType) {
+      case "รหัสวิชา":
+        return data.sort((a, b) =>
+          orderState
+            ? a.SubjectCode.localeCompare(b.SubjectCode)
+            : b.SubjectCode.localeCompare(a.SubjectCode)
+        );
+      case "ชื่อวิชา":
+        return data.sort((a, b) =>
+          orderState
+            ? a.SubjectName.toLowerCase().localeCompare(b.SubjectName)
+            : b.SubjectName.toLowerCase().localeCompare(a.SubjectName)
+        );
+      case "หน่วยกิต":
+        return data.sort((a, b) =>
+          orderState ? a.Credit - b.Credit : b.Credit - a.Credit
+        );
+      case "กลุ่มสาระ":
+        return data.sort((a, b) =>
+          orderState
+            ? a.Category.toLowerCase().localeCompare(b.Category)
+            : b.Category.toLowerCase().localeCompare(a.Category)
+        );
       default:
-        return data.sort((a, b) => a.SubjectID - b.SubjectID)
+        return data.sort((a, b) => a.SubjectCode.localeCompare(b.SubjectCode));
     }
-  }
+  };
   return (
     <>
       <Table
-        data={subjectData}
         tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "กลุ่มสาระ"]}
         tableData={tableData}
         orderByFunction={sortData}
       />
     </>
   );
-}
+};
 
-export default SubjectManage
+export default SubjectManage;

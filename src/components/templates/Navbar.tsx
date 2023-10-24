@@ -1,12 +1,19 @@
+"use client"
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 import profilepic from "@/svg/profilepic.svg";
+import { usePathname } from "next/navigation";
 
 function Navbar() {
+  const pathName = usePathname()
   return (
     <>
+      {pathName == '/signin'
+      ?
+      null
+      :
       <nav className="flex w-[1280px] xl:w-full justify-center border-b">
         <div className="flex w-full xl:w-[1440px] h-full justify-between bg-white px-3 py-3">
           {/* Leftside */}
@@ -44,6 +51,7 @@ function Navbar() {
           </div>
         </div>
       </nav>
+      }
     </>
   );
 }

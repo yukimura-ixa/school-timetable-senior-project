@@ -1,9 +1,7 @@
-import { hexToRGB } from "@/app/functions/componentFunctions";
+import { hexToRGB } from "@/functions/componentFunctions";
 import React, { useState } from "react";
 
-//SVG
-import closeicon from "@/svg/crud/closeicon.svg";
-import Image from "next/image";
+import { IoIosRemoveCircle } from 'react-icons/io'
 
 interface MiniButton {
   title: string;
@@ -14,6 +12,8 @@ interface MiniButton {
   border: boolean;
   borderColor: string;
   isSelected: boolean;
+  handleClick: any;
+  hoverable: boolean;
 }
 function MiniButton({
   title = "Button",
@@ -24,6 +24,8 @@ function MiniButton({
   border = false,
   borderColor = "#222222",
   isSelected=false,
+  hoverable=false,
+  handleClick
 }: MiniButton): JSX.Element {
   interface RGBColor {
     r: number;
@@ -42,8 +44,9 @@ function MiniButton({
   return (
     <div>
       <div
+        onClick={handleClick}
         className={
-          "flex justify-center items-center px-2 gap-2 rounded cursor-pointer select-none duration-300 hover:scale-[1.05]"
+          "flex justify-center items-center px-2 gap-2 rounded cursor-pointer select-none duration-300"
         }
         style={{
           width: width == null ? "fit-content" : width,
@@ -52,11 +55,11 @@ function MiniButton({
           borderColor: borderRGBString,
           backgroundColor: buttonRGBString,
         }}
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
+        onMouseEnter={() => {hoverable ? setIsHover(true) : null}}
+        onMouseLeave={() => {hoverable ? setIsHover(false) : null}}
       >
-        <p style={{ color: titleRGBString }}>{title}</p>
-        {isSelected ? <Image src={closeicon} alt="closeicon" /> : null}
+        <p className="text-sm" style={{ color: titleRGBString }}>{title}</p>
+        {isSelected ? <IoIosRemoveCircle className="fill-red-500" /> : null}
       </div>
     </div>
   );

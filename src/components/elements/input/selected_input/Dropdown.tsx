@@ -53,12 +53,12 @@ function Dropdown({
           height: height,
         }}
       >
-        <div className="flex justify-left"
+        <div className="flex justify-left text-sm"
           //กำหนดสีของ Placeholder เป็นสีเทากลางๆ แต่ถ้าเลือกค่าแล้ว text จะเป็นสีดำ
-          style={{ color: typeof currentValue === 'undefined' ? "#676E85" : "#000" }}
+          style={{ color: typeof currentValue === 'undefined' || currentValue === "" ? "#676E85" : "#000" }}
         >
           {/* ถ้าไม่มีการใส่ currentValue เข้ามา จะสั่งให้วาง placeHolder เอาไว้ */}
-          {typeof currentValue === 'undefined' ? placeHolder : currentValue}
+          {typeof currentValue === 'undefined' || currentValue === "" ? placeHolder : width < 200 ? currentValue.length > 15 ? `${currentValue.substring(0, 10)}...` : currentValue : currentValue}
         </div>
         <Image
           className={`
@@ -75,13 +75,14 @@ function Dropdown({
             z-10
             flex-col
             justify-left
-            items-center
             border-[1px]
             cursor-pointer
+            overflow-hidden
             select-none
             mt-1
             bg-white
             gap-3
+            ${useSearchBar ? 'pt-5' : null}
             overflow-y-scroll
             duration-300
             transition-all ease-out
@@ -106,7 +107,7 @@ function Dropdown({
             cursor-default
           `}
         >
-          <p>Not Found.</p>
+          <p>ไม่พบข้อมูล</p>
         </div>
         :
         <div className="bg-white">
@@ -125,7 +126,7 @@ function Dropdown({
                     hover:text-[#3B8FEE]
                   `}
                 key={`${item}(${index})`}
-                onClick={() => { setIsHidden(false), handleChange(item) }}
+                onClick={() => { setIsHidden(false), handleChange(item, index) }}
                 //เมื่อกดเลือกข้อมูลใน List Dropdown จะพับกลับขึ้นไปแล้วเรียก handleChange
                 //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้องการ
               >

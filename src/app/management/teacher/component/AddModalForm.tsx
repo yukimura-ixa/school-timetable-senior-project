@@ -1,92 +1,177 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import closeicon from "@/svg/closeicon.svg";
 import TextField from "@/components/elements/input/field/TextField";
-import Button from "@/components/elements/static/Button";
-import { AiOutlineClose } from 'react-icons/ai';
+import { AiOutlineClose } from "react-icons/ai";
+import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import MiniButton from "@/components/elements/static/MiniButton";
 type props = {
   closeModal: any;
   addData: any;
 };
 function AddModalForm({ closeModal, addData }: props) {
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [department, setDepartment] = useState<string>("");
-  const handleChangeFirstName = (event: any) => {
-    setFirstName(() => event.target.value);
-  };
-  const handleChangeLastName = (event: any) => {
-    setLastName(() => event.target.value);
-  };
-  const handleChangeDepartment = (event: any) => {
-    setDepartment(() => event.target.value);
+  const [teachers, setTeachers] = useState<teacher[]>([
+    {
+      TeacherID : null,
+      Prefix: "",
+      Firstname: "",
+      Lastname: "",
+      Department: "",
+    },
+  ]);
+  const addList = () => {
+    let struct: teacher = {
+      TeacherID : null,
+      Prefix: "",
+      Firstname: "",
+      Lastname: "",
+      Department: "",
+    };
+    setTeachers(() => [...teachers, struct]);
   };
   const handleSubmit = () => {
-    type teacher = {
-      TeacherID: number;
-      FirstName: string;
-      LastName: string;
-      Department: string;
-    };
-    const teacherData: teacher = {
-      TeacherID: 1,
-      FirstName: firstName,
-      LastName: lastName,
-      Department: department,
-    };
-    console.log(teacherData);
-    addData(teacherData);
-    setFirstName(""), setLastName(""), setDepartment("");
+    addData(teachers);
     closeModal();
   };
-  const handleEnterKeyDown = (event:any) => {
-    if(event.key === 'Enter') {
-      handleSubmit();
-    }
+  const cancel = () => {
+    closeModal()
   }
   return (
     <>
       <div
-        onKeyDown={handleEnterKeyDown}
         style={{ backgroundColor: "rgba(0,0,0,0.75" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
-        <div className="flex flex-col w-[550px] h-auto p-[50px] gap-10 bg-white rounded">
+        <div
+          className={`relative flex flex-col w-fit ${
+            teachers.length > 5 ? "h-[700px]" : "h-auto"
+          } overflow-y-scroll overflow-x-hidden p-12 gap-10 bg-white rounded`}
+        >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none">เพิ่มรายชื่อครู</p>
-            <AiOutlineClose className="cursor-pointer" onClick={closeModal} /> 
+            <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
+          <MiniButton
+            title="เพิ่มรายการ"
+            titleColor="#000000"
+            buttonColor="#FFFFFF"
+            border={true}
+            hoverable={true}
+            borderColor="#222222"
+            handleClick={addList}
+          />
           {/* inputfield */}
-          <div className="flex flex-col gap-3">
-            <TextField
-              width="auto"
-              height="auto"
-              placeHolder="ex. อเนก"
-              label="ชื่อ (FirstName) :"
-              handleChange={handleChangeFirstName}
-            />
-            <TextField
-              width="auto"
-              height="auto"
-              placeHolder="ex. ประสงค์"
-              label="นามสกุล (LastName) :"
-              handleChange={handleChangeLastName}
-            />
-            <TextField
-              width="auto"
-              height="auto"
-              placeHolder="ex. ภาษาไทย"
-              label="กลุ่มสาระ (Department) :"
-              handleChange={handleChangeDepartment}
-            />
-            <span className="w-full flex justify-end mt-5">
-              {/* <Button title="ยืนยัน" width={150} handleClick={handleSubmit} /> */}
-              <button className=" w-[150px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded" onClick={handleSubmit}>
-                ยืนยัน
-              </button>
-            </span>
+          <div className="flex flex-col-reverse gap-3">
+            {teachers.map((teacher, index) => (
+              <React.Fragment key={`AddData${index + 1}`}>
+                <div className="flex flex-row gap-3">
+                  <div className="flex flex-col items-center justify-center mr-5">
+                    <p className="text-sm font-bold">รายการที่</p>
+                    <p>{index + 1}</p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-bold">
+                      คำนำหน้าชื่อ (Prefix):
+                    </label>
+                    <Dropdown
+                      data={["นาย", "นาง", "นางสาว"]}
+                      renderItem={({ data }): JSX.Element => (
+                        <li className="w-full">{data}</li>
+                      )}
+                      width={150}
+                      height={40}
+                      currentValue={teacher.Prefix}
+                      placeHolder={"ตัวเลือก"}
+                      handleChange={(value: string) => {
+                        setTeachers(() =>
+                          teachers.map((item, ind) =>
+                            index === ind ? { ...item, Prefix: value } : item
+                          )
+                        );
+                      }}
+                    />
+                  </div>
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    placeHolder="ex. อเนก"
+                    label="ชื่อ (Firstname) :"
+                    value={teacher.Firstname}
+                    handleChange={(e: any) => {
+                      let value: string = e.target.value;
+                      setTeachers(() =>
+                        teachers.map((item, ind) =>
+                          index === ind ? { ...item, Firstname: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    placeHolder="ex. ประสงค์"
+                    label="นามสกุล (Lastname) :"
+                    value={teacher.Lastname}
+                    handleChange={(e: any) => {
+                      let value: string = e.target.value;
+                      setTeachers(() =>
+                        teachers.map((item, ind) =>
+                          index === ind ? { ...item, Lastname: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-bold">
+                      กลุ่มสาระ (Department):
+                    </label>
+                    <Dropdown
+                      data={[
+                        "คณิตศาสตร์",
+                        "วิทยาศาสตร์",
+                        "ภาษาไทย",
+                        "ภาษาต่างประเทศ",
+                        "การงานอาชีพและเทคโนโลยี",
+                        "ศิลปะ",
+                        "สังคมศึกษา ศาสนา และวัฒนธรรม",
+                        "สุขศึกษาและพลศึกษา",
+                      ]}
+                      renderItem={({ data }): JSX.Element => (
+                        <li className="w-full">{data}</li>
+                      )}
+                      width={150}
+                      height={40}
+                      currentValue={teacher.Department}
+                      placeHolder={"ตัวเลือก"}
+                      handleChange={(value: string) => {
+                        setTeachers(() =>
+                          teachers.map((item, ind) =>
+                            index === ind
+                              ? { ...item, Department: value }
+                              : item
+                          )
+                        );
+                      }}
+                    />
+                  </div>
+                </div>
+              </React.Fragment>
+            ))}
           </div>
+          <span className="w-full flex justify-end mt-5 gap-3">
+            <button
+              className=" w-[100px] bg-red-500 hover:bg-red-600 duration-500 text-white py-2 px-4 rounded"
+              onClick={() => cancel()}
+            >
+              ยกเลิก
+            </button>
+            <button
+              className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded"
+              onClick={handleSubmit}
+            >
+              ยืนยัน
+            </button>
+          </span>
         </div>
       </div>
     </>

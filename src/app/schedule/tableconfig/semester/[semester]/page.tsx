@@ -1,23 +1,31 @@
 "use client";
 import { useParams } from "next/navigation";
 import SelectedValue from "@/app/schedule/tableconfig/component/SelectedValue";
-import React, { useState } from "react"
-import { MdSchool, MdLunchDining } from 'react-icons/md';
-import { BsTable } from 'react-icons/bs';
-import { TbTimeDuration45 } from 'react-icons/tb';
-import { LuClock10 } from 'react-icons/lu'
-import { BsCalendar2Day } from 'react-icons/bs'
+import React, { useState } from "react";
+import { MdSchool, MdLunchDining } from "react-icons/md";
+import { BsTable } from "react-icons/bs";
+import { TbTimeDuration45 } from "react-icons/tb";
+import { LuClock10 } from "react-icons/lu";
+import { BsCalendar2Day } from "react-icons/bs";
 import Counter from "../../component/Counter";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
+import Button from "@/components/elements/static/Button";
 type Props = {};
 
 function TableConfig({}: Props) {
   const params = useParams();
   const [startTime, setStartTime] = useState<string>("08:00");
-  const handleChangeStartTime = (e:any) => {
-    setStartTime(() => e.target.value)
-  }
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const handleChangeStartTime = (e: any) => {
+    setStartTime(() => e.target.value);
+  };
+  const saved = () => {
+    setIsSaved(true);
+    setInterval(() => {
+      setIsSaved(false);      
+    }, 5000);
+  };
   return (
     <>
       <div className="flex w-full h-[80px] justify-between items-center border-b border-[#EDEEF3] mb-7">
@@ -64,7 +72,12 @@ function TableConfig({}: Props) {
             <LuClock10 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดเวลาเริ่มคาบแรก</p>
           </div>
-          <input type="time" value={startTime} className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]" onChange={handleChangeStartTime} />
+          <input
+            type="time"
+            value={startTime}
+            className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]"
+            onChange={handleChangeStartTime}
+          />
         </div>
         {/* Config lunch time */}
         <div className="flex w-full h-auto justify-between p-4 items-center border border-[#EDEEF3]">
@@ -74,34 +87,28 @@ function TableConfig({}: Props) {
           </div>
           <div className="flex flex-col-reverse gap-4">
             <div className="flex justify-between items-center gap-3">
-                <p className="text-md text-gray-500">มัธยมปลาย</p>
-                <Dropdown
-                    width="100%"
-                    height="40px"
-                    data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                    renderItem={
-                        ({ data }): JSX.Element => (
-                            <li className="w-[70px]">
-                                {data}
-                            </li>
-                        )
-                    }
-                />
+              <p className="text-md text-gray-500">มัธยมปลาย</p>
+              <Dropdown
+                width="100%"
+                height="40px"
+                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+                placeHolder="เลือกคาบ"
+                renderItem={({ data }): JSX.Element => (
+                  <li className="w-[70px]">{data}</li>
+                )}
+              />
             </div>
             <div className="flex justify-between items-center gap-3">
-                <p className="text-md text-gray-500">มัธยมต้น</p>
-                <Dropdown
-                    width="100%"
-                    height="40px"
-                    data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                    renderItem={
-                        ({ data }): JSX.Element => (
-                            <li className="w-[70px]">
-                                {data}
-                            </li>
-                        )
-                    }
-                />
+              <p className="text-md text-gray-500">มัธยมต้น</p>
+              <Dropdown
+                width="100%"
+                height="40px"
+                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
+                placeHolder="เลือกคาบ"
+                renderItem={({ data }): JSX.Element => (
+                  <li className="w-[70px]">{data}</li>
+                )}
+              />
             </div>
           </div>
         </div>
@@ -116,6 +123,13 @@ function TableConfig({}: Props) {
             <CheckBox label="วันเสาร์" />
             <CheckBox label="วันอาทิตย์" />
           </div>
+        </div>
+        <div className="flex w-full h-[65px] justify-end items-center">
+          {isSaved ? (
+            <p className="text-green-400">บันทึกสำเร็จ !</p>
+          ) : (
+            <Button title="บันทึก" width={80} handleClick={saved} />
+          )}
         </div>
       </span>
     </>
