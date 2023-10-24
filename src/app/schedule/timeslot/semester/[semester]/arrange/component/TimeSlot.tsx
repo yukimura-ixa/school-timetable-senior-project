@@ -1,6 +1,7 @@
 "use client";
 import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
+import { MdAdd } from "react-icons/md";
 
 type Props = {};
 
@@ -96,14 +97,15 @@ function TimeSlot(props: Props) {
                   <Fragment key={`woohoo${item}`}>
                     <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
                       {timeSlotData.BreakSlot.includes(item) ? (
-                        <span className="flex flex-col items-center text-sm hover:text-lg duration-300">
-                          {/* <p>พักเที่ยง</p> */}
+                        <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
+                          {/* <MdAdd size={20} className="fill-gray-300" /> */}
                         </span>
                       ) : (
-                        <span className="flex flex-col items-center text-sm hover:text-lg duration-300">
-                          {/* <p>ค33102</p>
-                          <p>ม.2/1</p>
-                          <p>335</p> */}
+                        <span className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
+                          <MdAdd size={20} className="fill-gray-300" />
+                          {/* <p>ค22101</p>
+                          <p>อัครเดช</p>
+                          <p>ภาษาไทย</p> */}
                         </span>
                       )}
                     </td>

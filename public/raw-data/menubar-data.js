@@ -81,3 +81,29 @@ export const othersMenu = [
         link : "/others/docs"
     },
 ]
+export const dashboardMenu = [
+    {
+        id : "teachertable",
+        IconStyle : {
+            Icon : BiSolidUser,
+        },
+        title : "ข้อมูลรายชื่อครู",
+        link : "/dashboard/teacher"
+    },
+    {
+        id : "roomtable",
+        IconStyle : {
+            Icon : SiGoogleclassroom,
+        },
+        title : "ข้อมูลสถานที่เรียน",
+        link : "/dashboard/rooms"
+    },
+    {
+        id : "gradeleveltable",
+        IconStyle : {
+            Icon : HiAcademicCap,
+        },
+        title : "ข้อมูลชั้นเรียน",
+        link : "/dashboard/classroom"
+    }
+]

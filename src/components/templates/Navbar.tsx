@@ -23,12 +23,12 @@ function Navbar() {
             </h1>
             <ul className="flex w-fit justify-between gap-5">
               <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
-                <Link href={'/'}>
+                <Link href={'/management/teacher'}>
                   <p className="text-md">เมนูทั้งหมด</p>
                 </Link>
               </li>
               <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
-                <Link href={'/'}>
+                <Link href={'/dashboard/teacher'}>
                   <p className="text-md">แดชบอร์ด</p>
                 </Link>
               </li>
