@@ -4,6 +4,7 @@ import React from 'react'
 import { HiLockClosed } from 'react-icons/hi2'
 import SelectTeacherTimetable from './component/SelectTeacherTimetable';
 import TimeSlot from './component/TimeSlot';
+import SubjectBox from './component/SubjectBox';
 
 type Props = {}
 
@@ -26,6 +27,7 @@ const ArrangeTimetable = (props: Props) => {
           </button>
         </div>
         <SelectTeacherTimetable />
+        <SubjectBox />
         <TimeSlot />
       </div>
     </>
