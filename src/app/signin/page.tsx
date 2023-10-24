@@ -21,7 +21,7 @@ function page({}: Props) {
           </p>
         </div>
         <div className="w-[960px] h-screen bg-white flex justify-center items-center">
-          <div className="flex flex-col gap-5 w-[500px] h-[500px] drop-shadow bg-white py-16 px-10">
+          <div className="flex flex-col gap-5 w-[500px] h-[500px] drop-shadow rounded-md bg-white py-16 px-10">
             <div className="flex flex-col gap-3">
               <h1 className="text-2xl">เข้าสู่ระบบ</h1>
               <p className="text-sm text-gray-400">
