@@ -2,7 +2,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import teacher_resp from '@/raw-data/teahcer_responsib'
+import teacher_resp from "@/raw-data/teahcer_responsib";
 type Props = {};
 
 function TeacherIndividualDashboard({}: Props) {
@@ -67,7 +67,7 @@ function TeacherIndividualDashboard({}: Props) {
           <thead>
             <tr className="flex gap-3">
               <th className="flex grow justify-center items-center bg-gray-100 p-4 rounded select-none">
-                <span className="flex w-[50px] h-[24px] justify-center">
+                <span className="flex w-[125px] h-[24px] justify-center">
                   <p className="text-black">วิชา</p>
                 </span>
               </th>
@@ -92,7 +92,9 @@ function TeacherIndividualDashboard({}: Props) {
               </th>
             </tr>
           </thead>
-          <tbody className="flex flex-col gap-3">
+          <tbody
+            className={`flex flex-col gap-3 h-96 overflow-y-scroll`}
+          >
             {teacherData.Grade.map((grade) => (
               <Fragment key={`year${grade.Year}eiei`}>
                 {grade.ClassRooms.map((room) => (
@@ -102,9 +104,12 @@ function TeacherIndividualDashboard({}: Props) {
                       <Fragment key={`subj${index}${subj.SubjectCode}eiei`}>
                         <tr className="flex gap-3">
                           <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
-                            <span className="flex w-[50px] h-[24px] justify-center">
-                              <p className="text-gray-600">
+                            <span className="flex flex-col w-[125px] h-[60px] justify-center">
+                              <p className="text-gray-600 font-bold">
                                 {subj.SubjectCode}
+                              </p>
+                              <p className="text-gray-600">
+                                {subj.SubjectName}
                               </p>
                             </span>
                           </td>
@@ -149,9 +154,11 @@ function TeacherIndividualDashboard({}: Props) {
                 ))}
               </Fragment>
             ))}
+          </tbody>
+          <tbody>
             <tr className="flex gap-3">
               <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
-                <span className="flex w-[170px] h-[24px] justify-center">
+                <span className="flex w-[250px] h-[24px] justify-center">
                   <p className="text-gray-600">รวม</p>
                 </span>
               </td>

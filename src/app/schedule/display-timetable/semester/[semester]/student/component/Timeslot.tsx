@@ -2,12 +2,11 @@
 import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { MdAdd } from "react-icons/md";
-import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
+import {studentSlot} from "@/raw-data/subjectslot";
 
 type Props = {};
 
 function TimeSlot(props: Props) {
-  const [isActiveModal, setIsActiveModal] = useState(false)
   const timeSlotData = {
     SlotAmount: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     StartTime: { Hours: 8, Minutes: 30 },
@@ -16,7 +15,7 @@ function TimeSlot(props: Props) {
       { Day: "จันทร์", TextColor: "#b8a502", BgColor: "#fffacf" },
       { Day: "อังคาร", TextColor: "#d800db", BgColor: "#fedbff" },
       { Day: "พุธ", TextColor: "#1cba00", BgColor: "#e1ffdb" },
-      { Day: "พฤหัส", TextColor: "#ba4e00", BgColor: "#ffb996" },
+      { Day: "พฤหัสบดี", TextColor: "#ba4e00", BgColor: "#ffb996" },
       { Day: "ศุกร์", TextColor: "#0099d1", BgColor: "#bdedff" },
     ],
     BreakSlot: [4, 5],
@@ -48,12 +47,18 @@ function TimeSlot(props: Props) {
   };
   return (
     <>
-      {isActiveModal ? <SelectSubjectToTimeslotModal CloseModal={() => setIsActiveModal(false)} /> : null}
       <table className="table-auto w-full flex flex-col gap-3">
         <thead>
           <tr className="flex gap-4">
             <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
-              <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
+              <span
+                onClick={() => {
+                  // console.log(
+                  //   subjectInSlot.filter((slot) => slot.DayOfWeek == "จันทร์")
+                  // );
+                }}
+                className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center"
+              >
                 คาบที่
               </span>
             </th>
@@ -96,24 +101,26 @@ function TimeSlot(props: Props) {
                     <p style={{ color: day.TextColor }}>{day.Day}</p>
                   </span>
                 </td>
-                {timeSlotData.SlotAmount.map((item) => (
-                  <Fragment key={`woohoo${item}`}>
-                    <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
-                      {timeSlotData.BreakSlot.includes(item) ? (
-                        <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
-                          {/* <MdAdd size={20} className="fill-gray-300" /> */}
-                        </span>
-                      ) : (
-                        <span onClick={() => setIsActiveModal(true)} className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
-                          <MdAdd size={20} className="fill-gray-300" />
-                          {/* <p>ค22101</p>
-                          <p>อัครเดช</p>
-                          <p>ภาษาไทย</p> */}
-                        </span>
-                      )}
-                    </td>
-                  </Fragment>
-                ))}
+                {studentSlot
+                  .filter((slot) => slot.DayOfWeek == day.Day)
+                  .map((item) => (
+                    <Fragment key={`woohoo${item.DayOfWeek}`}>
+                      {item.SlotData.map((data) => (
+                        <Fragment
+                          key={`weehhe${data.SlotNumber}${data.SubjectCode}`}
+                        >
+                          <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
+                            <span className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
+                              {/* <MdAdd size={20} className="fill-gray-300" /> */}
+                                <p>{data.SubjectCode}</p>
+                                <p>{data.TeacherName}</p>
+                                <p>{data.RoomID}</p>
+                            </span>
+                          </td>
+                        </Fragment>
+                      ))}
+                    </Fragment>
+                  ))}
               </tr>
             </Fragment>
           ))}

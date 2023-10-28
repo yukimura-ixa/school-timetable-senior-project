@@ -149,7 +149,7 @@ function GradeLevelIndividualDashboard({}: Props) {
               </th>
             </tr>
           </thead>
-          <tbody className="flex flex-col gap-3">
+          <tbody  className={`flex flex-col gap-3 h-96 overflow-y-scroll`}>
             {classRoomData.Subjects.map((subj) => (
               <Fragment key={`year${subj.SubjectCode}eiei`}>
                 <tr className="flex gap-3">
@@ -197,7 +197,8 @@ function GradeLevelIndividualDashboard({}: Props) {
                 </tr>
               </Fragment>
             ))}
-            <tr className="flex gap-3">
+          </tbody>
+          <tr className="flex gap-3">
               <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
                 <span className="flex w-[275px] h-[24px] justify-center">
                   <p className="text-gray-600">รวม</p>
@@ -234,7 +235,6 @@ function GradeLevelIndividualDashboard({}: Props) {
                 </span>
               </td>
             </tr>
-          </tbody>
         </table>
       </div>
     </>

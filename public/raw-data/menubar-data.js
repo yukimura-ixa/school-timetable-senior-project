@@ -60,7 +60,7 @@ export const scheduleMenu = [
             Icon : BiSolidFileFind,
         },
         title : "แสดงตารางสอน",
-        link : ["/schedule/display_timetable/semester/1", "/schedule/display_timetable/semester/2"]
+        link : ["/schedule/display-timetable/semester/1/teacher", "/schedule/display-timetable/semester/2/teacher"]
     },
 ]
 export const othersMenu = [

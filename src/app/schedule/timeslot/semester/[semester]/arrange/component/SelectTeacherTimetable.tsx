@@ -100,7 +100,7 @@ function SelectTeacherTimetable(props: Props) {
           />
         </div>
         {/* Select Classroom */}
-        <div className="flex justify-between items-center">
+        {/* <div className="flex justify-between items-center">
           <p>เลือกชั้นเรียน</p>
           <Dropdown
             data={allClassRoom}
@@ -116,7 +116,7 @@ function SelectTeacherTimetable(props: Props) {
             // useSearchBar={true}
             // searchFunciton={searchHandle}
           />
-        </div>
+        </div> */}
       </div>
     </>
   );
