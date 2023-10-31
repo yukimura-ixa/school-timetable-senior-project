@@ -62,7 +62,7 @@ function TableConfig({}: Props) {
         <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
           <div className="flex items-center gap-4">
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
-            <p className="text-md">กำหนดเวลาของคาบเรียน</p>
+            <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
           </div>
           <Counter classifier="นาที" initialValue={50} />
         </div>
