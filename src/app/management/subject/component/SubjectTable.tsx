@@ -94,7 +94,7 @@ function Table({
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data: subject[]): void => {
-    setSubjectData(() => [...subjectData, ...data]);
+    setSubjectData(() => [...data, ...subjectData]);
   };
   const editMultiData = (data: subject) => {
     //copy array มาก่อน

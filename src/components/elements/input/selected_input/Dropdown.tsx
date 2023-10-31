@@ -16,6 +16,7 @@ interface Dropdown {
   handleChange: Function; //ฟังก์ชั่นที่ส่งมาให้สำหรับกดเลือกค่าใน Dropdown
   useSearchBar: boolean;
   searchFunciton: Function;
+  borderColor: string;
 }
 function Dropdown({
   data,
@@ -27,6 +28,7 @@ function Dropdown({
   handleChange,
   useSearchBar = false,
   searchFunciton,
+  borderColor=""
 }): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
@@ -38,7 +40,9 @@ function Dropdown({
         flex 
         justify-between 
         items-center 
-        border-[1px] 
+        border
+        rounded
+        bg-white
         px-[15px] py-[10px]
         cursor-pointer
         select-none
@@ -50,7 +54,7 @@ function Dropdown({
         onClick={() => setIsHidden(!isHidden)} //กดปุ๊ปจะเซ็ทค่าเป็นค่าตรงข้ามกับ boolean ปัจจุบัน ด้วยนิเสธ '!'
         style={{
           width: width === null ? 'fit-content' : width,
-          height: height,
+          height: height, borderColor : `${borderColor}`
         }}
       >
         <div className="flex justify-left text-sm"
@@ -75,7 +79,7 @@ function Dropdown({
             z-10
             flex-col
             justify-left
-            border-[1px]
+            border
             cursor-pointer
             overflow-hidden
             select-none

@@ -94,7 +94,7 @@ function Table({
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data: rooms[]): void => {
-    setRoomsData(() => [...roomsData, ...data]);
+    setRoomsData(() => [...data, ...roomsData]);
   };
   const editMultiData = (data: rooms) => {
     //copy array มาก่อน

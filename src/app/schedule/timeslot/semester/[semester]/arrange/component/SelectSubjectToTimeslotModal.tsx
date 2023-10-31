@@ -6,7 +6,7 @@ type Props = {
   CloseModal: any;
 };
 
-function SelectSubjectToTimeslotModal(props: Props) {
+function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   return (
     <>
       <div

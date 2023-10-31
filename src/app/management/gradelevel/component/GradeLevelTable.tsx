@@ -95,7 +95,7 @@ function Table({
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data: gradeLevel[]): void => {
-    setGradeLevelData(() => [...gradeLevelData, ...data]);
+    setGradeLevelData(() => [...data, ...gradeLevelData]);
   };
   const editMultiData = (data: any): void => {
     //copy array มาก่อน

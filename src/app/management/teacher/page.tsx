@@ -1,4 +1,3 @@
-// "use server"
 "use client"
 import React, {useState, useEffect} from "react";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
@@ -64,7 +63,7 @@ function TeacherManage (props: Props) {
   return (
     <>
       <TeacherTable
-        tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
+        tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ",]}
         tableData={tableData}
         orderByFunction={sortData}
       />

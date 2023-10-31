@@ -127,7 +127,7 @@ function ClassroomResponsibility (props: Props) {
       ),
     })); //เช็คชั้นเรียนที่ตรงกันแล้วเอา addToClassRoom ลงมาใส่
     setAddSubjectModalActive(false);
-  };
+  }; 
   const [classRoomForAddSubj, setClassRoomForAddSubj] = useState({
     Year: null,
     GradeID: null,

@@ -3,6 +3,7 @@ import TextField from "@/components/elements/input/field/TextField";
 
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
+import { BsInfo } from "react-icons/bs";
 
 type props = {
   closeModal: any;
@@ -11,16 +12,34 @@ type props = {
   clearCheckList: any;
 };
 
-function EditModalForm ({
+function EditModalForm({
   closeModal,
   conFirmEdit,
   data,
   clearCheckList,
 }: props) {
   const [editData, setEditData] = useState<rooms[]>(data);
+  const [isEmptyData, setIsEmptyData] = useState(false);
+  const isValidData = (): boolean => {
+    let isValid = true;
+    editData.forEach((data) => {
+      if (
+        data.RoomName == "" ||
+        data.Building == "" ||
+        data.Floor == null ||
+        data.Floor == 0
+      ) {
+        setIsEmptyData(true);
+        isValid = false;
+      }
+    });
+    return isValid;
+  };
   const confirmed = () => {
-    conFirmEdit(editData);
-    closeModal();
+    if (isValidData()) {
+      conFirmEdit(editData);
+      closeModal();
+    }
   };
   const cancelEdit = () => {
     if (data.length === 1) {
@@ -41,65 +60,100 @@ function EditModalForm ({
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p
-              className="text-lg select-none"
-            >
-              แก้ไขข้อมูล
-            </p>
+            <p className="text-lg select-none">แก้ไขข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
           {editData.map((item: any, index: number) => (
             <React.Fragment key={`Edit${index}`}>
-              <div className="flex flex-row gap-3 h-14 w-full">
+              <div
+                className={`flex flex-row gap-3 items-center ${
+                  index == 0 ? "" : "mt-2"
+                }`}
+              >
                 <div className="flex flex-col items-center justify-center mr-5">
                   <p className="text-sm font-bold">รายการที่</p>
                   <p>{index + 1}</p>
                 </div>
-                <TextField
-                  width="auto"
-                  height="auto"
-                  label={`ชื่อห้อง (RoomName):`}
-                  placeHolder="ex. คอม1"
-                  value={item.RoomName}
-                  handleChange={(e: any) => {
-                    let value:string = e.target.value;
-                    setEditData(() =>
-                      editData.map((item, ind) =>
-                        index === ind ? { ...item, RoomName: value } : item
-                      )
-                    );
-                  }}
-                />
-                <TextField
-                  width="auto"
-                  height="auto"
-                  label={`อาคาร (Building):`}
-                  placeHolder="ex. 3"
-                  value={item.Building}
-                  handleChange={(e: any) => {
-                    let value:string = e.target.value;
-                    setEditData(() =>
-                      editData.map((item, ind) =>
-                        index === ind ? { ...item, Building: value } : item
-                      )
-                    );
-                  }}
-                />
-                <NumberField
-                  width="auto"
-                  height="auto"
-                  label={`ชั้น (Floor):`}
-                  placeHolder="ex. 5"
-                  value={item.Floor}
-                  handleChange={(e: any) => {
-                    let value:number = e.target.value;
-                    setEditData(() =>
-                      editData.map((item, ind) =>
-                        index === ind ? { ...item, Floor: value } : item
-                      )
-                    );
-                  }}
-                />
+                <div className="relative flex flex-col gap-2">
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    label={`ชื่อห้อง (RoomName):`}
+                    placeHolder="ex. คอม1"
+                    value={item.RoomName}
+                    borderColor={
+                      isEmptyData && item.RoomName.length == 0 ? "#F96161" : ""
+                    }
+                    handleChange={(e: any) => {
+                      let value: string = e.target.value;
+                      setEditData(() =>
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, RoomName: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  {isEmptyData && item.RoomName.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="relative flex flex-col gap-2">
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    label={`อาคาร (Building):`}
+                    placeHolder="ex. 3"
+                    value={item.Building}
+                    borderColor={
+                      isEmptyData && item.Building.length == 0 ? "#F96161" : ""
+                    }
+                    handleChange={(e: any) => {
+                      let value: string = e.target.value;
+                      setEditData(() =>
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, Building: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  {isEmptyData && item.Building.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="relative flex flex-col gap-2">
+                  <NumberField
+                    width="auto"
+                    height="auto"
+                    label={`ชั้น (Floor):`}
+                    placeHolder="ex. 5"
+                    value={item.Floor}
+                    borderColor={
+                      isEmptyData && (item.Floor == 0 || item.Floor == null)
+                        ? "#F96161"
+                        : ""
+                    }
+                    handleChange={(e: any) => {
+                      let value: number = e.target.value;
+                      setEditData(() =>
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, Floor: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  {isEmptyData && (item.Floor == 0 || item.Floor == null) ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </React.Fragment>
           ))}
@@ -121,5 +175,5 @@ function EditModalForm ({
       </div>
     </>
   );
-};
+}
 export default EditModalForm;

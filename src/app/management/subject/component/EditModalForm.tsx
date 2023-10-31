@@ -3,6 +3,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
+import { BsInfo } from "react-icons/bs";
 
 type props = {
   closeModal: any;
@@ -11,16 +12,34 @@ type props = {
   clearCheckList: any;
 };
 
-function EditModalForm ({
+function EditModalForm({
   closeModal,
   conFirmEdit,
   data,
   clearCheckList,
 }: props) {
   const [editData, setEditData] = useState<subject[]>(Object.assign([], data));
+  const [isEmptyData, setIsEmptyData] = useState(false);
+  const isValidData = (): boolean => {
+    let isValid = true;
+    editData.forEach((data) => {
+      if (
+        data.SubjectCode == "" ||
+        data.SubjectName == "" ||
+        data.Credit == "" ||
+        data.Category == ""
+      ) {
+        setIsEmptyData(true);
+        isValid = false;
+      }
+    });
+    return isValid;
+  };
   const confirmed = () => {
-    conFirmEdit(editData);
-    closeModal();
+    if (isValidData()) {
+      conFirmEdit(editData);
+      closeModal();
+    }
   };
   const cancelEdit = () => {
     if (data.length === 1) {
@@ -41,26 +60,28 @@ function EditModalForm ({
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p
-              className="text-lg select-none"
-            >
-              แก้ไขข้อมูล
-            </p>
+            <p className="text-lg select-none">แก้ไขข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
           {editData.map((item: any, index: number) => (
             <React.Fragment key={`Edit${index}`}>
-              <div className="flex flex-row gap-3 h-14 w-full">
+              <div className={`flex flex-row gap-3 items-center ${index == 0 ? "" : "mt-2"}`}>
                 <div className="flex flex-col items-center justify-center mr-5">
                   <p className="text-sm font-bold">รายการที่</p>
                   <p>{index + 1}</p>
                 </div>
+                <div className="relative flex flex-col gap-2">
                 <TextField
                   width="auto"
                   height="auto"
                   label={`รหัสวิชา (SubjectCode):`}
                   placeHolder="ex. ท00000"
                   value={item.SubjectCode}
+                  borderColor={
+                    isEmptyData && item.SubjectCode.length == 0
+                      ? "#F96161"
+                      : ""
+                  }
                   handleChange={(e: any) => {
                     let value = e.target.value;
                     setEditData(() =>
@@ -70,12 +91,25 @@ function EditModalForm ({
                     );
                   }}
                 />
+                {isEmptyData && item.SubjectCode.length == 0 ? (
+                  <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                    <BsInfo className="bg-red-500 rounded-full fill-white" />
+                    <p className="text-red-500 text-sm">ต้องการ</p>
+                  </div>
+                ) : null}
+                </div>
+                <div className="relative flex flex-col gap-2">
                 <TextField
                   width="auto"
                   height="auto"
                   label={`ชื่อวิชา (SubjectName):`}
                   placeHolder="ex. ภาษาไทย 1"
                   value={item.SubjectName}
+                  borderColor={
+                    isEmptyData && item.SubjectName.length == 0
+                      ? "#F96161"
+                      : ""
+                  }
                   handleChange={(e: any) => {
                     let value = e.target.value;
                     setEditData(() =>
@@ -85,32 +119,47 @@ function EditModalForm ({
                     );
                   }}
                 />
-                <div className="flex flex-col gap-2">
+                {isEmptyData && item.SubjectName.length == 0 ? (
+                  <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                    <BsInfo className="bg-red-500 rounded-full fill-white" />
+                    <p className="text-red-500 text-sm">ต้องการ</p>
+                  </div>
+                ) : null}
+                </div>
+                <div className="relative flex flex-col gap-2">
                   <label className="text-sm font-bold">
                     หน่วยกิต (Credit):
                   </label>
                   <Dropdown
-                    data={[
-                      "0.5",
-                      "1.0",
-                      "1.5",
-                      "2.0"
-                    ]}
+                    data={["0.5", "1.0", "1.5", "2.0"]}
                     renderItem={({ data }): JSX.Element => (
                       <li className="w-full">{data}</li>
                     )}
                     width={150}
                     height={40}
+                    borderColor={
+                      isEmptyData && item.Credit.length == 0
+                        ? "#F96161"
+                        : ""
+                    }
                     currentValue={item.Credit}
                     placeHolder={"ตัวเลือก"}
                     handleChange={(value: string) => {
                       setEditData(() =>
-                        editData.map((item, ind) => index === ind ? { ...item, Credit: value } : item)
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, Credit: value } : item
+                        )
                       );
                     }}
                   />
+                  {isEmptyData && item.Credit.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="relative flex flex-col gap-2">
                   <label className="text-sm font-bold">
                     กลุ่มสาระ (Department):
                   </label>
@@ -126,8 +175,13 @@ function EditModalForm ({
                       "สุขศึกษาและพลศึกษา",
                       "กิจกรรม",
                       "ชุมนุม",
-                      "เสรี"
+                      "เสรี",
                     ]}
+                    borderColor={
+                      isEmptyData && item.Category.length == 0
+                        ? "#F96161"
+                        : ""
+                    }
                     renderItem={({ data }): JSX.Element => (
                       <li className="w-full">{data}</li>
                     )}
@@ -143,6 +197,12 @@ function EditModalForm ({
                       );
                     }}
                   />
+                  {isEmptyData && item.Category.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </React.Fragment>
@@ -165,5 +225,5 @@ function EditModalForm ({
       </div>
     </>
   );
-};
+}
 export default EditModalForm;

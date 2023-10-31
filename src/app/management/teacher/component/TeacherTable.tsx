@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import axios from "axios";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
@@ -86,16 +86,9 @@ function Table({
   useEffect(() => {
     setTeacherData(() => orderByFunction(teacherData, orderState, orderType));
   }, [orderType, orderState]);
-  //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = (): void => {
-    setTeacherData(() =>
-      teacherData.filter((item, index) => !checkedList.includes(index))
-    );
-    setCheckedList(() => []);
-  };
   //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = (data: teacher[]): void => {
-    setTeacherData(() => [...teacherData, ...data]);
+    setTeacherData(() => [...data, ...teacherData]);
   };
   const editMultiData = (data: any): void => {
     //copy array มาก่อน
@@ -108,6 +101,13 @@ function Table({
     //วาง array ทับลงไปใหม่
     setTeacherData(() => [...dataCopy]);
     //clear checkbox
+    setCheckedList(() => []);
+  };
+  //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
+  const removeMultiData = (): void => {
+    setTeacherData(() =>
+      teacherData.filter((item, index) => !checkedList.includes(index))
+    );
     setCheckedList(() => []);
   };
   const numberOfPage = (): number[] => {
@@ -219,7 +219,7 @@ function Table({
               />
             </th>
             {tableHead.map((item, index) => (
-              <React.Fragment key={item}>
+              <Fragment key={item}>
                 <th
                   className="text-left px-6 select-none cursor-pointer"
                   onClick={() => {
@@ -241,38 +241,40 @@ function Table({
                     ) : null}
                   </div>
                 </th>
-              </React.Fragment>
+              </Fragment>
             ))}
           </tr>
         </thead>
         <tbody className="text-sm">
           {teacherData
             .map((item, index) => (
-              <tr
-                className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-                key={`Data${index}`}
-              >
-                <th>
-                  <input
-                    className="cursor-pointer"
-                    type="checkbox"
-                    name="itemdata"
-                    onChange={() => ClickToSelect(index)}
-                    //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                    checked={checkedList.includes(index)}
+              <Fragment key={`tr${index}`}>
+                <tr
+                  className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
+                  key={`Data${index}`}
+                >
+                  <th>
+                    <input
+                      className="cursor-pointer"
+                      type="checkbox"
+                      name="itemdata"
+                      onChange={() => ClickToSelect(index)}
+                      //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
+                      checked={checkedList.includes(index)}
+                    />
+                  </th>
+                  {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
+                  <TableData
+                    data={item}
+                    handleChange={ClickToSelect}
+                    editData={() => setEditModalActive(true)}
+                    deleteData={() => setDeleteModalActive(true)}
+                    checkList={checkedList}
+                    index={index}
+                    key={item}
                   />
-                </th>
-                {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
-                <TableData
-                  data={item}
-                  handleChange={ClickToSelect}
-                  editData={() => setEditModalActive(true)}
-                  deleteData={() => setDeleteModalActive(true)}
-                  checkList={checkedList}
-                  index={index}
-                  key={item}
-                />
-              </tr>
+                </tr>
+              </Fragment>
             ))
             .filter(
               (item, index) =>
@@ -290,7 +292,7 @@ function Table({
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
       <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
         {numberOfPage().map((page) => (
-          <>
+          <Fragment key={`page${page}`}>
             {pageOfData == page ? (
               <MiniButton
                 title={page.toString()}
@@ -305,7 +307,7 @@ function Table({
                 title={page.toString()}
               />
             )}
-          </>
+          </Fragment>
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>

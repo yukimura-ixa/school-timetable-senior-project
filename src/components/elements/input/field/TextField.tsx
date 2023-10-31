@@ -8,6 +8,7 @@ interface TextField {
   label: string;
   handleChange;
   value: string;
+  borderColor:string;
 }
 function TextField({
   width = "auto",
@@ -16,13 +17,14 @@ function TextField({
   disabled = false,
   label,
   handleChange,
-  value
+  value,
+  borderColor=""
 }: TextField): JSX.Element {
   const textFieldStyleProperty: object = {
     width: width,
     height: height,
     borderWidth: 1,
-    borderColor: "#E0E1E8",
+    borderColor: `${borderColor}`,
   };
   return (
     <div className="flex flex-col text-left gap-2">

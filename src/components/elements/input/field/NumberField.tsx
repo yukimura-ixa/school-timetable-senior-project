@@ -7,6 +7,7 @@ interface NumberField {
   disabled: boolean;
   label: string;
   value: number;
+  borderColor:string;
   handleChange;
 }
 function NumberField({
@@ -17,12 +18,13 @@ function NumberField({
   value,
   label,
   handleChange,
+  borderColor=""
 }: NumberField): JSX.Element {
   const numberFieldStyleProperty: object = {
     width: width,
     height: height,
     borderWidth: 1,
-    borderColor: "#E0E1E8",
+    borderColor: borderColor,
   };
   return (
     <div className="flex flex-col text-left gap-2">
