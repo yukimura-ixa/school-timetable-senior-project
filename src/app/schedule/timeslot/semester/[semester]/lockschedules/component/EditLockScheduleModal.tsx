@@ -14,7 +14,7 @@ type Props = {
   confirmChange: any;
 };
 
-function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
+function EditLockScheduleModal(props: Props) {
   const [subject, setSubject] = useState([]);
   const [subjectFilter, setSubjectFilter] = useState([]);
   const [teacher, setTeacher] = useState([]);
@@ -90,13 +90,13 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
     };
     return () => getData();
   }, []);
-  const [isEmptyData, setIsEmptyData] = useState({
-    Subject: false,
-    DayOfWeek: false,
-    timeSlotID: false,
-    Teachers: false,
-    ClassRooms: false,
-  });
+  // const [validate, setValidate] = useState({
+  //   Subject: false,
+  //   DayOfWeek: false,
+  //   timeSlotID: false,
+  //   Teachers: false,
+  //   ClassRooms: false,
+  // });
   const [searchText, setSearchText] = useState("");
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
@@ -149,41 +149,24 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
       ),
     }));
   };
-  const validateData = () => {
-    setIsEmptyData(() => ({
-      Subject: lockScheduleData.Subject.SubjectCode.length == 0,
-      DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
-      timeSlotID: lockScheduleData.timeSlotID.length == 0,
-      Teachers: lockScheduleData.Teachers.length == 0,
-      ClassRooms:
-        lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
-          .length == 0,
-    }));
-  };
-  useEffect(() => {
-    const validate = () => {
-      validateData();
-    }
-    return validate()
-  }, [
-    lockScheduleData.Subject,
-    lockScheduleData.DayOfWeek,
-    lockScheduleData.timeSlotID,
-    lockScheduleData.Teachers,
-    lockScheduleData.Grade,
-  ]);
+  const [validateMsg, setValidateMsg] = useState({
+    SubjectMsg : "",
+    DayOfWeekMsg : "",
+    TimeSlotMsg : "",
+    TeacherMsg : "",
+    ClassRoomMsg : "",
+  })
   const addItemAndCloseModal = () => {
-    let cond =
-      isEmptyData.Subject ||
-      isEmptyData.DayOfWeek ||
-      isEmptyData.timeSlotID ||
-      isEmptyData.Teachers ||
-      isEmptyData.ClassRooms;
-    if (cond) {
-      validateData();
-    } else {
-      confirmChange(lockScheduleData);
-      closeModal();
+    // เดี๋ยวค่อยมา validate
+    let mapGrade = [...lockScheduleData.Grade.map(item => item.ClassRooms)]
+    let findTrue = mapGrade.map(item => item.length > 0 && true).filter(item => item == true)[0]
+    let cond = lockScheduleData.Subject.SubjectID == null || lockScheduleData.DayOfWeek.length == 0 || lockScheduleData.timeSlotID.length == 0 || lockScheduleData.Teachers.length == 0 || !findTrue
+    if(cond){
+      alert("ใส่ครบยังจ๊ะ")
+    }
+    else{
+      props.confirmChange(lockScheduleData);
+      props.closeModal();
     }
   };
   const handleSubjectChange = (value: any) => {
@@ -223,9 +206,12 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
           className={`relative flex flex-col w-[831px] h-fit overflow-y-scroll overflow-x-hidden p-12 gap-10 bg-white rounded`}
         >
           {/* Content */}
-          <div className="flex w-full h-auto justify-between items-center">
+          <div
+            className="flex w-full h-auto justify-between items-center"
+            onClick={() => console.log(validateMsg)}
+          >
             <p className="text-xl select-none">เพิ่มวิชาล็อก</p>
-            <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
+            <AiOutlineClose className="cursor-pointer" onClick={props.closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
             <SelectSubject
@@ -237,17 +223,14 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
               }`}
               handleSubjectChange={handleSubjectChange}
               searchHandle={searchHandle}
-              required={isEmptyData.Subject}
             />
             <SelectDayOfWeek
               dayOfWeek={lockScheduleData.DayOfWeek}
               handleDayChange={handleDayChange}
-              required={isEmptyData.DayOfWeek}
             />
             <SelectMultipleTimeSlot
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeSlotID}
-              required={isEmptyData.timeSlotID}
             />
             <SelectTeacher
               data={teacher}
@@ -256,13 +239,11 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
               removeTeacherFunction={removeTeacherFromList}
               searchHandleTeacher={searchHandleTeacher}
               searchTextTeacher={searchTextTeacher}
-              required={isEmptyData.Teachers}
             />
             <SelectedClassRoom
               allClassRoom={allClassRoom}
               Grade={lockScheduleData.Grade}
               classRoomHandleChange={classRoomHandleChange}
-              required={isEmptyData.ClassRooms}
             />
           </div>
           <span className="flex w-full justify-end">
@@ -281,4 +262,4 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
   );
 }
 
-export default AddLockSchduleModal;
+export default EditLockScheduleModal;

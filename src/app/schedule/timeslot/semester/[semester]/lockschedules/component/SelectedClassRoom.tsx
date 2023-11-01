@@ -1,22 +1,30 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment } from "react";
+import { BsInfo } from "react-icons/bs";
 
 type Props = {
-    allClassRoom:any;
-    Grade:any;
-    classRoomHandleChange:any;
+  allClassRoom: any;
+  Grade: any;
+  classRoomHandleChange: any;
+  required:boolean
 };
 
 function SelectedClassRoom(props: Props) {
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">
-        <div className="text-sm flex gap-2">
+        <div className="text-sm flex gap-2 items-center">
           <div className="text-sm flex gap-1">
             <p>เลือกห้องเรียน</p>
             <p className="text-red-500">*</p>
           </div>
           <p className="text-blue-500">(คลิกที่ห้องเรียนเพื่อเลือก)</p>
+            {props.required ? (
+            <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+              <BsInfo className="bg-red-500 rounded-full fill-white" />
+              <p className="text-red-500 text-sm">ต้องการ</p>
+            </div>
+            ) : null}
         </div>
         {[1, 2, 3, 4, 5, 6].map((grade) => (
           <Fragment key={`selectGrade${grade}`}>
