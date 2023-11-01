@@ -159,13 +159,13 @@ function EditModalForm({
           ))}
           <span className="w-full flex gap-3 justify-end mt-5">
             <button
-              className=" w-[100px] bg-red-500 hover:bg-red-600 duration-500 text-white py-2 px-4 rounded"
+              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
               onClick={() => cancelEdit()}
             >
               ยกเลิก
             </button>
             <button
-              className=" w-[100px] bg-emerald-500 hover:bg-emerald-600 duration-500 text-white py-2 px-4 rounded"
+              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
               onClick={() => confirmed()}
             >
               ยืนยัน

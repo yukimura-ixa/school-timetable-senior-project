@@ -162,8 +162,7 @@ function AddSubjectModal (props: Props) {
             ))}
           </div>
           <span className="w-full flex justify-end">
-              {/* <Button title="ยืนยัน" width={150} handleClick={handleSubmit} /> */}
-              <button onClick={() => props.addSubjectToClass(subjectList)} className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded">
+              <button onClick={() => props.addSubjectToClass(subjectList)} className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-600 py-2 px-4 rounded">
                 ยืนยัน
               </button>
           </span>

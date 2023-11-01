@@ -35,12 +35,12 @@ function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckLis
             <p className="text-lg select-none font-bold">คุณต้องการลบข้อมูลที่เลือกทั้งหมด {dataAmount} รายการใช่หรือไม่</p>
           </div>
           <span className="w-full flex gap-3 justify-end">
-              <button className=" w-[100px] bg-red-500 hover:bg-red-600 duration-500 text-white py-2 px-4 rounded"
+              <button className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
               onClick={() => cancel()}
               >
                 ยกเลิก
               </button>
-              <button className=" w-[100px] bg-gray-500 hover:bg-gray-600 duration-500 text-white py-2 px-4 rounded"
+              <button className=" w-[100px] bg-gray-100 hover:bg-gray-200 duration-500 text-gray-500 py-2 px-4 rounded"
               onClick={() => confirmed()}
               >
                 ยืนยัน

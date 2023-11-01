@@ -217,13 +217,13 @@ function AddModalForm({ closeModal, addData }: props) {
           </div>
           <span className="w-full flex justify-end mt-5 gap-3">
             <button
-              className=" w-[100px] bg-red-500 hover:bg-red-600 duration-500 text-white py-2 px-4 rounded"
+              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
               onClick={() => cancel()}
             >
               ยกเลิก
             </button>
             <button
-              className=" w-[100px] bg-green-500 hover:bg-green-600 duration-500 text-white py-2 px-4 rounded"
+              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
               onClick={handleSubmit}
             >
               ยืนยัน

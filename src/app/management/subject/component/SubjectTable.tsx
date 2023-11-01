@@ -1,11 +1,11 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
+import axios from "axios";
 //ICON
-import { IoIosArrowDown } from 'react-icons/io'
-import { MdModeEditOutline } from 'react-icons/md';
-import { BiSolidTrashAlt } from 'react-icons/bi';
-import { BsCheckLg } from 'react-icons/bs';
+import { IoIosArrowDown } from "react-icons/io";
+import { MdModeEditOutline } from "react-icons/md";
+import { BiSolidTrashAlt } from "react-icons/bi";
+import { BsCheckLg } from "react-icons/bs";
 //comp
 import AddModalForm from "@/app/management/subject/component/AddModalForm";
 import SearchBar from "@/components/elements/input/field/SearchBar";
@@ -31,8 +31,7 @@ function Table({
   useEffect(() => {
     const getData = () => {
       axios
-        .get("http://localhost:3000/api/subject", {
-        })
+        .get("http://localhost:3000/api/subject", {})
         .then((res) => {
           let data: subject[] = res.data;
           setSubjectData(() => data);
@@ -47,10 +46,10 @@ function Table({
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
-      //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-      setCheckedList(() => subjectData.map((item, index) => index))
+        //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
+        setCheckedList(() => subjectData.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
-      setCheckedList(() => []);
+        setCheckedList(() => []);
   };
   const ClickToSelect = (index: number) => {
     //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม index ลงไปใน checkList
@@ -59,18 +58,18 @@ function Table({
       //ขยาย...เพราะเราต้องติ๊กเข้าติ๊กออก ต้อง toggle ค่า
       checkedList.includes(index) //คำสั่ง includes return เป็น boolean
         ? //เมื่อเป็นจริง (มีการติ๊กในแถวนั้นๆมาก่อนแล้ว แล้วกดติ๊กซ้ำ)
-        //ทำการวาง array ทับโดยการ filter index นั้นออกไป
-        checkedList.filter((item) => item != index)
+          //ทำการวาง array ทับโดยการ filter index นั้นออกไป
+          checkedList.filter((item) => item != index)
         : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม index ที่ติ๊กเข้าไป
-        [...checkedList, index]
+          [...checkedList, index]
     );
   };
   useEffect(() => {
     checkedList.sort();
-  }, [checkedList]) //ตรงนี้เป็นการ sort Checklist
+  }, [checkedList]); //ตรงนี้เป็นการ sort Checklist
   //เราจะใช้การ order by data id ASC เป็นค่าเริ่มต้น ที่เหลือก็แล้วแต่จะโปรด
   const [orderedIndex, setOrderedIndex] = useState(-1); //ตั้ง default ที่ -1
-  const [orderType, setOrderType] = useState('');
+  const [orderType, setOrderType] = useState("");
   const [orderState, setOrderState] = useState(true); //true = ASC false = DESC
   const toggleOrdered = (index: number, type: string) => {
     //ถ้ากด order ที่ไม่ใช่อันเดิม ให้เซ็ต index ของอันใหม่ละก็ตั้ง orderState กลับเป็น true
@@ -85,11 +84,13 @@ function Table({
     //console.log(orderState);
   };
   useEffect(() => {
-    setSubjectData(() => orderByFunction(subjectData, orderState, orderType))
-  }, [orderType, orderState])
-  //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox 
+    setSubjectData(() => orderByFunction(subjectData, orderState, orderType));
+  }, [orderType, orderState]);
+  //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
   const removeMultiData = () => {
-    setSubjectData(() => subjectData.filter((item, index) => !checkedList.includes(index)));
+    setSubjectData(() =>
+      subjectData.filter((item, index) => !checkedList.includes(index))
+    );
     setCheckedList(() => []);
   };
   //เพิ่มข้อมูลเข้าไปที่ table data
@@ -98,29 +99,31 @@ function Table({
   };
   const editMultiData = (data: subject) => {
     //copy array มาก่อน
-    let dataCopy = [...subjectData]
+    let dataCopy = [...subjectData];
     //loop ข้อมูลเฉพาะตัวที่แก้ไข
-    for(let i=0;i<checkedList.length;i++){
+    for (let i = 0; i < checkedList.length; i++) {
       //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
-      dataCopy.splice(checkedList[i], 1, data[i])
+      dataCopy.splice(checkedList[i], 1, data[i]);
     }
     //วาง array ทับลงไปใหม่
     setSubjectData(() => [...dataCopy]);
     //clear checkbox
     setCheckedList(() => []);
-  }
-  const numberOfPage = ():number[] => {
-    let allPage = Math.ceil(subjectData.length / 10)
-    let page:number[] = subjectData.filter((item, index) => (index < allPage)).map((item, index) => index + 1)
+  };
+  const numberOfPage = (): number[] => {
+    let allPage = Math.ceil(subjectData.length / 10);
+    let page: number[] = subjectData
+      .filter((item, index) => index < allPage)
+      .map((item, index) => index + 1);
     return page;
-  }
-  const nextPage = ():void => {
-    let allPage = Math.ceil(subjectData.length / 10)
-    setPageOfData(() => pageOfData + 1 > allPage ? allPage  : pageOfData + 1)
-  }
-  const previousPage = ():void => {
-    setPageOfData(() => pageOfData - 1 < 1 ? 1 : pageOfData - 1)
-  }
+  };
+  const nextPage = (): void => {
+    let allPage = Math.ceil(subjectData.length / 10);
+    setPageOfData(() => (pageOfData + 1 > allPage ? allPage : pageOfData + 1));
+  };
+  const previousPage = (): void => {
+    setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
+  };
   return (
     <>
       {AddModalActive ? (
@@ -152,7 +155,10 @@ function Table({
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div onClick={() => setCheckedList(() => [])} className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none">
+              <div
+                onClick={() => setCheckedList(() => [])}
+                className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none"
+              >
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
                   {checkedList.length === subjectData.length
@@ -191,7 +197,12 @@ function Table({
             height={"100%"}
             handleClick={() => setModalActive(true)}
           /> */}
-          <button className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm" onClick={() => setAddModalActive(true)}>เพิ่มวิชา</button>
+          <button
+            className="flex w-fit items-center bg-blue-100 hover:bg-blue-200 duration-500 text-blue-500 p-4 rounded text-sm"
+            onClick={() => setAddModalActive(true)}
+          >
+            เพิ่มวิชา
+          </button>
         </div>
       </div>
       {/* <div className="w-full flex-row-reverse flex h-[60px] py-[10px] pl-[15px]">
@@ -211,7 +222,8 @@ function Table({
                 //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
                 //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
                 checked={
-                  checkedList.length === subjectData.length && subjectData.length !== 0
+                  checkedList.length === subjectData.length &&
+                  subjectData.length !== 0
                 }
               />
             </th>
@@ -219,16 +231,20 @@ function Table({
               <th
                 className="text-left px-6 select-none cursor-pointer"
                 key={item}
-                onClick={() => { toggleOrdered(index, item) }}
+                onClick={() => {
+                  toggleOrdered(index, item);
+                }}
               >
                 <div className="flex gap-1 items-center">
                   <p className="">{item}</p>
                   {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
                   {orderedIndex == index ? (
-                    <IoIosArrowDown className={`fill-cyan-400 duration-500`}
-                    style={{
-                      transform: `rotate(${orderState ? "0deg" : "180deg"})`,
-                    }}/>
+                    <IoIosArrowDown
+                      className={`fill-cyan-400 duration-500`}
+                      style={{
+                        transform: `rotate(${orderState ? "0deg" : "180deg"})`,
+                      }}
+                    />
                   ) : null}
                 </div>
               </th>
@@ -236,24 +252,25 @@ function Table({
           </tr>
         </thead>
         <tbody className="text-sm">
-          {subjectData.map((item, index) => (
-            <tr
-              className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-              key={`${item.SubjectCode} ${item.SubjectName}`}
-            >
-              <th>
-                <input
-                  className="cursor-pointer"
-                  type="checkbox"
-                  value={item.SubjectCode}
-                  name="itemdata"
-                  onChange={() => ClickToSelect(index)}
-                  //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                  checked={checkedList.includes(index)}
-                />
-              </th>
-              {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
-              <TableData
+          {subjectData
+            .map((item, index) => (
+              <tr
+                className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
+                key={`${item.SubjectCode} ${item.SubjectName}`}
+              >
+                <th>
+                  <input
+                    className="cursor-pointer"
+                    type="checkbox"
+                    value={item.SubjectCode}
+                    name="itemdata"
+                    onChange={() => ClickToSelect(index)}
+                    //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
+                    checked={checkedList.includes(index)}
+                  />
+                </th>
+                {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
+                <TableData
                   data={item}
                   handleChange={ClickToSelect}
                   editData={() => setEditModalActive(true)}
@@ -262,20 +279,33 @@ function Table({
                   index={index}
                   key={item}
                 />
-            </tr>
-          )).filter((item, index) => index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) && index <= (pageOfData * 10 - 1))}
+              </tr>
+            ))
+            .filter(
+              (item, index) =>
+                index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
+                index <= pageOfData * 10 - 1
+            )}
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
         <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
         {numberOfPage().map((page) => (
           <>
-            {pageOfData ==  page 
-            ?
-            <MiniButton title={page.toString()} width={30} buttonColor="#000" titleColor="#FFF" />
-            :
-            <MiniButton handleClick={() => setPageOfData(() => page)} width={30} title={page.toString()} />
-            }
+            {pageOfData == page ? (
+              <MiniButton
+                title={page.toString()}
+                width={30}
+                buttonColor="#000"
+                titleColor="#FFF"
+              />
+            ) : (
+              <MiniButton
+                handleClick={() => setPageOfData(() => page)}
+                width={30}
+                title={page.toString()}
+              />
+            )}
           </>
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />

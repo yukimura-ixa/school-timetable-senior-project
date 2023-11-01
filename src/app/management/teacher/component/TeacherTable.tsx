@@ -192,10 +192,10 @@ function Table({
             </p>
           </div>
           <button
-            className="flex w-fit items-center bg-blue-500 hover:bg-blue-600 duration-500 text-white p-4 rounded text-sm"
+            className="flex w-fit items-center bg-blue-100 hover:bg-blue-200 duration-500 text-blue-500 p-4 rounded text-sm"
             onClick={() => setAddModalActive(true)}
           >
-            เพิ่มครู
+            เพิ่มคุณครู
           </button>
         </div>
       </div>

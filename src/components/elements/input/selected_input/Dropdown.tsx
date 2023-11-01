@@ -126,8 +126,8 @@ function Dropdown({
                     justify-left
                     items-center
                     px-[15px] py-[10px] 
-                    hover:bg-[#EAF2FF]
-                    hover:text-[#3B8FEE]
+                    hover:bg-cyan-50
+                    hover:text-cyan-500
                   `}
                 key={`${item}(${index})`}
                 onClick={() => { setIsHidden(false), handleChange(item, index) }}

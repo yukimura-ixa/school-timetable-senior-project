@@ -251,7 +251,7 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
               onClick={() => {
                 addItemAndCloseModal();
               }}
-              className="w-[75px] h-[45px] bg-blue-500 hover:bg-blue-600 duration-300 p-3 rounded text-white text-sm"
+              className="w-[75px] h-[45px] bg-blue-100 hover:bg-blue-200 duration-300 p-3 rounded text-blue-600 text-sm"
             >
               ยืนยัน
             </button>

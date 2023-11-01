@@ -10,7 +10,6 @@ import { BsCalendar2Day } from "react-icons/bs";
 import Counter from "../../component/Counter";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
-import Button from "@/components/elements/static/Button";
 type Props = {};
 
 function TableConfig({}: Props) {
@@ -130,7 +129,7 @@ function TableConfig({}: Props) {
           {isSaved ? (
             <p className="text-green-400">บันทึกสำเร็จ !</p>
           ) : (
-            <Button title="บันทึก" width={80} handleClick={saved} />
+            <button onClick={saved} className="bg-blue-100 hover:bg-blue-200 text-blue-500 duration-300 px-6 py-2 rounded">บันทึก</button>
           )}
         </div>
       </span>
