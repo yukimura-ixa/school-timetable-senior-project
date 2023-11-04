@@ -3,12 +3,16 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import React, { useState } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings } from "react-icons/tb";
-import AddLockSchduleModal from "./AddLockSchduleModal";
+import AddLockScheduleModal from "./AddLockScheduleModal";
+import EditLockScheduleModal from "./EditLockScheduleModal";
 
 type Props = {};
 
-function LockSchedule (props: Props) {
-  const [addLockSchduleModalActive, SetAddLockSchduleModalActive] =
+function LockSchedule(props: Props) {
+  const [addLockScheduleModalActive, SetAddLockSchduleModalActive] =
+    useState<boolean>(false);
+
+  const [editLockScheduleModalActive, SetEditLockSchduleModalActive] =
     useState<boolean>(false);
   const [lockScheduleData, setLockScheduledata] = useState([
     {
@@ -106,20 +110,35 @@ function LockSchedule (props: Props) {
       ],
     },
   ]);
+
+  const [editSchedule, setEditSchedule] = useState({});
+  const [editScheduleIndex, setEditScheduleIndex] = useState<number>(null);
   const addLockSchedule = (locksche: any) => {
-    console.log(locksche)
+    console.log(locksche);
     setLockScheduledata(() => [...lockScheduleData, locksche]);
+  };
+  const editLockSchedule = (item: any) => {
+    const temp = [...lockScheduleData];
+    temp[editScheduleIndex] = item;
+    setLockScheduledata(temp);
   };
   return (
     <>
-      {addLockSchduleModalActive ? (
-        <AddLockSchduleModal
+      {addLockScheduleModalActive ? (
+        <AddLockScheduleModal
           closeModal={() => SetAddLockSchduleModalActive(false)}
           confirmChange={addLockSchedule}
         />
       ) : null}
+      {editLockScheduleModalActive ? (
+        <EditLockScheduleModal
+          lockSchedule={editSchedule}
+          closeModal={() => SetEditLockSchduleModalActive(false)}
+          confirmChange={editLockSchedule}
+        />
+      ) : null}
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
-        {lockScheduleData.map((item) => (
+        {lockScheduleData.map((item, index) => (
           <React.Fragment
             key={`${item.Subject.SubjectCode}${item.DayOfWeek}${item.timeSlotID}`}
           >
@@ -129,7 +148,16 @@ function LockSchedule (props: Props) {
                   วัน{item.DayOfWeek} - {item.Subject.SubjectName} คาบ{" "}
                   {item.timeSlotID.join(",")}
                 </p>
-                <TbSettings size={24} className="fill-[#EDEEF3]" />
+                <div
+                  onClick={() => {
+                    SetEditLockSchduleModalActive(true);
+                    setEditScheduleIndex(index);
+                    setEditSchedule(item);
+                  }}
+                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"
+                >
+                  <TbSettings size={24} className="fill-[#EDEEF3]" />
+                </div>
               </div>
               {/* Tooltips */}
               <div
@@ -248,6 +276,6 @@ function LockSchedule (props: Props) {
       </div>
     </>
   );
-};
+}
 
 export default LockSchedule;

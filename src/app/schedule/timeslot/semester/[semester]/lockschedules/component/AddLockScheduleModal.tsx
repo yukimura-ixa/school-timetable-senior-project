@@ -14,7 +14,7 @@ type Props = {
   confirmChange: any;
 };
 
-function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
+function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
   const [subject, setSubject] = useState([]);
   const [subjectFilter, setSubjectFilter] = useState([]);
   const [teacher, setTeacher] = useState([]);
@@ -163,8 +163,8 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
   useEffect(() => {
     const validate = () => {
       validateData();
-    }
-    return validate()
+    };
+    return validate();
   }, [
     lockScheduleData.Subject,
     lockScheduleData.DayOfWeek,
@@ -281,4 +281,4 @@ function AddLockSchduleModal({ closeModal, confirmChange }: Props) {
   );
 }
 
-export default AddLockSchduleModal;
+export default AddLockScheduleModal;

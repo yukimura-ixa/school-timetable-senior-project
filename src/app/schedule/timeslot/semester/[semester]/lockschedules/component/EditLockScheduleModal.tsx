@@ -10,11 +10,16 @@ import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 
 type Props = {
+  lockSchedule: any;
   closeModal: any;
   confirmChange: any;
 };
 
-function EditLockScheduleModal(props: Props) {
+function EditLockScheduleModal({
+  lockSchedule,
+  closeModal,
+  confirmChange,
+}: Props) {
   const [subject, setSubject] = useState([]);
   const [subjectFilter, setSubjectFilter] = useState([]);
   const [teacher, setTeacher] = useState([]);
@@ -27,42 +32,7 @@ function EditLockScheduleModal(props: Props) {
     { Year: 5, rooms: [] },
     { Year: 6, rooms: [] },
   ]);
-  const [lockScheduleData, setLockScheduledata] = useState({
-    Subject: {
-      SubjectID: null,
-      SubjectCode: "",
-      SubjectName: "",
-    },
-    DayOfWeek: "",
-    timeSlotID: [],
-    Teachers: [],
-    Grade: [
-      {
-        Year: 1,
-        ClassRooms: [],
-      },
-      {
-        Year: 2,
-        ClassRooms: [],
-      },
-      {
-        Year: 3,
-        ClassRooms: [],
-      },
-      {
-        Year: 4,
-        ClassRooms: [],
-      },
-      {
-        Year: 5,
-        ClassRooms: [],
-      },
-      {
-        Year: 6,
-        ClassRooms: [],
-      },
-    ],
-  });
+  const [lockScheduleData, setLockScheduledata] = useState(lockSchedule);
   useEffect(() => {
     const getData = () => {
       axios
@@ -90,13 +60,14 @@ function EditLockScheduleModal(props: Props) {
     };
     return () => getData();
   }, []);
-  // const [validate, setValidate] = useState({
-  //   Subject: false,
-  //   DayOfWeek: false,
-  //   timeSlotID: false,
-  //   Teachers: false,
-  //   ClassRooms: false,
-  // });
+
+  const [isEmptyData, setIsEmptyData] = useState({
+    Subject: false,
+    DayOfWeek: false,
+    timeSlotID: false,
+    Teachers: false,
+    ClassRooms: false,
+  });
   const [searchText, setSearchText] = useState("");
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
@@ -149,24 +120,41 @@ function EditLockScheduleModal(props: Props) {
       ),
     }));
   };
-  const [validateMsg, setValidateMsg] = useState({
-    SubjectMsg : "",
-    DayOfWeekMsg : "",
-    TimeSlotMsg : "",
-    TeacherMsg : "",
-    ClassRoomMsg : "",
-  })
-  const addItemAndCloseModal = () => {
-    // เดี๋ยวค่อยมา validate
-    let mapGrade = [...lockScheduleData.Grade.map(item => item.ClassRooms)]
-    let findTrue = mapGrade.map(item => item.length > 0 && true).filter(item => item == true)[0]
-    let cond = lockScheduleData.Subject.SubjectID == null || lockScheduleData.DayOfWeek.length == 0 || lockScheduleData.timeSlotID.length == 0 || lockScheduleData.Teachers.length == 0 || !findTrue
-    if(cond){
-      alert("ใส่ครบยังจ๊ะ")
-    }
-    else{
-      props.confirmChange(lockScheduleData);
-      props.closeModal();
+  const validateData = () => {
+    setIsEmptyData(() => ({
+      Subject: lockScheduleData.Subject.SubjectCode.length == 0,
+      DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
+      timeSlotID: lockScheduleData.timeSlotID.length == 0,
+      Teachers: lockScheduleData.Teachers.length == 0,
+      ClassRooms:
+        lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
+          .length == 0,
+    }));
+  };
+  useEffect(() => {
+    const validate = () => {
+      validateData();
+    };
+    return validate();
+  }, [
+    lockScheduleData.Subject,
+    lockScheduleData.DayOfWeek,
+    lockScheduleData.timeSlotID,
+    lockScheduleData.Teachers,
+    lockScheduleData.Grade,
+  ]);
+  const editItemAndCloseModal = () => {
+    let cond =
+      isEmptyData.Subject ||
+      isEmptyData.DayOfWeek ||
+      isEmptyData.timeSlotID ||
+      isEmptyData.Teachers ||
+      isEmptyData.ClassRooms;
+    if (cond) {
+      validateData();
+    } else {
+      confirmChange(lockScheduleData);
+      closeModal();
     }
   };
   const handleSubjectChange = (value: any) => {
@@ -206,12 +194,9 @@ function EditLockScheduleModal(props: Props) {
           className={`relative flex flex-col w-[831px] h-fit overflow-y-scroll overflow-x-hidden p-12 gap-10 bg-white rounded`}
         >
           {/* Content */}
-          <div
-            className="flex w-full h-auto justify-between items-center"
-            onClick={() => console.log(validateMsg)}
-          >
+          <div className="flex w-full h-auto justify-between items-center">
             <p className="text-xl select-none">เพิ่มวิชาล็อก</p>
-            <AiOutlineClose className="cursor-pointer" onClick={props.closeModal} />
+            <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
             <SelectSubject
@@ -223,14 +208,17 @@ function EditLockScheduleModal(props: Props) {
               }`}
               handleSubjectChange={handleSubjectChange}
               searchHandle={searchHandle}
+              required={isEmptyData.Subject}
             />
             <SelectDayOfWeek
               dayOfWeek={lockScheduleData.DayOfWeek}
               handleDayChange={handleDayChange}
+              required={isEmptyData.DayOfWeek}
             />
             <SelectMultipleTimeSlot
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeSlotID}
+              required={isEmptyData.timeSlotID}
             />
             <SelectTeacher
               data={teacher}
@@ -239,17 +227,19 @@ function EditLockScheduleModal(props: Props) {
               removeTeacherFunction={removeTeacherFromList}
               searchHandleTeacher={searchHandleTeacher}
               searchTextTeacher={searchTextTeacher}
+              required={isEmptyData.Teachers}
             />
             <SelectedClassRoom
               allClassRoom={allClassRoom}
               Grade={lockScheduleData.Grade}
               classRoomHandleChange={classRoomHandleChange}
+              required={isEmptyData.ClassRooms}
             />
           </div>
           <span className="flex w-full justify-end">
             <button
               onClick={() => {
-                addItemAndCloseModal();
+                editItemAndCloseModal();
               }}
               className="w-[75px] h-[45px] bg-blue-100 hover:bg-blue-200 duration-300 p-3 rounded text-blue-600 text-sm"
             >
