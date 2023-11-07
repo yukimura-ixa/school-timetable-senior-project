@@ -94,8 +94,8 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             </div>
           </div>
           <div className="flex w-full items-end justify-end gap-4">
-            <button className="w-[100px] h-[45px] rounded bg-blue-500 text-white">บันทึก</button>
-            <button className="w-[100px] h-[45px] rounded bg-red-500 text-white">ยกเลิก</button>
+            <button className="w-[100px] h-[45px] rounded bg-blue-100 text-blue-500">บันทึก</button>
+            <button className="w-[100px] h-[45px] rounded bg-red-100 text-red-500">ยกเลิก</button>
           </div>
         </div>
       </div>
