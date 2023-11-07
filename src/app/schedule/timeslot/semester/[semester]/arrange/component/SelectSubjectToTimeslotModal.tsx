@@ -23,7 +23,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             />
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">
-            <div className="flex justify-between items-center w-full">
+            {/* <div className="flex justify-between items-center w-full">
               <p>เลือกชั้นเรียน</p>
               <Dropdown
                 width={250}
@@ -38,7 +38,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                 handleChange={undefined}
                 searchFunciton={undefined}
               />
-            </div>
+            </div> */}
             <div className="flex flex-col gap-3 p-4 w-full h-[150px] border border-[#EDEEF3] overflow-y-auto">
               <p className="text-sm">เลือกวิชาที่มีการสอนสำหรับ ม.3/2</p>
               <div className="flex flex-wrap w-full gap-3 text-center">
