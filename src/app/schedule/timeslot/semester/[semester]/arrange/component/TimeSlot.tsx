@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
-import { MdAdd } from "react-icons/md";
+import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { subject_in_slot } from "@/raw-data/subject_in_slot";
 type Props = {};
@@ -61,10 +61,49 @@ function TimeSlot(props: Props) {
       SubjectCode: subject.SubjectCode,
       SubjectName: subject.SubjectName,
       RoomName: roomName,
-    }
-    let addSubject = timeSlotData.SlotAmounts.filter((item) => item.DayOfWeek == dayOfWeek)[0].Slots.map(item => item.SlotNumber === slotNumber ? {SlotNumber : item.SlotNumber, Subject : subjectData} : item)
-    setTimeSlotData(() => ({...timeSlotData, SlotAmounts : [...timeSlotData.SlotAmounts.map(item => item.DayOfWeek == dayOfWeek ? {DayOfWeek : item.DayOfWeek, Slots : addSubject} : item) ]}))
-    setIsActiveModal(false)
+    };
+    let addSubject = timeSlotData.SlotAmounts.filter(
+      (item) => item.DayOfWeek == dayOfWeek
+    )[0].Slots.map((item) =>
+      item.SlotNumber === slotNumber
+        ? { SlotNumber: item.SlotNumber, Subject: subjectData }
+        : item
+    );
+    setTimeSlotData(() => ({
+      ...timeSlotData,
+      SlotAmounts: [
+        ...timeSlotData.SlotAmounts.map((item) =>
+          item.DayOfWeek == dayOfWeek
+            ? { DayOfWeek: item.DayOfWeek, Slots: addSubject }
+            : item
+        ),
+      ],
+    }));
+    setIsActiveModal(false);
+  };
+  const removeSubjectToSlot = (dayOfWeek: string, slotNumber: number) => {
+    let defaultValue = {
+      SubjectCode: null,
+      SubjectName: null,
+      RoomName: null,
+    };
+    let removedSubject = timeSlotData.SlotAmounts.filter(
+      (item) => item.DayOfWeek == dayOfWeek
+    )[0].Slots.map((item) =>
+      item.SlotNumber === slotNumber
+        ? { SlotNumber: item.SlotNumber, Subject: defaultValue }
+        : item
+    );
+    setTimeSlotData(() => ({
+      ...timeSlotData,
+      SlotAmounts: [
+        ...timeSlotData.SlotAmounts.map((item) =>
+          item.DayOfWeek == dayOfWeek
+            ? { DayOfWeek: item.DayOfWeek, Slots: removedSubject }
+            : item
+        ),
+      ],
+    }));
   };
   return (
     <>
@@ -129,11 +168,26 @@ function TimeSlot(props: Props) {
                   <Fragment key={`woohoo${item.SlotNumber}`}>
                     <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
                       <span className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
-                        {item.Subject.SubjectCode != null ? (
+                        {timeSlotData.BreakSlot.includes(item.SlotNumber) ? (
+                          <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
+                            {/* <MdAdd size={20} className="fill-gray-300" /> */}
+                          </span>
+                        ) : item.Subject.SubjectCode != null ? (
                           <>
-                            <p>{item.Subject.SubjectCode}</p>
-                            <p>ม.1/2</p>
-                            <p>{item.Subject.RoomName}</p>
+                            <div className="flex items-center">
+                              <div>
+                                <p>{item.Subject.SubjectCode}</p>
+                                <p>ม.1/2</p>
+                                <p>{item.Subject.RoomName}</p>
+                              </div>
+                              <MdDelete
+                                onClick={() => {
+                                  removeSubjectToSlot(day.Day, item.SlotNumber);
+                                }}
+                                size={20}
+                                className="fill-red-400 hover:fill-red-500 duration-300"
+                              />
+                            </div>
                           </>
                         ) : (
                           <MdAdd
