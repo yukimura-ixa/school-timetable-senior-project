@@ -87,7 +87,7 @@ export const dashboardMenu = [
         IconStyle : {
             Icon : BiSolidUser,
         },
-        title : "ข้อมูลรายชื่อครู",
+        title : "สรุปข้อมูลคุณครู",
         link : "/dashboard/teacher"
     },
     {
@@ -95,7 +95,7 @@ export const dashboardMenu = [
         IconStyle : {
             Icon : SiGoogleclassroom,
         },
-        title : "ข้อมูลสถานที่เรียน",
+        title : "สรุปข้อมูลสถานที่เรียน",
         link : "/dashboard/rooms"
     },
     {
@@ -103,7 +103,7 @@ export const dashboardMenu = [
         IconStyle : {
             Icon : HiAcademicCap,
         },
-        title : "ข้อมูลชั้นเรียน",
+        title : "สรุปข้อมูลชั้นเรียน",
         link : "/dashboard/classroom"
     }
 ]

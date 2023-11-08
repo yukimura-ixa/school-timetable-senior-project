@@ -21,7 +21,7 @@ function DashboardMenubar() {
           {/* management */}
           <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">
-              การจัดการข้อมูล
+              สรุปข้อมูล
             </p>
             {dashboardMenu.map((item, index) => {
               return (
