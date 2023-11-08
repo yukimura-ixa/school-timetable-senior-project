@@ -10,7 +10,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { usePathname } from "next/navigation";
 function Menubar() {
   const pathName = usePathname();
-  const [indexPoint, setIndexPoint] = useState<number>(-1);
+  const [indexPoint, setIndexPoint] = useState<number>(0);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
@@ -69,7 +69,7 @@ function Menubar() {
                     className="flex items-center justify-between w-full gap-5 h-[45px] p-[10px] cursor-pointer texthover hover:bg-cyan-100 duration-500"
                     onClick={() => {
                       setIndexPoint(index),
-                        setIsOpen(index === indexPoint ? !isOpen : true);
+                      setIsOpen(index === indexPoint ? !isOpen : true)
                     }}
                   >
                     <div className="flex gap-5 justify-between w-full items-center">

@@ -49,7 +49,7 @@ function AddSubjectModal (props: Props) {
   return (
     <>
       <div
-        style={{ backgroundColor: "rgba(0,0,0,0.75" }}
+        style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
         <div className="flex flex-col w-[550px] h-auto p-[50px] gap-8 bg-white rounded">
