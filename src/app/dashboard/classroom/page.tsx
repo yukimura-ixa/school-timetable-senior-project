@@ -198,6 +198,7 @@ function GradeLevelIndividualDashboard({}: Props) {
               </Fragment>
             ))}
           </tbody>
+          <tfoot>
           <tr className="flex gap-3">
               <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
                 <span className="flex w-[275px] h-[24px] justify-center">
@@ -235,6 +236,7 @@ function GradeLevelIndividualDashboard({}: Props) {
                 </span>
               </td>
             </tr>
+          </tfoot>
         </table>
       </div>
     </>

@@ -93,7 +93,7 @@ function TeacherIndividualDashboard({}: Props) {
             </tr>
           </thead>
           <tbody
-            className={`flex flex-col gap-3 h-96 overflow-y-scroll`}
+            className={`flex flex-col gap-3 h-96 overflow-y-scroll 2xl:w-[1078px]`}
           >
             {teacherData.Grade.map((grade) => (
               <Fragment key={`year${grade.Year}eiei`}>
@@ -155,7 +155,7 @@ function TeacherIndividualDashboard({}: Props) {
               </Fragment>
             ))}
           </tbody>
-          <tbody>
+          <tfoot>
             <tr className="flex gap-3">
               <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
                 <span className="flex w-[250px] h-[24px] justify-center">
@@ -193,7 +193,7 @@ function TeacherIndividualDashboard({}: Props) {
                 </span>
               </td>
             </tr>
-          </tbody>
+          </tfoot>
         </table>
       </div>
     </>

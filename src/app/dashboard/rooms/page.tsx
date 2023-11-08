@@ -13,7 +13,7 @@ function RoomIndividualDashboard({}: Props) {
     Subjects: [
       {
         SubjectCode: "ค21101",
-        SubjectName : "คณิตศาสตร์พื้นฐาน",
+        SubjectName: "คณิตศาสตร์พื้นฐาน",
         Teacher: {
           Firstname: "อเนกประสงค์",
         },
@@ -27,7 +27,7 @@ function RoomIndividualDashboard({}: Props) {
       },
       {
         SubjectCode: "ค31202",
-        SubjectName : "คณิตศาสตร์พื้นฐาน",
+        SubjectName: "คณิตศาสตร์พื้นฐาน",
         Teacher: {
           Firstname: "สุภาภรณ์",
         },
@@ -127,7 +127,9 @@ function RoomIndividualDashboard({}: Props) {
                 <tr className="flex gap-3">
                   <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
                     <span className="flex flex-col w-[122px] h-[60px] justify-center">
-                      <p className="text-gray-600 font-bold">{subj.SubjectCode}</p>
+                      <p className="text-gray-600 font-bold">
+                        {subj.SubjectCode}
+                      </p>
                       <p className="text-gray-600">{subj.SubjectName}</p>
                     </span>
                   </td>
@@ -136,29 +138,79 @@ function RoomIndividualDashboard({}: Props) {
                       <p className="text-gray-600">{subj.Teacher.Firstname}</p>
                     </span>
                   </td>
-                  <td className={`flex grow justify-center items-center ${subj.Days.Monday == 0 ? "bg-gray-100" : "bg-blue-100"} p-4 rounded select-none`}>
+                  <td
+                    className={`flex grow justify-center items-center ${
+                      subj.Days.Monday == 0 ? "bg-gray-100" : "bg-blue-100"
+                    } p-4 rounded select-none`}
+                  >
                     <span className="flex w-[50px] h-[24px] justify-center">
-                      <p className={`${subj.Days.Monday == 0 ? "" : "text-blue-600"}`}>{subj.Days.Monday == 0 ? "" : subj.Days.Monday}</p>
+                      <p
+                        className={`${
+                          subj.Days.Monday == 0 ? "" : "text-blue-600"
+                        }`}
+                      >
+                        {subj.Days.Monday == 0 ? "" : subj.Days.Monday}
+                      </p>
                     </span>
                   </td>
-                  <td className={`flex grow justify-center items-center ${subj.Days.Tuesday == 0 ? "bg-gray-100" : "bg-blue-100"} p-4 rounded select-none`}>
+                  <td
+                    className={`flex grow justify-center items-center ${
+                      subj.Days.Tuesday == 0 ? "bg-gray-100" : "bg-blue-100"
+                    } p-4 rounded select-none`}
+                  >
                     <span className="flex w-[50px] h-[24px] justify-center">
-                      <p className={`${subj.Days.Tuesday == 0 ? "" : "text-blue-600"}`}>{subj.Days.Tuesday == 0 ? "" : subj.Days.Tuesday}</p>
+                      <p
+                        className={`${
+                          subj.Days.Tuesday == 0 ? "" : "text-blue-600"
+                        }`}
+                      >
+                        {subj.Days.Tuesday == 0 ? "" : subj.Days.Tuesday}
+                      </p>
                     </span>
                   </td>
-                  <td className={`flex grow justify-center items-center ${subj.Days.Wednesday == 0 ? "bg-gray-100" : "bg-blue-100"} p-4 rounded select-none`}>
+                  <td
+                    className={`flex grow justify-center items-center ${
+                      subj.Days.Wednesday == 0 ? "bg-gray-100" : "bg-blue-100"
+                    } p-4 rounded select-none`}
+                  >
                     <span className="flex w-[50px] h-[24px] justify-center">
-                      <p className={`${subj.Days.Wednesday == 0 ? "" : "text-blue-600"}`}>{subj.Days.Wednesday == 0 ? "" : subj.Days.Wednesday}</p>
+                      <p
+                        className={`${
+                          subj.Days.Wednesday == 0 ? "" : "text-blue-600"
+                        }`}
+                      >
+                        {subj.Days.Wednesday == 0 ? "" : subj.Days.Wednesday}
+                      </p>
                     </span>
                   </td>
-                  <td className={`flex grow justify-center items-center ${subj.Days.Thursday == 0 ? "bg-gray-100" : "bg-blue-100"} p-4 rounded select-none`}>
+                  <td
+                    className={`flex grow justify-center items-center ${
+                      subj.Days.Thursday == 0 ? "bg-gray-100" : "bg-blue-100"
+                    } p-4 rounded select-none`}
+                  >
                     <span className="flex w-[50px] h-[24px] justify-center">
-                      <p className={`${subj.Days.Thursday == 0 ? "" : "text-blue-600"}`}>{subj.Days.Thursday == 0 ? "" : subj.Days.Thursday}</p>
+                      <p
+                        className={`${
+                          subj.Days.Thursday == 0 ? "" : "text-blue-600"
+                        }`}
+                      >
+                        {subj.Days.Thursday == 0 ? "" : subj.Days.Thursday}
+                      </p>
                     </span>
                   </td>
-                  <td className={`flex grow justify-center items-center ${subj.Days.Friday == 0 ? "bg-gray-100" : "bg-blue-100"} p-4 rounded select-none`}>
+                  <td
+                    className={`flex grow justify-center items-center ${
+                      subj.Days.Friday == 0 ? "bg-gray-100" : "bg-blue-100"
+                    } p-4 rounded select-none`}
+                  >
                     <span className="flex w-[50px] h-[24px] justify-center">
-                      <p className={`${subj.Days.Friday == 0 ? "" : "text-blue-600"}`}>{subj.Days.Friday == 0 ? "" : subj.Days.Friday}</p>
+                      <p
+                        className={`${
+                          subj.Days.Friday == 0 ? "" : "text-blue-600"
+                        }`}
+                      >
+                        {subj.Days.Friday == 0 ? "" : subj.Days.Friday}
+                      </p>
                     </span>
                   </td>
                   <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
@@ -170,7 +222,8 @@ function RoomIndividualDashboard({}: Props) {
               </Fragment>
             ))}
           </tbody>
-          <tr className="flex gap-3">
+          <tfoot>
+            <tr className="flex gap-3">
               <td className="flex grow justify-center items-center border border-[#EDEEF3] p-4 rounded select-none">
                 <span className="flex w-[275px] h-[24px] justify-center">
                   <p className="text-gray-600">รวม</p>
@@ -207,6 +260,7 @@ function RoomIndividualDashboard({}: Props) {
                 </span>
               </td>
             </tr>
+          </tfoot>
         </table>
       </div>
     </>
