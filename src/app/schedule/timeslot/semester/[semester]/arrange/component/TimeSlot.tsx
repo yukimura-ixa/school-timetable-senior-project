@@ -3,13 +3,14 @@ import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { MdAdd } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
-
+import { subject_in_slot } from "@/raw-data/subject_in_slot";
 type Props = {};
 
 function TimeSlot(props: Props) {
-  const [isActiveModal, setIsActiveModal] = useState(false)
-  const timeSlotData = {
+  const [isActiveModal, setIsActiveModal] = useState(false);
+  const [timeSlotData, setTimeSlotData] = useState({
     SlotAmount: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    SlotAmounts: subject_in_slot,
     StartTime: { Hours: 8, Minutes: 30 },
     Duration: 50,
     DayOfWeek: [
@@ -20,7 +21,7 @@ function TimeSlot(props: Props) {
       { Day: "ศุกร์", TextColor: "#0099d1", BgColor: "#bdedff" },
     ],
     BreakSlot: [4, 5],
-  };
+  });
   const addHours = (time: Date, hours: number): Date => {
     //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
     time.setMinutes(time.getMinutes() + timeSlotData.Duration * hours);
@@ -46,9 +47,35 @@ function TimeSlot(props: Props) {
     ];
     return map;
   };
+  const [selectedSlot, setSelectedSlot] = useState({
+    SlotNumber: null,
+    DayOfWeek: "",
+  });
+  const addSubjectToSlot = (
+    slotNumber: number,
+    dayOfWeek: string,
+    subject: any,
+    roomName: any
+  ) => {
+    let subjectData = {
+      SubjectCode: subject.SubjectCode,
+      SubjectName: subject.SubjectName,
+      RoomName: roomName,
+    }
+    let addSubject = timeSlotData.SlotAmounts.filter((item) => item.DayOfWeek == dayOfWeek)[0].Slots.map(item => item.SlotNumber === slotNumber ? {SlotNumber : item.SlotNumber, Subject : subjectData} : item)
+    setTimeSlotData(() => ({...timeSlotData, SlotAmounts : [...timeSlotData.SlotAmounts.map(item => item.DayOfWeek == dayOfWeek ? {DayOfWeek : item.DayOfWeek, Slots : addSubject} : item) ]}))
+    setIsActiveModal(false)
+  };
   return (
     <>
-      {isActiveModal ? <SelectSubjectToTimeslotModal CloseModal={() => setIsActiveModal(false)} /> : null}
+      {isActiveModal ? (
+        <SelectSubjectToTimeslotModal
+          AddSubjectToSlot={addSubjectToSlot}
+          CloseModal={() => setIsActiveModal(false)}
+          SlotNumber={selectedSlot.SlotNumber}
+          DayOfWeek={selectedSlot.DayOfWeek}
+        />
+      ) : null}
       <table className="table-auto w-full flex flex-col gap-3">
         <thead>
           <tr className="flex gap-4">
@@ -96,21 +123,32 @@ function TimeSlot(props: Props) {
                     <p style={{ color: day.TextColor }}>{day.Day}</p>
                   </span>
                 </td>
-                {timeSlotData.SlotAmount.map((item) => (
-                  <Fragment key={`woohoo${item}`}>
+                {timeSlotData.SlotAmounts.filter(
+                  (item) => item.DayOfWeek == day.Day
+                )[0].Slots.map((item) => (
+                  <Fragment key={`woohoo${item.SlotNumber}`}>
                     <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
-                      {timeSlotData.BreakSlot.includes(item) ? (
-                        <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
-                          {/* <MdAdd size={20} className="fill-gray-300" /> */}
-                        </span>
-                      ) : (
-                        <span onClick={() => setIsActiveModal(true)} className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
-                          <MdAdd size={20} className="fill-gray-300" />
-                          {/* <p>ค22101</p>
-                          <p>อัครเดช</p>
-                          <p>ภาษาไทย</p> */}
-                        </span>
-                      )}
+                      <span className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
+                        {item.Subject.SubjectCode != null ? (
+                          <>
+                            <p>{item.Subject.SubjectCode}</p>
+                            <p>ม.1/2</p>
+                            <p>{item.Subject.RoomName}</p>
+                          </>
+                        ) : (
+                          <MdAdd
+                            onClick={() => {
+                              setIsActiveModal(true);
+                              setSelectedSlot(() => ({
+                                SlotNumber: item.SlotNumber,
+                                DayOfWeek: day.Day,
+                              }));
+                            }}
+                            size={20}
+                            className="fill-gray-300"
+                          />
+                        )}
+                      </span>
                     </td>
                   </Fragment>
                 ))}
@@ -124,3 +162,27 @@ function TimeSlot(props: Props) {
 }
 
 export default TimeSlot;
+
+// {timeSlotData.BreakSlot.includes(item) ? (
+//   <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
+//     {/* <MdAdd size={20} className="fill-gray-300" /> */}
+//   </span>
+// ) : (
+//   <span
+//     onClick={() => {
+//       setIsActiveModal(true)
+//       setSelectedSlot(() => (
+//         {
+//           SlotNumber: item,
+//           DayOfWeek: day.Day,
+//         }
+//       ));
+//     }}
+//     className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300"
+//   >
+//     <MdAdd size={20} className="fill-gray-300" />
+//     {/* <p>ค22101</p>
+//     <p>อัครเดช</p>
+//     <p>ภาษาไทย</p> */}
+//   </span>
+// )}
