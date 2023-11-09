@@ -162,21 +162,6 @@ function LockSchedule(props: Props) {
                   <TbSettings size={24} className="fill-[#EDEEF3]" />
                 </div>
               </div>
-              {/* Tooltips */}
-              <div
-                className={`hidden duration-300 absolute top-[55%] right-[-25px] rounded flex flex-wrap justify-center w-[200px] gap-2 h-fit p-2 drop-shadow-md bg-white`}
-              >
-                {[
-                  201, 202, 301, 302, 303, 304, 305, 306, 303, 304, 305, 306,
-                ].map((item, index) => (
-                  <React.Fragment key={`${item} ${index}`}>
-                    <p className="text-[#4F515E]">
-                      ม.{item.toString().substring(0, 1)}/
-                      {item.toString().substring(2)}
-                    </p>
-                  </React.Fragment>
-                ))}
-              </div>
               {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
               <div className="flex flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm">ชั้นเรียน</p>
@@ -221,23 +206,6 @@ function LockSchedule(props: Props) {
                   ))}
                 </div>
               </div>
-              {/* Tooltips */}
-              {/* <div
-                className={`hidden duration-300 absolute bottom-[-180px] right-[-50px] rounded flex flex-wrap justify-start w-[200px] gap-2 h-fit p-2 drop-shadow-md bg-white`}
-              >
-                {[
-                  "ครูอเนก - คณิตศาสตร์",
-                  "ครูอำนวย - ศิลปะ",
-                  "ครูชาคริต - การงานอาชีพ",
-                  "ครูอเนก - คณิตศาสตร์",
-                  "ครูอำนวย - ศิลปะ",
-                  "ครูชาคริต - การงานอาชีพ",
-                ].map((item) => (
-                  <>
-                    <p className="text-[#4F515E]">{item}</p>
-                  </>
-                ))}
-              </div> */}
               {/* ครูที่เลือก */}
               <div className="flex flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm">ครูผู้สอน</p>
