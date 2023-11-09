@@ -19,6 +19,7 @@ function LockSchedule(props: Props) {
       Subject: { SubjectID: 52, SubjectCode: "ก23202", SubjectName: "ชุมนุม" },
       DayOfWeek: "อังคาร",
       timeSlotID: [7, 8],
+      RoomName : 423,
       Teachers: [
         {
           TeacherID: 88,
@@ -68,6 +69,7 @@ function LockSchedule(props: Props) {
       },
       DayOfWeek: "จันทร์",
       timeSlotID: [8, 9],
+      RoomName : 125,
       Teachers: [
         {
           TeacherID: 25,
@@ -148,6 +150,7 @@ function LockSchedule(props: Props) {
                   วัน{item.DayOfWeek} - {item.Subject.SubjectName} คาบ{" "}
                   {item.timeSlotID.join(",")}
                 </p>
+                <p>ห้อง {item.RoomName}</p>
                 <div
                   onClick={() => {
                     SetEditLockSchduleModalActive(true);

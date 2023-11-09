@@ -8,6 +8,7 @@ import SelectSubject from "./SelectSubject";
 import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
+import SelectRoomName from "./SelectRoomName";
 
 type Props = {
   closeModal: any;
@@ -62,6 +63,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
         ClassRooms: [],
       },
     ],
+    RoomName: null,
   });
   useEffect(() => {
     const getData = () => {
@@ -96,6 +98,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     timeSlotID: false,
     Teachers: false,
     ClassRooms: false,
+    RoomName: false,
   });
   const [searchText, setSearchText] = useState("");
   const searchName = (name: string) => {
@@ -155,6 +158,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
       timeSlotID: lockScheduleData.timeSlotID.length == 0,
       Teachers: lockScheduleData.Teachers.length == 0,
+      RoomName: lockScheduleData.RoomName == null,
       ClassRooms:
         lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
           .length == 0,
@@ -171,6 +175,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     lockScheduleData.timeSlotID,
     lockScheduleData.Teachers,
     lockScheduleData.Grade,
+    lockScheduleData.RoomName,
   ]);
   const addItemAndCloseModal = () => {
     let cond =
@@ -178,7 +183,8 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       isEmptyData.DayOfWeek ||
       isEmptyData.timeSlotID ||
       isEmptyData.Teachers ||
-      isEmptyData.ClassRooms;
+      isEmptyData.ClassRooms ||
+      isEmptyData.RoomName;
     if (cond) {
       validateData();
     } else {
@@ -196,6 +202,12 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     setLockScheduledata(() => ({
       ...lockScheduleData,
       DayOfWeek: value,
+    }));
+  };
+  const handleRoomChange = (value: string) => {
+    setLockScheduledata(() => ({
+      ...lockScheduleData,
+      RoomName: value,
     }));
   };
   const handleAddTeacherList = (teacher: any) => {
@@ -248,6 +260,11 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeSlotID}
               required={isEmptyData.timeSlotID}
+            />
+            <SelectRoomName
+              roomName={lockScheduleData.RoomName}
+              handleRoomChange={handleRoomChange}
+              required={isEmptyData.RoomName}
             />
             <SelectTeacher
               data={teacher}

@@ -8,6 +8,7 @@ import SelectSubject from "./SelectSubject";
 import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
+import SelectRoomName from "./SelectRoomName";
 
 type Props = {
   lockSchedule: any;
@@ -67,6 +68,7 @@ function EditLockScheduleModal({
     timeSlotID: false,
     Teachers: false,
     ClassRooms: false,
+    RoomName : false,
   });
   const [searchText, setSearchText] = useState("");
   const searchName = (name: string) => {
@@ -126,6 +128,7 @@ function EditLockScheduleModal({
       DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
       timeSlotID: lockScheduleData.timeSlotID.length == 0,
       Teachers: lockScheduleData.Teachers.length == 0,
+      RoomName : lockScheduleData.RoomName == null,
       ClassRooms:
         lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
           .length == 0,
@@ -142,6 +145,7 @@ function EditLockScheduleModal({
     lockScheduleData.timeSlotID,
     lockScheduleData.Teachers,
     lockScheduleData.Grade,
+    lockScheduleData.RoomName,
   ]);
   const editItemAndCloseModal = () => {
     let cond =
@@ -149,6 +153,7 @@ function EditLockScheduleModal({
       isEmptyData.DayOfWeek ||
       isEmptyData.timeSlotID ||
       isEmptyData.Teachers ||
+      isEmptyData.RoomName ||
       isEmptyData.ClassRooms;
     if (cond) {
       validateData();
@@ -167,6 +172,12 @@ function EditLockScheduleModal({
     setLockScheduledata(() => ({
       ...lockScheduleData,
       DayOfWeek: value,
+    }));
+  };
+  const handleRoomChange = (value: string) => {
+    setLockScheduledata(() => ({
+      ...lockScheduleData,
+      RoomName: value,
     }));
   };
   const handleAddTeacherList = (teacher: any) => {
@@ -214,6 +225,11 @@ function EditLockScheduleModal({
               dayOfWeek={lockScheduleData.DayOfWeek}
               handleDayChange={handleDayChange}
               required={isEmptyData.DayOfWeek}
+            />
+            <SelectRoomName
+              roomName={lockScheduleData.RoomName}
+              handleRoomChange={handleRoomChange}
+              required={isEmptyData.RoomName}
             />
             <SelectMultipleTimeSlot
               timeSlotHandleChange={timeSlotHandleChange}

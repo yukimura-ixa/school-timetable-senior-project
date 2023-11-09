@@ -62,7 +62,7 @@ function Dropdown({
           style={{ color: typeof currentValue === 'undefined' || currentValue === "" ? "#676E85" : "#000" }}
         >
           {/* ถ้าไม่มีการใส่ currentValue เข้ามา จะสั่งให้วาง placeHolder เอาไว้ */}
-          {typeof currentValue === 'undefined' || currentValue === "" ? placeHolder : width < 200 ? currentValue.length > 15 ? `${currentValue.substring(0, 10)}...` : currentValue : currentValue}
+          {typeof currentValue === 'undefined' || (currentValue === "" || currentValue == null) ? placeHolder : width < 200 ? currentValue.length > 15 ? `${currentValue.substring(0, 10)}...` : currentValue : currentValue}
         </div>
         <Image
           className={`
