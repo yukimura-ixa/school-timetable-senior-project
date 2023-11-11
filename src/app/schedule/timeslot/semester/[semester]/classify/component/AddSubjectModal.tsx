@@ -22,6 +22,16 @@ function AddSubjectModal (props: Props) {
   const removeFromSubjectList = (index:number) => {
     setSubjectList(() => subjectList.filter((item, ind) => ind != index))
   };
+  const confirmToAddSubjectToClass = () => {
+    //check ว่าถ้าเลือกวิชาครบแล้วให้เพิ่มลงชั้นเรียน
+    if(!findNullData()){
+      props.addSubjectToClass(subjectList)
+    }
+  }
+  const findNullData = ():boolean => {
+    let findNull = subjectList.map(item => item.SubjectID)
+    return findNull.includes(null);
+  }
   useEffect(() => {
     const getSubject = () => {
       axios.get('http://localhost:3000/api/subject')
@@ -161,8 +171,9 @@ function AddSubjectModal (props: Props) {
               </React.Fragment>
             ))}
           </div>
-          <span className="w-full flex justify-end">
-              <button onClick={() => props.addSubjectToClass(subjectList)} className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-600 py-2 px-4 rounded">
+          <span className="w-full flex justify-between items-center">
+              {findNullData() ? <p className="text-red-500 text-sm">*โปรดเลือกข้อมูลให้ครบถ้วน</p> : <p></p>}
+              <button onClick={() => confirmToAddSubjectToClass()} className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-600 py-2 px-4 rounded">
                 ยืนยัน
               </button>
           </span>
