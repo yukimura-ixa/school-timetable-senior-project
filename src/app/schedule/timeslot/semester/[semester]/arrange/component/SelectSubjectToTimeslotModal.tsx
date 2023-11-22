@@ -88,7 +88,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               <p>เลือกสถานที่เรียน</p>
               <Dropdown
                 width={250}
-                data={["Hi"]}
+                data={["331"]}
                 placeHolder="125"
                 renderItem={({ data }) => (
                   <>

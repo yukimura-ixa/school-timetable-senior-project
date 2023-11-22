@@ -10,7 +10,7 @@ function SelectClassRoom({}: Props) {
         <p>เลือกห้องเรียน</p>
         <Dropdown
           width={300}
-          data={["Hi"]}
+          data={["ม.3/2", "ม.4/1", "ม.5/3", "ม.6/4"]}
           placeHolder="ม.6/4"
           renderItem={({data}) => (<>{data}</>)}
           currentValue={undefined}
