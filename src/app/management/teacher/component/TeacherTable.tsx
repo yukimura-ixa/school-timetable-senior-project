@@ -87,8 +87,14 @@ function Table({
     setTeacherData(() => orderByFunction(teacherData, orderState, orderType));
   }, [orderType, orderState]);
   //เพิ่มข้อมูลเข้าไปที่ table data
-  const addData = (data: teacher[]): void => {
-    setTeacherData(() => [...data, ...teacherData]);
+  const addData = async (data: teacher[]) => {
+    try {
+      const response = await axios.post("http://localhost:3000/api/teacher", data);
+      setTeacherData(() => [...data, ...teacherData]);
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
   };
   const editMultiData = (data: any): void => {
     //copy array มาก่อน
@@ -155,7 +161,10 @@ function Table({
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div onClick={() => setCheckedList(() => [])} className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none">
+              <div
+                onClick={() => setCheckedList(() => [])}
+                className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none"
+              >
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
                   {checkedList.length === teacherData.length
@@ -290,7 +299,7 @@ function Table({
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-      <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
+        <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
         {numberOfPage().map((page) => (
           <Fragment key={`page${page}`}>
             {pageOfData == page ? (
