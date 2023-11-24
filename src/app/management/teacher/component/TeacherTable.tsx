@@ -89,6 +89,7 @@ function Table({
   //เพิ่มข้อมูลเข้าไปที่ table data
   const addData = async (data: teacher[]) => {
     try {
+      console.log(data);
       const response = await axios.post("http://localhost:3000/api/teacher", data);
       setTeacherData(() => [...data, ...teacherData]);
       console.log(response);
@@ -96,25 +97,46 @@ function Table({
       console.log(err);
     }
   };
-  const editMultiData = (data: any): void => {
-    //copy array มาก่อน
-    let dataCopy = [...teacherData];
-    //loop ข้อมูลเฉพาะตัวที่แก้ไข
-    for (let i = 0; i < checkedList.length; i++) {
-      //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
-      dataCopy.splice(checkedList[i], 1, data[i]);
+  const editMultiData = async (data: any) => {
+    try {
+      let selectData = {
+        TeacherID : teacherData.filter((item, index) => checkedList.includes(index)).map(item => item.TeacherID),
+        data : data
+      }
+      const response = await axios.put("http://localhost:3000/api/teacher", selectData);
+      //copy array มาก่อน
+      let dataCopy = [...teacherData];
+      //loop ข้อมูลเฉพาะตัวที่แก้ไข
+      for (let i = 0; i < checkedList.length; i++) {
+        //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
+        dataCopy.splice(checkedList[i], 1, data[i]);
+      }
+      //วาง array ทับลงไปใหม่
+      setTeacherData(() => [...dataCopy]);
+      //clear checkbox
+      setCheckedList(() => []);
+      console.log(response);
+    } catch (err) {
+      console.log(err);
     }
-    //วาง array ทับลงไปใหม่
-    setTeacherData(() => [...dataCopy]);
-    //clear checkbox
-    setCheckedList(() => []);
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = (): void => {
-    setTeacherData(() =>
-      teacherData.filter((item, index) => !checkedList.includes(index))
-    );
-    setCheckedList(() => []);
+  //24-11-2023 ปัจจุบัน func ลบ ยังไม่สมบูรณ์ เพราะการลบมันพ่วงโดนหลายตาราง ค่อยมาทำ
+  const removeMultiData = async () => {
+    let data = teacherData.filter((item, index) => checkedList.includes(index)).map(item => item.TeacherID);
+    console.log(data);
+    try {
+      const response = await axios.delete("http://localhost:3000/api/teacher", {
+        data : data
+      });
+      setTeacherData(() =>
+        teacherData.filter((item, index) => !checkedList.includes(index))
+      );
+      setCheckedList(() => []);
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
   };
   const numberOfPage = (): number[] => {
     let allPage = Math.ceil(teacherData.length / 10);
