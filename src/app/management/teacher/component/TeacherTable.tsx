@@ -12,6 +12,17 @@ import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../teacher/component/ConfirmDeleteModal";
 import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+//MUI
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import TextField from '@mui/material/TextField';
+import AddIcon from '@mui/icons-material/Add';
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from "@mui/material/InputAdornment";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Function;
@@ -222,12 +233,7 @@ function Table({
               ทั้งหมด {teacherData.length} รายการ
             </p>
           </div>
-          <button
-            className="flex w-fit items-center bg-blue-100 hover:bg-blue-200 duration-500 text-blue-500 p-4 rounded text-sm"
-            onClick={() => setAddModalActive(true)}
-          >
-            เพิ่มคุณครู
-          </button>
+          <PrimaryButton handleClick={() => setAddModalActive(true)} title={"เพิ่มครู"} color="primary" Icon={<AddIcon />} />
         </div>
       </div>
       <table className="table-auto w-full">

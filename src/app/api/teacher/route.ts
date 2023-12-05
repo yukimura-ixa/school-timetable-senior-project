@@ -54,6 +54,7 @@ export async function PUT(request: Request) {
   let teacherID = [];
   body.data.forEach((element) => {
     values.push([
+      element.TeacherID,
       element.Prefix,
       element.Firstname,
       element.Lastname,
@@ -65,7 +66,8 @@ export async function PUT(request: Request) {
       element
     ]);
   });
-  let query = `UPDATE \`teacher\` SET Prefix = ? Firstname = ? Lastname = ? Department = ? WHERE TeacherID = ?`;
+  let query = `UPDATE \`teacher\` SET Prefix = ?, Firstname = ?, Lastname = ?, Department = ? WHERE TeacherID = ?`;
+  // let query = `INSERT INTO teacher (Prefix, Firstname, Lastname, Department) VALUES = ? ON DULPICATE KEY UPDATE`
 
   return Response.json(
     await pool.query(query, [values], (err, result) => {
