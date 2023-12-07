@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model has been renamed to 'Renamedclass' during introspection, because the original name 'class' is reserved.
+model Renamedclass {
+  ClassID     Int             @id @unique(map: "ClassID_UNIQUE") @default(autoincrement())
+  DayOfWeek   class_DayOfWeek
+  TimeslotID  String          @db.VarChar(100)
+  SubjectCode String          @db.VarChar(10)
+  RoomID      Int?
+  GradeID     String          @db.VarChar(100)
+  gradelevel  gradelevel      @relation(fields: [GradeID], references: [GradeID], onDelete: NoAction, onUpdate: NoAction, map: "class_GradeID_fk")
+  room        room?           @relation(fields: [RoomID], references: [RoomID], onDelete: NoAction, onUpdate: NoAction, map: "class_RoomID_fk")
+  subject     subject         @relation(fields: [SubjectCode], references: [SubjectCode], onUpdate: Restrict, map: "class_SubjectCode_fk")
+  timeslot    timeslot        @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: NoAction, onUpdate: NoAction, map: "class_TimeslotID_fk")
+
+  @@index([RoomID], map: "RoomID_fk_idx")
+  @@index([SubjectCode], map: "SubjectID_fk_idx")
+  @@index([TimeslotID], map: "TimeslotID_fk_idx")
+  @@index([GradeID], map: "class_GradeID_fk_idx")
+  @@map("class")
+}
+
+model gradelevel {
+  GradeID                 String                    @id @unique(map: "GradeID_UNIQUE") @db.VarChar(100)
+  Year                    Int
+  Number                  Int
+  GradeProgram            String                    @db.VarChar(100)
+  Renamedclass            Renamedclass[]
+  teachers_responsibility teachers_responsibility[]
+}
+
+model room {
+  RoomID       Int            @id @unique(map: "RoomID_UNIQUE")
+  RoomName     String         @db.VarChar(100)
+  Building     String?        @default("-") @db.VarChar(100)
+  Floor        String?        @default("-") @db.VarChar(100)
+  Renamedclass Renamedclass[]
+}
+
+model subject {
+  SubjectCode             String                    @id @unique(map: "SubjectCode_UNIQUE") @db.VarChar(10)
+  SubjectName             String                    @db.VarChar(100)
+  Credit                  subject_Credit
+  Category                String                    @default("-") @db.VarChar(100)
+  SubjectProgram          String                    @default("-") @db.VarChar(100)
+  Renamedclass            Renamedclass[]
+  teachers_responsibility teachers_responsibility[]
+}
+
+model teacher {
+  TeacherID               Int                       @id @unique(map: "TeacherID_UNIQUE") @default(autoincrement())
+  Prefix                  String                    @db.VarChar(10)
+  Firstname               String                    @db.VarChar(100)
+  Lastname                String                    @db.VarChar(100)
+  Department              String                    @default("-") @db.VarChar(100)
+  teachers_responsibility teachers_responsibility[]
+}
+
+model timeslot {
+  TimeslotID   String         @id @unique(map: "TimeslotID_UNIQUE") @db.VarChar(100)
+  StartTime    DateTime       @db.Time(0)
+  EndTime      DateTime       @db.Time(0)
+  IsBreaktime  Boolean
+  Renamedclass Renamedclass[]
+}
+
+model teachers_responsibility {
+  TeacherID    Int
+  GradeID      String                           @db.VarChar(100)
+  SubjectCode  String                           @db.VarChar(10)
+  AcademicYear Int                              @db.Year
+  Semester     teachers_responsibility_Semester
+  TeachHour    Int
+  gradelevel   gradelevel                       @relation(fields: [GradeID], references: [GradeID], onUpdate: Restrict, map: "teachers_responsibility_GradeID_fk")
+  subject      subject                          @relation(fields: [SubjectCode], references: [SubjectCode], onUpdate: Restrict, map: "teachers_responsibility_SubjectCode_fk")
+  teacher      teacher                          @relation(fields: [TeacherID], references: [TeacherID], onUpdate: Restrict, map: "teachers_responsibility_TeacherID_fk")
+
+  @@id([TeacherID, GradeID, SubjectCode])
+  @@index([GradeID], map: "teachers_responsibility_GradeID_fk_idx")
+  @@index([SubjectCode], map: "teachers_responsibility_SubjectID_fk_idx")
+}
+
+enum class_DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum subject_Credit {
+  CREDIT_05
+  CREDIT_10
+  CREDIT_15
+  CREDIT_20
+}
+
+enum teachers_responsibility_Semester {
+  SEMESTER_1
+  SEMESTER_2
+}

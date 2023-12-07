@@ -1,4 +1,4 @@
-import { getPool } from "@/services/db";
+import { getPool } from "@/libs/prisma";
 
 export async function GET(request: Request) {
   const pool = await getPool();

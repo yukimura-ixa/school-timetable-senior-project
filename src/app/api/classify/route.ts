@@ -1,4 +1,4 @@
-import { getPool } from "@/services/db";
+import { getPool } from "@/libs/prisma";
 import { type NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {

@@ -1,6 +1,7 @@
-"use client";
+// "use client";
 import React, { useState, useEffect, Fragment } from "react";
 import axios from "axios";
+import type { Teacher } from "../model/teacher";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
@@ -12,6 +13,7 @@ import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../teacher/component/ConfirmDeleteModal";
 import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
+import { useTeacherData } from "../hooks/teacherData";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Function;
@@ -23,25 +25,14 @@ function Table({
   orderByFunction,
 }: Table): JSX.Element {
   const [pageOfData, setPageOfData] = useState<number>(1);
-  const [AddModalActive, setAddModalActive] = useState<boolean>(false);
+  const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [teacherData, setTeacherData] = useState<teacher[]>([]); //ข้อมูลครูใช้ render
+
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
-  useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/teacher", {})
-        .then((res) => {
-          let data: teacher[] = res.data;
-          setTeacherData(() => [...data]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    return () => getData();
-  }, []);
+
+  const { teacherData, isLoading, error, mutate } = useTeacherData(); //ข้อมูลครูใช้ render
+
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
@@ -84,26 +75,22 @@ function Table({
     //console.log(orderState);
   };
   useEffect(() => {
-    setTeacherData(() => orderByFunction(teacherData, orderState, orderType));
+    //เมื่อมีการเปลี่ยนแปลงของ orderState ก็จะทำการเรียงข้อมูลใหม่
+    () => orderByFunction(teacherData, orderState, orderType);
   }, [orderType, orderState]);
-  //เพิ่มข้อมูลเข้าไปที่ table data
-  const addData = async (data: teacher[]) => {
-    try {
-      console.log(data);
-      const response = await axios.post("http://localhost:3000/api/teacher", data);
-      setTeacherData(() => [...data, ...teacherData]);
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+
   const editMultiData = async (data: any) => {
     try {
       let selectData = {
-        TeacherID : teacherData.filter((item, index) => checkedList.includes(index)).map(item => item.TeacherID),
-        data : data
-      }
-      const response = await axios.put("http://localhost:3000/api/teacher", selectData);
+        TeacherID: teacherData
+          .filter((item, index) => checkedList.includes(index))
+          .map((item) => item.TeacherID),
+        data: data,
+      };
+      const response = await axios.put(
+        "http://localhost:3000/api/teacher",
+        selectData
+      );
       //copy array มาก่อน
       let dataCopy = [...teacherData];
       //loop ข้อมูลเฉพาะตัวที่แก้ไข
@@ -111,8 +98,6 @@ function Table({
         //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
         dataCopy.splice(checkedList[i], 1, data[i]);
       }
-      //วาง array ทับลงไปใหม่
-      setTeacherData(() => [...dataCopy]);
       //clear checkbox
       setCheckedList(() => []);
       console.log(response);
@@ -120,24 +105,7 @@ function Table({
       console.log(err);
     }
   };
-  //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  //24-11-2023 ปัจจุบัน func ลบ ยังไม่สมบูรณ์ เพราะการลบมันพ่วงโดนหลายตาราง ค่อยมาทำ
-  const removeMultiData = async () => {
-    let data = teacherData.filter((item, index) => checkedList.includes(index)).map(item => item.TeacherID);
-    console.log(data);
-    try {
-      const response = await axios.delete("http://localhost:3000/api/teacher", {
-        data : data
-      });
-      setTeacherData(() =>
-        teacherData.filter((item, index) => !checkedList.includes(index))
-      );
-      setCheckedList(() => []);
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  
   const numberOfPage = (): number[] => {
     let allPage = Math.ceil(teacherData.length / 10);
     let page: number[] = teacherData
@@ -154,23 +122,33 @@ function Table({
   };
   return (
     <>
-      {AddModalActive ? (
+      {addModalActive ? (
         <AddModalForm
-          closeModal={() => setAddModalActive(false)}
-          addData={addData}
+          teacherData={teacherData}
+          closeModal={() => {
+            setAddModalActive(false);
+            mutate();
+          }}
         />
       ) : null}
       {deleteModalActive ? (
         <ConfirmDeleteModal
-          closeModal={() => setDeleteModalActive(false)}
-          deleteData={removeMultiData}
+          closeModal={() => {
+            setDeleteModalActive(false);
+            mutate();
+          }}
+          teacherData={teacherData}
+          checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
         />
       ) : null}
       {editModalActive ? (
         <EditModalForm
-          closeModal={() => setEditModalActive(false)}
+          closeModal={() => {
+            setEditModalActive(false);
+            mutate();
+          }}
           conFirmEdit={editMultiData}
           clearCheckList={() => setCheckedList(() => [])}
           data={teacherData.filter((item, index) =>

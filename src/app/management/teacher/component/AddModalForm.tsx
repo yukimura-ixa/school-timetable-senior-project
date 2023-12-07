@@ -6,13 +6,22 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
+import { Teacher } from "../model/teacher";
+import api from "@/libs/axios";
 type props = {
+  teacherData: Teacher[];
   closeModal: any;
-  addData: any;
 };
-function AddModalForm({ closeModal, addData }: props) {
+function AddModalForm({ closeModal, teacherData }: props) {
+  const addData = async (data: Teacher[]) => {
+    const response = await api.post("/teacher", data);
+    console.log(response);
+    if (response.status === 200) {
+      closeModal();
+    }
+  };
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [teachers, setTeachers] = useState<teacher[]>([
+  const [teachers, setTeachers] = useState<Teacher[]>([
     {
       TeacherID: null,
       Prefix: "",
@@ -22,14 +31,14 @@ function AddModalForm({ closeModal, addData }: props) {
     },
   ]);
   const addList = () => {
-    let struct: teacher = {
+    let newTeacher: Teacher = {
       TeacherID: null,
       Prefix: "",
       Firstname: "",
       Lastname: "",
       Department: "",
     };
-    setTeachers(() => [...teachers, struct]);
+    setTeachers(() => [...teachers, newTeacher]);
   };
   const removeList = (index: number): void => {
     let copyArray = [...teachers];
@@ -91,7 +100,11 @@ function AddModalForm({ closeModal, addData }: props) {
           <div className="flex flex-col-reverse gap-3">
             {teachers.map((teacher, index) => (
               <React.Fragment key={`AddData${index + 1}`}>
-                <div className={`flex flex-row gap-3 items-center ${index == teachers.length -1 ? "" : "mt-8"}`}>
+                <div
+                  className={`flex flex-row gap-3 items-center ${
+                    index == teachers.length - 1 ? "" : "mt-8"
+                  }`}
+                >
                   <div className="flex flex-col items-center justify-center mr-5">
                     <p className="text-sm font-bold">รายการที่</p>
                     <p>{index + 1}</p>

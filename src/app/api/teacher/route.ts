@@ -1,5 +1,79 @@
-import { getPool } from "@/services/db";
+import prisma from "@/libs/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
+export async function GET(request: NextRequest) {
+  try {
+    const data = await prisma.teacher.findMany({
+      orderBy: {
+        TeacherID: "asc",
+      },
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.error();
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const body = await request.json();
+  try {
+    const data = await Promise.all(
+      body.map(async (element) => {
+        return await prisma.teacher.create({
+          data: {
+            Prefix: element.Prefix,
+            Firstname: element.Firstname,
+            Lastname: element.Lastname,
+            Department: element.Department,
+          },
+        });
+      })
+    );
+    const ids = data.map((record) => record.id);
+
+    return NextResponse.json(ids);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.error();
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const body = await request.json();
+  try {
+    const data = await prisma.teacher.deleteMany({
+      where: {
+        TeacherID: {
+          in: body,
+        },
+      },
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    console.log(error);
+    return NextResponse.error();
+  }
+}
+
+// export async function DELETE(request: NextRequest) {
+//   const body = await request.json();
+//   let values = [];
+//   body.forEach((element) => {
+//     values.push(element);
+//   });
+
+//   return NextResponse.json(
+//     await prisma.teacher.deleteMany({
+//       where: {
+//         TeacherID: {
+//           in: values,
+//         },
+//       },
+//     })
+//   );
+// }
+/*
 export async function GET(request: Request) {
   const pool = await getPool();
   const [data, f] = await pool.query(`SELECT * FROM \`teacher\` ORDER BY TeacherID DESC`);
@@ -75,3 +149,4 @@ export async function PUT(request: Request) {
     })
   );
 }
+*/

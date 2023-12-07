@@ -4,6 +4,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
+import { Teacher } from "../model/teacher";
 
 type props = {
   closeModal: any;
@@ -18,7 +19,7 @@ function EditModalForm({
   data,
   clearCheckList,
 }: props) {
-  const [editData, setEditData] = useState<teacher[]>(Object.assign([], data));
+  const [editData, setEditData] = useState<Teacher[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
     let isValid = true;
