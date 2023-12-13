@@ -1,6 +1,5 @@
 // "use client";
 import React, { useState, useEffect, Fragment } from "react";
-import axios from "axios";
 import type { Teacher } from "../model/teacher";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
@@ -18,15 +17,9 @@ import MiniButton from "@/components/elements/static/MiniButton";
 type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Teacher[];
-  orderByFunction: Function;
   mutate: Function;
 };
-function Table({
-  tableHead,
-  tableData,
-  orderByFunction,
-  mutate,
-}: Table): JSX.Element {
+function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [pageOfData, setPageOfData] = useState<number>(1);
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
@@ -59,28 +52,42 @@ function Table({
   useEffect(() => {
     checkedList.sort();
   }, [checkedList]); //ตรงนี้เป็นการ sort Checklist
-  //เราจะใช้การ order by data id ASC เป็นค่าเริ่มต้น ที่เหลือก็แล้วแต่จะโปรด
-  const [orderedIndex, setOrderedIndex] = useState(-1); //ตั้ง default ที่ -1
-  const [orderType, setOrderType] = useState("");
-  const [orderState, setOrderState] = useState(true); //true = ASC false = DESC
-  const toggleOrdered = (index: number, type: string) => {
-    //ถ้ากด order ที่ไม่ใช่อันเดิม ให้เซ็ต index ของอันใหม่ละก็ตั้ง orderState กลับเป็น true
-    if (orderedIndex !== index) {
-      setOrderedIndex(index);
-      setOrderType(type);
-      setOrderState(true);
-    } else {
-      //ถ้ากด order ช่องเดิมซ้ำๆ
-      setOrderState(!orderState); //สั่งให้ toggle boolean
-    }
-    //console.log(orderState);
-  };
-  useEffect(() => {
-    //เมื่อมีการเปลี่ยนแปลงของ orderState ก็จะทำการเรียงข้อมูลใหม่
-    () => orderByFunction(tableData, orderState, orderType);
-  }, [orderType, orderState]);
 
-  
+  const [orderedIndex, setOrderedIndex] = useState(-1);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
+
+  const requestSort = (key) => {
+    if (key == "คำนำหน้าชื่อ") key = "Prefix";
+    else if (key == "นามสกุล") key = "Lastname";
+    else if (key == "กลุ่มสาระ") key = "Department";
+    else key = "Firstname";
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+  const sortData = (key, direction) => {
+    if (!tableData) return; // Handle case when data is not yet available
+
+    const sortedData = [...tableData].sort((a, b) => {
+      const aValue = a[key].toLowerCase();
+      const bValue = b[key].toLowerCase();
+
+      if (direction === "asc") {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+    mutate(sortedData, false);
+  };
+
+  useEffect(() => {
+    if (orderedIndex != -1) {
+      sortData(sortConfig.key, sortConfig.direction);
+    }
+  }, [sortConfig]);
 
   const numberOfPage = (): number[] => {
     let allPage = Math.ceil(tableData.length / 10);
@@ -201,22 +208,23 @@ function Table({
               />
             </th>
             {tableHead.map((item, index) => (
-              <Fragment key={item}>
+              <Fragment key={index}>
                 <th
                   className="text-left px-6 select-none cursor-pointer"
                   onClick={() => {
-                    toggleOrdered(index, item);
+                    setOrderedIndex(index);
+                    requestSort(item);
                   }}
                 >
                   <div className="flex gap-1 items-center">
                     <p className="">{item}</p>
                     {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
-                    {orderedIndex == index ? (
+                    {orderedIndex === index ? (
                       <IoIosArrowDown
                         className={`fill-cyan-400 duration-500`}
                         style={{
                           transform: `rotate(${
-                            orderState ? "0deg" : "180deg"
+                            sortConfig.direction === "asc" ? "0deg" : "180deg"
                           })`,
                         }}
                       />
@@ -230,11 +238,8 @@ function Table({
         <tbody className="text-sm">
           {tableData
             .map((item, index) => (
-              <Fragment key={`tr${index}`}>
-                <tr
-                  className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-                  key={`Data${index}`}
-                >
+              <Fragment key={item.TeacherID}>
+                <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
                   <th>
                     <input
                       className="cursor-pointer"
