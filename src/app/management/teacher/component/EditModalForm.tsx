@@ -5,22 +5,31 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import { Teacher } from "../model/teacher";
+import api from "@/libs/axios";
 
 type props = {
   closeModal: any;
-  conFirmEdit: any;
-  data: any;
+  data: Teacher[];
   clearCheckList: any;
+  checkedList: number[];
 };
 
-function EditModalForm({
-  closeModal,
-  conFirmEdit,
-  data,
-  clearCheckList,
-}: props) {
+function EditModalForm({ closeModal, data, clearCheckList }: props) {
   const [editData, setEditData] = useState<Teacher[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
+
+  const editMultiData = async (data: any) => {
+    console.log(data);
+    try {
+      const response = await api.put("/teacher", data);
+
+      //clear checkbox
+      clearCheckList();
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const isValidData = (): boolean => {
     let isValid = true;
     editData.forEach((data) => {
@@ -38,7 +47,7 @@ function EditModalForm({
   };
   const confirmed = () => {
     if (isValidData()) {
-      conFirmEdit(editData);
+      editMultiData(editData);
       closeModal();
     }
   };

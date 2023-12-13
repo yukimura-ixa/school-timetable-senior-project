@@ -5,24 +5,27 @@ import type { Teacher } from "../model/teacher";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
-import { BiSolidTrashAlt } from "react-icons/bi";
+import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
+import { TbTrash } from "react-icons/tb";
 //comp
 import AddModalForm from "@/app/management/teacher/component/AddModalForm";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../teacher/component/ConfirmDeleteModal";
 import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
-import { useTeacherData } from "../hooks/teacherData";
-interface Table {
+
+type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
-  tableData: Function;
+  tableData: Teacher[];
   orderByFunction: Function;
-}
+  mutate: Function;
+};
 function Table({
   tableHead,
-  tableData: TableData,
+  tableData,
   orderByFunction,
+  mutate,
 }: Table): JSX.Element {
   const [pageOfData, setPageOfData] = useState<number>(1);
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
@@ -31,18 +34,16 @@ function Table({
 
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
 
-  const { teacherData, isLoading, error, mutate } = useTeacherData(); //ข้อมูลครูใช้ render
-
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
         //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => teacherData.map((item, index) => index))
+        setCheckedList(() => tableData.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };
-  const ClickToSelect = (index: number) => {
+  const clickToSelect = (index: number) => {
     //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม index ลงไปใน checkList
     setCheckedList(() =>
       //ก่อนอื่นเช็คว่า index ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
@@ -76,45 +77,20 @@ function Table({
   };
   useEffect(() => {
     //เมื่อมีการเปลี่ยนแปลงของ orderState ก็จะทำการเรียงข้อมูลใหม่
-    () => orderByFunction(teacherData, orderState, orderType);
+    () => orderByFunction(tableData, orderState, orderType);
   }, [orderType, orderState]);
 
-  const editMultiData = async (data: any) => {
-    try {
-      let selectData = {
-        TeacherID: teacherData
-          .filter((item, index) => checkedList.includes(index))
-          .map((item) => item.TeacherID),
-        data: data,
-      };
-      const response = await axios.put(
-        "http://localhost:3000/api/teacher",
-        selectData
-      );
-      //copy array มาก่อน
-      let dataCopy = [...teacherData];
-      //loop ข้อมูลเฉพาะตัวที่แก้ไข
-      for (let i = 0; i < checkedList.length; i++) {
-        //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
-        dataCopy.splice(checkedList[i], 1, data[i]);
-      }
-      //clear checkbox
-      setCheckedList(() => []);
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
-  };
   
+
   const numberOfPage = (): number[] => {
-    let allPage = Math.ceil(teacherData.length / 10);
-    let page: number[] = teacherData
+    let allPage = Math.ceil(tableData.length / 10);
+    let page: number[] = tableData
       .filter((item, index) => index < allPage)
       .map((item, index) => index + 1);
     return page;
   };
   const nextPage = (): void => {
-    let allPage = Math.ceil(teacherData.length / 10);
+    let allPage = Math.ceil(tableData.length / 10);
     setPageOfData(() => (pageOfData + 1 > allPage ? allPage : pageOfData + 1));
   };
   const previousPage = (): void => {
@@ -124,7 +100,7 @@ function Table({
     <>
       {addModalActive ? (
         <AddModalForm
-          teacherData={teacherData}
+          teacherData={tableData}
           closeModal={() => {
             setAddModalActive(false);
             mutate();
@@ -137,7 +113,7 @@ function Table({
             setDeleteModalActive(false);
             mutate();
           }}
-          teacherData={teacherData}
+          teacherData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
@@ -149,11 +125,8 @@ function Table({
             setEditModalActive(false);
             mutate();
           }}
-          conFirmEdit={editMultiData}
           clearCheckList={() => setCheckedList(() => [])}
-          data={teacherData.filter((item, index) =>
-            checkedList.includes(index)
-          )}
+          data={tableData.filter((item, index) => checkedList.includes(index))}
         />
       ) : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
@@ -167,7 +140,7 @@ function Table({
               >
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
-                  {checkedList.length === teacherData.length
+                  {checkedList.length === tableData.length
                     ? `เลือกท้ังหมด (${checkedList.length})`
                     : `เลือก (${checkedList.length})`}
                 </p>
@@ -197,7 +170,7 @@ function Table({
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
-              ทั้งหมด {teacherData.length} รายการ
+              ทั้งหมด {tableData.length} รายการ
             </p>
           </div>
           <button
@@ -222,8 +195,8 @@ function Table({
                 //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
                 //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
                 checked={
-                  checkedList.length === teacherData.length &&
-                  teacherData.length !== 0
+                  checkedList.length === tableData.length &&
+                  tableData.length !== 0
                 }
               />
             </th>
@@ -255,7 +228,7 @@ function Table({
           </tr>
         </thead>
         <tbody className="text-sm">
-          {teacherData
+          {tableData
             .map((item, index) => (
               <Fragment key={`tr${index}`}>
                 <tr
@@ -267,21 +240,55 @@ function Table({
                       className="cursor-pointer"
                       type="checkbox"
                       name="itemdata"
-                      onChange={() => ClickToSelect(index)}
+                      onChange={() => clickToSelect(index)}
                       //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
                       checked={checkedList.includes(index)}
                     />
                   </th>
-                  {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
-                  <TableData
-                    data={item}
-                    handleChange={ClickToSelect}
-                    editData={() => setEditModalActive(true)}
-                    deleteData={() => setDeleteModalActive(true)}
-                    checkList={checkedList}
-                    index={index}
-                    key={item}
-                  />
+                  <td
+                    className="px-6 whitespace-nowrap select-none"
+                    onClick={() => clickToSelect(index)}
+                  >
+                    {item.Prefix}
+                  </td>
+                  <td
+                    className="px-6 whitespace-nowrap select-none"
+                    onClick={() => clickToSelect(index)}
+                  >
+                    {item.Firstname}
+                  </td>
+                  <td
+                    className="px-6 whitespace-nowrap select-none"
+                    onClick={() => clickToSelect(index)}
+                  >
+                    {item.Lastname}
+                  </td>
+                  <td
+                    className="px-6 whitespace-nowrap select-none"
+                    onClick={() => clickToSelect(index)}
+                  >
+                    {item.Department}
+                  </td>
+                  {checkedList.length < 1 ? (
+                    <>
+                      <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
+                        <BiEdit
+                          className="fill-[#A16207]"
+                          size={18}
+                          onClick={() => {
+                            setEditModalActive(true), clickToSelect(index);
+                          }}
+                        />
+                        <TbTrash
+                          className="text-red-500"
+                          size={18}
+                          onClick={() => {
+                            setDeleteModalActive(true), clickToSelect(index);
+                          }}
+                        />
+                      </td>
+                    </>
+                  ) : null}
                 </tr>
               </Fragment>
             ))
