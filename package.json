@@ -13,13 +13,11 @@
   "dependencies": {
     "@prisma/client": "^5.7.0",
     "axios": "^1.5.1",
-    "net": "^1.0.2",
     "next": "^14.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.11.0",
-    "swr": "^2.2.4",
-    "tls": "^0.0.1"
+    "swr": "^2.2.4"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
