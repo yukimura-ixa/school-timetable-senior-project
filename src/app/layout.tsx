@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter, Kanit, Noto_Sans_Thai, Sarabun } from "next/font/google";
+import { Sarabun } from "next/font/google";
 import Navbar from "@/components/templates/Navbar";
 import Menubar from "@/components/templates/Menubar";
 import Content from "@/components/templates/Content";
