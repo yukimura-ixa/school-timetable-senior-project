@@ -128,7 +128,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
     <>
       {addModalActive ? (
         <AddModalForm
-          teacherData={tableData}
           closeModal={() => {
             setAddModalActive(false);
             mutate();

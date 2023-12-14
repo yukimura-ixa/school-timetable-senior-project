@@ -6,35 +6,63 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
+import type { subject } from "@prisma/client";
+import { subject_Credit } from "@prisma/client";
+import { subjectCreditTitles } from "@/models/credit-titles";
+import api from "@/libs/axios";
 type props = {
   closeModal: any;
-  addData: any;
+  subjectData: subject[];
 };
-function AddModalForm({ closeModal, addData }: props) {
+function AddModalForm({ closeModal, subjectData }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [subjects, setSubjects] = useState<subject[]>([
     {
       SubjectCode: "",
       SubjectName: "",
-      Credit: "",
+      Credit: undefined,
       Category: "",
       SubjectProgram: "",
     },
   ]);
+
+  const selectCredit = (value: string): subject_Credit => {
+    switch (value) {
+      case "0.5":
+        return subject_Credit.CREDIT_05;
+      case "1.0":
+        return subject_Credit.CREDIT_10;
+      case "1.5":
+        return subject_Credit.CREDIT_15;
+      case "2.0":
+        return subject_Credit.CREDIT_20;
+      default:
+        return subject_Credit.CREDIT_05;
+    }
+  };
+  const addData = async (data: subject[]) => {
+    data.forEach((subject) => {
+      subject.Credit = selectCredit(subject.Credit);
+    });
+    console.log(data);
+    const response = await api.post("/subject", data);
+    console.log(response);
+    if (response.status === 200) {
+      closeModal();
+    }
+  };
   const addList = () => {
     let struct: subject = {
       SubjectCode: "",
       SubjectName: "",
-      Credit: "",
+      Credit: undefined,
       Category: "",
       SubjectProgram: "",
     };
     setSubjects(() => [...subjects, struct]);
   };
   const removeList = (index: number): void => {
-    let copyArray = [...subjects];
-    copyArray.splice(index, 1);
-    setSubjects(() => copyArray);
+    setSubjects(() => subjects.filter((_, ind) => ind !== index));
   };
   const isValidData = (): boolean => {
     let isValid = true;
@@ -60,6 +88,7 @@ function AddModalForm({ closeModal, addData }: props) {
   const cancel = () => {
     closeModal();
   };
+
   return (
     <>
       <div
@@ -91,7 +120,11 @@ function AddModalForm({ closeModal, addData }: props) {
           <div className="flex flex-col-reverse gap-3">
             {subjects.map((subject, index) => (
               <React.Fragment key={`AddData${index + 1}`}>
-                <div className={`flex flex-row gap-3 items-center ${index == subjects.length -1 ? "" : "mt-8"}`}>
+                <div
+                  className={`flex flex-row gap-3 items-center ${
+                    index == subjects.length - 1 ? "" : "mt-8"
+                  }`}
+                >
                   <div className="flex flex-col items-center justify-center mr-5">
                     <p className="text-sm font-bold">รายการที่</p>
                     <p>{index + 1}</p>
@@ -161,9 +194,9 @@ function AddModalForm({ closeModal, addData }: props) {
                       หน่วยกิต (Credit):
                     </label>
                     <Dropdown
-                      data={["0.5", "1.0", "1.5", "2.0"]}
+                      data={Object.values(subject_Credit)}
                       renderItem={({ data }): JSX.Element => (
-                        <li className="w-full">{data}</li>
+                        <li className="w-full">{subjectCreditTitles[data]}</li>
                       )}
                       width={150}
                       height={40}
@@ -177,7 +210,9 @@ function AddModalForm({ closeModal, addData }: props) {
                       handleChange={(value: string) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
-                            index === ind ? { ...item, Credit: value } : item
+                            index === ind
+                              ? { ...item, Credit: subjectCreditTitles[value] }
+                              : item
                           )
                         );
                       }}
@@ -234,6 +269,7 @@ function AddModalForm({ closeModal, addData }: props) {
                       </div>
                     ) : null}
                   </div>
+                  
                   {subjects.length > 1 ? (
                     <TbTrash
                       size={20}

@@ -16,14 +16,14 @@ model Renamedclass {
   RoomID      Int?
   GradeID     String          @db.VarChar(100)
   gradelevel  gradelevel      @relation(fields: [GradeID], references: [GradeID], onDelete: NoAction, onUpdate: NoAction, map: "class_GradeID_fk")
-  room        room?           @relation(fields: [RoomID], references: [RoomID], onDelete: NoAction, onUpdate: NoAction, map: "class_RoomID_fk")
+  room        room?           @relation(fields: [RoomID], references: [RoomID], onDelete: Restrict, onUpdate: Restrict, map: "class_RoomID_fk")
   subject     subject         @relation(fields: [SubjectCode], references: [SubjectCode], onUpdate: Restrict, map: "class_SubjectCode_fk")
   timeslot    timeslot        @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: NoAction, onUpdate: NoAction, map: "class_TimeslotID_fk")
 
-  @@index([RoomID], map: "RoomID_fk_idx")
   @@index([SubjectCode], map: "SubjectID_fk_idx")
   @@index([TimeslotID], map: "TimeslotID_fk_idx")
   @@index([GradeID], map: "class_GradeID_fk_idx")
+  @@index([RoomID], map: "class_RoomID_fk_idx")
   @@map("class")
 }
 
@@ -37,7 +37,7 @@ model gradelevel {
 }
 
 model room {
-  RoomID       Int            @id @unique(map: "RoomID_UNIQUE")
+  RoomID       Int            @id @unique(map: "RoomID_UNIQUE") @default(autoincrement())
   RoomName     String         @db.VarChar(100)
   Building     String?        @default("-") @db.VarChar(100)
   Floor        String?        @default("-") @db.VarChar(100)

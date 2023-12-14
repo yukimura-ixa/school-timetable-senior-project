@@ -5,24 +5,35 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
+import api from "@/libs/axios";
+import type { room } from "@prisma/client";
 type props = {
   closeModal: any;
-  addData: any;
 };
-function AddModalForm({ closeModal, addData }: props) {
+function AddModalForm({ closeModal }: props) {
+  const addData = async (data: room[]) => {
+    console.log(data);
+    const response = await api.post("/rooms", data);
+    console.log(response);
+    if (response.status === 200) {
+      closeModal();
+    }
+  };
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [rooms, setRooms] = useState<rooms[]>([
+  const [rooms, setRooms] = useState<room[]>([
     {
+      RoomID: null,
       RoomName: "",
       Building: "",
-      Floor: null,
+      Floor: undefined,
     },
   ]);
   const addList = () => {
-    let struct: rooms = {
+    let struct: room = {
+      RoomID: null,
       RoomName: "",
       Building: "",
-      Floor: null,
+      Floor: undefined,
     };
     setRooms(() => [...rooms, struct]);
   };
@@ -34,7 +45,7 @@ function AddModalForm({ closeModal, addData }: props) {
   const isValidData = (): boolean => {
     let isValid = true;
     rooms.forEach((data) => {
-      if (data.RoomName == "" || data.Building == "" || data.Floor == null) {
+      if (data.RoomName == "" || data.Building == "" || !data.Floor) {
         setIsEmptyData(true);
         isValid = false;
       }
@@ -154,7 +165,7 @@ function AddModalForm({ closeModal, addData }: props) {
                       placeHolder="ex. 5"
                       value={room.Floor}
                       borderColor={
-                        isEmptyData && (room.Floor == 0 || room.Floor == null)
+                        isEmptyData && (room.Floor == 0 || !room.Floor)
                           ? "#F96161"
                           : ""
                       }
@@ -167,7 +178,7 @@ function AddModalForm({ closeModal, addData }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && (room.Floor == 0 || room.Floor == null) ? (
+                    {isEmptyData && (room.Floor == 0 || !room.Floor) ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

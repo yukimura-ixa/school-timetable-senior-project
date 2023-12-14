@@ -1,10 +1,10 @@
 import useSWR from "swr"
-import type { teacher } from "@prisma/client"
+import type { room } from "@prisma/client"
 import { fetcher } from "@/libs/axios"
 
-export const useTeacherData = () => {
-  const path = `/teacher`
-  const { data, error, mutate } = useSWR<teacher[]>(path, fetcher, {
+export const useRoomData = () => {
+  const path = `/rooms`
+  const { data, error, mutate } = useSWR<room[]>(path, fetcher, {
     refreshInterval: 10000,
   })
 

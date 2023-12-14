@@ -28,7 +28,7 @@ CREATE TABLE `gradelevel` (
 
 -- CreateTable
 CREATE TABLE `room` (
-    `RoomID` INTEGER NOT NULL,
+    `RoomID` INTEGER NOT NULL AUTO_INCREMENT,
     `RoomName` VARCHAR(100) NOT NULL,
     `Building` VARCHAR(100) NULL DEFAULT '-',
     `Floor` VARCHAR(100) NULL DEFAULT '-',

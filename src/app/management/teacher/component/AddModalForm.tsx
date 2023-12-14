@@ -1,27 +1,20 @@
-import Image from "next/image";
-import React, { useState } from "react";
+//AddModalForm.tsx
+import React, { useState, Fragment } from "react";
 import TextField from "@/components/elements/input/field/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import { Teacher } from "../model/teacher";
+import type { teacher } from "@prisma/client";
 import api from "@/libs/axios";
+
 type props = {
-  teacherData: Teacher[];
   closeModal: any;
 };
-function AddModalForm({ closeModal, teacherData }: props) {
-  const addData = async (data: Teacher[]) => {
-    const response = await api.post("/teacher", data);
-    console.log(response);
-    if (response.status === 200) {
-      closeModal();
-    }
-  };
+function AddModalForm({ closeModal }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [teachers, setTeachers] = useState<Teacher[]>([
+  const [teachers, setTeachers] = useState<teacher[]>([
     {
       TeacherID: null,
       Prefix: "",
@@ -30,8 +23,16 @@ function AddModalForm({ closeModal, teacherData }: props) {
       Department: "",
     },
   ]);
+
+  const addData = async (data: teacher[]) => {
+    const response = await api.post("/teacher", data);
+    console.log(response);
+    if (response.status === 200) {
+      closeModal();
+    }
+  };
   const addList = () => {
-    let newTeacher: Teacher = {
+    let newTeacher: teacher = {
       TeacherID: null,
       Prefix: "",
       Firstname: "",
@@ -97,9 +98,9 @@ function AddModalForm({ closeModal, teacherData }: props) {
             />
           </div>
           {/* inputfield */}
-          <div className="flex flex-col-reverse gap-3">
+          <div className="flex flex-col gap-3">
             {teachers.map((teacher, index) => (
-              <React.Fragment key={`AddData${index + 1}`}>
+              <Fragment key={`${index + 1}`}>
                 <div
                   className={`flex flex-row gap-3 items-center ${
                     index == teachers.length - 1 ? "" : "mt-8"
@@ -251,7 +252,7 @@ function AddModalForm({ closeModal, teacherData }: props) {
                     />
                   ) : null}
                 </div>
-              </React.Fragment>
+              </Fragment>
             ))}
           </div>
           <span className="w-full flex justify-end mt-5 gap-3">
