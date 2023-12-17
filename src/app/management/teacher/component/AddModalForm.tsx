@@ -8,11 +8,14 @@ import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import type { teacher } from "@prisma/client";
 import api from "@/libs/axios";
-
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 type props = {
   closeModal: any;
+  openSnackBar: any;
 };
-function AddModalForm({ closeModal }: props) {
+function AddModalForm({ closeModal, openSnackBar }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [teachers, setTeachers] = useState<teacher[]>([
     {
@@ -65,6 +68,7 @@ function AddModalForm({ closeModal }: props) {
     if (isValidData()) {
       addData(teachers);
       closeModal();
+      openSnackBar("ADD");
     }
   };
   const cancel = () => {
@@ -94,8 +98,7 @@ function AddModalForm({ closeModal }: props) {
               border={true}
               hoverable={true}
               borderColor="#222222"
-              handleClick={addList}
-            />
+              handleClick={addList} width={""} height={""} isSelected={false}            />
           </div>
           {/* inputfield */}
           <div className="flex flex-col gap-3">
@@ -150,20 +153,15 @@ function AddModalForm({ closeModal }: props) {
                       placeHolder="ex. อเนก"
                       label="ชื่อ (Firstname) :"
                       value={teacher.Firstname}
-                      borderColor={
-                        isEmptyData && teacher.Firstname.length == 0
-                          ? "#F96161"
-                          : ""
-                      }
+                      borderColor={isEmptyData && teacher.Firstname.length == 0
+                        ? "#F96161"
+                        : ""}
                       handleChange={(e: any) => {
                         let value: string = e.target.value;
-                        setTeachers(() =>
-                          teachers.map((item, ind) =>
-                            index === ind ? { ...item, Firstname: value } : item
-                          )
+                        setTeachers(() => teachers.map((item, ind) => index === ind ? { ...item, Firstname: value } : item
+                        )
                         );
-                      }}
-                    />
+                      } } disabled={false}                    />
                     {isEmptyData && teacher.Firstname.length == 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
@@ -178,20 +176,15 @@ function AddModalForm({ closeModal }: props) {
                       placeHolder="ex. ประสงค์"
                       label="นามสกุล (Lastname) :"
                       value={teacher.Lastname}
-                      borderColor={
-                        isEmptyData && teacher.Lastname.length == 0
-                          ? "#F96161"
-                          : ""
-                      }
+                      borderColor={isEmptyData && teacher.Lastname.length == 0
+                        ? "#F96161"
+                        : ""}
                       handleChange={(e: any) => {
                         let value: string = e.target.value;
-                        setTeachers(() =>
-                          teachers.map((item, ind) =>
-                            index === ind ? { ...item, Lastname: value } : item
-                          )
+                        setTeachers(() => teachers.map((item, ind) => index === ind ? { ...item, Lastname: value } : item
+                        )
                         );
-                      }}
-                    />
+                      } } disabled={false}                    />
                     {isEmptyData && teacher.Lastname.length == 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
@@ -255,19 +248,9 @@ function AddModalForm({ closeModal }: props) {
               </Fragment>
             ))}
           </div>
-          <span className="w-full flex justify-end mt-5 gap-3">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancel()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
-              onClick={handleSubmit}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex justify-end mt-5 gap-3 h-11">
+            <PrimaryButton handleClick={cancel} title={"ยกเลิก"} color={"danger"} Icon={<CloseIcon />} />
+            <PrimaryButton handleClick={handleSubmit} title={"ยืนยัน"} color={"success"} Icon={<CheckIcon />} />
           </span>
         </div>
       </div>

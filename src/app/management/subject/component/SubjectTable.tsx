@@ -7,6 +7,7 @@ import { MdModeEditOutline } from "react-icons/md";
 import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
 import { TbTrash } from "react-icons/tb";
+import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/subject/component/AddModalForm";
 import SearchBar from "@/components/elements/input/field/SearchBar";
@@ -14,6 +15,8 @@ import ConfirmDeleteModal from "../../subject/component/ConfirmDeleteModal";
 import EditModalForm from "../../subject/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { subjectCreditTitles } from "@/models/credit-titles";
+import { Snackbar, Alert } from "@mui/material";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
 
 type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -25,6 +28,8 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
+  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
+  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
 
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
 
@@ -125,6 +130,10 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
+  const snackBarHandle = (commitMsg: string):void => {
+    setIsSnackBarOpen(true)
+    setSnackBarMsg(commitMsg == "ADD" ? "เพิ่มข้อมูลวิชาสำเร็จ!" : commitMsg == "EDIT" ? "อัปเดตข้อมูลวิชาสำเร็จ!" : "ลบข้อมูลวิชาสำเร็จ!")
+  } 
   return (
     <>
       {addModalActive ? (
@@ -134,6 +143,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             setAddModalActive(false);
             mutate();
           }}
+          openSnackBar={snackBarHandle}
         />
       ) : null}
       {deleteModalActive ? (
@@ -142,7 +152,8 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             setDeleteModalActive(false);
             mutate();
           }}
-          teacherData={tableData}
+          openSnackBar={snackBarHandle}
+          subjectData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
@@ -154,6 +165,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             setEditModalActive(false);
             mutate();
           }}
+          openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
           data={tableData.filter((item, index) => checkedList.includes(index))}
         />
@@ -204,12 +216,12 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
               ทั้งหมด {tableData.length} รายการ
             </p>
           </div>
-          <button
-            className="flex w-fit items-center bg-blue-100 hover:bg-blue-200 duration-500 text-blue-500 p-4 rounded text-sm"
-            onClick={() => setAddModalActive(true)}
-          >
-            เพิ่มวิชา
-          </button>
+          <PrimaryButton
+            handleClick={() => setAddModalActive(true)}
+            title={"เพิ่มวิชา"}
+            color="primary"
+            Icon={<AddIcon />}
+          />
         </div>
       </div>
       <table className="table-auto w-full">
@@ -357,7 +369,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
                         className="px-6 whitespace-nowrap select-none"
                         onClick={() => clickToSelect(index)}
                       >
-                        {item.SubjectProgram}
+                        {item.Category}
                       </td>
                       {checkedList.length < 1 ? (
                         <>
@@ -418,6 +430,15 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
+      <Snackbar open={isSnackBarOpen} autoHideDuration={6000} onClose={() => setIsSnackBarOpen(false)}>
+          <Alert
+            onClose={() => setIsSnackBarOpen(false)}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            {snackBarMsg}
+          </Alert>
+      </Snackbar>
     </>
   );
 }

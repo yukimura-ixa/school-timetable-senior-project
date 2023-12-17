@@ -6,15 +6,18 @@ import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import { Teacher } from "../model/teacher";
 import api from "@/libs/axios";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 
 type props = {
   closeModal: any;
+  openSnackBar: any;
   data: Teacher[];
   clearCheckList: any;
-  checkedList: number[];
 };
 
-function EditModalForm({ closeModal, data, clearCheckList }: props) {
+function EditModalForm({ closeModal, data, clearCheckList, openSnackBar }: props) {
   const [editData, setEditData] = useState<Teacher[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
 
@@ -49,6 +52,7 @@ function EditModalForm({ closeModal, data, clearCheckList }: props) {
     if (isValidData()) {
       editMultiData(editData);
       closeModal();
+      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {
@@ -210,19 +214,9 @@ function EditModalForm({ closeModal, data, clearCheckList }: props) {
               </div>
             </React.Fragment>
           ))}
-          <span className="w-full flex gap-3 justify-end mt-5">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-500 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancelEdit()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-100 duration-500 text-green-500 py-2 px-4 rounded"
-              onClick={() => confirmed()}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex gap-3 justify-end mt-5 h-11">
+            <PrimaryButton handleClick={cancelEdit} title={"ยกเลิก"} color={"danger"} Icon={<CloseIcon />} />
+            <PrimaryButton handleClick={confirmed} title={"ยืนยัน"} color={"success"} Icon={<CheckIcon />} />
           </span>
         </div>
       </div>

@@ -2,9 +2,12 @@ import React from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { Teacher } from "../model/teacher";
 import api from "@/libs/axios";
-
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
 type props = {
   closeModal: any;
+  openSnackBar:any;
   teacherData: Teacher[];
   checkedList: any;
   clearCheckList: any;
@@ -17,10 +20,12 @@ function ConfirmDeleteModal({
   checkedList,
   dataAmount,
   clearCheckList,
+  openSnackBar
 }: props) {
   const confirmed = () => {
     removeMultiData(teacherData, checkedList);
     closeModal();
+    openSnackBar("DELETE");
   };
   const cancel = () => {
     if (dataAmount === 1) {
@@ -62,19 +67,19 @@ function ConfirmDeleteModal({
               คุณต้องการลบข้อมูลที่เลือกทั้งหมด {dataAmount} รายการใช่หรือไม่
             </p>
           </div>
-          <span className="w-full flex gap-3 justify-end">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancel()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-gray-100 hover:bg-gray-200 duration-500 text-gray-500 py-2 px-4 rounded"
-              onClick={() => confirmed()}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex gap-3 justify-end h-11">
+            <PrimaryButton
+              handleClick={cancel}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={confirmed}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

@@ -5,11 +5,15 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import api from "@/libs/axios";
 type props = {
   closeModal: any;
   conFirmEdit: any;
   data: any;
+  openSnackBar:any
   clearCheckList: any;
 };
 
@@ -18,6 +22,7 @@ function EditModalForm({
   conFirmEdit,
   data,
   clearCheckList,
+  openSnackBar
 }: props) {
   const [editData, setEditData] = useState<gradeLevel[]>(
     Object.assign([], data)
@@ -40,8 +45,9 @@ function EditModalForm({
   };
   const confirmed = () => {
     if (isValidData()) {
-      conFirmEdit(editData);
+      editMultiData(editData);
       closeModal();
+      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {
@@ -49,6 +55,18 @@ function EditModalForm({
       clearCheckList();
     }
     closeModal();
+  };
+  const editMultiData = async (data: any) => {
+    console.log(data);
+    try {
+      const response = await api.put("/gradeLevel", data);
+
+      //clear checkbox
+      clearCheckList();
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <>
@@ -189,19 +207,19 @@ function EditModalForm({
               </div>
             </React.Fragment>
           ))}
-          <span className="w-full flex gap-3 justify-end mt-5">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancelEdit()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
-              onClick={() => confirmed()}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex gap-3 justify-end mt-5 h-11">
+            <PrimaryButton
+              handleClick={cancelEdit}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={confirmed}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

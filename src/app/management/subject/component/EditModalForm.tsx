@@ -1,22 +1,28 @@
 import TextField from "@/components/elements/input/field/TextField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
+import type { subject } from "@prisma/client";
 import { BsInfo } from "react-icons/bs";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import api from "@/libs/axios";
+import { subject_Credit } from "@prisma/client";
+import { subjectCreditTitles } from "@/models/credit-titles";
 
 type props = {
   closeModal: any;
-  conFirmEdit: any;
   data: any;
   clearCheckList: any;
+  openSnackBar:any;
 };
 
 function EditModalForm({
   closeModal,
-  conFirmEdit,
   data,
   clearCheckList,
+  openSnackBar
 }: props) {
   const [editData, setEditData] = useState<subject[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
@@ -35,10 +41,40 @@ function EditModalForm({
     });
     return isValid;
   };
+  const selectCredit = (value: string): subject_Credit => {
+    switch (value) {
+      case "0.5":
+        return subject_Credit.CREDIT_05;
+      case "1.0":
+        return subject_Credit.CREDIT_10;
+      case "1.5":
+        return subject_Credit.CREDIT_15;
+      case "2.0":
+        return subject_Credit.CREDIT_20;
+      default:
+        return subject_Credit.CREDIT_05;
+    }
+  };
+  const editMultiData = async (data: any) => {
+    console.log(data);
+    try {
+      data.forEach((subject) => {
+        subject.Credit = selectCredit(subject.Credit);
+      });
+      const response = await api.put("/subject", data);
+
+      //clear checkbox
+      clearCheckList();
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const confirmed = () => {
     if (isValidData()) {
-      conFirmEdit(editData);
+      editMultiData(editData);
       closeModal();
+      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {
@@ -63,7 +99,7 @@ function EditModalForm({
             <p className="text-lg select-none">แก้ไขข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
-          {editData.map((item: any, index: number) => (
+          {editData.map((subject: subject, index: number) => (
             <React.Fragment key={`Edit${index}`}>
               <div className={`flex flex-row gap-3 items-center ${index == 0 ? "" : "mt-2"}`}>
                 <div className="flex flex-col items-center justify-center mr-5">
@@ -76,9 +112,9 @@ function EditModalForm({
                   height="auto"
                   label={`รหัสวิชา (SubjectCode):`}
                   placeHolder="ex. ท00000"
-                  value={item.SubjectCode}
+                  value={subject.SubjectCode}
                   borderColor={
-                    isEmptyData && item.SubjectCode.length == 0
+                    isEmptyData && subject.SubjectCode.length == 0
                       ? "#F96161"
                       : ""
                   }
@@ -91,7 +127,7 @@ function EditModalForm({
                     );
                   }}
                 />
-                {isEmptyData && item.SubjectCode.length == 0 ? (
+                {isEmptyData && subject.SubjectCode.length == 0 ? (
                   <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                     <BsInfo className="bg-red-500 rounded-full fill-white" />
                     <p className="text-red-500 text-sm">ต้องการ</p>
@@ -104,9 +140,9 @@ function EditModalForm({
                   height="auto"
                   label={`ชื่อวิชา (SubjectName):`}
                   placeHolder="ex. ภาษาไทย 1"
-                  value={item.SubjectName}
+                  value={subject.SubjectName}
                   borderColor={
-                    isEmptyData && item.SubjectName.length == 0
+                    isEmptyData && subject.SubjectName.length == 0
                       ? "#F96161"
                       : ""
                   }
@@ -119,7 +155,7 @@ function EditModalForm({
                     );
                   }}
                 />
-                {isEmptyData && item.SubjectName.length == 0 ? (
+                {isEmptyData && subject.SubjectName.length == 0 ? (
                   <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                     <BsInfo className="bg-red-500 rounded-full fill-white" />
                     <p className="text-red-500 text-sm">ต้องการ</p>
@@ -131,28 +167,30 @@ function EditModalForm({
                     หน่วยกิต (Credit):
                   </label>
                   <Dropdown
-                    data={["0.5", "1.0", "1.5", "2.0"]}
+                    data={Object.values(subject_Credit)}
                     renderItem={({ data }): JSX.Element => (
-                      <li className="w-full">{data}</li>
+                      <li className="w-full">{subjectCreditTitles[data]}</li>
                     )}
                     width={150}
                     height={40}
                     borderColor={
-                      isEmptyData && item.Credit.length == 0
+                      isEmptyData && subject.Credit.length == 0
                         ? "#F96161"
                         : ""
                     }
-                    currentValue={item.Credit}
+                    currentValue={subjectCreditTitles[subject.Credit] || subject.Credit}
                     placeHolder={"ตัวเลือก"}
                     handleChange={(value: string) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Credit: value } : item
+                          index === ind
+                            ? { ...item, Credit: subjectCreditTitles[value] }
+                            : item
                         )
                       );
                     }}
                   />
-                  {isEmptyData && item.Credit.length == 0 ? (
+                  {isEmptyData && subject.Credit.length == 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -178,7 +216,7 @@ function EditModalForm({
                       "เสรี",
                     ]}
                     borderColor={
-                      isEmptyData && item.Category.length == 0
+                      isEmptyData && subject.Category.length == 0
                         ? "#F96161"
                         : ""
                     }
@@ -187,7 +225,7 @@ function EditModalForm({
                     )}
                     width={150}
                     height={40}
-                    currentValue={item.Category}
+                    currentValue={subject.Category}
                     placeHolder={"ตัวเลือก"}
                     handleChange={(value: string) => {
                       setEditData(() =>
@@ -197,7 +235,7 @@ function EditModalForm({
                       );
                     }}
                   />
-                  {isEmptyData && item.Category.length == 0 ? (
+                  {isEmptyData && subject.Category.length == 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -207,19 +245,19 @@ function EditModalForm({
               </div>
             </React.Fragment>
           ))}
-          <span className="w-full flex gap-3 justify-end mt-5">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancelEdit()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
-              onClick={() => confirmed()}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex gap-3 justify-end mt-5 h-11">
+            <PrimaryButton
+              handleClick={cancelEdit}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={confirmed}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

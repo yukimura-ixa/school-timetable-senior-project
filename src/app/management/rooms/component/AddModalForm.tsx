@@ -7,10 +7,14 @@ import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import api from "@/libs/axios";
 import type { room } from "@prisma/client";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 type props = {
   closeModal: any;
+  openSnackBar: any;
 };
-function AddModalForm({ closeModal }: props) {
+function AddModalForm({ closeModal, openSnackBar }: props) {
   const addData = async (data: room[]) => {
     console.log(data);
     const response = await api.post("/rooms", data);
@@ -56,6 +60,7 @@ function AddModalForm({ closeModal }: props) {
     if (isValidData()) {
       addData(rooms);
       closeModal();
+      openSnackBar("ADD");
     }
   };
   const cancel = () => {
@@ -196,19 +201,19 @@ function AddModalForm({ closeModal }: props) {
               </React.Fragment>
             ))}
           </div>
-          <span className="w-full flex justify-end mt-5 gap-3">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-600 py-2 px-4 rounded"
-              onClick={() => cancel()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-600 py-2 px-4 rounded"
-              onClick={handleSubmit}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex justify-end mt-5 gap-3 h-11">
+            <PrimaryButton
+              handleClick={cancel}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={handleSubmit}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

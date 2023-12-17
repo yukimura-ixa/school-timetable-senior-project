@@ -1,17 +1,25 @@
 import React, {useState} from 'react'
 import { AiOutlineClose } from 'react-icons/ai';
-
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import PrimaryButton from '@/components/elements/static/PrimaryButton';
+import { subject } from '@prisma/client';
+import api from '@/libs/axios';
 type props = {
     closeModal: any;
     deleteData: any;
     clearCheckList:any;
     dataAmount: number;
+    openSnackBar:any;
+    subjectData: subject[]
+    checkedList: any
 }
 
-function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckList }: props) {
+function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckList, openSnackBar, subjectData, checkedList }: props) {
     const confirmed = () => {
-      deleteData();
+      removeMultiData(subjectData, checkedList);
       closeModal();
+      openSnackBar("DELETE");
     }
     const cancel = () => {
       if(dataAmount === 1){
@@ -19,6 +27,21 @@ function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckLis
       }
       closeModal();
     }
+    const removeMultiData = async (data: subject[], checkedList) => {
+      const deleteData = data
+        .filter((item, index) => checkedList.includes(index))
+        .map((item) => item.SubjectCode);
+  
+      try {
+        const response = await api.delete("/subject", {
+          data: deleteData,
+        });
+        console.log(response);
+        clearCheckList();
+      } catch (err) {
+        console.log(err);
+      }
+    };
   return (
     <>
       <div
@@ -34,17 +57,19 @@ function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckLis
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none font-bold">คุณต้องการลบข้อมูลที่เลือกทั้งหมด {dataAmount} รายการใช่หรือไม่</p>
           </div>
-          <span className="w-full flex gap-3 justify-end">
-              <button className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancel()}
-              >
-                ยกเลิก
-              </button>
-              <button className=" w-[100px] bg-gray-100 hover:bg-gray-200 duration-500 text-gray-500 py-2 px-4 rounded"
-              onClick={() => confirmed()}
-              >
-                ยืนยัน
-              </button>
+          <span className="w-full flex gap-3 justify-end h-11">
+              <PrimaryButton
+              handleClick={cancel}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={confirmed}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

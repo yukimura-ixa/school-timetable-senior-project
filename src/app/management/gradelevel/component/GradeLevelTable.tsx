@@ -6,12 +6,15 @@ import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
 import { BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
+import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/gradelevel/component/AddModalForm";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../gradelevel/component/ConfirmDeleteModal";
 import EditModalForm from "../../gradelevel/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import { Snackbar, Alert } from "@mui/material";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: Function;
@@ -28,6 +31,8 @@ function Table({
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [gradeLevelData, setGradeLevelData] = useState<gradeLevel[]>([]); //ข้อมูลครูใช้ render
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
+  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
+  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   useEffect(() => {
     const getData = () => {
       axios
@@ -93,10 +98,6 @@ function Table({
     );
     setCheckedList(() => []);
   };
-  //เพิ่มข้อมูลเข้าไปที่ table data
-  const addData = (data: gradeLevel[]): void => {
-    setGradeLevelData(() => [...data, ...gradeLevelData]);
-  };
   const editMultiData = (data: any): void => {
     //copy array มาก่อน
     let dataCopy = [...gradeLevelData];
@@ -124,17 +125,22 @@ function Table({
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
+  const snackBarHandle = (commitMsg: string):void => {
+    setIsSnackBarOpen(true)
+    setSnackBarMsg(commitMsg == "ADD" ? "เพิ่มข้อมูลชั้นเรียนสำเร็จ!" : commitMsg == "EDIT" ? "อัปเดตข้อมูลชั้นเรียนสำเร็จ!" : "ลบข้อมูลชั้นเรียนสำเร็จ!")
+  } 
   return (
     <>
       {AddModalActive ? (
         <AddModalForm
           closeModal={() => setAddModalActive(false)}
-          addData={addData}
+          openSnackBar={snackBarHandle}
         />
       ) : null}
       {deleteModalActive ? (
         <ConfirmDeleteModal
           closeModal={() => setDeleteModalActive(false)}
+          openSnackBar={snackBarHandle}
           deleteData={removeMultiData}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
@@ -143,6 +149,7 @@ function Table({
       {editModalActive ? (
         <EditModalForm
           closeModal={() => setEditModalActive(false)}
+          openSnackBar={snackBarHandle}
           conFirmEdit={editMultiData}
           clearCheckList={() => setCheckedList(() => [])}
           data={gradeLevelData.filter((item, index) =>
@@ -191,12 +198,12 @@ function Table({
               ทั้งหมด {gradeLevelData.length} รายการ
             </p>
           </div>
-          <button
-            className="flex w-fit items-center bg-blue-100 hover:bg-blue-200 duration-500 text-blue-500 p-4 rounded text-sm"
-            onClick={() => setAddModalActive(true)}
-          >
-            เพิ่มชั้นเรียน
-          </button>
+          <PrimaryButton
+              handleClick={() => setAddModalActive(true)}
+              title={"เพิ่มชั้นเรียน"}
+              color={"primary"}
+              Icon={<AddIcon />}
+            />
         </div>
       </div>
       <table className="table-auto w-full">
@@ -309,6 +316,15 @@ function Table({
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
+      <Snackbar open={isSnackBarOpen} autoHideDuration={6000} onClose={() => setIsSnackBarOpen(false)}>
+          <Alert
+            onClose={() => setIsSnackBarOpen(false)}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            {snackBarMsg}
+          </Alert>
+      </Snackbar>
     </>
   );
 }

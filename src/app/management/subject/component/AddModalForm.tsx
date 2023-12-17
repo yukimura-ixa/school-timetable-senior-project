@@ -10,11 +10,15 @@ import type { subject } from "@prisma/client";
 import { subject_Credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import api from "@/libs/axios";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 type props = {
   closeModal: any;
   subjectData: subject[];
+  openSnackBar:any;
 };
-function AddModalForm({ closeModal, subjectData }: props) {
+function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [subjects, setSubjects] = useState<subject[]>([
     {
@@ -49,6 +53,7 @@ function AddModalForm({ closeModal, subjectData }: props) {
     console.log(response);
     if (response.status === 200) {
       closeModal();
+      openSnackBar("ADD");
     }
   };
   const addList = () => {
@@ -281,19 +286,19 @@ function AddModalForm({ closeModal, subjectData }: props) {
               </React.Fragment>
             ))}
           </div>
-          <span className="w-full flex justify-end mt-5 gap-3">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancel()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
-              onClick={handleSubmit}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex justify-end mt-5 gap-3 h-11">
+            <PrimaryButton
+              handleClick={cancel}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={handleSubmit}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

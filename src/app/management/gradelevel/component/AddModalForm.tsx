@@ -6,11 +6,16 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
+import api from "@/libs/axios";
+import { gradelevel } from "@prisma/client";
 type props = {
   closeModal: any;
-  addData: any;
+  openSnackBar:any
 };
-function AddModalForm({ closeModal, addData }: props) {
+function AddModalForm({ closeModal, openSnackBar }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [gradeLevels, setGradeLevels] = useState<gradeLevel[]>([
     {
@@ -49,10 +54,19 @@ function AddModalForm({ closeModal, addData }: props) {
     });
     return isValid;
   };
+  const addData = async (data: gradelevel[]) => {
+    console.log(data);
+    const response = await api.post("/gradeLevel", data);
+    console.log(response);
+    if (response.status === 200) {
+      closeModal();
+    }
+  };
   const handleSubmit = () => {
     if (isValidData()) {
       addData(gradeLevels);
       closeModal();
+      openSnackBar("ADD");
     }
   };
   const cancel = () => {
@@ -215,19 +229,19 @@ function AddModalForm({ closeModal, addData }: props) {
               </React.Fragment>
             ))}
           </div>
-          <span className="w-full flex justify-end mt-5 gap-3">
-            <button
-              className=" w-[100px] bg-red-100 hover:bg-red-200 duration-500 text-red-500 py-2 px-4 rounded"
-              onClick={() => cancel()}
-            >
-              ยกเลิก
-            </button>
-            <button
-              className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-500 py-2 px-4 rounded"
-              onClick={handleSubmit}
-            >
-              ยืนยัน
-            </button>
+          <span className="w-full flex justify-end mt-5 gap-3 h-11">
+            <PrimaryButton
+              handleClick={cancel}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={handleSubmit}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>
