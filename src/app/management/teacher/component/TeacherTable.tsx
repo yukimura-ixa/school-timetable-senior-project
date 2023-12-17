@@ -7,12 +7,15 @@ import { MdModeEditOutline } from "react-icons/md";
 import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
 import { TbTrash } from "react-icons/tb";
+import AddIcon from "@mui/icons-material/Add";
+
 //comp
 import AddModalForm from "@/app/management/teacher/component/AddModalForm";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../teacher/component/ConfirmDeleteModal";
 import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
 
 type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -202,7 +205,12 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
               ทั้งหมด {tableData.length} รายการ
             </p>
           </div>
-          <PrimaryButton handleClick={() => setAddModalActive(true)} title={"เพิ่มครู"} color="primary" Icon={<AddIcon />} />
+          <PrimaryButton
+            handleClick={() => setAddModalActive(true)}
+            title={"เพิ่มครู"}
+            color="primary"
+            Icon={<AddIcon />}
+          />
         </div>
       </div>
       <table className="table-auto w-full">
