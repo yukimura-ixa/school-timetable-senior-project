@@ -3,17 +3,20 @@ import { AiOutlineClose } from 'react-icons/ai';
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import { gradelevel } from '@prisma/client';
+import api from '@/libs/axios';
 type props = {
     closeModal: any;
     deleteData: any;
     clearCheckList:any;
     dataAmount: number;
     openSnackBar:any
+    checkedList:any
 }
 
-function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckList,openSnackBar }: props) {
+function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckList,openSnackBar, checkedList }: props) {
     const confirmed = () => {
-      deleteData();
+      removeMultiData(deleteData, checkedList);
       closeModal();
       openSnackBar("DELETE");
     }
@@ -23,6 +26,20 @@ function ConfirmDeleteModal ({ closeModal, deleteData, dataAmount, clearCheckLis
       }
       closeModal();
     }
+    const removeMultiData = async (data: gradelevel[], checkedList) => {
+      const deleteData = data
+        .filter((item, index) => checkedList.includes(index))
+        .map((item) => item.GradeID);
+      try {
+        const response = await api.delete("/gradeLevel", {
+          data: deleteData,
+        });
+        console.log(response);
+        clearCheckList();
+      } catch (err) {
+        console.log(err);
+      }
+    };
   return (
     <>
       <div

@@ -107,7 +107,7 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
-                    <p className="text-sm font-bold">รายการที่</p>
+                    <p className="text-sm font-bold" onClick={() => console.log(gradeLevels)}>รายการที่</p>
                     <p>{index + 1}</p>
                   </div>
                   <div className="relative flex flex-col gap-2">
@@ -173,10 +173,10 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: number = e.target.value;
+                        let value: string = e.target.value;
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
-                            index === ind ? { ...item, Number: value } : item
+                            index === ind ? { ...item, Number: parseInt(value) || null } : item
                           )
                         );
                       }}

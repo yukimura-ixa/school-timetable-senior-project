@@ -98,19 +98,23 @@ function Table({
     );
     setCheckedList(() => []);
   };
-  const editMultiData = (data: any): void => {
-    //copy array มาก่อน
-    let dataCopy = [...gradeLevelData];
-    //loop ข้อมูลเฉพาะตัวที่แก้ไข
-    for (let i = 0; i < checkedList.length; i++) {
-      //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
-      dataCopy.splice(checkedList[i], 1, data[i]);
-    }
-    //วาง array ทับลงไปใหม่
-    setGradeLevelData(() => [...dataCopy]);
-    //clear checkbox
-    setCheckedList(() => []);
-  };
+  //เพิ่มข้อมูลเข้าไปที่ table data
+  // const addData = (data: gradeLevel[]): void => {
+  //   setGradeLevelData(() => [...data, ...gradeLevelData]);
+  // };
+  // const editMultiData = (data: any): void => {
+  //   //copy array มาก่อน
+  //   let dataCopy = [...gradeLevelData];
+  //   //loop ข้อมูลเฉพาะตัวที่แก้ไข
+  //   for (let i = 0; i < checkedList.length; i++) {
+  //     //ลบตัวเก่าและแทนที่ด้วยตัวที่แก้ไขมา
+  //     dataCopy.splice(checkedList[i], 1, data[i]);
+  //   }
+  //   //วาง array ทับลงไปใหม่
+  //   setGradeLevelData(() => [...dataCopy]);
+  //   //clear checkbox
+  //   setCheckedList(() => []);
+  // };
   const numberOfPage = (): number[] => {
     let allPage = Math.ceil(gradeLevelData.length / 10);
     let page: number[] = gradeLevelData
@@ -141,7 +145,8 @@ function Table({
         <ConfirmDeleteModal
           closeModal={() => setDeleteModalActive(false)}
           openSnackBar={snackBarHandle}
-          deleteData={removeMultiData}
+          deleteData={gradeLevelData}
+          checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
         />
@@ -150,7 +155,6 @@ function Table({
         <EditModalForm
           closeModal={() => setEditModalActive(false)}
           openSnackBar={snackBarHandle}
-          conFirmEdit={editMultiData}
           clearCheckList={() => setCheckedList(() => [])}
           data={gradeLevelData.filter((item, index) =>
             checkedList.includes(index)
@@ -296,8 +300,8 @@ function Table({
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
       <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
-        {numberOfPage().map((page) => (
-          <>
+        {numberOfPage().map((page, index) => (
+          <React.Fragment key={`${index}pagenum`}>
             {pageOfData == page ? (
               <MiniButton
                 title={page.toString()}
@@ -312,7 +316,7 @@ function Table({
                 title={page.toString()}
               />
             )}
-          </>
+          </React.Fragment>
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>

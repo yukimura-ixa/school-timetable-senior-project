@@ -30,7 +30,7 @@ function EditModalForm({
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
     let isValid = true;
-    editData.forEach((data) => {
+    editData.forEach((data) => { 
       if (
         data.GradeID == 0 ||
         data.Year == null ||
@@ -95,7 +95,7 @@ function EditModalForm({
                   <p className="text-sm font-bold">รายการที่</p>
                   <p>{index + 1}</p>
                 </div>
-                <div className="relative flex flex-col gap-2">
+                {/* <div className="relative flex flex-col gap-2">
                   <NumberField
                     width="auto"
                     height="auto"
@@ -123,7 +123,7 @@ function EditModalForm({
                       <p className="text-red-500 text-sm">ต้องการ</p>
                     </div>
                   ) : null}
-                </div>
+                </div> */}
                 <div className="relative flex flex-col gap-2">
                   <label className="text-sm font-bold">
                     มัธยมปีที่ (Year):
@@ -159,10 +159,10 @@ function EditModalForm({
                         : ""
                     }
                     handleChange={(e: any) => {
-                      let value: number = e.target.value;
+                      let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Number: value } : item
+                          index === ind ? { ...item, Number: parseInt(value) } : item
                         )
                       );
                     }}
