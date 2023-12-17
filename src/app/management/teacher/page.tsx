@@ -3,6 +3,7 @@ import React from "react";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
 import { useTeacherData } from "./hooks/teacherData";
 import Loading from "@/app/loading";
+
 function TeacherManage() {
   const { tableData, isLoading, error, mutate } = useTeacherData(); //ข้อมูลครูใช้ render
 
