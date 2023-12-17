@@ -202,12 +202,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
               ทั้งหมด {tableData.length} รายการ
             </p>
           </div>
-          <button
-            className="flex w-fit items-center bg-blue-100 hover:bg-blue-200 duration-500 text-blue-500 p-4 rounded text-sm"
-            onClick={() => setAddModalActive(true)}
-          >
-            เพิ่มคุณครู
-          </button>
+          <PrimaryButton handleClick={() => setAddModalActive(true)} title={"เพิ่มครู"} color="primary" Icon={<AddIcon />} />
         </div>
       </div>
       <table className="table-auto w-full">

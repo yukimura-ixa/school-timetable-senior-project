@@ -2,7 +2,7 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { useState } from "react";
 import { MdAddCircle } from "react-icons/md";
-import { TbSettings } from "react-icons/tb";
+import { TbSettings, TbTrash } from "react-icons/tb";
 import AddLockScheduleModal from "./AddLockScheduleModal";
 import EditLockScheduleModal from "./EditLockScheduleModal";
 
@@ -161,6 +161,7 @@ function LockSchedule(props: Props) {
                 >
                   <TbSettings size={24} className="fill-[#EDEEF3]" />
                 </div>
+                <TbTrash size={24} className="text-red-500 absolute right-6 cursor-pointer hover:bg-gray-100 duration-300" />
               </div>
               {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
               <div className="flex flex-row justify-between items-center">
