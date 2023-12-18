@@ -2,7 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Sarabun } from "next/font/google";
 import Navbar from "@/components/templates/Navbar";
-import Menubar from "@/components/templates/Menubar";
 import Content from "@/components/templates/Content";
 
 // const inter = Inter({ subsets: ["latin"] });
