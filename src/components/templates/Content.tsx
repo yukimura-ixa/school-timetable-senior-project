@@ -14,7 +14,7 @@ function Content(props: Props) {
   return (
     <>
       {pathName == "/" ? (
-        <span>{props.children}</span>
+        <span className="flex w-full justify-center h-auto">{props.children}</span>
       ) : pathName == "/signin" ? (
         <span className="w-full h-auto">{props.children}</span>
       ) : pathName.match("/dashboard") ? (

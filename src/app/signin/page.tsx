@@ -4,6 +4,8 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import React, { useState } from "react";
 import { BiKey, BiUser } from "react-icons/bi";
 import CheckIcon from '@mui/icons-material/Check';
+import LoginIcon from '@mui/icons-material/Login';
+import Link from "next/link";
 
 type Props = {};
 
@@ -61,7 +63,9 @@ function page({}: Props) {
                   />
                 </span>
               </div>
-              <PrimaryButton handleClick={undefined} title={"ยืนยัน"} color={"primary"} Icon={<CheckIcon />} reverseIcon={false} />
+              <Link href={"/management/teacher"}>
+                <PrimaryButton handleClick={undefined} title={"ยืนยัน"} color={"primary"} Icon={<LoginIcon />} reverseIcon={false} />
+              </Link>
             </div>
           </div>
         </div>
