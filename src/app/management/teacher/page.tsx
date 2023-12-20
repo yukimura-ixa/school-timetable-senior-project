@@ -15,7 +15,7 @@ function TeacherManage() {
         <TeacherTable
           tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
           tableData={tableData}
-          mutate={mutate}
+          mutate={mutate} 
         />
       )}
     </>

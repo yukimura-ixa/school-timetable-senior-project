@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import axios from "axios";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
-import { BiSolidTrashAlt } from "react-icons/bi";
+import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
 import AddIcon from "@mui/icons-material/Add";
 //comp
@@ -15,18 +15,20 @@ import EditModalForm from "../../gradelevel/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { Snackbar, Alert } from "@mui/material";
+import { gradelevel } from "@prisma/client";
+import { TbTrash } from "react-icons/tb";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
-  tableData: Function;
-  orderByFunction: Function;
+  tableData: gradelevel[];
+  mutate: Function;
 }
-function Table({
+function GradeLevelTable({
   tableHead,
-  tableData: TableData,
-  orderByFunction,
+  tableData,
+  mutate
 }: Table): JSX.Element {
   const [pageOfData, setPageOfData] = useState<number>(1);
-  const [AddModalActive, setAddModalActive] = useState<boolean>(false);
+  const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [gradeLevelData, setGradeLevelData] = useState<gradeLevel[]>([]); //ข้อมูลครูใช้ render
@@ -74,23 +76,30 @@ function Table({
   }, [checkedList]); //ตรงนี้เป็นการ sort Checklist
   //เราจะใช้การ order by data id ASC เป็นค่าเริ่มต้น ที่เหลือก็แล้วแต่จะโปรด
   const [orderedIndex, setOrderedIndex] = useState(-1); //ตั้ง default ที่ -1
-  const [orderType, setOrderType] = useState("");
-  const [orderState, setOrderState] = useState(true); //true = ASC false = DESC
-  const toggleOrdered = (index: number, type: string) => {
-    //ถ้ากด order ที่ไม่ใช่อันเดิม ให้เซ็ต index ของอันใหม่ละก็ตั้ง orderState กลับเป็น true
-    if (orderedIndex !== index) {
-      setOrderedIndex(index);
-      setOrderType(type);
-      setOrderState(true);
-    } else {
-      //ถ้ากด order ช่องเดิมซ้ำๆ
-      setOrderState(!orderState); //สั่งให้ toggle boolean
-    }
-    //console.log(orderState);
+  const [sortConfig, setSortConfig] = useState({
+    key: "Firstname",
+    direction: "desc",
+  });
+  const sortData = (key, direction) => {
+    if (!tableData) return; // Handle case when data is not yet available
+
+    const sortedData = [...tableData].sort((a, b) => {
+      const aValue = a[key].toLowerCase();
+      const bValue = b[key].toLowerCase();
+
+      if (direction === "asc") {
+        return aValue.localeCompare(bValue);
+      } else {
+        return bValue.localeCompare(aValue);
+      }
+    });
+    mutate(sortedData, false);
   };
   useEffect(() => {
-    setGradeLevelData(() => orderByFunction(gradeLevelData, orderState, orderType));
-  }, [orderType, orderState]);
+    if (orderedIndex != -1) {
+      sortData(sortConfig.key, sortConfig.direction);
+    }
+  }, [sortConfig]);
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
   const removeMultiData = (): void => {
     setGradeLevelData(() =>
@@ -115,6 +124,11 @@ function Table({
   //   //clear checkbox
   //   setCheckedList(() => []);
   // };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
   const numberOfPage = (): number[] => {
     let allPage = Math.ceil(gradeLevelData.length / 10);
     let page: number[] = gradeLevelData
@@ -133,19 +147,232 @@ function Table({
     setIsSnackBarOpen(true)
     setSnackBarMsg(commitMsg == "ADD" ? "เพิ่มข้อมูลชั้นเรียนสำเร็จ!" : commitMsg == "EDIT" ? "อัปเดตข้อมูลชั้นเรียนสำเร็จ!" : "ลบข้อมูลชั้นเรียนสำเร็จ!")
   } 
+  const requestSort = (key) => {
+    if (key == "คำนำหน้าชื่อ") key = "Prefix";
+    else if (key == "นามสกุล") key = "Lastname";
+    else if (key == "กลุ่มสาระ") key = "Department";
+    else key = "Firstname";
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
   return (
+    // <>
+    //   {AddModalActive ? (
+    //     <AddModalForm
+    //       closeModal={() => setAddModalActive(false)}
+    //       openSnackBar={snackBarHandle}
+    //     />
+    //   ) : null}
+    //   {deleteModalActive ? (
+    //     <ConfirmDeleteModal
+    //       closeModal={() => setDeleteModalActive(false)}
+    //       openSnackBar={snackBarHandle}
+    //       deleteData={gradeLevelData}
+    //       checkedList={checkedList}
+    //       clearCheckList={() => setCheckedList(() => [])}
+    //       dataAmount={checkedList.length}
+    //     />
+    //   ) : null}
+    //   {editModalActive ? (
+    //     <EditModalForm
+    //       closeModal={() => setEditModalActive(false)}
+    //       openSnackBar={snackBarHandle}
+    //       clearCheckList={() => setCheckedList(() => [])}
+    //       data={gradeLevelData.filter((item, index) =>
+    //         checkedList.includes(index)
+    //       )}
+    //     />
+    //   ) : null}
+    //   <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
+    //     <div className="flex gap-3">
+    //       {/* แสดงจำนวน checkbox ที่เลือก */}
+    //       {checkedList.length === 0 ? null : (
+    //         <>
+    //           <div onClick={() => setCheckedList(() => [])} className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none">
+    //             <BsCheckLg className="fill-cyan-500" />
+    //             <p className="text-cyan-500 text-sm">
+    //               {checkedList.length === gradeLevelData.length
+    //                 ? `เลือกท้ังหมด (${checkedList.length})`
+    //                 : `เลือก (${checkedList.length})`}
+    //             </p>
+    //           </div>
+    //           <div
+    //             onClick={() => setEditModalActive(true)}
+    //             className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-yellow-100 hover:bg-yellow-200 duration-300 cursor-pointer select-none"
+    //           >
+    //             <MdModeEditOutline className="fill-yellow-700" />
+    //             <p className="text-sm text-yellow-700">แก้ไข</p>
+    //           </div>
+    //           <div
+    //             onClick={() => setDeleteModalActive(true)}
+    //             className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 hover:bg-red-200 duration-300 cursor-pointer select-none"
+    //           >
+    //             <BiSolidTrashAlt className="fill-red-500" />
+    //             <p className="text-sm text-red-500">ลบ</p>
+    //           </div>
+    //         </>
+    //       )}
+    //     </div>
+    //     <div className="flex gap-3">
+    //       <SearchBar
+    //         height={"100%"}
+    //         width={"100%"}
+    //         placeHolder="ค้นหาชื่อครู"
+    //       />
+    //       <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
+    //         <p className="text-green-500 text-sm">
+    //           ทั้งหมด {gradeLevelData.length} รายการ
+    //         </p>
+    //       </div>
+    //       <PrimaryButton
+    //           handleClick={() => setAddModalActive(true)}
+    //           title={"เพิ่มชั้นเรียน"}
+    //           color={"primary"}
+    //           Icon={<AddIcon />}
+    //         />
+    //     </div>
+    //   </div>
+    //   <table className="table-auto w-full">
+    //     <thead>
+    //       <tr className="h-[60px] bg-[#F1F3F9]">
+    //         <th className="w-20 px-6">
+    //           {/* input ที่ select all item ในตาราง */}
+    //           <input
+    //             className="cursor-pointer"
+    //             type="checkbox"
+    //             name="selectedAll"
+    //             onChange={handleChange}
+    //             //ตรงนี้เช็คว่า array length ของ checkList กับ data ยาวเท่ากันไหม
+    //             //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
+    //             //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
+    //             checked={
+    //               checkedList.length === gradeLevelData.length &&
+    //               gradeLevelData.length !== 0
+    //             }
+    //           />
+    //         </th>
+    //         {tableHead.map((item, index) => (
+    //           <React.Fragment key={item}>
+    //             <th
+    //               className="text-left px-6 select-none cursor-pointer"
+    //               onClick={() => {
+    //                 toggleOrdered(index, item);
+    //               }}
+    //             >
+    //               <div className="flex gap-1 items-center">
+    //                 <p className="">{item}</p>
+    //                 {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
+    //                 {orderedIndex == index ? (
+    //                   <IoIosArrowDown
+    //                     className={`fill-cyan-400 duration-500`}
+    //                     style={{
+    //                       transform: `rotate(${
+    //                         orderState ? "0deg" : "180deg"
+    //                       })`,
+    //                     }}
+    //                   />
+    //                 ) : null}
+    //               </div>
+    //             </th>
+    //           </React.Fragment>
+    //         ))}
+    //       </tr>
+    //     </thead>
+    //     <tbody className="text-sm">
+    //       {gradeLevelData
+    //         .map((item, index) => (
+    //           <tr
+    //             className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
+    //             key={`Data${index}`}
+    //           >
+    //             <th>
+    //               <input
+    //                 className="cursor-pointer"
+    //                 type="checkbox"
+    //                 name="itemdata"
+    //                 onChange={() => ClickToSelect(index)}
+    //                 //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
+    //                 checked={checkedList.includes(index)}
+    //               />
+    //             </th>
+    //             {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
+    //             <TableData
+    //               data={item}
+    //               handleChange={ClickToSelect}
+    //               editData={() => setEditModalActive(true)}
+    //               deleteData={() => setDeleteModalActive(true)}
+    //               checkList={checkedList}
+    //               index={index}
+    //               key={item}
+    //             />
+    //           </tr>
+    //         ))
+    //         .filter(
+    //           (item, index) =>
+    //             index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
+    //             index <= pageOfData * 10 - 1
+    //         )}
+    //       {/* Filter บรรทัดบนคือแบ่งหน้าของข้อมูลที่ Fetch มาทั้งหมดเป็น หน้าละ 10
+    //       index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) คือ ถ้า pageOfData เท่ากับ 1 ให้ return 0
+    //       เพราะหน้าแรกต้องเอา index ที่ 0 มาใช้ ส่วน pageOfData * 10 - 10 คือหน้าต่อๆไปต้องใช้ index เลข 2 หลักแต่ถ้า * 10 เฉยๆจะเท่ากับ index สุดท่ายของข้อมูล
+    //       เลยต้อง - 10
+    //       index <= (pageOfData * 10 - 1) คือ เอา index สุดท้ายมาลบ 1 เพราะ array มันเริ่มที่ 0
+    //        */}
+    //     </tbody>
+    //   </table>
+    //   <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
+    //   <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
+    //     {numberOfPage().map((page, index) => (
+    //       <React.Fragment key={`${index}pagenum`}>
+    //         {pageOfData == page ? (
+    //           <MiniButton
+    //             title={page.toString()}
+    //             width={30}
+    //             buttonColor="#222"
+    //             titleColor="#FFF"
+    //           />
+    //         ) : (
+    //           <MiniButton
+    //             handleClick={() => setPageOfData(() => page)}
+    //             width={30}
+    //             title={page.toString()}
+    //           />
+    //         )}
+    //       </React.Fragment>
+    //     ))}
+    //     <MiniButton title={"Next"} handleClick={nextPage} border={true} />
+    //   </div>
+    //   <Snackbar open={isSnackBarOpen} autoHideDuration={6000} onClose={() => setIsSnackBarOpen(false)}>
+    //       <Alert
+    //         onClose={() => setIsSnackBarOpen(false)}
+    //         severity="success"
+    //         sx={{ width: "100%" }}
+    //       >
+    //         {snackBarMsg}
+    //       </Alert>
+    //   </Snackbar>
+    // </>
     <>
-      {AddModalActive ? (
+      {addModalActive ? (
         <AddModalForm
-          closeModal={() => setAddModalActive(false)}
+          closeModal={() => {
+            setAddModalActive(false);
+            mutate();
+          }}
           openSnackBar={snackBarHandle}
         />
       ) : null}
       {deleteModalActive ? (
         <ConfirmDeleteModal
-          closeModal={() => setDeleteModalActive(false)}
+          closeModal={() => {
+            setDeleteModalActive(false);
+            mutate();
+          }}
           openSnackBar={snackBarHandle}
-          deleteData={gradeLevelData}
+          deleteData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
@@ -153,12 +380,13 @@ function Table({
       ) : null}
       {editModalActive ? (
         <EditModalForm
-          closeModal={() => setEditModalActive(false)}
+          closeModal={() => {
+            setEditModalActive(false);
+            mutate();
+          }}
           openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
-          data={gradeLevelData.filter((item, index) =>
-            checkedList.includes(index)
-          )}
+          data={tableData.filter((item, index) => checkedList.includes(index))}
         />
       ) : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
@@ -166,10 +394,13 @@ function Table({
           {/* แสดงจำนวน checkbox ที่เลือก */}
           {checkedList.length === 0 ? null : (
             <>
-              <div onClick={() => setCheckedList(() => [])} className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none">
+              <div
+                onClick={() => setCheckedList(() => [])}
+                className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none"
+              >
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
-                  {checkedList.length === gradeLevelData.length
+                  {checkedList.length === tableData.length
                     ? `เลือกท้ังหมด (${checkedList.length})`
                     : `เลือก (${checkedList.length})`}
                 </p>
@@ -195,19 +426,21 @@ function Table({
           <SearchBar
             height={"100%"}
             width={"100%"}
+            handleChange={handleSearch}
             placeHolder="ค้นหาชื่อครู"
+            value={setSearchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
-              ทั้งหมด {gradeLevelData.length} รายการ
+              ทั้งหมด {tableData.length} รายการ
             </p>
           </div>
           <PrimaryButton
-              handleClick={() => setAddModalActive(true)}
-              title={"เพิ่มชั้นเรียน"}
-              color={"primary"}
-              Icon={<AddIcon />}
-            />
+            handleClick={() => setAddModalActive(true)}
+            title={"เพิ่มครู"}
+            color="primary"
+            Icon={<AddIcon />}
+          />
         </div>
       </div>
       <table className="table-auto w-full">
@@ -224,72 +457,168 @@ function Table({
                 //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
                 //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
                 checked={
-                  checkedList.length === gradeLevelData.length &&
-                  gradeLevelData.length !== 0
+                  checkedList.length === tableData.length &&
+                  tableData.length !== 0
                 }
               />
             </th>
             {tableHead.map((item, index) => (
-              <React.Fragment key={item}>
+              <Fragment key={index}>
                 <th
                   className="text-left px-6 select-none cursor-pointer"
                   onClick={() => {
-                    toggleOrdered(index, item);
+                    setOrderedIndex(index);
+                    requestSort(item);
                   }}
                 >
                   <div className="flex gap-1 items-center">
                     <p className="">{item}</p>
                     {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
-                    {orderedIndex == index ? (
+                    {orderedIndex === index ? (
                       <IoIosArrowDown
                         className={`fill-cyan-400 duration-500`}
                         style={{
                           transform: `rotate(${
-                            orderState ? "0deg" : "180deg"
+                            sortConfig.direction === "asc" ? "0deg" : "180deg"
                           })`,
                         }}
                       />
                     ) : null}
                   </div>
                 </th>
-              </React.Fragment>
+              </Fragment>
             ))}
           </tr>
         </thead>
         <tbody className="text-sm">
-          {gradeLevelData
-            .map((item, index) => (
-              <tr
-                className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer"
-                key={`Data${index}`}
-              >
-                <th>
-                  <input
-                    className="cursor-pointer"
-                    type="checkbox"
-                    name="itemdata"
-                    onChange={() => ClickToSelect(index)}
-                    //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                    checked={checkedList.includes(index)}
-                  />
-                </th>
-                {/* ส่ง JSX.Element ผ่าน props แล้วค่อยส่ง data จากตรงนี้เพื่อเรียกอีกทีนึง */}
-                <TableData
-                  data={item}
-                  handleChange={ClickToSelect}
-                  editData={() => setEditModalActive(true)}
-                  deleteData={() => setDeleteModalActive(true)}
-                  checkList={checkedList}
-                  index={index}
-                  key={item}
-                />
-              </tr>
-            ))
-            .filter(
-              (item, index) =>
-                index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
-                index <= pageOfData * 10 - 1
-            )}
+          {searchTerm
+            ? filteredData.map((item, index) => (
+                <Fragment key={item.GradeID}>
+                  <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
+                    <th>
+                      <input
+                        className="cursor-pointer"
+                        type="checkbox"
+                        name="itemdata"
+                        onChange={() => ClickToSelect(index)}
+                        //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
+                        checked={checkedList.includes(index)}
+                      />
+                    </th>
+                    <td
+                      className="px-6 whitespace-nowrap select-none"
+                      onClick={() => ClickToSelect(index)}
+                    >
+                      {item.GradeID}
+                    </td>
+                    <td
+                      className="px-6 whitespace-nowrap select-none"
+                      onClick={() => ClickToSelect(index)}
+                    >
+                      {item.Year}
+                    </td>
+                    <td
+                      className="px-6 whitespace-nowrap select-none"
+                      onClick={() => ClickToSelect(index)}
+                    >
+                      {item.Number}
+                    </td>
+                    <td
+                      className="px-6 whitespace-nowrap select-none"
+                      onClick={() => ClickToSelect(index)}
+                    >
+                      {item.GradeProgram}
+                    </td>
+                    {checkedList.length < 1 ? (
+                      <>
+                        <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
+                          <BiEdit
+                            className="fill-[#A16207]"
+                            size={18}
+                            onClick={() => {
+                              setEditModalActive(true), ClickToSelect(index);
+                            }}
+                          />
+                          <TbTrash
+                            className="text-red-500"
+                            size={18}
+                            onClick={() => {
+                              setDeleteModalActive(true), ClickToSelect(index);
+                            }}
+                          />
+                        </td>
+                      </>
+                    ) : null}
+                  </tr>
+                </Fragment>
+              ))
+            : tableData
+                .map((item, index) => (
+                  <Fragment key={item.GradeID}>
+                    <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
+                      <th>
+                        <input
+                          className="cursor-pointer"
+                          type="checkbox"
+                          name="itemdata"
+                          onChange={() => ClickToSelect(index)}
+                          //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
+                          checked={checkedList.includes(index)}
+                        />
+                      </th>
+                      <td
+                        className="px-6 whitespace-nowrap select-none"
+                        onClick={() => ClickToSelect(index)}
+                      >
+                        {item.GradeID}
+                      </td>
+                      <td
+                        className="px-6 whitespace-nowrap select-none"
+                        onClick={() => ClickToSelect(index)}
+                      >
+                        {item.Year}
+                      </td>
+                      <td
+                        className="px-6 whitespace-nowrap select-none"
+                        onClick={() => ClickToSelect(index)}
+                      >
+                        {item.Number}
+                      </td>
+                      <td
+                        className="px-6 whitespace-nowrap select-none"
+                        onClick={() => ClickToSelect(index)}
+                      >
+                        {item.GradeProgram}
+                      </td>
+                      {checkedList.length < 1 ? (
+                        <>
+                          <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
+                            <BiEdit
+                              className="fill-[#A16207]"
+                              size={18}
+                              onClick={() => {
+                                setEditModalActive(true), ClickToSelect(index);
+                              }}
+                            />
+                            <TbTrash
+                              className="text-red-500"
+                              size={18}
+                              onClick={() => {
+                                setDeleteModalActive(true),
+                                  ClickToSelect(index);
+                              }}
+                            />
+                          </td>
+                        </>
+                      ) : null}
+                    </tr>
+                  </Fragment>
+                ))
+                .filter(
+                  (item, index) =>
+                    index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
+                    index <= pageOfData * 10 - 1
+                )}
           {/* Filter บรรทัดบนคือแบ่งหน้าของข้อมูลที่ Fetch มาทั้งหมดเป็น หน้าละ 10
           index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) คือ ถ้า pageOfData เท่ากับ 1 ให้ return 0
           เพราะหน้าแรกต้องเอา index ที่ 0 มาใช้ ส่วน pageOfData * 10 - 10 คือหน้าต่อๆไปต้องใช้ index เลข 2 หลักแต่ถ้า * 10 เฉยๆจะเท่ากับ index สุดท่ายของข้อมูล
@@ -299,9 +628,9 @@ function Table({
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-      <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
-        {numberOfPage().map((page, index) => (
-          <React.Fragment key={`${index}pagenum`}>
+        <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
+        {numberOfPage().map((page) => (
+          <Fragment key={`page${page}`}>
             {pageOfData == page ? (
               <MiniButton
                 title={page.toString()}
@@ -316,7 +645,7 @@ function Table({
                 title={page.toString()}
               />
             )}
-          </React.Fragment>
+          </Fragment>
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
@@ -333,4 +662,4 @@ function Table({
   );
 }
 
-export default Table;
+export default GradeLevelTable;

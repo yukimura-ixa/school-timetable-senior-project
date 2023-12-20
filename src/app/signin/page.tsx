@@ -1,7 +1,11 @@
 "use client";
 import Button from "@/components/elements/static/Button";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import React, { useState } from "react";
 import { BiKey, BiUser } from "react-icons/bi";
+import CheckIcon from '@mui/icons-material/Check';
+import LoginIcon from '@mui/icons-material/Login';
+import Link from "next/link";
 
 type Props = {};
 
@@ -59,15 +63,9 @@ function page({}: Props) {
                   />
                 </span>
               </div>
-              <Button
-                title={"ยืนยัน"}
-                buttonColor={"#3B8FEE"}
-                titleColor={"#FFF"}
-                width={150}
-                height={45}
-                disabled={false}
-                handleClick={undefined}
-              />
+              <Link href={"/management/teacher"}>
+                <PrimaryButton handleClick={undefined} title={"ยืนยัน"} color={"primary"} Icon={<LoginIcon />} reverseIcon={false} />
+              </Link>
             </div>
           </div>
         </div>
