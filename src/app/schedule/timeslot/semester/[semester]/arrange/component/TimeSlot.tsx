@@ -4,9 +4,24 @@ import React, { Fragment, useEffect, useState } from "react";
 import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { subject_in_slot } from "@/raw-data/subject_in_slot";
+import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 type Props = {};
 
 function TimeSlot(props: Props) {
+  const [testDndData, setTestDndData] = useState([
+    {
+      name: "box",
+      id: "1",
+    },
+    {
+      name: "bottle",
+      id: "2",
+    },
+    {
+      name: "speaker",
+      id: "3",
+    },
+  ]);
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [timeSlotData, setTimeSlotData] = useState({
     SlotAmount: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -115,6 +130,37 @@ function TimeSlot(props: Props) {
           DayOfWeek={selectedSlot.DayOfWeek}
         />
       ) : null}
+      {/* React dnd test */}
+      <div className="w-[300px] h-[200px] bg-slate-300 p-3">
+        <DragDropContext
+          onDragEnd={() => {
+            console.log("eiei dragndrop");
+          }}
+        >
+          <div className="">
+            <p>List Item</p>
+          </div>
+          <Droppable droppableId="TEST">
+            {(provided, snapshot) => (
+              <div
+                className="flex flex-col gap-3"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                {testDndData.map((item, index) => (
+                  <Draggable draggableId={item.id} key={item.id} index={index}>
+                    {(provided) => (
+                      <div className="w-full h-6 bg-red-200" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
+                        <p>{item.name}</p>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
       <table className="table-auto w-full flex flex-col gap-3">
         <thead>
           <tr className="flex gap-4">
