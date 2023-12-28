@@ -120,6 +120,23 @@ function TimeSlot(props: Props) {
       ],
     }));
   };
+  const handleDragAndDrop = (results) => {
+    const {source, destination, type} = results;
+    if(!destination) return;
+
+    if(source.droppableId === destination.draggableId && source.index === destination.index) return;
+
+    if(type === 'group'){
+      const reorderedItems = [...testDndData];
+
+      const sourceIndex = source.index;
+      const destinationIndex = destination.index;
+      const [removedStore] = reorderedItems.splice(sourceIndex, 1);
+      reorderedItems.splice(destinationIndex, 0, removedStore);
+
+      return setTestDndData(reorderedItems)
+    }
+  }
   return (
     <>
       {isActiveModal ? (
@@ -131,31 +148,30 @@ function TimeSlot(props: Props) {
         />
       ) : null}
       {/* React dnd test */}
-      <div className="w-[300px] h-[200px] bg-slate-300 p-3">
+      <div className="w-[300px] bg-slate-300 p-3">
         <DragDropContext
-          onDragEnd={() => {
-            console.log("eiei dragndrop");
-          }}
+          onDragEnd={handleDragAndDrop}
         >
           <div className="">
             <p>List Item</p>
           </div>
-          <Droppable droppableId="TEST">
-            {(provided, snapshot) => (
+          <Droppable droppableId="TEST" type="group">
+            {(provided) => (
               <div
-                className="flex flex-col gap-3"
+                className="flex flex-col"
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
                 {testDndData.map((item, index) => (
                   <Draggable draggableId={item.id} key={item.id} index={index}>
                     {(provided) => (
-                      <div className="w-full h-6 bg-red-200" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
+                      <div className="w-full h-10 my-2 bg-red-200" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
                         <p>{item.name}</p>
                       </div>
                     )}
                   </Draggable>
                 ))}
+                {provided.placeholder}
               </div>
             )}
           </Droppable>
