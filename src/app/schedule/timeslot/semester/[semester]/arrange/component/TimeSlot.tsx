@@ -1,27 +1,14 @@
 "use client";
 import axios from "axios";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { subject_in_slot } from "@/raw-data/subject_in_slot";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+// import Draggable, {DraggableCore} from 'react-draggable'; // Both at the same time
 type Props = {};
 
 function TimeSlot(props: Props) {
-  const [testDndData, setTestDndData] = useState([
-    {
-      name: "box",
-      id: "1",
-    },
-    {
-      name: "bottle",
-      id: "2",
-    },
-    {
-      name: "speaker",
-      id: "3",
-    },
-  ]);
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [timeSlotData, setTimeSlotData] = useState({
     SlotAmount: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -120,22 +107,80 @@ function TimeSlot(props: Props) {
       ],
     }));
   };
-  const handleDragAndDrop = (results) => {
-    const {source, destination, type} = results;
-    if(!destination) return;
-
-    if(source.droppableId === destination.draggableId && source.index === destination.index) return;
-
-    if(type === 'group'){
-      const reorderedItems = [...testDndData];
-
-      const sourceIndex = source.index;
-      const destinationIndex = destination.index;
-      const [removedStore] = reorderedItems.splice(sourceIndex, 1);
-      reorderedItems.splice(destinationIndex, 0, removedStore);
-
-      return setTestDndData(reorderedItems)
+  const [testDndData, setTestDndData] = useState([
+    {
+      name: "box",
+      id: "1",
+    },
+    {
+      name: "bottle",
+      id: "2",
+    },
+    {
+      name: "speaker",
+      id: "3",
+    },
+  ]);
+  const [emptySlot, setEmptySlot] = useState([
+    {
+      name: "",
+      id: "DROPZONE0",
+    },
+    {
+      name: "",
+      id: "DROPZONE1",
+    },
+    {
+      name: "",
+      id: "DROPZONE2",
+    },
+  ]);
+  // Example นะจ๊ะ
+  const handleDragAndDrop = (result) => {
+    const { source, destination, type } = result;
+    if (!destination) return;
+    const items = Array.from(testDndData); //ex. [1, 2, 3]
+    const items2 = Array.from(emptySlot);
+    if (source.droppableId === destination.droppableId) {
+      if (source.droppableId == "ITEM") {
+        const [reorderedItem] = items.splice(result.source.index, 1); //splice ออกจากตำแหน่งที่ย้าย
+        items.splice(result.destination.index, 0, reorderedItem); //if 0 at second argument it's insert item
+      } else {
+        const [reorderedItem] = items2.splice(result.source.index, 1); //splice ออกจากตำแหน่งที่ย้าย
+        items2.splice(result.destination.index, 0, reorderedItem); //if 0 at second argument it's insert item
+      }
     }
+    if (source.droppableId !== destination.droppableId) {
+      if (source.droppableId == "ITEM") {
+        let tempSource = items[source.index];
+        items2.splice(destination.index, 0, tempSource);
+        items.splice(source.index, 1);
+      } else {
+        let tempSource = items2[source.index];
+        items.splice(destination.index, 0, tempSource);
+        items2.splice(source.index, 1);
+      }
+    }
+    setTestDndData(items);
+    setEmptySlot(items2);
+    console.log(result);
+  };
+  const dragAndDropSubject = (result) => {
+    const { source, destination, type } = result;
+    const subjects = Array.from(testDndData) //รายวิชาที่ลงได้
+    const timeSlot = Array.from(emptySlot) //ช่องตาราง
+    if (!destination) return;
+
+    if(source.droppableId !== destination.droppableId){
+      let tempSource = subjects[source.index]
+      let desIndex = destination.droppableId.substring(8);
+      console.log(desIndex)
+      timeSlot.splice(desIndex, 1, tempSource) //replace วิชาลงในช่องว่าง
+      subjects.splice(source.index, 1);
+    }
+    setTestDndData(subjects);
+    setEmptySlot(timeSlot);
+    console.log(result)
   }
   return (
     <>
@@ -148,33 +193,78 @@ function TimeSlot(props: Props) {
         />
       ) : null}
       {/* React dnd test */}
-      <div className="w-[300px] bg-slate-300 p-3">
-        <DragDropContext
-          onDragEnd={handleDragAndDrop}
-        >
+      <div className="w-[300px] flex flex-col gap-3">
+        <DragDropContext onDragEnd={dragAndDropSubject}>
           <div className="">
             <p>List Item</p>
           </div>
-          <Droppable droppableId="TEST" type="group">
-            {(provided) => (
-              <div
-                className="flex flex-col"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                {testDndData.map((item, index) => (
-                  <Draggable draggableId={item.id} key={item.id} index={index}>
-                    {(provided) => (
-                      <div className="w-full h-10 my-2 bg-red-200" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
-                        <p>{item.name}</p>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
+          <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4">
+            <p className="text-sm">วิชาที่สามารถจัดลงได้</p>
+            <div className="flex w-full text-center">
+              <Droppable droppableId="SUBJECT" direction="horizontal">
+                {(provided, snapshot) => (
+                  <div
+                    className={`flex w-full text-center`}
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {testDndData.map((item, index) => (
+                      <Draggable
+                        draggableId={item.id}
+                        key={item.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            className={`flex flex-col mx-1 py-2 text-sm w-full h-[60px] bg-white rounded border border-[#EDEEF3] cursor-pointer select-none ${
+                              snapshot.isDragging
+                                ? "bg-orange-300"
+                                : "bg-red-200"
+                            }`}
+                            {...provided.dragHandleProps}
+                            {...provided.draggableProps}
+                            ref={provided.innerRef}
+                          >
+                            <p>{item.name}</p>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          </div>
+          <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4">
+            <p className="text-sm">Empty box</p>
+            <div className="flex w-full gap-3 text-center">
+              {emptySlot.map((item, index) => (
+                <Droppable droppableId={`${item.id}`}>
+                  {(provided, snapshot) => (
+                    <div
+                      className={`flex flex-col py-2 text-sm w-[70px] h-[60px] bg-white rounded border border-[#EDEEF3] cursor-pointer select-none`}
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                    >
+                      {/* {emptySlot.map((item, index) => (
+                      <Draggable draggableId={item.id} key={item.id} index={index}>
+                        {(provided) => (
+                          <div className="w-full h-10 my-2 bg-gray-200 border justify-center items-center" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
+                            <p>{item.name}</p>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder} */}
+                      <p>{!item.name ? "Dropzone" : item.name}</p>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              ))}
+            </div>
+          </div>
         </DragDropContext>
       </div>
       <table className="table-auto w-full flex flex-col gap-3">
@@ -229,9 +319,9 @@ function TimeSlot(props: Props) {
                 )[0].Slots.map((item) => (
                   <Fragment key={`woohoo${item.SlotNumber}`}>
                     <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
-                      <span className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
+                      <span className="flex w-[50px] flex-col items-center text-xs duration-300">
                         {timeSlotData.BreakSlot.includes(item.SlotNumber) ? (
-                          <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
+                          <span className="flex w-[50px] h-[24px] flex-col items-center text-sm duration-300">
                             {/* <MdAdd size={20} className="fill-gray-300" /> */}
                           </span>
                         ) : item.Subject.SubjectCode != null ? (
@@ -252,17 +342,18 @@ function TimeSlot(props: Props) {
                             </div>
                           </>
                         ) : (
-                          <MdAdd
-                            onClick={() => {
-                              setIsActiveModal(true);
-                              setSelectedSlot(() => ({
-                                SlotNumber: item.SlotNumber,
-                                DayOfWeek: day.Day,
-                              }));
-                            }}
-                            size={20}
-                            className="fill-gray-300"
-                          />
+                          // <MdAdd
+                          //   onClick={() => {
+                          //     setIsActiveModal(true);
+                          //     setSelectedSlot(() => ({
+                          //       SlotNumber: item.SlotNumber,
+                          //       DayOfWeek: day.Day,
+                          //     }));
+                          //   }}
+                          //   size={20}
+                          //   className="fill-gray-300"
+                          // />
+                          <p>{item.SlotNumber}</p>
                         )}
                       </span>
                     </td>

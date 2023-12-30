@@ -27,7 +27,7 @@ const ArrangeTimetable = (props: Props) => {
           </button>
         </div>
         <SelectTeacherTimetable />
-        <SubjectBox />
+        {/* <SubjectBox /> */}
         <TimeSlot />
       </div>
     </>
