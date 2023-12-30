@@ -44,7 +44,7 @@ export const scheduleMenu = [
             Icon : AiFillSetting,
         },
         title : "ตั้งค่าตารางสอน",
-        link : ["/schedule/tableconfig/semester/1", "/schedule/tableconfig/semester/2"]
+        link : "/schedule/tableconfig"
     },
     {
         id : "arrangetimetable",

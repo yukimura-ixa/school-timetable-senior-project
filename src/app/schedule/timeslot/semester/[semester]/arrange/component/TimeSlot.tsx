@@ -172,14 +172,17 @@ function TimeSlot(props: Props) {
     if (!destination) return;
 
     if(source.droppableId !== destination.droppableId){
-      let tempSource = subjects[source.index]
-      let desIndex = destination.droppableId.substring(8);
-      console.log(desIndex)
-      timeSlot.splice(desIndex, 1, tempSource) //replace วิชาลงในช่องว่าง
-      subjects.splice(source.index, 1);
+      if(source.destination !== 'SUBJECT') {
+        let tempSource = subjects[source.index]
+        setTestDndData(() => subjects.filter((item, index) => index !== source.index))
+        setEmptySlot(() => timeSlot.map((item, index) => item.id === destination.droppableId ? tempSource : item))
+      }
+      // else {
+      //   let tempSource = 
+      // }
     }
-    setTestDndData(subjects);
-    setEmptySlot(timeSlot);
+    // setTestDndData(subjects);
+    // setEmptySlot(timeSlot);
     console.log(result)
   }
   return (
@@ -216,7 +219,7 @@ function TimeSlot(props: Props) {
                       >
                         {(provided, snapshot) => (
                           <div
-                            className={`flex flex-col mx-1 py-2 text-sm w-full h-[60px] bg-white rounded border border-[#EDEEF3] cursor-pointer select-none ${
+                            className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] bg-white rounded border border-[#EDEEF3] cursor-pointer select-none ${
                               snapshot.isDragging
                                 ? "bg-orange-300"
                                 : "bg-red-200"
@@ -243,10 +246,27 @@ function TimeSlot(props: Props) {
                 <Droppable droppableId={`${item.id}`}>
                   {(provided, snapshot) => (
                     <div
-                      className={`flex flex-col py-2 text-sm w-[70px] h-[60px] bg-white rounded border border-[#EDEEF3] cursor-pointer select-none`}
+                      className={`flex flex-col text-sm w-[70px] h-[60px] items-center justify-center bg-white rounded border border-[#EDEEF3] cursor-pointer select-none`}
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                     >
+                      {!item.name ? <p>Dropzone</p> :
+                      <Draggable draggableId={item.id} key={item.id} index={index}>
+                        {(provided) => (
+                          <div className="flex w-full text-xs justify-center items-center" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
+                            <div>
+                                <p>ค22101</p>
+                                <p>คณิต</p>
+                                <p>442</p>
+                            </div>
+                            {/* <MdDelete
+                              size={20}
+                              className="fill-red-400 hover:fill-red-500 duration-300"
+                            /> */}
+                          </div>
+                        )}
+                      </Draggable>
+                      }
                       {/* {emptySlot.map((item, index) => (
                       <Draggable draggableId={item.id} key={item.id} index={index}>
                         {(provided) => (
@@ -257,7 +277,8 @@ function TimeSlot(props: Props) {
                       </Draggable>
                     ))}
                     {provided.placeholder} */}
-                      <p>{!item.name ? "Dropzone" : item.name}</p>
+                      {/* <p>{!item.name ? "Dropzone" : item.name}</p>
+                      {provided.placeholder} */}
                       {provided.placeholder}
                     </div>
                   )}

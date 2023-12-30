@@ -64,6 +64,38 @@ function Menubar() {
             </p>
             {scheduleMenu.map((item, index) => (
               <React.Fragment key={item.id}>
+                {item.id === "timetableconfig" 
+                ?
+                <>
+                  {item.link === linkSelected ? (
+                    <Link
+                      href={item.link}
+                      onClick={() => setLinkSelected(item.link)}
+                      className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 text-cyan-600 duration-500`}
+                      style={{
+                        marginBottom:
+                          index == managementMenu.length - 1 ? "10px" : 0,
+                      }}
+                    >
+                      <item.IconStyle.Icon className={`fill-[#0891B2]`} />
+                      <p className="text-md">{item.title}</p>
+                    </Link>
+                  ) : (
+                    <Link
+                      href={item.link}
+                      onClick={() => setLinkSelected(item.link)}
+                      className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#4F4F4F] hover:bg-cyan-100 hover:text-cyan-600 duration-500`}
+                      style={{
+                        marginBottom:
+                          index == managementMenu.length - 1 ? "10px" : 0,
+                      }}
+                    >
+                      <item.IconStyle.Icon className={`iconhover`} />
+                      <p className="text-md">{item.title}</p>
+                    </Link>
+                  )}
+                </>
+                :
                 <div className="w-full flex flex-col relative">
                   <div
                     className="flex items-center justify-between w-full gap-5 h-[45px] p-[10px] cursor-pointer texthover hover:bg-cyan-100 duration-500"
@@ -127,6 +159,7 @@ function Menubar() {
                     )}
                   </div>
                 </div>
+                }
               </React.Fragment>
             ))}
             <div className="mb-[10px]"></div>
