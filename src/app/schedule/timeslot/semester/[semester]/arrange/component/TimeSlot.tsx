@@ -279,7 +279,6 @@ function TimeSlot(props: Props) {
                     {provided.placeholder} */}
                       {/* <p>{!item.name ? "Dropzone" : item.name}</p>
                       {provided.placeholder} */}
-                      {provided.placeholder}
                     </div>
                   )}
                 </Droppable>
@@ -296,6 +295,7 @@ function TimeSlot(props: Props) {
                 คาบที่
               </span>
             </th>
+            {/* Map จำนวนคาบ */}
             {timeSlotData.SlotAmount.map((item) => (
               <Fragment key={`woohoo${item}`}>
                 <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
@@ -314,6 +314,7 @@ function TimeSlot(props: Props) {
                 <p className="text-gray-600">เวลา</p>
               </span>
             </td>
+            {/* Map duration ของคาบเรียน */}
             {mapTime().map((item) => (
               <Fragment key={`woohoo${item.Start}${item.End}`}>
                 <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">

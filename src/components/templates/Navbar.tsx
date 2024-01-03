@@ -34,6 +34,16 @@ function Navbar() {
                     <p className="text-md">แดชบอร์ด</p>
                   </Link>
                 </li>
+                <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
+                  <Link href={"/management/teacher"}>
+                    <p className="text-md">พิมพ์เอกสาร</p>
+                  </Link>
+                </li>
+                <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
+                  <Link href={"/dashboard/teacher"}>
+                    <p className="text-md">คู่มือการใช้งาน</p>
+                  </Link>
+                </li>
               </ul>
             </span>
             {/* Rightside */}

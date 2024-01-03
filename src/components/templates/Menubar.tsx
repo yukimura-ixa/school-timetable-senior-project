@@ -165,7 +165,7 @@ function Menubar() {
             <div className="mb-[10px]"></div>
           </div>
           {/* others */}
-          <div className="flex flex-col w-full h-fit border-b gap-1 border-[#C8C9CD]">
+          {/* <div className="flex flex-col w-full h-fit border-b gap-1 border-[#C8C9CD]">
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">อื่นๆ</p>
             {othersMenu.map((item, index) => (
               <React.Fragment key={item.id}>
@@ -194,7 +194,7 @@ function Menubar() {
                 )}
               </React.Fragment>
             ))}
-          </div>
+          </div> */}
         </aside>
       )}
     </>
