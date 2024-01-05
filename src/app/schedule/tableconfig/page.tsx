@@ -7,7 +7,7 @@ import { BsTable } from "react-icons/bs";
 import { TbTimeDuration45 } from "react-icons/tb";
 import { LuClock10 } from "react-icons/lu";
 import { BsCalendar2Day } from "react-icons/bs";
-import Counter from "../../component/Counter";
+import Counter from "./component/Counter";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 type Props = {};
@@ -22,7 +22,7 @@ function TableConfig({}: Props) {
   const saved = () => {
     setIsSaved(true);
     setInterval(() => {
-      setIsSaved(false);      
+      setIsSaved(false);
     }, 5000);
   };
   return (
@@ -39,7 +39,29 @@ function TableConfig({}: Props) {
         {/* Year */}
         <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
           <p className="text-md">ปีการศึกษา</p>
-          <SelectedValue />
+          {/* <SelectedValue /> */}
+          <Dropdown
+            width="100%"
+            height="40px"
+            data={[2566, 2567, 2568, 2569]}
+            currentValue={2566} //current year
+            renderItem={({ data }): JSX.Element => (
+              <li className="w-[70px]">{data}</li>
+            )}
+          />
+        </div>
+        {/* Semester */}
+        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
+          <p className="text-md">เทอม</p>
+          <Dropdown
+            width="100%"
+            height="40px"
+            data={[1, 2]}
+            currentValue={1}
+            renderItem={({ data }): JSX.Element => (
+              <li className="w-[70px]">{data}</li>
+            )}
+          />
         </div>
         {/* School */}
         <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
@@ -129,7 +151,12 @@ function TableConfig({}: Props) {
           {isSaved ? (
             <p className="text-green-400">บันทึกสำเร็จ !</p>
           ) : (
-            <button onClick={saved} className="bg-blue-100 hover:bg-blue-200 text-blue-500 duration-300 px-6 py-2 rounded">บันทึก</button>
+            <button
+              onClick={saved}
+              className="bg-blue-100 hover:bg-blue-200 text-blue-500 duration-300 px-6 py-2 rounded"
+            >
+              บันทึก
+            </button>
           )}
         </div>
       </span>
