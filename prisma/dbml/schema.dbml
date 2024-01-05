@@ -1,0 +1,109 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table class_schedule {
+  ClassID Int [pk, increment]
+  DayOfWeek day_of_week [not null]
+  TimeslotID String [not null]
+  SubjectCode String [not null]
+  RoomID Int
+  GradeID String [not null]
+}
+
+Table gradelevel {
+  GradeID String [pk]
+  Year Int [not null]
+  Number Int [not null]
+  ProgramID Int [not null]
+}
+
+Table room {
+  RoomID Int [pk, increment]
+  RoomName String [not null]
+  Building String [not null, default: '-']
+  Floor String [not null, default: '-']
+}
+
+Table subject {
+  SubjectCode String [pk]
+  SubjectName String [not null]
+  Credit subject_credit [not null]
+  Category String [not null, default: '-']
+  ProgramID Int [not null]
+}
+
+Table program {
+  ProgramID Int [pk, increment]
+  ProgramName String [not null]
+}
+
+Table teacher {
+  TeacherID Int [pk, increment]
+  Prefix String [not null]
+  Firstname String [not null]
+  Lastname String [not null]
+  Department String [not null, default: '-']
+}
+
+Table timeslot {
+  TimeslotID String [pk]
+  AcademicYear Int [not null]
+  Semester semester [not null]
+  StartTime DateTime [not null]
+  EndTime DateTime [not null]
+  IsBreaktime Boolean [not null]
+}
+
+Table teachers_responsibility {
+  TeacherID Int [not null]
+  GradeID String [not null]
+  SubjectCode String [not null]
+  AcademicYear Int [not null]
+  Semester semester [not null]
+  TeachHour Int [not null]
+
+  indexes {
+    (TeacherID, GradeID, SubjectCode) [pk]
+  }
+}
+
+Enum day_of_week {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+Enum subject_credit {
+  CREDIT_05
+  CREDIT_10
+  CREDIT_15
+  CREDIT_20
+}
+
+Enum semester {
+  SEMESTER_1
+  SEMESTER_2
+}
+
+Ref: class_schedule.RoomID > room.RoomID [delete: Cascade]
+
+Ref: class_schedule.GradeID > gradelevel.GradeID [delete: Cascade]
+
+Ref: class_schedule.SubjectCode > subject.SubjectCode
+
+Ref: class_schedule.TimeslotID > timeslot.TimeslotID [delete: Cascade]
+
+Ref: gradelevel.ProgramID > program.ProgramID [delete: Cascade]
+
+Ref: subject.ProgramID > program.ProgramID [delete: Cascade]
+
+Ref: teachers_responsibility.TeacherID > teacher.TeacherID [delete: Cascade]
+
+Ref: teachers_responsibility.GradeID > gradelevel.GradeID [delete: Cascade]
+
+Ref: teachers_responsibility.SubjectCode > subject.SubjectCode [delete: Cascade]
