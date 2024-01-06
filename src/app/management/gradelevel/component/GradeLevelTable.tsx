@@ -26,7 +26,6 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  // const [gradeLevelData, setGradeLevelData] = useState<gradeLevel[]>([]); //ข้อมูลครูใช้ render
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
@@ -200,7 +199,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
             height={"100%"}
             width={"100%"}
             handleChange={handleSearch}
-            placeHolder="ค้นหาชื่อครู"
+            placeHolder="ค้นหาชั้นเรียน"
             value={setSearchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
@@ -210,7 +209,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
           </div>
           <PrimaryButton
             handleClick={() => setAddModalActive(true)}
-            title={"เพิ่มครู"}
+            title={"เพิ่มชั้นเรียน"}
             color="primary"
             Icon={<AddIcon />}
           />

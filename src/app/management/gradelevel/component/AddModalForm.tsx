@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Fragment } from "react";
 import TextField from "@/components/elements/input/field/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
@@ -21,7 +21,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([
     {
       GradeID: null,
-      Year: 1,
+      Year: null,
       Number: null,
       ProgramID: 0,
     },
@@ -29,7 +29,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const addList = () => {
     let struct: gradelevel = {
       GradeID: null,
-      Year: 1,
+      Year: null,
       Number: null,
       ProgramID: 0,
     };
@@ -43,10 +43,11 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const isValidData = (): boolean => {
     let isValid = true;
     gradeLevels.forEach((data) => {
-      if (data.GradeID == null || data.Year == null || data.Number == null) {
+      if (data.Year == null || data.Number == null) {
         setIsEmptyData(true);
         isValid = false;
       }
+      data.GradeID = data.Year + "0" + data.Number;
     });
     return isValid;
   };
@@ -96,7 +97,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
           {/* inputfield */}
           <div className="flex flex-col gap-3">
             {gradeLevels.map((gradeLevel, index) => (
-              <React.Fragment key={`AddData${index + 1}`}>
+              <Fragment key={`AddData${index + 1}`}>
                 <div
                   className={`flex flex-row gap-3 items-center ${
                     index == gradeLevels.length - 1 ? "" : "mt-8"
@@ -111,7 +112,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                     </p>
                     <p>{index + 1}</p>
                   </div>
-                  <div className="relative flex flex-col gap-2">
+                  {/* <div className="relative flex flex-col gap-2">
                     <NumberField
                       width="auto"
                       height="auto"
@@ -140,8 +141,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         <p className="text-red-500 text-sm">ต้องการ</p>
                       </div>
                     ) : null}
-                  </div>
-                  <div className="relative flex flex-col gap-2">
+                  </div> */
+                  /* <div className="relative flex flex-col gap-2">
                     <label className="text-sm font-bold">
                       มัธยมปีที่ (Year):
                     </label>
@@ -162,6 +163,40 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         );
                       }}
                     />
+                  </div> */}
+                  <div className="relative flex flex-col gap-2">
+                    <NumberField
+                      width="auto"
+                      height="auto"
+                      placeHolder="ex. 5"
+                      label="มัธยมศึกษาปีที่ (Year):"
+                      value={gradeLevel.Year}
+                      borderColor={
+                        isEmptyData &&
+                        (gradeLevel.Year < 1 ||
+                          gradeLevel.Year > 6 ||
+                          gradeLevel.Year == null)
+                          ? "#F96161"
+                          : ""
+                      }
+                      handleChange={(e: any) => {
+                        let value: string = e.target.value;
+                        setGradeLevels(() =>
+                          gradeLevels.map((item, ind) =>
+                            index === ind
+                              ? { ...item, Year: parseInt(value) || null }
+                              : item
+                          )
+                        );
+                      }}
+                    />
+                    {isEmptyData &&
+                    (gradeLevel.Year == 0 || gradeLevel.Year == null) ? (
+                      <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                        <BsInfo className="bg-red-500 rounded-full fill-white" />
+                        <p className="text-red-500 text-sm">ต้องการ</p>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="relative flex flex-col gap-2">
                     <NumberField
@@ -195,6 +230,10 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                       </div>
                     ) : null}
                   </div>
+
+                  <div className="relative flex flex-col gap-2">
+                    ชั้น ม.{gradeLevel.Year + "/" + gradeLevel.Number}
+                  </div>
                   {/* <div className="relative flex flex-col gap-2">
                     <TextField
                       width="auto"
@@ -225,6 +264,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                       </div>
                     ) : null}
                   </div> */}
+
                   {gradeLevels.length > 1 ? (
                     <TbTrash
                       size={20}
@@ -233,7 +273,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                     />
                   ) : null}
                 </div>
-              </React.Fragment>
+              </Fragment>
             ))}
           </div>
           <span className="w-full flex justify-end mt-5 gap-3 h-11">

@@ -34,7 +34,14 @@ function EditModalForm({
   const isValidData = (): boolean => {
     let isValid = true;
     editData.forEach((data) => {
-      if (data.GradeID == "" || data.Year == null || data.Number == 0) {
+      if (
+        data.Year == null ||
+        data.Number == null ||
+        data.Number == 0 ||
+        data.Year == 0 ||
+        data.Year < 1 ||
+        data.Year > 6
+      ) {
         setIsEmptyData(true);
         isValid = false;
       }

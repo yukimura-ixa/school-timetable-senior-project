@@ -13,9 +13,9 @@ function TableRow({
   pageOfData,
   searchTerm,
 }) {
-  const matchesSearchTerm =
-    item.Firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.Lastname.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesSearchTerm = item.GradeID.toLowerCase().includes(
+    searchTerm.toLowerCase()
+  );
 
   if (!matchesSearchTerm) {
     return null; // Do not render if it doesn't match the search term
@@ -32,13 +32,13 @@ function TableRow({
           checked={checkedList.includes(index)}
         />
       </th>
-      {["Prefix", "Firstname", "Lastname", "Department"].map((key) => (
+      {["GradeID", "Year", "Number", "ProgramID"].map((key) => (
         <td
           key={key}
           className="px-6 whitespace-nowrap select-none"
           onClick={() => clickToSelect(index)}
         >
-          {item[key]}
+          {key === "ProgramID" && !item[key] ? "ไม่มีข้อมูล" : item[key]}
         </td>
       ))}
       {checkedList.length < 1 && (
