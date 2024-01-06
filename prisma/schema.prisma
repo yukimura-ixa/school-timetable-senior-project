@@ -2,92 +2,111 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator dbml {
+  provider              = "prisma-dbml-generator"
+  includeRelationFields = false
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-/// This model has been renamed to 'Renamedclass' during introspection, because the original name 'class' is reserved.
-model Renamedclass {
-  ClassID     Int             @id @unique(map: "ClassID_UNIQUE") @default(autoincrement())
-  DayOfWeek   class_DayOfWeek
-  TimeslotID  String          @db.VarChar(100)
-  SubjectCode String          @db.VarChar(10)
-  RoomID      Int?
-  GradeID     String          @db.VarChar(100)
-  gradelevel  gradelevel      @relation(fields: [GradeID], references: [GradeID], onDelete: NoAction, onUpdate: NoAction, map: "class_GradeID_fk")
-  room        room?           @relation(fields: [RoomID], references: [RoomID], onDelete: Restrict, onUpdate: Restrict, map: "class_RoomID_fk")
-  subject     subject         @relation(fields: [SubjectCode], references: [SubjectCode], onUpdate: Restrict, map: "class_SubjectCode_fk")
-  timeslot    timeslot        @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: NoAction, onUpdate: NoAction, map: "class_TimeslotID_fk")
+// Define the database schema
 
-  @@index([SubjectCode], map: "SubjectID_fk_idx")
-  @@index([TimeslotID], map: "TimeslotID_fk_idx")
-  @@index([GradeID], map: "class_GradeID_fk_idx")
-  @@index([RoomID], map: "class_RoomID_fk_idx")
-  @@map("class")
+model class_schedule {
+  ClassID     Int         @id @default(autoincrement())
+  DayOfWeek   day_of_week
+  TimeslotID  String
+  SubjectCode String
+  RoomID      Int?
+  GradeID     String
+
+  room       room?      @relation(fields: [RoomID], references: [RoomID], onDelete: Cascade, onUpdate: Cascade)
+  gradelevel gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade, onUpdate: Cascade)
+  subject    subject    @relation(fields: [SubjectCode], references: [SubjectCode], onUpdate: Cascade)
+  timeslot   timeslot   @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model gradelevel {
-  GradeID                 String                    @id @unique(map: "GradeID_UNIQUE") @db.VarChar(100)
-  Year                    Int
-  Number                  Int
-  GradeProgram            String                    @db.VarChar(100)
-  Renamedclass            Renamedclass[]
+  GradeID   String @id
+  Year      Int
+  Number    Int
+  ProgramID Int
+
+  program                 program                   @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Cascade)
+  class_schedule          class_schedule[]
   teachers_responsibility teachers_responsibility[]
 }
 
 model room {
-  RoomID       Int            @id @unique(map: "RoomID_UNIQUE") @default(autoincrement())
-  RoomName     String         @db.VarChar(100)
-  Building     String?        @default("-") @db.VarChar(100)
-  Floor        String?        @default("-") @db.VarChar(100)
-  Renamedclass Renamedclass[]
+  RoomID   Int    @id @default(autoincrement())
+  RoomName String
+  Building String @default("-")
+  Floor    String @default("-")
+
+  class_schedule class_schedule[]
 }
 
 model subject {
-  SubjectCode             String                    @id @unique(map: "SubjectCode_UNIQUE") @db.VarChar(10)
-  SubjectName             String                    @db.VarChar(100)
-  Credit                  subject_Credit
-  Category                String                    @default("-") @db.VarChar(100)
-  SubjectProgram          String                    @default("-") @db.VarChar(100)
-  Renamedclass            Renamedclass[]
+  SubjectCode String         @id
+  SubjectName String
+  Credit      subject_credit
+  Category    String         @default("-")
+  ProgramID   Int
+
+  program                 program                   @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Cascade)
+  class_schedule          class_schedule[]
   teachers_responsibility teachers_responsibility[]
 }
 
+model program {
+  ProgramID   Int    @id @default(autoincrement())
+  ProgramName String
+
+  subjects   subject[]
+  gradelevel gradelevel[]
+}
+
 model teacher {
-  TeacherID               Int                       @id @unique(map: "TeacherID_UNIQUE") @default(autoincrement())
-  Prefix                  String                    @db.VarChar(10)
-  Firstname               String                    @db.VarChar(100)
-  Lastname                String                    @db.VarChar(100)
-  Department              String                    @default("-") @db.VarChar(100)
+  TeacherID  Int    @id @default(autoincrement())
+  Prefix     String
+  Firstname  String
+  Lastname   String
+  Department String @default("-")
+
   teachers_responsibility teachers_responsibility[]
 }
 
 model timeslot {
-  TimeslotID   String         @id @unique(map: "TimeslotID_UNIQUE") @db.VarChar(100)
-  StartTime    DateTime       @db.Time(0)
-  EndTime      DateTime       @db.Time(0)
+  TimeslotID   String   @id
+  AcademicYear Int
+  Semester     semester
+  StartTime    DateTime @db.Time()
+  EndTime      DateTime @db.Time()
   IsBreaktime  Boolean
-  Renamedclass Renamedclass[]
+
+  class_schedule class_schedule[]
 }
 
 model teachers_responsibility {
   TeacherID    Int
-  GradeID      String                           @db.VarChar(100)
-  SubjectCode  String                           @db.VarChar(10)
-  AcademicYear Int                              @db.Year
-  Semester     teachers_responsibility_Semester
+  GradeID      String
+  SubjectCode  String
+  AcademicYear Int
+  Semester     semester
   TeachHour    Int
-  gradelevel   gradelevel                       @relation(fields: [GradeID], references: [GradeID], onUpdate: Restrict, map: "teachers_responsibility_GradeID_fk")
-  subject      subject                          @relation(fields: [SubjectCode], references: [SubjectCode], onUpdate: Restrict, map: "teachers_responsibility_SubjectCode_fk")
-  teacher      teacher                          @relation(fields: [TeacherID], references: [TeacherID], onUpdate: Restrict, map: "teachers_responsibility_TeacherID_fk")
+
+  teacher    teacher    @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade, onUpdate: Cascade)
+  gradelevel gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade, onUpdate: Cascade)
+  subject    subject    @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, onUpdate: Cascade)
 
   @@id([TeacherID, GradeID, SubjectCode])
-  @@index([GradeID], map: "teachers_responsibility_GradeID_fk_idx")
-  @@index([SubjectCode], map: "teachers_responsibility_SubjectID_fk_idx")
+  @@index([GradeID])
+  @@index([SubjectCode])
 }
 
-enum class_DayOfWeek {
+enum day_of_week {
   MON
   TUE
   WED
@@ -97,14 +116,14 @@ enum class_DayOfWeek {
   SUN
 }
 
-enum subject_Credit {
+enum subject_credit {
   CREDIT_05
   CREDIT_10
   CREDIT_15
   CREDIT_20
 }
 
-enum teachers_responsibility_Semester {
+enum semester {
   SEMESTER_1
   SEMESTER_2
 }
