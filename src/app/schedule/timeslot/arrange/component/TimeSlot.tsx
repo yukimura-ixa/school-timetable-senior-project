@@ -175,7 +175,7 @@ function TimeSlot(props: Props) {
       if(source.destination !== 'SUBJECT') {
         let tempSource = subjects[source.index]
         setTestDndData(() => subjects.filter((item, index) => index !== source.index))
-        setEmptySlot(() => timeSlot.map((item, index) => item.id === destination.droppableId ? tempSource : item))
+        setEmptySlot(() => timeSlot.map((item, index) => item.id === destination.droppableId ? {id : item.id, name : tempSource.name} : item))
       }
       // else {
       //   let tempSource = 
@@ -219,10 +219,10 @@ function TimeSlot(props: Props) {
                       >
                         {(provided, snapshot) => (
                           <div
-                            className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] bg-white rounded border border-[#EDEEF3] cursor-pointer select-none ${
+                            className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] rounded border duration-300 border-[#EDEEF3] cursor-pointer select-none ${
                               snapshot.isDragging
-                                ? "bg-orange-300"
-                                : "bg-red-200"
+                                ? "bg-green-300"
+                                : "bg-white"
                             }`}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
@@ -246,7 +246,7 @@ function TimeSlot(props: Props) {
                 <Droppable droppableId={`${item.id}`}>
                   {(provided, snapshot) => (
                     <div
-                      className={`flex flex-col text-sm w-[70px] h-[60px] items-center justify-center bg-white rounded border border-[#EDEEF3] cursor-pointer select-none`}
+                      className={`flex flex-col text-sm w-[70px] h-[60px] hover:bg-emerald-300 duration-300 items-center justify-center bg-white rounded border border-[#EDEEF3] cursor-pointer select-none`}
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                     >

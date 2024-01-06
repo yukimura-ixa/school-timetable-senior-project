@@ -52,7 +52,8 @@ export const scheduleMenu = [
             Icon : BsTable,
         },
         title : "จัดตารางสอน",
-        link : ["/schedule/timeslot/semester/1/classify", "/schedule/timeslot/semester/2/classify"] //default path
+        // link : ["/schedule/timeslot/semester/1/classify", "/schedule/timeslot/semester/2/classify"] //default path
+        link : "/schedule/timeslot/classify"
     },
     {
         id : "showtimetable",

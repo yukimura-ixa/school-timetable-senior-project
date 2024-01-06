@@ -64,7 +64,7 @@ function Menubar() {
             </p>
             {scheduleMenu.map((item, index) => (
               <React.Fragment key={item.id}>
-                {item.id === "timetableconfig" 
+                {item.id !== "showtimetable"
                 ?
                 <>
                   {item.link === linkSelected ? (
