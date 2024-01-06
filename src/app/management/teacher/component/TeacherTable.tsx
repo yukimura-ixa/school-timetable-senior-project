@@ -4,9 +4,8 @@ import type { teacher } from "@prisma/client";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
-import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
+import { BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
-import { TbTrash } from "react-icons/tb";
 import AddIcon from "@mui/icons-material/Add";
 
 //comp
@@ -16,6 +15,7 @@ import ConfirmDeleteModal from "../../teacher/component/ConfirmDeleteModal";
 import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import TableRow from "./TableRow";
 import { Snackbar, Alert } from "@mui/material";
 
 type Table = {
@@ -30,6 +30,11 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
+  const [teacherData, setTeacherData] = useState<teacher[]>([]);
+
+  useEffect(() => {
+    setTeacherData(tableData);
+  }, [tableData]);
 
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
 
@@ -38,7 +43,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
         //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => tableData.map((item, index) => index))
+        setCheckedList(() => teacherData.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };
@@ -62,7 +67,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [orderedIndex, setOrderedIndex] = useState(-1);
   const [sortConfig, setSortConfig] = useState({
     key: "Firstname",
-    direction: "desc",
+    direction: "asc",
   });
 
   const requestSort = (key) => {
@@ -89,7 +94,8 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         return bValue.localeCompare(aValue);
       }
     });
-    mutate(sortedData, false);
+    // mutate(sortedData, false);
+    setTeacherData(sortedData);
   };
 
   useEffect(() => {
@@ -218,7 +224,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
-              ทั้งหมด {tableData.length} รายการ
+              ทั้งหมด {teacherData.length} รายการ
             </p>
           </div>
           <PrimaryButton
@@ -277,140 +283,26 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           </tr>
         </thead>
         <tbody className="text-sm">
-          {searchTerm
-            ? filteredData.map((item, index) => (
-                <Fragment key={item.TeacherID}>
-                  <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
-                    <th>
-                      <input
-                        className="cursor-pointer"
-                        type="checkbox"
-                        name="itemdata"
-                        onChange={() => clickToSelect(index)}
-                        //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                        checked={checkedList.includes(index)}
-                      />
-                    </th>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.Prefix}
-                    </td>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.Firstname}
-                    </td>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.Lastname}
-                    </td>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.Department}
-                    </td>
-                    {checkedList.length < 1 ? (
-                      <>
-                        <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
-                          <BiEdit
-                            className="fill-[#A16207]"
-                            size={18}
-                            onClick={() => {
-                              setEditModalActive(true), clickToSelect(index);
-                            }}
-                          />
-                          <TbTrash
-                            className="text-red-500"
-                            size={18}
-                            onClick={() => {
-                              setDeleteModalActive(true), clickToSelect(index);
-                            }}
-                          />
-                        </td>
-                      </>
-                    ) : null}
-                  </tr>
-                </Fragment>
-              ))
-            : tableData
-                .map((item, index) => (
-                  <Fragment key={item.TeacherID}>
-                    <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
-                      <th>
-                        <input
-                          className="cursor-pointer"
-                          type="checkbox"
-                          name="itemdata"
-                          onChange={() => clickToSelect(index)}
-                          //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                          checked={checkedList.includes(index)}
-                        />
-                      </th>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.Prefix}
-                      </td>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.Firstname}
-                      </td>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.Lastname}
-                      </td>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.Department}
-                      </td>
-                      {checkedList.length < 1 ? (
-                        <>
-                          <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
-                            <BiEdit
-                              className="fill-[#A16207]"
-                              size={18}
-                              onClick={() => {
-                                setEditModalActive(true), clickToSelect(index);
-                              }}
-                            />
-                            <TbTrash
-                              className="text-red-500"
-                              size={18}
-                              onClick={() => {
-                                setDeleteModalActive(true),
-                                  clickToSelect(index);
-                              }}
-                            />
-                          </td>
-                        </>
-                      ) : null}
-                    </tr>
-                  </Fragment>
-                ))
-                .filter(
-                  (item, index) =>
-                    index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
-                    index <= pageOfData * 10 - 1
-                )}
-          {/* Filter บรรทัดบนคือแบ่งหน้าของข้อมูลที่ Fetch มาทั้งหมดเป็น หน้าละ 10
-          index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) คือ ถ้า pageOfData เท่ากับ 1 ให้ return 0
-          เพราะหน้าแรกต้องเอา index ที่ 0 มาใช้ ส่วน pageOfData * 10 - 10 คือหน้าต่อๆไปต้องใช้ index เลข 2 หลักแต่ถ้า * 10 เฉยๆจะเท่ากับ index สุดท่ายของข้อมูล
-          เลยต้อง - 10
-          index <= (pageOfData * 10 - 1) คือ เอา index สุดท้ายมาลบ 1 เพราะ array มันเริ่มที่ 0
-           */}
+          {teacherData
+            .map((item, index) => (
+              <Fragment key={item.TeacherID}>
+                <TableRow
+                  item={item}
+                  index={index}
+                  clickToSelect={clickToSelect}
+                  checkedList={checkedList}
+                  setEditModalActive={setEditModalActive}
+                  setDeleteModalActive={setDeleteModalActive}
+                  pageOfData={pageOfData}
+                  searchTerm={searchTerm}
+                />
+              </Fragment>
+            ))
+            .filter(
+              (item, index) =>
+                index >= (pageOfData === 1 ? 0 : pageOfData * 10 - 10) &&
+                index <= pageOfData * 10 - 1
+            )}
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">

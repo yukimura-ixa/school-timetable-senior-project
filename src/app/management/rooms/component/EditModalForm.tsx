@@ -12,14 +12,16 @@ type props = {
   closeModal: any;
   data: any;
   clearCheckList: any;
-  openSnackBar:any
+  openSnackBar: any;
+  mutate: Function;
 };
 
 function EditModalForm({
   closeModal,
   data,
   clearCheckList,
-  openSnackBar
+  openSnackBar,
+  mutate,
 }: props) {
   const [editData, setEditData] = useState<rooms[]>(data);
   const [isEmptyData, setIsEmptyData] = useState(false);
@@ -42,7 +44,6 @@ function EditModalForm({
     if (isValidData()) {
       editMultiData(editData);
       closeModal();
-      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {
@@ -55,7 +56,10 @@ function EditModalForm({
     console.log(data);
     try {
       const response = await api.put("/rooms", data);
-
+      if (response.status === 200) {
+        mutate();
+        openSnackBar("EDIT");
+      }
       //clear checkbox
       clearCheckList();
       console.log(response);

@@ -27,7 +27,6 @@ function ConfirmDeleteModal({
   const confirmed = () => {
     removeMultiData(teacherData, checkedList);
     closeModal();
-    openSnackBar("DELETE");
   };
   const cancel = () => {
     if (dataAmount === 1) {
@@ -45,7 +44,10 @@ function ConfirmDeleteModal({
       const response = await api.delete("/teacher", {
         data: deleteData,
       });
-      mutate();
+      if (response.status === 200) {
+        mutate();
+        openSnackBar("DELETE");
+      }
       console.log(response);
       clearCheckList();
     } catch (err) {

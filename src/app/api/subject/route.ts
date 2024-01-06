@@ -1,5 +1,5 @@
 import prisma from "@/libs/prisma"
-import { type subject, Prisma } from "@prisma/client"
+import { type subject } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {

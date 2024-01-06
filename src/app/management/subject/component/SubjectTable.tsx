@@ -4,9 +4,8 @@ import type { subject } from "@prisma/client";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
-import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
+import { BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
-import { TbTrash } from "react-icons/tb";
 import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/subject/component/AddModalForm";
@@ -14,9 +13,9 @@ import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../subject/component/ConfirmDeleteModal";
 import EditModalForm from "../../subject/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
-import { subjectCreditTitles } from "@/models/credit-titles";
 import { Snackbar, Alert } from "@mui/material";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import TableRow from "./TableRow";
 
 type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -30,6 +29,11 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
+  const [subjectData, setSubjectData] = useState<subject[]>([]);
+
+  useEffect(() => {
+    setSubjectData(tableData);
+  }, [tableData]);
 
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
 
@@ -38,7 +42,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
         //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => tableData.map((item, index) => index))
+        setCheckedList(() => subjectData.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };
@@ -89,7 +93,8 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         return bValue.localeCompare(aValue);
       }
     });
-    mutate(sortedData, false);
+    // mutate(sortedData, false);
+    setSubjectData(sortedData);
   };
 
   useEffect(() => {
@@ -130,19 +135,24 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
-  const snackBarHandle = (commitMsg: string):void => {
-    setIsSnackBarOpen(true)
-    setSnackBarMsg(commitMsg == "ADD" ? "เพิ่มข้อมูลวิชาสำเร็จ!" : commitMsg == "EDIT" ? "อัปเดตข้อมูลวิชาสำเร็จ!" : "ลบข้อมูลวิชาสำเร็จ!")
-  } 
+  const snackBarHandle = (commitMsg: string): void => {
+    setIsSnackBarOpen(true);
+    setSnackBarMsg(
+      commitMsg == "ADD"
+        ? "เพิ่มข้อมูลวิชาสำเร็จ!"
+        : commitMsg == "EDIT"
+          ? "อัปเดตข้อมูลวิชาสำเร็จ!"
+          : "ลบข้อมูลวิชาสำเร็จ!"
+    );
+  };
   return (
     <>
       {addModalActive ? (
         <AddModalForm
-          subjectData={tableData}
           closeModal={() => {
             setAddModalActive(false);
-            mutate();
           }}
+          mutate={mutate}
           openSnackBar={snackBarHandle}
         />
       ) : null}
@@ -150,8 +160,8 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         <ConfirmDeleteModal
           closeModal={() => {
             setDeleteModalActive(false);
-            mutate();
           }}
+          mutate={mutate}
           openSnackBar={snackBarHandle}
           subjectData={tableData}
           checkedList={checkedList}
@@ -163,8 +173,8 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         <EditModalForm
           closeModal={() => {
             setEditModalActive(false);
-            mutate();
           }}
+          mutate={mutate}
           openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
           data={tableData.filter((item, index) => checkedList.includes(index))}
@@ -272,140 +282,26 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           </tr>
         </thead>
         <tbody className="text-sm">
-          {searchTerm
-            ? filteredData.map((item, index) => (
-                <Fragment key={item.SubjectCode}>
-                  <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
-                    <th>
-                      <input
-                        className="cursor-pointer"
-                        type="checkbox"
-                        name="itemdata"
-                        onChange={() => clickToSelect(index)}
-                        //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                        checked={checkedList.includes(index)}
-                      />
-                    </th>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.SubjectCode}
-                    </td>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.SubjectName}
-                    </td>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.Credit}
-                    </td>
-                    <td
-                      className="px-6 whitespace-nowrap select-none"
-                      onClick={() => clickToSelect(index)}
-                    >
-                      {item.Category}
-                    </td>
-                    {checkedList.length < 1 ? (
-                      <>
-                        <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
-                          <BiEdit
-                            className="fill-[#A16207]"
-                            size={18}
-                            onClick={() => {
-                              setEditModalActive(true), clickToSelect(index);
-                            }}
-                          />
-                          <TbTrash
-                            className="text-red-500"
-                            size={18}
-                            onClick={() => {
-                              setDeleteModalActive(true), clickToSelect(index);
-                            }}
-                          />
-                        </td>
-                      </>
-                    ) : null}
-                  </tr>
-                </Fragment>
-              ))
-            : tableData
-                .map((item, index) => (
-                  <Fragment key={item.SubjectCode}>
-                    <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
-                      <th>
-                        <input
-                          className="cursor-pointer"
-                          type="checkbox"
-                          name="itemdata"
-                          onChange={() => clickToSelect(index)}
-                          //ตรงนี้เช็คว่า ค่า index ของแต่ละแถวอยู่ในการติ๊กหรือไม่
-                          checked={checkedList.includes(index)}
-                        />
-                      </th>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.SubjectCode}
-                      </td>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.SubjectName}
-                      </td>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {subjectCreditTitles[item.Credit]}
-                      </td>
-                      <td
-                        className="px-6 whitespace-nowrap select-none"
-                        onClick={() => clickToSelect(index)}
-                      >
-                        {item.Category}
-                      </td>
-                      {checkedList.length < 1 ? (
-                        <>
-                          <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
-                            <BiEdit
-                              className="fill-[#A16207]"
-                              size={18}
-                              onClick={() => {
-                                setEditModalActive(true), clickToSelect(index);
-                              }}
-                            />
-                            <TbTrash
-                              className="text-red-500"
-                              size={18}
-                              onClick={() => {
-                                setDeleteModalActive(true),
-                                  clickToSelect(index);
-                              }}
-                            />
-                          </td>
-                        </>
-                      ) : null}
-                    </tr>
-                  </Fragment>
-                ))
-                .filter(
-                  (item, index) =>
-                    index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) &&
-                    index <= pageOfData * 10 - 1
-                )}
-          {/* Filter บรรทัดบนคือแบ่งหน้าของข้อมูลที่ Fetch มาทั้งหมดเป็น หน้าละ 10
-          index >= (pageOfData == 1 ? 0 : pageOfData * 10 - 10) คือ ถ้า pageOfData เท่ากับ 1 ให้ return 0
-          เพราะหน้าแรกต้องเอา index ที่ 0 มาใช้ ส่วน pageOfData * 10 - 10 คือหน้าต่อๆไปต้องใช้ index เลข 2 หลักแต่ถ้า * 10 เฉยๆจะเท่ากับ index สุดท่ายของข้อมูล
-          เลยต้อง - 10
-          index <= (pageOfData * 10 - 1) คือ เอา index สุดท้ายมาลบ 1 เพราะ array มันเริ่มที่ 0
-           */}
+          {subjectData
+            .map((item, index) => (
+              <Fragment key={item.SubjectCode}>
+                <TableRow
+                  item={item}
+                  index={index}
+                  clickToSelect={clickToSelect}
+                  checkedList={checkedList}
+                  setEditModalActive={setEditModalActive}
+                  setDeleteModalActive={setDeleteModalActive}
+                  pageOfData={pageOfData}
+                  searchTerm={searchTerm}
+                />
+              </Fragment>
+            ))
+            .filter(
+              (item, index) =>
+                index >= (pageOfData === 1 ? 0 : pageOfData * 10 - 10) &&
+                index <= pageOfData * 10 - 1
+            )}
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
@@ -430,14 +326,18 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
-      <Snackbar open={isSnackBarOpen} autoHideDuration={6000} onClose={() => setIsSnackBarOpen(false)}>
-          <Alert
-            onClose={() => setIsSnackBarOpen(false)}
-            severity="success"
-            sx={{ width: "100%" }}
-          >
-            {snackBarMsg}
-          </Alert>
+      <Snackbar
+        open={isSnackBarOpen}
+        autoHideDuration={6000}
+        onClose={() => setIsSnackBarOpen(false)}
+      >
+        <Alert
+          onClose={() => setIsSnackBarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackBarMsg}
+        </Alert>
       </Snackbar>
     </>
   );

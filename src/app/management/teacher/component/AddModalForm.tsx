@@ -1,4 +1,3 @@
-//AddModalForm.tsx
 import React, { useState, Fragment } from "react";
 import TextField from "@/components/elements/input/field/TextField";
 import { AiOutlineClose } from "react-icons/ai";
@@ -32,7 +31,6 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
     const response = await api.post("/teacher", data);
     console.log(response);
     if (response.status === 200) {
-      closeModal();
       openSnackBar("ADD");
       mutate();
     }

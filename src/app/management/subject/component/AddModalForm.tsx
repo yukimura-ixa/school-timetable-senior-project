@@ -51,7 +51,6 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
     const response = await api.post("/subject", data);
     console.log(response);
     if (response.status === 200) {
-      closeModal();
       mutate();
       openSnackBar("ADD");
     }
@@ -122,7 +121,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
             />
           </div>
           {/* inputfield */}
-          <div className="flex flex-col-reverse gap-3">
+          <div className="flex gap-3">
             {subjects.map((subject, index) => (
               <React.Fragment key={`AddData${index + 1}`}>
                 <div

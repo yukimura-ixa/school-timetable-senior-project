@@ -8,21 +8,23 @@ import type { subject } from "@prisma/client";
 import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import api from "@/libs/axios";
-import { subject_Credit } from "@prisma/client";
+import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 
 type props = {
   closeModal: any;
   data: any;
   clearCheckList: any;
-  openSnackBar:any;
+  openSnackBar: any;
+  mutate: Function;
 };
 
 function EditModalForm({
   closeModal,
   data,
   clearCheckList,
-  openSnackBar
+  openSnackBar,
+  mutate,
 }: props) {
   const [editData, setEditData] = useState<subject[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
@@ -41,18 +43,18 @@ function EditModalForm({
     });
     return isValid;
   };
-  const selectCredit = (value: string): subject_Credit => {
+  const selectCredit = (value: string): subject_credit => {
     switch (value) {
       case "0.5":
-        return subject_Credit.CREDIT_05;
+        return subject_credit.CREDIT_05;
       case "1.0":
-        return subject_Credit.CREDIT_10;
+        return subject_credit.CREDIT_10;
       case "1.5":
-        return subject_Credit.CREDIT_15;
+        return subject_credit.CREDIT_15;
       case "2.0":
-        return subject_Credit.CREDIT_20;
+        return subject_credit.CREDIT_20;
       default:
-        return subject_Credit.CREDIT_05;
+        return subject_credit.CREDIT_05;
     }
   };
   const editMultiData = async (data: any) => {
@@ -62,9 +64,13 @@ function EditModalForm({
         subject.Credit = selectCredit(subject.Credit);
       });
       const response = await api.put("/subject", data);
-
+      if (response.status === 200) {
+        mutate();
+        openSnackBar("EDIT");
+      }
       //clear checkbox
       clearCheckList();
+
       console.log(response);
     } catch (err) {
       console.log(err);
@@ -74,7 +80,6 @@ function EditModalForm({
     if (isValidData()) {
       editMultiData(editData);
       closeModal();
-      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {
@@ -101,84 +106,88 @@ function EditModalForm({
           </div>
           {editData.map((subject: subject, index: number) => (
             <React.Fragment key={`Edit${index}`}>
-              <div className={`flex flex-row gap-3 items-center ${index == 0 ? "" : "mt-2"}`}>
+              <div
+                className={`flex flex-row gap-3 items-center ${
+                  index == 0 ? "" : "mt-2"
+                }`}
+              >
                 <div className="flex flex-col items-center justify-center mr-5">
                   <p className="text-sm font-bold">รายการที่</p>
                   <p>{index + 1}</p>
                 </div>
                 <div className="relative flex flex-col gap-2">
-                <TextField
-                  width="auto"
-                  height="auto"
-                  label={`รหัสวิชา (SubjectCode):`}
-                  placeHolder="ex. ท00000"
-                  value={subject.SubjectCode}
-                  borderColor={
-                    isEmptyData && subject.SubjectCode.length == 0
-                      ? "#F96161"
-                      : ""
-                  }
-                  handleChange={(e: any) => {
-                    let value = e.target.value;
-                    setEditData(() =>
-                      editData.map((item, ind) =>
-                        index === ind ? { ...item, SubjectCode: value } : item
-                      )
-                    );
-                  }}
-                />
-                {isEmptyData && subject.SubjectCode.length == 0 ? (
-                  <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-                    <BsInfo className="bg-red-500 rounded-full fill-white" />
-                    <p className="text-red-500 text-sm">ต้องการ</p>
-                  </div>
-                ) : null}
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    label={`รหัสวิชา (SubjectCode):`}
+                    placeHolder="ex. ท00000"
+                    value={subject.SubjectCode}
+                    borderColor={
+                      isEmptyData && subject.SubjectCode.length == 0
+                        ? "#F96161"
+                        : ""
+                    }
+                    handleChange={(e: any) => {
+                      let value = e.target.value;
+                      setEditData(() =>
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, SubjectCode: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  {isEmptyData && subject.SubjectCode.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="relative flex flex-col gap-2">
-                <TextField
-                  width="auto"
-                  height="auto"
-                  label={`ชื่อวิชา (SubjectName):`}
-                  placeHolder="ex. ภาษาไทย 1"
-                  value={subject.SubjectName}
-                  borderColor={
-                    isEmptyData && subject.SubjectName.length == 0
-                      ? "#F96161"
-                      : ""
-                  }
-                  handleChange={(e: any) => {
-                    let value = e.target.value;
-                    setEditData(() =>
-                      editData.map((item, ind) =>
-                        index === ind ? { ...item, SubjectName: value } : item
-                      )
-                    );
-                  }}
-                />
-                {isEmptyData && subject.SubjectName.length == 0 ? (
-                  <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-                    <BsInfo className="bg-red-500 rounded-full fill-white" />
-                    <p className="text-red-500 text-sm">ต้องการ</p>
-                  </div>
-                ) : null}
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    label={`ชื่อวิชา (SubjectName):`}
+                    placeHolder="ex. ภาษาไทย 1"
+                    value={subject.SubjectName}
+                    borderColor={
+                      isEmptyData && subject.SubjectName.length == 0
+                        ? "#F96161"
+                        : ""
+                    }
+                    handleChange={(e: any) => {
+                      let value = e.target.value;
+                      setEditData(() =>
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, SubjectName: value } : item
+                        )
+                      );
+                    }}
+                  />
+                  {isEmptyData && subject.SubjectName.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="relative flex flex-col gap-2">
                   <label className="text-sm font-bold">
                     หน่วยกิต (Credit):
                   </label>
                   <Dropdown
-                    data={Object.values(subject_Credit)}
+                    data={Object.values(subject_credit)}
                     renderItem={({ data }): JSX.Element => (
                       <li className="w-full">{subjectCreditTitles[data]}</li>
                     )}
                     width={150}
                     height={40}
                     borderColor={
-                      isEmptyData && subject.Credit.length == 0
-                        ? "#F96161"
-                        : ""
+                      isEmptyData && subject.Credit.length == 0 ? "#F96161" : ""
                     }
-                    currentValue={subjectCreditTitles[subject.Credit] || subject.Credit}
+                    currentValue={
+                      subjectCreditTitles[subject.Credit] || subject.Credit
+                    }
                     placeHolder={"ตัวเลือก"}
                     handleChange={(value: string) => {
                       setEditData(() =>

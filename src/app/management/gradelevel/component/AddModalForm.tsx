@@ -10,27 +10,28 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
-import { gradelevel } from "@prisma/client";
+import type { gradelevel } from "@prisma/client";
 type props = {
   closeModal: any;
-  openSnackBar:any
+  openSnackBar: any;
+  mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar }: props) {
+function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [gradeLevels, setGradeLevels] = useState<gradeLevel[]>([
+  const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([
     {
       GradeID: null,
       Year: 1,
       Number: null,
-      GradeProgram: "",
+      ProgramID: 0,
     },
   ]);
   const addList = () => {
-    let struct: gradeLevel = {
+    let struct: gradelevel = {
       GradeID: null,
       Year: 1,
       Number: null,
-      GradeProgram: "",
+      ProgramID: 0,
     };
     setGradeLevels(() => [...gradeLevels, struct]);
   };
@@ -42,12 +43,7 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
   const isValidData = (): boolean => {
     let isValid = true;
     gradeLevels.forEach((data) => {
-      if (
-        data.GradeID == null ||
-        data.Year == null ||
-        data.Number == null ||
-        data.GradeProgram == ""
-      ) {
+      if (data.GradeID == null || data.Year == null || data.Number == null) {
         setIsEmptyData(true);
         isValid = false;
       }
@@ -59,14 +55,14 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
     const response = await api.post("/gradeLevel", data);
     console.log(response);
     if (response.status === 200) {
-      closeModal();
+      mutate();
+      openSnackBar("ADD");
     }
   };
   const handleSubmit = () => {
     if (isValidData()) {
       addData(gradeLevels);
       closeModal();
-      openSnackBar("ADD");
     }
   };
   const cancel = () => {
@@ -98,7 +94,7 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
             handleClick={addList}
           />
           {/* inputfield */}
-          <div className="flex flex-col-reverse gap-3">
+          <div className="flex gap-3">
             {gradeLevels.map((gradeLevel, index) => (
               <React.Fragment key={`AddData${index + 1}`}>
                 <div
@@ -107,7 +103,12 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
-                    <p className="text-sm font-bold" onClick={() => console.log(gradeLevels)}>รายการที่</p>
+                    <p
+                      className="text-sm font-bold"
+                      onClick={() => console.log(gradeLevels)}
+                    >
+                      รายการที่
+                    </p>
                     <p>{index + 1}</p>
                   </div>
                   <div className="relative flex flex-col gap-2">
@@ -118,7 +119,8 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                       label="รหัสชั้นเรียน (GradeID):"
                       value={gradeLevel.GradeID}
                       borderColor={
-                        isEmptyData && (gradeLevel.GradeID == 0 || gradeLevel.GradeID == null)
+                        isEmptyData &&
+                        (gradeLevel.GradeID == 0 || gradeLevel.GradeID == null)
                           ? "#F96161"
                           : ""
                       }
@@ -131,7 +133,8 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && (gradeLevel.GradeID == 0 || gradeLevel.GradeID == null) ? (
+                    {isEmptyData &&
+                    (gradeLevel.GradeID == 0 || gradeLevel.GradeID == null) ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -168,7 +171,8 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                       label="ห้องที่ (Number):"
                       value={gradeLevel.Number}
                       borderColor={
-                        isEmptyData && (gradeLevel.Number == 0 || gradeLevel.Number == null)
+                        isEmptyData &&
+                        (gradeLevel.Number == 0 || gradeLevel.Number == null)
                           ? "#F96161"
                           : ""
                       }
@@ -176,19 +180,22 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                         let value: string = e.target.value;
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
-                            index === ind ? { ...item, Number: parseInt(value) || null } : item
+                            index === ind
+                              ? { ...item, Number: parseInt(value) || null }
+                              : item
                           )
                         );
                       }}
                     />
-                    {isEmptyData && (gradeLevel.Number == 0 || gradeLevel.Number == null) ? (
+                    {isEmptyData &&
+                    (gradeLevel.Number == 0 || gradeLevel.Number == null) ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
                       </div>
                     ) : null}
                   </div>
-                  <div className="relative flex flex-col gap-2">
+                  {/* <div className="relative flex flex-col gap-2">
                     <TextField
                       width="auto"
                       height="auto"
@@ -217,7 +224,7 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                         <p className="text-red-500 text-sm">ต้องการ</p>
                       </div>
                     ) : null}
-                  </div>
+                  </div> */}
                   {gradeLevels.length > 1 ? (
                     <TbTrash
                       size={20}

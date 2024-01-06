@@ -32,7 +32,11 @@ function EditModalForm({
     console.log(data);
     try {
       const response = await api.put("/teacher", data);
-      mutate();
+      if (response.status === 200) {
+        mutate();
+        openSnackBar("EDIT");
+      }
+
       //clear checkbox
       clearCheckList();
       console.log(response);
@@ -59,7 +63,6 @@ function EditModalForm({
     if (isValidData()) {
       editMultiData(editData);
       closeModal();
-      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {

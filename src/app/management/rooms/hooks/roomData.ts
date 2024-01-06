@@ -5,7 +5,6 @@ import { fetcher } from "@/libs/axios"
 export const useRoomData = () => {
   const path = `/rooms`
   const { data, error, mutate } = useSWR<room[]>(path, fetcher, {
-    refreshInterval: 10000,
   })
 
   return {

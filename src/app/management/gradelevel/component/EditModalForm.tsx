@@ -9,12 +9,14 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
+import type { gradelevel } from "@prisma/client";
 type props = {
   closeModal: any;
   conFirmEdit: any;
   data: any;
-  openSnackBar:any
+  openSnackBar: any;
   clearCheckList: any;
+  mutate: Function;
 };
 
 function EditModalForm({
@@ -22,21 +24,17 @@ function EditModalForm({
   conFirmEdit,
   data,
   clearCheckList,
-  openSnackBar
+  openSnackBar,
+  mutate,
 }: props) {
-  const [editData, setEditData] = useState<gradeLevel[]>(
+  const [editData, setEditData] = useState<gradelevel[]>(
     Object.assign([], data)
   );
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
     let isValid = true;
-    editData.forEach((data) => { 
-      if (
-        data.GradeID == 0 ||
-        data.Year == null ||
-        data.Number == 0 ||
-        data.GradeProgram == ""
-      ) {
+    editData.forEach((data) => {
+      if (data.GradeID == "" || data.Year == null || data.Number == 0) {
         setIsEmptyData(true);
         isValid = false;
       }
@@ -47,7 +45,6 @@ function EditModalForm({
     if (isValidData()) {
       editMultiData(editData);
       closeModal();
-      openSnackBar("EDIT");
     }
   };
   const cancelEdit = () => {
@@ -60,7 +57,10 @@ function EditModalForm({
     console.log(data);
     try {
       const response = await api.put("/gradeLevel", data);
-
+      if (response.status === 200) {
+        mutate();
+        openSnackBar("EDIT");
+      }
       //clear checkbox
       clearCheckList();
       console.log(response);
@@ -162,7 +162,9 @@ function EditModalForm({
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Number: parseInt(value) } : item
+                          index === ind
+                            ? { ...item, Number: parseInt(value) }
+                            : item
                         )
                       );
                     }}
@@ -174,7 +176,7 @@ function EditModalForm({
                     </div>
                   ) : null}
                 </div>
-                <div className="relative flex flex-col gap-2">
+                {/* <div className="relative flex flex-col gap-2">
                   <TextField
                     width="auto"
                     height="auto"
@@ -203,7 +205,7 @@ function EditModalForm({
                       <p className="text-red-500 text-sm">ต้องการ</p>
                     </div>
                   ) : null}
-                </div>
+                </div> */}
               </div>
             </React.Fragment>
           ))}

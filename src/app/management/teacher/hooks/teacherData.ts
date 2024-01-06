@@ -6,9 +6,7 @@ export const useTeacherData = () => {
   preload(`/teacher`, fetcher)
 
   const path = `/teacher`
-  const { data, error, mutate } = useSWR<teacher[]>(path, fetcher, {
-    refreshInterval: 10000,
-  })
+  const { data, error, mutate } = useSWR<teacher[]>(path, fetcher)
 
   return {
     tableData: data ?? [],

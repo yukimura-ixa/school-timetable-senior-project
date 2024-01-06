@@ -13,14 +13,16 @@ import CheckIcon from "@mui/icons-material/Check";
 type props = {
   closeModal: any;
   openSnackBar: any;
+  mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar }: props) {
+function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const addData = async (data: room[]) => {
     console.log(data);
     const response = await api.post("/rooms", data);
     console.log(response);
     if (response.status === 200) {
-      closeModal();
+      mutate();
+      openSnackBar("ADD");
     }
   };
   const [isEmptyData, setIsEmptyData] = useState(false);
@@ -60,7 +62,6 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
     if (isValidData()) {
       addData(rooms);
       closeModal();
-      openSnackBar("ADD");
     }
   };
   const cancel = () => {
@@ -94,7 +95,7 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
             />
           </div>
           {/* inputfield */}
-          <div className="flex flex-col-reverse gap-3">
+          <div className="flex gap-3">
             {rooms.map((room, index) => (
               <React.Fragment key={`AddData${index + 1}`}>
                 <div
