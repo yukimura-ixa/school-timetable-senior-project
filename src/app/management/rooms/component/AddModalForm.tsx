@@ -95,7 +95,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
             />
           </div>
           {/* inputfield */}
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3">
             {rooms.map((room, index) => (
               <React.Fragment key={`AddData${index + 1}`}>
                 <div
