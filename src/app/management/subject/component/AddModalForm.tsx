@@ -1,4 +1,3 @@
-import Image from "next/image";
 import React, { useState } from "react";
 import TextField from "@/components/elements/input/field/TextField";
 import { AiOutlineClose } from "react-icons/ai";
@@ -7,7 +6,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import type { subject } from "@prisma/client";
-import { subject_Credit } from "@prisma/client";
+import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import api from "@/libs/axios";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
@@ -15,10 +14,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 type props = {
   closeModal: any;
-  subjectData: subject[];
-  openSnackBar:any;
+  openSnackBar: any;
+  mutate: Function;
 };
-function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
+function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [subjects, setSubjects] = useState<subject[]>([
     {
@@ -26,22 +25,22 @@ function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
       SubjectName: "",
       Credit: undefined,
       Category: "",
-      SubjectProgram: "",
+      ProgramID: undefined,
     },
   ]);
 
-  const selectCredit = (value: string): subject_Credit => {
+  const selectCredit = (value: string): subject_credit => {
     switch (value) {
       case "0.5":
-        return subject_Credit.CREDIT_05;
+        return subject_credit.CREDIT_05;
       case "1.0":
-        return subject_Credit.CREDIT_10;
+        return subject_credit.CREDIT_10;
       case "1.5":
-        return subject_Credit.CREDIT_15;
+        return subject_credit.CREDIT_15;
       case "2.0":
-        return subject_Credit.CREDIT_20;
+        return subject_credit.CREDIT_20;
       default:
-        return subject_Credit.CREDIT_05;
+        return subject_credit.CREDIT_05;
     }
   };
   const addData = async (data: subject[]) => {
@@ -53,6 +52,7 @@ function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
     console.log(response);
     if (response.status === 200) {
       closeModal();
+      mutate();
       openSnackBar("ADD");
     }
   };
@@ -62,7 +62,7 @@ function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
       SubjectName: "",
       Credit: undefined,
       Category: "",
-      SubjectProgram: "",
+      ProgramID: undefined,
     };
     setSubjects(() => [...subjects, struct]);
   };
@@ -199,7 +199,7 @@ function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
                       หน่วยกิต (Credit):
                     </label>
                     <Dropdown
-                      data={Object.values(subject_Credit)}
+                      data={Object.values(subject_credit)}
                       renderItem={({ data }): JSX.Element => (
                         <li className="w-full">{subjectCreditTitles[data]}</li>
                       )}
@@ -274,7 +274,7 @@ function AddModalForm({ closeModal, subjectData, openSnackBar }: props) {
                       </div>
                     ) : null}
                   </div>
-                  
+
                   {subjects.length > 1 ? (
                     <TbTrash
                       size={20}

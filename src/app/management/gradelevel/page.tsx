@@ -4,9 +4,6 @@ import { useGradeLevelData } from './hooks/gradeLevelData';
 import Loading from '@/app/loading';
 import GradeLevelTable from '@/app/management/gradelevel/component/GradeLevelTable';
 
-// import TeacherTable from "@/app/management/teacher/component/TeacherTable";
-// import { useTeacherData } from "./hooks/teacherData";
-// import Loading from "@/app/loading";
 type Props = {}
 
 function GradeLevelManage (props: Props) {

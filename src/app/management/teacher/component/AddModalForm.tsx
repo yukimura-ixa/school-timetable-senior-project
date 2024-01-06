@@ -9,13 +9,14 @@ import { BsInfo } from "react-icons/bs";
 import type { teacher } from "@prisma/client";
 import api from "@/libs/axios";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 type props = {
   closeModal: any;
   openSnackBar: any;
+  mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar }: props) {
+function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [teachers, setTeachers] = useState<teacher[]>([
     {
@@ -32,6 +33,8 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
     console.log(response);
     if (response.status === 200) {
       closeModal();
+      openSnackBar("ADD");
+      mutate();
     }
   };
   const addList = () => {
@@ -68,7 +71,6 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
     if (isValidData()) {
       addData(teachers);
       closeModal();
-      openSnackBar("ADD");
     }
   };
   const cancel = () => {
@@ -98,7 +100,11 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
               border={true}
               hoverable={true}
               borderColor="#222222"
-              handleClick={addList} width={""} height={""} isSelected={false}            />
+              handleClick={addList}
+              width={""}
+              height={""}
+              isSelected={false}
+            />
           </div>
           {/* inputfield */}
           <div className="flex flex-col gap-3">
@@ -153,15 +159,21 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                       placeHolder="ex. อเนก"
                       label="ชื่อ (Firstname) :"
                       value={teacher.Firstname}
-                      borderColor={isEmptyData && teacher.Firstname.length == 0
-                        ? "#F96161"
-                        : ""}
+                      borderColor={
+                        isEmptyData && teacher.Firstname.length == 0
+                          ? "#F96161"
+                          : ""
+                      }
                       handleChange={(e: any) => {
                         let value: string = e.target.value;
-                        setTeachers(() => teachers.map((item, ind) => index === ind ? { ...item, Firstname: value } : item
-                        )
+                        setTeachers(() =>
+                          teachers.map((item, ind) =>
+                            index === ind ? { ...item, Firstname: value } : item
+                          )
                         );
-                      } } disabled={false}                    />
+                      }}
+                      disabled={false}
+                    />
                     {isEmptyData && teacher.Firstname.length == 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
@@ -176,15 +188,21 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
                       placeHolder="ex. ประสงค์"
                       label="นามสกุล (Lastname) :"
                       value={teacher.Lastname}
-                      borderColor={isEmptyData && teacher.Lastname.length == 0
-                        ? "#F96161"
-                        : ""}
+                      borderColor={
+                        isEmptyData && teacher.Lastname.length == 0
+                          ? "#F96161"
+                          : ""
+                      }
                       handleChange={(e: any) => {
                         let value: string = e.target.value;
-                        setTeachers(() => teachers.map((item, ind) => index === ind ? { ...item, Lastname: value } : item
-                        )
+                        setTeachers(() =>
+                          teachers.map((item, ind) =>
+                            index === ind ? { ...item, Lastname: value } : item
+                          )
                         );
-                      } } disabled={false}                    />
+                      }}
+                      disabled={false}
+                    />
                     {isEmptyData && teacher.Lastname.length == 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
@@ -249,8 +267,18 @@ function AddModalForm({ closeModal, openSnackBar }: props) {
             ))}
           </div>
           <span className="w-full flex justify-end mt-5 gap-3 h-11">
-            <PrimaryButton handleClick={cancel} title={"ยกเลิก"} color={"danger"} Icon={<CloseIcon />} />
-            <PrimaryButton handleClick={handleSubmit} title={"ยืนยัน"} color={"success"} Icon={<CheckIcon />} />
+            <PrimaryButton
+              handleClick={cancel}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={handleSubmit}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

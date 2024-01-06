@@ -7,11 +7,12 @@ import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 type props = {
   closeModal: any;
-  openSnackBar:any;
+  openSnackBar: any;
   teacherData: Teacher[];
   checkedList: any;
   clearCheckList: any;
   dataAmount: number;
+  mutate: Function;
 };
 
 function ConfirmDeleteModal({
@@ -20,7 +21,8 @@ function ConfirmDeleteModal({
   checkedList,
   dataAmount,
   clearCheckList,
-  openSnackBar
+  openSnackBar,
+  mutate,
 }: props) {
   const confirmed = () => {
     removeMultiData(teacherData, checkedList);
@@ -34,7 +36,6 @@ function ConfirmDeleteModal({
     closeModal();
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  //24-11-2023 ปัจจุบัน func ลบ ยังไม่สมบูรณ์ เพราะการลบมันพ่วงโดนหลายตาราง ค่อยมาทำ
   const removeMultiData = async (data: Teacher[], checkedList) => {
     const deleteData = data
       .filter((item, index) => checkedList.includes(index))
@@ -44,6 +45,7 @@ function ConfirmDeleteModal({
       const response = await api.delete("/teacher", {
         data: deleteData,
       });
+      mutate();
       console.log(response);
       clearCheckList();
     } catch (err) {

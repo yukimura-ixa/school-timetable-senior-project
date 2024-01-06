@@ -1,6 +1,6 @@
 // "use client";
 import React, { useState, useEffect, Fragment } from "react";
-import type { Teacher } from "../model/teacher";
+import type { teacher } from "@prisma/client";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
@@ -20,7 +20,7 @@ import { Snackbar, Alert } from "@mui/material";
 
 type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
-  tableData: Teacher[];
+  tableData: teacher[];
   mutate: Function;
 };
 function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
@@ -130,43 +130,49 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
-  const snackBarHandle = (commitMsg: string):void => {
-    setIsSnackBarOpen(true)
-    setSnackBarMsg(commitMsg == "ADD" ? "เพิ่มข้อมูลคุณครูสำเร็จ!" : commitMsg == "EDIT" ? "อัปเดตข้อมูลคุณครูสำเร็จ!" : "ลบข้อมูลคุณครูสำเร็จ!")
-  } 
+  const snackBarHandle = (commitMsg: string): void => {
+    setIsSnackBarOpen(true);
+    setSnackBarMsg(
+      commitMsg == "ADD"
+        ? "เพิ่มข้อมูลคุณครูสำเร็จ!"
+        : commitMsg == "EDIT"
+          ? "อัปเดตข้อมูลคุณครูสำเร็จ!"
+          : "ลบข้อมูลคุณครูสำเร็จ!"
+    );
+  };
   return (
     <>
       {addModalActive ? (
         <AddModalForm
           closeModal={() => {
             setAddModalActive(false);
-            mutate();
           }}
           openSnackBar={snackBarHandle}
+          mutate={mutate}
         />
       ) : null}
       {deleteModalActive ? (
         <ConfirmDeleteModal
           closeModal={() => {
             setDeleteModalActive(false);
-            mutate();
           }}
           openSnackBar={snackBarHandle}
           teacherData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
           dataAmount={checkedList.length}
+          mutate={mutate}
         />
       ) : null}
       {editModalActive ? (
         <EditModalForm
           closeModal={() => {
             setEditModalActive(false);
-            mutate();
           }}
           openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
           data={tableData.filter((item, index) => checkedList.includes(index))}
+          mutate={mutate}
         />
       ) : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
@@ -429,14 +435,18 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
-      <Snackbar open={isSnackBarOpen} autoHideDuration={6000} onClose={() => setIsSnackBarOpen(false)}>
-          <Alert
-            onClose={() => setIsSnackBarOpen(false)}
-            severity="success"
-            sx={{ width: "100%" }}
-          >
-            {snackBarMsg}
-          </Alert>
+      <Snackbar
+        open={isSnackBarOpen}
+        autoHideDuration={6000}
+        onClose={() => setIsSnackBarOpen(false)}
+      >
+        <Alert
+          onClose={() => setIsSnackBarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {snackBarMsg}
+        </Alert>
       </Snackbar>
     </>
   );

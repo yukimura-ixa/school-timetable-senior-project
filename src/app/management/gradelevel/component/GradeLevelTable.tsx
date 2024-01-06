@@ -31,30 +31,18 @@ function GradeLevelTable({
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [gradeLevelData, setGradeLevelData] = useState<gradeLevel[]>([]); //ข้อมูลครูใช้ render
+  // const [gradeLevelData, setGradeLevelData] = useState<gradeLevel[]>([]); //ข้อมูลครูใช้ render
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
-  useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/gradeLevel", {})
-        .then((res) => {
-          let data: gradeLevel[] = res.data;
-          setGradeLevelData(() => [...data]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    return () => getData();
-  }, []);
+  
+
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
         //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => gradeLevelData.map((item, index) => index))
+        setCheckedList(() => table.map((item, index) => index))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };

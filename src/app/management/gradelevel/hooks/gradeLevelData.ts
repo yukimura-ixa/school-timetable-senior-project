@@ -3,9 +3,9 @@ import type { gradelevel } from "@prisma/client"
 import { fetcher } from "@/libs/axios"
 
 export const useGradeLevelData = () => {
-  preload(`/gradeLevel`, fetcher)
+  preload(`/gradelevel`, fetcher)
 
-  const path = `/gradeLevel`
+  const path = `/gradelevel`
   const { data, error, mutate } = useSWR<gradelevel[]>(path, fetcher, {
     refreshInterval: 10000,
   })

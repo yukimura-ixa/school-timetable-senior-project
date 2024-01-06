@@ -1,12 +1,12 @@
-import { subject_Credit } from "@prisma/client";
+import { subject_credit } from "@prisma/client";
 
 type SubjectCreditWithTitles = {
-  [key in subject_Credit]: string;
+  [key in subject_credit]: string;
 };
 
 export const subjectCreditTitles: SubjectCreditWithTitles = {
-  [subject_Credit.CREDIT_05]: "0.5",
-  [subject_Credit.CREDIT_10]: "1.0",
-  [subject_Credit.CREDIT_15]: "1.5",
-  [subject_Credit.CREDIT_20]: "2.0",
+  [subject_credit.CREDIT_05]: "0.5",
+  [subject_credit.CREDIT_10]: "1.0",
+  [subject_credit.CREDIT_15]: "1.5",
+  [subject_credit.CREDIT_20]: "2.0",
 };

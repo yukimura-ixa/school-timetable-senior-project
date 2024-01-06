@@ -7,17 +7,24 @@ import { BsInfo } from "react-icons/bs";
 import { Teacher } from "../model/teacher";
 import api from "@/libs/axios";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import CloseIcon from '@mui/icons-material/Close';
-import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 
 type props = {
   closeModal: any;
   openSnackBar: any;
   data: Teacher[];
   clearCheckList: any;
+  mutate: Function;
 };
 
-function EditModalForm({ closeModal, data, clearCheckList, openSnackBar }: props) {
+function EditModalForm({
+  closeModal,
+  data,
+  clearCheckList,
+  openSnackBar,
+  mutate,
+}: props) {
   const [editData, setEditData] = useState<Teacher[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
 
@@ -25,7 +32,7 @@ function EditModalForm({ closeModal, data, clearCheckList, openSnackBar }: props
     console.log(data);
     try {
       const response = await api.put("/teacher", data);
-
+      mutate();
       //clear checkbox
       clearCheckList();
       console.log(response);
@@ -215,8 +222,18 @@ function EditModalForm({ closeModal, data, clearCheckList, openSnackBar }: props
             </React.Fragment>
           ))}
           <span className="w-full flex gap-3 justify-end mt-5 h-11">
-            <PrimaryButton handleClick={cancelEdit} title={"ยกเลิก"} color={"danger"} Icon={<CloseIcon />} />
-            <PrimaryButton handleClick={confirmed} title={"ยืนยัน"} color={"success"} Icon={<CheckIcon />} />
+            <PrimaryButton
+              handleClick={cancelEdit}
+              title={"ยกเลิก"}
+              color={"danger"}
+              Icon={<CloseIcon />}
+            />
+            <PrimaryButton
+              handleClick={confirmed}
+              title={"ยืนยัน"}
+              color={"success"}
+              Icon={<CheckIcon />}
+            />
           </span>
         </div>
       </div>

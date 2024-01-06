@@ -32,9 +32,9 @@ model gradelevel {
   GradeID   String @id
   Year      Int
   Number    Int
-  ProgramID Int
+  ProgramID Int?
 
-  program                 program                   @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Cascade)
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Cascade)
   class_schedule          class_schedule[]
   teachers_responsibility teachers_responsibility[]
 }
@@ -53,9 +53,9 @@ model subject {
   SubjectName String
   Credit      subject_credit
   Category    String         @default("-")
-  ProgramID   Int
+  ProgramID   Int?
 
-  program                 program                   @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Cascade)
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, onUpdate: Cascade)
   class_schedule          class_schedule[]
   teachers_responsibility teachers_responsibility[]
 }

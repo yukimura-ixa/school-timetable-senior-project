@@ -15,7 +15,7 @@ Table gradelevel {
   GradeID String [pk]
   Year Int [not null]
   Number Int [not null]
-  ProgramID Int [not null]
+  ProgramID Int
 }
 
 Table room {
@@ -30,7 +30,7 @@ Table subject {
   SubjectName String [not null]
   Credit subject_credit [not null]
   Category String [not null, default: '-']
-  ProgramID Int [not null]
+  ProgramID Int
 }
 
 Table program {
