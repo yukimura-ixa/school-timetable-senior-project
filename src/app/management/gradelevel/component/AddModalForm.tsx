@@ -52,7 +52,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   };
   const addData = async (data: gradelevel[]) => {
     console.log(data);
-    const response = await api.post("/gradeLevel", data);
+    const response = await api.post("/gradelevel", data);
     console.log(response);
     if (response.status === 200) {
       mutate();

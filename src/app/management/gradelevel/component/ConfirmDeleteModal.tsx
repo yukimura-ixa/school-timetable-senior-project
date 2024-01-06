@@ -39,7 +39,7 @@ function ConfirmDeleteModal({
       .filter((item, index) => checkedList.includes(index))
       .map((item) => item.GradeID);
     try {
-      const response = await api.delete("/gradeLevel", {
+      const response = await api.delete("/gradelevel", {
         data: deleteData,
       });
       if (response.status === 200) {
