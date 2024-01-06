@@ -5,7 +5,7 @@ import { HiLockClosed } from 'react-icons/hi2'
 import SelectTeacherTimetable from './component/SelectTeacherTimetable';
 import TimeSlot from './component/TimeSlot';
 import SubjectBox from './component/SubjectBox';
-
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 type Props = {}
 
 const ArrangeTimetable = (props: Props) => {
@@ -13,12 +13,19 @@ const ArrangeTimetable = (props: Props) => {
   const router = useRouter()
   return (
     <>
+      <div className='w-full flex justify-between items-center py-6'>
+        <h1 className='text-xl font-bold'>ตารางสอน เทอม 1 ปีการศึกษา 2566</h1>
+        <div className='flex gap-3 items-center justify-between cursor-pointer'>
+          <KeyboardBackspaceIcon className='fill-gray-500' />
+          <p className='select-none text-gray-500 text-sm'>เปลี่ยนเทอม</p>
+        </div>
+      </div>  
       <div className='flex flex-col gap-3'>
         <div className='flex pt-5 w-full h-fit border-b'>
-          <button onClick={() => {router.replace(`${pathName.substring(0, 29)}/classify`)}} className='flex w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
+          <button onClick={() => {router.replace(`${pathName.substring(0, 18)}/classify`)}} className='flex w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
             <p>จำแนกวิชาเรียน</p>
           </button>
-          <button onClick={() => {router.replace(`${pathName.substring(0, 29)}/lockschedules`)}} className='flex gap-3 w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
+          <button onClick={() => {router.replace(`${pathName.substring(0, 18)}/lockschedules`)}} className='flex gap-3 w-fit h-[60px] items-center px-3 cursor-pointer focus:outline-none'>
             <HiLockClosed className="fill-gray-700" />
             <p>ล็อกคาบสอน</p>
           </button>
