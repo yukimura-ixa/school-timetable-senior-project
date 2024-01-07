@@ -35,6 +35,14 @@ export const managementMenu = [
         },
         title : "ข้อมูลชั้นเรียน",
         link : "/management/gradelevel"
+    },
+    {
+        id : "studyprogram",
+        IconStyle : {
+            Icon : HiAcademicCap,
+        },
+        title : "หลักสูตร",
+        link : "/management/study-program"
     }
 ]
 export const scheduleMenu = [

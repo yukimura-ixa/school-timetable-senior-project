@@ -1,165 +1,150 @@
 "use client";
-import { useParams } from "next/navigation";
-import SelectedValue from "@/app/schedule/tableconfig/component/SelectedValue";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import React, { useState } from "react";
-import { MdSchool, MdLunchDining } from "react-icons/md";
-import { BsTable } from "react-icons/bs";
-import { TbTimeDuration45 } from "react-icons/tb";
-import { LuClock10 } from "react-icons/lu";
-import { BsCalendar2Day } from "react-icons/bs";
-import Counter from "./component/Counter";
-import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import CheckBox from "@/components/elements/input/selected_input/CheckBox";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
 type Props = {};
 
 function TableConfig({}: Props) {
-  const params = useParams();
-  const [startTime, setStartTime] = useState<string>("08:00");
-  const [isSaved, setIsSaved] = useState<boolean>(false);
-  const handleChangeStartTime = (e: any) => {
-    setStartTime(() => e.target.value);
-  };
-  const saved = () => {
-    setIsSaved(true);
-    setInterval(() => {
-      setIsSaved(false);
-    }, 5000);
-  };
+  const timeTableConfigList = [
+    {
+      Semester: 1,
+      Year: 2565,
+      Details: {
+        ClassAmountPerDay: 10,
+        ClassDuration: 50,
+        StartTime: "8:30",
+        LunchTime: { Junior: 4, Senior: 5 },
+        DayOfWeek: "Mon - Fri",
+      },
+    },
+    {
+      Semester: 2,
+      Year: 2565,
+      Details: {
+        ClassAmountPerDay: 10,
+        ClassDuration: 50,
+        StartTime: "8:30",
+        LunchTime: { Junior: 4, Senior: 5 },
+        DayOfWeek: "Mon - Fri",
+      },
+    },
+    {
+      Semester: 1,
+      Year: 2566,
+      Details: {
+        ClassAmountPerDay: 10,
+        ClassDuration: 50,
+        StartTime: "8:30",
+        LunchTime: { Junior: 4, Senior: 5 },
+        DayOfWeek: "Mon - Fri",
+      },
+    },
+    {
+      Semester: 2,
+      Year: 2566,
+      Details: {
+        ClassAmountPerDay: 10,
+        ClassDuration: 50,
+        StartTime: "8:30",
+        LunchTime: { Junior: 4, Senior: 5 },
+        DayOfWeek: "Mon - Fri",
+      },
+    },
+    {
+      Semester: 1,
+      Year: 2567,
+      Details: {
+        ClassAmountPerDay: 10,
+        ClassDuration: 50,
+        StartTime: "8:30",
+        LunchTime: { Junior: 4, Senior: 5 },
+        DayOfWeek: "Mon - Fri",
+      },
+    },
+  ];
+  const [expandCardIndex, setExpandCardIndex] = useState<number>(null);
   return (
     <>
-      <div className="flex w-full h-[80px] justify-between items-center border-b border-[#EDEEF3] mb-7">
-        <h1 className="text-lg">
-          ตั้งค่าตารางสอน <b>เทอม {params.semester}</b>
-        </h1>
-        <p className="text-[#3B8FEE] text-sm cursor-pointer">
-          <u>รีเซ็ทเป็นค่าเริ่มต้น</u>
-        </p>
+      <div className="flex py-4 border-b">
+        <h1 className="text-md font-bold">ตั้งค่าตารางสอน</h1>
       </div>
-      <span className="flex flex-col gap-4">
-        {/* Year */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <p className="text-md">ปีการศึกษา</p>
-          {/* <SelectedValue /> */}
-          <Dropdown
-            width="100%"
-            height="40px"
-            data={[2566, 2567, 2568, 2569]}
-            currentValue={2566} //current year
-            renderItem={({ data }): JSX.Element => (
-              <li className="w-[70px]">{data}</li>
-            )}
+      <div className="flex justify-end items-center py-4">
+        <div className="flex gap-3">
+          <div className="flex w-fit h-full items-center p-3 bg-cyan-100 rounded-lg text-center select-none">
+            <p className="text-cyan-500 text-sm">
+              ทั้งหมด {timeTableConfigList.length} รายการ
+            </p>
+          </div>
+          {/* กดแล้วพาไปหน้าตั้งค่า */}
+          <PrimaryButton
+            handleClick={undefined}
+            title={"เพิ่มเทอมใหม่"}
+            color={"primary"}
+            Icon={undefined}
+            reverseIcon={false}
           />
         </div>
-        {/* Semester */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <p className="text-md">เทอม</p>
-          <Dropdown
-            width="100%"
-            height="40px"
-            data={[1, 2]}
-            currentValue={1}
-            renderItem={({ data }): JSX.Element => (
-              <li className="w-[70px]">{data}</li>
-            )}
-          />
-        </div>
-        {/* School */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <MdSchool size={25} className="fill-gray-400" />
-            <p className="text-md">ชื่อโรงเรียน</p>
-          </div>
-          <p className="text-md text-gray-500">โรงเรียนศึกษาไอทีวิทยา</p>
-        </div>
-        {/* Config timeslot per day */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <BsTable size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดคาบต่อวัน</p>
-          </div>
-          <Counter classifier="คาบ" initialValue={10} />
-        </div>
-        {/* Config duration */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <TbTimeDuration45 size={25} className="stroke-gray-500" />
-            <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
-          </div>
-          <Counter classifier="นาที" initialValue={50} />
-        </div>
-        {/* Config time for start class */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <LuClock10 size={25} className="stroke-gray-500" />
-            <p className="text-md">กำหนดเวลาเริ่มคาบแรก</p>
-          </div>
-          <input
-            type="time"
-            value={startTime}
-            className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]"
-            onChange={handleChangeStartTime}
-          />
-        </div>
-        {/* Config lunch time */}
-        <div className="flex w-full h-auto justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <MdLunchDining size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดคาบพักเที่ยง</p>
-          </div>
-          <div className="flex flex-col-reverse gap-4">
-            <div className="flex justify-between items-center gap-3">
-              <p className="text-md text-gray-500">มัธยมปลาย</p>
-              <Dropdown
-                width="100%"
-                height="40px"
-                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                currentValue={5}
-                placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
-                  <li className="w-[70px]">{data}</li>
-                )}
-              />
+      </div>
+      <div className="flex flex-col-reverse gap-4">
+        {timeTableConfigList.map((item, index) => (
+          <React.Fragment key={`${item.Semester}/${item.Year}`}>
+            <div className="flex flex-col cursor-pointer border" onClick={() => setExpandCardIndex(() => expandCardIndex == index ? null : index)}>
+              <div className="flex p-2 justify-between">
+                <div className="flex gap-3 items-center">
+                  <p className="text-sm select-none">
+                    {item.Semester}/{item.Year}
+                  </p>
+                  {/* {index == expandCardIndex ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />} */}
+                  <KeyboardArrowDownIcon className={`${index == expandCardIndex ? "rotate-180" : ""} transition-all duration-300`} />
+                </div>
+                <div className="flex gap-3">
+                  {index == 3 ? (
+                    <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
+                      <p className="text-green-500 text-sm">กำลังใช้</p>
+                    </div>
+                  ) : null}
+                  <PrimaryButton
+                    handleClick={undefined}
+                    title={"แก้ไข"}
+                    color={"warning"}
+                    Icon={undefined}
+                    reverseIcon={false}
+                  />
+                </div>
+              </div>
+              {expandCardIndex == index ? (
+                <div className="flex flex-col gap-3">
+                  <div className="flex px-4 py-2 text-gray-500 text-sm justify-between">
+                    <p>จำนวนคาบต่อวัน</p>
+                    <p>{item.Details.ClassAmountPerDay} คาบ</p>
+                  </div>
+                  <div className="flex px-4 py-2 text-gray-500 text-sm justify-between">
+                    <p>ระยะเวลาต่อคาบ</p>
+                    <p>{item.Details.ClassDuration} นาที</p>
+                  </div>
+                  <div className="flex px-4 py-2 text-gray-500 text-sm justify-between">
+                    <p>เวลาเริ่มคาบแรก</p>
+                    <p>{item.Details.StartTime} นาฬิกา</p>
+                  </div>
+                  <div className="flex px-4 py-2 text-gray-500 text-sm justify-between">
+                    <p>เวลาพักเทียง</p>
+                    <p>
+                      มัธยมต้น คาบที่ {item.Details.LunchTime.Junior} มัธยมปลาย
+                      คาบที่ {item.Details.LunchTime.Senior}
+                    </p>
+                  </div>
+                  <div className="flex px-4 py-2 mb-3 text-gray-500 text-sm justify-between">
+                    <p>วันที่เรียน</p>
+                    <p>{item.Details.DayOfWeek}</p>
+                  </div>
+                </div>
+              ) : null}
             </div>
-            <div className="flex justify-between items-center gap-3">
-              <p className="text-md text-gray-500">มัธยมต้น</p>
-              <Dropdown
-                width="100%"
-                height="40px"
-                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                currentValue={4}
-                placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
-                  <li className="w-[70px]">{data}</li>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-        {/* Config day of week */}
-        <div className="flex w-full h-[65px] justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <BsCalendar2Day size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดวันในตารางสอน</p>
-          </div>
-          <div className="flex gap-3">
-            <CheckBox label="วันธรรมดา (ค่าเริ่มต้น)" checked={true} />
-            <CheckBox label="วันเสาร์" />
-            <CheckBox label="วันอาทิตย์" />
-          </div>
-        </div>
-        <div className="flex w-full h-[65px] justify-end items-center">
-          {isSaved ? (
-            <p className="text-green-400">บันทึกสำเร็จ !</p>
-          ) : (
-            <button
-              onClick={saved}
-              className="bg-blue-100 hover:bg-blue-200 text-blue-500 duration-300 px-6 py-2 rounded"
-            >
-              บันทึก
-            </button>
-          )}
-        </div>
-      </span>
+          </React.Fragment>
+        ))}
+      </div>
     </>
   );
 }
