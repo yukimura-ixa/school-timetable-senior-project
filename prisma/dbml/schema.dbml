@@ -20,7 +20,7 @@ Table gradelevel {
 
 Table room {
   RoomID Int [pk, increment]
-  RoomName String [not null]
+  RoomName String [unique, not null]
   Building String [not null, default: '-']
   Floor String [not null, default: '-']
 }
@@ -35,7 +35,7 @@ Table subject {
 
 Table program {
   ProgramID Int [pk, increment]
-  ProgramName String [not null]
+  ProgramName String [unique, not null]
 }
 
 Table teacher {

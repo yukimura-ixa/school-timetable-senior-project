@@ -1,13 +1,13 @@
 "use client"
 import React from 'react'
-import { useGradeLevelData } from './hooks/gradeLevelData';
+import { useGradeLevelData } from '../_hooks/gradeLevelData';
 import Loading from '@/app/loading';
 import GradeLevelTable from '@/app/management/gradelevel/component/GradeLevelTable';
 
 type Props = {}
 
 function GradeLevelManage (props: Props) {
-  const { tableData, isLoading, error, mutate } = useGradeLevelData(); //ข้อมูลครูใช้ render
+  const { data, isLoading, error, mutate } = useGradeLevelData();
   return (
     <>
       {isLoading ? (
@@ -15,7 +15,7 @@ function GradeLevelManage (props: Props) {
       ) : (
         <GradeLevelTable
           tableHead={["รหัสชั้นเรียน", "มัธยมปีที่", "ห้องที่", "สายการเรียน"]}
-          tableData={tableData}
+          tableData={data}
           mutate={mutate} 
         />
       )}

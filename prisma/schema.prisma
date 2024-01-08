@@ -41,7 +41,7 @@ model gradelevel {
 
 model room {
   RoomID   Int    @id @default(autoincrement())
-  RoomName String
+  RoomName String @unique
   Building String @default("-")
   Floor    String @default("-")
 
@@ -62,9 +62,9 @@ model subject {
 
 model program {
   ProgramID   Int    @id @default(autoincrement())
-  ProgramName String
+  ProgramName String @unique
 
-  subjects   subject[]
+  subject   subject[]
   gradelevel gradelevel[]
 }
 

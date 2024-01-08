@@ -1,5 +1,4 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 type Props = {};
@@ -11,41 +10,41 @@ function SelectTeacherTimetable(props: Props) {
   const [classRoomValue, setClassRoomValue] = useState("");
   const [searchText, setSearchText] = useState("");
   const [allClassRoom, setAllClassRoom] = useState([]);
-  useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/teacher")
-        .then((res) => {
-          let data: teacher[] = res.data;
-          setTeachers(() => [...data]);
-          setTeachersFilter(() => [...data]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      axios
-        .get("http://localhost:3000/api/classroom_of_allclass")
-        .then((res) => {
-          let data = res.data.map((item) =>
-              item.rooms.map((room) =>
-                parseInt(`${item.Year}${room < 10 ? `0${room}` : room}`)
-              )
-            );
-          let spreadMap = [
-            ...data[0],
-            ...data[1],
-            ...data[2],
-            ...data[3],
-            ...data[4],
-            ...data[5],
-          ];
-          setAllClassRoom(() => spreadMap);
-          // console.log(mapClassRoom());
-        })
-        .catch((err) => console.log(err));
-    };
-    return () => getData();
-  }, []);
+  // useEffect(() => {
+  //   const getData = () => {
+  //     axios
+  //       .get("http://localhost:3000/api/teacher")
+  //       .then((res) => {
+  //         let data: teacher[] = res.data;
+  //         setTeachers(() => [...data]);
+  //         setTeachersFilter(() => [...data]);
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  //     axios
+  //       .get("http://localhost:3000/api/classroom_of_allclass")
+  //       .then((res) => {
+  //         let data = res.data.map((item) =>
+  //             item.rooms.map((room) =>
+  //               parseInt(`${item.Year}${room < 10 ? `0${room}` : room}`)
+  //             )
+  //           );
+  //         let spreadMap = [
+  //           ...data[0],
+  //           ...data[1],
+  //           ...data[2],
+  //           ...data[3],
+  //           ...data[4],
+  //           ...data[5],
+  //         ];
+  //         setAllClassRoom(() => spreadMap);
+  //         // console.log(mapClassRoom());
+  //       })
+  //       .catch((err) => console.log(err));
+  //   };
+  //   return () => getData();
+  // }, []);
   // const mapClassRoom = () => {
   //   let classRoomsmap = allClassRoom.map((item) =>
   //     item.rooms.map((room) =>
@@ -106,12 +105,16 @@ function SelectTeacherTimetable(props: Props) {
             data={allClassRoom}
             width={200}
             renderItem={({ data }): JSX.Element => (
-              <li className="w-full text-sm">ม.{data.toString().slice(0, 1)}/{data.toString().slice(2)}</li>
+              <li className="w-full text-sm">
+                ม.{data.toString().slice(0, 1)}/{data.toString().slice(2)}
+              </li>
             )}
             placeHolder={"ตัวเลือก"}
             currentValue={classRoomValue}
             handleChange={(data: any) => {
-              setClassRoomValue(`ม.${data.toString().slice(0, 1)}/${data.toString().slice(2)}`);
+              setClassRoomValue(
+                `ม.${data.toString().slice(0, 1)}/${data.toString().slice(2)}`
+              );
             }}
             // useSearchBar={true}
             // searchFunciton={searchHandle}

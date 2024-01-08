@@ -9,7 +9,7 @@ export const useTeacherData = () => {
   const { data, error, mutate } = useSWR<teacher[]>(path, fetcher)
 
   return {
-    tableData: data ?? [],
+    data: data ?? [],
     isLoading: !error && !data,
     error,
     mutate,

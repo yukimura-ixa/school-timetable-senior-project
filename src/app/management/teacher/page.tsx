@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
-import { useTeacherData } from "./hooks/teacherData";
+import { useTeacherData } from "../_hooks/teacherData";
 import Loading from "@/app/loading";
 
 function TeacherManage() {
-  const { tableData, isLoading, error, mutate } = useTeacherData(); //ข้อมูลครูใช้ render
+  const { data, isLoading, error, mutate } = useTeacherData(); //ข้อมูลครูใช้ render
 
   return (
     <>
@@ -14,7 +14,7 @@ function TeacherManage() {
       ) : (
         <TeacherTable
           tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
-          tableData={tableData}
+          tableData={data}
           mutate={mutate} 
         />
       )}

@@ -8,7 +8,7 @@ export const useSubjectData = () => {
   })
 
   return {
-    tableData: data ?? [],
+    data: data ?? [],
     isLoading: !error && !data,
     error,
     mutate,

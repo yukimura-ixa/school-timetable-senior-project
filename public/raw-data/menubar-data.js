@@ -42,7 +42,7 @@ export const managementMenu = [
             Icon : HiAcademicCap,
         },
         title : "หลักสูตร",
-        link : "/management/study-program"
+        link : "/management/program"
     }
 ]
 export const scheduleMenu = [
