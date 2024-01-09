@@ -1,12 +1,14 @@
 "use client";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { useEffect, useState } from "react";
+import React, { useState, Fragment } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import AddStudyProgramModal from "./component/AddStudyProgramModal";
 import EditStudyProgramModal from "./component/EditStudyProgramModal";
 import { useProgramData } from "../_hooks/programData";
 import type { program } from "@prisma/client";
+import { useGradeLevelData } from "../_hooks/gradeLevelData";
+import { useSubjectData } from "../_hooks/subjectData";
 
 type Props = {};
 
@@ -16,25 +18,16 @@ function StudyProgram(props: Props) {
 
   const [editProgramModalActive, setEditProgramModalActive] =
     useState<boolean>(false);
-  // const { data, isLoading, error, mutate } = useProgramData();
-  // const [programData, setProgramData] = useState<program[]>(data);
-  // useEffect(() => {
-  //   if (data) {
-  //     setProgramData(data);
-  //   }
-  // }, [data]);
 
   const { data, isLoading, error, mutate } = useProgramData();
   console.log(data);
 
+  const gradelevel = useGradeLevelData();
+  const subject = useSubjectData();
+
   const [editProgram, setEditProgram] = useState({});
   const [editProgramIndex, setEditProgramIndex] = useState<number>(null);
 
-  const confirmEditProgram = (item: any) => {
-    const temp = [...programData];
-    temp[editProgramIndex] = item;
-    setProgramData(temp);
-  };
   return (
     <>
       {addProgramModalActive ? (
@@ -47,12 +40,12 @@ function StudyProgram(props: Props) {
         <EditStudyProgramModal
           lockSchedule={editProgram}
           closeModal={() => setEditProgramModalActive(false)}
-          confirmChange={confirmEditProgram}
+          mutate={mutate}
         />
       ) : null}
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
         {data.map((item, index) => (
-          <React.Fragment key={`${item.ProgramName}${index}`}>
+          <Fragment key={`${item.ProgramName}${index}`}>
             <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
               <div className="flex items-center gap-3">
                 <p className="text-lg font-bold">{item.ProgramName}</p>
@@ -63,20 +56,21 @@ function StudyProgram(props: Props) {
                     setEditProgram(item);
                   }}
                   className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"
-                >
+                ></div>
+                <div className="flex gap-3 w-full justify-end">
                   <TbSettings size={24} className="fill-[#EDEEF3]" />
+                  <TbTrash
+                    size={24}
+                    className="text-red-500 right-6 cursor-pointer hover:bg-gray-100 duration-300"
+                  />
                 </div>
-                <TbTrash
-                  size={24}
-                  className="text-red-500 absolute right-6 cursor-pointer hover:bg-gray-100 duration-300"
-                />
               </div>
               {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
               <div className="flex flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm">ชั้นเรียน</p>
                 <div className="flex flex-wrap w-[365px] h-fit gap-2">
                   {item.gradelevel.map((grade, index) => (
-                    <React.Fragment key={`${grade.GradeID}`}>
+                    <Fragment key={`${grade.GradeID}`}>
                       <MiniButton
                         width={54}
                         height={25}
@@ -105,7 +99,7 @@ function StudyProgram(props: Props) {
                           <p>...</p>
                         </div>
                       ) : null} */}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </div>
               </div>
@@ -114,7 +108,7 @@ function StudyProgram(props: Props) {
                 <p className="text-gray-500 text-sm">รายวิชา</p>
                 <div className="flex flex-wrap w-[365px] h-fit gap-2">
                   {item.subject.map((subject, index) => (
-                    <React.Fragment key={`${subject.SubjectCode}`}>
+                    <Fragment key={`${subject.SubjectCode}`}>
                       {index < 3 ? (
                         <MiniButton
                           // width={54}
@@ -129,12 +123,12 @@ function StudyProgram(props: Props) {
                           <p>...</p>
                         </div>
                       ) : null}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </div>
               </div>
             </div>
-          </React.Fragment>
+          </Fragment>
         ))}
         <div
           onClick={() => setAddProgramModalActive(true)}

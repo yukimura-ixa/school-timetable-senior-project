@@ -93,7 +93,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         return bValue.localeCompare(aValue);
       }
     });
-    // mutate(sortedData, false);
     setSubjectData(sortedData);
   };
 

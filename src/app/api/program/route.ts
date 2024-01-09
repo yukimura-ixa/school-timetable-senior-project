@@ -3,6 +3,7 @@ import type { gradelevel, program, subject } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
+  // query: { ProgramID }
   try {
     const data: program[] = await prisma.program.findMany({
       orderBy: {
@@ -30,6 +31,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // body: { ProgramName, gradelevel: [{ GradeID }], subject: [{ SubjectCode }] }
   try {
     const body = await request.json()
     const isExist = await prisma.program.findUnique({
@@ -69,6 +71,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // body: { ProgramID }
   try {
     const body = await request.json()
     const data = await prisma.program.delete({
@@ -84,6 +87,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // body: { ProgramID, ProgramName, gradelevel: [{ GradeID }], subject: [{ SubjectCode }] }
   try {
     const body = await request.json()
     const data = await prisma.program.update({

@@ -7,6 +7,8 @@ import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
 import { useGradeLevelData } from "../../_hooks/gradeLevelData";
 import { useSubjectData } from "../../_hooks/subjectData";
+import api from "@/libs/axios"
+import { program } from "@prisma/client"
 
 type Props = {
   closeModal: any;
@@ -37,7 +39,13 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     ],
   });
 
-  const addProgram = (program: any) => {};
+  const addProgram = async (program: program) => {
+    const response = await api.post("/program", program);
+    console.log(response);
+    if (response.status === 200) {
+      mutate();
+    }
+  };
 
   const [isEmptyData, setIsEmptyData] = useState({
     ProgramName: false,

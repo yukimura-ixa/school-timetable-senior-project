@@ -15,8 +15,7 @@ datasource db {
 // Define the database schema
 
 model class_schedule {
-  ClassID     Int         @id @default(autoincrement())
-  DayOfWeek   day_of_week
+  ClassID     Int    @id @default(autoincrement())
   TimeslotID  String
   SubjectCode String
   RoomID      Int?
@@ -64,7 +63,7 @@ model program {
   ProgramID   Int    @id @default(autoincrement())
   ProgramName String @unique
 
-  subject   subject[]
+  subject    subject[]
   gradelevel gradelevel[]
 }
 
@@ -79,12 +78,13 @@ model teacher {
 }
 
 model timeslot {
-  TimeslotID   String   @id
+  TimeslotID   String      @id
+  DayOfWeek    day_of_week
   AcademicYear Int
   Semester     semester
-  StartTime    DateTime @db.Time()
-  EndTime      DateTime @db.Time()
-  IsBreaktime  Boolean
+  StartTime    DateTime    @db.Time()
+  EndTime      DateTime    @db.Time()
+  Breaktime    breaktime
 
   class_schedule class_schedule[]
 }
@@ -126,4 +126,10 @@ enum subject_credit {
 enum semester {
   SEMESTER_1
   SEMESTER_2
+}
+
+enum breaktime {
+  BREAK_JUNIOR
+  BREAK_SENIOR
+  NOT_BREAK
 }
