@@ -20,10 +20,6 @@ function StudyProgram(props: Props) {
     useState<boolean>(false);
 
   const { data, isLoading, error, mutate } = useProgramData();
-  console.log(data);
-
-  const gradelevel = useGradeLevelData();
-  const subject = useSubjectData();
 
   const [editProgram, setEditProgram] = useState({});
   const [editProgramIndex, setEditProgramIndex] = useState<number>(null);
@@ -38,9 +34,9 @@ function StudyProgram(props: Props) {
       ) : null}
       {editProgramModalActive ? (
         <EditStudyProgramModal
-          lockSchedule={editProgram}
           closeModal={() => setEditProgramModalActive(false)}
           mutate={mutate}
+          data={editProgram}
         />
       ) : null}
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
@@ -49,16 +45,17 @@ function StudyProgram(props: Props) {
             <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
               <div className="flex items-center gap-3">
                 <p className="text-lg font-bold">{item.ProgramName}</p>
-                <div
-                  onClick={() => {
-                    setEditProgramModalActive(true);
-                    setEditProgramIndex(index);
-                    setEditProgram(item);
-                  }}
-                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"
-                ></div>
+                {/* <div className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"></div> */}
                 <div className="flex gap-3 w-full justify-end">
-                  <TbSettings size={24} className="fill-[#EDEEF3]" />
+                  <TbSettings
+                    size={24}
+                    className="fill-[#EDEEF3]"
+                    onClick={() => {
+                      setEditProgramModalActive(true);
+                      setEditProgramIndex(index);
+                      setEditProgram(item);
+                    }}
+                  />
                   <TbTrash
                     size={24}
                     className="text-red-500 right-6 cursor-pointer hover:bg-gray-100 duration-300"
@@ -78,6 +75,10 @@ function StudyProgram(props: Props) {
                         borderColor="#c7c7c7"
                         titleColor="#4F515E"
                         title={`ม.${grade.Year}/${grade.Number}`}
+                        buttonColor={""}
+                        isSelected={false}
+                        handleClick={undefined}
+                        hoverable={false}
                       />
                       {/* {index < 9 ? (
                         <MiniButton
@@ -117,6 +118,11 @@ function StudyProgram(props: Props) {
                           borderColor="#c7c7c7"
                           titleColor="#4F515E"
                           title={`${subject.SubjectCode}`}
+                          buttonColor={""}
+                          width={""}
+                          isSelected={false}
+                          handleClick={undefined}
+                          hoverable={false}
                         />
                       ) : index < 4 ? (
                         <div className="hover:bg-gray-100 duration-300 w-[100px] h-[25px] border rounded text-center border-[#c7c7c7] text-[#4F515E]">

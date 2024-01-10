@@ -47,12 +47,12 @@ Table teacher {
 
 Table timeslot {
   TimeslotID String [pk]
-  DayOfWeek day_of_week [not null]
   AcademicYear Int [not null]
   Semester semester [not null]
   StartTime DateTime [not null]
   EndTime DateTime [not null]
   Breaktime breaktime [not null]
+  DayOfWeek day_of_week [not null]
 }
 
 Table teachers_responsibility {
@@ -96,9 +96,9 @@ Enum breaktime {
   NOT_BREAK
 }
 
-Ref: class_schedule.RoomID > room.RoomID [delete: Cascade]
-
 Ref: class_schedule.GradeID > gradelevel.GradeID [delete: Cascade]
+
+Ref: class_schedule.RoomID > room.RoomID [delete: Cascade]
 
 Ref: class_schedule.SubjectCode > subject.SubjectCode
 
@@ -108,8 +108,8 @@ Ref: gradelevel.ProgramID > program.ProgramID [delete: Cascade]
 
 Ref: subject.ProgramID > program.ProgramID [delete: Cascade]
 
-Ref: teachers_responsibility.TeacherID > teacher.TeacherID [delete: Cascade]
-
 Ref: teachers_responsibility.GradeID > gradelevel.GradeID [delete: Cascade]
 
 Ref: teachers_responsibility.SubjectCode > subject.SubjectCode [delete: Cascade]
+
+Ref: teachers_responsibility.TeacherID > teacher.TeacherID [delete: Cascade]

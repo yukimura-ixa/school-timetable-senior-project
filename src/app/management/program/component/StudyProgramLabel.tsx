@@ -1,7 +1,7 @@
 import TextField from "@/components/elements/input/field/TextField";
 import React from "react";
 
-type Props = { required: boolean };
+type Props = { required: boolean, title: string, handleChange: any };
 
 const StudyProgramLabel = (props: Props) => {
   return (
@@ -20,18 +20,11 @@ const StudyProgramLabel = (props: Props) => {
         width={275}
         height="auto"
         placeHolder=""
-        value={""}
+        value={props.title}
         // borderColor={
         //   isEmptyData && teacher.Firstname.length == 0 ? "#F96161" : ""
         // }
-        // handleChange={(e: any) => {
-        //   let value: string = e.target.value;
-        //   setTeachers(() =>
-        //     teachers.map((item, ind) =>
-        //       index === ind ? { ...item, Firstname: value } : item
-        //     )
-        //   );
-        // }}
+        handleChange={props.handleChange}
         disabled={false}
       />
     </div>

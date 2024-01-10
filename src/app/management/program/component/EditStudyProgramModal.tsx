@@ -1,71 +1,30 @@
-import SearchBar from "@/components/elements/input/field/SearchBar";
-import MiniButton from "@/components/elements/static/MiniButton";
-import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
+import { program, subject } from "@prisma/client";
+import api from "@/libs/axios";
+
 
 type Props = {
-  lockSchedule: any;
+  data: any
   closeModal: any;
-  confirmChange: any;
+  mutate: any;
 };
 
 function EditStudyProgramModal({
-  lockSchedule,
+  data,
   closeModal,
-  confirmChange,
+  mutate
 }: Props) {
   const [subject, setSubject] = useState([]);
   const [subjectFilter, setSubjectFilter] = useState([]);
-  const [teacher, setTeacher] = useState([]);
-  const [teacherFilter, setTeacherFilter] = useState([]);
-  const [allClassRoom, setAllClassRoom] = useState([
-    { Year: 1, rooms: [] },
-    { Year: 2, rooms: [] },
-    { Year: 3, rooms: [] },
-    { Year: 4, rooms: [] },
-    { Year: 5, rooms: [] },
-    { Year: 6, rooms: [] },
-  ]);
-  const [lockScheduleData, setLockScheduledata] = useState(lockSchedule);
-  useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/subject_lock_schedule")
-        .then((res) => {
-          let data = res.data;
-          setSubject(() => data), setSubjectFilter(() => data);
-        })
-        .catch((err) => console.log(err));
-      axios
-        .get("http://localhost:3000/api/classroom_of_allclass")
-        .then((res) => {
-          let data = res.data;
-          setAllClassRoom(() => data);
-        })
-        .catch((err) => console.log(err));
-      axios
-        .get("http://localhost:3000/api/teacher")
-        .then((res) => {
-          let data = res.data;
-          setTeacher(() => data);
-          setTeacherFilter(() => data);
-        })
-        .catch((err) => console.log(err));
-    };
-    return () => getData();
-  }, []);
-
+  const [programData, setProgramData] = useState(data);
   const [isEmptyData, setIsEmptyData] = useState({
-    Subject: false,
-    DayOfWeek: false,
-    timeSlotID: false,
-    Teachers: false,
-    ClassRooms: false,
-    RoomName : false,
+    ProgramName: false,
+    gradelevel: false,
+    subject: false,
   });
   const [searchText, setSearchText] = useState("");
   const searchName = (name: string) => {
@@ -80,55 +39,38 @@ function EditStudyProgramModal({
     setSearchText(text);
     searchName(text);
   };
-  const [searchTextTeacher, setSearchTextTeacher] = useState("");
-  const searchTeacher = (name: string) => {
+  const [searchTextSubject, setSearchTextSubject] = useState("");
+  const searchSubject = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = teacherFilter.filter((item) =>
-      `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
+    let res = subjectFilter.filter((item) =>
+      `${item.SubjectCode} - ${item.SubjectName}`.match(name)
     );
-    setTeacher(res);
+    setSubject(res);
   };
-  const searchHandleTeacher = (event: any) => {
+  const searchHandleSubject = (event: any) => {
     let text = event.target.value;
-    setSearchTextTeacher(text);
-    searchTeacher(text);
-  };
-  const timeSlotHandleChange = (e: any) => {
-    console.log(e.target.value);
-    let timeSlot = [...lockScheduleData.timeSlotID];
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      timeSlotID: timeSlot.includes(parseInt(e.target.value))
-        ? timeSlot.filter((item) => item !== parseInt(e.target.value))
-        : [...timeSlot, parseInt(e.target.value)].sort(),
-    }));
+    setSearchTextSubject(text);
+    searchSubject(text);
   };
   const classRoomHandleChange = (value: any) => {
-    let grade = [...lockScheduleData.Grade];
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      Grade: grade.map((item) =>
-        item.Year == parseInt(value[0]) //ถ้าชั้นปีที่กดเท่ากับ 1 ก็จะอัปเดตของปีนั้นๆ
-          ? {
-              ...item,
-              ClassRooms: item.ClassRooms.includes(parseInt(value))
-                ? item.ClassRooms.filter((item) => item != parseInt(value))
-                : [...item.ClassRooms, parseInt(value)].sort(),
-            }
-          : item
-      ),
+    let removeDulpItem = programData.gradelevel.filter(
+      (item) => item.GradeID != value.GradeID
+    ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
+    setProgramData(() => ({
+      ...programData,
+      gradelevel:
+        programData.gradelevel.filter(
+          (item) => item.GradeID === value.GradeID //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+        ).length === 0
+          ? [...programData.gradelevel, value]
+          : [...removeDulpItem],
     }));
   };
   const validateData = () => {
     setIsEmptyData(() => ({
-      Subject: lockScheduleData.Subject.SubjectCode.length == 0,
-      DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
-      timeSlotID: lockScheduleData.timeSlotID.length == 0,
-      Teachers: lockScheduleData.Teachers.length == 0,
-      RoomName : lockScheduleData.RoomName == null,
-      ClassRooms:
-        lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
-          .length == 0,
+      ProgramName: programData.ProgramName.length == 0,
+      gradelevel: programData.gradelevel.length == 0,
+      subject: programData.subject.length == 0,
     }));
   };
   useEffect(() => {
@@ -137,60 +79,39 @@ function EditStudyProgramModal({
     };
     return validate();
   }, [
-    lockScheduleData.Subject,
-    lockScheduleData.DayOfWeek,
-    lockScheduleData.timeSlotID,
-    lockScheduleData.Teachers,
-    lockScheduleData.Grade,
-    lockScheduleData.RoomName,
+    programData.ProgramName,
+    programData.gradelevel,
+    programData.subject,
   ]);
+  const editProgram = async (program: program) => {
+    const response = await api.put("/program", program);
+    if (response.status === 200) {
+      mutate();
+    }
+  };
   const editItemAndCloseModal = () => {
-    let cond =
-      isEmptyData.Subject ||
-      isEmptyData.DayOfWeek ||
-      isEmptyData.timeSlotID ||
-      isEmptyData.Teachers ||
-      isEmptyData.RoomName ||
-      isEmptyData.ClassRooms;
+    let cond = isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
     if (cond) {
       validateData();
     } else {
-      confirmChange(lockScheduleData);
+      editProgram(data)
       closeModal();
+      mutate();
+      console.log(programData);
     }
   };
-  const handleSubjectChange = (value: any) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      Subject: value,
+  const removeSubjectFromList = (index: number) => {
+    setProgramData(() => ({
+      ...programData,
+      subject: [...programData.subject.filter((item, ind) => ind != index)],
     }));
   };
-  const handleDayChange = (value: string) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      DayOfWeek: value,
+  const handleAddSubjectList = (subject: subject) => {
+    setProgramData(() => ({
+      ...programData,
+      subject: [...programData.subject, subject],
     }));
-  };
-  const handleRoomChange = (value: string) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      RoomName: value,
-    }));
-  };
-  const handleAddTeacherList = (teacher: any) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      Teachers: [...lockScheduleData.Teachers, teacher],
-    }));
-    setSearchTextTeacher("");
-  };
-  const removeTeacherFromList = (index: number) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      Teachers: [
-        ...lockScheduleData.Teachers.filter((item, ind) => ind != index),
-      ],
-    }));
+    setSearchTextSubject("");
   };
   return (
     <>
@@ -203,25 +124,33 @@ function EditStudyProgramModal({
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p className="text-xl select-none">แก้ไขวิชาล็อก</p>
+            <p className="text-xl select-none">แก้ไขหลักสูตร</p>
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-auto overflow-y-scroll border border-[#EDEEF3]">
-            <StudyProgramLabel required={false} />
+            <StudyProgramLabel
+                required={false}
+                title={programData.ProgramName}
+                handleChange={(e: any) => {
+                  let value: string = e.target.value;
+                  setProgramData(() => ({
+                    ...programData,
+                    ProgramName : value
+                  }));
+                }}
+            />
             <SelectSubjects
-              data={teacher} //props ทุกตัวค่อยมาแก้
-              subjectSelected={lockScheduleData.Teachers}
-              addSubjectFunction={handleAddTeacherList}
-              removeSubjectFunction={removeTeacherFromList}
-              searchHandleSubject={searchHandleTeacher}
-              searchTextSubject={searchTextTeacher}
-              required={isEmptyData.Teachers}
+              subjectSelected={programData.subject}
+              addSubjectFunction={handleAddSubjectList}
+              removeSubjectFunction={removeSubjectFromList}
+              searchHandleSubject={searchHandleSubject}
+              searchTextSubject={searchTextSubject}
+              required={isEmptyData.subject}
             />
             <SelectedClassRoom
-              allClassRoom={allClassRoom}
-              Grade={lockScheduleData.Grade}
+              Grade={programData.gradelevel}
               classRoomHandleChange={classRoomHandleChange}
-              required={isEmptyData.ClassRooms}
+              required={isEmptyData.gradelevel}
             />
           </div>
           <span className="flex w-full justify-end">

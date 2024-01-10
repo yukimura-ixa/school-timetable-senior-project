@@ -2,9 +2,9 @@ import SearchBar from "@/components/elements/input/field/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
+import { useSubjectData } from "../../_hooks/subjectData";
 
 type Props = {
-  data: any;
   subjectSelected: any;
   addSubjectFunction: any;
   removeSubjectFunction: any;
@@ -14,6 +14,7 @@ type Props = {
 };
 
 function SelectSubjects(props: Props) {
+  const { data, isLoading, error, mutate } = useSubjectData();
   return (
     <>
       <div className="flex flex-col gap-5 justify-between w-full">
@@ -40,18 +41,18 @@ function SelectSubjects(props: Props) {
             } absolute right-0 top-11 flex flex-col w-[276px] h-fit bg-white drop-shadow-sm border`}
           >
             <div className="w-full flex flex-col gap-1">
-              {props.data
+              {data
                 .filter((item) => !props.subjectSelected.includes(item))
                 .map((item) => (
                   <Fragment
-                    key={`searchteacher${item.TeacherID} ${item.Firstname}`}
+                    key={`searchsubject${item.SubjectCode} ${item.SubjectName}`}
                   >
                     <li
                       onClick={() => props.addSubjectFunction(item)}
                       className="flex h-[60px] items-center hover:bg-cyan-100 hover:text-cyan-600 p-3 cursor-pointer duration-300"
                     >
                       <p className="text-sm">
-                        {item.Firstname} {item.Lastname} - {item.Department}
+                        {item.SubjectCode} - {item.SubjectName}
                       </p>
                     </li>
                   </Fragment>
@@ -61,11 +62,11 @@ function SelectSubjects(props: Props) {
         </div>
         <div className="flex flex-wrap gap-3 justify-end">
           {props.subjectSelected.map((item, index) => (
-            <Fragment key={`teacherSelected${item.TeacherID}`}>
+            <Fragment key={`subjectSelected${item.SubjectCode}`}>
               <MiniButton
                 handleClick={() => props.removeSubjectFunction(index)}
                 isSelected={true}
-                title={`${item.Firstname} - ${item.Department}`}
+                title={`${item.SubjectCode} - ${item.SubjectName}`}
                 border={true}
                 buttonColor={""}
                 titleColor={""}

@@ -1,14 +1,10 @@
-import SearchBar from "@/components/elements/input/field/SearchBar";
-import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, use, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import { useGradeLevelData } from "../../_hooks/gradeLevelData";
-import { useSubjectData } from "../../_hooks/subjectData";
-import api from "@/libs/axios"
-import { program } from "@prisma/client"
+import api from "@/libs/axios";
+import { program, subject } from "@prisma/client";
 
 type Props = {
   closeModal: any;
@@ -16,32 +12,17 @@ type Props = {
 };
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
-
-  const gradelevel = useGradeLevelData();
-  const allClassRoom = gradelevel.data;
-  const subjectData = useSubjectData();
-  
   const [subject, setSubject] = useState([]);
   const [subjectFilter, setSubjectFilter] = useState([]);
   const [teacherFilter, setTeacherFilter] = useState([]);
 
   const [newProgramData, setNewProgramData] = useState({
     ProgramName: "",
-    gradelevel: [
-      {
-        GradeID: "",
-      },
-    ],
-    subject: [
-      {
-        SubjectCode: "",
-      },
-    ],
+    gradelevel: [],
+    subject: [],
   });
-
   const addProgram = async (program: program) => {
     const response = await api.post("/program", program);
-    console.log(response);
     if (response.status === 200) {
       mutate();
     }
@@ -66,42 +47,37 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     searchName(text);
   };
   const [searchTextSubject, setSearchTextSubject] = useState("");
-  const searchTeacher = (name: string) => {
+  const searchSubject = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = teacherFilter.filter((item) =>
-      `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
+    let res = subjectFilter.filter((item) =>
+      `${item.SubjectCode} - ${item.SubjectName}`.match(name)
     );
-    setTeacher(res);
+    setSubject(res);
   };
   const searchHandleSubject = (event: any) => {
     let text = event.target.value;
     setSearchTextSubject(text);
-    searchTeacher(text);
-  };
-
-  const classRoomHandleChange = (value: any) => {
-    console.log(value);
-    // let grade = [...lockScheduleData.Grade];
-    // setLockScheduledata(() => ({
-    //   ...lockScheduleData,
-    //   Grade: grade.map((item) =>
-    //     item.Year == parseInt(value[0]) //ถ้าชั้นปีที่กดเท่ากับ 1 ก็จะอัปเดตของปีนั้นๆ
-    //       ? {
-    //           ...item,
-    //           ClassRooms: item.ClassRooms.includes(parseInt(value))
-    //             ? item.ClassRooms.filter((item) => item != parseInt(value))
-    //             : [...item.ClassRooms, parseInt(value)].sort(),
-    //         }
-    //       : item
-    //   ),
-    // })
-    // );
+    searchSubject(text);
   };
   const validateData = () => {
     setIsEmptyData(() => ({
       ProgramName: newProgramData.ProgramName.length == 0,
       gradelevel: newProgramData.gradelevel.length == 0,
       subject: newProgramData.subject.length == 0,
+    }));
+  };
+  const classRoomHandleChange = (value: any) => {
+    let removeDulpItem = newProgramData.gradelevel.filter(
+      (item) => item.GradeID != value.GradeID
+    ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
+    setNewProgramData(() => ({
+      ...newProgramData,
+      gradelevel:
+        newProgramData.gradelevel.filter(
+          (item) => item.GradeID === value.GradeID //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+        ).length === 0
+          ? [...newProgramData.gradelevel, value]
+          : [...removeDulpItem],
     }));
   };
   useEffect(() => {
@@ -114,6 +90,19 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     newProgramData.gradelevel,
     newProgramData.subject,
   ]);
+  const handleAddSubjectList = (subject: subject) => {
+    setNewProgramData(() => ({
+      ...newProgramData,
+      subject: [...newProgramData.subject, subject],
+    }));
+    setSearchTextSubject("");
+  };
+  const removeSubjectFromList = (index: number) => {
+    setNewProgramData(() => ({
+      ...newProgramData,
+      subject: [...newProgramData.subject.filter((item, ind) => ind != index)],
+    }));
+  };
   const addItemAndCloseModal = () => {
     let cond =
       isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
@@ -140,18 +129,26 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-auto overflow-y-scroll border border-[#EDEEF3]">
-            <StudyProgramLabel required={false} />
+            <StudyProgramLabel
+              required={false}
+              title={newProgramData.ProgramName}
+              handleChange={(e: any) => {
+                let value: string = e.target.value;
+                setNewProgramData(() => ({
+                  ...newProgramData,
+                  ProgramName : value
+                }));
+              }}
+            />
             <SelectSubjects
-              data={subject} //props ทุกตัวค่อยมาแก้
               subjectSelected={newProgramData.subject}
-              addSubjectFunction={handleAddTeacherList}
-              removeSubjectFunction={removeTeacherFromList}
+              addSubjectFunction={handleAddSubjectList}
+              removeSubjectFunction={removeSubjectFromList}
               searchHandleSubject={searchHandleSubject}
               searchTextSubject={searchTextSubject}
               required={isEmptyData.subject}
             />
             <SelectedClassRoom
-              allClassRoom={allClassRoom}
               Grade={newProgramData.gradelevel}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.gradelevel}
