@@ -2,7 +2,6 @@
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import React, { useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 type Props = {};
 
@@ -87,16 +86,15 @@ function TableConfig({}: Props) {
           />
         </div>
       </div>
-      <div className="flex flex-col-reverse gap-4">
+      <div className={`flex flex-col-reverse gap-4`}>
         {timeTableConfigList.map((item, index) => (
-          <React.Fragment key={`${item.Semester}/${item.Year}`}>
-            <div className="flex flex-col cursor-pointer border" onClick={() => setExpandCardIndex(() => expandCardIndex == index ? null : index)}>
-              <div className="flex p-2 justify-between">
+          <React.Fragment key={`${item.Semester}/${item.Year}`}> 
+            <div className={`flex flex-col cursor-pointer border bg-white`} onClick={() => setExpandCardIndex(() => expandCardIndex == index ? null : index)}>
+              <div className="flex p-3 justify-between">
                 <div className="flex gap-3 items-center">
                   <p className="text-sm select-none">
                     {item.Semester}/{item.Year}
                   </p>
-                  {/* {index == expandCardIndex ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />} */}
                   <KeyboardArrowDownIcon className={`${index == expandCardIndex ? "rotate-180" : ""} transition-all duration-300`} />
                 </div>
                 <div className="flex gap-3">
@@ -105,6 +103,7 @@ function TableConfig({}: Props) {
                       <p className="text-green-500 text-sm">กำลังใช้</p>
                     </div>
                   ) : null}
+                  {/* พาไปหน้าปรับตั้งค่า พร้อมกับส่งเทอมและปีการศึกษาลงไป */}
                   <PrimaryButton
                     handleClick={undefined}
                     title={"แก้ไข"}
@@ -129,7 +128,7 @@ function TableConfig({}: Props) {
                     <p>{item.Details.StartTime} นาฬิกา</p>
                   </div>
                   <div className="flex px-4 py-2 text-gray-500 text-sm justify-between">
-                    <p>เวลาพักเทียง</p>
+                    <p>เวลาพักเที่ยง</p>
                     <p>
                       มัธยมต้น คาบที่ {item.Details.LunchTime.Junior} มัธยมปลาย
                       คาบที่ {item.Details.LunchTime.Senior}

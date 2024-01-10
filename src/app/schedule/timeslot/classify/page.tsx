@@ -5,6 +5,7 @@ import ClassroomResponsibility from './teacher_responsibility/page';
 import { HiLockClosed } from 'react-icons/hi2';
 import { usePathname, useRouter } from 'next/navigation';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import Link from 'next/link';
 type Props = {}
 
 function ClassifySubject (props: Props) {
@@ -15,10 +16,10 @@ function ClassifySubject (props: Props) {
     <>
       <div className='w-full flex justify-between items-center py-6'>
         <h1 className='text-xl font-bold'>ตารางสอน เทอม 1 ปีการศึกษา 2566</h1>
-        <div className='flex gap-3 items-center justify-between cursor-pointer'>
+        <Link className='flex gap-3 items-center justify-between cursor-pointer' href={'/select-semester'}>
           <KeyboardBackspaceIcon className='fill-gray-500' />
           <p className='select-none text-gray-500 text-sm'>เปลี่ยนเทอม</p>
-        </div>
+        </Link>
       </div>  
       <div className='flex flex-col gap-3'>
         <div className='flex pt-5 w-full h-fit border-b'>
