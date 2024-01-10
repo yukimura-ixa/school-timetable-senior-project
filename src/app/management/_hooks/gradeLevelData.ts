@@ -7,11 +7,10 @@ export const useGradeLevelData = () => {
 
   const path = `/gradelevel`
   const { data, error, mutate } = useSWR<gradelevel[]>(path, fetcher, {
-    refreshInterval: 10000,
   })
 
   return {
-    tableData: data ?? [],
+    data: data ?? [],
     isLoading: !error && !data,
     error,
     mutate,

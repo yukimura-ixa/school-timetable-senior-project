@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import SubjectTable from "@/app/management/subject/component/SubjectTable";
-import { useSubjectData } from "./hooks/subjectData";
+import { useSubjectData } from "../_hooks/subjectData";
 import Loading from "@/app/loading";
 
 function SubjectManage() {
-  const { tableData, isLoading, error, mutate } = useSubjectData();
+  const { data, isLoading, error, mutate } = useSubjectData();
   return (
     <>
       {isLoading ? (
@@ -13,7 +13,7 @@ function SubjectManage() {
       ) : (
         <SubjectTable
         tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "กลุ่มสาระ"]}
-        tableData={tableData}
+        tableData={data}
         mutate={mutate}
       />
       )}

@@ -3,6 +3,7 @@ import type { gradelevel } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
+
   try {
     const data: gradelevel[] = await prisma.gradelevel.findMany({
       orderBy: {
@@ -17,6 +18,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // body: { GradeProgram, Year, Number }
   try {
     const body = await request.json()
     const data = await Promise.all(
@@ -58,6 +60,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // body: { GradeID, GradeProgram, Year, Number }
   try {
     const body = await request.json()
     const data = await Promise.all(

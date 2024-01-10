@@ -1,5 +1,4 @@
 "use client";
-import axios from "axios";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";

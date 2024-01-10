@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import RoomsTable from "@/app/management/rooms/component/RoomsTable";
-import { useRoomData } from "./hooks/roomData";
+import { useRoomData } from "../_hooks/roomData"
 import Loading from "@/app/loading";
 function RoomsManage() {
-  const { tableData, isLoading, error, mutate } = useRoomData();
+  const { data, isLoading, error, mutate } = useRoomData();
   return (
     <>
       {isLoading ? (
@@ -12,7 +12,7 @@ function RoomsManage() {
       ) : (
         <RoomsTable
           tableHead={["ชื่อห้อง", "อาคาร", "ชั้น"]}
-          tableData={tableData}
+          tableData={data}
           mutate={mutate}
         />
       )}

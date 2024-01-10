@@ -4,7 +4,6 @@
 
 Table class_schedule {
   ClassID Int [pk, increment]
-  DayOfWeek day_of_week [not null]
   TimeslotID String [not null]
   SubjectCode String [not null]
   RoomID Int
@@ -20,7 +19,7 @@ Table gradelevel {
 
 Table room {
   RoomID Int [pk, increment]
-  RoomName String [not null]
+  RoomName String [unique, not null]
   Building String [not null, default: '-']
   Floor String [not null, default: '-']
 }
@@ -35,7 +34,7 @@ Table subject {
 
 Table program {
   ProgramID Int [pk, increment]
-  ProgramName String [not null]
+  ProgramName String [unique, not null]
 }
 
 Table teacher {
@@ -48,11 +47,12 @@ Table teacher {
 
 Table timeslot {
   TimeslotID String [pk]
+  DayOfWeek day_of_week [not null]
   AcademicYear Int [not null]
   Semester semester [not null]
   StartTime DateTime [not null]
   EndTime DateTime [not null]
-  IsBreaktime Boolean [not null]
+  Breaktime breaktime [not null]
 }
 
 Table teachers_responsibility {
@@ -88,6 +88,12 @@ Enum subject_credit {
 Enum semester {
   SEMESTER_1
   SEMESTER_2
+}
+
+Enum breaktime {
+  BREAK_JUNIOR
+  BREAK_SENIOR
+  NOT_BREAK
 }
 
 Ref: class_schedule.RoomID > room.RoomID [delete: Cascade]
