@@ -18,14 +18,14 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // body: { GradeProgram, Year, Number }
+  // body: [{ Year, Number }]
   try {
     const body = await request.json()
     const data = await Promise.all(
       body.map(async (element) => {
         return await prisma.gradelevel.create({
           data: {
-            GradeID: element.GradeID,
+            GradeID: element.Year + '0' + element.Number,
             ProgramID: null,
             Year: element.Year,
             Number: element.Number,
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // body: [GradeID]
   try {
     const body = await request.json()
     const data = await prisma.gradelevel.deleteMany({
@@ -60,7 +61,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  // body: { GradeID, GradeProgram, Year, Number }
+  // body: [{ GradeID, Year, Number }]
   try {
     const body = await request.json()
     const data = await Promise.all(
@@ -70,7 +71,7 @@ export async function PUT(request: NextRequest) {
             GradeID: element.GradeID,
           },
           data: {
-            ProgramID: element.GradeProgram,
+            // ProgramID: element.ProgramID,
             Year: element.Year,
             Number: element.Number,
           },
