@@ -70,8 +70,15 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
     if (!tableData) return; // Handle case when data is not yet available
 
     const sortedData = [...tableData].sort((a, b) => {
-      const aValue = a[key].toLowerCase();
-      const bValue = b[key].toLowerCase();
+      let aValue: string | undefined;
+      let bValue: string | undefined;
+      if (typeof a[key] === "number" && typeof b[key] === "number") {
+        aValue = a[key]?.toString() || "";
+        bValue = b[key]?.toString() || "";
+      } else {
+        aValue = String(a[key] || "").toLowerCase(); // Convert to string and handle undefined values
+        bValue = String(b[key] || "").toLowerCase(); // Convert to string and handle undefined values
+      }
 
       if (direction === "asc") {
         return aValue.localeCompare(bValue);
@@ -118,7 +125,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const requestSort = (key) => {
     if (key == "มัธยมปีที่") key = "Year";
     else if (key == "ห้องที่") key = "Number";
-    else if (key == "สายการเรียน") key = "ProgramName";
+    else if (key == "สายการเรียน") key = "ProgramID";
     else key = "GradeID";
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
