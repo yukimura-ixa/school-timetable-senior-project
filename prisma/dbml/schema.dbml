@@ -93,6 +93,7 @@ Enum semester {
 Enum breaktime {
   BREAK_JUNIOR
   BREAK_SENIOR
+  BREAK_BOTH
   NOT_BREAK
 }
 
