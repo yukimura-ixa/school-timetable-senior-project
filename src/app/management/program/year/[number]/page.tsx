@@ -8,7 +8,9 @@ import Loading from "@/app/loading";
 import { useProgramData } from "@/app/management/_hooks/programData";
 import AddStudyProgramModal from "../../component/AddStudyProgramModal";
 import EditStudyProgramModal from "../../component/EditStudyProgramModal";
-
+import { useParams } from "next/navigation";
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import Link from "next/link";
 type Props = {};
 
 function StudyProgram(props: Props) {
@@ -22,6 +24,7 @@ function StudyProgram(props: Props) {
 
   const [editProgram, setEditProgram] = useState({});
   const [editProgramIndex, setEditProgramIndex] = useState<number>(null);
+  const params = useParams(); //get params
 
   return (
     <>
@@ -39,6 +42,13 @@ function StudyProgram(props: Props) {
         />
       ) : null}
       {/* <AllStudyProgram /> */}
+      <div className="flex justify-between my-4">
+        <h1 className="text-xl font-bold">หลักสูตรมัธยมศึกษาปีที่ {params.number}</h1>
+        <Link href={'/management/program'} className="flex gap-3 cursor-pointer">
+          <KeyboardBackspaceIcon />
+          <p className="text-sm">ย้อนกลับ</p>
+        </Link>
+      </div>
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
         {data.length == 0 ? ( //if data fetch is unsuccessed -> show loading component
           <Loading /> //Loading component
