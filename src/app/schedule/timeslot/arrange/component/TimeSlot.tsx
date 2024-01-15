@@ -171,18 +171,20 @@ function TimeSlot(props: Props) {
     if (!destination) return;
 
     if(source.droppableId !== destination.droppableId){
-      if(source.destination !== 'SUBJECT') {
+      if(source.droppableId == 'SUBJECT') {
         let tempSource = subjects[source.index]
-        setTestDndData(() => subjects.filter((item, index) => index !== source.index))
         setEmptySlot(() => timeSlot.map((item, index) => item.id === destination.droppableId ? {id : item.id, name : tempSource.name} : item))
+        setTestDndData(() => subjects.filter((item, index) => index !== source.index))
       }
-      // else {
-      //   let tempSource = 
-      // }
+      else if(source.droppableId.substring(0, 8) == 'DROPZONE' && source.droppableId.substring(0, 8) == 'DROPZONE'){
+        let tempSource = emptySlot.filter((item) => item.id == source.droppableId)[0]; //เอาค่าของ source
+        let tempDestination = emptySlot.filter((item) => item.id == destination.droppableId)[0]; //เอาค่าของ destination มาเก็บไว้
+        let map1 = emptySlot.map((item) => item.id == source.droppableId ? tempSource : item.id == destination.droppableId ? tempDestination : item) //map item ตามเงื่อนไข
+        setEmptySlot(() => map1) //set state
+      }
     }
-    // setTestDndData(subjects);
-    // setEmptySlot(timeSlot);
     console.log(result)
+    console.log(`${source.droppableId} ${destination.droppableId}`)
   }
   return (
     <>
@@ -254,9 +256,7 @@ function TimeSlot(props: Props) {
                         {(provided) => (
                           <div className="flex w-full text-xs justify-center items-center" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
                             <div>
-                                <p>ค22101</p>
-                                <p>คณิต</p>
-                                <p>442</p>
+                                {item.name}
                             </div>
                             {/* <MdDelete
                               size={20}
