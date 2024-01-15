@@ -4,7 +4,6 @@ import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { subject_in_slot } from "@/raw-data/subject_in_slot";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-// import Draggable, {DraggableCore} from 'react-draggable'; // Both at the same time
 type Props = {};
 
 function TimeSlot(props: Props) {
@@ -166,26 +165,46 @@ function TimeSlot(props: Props) {
   };
   const dragAndDropSubject = (result) => {
     const { source, destination, type } = result;
-    const subjects = Array.from(testDndData) //รายวิชาที่ลงได้
-    const timeSlot = Array.from(emptySlot) //ช่องตาราง
+    const subjects = Array.from(testDndData); //รายวิชาที่ลงได้
+    const timeSlot = Array.from(emptySlot); //ช่องตาราง
     if (!destination) return;
 
-    if(source.droppableId !== destination.droppableId){
-      if(source.droppableId == 'SUBJECT') {
-        let tempSource = subjects[source.index]
-        setEmptySlot(() => timeSlot.map((item, index) => item.id === destination.droppableId ? {id : item.id, name : tempSource.name} : item))
-        setTestDndData(() => subjects.filter((item, index) => index !== source.index))
-      }
-      else if(source.droppableId.substring(0, 8) == 'DROPZONE' && source.droppableId.substring(0, 8) == 'DROPZONE'){
-        let tempSource = emptySlot.filter((item) => item.id == source.droppableId)[0]; //เอาค่าของ source
-        let tempDestination = emptySlot.filter((item) => item.id == destination.droppableId)[0]; //เอาค่าของ destination มาเก็บไว้
-        let map1 = emptySlot.map((item) => item.id == source.droppableId ? tempSource : item.id == destination.droppableId ? tempDestination : item) //map item ตามเงื่อนไข
-        setEmptySlot(() => map1) //set state
+    if (source.droppableId !== destination.droppableId) {
+      if (source.droppableId == "SUBJECT") {
+        let tempSource = subjects[source.index];
+        setEmptySlot(() =>
+          timeSlot.map((item, index) =>
+            item.id === destination.droppableId
+              ? { id: item.id, name: tempSource.name }
+              : item
+          )
+        );
+        setTestDndData(() =>
+          subjects.filter((item, index) => index !== source.index)
+        );
+      } else if (
+        source.droppableId.substring(0, 8) == "DROPZONE" &&
+        source.droppableId.substring(0, 8) == "DROPZONE"
+      ) {
+        let tempSource = emptySlot.filter(
+          (item) => item.id == source.droppableId
+        )[0]; //เอาค่าของ source
+        let tempDestination = emptySlot.filter(
+          (item) => item.id == destination.droppableId
+        )[0]; //เอาค่าของ destination มาเก็บไว้
+        let map1 = emptySlot.map((item) =>
+          item.id == source.droppableId
+            ? tempSource
+            : item.id == destination.droppableId
+              ? tempDestination
+              : item
+        ); //map item ตามเงื่อนไข
+        setEmptySlot(() => map1); //set state
       }
     }
-    console.log(result)
-    console.log(`${source.droppableId} ${destination.droppableId}`)
-  }
+    console.log(result);
+    console.log(`${source.droppableId} ${destination.droppableId}`);
+  };
   return (
     <>
       {isActiveModal ? (
@@ -221,15 +240,14 @@ function TimeSlot(props: Props) {
                         {(provided, snapshot) => (
                           <div
                             className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] rounded border duration-300 border-[#EDEEF3] cursor-pointer select-none ${
-                              snapshot.isDragging
-                                ? "bg-green-300"
-                                : "bg-white"
+                              snapshot.isDragging ? "bg-green-300" : "bg-white"
                             }`}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                             ref={provided.innerRef}
                           >
                             <p>{item.name}</p>
+                            <p>{item.id}</p>
                           </div>
                         )}
                       </Draggable>
@@ -251,21 +269,30 @@ function TimeSlot(props: Props) {
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                     >
-                      {!item.name ? <p>Dropzone</p> :
-                      <Draggable draggableId={item.id} key={item.id} index={index}>
-                        {(provided) => (
-                          <div className="flex w-full text-xs justify-center items-center" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
-                            <div>
-                                {item.name}
-                            </div>
-                            {/* <MdDelete
+                      {!item.name ? (
+                        <p>Dropzone</p>
+                      ) : (
+                        <Draggable
+                          draggableId={item.id}
+                          key={item.id}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              className="flex w-full text-xs justify-center items-center border bg-white"
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
+                              ref={provided.innerRef}
+                            >
+                              <div>{item.name}</div>
+                              {/* <MdDelete
                               size={20}
                               className="fill-red-400 hover:fill-red-500 duration-300"
                             /> */}
-                          </div>
-                        )}
-                      </Draggable>
-                      }
+                            </div>
+                          )}
+                        </Draggable>
+                      )}
                       {/* {emptySlot.map((item, index) => (
                       <Draggable draggableId={item.id} key={item.id} index={index}>
                         {(provided) => (

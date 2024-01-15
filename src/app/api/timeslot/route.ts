@@ -1,20 +1,41 @@
 import prisma from "@/libs/prisma"
 import { NextRequest, NextResponse } from "next/server"
 import type { timeslot } from "@prisma/client"
-import { day_of_week, breaktime } from "@prisma/client"
+import { day_of_week, breaktime, semester } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
-    // query: { TimeslotID }
+    // search: { AcademicYear, Semester }
     try {
+        const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+        const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+        console.log(AcademicYear, Semester)
         const data: timeslot[] = await prisma.timeslot.findMany({
-            orderBy: {
-                TimeslotID: "asc",
+            where: {
+                AcademicYear: AcademicYear,
+                Semester: Semester,
             },
+        })
+
+        // sort by day and slot
+        data.sort((a, b) => {
+            const days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+            const dayA = days.indexOf(a.DayOfWeek)
+            const dayB = days.indexOf(b.DayOfWeek)
+            const slotA = parseInt((a.TimeslotID.split("-")[1]).substring(3))
+            const slotB = parseInt((b.TimeslotID.split("-")[1]).substring(3))
+
+            if (dayA === dayB) {
+                if (slotA < slotB) return -1
+                if (slotA > slotB) return 1
+            }
+            if (dayA < dayB) return -1
+            if (dayA > dayB) return 1
+            return 0
+
         })
         return NextResponse.json(data)
     } catch (error) {
-        console.log(error)
-        return NextResponse.error()
+        return NextResponse.json({ error: error }, { status: 500 })
     }
 }
 
@@ -62,8 +83,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(data)
     } catch (error) {
-        console.log(error)
-        return NextResponse.error()
+        return NextResponse.json({ error: error }, { status: 500 })
     }
 }
 
@@ -91,7 +111,6 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json(data)
     } catch (error) {
-        console.log(error)
-        return NextResponse.error()
+        return NextResponse.json({ error: error }, { status: 500 })
     }
 }

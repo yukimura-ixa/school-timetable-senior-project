@@ -63,10 +63,12 @@ model subject {
 }
 
 model program {
-  ProgramID   Int          @id @default(autoincrement())
-  ProgramName String       @unique
-  gradelevel  gradelevel[]
-  subject     subject[]
+  ProgramID    Int          @id @default(autoincrement())
+  ProgramName  String       @unique
+  AcademicYear Int  // NOT SURE
+  Semester     semester
+  gradelevel   gradelevel[]
+  subject      subject[]
 }
 
 model teacher {

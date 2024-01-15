@@ -25,8 +25,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.error()
+    return NextResponse.json({ error: error }, { status: 500 })
   }
 }
 
@@ -65,8 +64,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.error()
+    return NextResponse.json({ error: error }, { status: 500 })
   }
 }
 
@@ -116,7 +114,6 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.error()
+    return NextResponse.json({ error: error }, { status: 500 })
   }
 }
