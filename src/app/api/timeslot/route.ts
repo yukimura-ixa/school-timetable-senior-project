@@ -40,7 +40,27 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    // body: { TimeslotPerDay, AcademicYear, Semester, Duration, BreakTimeslots, Days, StartTime}
+    /*
+    {
+    "Days": [
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI"
+    ],
+    "AcademicYear": 2566,
+    "Semester": "SEMESTER_2",
+    "StartTime": "08:30",
+    "BreakTimeslots": {
+        "Junior": 4,
+        "Senior": 5
+    },
+    "Duration": 50,
+    "TimeslotPerDay": 10
+    }
+    */
+
     try {
         const body = await request.json()
         console.log(body)
