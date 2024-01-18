@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import React from "react";
 import Menubar from "./Menubar";
 import DashboardMenubar from "./DashboardMenubar";
-import Dropdown from "../elements/input/selected_input/Dropdown";
+import Schedule from "@/app/schedule/[semesterAndyear]/page";
 
 type Props = {
   children: React.ReactNode;
@@ -22,21 +22,18 @@ function Content(props: Props) {
           <DashboardMenubar />
           <span className="w-[1190px] h-auto px-16 py-2">{props.children}</span>
         </>
-      ) : (
+      ) : (pathName.match('/arrange') || pathName.match('/assign') || pathName.match('/lock') || pathName.match('/config')) ? 
         <>
           <Menubar />
           <span className="flex flex-col w-[1190px] h-auto px-16 py-2">
-            {/* <div className="flex w-full h-16 border-b items-center justify-between">
-              <p>ปีการศึกษา</p>
-              <Dropdown
-                data={[2565, 2566, 2567, 2568]}
-                renderItem={({data}) => (<p>{data}</p>)}
-                currentValue={2566}
-                handleChange={undefined}
-                width={150}
-                // searchFunciton={undefined}
-              />
-            </div> */}
+            <Schedule />
+            {props.children}
+          </span>
+        </> 
+        : (
+        <>
+          <Menubar />
+          <span className="flex flex-col w-[1190px] h-auto px-16 py-2">
             {props.children}
           </span>
         </>

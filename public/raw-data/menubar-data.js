@@ -46,14 +46,14 @@ export const managementMenu = [
     }
 ]
 export const scheduleMenu = [
-    {
-        id : "timetableconfig",
-        IconStyle : {
-            Icon : AiFillSetting,
-        },
-        title : "ตั้งค่าตารางสอน",
-        link : "/schedule/tableconfig"
-    },
+    // {
+    //     id : "timetableconfig",
+    //     IconStyle : {
+    //         Icon : AiFillSetting,
+    //     },
+    //     title : "ตั้งค่าตารางสอน",
+    //     link : "/schedule/tableconfig"
+    // },
     {
         id : "arrangetimetable",
         IconStyle : {
@@ -61,7 +61,7 @@ export const scheduleMenu = [
         },
         title : "จัดตารางสอน",
         // link : ["/schedule/timeslot/semester/1/classify", "/schedule/timeslot/semester/2/classify"] //default path
-        link : "/schedule/timeslot/classify"
+        link : "/schedule/select-semester"
     },
     {
         id : "showtimetable",
