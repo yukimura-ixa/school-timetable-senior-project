@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import SubjectTable from "@/app/management/subject/component/SubjectTable";
-import { useSubjectData } from "../_hooks/subjectData";
+import { useSubjectData } from "../../_hooks/subjectData";
 import Loading from "@/app/loading";
 
 function SubjectManage() {

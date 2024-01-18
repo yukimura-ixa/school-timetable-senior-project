@@ -3,7 +3,7 @@
 //// ------------------------------------------------------
 
 Table class_schedule {
-  ClassID Int [pk, increment]
+  ClassID String [pk]
   TimeslotID String [not null]
   SubjectCode String [not null]
   RoomID Int
@@ -35,6 +35,8 @@ Table subject {
 Table program {
   ProgramID Int [pk, increment]
   ProgramName String [unique, not null]
+  AcademicYear Int [not null]
+  Semester semester [not null]
 }
 
 Table teacher {

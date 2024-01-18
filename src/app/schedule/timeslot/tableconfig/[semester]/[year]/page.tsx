@@ -6,7 +6,7 @@ import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
 import { MdSchool, MdLunchDining } from "react-icons/md";
 import { TbTimeDuration45 } from "react-icons/tb";
-import Counter from "../../component/Counter";
+import Counter from "../tableconfig/component/Counter";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { Snackbar, Alert } from "@mui/material";
@@ -23,14 +23,12 @@ function TimetableConfigValue({}: Props) {
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const saved = () => {
-    snackBarHandle("SAVED")
+    snackBarHandle("SAVED");
   };
   const snackBarHandle = (commitMsg: string): void => {
     setIsSnackBarOpen(true);
     setSnackBarMsg(
-      commitMsg == "SAVED"
-        ? "บันทึกการตั้งค่าสำเร็จ!"
-        : "รีเซ็ทข้อมูลสำเร็จ!"
+      commitMsg == "SAVED" ? "บันทึกการตั้งค่าสำเร็จ!" : "รีเซ็ทข้อมูลสำเร็จ!"
     );
   };
   return (

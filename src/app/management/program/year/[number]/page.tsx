@@ -5,7 +5,7 @@ import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import type { program } from "@prisma/client";
 import Loading from "@/app/loading";
-import { useProgramData } from "@/app/management/_hooks/programData";
+import { useProgramData } from "@/app/_hooks/programData";
 import AddStudyProgramModal from "../../component/AddStudyProgramModal";
 import EditStudyProgramModal from "../../component/EditStudyProgramModal";
 import { useParams } from "next/navigation";

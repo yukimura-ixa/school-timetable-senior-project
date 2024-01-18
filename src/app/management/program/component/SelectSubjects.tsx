@@ -2,7 +2,7 @@ import SearchBar from "@/components/elements/input/field/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
-import { useSubjectData } from "../../_hooks/subjectData";
+import { useSubjectData } from "../../../_hooks/subjectData";
 
 type Props = {
   subjectSelected: any;

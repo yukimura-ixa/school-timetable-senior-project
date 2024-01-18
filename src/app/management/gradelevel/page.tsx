@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { useGradeLevelData } from '../_hooks/gradeLevelData';
+import { useGradeLevelData } from '../../_hooks/gradeLevelData';
 import Loading from '@/app/loading';
 import GradeLevelTable from '@/app/management/gradelevel/component/GradeLevelTable';
 

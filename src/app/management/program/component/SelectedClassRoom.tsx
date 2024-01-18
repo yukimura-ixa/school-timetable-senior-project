@@ -1,7 +1,7 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
-import { useGradeLevelData } from "../../_hooks/gradeLevelData";
+import { useGradeLevelData } from "../../../_hooks/gradeLevelData";
 
 type Props = {
   Grade: any;

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
-import { useTeacherData } from "../_hooks/teacherData";
+import { useTeacherData } from "../../_hooks/teacherData";
 import Loading from "@/app/loading";
 
 function TeacherManage() {
