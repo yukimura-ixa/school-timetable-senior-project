@@ -2,10 +2,10 @@ import useSWR, { preload } from "swr"
 import type { timeslot } from "@prisma/client"
 import { fetcher } from "@/libs/axios"
 
-export const useTimeslotData = () => {
+export const useTimeslotData = (academicYear: number, semester: string) => {
   preload(`/timeslot`, fetcher)
 
-  const path = `/timeslot`
+  const path = `/timeslot?AcademicYear=${academicYear}&Semester=${semester}`
   const { data, error, mutate } = useSWR<timeslot[]>(path, fetcher)
 
   return {
@@ -14,4 +14,4 @@ export const useTimeslotData = () => {
     error,
     mutate,
   }
-}
+} 
