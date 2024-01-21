@@ -5,6 +5,7 @@ import { day_of_week, breaktime, semester } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
     // search: { AcademicYear, Semester }
+    // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
     try {
         const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
         const Semester = semester[request.nextUrl.searchParams.get("Semester")]
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
         })
         return NextResponse.json(data)
     } catch (error) {
+        console.log(error)
         return NextResponse.json({ error: error }, { status: 500 })
     }
 }
@@ -52,13 +54,14 @@ export async function POST(request: NextRequest) {
     "AcademicYear": 2566,
     "Semester": "SEMESTER_2",
     "StartTime": "08:30",
+    "BreakDuration": 50,
     "BreakTimeslots": {
         "Junior": 4,
         "Senior": 5
     },
     "Duration": 50,
     "TimeslotPerDay": 10
-    }
+}
     */
 
     try {
@@ -71,9 +74,6 @@ export async function POST(request: NextRequest) {
                 let startTime = new Date(`1970-01-01T${body.StartTime}:00Z`)
                 startTime.setMinutes(startTime.getMinutes() + (index + 1) * body.Duration)
 
-                let endTime = new Date(startTime)
-                endTime.setMinutes(endTime.getMinutes() + body.Duration)
-
                 let isBreak: breaktime
                 if (body.BreakTimeslots.Junior === index + 1 && body.BreakTimeslots.Senior === index + 1) {
                     isBreak = breaktime["BREAK_BOTH"]
@@ -83,6 +83,12 @@ export async function POST(request: NextRequest) {
                     isBreak = breaktime["BREAK_JUNIOR"]
                 } else {
                     isBreak = breaktime["NOT_BREAK"]
+                }
+
+                let endTime = new Date(startTime)
+                endTime.setMinutes(endTime.getMinutes() + body.Duration)
+                if (isBreak !== breaktime["NOT_BREAK"]) {
+                    endTime.setMinutes(endTime.getMinutes() + body.BreakDuration)
                 }
 
                 timeslots.push({
@@ -103,6 +109,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(data)
     } catch (error) {
+        console.log(error)
         return NextResponse.json({ error: error }, { status: 500 })
     }
 }
@@ -131,6 +138,7 @@ export async function PUT(request: NextRequest) {
 
         return NextResponse.json(data)
     } catch (error) {
+        console.log(error)
         return NextResponse.json({ error: error }, { status: 500 })
     }
 }
