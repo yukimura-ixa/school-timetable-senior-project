@@ -7,7 +7,6 @@ import { useTeacherData } from "@/app/_hooks/teacherData";
 import type { teacher } from "@prisma/client";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
-import CircularProgress from "@mui/material/CircularProgress";
 
 function ShowTeacherData() {
   const router = useRouter();
