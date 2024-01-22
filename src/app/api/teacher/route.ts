@@ -2,14 +2,24 @@ import prisma from "@/libs/prisma"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
-  // query: { TeacherID }
   try {
-    const data = await prisma.teacher.findMany({
-      orderBy: {
-        TeacherID: "asc",
-      },
-    })
-    return NextResponse.json(data)
+    if (request.nextUrl.searchParams.has("TeacherID")) {
+      const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
+      console.log("TeacherID", TeacherID)
+      const data = await prisma.teacher.findUnique({
+        where: {
+          TeacherID: TeacherID,
+        },
+      })
+      return NextResponse.json(data)
+    } else {
+      const data = await prisma.teacher.findMany({
+        orderBy: {
+          TeacherID: "asc",
+        },
+      })
+      return NextResponse.json(data)
+    }
   } catch (error) {
     console.log(error)
     return NextResponse.json({ error: error }, { status: 500 })

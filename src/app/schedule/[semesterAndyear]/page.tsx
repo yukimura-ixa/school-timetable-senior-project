@@ -11,7 +11,7 @@ function Schedule({}: Props) {
   const pathName = usePathname();
   const router = useRouter();
   const params = useParams();
-  const semesterSplit = params.semesterAndyear.split('-'); //from "1-2566" to ["1", "2566"]
+  const semesterSplit = (params.semesterAndyear as string).split('-'); //from "1-2566" to ["1", "2566"]
   const path = pathName.substring(0, 16);
   const [tabSelect, setTabSelect] = useState("");
   return (

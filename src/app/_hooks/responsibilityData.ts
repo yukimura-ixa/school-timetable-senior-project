@@ -2,7 +2,7 @@ import useSWR, { preload } from "swr"
 import type { teachers_responsibility } from "@prisma/client"
 import { fetcher } from "@/libs/axios"
 
-export const useTimeslotData = (TeacherID: number) => {
+export const useResponsibilityData = (TeacherID: number) => {
   preload(`/assign?TeacherID=${TeacherID}`, fetcher)
 
   const path = `/assign?TeacherID=${TeacherID}`

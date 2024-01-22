@@ -1,54 +1,53 @@
 "use client";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import MiniButton from "@/components/elements/static/MiniButton";
 import React, { useEffect, useState } from "react";
 import { MdArrowForwardIos } from "react-icons/md";
-import SelectClassModal from "../../../../components/SelectClassModal";
 import { usePathname, useRouter } from "next/navigation";
-import axios from "axios";
-type Props = {};
+import { useTeacherData } from "@/app/_hooks/teacherData";
+import type { teacher } from "@prisma/client";
+import useSWR from "swr";
+import { fetcher } from "@/libs/axios";
+import CircularProgress from "@mui/material/CircularProgress";
 
-function ShowTeacherData(props: Props) {
+function ShowTeacherData() {
   const router = useRouter();
   const pathName = usePathname();
-  const [searchText, setSearchText] = useState(""); //ข้อความค้นหาใน dropdown เลือกครู
-  const [teacher, setTeacher] = useState<any>({
-    TeacherID: null,
-    Prefix: "",
-    Firstname: "",
-    Lastname: "",
-    Department: "",
-  }); //ข้อมูลของคุณครูที่เลือกเป็น object
+  const [teacher, setTeacher] = useState<teacher>(); //ข้อมูลของคุณครูที่เลือกเป็น object
   const [teacherLabel, setTeacherLabel] = useState<string>(""); //ใช้ตอนเลือก dropdown แล้วให้แสดงข้อมูลที่เลือก
   const [teacherFilterData, setTeacherFilterData] = useState<teacher[]>([]); //ข้อมูลสำหรับ filter ค้นหาชื่อแล้วค่อย set ลง data ที่นำไปแสดง
-  const [teacherData, setTeacherData] = useState<teacher[]>([]); //ข้อมูลที่นำไปแสดง
+  const teacherData = useTeacherData();
+  const responsibilityData = useSWR(
+    () => `/assign?TeacherID=` + teacher.TeacherID,
+    fetcher
+  );
+
+  const [teachHour, setTeachHour] = useState<number>(0);
   useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/teacher")
-        .then((res) => {
-          let data: teacher[] = res.data;
-          setTeacherData(() => [...data]);
-          setTeacherFilterData(() => [...data]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    return () => getData();
-  }, []);
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = teacherFilterData.filter((item) =>
-      `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
-    );
-    setTeacherData(res);
+    if (responsibilityData.data) {
+      let sum = 0;
+      responsibilityData.data.reduce((prev, curr) => {
+        sum += curr.TeachHour;
+      }, 0);
+      setTeachHour(() => sum);
+    }
+  }, [responsibilityData.data]);
+  useEffect(() => {
+    if (teacherData.data) {
+      setTeacherFilterData(teacherData.data);
+    }
+  }, [teacherData.isLoading]);
+
+  const searchHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // search คำที่พิมพ์ในช่องค้นหา
+    const text = event.target.value;
+    const newData = teacherData.data.filter((item) => {
+      const itemData = `${item.Firstname} ${item.Lastname} ${item.Department}`;
+      const textData = text.toLowerCase();
+      return itemData.toLowerCase().indexOf(textData) > -1;
+    });
+    setTeacherFilterData(newData);
   };
-  const searchHandle = (event: any) => {
-    let text = event.target.value;
-    setSearchText(text);
-    searchName(text);
-  };
+
   return (
     <>
       <div className="flex flex-col gap-3">
@@ -61,17 +60,16 @@ function ShowTeacherData(props: Props) {
           </div>
           <div className="flex flex-row justify-between gap-3">
             <Dropdown
-              data={teacherData}
-              renderItem={({ data }): JSX.Element => (
+              data={teacherFilterData}
+              renderItem={({ data }) => (
                 <li className="w-full text-sm">
                   {data.Firstname} {data.Lastname} - {data.Department}
                 </li>
               )}
               width={400}
-              height={40}
+              height="40"
               currentValue={teacherLabel}
               handleChange={(data: any) => {
-                // getClassifyTeacher(data.TeacherID)
                 setTeacher(data);
                 setTeacherLabel(
                   `${data.Firstname} ${data.Lastname} - ${data.Department}`
@@ -83,7 +81,7 @@ function ShowTeacherData(props: Props) {
             />
           </div>
         </div>
-        {teacherLabel === "" ? null : (
+        {!responsibilityData.data ? null : (
           <>
             {/* Teacher name */}
             <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
@@ -102,9 +100,11 @@ function ShowTeacherData(props: Props) {
             </div>
             <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
               <div className="flex items-center gap-4">
-                <p className="text-md">จำนวนคาบที่รับผิดชอบต่อสัปดาห์</p>
+                <p className="text-md">ชั่วโมงที่สอนต่อสัปดาห์</p>
               </div>
-              <p className="text-md text-gray-500">35 คาบ</p>
+              <p className="text-md text-gray-500">
+                {teachHour === 0 ? `ไม่มีข้อมูล` : `${teachHour} ชั่วโมง`}
+              </p>
             </div>
             <div
               onClick={() => {
@@ -127,36 +127,3 @@ function ShowTeacherData(props: Props) {
 }
 
 export default ShowTeacherData;
-
-{/* <div className="flex flex-col gap-6 w-full">
-<div className="flex justify-between">
-  <p>เลือกปีการศึกษา</p>
-  <Dropdown
-    data={[2566, 2567, 2568]}
-    renderItem={({ data }): JSX.Element => (
-      <li className="w-full text-sm">
-        {data}
-      </li>
-    )}
-    width={400}
-    height={40}
-    currentValue={2566}
-    placeHolder="เลือกปีการศึกษา"
-  />
-</div>
-<div className="flex justify-between">
-  <p>เลือกเทอม</p>
-  <Dropdown
-    data={[1, 2]}
-    renderItem={({ data }): JSX.Element => (
-      <li className="w-full text-sm">
-        {data}
-      </li>
-    )}
-    width={400}
-    height={40}
-    currentValue={1}
-    placeHolder="เลือกเทอม"
-  />
-</div>
-</div> */}

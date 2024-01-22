@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
       include: {
         subject: true,
         gradelevel: true,
+        teacher: true,
       },
     })
     return NextResponse.json(data)
@@ -62,7 +63,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const data = await Promise.all(
       body.map(async (element) => {
-        return await prisma.teacher.update({
+        return prisma.teacher.update({
           where: {
             TeacherID: element.TeacherID,
           },
