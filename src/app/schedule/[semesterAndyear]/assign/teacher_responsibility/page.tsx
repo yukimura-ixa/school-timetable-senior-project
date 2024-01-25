@@ -1,20 +1,34 @@
 "use client";
 import MiniButton from "@/components/elements/static/MiniButton";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { TbArrowBackUp } from "react-icons/tb";
 import { useSearchParams } from "next/navigation";
 import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
 import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
-import axios from "axios";
+import useSWR from "swr";
+import { fetcher } from "@/libs/axios";
 type Props = {
   backPage: Function;
 };
 
-function ClassroomResponsibility (props: Props) {
-  const params = useSearchParams();
-  const searchTeacherID = params.get("TeacherID");
+function ClassroomResponsibility(props: Props) {
+  const params = useParams();
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-"
+  ); //from "1-2566" to ["1", "2566"]
+  const searchTeacherID = useSearchParams().get("TeacherID");
+  const responsibilityData = useSWR(
+    () =>
+      `/assign?TeacherID=` +
+      searchTeacherID +
+      `&Semester=` +
+      semester +
+      `&AcademicYear=` +
+      academicYear,
+    fetcher
+  );
   const [data, setData] = useState({
     Teacher: {
       TeacherID: null,
@@ -88,12 +102,12 @@ function ClassroomResponsibility (props: Props) {
                         ), //ตรงนี้กรองห้องที่ซ้ำกันออกไป
                     ]
                   : item.ClassRooms.filter((item) =>
-                      rooms.map((gid) => gid).includes(item.GradeID)
-                    ).length == 0 //เช็คว่าถ้ากดลบห้องเรียนออกจากชั้นนั้นหมด
-                  ? [] //จะให้คืนเป็น []
-                  : item.ClassRooms.filter((item) =>
-                      rooms.map((gid) => gid).includes(item.GradeID)
-                    ), //ถ้าไม่ใช้ก็แค่กรองห้องเรียนที่เรานำออก
+                        rooms.map((gid) => gid).includes(item.GradeID)
+                      ).length == 0 //เช็คว่าถ้ากดลบห้องเรียนออกจากชั้นนั้นหมด
+                    ? [] //จะให้คืนเป็น []
+                    : item.ClassRooms.filter((item) =>
+                        rooms.map((gid) => gid).includes(item.GradeID)
+                      ), //ถ้าไม่ใช้ก็แค่กรองห้องเรียนที่เรานำออก
             }
           : item
       ),
@@ -127,7 +141,7 @@ function ClassroomResponsibility (props: Props) {
       ),
     })); //เช็คชั้นเรียนที่ตรงกันแล้วเอา addToClassRoom ลงมาใส่
     setAddSubjectModalActive(false);
-  }; 
+  };
   const [classRoomForAddSubj, setClassRoomForAddSubj] = useState({
     Year: null,
     GradeID: null,
@@ -194,7 +208,7 @@ function ClassroomResponsibility (props: Props) {
           <div className="flex items-center gap-4">
             <p className="text-md">ชั้นเรียนที่รับผิดชอบ</p>
           </div>
-          <div className="flex flex-row gap-3">
+          <div className="flex flex-row gap-3 border border-green">
             {data.Grade.map((item: any) => (
               <React.Fragment key={`responsibility${item.Year}`}>
                 {item.ClassRooms.length !== 0 ? (
@@ -325,6 +339,6 @@ function ClassroomResponsibility (props: Props) {
       </span>
     </>
   );
-};
+}
 
 export default ClassroomResponsibility;
