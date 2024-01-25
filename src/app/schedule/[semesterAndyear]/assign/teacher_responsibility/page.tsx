@@ -1,7 +1,7 @@
 "use client";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { useParams, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { TbArrowBackUp } from "react-icons/tb";
 import { useSearchParams } from "next/navigation";
 import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
@@ -9,6 +9,7 @@ import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
+import Loading from "@/app/loading";
 type Props = {
   backPage: Function;
 };
@@ -20,6 +21,7 @@ function ClassroomResponsibility(props: Props) {
   ); //from "1-2566" to ["1", "2566"]
   const searchTeacherID = useSearchParams().get("TeacherID");
   const responsibilityData = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
     () =>
       `/assign?TeacherID=` +
       searchTeacherID +
@@ -29,8 +31,9 @@ function ClassroomResponsibility(props: Props) {
       academicYear,
     fetcher
   );
+  // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
   const [data, setData] = useState({
-    Teacher: {
+    Teacher: { //ข้อมูลเปล่า เอาไว้กันแตก
       TeacherID: null,
       Prefix: "",
       Firstname: "",
@@ -38,7 +41,7 @@ function ClassroomResponsibility(props: Props) {
       Department: "",
     },
     Grade: [
-      { Year: 1, ClassRooms: [] },
+      { Year: 1, ClassRooms: [] }, //ClassRooms : [{GradeID:'101', Subjects:[]}]
       { Year: 2, ClassRooms: [] },
       { Year: 3, ClassRooms: [] },
       { Year: 4, ClassRooms: [] },
@@ -47,28 +50,31 @@ function ClassroomResponsibility(props: Props) {
     ],
   });
   useEffect(() => {
-    const getData = () => {
-      axios
-        .get(`http://localhost:3000/api/classify?TeacherID=${searchTeacherID}`)
-        .then((res) => {
-          let teacher = res.data.Teacher;
-          let grade_classify = res.data.Grade;
-          let grade_upadted = data.Grade.map((grade) =>
-            grade_classify.map((year) => year.Year).includes(grade.Year)
-              ? grade_classify.filter((item) => item.Year == grade.Year)[0]
-              : grade
-          );
-          setData(() => ({
-            Teacher: teacher,
-            Grade: grade_upadted,
-          }));
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    };
-    return () => getData();
-  }, []);
+    const ClassRoomClassify = (year: number): String[] => { //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
+      //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
+      //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
+      //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
+      //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
+      const filterResData = responsibilityData.data.filter((data) => data.gradelevel.Year == year); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+      const mapGradeIDOnly = filterResData.map((data) => ({GradeID : data.GradeID, Subjects : []})); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
+      const removeDulpicateGradeID = mapGradeIDOnly.filter((obj, index) => mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) === index); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
+      let splitSubjects = [] //สร้าง Array เปล่าขึ้นมาสำหรับแยกวิชาของแต่ละห้อง
+      for(let i=0;i<removeDulpicateGradeID.length;i++){ //แยกวิชาของแต่ละห้องเป็น 2D array เพื่อที่จะให้มันเรียงตามจำนวนห้องเรียน ex. => [[วิชาเรียนของ id 101], [วิชาเรียนของ id 102], [วิชาเรียนของ id 103]] ข้อมูลก็จะเป็น object ของวิชา
+        splitSubjects.push(filterResData.filter((item) => item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID))
+      }
+      let result = removeDulpicateGradeID.map((data, index) => ({...data, Subjects : splitSubjects[index]})) //map วิชาเข้าไปโดยอ้างอิงจาก index เพราะมันตรงกัน 
+      return result;
+    }
+    if (!responsibilityData.isLoading) { //ถ้า fetch ข้อมูลเสร็จแล้ว
+      setData(() => ({
+        Teacher: responsibilityData.data[0].teacher, //set ข้อมูลครูลงไป
+        Grade: data.Grade.map((item) => ({ //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
+          Year: item.Year,
+          ClassRooms: ClassRoomClassify(item.Year), //เรียกใช้ฟังก์ชั่นเพื่อนำเลขห้องเรียนมาใช้
+        })),
+      }));
+    }
+  }, [responsibilityData.isLoading]); //เช็คว่าโหลดเสร็จยัง ถ้าเสร็จแล้วก็ไปทำข้างใน useEffect
   const router = useRouter();
   const [classRoomModalActive, setClassRoomModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
@@ -149,11 +155,7 @@ function ClassroomResponsibility(props: Props) {
   const addClassRoomtoClass = (Year, Classrooms) => {
     setClassRoomModalActive(true);
     setYear(() => Year);
-    setClassRoomList(() =>
-      Classrooms.map((item) => item.GradeID).map((item) =>
-        parseInt(item.toString()[2])
-      )
-    );
+    setClassRoomList(() => Classrooms);
   };
   const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState(
     []
@@ -181,52 +183,62 @@ function ClassroomResponsibility(props: Props) {
           currentSubject={currentSubjectInClassRoom}
         />
       ) : null}
-      <div className="flex w-full h-[80px] justify-between items-center border-b border-[#EDEEF3] mb-7">
-        <h1
-          className="text-lg flex items-center gap-3"
-          onClick={() => {
-            console.log(classRoomList);
-          }}
-        >
-          เลือกห้องเรียน
-          <p className="text-gray-500 text-xs">
-            (ครู{data.Teacher.Firstname} {data.Teacher.Department})
-          </p>
-        </h1>
-        <div
-          onClick={() => {
-            router.back();
-          }}
-          className="flex gap-2 items-center justify-between cursor-pointer"
-        >
-          <TbArrowBackUp size={30} className={`text-gray-700 duration-300`} />
-          <p className="text-sm text-gray-500">ย้อนกลับ</p>
-        </div>
-      </div>
-      <span className="flex flex-col gap-4">
+      {responsibilityData.isLoading
+      ?
+      <Loading />
+      :
+      null
+      }
+      <span className="flex flex-col gap-4 my-4">
         <div className="flex w-full h-[55px] justify-between items-center">
-          <div className="flex items-center gap-4">
-            <p className="text-md">ชั้นเรียนที่รับผิดชอบ</p>
-          </div>
-          <div className="flex flex-row gap-3 border border-green">
-            {data.Grade.map((item: any) => (
-              <React.Fragment key={`responsibility${item.Year}`}>
-                {item.ClassRooms.length !== 0 ? (
-                  <MiniButton
-                    width={45}
-                    height={25}
-                    border={true}
-                    borderColor="#c7c7c7"
-                    title={`ม.${item.Year}`}
-                  />
-                ) : null}
-              </React.Fragment>
-            ))}
+          <div className="flex w-full justify-between">
+            <div className="flex items-center gap-2">
+              <p
+                className="text-md"
+                onClick={() => {
+                  console.log(data);
+                  console.log(responsibilityData.data)
+                }}
+              >
+                ชั้นเรียนที่รับผิดชอบ
+              </p>
+              <p className="text-gray-500 text-xs">
+                (ครู{data.Teacher.Firstname} {data.Teacher.Lastname})
+              </p>
+            </div>
+            <div
+              onClick={() => {
+                router.back();
+              }}
+              className="flex gap-2 items-center justify-between cursor-pointer"
+            >
+              <TbArrowBackUp
+                size={30}
+                className={`text-gray-700 duration-300`}
+              />
+              <p className="text-sm text-gray-500">ย้อนกลับ</p>
+            </div>
           </div>
         </div>
+        {/* Map ชั้นเรียนที่ครูคนนั้นรับผิดชอบ */}
+        {/* <div className="flex flex-row gap-3">
+          {responsibilityData.data.map((item: any) => (
+            <React.Fragment key={`responsibility${item.RespID}`}>
+              {responsibilityData.data.length !== 0 ? (
+                <MiniButton
+                  width={45}
+                  height={25}
+                  border={true}
+                  borderColor="#c7c7c7"
+                  title={`ม.${item.GradeID.substring(0,1)}/${item.GradeID.substring(2)}`}
+                />
+              ) : null}
+            </React.Fragment>
+          ))}
+        </div> */}
         {/* Map ชั้นเรียนของอาจารย์คนนั้นๆที่ต้องรับผิดชอบ */}
         {data.Grade.map((grade: any, index: number) => (
-          <React.Fragment key={`Matthayom${grade.Year}`}>
+          <Fragment key={`Grade${grade.Year}`}>
             <div className="flex flex-col gap-3 w-full border border-[#EDEEF3] duration-300">
               <div className="flex w-full h-[55px] justify-between items-center px-4">
                 <div
@@ -247,7 +259,7 @@ function ClassroomResponsibility(props: Props) {
                   <div className="flex gap-4">
                     {/* // Map ห้องเรียนข้องแต่ละชั้นเรียน */}
                     {grade.ClassRooms.map((room: any) => (
-                      <React.Fragment key={`${grade.Year}/${room.GradeID}h`}>
+                      <Fragment key={`Class${room.GradeID}`}>
                         <MiniButton
                           height={30}
                           border={true}
@@ -262,10 +274,10 @@ function ClassroomResponsibility(props: Props) {
                             setCurrentSubject(room.Subjects);
                           }}
                           title={`ม.${grade.Year}/${
-                            room.GradeID.toString()[2]
+                            room.GradeID.substring(2)
                           }`}
                         />
-                      </React.Fragment>
+                      </Fragment>
                     ))}
                   </div>
                   <IoMdAddCircle
@@ -284,7 +296,7 @@ function ClassroomResponsibility(props: Props) {
                   } flex flex-col gap-3 pl-4 pb-3`}
                 >
                   {grade.ClassRooms.map((room: any) => (
-                    <React.Fragment key={`${grade.Year}/${room.GradeID}v`}>
+                    <Fragment key={`Details for Class ${room.GradeID}`}>
                       <div className="flex gap-3">
                         <MiniButton
                           height={30}
@@ -300,7 +312,7 @@ function ClassroomResponsibility(props: Props) {
                             setCurrentSubject(room.Subjects);
                           }}
                           title={`ม.${grade.Year}/${
-                            room.GradeID.toString()[2]
+                            room.GradeID.substring(2)
                           }`}
                         />
                         <div className="flex w-full flex-col gap-3 mt-1">
@@ -310,7 +322,7 @@ function ClassroomResponsibility(props: Props) {
                               : `รับผิดชอบทั้งหมด ${room.Subjects.length} วิชา`}
                           </p>
                           {room.Subjects.map((subject: any, index: number) => (
-                            <React.Fragment
+                            <Fragment
                               key={`${subject.SubjectCode}(${index})`}
                             >
                               <div className="flex justify-between items-center pr-3">
@@ -325,16 +337,16 @@ function ClassroomResponsibility(props: Props) {
                                   จำนวน {subject.TeachHour} คาบ
                                 </p>
                               </div>
-                            </React.Fragment>
+                            </Fragment>
                           ))}
                         </div>
                       </div>
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </div>
               )}
             </div>
-          </React.Fragment>
+          </Fragment>
         ))}
       </span>
     </>

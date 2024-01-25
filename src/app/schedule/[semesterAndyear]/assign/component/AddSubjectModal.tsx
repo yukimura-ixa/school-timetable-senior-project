@@ -4,6 +4,8 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash, TbTrashFilled } from "react-icons/tb";
+import type { subject } from "@prisma/client";
+import { useSubjectData } from "@/app/_hooks/subjectData";
 type Props = {
   closeModal: any;
   addSubjectToClass: any;
@@ -12,7 +14,8 @@ type Props = {
 };
 
 function AddSubjectModal (props: Props) {
-  const [subject, setSubject] = useState<subject[]>([]);
+  const { data, isLoading, error, mutate } = useSubjectData();
+  const [subject, setSubject] = useState<subject[]>(data);
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const [subjectList, setSubjectList] = useState(props.currentSubject || []); //เก็บวิชาที่เพิ่มใหม่
@@ -32,18 +35,6 @@ function AddSubjectModal (props: Props) {
     let findNull = subjectList.map(item => item.SubjectID)
     return findNull.includes(null);
   }
-  useEffect(() => {
-    const getSubject = () => {
-      axios.get('http://localhost:3000/api/subject')
-      .then((res) => {
-        let data:subject[] = res.data;
-        setSubject(() => data);
-        setSubjectFilter(() => data);
-      })
-      .catch((err) => console.log(err))
-    }
-    return () => getSubject();
-  },[])
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
     let res = subjectFilter.filter((item) =>
@@ -68,7 +59,7 @@ function AddSubjectModal (props: Props) {
             <div className="flex justify-between">
               <p
                 className="text-lg select-none"
-                onClick={() => console.log(subjectList)}
+                onClick={() => console.log(subject)}
               >
                 เลือกวิชาที่รับผิดชอบ
               </p>
