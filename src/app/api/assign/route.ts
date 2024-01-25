@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
       },
       include: {
         subject: true,
-        gradelevel: true
+        gradelevel: true,
+        teacher: true,
       },
     })
     // const data = await prisma.teachers_responsibility.groupBy({
