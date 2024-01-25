@@ -92,6 +92,7 @@ model timeslot {
 }
 
 model teachers_responsibility {
+  RespID       Int        @id @default(autoincrement())
   TeacherID    Int
   GradeID      String
   SubjectCode  String
@@ -102,9 +103,9 @@ model teachers_responsibility {
   subject      subject    @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade)
   teacher      teacher    @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade)
 
-  @@id([TeacherID, GradeID, SubjectCode])
-  @@index([GradeID])
-  @@index([SubjectCode])
+  @@index([TeacherID], map: "teachers_responsibility_TeacherID_fkey")
+  @@index([GradeID], map: "teachers_responsibility_GradeID_fkey")
+  @@index([SubjectCode], map: "teachers_responsibility_SubjectCode_fkey")
 }
 
 enum day_of_week {

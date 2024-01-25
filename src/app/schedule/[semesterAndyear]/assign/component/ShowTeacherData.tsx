@@ -2,7 +2,7 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useEffect, useState } from "react";
 import { MdArrowForwardIos } from "react-icons/md";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useTeacherData } from "@/app/_hooks/teacherData";
 import type { teacher } from "@prisma/client";
 import useSWR from "swr";
@@ -11,12 +11,23 @@ import { fetcher } from "@/libs/axios";
 function ShowTeacherData() {
   const router = useRouter();
   const pathName = usePathname();
+  const params = useParams();
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-"
+  ); //from "1-2566" to ["1", "2566"]
+
   const [teacher, setTeacher] = useState<teacher>(); //ข้อมูลของคุณครูที่เลือกเป็น object
   const [teacherLabel, setTeacherLabel] = useState<string>(""); //ใช้ตอนเลือก dropdown แล้วให้แสดงข้อมูลที่เลือก
   const [teacherFilterData, setTeacherFilterData] = useState<teacher[]>([]); //ข้อมูลสำหรับ filter ค้นหาชื่อแล้วค่อย set ลง data ที่นำไปแสดง
   const teacherData = useTeacherData();
   const responsibilityData = useSWR(
-    () => `/assign?TeacherID=` + teacher.TeacherID,
+    () =>
+      `/assign?TeacherID=` +
+      teacher.TeacherID +
+      `&Semester=` +
+      semester +
+      `&AcademicYear=` +
+      academicYear,
     fetcher
   );
 

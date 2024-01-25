@@ -58,16 +58,13 @@ Table timeslot {
 }
 
 Table teachers_responsibility {
+  RespID Int [pk, increment]
   TeacherID Int [not null]
   GradeID String [not null]
   SubjectCode String [not null]
   AcademicYear Int [not null]
   Semester semester [not null]
   TeachHour Int [not null]
-
-  indexes {
-    (TeacherID, GradeID, SubjectCode) [pk]
-  }
 }
 
 Enum day_of_week {
