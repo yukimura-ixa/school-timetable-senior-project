@@ -10,7 +10,8 @@ import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
-import { gradelevel } from "@prisma/client";
+import { gradelevel, subject, subject_credit } from "@prisma/client";
+import { subjectCreditValues } from "@/models/credit-value";
 type Props = {
   backPage: Function;
 };
@@ -77,7 +78,7 @@ function ClassroomResponsibility(props: Props) {
           filterResData.filter(
             (item) =>
               item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
-          )
+          ).map(item => ({...item.subject, TeachHour: item.TeachHour}))
         );
       }
       let result = removeDulpicateGradeID.map((data, index) => ({
@@ -167,6 +168,30 @@ function ClassroomResponsibility(props: Props) {
     setCurrentSubjectInClassRoom(subj);
   };
   const [year, setYear] = useState<number>(null);
+  const sumTeachHour = (grade): number => {
+    // grade.ClassRooms.map(classroom => classroom.Subjects).map(subject => subjectCreditValues[subject.Credit] * 2).reduce((a, b) => a + b)
+    const getSubjectsOnly = grade.ClassRooms.map(classroom => classroom.Subjects) //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Classroom
+    const tempSubjects = [] //สร้าง array เปล่าเพื่อเก็บ object ของวิชาที่เอามาจาก หลายๆห้องเรียนใน 1 ระดับชั้นมาไว้ใน array เดียว
+    for(let i=0;i<getSubjectsOnly.length;i++){
+      tempSubjects.push(...getSubjectsOnly[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
+    }
+    const mapTeachHour = tempSubjects.map(subject => subjectCreditValues[subject.Credit] * 2) //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
+    const result = mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน
+    return result;
+  }
+  const saveData = () => {
+    const classRoomMap = data.Grade.map(item => item.ClassRooms) //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
+    const spreadClassRoom = [] //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
+    for(let i=0;i<classRoomMap.length;i++){
+      spreadClassRoom.push(...classRoomMap[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
+    }
+    const result = {
+      TeacherID: data.Teacher.TeacherID,
+      Resp: spreadClassRoom,
+      AcademicYear: parseInt(academicYear),
+      Semester: `SEMESTER_${semester}`,
+  }
+  }
   return (
     <>
       {classRoomModalActive ? (
@@ -194,7 +219,6 @@ function ClassroomResponsibility(props: Props) {
                 className="text-md"
                 onClick={() => {
                   console.log(data);
-                  console.log(responsibilityData.data);
                 }}
               >
                 ชั้นเรียนที่รับผิดชอบ
@@ -325,7 +349,7 @@ function ClassroomResponsibility(props: Props) {
                                   title={`${subject.SubjectCode} ${subject.SubjectName}`}
                                 />
                                 <p className="text-sm text-[#4F515E]">
-                                  จำนวน {subject.TeachHour} คาบ
+                                  จำนวน {subjectCreditValues[subject.Credit] * 2} ชั่วโมง
                                 </p>
                               </div>
                             </Fragment>
@@ -334,13 +358,17 @@ function ClassroomResponsibility(props: Props) {
                       </div>
                     </Fragment>
                   ))}
+                  <div className="w-full pr-3 mt-4 flex justify-between items-center">
+                    <p className="text-sm text-gray-400">รวมชั่วโมงที่สอนทั้งหมด</p>
+                    <p className="text-sm text-gray-400">{sumTeachHour(grade)} ชั่วโมง</p>
+                  </div>
                 </div>
               )}
             </div>
           </Fragment>
         ))}
         <div
-          onClick={() => {}}
+          onClick={saveData}
           className="flex w-full bg-emerald-100 hover:bg-emerald-200 duration-300 cursor-pointer h-10 rounded justify-center items-center"
         >
           <p className="text-emerald-500 text-sm">บันทึกข้อมูล</p>
