@@ -19,7 +19,7 @@ model class_schedule {
   RoomID      Int?
   GradeID     String
   gradelevel  gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
-  room        room?      @relation(fields: [RoomID], references: [RoomID], onDelete: Cascade)
+  room        room?      @relation(fields: [RoomID], references: [RoomID], onDelete: SetNull)
   subject     subject    @relation(fields: [SubjectCode], references: [SubjectCode])
   timeslot    timeslot   @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade)
 
@@ -35,7 +35,7 @@ model gradelevel {
   Number                  Int
   ProgramID               Int?
   class_schedule          class_schedule[]
-  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: SetNull)
   teachers_responsibility teachers_responsibility[]
 
   @@index([ProgramID], map: "gradelevel_ProgramID_fkey")
@@ -56,7 +56,7 @@ model subject {
   Category                String                    @default("-")
   ProgramID               Int?
   class_schedule          class_schedule[]
-  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade)
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: SetNull)
   teachers_responsibility teachers_responsibility[]
 
   @@index([ProgramID], map: "subject_ProgramID_fkey")

@@ -19,7 +19,7 @@ function LockSchedule(props: Props) {
       Subject: { SubjectID: 52, SubjectCode: "ก23202", SubjectName: "ชุมนุม" },
       DayOfWeek: "อังคาร",
       timeSlotID: [7, 8],
-      RoomName : 423,
+      RoomName: 423,
       Teachers: [
         {
           TeacherID: 88,
@@ -69,7 +69,7 @@ function LockSchedule(props: Props) {
       },
       DayOfWeek: "จันทร์",
       timeSlotID: [8, 9],
-      RoomName : 125,
+      RoomName: 125,
       Teachers: [
         {
           TeacherID: 25,
@@ -157,11 +157,20 @@ function LockSchedule(props: Props) {
                     setEditScheduleIndex(index);
                     setEditSchedule(item);
                   }}
-                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"
+                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
                 >
                   <TbSettings size={24} className="fill-[#EDEEF3]" />
                 </div>
-                <TbTrash size={24} className="text-red-500 absolute right-6 cursor-pointer hover:bg-gray-100 duration-300" />
+                <div
+                  onClick={() => {
+                    SetEditLockSchduleModalActive(true);
+                    setEditScheduleIndex(index);
+                    setEditSchedule(item);
+                  }}
+                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
+                >
+                  <TbTrash size={24} className="text-red-500" />
+                </div>
               </div>
               {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
               <div className="flex flex-row justify-between items-center">
