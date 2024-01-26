@@ -10,6 +10,7 @@ import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
+import { gradelevel } from "@prisma/client";
 type Props = {
   backPage: Function;
 };
@@ -33,7 +34,8 @@ function ClassroomResponsibility(props: Props) {
   );
   // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
   const [data, setData] = useState({
-    Teacher: { //ข้อมูลเปล่า เอาไว้กันแตก
+    Teacher: {
+      //ข้อมูลเปล่า เอาไว้กันแตก
       TeacherID: null,
       Prefix: "",
       Firstname: "",
@@ -50,25 +52,46 @@ function ClassroomResponsibility(props: Props) {
     ],
   });
   useEffect(() => {
-    const ClassRoomClassify = (year: number): String[] => { //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
+    const ClassRoomClassify = (year: number): String[] => {
+      //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
       //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
       //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
-      const filterResData = responsibilityData.data.filter((data) => data.gradelevel.Year == year); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
-      const mapGradeIDOnly = filterResData.map((data) => ({GradeID : data.GradeID, Subjects : []})); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
-      const removeDulpicateGradeID = mapGradeIDOnly.filter((obj, index) => mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) === index); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
-      let splitSubjects = [] //สร้าง Array เปล่าขึ้นมาสำหรับแยกวิชาของแต่ละห้อง
-      for(let i=0;i<removeDulpicateGradeID.length;i++){ //แยกวิชาของแต่ละห้องเป็น 2D array เพื่อที่จะให้มันเรียงตามจำนวนห้องเรียน ex. => [[วิชาเรียนของ id 101], [วิชาเรียนของ id 102], [วิชาเรียนของ id 103]] ข้อมูลก็จะเป็น object ของวิชา
-        splitSubjects.push(filterResData.filter((item) => item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID))
+      const filterResData = responsibilityData.data.filter(
+        (data) => data.gradelevel.Year == year
+      ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+      const mapGradeIDOnly = filterResData.map((data) => ({
+        GradeID: data.GradeID,
+        Subjects: [],
+      })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
+      const removeDulpicateGradeID = mapGradeIDOnly.filter(
+        (obj, index) =>
+          mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
+          index
+      ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
+      let splitSubjects = []; //สร้าง Array เปล่าขึ้นมาสำหรับแยกวิชาของแต่ละห้อง
+      for (let i = 0; i < removeDulpicateGradeID.length; i++) {
+        //แยกวิชาของแต่ละห้องเป็น 2D array เพื่อที่จะให้มันเรียงตามจำนวนห้องเรียน ex. => [[วิชาเรียนของ id 101], [วิชาเรียนของ id 102], [วิชาเรียนของ id 103]] ข้อมูลก็จะเป็น object ของวิชา
+        splitSubjects.push(
+          filterResData.filter(
+            (item) =>
+              item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
+          )
+        );
       }
-      let result = removeDulpicateGradeID.map((data, index) => ({...data, Subjects : splitSubjects[index]})) //map วิชาเข้าไปโดยอ้างอิงจาก index เพราะมันตรงกัน 
+      let result = removeDulpicateGradeID.map((data, index) => ({
+        ...data,
+        Subjects: splitSubjects[index],
+      })); //map วิชาเข้าไปโดยอ้างอิงจาก index เพราะมันตรงกัน
       return result;
-    }
-    if (!responsibilityData.isLoading) { //ถ้า fetch ข้อมูลเสร็จแล้ว
+    };
+    if (!responsibilityData.isLoading) {
+      //ถ้า fetch ข้อมูลเสร็จแล้ว
       setData(() => ({
         Teacher: responsibilityData.data[0].teacher, //set ข้อมูลครูลงไป
-        Grade: data.Grade.map((item) => ({ //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
+        Grade: data.Grade.map((item) => ({
+          //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
           Year: item.Year,
           ClassRooms: ClassRoomClassify(item.Year), //เรียกใช้ฟังก์ชั่นเพื่อนำเลขห้องเรียนมาใช้
         })),
@@ -81,39 +104,18 @@ function ClassroomResponsibility(props: Props) {
   const [addSubjectModalActive, setAddSubjectModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
   // const [selectedClass, setSelectedClass] = useState<number>(2); //เซ็ทไว้ดึงข้อมูลห้องเรียนทั้งหมดว่ามีกี่ห้อง -> ส่งไปที่ Modal
-  const [classRoomList, setClassRoomList] = useState<number[]>([]); //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
+  const [classRoomList, setClassRoomList] = useState<[]>([]); //ชั้นเรียนที่รับผิดชอบของคุณครูคนนั้นๆ
   // ยังไม่เสร็จ
-  const changeClassRoomList = (rooms: number[], year: number) => {
+  const changeClassRoomList = (rooms: [], year: number) => {
     //ข้อจำกัดคือ ถ้าลบห้องเรียนแล้วเพิ่มใหม่ ก็ต้องเพิ่มวิชาใหม่
     setClassRoomList(() => rooms);
-    // มึนชิบหาย
     setData(() => ({
       ...data,
       Grade: data.Grade.map((item) =>
         item.Year == year //เช็คก่อนว่าเพิ่มชั้นเรียนของปีอะไร
           ? {
               ...item,
-              ClassRooms:
-                //เช็คว่ามีห้องเรียนเพิ่มเข้ามาใหม่หรือเปล่า ถ้ามีก็จะนำห้องใหม่เข้ามาโดยให้ข้อมูลของ rooms นั้น filter โดยการเช็คเลขห้องว่า ถ้ามีอยู่แล้วก็ไม่ต้องใส่เพิ่มมา
-                item.ClassRooms.length <= rooms.length
-                  ? [
-                      ...item.ClassRooms, //[201, 202]
-                      ...rooms //[201, 202, 203] res = [203]
-                        .map((item) => ({ GradeID: item, Subjects: [] })) //map ห้องที่เพิ่มใหม่เข้าไป
-                        .filter(
-                          (room) =>
-                            !item.ClassRooms.map((gid) => gid.GradeID).includes(
-                              room.GradeID
-                            )
-                        ), //ตรงนี้กรองห้องที่ซ้ำกันออกไป
-                    ]
-                  : item.ClassRooms.filter((item) =>
-                        rooms.map((gid) => gid).includes(item.GradeID)
-                      ).length == 0 //เช็คว่าถ้ากดลบห้องเรียนออกจากชั้นนั้นหมด
-                    ? [] //จะให้คืนเป็น []
-                    : item.ClassRooms.filter((item) =>
-                        rooms.map((gid) => gid).includes(item.GradeID)
-                      ), //ถ้าไม่ใช้ก็แค่กรองห้องเรียนที่เรานำออก
+              ClassRooms: rooms //วางข้อมูลห้องเรียนที่อัปเดตลงไป
             }
           : item
       ),
@@ -183,12 +185,7 @@ function ClassroomResponsibility(props: Props) {
           currentSubject={currentSubjectInClassRoom}
         />
       ) : null}
-      {responsibilityData.isLoading
-      ?
-      <Loading />
-      :
-      null
-      }
+      {responsibilityData.isLoading ? <Loading /> : null}
       <span className="flex flex-col gap-4 my-4">
         <div className="flex w-full h-[55px] justify-between items-center">
           <div className="flex w-full justify-between">
@@ -197,13 +194,13 @@ function ClassroomResponsibility(props: Props) {
                 className="text-md"
                 onClick={() => {
                   console.log(data);
-                  console.log(responsibilityData.data)
+                  console.log(responsibilityData.data);
                 }}
               >
                 ชั้นเรียนที่รับผิดชอบ
               </p>
               <p className="text-gray-500 text-xs">
-                (ครู{data.Teacher.Firstname} {data.Teacher.Lastname})
+                (คุณครู{data.Teacher.Firstname} {data.Teacher.Lastname})
               </p>
             </div>
             <div
@@ -273,9 +270,7 @@ function ClassroomResponsibility(props: Props) {
                               }));
                             setCurrentSubject(room.Subjects);
                           }}
-                          title={`ม.${grade.Year}/${
-                            room.GradeID.substring(2)
-                          }`}
+                          title={`ม.${grade.Year}/${room.GradeID.substring(2)}`}
                         />
                       </Fragment>
                     ))}
@@ -311,9 +306,7 @@ function ClassroomResponsibility(props: Props) {
                               }));
                             setCurrentSubject(room.Subjects);
                           }}
-                          title={`ม.${grade.Year}/${
-                            room.GradeID.substring(2)
-                          }`}
+                          title={`ม.${grade.Year}/${room.GradeID.substring(2)}`}
                         />
                         <div className="flex w-full flex-col gap-3 mt-1">
                           <p className="text-sm text-[#676E85]">
@@ -322,9 +315,7 @@ function ClassroomResponsibility(props: Props) {
                               : `รับผิดชอบทั้งหมด ${room.Subjects.length} วิชา`}
                           </p>
                           {room.Subjects.map((subject: any, index: number) => (
-                            <Fragment
-                              key={`${subject.SubjectCode}(${index})`}
-                            >
+                            <Fragment key={`${subject.SubjectCode}(${index})`}>
                               <div className="flex justify-between items-center pr-3">
                                 <MiniButton
                                   height={30}
@@ -348,6 +339,12 @@ function ClassroomResponsibility(props: Props) {
             </div>
           </Fragment>
         ))}
+        <div
+          onClick={() => {}}
+          className="flex w-full bg-emerald-100 hover:bg-emerald-200 duration-300 cursor-pointer h-10 rounded justify-center items-center"
+        >
+          <p className="text-emerald-500 text-sm">บันทึกข้อมูล</p>
+        </div>
       </span>
     </>
   );

@@ -7,6 +7,7 @@ import { useTeacherData } from "@/app/_hooks/teacherData";
 import type { teacher } from "@prisma/client";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
+import Loading from "@/app/loading";
 
 function ShowTeacherData() {
   const router = useRouter();
@@ -60,6 +61,9 @@ function ShowTeacherData() {
 
   return (
     <>
+      {responsibilityData.isLoading 
+      ? <Loading /> 
+      :
       <div className="flex flex-col gap-3">
         {/* เลือกครู */}
         <div className="flex w-full h-fit justify-between p-4 items-center border border-[#EDEEF3]">
@@ -132,6 +136,7 @@ function ShowTeacherData() {
           </>
         )}
       </div>
+      }
     </>
   );
 }

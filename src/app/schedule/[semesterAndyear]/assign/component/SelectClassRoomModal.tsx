@@ -4,94 +4,169 @@ import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import type { gradelevel } from "@prisma/client";
 
-import { AiOutlineClose } from 'react-icons/ai';
+import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
+import Loading from "@/app/loading";
 type props = {
   closeModal: any;
-  classList: string[];
+  classList: object[];
   confirmChange: any;
-  year:number
+  year: number;
 };
-function SelectClassRoomModal({ closeModal, classList, confirmChange, year }: props) {
-    const { data, isLoading, error, mutate } = useGradeLevelData();
-    // useEffect(() => {
-    //   const getData = () => {
-    //     axios.get('http://localhost:3000/api/classroom_of_allclass')
-    //     .then((res) => {
-    //       let data = res.data;
-    //       setUnSelectedList(() => data.filter((item) => item.Year == year)[0].rooms.filter((item) => !classList.includes(item)))
-    //       console.log(data.filter((item) => item.Year == year)[0].rooms.filter((item) => !classList.includes(item)))
-    //     })
-    //     .catch((err) => console.log(err))
-    //   }
-    //   return () => getData();
-    // }, [])
-    //เลือกห้องเรียนที่รับผิดชอบแล้ว
-    const [selectedList, setSelectedList] = useState<string[]>(classList);
-    //ห้องเรียนที่ยังไม่เลือก
-    const [unSelectedList, setUnSelectedList] = useState(data.filter((item) => !selectedList.map(item => item.GradeID).includes(item.GradeID) && item.Year == year));
-    const addSelectedList = (item:string) => {
-        //ตัวแปร newList จะเพิ่มของใหม่ลงไปพร้อมกับ sort แล้ว set state
-        let newList = [...selectedList, item].sort();
-        setSelectedList(() => newList)
-        //จากนั้น copy ตัวที่จะลบมาไว้ แล้ว Splice ออกโดยการใช้ indexOf เพื่อเช็ค index ของไอเทม
-        let unSelected = [...unSelectedList]
-        unSelected.splice(unSelectedList.indexOf(item), 1)
-        //วาง array ที่ลบแล้วลงไป
-        setUnSelectedList(() => unSelected)
-    }
-    const removeSelectedList = (item:string) => {
-        //ทำงานเหมือนกันกับ addSelectedClassList
-        let newList = [...unSelectedList, item].sort();
-        setUnSelectedList(() => newList)
-        let selected = [...selectedList]
-        selected.splice(selectedList.indexOf(item), 1)
-        setSelectedList(() => selected)
-    }
+function SelectClassRoomModal({
+  closeModal,
+  classList,
+  confirmChange,
+  year,
+}: props) {
+  const { data, isLoading, error, mutate } = useGradeLevelData();
+  const [classRoomList, setClassRoomList] = useState([]);
+  useEffect(() => {
+    // ตัวอย่างข้อมูลแบบคร่าวๆ //
+    // {GradeID : 101}
+    // {GradeID : 201}
+    // {GradeID : 301}
+    // {GradeID : 401}
+    // {GradeID : 501}
+    // {GradeID : 601}
+    const filterYear = data.filter((item) => item.Year == year); //filter เอาชั้นปีที่เลือก เช่น กดของมอหนึ่ง ก็จะเอาแค่มอหนึ่งออกมา ก็จะได้แค่ {GradeID: 101}
+    const mapClassRoomData = filterYear.map(
+      (item, index) =>
+        classList.map((gid) => gid.GradeID).includes(item.GradeID) //เช็คข้อมูลว่าเคยมีห้องเรียนที่เลือกหรือยัง (เช็ค GradeID)
+          ? { ...classList[index], isSelected: true } //ถ้ามี ก็ใส่ isSelected: true เพื่อบ่งบอกว่าวิชานี้ได้เคยเลือกไว้ก่อนหน้าแล้ว
+          : { GradeID: item.GradeID, Subjects: [], isSelected: false } //ถ้าไม่ ก็ map ขึ้นมาให้ใหม่
+    ); //ตรงนี่จะ Map ข้อมูลด้วยการเช็คว่า ข้อมูลที่ส่งมานั้นเคยมีแล้วหรือยัง ถ้ามาแล้วจะใส่ isSelected = true ถ้าไม่เคยมีก็ false
+    //ทำเพื่ออะไร ? เพื่อตอนกดสลับเลือกห้องเรียนไปมา ข้อมูลของวิชาที่ติดอยู่กับห้องเรียนที่เคยเลือกแล้วจะได้ไม่หายไปไหน ของเก่าเนี่ย ถ้าเรากดลบห้องเรียนแล้วเพิ่มกลับมาใหม่ ข้อมูลวิชาในนั้นจะหายไป
+    setClassRoomList(() => mapClassRoomData); //นำข้อมูลมา set state
+  }, [isLoading]);
+  const addSelectedList = (item: object) => {
+    setClassRoomList(() =>
+      classRoomList.map((classRoom) =>
+        classRoom.GradeID == item.GradeID
+          ? { ...classRoom, isSelected: true }
+          : classRoom
+      )
+    ); //ถ้ามีการกด Add ห้องเรียนเข้ามาใหม่ ก็จะเปลี่ยนแค่ boolean ของ isSelected ด้วยการเช็คว่า GradeID ไหนต้องการเปลี่ยน
+  };
+  const removeSelectedList = (item: object) => {
+    setClassRoomList(() =>
+      classRoomList.map((classRoom) =>
+        classRoom.GradeID == item.GradeID
+          ? { ...classRoom, isSelected: false }
+          : classRoom
+      )
+    ); //เหมือนกับฟังก์ชั่น addSelectedlist
+  };
   return (
     <>
-      <div
-        style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
-        className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
-      >
-        <div className="flex flex-col w-[550px] h-auto p-[50px] gap-8 bg-white rounded">
-          {/* Content */}
-          <div className="flex flex-col w-full gap-3 h-auto">
-            <div className="flex justify-between">
-                <p className="text-lg select-none" onClick={() => {console.log(data, unSelectedList)}}>เลือกห้องเรียน</p>
-                <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <div
+          style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
+          className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
+        >
+          <div className="flex flex-col w-[550px] h-auto p-[50px] gap-8 bg-white rounded">
+            {/* Content */}
+            <div className="flex flex-col w-full gap-3 h-auto">
+              <div className="flex justify-between">
+                <p
+                  className="text-lg select-none"
+                  onClick={() => console.log(data)}
+                >
+                  เลือกห้องเรียน
+                </p>
+                <AiOutlineClose
+                  className="cursor-pointer"
+                  onClick={closeModal}
+                />
+              </div>
+              <p className="text-xs text-gray-300">
+                เลือกห้องเรียนของคุณครูที่รับผิดชอบในห้องนั้นๆ
+              </p>
             </div>
-            <p className="text-xs text-gray-300">เลือกห้องเรียนของคุณครูที่รับผิดชอบในห้องนั้นๆ</p> 
-          </div>
-          {/* ระดับชั้นที่เลือกแล้ว */}
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-gray-500">ห้องเรียนที่เลือกแล้ว (ม.{year})</p>
-            <div className={`flex items-center flex-wrap gap-4 w-full ${selectedList.length === 0 ? "h-[45px]" : null} border border-gray-300 px-3 py-3 rounded`}>
-                {selectedList.map((item) => (
-                    <Fragment key={item}>
-                        <MiniButton handleClick={() => removeSelectedList(item)} height={25} border={true} isSelected={true} borderColor="#c7c7c7" title={`ม.${item.GradeID.substring(0, 1)}/${item.GradeID.substring(2)}`} />
-                    </Fragment>
+            {/* ระดับชั้นที่เลือกแล้ว */}
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-500">
+                ห้องเรียนที่เลือกแล้ว (ม.{year})
+              </p>
+              <div
+                className={`flex items-center flex-wrap gap-4 w-full ${
+                  classRoomList.filter((item) => item.isSelected).length === 0
+                    ? "h-[45px]"
+                    : null
+                } border border-gray-300 px-3 py-3 rounded`}
+              >
+                {classRoomList.map((classRoom) => (
+                  <Fragment key={`is-selected${classRoom.GradeID}`}>
+                    {classRoom.isSelected ? (
+                      <MiniButton
+                        handleClick={() => removeSelectedList(classRoom)}
+                        height={25}
+                        border={true}
+                        isSelected={true}
+                        borderColor="#c7c7c7"
+                        title={`ม.${classRoom.GradeID.substring(
+                          0,
+                          1
+                        )}/${classRoom.GradeID.substring(2)}`}
+                      />
+                    ) : null}
+                  </Fragment>
                 ))}
+              </div>
             </div>
-          </div>
-          {/* เลือกระดับชั้นจากที่นี่ */}
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-gray-500">เลือกห้องได้จากที่นี่ (ม.{year})</p>
-            <div className={`flex items-center flex-wrap gap-4 w-full ${unSelectedList.length === 0 ? "h-[45px]" : null} border border-gray-300 px-3 py-3 rounded`}>
-                {unSelectedList.map((item) => (
-                    <Fragment key={item}>
-                        <MiniButton handleClick={() => addSelectedList(item)} height={25} border={true} borderColor="#c7c7c7" title={`ม.${item.GradeID.substring(0, 1)}/${item.GradeID.substring(2)}`} />
-                    </Fragment>
+            {/* เลือกระดับชั้นจากที่นี่ */}
+            <div className="flex flex-col gap-3">
+              <p className="text-sm text-gray-500">
+                เลือกห้องได้จากที่นี่ (ม.{year})
+              </p>
+              <div
+                className={`flex items-center flex-wrap gap-4 w-full ${
+                  classRoomList.filter((item) => !item.isSelected).length === 0
+                    ? "h-[45px]"
+                    : null
+                } border border-gray-300 px-3 py-3 rounded`}
+              >
+                {classRoomList.map((classRoom) => (
+                  <Fragment key={`not-selected-${classRoom.GradeID}`}>
+                    {!classRoom.isSelected ? (
+                      <MiniButton
+                        handleClick={() => addSelectedList(classRoom)}
+                        height={25}
+                        border={true}
+                        borderColor="#c7c7c7"
+                        title={`ม.${classRoom.GradeID.substring(
+                          0,
+                          1
+                        )}/${classRoom.GradeID.substring(2)}`}
+                      />
+                    ) : null}
+                  </Fragment>
                 ))}
+              </div>
             </div>
-          </div>
-          <span className="w-full flex justify-end">
-              <button onClick={() => confirmChange(selectedList.map((item) => parseInt(`${year}${item < 10 ? `0${item}` : item}`)), year)} className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-600 py-2 px-4 rounded">
+            <span className="w-full flex justify-end">
+              <button
+                onClick={() =>
+                  confirmChange(
+                    classRoomList
+                      .filter((item) => item.isSelected)
+                      .map((classRoom) => ({
+                        GradeID: classRoom.GradeID,
+                        Subjects: classRoom.Subjects,
+                      })),
+                    year
+                  )
+                }
+                className=" w-[100px] bg-green-100 hover:bg-green-200 duration-500 text-green-600 py-2 px-4 rounded text-sm"
+              >
                 ยืนยัน
               </button>
-          </span>
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
