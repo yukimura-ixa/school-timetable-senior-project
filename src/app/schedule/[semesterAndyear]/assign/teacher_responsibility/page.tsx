@@ -63,7 +63,6 @@ function ClassroomResponsibility(props: Props) {
         (data) => data.gradelevel.Year == year
       ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
       const mapGradeIDOnly = filterResData.map((data) => ({
-        RespID: data.RespID,
         GradeID: data.GradeID,
         Subjects: [],
       })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
@@ -81,7 +80,11 @@ function ClassroomResponsibility(props: Props) {
               (item) =>
                 item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
             )
-            .map((item) => ({ ...item.subject, TeachHour: item.TeachHour }))
+            .map((item) => ({
+              ...item.subject,
+              TeachHour: item.TeachHour,
+              RespID: item.RespID,
+            }))
         );
       }
       let result = removeDulpicateGradeID.map((data, index) => ({
@@ -192,6 +195,7 @@ function ClassroomResponsibility(props: Props) {
     for (let i = 0; i < classRoomMap.length; i++) {
       spreadClassRoom.push(...classRoomMap[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
     }
+    console.log(classRoomMap);
     const postData = {
       TeacherID: data.Teacher.TeacherID,
       Resp: spreadClassRoom,

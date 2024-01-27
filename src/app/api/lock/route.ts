@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
                 },
             },
             include: {
+                room: true,
                 timeslot: true,
                 subject: {
                     select: {
@@ -51,28 +52,27 @@ export async function GET(request: NextRequest) {
                 },
             }
         })
-
         // จัดรูปแบบข้อมูล
-        const result = data.map(({ ClassID, TimeslotID, SubjectCode, RoomID, GradeID, timeslot, subject }) => ({
+        const result = data.map(({ ClassID, TimeslotID, SubjectCode, room, GradeID, timeslot, subject }) => ({
             ClassID,
             TimeslotID,
             SubjectCode,
             SubjectName: subject.SubjectName,
-            RoomID,
+            room,
             GradeID,
             timeslot: timeslot,
             teachers: subject.teachers_responsibility.map(({ teacher }) => teacher),
         }))
 
         const groupedResult = result.reduce((acc, item) => {
-            const { SubjectCode, SubjectName, teachers, RoomID } = item
+            const { SubjectCode, SubjectName, teachers, room } = item
 
             if (!acc[SubjectCode]) {
                 acc[SubjectCode] = {
                     SubjectCode,
                     SubjectName,
                     teachers,
-                    RoomID,
+                    room,
                     GradeIDs: [],
                     timeslots: [], // Initialize an empty array for timeslots
                     ClassIDs: [],
