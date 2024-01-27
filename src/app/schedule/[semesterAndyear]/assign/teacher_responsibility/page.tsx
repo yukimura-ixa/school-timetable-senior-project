@@ -25,12 +25,7 @@ function ClassroomResponsibility(props: Props) {
   const responsibilityData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      `/assign?TeacherID=` +
-      searchTeacherID +
-      `&Semester=SEMESTER_` +
-      semester +
-      `&AcademicYear=` +
-      academicYear,
+      `/assign?TeacherID=${searchTeacherID}&Semester=${semester}&AcademicYear=${academicYear}`,
     fetcher
   );
   // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
@@ -80,11 +75,7 @@ function ClassroomResponsibility(props: Props) {
               (item) =>
                 item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
             )
-            .map((item) => ({
-              ...item.subject,
-              TeachHour: item.TeachHour,
-              RespID: item.RespID,
-            }))
+            .map((item) => item.subject)
         );
       }
       let result = removeDulpicateGradeID.map((data, index) => ({

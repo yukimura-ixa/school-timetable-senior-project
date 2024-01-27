@@ -1,19 +1,43 @@
+import { useTeacherData } from "@/app/_hooks/teacherData";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment } from "react";
+import { teacher } from "@prisma/client";
+import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
-  data: any;
   teacherSelected: any;
   addTeacherFunction: any;
   removeTeacherFunction: any;
-  searchHandleTeacher: any;
-  searchTextTeacher: string;
   required:boolean;
 };
 
 function SelectTeacher(props: Props) {
+  const {data, isLoading, error, mutate} = useTeacherData();
+  const [teacher, setTeacher] = useState<teacher[]>([]);
+  const [teacherFilter, setTeacherFilter] = useState<teacher[]>([]);
+  const [searchText, setSearchText] = useState("");
+  useEffect(() => {
+    console.log(teacher);
+    
+    if(!isLoading){
+      setTeacher(() => data);
+      setTeacherFilter(() => data);
+    }
+  }, [isLoading])
+  const searchHandle = (event: any) => {
+    let text = event.target.value;
+    setSearchText(text);
+    searchTeacher(text);
+  };
+  const searchTeacher = (name: string) => {
+    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
+    let res = teacherFilter.filter((item) =>
+      `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
+    );
+    setTeacher(res);
+    console.log(res);
+  };
   return (
     <>
       <div className="flex flex-col gap-5 justify-between w-full">
@@ -32,22 +56,22 @@ function SelectTeacher(props: Props) {
             width={276}
             height={45}
             placeHolder="ค้นหาชื่อคุณครู"
-            handleChange={props.searchHandleTeacher}
+            handleChange={searchHandle}
           />
           <div
             className={`${
-              props.searchTextTeacher.length == 0 ? "hidden" : null
+              searchText.length == 0 ? "hidden" : null
             } absolute right-0 top-11 flex flex-col w-[276px] h-fit bg-white drop-shadow-sm border`}
           >
-            <div className="w-full flex flex-col gap-1">
-              {props.data
+            <div className="w-full flex flex-col gap-1 h-[200px] overflow-y-scroll">
+              {teacher
                 .filter((item) => !props.teacherSelected.includes(item))
                 .map((item) => (
                   <Fragment
                     key={`searchteacher${item.TeacherID} ${item.Firstname}`}
                   >
                     <li
-                      onClick={() => props.addTeacherFunction(item)}
+                      onClick={() => {props.addTeacherFunction(item), setSearchText(() => "")}}
                       className="flex h-[60px] items-center hover:bg-cyan-100 hover:text-cyan-600 p-3 cursor-pointer duration-300"
                     >
                       <p className="text-sm">
@@ -62,7 +86,7 @@ function SelectTeacher(props: Props) {
         <div className="flex flex-wrap gap-3 justify-end">
           {props.teacherSelected.map((item, index) => (
             <Fragment key={`teacherSelected${item.TeacherID}`}>
-              <MiniButton
+              <MiniButton 
                 handleClick={() => props.removeTeacherFunction(index)}
                 isSelected={true}
                 title={`${item.Firstname} - ${item.Department}`}

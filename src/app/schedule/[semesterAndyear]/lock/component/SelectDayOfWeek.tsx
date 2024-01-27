@@ -29,8 +29,6 @@ function SelectDayOfWeek(props: Props) {
             "พุธ",
             "พฤหัสบดี",
             "ศุกร์",
-            "เสาร์",
-            "อาทิตย์",
           ]}
           renderItem={({ data }): JSX.Element => (
             <li className="w-full text-sm">{data}</li>

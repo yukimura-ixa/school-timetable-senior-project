@@ -1,16 +1,38 @@
+import { useSubjectData } from "@/app/_hooks/subjectData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React from "react";
+import { subject } from "@prisma/client";
+import React, { useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
-  data: any;
   currentValue: string;
   handleSubjectChange: any;
-  searchHandle: any;
   required:boolean;
 };
 
 function SelectSubject(props: Props) {
+  const {data, isLoading, error, mutate} = useSubjectData();
+  const [subject, setSubject] = useState<subject[]>([]);
+  const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
+  const [searchText, setSearchText] = useState("");
+  useEffect(() => {
+    if(!isLoading){
+      setSubject(() => data);
+      setSubjectFilter(() => data);
+    }
+  }, [isLoading])
+  const searchHandle = (event: any) => {
+    let text = event.target.value;
+    setSearchText(text);
+    searchName(text);
+  };
+  const searchName = (name: string) => {
+    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
+    let res = subjectFilter.filter((item) =>
+      `${item.SubjectCode} ${item.SubjectName}`.match(name)
+    );
+    setSubject(res);
+  };
   return (
     <>
       <div className="flex justify-between w-full items-center">
@@ -25,7 +47,7 @@ function SelectSubject(props: Props) {
           ) : null}
         </div>
         <Dropdown
-          data={props.data}
+          data={subject}
           renderItem={({ data }): JSX.Element => (
             <li className="w-full text-sm">
               {data.SubjectCode} {data.SubjectName}
@@ -37,7 +59,7 @@ function SelectSubject(props: Props) {
           placeHolder={"ตัวเลือก"}
           handleChange={props.handleSubjectChange}
           useSearchBar={true}
-          searchFunciton={props.searchHandle}
+          searchFunciton={searchHandle}
         />
       </div>
     </>

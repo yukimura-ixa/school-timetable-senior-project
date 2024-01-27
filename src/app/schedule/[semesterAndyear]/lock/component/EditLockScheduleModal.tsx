@@ -9,6 +9,7 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
+import { dayOfWeekThai } from "@/models/dayofweek-thai";
 
 type Props = {
   lockSchedule: any;
@@ -21,46 +22,7 @@ function EditLockScheduleModal({
   closeModal,
   confirmChange,
 }: Props) {
-  const [subject, setSubject] = useState([]);
-  const [subjectFilter, setSubjectFilter] = useState([]);
-  const [teacher, setTeacher] = useState([]);
-  const [teacherFilter, setTeacherFilter] = useState([]);
-  const [allClassRoom, setAllClassRoom] = useState([
-    { Year: 1, rooms: [] },
-    { Year: 2, rooms: [] },
-    { Year: 3, rooms: [] },
-    { Year: 4, rooms: [] },
-    { Year: 5, rooms: [] },
-    { Year: 6, rooms: [] },
-  ]);
   const [lockScheduleData, setLockScheduledata] = useState(lockSchedule);
-  useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/subject_lock_schedule")
-        .then((res) => {
-          let data = res.data;
-          setSubject(() => data), setSubjectFilter(() => data);
-        })
-        .catch((err) => console.log(err));
-      axios
-        .get("http://localhost:3000/api/classroom_of_allclass")
-        .then((res) => {
-          let data = res.data;
-          setAllClassRoom(() => data);
-        })
-        .catch((err) => console.log(err));
-      axios
-        .get("http://localhost:3000/api/teacher")
-        .then((res) => {
-          let data = res.data;
-          setTeacher(() => data);
-          setTeacherFilter(() => data);
-        })
-        .catch((err) => console.log(err));
-    };
-    return () => getData();
-  }, []);
 
   const [isEmptyData, setIsEmptyData] = useState({
     Subject: false,
@@ -70,32 +32,6 @@ function EditLockScheduleModal({
     ClassRooms: false,
     RoomName : false,
   });
-  const [searchText, setSearchText] = useState("");
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name)
-    );
-    setSubject(res);
-  };
-  const searchHandle = (event: any) => {
-    let text = event.target.value;
-    setSearchText(text);
-    searchName(text);
-  };
-  const [searchTextTeacher, setSearchTextTeacher] = useState("");
-  const searchTeacher = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = teacherFilter.filter((item) =>
-      `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
-    );
-    setTeacher(res);
-  };
-  const searchHandleTeacher = (event: any) => {
-    let text = event.target.value;
-    setSearchTextTeacher(text);
-    searchTeacher(text);
-  };
   const timeSlotHandleChange = (e: any) => {
     console.log(e.target.value);
     let timeSlot = [...lockScheduleData.timeSlotID];
@@ -124,14 +60,12 @@ function EditLockScheduleModal({
   };
   const validateData = () => {
     setIsEmptyData(() => ({
-      Subject: lockScheduleData.Subject.SubjectCode.length == 0,
-      DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
-      timeSlotID: lockScheduleData.timeSlotID.length == 0,
-      Teachers: lockScheduleData.Teachers.length == 0,
-      RoomName : lockScheduleData.RoomName == null,
-      ClassRooms:
-        lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
-          .length == 0,
+      Subject: lockScheduleData.SubjectCode.length == 0,
+      DayOfWeek: dayOfWeekThai[lockScheduleData.timeslots[0].DayOfWeek].length == 0,
+      timeSlotID: lockScheduleData.timeslots.length == 0,
+      Teachers: lockScheduleData.teachers.length == 0,
+      RoomName : lockScheduleData.room.RoomName == null,
+      ClassRooms: lockScheduleData.GradeIDs.length == 0
     }));
   };
   useEffect(() => {
@@ -185,7 +119,6 @@ function EditLockScheduleModal({
       ...lockScheduleData,
       Teachers: [...lockScheduleData.Teachers, teacher],
     }));
-    setSearchTextTeacher("");
   };
   const removeTeacherFromList = (index: number) => {
     setLockScheduledata(() => ({
@@ -206,51 +139,44 @@ function EditLockScheduleModal({
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p className="text-xl select-none">เพิ่มวิชาล็อก</p>
+            <p className="text-xl select-none" onClick={() => console.log(lockScheduleData)}>เพิ่มวิชาล็อก</p>
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
             <SelectSubject
-              data={subject}
               currentValue={`${
-                lockScheduleData.Subject.SubjectCode == ""
+                lockScheduleData.SubjectCode == ""
                   ? ""
-                  : `${lockScheduleData.Subject.SubjectCode} ${lockScheduleData.Subject.SubjectName}`
+                  : `${lockScheduleData.SubjectCode} ${lockScheduleData.SubjectName}`
               }`}
               handleSubjectChange={handleSubjectChange}
-              searchHandle={searchHandle}
               required={isEmptyData.Subject}
             />
             <SelectDayOfWeek
-              dayOfWeek={lockScheduleData.DayOfWeek}
+              dayOfWeek={dayOfWeekThai[lockScheduleData.timeslots[0].DayOfWeek]}
               handleDayChange={handleDayChange}
               required={isEmptyData.DayOfWeek}
             />
+            <SelectMultipleTimeSlot
+              timeSlotHandleChange={timeSlotHandleChange}
+              checkedCondition={lockScheduleData.timeslots.map(item => item.TimeslotID.substring(item.TimeslotID.length - 1))}
+              required={isEmptyData.timeSlotID}
+            />
             <SelectRoomName
-              roomName={lockScheduleData.RoomName}
+              roomName={lockScheduleData.room.RoomName}
               handleRoomChange={handleRoomChange}
               required={isEmptyData.RoomName}
             />
-            <SelectMultipleTimeSlot
-              timeSlotHandleChange={timeSlotHandleChange}
-              checkedCondition={lockScheduleData.timeSlotID}
-              required={isEmptyData.timeSlotID}
-            />
             <SelectTeacher
-              data={teacher}
-              teacherSelected={lockScheduleData.Teachers}
+              teacherSelected={lockScheduleData.teachers}
               addTeacherFunction={handleAddTeacherList}
               removeTeacherFunction={removeTeacherFromList}
-              searchHandleTeacher={searchHandleTeacher}
-              searchTextTeacher={searchTextTeacher}
-              required={isEmptyData.Teachers}
-            />
-            <SelectedClassRoom
-              allClassRoom={allClassRoom}
-              Grade={lockScheduleData.Grade}
+              required={isEmptyData.Teachers}/>
+            {/* <SelectedClassRoom
+              Grade={lockScheduleData.GradeIDs}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.ClassRooms}
-            />
+            /> */}
           </div>
           <span className="flex w-full justify-end">
             <button

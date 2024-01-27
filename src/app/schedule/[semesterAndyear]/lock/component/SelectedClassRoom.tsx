@@ -1,21 +1,47 @@
+import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment } from "react";
+import { gradelevel } from "@prisma/client";
+import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
-  allClassRoom: any;
   Grade: any;
   classRoomHandleChange: any;
   required:boolean
 };
 
 function SelectedClassRoom(props: Props) {
+  const {data, isLoading, error, mutate} = useGradeLevelData();
+  const [allClassRoom, setAllClassRoom] = useState([
+    { Year: 1, rooms: [] },
+    { Year: 2, rooms: [] },
+    { Year: 3, rooms: [] },
+    { Year: 4, rooms: [] },
+    { Year: 5, rooms: [] },
+    { Year: 6, rooms: [] },
+  ]);
+  useEffect(() => {
+    const ClassRoomClassify = (year: number) => {
+      //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
+      //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
+      //{GradeID: '101', ...}
+      //{GradeID: '101', ...}
+      //{GradeID: '102', ...}
+      const filterResData = data.filter(
+        (data) => data.Year == year
+      ).map(item => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+      return filterResData;
+    };
+    if (!isLoading) {
+      setAllClassRoom(() => allClassRoom.map(item => ({...item, rooms : ClassRoomClassify(item.Year)})))
+    }
+  }, [isLoading]);
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">
         <div className="text-sm flex gap-2 items-center">
           <div className="text-sm flex gap-1">
-            <p>เลือกห้องเรียน</p>
+            <p onClick={() => console.log(allClassRoom)}>เลือกห้องเรียน</p>
             <p className="text-red-500">*</p>
           </div>
           <p className="text-blue-500">(คลิกที่ห้องเรียนเพื่อเลือก)</p>
@@ -32,58 +58,30 @@ function SelectedClassRoom(props: Props) {
               <p>{`ม.${grade}`}</p>
               {/* <CheckBox label={`ม.${grade}`} /> */}
               <div className="flex flex-wrap w-1/2 justify-end gap-3">
-                {props.allClassRoom
+                {allClassRoom
                   .filter((item) => item.Year == grade)[0]
                   .rooms.map((classroom: any) => (
-                    <Fragment key={classroom}>
+                    <Fragment key={`ม.${classroom}`}>
                       <MiniButton
                         titleColor={
-                          props.Grade.filter(
-                            (item) => item.Year == grade
-                          )[0].ClassRooms.includes(
-                            parseInt(
-                              `${grade}${
-                                classroom < 10 ? `0${classroom}` : classroom
-                              }`
-                            )
-                          )
+                          props.Grade.includes(classroom)
                             ? "#008022"
                             : "#222222"
                         }
                         borderColor={
-                          props.Grade.filter(
-                            (item) => item.Year == grade
-                          )[0].ClassRooms.includes(
-                            parseInt(
-                              `${grade}${
-                                classroom < 10 ? `0${classroom}` : classroom
-                              }`
-                            )
-                          )
-                            ? "#abffc1"
+                          props.Grade.includes(classroom)
+                            ? "#9fedb3"
                             : "#888888"
                         }
                         buttonColor={
-                          props.Grade.filter(
-                            (item) => item.Year == grade
-                          )[0].ClassRooms.includes(
-                            parseInt(
-                              `${grade}${
-                                classroom < 10 ? `0${classroom}` : classroom
-                              }`
-                            )
-                          )
+                          props.Grade.includes(classroom)
                             ? "#abffc1"
                             : "#ffffff"
                         }
                         border={true}
-                        title={`ม.${grade}/${classroom}`}
+                        title={`ม.${grade}/${classroom.substring(2)}`}
                         handleClick={() => {
-                          props.classRoomHandleChange(
-                            `${grade}${
-                              classroom < 10 ? `0${classroom}` : classroom
-                            }`
-                          );
+                          props.classRoomHandleChange(classroom);
                         }}
                         width={""}
                         height={""}
