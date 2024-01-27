@@ -25,7 +25,7 @@ function ShowTeacherData() {
     () =>
       `/assign?TeacherID=` +
       teacher.TeacherID +
-      `&Semester=` +
+      `&Semester=SEMESTER_` +
       semester +
       `&AcademicYear=` +
       academicYear,

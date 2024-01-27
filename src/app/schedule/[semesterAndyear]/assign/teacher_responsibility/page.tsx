@@ -8,7 +8,7 @@ import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
 import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
-import { fetcher } from "@/libs/axios";
+import api, { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
 import { gradelevel, subject, subject_credit } from "@prisma/client";
 import { subjectCreditValues } from "@/models/credit-value";
@@ -27,7 +27,7 @@ function ClassroomResponsibility(props: Props) {
     () =>
       `/assign?TeacherID=` +
       searchTeacherID +
-      `&Semester=` +
+      `&Semester=SEMESTER_` +
       semester +
       `&AcademicYear=` +
       academicYear,
@@ -44,7 +44,7 @@ function ClassroomResponsibility(props: Props) {
       Department: "",
     },
     Grade: [
-      { Year: 1, ClassRooms: [] }, //ClassRooms : [{GradeID:'101', Subjects:[]}]
+      { Year: 1, ClassRooms: [] }, //ClassRooms : [{RespID: 1,GradeID:'101', Subjects:[]}]
       { Year: 2, ClassRooms: [] },
       { Year: 3, ClassRooms: [] },
       { Year: 4, ClassRooms: [] },
@@ -63,6 +63,7 @@ function ClassroomResponsibility(props: Props) {
         (data) => data.gradelevel.Year == year
       ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
       const mapGradeIDOnly = filterResData.map((data) => ({
+        RespID: data.RespID,
         GradeID: data.GradeID,
         Subjects: [],
       })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
@@ -75,10 +76,12 @@ function ClassroomResponsibility(props: Props) {
       for (let i = 0; i < removeDulpicateGradeID.length; i++) {
         //แยกวิชาของแต่ละห้องเป็น 2D array เพื่อที่จะให้มันเรียงตามจำนวนห้องเรียน ex. => [[วิชาเรียนของ id 101], [วิชาเรียนของ id 102], [วิชาเรียนของ id 103]] ข้อมูลก็จะเป็น object ของวิชา
         splitSubjects.push(
-          filterResData.filter(
-            (item) =>
-              item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
-          ).map(item => ({...item.subject, TeachHour: item.TeachHour}))
+          filterResData
+            .filter(
+              (item) =>
+                item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
+            )
+            .map((item) => ({ ...item.subject, TeachHour: item.TeachHour }))
         );
       }
       let result = removeDulpicateGradeID.map((data, index) => ({
@@ -116,7 +119,7 @@ function ClassroomResponsibility(props: Props) {
         item.Year == year //เช็คก่อนว่าเพิ่มชั้นเรียนของปีอะไร
           ? {
               ...item,
-              ClassRooms: rooms //วางข้อมูลห้องเรียนที่อัปเดตลงไป
+              ClassRooms: rooms, //วางข้อมูลห้องเรียนที่อัปเดตลงไป
             }
           : item
       ),
@@ -164,34 +167,48 @@ function ClassroomResponsibility(props: Props) {
     []
   );
   const setCurrentSubject = (subj) => {
-    console.log(subj);
+    // console.log(subj);
     setCurrentSubjectInClassRoom(subj);
   };
   const [year, setYear] = useState<number>(null);
   const sumTeachHour = (grade): number => {
     // grade.ClassRooms.map(classroom => classroom.Subjects).map(subject => subjectCreditValues[subject.Credit] * 2).reduce((a, b) => a + b)
-    const getSubjectsOnly = grade.ClassRooms.map(classroom => classroom.Subjects) //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Classroom
-    const tempSubjects = [] //สร้าง array เปล่าเพื่อเก็บ object ของวิชาที่เอามาจาก หลายๆห้องเรียนใน 1 ระดับชั้นมาไว้ใน array เดียว
-    for(let i=0;i<getSubjectsOnly.length;i++){
+    const getSubjectsOnly = grade.ClassRooms.map(
+      (classroom) => classroom.Subjects
+    ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Classroom
+    const tempSubjects = []; //สร้าง array เปล่าเพื่อเก็บ object ของวิชาที่เอามาจาก หลายๆห้องเรียนใน 1 ระดับชั้นมาไว้ใน array เดียว
+    for (let i = 0; i < getSubjectsOnly.length; i++) {
       tempSubjects.push(...getSubjectsOnly[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
     }
-    const mapTeachHour = tempSubjects.map(subject => subjectCreditValues[subject.Credit] * 2) //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
+    const mapTeachHour = tempSubjects.map(
+      (subject) => subjectCreditValues[subject.Credit] * 2
+    ); //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
     const result = mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน
     return result;
-  }
+  };
   const saveData = () => {
-    const classRoomMap = data.Grade.map(item => item.ClassRooms) //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
-    const spreadClassRoom = [] //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
-    for(let i=0;i<classRoomMap.length;i++){
+    const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
+    const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
+    for (let i = 0; i < classRoomMap.length; i++) {
       spreadClassRoom.push(...classRoomMap[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
     }
-    const result = {
+    const postData = {
       TeacherID: data.Teacher.TeacherID,
       Resp: spreadClassRoom,
       AcademicYear: parseInt(academicYear),
       Semester: `SEMESTER_${semester}`,
-  }
-  }
+    };
+    saveApi(postData);
+  };
+
+  const saveApi = async (data) => {
+    const response = await api.post("/assign", data);
+    console.log(response);
+    if (response.status === 200) {
+      console.log("บันทึกข้อมูลสำเร็จ");
+      responsibilityData.mutate();
+    }
+  };
   return (
     <>
       {classRoomModalActive ? (
@@ -349,7 +366,9 @@ function ClassroomResponsibility(props: Props) {
                                   title={`${subject.SubjectCode} ${subject.SubjectName}`}
                                 />
                                 <p className="text-sm text-[#4F515E]">
-                                  จำนวน {subjectCreditValues[subject.Credit] * 2} ชั่วโมง
+                                  จำนวน{" "}
+                                  {subjectCreditValues[subject.Credit] * 2}{" "}
+                                  ชั่วโมง
                                 </p>
                               </div>
                             </Fragment>
@@ -359,8 +378,12 @@ function ClassroomResponsibility(props: Props) {
                     </Fragment>
                   ))}
                   <div className="w-full pr-3 mt-4 flex justify-between items-center">
-                    <p className="text-sm text-gray-400">รวมชั่วโมงที่สอนทั้งหมด</p>
-                    <p className="text-sm text-gray-400">{sumTeachHour(grade)} ชั่วโมง</p>
+                    <p className="text-sm text-gray-400">
+                      รวมชั่วโมงที่สอนทั้งหมด
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {sumTeachHour(grade)} ชั่วโมง
+                    </p>
                   </div>
                 </div>
               )}
