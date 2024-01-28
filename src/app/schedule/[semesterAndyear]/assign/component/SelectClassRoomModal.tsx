@@ -33,8 +33,8 @@ function SelectClassRoomModal({
     const mapClassRoomData = filterYear.map(
       (item, index) =>
         classList.map((gid) => gid.GradeID).includes(item.GradeID) //เช็คข้อมูลว่าเคยมีห้องเรียนที่เลือกหรือยัง (เช็ค GradeID)
-          ? { ...classList[index], isSelected: true } //ถ้ามี ก็ใส่ isSelected: true เพื่อบ่งบอกว่าวิชานี้ได้เคยเลือกไว้ก่อนหน้าแล้ว
-          : { GradeID: item.GradeID, Subjects: [], isSelected: false } //ถ้าไม่ ก็ map ขึ้นมาให้ใหม่
+          ? { ...classList.filter(gid => item.GradeID == gid.GradeID)[0], isSelected: true } //ถ้ามี ก็ใส่ isSelected: true เพื่อบ่งบอกว่าวิชานี้ได้เคยเลือกไว้ก่อนหน้าแล้ว
+          : { GradeID: item.GradeID || "", isSelected: false } //ถ้าไม่ ก็ map ขึ้นมาให้ใหม่
     ); //ตรงนี่จะ Map ข้อมูลด้วยการเช็คว่า ข้อมูลที่ส่งมานั้นเคยมีแล้วหรือยัง ถ้ามาแล้วจะใส่ isSelected = true ถ้าไม่เคยมีก็ false
     //ทำเพื่ออะไร ? เพื่อตอนกดสลับเลือกห้องเรียนไปมา ข้อมูลของวิชาที่ติดอยู่กับห้องเรียนที่เคยเลือกแล้วจะได้ไม่หายไปไหน ของเก่าเนี่ย ถ้าเรากดลบห้องเรียนแล้วเพิ่มกลับมาใหม่ ข้อมูลวิชาในนั้นจะหายไป
     setClassRoomList(() => mapClassRoomData); //นำข้อมูลมา set state
@@ -72,7 +72,7 @@ function SelectClassRoomModal({
               <div className="flex justify-between">
                 <p
                   className="text-lg select-none"
-                  onClick={() => console.log(data)}
+                  onClick={() => console.log(classRoomList)}
                 >
                   เลือกห้องเรียน
                 </p>

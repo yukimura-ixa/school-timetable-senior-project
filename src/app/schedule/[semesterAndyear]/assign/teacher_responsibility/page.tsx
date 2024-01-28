@@ -25,13 +25,12 @@ function ClassroomResponsibility(props: Props) {
   const responsibilityData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      `/assign?TeacherID=${searchTeacherID}&Semester=${semester}&AcademicYear=${academicYear}`,
+      `/assign?TeacherID=${searchTeacherID}&Semester=SEMESTER_${semester}&AcademicYear=${academicYear}`,
     fetcher
   );
   const teacherData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
-    () =>
-      `/teacher?TeacherID=${searchTeacherID}`,
+    () => `/teacher?TeacherID=${searchTeacherID}`,
     fetcher
   );
   // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
@@ -52,6 +51,7 @@ function ClassroomResponsibility(props: Props) {
       { Year: 5, ClassRooms: [] },
       { Year: 6, ClassRooms: [] },
     ],
+    Subjects: []
   });
   useEffect(() => {
     const ClassRoomClassify = (year: number): String[] => {
@@ -65,35 +65,20 @@ function ClassroomResponsibility(props: Props) {
       ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
       const mapGradeIDOnly = filterResData.map((data) => ({
         GradeID: data.GradeID,
-        Subjects: [],
+        // Subjects: [],
       })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
       const removeDulpicateGradeID = mapGradeIDOnly.filter(
         (obj, index) =>
           mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
           index
       ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
-      let splitSubjects = []; //สร้าง Array เปล่าขึ้นมาสำหรับแยกวิชาของแต่ละห้อง
-      for (let i = 0; i < removeDulpicateGradeID.length; i++) {
-        //แยกวิชาของแต่ละห้องเป็น 2D array เพื่อที่จะให้มันเรียงตามจำนวนห้องเรียน ex. => [[วิชาเรียนของ id 101], [วิชาเรียนของ id 102], [วิชาเรียนของ id 103]] ข้อมูลก็จะเป็น object ของวิชา
-        splitSubjects.push(
-          filterResData
-            .filter(
-              (item) =>
-                item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
-            )
-            .map((item) => item.subject)
-        );
-      }
-      let result = removeDulpicateGradeID.map((data, index) => ({
-        ...data,
-        Subjects: splitSubjects[index],
-      })); //map วิชาเข้าไปโดยอ้างอิงจาก index เพราะมันตรงกัน
-      return result;
+      return removeDulpicateGradeID;
     };
     if (!responsibilityData.isLoading) {
       //ถ้า fetch ข้อมูลเสร็จแล้ว
       setData(() => ({
         ...data,
+        Subjects: responsibilityData.data,
         Grade: data.Grade.map((item) => ({
           //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
           Year: item.Year,
@@ -102,7 +87,11 @@ function ClassroomResponsibility(props: Props) {
       }));
     }
   }, [responsibilityData.isLoading]); //เช็คว่าโหลดเสร็จยัง ถ้าเสร็จแล้วก็ไปทำข้างใน useEffect
-  useEffect(() => {if(!teacherData.isLoading){setData(() => ({...data, Teacher: teacherData.data}))}}, [teacherData.isLoading])
+  useEffect(() => {
+    if (!teacherData.isLoading) {
+      setData(() => ({ ...data, Teacher: teacherData.data }));
+    }
+  }, [teacherData.isLoading]);
   const router = useRouter();
   const [classRoomModalActive, setClassRoomModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
@@ -136,61 +125,60 @@ function ClassroomResponsibility(props: Props) {
     }
   };
   const addSubjectToClassRoom = (subj: any) => {
-    let addToClassRoom = data.Grade.filter(
-      (item) => item.Year == classRoomForAddSubj.Year
-    )
-      .map((item) => item.ClassRooms)[0]
-      .map((item) =>
-        item.GradeID == classRoomForAddSubj.GradeID
-          ? { ...item, Subjects: [...subj] }
-          : item
-      ); //map เพื่อนำข้อมูลวิชาที่เพิ่มใหม่ไปใส่ใน object ที่ชั้นเรียนและห้องเรียนที่เราต้องการ (Property ClassRooms)
+    // let newSubjects = subj
+    // let currentSubjects = 
+    // const removeDulpicateData = addNewSubjects.filter(
+    //   (obj, index) =>
+    //     addNewSubjects.findIndex((item) => item.GradeID == obj.GradeID && item.SubjectCode == obj.SubjectCode) ===
+    //     index
+    // );
     setData(() => ({
       ...data,
-      Grade: data.Grade.map((grade) =>
-        grade.Year == classRoomForAddSubj.Year
-          ? { ...grade, ClassRooms: addToClassRoom }
-          : grade
-      ),
+      Subjects : subj
     })); //เช็คชั้นเรียนที่ตรงกันแล้วเอา addToClassRoom ลงมาใส่
-    setAddSubjectModalActive(false);
+    // setAddSubjectModalActive(false);
   };
-  const [classRoomForAddSubj, setClassRoomForAddSubj] = useState({
-    Year: null,
-    GradeID: null,
-  });
-  const addClassRoomtoClass = (Year, Classrooms) => {
+  const addClassRoomtoClass = (Year, Classrooms) => { //func สำหรับเพิ่มห้องเรียนที่เลือกมาใหม่เข้าไปในชั้นเรียนหลังกดตกลงใน SelectClassRoomModal
     setClassRoomModalActive(true);
     setYear(() => Year);
     setClassRoomList(() => Classrooms);
   };
+  const [classRoomForAddSubj, setClassRoomForAddSubj] = useState({
+    Year: null,
+    GradeID: null,
+  }); //ตัวแปรนี้จะเก็บค่าตามที่เห็น จะเก็บก็ต่อเมื่อกดปุ่มห้องเรียน เช่น 1/1 ก็เก็บ Year = 1 GradeID = 101 เป็นต้น
   const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState(
     []
-  );
-  const setCurrentSubject = (subj) => {
-    // console.log(subj);
+  ); //ตัวแปรนี้เก็บข้อมูลวิชาของห้องเรียนที่เราเลือก
+  const setCurrentSubject = (subj) => { //จะเป็นตัว set ข้อมูลให้กับตัวแปรด้านบนเฉยๆ (ละจะสร้างให้เปลืองที่ไมฟะ??)
     setCurrentSubjectInClassRoom(subj);
   };
   const [year, setYear] = useState<number>(null);
-  const sumTeachHour = (grade): number => {
-    // grade.ClassRooms.map(classroom => classroom.Subjects).map(subject => subjectCreditValues[subject.Credit] * 2).reduce((a, b) => a + b)
-    const getSubjectsOnly = grade.ClassRooms.map(
-      (classroom) => classroom.Subjects
-    ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Classroom
-    const tempSubjects = []; //สร้าง array เปล่าเพื่อเก็บ object ของวิชาที่เอามาจาก หลายๆห้องเรียนใน 1 ระดับชั้นมาไว้ใน array เดียว
-    for (let i = 0; i < getSubjectsOnly.length; i++) {
-      tempSubjects.push(...getSubjectsOnly[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
-    }
-    const mapTeachHour = tempSubjects.map(
-      (subject) => subjectCreditValues[subject.Credit] * 2
-    ); //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
-    if(mapTeachHour.length == 0){
-      return 0;
-    }
-    else{
-      return mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน (result)
-    }
-  };
+  // const sumTeachHour = (grade): number => {
+  //   // grade.ClassRooms.map(classroom => classroom.Subjects).map(subject => subjectCreditValues[subject.Credit] * 2).reduce((a, b) => a + b)
+  //   const getSubjectsOnly = grade.ClassRooms.map(
+  //     (classroom) => classroom.Subjects
+  //   ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Classroom
+  //   const tempSubjects = []; //สร้าง array เปล่าเพื่อเก็บ object ของวิชาที่เอามาจาก หลายๆห้องเรียนใน 1 ระดับชั้นมาไว้ใน array เดียว
+  //   for (let i = 0; i < getSubjectsOnly.length; i++) {
+  //     tempSubjects.push(...getSubjectsOnly[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
+  //   }
+  //   const mapTeachHour = tempSubjects.map(
+  //     (subject) => subjectCreditValues[subject.Credit] * 2
+  //   ); //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
+  //   if (mapTeachHour.length == 0) {
+  //     //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 ชั่วโมง
+  //     return 0;
+  //   } else {
+  //     return mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน (result)
+  //   }
+  // };
+  const getSubjectDataByGradeID = (GradeID: string) => { //เอาข้อมูลของชั้นเรียนที่ต้องการ
+    //ตัวอย่างถ้าส่ง GradeID = 101 ไป ก็จะได้แบบนี้
+    // {RespID: 1, TeacherID: 1, GradeID: '101', SubjectCode: 'ddddd', AcademicYear: 2566, …}
+    // {RespID: 2, TeacherID: 1, GradeID: '101', SubjectCode: 'I20102', AcademicYear: 2566, …}
+    return data.Subjects.filter(item => item.GradeID == GradeID);
+  }
   const saveData = () => {
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
     const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
@@ -198,13 +186,20 @@ function ClassroomResponsibility(props: Props) {
       spreadClassRoom.push(...classRoomMap[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
     }
     console.log(classRoomMap);
+    //   {
+    //     TeacherID: 1,
+    //     Resp: [{RespID: 1, TeacherID: 1, GradeID: '102', ...},{RespID: 1, TeacherID: 1, GradeID: '102', ...}, {TeacherID: 1, GradeID: '102', ...}],
+    //     AcademicYear: 2566,
+    //     Semester: "SEMESTER_1",
+    // }
     const postData = {
       TeacherID: data.Teacher.TeacherID,
       Resp: spreadClassRoom,
       AcademicYear: parseInt(academicYear),
       Semester: `SEMESTER_${semester}`,
     };
-    saveApi(postData);
+    console.log(postData);
+    // saveApi(postData);
   };
 
   const saveApi = async (data) => {
@@ -230,8 +225,8 @@ function ClassroomResponsibility(props: Props) {
           classRoomData={classRoomForAddSubj}
           closeModal={() => setAddSubjectModalActive(false)}
           addSubjectToClass={addSubjectToClassRoom}
-          currentSubject={currentSubjectInClassRoom}
-        />
+          currentSubject={data.Subjects} 
+          subjectByGradeID={currentSubjectInClassRoom}/>
       ) : null}
       {responsibilityData.isLoading ? <Loading /> : null}
       <span className="flex flex-col gap-4 my-4">
@@ -241,7 +236,8 @@ function ClassroomResponsibility(props: Props) {
               <p
                 className="text-md"
                 onClick={() => {
-                  console.log(data);
+                  // console.log(data.Subjects.filter(item => item.GradeID == '101').map(data => data.subject));
+                  console.log(data)
                 }}
               >
                 ชั้นเรียนที่รับผิดชอบ
@@ -311,11 +307,12 @@ function ClassroomResponsibility(props: Props) {
                           titleColor="#000dff"
                           handleClick={() => {
                             setAddSubjectModalActive(true),
-                              setClassRoomForAddSubj(() => ({
-                                Year: grade.Year,
-                                GradeID: room.GradeID,
-                              }));
-                            setCurrentSubject(room.Subjects);
+                            setClassRoomForAddSubj(() => ({
+                              Year: grade.Year,
+                              GradeID: room.GradeID,
+                            }));
+                            // setCurrentSubject(room.Subjects);
+                            setCurrentSubject(getSubjectDataByGradeID(room.GradeID));
                           }}
                           title={`ม.${grade.Year}/${room.GradeID.substring(2)}`}
                         />
@@ -347,22 +344,22 @@ function ClassroomResponsibility(props: Props) {
                           titleColor="#000dff"
                           handleClick={() => {
                             setAddSubjectModalActive(true),
-                              setClassRoomForAddSubj(() => ({
-                                Year: grade.Year,
-                                GradeID: room.GradeID,
-                              }));
-                            setCurrentSubject(room.Subjects);
+                            setClassRoomForAddSubj(() => ({
+                              Year: grade.Year,
+                              GradeID: room.GradeID,
+                            }));
+                            setCurrentSubject(getSubjectDataByGradeID(room.GradeID));
                           }}
                           title={`ม.${grade.Year}/${room.GradeID.substring(2)}`}
                         />
                         <div className="flex w-full flex-col gap-3 mt-1">
                           <p className="text-sm text-[#676E85]">
-                            {room.Subjects.length === 0
+                            {getSubjectDataByGradeID(room.GradeID).length === 0
                               ? "ไม่พบข้อมูล กดที่ห้องเรียนเพื่อเพิ่มวิชา"
-                              : `รับผิดชอบทั้งหมด ${room.Subjects.length} วิชา`}
+                              : `รับผิดชอบทั้งหมด ${getSubjectDataByGradeID(room.GradeID).length} วิชา`}
                           </p>
-                          {room.Subjects.map((subject: any, index: number) => (
-                            <Fragment key={`${subject.SubjectCode}(${index})`}>
+                          {getSubjectDataByGradeID(room.GradeID).map((subject: any, index:number) => (
+                            <Fragment key={`${subject.SubjectCode}(${room.GradeID})${index}`}>
                               <div className="flex justify-between items-center pr-3">
                                 <MiniButton
                                   height={30}
@@ -388,7 +385,7 @@ function ClassroomResponsibility(props: Props) {
                       รวมชั่วโมงที่สอนทั้งหมด
                     </p>
                     <p className="text-sm text-gray-400">
-                      {sumTeachHour(grade)} ชั่วโมง
+                      {/* {sumTeachHour(grade)} ชั่วโมง */} xx ชั่วโมง
                     </p>
                   </div>
                 </div>
