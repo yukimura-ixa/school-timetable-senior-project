@@ -12,6 +12,7 @@ import api, { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
 import { gradelevel, subject, subject_credit } from "@prisma/client";
 import { subjectCreditValues } from "@/models/credit-value";
+import { Snackbar, Alert } from "@mui/material";
 type Props = {
   backPage: Function;
 };
@@ -130,18 +131,10 @@ function ClassroomResponsibility(props: Props) {
     }
   };
   const addSubjectToClassRoom = (subj: any) => {
-    // let newSubjects = subj
-    // let currentSubjects =
-    // const removeDulpicateData = addNewSubjects.filter(
-    //   (obj, index) =>
-    //     addNewSubjects.findIndex((item) => item.GradeID == obj.GradeID && item.SubjectCode == obj.SubjectCode) ===
-    //     index
-    // );
     setData(() => ({
       ...data,
       Subjects: subj,
-    })); //เช็คชั้นเรียนที่ตรงกันแล้วเอา addToClassRoom ลงมาใส่
-    // setAddSubjectModalActive(false);
+    }));
   };
   const addClassRoomtoClass = (Year, Classrooms) => {
     //func สำหรับเพิ่มห้องเรียนที่เลือกมาใหม่เข้าไปในชั้นเรียนหลังกดตกลงใน SelectClassRoomModal
@@ -161,25 +154,18 @@ function ClassroomResponsibility(props: Props) {
     setCurrentSubjectInClassRoom(subj);
   };
   const [year, setYear] = useState<number>(null);
-  // const sumTeachHour = (grade): number => {
-  //   // grade.ClassRooms.map(classroom => classroom.Subjects).map(subject => subjectCreditValues[subject.Credit] * 2).reduce((a, b) => a + b)
-  //   const getSubjectsOnly = grade.ClassRooms.map(
-  //     (classroom) => classroom.Subjects
-  //   ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Classroom
-  //   const tempSubjects = []; //สร้าง array เปล่าเพื่อเก็บ object ของวิชาที่เอามาจาก หลายๆห้องเรียนใน 1 ระดับชั้นมาไว้ใน array เดียว
-  //   for (let i = 0; i < getSubjectsOnly.length; i++) {
-  //     tempSubjects.push(...getSubjectsOnly[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
-  //   }
-  //   const mapTeachHour = tempSubjects.map(
-  //     (subject) => subjectCreditValues[subject.Credit] * 2
-  //   ); //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
-  //   if (mapTeachHour.length == 0) {
-  //     //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 ชั่วโมง
-  //     return 0;
-  //   } else {
-  //     return mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน (result)
-  //   }
-  // };
+  const sumTeachHour = (year:number): number => {
+    const getSubjectsByYear = data.Subjects.filter(
+      (subj) => parseInt(subj.GradeID[0]) == year
+    ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Subjects
+    const mapTeachHour = getSubjectsByYear.map(item => subjectCreditValues[item.Credit] * 2) //map credit เป็น array ex. => [1, 3, 1]
+    if (mapTeachHour.length == 0) {
+      //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 ชั่วโมง
+      return 0;
+    } else {
+      return mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน (result)
+    }
+  };
   const getSubjectDataByGradeID = (GradeID: string) => {
     //เอาข้อมูลของชั้นเรียนที่ต้องการ
     //ตัวอย่างถ้าส่ง GradeID = 101 ไป ก็จะได้แบบนี้
@@ -187,26 +173,49 @@ function ClassroomResponsibility(props: Props) {
     // {RespID: 2, TeacherID: 1, GradeID: '101', SubjectCode: 'I20102', AcademicYear: 2566, …}
     return data.Subjects.filter((item) => item.GradeID == GradeID);
   };
+  const [validateStatus, setValidateStatus] = useState<boolean>(false); //พอเรียก func validate ข้อมูลแล้ว ถ้าผ่านจะทำการเปลี่ยน state
+  const validateEmptySubjects = (GradeID: string):boolean => {
+    const mapGradeID = data.Subjects.map(item => item.GradeID)
+    const removeDulpicateGradeID = mapGradeID.filter(
+      (obj, index) =>
+        mapGradeID.findIndex((item) => item == obj) ===
+        index
+    ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
+    return !removeDulpicateGradeID.includes(GradeID);
+  } 
+  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
+  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
+  const snackBarHandle = (commitMsg: string): void => {
+    setIsSnackBarOpen(true);
+    setSnackBarMsg(
+      commitMsg == "PASS"
+        ? "บันทึกข้อมูลการมอบหมายวิชาสำเร็จ!"
+        : `ไม่สามารถบันทึกข้อมูลได้เนื่องจากยังเพิ่มวิชาเรียนไม่ครบทุกห้องเรียน!`
+    );
+  };
   const saveData = () => {
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
     const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
     for (let i = 0; i < classRoomMap.length; i++) {
       spreadClassRoom.push(...classRoomMap[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
     }
-    console.log(classRoomMap);
-    //   {
-    //     TeacherID: 1,
-    //     Resp: [{RespID: 1, TeacherID: 1, GradeID: '102', ...},{RespID: 1, TeacherID: 1, GradeID: '102', ...}, {TeacherID: 1, GradeID: '102', ...}],
-    //     AcademicYear: 2566,
-    //     Semester: "SEMESTER_1",
-    // }
-    const postData = {
-      TeacherID: data.Teacher.TeacherID,
-      Resp: spreadClassRoom,
-      AcademicYear: parseInt(academicYear),
-      Semester: `SEMESTER_${semester}`,
-    };
-    console.log(postData);
+    //findEmptySubjectInClassRoom คือการหาว่า มีห้องไหนมั้ยที่ยังไม่เพิ่มวิชาเรียน ถ้ามีก็จะฟ้องครับผม
+    //return as Array => if true array length > 0, if false array length = 0
+    const findEmptySubjectInClassRoom = spreadClassRoom.filter(item => validateEmptySubjects(item.GradeID));
+    if(findEmptySubjectInClassRoom.length > 0){
+      setValidateStatus(true);
+      snackBarHandle("ERROR")
+    }
+    else{
+      setValidateStatus(false);
+      snackBarHandle("PASS");
+    }
+    // const postData = {
+    //   TeacherID: data.Teacher.TeacherID,
+    //   Resp: data.Subjects,
+    //   AcademicYear: parseInt(academicYear),
+    //   Semester: `SEMESTER_${semester}`,
+    // };
     // saveApi(postData);
   };
 
@@ -246,7 +255,7 @@ function ClassroomResponsibility(props: Props) {
                 className="text-md"
                 onClick={() => {
                   // console.log(data.Subjects.filter(item => item.GradeID == '101').map(data => data.subject));
-                  console.log(data);
+                  console.log(validateEmptySubjects('101'));
                 }}
               >
                 ชั้นเรียนที่รับผิดชอบ
@@ -404,7 +413,7 @@ function ClassroomResponsibility(props: Props) {
                       รวมชั่วโมงที่สอนทั้งหมด
                     </p>
                     <p className="text-sm text-gray-400">
-                      {/* {sumTeachHour(grade)} ชั่วโมง */} xx ชั่วโมง
+                      {sumTeachHour(grade.Year)} ชั่วโมง
                     </p>
                   </div>
                 </div>
@@ -412,13 +421,26 @@ function ClassroomResponsibility(props: Props) {
             </div>
           </Fragment>
         ))}
-        <div
+        <button
           onClick={saveData}
           className="flex w-full bg-emerald-100 hover:bg-emerald-200 duration-300 cursor-pointer h-10 rounded justify-center items-center"
         >
           <p className="text-emerald-500 text-sm">บันทึกข้อมูล</p>
-        </div>
+        </button>
       </span>
+      <Snackbar
+        open={isSnackBarOpen}
+        autoHideDuration={6000}
+        onClose={() => setIsSnackBarOpen(false)}
+      >
+        <Alert
+          onClose={() => setIsSnackBarOpen(false)}
+          severity={`${validateStatus ? 'error' : 'success'}`}
+          sx={{ width: "100%" }}
+        >
+          {snackBarMsg}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

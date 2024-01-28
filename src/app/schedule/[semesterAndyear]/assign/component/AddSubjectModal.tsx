@@ -217,40 +217,17 @@ function AddSubjectModal(props: Props) {
                           SubjectCode: item.SubjectCode,
                           SubjectName: item.SubjectName,
                           Credit: item.Credit,
-                          // TeachHour: subjectList[index].TeachHour,
                         };
                         setSubjectList(() =>
                           subjectList.map((item, ind) =>
                             ind === index ? data : item
                           )
                         );
-                        // console.log(item);
                       }}
                       useSearchBar={true}
                       searchFunciton={searchHandle}
                     />
                     <div className="flex justify-between gap-5 items-center">
-                      {/* <div className="flex gap-2 items-center">
-                      <p className="text-sm text-gray-500">จำนวน</p>
-                      <NumberField
-                        width={40}
-                        height={35}
-                        value={item.TeachHour}
-                        handleChange={(e:any) => {
-                            let data = {
-                                ...subjectList[index],
-                                TeachHour: parseInt(e.target.value),
-                              };
-                              setSubjectList(() =>
-                                subjectList.map((item, ind) =>
-                                  ind === index ? data : item
-                                )
-                              );
-                        }}
-                        disabled={item.subjectID === "" ? true : false}
-                      />
-                      <p className="text-sm text-gray-500">คาบ</p>
-                    </div> */}
                       <div className="flex gap-3">
                         <p className="text-sm text-gray-500">
                           จำนวน {subjectCreditValues[item.Credit] * 2 || "0"}{" "}

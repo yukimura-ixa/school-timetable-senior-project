@@ -154,7 +154,6 @@ function SelectClassRoomModal({
                       .filter((item) => item.isSelected)
                       .map((classRoom) => ({
                         GradeID: classRoom.GradeID,
-                        Subjects: classRoom.Subjects,
                       })),
                     year
                   )
