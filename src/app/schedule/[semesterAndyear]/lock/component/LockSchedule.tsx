@@ -1,10 +1,15 @@
 "use client";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import AddLockScheduleModal from "./AddLockScheduleModal";
 import EditLockScheduleModal from "./EditLockScheduleModal";
+import { useParams, useSearchParams } from "next/navigation";
+import useSWR from "swr";
+import { fetcher } from "@/libs/axios";
+import Loading from "@/app/loading";
+import { dayOfWeekThai } from "@/models/dayofweek-thai";
 
 type Props = {};
 
@@ -14,102 +19,52 @@ function LockSchedule(props: Props) {
 
   const [editLockScheduleModalActive, SetEditLockSchduleModalActive] =
     useState<boolean>(false);
+  const params = useParams();
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-"
+  ); //from "1-2566" to ["1", "2566"]
+  const lockData = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
+    () => `/lock?Semester=SEMESTER_${semester}&AcademicYear=${academicYear}`,
+    fetcher
+  );
+  useEffect(() => {
+    if(!lockData.isLoading){
+      setLockScheduledata(() => lockData.data)
+    }
+  }, [lockData.isLoading])
   const [lockScheduleData, setLockScheduledata] = useState([
     {
-      Subject: { SubjectID: 52, SubjectCode: "ก23202", SubjectName: "ชุมนุม" },
-      DayOfWeek: "อังคาร",
-      timeSlotID: [7, 8],
-      RoomName: 423,
-      Teachers: [
+      SubjectCode: "", SubjectName: "",
+      RoomID: null,
+      teachers: [
         {
-          TeacherID: 88,
-          Firstname: "อเนก",
-          Lastname: "ประสงค์",
-          Department: "คณิตศาสตร์",
-        },
-        {
-          TeacherID: 1,
-          Firstname: "อัครเดช",
-          Lastname: "ปัญญาเลิศ",
-          Department: "ภาษาไทย",
+          TeacherID: null,
+          Prefix: "",
+          Firstname: "",
+          Lastname: "",
+          Department: "",
         },
       ],
-      Grade: [
+      GradeIDs: [],
+      timeslots: [
         {
-          Year: 1,
-          ClassRooms: [],
-        },
-        {
-          Year: 2,
-          ClassRooms: [],
-        },
-        {
-          Year: 3,
-          ClassRooms: [301, 303, 305],
-        },
-        {
-          Year: 4,
-          ClassRooms: [],
-        },
-        {
-          Year: 5,
-          ClassRooms: [],
-        },
-        {
-          Year: 6,
-          ClassRooms: [],
+          TimeslotID: "",
+          AcademicYear: null,
+          Semester: "",
+          StartTime: "",
+          EndTime: "",
+          Breaktime: "",
+          DayOfWeek: ""
         },
       ],
-    },
-    {
-      Subject: {
-        SubjectID: 38,
-        SubjectCode: "ก22922",
-        SubjectName: "ลูกเสือ/ยุวกาชาด",
-      },
-      DayOfWeek: "จันทร์",
-      timeSlotID: [8, 9],
-      RoomName: 125,
-      Teachers: [
-        {
-          TeacherID: 25,
-          Firstname: "อำนวย",
-          Lastname: "ความสะดวก",
-          Department: "ศิลปะ",
-        },
-        {
-          TeacherID: 96,
-          Firstname: "ชาคริต",
-          Lastname: "จะพักคิดถึงคิดแคท",
-          Department: "การงานอาชีพและเทคโนโลยี",
-        },
-      ],
-      Grade: [
-        {
-          Year: 1,
-          ClassRooms: [],
-        },
-        {
-          Year: 2,
-          ClassRooms: [201, 202, 203, 204, 205],
-        },
-        {
-          Year: 3,
-          ClassRooms: [],
-        },
-        {
-          Year: 4,
-          ClassRooms: [],
-        },
-        {
-          Year: 5,
-          ClassRooms: [],
-        },
-        {
-          Year: 6,
-          ClassRooms: [],
-        },
-      ],
+      ClassIDs : [""],
+      room: {
+        RoomID: null,
+        RoomName: "",
+        Building: "",
+        Floor: ""
+    }
     },
   ]);
 
@@ -139,59 +94,63 @@ function LockSchedule(props: Props) {
           confirmChange={editLockSchedule}
         />
       ) : null}
+      {lockData.isLoading ? <Loading /> :
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
         {lockScheduleData.map((item, index) => (
-          <React.Fragment
-            key={`${item.Subject.SubjectCode}${item.DayOfWeek}${item.timeSlotID}`}
+          <Fragment
+            key={`${item.SubjectCode}${item.DayOfWeek}`}
           >
-            <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
-              <div className="flex items-center gap-3">
+            <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
+              <div className="flex justify-between items-center gap-3">
                 <p className="text-lg font-medium">
-                  วัน{item.DayOfWeek} - {item.Subject.SubjectName} คาบ{" "}
-                  {item.timeSlotID.join(",")}
+                   {item.SubjectCode} - {item.SubjectName}
                 </p>
-                <p>ห้อง {item.RoomName}</p>
-                <div
-                  onClick={() => {
-                    SetEditLockSchduleModalActive(true);
-                    setEditScheduleIndex(index);
-                    setEditSchedule(item);
-                  }}
-                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
-                >
-                  <TbSettings size={24} className="fill-[#EDEEF3]" />
-                </div>
-                <div
-                  onClick={() => {
-                    SetEditLockSchduleModalActive(true);
-                    setEditScheduleIndex(index);
-                    setEditSchedule(item);
-                  }}
-                  className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
-                >
-                  <TbTrash size={24} className="text-red-500" />
+                <div className="flex gap-3">
+                  {/* ปิดทำการ */}
+                  {/* <div
+                    onClick={() => {
+                      SetEditLockSchduleModalActive(true);
+                      setEditSchedule(item);
+                      setEditScheduleIndex(index);
+                      setEditSchedule(item);
+                    }}
+                    className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
+                  >
+                    <TbSettings size={24} className="fill-[#EDEEF3]" />
+                  </div> */}
+                  <div
+                    onClick={() => {
+                      SetEditLockSchduleModalActive(true);
+                      setEditScheduleIndex(index);
+                      setEditSchedule(item);
+                    }}
+                    className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
+                  >
+                    <TbTrash size={24} className="text-red-500" />
+                  </div>
                 </div>
               </div>
+              <p className="text-sm text-gray-500">สถานที่ : {item.room.RoomName}</p>
+              <p className="text-sm text-gray-500">คาบที่ : {item.timeslots.map(item => item.TimeslotID.substring(item.TimeslotID.length - 1)).join(",")}</p>
+              <p className="text-sm text-gray-500">
+                  วัน : {dayOfWeekThai[item.timeslots[0].DayOfWeek]}
+              </p>
               {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
               <div className="flex flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm">ชั้นเรียน</p>
                 <div className="flex flex-wrap w-[365px] h-fit gap-2">
-                  {item.Grade.map((grade, index) => (
-                    <React.Fragment key={`${grade.Year}${index}`}>
-                      {grade.ClassRooms.map((room) => (
-                        <React.Fragment key={`${room}`}>
-                          <MiniButton
-                            width={54}
-                            height={25}
-                            border={true}
-                            borderColor="#c7c7c7"
-                            titleColor="#4F515E"
-                            title={`ม.${room.toString()[0]}/${
-                              room.toString()[2]
-                            }`}
-                          />
-                        </React.Fragment>
-                      ))}
+                  {item.GradeIDs.map((grade, index) => (
+                    <Fragment key={`sadasdas${index}`}>
+                        <MiniButton
+                          width={54}
+                          height={25}
+                          border={true}
+                          borderColor="#c7c7c7"
+                          titleColor="#4F515E"
+                          title={`ม.${grade.toString()[0]}/${
+                            grade.toString()[2]
+                          }`}
+                        />
                       {/* {index < 9 ? (
                         <MiniButton
                           width={54}
@@ -212,7 +171,7 @@ function LockSchedule(props: Props) {
                           <p>...</p>
                         </div>
                       ) : null} */}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </div>
               </div>
@@ -220,8 +179,8 @@ function LockSchedule(props: Props) {
               <div className="flex flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm">ครูผู้สอน</p>
                 <div className="flex flex-wrap w-[365px] h-fit gap-2">
-                  {item.Teachers.map((teacher, index) => (
-                    <React.Fragment key={`${teacher.TeacherID}${index}`}>
+                  {item.teachers.map((teacher, index) => (
+                    <Fragment key={`${teacher.TeacherID}${index}`}>
                       {index < 3 ? (
                         <MiniButton
                           // width={54}
@@ -240,12 +199,12 @@ function LockSchedule(props: Props) {
                           <p>...</p>
                         </div>
                       ) : null}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </div>
               </div>
             </div>
-          </React.Fragment>
+          </Fragment>
         ))}
         <div
           onClick={() => SetAddLockSchduleModalActive(true)}
@@ -255,6 +214,7 @@ function LockSchedule(props: Props) {
           <p className="text-lg font-bold">เพิ่มคาบล็อก</p>
         </div>
       </div>
+      }
     </>
   );
 }

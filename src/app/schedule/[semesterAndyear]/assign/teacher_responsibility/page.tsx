@@ -25,12 +25,13 @@ function ClassroomResponsibility(props: Props) {
   const responsibilityData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      `/assign?TeacherID=` +
-      searchTeacherID +
-      `&Semester=SEMESTER_` +
-      semester +
-      `&AcademicYear=` +
-      academicYear,
+      `/assign?TeacherID=${searchTeacherID}&Semester=${semester}&AcademicYear=${academicYear}`,
+    fetcher
+  );
+  const teacherData = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
+    () =>
+      `/teacher?TeacherID=${searchTeacherID}`,
     fetcher
   );
   // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
@@ -80,11 +81,7 @@ function ClassroomResponsibility(props: Props) {
               (item) =>
                 item.gradelevel.GradeID === removeDulpicateGradeID[i].GradeID
             )
-            .map((item) => ({
-              ...item.subject,
-              TeachHour: item.TeachHour,
-              RespID: item.RespID,
-            }))
+            .map((item) => item.subject)
         );
       }
       let result = removeDulpicateGradeID.map((data, index) => ({
@@ -96,7 +93,7 @@ function ClassroomResponsibility(props: Props) {
     if (!responsibilityData.isLoading) {
       //ถ้า fetch ข้อมูลเสร็จแล้ว
       setData(() => ({
-        Teacher: responsibilityData.data[0].teacher, //set ข้อมูลครูลงไป
+        ...data,
         Grade: data.Grade.map((item) => ({
           //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
           Year: item.Year,
@@ -105,6 +102,7 @@ function ClassroomResponsibility(props: Props) {
       }));
     }
   }, [responsibilityData.isLoading]); //เช็คว่าโหลดเสร็จยัง ถ้าเสร็จแล้วก็ไปทำข้างใน useEffect
+  useEffect(() => {if(!teacherData.isLoading){setData(() => ({...data, Teacher: teacherData.data}))}}, [teacherData.isLoading])
   const router = useRouter();
   const [classRoomModalActive, setClassRoomModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
@@ -186,8 +184,12 @@ function ClassroomResponsibility(props: Props) {
     const mapTeachHour = tempSubjects.map(
       (subject) => subjectCreditValues[subject.Credit] * 2
     ); //เราจะ map เอาแค่ชัวโมงที่สอนจากแต่ละ object ex => [3, 1, 1, 3]
-    const result = mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน
-    return result;
+    if(mapTeachHour.length == 0){
+      return 0;
+    }
+    else{
+      return mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน (result)
+    }
   };
   const saveData = () => {
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา

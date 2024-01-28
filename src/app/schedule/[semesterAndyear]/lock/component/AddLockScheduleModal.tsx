@@ -9,6 +9,10 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
+import { useSubjectData } from "@/app/_hooks/subjectData";
+import { useRoomData } from "@/app/_hooks/roomData";
+import { useTeacherData } from "@/app/_hooks/teacherData";
+import { room } from "@prisma/client";
 
 type Props = {
   closeModal: any;
@@ -16,18 +20,6 @@ type Props = {
 };
 
 function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
-  const [subject, setSubject] = useState([]);
-  const [subjectFilter, setSubjectFilter] = useState([]);
-  const [teacher, setTeacher] = useState([]);
-  const [teacherFilter, setTeacherFilter] = useState([]);
-  const [allClassRoom, setAllClassRoom] = useState([
-    { Year: 1, rooms: [] },
-    { Year: 2, rooms: [] },
-    { Year: 3, rooms: [] },
-    { Year: 4, rooms: [] },
-    { Year: 5, rooms: [] },
-    { Year: 6, rooms: [] },
-  ]);
   const [lockScheduleData, setLockScheduledata] = useState({
     Subject: {
       SubjectID: null,
@@ -37,61 +29,9 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     DayOfWeek: "",
     timeSlotID: [],
     Teachers: [],
-    Grade: [
-      {
-        Year: 1,
-        ClassRooms: [],
-      },
-      {
-        Year: 2,
-        ClassRooms: [],
-      },
-      {
-        Year: 3,
-        ClassRooms: [],
-      },
-      {
-        Year: 4,
-        ClassRooms: [],
-      },
-      {
-        Year: 5,
-        ClassRooms: [],
-      },
-      {
-        Year: 6,
-        ClassRooms: [],
-      },
-    ],
+    Grade: [],
     RoomName: null,
   });
-  useEffect(() => {
-    const getData = () => {
-      axios
-        .get("http://localhost:3000/api/subject_lock_schedule")
-        .then((res) => {
-          let data = res.data;
-          setSubject(() => data), setSubjectFilter(() => data);
-        })
-        .catch((err) => console.log(err));
-      axios
-        .get("http://localhost:3000/api/classroom_of_allclass")
-        .then((res) => {
-          let data = res.data;
-          setAllClassRoom(() => data);
-        })
-        .catch((err) => console.log(err));
-      axios
-        .get("http://localhost:3000/api/teacher")
-        .then((res) => {
-          let data = res.data;
-          setTeacher(() => data);
-          setTeacherFilter(() => data);
-        })
-        .catch((err) => console.log(err));
-    };
-    return () => getData();
-  }, []);
   const [isEmptyData, setIsEmptyData] = useState({
     Subject: false,
     DayOfWeek: false,
@@ -100,56 +40,29 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     ClassRooms: false,
     RoomName: false,
   });
-  const [searchText, setSearchText] = useState("");
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name)
-    );
-    setSubject(res);
-  };
-  const searchHandle = (event: any) => {
-    let text = event.target.value;
-    setSearchText(text);
-    searchName(text);
-  };
-  const [searchTextTeacher, setSearchTextTeacher] = useState("");
-  const searchTeacher = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = teacherFilter.filter((item) =>
-      `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
-    );
-    setTeacher(res);
-  };
-  const searchHandleTeacher = (event: any) => {
-    let text = event.target.value;
-    setSearchTextTeacher(text);
-    searchTeacher(text);
-  };
   const timeSlotHandleChange = (e: any) => {
-    console.log(e.target.value);
+    let value = e.target.value
     let timeSlot = [...lockScheduleData.timeSlotID];
     setLockScheduledata(() => ({
       ...lockScheduleData,
-      timeSlotID: timeSlot.includes(parseInt(e.target.value))
-        ? timeSlot.filter((item) => item !== parseInt(e.target.value))
-        : [...timeSlot, parseInt(e.target.value)].sort(),
+      timeSlotID: timeSlot.includes(parseInt(value))
+        ? timeSlot.filter((item) => item !== parseInt(value))
+        : [...timeSlot, parseInt(value)].sort((a, b) => a - b),
     }));
+    console.log(timeSlot);
+    
   };
   const classRoomHandleChange = (value: any) => {
     let grade = [...lockScheduleData.Grade];
+    if(!lockScheduleData.Grade.includes(value)){
+      grade.push(value)
+    }
+    else{
+      grade.splice(grade.indexOf(value), 1)
+    }
     setLockScheduledata(() => ({
       ...lockScheduleData,
-      Grade: grade.map((item) =>
-        item.Year == parseInt(value[0]) //ถ้าชั้นปีที่กดเท่ากับ 1 ก็จะอัปเดตของปีนั้นๆ
-          ? {
-              ...item,
-              ClassRooms: item.ClassRooms.includes(parseInt(value))
-                ? item.ClassRooms.filter((item) => item != parseInt(value))
-                : [...item.ClassRooms, parseInt(value)].sort(),
-            }
-          : item
-      ),
+      Grade: grade
     }));
   };
   const validateData = () => {
@@ -159,9 +72,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       timeSlotID: lockScheduleData.timeSlotID.length == 0,
       Teachers: lockScheduleData.Teachers.length == 0,
       RoomName: lockScheduleData.RoomName == null,
-      ClassRooms:
-        lockScheduleData.Grade.filter((item) => item.ClassRooms.length > 0)
-          .length == 0,
+      ClassRooms: lockScheduleData.Grade.length == 0
     }));
   };
   useEffect(() => {
@@ -188,10 +99,12 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     if (cond) {
       validateData();
     } else {
-      confirmChange(lockScheduleData);
-      closeModal();
+      // confirmChange(lockScheduleData);
+      // closeModal();
+      console.log(lockScheduleData);
     }
   };
+  // ใช้สลับสับเปลี่ยนข้อมูลกับ component ย่อย //
   const handleSubjectChange = (value: any) => {
     setLockScheduledata(() => ({
       ...lockScheduleData,
@@ -204,10 +117,10 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       DayOfWeek: value,
     }));
   };
-  const handleRoomChange = (value: string) => {
+  const handleRoomChange = (value: room) => {
     setLockScheduledata(() => ({
       ...lockScheduleData,
-      RoomName: value,
+      RoomName: value.RoomName,
     }));
   };
   const handleAddTeacherList = (teacher: any) => {
@@ -215,7 +128,6 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       ...lockScheduleData,
       Teachers: [...lockScheduleData.Teachers, teacher],
     }));
-    setSearchTextTeacher("");
   };
   const removeTeacherFromList = (index: number) => {
     setLockScheduledata(() => ({
@@ -225,6 +137,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       ],
     }));
   };
+  // ใช้สลับสับเปลี่ยนข้อมูลกับ component ย่อย //
   return (
     <>
       <div
@@ -241,14 +154,12 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
             <SelectSubject
-              data={subject}
               currentValue={`${
                 lockScheduleData.Subject.SubjectCode == ""
                   ? ""
                   : `${lockScheduleData.Subject.SubjectCode} ${lockScheduleData.Subject.SubjectName}`
               }`}
               handleSubjectChange={handleSubjectChange}
-              searchHandle={searchHandle}
               required={isEmptyData.Subject}
             />
             <SelectDayOfWeek
@@ -259,24 +170,19 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
             <SelectMultipleTimeSlot
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeSlotID}
-              required={isEmptyData.timeSlotID}
-            />
+              required={isEmptyData.timeSlotID} daySelected={lockScheduleData.DayOfWeek} />
             <SelectRoomName
               roomName={lockScheduleData.RoomName}
               handleRoomChange={handleRoomChange}
               required={isEmptyData.RoomName}
             />
             <SelectTeacher
-              data={teacher}
               teacherSelected={lockScheduleData.Teachers}
               addTeacherFunction={handleAddTeacherList}
               removeTeacherFunction={removeTeacherFromList}
-              searchHandleTeacher={searchHandleTeacher}
-              searchTextTeacher={searchTextTeacher}
               required={isEmptyData.Teachers}
             />
             <SelectedClassRoom
-              allClassRoom={allClassRoom}
               Grade={lockScheduleData.Grade}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.ClassRooms}
