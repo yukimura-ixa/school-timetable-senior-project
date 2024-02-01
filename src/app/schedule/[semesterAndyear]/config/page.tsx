@@ -1,7 +1,7 @@
 "use client";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
 import { MdSchool, MdLunchDining } from "react-icons/md";
@@ -10,27 +10,76 @@ import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
+import api from "@/libs/axios";
 
 type Props = {};
 
 function TimetableConfigValue({}: Props) {
   const params = useParams();
-  const [startTime, setStartTime] = useState<string>("08:00");
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-"
+  ); //from "1-2566" to ["1", "2566"]
   const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [configData, setConfigData] = useState({
+    Days: ["MON", "TUE", "WED", "THU", "FRI"],
+    AcademicYear: parseInt(academicYear),
+    Semester: `SEMESTER_${semester}`,
+    StartTime: "08:00",
+    BreakDuration: 50,
+    BreakTimeslots: {
+      Junior: 4,
+      Senior: 5,
+    },
+    Duration: 50,
+    TimeslotPerDay: 10,
+  })
   const handleChangeStartTime = (e: any) => {
-    setStartTime(() => e.target.value);
+    let value = e.target.value;
+    setConfigData(() => ({...configData, StartTime : value}));
+  };
+  const [breakSlotMap, setBreakSlotMap] = useState([]) //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
+  useEffect(() => {
+    let breakSlot = [] //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
+    for(let i=0;i<configData.TimeslotPerDay;i++){
+      breakSlot.push(i+1);
+    }
+    setBreakSlotMap(breakSlot)
+    let currentValue = configData.TimeslotPerDay
+    let breakJVal = configData.BreakTimeslots.Junior
+    let breakSVal = configData.BreakTimeslots.Senior
+    if(breakJVal > currentValue || breakSVal > currentValue){
+      let jVal = breakJVal > currentValue ? currentValue : breakJVal //ถ้า range เกินจะเซ็ทเป็นค่าสูงสุดของ TimeSlotPerDay
+      let sVal = breakSVal > currentValue ? currentValue : breakSVal
+      setConfigData(() => ({...configData, BreakTimeslots : {Junior : jVal, Senior : sVal}}));
+    } //เช็คว่าถ้าคาบพักเที่ยงมี range ที่เกินจำนวนคาบต่อวัน จะให้ set เป็นค่าสูงสุดของจำนวนคาบโดยอัตโนมัติ
+  }, [configData.TimeslotPerDay])
+  const handleChangeTimeSlotPerDay = (currentValue: number) => {
+    setConfigData(() => ({...configData, TimeslotPerDay : currentValue}));
+  };
+  const handleChangeDuration = (currentValue: number) => {
+    setConfigData(() => ({...configData, Duration : currentValue}));
+  };
+  const handleChangeBreakDuration = (currentValue: number) => {
+    setConfigData(() => ({...configData, BreakDuration : currentValue}));
+  };
+  const handleChangeBreakTimeJ = (currentValue: number) => {
+    setConfigData(() => ({...configData, BreakTimeslots : {Junior : currentValue, Senior : configData.BreakTimeslots.Senior}}));
+  };
+  const handleChangeBreakTimeS = (currentValue: number) => {
+    setConfigData(() => ({...configData, BreakTimeslots : {Senior : currentValue, Junior : configData.BreakTimeslots.Junior}}));
   };
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
-  const saved = () => {
-    snackBarHandle("SAVED")
+  const saved = async () => {
+    const response = await api.post("/timeslot", configData);
+    if (response.status === 200) {
+      snackBarHandle("SAVED");
+    }
   };
   const snackBarHandle = (commitMsg: string): void => {
     setIsSnackBarOpen(true);
     setSnackBarMsg(
-      commitMsg == "SAVED"
-        ? "บันทึกการตั้งค่าสำเร็จ!"
-        : "รีเซ็ทข้อมูลสำเร็จ!"
+      commitMsg == "SAVED" ? "บันทึกการตั้งค่าสำเร็จ!" : "รีเซ็ทข้อมูลสำเร็จ!"
     );
   };
   return (
@@ -91,7 +140,7 @@ function TimetableConfigValue({}: Props) {
             <BsTable size={25} className="fill-gray-500" />
             <p className="text-md">กำหนดคาบต่อวัน</p>
           </div>
-          <Counter classifier="คาบ" initialValue={10} />
+          <Counter classifier="คาบ" currentValue={configData.TimeslotPerDay} onChange={handleChangeTimeSlotPerDay} />
         </div>
         {/* Config duration */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -99,7 +148,7 @@ function TimetableConfigValue({}: Props) {
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
           </div>
-          <Counter classifier="นาที" initialValue={50} />
+          <Counter classifier="นาที" currentValue={configData.Duration} onChange={handleChangeDuration} />
         </div>
         {/* Config time for start class */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -109,7 +158,7 @@ function TimetableConfigValue({}: Props) {
           </div>
           <input
             type="time"
-            value={startTime}
+            value={configData.StartTime}
             className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]"
             onChange={handleChangeStartTime}
           />
@@ -126,13 +175,13 @@ function TimetableConfigValue({}: Props) {
               <Dropdown
                 width="100%"
                 height="40px"
-                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                currentValue={5}
+                data={breakSlotMap}
+                currentValue={configData.BreakTimeslots.Senior}
                 placeHolder="เลือกคาบ"
                 renderItem={({ data }): JSX.Element => (
                   <li className="w-[70px]">{data}</li>
                 )}
-                handleChange={undefined}
+                handleChange={handleChangeBreakTimeS}
                 searchFunciton={undefined}
               />
             </div>
@@ -141,13 +190,13 @@ function TimetableConfigValue({}: Props) {
               <Dropdown
                 width="100%"
                 height="40px"
-                data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                currentValue={4}
+                data={breakSlotMap}
+                currentValue={configData.BreakTimeslots.Junior}
                 placeHolder="เลือกคาบ"
                 renderItem={({ data }): JSX.Element => (
                   <li className="w-[70px]">{data}</li>
                 )}
-                handleChange={undefined}
+                handleChange={handleChangeBreakTimeJ}
                 searchFunciton={undefined}
               />
             </div>
@@ -159,7 +208,7 @@ function TimetableConfigValue({}: Props) {
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดระยะเวลาพักเที่ยง</p>
           </div>
-          <Counter classifier="นาที" initialValue={50} />
+          <Counter classifier="นาที" currentValue={configData.BreakDuration} onChange={handleChangeBreakDuration} />
         </div>
         {/* Config day of week */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -169,13 +218,13 @@ function TimetableConfigValue({}: Props) {
           </div>
           <div className="flex gap-3">
             <CheckBox
-              label="วันธรรมดา (ค่าเริ่มต้น)"
+              label="วันจันทร์ - ศุกร์ (ค่าเริ่มต้น)"
               checked={true}
               value={""}
               name={""}
               handleClick={undefined}
             />
-            <CheckBox
+            {/* <CheckBox
               label="วันเสาร์"
               value={""}
               name={""}
@@ -188,7 +237,7 @@ function TimetableConfigValue({}: Props) {
               name={""}
               handleClick={undefined}
               checked={false}
-            />
+            /> */}
           </div>
         </div>
         <div className="flex w-full h-[65px] justify-end items-center">
