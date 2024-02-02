@@ -149,7 +149,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p className="text-xl select-none">เพิ่มวิชาล็อก</p>
+            <p className="text-xl select-none" onClick={() => console.log(lockScheduleData)}>เพิ่มวิชาล็อก</p>
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">

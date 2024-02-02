@@ -181,7 +181,7 @@ function AddSubjectModal(props: Props) {
                     </div>
                     <div className="flex gap-3">
                       <p className="text-sm text-gray-500">
-                        จำนวน {subjectCreditValues[subject.Credit] * 2} ชั่วโมง
+                        จำนวน {subjectCreditValues[subject.Credit] * 2} คาบ
                       </p>
                       <TbTrash
                         onClick={() => removeCurrentSubject(subject)}
@@ -231,7 +231,7 @@ function AddSubjectModal(props: Props) {
                       <div className="flex gap-3">
                         <p className="text-sm text-gray-500">
                           จำนวน {subjectCreditValues[item.Credit] * 2 || "0"}{" "}
-                          ชั่วโมง
+                          คาบ
                         </p>
                         <TbTrash
                           onClick={() => removeFromSubjectList(index)}

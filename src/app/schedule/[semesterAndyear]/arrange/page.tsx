@@ -7,6 +7,7 @@ import TimeSlot from './component/TimeSlot';
 import SubjectBox from './component/SubjectBox';
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
 import Link from 'next/link';
+import ChooseTeacher from './component/ChooseTeacher';
 type Props = {}
 
 const ArrangeTimetable = (props: Props) => {
@@ -15,9 +16,10 @@ const ArrangeTimetable = (props: Props) => {
   return (
     <>
       <div className='flex flex-col gap-3 my-5'>
-        <SelectTeacherTimetable />
+        {/* <SelectTeacherTimetable /> */}
         {/* <SubjectBox /> */}
-        <TimeSlot />
+        {/* <TimeSlot /> */}
+        <ChooseTeacher />
       </div>
     </>
   )

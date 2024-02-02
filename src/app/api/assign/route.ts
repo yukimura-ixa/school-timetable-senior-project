@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour}
+  // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour }
   try {
     const body = await request.json()
     const results = []

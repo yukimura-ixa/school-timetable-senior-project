@@ -9,7 +9,7 @@ import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
 
-function ShowTeacherData() {
+function ChooseTeacher() {
   const router = useRouter();
   const pathName = usePathname();
   const params = useParams();
@@ -120,7 +120,7 @@ function ShowTeacherData() {
             <div
               onClick={() => {
                 router.push(
-                  `${pathName}/teacher_responsibility?TeacherID=${teacher.TeacherID}`
+                  `${pathName}/teacher-arrange?TeacherID=${teacher.TeacherID}`
                 );
               }}
               className="flex w-full h-[55px] justify-between p-4 text-cyan-500 items-center border border-cyan-200 cursor-pointer bg-cyan-50 hover:bg-cyan-100 duration-300"
@@ -138,4 +138,4 @@ function ShowTeacherData() {
   );
 }
 
-export default ShowTeacherData;
+export default ChooseTeacher;

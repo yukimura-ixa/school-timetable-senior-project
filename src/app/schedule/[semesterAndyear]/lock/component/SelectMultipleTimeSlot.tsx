@@ -31,7 +31,7 @@ function SelectMultipleTimeSlot(props: Props) {
       setTimeSlot(() =>
         timeSlotData.data
           .filter((item) => dayOfWeekThai[item.DayOfWeek] == props.daySelected)
-          .map((item) => item.TimeslotID.substring(item.TimeslotID.length - 1))
+          .map((item) => parseInt(item.TimeslotID.substring(item.TimeslotID.length - 1)))
       );
     }
   }, [timeSlotData.isLoading, props.daySelected]);
@@ -39,7 +39,7 @@ function SelectMultipleTimeSlot(props: Props) {
     <>
       <div className="flex justify-between w-full">
         <div className="text-sm flex gap-1 items-center">
-          <p>คาบที่</p>
+          <p onClick={() => console.log(timeSlot)}>คาบที่</p>
           <p className="text-red-500">*</p>
           {props.required ? (
             <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">

@@ -160,7 +160,7 @@ function ClassroomResponsibility(props: Props) {
     ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Subjects
     const mapTeachHour = getSubjectsByYear.map(item => subjectCreditValues[item.Credit] * 2) //map credit เป็น array ex. => [1, 3, 1]
     if (mapTeachHour.length == 0) {
-      //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 ชั่วโมง
+      //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 คาบ
       return 0;
     } else {
       return mapTeachHour.reduce((a, b) => a + b); //sum ตัวเลชทั้งหมดใน array เข้าด้วยกัน (result)
@@ -194,6 +194,12 @@ function ClassroomResponsibility(props: Props) {
     );
   };
   const saveData = () => {
+    const postData = {
+      TeacherID: data.Teacher.TeacherID,
+      Resp: data.Subjects,
+      AcademicYear: parseInt(academicYear),
+      Semester: `SEMESTER_${semester}`,
+    };
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
     const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
     for (let i = 0; i < classRoomMap.length; i++) {
@@ -209,13 +215,10 @@ function ClassroomResponsibility(props: Props) {
     else{
       setValidateStatus(false);
       snackBarHandle("PASS");
+      saveApi(postData);
     }
-    // const postData = {
-    //   TeacherID: data.Teacher.TeacherID,
-    //   Resp: data.Subjects,
-    //   AcademicYear: parseInt(academicYear),
-    //   Semester: `SEMESTER_${semester}`,
-    // };
+    console.log(postData);
+    // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour }
     // saveApi(postData);
   };
 
@@ -398,7 +401,7 @@ function ClassroomResponsibility(props: Props) {
                                   <p className="text-sm text-[#4F515E]">
                                     จำนวน{" "}
                                     {subjectCreditValues[subject.Credit] * 2}{" "}
-                                    ชั่วโมง
+                                    คาบ
                                   </p>
                                 </div>
                               </Fragment>
@@ -413,7 +416,7 @@ function ClassroomResponsibility(props: Props) {
                       รวมชั่วโมงที่สอนทั้งหมด
                     </p>
                     <p className="text-sm text-gray-400">
-                      {sumTeachHour(grade.Year)} ชั่วโมง
+                      {sumTeachHour(grade.Year)} คาบ
                     </p>
                   </div>
                 </div>
