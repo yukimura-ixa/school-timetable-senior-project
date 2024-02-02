@@ -9,7 +9,7 @@ import { useProgramData } from "@/app/_hooks/programData";
 import AddStudyProgramModal from "../../component/AddStudyProgramModal";
 import EditStudyProgramModal from "../../component/EditStudyProgramModal";
 import { useParams } from "next/navigation";
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import Link from "next/link";
 type Props = {};
 
@@ -26,12 +26,64 @@ function StudyProgram(props: Props) {
   const [editProgramIndex, setEditProgramIndex] = useState<number>(null);
   const params = useParams(); //get params
 
+  const [mockUpData, setMockupData] = useState([
+    {
+      ProgramID: 1,
+      ProgramName: "ม.1 เทอม 1",
+      AcademicYear: 2566,
+      Semester: "SEMESTER_1",
+      gradelevel: [
+        {
+          GradeID: "101",
+          Year: 1,
+          Number: 1,
+          ProgramID: null,
+        },
+        {
+          GradeID: "102",
+          Year: 1,
+          Number: 2,
+          ProgramID: null,
+        },
+      ],
+      subject: [
+        { SubjectCode: "ก21102", SubjectName: "asdasdas" },
+        { SubjectCode: "อ21102", SubjectName: "asdasdas" },
+      ],
+    },
+    {
+      ProgramID: 2,
+      ProgramName: "ม.1 เทอม 2",
+      AcademicYear: 2566,
+      Semester: "SEMESTER_1",
+      gradelevel: [
+        {
+          GradeID: "101",
+          Year: 1,
+          Number: 1,
+          ProgramID: null,
+        },
+        {
+          GradeID: "102",
+          Year: 1,
+          Number: 2,
+          ProgramID: null,
+        },
+      ],
+      subject: [{ SubjectCode: "ค21201", SubjectName: "asda3sdas" }],
+    },
+  ]);
+  const testAddProgram = (newProgram) => {
+    setMockupData(() => [...mockUpData, newProgram]);
+  };
+
   return (
     <>
       {addProgramModalActive ? (
         <AddStudyProgramModal
           closeModal={() => setAddProgramModalActive(false)}
           mutate={mutate}
+          addItem={testAddProgram}
         />
       ) : null}
       {editProgramModalActive ? (
@@ -43,8 +95,13 @@ function StudyProgram(props: Props) {
       ) : null}
       {/* <AllStudyProgram /> */}
       <div className="flex justify-between my-4">
-        <h1 className="text-xl font-bold">หลักสูตรมัธยมศึกษาปีที่ {params.number}</h1>
-        <Link href={'/management/program'} className="flex gap-3 cursor-pointer">
+        <h1 className="text-xl font-bold" onClick={() => console.log(data)}>
+          หลักสูตรมัธยมศึกษาปีที่ {params.number}
+        </h1>
+        <Link
+          href={"/management/program"}
+          className="flex gap-3 cursor-pointer"
+        >
           <KeyboardBackspaceIcon />
           <p className="text-sm">ย้อนกลับ</p>
         </Link>
@@ -53,7 +110,7 @@ function StudyProgram(props: Props) {
         {data.length == 0 ? ( //if data fetch is unsuccessed -> show loading component
           <Loading /> //Loading component
         ) : (
-          data.map((item, index) => (
+          mockUpData.map((item, index) => (
             <Fragment key={`${item.ProgramName}${index}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
                 <div className="flex items-center gap-3">
@@ -87,7 +144,7 @@ function StudyProgram(props: Props) {
                           border={true}
                           borderColor="#c7c7c7"
                           titleColor="#4F515E"
-                          title={`ม.${grade.Year}/${grade.Number}`}
+                          title={`${grade.GradeID}`}
                           buttonColor={""}
                           isSelected={false}
                           handleClick={undefined}

@@ -9,9 +9,10 @@ import { program, subject } from "@prisma/client";
 type Props = {
   closeModal: any;
   mutate: Function;
+  addItem: any;
 };
 
-function AddStudyProgramModal({ closeModal, mutate }: Props) {
+function AddStudyProgramModal({ closeModal, mutate, addItem }: Props) {
   const [subject, setSubject] = useState([]);
   const [subjectFilter, setSubjectFilter] = useState([]);
   const [teacherFilter, setTeacherFilter] = useState([]);
@@ -106,10 +107,12 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
   const addItemAndCloseModal = () => {
     let cond =
       isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
+    console.log(newProgramData)
     if (cond) {
       validateData();
     } else {
-      addProgram(newProgramData);
+      // addProgram(newProgramData);
+      addItem(newProgramData); //just test mockup
       closeModal();
       mutate();
     }

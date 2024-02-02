@@ -4,9 +4,39 @@ import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { subject_in_slot } from "@/raw-data/subject_in_slot";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { fetcher } from "@/libs/axios";
+import { useParams, useSearchParams } from "next/navigation";
+import useSWR from "swr";
 type Props = {};
 
 function TimeSlot(props: Props) {
+  const params = useParams();
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-"
+  ); //from "1-2566" to ["1", "2566"]
+  const searchTeacherID = useSearchParams().get("TeacherID");
+  const responsibilityData = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
+    () =>
+      `/class?AcademicYear=` +
+      academicYear +
+      `&Semester=SEMESTER_` +
+      semester +
+      `&TeacherID=` +
+      searchTeacherID,
+    fetcher
+  );
+  // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
+  const fetchTimeSlot = useSWR(
+    () => `/timeslot?AcademicYear=`+academicYear+`&Semester=SEMESTER_`+semester, fetcher
+  )
+  // const teacherData = useSWR(
+  //   //ข้อมูลหลักที่ fetch มาจาก api
+  //   () => `/teacher?TeacherID=` + searchTeacherID,
+  //   fetcher
+  // );
+  console.log(fetchTimeSlot.data);
+  
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [timeSlotData, setTimeSlotData] = useState({
     SlotAmount: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
