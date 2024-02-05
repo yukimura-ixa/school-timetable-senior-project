@@ -110,14 +110,14 @@ function StudyProgram(props: Props) {
         {data.length == 0 ? ( //if data fetch is unsuccessed -> show loading component
           <Loading /> //Loading component
         ) : (
-          mockUpData.map((item, index) => (
+          data.map((item, index) => (
             <Fragment key={`${item.ProgramName}${index}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
                 <div className="flex items-center gap-3">
                   <p className="text-lg font-bold">{item.ProgramName}</p>
                   {/* <div className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"></div> */}
                   <div className="flex gap-3 w-full justify-end">
-                    <TbSettings
+                    {/* <TbSettings
                       size={24}
                       className="fill-[#EDEEF3]"
                       onClick={() => {
@@ -125,7 +125,7 @@ function StudyProgram(props: Props) {
                         setEditProgramIndex(index);
                         setEditProgram(item);
                       }}
-                    />
+                    /> */}
                     <TbTrash
                       size={24}
                       className="text-red-500 right-6 cursor-pointer hover:bg-gray-100 duration-300"

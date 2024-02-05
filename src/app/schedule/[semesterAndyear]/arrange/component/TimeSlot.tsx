@@ -7,6 +7,8 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { fetcher } from "@/libs/axios";
 import { useParams, useSearchParams } from "next/navigation";
 import useSWR from "swr";
+import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import Loading from "@/app/loading";
 type Props = {};
 
 function TimeSlot(props: Props) {
@@ -28,30 +30,76 @@ function TimeSlot(props: Props) {
   );
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
-    () => `/timeslot?AcademicYear=`+academicYear+`&Semester=SEMESTER_`+semester, fetcher
-  )
-  // const teacherData = useSWR(
-  //   //ข้อมูลหลักที่ fetch มาจาก api
-  //   () => `/teacher?TeacherID=` + searchTeacherID,
-  //   fetcher
-  // );
-  console.log(fetchTimeSlot.data);
-  
+    () =>
+      `/timeslot?AcademicYear=` +
+      academicYear +
+      `&Semester=SEMESTER_` +
+      semester,
+    fetcher
+  );
+  // console.log(fetchTimeSlot.data);
+
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [timeSlotData, setTimeSlotData] = useState({
-    SlotAmount: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-    SlotAmounts: subject_in_slot,
+    AllData: [],
+    SlotAmount: [],
     StartTime: { Hours: 8, Minutes: 30 },
     Duration: 50,
-    DayOfWeek: [
-      { Day: "จันทร์", TextColor: "#b8a502", BgColor: "#fffacf" },
-      { Day: "อังคาร", TextColor: "#d800db", BgColor: "#fedbff" },
-      { Day: "พุธ", TextColor: "#1cba00", BgColor: "#e1ffdb" },
-      { Day: "พฤหัส", TextColor: "#ba4e00", BgColor: "#ffb996" },
-      { Day: "ศุกร์", TextColor: "#0099d1", BgColor: "#bdedff" },
-    ],
-    BreakSlot: [4, 5],
+    DayOfWeek: [],
+    BreakSlot: [],
   });
+  useEffect(() => {
+    if (!fetchTimeSlot.isLoading) {
+      let data = fetchTimeSlot.data;
+      let dayofweek = data
+        .map((day) => day.DayOfWeek)
+        .filter(
+          (item, index) =>
+            data.map((day) => day.DayOfWeek).indexOf(item) === index
+        )
+        .map((item) => ({
+          Day: dayOfWeekThai[item],
+          TextColor: "#fff",
+          BgColor: "#000",
+        })); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
+      let slotAmount = data
+        .filter((item) => item.DayOfWeek == "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
+        .map((item, index) => index + 1); //ใช้สำหรับ map หัวตารางในเว็บ จะ map จาก data เป็น number of array => [1, 2, 3, 4, 5, 6, 7]
+      let breakTime = data
+        .filter(
+          (item) =>
+            (item.Breaktime == "BREAK_BOTH" ||
+              item.Breaktime == "BREAK_JUNIOR" ||
+              item.Breaktime == "BREAK_SENIOR") &&
+            item.DayOfWeek == "MON" //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
+        )
+        .map((item) =>
+          parseInt(item.TimeslotID.substring(item.TimeslotID.length - 1))
+        ); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
+      let startTime = {
+        Hours: new Date(data[0].StartTime).getHours() - 7, //พอแปลงมันเอาเวลาของ indo เลย -7 กลับไป
+        Minutes: new Date(data[0].StartTime).getMinutes(),
+      };
+      let duration = getMinutes(
+        new Date(data[0].EndTime).getTime() -
+          new Date(data[0].StartTime).getTime()
+      ); //เอาเวลาจบลบเริ่มจะได้ duration
+      setTimeSlotData(() => ({
+        AllData: data,
+        SlotAmount: slotAmount,
+        StartTime: startTime,
+        Duration: duration,
+        DayOfWeek: dayofweek,
+        BreakSlot: breakTime,
+      }));
+    }
+    console.log(timeSlotData.AllData)
+  }, [fetchTimeSlot.isLoading]);
+  const getMinutes = (milliseconds: number) => {
+    let seconds = Math.floor(milliseconds / 1000);
+    let minutes = Math.floor(seconds / 60);
+    return minutes;
+  };
   const addHours = (time: Date, hours: number): Date => {
     //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
     time.setMinutes(time.getMinutes() + timeSlotData.Duration * hours);
@@ -61,7 +109,11 @@ function TimeSlot(props: Props) {
     let map = [
       ...timeSlotData.SlotAmount.map((hour) => {
         //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
-        let timeFormat = `0${timeSlotData.StartTime.Hours}:${timeSlotData.StartTime.Minutes}`;
+        let timeFormat = `0${timeSlotData.StartTime.Hours}:${
+          timeSlotData.StartTime.Minutes == 0
+            ? "00"
+            : timeSlotData.StartTime.Minutes
+        }`;
         //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
         const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
@@ -81,60 +133,60 @@ function TimeSlot(props: Props) {
     SlotNumber: null,
     DayOfWeek: "",
   });
-  const addSubjectToSlot = (
-    slotNumber: number,
-    dayOfWeek: string,
-    subject: any,
-    roomName: any
-  ) => {
-    let subjectData = {
-      SubjectCode: subject.SubjectCode,
-      SubjectName: subject.SubjectName,
-      RoomName: roomName,
-    };
-    let addSubject = timeSlotData.SlotAmounts.filter(
-      (item) => item.DayOfWeek == dayOfWeek
-    )[0].Slots.map((item) =>
-      item.SlotNumber === slotNumber
-        ? { SlotNumber: item.SlotNumber, Subject: subjectData }
-        : item
-    );
-    setTimeSlotData(() => ({
-      ...timeSlotData,
-      SlotAmounts: [
-        ...timeSlotData.SlotAmounts.map((item) =>
-          item.DayOfWeek == dayOfWeek
-            ? { DayOfWeek: item.DayOfWeek, Slots: addSubject }
-            : item
-        ),
-      ],
-    }));
-    setIsActiveModal(false);
-  };
-  const removeSubjectToSlot = (dayOfWeek: string, slotNumber: number) => {
-    let defaultValue = {
-      SubjectCode: null,
-      SubjectName: null,
-      RoomName: null,
-    };
-    let removedSubject = timeSlotData.SlotAmounts.filter(
-      (item) => item.DayOfWeek == dayOfWeek
-    )[0].Slots.map((item) =>
-      item.SlotNumber === slotNumber
-        ? { SlotNumber: item.SlotNumber, Subject: defaultValue }
-        : item
-    );
-    setTimeSlotData(() => ({
-      ...timeSlotData,
-      SlotAmounts: [
-        ...timeSlotData.SlotAmounts.map((item) =>
-          item.DayOfWeek == dayOfWeek
-            ? { DayOfWeek: item.DayOfWeek, Slots: removedSubject }
-            : item
-        ),
-      ],
-    }));
-  };
+  // const addSubjectToSlot = (
+  //   slotNumber: number,
+  //   dayOfWeek: string,
+  //   subject: any,
+  //   roomName: any
+  // ) => {
+  //   let subjectData = {
+  //     SubjectCode: subject.SubjectCode,
+  //     SubjectName: subject.SubjectName,
+  //     RoomName: roomName,
+  //   };
+  //   let addSubject = timeSlotData.SlotAmounts.filter(
+  //     (item) => item.DayOfWeek == dayOfWeek
+  //   )[0].Slots.map((item) =>
+  //     item.SlotNumber === slotNumber
+  //       ? { SlotNumber: item.SlotNumber, Subject: subjectData }
+  //       : item
+  //   );
+  //   setTimeSlotData(() => ({
+  //     ...timeSlotData,
+  //     SlotAmounts: [
+  //       ...timeSlotData.SlotAmounts.map((item) =>
+  //         item.DayOfWeek == dayOfWeek
+  //           ? { DayOfWeek: item.DayOfWeek, Slots: addSubject }
+  //           : item
+  //       ),
+  //     ],
+  //   }));
+  //   setIsActiveModal(false);
+  // };
+  // const removeSubjectToSlot = (dayOfWeek: string, slotNumber: number) => {
+  //   let defaultValue = {
+  //     SubjectCode: null,
+  //     SubjectName: null,
+  //     RoomName: null,
+  //   };
+  //   let removedSubject = timeSlotData.SlotAmounts.filter(
+  //     (item) => item.DayOfWeek == dayOfWeek
+  //   )[0].Slots.map((item) =>
+  //     item.SlotNumber === slotNumber
+  //       ? { SlotNumber: item.SlotNumber, Subject: defaultValue }
+  //       : item
+  //   );
+  //   setTimeSlotData(() => ({
+  //     ...timeSlotData,
+  //     SlotAmounts: [
+  //       ...timeSlotData.SlotAmounts.map((item) =>
+  //         item.DayOfWeek == dayOfWeek
+  //           ? { DayOfWeek: item.DayOfWeek, Slots: removedSubject }
+  //           : item
+  //       ),
+  //     ],
+  //   }));
+  // };
   const [testDndData, setTestDndData] = useState([
     {
       name: "box",
@@ -165,7 +217,7 @@ function TimeSlot(props: Props) {
   ]);
   // Example นะจ๊ะ
   const handleDragAndDrop = (result) => {
-    const { source, destination, type } = result;
+    const { source, destination, type } = result; 
     if (!destination) return;
     const items = Array.from(testDndData); //ex. [1, 2, 3]
     const items2 = Array.from(emptySlot);
@@ -232,24 +284,22 @@ function TimeSlot(props: Props) {
         setEmptySlot(() => map1); //set state
       }
     }
-    console.log(result);
-    console.log(`${source.droppableId} ${destination.droppableId}`);
   };
   return (
     <>
       {isActiveModal ? (
         <SelectSubjectToTimeslotModal
-          AddSubjectToSlot={addSubjectToSlot}
+          AddSubjectToSlot={undefined}
           CloseModal={() => setIsActiveModal(false)}
           SlotNumber={selectedSlot.SlotNumber}
           DayOfWeek={selectedSlot.DayOfWeek}
         />
       ) : null}
       {/* React dnd test */}
-      <div className="w-[300px] flex flex-col gap-3">
+      {/* <div className="w-[300px] flex flex-col gap-3">
         <DragDropContext onDragEnd={dragAndDropSubject}>
           <div className="">
-            <p>List Item</p>
+            <p onClick={() => console.log(timeSlotData.BreakSlot)}>List Item</p>
           </div>
           <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4">
             <p className="text-sm">วิชาที่สามารถจัดลงได้</p>
@@ -315,26 +365,10 @@ function TimeSlot(props: Props) {
                               ref={provided.innerRef}
                             >
                               <div>{item.name}</div>
-                              {/* <MdDelete
-                              size={20}
-                              className="fill-red-400 hover:fill-red-500 duration-300"
-                            /> */}
                             </div>
                           )}
                         </Draggable>
                       )}
-                      {/* {emptySlot.map((item, index) => (
-                      <Draggable draggableId={item.id} key={item.id} index={index}>
-                        {(provided) => (
-                          <div className="w-full h-10 my-2 bg-gray-200 border justify-center items-center" {...provided.dragHandleProps} {...provided.draggableProps} ref={provided.innerRef}>
-                            <p>{item.name}</p>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder} */}
-                      {/* <p>{!item.name ? "Dropzone" : item.name}</p>
-                      {provided.placeholder} */}
                     </div>
                   )}
                 </Droppable>
@@ -342,112 +376,137 @@ function TimeSlot(props: Props) {
             </div>
           </div>
         </DragDropContext>
-      </div>
-      <table className="table-auto w-full flex flex-col gap-3">
-        <thead>
-          <tr className="flex gap-4">
-            <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
-              <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
-                คาบที่
-              </span>
-            </th>
-            {/* Map จำนวนคาบ */}
-            {timeSlotData.SlotAmount.map((item) => (
-              <Fragment key={`woohoo${item}`}>
-                <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
-                  <p className="text-gray-600">
-                    {item < 10 ? `0${item}` : item}
-                  </p>
-                </th>
+      </div> */}
+      {fetchTimeSlot.isLoading ? (
+        <Loading />
+      ) : (
+        <table className="table-auto w-full flex flex-col gap-3 mt-4">
+          <thead>
+            <tr className="flex gap-4">
+              <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
+                <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
+                  คาบที่
+                </span>
+              </th>
+              {/* Map จำนวนคาบ */}
+              {timeSlotData.SlotAmount.map((item) => (
+                <Fragment key={`woohoo${item}`}>
+                  <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
+                    <p className="text-gray-600">
+                      {item < 10 ? `0${item}` : item}
+                    </p>
+                  </th>
+                </Fragment>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="flex flex-col gap-3">
+            <tr className="flex gap-4">
+              <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
+                <span className="flex w-[50px] h-[24px] justify-center">
+                  <p className="text-gray-600">เวลา</p>
+                </span>
+              </td>
+              {/* Map duration ของคาบเรียน */}
+              {mapTime().map((item) => (
+                <Fragment key={`woohoo${item.Start}${item.End}`}>
+                  <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
+                    <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
+                      {item.Start}-{item.End}
+                    </p>
+                  </td>
+                </Fragment>
+              ))}
+            </tr>
+            {timeSlotData.DayOfWeek.map((day) => (
+              <Fragment key={`asdasda${day.Day}`}>
+                <tr className="flex gap-4">
+                  <td
+                    className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
+                    style={{ backgroundColor: day.BgColor }}
+                  >
+                    <span className={`flex w-[50px] h-[24px] justify-center`}>
+                      <p style={{ color: day.TextColor }}>{day.Day}</p>
+                    </span>
+                  </td>
+                  <DragDropContext onDragEnd={dragAndDropSubject}>
+                    {timeSlotData.AllData.filter(
+                      (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
+                    ).map((item, index) => (
+                      <Fragment key={`DROPZONE${item.TimeslotID}`}>
+                        <Droppable droppableId={`${item.TimeslotID}`}>
+                          {(provided, snapshot) => (
+                            <td
+                              className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer bg-white hover:bg-emerald-200 hover:border-emerald-500 duration-300"
+                              {...provided.droppableProps}
+                              ref={provided.innerRef}
+                            >
+                              <p className="text-sm">{item.TimeslotID}</p>
+                            </td>
+                          )}
+                        </Droppable>
+                      </Fragment>
+                    ))}
+                  </DragDropContext>
+                </tr>
               </Fragment>
             ))}
-          </tr>
-        </thead>
-        <tbody className="flex flex-col gap-3">
-          <tr className="flex gap-4">
-            <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
-              <span className="flex w-[50px] h-[24px] justify-center">
-                <p className="text-gray-600">เวลา</p>
-              </span>
-            </td>
-            {/* Map duration ของคาบเรียน */}
-            {mapTime().map((item) => (
-              <Fragment key={`woohoo${item.Start}${item.End}`}>
-                <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
-                  <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
-                    {item.Start}-{item.End}
-                  </p>
-                </td>
-              </Fragment>
-            ))}
-          </tr>
-          {timeSlotData.DayOfWeek.map((day) => (
-            <Fragment key={`asdasda${day.Day}`}>
-              <tr className="flex gap-4">
-                <td
-                  className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
-                  style={{ backgroundColor: day.BgColor }}
-                >
-                  <span className={`flex w-[50px] h-[24px] justify-center`}>
-                    <p style={{ color: day.TextColor }}>{day.Day}</p>
-                  </span>
-                </td>
-                {timeSlotData.SlotAmounts.filter(
-                  (item) => item.DayOfWeek == day.Day
-                )[0].Slots.map((item) => (
-                  <Fragment key={`woohoo${item.SlotNumber}`}>
-                    <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
-                      <span className="flex w-[50px] flex-col items-center text-xs duration-300">
-                        {timeSlotData.BreakSlot.includes(item.SlotNumber) ? (
-                          <span className="flex w-[50px] h-[24px] flex-col items-center text-sm duration-300">
-                            {/* <MdAdd size={20} className="fill-gray-300" /> */}
-                          </span>
-                        ) : item.Subject.SubjectCode != null ? (
-                          <>
-                            <div className="flex items-center">
-                              <div>
-                                <p>{item.Subject.SubjectCode}</p>
-                                <p>ม.1/2</p>
-                                <p>{item.Subject.RoomName}</p>
-                              </div>
-                              <MdDelete
-                                onClick={() => {
-                                  removeSubjectToSlot(day.Day, item.SlotNumber);
-                                }}
-                                size={20}
-                                className="fill-red-400 hover:fill-red-500 duration-300"
-                              />
-                            </div>
-                          </>
-                        ) : (
-                          // <MdAdd
-                          //   onClick={() => {
-                          //     setIsActiveModal(true);
-                          //     setSelectedSlot(() => ({
-                          //       SlotNumber: item.SlotNumber,
-                          //       DayOfWeek: day.Day,
-                          //     }));
-                          //   }}
-                          //   size={20}
-                          //   className="fill-gray-300"
-                          // />
-                          <p>{item.SlotNumber}</p>
-                        )}
-                      </span>
-                    </td>
-                  </Fragment>
-                ))}
-              </tr>
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      )}
     </>
   );
 }
 
 export default TimeSlot;
-
+// {timeSlotData.SlotAmounts.filter(
+//   (item) => item.DayOfWeek == day.Day
+// )[0].Slots.map((item) => (
+//   <Fragment key={`woohoo${item.SlotNumber}`}>
+//     <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
+//       <span className="flex w-[50px] flex-col items-center text-xs duration-300">
+//         {timeSlotData.BreakSlot.includes(item.SlotNumber) ? (
+//           <span className="flex w-[50px] h-[24px] flex-col items-center text-sm duration-300">
+//             {/* <MdAdd size={20} className="fill-gray-300" /> */}
+//           </span>
+//         ) : item.Subject.SubjectCode != null ? (
+//           <>
+//             <div className="flex items-center">
+//               <div>
+//                 <p>{item.Subject.SubjectCode}</p>
+//                 <p>ม.1/2</p>
+//                 <p>{item.Subject.RoomName}</p>
+//               </div>
+//               <MdDelete
+//                 onClick={() => {
+//                   removeSubjectToSlot(
+//                     day.Day,
+//                     item.SlotNumber
+//                   );
+//                 }}
+//                 size={20}
+//                 className="fill-red-400 hover:fill-red-500 duration-300"
+//               />
+//             </div>
+//           </>
+//         ) : (
+//           // <MdAdd
+//           //   onClick={() => {
+//           //     setIsActiveModal(true);
+//           //     setSelectedSlot(() => ({
+//           //       SlotNumber: item.SlotNumber,
+//           //       DayOfWeek: day.Day,
+//           //     }));
+//           //   }}
+//           //   size={20}
+//           //   className="fill-gray-300"
+//           // />
+//           <p>{item.SlotNumber}</p>
+//         )}
+//       </span>
+//     </td>
+//   </Fragment>
+// ))}
 // {timeSlotData.BreakSlot.includes(item) ? (
 //   <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
 //     {/* <MdAdd size={20} className="fill-gray-300" /> */}
