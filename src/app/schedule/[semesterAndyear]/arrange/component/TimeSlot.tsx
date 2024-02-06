@@ -20,7 +20,7 @@ function TimeSlot(props: Props) {
   const responsibilityData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      `/class?AcademicYear=` +
+      `/assign?AcademicYear=` +
       academicYear +
       `&Semester=SEMESTER_` +
       semester +
@@ -37,9 +37,8 @@ function TimeSlot(props: Props) {
       semester,
     fetcher
   );
-  // console.log(fetchTimeSlot.data);
-
   const [isActiveModal, setIsActiveModal] = useState(false);
+  const [subjectData, setSubjectData] = useState([]);
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [],
     SlotAmount: [],
@@ -48,6 +47,11 @@ function TimeSlot(props: Props) {
     DayOfWeek: [],
     BreakSlot: [],
   });
+  useEffect(() => {
+    if (!responsibilityData.isLoading) {
+      setSubjectData(() => responsibilityData.data);
+    }
+  }, [responsibilityData.isLoading]);
   useEffect(() => {
     if (!fetchTimeSlot.isLoading) {
       let data = fetchTimeSlot.data;
@@ -93,7 +97,6 @@ function TimeSlot(props: Props) {
         BreakSlot: breakTime,
       }));
     }
-    console.log(timeSlotData.AllData)
   }, [fetchTimeSlot.isLoading]);
   const getMinutes = (milliseconds: number) => {
     let seconds = Math.floor(milliseconds / 1000);
@@ -217,7 +220,7 @@ function TimeSlot(props: Props) {
   ]);
   // Example นะจ๊ะ
   const handleDragAndDrop = (result) => {
-    const { source, destination, type } = result; 
+    const { source, destination, type } = result;
     if (!destination) return;
     const items = Array.from(testDndData); //ex. [1, 2, 3]
     const items2 = Array.from(emptySlot);
@@ -380,56 +383,95 @@ function TimeSlot(props: Props) {
       {fetchTimeSlot.isLoading ? (
         <Loading />
       ) : (
-        <table className="table-auto w-full flex flex-col gap-3 mt-4">
-          <thead>
-            <tr className="flex gap-4">
-              <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
-                <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
-                  คาบที่
-                </span>
-              </th>
-              {/* Map จำนวนคาบ */}
-              {timeSlotData.SlotAmount.map((item) => (
-                <Fragment key={`woohoo${item}`}>
-                  <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
-                    <p className="text-gray-600">
-                      {item < 10 ? `0${item}` : item}
-                    </p>
-                  </th>
-                </Fragment>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="flex flex-col gap-3">
-            <tr className="flex gap-4">
-              <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
-                <span className="flex w-[50px] h-[24px] justify-center">
-                  <p className="text-gray-600">เวลา</p>
-                </span>
-              </td>
-              {/* Map duration ของคาบเรียน */}
-              {mapTime().map((item) => (
-                <Fragment key={`woohoo${item.Start}${item.End}`}>
-                  <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
-                    <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
-                      {item.Start}-{item.End}
-                    </p>
-                  </td>
-                </Fragment>
-              ))}
-            </tr>
-            {timeSlotData.DayOfWeek.map((day) => (
-              <Fragment key={`asdasda${day.Day}`}>
-                <tr className="flex gap-4">
-                  <td
-                    className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
-                    style={{ backgroundColor: day.BgColor }}
-                  >
-                    <span className={`flex w-[50px] h-[24px] justify-center`}>
-                      <p style={{ color: day.TextColor }}>{day.Day}</p>
-                    </span>
-                  </td>
-                  <DragDropContext onDragEnd={dragAndDropSubject}>
+        <DragDropContext onDragEnd={handleDragAndDrop}>
+          <Droppable droppableId="SUBJECT" direction="horizontal">
+            {(provided, snapshot) => (
+              <div
+                className="w-full gap-3 p-4 border mt-4 rounded"
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                <p className="text-sm">รายวิชาที่ลงได้</p>
+                <div className="flex py-4">
+                  {subjectData.map((item, index) => (
+                    <Fragment
+                      key={`${item.SubjectCode}-${item.RespID}-${index}`}
+                    >
+                      <Draggable
+                        draggableId={`${item.SubjectCode}-RESP-${item.RespID}`}
+                        key={`${item.SubjectCode}-RESP-${item.RespID}`}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div className="w-fit mx-3 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
+                          {...provided.dragHandleProps}
+                          {...provided.draggableProps}
+                          ref={provided.innerRef}
+                          >
+                            <p className="text-sm">{item.SubjectCode}</p>
+                            <p className="text-sm">
+                              {item.SubjectName.substring(0, 9)}
+                            </p>
+                            <p className="text-sm">{item.GradeID}</p>
+                          </div>
+                        )}
+                      </Draggable>
+                    </Fragment>
+                  ))}
+                </div>
+                {/* {provided.placeholder} */}
+              </div>
+            )}
+          </Droppable>
+          <table className="table-auto w-full flex flex-col gap-3 mt-4">
+            <thead>
+              <tr className="flex gap-4">
+                <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
+                  <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
+                    คาบที่
+                  </span>
+                </th>
+                {/* Map จำนวนคาบ */}
+                {timeSlotData.SlotAmount.map((item) => (
+                  <Fragment key={`woohoo${item}`}>
+                    <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
+                      <p className="text-gray-600">
+                        {item < 10 ? `0${item}` : item}
+                      </p>
+                    </th>
+                  </Fragment>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="flex flex-col gap-3">
+              <tr className="flex gap-4">
+                <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
+                  <span className="flex w-[50px] h-[24px] justify-center">
+                    <p className="text-gray-600">เวลา</p>
+                  </span>
+                </td>
+                {/* Map duration ของคาบเรียน */}
+                {mapTime().map((item) => (
+                  <Fragment key={`woohoo${item.Start}${item.End}`}>
+                    <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
+                      <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
+                        {item.Start}-{item.End}
+                      </p>
+                    </td>
+                  </Fragment>
+                ))}
+              </tr>
+              {timeSlotData.DayOfWeek.map((day) => (
+                <Fragment key={`asdasda${day.Day}`}>
+                  <tr className="flex gap-4">
+                    <td
+                      className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
+                      style={{ backgroundColor: day.BgColor }}
+                    >
+                      <span className={`flex w-[50px] h-[24px] justify-center`}>
+                        <p style={{ color: day.TextColor }}>{day.Day}</p>
+                      </span>
+                    </td>
                     {timeSlotData.AllData.filter(
                       (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
                     ).map((item, index) => (
@@ -447,86 +489,15 @@ function TimeSlot(props: Props) {
                         </Droppable>
                       </Fragment>
                     ))}
-                  </DragDropContext>
-                </tr>
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
+                  </tr>
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </DragDropContext>
       )}
     </>
   );
 }
 
 export default TimeSlot;
-// {timeSlotData.SlotAmounts.filter(
-//   (item) => item.DayOfWeek == day.Day
-// )[0].Slots.map((item) => (
-//   <Fragment key={`woohoo${item.SlotNumber}`}>
-//     <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
-//       <span className="flex w-[50px] flex-col items-center text-xs duration-300">
-//         {timeSlotData.BreakSlot.includes(item.SlotNumber) ? (
-//           <span className="flex w-[50px] h-[24px] flex-col items-center text-sm duration-300">
-//             {/* <MdAdd size={20} className="fill-gray-300" /> */}
-//           </span>
-//         ) : item.Subject.SubjectCode != null ? (
-//           <>
-//             <div className="flex items-center">
-//               <div>
-//                 <p>{item.Subject.SubjectCode}</p>
-//                 <p>ม.1/2</p>
-//                 <p>{item.Subject.RoomName}</p>
-//               </div>
-//               <MdDelete
-//                 onClick={() => {
-//                   removeSubjectToSlot(
-//                     day.Day,
-//                     item.SlotNumber
-//                   );
-//                 }}
-//                 size={20}
-//                 className="fill-red-400 hover:fill-red-500 duration-300"
-//               />
-//             </div>
-//           </>
-//         ) : (
-//           // <MdAdd
-//           //   onClick={() => {
-//           //     setIsActiveModal(true);
-//           //     setSelectedSlot(() => ({
-//           //       SlotNumber: item.SlotNumber,
-//           //       DayOfWeek: day.Day,
-//           //     }));
-//           //   }}
-//           //   size={20}
-//           //   className="fill-gray-300"
-//           // />
-//           <p>{item.SlotNumber}</p>
-//         )}
-//       </span>
-//     </td>
-//   </Fragment>
-// ))}
-// {timeSlotData.BreakSlot.includes(item) ? (
-//   <span className="flex w-[50px] h-[24px] flex-col items-center text-sm hover:text-lg duration-300">
-//     {/* <MdAdd size={20} className="fill-gray-300" /> */}
-//   </span>
-// ) : (
-//   <span
-//     onClick={() => {
-//       setIsActiveModal(true)
-//       setSelectedSlot(() => (
-//         {
-//           SlotNumber: item,
-//           DayOfWeek: day.Day,
-//         }
-//       ));
-//     }}
-//     className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300"
-//   >
-//     <MdAdd size={20} className="fill-gray-300" />
-//     {/* <p>ค22101</p>
-//     <p>อัครเดช</p>
-//     <p>ภาษาไทย</p> */}
-//   </span>
-// )}
