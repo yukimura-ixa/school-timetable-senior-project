@@ -203,16 +203,6 @@ function ClassroomResponsibility(props: Props) {
     }
     //findEmptySubjectInClassRoom คือการหาว่า มีห้องไหนมั้ยที่ยังไม่เพิ่มวิชาเรียน ถ้ามีก็จะฟ้องครับผม
     //return as Array => if true array length > 0, if false array length = 0
-<<<<<<< Updated upstream
-    const findEmptySubjectInClassRoom = spreadClassRoom.filter((item) =>
-      validateEmptySubjects(item.GradeID)
-    );
-    if (findEmptySubjectInClassRoom.length > 0) {
-      setValidateStatus(true);
-      snackBarHandle("ERROR");
-    } else {
-      saveApi(postData);
-=======
     const filterSubject = data.Subjects.filter(item => spreadClassRoom.map(item => item.GradeID).includes(item.GradeID));
     const postData = {
       TeacherID: data.Teacher.TeacherID,
@@ -230,7 +220,6 @@ function ClassroomResponsibility(props: Props) {
       snackBarHandle("PASS");
       // saveApi(postData);
       console.log(filterSubject);
->>>>>>> Stashed changes
     }
     // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour }
   };
@@ -274,12 +263,7 @@ function ClassroomResponsibility(props: Props) {
               <p
                 className="text-md"
                 onClick={() => {
-<<<<<<< Updated upstream
-                  // console.log(data.Subjects.filter(item => item.GradeID == '101').map(data => data.subject));
-                  console.log(validateEmptySubjects("101"));
-=======
                   console.log(data);
->>>>>>> Stashed changes
                 }}
               >
                 ชั้นเรียนที่รับผิดชอบ
