@@ -71,7 +71,11 @@ function SelectClassRoomModal({
               <div className="flex justify-between">
                 <p
                   className="text-lg select-none"
-                  onClick={() => console.log(classRoomList)}
+                  onClick={() => console.log(classRoomList
+                    .filter((item) => item.isSelected)
+                    .map((classRoom) => ({
+                      GradeID: classRoom.GradeID,
+                    })),)}
                 >
                   เลือกชั้นเรียน
                 </p>
@@ -90,11 +94,10 @@ function SelectClassRoomModal({
                 ชั้นเรียนที่เลือกแล้ว (ม.{year})
               </p>
               <div
-                className={`flex items-center flex-wrap gap-4 w-full ${
-                  classRoomList.filter((item) => item.isSelected).length === 0
+                className={`flex items-center flex-wrap gap-4 w-full ${classRoomList.filter((item) => item.isSelected).length === 0
                     ? "h-[45px]"
                     : null
-                } border border-gray-300 px-3 py-3 rounded`}
+                  } border border-gray-300 px-3 py-3 rounded`}
               >
                 {classRoomList.map((classRoom) => (
                   <Fragment key={`is-selected${classRoom.GradeID}`}>
@@ -121,11 +124,10 @@ function SelectClassRoomModal({
                 เลือกชั้นเรียนได้จากที่นี่ (ม.{year})
               </p>
               <div
-                className={`flex items-center flex-wrap gap-4 w-full ${
-                  classRoomList.filter((item) => !item.isSelected).length === 0
+                className={`flex items-center flex-wrap gap-4 w-full ${classRoomList.filter((item) => !item.isSelected).length === 0
                     ? "h-[45px]"
                     : null
-                } border border-gray-300 px-3 py-3 rounded`}
+                  } border border-gray-300 px-3 py-3 rounded`}
               >
                 {classRoomList.map((classRoom) => (
                   <Fragment key={`not-selected-${classRoom.GradeID}`}>
