@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
     try {
         const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
         const Semester = semester[request.nextUrl.searchParams.get("Semester")]
-        console.log(AcademicYear, Semester)
         const data: timeslot[] = await prisma.timeslot.findMany({
             where: {
                 AcademicYear: AcademicYear,

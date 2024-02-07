@@ -10,14 +10,22 @@ import useSWR from "swr";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
+import { useClassData } from "@/app/_hooks/classData";
 type Props = {};
 // TODO: เพิ่มชื่อครูบนหน้าเว็บ
+// TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-"
   ); //from "1-2566" to ["1", "2566"]
   const searchTeacherID = useSearchParams().get("TeacherID");
+  const searchGradeID = useSearchParams().get("GradeID");
+  const classData = useClassData(
+    parseInt(academicYear),
+    parseInt(semester),
+    parseInt(searchTeacherID)
+  );
   const responsibilityData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
@@ -51,9 +59,11 @@ function TimeSlot(props: Props) {
   useEffect(() => {
     if (!responsibilityData.isLoading) {
       const data = responsibilityData.data; //get data
-      const mapSubjectByCredit = [] //สร้าง array เปล่ามาเก็บ
-      for(let i=0;i<data.length;i++){ //for loop ตามข้อมูลที่มี
-        for(let j=0;j<subjectCreditValues[data[i].Credit]*2;j++){ //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
+      const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
+      for (let i = 0; i < data.length; i++) {
+        //for loop ตามข้อมูลที่มี
+        for (let j = 0; j < subjectCreditValues[data[i].Credit] * 2; j++) {
+          //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
           mapSubjectByCredit.push(data[i]);
         }
       }
@@ -95,7 +105,7 @@ function TimeSlot(props: Props) {
       };
       let duration = getMinutes(
         new Date(data[0].EndTime).getTime() -
-        new Date(data[0].StartTime).getTime()
+          new Date(data[0].StartTime).getTime()
       ); //เอาเวลาจบลบเริ่มจะได้ duration
       setTimeSlotData(() => ({
         AllData: data,
@@ -121,10 +131,11 @@ function TimeSlot(props: Props) {
     let map = [
       ...timeSlotData.SlotAmount.map((hour) => {
         //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
-        let timeFormat = `0${timeSlotData.StartTime.Hours}:${timeSlotData.StartTime.Minutes == 0
-          ? "00"
-          : timeSlotData.StartTime.Minutes
-          }`;
+        let timeFormat = `0${timeSlotData.StartTime.Hours}:${
+          timeSlotData.StartTime.Minutes == 0
+            ? "00"
+            : timeSlotData.StartTime.Minutes
+        }`;
         //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
         const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
@@ -392,7 +403,12 @@ function TimeSlot(props: Props) {
       ) : (
         <DragDropContext onDragEnd={handleDragAndDrop}>
           <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
-            <p className="text-sm" onClick={() => console.log(responsibilityData.data)}>วิชาที่สามารถจัดลงได้</p>
+            <p
+              className="text-sm"
+              onClick={() => console.log(responsibilityData.data)}
+            >
+              วิชาที่สามารถจัดลงได้
+            </p>
             <div className="flex w-full text-center">
               <Droppable droppableId="asdasds" direction="horizontal">
                 {(provided, snapshot) => (
@@ -411,7 +427,8 @@ function TimeSlot(props: Props) {
                           index={index}
                         >
                           {(provided, snapshot) => (
-                            <div className="w-[90%] my-1 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
+                            <div
+                              className="w-[90%] my-1 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
                               {...provided.dragHandleProps}
                               {...provided.draggableProps}
                               ref={provided.innerRef}
@@ -493,7 +510,7 @@ function TimeSlot(props: Props) {
                               ref={provided.innerRef}
                             >
                               <p className="text-sm">{item.TimeslotID}</p>
-                            {provided.placeholder}
+                              {provided.placeholder}
                             </td>
                           )}
                         </Droppable>
