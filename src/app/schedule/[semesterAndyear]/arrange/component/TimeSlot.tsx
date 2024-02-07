@@ -10,7 +10,7 @@ import useSWR from "swr";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import Loading from "@/app/loading";
 type Props = {};
-
+// TODO: เพิ่มชื่อครูบนหน้าเว็บ
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(

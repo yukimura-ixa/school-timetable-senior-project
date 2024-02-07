@@ -1,12 +1,12 @@
 import useSWR, { preload } from "swr"
-import type { teachers_responsibility } from "@prisma/client"
+import type { timeslot } from "@prisma/client"
 import { fetcher } from "@/libs/axios"
 
-export const useTimeslotData = (TeacherID: number) => {
-  preload(`/assign?TeacherID=${TeacherID}`, fetcher)
+export const useTimeslotData = (academicYear: number, semester: number) => {
+  preload(`/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`, fetcher)
 
-  const path = `/assign?TeacherID=${TeacherID}`
-  const { data, error, mutate } = useSWR<teachers_responsibility[]>(path, fetcher)
+  const path = `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`
+  const { data, error, mutate } = useSWR<timeslot[]>(path, fetcher)
 
   return {
     data: data ?? [],

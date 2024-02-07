@@ -61,7 +61,8 @@ export async function POST(request: NextRequest) {
     },
     "Duration": 50,
     "TimeslotPerDay": 10
-}
+}   "MiniBreakDuration": 10,
+    "MiniBreakTimeslot": 2,
     */
 
     try {
@@ -73,6 +74,9 @@ export async function POST(request: NextRequest) {
             for (let index = 0; index < body.TimeslotPerDay; index++) {
                 let startTime = new Date(`1970-01-01T${body.StartTime}:00Z`)
                 startTime.setMinutes(startTime.getMinutes() + (index + 1) * body.Duration)
+                if (body!.MiniBreakTimeslot === index + 1 && body!.MiniBreakDuration > 0) {
+                    startTime.setMinutes(startTime.getMinutes() + body.MiniBreakDuration)
+                }
 
                 let isBreak: breaktime
                 if (body.BreakTimeslots.Junior === index + 1 && body.BreakTimeslots.Senior === index + 1) {

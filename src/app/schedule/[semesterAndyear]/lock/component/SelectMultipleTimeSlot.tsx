@@ -2,7 +2,7 @@ import { useTimeslotData } from "@/app/_hooks/timeslotData";
 import { fetcher } from "@/libs/axios";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useParams } from "next/navigation";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
@@ -19,12 +19,7 @@ function SelectMultipleTimeSlot(props: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-"
   ); //from "1-2566" to ["1", "2566"]
-  const timeSlotData = useSWR(
-    //ข้อมูลหลักที่ fetch มาจาก api
-    () =>
-      `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
-    fetcher
-  );
+  const timeSlotData = useTimeslotData(parseInt(academicYear), parseInt(semester));
   const [timeSlot, setTimeSlot] = useState([]);
   useEffect(() => {
     if (!timeSlotData.isLoading) {
