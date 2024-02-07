@@ -196,12 +196,6 @@ function ClassroomResponsibility(props: Props) {
     );
   };
   const saveData = () => {
-    const postData = {
-      TeacherID: data.Teacher.TeacherID,
-      Resp: data.Subjects,
-      AcademicYear: parseInt(academicYear),
-      Semester: `SEMESTER_${semester}`,
-    };
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
     const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
     for (let i = 0; i < classRoomMap.length; i++) {
@@ -209,18 +203,25 @@ function ClassroomResponsibility(props: Props) {
     }
     //findEmptySubjectInClassRoom คือการหาว่า มีห้องไหนมั้ยที่ยังไม่เพิ่มวิชาเรียน ถ้ามีก็จะฟ้องครับผม
     //return as Array => if true array length > 0, if false array length = 0
-    const findEmptySubjectInClassRoom = spreadClassRoom.filter((item) =>
-      validateEmptySubjects(item.GradeID)
-    );
-    if (findEmptySubjectInClassRoom.length > 0) {
+    const filterSubject = data.Subjects.filter(item => spreadClassRoom.map(item => item.GradeID).includes(item.GradeID));
+    const postData = {
+      TeacherID: data.Teacher.TeacherID,
+      Resp: filterSubject,
+      AcademicYear: parseInt(academicYear),
+      Semester: `SEMESTER_${semester}`,
+    };
+    const findEmptySubjectInClassRoom = spreadClassRoom.filter(item => validateEmptySubjects(item.GradeID));
+    if(findEmptySubjectInClassRoom.length > 0){
       setValidateStatus(true);
-      snackBarHandle("ERROR");
-    } else {
-      saveApi(postData);
+      snackBarHandle("ERROR")
     }
-    console.log(postData);
+    else{
+      setValidateStatus(false);
+      snackBarHandle("PASS");
+      // saveApi(postData);
+      console.log(filterSubject);
+    }
     // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour }
-    // saveApi(postData);
   };
 
   const saveApi = async (data) => {
@@ -262,8 +263,7 @@ function ClassroomResponsibility(props: Props) {
               <p
                 className="text-md"
                 onClick={() => {
-                  // console.log(data.Subjects.filter(item => item.GradeID == '101').map(data => data.subject));
-                  console.log(validateEmptySubjects("101"));
+                  console.log(data);
                 }}
               >
                 ชั้นเรียนที่รับผิดชอบ

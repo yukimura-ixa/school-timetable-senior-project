@@ -9,6 +9,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import Loading from "@/app/loading";
+import { subjectCreditValues } from "@/models/credit-value";
 type Props = {};
 // TODO: เพิ่มชื่อครูบนหน้าเว็บ
 function TimeSlot(props: Props) {
@@ -49,7 +50,15 @@ function TimeSlot(props: Props) {
   });
   useEffect(() => {
     if (!responsibilityData.isLoading) {
-      setSubjectData(() => responsibilityData.data);
+      const data = responsibilityData.data; //get data
+      const mapSubjectByCredit = [] //สร้าง array เปล่ามาเก็บ
+      for(let i=0;i<data.length;i++){ //for loop ตามข้อมูลที่มี
+        for(let j=0;j<subjectCreditValues[data[i].Credit]*2;j++){ //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
+          mapSubjectByCredit.push(data[i]);
+        }
+      }
+      console.log(mapSubjectByCredit);
+      setSubjectData(() => mapSubjectByCredit);
     }
   }, [responsibilityData.isLoading]);
   useEffect(() => {
@@ -86,7 +95,7 @@ function TimeSlot(props: Props) {
       };
       let duration = getMinutes(
         new Date(data[0].EndTime).getTime() -
-          new Date(data[0].StartTime).getTime()
+        new Date(data[0].StartTime).getTime()
       ); //เอาเวลาจบลบเริ่มจะได้ duration
       setTimeSlotData(() => ({
         AllData: data,
@@ -112,11 +121,10 @@ function TimeSlot(props: Props) {
     let map = [
       ...timeSlotData.SlotAmount.map((hour) => {
         //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
-        let timeFormat = `0${timeSlotData.StartTime.Hours}:${
-          timeSlotData.StartTime.Minutes == 0
-            ? "00"
-            : timeSlotData.StartTime.Minutes
-        }`;
+        let timeFormat = `0${timeSlotData.StartTime.Hours}:${timeSlotData.StartTime.Minutes == 0
+          ? "00"
+          : timeSlotData.StartTime.Minutes
+          }`;
         //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
         const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
@@ -322,9 +330,8 @@ function TimeSlot(props: Props) {
                       >
                         {(provided, snapshot) => (
                           <div
-                            className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] rounded border duration-300 border-[#EDEEF3] cursor-pointer select-none ${
-                              snapshot.isDragging ? "bg-green-300" : "bg-white"
-                            }`}
+                            className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] rounded border duration-300 border-[#EDEEF3] cursor-pointer select-none ${snapshot.isDragging ? "bg-green-300" : "bg-white"
+                              }`}
                             {...provided.dragHandleProps}
                             {...provided.draggableProps}
                             ref={provided.innerRef}
@@ -384,45 +391,47 @@ function TimeSlot(props: Props) {
         <Loading />
       ) : (
         <DragDropContext onDragEnd={handleDragAndDrop}>
-          <Droppable droppableId="SUBJECT" direction="horizontal">
-            {(provided, snapshot) => (
-              <div
-                className="w-full gap-3 p-4 border mt-4 rounded"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                <p className="text-sm">รายวิชาที่ลงได้</p>
-                <div className="flex py-4">
-                  {subjectData.map((item, index) => (
-                    <Fragment
-                      key={`${item.SubjectCode}-${item.RespID}-${index}`}
-                    >
-                      <Draggable
-                        draggableId={`${item.SubjectCode}-RESP-${item.RespID}`}
-                        key={`${item.SubjectCode}-RESP-${item.RespID}`}
-                        index={index}
+          <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
+            <p className="text-sm" onClick={() => console.log(responsibilityData.data)}>วิชาที่สามารถจัดลงได้</p>
+            <div className="flex w-full text-center">
+              <Droppable droppableId="asdasds" direction="horizontal">
+                {(provided, snapshot) => (
+                  <div
+                    className="grid w-full text-center grid-cols-8 overflow-x-scroll"
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                  >
+                    {subjectData.map((item, index) => (
+                      <Fragment
+                        key={`${item.SubjectCode}-${item.GradeID}-${index}`}
                       >
-                        {(provided, snapshot) => (
-                          <div className="w-fit mx-3 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
-                          {...provided.dragHandleProps}
-                          {...provided.draggableProps}
-                          ref={provided.innerRef}
-                          >
-                            <p className="text-sm">{item.SubjectCode}</p>
-                            <p className="text-sm">
-                              {item.SubjectName.substring(0, 9)}
-                            </p>
-                            <p className="text-sm">{item.GradeID}</p>
-                          </div>
-                        )}
-                      </Draggable>
-                    </Fragment>
-                  ))}
-                </div>
-                {/* {provided.placeholder} */}
-              </div>
-            )}
-          </Droppable>
+                        <Draggable
+                          draggableId={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
+                          key={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            <div className="w-[90%] my-1 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
+                              ref={provided.innerRef}
+                            >
+                              <p className="text-sm">{item.SubjectCode}</p>
+                              <p className="text-sm">
+                                {item.SubjectName.substring(0, 9)}
+                              </p>
+                              <p className="text-sm">{item.GradeID}</p>
+                            </div>
+                          )}
+                        </Draggable>
+                      </Fragment>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          </div>
           <table className="table-auto w-full flex flex-col gap-3 mt-4">
             <thead>
               <tr className="flex gap-4">
@@ -484,6 +493,7 @@ function TimeSlot(props: Props) {
                               ref={provided.innerRef}
                             >
                               <p className="text-sm">{item.TimeslotID}</p>
+                            {provided.placeholder}
                             </td>
                           )}
                         </Droppable>
