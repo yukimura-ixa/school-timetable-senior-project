@@ -32,12 +32,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour }
   try {
     const body = await request.json()
     const results = []
 
-    // Retrieve existing responsibilities from the database
     const existingResponsibilities = await prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: body.TeacherID,
@@ -48,6 +46,33 @@ export async function POST(request: NextRequest) {
         subject: true,
       },
     })
+
+    const incomingResponsibilities = body.Resp
+    const diff = existingResponsibilities.filter((existResp) => { return !incomingResponsibilities.some((resp) => resp.RespID === existResp.RespID) })
+    // console.log(incomingResponsibilities)
+    // console.log(diff)
+    for (const resp of diff) {
+      if (!resp.RespID) {
+        const newResp = await prisma.teachers_responsibility.create({
+          data: {
+            TeacherID: body.TeacherID,
+            AcademicYear: body.AcademicYear,
+            Semester: body.Semester,
+            SubjectCode: resp.SubjectCode,
+            GradeID: resp.GradeID,
+            TeachHour: subjectCreditValues[resp.subject.Credit],
+          },
+        })
+        results.push({ created: newResp })
+      } else {
+        await prisma.teachers_responsibility.delete({
+          where: {
+            RespID: resp.RespID,
+          },
+        })
+        results.push({ deleted: resp })
+      }
+    }
 
     return NextResponse.json({ status: "success", results: results })
   } catch (error) {

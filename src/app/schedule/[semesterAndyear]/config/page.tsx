@@ -12,6 +12,8 @@ import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
 import api from "@/libs/axios";
 
+// ! กดคืนค่าเริ่มต้นไม่ได้
+// TODO: ทำปุ่มติ๊กเบรก 10 นาที (Minibreak)
 type Props = {};
 
 function TimetableConfigValue({}: Props) {
@@ -32,41 +34,64 @@ function TimetableConfigValue({}: Props) {
     },
     Duration: 50,
     TimeslotPerDay: 10,
-  })
+    MiniBreakDuration: 10,
+    MiniBreakTimeslot: 1,
+  });
   const handleChangeStartTime = (e: any) => {
     let value = e.target.value;
-    setConfigData(() => ({...configData, StartTime : value}));
+    setConfigData(() => ({ ...configData, StartTime: value }));
   };
-  const [breakSlotMap, setBreakSlotMap] = useState([]) //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
+  const [breakSlotMap, setBreakSlotMap] = useState([]); //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
   useEffect(() => {
-    let breakSlot = [] //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
-    for(let i=0;i<configData.TimeslotPerDay;i++){
-      breakSlot.push(i+1);
+    let breakSlot = []; //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
+    for (let i = 0; i < configData.TimeslotPerDay; i++) {
+      breakSlot.push(i + 1);
     }
-    setBreakSlotMap(breakSlot)
-    let currentValue = configData.TimeslotPerDay
-    let breakJVal = configData.BreakTimeslots.Junior
-    let breakSVal = configData.BreakTimeslots.Senior
-    if(breakJVal > currentValue || breakSVal > currentValue){
-      let jVal = breakJVal > currentValue ? currentValue : breakJVal //ถ้า range เกินจะเซ็ทเป็นค่าสูงสุดของ TimeSlotPerDay
-      let sVal = breakSVal > currentValue ? currentValue : breakSVal
-      setConfigData(() => ({...configData, BreakTimeslots : {Junior : jVal, Senior : sVal}}));
+    setBreakSlotMap(breakSlot);
+    let currentValue = configData.TimeslotPerDay;
+    let breakJVal = configData.BreakTimeslots.Junior;
+    let breakSVal = configData.BreakTimeslots.Senior;
+    if (breakJVal > currentValue || breakSVal > currentValue) {
+      let jVal = breakJVal > currentValue ? currentValue : breakJVal; //ถ้า range เกินจะเซ็ทเป็นค่าสูงสุดของ TimeSlotPerDay
+      let sVal = breakSVal > currentValue ? currentValue : breakSVal;
+      setConfigData(() => ({
+        ...configData,
+        BreakTimeslots: { Junior: jVal, Senior: sVal },
+      }));
     } //เช็คว่าถ้าคาบพักเที่ยงมี range ที่เกินจำนวนคาบต่อวัน จะให้ set เป็นค่าสูงสุดของจำนวนคาบโดยอัตโนมัติ
-  }, [configData.TimeslotPerDay])
+  }, [configData.TimeslotPerDay]);
   const handleChangeTimeSlotPerDay = (currentValue: number) => {
-    setConfigData(() => ({...configData, TimeslotPerDay : currentValue}));
+    setConfigData(() => ({ ...configData, TimeslotPerDay: currentValue }));
   };
   const handleChangeDuration = (currentValue: number) => {
-    setConfigData(() => ({...configData, Duration : currentValue}));
+    setConfigData(() => ({ ...configData, Duration: currentValue }));
   };
   const handleChangeBreakDuration = (currentValue: number) => {
-    setConfigData(() => ({...configData, BreakDuration : currentValue}));
+    setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
   };
   const handleChangeBreakTimeJ = (currentValue: number) => {
-    setConfigData(() => ({...configData, BreakTimeslots : {Junior : currentValue, Senior : configData.BreakTimeslots.Senior}}));
+    setConfigData(() => ({
+      ...configData,
+      BreakTimeslots: {
+        Junior: currentValue,
+        Senior: configData.BreakTimeslots.Senior,
+      },
+    }));
   };
   const handleChangeBreakTimeS = (currentValue: number) => {
-    setConfigData(() => ({...configData, BreakTimeslots : {Senior : currentValue, Junior : configData.BreakTimeslots.Junior}}));
+    setConfigData(() => ({
+      ...configData,
+      BreakTimeslots: {
+        Senior: currentValue,
+        Junior: configData.BreakTimeslots.Junior,
+      },
+    }));
+  };
+  const handleChangeMiniBreak = (currentValue: number) => {
+    setConfigData(() => ({ ...configData, MiniBreakDuration: currentValue }));
+  };
+  const handleChangeMiniBreakTime = (currentValue: number) => {
+    setConfigData(() => ({ ...configData, MiniBreakTimeslot: currentValue }));
   };
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
@@ -140,7 +165,11 @@ function TimetableConfigValue({}: Props) {
             <BsTable size={25} className="fill-gray-500" />
             <p className="text-md">กำหนดคาบต่อวัน</p>
           </div>
-          <Counter classifier="คาบ" currentValue={configData.TimeslotPerDay} onChange={handleChangeTimeSlotPerDay} />
+          <Counter
+            classifier="คาบ"
+            currentValue={configData.TimeslotPerDay}
+            onChange={handleChangeTimeSlotPerDay}
+          />
         </div>
         {/* Config duration */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -148,7 +177,11 @@ function TimetableConfigValue({}: Props) {
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
           </div>
-          <Counter classifier="นาที" currentValue={configData.Duration} onChange={handleChangeDuration} />
+          <Counter
+            classifier="นาที"
+            currentValue={configData.Duration}
+            onChange={handleChangeDuration}
+          />
         </div>
         {/* Config time for start class */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -208,7 +241,11 @@ function TimetableConfigValue({}: Props) {
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดระยะเวลาพักเที่ยง</p>
           </div>
-          <Counter classifier="นาที" currentValue={configData.BreakDuration} onChange={handleChangeBreakDuration} />
+          <Counter
+            classifier="นาที"
+            currentValue={configData.BreakDuration}
+            onChange={handleChangeBreakDuration}
+          />
         </div>
         {/* Config day of week */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">

@@ -5,7 +5,6 @@ export async function GET(request: NextRequest) {
   try {
     if (request.nextUrl.searchParams.has("TeacherID")) {
       const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
-      console.log("TeacherID", TeacherID)
       const data = await prisma.teacher.findUnique({
         where: {
           TeacherID: TeacherID,

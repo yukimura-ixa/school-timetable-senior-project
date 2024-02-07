@@ -125,7 +125,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const requestSort = (key) => {
     if (key == "มัธยมปีที่") key = "Year";
     else if (key == "ห้องที่") key = "Number";
-    else if (key == "สายการเรียน") key = "ProgramID";
+    else if (key == "หลักสูตร") key = "ProgramID";
     else key = "GradeID";
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {

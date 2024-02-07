@@ -1,6 +1,5 @@
 import { useTeacherData } from "@/app/_hooks/teacherData";
 import MiniButton from "@/components/elements/static/MiniButton";
-import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import type { gradelevel } from "@prisma/client";
 
@@ -74,7 +73,7 @@ function SelectClassRoomModal({
                   className="text-lg select-none"
                   onClick={() => console.log(classRoomList)}
                 >
-                  เลือกห้องเรียน
+                  เลือกชั้นเรียน
                 </p>
                 <AiOutlineClose
                   className="cursor-pointer"
@@ -82,13 +81,13 @@ function SelectClassRoomModal({
                 />
               </div>
               <p className="text-xs text-gray-300">
-                เลือกห้องเรียนของคุณครูที่รับผิดชอบในห้องนั้นๆ
+                เลือกชั้นเรียนของคุณครูที่รับผิดชอบในห้องนั้นๆ
               </p>
             </div>
             {/* ระดับชั้นที่เลือกแล้ว */}
             <div className="flex flex-col gap-3">
               <p className="text-sm text-gray-500">
-                ห้องเรียนที่เลือกแล้ว (ม.{year})
+                ชั้นเรียนที่เลือกแล้ว (ม.{year})
               </p>
               <div
                 className={`flex items-center flex-wrap gap-4 w-full ${
@@ -119,7 +118,7 @@ function SelectClassRoomModal({
             {/* เลือกระดับชั้นจากที่นี่ */}
             <div className="flex flex-col gap-3">
               <p className="text-sm text-gray-500">
-                เลือกห้องได้จากที่นี่ (ม.{year})
+                เลือกชั้นเรียนได้จากที่นี่ (ม.{year})
               </p>
               <div
                 className={`flex items-center flex-wrap gap-4 w-full ${
