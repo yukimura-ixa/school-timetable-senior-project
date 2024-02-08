@@ -12,8 +12,8 @@ import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
 import { useClassData } from "@/app/_hooks/classData";
 import { TbTrash } from "react-icons/tb";
+import { teacher } from "@prisma/client";
 type Props = {};
-// TODO: เพิ่มชื่อครูบนหน้าเว็บ
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
 function TimeSlot(props: Props) {
   const params = useParams();
@@ -26,6 +26,11 @@ function TimeSlot(props: Props) {
     parseInt(academicYear),
     parseInt(semester),
     parseInt(searchTeacherID)
+  );
+  const fetchTeacher = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
+    () => `/teacher?TeacherID=` + searchTeacherID,
+    fetcher
   );
   const responsibilityData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
@@ -50,6 +55,7 @@ function TimeSlot(props: Props) {
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [isDragSubject, setIsDragSubject] = useState(false);
   const [subjectData, setSubjectData] = useState([]);
+  const [teacherData, setTeacherData] = useState<teacher>();
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [],
     SlotAmount: [],
@@ -58,6 +64,11 @@ function TimeSlot(props: Props) {
     DayOfWeek: [],
     BreakSlot: [],
   });
+  useEffect(() => {
+    if (!fetchTeacher.isLoading) {
+      setTeacherData(() => fetchTeacher.data);
+    }
+  }, [fetchTeacher.isLoading]);
   useEffect(() => {
     if (!responsibilityData.isLoading) {
       const data = responsibilityData.data; //get data
@@ -155,19 +166,26 @@ function TimeSlot(props: Props) {
   };
   const [selectTimeslotID, setSelectedTimeslotID] = useState("");
   const [selectedSubject, setSelectedSubject] = useState({});
-  const addSubjectToSlot = (
-    subject: object,
-    timeSlotID: string
-  ) => {
-    let data = timeSlotData.AllData
+  const addSubjectToSlot = (subject: object, timeSlotID: string) => {
+    let data = timeSlotData.AllData;
     //แค่ลบออกได้อย่างเดียวอยู่ตอนนี้ 2/8/2024
-    setTimeSlotData(() => ({...timeSlotData, AllData : data.map(item => item.TimeslotID == timeSlotID ? {...item, subject : subject} : item)}))
+    setTimeSlotData(() => ({
+      ...timeSlotData,
+      AllData: data.map((item) =>
+        item.TimeslotID == timeSlotID ? { ...item, subject: subject } : item
+      ),
+    }));
     setIsActiveModal(false);
   };
   const removeSubjectFromSlot = (timeSlotID: string) => {
-    let data = timeSlotData.AllData
+    let data = timeSlotData.AllData;
     //แค่ลบออกได้อย่างเดียวอยู่ตอนนี้ 2/8/2024
-    setTimeSlotData(() => ({...timeSlotData, AllData : data.map(item => item.TimeslotID == timeSlotID ? {...item, subject : {}} : item)}))
+    setTimeSlotData(() => ({
+      ...timeSlotData,
+      AllData: data.map((item) =>
+        item.TimeslotID == timeSlotID ? { ...item, subject: {} } : item
+      ),
+    }));
   };
   // Example นะจ๊ะ
   const handleDragAndDrop = (result) => {
@@ -177,20 +195,13 @@ function TimeSlot(props: Props) {
     // const timeSlots = Array.from(timeSlotData.AllData);
     if (source.droppableId !== destination.droppableId) {
       //ถ้ามีการหย่อนวิชาลง timeSlot (droppableId ต้นทางและปลายทางไม่เหมือนกัน)
-      setSelectedSubject(() => subjectData[source.index])
-      setSelectedTimeslotID(destination.droppableId)
-      setIsDragSubject(true);
-      setIsActiveModal(true);
-      // setTimeSlotData(() => ({
-      //   ...timeSlotData,
-      //   AllData: timeSlots.map((data) =>
-      //     destination.droppableId == data.TimeslotID
-      //       ? { ...data, subject: subjects[source.index] }
-      //       : data
-      //   ),
-      // }));
+      setSelectedSubject(() => subjectData[source.index]); //set วิชาที่ drag
+      setSelectedTimeslotID(destination.droppableId); //set timeSlotID ปลายทาง
+      setIsDragSubject(true); //set state ว่าเพิ่มวิชาจากการลาก
+      setIsActiveModal(true); //เปิด modal
+      //ทั้งหมดนี้ใช้กับ modal จ้า
     }
-    console.log(result);
+    // console.log(result);
   };
   return (
     <>
@@ -200,141 +211,170 @@ function TimeSlot(props: Props) {
           CloseModal={() => setIsActiveModal(false)}
           timeSlotID={selectTimeslotID}
           subjects={subjectData}
-          fromDnd={isDragSubject} subjectSelected={selectedSubject} setIsDragState={() => setIsDragSubject(false)}        />
+          fromDnd={isDragSubject}
+          subjectSelected={selectedSubject}
+          setIsDragState={() => setIsDragSubject(false)}
+        />
       ) : null}
       {fetchTimeSlot.isLoading ? (
         <Loading />
       ) : (
-        <DragDropContext onDragEnd={handleDragAndDrop}>
-          <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
-            <p className="text-sm" onClick={() => console.log(isDragSubject)}>
-              วิชาที่สามารถจัดลงได้
-            </p>
-            <div className="flex w-full text-center">
-              <Droppable droppableId="SUBJECTS" direction="horizontal">
-                {(provided, snapshot) => (
-                  <div
-                    className="grid w-full text-center grid-cols-8 overflow-x-scroll"
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {subjectData.map((item, index) => (
-                      <Fragment
-                        key={`${item.SubjectCode}-${item.GradeID}-${index}`}
-                      >
-                        <Draggable
-                          draggableId={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
-                          key={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <div
-                              className="w-[90%] my-1 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
-                              {...provided.dragHandleProps}
-                              {...provided.draggableProps}
-                              ref={provided.innerRef}
-                            >
-                              <p className="text-sm">{item.SubjectCode}</p>
-                              <p className="text-sm">
-                                {item.SubjectName.substring(0, 9)}
-                              </p>
-                              <p className="text-sm">{item.GradeID}</p>
-                            </div>
-                          )}
-                        </Draggable>
-                      </Fragment>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
+        <>
+          <div className="p-4 mt-4 flex gap-3">
+            <p className="text-sm">ตารางสอนของ</p>
+            <p className="text-sm font-bold">คุณครู {teacherData.Firstname} {teacherData.Lastname}</p>
           </div>
-          <table className="table-auto w-full flex flex-col gap-3 mt-4">
-            <thead>
-              <tr className="flex gap-4">
-                <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
-                  <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
-                    คาบที่
-                  </span>
-                </th>
-                {/* Map จำนวนคาบ */}
-                {timeSlotData.SlotAmount.map((item) => (
-                  <Fragment key={`woohoo${item}`}>
-                    <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
-                      <p className="text-gray-600">
-                        {item < 10 ? `0${item}` : item}
-                      </p>
-                    </th>
-                  </Fragment>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="flex flex-col gap-3">
-              <tr className="flex gap-4">
-                <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
-                  <span className="flex w-[50px] h-[24px] justify-center">
-                    <p className="text-gray-600">เวลา</p>
-                  </span>
-                </td>
-                {/* Map duration ของคาบเรียน */}
-                {mapTime().map((item) => (
-                  <Fragment key={`woohoo${item.Start}${item.End}`}>
-                    <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
-                      <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
-                        {item.Start}-{item.End}
-                      </p>
-                    </td>
-                  </Fragment>
-                ))}
-              </tr>
-              {timeSlotData.DayOfWeek.map((day) => (
-                <Fragment key={`asdasda${day.Day}`}>
-                  <tr className="flex gap-4">
-                    <td
-                      className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
-                      style={{ backgroundColor: day.BgColor }}
+          <DragDropContext onDragEnd={handleDragAndDrop}>
+            <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
+              <p className="text-sm" onClick={() => console.log(isDragSubject)}>
+                วิชาที่สามารถจัดลงได้
+              </p>
+              <div className="flex w-full text-center">
+                <Droppable droppableId="SUBJECTS" direction="horizontal">
+                  {(provided, snapshot) => (
+                    <div
+                      className="grid w-full text-center grid-cols-8 overflow-x-scroll"
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
                     >
-                      <span className={`flex w-[50px] h-[24px] justify-center`}>
-                        <p style={{ color: day.TextColor }}>{day.Day}</p>
-                      </span>
-                    </td>
-                    {timeSlotData.AllData.filter(
-                      (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
-                    ).map((item, index) => (
-                      <Fragment key={`DROPZONE${item.TimeslotID}`}>
-                        <Droppable droppableId={`${item.TimeslotID}`}>
-                          {(provided, snapshot) => (
-                            <td
-                              className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] bg-white hover:bg-emerald-200 hover:border-emerald-500 duration-300"
-                              {...provided.droppableProps}
-                              ref={provided.innerRef}
-                            >
-                              {
-                                Object.keys(item.subject).length == 0 ? (
-                                  <p className="text-sm select-none cursor-pointer" onClick={() => {setIsActiveModal(true), setSelectedTimeslotID(item.TimeslotID)}}>{item.TimeslotID}</p>
-                                ) :
-                                <div className="flex gap-3 items-center">
-                                  <div className="text-center select-none">
-                                    <p className="text-sm">{item.subject.SubjectCode}</p>
-                                    <p className="text-sm">{item.subject.SubjectName}</p>
-                                    <p className="text-sm">{item.subject.GradeID}</p>
+                      {subjectData.map((item, index) => (
+                        <Fragment
+                          key={`${item.SubjectCode}-${item.GradeID}-${index}`}
+                        >
+                          <Draggable
+                            draggableId={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
+                            key={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <div
+                                className="w-[90%] my-1 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
+                                {...provided.dragHandleProps}
+                                {...provided.draggableProps}
+                                ref={provided.innerRef}
+                              >
+                                <p className="text-sm">{item.SubjectCode}</p>
+                                <p className="text-sm">
+                                  {item.SubjectName.substring(0, 9)}
+                                </p>
+                                <p className="text-sm">{item.GradeID}</p>
+                              </div>
+                            )}
+                          </Draggable>
+                        </Fragment>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </div>
+            </div>
+            <table className="table-auto w-full flex flex-col gap-3 mt-4">
+              <thead>
+                <tr className="flex gap-4">
+                  <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
+                    <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
+                      คาบที่
+                    </span>
+                  </th>
+                  {/* Map จำนวนคาบ */}
+                  {timeSlotData.SlotAmount.map((item) => (
+                    <Fragment key={`woohoo${item}`}>
+                      <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
+                        <p className="text-gray-600">
+                          {item < 10 ? `0${item}` : item}
+                        </p>
+                      </th>
+                    </Fragment>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="flex flex-col gap-3">
+                <tr className="flex gap-4">
+                  <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
+                    <span className="flex w-[50px] h-[24px] justify-center">
+                      <p className="text-gray-600">เวลา</p>
+                    </span>
+                  </td>
+                  {/* Map duration ของคาบเรียน */}
+                  {mapTime().map((item) => (
+                    <Fragment key={`woohoo${item.Start}${item.End}`}>
+                      <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
+                        <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
+                          {item.Start}-{item.End}
+                        </p>
+                      </td>
+                    </Fragment>
+                  ))}
+                </tr>
+                {timeSlotData.DayOfWeek.map((day) => (
+                  <Fragment key={`asdasda${day.Day}`}>
+                    <tr className="flex gap-4">
+                      <td
+                        className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
+                        style={{ backgroundColor: day.BgColor }}
+                      >
+                        <span
+                          className={`flex w-[50px] h-[24px] justify-center`}
+                        >
+                          <p style={{ color: day.TextColor }}>{day.Day}</p>
+                        </span>
+                      </td>
+                      {timeSlotData.AllData.filter(
+                        (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
+                      ).map((item, index) => (
+                        <Fragment key={`DROPZONE${item.TimeslotID}`}>
+                          <Droppable droppableId={`${item.TimeslotID}`}>
+                            {(provided, snapshot) => (
+                              <td
+                                className="flex font-light grow items-center cursor-pointer justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] bg-white hover:bg-emerald-200 hover:border-emerald-500 duration-300"
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                              >
+                                {Object.keys(item.subject).length == 0 ? (
+                                  <p
+                                    className="text-sm select-none"
+                                    onClick={() => {
+                                      setIsActiveModal(true),
+                                        setSelectedTimeslotID(item.TimeslotID);
+                                    }}
+                                  >
+                                    {item.TimeslotID}
+                                  </p>
+                                ) : (
+                                  <div className="flex gap-3 items-center">
+                                    <div className="text-center select-none">
+                                      <p className="text-sm">
+                                        {item.subject.SubjectCode}
+                                      </p>
+                                      <p className="text-sm">
+                                        {item.subject.SubjectName}
+                                      </p>
+                                      <p className="text-sm">
+                                        {item.subject.GradeID}
+                                      </p>
+                                    </div>
+                                    <TbTrash
+                                      className="stroke-red-500 cursor-pointer"
+                                      onClick={() =>
+                                        removeSubjectFromSlot(item.TimeslotID)
+                                      }
+                                    />
                                   </div>
-                                  <TbTrash className="stroke-red-500 cursor-pointer" onClick={() => removeSubjectFromSlot(item.TimeslotID)} />
-                                </div>
-                              }
-                              {provided.placeholder}
-                            </td>
-                          )}
-                        </Droppable>
-                      </Fragment>
-                    ))}
-                  </tr>
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
-        </DragDropContext>
+                                )}
+                                {provided.placeholder}
+                              </td>
+                            )}
+                          </Droppable>
+                        </Fragment>
+                      ))}
+                    </tr>
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </DragDropContext>
+        </>
       )}
     </>
   );
