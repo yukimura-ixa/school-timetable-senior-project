@@ -11,6 +11,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
 import { useClassData } from "@/app/_hooks/classData";
+import { TbTrash } from "react-icons/tb";
 type Props = {};
 // TODO: เพิ่มชื่อครูบนหน้าเว็บ
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
@@ -108,7 +109,7 @@ function TimeSlot(props: Props) {
           new Date(data[0].StartTime).getTime()
       ); //เอาเวลาจบลบเริ่มจะได้ duration
       setTimeSlotData(() => ({
-        AllData: data,
+        AllData: data.map((data) => ({ ...data, subject: {} })),
         SlotAmount: slotAmount,
         StartTime: startTime,
         Duration: duration,
@@ -241,30 +242,39 @@ function TimeSlot(props: Props) {
   const handleDragAndDrop = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
-    const items = Array.from(testDndData); //ex. [1, 2, 3]
-    const items2 = Array.from(emptySlot);
-    if (source.droppableId === destination.droppableId) {
-      if (source.droppableId == "ITEM") {
-        const [reorderedItem] = items.splice(result.source.index, 1); //splice ออกจากตำแหน่งที่ย้าย
-        items.splice(result.destination.index, 0, reorderedItem); //if 0 at second argument it's insert item
-      } else {
-        const [reorderedItem] = items2.splice(result.source.index, 1); //splice ออกจากตำแหน่งที่ย้าย
-        items2.splice(result.destination.index, 0, reorderedItem); //if 0 at second argument it's insert item
-      }
-    }
+    const subjects = Array.from(subjectData);
+    const timeSlots = Array.from(timeSlotData.AllData);
+    // const items = Array.from(testDndData); //ex. [1, 2, 3]
+    // const items2 = Array.from(emptySlot);
     if (source.droppableId !== destination.droppableId) {
-      if (source.droppableId == "ITEM") {
-        let tempSource = items[source.index];
-        items2.splice(destination.index, 0, tempSource);
-        items.splice(source.index, 1);
-      } else {
-        let tempSource = items2[source.index];
-        items.splice(destination.index, 0, tempSource);
-        items2.splice(source.index, 1);
-      }
+      //ถ้ามีการหย่อนวิชาลง timeSlot (droppableId ต้นทางและปลายทางไม่เหมือนกัน)
+      console.log("hi");
+      setTimeSlotData(() => ({
+        ...timeSlotData,
+        AllData: timeSlots.map((data) =>
+          destination.droppableId == data.TimeslotID
+            ? { ...data, subject: subjects[source.index] }
+            : data
+        ),
+      }));
     }
-    setTestDndData(items);
-    setEmptySlot(items2);
+    // if (source.droppableId !== destination.droppableId) {
+    //   if (source.droppableId == "ITEM") {
+    //     let tempSource = items[source.index];
+    //     items2.splice(destination.index, 0, tempSource);
+    //     items.splice(source.index, 1);
+    //   } else {
+    //     let tempSource = items2[source.index];
+    //     items.splice(destination.index, 0, tempSource);
+    //     items2.splice(source.index, 1);
+    //   }
+    // }
+    /* The above code is commented out, so it is not actually doing anything. However, it appears to be
+written in TypeScript and React. It includes two function calls: `setTestDndData(items)` and
+`setEmptySlot(items2)`. These functions likely set some data or state in the component, but without
+the implementation of these functions, it is not possible to determine their exact purpose. */
+    // setTestDndData(items);
+    // setEmptySlot(items2);
     console.log(result);
   };
   const dragAndDropSubject = (result) => {
@@ -317,100 +327,16 @@ function TimeSlot(props: Props) {
           DayOfWeek={selectedSlot.DayOfWeek}
         />
       ) : null}
-      {/* React dnd test */}
-      {/* <div className="w-[300px] flex flex-col gap-3">
-        <DragDropContext onDragEnd={dragAndDropSubject}>
-          <div className="">
-            <p onClick={() => console.log(timeSlotData.BreakSlot)}>List Item</p>
-          </div>
-          <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4">
-            <p className="text-sm">วิชาที่สามารถจัดลงได้</p>
-            <div className="flex w-full text-center">
-              <Droppable droppableId="SUBJECT" direction="horizontal">
-                {(provided, snapshot) => (
-                  <div
-                    className={`flex w-full text-center`}
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
-                    {testDndData.map((item, index) => (
-                      <Draggable
-                        draggableId={item.id}
-                        key={item.id}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            className={`flex flex-col mx-1 py-2 text-sm w-[70px] h-[60px] rounded border duration-300 border-[#EDEEF3] cursor-pointer select-none ${snapshot.isDragging ? "bg-green-300" : "bg-white"
-                              }`}
-                            {...provided.dragHandleProps}
-                            {...provided.draggableProps}
-                            ref={provided.innerRef}
-                          >
-                            <p>{item.name}</p>
-                            <p>{item.id}</p>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          </div>
-          <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4">
-            <p className="text-sm">Empty box</p>
-            <div className="flex w-full gap-3 text-center">
-              {emptySlot.map((item, index) => (
-                <Droppable droppableId={`${item.id}`}>
-                  {(provided, snapshot) => (
-                    <div
-                      className={`flex flex-col text-sm w-[70px] h-[60px] hover:bg-emerald-300 duration-300 items-center justify-center bg-white rounded border border-[#EDEEF3] cursor-pointer select-none`}
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                    >
-                      {!item.name ? (
-                        <p>Dropzone</p>
-                      ) : (
-                        <Draggable
-                          draggableId={item.id}
-                          key={item.id}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              className="flex w-full text-xs justify-center items-center border bg-white"
-                              {...provided.dragHandleProps}
-                              {...provided.draggableProps}
-                              ref={provided.innerRef}
-                            >
-                              <div>{item.name}</div>
-                            </div>
-                          )}
-                        </Draggable>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              ))}
-            </div>
-          </div>
-        </DragDropContext>
-      </div> */}
       {fetchTimeSlot.isLoading ? (
         <Loading />
       ) : (
         <DragDropContext onDragEnd={handleDragAndDrop}>
           <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
-            <p
-              className="text-sm"
-              onClick={() => console.log(responsibilityData.data)}
-            >
+            <p className="text-sm" onClick={() => console.log(timeSlotData)}>
               วิชาที่สามารถจัดลงได้
             </p>
             <div className="flex w-full text-center">
-              <Droppable droppableId="asdasds" direction="horizontal">
+              <Droppable droppableId="SUBJECTS" direction="horizontal">
                 {(provided, snapshot) => (
                   <div
                     className="grid w-full text-center grid-cols-8 overflow-x-scroll"
@@ -505,11 +431,23 @@ function TimeSlot(props: Props) {
                         <Droppable droppableId={`${item.TimeslotID}`}>
                           {(provided, snapshot) => (
                             <td
-                              className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer bg-white hover:bg-emerald-200 hover:border-emerald-500 duration-300"
+                              className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] bg-white hover:bg-emerald-200 hover:border-emerald-500 duration-300"
                               {...provided.droppableProps}
                               ref={provided.innerRef}
                             >
-                              <p className="text-sm">{item.TimeslotID}</p>
+                              {
+                                Object.keys(item.subject).length == 0 ? (
+                                  <p className="text-sm">{item.TimeslotID}</p>
+                                ) :
+                                <div className="flex gap-3 items-center">
+                                  <div className="text-center select-none">
+                                    <p className="text-sm">{item.subject.SubjectCode}</p>
+                                    <p className="text-sm">{item.subject.SubjectName}</p>
+                                    <p className="text-sm">{item.subject.GradeID}</p>
+                                  </div>
+                                  <TbTrash className="stroke-red-500 cursor-pointer" />
+                                </div>
+                              }
                               {provided.placeholder}
                             </td>
                           )}
