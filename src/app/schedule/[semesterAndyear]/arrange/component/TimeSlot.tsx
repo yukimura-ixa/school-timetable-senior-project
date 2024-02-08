@@ -48,6 +48,7 @@ function TimeSlot(props: Props) {
     fetcher
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
+  const [isDragSubject, setIsDragSubject] = useState(false);
   const [subjectData, setSubjectData] = useState([]);
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [],
@@ -152,187 +153,61 @@ function TimeSlot(props: Props) {
     ];
     return map;
   };
-  const [selectedSlot, setSelectedSlot] = useState({
-    SlotNumber: null,
-    DayOfWeek: "",
-  });
-  // const addSubjectToSlot = (
-  //   slotNumber: number,
-  //   dayOfWeek: string,
-  //   subject: any,
-  //   roomName: any
-  // ) => {
-  //   let subjectData = {
-  //     SubjectCode: subject.SubjectCode,
-  //     SubjectName: subject.SubjectName,
-  //     RoomName: roomName,
-  //   };
-  //   let addSubject = timeSlotData.SlotAmounts.filter(
-  //     (item) => item.DayOfWeek == dayOfWeek
-  //   )[0].Slots.map((item) =>
-  //     item.SlotNumber === slotNumber
-  //       ? { SlotNumber: item.SlotNumber, Subject: subjectData }
-  //       : item
-  //   );
-  //   setTimeSlotData(() => ({
-  //     ...timeSlotData,
-  //     SlotAmounts: [
-  //       ...timeSlotData.SlotAmounts.map((item) =>
-  //         item.DayOfWeek == dayOfWeek
-  //           ? { DayOfWeek: item.DayOfWeek, Slots: addSubject }
-  //           : item
-  //       ),
-  //     ],
-  //   }));
-  //   setIsActiveModal(false);
-  // };
-  // const removeSubjectToSlot = (dayOfWeek: string, slotNumber: number) => {
-  //   let defaultValue = {
-  //     SubjectCode: null,
-  //     SubjectName: null,
-  //     RoomName: null,
-  //   };
-  //   let removedSubject = timeSlotData.SlotAmounts.filter(
-  //     (item) => item.DayOfWeek == dayOfWeek
-  //   )[0].Slots.map((item) =>
-  //     item.SlotNumber === slotNumber
-  //       ? { SlotNumber: item.SlotNumber, Subject: defaultValue }
-  //       : item
-  //   );
-  //   setTimeSlotData(() => ({
-  //     ...timeSlotData,
-  //     SlotAmounts: [
-  //       ...timeSlotData.SlotAmounts.map((item) =>
-  //         item.DayOfWeek == dayOfWeek
-  //           ? { DayOfWeek: item.DayOfWeek, Slots: removedSubject }
-  //           : item
-  //       ),
-  //     ],
-  //   }));
-  // };
-  const [testDndData, setTestDndData] = useState([
-    {
-      name: "box",
-      id: "1",
-    },
-    {
-      name: "bottle",
-      id: "2",
-    },
-    {
-      name: "speaker",
-      id: "3",
-    },
-  ]);
-  const [emptySlot, setEmptySlot] = useState([
-    {
-      name: "",
-      id: "DROPZONE0",
-    },
-    {
-      name: "",
-      id: "DROPZONE1",
-    },
-    {
-      name: "",
-      id: "DROPZONE2",
-    },
-  ]);
+  const [selectTimeslotID, setSelectedTimeslotID] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState({});
+  const addSubjectToSlot = (
+    subject: object,
+    timeSlotID: string
+  ) => {
+    let data = timeSlotData.AllData
+    //แค่ลบออกได้อย่างเดียวอยู่ตอนนี้ 2/8/2024
+    setTimeSlotData(() => ({...timeSlotData, AllData : data.map(item => item.TimeslotID == timeSlotID ? {...item, subject : subject} : item)}))
+    setIsActiveModal(false);
+  };
+  const removeSubjectFromSlot = (timeSlotID: string) => {
+    let data = timeSlotData.AllData
+    //แค่ลบออกได้อย่างเดียวอยู่ตอนนี้ 2/8/2024
+    setTimeSlotData(() => ({...timeSlotData, AllData : data.map(item => item.TimeslotID == timeSlotID ? {...item, subject : {}} : item)}))
+  };
   // Example นะจ๊ะ
   const handleDragAndDrop = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
-    const subjects = Array.from(subjectData);
-    const timeSlots = Array.from(timeSlotData.AllData);
-    // const items = Array.from(testDndData); //ex. [1, 2, 3]
-    // const items2 = Array.from(emptySlot);
+    // const subjects = Array.from(subjectData);
+    // const timeSlots = Array.from(timeSlotData.AllData);
     if (source.droppableId !== destination.droppableId) {
       //ถ้ามีการหย่อนวิชาลง timeSlot (droppableId ต้นทางและปลายทางไม่เหมือนกัน)
-      console.log("hi");
-      setTimeSlotData(() => ({
-        ...timeSlotData,
-        AllData: timeSlots.map((data) =>
-          destination.droppableId == data.TimeslotID
-            ? { ...data, subject: subjects[source.index] }
-            : data
-        ),
-      }));
+      setSelectedSubject(() => subjectData[source.index])
+      setSelectedTimeslotID(destination.droppableId)
+      setIsDragSubject(true);
+      setIsActiveModal(true);
+      // setTimeSlotData(() => ({
+      //   ...timeSlotData,
+      //   AllData: timeSlots.map((data) =>
+      //     destination.droppableId == data.TimeslotID
+      //       ? { ...data, subject: subjects[source.index] }
+      //       : data
+      //   ),
+      // }));
     }
-    // if (source.droppableId !== destination.droppableId) {
-    //   if (source.droppableId == "ITEM") {
-    //     let tempSource = items[source.index];
-    //     items2.splice(destination.index, 0, tempSource);
-    //     items.splice(source.index, 1);
-    //   } else {
-    //     let tempSource = items2[source.index];
-    //     items.splice(destination.index, 0, tempSource);
-    //     items2.splice(source.index, 1);
-    //   }
-    // }
-    /* The above code is commented out, so it is not actually doing anything. However, it appears to be
-written in TypeScript and React. It includes two function calls: `setTestDndData(items)` and
-`setEmptySlot(items2)`. These functions likely set some data or state in the component, but without
-the implementation of these functions, it is not possible to determine their exact purpose. */
-    // setTestDndData(items);
-    // setEmptySlot(items2);
     console.log(result);
-  };
-  const dragAndDropSubject = (result) => {
-    const { source, destination, type } = result;
-    const subjects = Array.from(testDndData); //รายวิชาที่ลงได้
-    const timeSlot = Array.from(emptySlot); //ช่องตาราง
-    if (!destination) return;
-
-    if (source.droppableId !== destination.droppableId) {
-      if (source.droppableId == "SUBJECT") {
-        let tempSource = subjects[source.index];
-        setEmptySlot(() =>
-          timeSlot.map((item, index) =>
-            item.id === destination.droppableId
-              ? { id: item.id, name: tempSource.name }
-              : item
-          )
-        );
-        setTestDndData(() =>
-          subjects.filter((item, index) => index !== source.index)
-        );
-      } else if (
-        source.droppableId.substring(0, 8) == "DROPZONE" &&
-        source.droppableId.substring(0, 8) == "DROPZONE"
-      ) {
-        let tempSource = emptySlot.filter(
-          (item) => item.id == source.droppableId
-        )[0]; //เอาค่าของ source
-        let tempDestination = emptySlot.filter(
-          (item) => item.id == destination.droppableId
-        )[0]; //เอาค่าของ destination มาเก็บไว้
-        let map1 = emptySlot.map((item) =>
-          item.id == source.droppableId
-            ? tempSource
-            : item.id == destination.droppableId
-              ? tempDestination
-              : item
-        ); //map item ตามเงื่อนไข
-        setEmptySlot(() => map1); //set state
-      }
-    }
   };
   return (
     <>
       {isActiveModal ? (
         <SelectSubjectToTimeslotModal
-          AddSubjectToSlot={undefined}
+          AddSubjectToSlot={addSubjectToSlot}
           CloseModal={() => setIsActiveModal(false)}
-          SlotNumber={selectedSlot.SlotNumber}
-          DayOfWeek={selectedSlot.DayOfWeek}
-        />
+          timeSlotID={selectTimeslotID}
+          subjects={subjectData}
+          fromDnd={isDragSubject} subjectSelected={selectedSubject} setIsDragState={() => setIsDragSubject(false)}        />
       ) : null}
       {fetchTimeSlot.isLoading ? (
         <Loading />
       ) : (
         <DragDropContext onDragEnd={handleDragAndDrop}>
           <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
-            <p className="text-sm" onClick={() => console.log(timeSlotData)}>
+            <p className="text-sm" onClick={() => console.log(isDragSubject)}>
               วิชาที่สามารถจัดลงได้
             </p>
             <div className="flex w-full text-center">
@@ -437,7 +312,7 @@ the implementation of these functions, it is not possible to determine their exa
                             >
                               {
                                 Object.keys(item.subject).length == 0 ? (
-                                  <p className="text-sm">{item.TimeslotID}</p>
+                                  <p className="text-sm select-none cursor-pointer" onClick={() => {setIsActiveModal(true), setSelectedTimeslotID(item.TimeslotID)}}>{item.TimeslotID}</p>
                                 ) :
                                 <div className="flex gap-3 items-center">
                                   <div className="text-center select-none">
@@ -445,7 +320,7 @@ the implementation of these functions, it is not possible to determine their exa
                                     <p className="text-sm">{item.subject.SubjectName}</p>
                                     <p className="text-sm">{item.subject.GradeID}</p>
                                   </div>
-                                  <TbTrash className="stroke-red-500 cursor-pointer" />
+                                  <TbTrash className="stroke-red-500 cursor-pointer" onClick={() => removeSubjectFromSlot(item.TimeslotID)} />
                                 </div>
                               }
                               {provided.placeholder}
