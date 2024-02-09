@@ -15,6 +15,7 @@ import { TbTrash } from "react-icons/tb";
 import { teacher } from "@prisma/client";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
+// TODO: ลากวิชาลงช่องปุ๊ป วิชาด้านบนจะถูกลบทิ้งและนำมาเก็บไว้สักที่ก่อน ถ้ามีการกดยกเลิก จะคืนวิชาลงกล่อง ถ้ากดเลือกห้องแล้ว วิชาจะถูกเพิ่มลงไป 
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -55,7 +56,7 @@ function TimeSlot(props: Props) {
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [isDragSubject, setIsDragSubject] = useState(false);
   const [subjectData, setSubjectData] = useState([]);
-  const [teacherData, setTeacherData] = useState<teacher>();
+  const [teacherData, setTeacherData] = useState<teacher>({Firstname : "", Lastname : "", Department : "", Prefix : "", TeacherID : null});
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [],
     SlotAmount: [],
@@ -177,9 +178,9 @@ function TimeSlot(props: Props) {
     }));
     setIsActiveModal(false);
   };
-  const removeSubjectFromSlot = (timeSlotID: string) => {
+  const removeSubjectFromSlot = (timeSlotID: string, subject: object) => {
     let data = timeSlotData.AllData;
-    //แค่ลบออกได้อย่างเดียวอยู่ตอนนี้ 2/8/2024
+    returnSubject(subject)
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
@@ -187,15 +188,29 @@ function TimeSlot(props: Props) {
       ),
     }));
   };
-  // Example นะจ๊ะ
+  const returnSubject = (subject:object) => {
+    setSubjectData(() => [...subjectData, subject])
+  }
+  const removeSubjectSelected = (newSubjectData: Array<object>) => {
+    setSubjectData(() => newSubjectData)
+  }  
   const handleDragAndDrop = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
-    // const subjects = Array.from(subjectData);
-    // const timeSlots = Array.from(timeSlotData.AllData);
+    const subjects = Array.from(subjectData);
+    const timeSlots = Array.from(timeSlotData.AllData);
     if (source.droppableId !== destination.droppableId) {
       //ถ้ามีการหย่อนวิชาลง timeSlot (droppableId ต้นทางและปลายทางไม่เหมือนกัน)
+      // setTimeSlotData(() => ({
+      //   ...timeSlotData,
+      //   AllData: timeSlots.map((data) =>
+      //     destination.droppableId == data.TimeslotID
+      //       ? { ...data, subject: subjects[source.index] }
+      //       : data
+      //   ),
+      // }));
       setSelectedSubject(() => subjectData[source.index]); //set วิชาที่ drag
+      setSubjectData(() => subjectData.filter((item, index) => index !== source.index))
       setSelectedTimeslotID(destination.droppableId); //set timeSlotID ปลายทาง
       setIsDragSubject(true); //set state ว่าเพิ่มวิชาจากการลาก
       setIsActiveModal(true); //เปิด modal
@@ -214,6 +229,8 @@ function TimeSlot(props: Props) {
           fromDnd={isDragSubject}
           subjectSelected={selectedSubject}
           setIsDragState={() => setIsDragSubject(false)}
+          returnSubject={returnSubject}
+          removeSubjectSelected={removeSubjectSelected}
         />
       ) : null}
       {fetchTimeSlot.isLoading ? (
@@ -258,6 +275,7 @@ function TimeSlot(props: Props) {
                                   {item.SubjectName.substring(0, 9)}
                                 </p>
                                 <p className="text-sm">{item.GradeID}</p>
+                                {/* <p className="text-sm">{teacherData.Firstname}</p> */}
                               </div>
                             )}
                           </Draggable>
@@ -269,7 +287,7 @@ function TimeSlot(props: Props) {
                 </Droppable>
               </div>
             </div>
-            <table className="table-auto w-full flex flex-col gap-3 mt-4">
+            <table className="table-auto w-full flex flex-col gap-3 mt-4 mb-10">
               <thead>
                 <tr className="flex gap-4">
                   <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
@@ -308,7 +326,7 @@ function TimeSlot(props: Props) {
                   ))}
                 </tr>
                 {timeSlotData.DayOfWeek.map((day) => (
-                  <Fragment key={`asdasda${day.Day}`}>
+                  <Fragment key={`Day-${day.Day}`}>
                     <tr className="flex gap-4">
                       <td
                         className={`flex items-center justify-center p-[10px] h-[76px] rounded select-none`}
@@ -327,13 +345,13 @@ function TimeSlot(props: Props) {
                           <Droppable droppableId={`${item.TimeslotID}`}>
                             {(provided, snapshot) => (
                               <td
-                                className="flex font-light grow items-center cursor-pointer justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] bg-white hover:bg-emerald-200 hover:border-emerald-500 duration-300"
+                                className={`flex font-light relative grow items-center cursor-pointer justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] bg-white ${snapshot.isDraggingOver ? "bg-emerald-200 border-emerald-500" : null} duration-300`}
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                               >
                                 {Object.keys(item.subject).length == 0 ? (
                                   <p
-                                    className="text-sm select-none"
+                                    className="text-sm select-none bg-red-200"
                                     onClick={() => {
                                       setIsActiveModal(true),
                                         setSelectedTimeslotID(item.TimeslotID);
@@ -357,7 +375,7 @@ function TimeSlot(props: Props) {
                                     <TbTrash
                                       className="stroke-red-500 cursor-pointer"
                                       onClick={() =>
-                                        removeSubjectFromSlot(item.TimeslotID)
+                                        removeSubjectFromSlot(item.TimeslotID, item.subject)
                                       }
                                     />
                                   </div>
