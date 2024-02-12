@@ -17,6 +17,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
 // TODO: ลากสลับวิชาระหว่างช่อง
+// TODO: ลากวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
