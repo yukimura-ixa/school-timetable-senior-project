@@ -13,6 +13,8 @@ import { subjectCreditValues } from "@/models/credit-value";
 import { useClassData } from "@/app/_hooks/classData";
 import { TbTrash } from "react-icons/tb";
 import { teacher } from "@prisma/client";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
 // TODO: ลากวิชาลงช่องปุ๊ป วิชาด้านบนจะถูกลบทิ้งและนำมาเก็บไว้สักที่ก่อน ถ้ามีการกดยกเลิก จะคืนวิชาลงกล่อง ถ้ากดเลือกห้องแล้ว วิชาจะถูกเพิ่มลงไป
@@ -87,9 +89,39 @@ function TimeSlot(props: Props) {
           mapSubjectByCredit.push(data[i]);
         }
       }
+      let s = {
+        RespID: 1,
+        TeacherID: 1,
+        GradeID: "101",
+        SubjectCode: "ก20991",
+        AcademicYear: 2566,
+        Semester: "SEMESTER_1",
+        TeachHour: 1,
+        subject: {
+          SubjectCode: "ก20991",
+          SubjectName: "พืชผักสวนครัว",
+          Credit: "CREDIT_15",
+          Category: "กิจกรรม",
+          ProgramID: null,
+        },
+        gradelevel: {
+          GradeID: "101",
+          Year: 1,
+          Number: 1,
+          ProgramID: null,
+        },
+        teacher: {
+          TeacherID: 1,
+          Prefix: "นาย",
+          Firstname: "พูลศักดิ์",
+          Lastname: "พ่อบุตรดี",
+          Department: "การงานอาชีพและเทคโนโลยี",
+        },
+        SubjectName: "พืชผักสวนครัว",
+        Credit: "CREDIT_15",
+      };
+      setSubjectData(() => [s]);
       console.log(mapSubjectByCredit);
-      console.log(fetchAllSubject.data);
-      setSubjectData(() => mapSubjectByCredit);
     }
   }, [fetchAllSubject.isLoading]);
   useEffect(() => {
@@ -254,7 +286,10 @@ function TimeSlot(props: Props) {
           </div>
           <DragDropContext onDragEnd={handleDragAndDrop}>
             <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
-              <p className="text-sm" onClick={() => console.log(isDragSubject)}>
+              <p
+                className="text-sm"
+                onClick={() => console.log(timeSlotData.AllData)}
+              >
                 วิชาที่สามารถจัดลงได้
               </p>
               <div className="flex w-full text-center">
@@ -283,10 +318,13 @@ function TimeSlot(props: Props) {
                               >
                                 <b className="text-sm">{item.SubjectCode}</b>
                                 <p className="text-sm">
-                                  {item.SubjectName.substring(0, 9)}
+                                  {item.SubjectName.substring(0, 9)}...
                                 </p>
                                 <b className="text-xs">
-                                  ม.{item.GradeID[0]}/{parseInt(item.GradeID.substring(1, 2)) < 10 ? item.GradeID[2] : item.GradeID.substring(1, 2)}
+                                  ม.{item.GradeID[0]}/
+                                  {parseInt(item.GradeID.substring(1, 2)) < 10
+                                    ? item.GradeID[2]
+                                    : item.GradeID.substring(1, 2)}
                                 </b>
                                 <p className="text-xs">
                                   {teacherData.Firstname}
@@ -363,15 +401,14 @@ function TimeSlot(props: Props) {
                               <td
                                 className={`grid w-[100%] items-center cursor-pointer justify-center h-[76px] rounded border border-[#ABBAC1] bg-white ${
                                   snapshot.isDraggingOver
-                                    ? "bg-emerald-200 border-emerald-500 animate-pulse"
+                                    ? "bg-emerald-300 border-emerald-500 animate-pulse"
                                     : null
                                 } duration-200`}
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                               >
                                 {Object.keys(item.subject).length == 0 ? (
-                                  <p
-                                    className="text-sm select-none"
+                                  <div
                                     onClick={() => {
                                       setIsActiveModal(true),
                                         setSelectedTimeslotID(item.TimeslotID);
@@ -379,29 +416,45 @@ function TimeSlot(props: Props) {
                                   >
                                     {snapshot.isDraggingOver
                                       ? ""
-                                      : item.TimeslotID}
-                                  </p>
+                                      : <AddCircleIcon className="cursor-pointer fill-emerald-500 hover:fill-emerald-600 duration-300" />}
+                                  </div>
                                 ) : (
-                                  <div className="flex gap-3 items-center">
+                                  <div className="flex gap-3 items-center relative">
                                     <div className="text-center select-none flex flex-col">
                                       <b className="text-sm">
-                                        {item.subject.SubjectCode} {item.subject.SubjectName}
+                                        {item.subject.SubjectCode}
                                       </b>
                                       <b className="text-xs">
-                                        ม.{item.subject.GradeID[0]}/{item.GradeID[0]}/{parseInt(item.GradeID.substring(1, 2)) < 10 ? item.GradeID[2] : item.GradeID.substring(1, 2)}
+                                        {item.subject.SubjectName.substring(
+                                          0,
+                                          9
+                                        )}
+                                        ...
+                                      </b>
+                                      <b className="text-xs">
+                                        ม.{item.subject.GradeID[0]}/
+                                        {parseInt(
+                                          item.subject.GradeID.substring(1, 2)
+                                        ) < 10
+                                          ? item.subject.GradeID[2]
+                                          : item.subject.GradeID.substring(
+                                              1,
+                                              2
+                                            )}
                                       </b>
                                       <p className="text-xs">
-                                        {teacherData.Firstname}
+                                        {/* {teacherData.Firstname} */}
+                                        ห้อง {item.subject.RoomID}
                                       </p>
                                     </div>
-                                    <TbTrash
-                                      className="stroke-red-500 cursor-pointer"
+                                    <RemoveCircleIcon
                                       onClick={() =>
                                         removeSubjectFromSlot(
                                           item.TimeslotID,
                                           item.subject
                                         )
                                       }
+                                      className="cursor-pointer fill-red-500 hover:fill-red-600 duration-300 absolute right-[-14px] top-[-13px]"
                                     />
                                   </div>
                                 )}
