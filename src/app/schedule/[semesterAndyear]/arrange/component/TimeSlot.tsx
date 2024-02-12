@@ -11,13 +11,12 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
 import { useClassData } from "@/app/_hooks/classData";
-import { TbTrash } from "react-icons/tb";
 import { teacher } from "@prisma/client";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
-// TODO: ลากวิชาลงช่องปุ๊ป วิชาด้านบนจะถูกลบทิ้งและนำมาเก็บไว้สักที่ก่อน ถ้ามีการกดยกเลิก จะคืนวิชาลงกล่อง ถ้ากดเลือกห้องแล้ว วิชาจะถูกเพิ่มลงไป
+// TODO: ลากสลับวิชาระหว่างช่อง
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -311,7 +310,7 @@ function TimeSlot(props: Props) {
                           >
                             {(provided, snapshot) => (
                               <div
-                                className="w-[90%] my-1 p-2 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
+                                className="w-[85%] flex flex-col my-1 py-1 border rounded cursor-pointer bg-white hover:bg-slate-50 duration-300 select-none"
                                 {...provided.dragHandleProps}
                                 {...provided.draggableProps}
                                 ref={provided.innerRef}
