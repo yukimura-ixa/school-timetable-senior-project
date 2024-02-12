@@ -119,8 +119,8 @@ function TimeSlot(props: Props) {
         },
         SubjectName: "พืชผักสวนครัว",
         Credit: "CREDIT_15",
-      };
-      setSubjectData(() => [s]);
+      }; //ข้อมูลจำลองในกรณีที่ข้อมูลไม่โหลด
+      setSubjectData(() => mapSubjectByCredit);
       console.log(mapSubjectByCredit);
     }
   }, [fetchAllSubject.isLoading]);
@@ -399,7 +399,7 @@ function TimeSlot(props: Props) {
                           <Droppable droppableId={`${item.TimeslotID}`}>
                             {(provided, snapshot) => (
                               <td
-                                className={`grid w-[100%] items-center cursor-pointer justify-center h-[76px] rounded border border-[#ABBAC1] bg-white ${
+                                className={`grid w-[100%] items-center cursor-pointer justify-center h-[76px] rounded border relative border-[#ABBAC1] bg-white ${
                                   snapshot.isDraggingOver
                                     ? "bg-emerald-300 border-emerald-500 animate-pulse"
                                     : null
@@ -419,7 +419,7 @@ function TimeSlot(props: Props) {
                                       : <AddCircleIcon className="cursor-pointer fill-emerald-500 hover:fill-emerald-600 duration-300" />}
                                   </div>
                                 ) : (
-                                  <div className="flex gap-3 items-center relative">
+                                  <div className="flex gap-3 items-center">
                                     <div className="text-center select-none flex flex-col">
                                       <b className="text-sm">
                                         {item.subject.SubjectCode}
@@ -454,7 +454,7 @@ function TimeSlot(props: Props) {
                                           item.subject
                                         )
                                       }
-                                      className="cursor-pointer fill-red-500 hover:fill-red-600 duration-300 absolute right-[-14px] top-[-13px]"
+                                      className="cursor-pointer fill-red-500 hover:fill-red-600 duration-300 absolute right-[-7px] top-[-10px]"
                                     />
                                   </div>
                                 )}
