@@ -32,7 +32,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
           <div className="flex w-full h-auto justify-between items-center">
             <p
               className="text-lg select-none"
-              onClick={() => console.log(RoomID)}
+              onClick={() => console.log(subjectSelected)}
             >
               จัดวิชาเรียนลงในคาบ (2/8/24) ยังไม่ validate
             </p>
@@ -40,8 +40,8 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               className="cursor-pointer"
               onClick={() => {
                 props.CloseModal(),
-                  props.setIsDragState(),
-                  props.returnSubject(subjectSelected);
+                props.setIsDragState(),
+                Object.keys(subjectSelected).length == 0 ? null : props.returnSubject(subjectSelected);
               }}
             />
           </div>
@@ -117,28 +117,28 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
           <div className="flex w-full items-end justify-end gap-4">
             <button
               onClick={() => {
-                props.AddSubjectToSlot(
-                  { ...subjectSelected, RoomID: RoomID },
-                  props.timeSlotID
-                ),
-                  props.setIsDragState(),
-                  props.removeSubjectSelected(
-                    subjects.filter((item, index) => index != selected)
-                  );
-              }}
-              className="w-[100px] h-[45px] rounded bg-blue-100 text-blue-500"
-            >
-              บันทึก
-            </button>
-            <button
-              onClick={() => {
                 props.CloseModal(),
                 props.setIsDragState(),
-                props.returnSubject(subjectSelected);
+                Object.keys(subjectSelected).length == 0 ? null : props.returnSubject(subjectSelected);
               }}
               className="w-[100px] h-[45px] rounded bg-red-100 text-red-500"
             >
               ยกเลิก
+            </button>
+            <button
+              onClick={() => {
+                props.AddSubjectToSlot(
+                  { ...subjectSelected, RoomID: RoomID },
+                  props.timeSlotID
+                ),
+                props.setIsDragState(),
+                props.removeSubjectSelected(
+                  subjects.filter((item, index) => index != selected)
+                );
+              }}
+              className="w-[100px] h-[45px] rounded bg-blue-100 text-blue-500"
+            >
+              บันทึก
             </button>
           </div>
         </div>

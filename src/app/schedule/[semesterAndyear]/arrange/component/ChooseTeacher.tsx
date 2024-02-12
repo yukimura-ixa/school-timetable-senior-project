@@ -35,8 +35,10 @@ function ChooseTeacher() {
   const [teachHour, setTeachHour] = useState<number>(0);
   useEffect(() => {
     if (responsibilityData.data) {
-      let sumTeachHour = responsibilityData.data.map(item => item.TeachHour).reduce((prev, curr) => prev + curr)
-      setTeachHour(() => sumTeachHour);
+      let map = responsibilityData.data.map(item => item.TeachHour)
+      let sumTeachHour = map.length == 0 ? [0] : map
+      let res = sumTeachHour.reduce((prev, curr) => prev + curr)
+      setTeachHour(() => res);
     }
   }, [responsibilityData.data]);
   useEffect(() => {

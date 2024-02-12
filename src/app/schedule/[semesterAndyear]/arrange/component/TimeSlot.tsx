@@ -15,7 +15,7 @@ import { TbTrash } from "react-icons/tb";
 import { teacher } from "@prisma/client";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
-// TODO: ลากวิชาลงช่องปุ๊ป วิชาด้านบนจะถูกลบทิ้งและนำมาเก็บไว้สักที่ก่อน ถ้ามีการกดยกเลิก จะคืนวิชาลงกล่อง ถ้ากดเลือกห้องแล้ว วิชาจะถูกเพิ่มลงไป 
+// TODO: ลากวิชาลงช่องปุ๊ป วิชาด้านบนจะถูกลบทิ้งและนำมาเก็บไว้สักที่ก่อน ถ้ามีการกดยกเลิก จะคืนวิชาลงกล่อง ถ้ากดเลือกห้องแล้ว วิชาจะถูกเพิ่มลงไป
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -33,7 +33,7 @@ function TimeSlot(props: Props) {
     () => `/teacher?TeacherID=` + searchTeacherID,
     fetcher
   );
-  const responsibilityData = useSWR(
+  const fetchAllSubject = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
       `/assign?AcademicYear=` +
@@ -56,7 +56,13 @@ function TimeSlot(props: Props) {
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [isDragSubject, setIsDragSubject] = useState(false);
   const [subjectData, setSubjectData] = useState([]);
-  const [teacherData, setTeacherData] = useState<teacher>({Firstname : "", Lastname : "", Department : "", Prefix : "", TeacherID : null});
+  const [teacherData, setTeacherData] = useState<teacher>({
+    Firstname: "",
+    Lastname: "",
+    Department: "",
+    Prefix: "",
+    TeacherID: null,
+  });
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [],
     SlotAmount: [],
@@ -71,8 +77,8 @@ function TimeSlot(props: Props) {
     }
   }, [fetchTeacher.isLoading]);
   useEffect(() => {
-    if (!responsibilityData.isLoading) {
-      const data = responsibilityData.data; //get data
+    if (!fetchAllSubject.isLoading) {
+      const data = fetchAllSubject.data; //get data
       const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
       for (let i = 0; i < data.length; i++) {
         //for loop ตามข้อมูลที่มี
@@ -82,9 +88,10 @@ function TimeSlot(props: Props) {
         }
       }
       console.log(mapSubjectByCredit);
+      console.log(fetchAllSubject.data);
       setSubjectData(() => mapSubjectByCredit);
     }
-  }, [responsibilityData.isLoading]);
+  }, [fetchAllSubject.isLoading]);
   useEffect(() => {
     if (!fetchTimeSlot.isLoading) {
       let data = fetchTimeSlot.data;
@@ -180,7 +187,7 @@ function TimeSlot(props: Props) {
   };
   const removeSubjectFromSlot = (timeSlotID: string, subject: object) => {
     let data = timeSlotData.AllData;
-    returnSubject(subject)
+    returnSubject(subject);
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
@@ -188,12 +195,12 @@ function TimeSlot(props: Props) {
       ),
     }));
   };
-  const returnSubject = (subject:object) => {
-    setSubjectData(() => [...subjectData, subject])
-  }
+  const returnSubject = (subject: object) => {
+    setSubjectData(() => [...subjectData, subject]);
+  };
   const removeSubjectSelected = (newSubjectData: Array<object>) => {
-    setSubjectData(() => newSubjectData)
-  }  
+    setSubjectData(() => newSubjectData);
+  };
   const handleDragAndDrop = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -210,7 +217,9 @@ function TimeSlot(props: Props) {
       //   ),
       // }));
       setSelectedSubject(() => subjectData[source.index]); //set วิชาที่ drag
-      setSubjectData(() => subjectData.filter((item, index) => index !== source.index))
+      setSubjectData(() =>
+        subjectData.filter((item, index) => index !== source.index)
+      );
       setSelectedTimeslotID(destination.droppableId); //set timeSlotID ปลายทาง
       setIsDragSubject(true); //set state ว่าเพิ่มวิชาจากการลาก
       setIsActiveModal(true); //เปิด modal
@@ -239,7 +248,9 @@ function TimeSlot(props: Props) {
         <>
           <div className="p-4 mt-4 flex gap-3">
             <p className="text-sm">ตารางสอนของ</p>
-            <p className="text-sm font-bold">คุณครู {teacherData.Firstname} {teacherData.Lastname}</p>
+            <p className="text-sm font-bold">
+              คุณครู {teacherData.Firstname} {teacherData.Lastname}
+            </p>
           </div>
           <DragDropContext onDragEnd={handleDragAndDrop}>
             <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
@@ -270,11 +281,16 @@ function TimeSlot(props: Props) {
                                 {...provided.draggableProps}
                                 ref={provided.innerRef}
                               >
-                                <p className="text-sm">{item.SubjectCode}</p>
+                                <b className="text-sm">{item.SubjectCode}</b>
                                 <p className="text-sm">
                                   {item.SubjectName.substring(0, 9)}
                                 </p>
-                                <p className="text-sm">{item.GradeID}</p>
+                                <b className="text-xs">
+                                  ม.{item.GradeID[0]}/{parseInt(item.GradeID.substring(1, 2)) < 10 ? item.GradeID[2] : item.GradeID.substring(1, 2)}
+                                </b>
+                                <p className="text-xs">
+                                  {teacherData.Firstname}
+                                </p>
                                 {/* <p className="text-sm">{teacherData.Firstname}</p> */}
                               </div>
                             )}
@@ -345,37 +361,46 @@ function TimeSlot(props: Props) {
                           <Droppable droppableId={`${item.TimeslotID}`}>
                             {(provided, snapshot) => (
                               <td
-                                className={`flex font-light relative grow items-center cursor-pointer justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] bg-white ${snapshot.isDraggingOver ? "bg-emerald-200 border-emerald-500" : null} duration-300`}
+                                className={`grid w-[100%] items-center cursor-pointer justify-center h-[76px] rounded border border-[#ABBAC1] bg-white ${
+                                  snapshot.isDraggingOver
+                                    ? "bg-emerald-200 border-emerald-500 animate-pulse"
+                                    : null
+                                } duration-200`}
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                               >
                                 {Object.keys(item.subject).length == 0 ? (
                                   <p
-                                    className="text-sm select-none bg-red-200"
+                                    className="text-sm select-none"
                                     onClick={() => {
                                       setIsActiveModal(true),
                                         setSelectedTimeslotID(item.TimeslotID);
                                     }}
                                   >
-                                    {item.TimeslotID}
+                                    {snapshot.isDraggingOver
+                                      ? ""
+                                      : item.TimeslotID}
                                   </p>
                                 ) : (
                                   <div className="flex gap-3 items-center">
-                                    <div className="text-center select-none">
-                                      <p className="text-sm">
-                                        {item.subject.SubjectCode}
-                                      </p>
-                                      <p className="text-sm">
-                                        {item.subject.SubjectName}
-                                      </p>
-                                      <p className="text-sm">
-                                        {item.subject.GradeID}
+                                    <div className="text-center select-none flex flex-col">
+                                      <b className="text-sm">
+                                        {item.subject.SubjectCode} {item.subject.SubjectName}
+                                      </b>
+                                      <b className="text-xs">
+                                        ม.{item.subject.GradeID[0]}/{item.GradeID[0]}/{parseInt(item.GradeID.substring(1, 2)) < 10 ? item.GradeID[2] : item.GradeID.substring(1, 2)}
+                                      </b>
+                                      <p className="text-xs">
+                                        {teacherData.Firstname}
                                       </p>
                                     </div>
                                     <TbTrash
                                       className="stroke-red-500 cursor-pointer"
                                       onClick={() =>
-                                        removeSubjectFromSlot(item.TimeslotID, item.subject)
+                                        removeSubjectFromSlot(
+                                          item.TimeslotID,
+                                          item.subject
+                                        )
                                       }
                                     />
                                   </div>
