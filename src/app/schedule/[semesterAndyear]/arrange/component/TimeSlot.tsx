@@ -15,6 +15,8 @@ import { useClassData } from "@/app/_hooks/classData";
 import { teacher } from "@prisma/client";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { dayOfWeekColor } from "@/models/dayofweek-color";
+import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
 // TODO: ลากสลับวิชาระหว่างช่อง
@@ -136,8 +138,8 @@ function TimeSlot(props: Props) {
         )
         .map((item) => ({
           Day: dayOfWeekThai[item],
-          TextColor: "#fff",
-          BgColor: "#000",
+          TextColor: dayOfWeekTextColor[item],
+          BgColor: dayOfWeekColor[item],
         })); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
       let slotAmount = data
         .filter((item) => item.DayOfWeek == "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
