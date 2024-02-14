@@ -421,11 +421,9 @@ function TimeSlot(props: Props) {
                                         setSelectedTimeslotID(item.TimeslotID);
                                     }}
                                   >
-                                    {snapshot.isDraggingOver ? (
-                                      ""
-                                    ) : (
-                                      <AddCircleIcon className="cursor-pointer fill-emerald-500 hover:fill-emerald-600 duration-300" />
-                                    )}
+                                    {!snapshot.isDraggingOver ? ( //ถ้ามี drag item มาอยู่ในพิ้นที่
+                                      <AddCircleIcon style={{color : "#10b981"}} className="cursor-pointer hover:fill-emerald-600 duration-300" />
+                                    ) : null}
                                   </div>
                                 ) : (
                                   <div className="flex gap-3 items-center">
@@ -463,7 +461,8 @@ function TimeSlot(props: Props) {
                                           item.subject
                                         )
                                       }
-                                      className="cursor-pointer fill-red-500 hover:fill-red-600 duration-300 absolute right-[-7px] top-[-10px]"
+                                      style={{color : "#ef4444"}}
+                                      className="cursor-pointer hover:fill-red-600 duration-300 absolute right-[-7px] top-[-10px]"
                                     />
                                   </div>
                                 )}
