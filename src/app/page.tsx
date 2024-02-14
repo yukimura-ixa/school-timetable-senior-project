@@ -3,6 +3,7 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import React, { useState } from "react";
 import StartIcon from '@mui/icons-material/Start';
 import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="flex w-[1440px] h-screen flex-col justify-center pl-10 gap-5">

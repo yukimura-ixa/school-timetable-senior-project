@@ -42,16 +42,12 @@ export async function POST(request: NextRequest) {
         AcademicYear: body.AcademicYear,
         Semester: body.Semester,
       },
-      include: {
-        subject: true,
-      },
     })
 
     const incomingResponsibilities = body.Resp
-    const diff = existingResponsibilities.filter((existResp) => { return !incomingResponsibilities.some((resp) => resp.RespID === existResp.RespID) })
-    // console.log(incomingResponsibilities)
-    // console.log(diff)
-    for (const resp of diff) {
+    const diff = existingResponsibilities.filter((resp) => !incomingResponsibilities.some((incoming) => incoming.RespID === resp.RespID))
+
+    for (const resp of incomingResponsibilities) {
       if (!resp.RespID) {
         const newResp = await prisma.teachers_responsibility.create({
           data: {
@@ -60,18 +56,20 @@ export async function POST(request: NextRequest) {
             Semester: body.Semester,
             SubjectCode: resp.SubjectCode,
             GradeID: resp.GradeID,
-            TeachHour: subjectCreditValues[resp.subject.Credit],
-          },
+            TeachHour: subjectCreditValues[resp.Credit] * 2,
+          }
         })
         results.push({ created: newResp })
-      } else {
-        await prisma.teachers_responsibility.delete({
-          where: {
-            RespID: resp.RespID,
-          },
-        })
-        results.push({ deleted: resp })
       }
+    }
+
+    for (const resp of diff) {
+      const deletedResp = await prisma.teachers_responsibility.delete({
+        where: {
+          RespID: resp.RespID
+        }
+      })
+      results.push({ deleted: deletedResp })
     }
 
     return NextResponse.json({ status: "success", results: results })

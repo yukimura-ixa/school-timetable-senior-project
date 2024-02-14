@@ -111,7 +111,7 @@ function Dropdown({
             cursor-default
           `}
         >
-          <p className="text-gray-400 text-sm">ไม่พบข้อมูล หรือ กำลังโหลด</p>
+          <p className="text-gray-400 text-sm">ไม่พบข้อมูล</p>
         </div>
         :
         <div className="bg-white">

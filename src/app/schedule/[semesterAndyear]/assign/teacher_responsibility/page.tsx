@@ -21,6 +21,7 @@ type Props = {
 
 function ClassroomResponsibility(props: Props) {
   const params = useParams();
+  const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-"
   ); //from "1-2566" to ["1", "2566"]
@@ -34,7 +35,8 @@ function ClassroomResponsibility(props: Props) {
       academicYear +
       `&Semester=SEMESTER_` +
       semester,
-    fetcher
+    fetcher,
+    { revalidateOnFocus: false }
   );
   const teacherData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
@@ -82,7 +84,7 @@ function ClassroomResponsibility(props: Props) {
       ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
       return removeDulpicateGradeID;
     };
-    if (!responsibilityData.isLoading) {
+    if (!responsibilityData.isValidating) {
       //ถ้า fetch ข้อมูลเสร็จแล้ว
       setData(() => ({
         ...data,
@@ -110,18 +112,18 @@ function ClassroomResponsibility(props: Props) {
   // ยังไม่เสร็จ
   const changeClassRoomList = (rooms: [], year: number) => {
     //ข้อจำกัดคือ ถ้าลบห้องเรียนแล้วเพิ่มใหม่ ก็ต้องเพิ่มวิชาใหม่
-    setClassRoomList(() => rooms);
-    setData(() => ({
-      ...data,
-      Grade: data.Grade.map((item) =>
-        item.Year == year //เช็คก่อนว่าเพิ่มชั้นเรียนของปีอะไร
-          ? {
-              ...item,
-              ClassRooms: rooms, //วางข้อมูลห้องเรียนที่อัปเดตลงไป
-            }
-          : item
-      ),
-    }));
+    setClassRoomList(rooms);
+    setData(() => {
+      let newData = data;
+      if (rooms.length > 0) {
+        const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
+        newData.Grade[gradeIndex].ClassRooms = rooms;
+      } else {
+        const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
+        newData.Grade[gradeIndex].ClassRooms = [];
+      }
+      return newData;
+    });
     setClassRoomModalActive(false);
   };
   const [cardHidden, setCardHidden] = useState<number[]>([0, 1, 2, 3, 4, 5]); //ใช้สำหรับ การ์ด ม1-ม6
@@ -203,38 +205,42 @@ function ClassroomResponsibility(props: Props) {
     }
     //findEmptySubjectInClassRoom คือการหาว่า มีห้องไหนมั้ยที่ยังไม่เพิ่มวิชาเรียน ถ้ามีก็จะฟ้องครับผม
     //return as Array => if true array length > 0, if false array length = 0
-    const filterSubject = data.Subjects.filter(item => spreadClassRoom.map(item => item.GradeID).includes(item.GradeID));
+    const filterSubject = data.Subjects.filter((item) =>
+      spreadClassRoom.map((item) => item.GradeID).includes(item.GradeID)
+    );
     const postData = {
       TeacherID: data.Teacher.TeacherID,
       Resp: filterSubject,
       AcademicYear: parseInt(academicYear),
       Semester: `SEMESTER_${semester}`,
     };
-    const findEmptySubjectInClassRoom = spreadClassRoom.filter(item => validateEmptySubjects(item.GradeID));
-    if(findEmptySubjectInClassRoom.length > 0){
+    const findEmptySubjectInClassRoom = spreadClassRoom.filter((item) =>
+      validateEmptySubjects(item.GradeID)
+    );
+    if (findEmptySubjectInClassRoom.length > 0) {
       setValidateStatus(true);
-      snackBarHandle("ERROR")
-    }
-    else{
+      snackBarHandle("ERROR");
+    } else {
       setValidateStatus(false);
       snackBarHandle("PASS");
-      // saveApi(postData);
-      console.log(filterSubject);
+      console.log(postData);
+      saveApi(postData);
     }
-    // body: {  TeacherID, GradeID, SubjectCode, AcademicYear, Semester, TeachHour }
   };
 
   const saveApi = async (data) => {
-    //TODO: Add loading spinner
+    setIsApiLoading(true);
     const response = await api.post("/assign", data);
     console.log(response);
-    if (response.status === 200) {
+    if (response.status === 200 && !responsibilityData.isValidating) {
       setValidateStatus(false);
+      setIsApiLoading(false);
       snackBarHandle("PASS");
       responsibilityData.mutate();
     } else {
       snackBarHandle("ERROR");
     }
+    setIsApiLoading(false);
   };
   return (
     <>
@@ -255,7 +261,7 @@ function ClassroomResponsibility(props: Props) {
           subjectByGradeID={currentSubjectInClassRoom}
         />
       ) : null}
-      {responsibilityData.isLoading ? <Loading /> : null}
+      {responsibilityData.isValidating || isApiLoading ? <Loading /> : null}
       <span className="flex flex-col gap-4 my-4">
         <div className="flex w-full h-[55px] justify-between items-center">
           <div className="flex w-full justify-between">

@@ -3,7 +3,7 @@ const nextConfig = {
   // experimental: {
   //     forceSwcTransforms: true,
   //   },
-  reactStrictMode : false
+  // reactStrictMode : false
 };
 
 module.exports = nextConfig;

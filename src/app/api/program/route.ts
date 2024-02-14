@@ -5,7 +5,15 @@ import { NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest) {
   // query: { ProgramID }
   try {
+    const Year = parseInt(request.nextUrl.searchParams.get("Year"))
     const data: program[] = await prisma.program.findMany({
+      where: {
+        gradelevel: {
+          every: {
+            Year: Year,
+          },
+        },
+      },
       orderBy: {
         ProgramID: "asc",
       },
@@ -42,9 +50,12 @@ export async function POST(request: NextRequest) {
     if (isExist) {
       throw new Error("Program already exist")
     }
+
     const data = await prisma.program.create({
       data: {
         ProgramName: body.ProgramName,
+        AcademicYear: parseInt(body.AcademicYear),
+        Semester: body.Semester,
         gradelevel: {
           connect: body.gradelevel.map((element: gradelevel) => {
             return {
@@ -61,10 +72,11 @@ export async function POST(request: NextRequest) {
         },
       },
     })
-    
+
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.error()
   }
 }
 
@@ -114,6 +126,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.error()
   }
 }

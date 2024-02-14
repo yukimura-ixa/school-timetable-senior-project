@@ -96,16 +96,29 @@ function TimetableConfigValue({}: Props) {
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const saved = async () => {
-    const response = await api.post("/timeslot", configData);
-    if (response.status === 200) {
-      snackBarHandle("SAVED");
+    try {
+      const response = await api.post("/timeslot", configData);
+      console.log(response);
+      if (response.status === 200) {
+        snackBarHandle("SAVED");
+      }
+    } catch (error) {
+      console.log(error);
+      snackBarHandle("ERROR");
     }
   };
   const snackBarHandle = (commitMsg: string): void => {
     setIsSnackBarOpen(true);
-    setSnackBarMsg(
-      commitMsg == "SAVED" ? "บันทึกการตั้งค่าสำเร็จ!" : "รีเซ็ทข้อมูลสำเร็จ!"
-    );
+    let message: string;
+    if (commitMsg == "SAVED") {
+      message = "บันทึกการตั้งค่าสำเร็จ!";
+    } else if (commitMsg == "RESET") {
+      message = "รีเซ็ทข้อมูลสำเร็จ!";
+    } else if (commitMsg == "ERROR") {
+      message = "บันทึกไม่สำเร็จ!";
+    }
+
+    setSnackBarMsg(message);
   };
   return (
     <>

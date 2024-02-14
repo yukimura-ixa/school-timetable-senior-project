@@ -1,20 +1,33 @@
-import SearchBar from "@/components/elements/input/field/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
-import { useSubjectData } from "../../../_hooks/subjectData";
+import { subject } from "@prisma/client";
+import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 
 type Props = {
+  subjectData: subject[];
   subjectSelected: any;
   addSubjectFunction: any;
   removeSubjectFunction: any;
-  searchHandleSubject: any;
-  searchTextSubject: string;
-  required:boolean;
+  required: boolean;
 };
 
 function SelectSubjects(props: Props) {
-  const { data, isLoading, error, mutate } = useSubjectData();
+  const [subjectFilter, setSubjectFilter] = useState<subject[]>(
+    props.subjectData
+  );
+
+  const searchHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // search คำที่พิมพ์ในช่องค้นหา
+    const text = event.target.value;
+    const newData = props.subjectData.filter((item) => {
+      const itemData = `${item.SubjectCode} ${item.SubjectName}`;
+      const textData = text.toLowerCase();
+      return itemData.toLowerCase().indexOf(textData) > -1;
+    });
+    setSubjectFilter(newData);
+  };
+
   return (
     <>
       <div className="flex flex-col gap-5 justify-between w-full">
@@ -23,16 +36,16 @@ function SelectSubjects(props: Props) {
             <p>เลือกวิชา</p>
             <p className="text-red-500">*</p>
             {props.required ? (
-            <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-              <BsInfo className="bg-red-500 rounded-full fill-white" />
-              <p className="text-red-500 text-sm">ต้องการ</p>
-            </div>
+              <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                <BsInfo className="bg-red-500 rounded-full fill-white" />
+                <p className="text-red-500 text-sm">ต้องการ</p>
+              </div>
             ) : null}
           </div>
-          <SearchBar
+          {/* <SearchBar
             width={276}
             height={45}
-            placeHolder="ค้นหารายวิชา"
+            placeHolder="ค้นหาวิชา"
             handleChange={props.searchHandleSubject}
           />
           <div
@@ -41,12 +54,10 @@ function SelectSubjects(props: Props) {
             } absolute right-0 top-11 flex flex-col w-[276px] h-fit bg-white drop-shadow-sm border`}
           >
             <div className="w-full flex flex-col gap-1">
-              {data
+              {props.subjectData
                 .filter((item) => !props.subjectSelected.includes(item))
                 .map((item) => (
-                  <Fragment
-                    key={`searchsubject${item.SubjectCode} ${item.SubjectName}`}
-                  >
+                  <Fragment key={`searchsubject-${item.SubjectCode}`}>
                     <li
                       onClick={() => props.addSubjectFunction(item)}
                       className="flex h-[60px] items-center hover:bg-cyan-100 hover:text-cyan-600 p-3 cursor-pointer duration-300"
@@ -58,6 +69,25 @@ function SelectSubjects(props: Props) {
                   </Fragment>
                 ))}
             </div>
+          </div> */}
+          <div className="flex flex-row justify-between gap-3">
+            <Dropdown
+              data={subjectFilter}
+              renderItem={({ data }) => (
+                <li className="w-full text-sm">
+                  {data.SubjectCode} - {data.SubjectName}
+                </li>
+              )}
+              width={276}
+              height="45"
+              currentValue={""}
+              handleChange={(data: any) => {
+                props.addSubjectFunction(data);
+              }}
+              placeHolder="เลือกวิชา"
+              useSearchBar={true}
+              searchFunciton={searchHandle}
+            />
           </div>
         </div>
         <div className="flex flex-wrap gap-3 justify-end">

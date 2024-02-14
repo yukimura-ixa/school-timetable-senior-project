@@ -67,7 +67,15 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
         console.log(body)
-
+        const isExist = await prisma.timeslot.findFirst({
+            where: {
+                AcademicYear: body.AcademicYear,
+                Semester: body.Semester,
+            },
+        })
+        if (isExist) {
+            return NextResponse.json({ error: "Timeslot already exists" }, { status: 400 })
+        }
         const timeslots: timeslot[] = []
         for (let day of body.Days) {
             for (let index = 0; index < body.TimeslotPerDay; index++) {

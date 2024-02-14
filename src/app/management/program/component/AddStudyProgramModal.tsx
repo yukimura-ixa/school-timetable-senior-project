@@ -4,26 +4,29 @@ import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
 import api from "@/libs/axios";
-import { program, subject } from "@prisma/client";
+import { program, semester, subject } from "@prisma/client";
+import { useSubjectData } from "@/app/_hooks/subjectData";
+import YearSemester from "./YearSemester";
 
 type Props = {
   closeModal: any;
   mutate: Function;
-  addItem: any;
 };
-
-function AddStudyProgramModal({ closeModal, mutate, addItem }: Props) {
-  const [subject, setSubject] = useState([]);
-  const [subjectFilter, setSubjectFilter] = useState([]);
-  const [teacherFilter, setTeacherFilter] = useState([]);
+//TODO: เพิ่ม snackbar แจ้งเตือนเมื่อเพิ่มข้อมูลสำเร็จ
+function AddStudyProgramModal({ closeModal, mutate }: Props) {
+  const subjectData = useSubjectData();
 
   const [newProgramData, setNewProgramData] = useState({
     ProgramName: "",
+    AcademicYear: "",
+    Semester: "",
     gradelevel: [],
     subject: [],
   });
-  const addProgram = async (program: program) => {
+  const addProgram = async (program) => {
+    console.log(program);
     const response = await api.post("/program", program);
+    closeModal();
     if (response.status === 200) {
       mutate();
     }
@@ -31,38 +34,17 @@ function AddStudyProgramModal({ closeModal, mutate, addItem }: Props) {
 
   const [isEmptyData, setIsEmptyData] = useState({
     ProgramName: false,
+    AcademicYear: false,
+    Semester: false,
     gradelevel: false,
     subject: false,
   });
-  const [searchText, setSearchText] = useState("");
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name)
-    );
-    setSubject(res);
-  };
-  const searchHandle = (event: any) => {
-    let text = event.target.value;
-    setSearchText(text);
-    searchName(text);
-  };
-  const [searchTextSubject, setSearchTextSubject] = useState("");
-  const searchSubject = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} - ${item.SubjectName}`.match(name)
-    );
-    setSubject(res);
-  };
-  const searchHandleSubject = (event: any) => {
-    let text = event.target.value;
-    setSearchTextSubject(text);
-    searchSubject(text);
-  };
+
   const validateData = () => {
     setIsEmptyData(() => ({
       ProgramName: newProgramData.ProgramName.length == 0,
+      AcademicYear: newProgramData.AcademicYear.length == 0,
+      Semester: newProgramData.Semester == "",
       gradelevel: newProgramData.gradelevel.length == 0,
       subject: newProgramData.subject.length == 0,
     }));
@@ -88,15 +70,30 @@ function AddStudyProgramModal({ closeModal, mutate, addItem }: Props) {
     return validate();
   }, [
     newProgramData.ProgramName,
+    newProgramData.AcademicYear,
+    newProgramData.Semester,
     newProgramData.gradelevel,
     newProgramData.subject,
   ]);
+
+  const handleSelectSemester = (value: any) => {
+    setNewProgramData(() => ({
+      ...newProgramData,
+      Semester: semester[value],
+    }));
+  };
+
+  const handleChangeYear = (value: any) => {
+    setNewProgramData(() => ({
+      ...newProgramData,
+      AcademicYear: value,
+    }));
+  };
   const handleAddSubjectList = (subject: subject) => {
     setNewProgramData(() => ({
       ...newProgramData,
       subject: [...newProgramData.subject, subject],
     }));
-    setSearchTextSubject("");
   };
   const removeSubjectFromList = (index: number) => {
     setNewProgramData(() => ({
@@ -106,15 +103,15 @@ function AddStudyProgramModal({ closeModal, mutate, addItem }: Props) {
   };
   const addItemAndCloseModal = () => {
     let cond =
-      isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
-    console.log(newProgramData)
+      isEmptyData.ProgramName ||
+      isEmptyData.gradelevel ||
+      isEmptyData.subject ||
+      isEmptyData.AcademicYear ||
+      isEmptyData.Semester;
     if (cond) {
       validateData();
     } else {
-      // addProgram(newProgramData);
-      addItem(newProgramData); //just test mockup
-      closeModal();
-      mutate();
+      addProgram(newProgramData);
     }
   };
   return (
@@ -133,22 +130,29 @@ function AddStudyProgramModal({ closeModal, mutate, addItem }: Props) {
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-auto overflow-y-scroll border border-[#EDEEF3]">
             <StudyProgramLabel
-              required={false}
+              required={isEmptyData.ProgramName}
               title={newProgramData.ProgramName}
               handleChange={(e: any) => {
                 let value: string = e.target.value;
                 setNewProgramData(() => ({
                   ...newProgramData,
-                  ProgramName : value
+                  ProgramName: value,
                 }));
               }}
             />
+            <YearSemester
+              required={isEmptyData.AcademicYear && isEmptyData.Semester}
+              semester={newProgramData.Semester}
+              year={newProgramData.AcademicYear}
+              handleSemesterChange={handleSelectSemester}
+              handleYearChange={handleChangeYear}
+            />
+
             <SelectSubjects
+              subjectData={subjectData.data}
               subjectSelected={newProgramData.subject}
               addSubjectFunction={handleAddSubjectList}
               removeSubjectFunction={removeSubjectFromList}
-              searchHandleSubject={searchHandleSubject}
-              searchTextSubject={searchTextSubject}
               required={isEmptyData.subject}
             />
             <SelectedClassRoom

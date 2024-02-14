@@ -1,4 +1,4 @@
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
+import { useRoomData } from "@/app/_hooks/roomData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
@@ -20,7 +20,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const [selected, setSelected] = useState(null);
   const [subjectSelected, setSubjectSelected] = useState(props.subjectSelected);
   const [RoomID, setRoomID] = useState("");
-  const gradeLevelData = useGradeLevelData();
+  const roomData = useRoomData();
   return (
     <>
       <div
@@ -40,8 +40,10 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               className="cursor-pointer"
               onClick={() => {
                 props.CloseModal(),
-                props.setIsDragState(),
-                Object.keys(subjectSelected).length == 0 ? null : props.returnSubject(subjectSelected);
+                  props.setIsDragState(),
+                  Object.keys(subjectSelected).length == 0
+                    ? null
+                    : props.returnSubject(subjectSelected);
               }}
             />
           </div>
@@ -101,7 +103,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               <p>เลือกสถานที่เรียน</p>
               <Dropdown
                 width={250}
-                data={gradeLevelData.data.map((grade) => grade.GradeID)}
+                data={roomData.data.map((grade) => grade.RoomName)}
                 placeHolder="โปรดเลือก"
                 renderItem={({ data }) => (
                   <>
@@ -118,8 +120,10 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             <button
               onClick={() => {
                 props.CloseModal(),
-                props.setIsDragState(),
-                Object.keys(subjectSelected).length == 0 ? null : props.returnSubject(subjectSelected);
+                  props.setIsDragState(),
+                  Object.keys(subjectSelected).length == 0
+                    ? null
+                    : props.returnSubject(subjectSelected);
               }}
               className="w-[100px] h-[45px] rounded bg-red-100 text-red-500"
             >
@@ -131,10 +135,10 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                   { ...subjectSelected, RoomID: RoomID },
                   props.timeSlotID
                 ),
-                props.setIsDragState(),
-                props.removeSubjectSelected(
-                  subjects.filter((item, index) => index != selected)
-                );
+                  props.setIsDragState(),
+                  props.removeSubjectSelected(
+                    subjects.filter((item, index) => index != selected)
+                  );
               }}
               className="w-[100px] h-[45px] rounded bg-blue-100 text-blue-500"
             >

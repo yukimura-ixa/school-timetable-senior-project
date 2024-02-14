@@ -1,5 +1,6 @@
 import TextField from "@/components/elements/input/field/TextField";
 import React from "react";
+import { BsInfo } from "react-icons/bs"
 
 type Props = { required: boolean, title: string, handleChange: any };
 
@@ -9,12 +10,12 @@ const StudyProgramLabel = (props: Props) => {
       <div className="text-sm flex gap-1 items-center">
         <p>ชื่อหลักสูตร</p>
         <p className="text-red-500">*</p>
-        {/* {props.required ? (
+        {props.required ? (
         <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
           <BsInfo className="bg-red-500 rounded-full fill-white" />
           <p className="text-red-500 text-sm">ต้องการ</p>
         </div>
-      ) : null} */}
+      ) : null}
       </div>
       <TextField
         width={275}

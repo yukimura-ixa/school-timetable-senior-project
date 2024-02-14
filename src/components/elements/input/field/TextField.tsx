@@ -27,7 +27,7 @@ function TextField({
     borderColor: `${borderColor}`,
   };
   return (
-    <div className="flex flex-col text-left gap-2">
+    <div className="flex flex-col text-left">
       <label className="text-sm font-bold">{label}</label>
       <input
         className="rounded text-field px-[15px] py-[10px] text-sm placeholder:text-sm"

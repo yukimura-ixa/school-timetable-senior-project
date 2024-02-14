@@ -4,6 +4,7 @@ import { MdAdd, MdDelete } from "react-icons/md";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { subject_in_slot } from "@/raw-data/subject_in_slot";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { StrictModeDroppable } from "@/components/elements/dnd/StrictModeDroppable";
 import { fetcher } from "@/libs/axios";
 import { useParams, useSearchParams } from "next/navigation";
 import useSWR from "swr";
@@ -13,7 +14,7 @@ import { subjectCreditValues } from "@/models/credit-value";
 import { useClassData } from "@/app/_hooks/classData";
 import { teacher } from "@prisma/client";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
 // TODO: ลากสลับวิชาระหว่างช่อง
@@ -74,12 +75,12 @@ function TimeSlot(props: Props) {
     BreakSlot: [],
   });
   useEffect(() => {
-    if (!fetchTeacher.isLoading) {
+    if (!fetchTeacher.isValidating) {
       setTeacherData(() => fetchTeacher.data);
     }
-  }, [fetchTeacher.isLoading]);
+  }, [fetchTeacher.isValidating]);
   useEffect(() => {
-    if (!fetchAllSubject.isLoading) {
+    if (!fetchAllSubject.isValidating) {
       const data = fetchAllSubject.data; //get data
       const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
       for (let i = 0; i < data.length; i++) {
@@ -123,9 +124,9 @@ function TimeSlot(props: Props) {
       setSubjectData(() => mapSubjectByCredit);
       console.log(mapSubjectByCredit);
     }
-  }, [fetchAllSubject.isLoading]);
+  }, [fetchAllSubject.isValidating]);
   useEffect(() => {
-    if (!fetchTimeSlot.isLoading) {
+    if (!fetchTimeSlot.isValidating) {
       let data = fetchTimeSlot.data;
       let dayofweek = data
         .map((day) => day.DayOfWeek)
@@ -169,7 +170,7 @@ function TimeSlot(props: Props) {
         BreakSlot: breakTime,
       }));
     }
-  }, [fetchTimeSlot.isLoading]);
+  }, [fetchTimeSlot.isValidating]);
   const getMinutes = (milliseconds: number) => {
     let seconds = Math.floor(milliseconds / 1000);
     let minutes = Math.floor(seconds / 60);
@@ -274,7 +275,7 @@ function TimeSlot(props: Props) {
           removeSubjectSelected={removeSubjectSelected}
         />
       ) : null}
-      {fetchTimeSlot.isLoading ? (
+      {fetchTimeSlot.isValidating ? (
         <Loading />
       ) : (
         <>
@@ -293,7 +294,10 @@ function TimeSlot(props: Props) {
                 วิชาที่สามารถจัดลงได้
               </p>
               <div className="flex w-full text-center">
-                <Droppable droppableId="SUBJECTS" direction="horizontal">
+                <StrictModeDroppable
+                  droppableId="SUBJECTS"
+                  direction="horizontal"
+                >
                   {(provided, snapshot) => (
                     <div
                       className="grid w-full text-center grid-cols-8 overflow-x-scroll"
@@ -338,7 +342,7 @@ function TimeSlot(props: Props) {
                       {provided.placeholder}
                     </div>
                   )}
-                </Droppable>
+                </StrictModeDroppable>
               </div>
             </div>
             <table className="table-auto w-full flex flex-col gap-3 mt-4 mb-10">
@@ -396,7 +400,9 @@ function TimeSlot(props: Props) {
                         (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
                       ).map((item, index) => (
                         <Fragment key={`DROPZONE${item.TimeslotID}`}>
-                          <Droppable droppableId={`${item.TimeslotID}`}>
+                          <StrictModeDroppable
+                            droppableId={`${item.TimeslotID}`}
+                          >
                             {(provided, snapshot) => (
                               <td
                                 className={`grid w-[100%] items-center cursor-pointer justify-center h-[76px] rounded border relative border-[#ABBAC1] bg-white ${
@@ -414,9 +420,11 @@ function TimeSlot(props: Props) {
                                         setSelectedTimeslotID(item.TimeslotID);
                                     }}
                                   >
-                                    {snapshot.isDraggingOver
-                                      ? ""
-                                      : <AddCircleIcon className="cursor-pointer fill-emerald-500 hover:fill-emerald-600 duration-300" />}
+                                    {snapshot.isDraggingOver ? (
+                                      ""
+                                    ) : (
+                                      <AddCircleIcon className="cursor-pointer fill-emerald-500 hover:fill-emerald-600 duration-300" />
+                                    )}
                                   </div>
                                 ) : (
                                   <div className="flex gap-3 items-center">
@@ -461,7 +469,7 @@ function TimeSlot(props: Props) {
                                 {provided.placeholder}
                               </td>
                             )}
-                          </Droppable>
+                          </StrictModeDroppable>
                         </Fragment>
                       ))}
                     </tr>
