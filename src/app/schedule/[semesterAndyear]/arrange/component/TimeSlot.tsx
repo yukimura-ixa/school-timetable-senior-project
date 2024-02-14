@@ -216,6 +216,7 @@ function TimeSlot(props: Props) {
         item.TimeslotID == timeSlotID ? { ...item, subject: subject } : item
       ),
     }));
+    setSelectedSubject({});
     setIsActiveModal(false);
   };
   const removeSubjectFromSlot = (timeSlotID: string, subject: object) => {

@@ -1,3 +1,4 @@
+import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import { useRoomData } from "@/app/_hooks/roomData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
@@ -20,7 +21,24 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const [selected, setSelected] = useState(null);
   const [subjectSelected, setSubjectSelected] = useState(props.subjectSelected);
   const [RoomID, setRoomID] = useState("");
+  const [validateIsPass, setValidateIsPass] = useState(false);
+  const gradeLevelData = useGradeLevelData();
   const roomData = useRoomData();
+
+  const saveData = () => {
+    if (RoomID == "" || Object.keys(subjectSelected).length == 0) {
+      setValidateIsPass(true);
+    } else {
+      props.AddSubjectToSlot(
+        { ...subjectSelected, RoomID: RoomID },
+        props.timeSlotID
+      ),
+        props.setIsDragState(),
+        props.removeSubjectSelected(
+          subjects.filter((item, index) => index != selected)
+        );
+    }
+  };
   return (
     <>
       <div
@@ -30,12 +48,19 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
         <div className="flex flex-col w-[580px] h-fit p-7 gap-10 bg-white rounded">
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p
-              className="text-lg select-none"
-              onClick={() => console.log(subjectSelected)}
-            >
-              จัดวิชาเรียนลงในคาบ (2/8/24) ยังไม่ validate
-            </p>
+            <div className="flex gap-3 items-center">
+              <b
+                className="text-lg select-none"
+                onClick={() => console.log(roomData.data)}
+              >
+                จัดวิชาเรียนลงในคาบ
+              </b>
+              {validateIsPass ? (
+                <p className="text-xs text-red-500">
+                  โปรดเลือกวิชาและห้องเรียนให้ครบถ้วน
+                </p>
+              ) : null}
+            </div>
             <AiOutlineClose
               className="cursor-pointer"
               onClick={() => {
@@ -66,7 +91,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               />
             </div> */}
             {props.fromDnd ? null : (
-              <div className="flex flex-col gap-3 p-4 w-full h-[150px] border border-[#EDEEF3] overflow-y-auto">
+              <div className="flex flex-col gap-3 p-4 w-full h-[120px] border border-[#EDEEF3] overflow-y-auto">
                 {/* <p className="text-sm">เลือกวิชาที่มีการสอนสำหรับ ม.3/2</p> */}
                 <div className="flex flex-wrap w-full gap-3 text-center">
                   {subjects.map((item, index) => (
@@ -80,7 +105,12 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                         >
                           <p>{item.SubjectCode}</p>
                           <p>{item.SubjectName.substring(0, 9)}</p>
-                          <p>{item.GradeID}</p>
+                          <p>
+                            ม.{item.GradeID[0]}/
+                            {parseInt(item.GradeID.substring(1, 2)) < 10
+                              ? item.GradeID[2]
+                              : item.GradeID.substring(1, 2)}
+                          </p>
                         </div>
                       ) : (
                         <div
@@ -91,7 +121,12 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                         >
                           <p>{item.SubjectCode}</p>
                           <p>{item.SubjectName.substring(0, 9)}</p>
-                          <p>{item.GradeID}</p>
+                          <p>
+                            ม.{item.GradeID[0]}/
+                            {parseInt(item.GradeID.substring(1, 2)) < 10
+                              ? item.GradeID[2]
+                              : item.GradeID.substring(1, 2)}
+                          </p>
                         </div>
                       )}
                     </React.Fragment>
@@ -100,7 +135,9 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               </div>
             )}
             <div className="flex justify-between items-center w-full">
-              <p>เลือกสถานที่เรียน</p>
+              <div className="flex gap-1 items-center">
+                <p>เลือกสถานที่เรียน</p>
+              </div>
               <Dropdown
                 width={250}
                 data={roomData.data.map((grade) => grade.RoomName)}
@@ -130,16 +167,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               ยกเลิก
             </button>
             <button
-              onClick={() => {
-                props.AddSubjectToSlot(
-                  { ...subjectSelected, RoomID: RoomID },
-                  props.timeSlotID
-                ),
-                  props.setIsDragState(),
-                  props.removeSubjectSelected(
-                    subjects.filter((item, index) => index != selected)
-                  );
-              }}
+              onClick={saveData}
               className="w-[100px] h-[45px] rounded bg-blue-100 text-blue-500"
             >
               บันทึก
