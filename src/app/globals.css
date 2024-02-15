@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
+/* @layer base {
 	html {
-	  font-family: "Sarabun", system-ui, sans-serif;
+	  font-family: "Sarabun";
 	}
-  }
+  } */
 
 .text-field:focus {
   caret-color: rgb(143, 143, 143);
