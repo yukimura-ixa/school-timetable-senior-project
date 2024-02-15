@@ -16,6 +16,7 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import { M_PLUS_1 } from "next/font/google";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
@@ -272,6 +273,15 @@ function TimeSlot(props: Props) {
         : subjectData[index]
     );
   };
+  const BreakTimeElement = () => {
+    return (
+      <td
+      className={`grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`}
+      >
+        <b className="text-xs select-none">พักเที่ยง</b>
+      </td>
+    )
+  }
   return (
     <>
       {isActiveModal ? (
@@ -304,7 +314,7 @@ function TimeSlot(props: Props) {
                 className="text-sm"
                 onClick={() => console.log(timeSlotData)}
               >
-                วิชาที่สามารถจัดลงได้
+                วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>
               </p>
               <div className="flex w-full text-center">
                 <StrictModeDroppable
@@ -424,11 +434,7 @@ function TimeSlot(props: Props) {
                           (item.Breaktime == "BREAK_BOTH" ||
                             item.Breaktime == "BREAK_JUNIOR" ||
                             item.Breaktime == "BREAK_SENIOR") && Object.keys(item.subject).length == 0 ? ( //อันนี้ถ้าคาบพักมอต้นและปลายคาบเดียวกันก็ให้แสดงผลเลย
-                            <td
-                              className={`grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`}
-                            >
-                              <b className="text-xs select-none">พักเที่ยง</b>
-                            </td>
+                              <BreakTimeElement />
                             ) : 
                             (Object.keys(selectedSubject).length > 1 && //ถ้ามีการกดเลือกวิชา
                               (item.Breaktime == "BREAK_JUNIOR" &&
@@ -439,11 +445,7 @@ function TimeSlot(props: Props) {
                               [4, 5, 6].includes(
                                 selectedSubject.gradelevel.Year
                               ))) && Object.keys(item.subject).length == 0 ? ( //เงื่อนไขสุดท้ายคือ ถ้า slot นั้นๆไม่มีวิชาก็แสดงว่าพักเที่ยง ถ้าไม่ ก็แสดงวิชาที่ลงเอาไว้
-                            <td
-                              className={`grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`}
-                            >
-                              <b className="text-xs select-none">พักเที่ยงจ้า</b>
-                            </td>
+                              <BreakTimeElement />
                           ) : (
                             <StrictModeDroppable
                               droppableId={`${item.TimeslotID}`}
@@ -519,6 +521,7 @@ function TimeSlot(props: Props) {
                                           ห้อง {item.subject.RoomID}
                                         </p>
                                       </div>
+                                      <ChangeCircleIcon style={{ color: "#2563eb" }} className="cursor-pointer hover:fill-blue-700 bg-white rounded-full duration-300 absolute left-[-11px] top-[-10px] rotate-90" />
                                       <RemoveCircleIcon
                                         onClick={() =>
                                           removeSubjectFromSlot(
@@ -527,7 +530,7 @@ function TimeSlot(props: Props) {
                                           )
                                         }
                                         style={{ color: "#ef4444" }}
-                                        className="cursor-pointer hover:fill-red-600 duration-300 absolute right-[-7px] top-[-10px]"
+                                        className="cursor-pointer hover:fill-red-600 bg-white rounded-full duration-300 absolute right-[-11px] top-[-10px]"
                                       />
                                     </>
                                   )}
