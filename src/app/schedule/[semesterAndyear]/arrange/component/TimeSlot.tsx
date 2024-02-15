@@ -16,12 +16,13 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
+import { M_PLUS_1 } from "next/font/google";
 type Props = {};
-// TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน
+// TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
 // TODO: ลากสลับวิชาระหว่างช่อง
 // TODO: ลากวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน
 // TODO: ใส่เงื่อนไขให้ตารางสำหรับคาบพัก ให้ Timeslot มัน Disabled ระหว่างการ Drag
-// TODO: ถ้าเพิ่มวิชาแบบกด ให้ส่งไปแค่ข้อมูลที่เพิ่มได้เท่านั้น เช่นกดคาบ 4 แล้วมันคือพักมอต้นก็ไม่ต้องส่งของมอต้นเข้าไป
+// TODO: กดเลือกวิชาหรือลากวิชาให้เช็คว่าโดนคาบพักมั้ย
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -37,7 +38,7 @@ function TimeSlot(props: Props) {
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => `/teacher?TeacherID=` + searchTeacherID,
-    fetcher,
+    fetcher
   );
   const fetchAllSubject = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
@@ -48,7 +49,7 @@ function TimeSlot(props: Props) {
       semester +
       `&TeacherID=` +
       searchTeacherID,
-    fetcher,
+    fetcher
   );
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
@@ -57,7 +58,7 @@ function TimeSlot(props: Props) {
       academicYear +
       `&Semester=SEMESTER_` +
       semester,
-    fetcher,
+    fetcher
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [subjectData, setSubjectData] = useState([]);
@@ -204,12 +205,21 @@ function TimeSlot(props: Props) {
     setSubjectData(() => [...subjectData, subject]);
   };
   const removeSubjectSelected = () => {
-    setSubjectData(() => subjectData.filter((item, index) => index != indexSelected));
-    setIndexSelected(() => null)
+    setSubjectData(() =>
+      subjectData.filter((item, index) => index != indexSelected)
+    );
+    setIndexSelected(() => null);
   };
   const [isDragSubject, setIsDragSubject] = useState(false);
   const [selectTimeslotID, setSelectedTimeslotID] = useState(""); //เก็บค่า timeslotID ปลายทางที่จะนำลงไป
-  const [selectedSubject, setSelectedSubject] = useState({}); //เก็บวิชาที่ Drag ลงมาในช่องตารางเพื่อส่งค่าไป
+  const [selectedSubject, setSelectedSubject] = useState({
+    gradelevel: {
+      GradeID: "",
+      Year: null,
+      Number: null,
+      ProgramID: null,
+    },
+  }); //เก็บวิชาที่ Drag ลงมาในช่องตารางเพื่อส่งค่าไป
   const handleDragAndDrop = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
@@ -260,8 +270,11 @@ function TimeSlot(props: Props) {
             </p>
           </div>
           <DragDropContext onDragEnd={handleDragAndDrop}>
-            <div className="flex flex-col w-full border border-[#EDEEF3] p-4 gap-4 mt-4">
-              <p className="text-sm" onClick={() => console.log(timeSlotData)}>
+            <div className="flex flex-col w-full border border-[rgb(237,238,243)] p-4 gap-4 mt-4">
+              <p
+                className="text-sm"
+                onClick={() => console.log(selectedSubject)}
+              >
                 วิชาที่สามารถจัดลงได้
               </p>
               <div className="flex w-full text-center">
@@ -378,13 +391,19 @@ function TimeSlot(props: Props) {
                         (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
                       ).map((item, index) => (
                         <Fragment key={`DROPZONE${item.TimeslotID}`}>
-                          {item.Breaktime == "BREAK_BOTH" ? (
+                          {item.Breaktime == "BREAK_BOTH" ||
+                          (item.Breaktime == "BREAK_JUNIOR" &&
+                            [1, 2, 3].includes(
+                              selectedSubject.gradelevel.Year
+                            )) ||
+                          (item.Breaktime == "BREAK_SENIOR" &&
+                            [4, 5, 6].includes(
+                              selectedSubject.gradelevel.Year
+                            )) ? (
                             <td
                               className={`grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`}
                             >
-                              <b className="text-xs">
-                                พักเที่ยงมัธยมต้นและปลาย
-                              </b>
+                              <b className="text-xs select-none">พักเที่ยง</b>
                             </td>
                           ) : (
                             <StrictModeDroppable
@@ -398,9 +417,12 @@ function TimeSlot(props: Props) {
                                       : null,
                                   }}
                                   className={`grid w-[100%] items-center cursor-pointer justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white ${
-                                    indexSelected !== null && Object.keys(item.subject).length == 0
-                                      ? "border-emerald-500 animate-pulse"
-                                      : Object.keys(item.subject).length !== 0 ? "border-red-500" : "border-dashed"
+                                    indexSelected !== null &&
+                                    Object.keys(item.subject).length == 0
+                                      ? "border-emerald-300 animate-pulse"
+                                      : Object.keys(item.subject).length !== 0
+                                        ? "border-red-300"
+                                        : "border-dashed"
                                   } duration-200`}
                                   {...provided.droppableProps}
                                   ref={provided.innerRef}
@@ -415,15 +437,17 @@ function TimeSlot(props: Props) {
                                       }}
                                     >
                                       {!snapshot.isDraggingOver &&
-                                      (indexSelected !== null) ? ( //ถ้าไม่มี drag item มาอยู่ในพิ้นที่จะแสดงไอคอน หรือถ้ามีการกำลังลากวิชาหรือคลิกเลือกวิชา จะแสดงไอคอน
+                                      indexSelected !== null ? ( //ถ้าไม่มี drag item มาอยู่ในพิ้นที่จะแสดงไอคอน หรือถ้ามีการกำลังลากวิชาหรือคลิกเลือกวิชา จะแสดงไอคอน
                                         <AddCircleIcon
                                           style={{ color: "#10b981" }}
                                           className="cursor-pointer hover:fill-emerald-600 duration-300"
-                                          onClick={() => {setSelectedTimeslotID(item.TimeslotID)}}
+                                          onClick={() => {
+                                            setSelectedTimeslotID(
+                                              item.TimeslotID
+                                            );
+                                          }}
                                         />
-                                      ) : (
-                                        null
-                                      )}
+                                      ) : null}
                                     </div>
                                   ) : (
                                     <>
