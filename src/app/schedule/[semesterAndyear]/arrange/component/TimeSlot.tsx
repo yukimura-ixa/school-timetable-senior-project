@@ -188,7 +188,14 @@ function TimeSlot(props: Props) {
         item.TimeslotID == timeSlotID ? { ...item, subject: subject } : item
       ),
     }));
-    setSelectedSubject({});
+    setSelectedSubject({
+      gradelevel: {
+        GradeID: "",
+        Year: null,
+        Number: null,
+        ProgramID: null,
+      },
+    });
     setIsActiveModal(false);
   };
   const removeSubjectFromSlot = (timeSlotID: string, subject: object) => {
