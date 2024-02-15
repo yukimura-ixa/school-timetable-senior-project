@@ -14,6 +14,7 @@ type Props = {
   setIsDragState: any; //ถ้ามีการกดเพิ่มหรือยกเลิกให้แก้ state กลับเป็น false
   returnSubject: any; //ถ้ามีการยกเลิกการทำรายการจาการ Drag จะทำการคืนวิชาเข้าช่องรวมวิชา
   removeSubjectSelected: any; //ลบวิชาเมื่อมีการเลือกวิชาและกดยืนยัน
+  removeSubjectFromSlot: any;
 };
 
 function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
@@ -34,6 +35,14 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
       props.removeSubjectSelected();
     }
   };
+  const cancel = () => { //ถ้ากดปิด modal หรือกดยกเลิก
+    props.CloseModal(), //ทำการปิดหน้าต่างเล็ก
+    props.setIsDragState(), //set เป็น false เพื่อกลับเป็น default
+    Object.keys(subjectSelected).length != 0 && props.fromDnd //เช็คว่าถ้ามีวิชาที่เลือกมาจากการ Drag แล้วกดยกเลิก จะให้คืนวิชาลงกล่อง
+      ? props.returnSubject(subjectSelected)
+      : null;
+    props.fromDnd ? props.removeSubjectFromSlot(props.timeSlotID, props.subjectSelected) : null //เช็คว่าถ้าลากวิชามาแล้วกดยกเลิกให้ทำการนำวิชาออกจาก slot
+  }
   return (
     <>
       <div
@@ -52,19 +61,13 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               </b>
               {validateIsPass ? (
                 <p className="text-xs text-red-500">
-                  โปรดเลือกวิชาและห้องเรียนให้ครบถ้วน
+                  โปรดเลือกห้องเรียน
                 </p>
               ) : null}
             </div>
             <AiOutlineClose
               className="cursor-pointer"
-              onClick={() => {
-                props.CloseModal(),
-                  props.setIsDragState(),
-                  Object.keys(subjectSelected).length == 0
-                    ? null
-                    : props.returnSubject(subjectSelected);
-              }}
+              onClick={cancel}
             />
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">
@@ -89,13 +92,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
           </div>
           <div className="flex w-full items-end justify-end gap-4">
             <button
-              onClick={() => {
-                props.CloseModal(),
-                  props.setIsDragState(),
-                  Object.keys(subjectSelected).length == 0
-                    ? null
-                    : props.returnSubject(subjectSelected);
-              }}
+              onClick={cancel}
               className="w-[100px] h-[45px] rounded bg-red-100 text-red-500"
             >
               ยกเลิก

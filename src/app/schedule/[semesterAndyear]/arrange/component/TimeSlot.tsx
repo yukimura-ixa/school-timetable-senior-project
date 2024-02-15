@@ -22,7 +22,9 @@ type Props = {};
 // TODO: ลากสลับวิชาระหว่างช่อง
 // TODO: ลากวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน
 // TODO: ใส่เงื่อนไขให้ตารางสำหรับคาบพัก ให้ Timeslot มัน Disabled ระหว่างการ Drag
-// TODO: กดเลือกวิชาหรือลากวิชาให้เช็คว่าโดนคาบพักมั้ย
+// TODO: ลากวิชาให้เช็คว่าโดนคาบพักมั้ย
+// TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
+// TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย + สัญลักษณ์
 function TimeSlot(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -96,9 +98,9 @@ function TimeSlot(props: Props) {
       setSubjectData(() => mapSubjectByCredit);
       console.log(mapSubjectByCredit);
     }
-  }, [fetchAllSubject.isValidating]);
+  }, [fetchAllSubject.isLoading]);
   useEffect(() => {
-    if (!fetchTimeSlot.isValidating) {
+    if (!fetchTimeSlot.isLoading) {
       let data = fetchTimeSlot.data;
       let dayofweek = data
         .map((day) => day.DayOfWeek)
@@ -144,7 +146,7 @@ function TimeSlot(props: Props) {
         BreakSlot: breakTime,
       }));
     }
-  }, [fetchTimeSlot.isValidating]);
+  }, [fetchTimeSlot.isLoading]);
   const getMinutes = (milliseconds: number) => {
     let seconds = Math.floor(milliseconds / 1000);
     let minutes = Math.floor(seconds / 60);
@@ -181,7 +183,6 @@ function TimeSlot(props: Props) {
   };
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
     let data = timeSlotData.AllData;
-    //แค่ลบออกได้อย่างเดียวอยู่ตอนนี้ 2/8/2024
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
@@ -235,6 +236,15 @@ function TimeSlot(props: Props) {
     if (source.droppableId !== destination.droppableId) {
       //ถ้ามีการ Drag and Drop เกิดขึ้น
       setSelectedSubject(() => subjectData[source.index]); //set วิชาที่ drag ไว้
+      let data = timeSlotData.AllData;
+      setTimeSlotData(() => ({
+        ...timeSlotData,
+        AllData: data.map((item) =>
+          item.TimeslotID == destination.droppableId
+            ? { ...item, subject: subjectData[source.index] }
+            : item
+        ),
+      }));
       setSubjectData(() =>
         subjectData.filter((item, index) => index !== source.index)
       ); //filter ข้อมูลออกจากหน้า Timeslot เสมือนว่ามีการเลือกข้อมูลไว้
@@ -249,7 +259,18 @@ function TimeSlot(props: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const clickToSelectSubject = (index: number) => {
     setIndexSelected(() => (index == indexSelected ? null : index)); //ถ้ามีการกดอันเดิมจะ toggle
-    setSelectedSubject(() => subjectData[index]);
+    setSelectedSubject(() =>
+      index == indexSelected
+        ? {
+            gradelevel: {
+              GradeID: "",
+              Year: null,
+              Number: null,
+              ProgramID: null,
+            },
+          }
+        : subjectData[index]
+    );
   };
   return (
     <>
@@ -264,6 +285,7 @@ function TimeSlot(props: Props) {
           setIsDragState={() => setIsDragSubject(false)}
           returnSubject={returnSubject}
           removeSubjectSelected={removeSubjectSelected}
+          removeSubjectFromSlot={removeSubjectFromSlot}
         />
       ) : null}
       {fetchTimeSlot.isLoading ? (
@@ -280,7 +302,7 @@ function TimeSlot(props: Props) {
             <div className="flex flex-col w-full border border-[rgb(237,238,243)] p-4 gap-4 mt-4">
               <p
                 className="text-sm"
-                onClick={() => console.log(selectedSubject)}
+                onClick={() => console.log(timeSlotData)}
               >
                 วิชาที่สามารถจัดลงได้
               </p>
@@ -398,19 +420,29 @@ function TimeSlot(props: Props) {
                         (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
                       ).map((item, index) => (
                         <Fragment key={`DROPZONE${item.TimeslotID}`}>
-                          {item.Breaktime == "BREAK_BOTH" ||
-                          (item.Breaktime == "BREAK_JUNIOR" &&
-                            [1, 2, 3].includes(
-                              selectedSubject.gradelevel.Year
-                            )) ||
-                          (item.Breaktime == "BREAK_SENIOR" &&
-                            [4, 5, 6].includes(
-                              selectedSubject.gradelevel.Year
-                            )) ? (
+                          {Object.keys(selectedSubject).length <= 1 && //ถ้าไม่มีการกดเลือกวิชา
+                          (item.Breaktime == "BREAK_BOTH" ||
+                            item.Breaktime == "BREAK_JUNIOR" ||
+                            item.Breaktime == "BREAK_SENIOR") && Object.keys(item.subject).length == 0 ? ( //อันนี้ถ้าคาบพักมอต้นและปลายคาบเดียวกันก็ให้แสดงผลเลย
                             <td
                               className={`grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`}
                             >
                               <b className="text-xs select-none">พักเที่ยง</b>
+                            </td>
+                            ) : 
+                            (Object.keys(selectedSubject).length > 1 && //ถ้ามีการกดเลือกวิชา
+                              (item.Breaktime == "BREAK_JUNIOR" &&
+                              [1, 2, 3].includes(
+                                selectedSubject.gradelevel.Year
+                              )) || //เช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
+                            (item.Breaktime == "BREAK_SENIOR" &&
+                              [4, 5, 6].includes(
+                                selectedSubject.gradelevel.Year
+                              ))) && Object.keys(item.subject).length == 0 ? ( //เงื่อนไขสุดท้ายคือ ถ้า slot นั้นๆไม่มีวิชาก็แสดงว่าพักเที่ยง ถ้าไม่ ก็แสดงวิชาที่ลงเอาไว้
+                            <td
+                              className={`grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`}
+                            >
+                              <b className="text-xs select-none">พักเที่ยงจ้า</b>
                             </td>
                           ) : (
                             <StrictModeDroppable
