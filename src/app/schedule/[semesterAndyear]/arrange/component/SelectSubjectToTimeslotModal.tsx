@@ -1,7 +1,7 @@
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import { useRoomData } from "@/app/_hooks/roomData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
 type Props = {
@@ -17,26 +17,21 @@ type Props = {
 };
 
 function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
-  const [subjects, setSubjects] = useState(props.subjects);
-  const [selected, setSelected] = useState(null);
   const [subjectSelected, setSubjectSelected] = useState(props.subjectSelected);
   const [RoomID, setRoomID] = useState("");
   const [validateIsPass, setValidateIsPass] = useState(false);
-  const gradeLevelData = useGradeLevelData();
+  // const gradeLevelData = useGradeLevelData();
   const roomData = useRoomData();
-
   const saveData = () => {
-    if (RoomID == "" || Object.keys(subjectSelected).length == 0) {
+    if (RoomID == "") {
       setValidateIsPass(true);
     } else {
       props.AddSubjectToSlot(
         { ...subjectSelected, RoomID: RoomID },
         props.timeSlotID
       ),
-        props.setIsDragState(),
-        props.removeSubjectSelected(
-          subjects.filter((item, index) => index != selected)
-        );
+      props.setIsDragState(),
+      props.removeSubjectSelected();
     }
   };
   return (
@@ -51,7 +46,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             <div className="flex gap-3 items-center">
               <b
                 className="text-lg select-none"
-                onClick={() => console.log(roomData.data)}
+                // onClick={() => console.log(selected)}
               >
                 จัดวิชาเรียนลงในคาบ
               </b>
@@ -73,67 +68,6 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             />
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">
-            {/* เดี๋ยวใช้ต่อ */}
-            {/* <div className="flex justify-between items-center w-full">
-              <p>เลือกชั้นเรียน</p>
-              <Dropdown
-                width={250}
-                data={["Hi"]}
-                placeHolder="ม.3/2"
-                renderItem={({ data }) => (
-                  <>
-                    <p>{data}</p>
-                  </>
-                )}
-                currentValue={undefined}
-                handleChange={undefined}
-                searchFunciton={undefined}
-              />
-            </div> */}
-            {props.fromDnd ? null : (
-              <div className="flex flex-col gap-3 p-4 w-full h-[120px] border border-[#EDEEF3] overflow-y-auto">
-                {/* <p className="text-sm">เลือกวิชาที่มีการสอนสำหรับ ม.3/2</p> */}
-                <div className="flex flex-wrap w-full gap-3 text-center">
-                  {subjects.map((item, index) => (
-                    <React.Fragment key={`${index}${item.SubjectCode}`}>
-                      {selected == index ? (
-                        <div
-                          onClick={() => {
-                            setSelected(index), setSubjectSelected(item);
-                          }}
-                          className="flex flex-col py-2 text-sm w-[70px] h-fit rounded bg-green-100 text-green-600 cursor-pointer select-none"
-                        >
-                          <p>{item.SubjectCode}</p>
-                          <p>{item.SubjectName.substring(0, 9)}</p>
-                          <p>
-                            ม.{item.GradeID[0]}/
-                            {parseInt(item.GradeID.substring(1, 2)) < 10
-                              ? item.GradeID[2]
-                              : item.GradeID.substring(1, 2)}
-                          </p>
-                        </div>
-                      ) : (
-                        <div
-                          onClick={() => {
-                            setSelected(index), setSubjectSelected(item);
-                          }}
-                          className="flex flex-col py-2 text-sm w-[70px] h-fit rounded border border-[#EDEEF3] cursor-pointer select-none"
-                        >
-                          <p>{item.SubjectCode}</p>
-                          <p>{item.SubjectName.substring(0, 9)}</p>
-                          <p>
-                            ม.{item.GradeID[0]}/
-                            {parseInt(item.GradeID.substring(1, 2)) < 10
-                              ? item.GradeID[2]
-                              : item.GradeID.substring(1, 2)}
-                          </p>
-                        </div>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-            )}
             <div className="flex justify-between items-center w-full">
               <div className="flex gap-1 items-center">
                 <p>เลือกสถานที่เรียน</p>

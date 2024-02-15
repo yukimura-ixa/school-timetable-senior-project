@@ -209,6 +209,30 @@ function TimetableConfigValue({}: Props) {
             onChange={handleChangeStartTime}
           />
         </div>
+        {/* Config พักเล็ก */}
+        {/* <div className="flex w-full h-[65px] justify-between py-4 items-center mt-3">
+          <div className="flex items-center gap-4">
+            <MdLunchDining size={25} className="fill-gray-500" />
+            <p className="text-md">กำหนดคาบพักเล็ก</p>
+          </div>
+          <div className="flex flex-col-reverse gap-4">
+            <div className="flex justify-between items-center gap-3">
+              <p className="text-md text-gray-500">คาบที่</p>
+              <Dropdown
+                width="100%"
+                height="40px"
+                data={breakSlotMap}
+                currentValue={configData.BreakTimeslots.Junior}
+                placeHolder="เลือกคาบ"
+                renderItem={({ data }): JSX.Element => (
+                  <li className="w-[70px]">{data}</li>
+                )}
+                handleChange={handleChangeBreakTimeJ}
+                searchFunciton={undefined}
+              />
+            </div>
+          </div>
+        </div> */}
         {/* Config lunch time */}
         <div className="flex w-full h-auto justify-between py-4 items-center">
           <div className="flex items-center gap-4">
