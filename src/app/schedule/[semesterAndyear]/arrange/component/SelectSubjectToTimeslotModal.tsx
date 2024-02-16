@@ -5,44 +5,35 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
 type Props = {
-  CloseModal: any;
-  AddSubjectToSlot: any; //ฟังก์ชั่นเพิ่มวิชา
-  timeSlotID: any; //ไอดีของช่องตาราง
-  subjects: any; //ข้อมูลวิชาทั้งหมด
-  fromDnd: boolean; //ถ้าเพิ่มวิชาจากการ Drag and drop
-  subjectSelected: object; //ในเคสที่ลากวิชาลงมาจะใส่วิชามาด้วย
-  setIsDragState: any; //ถ้ามีการกดเพิ่มหรือยกเลิกให้แก้ state กลับเป็น false
-  returnSubject: any; //ถ้ามีการยกเลิกการทำรายการจาการ Drag จะทำการคืนวิชาเข้าช่องรวมวิชา
-  removeSubjectSelected: any; //ลบวิชาเมื่อมีการเลือกวิชาและกดยืนยัน
-  removeSubjectFromSlot: any;
+  addSubjectToSlot: any; //ฟังก์ชั่นเพิ่มวิชา
+  cancelAddRoom: any //เมื่อกดยกเลิก
+  // timeSlotID: any; //ไอดีของช่องตาราง
+  // subjects: any; //ข้อมูลวิชาทั้งหมด
+  // fromDnd: boolean; //ถ้าเพิ่มวิชาจากการ Drag and drop
+  // subjectSelected: object; //ในเคสที่ลากวิชาลงมาจะใส่วิชามาด้วย
+  // setIsDragState: any; //ถ้ามีการกดเพิ่มหรือยกเลิกให้แก้ state กลับเป็น false
+  // returnSubject: any; //ถ้ามีการยกเลิกการทำรายการจาการ Drag จะทำการคืนวิชาเข้าช่องรวมวิชา
+  // removeSubjectSelected: any; //ลบวิชาเมื่อมีการเลือกวิชาและกดยืนยัน
+  // removeSubjectFromSlot: any;
+  payload: any; //ข้อมูลทั้งหมดที่ส่งมาจากต้นทาง
 };
 
 function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
-  const [subjectSelected, setSubjectSelected] = useState(props.subjectSelected);
+  const payload = props.payload;
   const [RoomID, setRoomID] = useState("");
   const [validateIsPass, setValidateIsPass] = useState(false);
   // const gradeLevelData = useGradeLevelData();
   const roomData = useRoomData();
-  const saveData = () => {
-    if (RoomID == "") {
+  const confirm = () => { //ถ้ากดยืนยัน
+    if (RoomID == "") { //เช็คว่ามีการเลือกห้องยังถ้ายังก็แจ้งเตือน
       setValidateIsPass(true);
-    } else {
-      props.AddSubjectToSlot(
-        { ...subjectSelected, RoomID: RoomID },
-        props.timeSlotID
-      ),
-      props.setIsDragState(),
-      props.removeSubjectSelected();
+    } else { //ถ้าเลือกห้องแล้ว
+      props.addSubjectToSlot(
+        { ...payload.selectedSubject, RoomID: RoomID },
+        payload.timeslotID
+      )
     }
   };
-  const cancel = () => { //ถ้ากดปิด modal หรือกดยกเลิก
-    props.CloseModal(), //ทำการปิดหน้าต่างเล็ก
-    props.setIsDragState(), //set เป็น false เพื่อกลับเป็น default
-    Object.keys(subjectSelected).length != 0 && props.fromDnd //เช็คว่าถ้ามีวิชาที่เลือกมาจากการ Drag แล้วกดยกเลิก จะให้คืนวิชาลงกล่อง
-      ? props.returnSubject(subjectSelected)
-      : null;
-    props.fromDnd ? props.removeSubjectFromSlot(props.timeSlotID, props.subjectSelected) : null //เช็คว่าถ้าลากวิชามาแล้วกดยกเลิกให้ทำการนำวิชาออกจาก slot
-  }
   return (
     <>
       <div
@@ -55,7 +46,6 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             <div className="flex gap-3 items-center">
               <b
                 className="text-lg select-none"
-                // onClick={() => console.log(selected)}
               >
                 จัดวิชาเรียนลงในคาบ
               </b>
@@ -67,7 +57,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             </div>
             <AiOutlineClose
               className="cursor-pointer"
-              onClick={cancel}
+              onClick={() => props.cancelAddRoom(payload.selectedSubject)}
             />
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">
@@ -92,13 +82,13 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
           </div>
           <div className="flex w-full items-end justify-end gap-4">
             <button
-              onClick={cancel}
+              onClick={() => props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)}
               className="w-[100px] h-[45px] rounded bg-red-100 text-red-500"
             >
               ยกเลิก
             </button>
             <button
-              onClick={saveData}
+              onClick={confirm}
               className="w-[100px] h-[45px] rounded bg-blue-100 text-blue-500"
             >
               บันทึก
