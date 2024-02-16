@@ -7,14 +7,6 @@ import { AiOutlineClose } from "react-icons/ai";
 type Props = {
   addSubjectToSlot: any; //ฟังก์ชั่นเพิ่มวิชา
   cancelAddRoom: any //เมื่อกดยกเลิก
-  // timeSlotID: any; //ไอดีของช่องตาราง
-  // subjects: any; //ข้อมูลวิชาทั้งหมด
-  // fromDnd: boolean; //ถ้าเพิ่มวิชาจากการ Drag and drop
-  // subjectSelected: object; //ในเคสที่ลากวิชาลงมาจะใส่วิชามาด้วย
-  // setIsDragState: any; //ถ้ามีการกดเพิ่มหรือยกเลิกให้แก้ state กลับเป็น false
-  // returnSubject: any; //ถ้ามีการยกเลิกการทำรายการจาการ Drag จะทำการคืนวิชาเข้าช่องรวมวิชา
-  // removeSubjectSelected: any; //ลบวิชาเมื่อมีการเลือกวิชาและกดยืนยัน
-  // removeSubjectFromSlot: any;
   payload: any; //ข้อมูลทั้งหมดที่ส่งมาจากต้นทาง
 };
 
@@ -57,7 +49,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
             </div>
             <AiOutlineClose
               className="cursor-pointer"
-              onClick={() => props.cancelAddRoom(payload.selectedSubject)}
+              onClick={() => props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)}
             />
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">

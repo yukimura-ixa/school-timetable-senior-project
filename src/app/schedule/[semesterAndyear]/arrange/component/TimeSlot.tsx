@@ -258,13 +258,13 @@ function TimeSlot(props: Props) {
       setIsActiveModal(true);
     }
   }
-  const checkBreakTime = (breakTimeState: string, subjectInSlot: object):boolean => {
+  const checkBreakTime = (breakTimeState: string, subjectInSlot: object):boolean => { //เช็คคาบพักแบบมอต้นและปลาย
     let result:boolean = Object.keys(storeSelectedSubject).length > 1 &&//ถ้ามีการกดเลือกวิชา
     (breakTimeState == "BREAK_JUNIOR" && [1, 2, 3].includes(yearSelected)) || //เช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
     (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected)) && Object.keys(subjectInSlot).length == 0 //เงื่อนไขสุดท้ายคือ ถ้า slot นั้นๆไม่มีวิชาก็แสดงว่าพักเที่ยง ถ้าไม่ ก็แสดงวิชาที่ลงเอาไว้
     return result;
   }
-  const timeSlotCssClassName = (breakTimeState: string, subjectInSlot: object) => {
+  const timeSlotCssClassName = (breakTimeState: string, subjectInSlot: object) => { //เช็คคาบพักรวม
     let condition = Object.keys(storeSelectedSubject).length <= 1 && (breakTimeState == "BREAK_BOTH" || breakTimeState == "BREAK_JUNIOR" || breakTimeState == "BREAK_SENIOR") && Object.keys(subjectInSlot).length == 0;
     let disabledSlot = `grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200` //slot ปิดตาย (คาบพัก)
     let enabledSlot = `grid w-[100%] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
