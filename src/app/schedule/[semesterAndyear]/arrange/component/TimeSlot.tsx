@@ -1,7 +1,6 @@
 "use client";
 import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
-import { subject_in_slot } from "@/raw-data/subject_in_slot";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/elements/dnd/StrictModeDroppable";
 import { fetcher } from "@/libs/axios";
@@ -20,11 +19,12 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import { M_PLUS_1 } from "next/font/google";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
-// TODO: หาวิธีล้าง state ของการ drag ไม่ลง dropzone ให้ได้
-// TODO: กดคลิกเพื่อสลับสับเปลี่ยนวิชา
+// TODO: กดคลิกเพื่อสลับสับเปลี่ยนวิชาระหว่างช่อง
 // TODO: ลากสลับวิชาระหว่างช่อง
-// TODO: ลากวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน
+// TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน
 // TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย + สัญลักษณ์
+// TODO: ดึงวิชาที่ลงให้ครูแต่ละคนแล้วมาจาก database เพื่อนำมาแสดงบนช่องตาราง
+// TODO: เช็ควิชาที่ map กับหน่วยกิตให้สัมพันธ์กับวิชาที่อยู่ในตารางหลังจากทำ TODO ด้านบน
 // TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
 function TimeSlot(props: Props) {
   const params = useParams();
@@ -217,16 +217,6 @@ function TimeSlot(props: Props) {
     delete subject.RoomID; //ลบ property RoomID ออกจาก object ก่อนคืน 
     setSubjectData(() => [...subjectData, subject]);
   };
-  const handleDragEnd = (result) => {
-    const { source, destination, type } = result;
-    if (!destination) return;
-    if (source.droppableId !== destination.droppableId) {
-      //ถ้ามีการ Drag and Drop เกิดขึ้น
-      addRoomModal(destination.droppableId) //destination.droppableId = timeslotID
-    }
-    clickOrDragToSelectSubject(subjectData[source.index])
-    console.log(result);
-  };
   const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
   const [storeSelectedSubject, setStoreSelectedSubject] = useState({}); //เก็บวิชาที่เรากดเลือก
   const [subjectPayload, setSubjectPayload] = useState({
@@ -240,6 +230,21 @@ function TimeSlot(props: Props) {
       clickOrDragToSelectSubject(subjectData[index]);
     }
     console.log(result);
+  }
+  const handleDragEnd = (result) => {
+    const { source, destination, type } = result;
+    if (!destination) return;
+    if (source.droppableId !== destination.droppableId) {
+      //ถ้ามีการ Drag and Drop เกิดขึ้น
+      addRoomModal(destination.droppableId) //destination.droppableId = timeslotID
+    }
+    clickOrDragToSelectSubject(subjectData[source.index])
+    console.log(result);
+  };
+  const dropOutOfZone = (subject: object) => { //function เช็คว่าถ้ามีการ Drop item นอกพื้นที่ Droppable จะให้นับเวลาถอยหลัง 0.5 วิเพื่อยกเลิกการเลือกวิชาที่ลาก
+    setTimeout(() => {
+      clickOrDragToSelectSubject(subject);
+    }, 500)
   }
   const clickOrDragToSelectSubject = (subject : object) => {
     let itemToAdd = subject === storeSelectedSubject ? {} : subject //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
@@ -327,6 +332,9 @@ function TimeSlot(props: Props) {
                             index={index}
                           >
                             {(provided, snapshot) => {
+                              if(snapshot.isDropAnimating){ //เช็คว่ามีการปล่อยเมาส์มั้ย
+                                dropOutOfZone(item); //ถ้ามีก็เรียกใช้ฟังก์ชั่นพร้อมส่งวิชาที่เลือกลงไป
+                              }
                               return(
                               <>
                                 <div
@@ -346,7 +354,7 @@ function TimeSlot(props: Props) {
                                   </p>
                                   <b className="text-xs">
                                     ม.{item.GradeID[0]}/
-                                    {parseInt(item.GradeID.substring(1, 2)) < 10
+                                      {parseInt(item.GradeID.substring(1, 2)) < 10
                                       ? item.GradeID[2]
                                       : item.GradeID.substring(1, 2)}
                                   </b>

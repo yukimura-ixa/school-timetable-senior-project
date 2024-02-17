@@ -1,6 +1,7 @@
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import { useRoomData } from "@/app/_hooks/roomData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 
@@ -26,31 +27,48 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
       )
     }
   };
+  const dataDetails = (type: string) => {
+    let timeslotID = payload.timeslotID;
+    let subject = payload.selectedSubject;
+    let timeSlotDetails = `เทอม ${timeslotID[0]} ปีการศึกษา ${timeslotID.substring(2, 6)} - วัน${dayOfWeekThai[timeslotID.substring(7, 10)]} คาบ${timeslotID[timeslotID.length-1]}`
+    let subjectDetails = `${subject.SubjectCode} ${subject.SubjectName} 
+      ม.${subject.GradeID[0]}/${parseInt(subject.GradeID.substring(1, 2)) < 10
+      ? subject.GradeID[2]
+      : subject.GradeID.substring(1, 2)}`
+    return type == "TIMESLOT" ? timeSlotDetails : subjectDetails;
+  }
   return (
     <>
       <div
         style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
-        <div className="flex flex-col w-[580px] h-fit p-7 gap-10 bg-white rounded">
+        <div className="flex flex-col w-[580px] h-fit p-7 gap-6 bg-white rounded">
           {/* Content */}
-          <div className="flex w-full h-auto justify-between items-center">
-            <div className="flex gap-3 items-center">
-              <b
-                className="text-lg select-none"
-              >
-                จัดวิชาเรียนลงในคาบ
-              </b>
-              {validateIsPass ? (
-                <p className="text-xs text-red-500">
-                  โปรดเลือกห้องเรียน
-                </p>
-              ) : null}
+          <div className="flex flex-col w-full h-auto gap-3">
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3 items-center">
+                <b
+                  className="text-lg select-none"
+                  onClick={() => console.log(payload)}
+                >
+                  จัดวิชาเรียนลงในคาบ
+                </b>
+                {validateIsPass ? (
+                  <p className="text-xs text-red-500">
+                    โปรดเลือกห้องเรียน
+                  </p>
+                ) : null}
+              </div>
+              <AiOutlineClose
+                className="cursor-pointer"
+                onClick={() => props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)}
+              />
             </div>
-            <AiOutlineClose
-              className="cursor-pointer"
-              onClick={() => props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)}
-            />
+            <div>
+                <p>{dataDetails("TIMESLOT")}</p>
+                <b>{dataDetails("SUBJECT")}</b>
+            </div>
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">
             <div className="flex justify-between items-center w-full">
