@@ -18,7 +18,8 @@ import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
-// TODO: ลากสลับวิชาระหว่างช่อง
+// TODO: ลากสลับวิชาระหว่างช่องและลากวิชาในช่องไปลงช่องอื่น
+// TODO: เช็คชน (ให้แสดงคล้าย diasbled)
 // TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน (ไว้ค่อยว่ากัน)
 // TODO: ทำปุ่มบันทึกข้อมูล
 // TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย + สัญลักษณ์
@@ -288,30 +289,28 @@ function TimeSlot(props: Props) {
     let destinationSubj = destinationSubject; //เก็บวิชาปลายทาง
     let sourceTimeslotID = timeslotIDtoChange.source;
     let destinationTimeslotID = timeslotIDtoChange.destination;
-    console.log(timeslotIDtoChange);
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: timeSlotData.AllData.map((item) =>
         item.TimeslotID == sourceTimeslotID ? { ...item, subject: destinationSubj } : item.TimeslotID == destinationTimeslotID ? { ...item, subject: sourceSubj } : item
       ),
-    })); //map วิชาลงไปใน slot
+    })); //map สลับวิชา
   }
-  useEffect(() => {
+  useEffect(() => { //useEfftct ตัวนี้จะคอยจับการเปลี่ยนแปลงของวิชาปลายทางที่จะเปลี่ยน ถ้ามีการกดวิชาปลายทาง ในนี้จะทำงานในเงื่อนไข if
     if(timeslotIDtoChange.destination !== ""){
-      changeSubjectSlot();
-      setTimeslotIDtoChange(() => ({source : "", destination : ""}));
-      setChangeTimeSlotSubject({}), setDestinationSubject({});
-      setYearSelected(null)
+      changeSubjectSlot(); //ทำการเรียกฟังก์ชั่นเปลี่ยนวิชา
+      setTimeslotIDtoChange(() => ({source : "", destination : ""})); //reset timeslotID ต้นทางและปลายทาง
+      setChangeTimeSlotSubject({}), setDestinationSubject({}); //reset วิชาต้นทางและปลายทางที่เลือกไว้
+      setYearSelected(null) //reset ปีที่ทำการเช็คคาบพักเที่ยง
     }
   }, [timeslotIDtoChange.destination])
   const checkBreakTime = (breakTimeState: string):boolean => { //เช็คคาบพักแบบมอต้นและปลาย
     let result:boolean = (Object.keys(storeSelectedSubject).length !== 0 || Object.keys(changeTimeSlotSubject).length !== 0) && //ถ้ามีการกดเลือกวิชาหรือกดเปลี่ยนวิชา
-    (breakTimeState == "BREAK_JUNIOR" && [1, 2, 3].includes(yearSelected)) 
-    || (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected)) //เช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
-    // && Object.keys(subjectInSlot).length === 0 //เงื่อนไขสุดท้ายคือ ถ้า slot นั้นๆไม่มีวิชาก็แสดงว่าพักเที่ยง ถ้าไม่ ก็แสดงวิชาที่ลงเอาไว้
+    (breakTimeState == "BREAK_JUNIOR" && [1, 2, 3].includes(yearSelected)) //สมมติเช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
+    || (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected))
     return breakTimeState == "BREAK_BOTH" ? true : result;
   }
-  const timeSlotCssClassName = (breakTimeState: string, subjectInSlot: object) => { //เช็คคาบพักรวม
+  const timeSlotCssClassName = (breakTimeState: string, subjectInSlot: object) => { //เช็คคาบพักเมื่อไมีมีการกดเลือกวิชา (ตอนยังไม่มี action ไรเกิดขึ้น)
     let condition:boolean = (Object.keys(storeSelectedSubject).length <= 1 && Object.keys(changeTimeSlotSubject).length == 0) //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
     && (breakTimeState == "BREAK_BOTH" || breakTimeState == "BREAK_JUNIOR" || breakTimeState == "BREAK_SENIOR") && Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
     let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200` //slot ปิดตาย (คาบพัก)
@@ -325,16 +324,19 @@ function TimeSlot(props: Props) {
                           ? "border-red-300"
                           : "border-dashed" //ถ้าไม่มีวิชาอยู่ในช่อง จะให้แสดงเป็นเส้นกรอบขีดๆเอาไว้
                       } 
-                      duration-200` //slot ที่เป็นช่องว่าง
+                      duration-200`
     return condition ? disabledSlot : checkBreakTime(breakTimeState) && Object.keys(subjectInSlot).length == 0 ? disabledSlot : enabledSlot; //ถ้าเงื่อนไขคาบพักเป็นจริง จะปิด slot ไว้
+          //condition คือเงื่อนไขที่เช็คว่า timeslot มีคาบพัก default และไม่มีการ action เลือกวิชาใช่หรือไม่ ถ้าใช้ก็จะปิด slot
+          //checkBreakTime(breakTimeState) คือการส่งสถานะของคาบพักไปเช็คว่าเป็นคาบพักของมอต้นหรือมอปลาย จะใชร่วมกับตอนกดเลือกวิชาเพื่อเพิ่มหรือเลือกวิชาเพื่อสลับวืชา 
+          //&& Object.keys(subjectInSlot).length == 0 ส่วนอันนี้คือเช็คว่าถ้าไม่มีวิชาใน slot จะปิดคาบไว้
   }
   return (
     <>
       {isActiveModal ? (
         <SelectSubjectToTimeslotModal
-          addSubjectToSlot={addSubjectToSlot}
-          cancelAddRoom={cancelAddRoom}
-          payload={subjectPayload}
+          addSubjectToSlot={addSubjectToSlot} //ส่ง function
+          cancelAddRoom={cancelAddRoom} //ส่ง function
+          payload={subjectPayload} //ส่งชุดข้อมูล
         />
       ) : null}
       {fetchTimeSlot.isLoading ? (
