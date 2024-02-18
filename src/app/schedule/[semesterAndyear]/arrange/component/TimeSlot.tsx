@@ -301,6 +301,7 @@ function TimeSlot(props: Props) {
       changeSubjectSlot();
       setTimeslotIDtoChange(() => ({source : "", destination : ""}));
       setChangeTimeSlotSubject({}), setDestinationSubject({});
+      setYearSelected(null)
     }
   }, [timeslotIDtoChange.destination])
   const checkBreakTime = (breakTimeState: string):boolean => { //เช็คคาบพักแบบมอต้นและปลาย
