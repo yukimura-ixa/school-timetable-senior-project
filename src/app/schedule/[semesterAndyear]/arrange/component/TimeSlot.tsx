@@ -16,12 +16,11 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import { M_PLUS_1 } from "next/font/google";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
-// TODO: กดคลิกเพื่อสลับสับเปลี่ยนวิชาระหว่างช่อง
 // TODO: ลากสลับวิชาระหว่างช่อง
-// TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน
+// TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน (ไว้ค่อยว่ากัน)
+// TODO: ทำปุ่มบันทึกข้อมูล
 // TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย + สัญลักษณ์
 // TODO: ดึงวิชาที่ลงให้ครูแต่ละคนแล้วมาจาก database เพื่อนำมาแสดงบนช่องตาราง
 // TODO: เช็ควิชาที่ map กับหน่วยกิตให้สัมพันธ์กับวิชาที่อยู่ในตารางหลังจากทำ TODO ด้านบน
@@ -187,7 +186,7 @@ function TimeSlot(props: Props) {
     return map;
   };
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
-    let data = timeSlotData.AllData;
+    let data = timeSlotData.AllData; //นำช้อมูลตารางมา
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
@@ -195,17 +194,17 @@ function TimeSlot(props: Props) {
       ),
     })); //map วิชาลงไปใน slot
     setSubjectData(() => subjectData.filter(item => item.itemID != subject.itemID)); //เอาวิชาที่ถูกจัดลงออกไป
-    setStoreSelectedSubject({});
+    setStoreSelectedSubject({}); //หลังจากเพิ่มวิชาแล้วก็ต้องรีการ select วิชา
     setIsActiveModal(false);
   };
-  const cancelAddRoom = (subject: object, timeSlotID: string) => {
-    removeSubjectFromSlot(subject, timeSlotID)
+  const cancelAddRoom = (subject: object, timeSlotID: string) => { //ถ้ามีการกดยกเลิกหรือปิด modal
+    removeSubjectFromSlot(subject, timeSlotID) //ลบวิชาออกจาก timeslot ที่ได้ไป hold ไว้ตอนแรก
     setStoreSelectedSubject({});
     setIsActiveModal(false);
   }
-  const removeSubjectFromSlot = (subject: object, timeSlotID: string) => {
-    let data = timeSlotData.AllData;
-    returnSubject(subject);
+  const removeSubjectFromSlot = (subject: object, timeSlotID: string) => { //ถ้ามีการกดลบวิชาออกจาก timeslot
+    let data = timeSlotData.AllData; //ดึงข้อมูล timeslot มา
+    returnSubject(subject); // คืนวิชาลงกล่องพักวิชา
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
@@ -224,10 +223,12 @@ function TimeSlot(props: Props) {
     selectedSubject : {},
   })
   const handleDragStart = (result) => {
-    const {source} = result;
+    const {source} = result; 
     let index = source.index
     if(source.droppableId == "SUBJECTS"){ //ถ้ามีการลากวิชาออกมา จะ set ว่า isDragging = true เพื่อบอกว่า เรากำลังลากอยู่นะ
-      clickOrDragToSelectSubject(subjectData[index]);
+      if(Object.keys(storeSelectedSubject).length == 0){
+        clickOrDragToSelectSubject(subjectData[index]); 
+      }
     }
     console.log(result);
   }
@@ -248,41 +249,83 @@ function TimeSlot(props: Props) {
   }
   const clickOrDragToSelectSubject = (subject : object) => {
     let itemToAdd = subject === storeSelectedSubject ? {} : subject //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
-    let year = subject.gradelevel.Year;
-    setYearSelected(year)
-    setStoreSelectedSubject(itemToAdd);
+    let year = subject.gradelevel.Year; //เอาปีมา
+    setYearSelected(subject === storeSelectedSubject ? null : year) //set ชั้นปีที่เรากดเลือกไว้
+    setStoreSelectedSubject(itemToAdd); //ละก็นำวิชาไป hold
+    setChangeTimeSlotSubject({}); //set ให้เป็น object เปล่าเนื่องจากถ้ากดเปลี่ยนแล้วไปกดเพิ่มวิชามันจะได้ไม่แสดงปุ่มซ้อนกัน
+    setTimeslotIDtoChange(() => ({source : "", destination : ""}));
   }
-  const addRoomModal = (timeslotID: string) => {
-    if(Object.keys(storeSelectedSubject).length == 0) return;
+  const addRoomModal = (timeslotID: string) => { //เพิ่มห้องเรียนลงในวิชาผ่านโมดอล
+    if(Object.keys(storeSelectedSubject).length == 0) return; //ดักไว้เฉยๆว่าถ้าไม่ได้เลือกวิชาจะไม่สามารถทำไรได้
     else {
       setSubjectPayload(() => ({
         timeslotID : timeslotID,
         selectedSubject : storeSelectedSubject,
-      }))
-      addSubjectToSlot(storeSelectedSubject, timeslotID);
+      })) //set ข้อมูลก่อนส่งไปให้ modal
+      addSubjectToSlot(storeSelectedSubject, timeslotID); //เพิ่มวิชาลงไปใน slot ก่อน ทำเนียนๆไป
       setIsActiveModal(true);
     }
   }
-  const checkBreakTime = (breakTimeState: string, subjectInSlot: object):boolean => { //เช็คคาบพักแบบมอต้นและปลาย
-    let result:boolean = Object.keys(storeSelectedSubject).length > 1 &&//ถ้ามีการกดเลือกวิชา
-    (breakTimeState == "BREAK_JUNIOR" && [1, 2, 3].includes(yearSelected)) || //เช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
-    (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected)) && Object.keys(subjectInSlot).length == 0 //เงื่อนไขสุดท้ายคือ ถ้า slot นั้นๆไม่มีวิชาก็แสดงว่าพักเที่ยง ถ้าไม่ ก็แสดงวิชาที่ลงเอาไว้
+  const [changeTimeSlotSubject, setChangeTimeSlotSubject] = useState({}); //สำหรับเก็บวิชาที่ต้องการเปลี่ยนในการเลือกวิชาครั้งแรก
+  const [destinationSubject, setDestinationSubject] = useState({}); //วิชาปลายทางที่จะเปลี่ยน
+  const [timeslotIDtoChange, setTimeslotIDtoChange] = useState({source : "", destination : ""}); //เก็บ timeslotID ต้นทางและปลายทางเพื่อใช้สลับวิชา
+  const clickOrDragToChangeTimeSlot = (subject: object, timeslotID: string) => {
+    let checkDulpicateSubject = subject === changeTimeSlotSubject; //เช็คว่ามีการกดวิชาที่เลือกอยู่แล้วหรือไม่
+    if(Object.keys(changeTimeSlotSubject).length == 0 || checkDulpicateSubject){ //ถ้ายังไม่มีการกดเพิ่มวิชาหรือมีวิชาที่กดซ้ำแล้ว ให้ set วิชาตามเงื่อนไขของ toggleChange
+      let year = subject.gradelevel.Year;
+      setChangeTimeSlotSubject(() => checkDulpicateSubject ? {} : subject);
+      setTimeslotIDtoChange(() => checkDulpicateSubject ? ({source : "", destination : ""}) : ({...timeslotIDtoChange, source : timeslotID}));
+      setYearSelected(checkDulpicateSubject ? null : year);
+    }
+    else if(timeslotIDtoChange.source !== ""){
+      setTimeslotIDtoChange(() => ({...timeslotIDtoChange, destination : timeslotID}));
+      setDestinationSubject(() => subject);
+    }
+    setStoreSelectedSubject({}); //set ให้เป็น object เปล่าเนื่องจากถ้ากดเปลี่ยนแล้วไปกดเพิ่มวิชามันจะได้ไม่แสดงปุ่มซ้อนกัน
+  }
+  const changeSubjectSlot = () => {
+    let sourceSubj = changeTimeSlotSubject; //เก็บวิชาต้นทาง
+    let destinationSubj = destinationSubject; //เก็บวิชาปลายทาง
+    let sourceTimeslotID = timeslotIDtoChange.source;
+    let destinationTimeslotID = timeslotIDtoChange.destination;
+    console.log(timeslotIDtoChange);
+    setTimeSlotData(() => ({
+      ...timeSlotData,
+      AllData: timeSlotData.AllData.map((item) =>
+        item.TimeslotID == sourceTimeslotID ? { ...item, subject: destinationSubj } : item.TimeslotID == destinationTimeslotID ? { ...item, subject: sourceSubj } : item
+      ),
+    })); //map วิชาลงไปใน slot
+  }
+  useEffect(() => {
+    if(timeslotIDtoChange.destination !== ""){
+      changeSubjectSlot();
+      setTimeslotIDtoChange(() => ({source : "", destination : ""}));
+      setChangeTimeSlotSubject({}), setDestinationSubject({});
+    }
+  }, [timeslotIDtoChange.destination])
+  const checkBreakTime = (breakTimeState: string):boolean => { //เช็คคาบพักแบบมอต้นและปลาย
+    let result:boolean = (Object.keys(storeSelectedSubject).length !== 0 || Object.keys(changeTimeSlotSubject).length !== 0) && //ถ้ามีการกดเลือกวิชาหรือกดเปลี่ยนวิชา
+    (breakTimeState == "BREAK_JUNIOR" && [1, 2, 3].includes(yearSelected)) 
+    || (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected)) //เช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
+    // && Object.keys(subjectInSlot).length === 0 //เงื่อนไขสุดท้ายคือ ถ้า slot นั้นๆไม่มีวิชาก็แสดงว่าพักเที่ยง ถ้าไม่ ก็แสดงวิชาที่ลงเอาไว้
     return breakTimeState == "BREAK_BOTH" ? true : result;
   }
   const timeSlotCssClassName = (breakTimeState: string, subjectInSlot: object) => { //เช็คคาบพักรวม
-    let condition = Object.keys(storeSelectedSubject).length <= 1 && (breakTimeState == "BREAK_BOTH" || breakTimeState == "BREAK_JUNIOR" || breakTimeState == "BREAK_SENIOR") && Object.keys(subjectInSlot).length == 0;
-    let disabledSlot = `grid w-[100%] h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200` //slot ปิดตาย (คาบพัก)
+    let condition:boolean = (Object.keys(storeSelectedSubject).length <= 1 && Object.keys(changeTimeSlotSubject).length == 0) //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
+    && (breakTimeState == "BREAK_BOTH" || breakTimeState == "BREAK_JUNIOR" || breakTimeState == "BREAK_SENIOR") && Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
+    let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200` //slot ปิดตาย (คาบพัก)
     let enabledSlot = `grid w-[100%] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
                       ${
-                        (Object.keys(storeSelectedSubject).length !== 0) &&
-                        Object.keys(subjectInSlot).length == 0 //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
+                        (Object.keys(storeSelectedSubject).length !== 0 && Object.keys(subjectInSlot).length == 0) //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
                           ? "border-emerald-300 cursor-pointer"
-                          : Object.keys(subjectInSlot).length !== 0
-                            ? "border-red-300"
-                            : "border-dashed"
+                          : Object.keys(changeTimeSlotSubject).length !== 0 //ถ้ากดเปลี่ยนวิชา จะให้กรอบสีฟ้า
+                          ? "border-blue-300" 
+                          : Object.keys(subjectInSlot).length !== 0 //ถ้ามีวิชาที่ลงแล้ว จะให้กรอบเป็นสีแดง
+                          ? "border-red-300"
+                          : "border-dashed" //ถ้าไม่มีวิชาอยู่ในช่อง จะให้แสดงเป็นเส้นกรอบขีดๆเอาไว้
                       } 
                       duration-200` //slot ที่เป็นช่องว่าง
-    return condition ? disabledSlot : checkBreakTime(breakTimeState, subjectInSlot) ? disabledSlot : enabledSlot;
+    return condition ? disabledSlot : checkBreakTime(breakTimeState) && Object.keys(subjectInSlot).length == 0 ? disabledSlot : enabledSlot; //ถ้าเงื่อนไขคาบพักเป็นจริง จะปิด slot ไว้
   }
   return (
     <>
@@ -307,7 +350,11 @@ function TimeSlot(props: Props) {
             <div className="flex flex-col w-full border border-[rgb(237,238,243)] p-4 gap-4 mt-4">
               <p
                 className="text-sm"
-                onClick={() => console.log(subjectData)}
+                onClick={() => {
+                  console.log(yearSelected)
+                  console.log(changeTimeSlotSubject)
+                  console.log(destinationSubject)
+                }}
               >
                 วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>
               </p>
@@ -430,7 +477,7 @@ function TimeSlot(props: Props) {
                       ).map((item, index) => (
                         <Fragment key={`DROPZONE${item.TimeslotID}`}>
                             <StrictModeDroppable
-                              isDropDisabled={checkBreakTime(item.Breaktime, item.subject)}
+                              isDropDisabled={checkBreakTime(item.Breaktime) || Object.keys(item.subject).length !== 0}
                               droppableId={`${item.TimeslotID}`}
                             >
                               {(provided, snapshot) => (
@@ -446,11 +493,18 @@ function TimeSlot(props: Props) {
                                 >
                                   {Object.keys(item.subject).length === 0 ? ( //ถ้าไม่มีวิชาใน timeslot
                                     //ถ้ายังไม่กดเลือกวิชาจะซ่อนปุ่ม + เอาไว้
+                                    <>
                                     <AddCircleIcon
-                                      style={{ color: "#10b981", display : Object.keys(storeSelectedSubject).length == 0 || checkBreakTime(item.Breaktime, item.subject) || snapshot.isDraggingOver ? "none" : "flex" }}
-                                      className={`cursor-pointer hover:fill-emerald-600 duration-300`}
+                                      style={{ color: "#10b981", display : Object.keys(storeSelectedSubject).length == 0 || checkBreakTime(item.Breaktime) || snapshot.isDraggingOver ? "none" : "flex" }}
+                                      className={`cursor-pointer hover:fill-emerald-600 duration-300 animate-pulse`}
                                       onClick={() => addRoomModal(item.TimeslotID)} //เพิ่ม timeslotID ที่เลือกไว้ลงไป
                                     />
+                                    <ChangeCircleIcon
+                                      style={{ color: "#345eeb", display : Object.keys(changeTimeSlotSubject).length == 0 || checkBreakTime(item.Breaktime) ? "none" : "flex" }}
+                                      className={`cursor-pointer hover:fill-blue-600 duration-300 animate-pulse rotate-90`}
+                                      onClick={() => clickOrDragToChangeTimeSlot(item.subject, item.TimeslotID)}
+                                    />
+                                    </>
                                   ) : ( //ถ้ามีวิชาอยู่ใน timeslot
                                     <>
                                       <div
@@ -474,12 +528,18 @@ function TimeSlot(props: Props) {
                                           ห้อง {item.subject.RoomID}
                                         </p>
                                       </div>
-                                      <ChangeCircleIcon style={{ color: "#2563eb" }} className="cursor-pointer hover:fill-blue-700 bg-white rounded-full duration-300 absolute left-[-11px] top-[-10px] rotate-90" />
+                                      <ChangeCircleIcon 
+                                        onClick={() => clickOrDragToChangeTimeSlot(item.subject, item.TimeslotID)} 
+                                        style={{ 
+                                          color: item.TimeslotID == timeslotIDtoChange.source ? "#fcba03" : "#2563eb", 
+                                          display : checkBreakTime(item.Breaktime) || Object.keys(storeSelectedSubject).length !== 0 ? 'none' : 'flex'
+                                        }}
+                                        className={`cursor-pointer ${item.TimeslotID == timeslotIDtoChange.source ? "hover:fill-amber-500 animate-pulse" : "hover:fill-blue-700"} bg-white rounded-full duration-300 absolute left-[-11px] top-[-10px] rotate-90`} />
                                       <RemoveCircleIcon
                                         onClick={() =>
                                           removeSubjectFromSlot(item.subject, item.TimeslotID)
                                         }
-                                        style={{ color: "#ef4444" }}
+                                        style={{ color: "#ef4444", display : (Object.keys(changeTimeSlotSubject).length !== 0) ? 'none' : 'flex'}}
                                         className="cursor-pointer hover:fill-red-600 bg-white rounded-full duration-300 absolute right-[-11px] top-[-10px]"
                                       />
                                     </>
