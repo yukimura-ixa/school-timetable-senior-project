@@ -18,6 +18,7 @@ import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
+// TODO: เพิ่มสัญลักษณ์มาใส่ที่ช่องตารางเมื่อไม่สามารถลงหรือสลับวิชาได้
 // TODO: ลากสลับวิชาระหว่างช่องและลากวิชาในช่องไปลงช่องอื่น
 // TODO: เช็คชน (ให้แสดงคล้าย diasbled)
 // TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน (ไว้ค่อยว่ากัน)
@@ -231,30 +232,46 @@ function TimeSlot(props: Props) {
         clickOrDragToSelectSubject(subjectData[index]); 
       }
     }
-    console.log(result);
+    else{ //ถ้าลากวิชาเพื่อสลับวิชา
+      let timeslotID = source.droppableId; //นำ timeslotID ขึ้นมา
+      let getSubjectFromTimeslot = timeSlotData.AllData.filter(item => item.TimeslotID == timeslotID)[0] //เอาวิชาที่อยู่ใน timeslot ออกมา
+      if(Object.keys(changeTimeSlotSubject).length == 0){
+        clickOrDragToChangeTimeSlot(getSubjectFromTimeslot.subject, timeslotID, false);
+      }
+    }
+    // console.log(result);
   }
   const handleDragEnd = (result) => {
     const { source, destination, type } = result;
     if (!destination) return;
-    if (source.droppableId !== destination.droppableId) {
-      //ถ้ามีการ Drag and Drop เกิดขึ้น
+    if (source.droppableId == "SUBJECTS" && destination.droppableId !== "SUBJECTS") { //ถ้าลากวิชามาลงกล่องเพิ่อเพื่ม
       addRoomModal(destination.droppableId) //destination.droppableId = timeslotID
+      clickOrDragToSelectSubject(subjectData[source.index])
     }
-    clickOrDragToSelectSubject(subjectData[source.index])
-    console.log(result);
+    else if(source.droppableId !== "SUBJECTS" && destination.droppableId !== "SUBJECTS"){ //ถ้าเป็นการลากสลับ/เปลี่ยนช่อง
+      let desti_tID = destination.droppableId; //นำ timeslotID ปลายทางขึ้นมา
+      let getSubjectFromTimeslot = timeSlotData.AllData.filter(item => item.TimeslotID == desti_tID)[0] //เอาวิชาที่อยู่ใน timeslot ออกมา
+      clickOrDragToChangeTimeSlot(getSubjectFromTimeslot.subject, desti_tID, false);
+    }
+    // console.log(result);
   };
   const dropOutOfZone = (subject: object) => { //function เช็คว่าถ้ามีการ Drop item นอกพื้นที่ Droppable จะให้นับเวลาถอยหลัง 0.5 วิเพื่อยกเลิกการเลือกวิชาที่ลาก
     setTimeout(() => {
-      clickOrDragToSelectSubject(subject);
+      if(Object.keys(changeTimeSlotSubject).length == 0){ //ถ้าเป็นลากเพิ่มวิชา
+        clickOrDragToSelectSubject(subject);
+      }
+      else { //ถ้าเป็นการลากเปลี่ยนวิชา
+        clickOrDragToChangeTimeSlot(subject, "", false) //param ตัวที่สองไม่ต้องใส่อยู่แล้วเพราะไม่ได้ใช้ในการยกเลิกรายการ
+      }
     }, 500)
   }
   const clickOrDragToSelectSubject = (subject : object) => {
-    let itemToAdd = subject === storeSelectedSubject ? {} : subject //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
-    if(Object.keys(storeSelectedSubject).length == 0){
+    let checkDulpicateSubject = subject === storeSelectedSubject ? {} : subject //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
+    if(Object.keys(storeSelectedSubject).length == 0 || checkDulpicateSubject){
       let year = subject.gradelevel.Year; //เอาปีมา
       setYearSelected(subject === storeSelectedSubject ? null : year) //set ชั้นปีที่เรากดเลือกไว้
     }
-    setStoreSelectedSubject(itemToAdd); //ละก็นำวิชาไป hold
+    setStoreSelectedSubject(checkDulpicateSubject); //ละก็นำวิชาไป hold
     setChangeTimeSlotSubject({}); //set ให้เป็น object เปล่าเนื่องจากถ้ากดเปลี่ยนแล้วไปกดเพิ่มวิชามันจะได้ไม่แสดงปุ่มซ้อนกัน
     setTimeslotIDtoChange(() => ({source : "", destination : ""}));
   }
@@ -272,20 +289,32 @@ function TimeSlot(props: Props) {
   const [changeTimeSlotSubject, setChangeTimeSlotSubject] = useState({}); //สำหรับเก็บวิชาที่ต้องการเปลี่ยนในการเลือกวิชาครั้งแรก
   const [destinationSubject, setDestinationSubject] = useState({}); //วิชาปลายทางที่จะเปลี่ยน
   const [timeslotIDtoChange, setTimeslotIDtoChange] = useState({source : "", destination : ""}); //เก็บ timeslotID ต้นทางและปลายทางเพื่อใช้สลับวิชา
-  const clickOrDragToChangeTimeSlot = (subject: object, timeslotID: string) => {
+  const [isCilckToChangeSubject, setIsCilckToChangeSubject] = useState(false);
+  const clickOrDragToChangeTimeSlot = (subject: object, timeslotID: string, isClickToChange: boolean) => {
     let checkDulpicateSubject = subject === changeTimeSlotSubject; //เช็คว่ามีการกดวิชาที่เลือกอยู่แล้วหรือไม่
     if(Object.keys(changeTimeSlotSubject).length == 0 || checkDulpicateSubject){ //ถ้ายังไม่มีการกดเพิ่มวิชาหรือมีวิชาที่กดซ้ำแล้ว ให้ set วิชาตามเงื่อนไขของ toggleChange
       let year = subject.gradelevel.Year;
+      setIsCilckToChangeSubject(() => checkDulpicateSubject ? false : isClickToChange); //DRAG = false, CLICK = true
       setChangeTimeSlotSubject(() => checkDulpicateSubject ? {} : subject);
       setTimeslotIDtoChange(() => checkDulpicateSubject ? ({source : "", destination : ""}) : ({...timeslotIDtoChange, source : timeslotID}));
       setYearSelected(checkDulpicateSubject ? null : year);
     }
-    else if(timeslotIDtoChange.source !== ""){
-      setTimeslotIDtoChange(() => ({...timeslotIDtoChange, destination : timeslotID}));
-      setDestinationSubject(() => subject);
+    else if(timeslotIDtoChange.source !== ""){ //ถ้าเกิดเลือกวิชาไว้แล้ว แล้วกดเลือกปลายทาง
+      setTimeslotIDtoChange(() => ({...timeslotIDtoChange, destination : timeslotID})); //เพิ่ม timeslotID ปลายทาง
+      setDestinationSubject(() => subject); //เพิ่มวิชาปลายทาง
+      setIsCilckToChangeSubject(() => false);
+      //เมื่อ timeslotID ปลายทางถูกเพิ่มแล้ว useEffect ด้านล่างจะรับหน้าที่ต่อเอง
     }
     setStoreSelectedSubject({}); //set ให้เป็น object เปล่าเนื่องจากถ้ากดเปลี่ยนแล้วไปกดเพิ่มวิชามันจะได้ไม่แสดงปุ่มซ้อนกัน
   }
+  useEffect(() => { //useEfftct ตัวนี้จะคอยจับการเปลี่ยนแปลงของวิชาปลายทางที่จะเปลี่ยน ถ้ามีการกดวิชาปลายทาง ในนี้จะทำงานในเงื่อนไข if
+    if(timeslotIDtoChange.destination !== ""){
+      changeSubjectSlot(); //ทำการเรียกฟังก์ชั่นเปลี่ยนวิชา
+      setTimeslotIDtoChange(() => ({source : "", destination : ""})); //reset timeslotID ต้นทางและปลายทาง
+      setChangeTimeSlotSubject({}), setDestinationSubject({}); //reset วิชาต้นทางและปลายทางที่เลือกไว้
+      setYearSelected(null) //reset ปีที่ทำการเช็คคาบพักเที่ยง
+    }
+  }, [timeslotIDtoChange.destination])
   const changeSubjectSlot = () => {
     let sourceSubj = changeTimeSlotSubject; //เก็บวิชาต้นทาง
     let destinationSubj = destinationSubject; //เก็บวิชาปลายทาง
@@ -298,14 +327,6 @@ function TimeSlot(props: Props) {
       ),
     })); //map สลับวิชา
   }
-  useEffect(() => { //useEfftct ตัวนี้จะคอยจับการเปลี่ยนแปลงของวิชาปลายทางที่จะเปลี่ยน ถ้ามีการกดวิชาปลายทาง ในนี้จะทำงานในเงื่อนไข if
-    if(timeslotIDtoChange.destination !== ""){
-      changeSubjectSlot(); //ทำการเรียกฟังก์ชั่นเปลี่ยนวิชา
-      setTimeslotIDtoChange(() => ({source : "", destination : ""})); //reset timeslotID ต้นทางและปลายทาง
-      setChangeTimeSlotSubject({}), setDestinationSubject({}); //reset วิชาต้นทางและปลายทางที่เลือกไว้
-      setYearSelected(null) //reset ปีที่ทำการเช็คคาบพักเที่ยง
-    }
-  }, [timeslotIDtoChange.destination])
   const checkBreakTimeOutOfRange = (breakTimeState: string, year: number): boolean => { //เช็คคาบพักจากการกดเปลี่ยนวิชานอกคาบพัก
     //สรุปสั้นๆเป็นตัวอย่าง => การเช็คของฟังก์ชั่นนี้ก็คือ ถ้าเลือกสลับวิชามอต้นที่อยู่ในคาบพัก(วิชามอต้นจะอยู่ในคาบพักมอปลาย) จะแลกได้แค่วิชาของมอต้นเท่านั้น แต่ถ้าเลือกสลับวิชามอต้นที่อยู่นอกคาบพักก็จะแลกไม่ได้แค่วิชาที่อยู่ในคาบพักมอต้น
     if(timeslotIDtoChange.source !== ""){
@@ -324,6 +345,13 @@ function TimeSlot(props: Props) {
     }
     else { //ถ้าไม่มีการกดปุ่มเปลี่ยน ก็จะ return false เป็น default
       return false;
+    }
+  }
+  const checkRelatedYearDuringDragging = (year: number) => { //ใช้กับ isDropDisabled
+    if(timeslotIDtoChange.source !== ""){
+      let getBreaktime = timeSlotData.AllData.filter(item => item.TimeslotID == timeslotIDtoChange.source)[0].Breaktime; //หาสถานะของคาบเรียนจากการกดปุ่มเปลี่ยนที่ TimeslotID นั้นๆ
+      let findYearRange = [1, 2, 3].includes(yearSelected) ? [1, 2, 3] : [4, 5, 6]; //หา range ก่อนว่าวิชาที่จะเปลี่ยนนั้น drag วิชาของชั้นปีไหนไว้
+      return getBreaktime !== "NOT_BREAK" ? !findYearRange.includes(year) : false; //พอเจอแล้วก็เอาปีที่เราส่งค่าไปหา ถ้าค่าสัมพันธ์กันก็จะใส่นิเสธให้เป็น false เพื่อเปิดช่องให้สลับวิชาได้
     }
   }
   const checkBreakTime = (breakTimeState: string):boolean => { //เช็คคาบพักแบบมอต้นและปลาย
@@ -376,8 +404,7 @@ function TimeSlot(props: Props) {
               <p
                 className="text-sm"
                 onClick={() => {
-                  console.log(changeTimeSlotSubject)
-                  console.log(destinationSubject)
+                  console.log(yearSelected)
                 }}
               >
                 วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>
@@ -389,7 +416,7 @@ function TimeSlot(props: Props) {
                 >
                   {(provided, snapshot) => (
                     <div
-                      className="grid w-full h-[125px] text-center grid-cols-8 overflow-y-scroll"
+                      className="grid w-full h-[125px] text-center grid-cols-8 overflow-y-scroll overflow-x-hidden"
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                     >
@@ -501,7 +528,17 @@ function TimeSlot(props: Props) {
                       ).map((item, index) => (
                         <Fragment key={`DROPZONE${item.TimeslotID}`}>
                             <StrictModeDroppable
-                              isDropDisabled={checkBreakTime(item.Breaktime) || Object.keys(item.subject).length !== 0}
+                              //จะลากลงไม่ได้ก็ต่อเมื่อเป็นคาบพักและเป็นวิชาที่มีอยู่ใน slot แล้ว (ไม่รวมสลับวิชาระหว่างช่อง)
+                              isDropDisabled={
+                                 (
+                                  //ถ้ามีพักเที่ยงก็ปิดช่องเลย
+                                  checkBreakTime(item.Breaktime) || 
+                                  //ถ้าลากเพิ่มวิชา ต้องลากลงได้แค่ช่องว่างเท่านั้น
+                                  (Object.keys(storeSelectedSubject).length !== 0 && Object.keys(item.subject).length !== 0) ||
+                                  //ถ้าลากในออกนอก ให้เช็คว่าคาบ NOT_BREAK ที่มีวิชา related กับ yearSelected ไหม 
+                                  (item.Breaktime == "NOT_BREAK" && Object.keys(item.subject).length !== 0 ? checkRelatedYearDuringDragging(item.subject.gradelevel.Year) : false)
+                                 )
+                                }
                               droppableId={`${item.TimeslotID}`}
                             >
                               {(provided, snapshot) => (
@@ -514,6 +551,7 @@ function TimeSlot(props: Props) {
                                   className={timeSlotCssClassName(item.Breaktime, item.subject)}
                                   {...provided.droppableProps}
                                   ref={provided.innerRef}
+                                  // onClick={() => console.log(item)}
                                 >
                                   {Object.keys(item.subject).length === 0 ? ( //ถ้าไม่มีวิชาใน timeslot
                                     //ถ้ายังไม่กดเลือกวิชาจะซ่อนปุ่ม + เอาไว้
@@ -526,17 +564,22 @@ function TimeSlot(props: Props) {
                                     <ChangeCircleIcon
                                       style={{ color: "#345eeb", display : Object.keys(changeTimeSlotSubject).length == 0 || checkBreakTime(item.Breaktime) ? "none" : "flex" }}
                                       className={`cursor-pointer hover:fill-blue-600 duration-300 animate-pulse rotate-90`}
-                                      onClick={() => clickOrDragToChangeTimeSlot(item.subject, item.TimeslotID)}
+                                      onClick={() => clickOrDragToChangeTimeSlot(item.subject, item.TimeslotID, true)}
                                     />
                                     </>
                                   ) : ( //ถ้ามีวิชาอยู่ใน timeslot
                                     <>
                                       <Draggable
+                                        isDragDisabled={isCilckToChangeSubject} //true ถ้าเราสลับวิชาด้วยการกด จะไปลากอันอื่นไม่ได้
                                         draggableId={`Slot-${item.TimeslotID}-Index-${index}`}
                                         key={`Slot-${item.TimeslotID}-Index-${index}`}
                                         index={index}
                                       >
-                                        {(provided, snapshot) => (
+                                        {(provided, snapshot) => {
+                                          if(snapshot.isDropAnimating){ //เช็คว่ามีการปล่อยเมาส์มั้ย
+                                            dropOutOfZone(item.subject); //ถ้ามีก็เรียกใช้ฟังก์ชั่นพร้อมส่งวิชาที่เลือกลงไป
+                                          }
+                                          return (
                                           <>
                                             <div
                                               style={{display : Object.keys(item.subject).length == 0 ? 'none' : 'flex'}}
@@ -563,7 +606,7 @@ function TimeSlot(props: Props) {
                                               </p>
                                             </div>
                                             <ChangeCircleIcon 
-                                              onClick={() => clickOrDragToChangeTimeSlot(item.subject, item.TimeslotID)} 
+                                              onClick={() => {clickOrDragToChangeTimeSlot(item.subject, item.TimeslotID, true)}} 
                                               style={{ 
                                                 color: item.TimeslotID == timeslotIDtoChange.source ? "#fcba03" : "#2563eb", 
                                                 display : 
@@ -585,7 +628,7 @@ function TimeSlot(props: Props) {
                                               className="cursor-pointer hover:fill-red-600 bg-white rounded-full duration-300 absolute right-[-11px] top-[-10px]"
                                             />
                                           </>
-                                        )}
+                                        )}}
                                       </Draggable>
                                       {/* <div
                                         style={{display : Object.keys(item.subject).length == 0 ? 'none' : 'flex'}}
