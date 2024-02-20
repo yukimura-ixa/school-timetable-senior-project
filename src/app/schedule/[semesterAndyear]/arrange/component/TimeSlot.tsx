@@ -23,9 +23,9 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
-// TODO: เช็คชน (ให้แสดงคล้าย diasbled)
+// TODO: เช็คชน (ให้แสดงคล้าย diasbled) ยังไม่เสร็จดี
 // TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน (ไว้ค่อยว่ากัน) อาจจะไมทำนะ
-// TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย + สัญลักษณ์
+// TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย  (ไว้ทีหลัง ยังไม่สำคัญ)
 // TODO: ดึงวิชาที่ลงให้ครูแต่ละคนแล้วมาจาก database เพื่อนำมาแสดงบนช่องตาราง
 // TODO: เช็ควิชาที่ map กับหน่วยกิตให้สัมพันธ์กับวิชาที่อยู่ในตารางหลังจากทำ TODO ด้านบน
 // TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
@@ -482,6 +482,7 @@ function TimeSlot(props: Props) {
                 className="text-sm"
                 onClick={() => {
                   // console.log(timeSlotData.AllData.map((data) => ({ ...data, subject: lockData.filter(ts => ts.timeslots.map(id => id.TimeslotID).includes(data.TimeslotID))[0] })))
+                  console.log(classData.data)
                   console.log(lockData)
                 }}
               >
