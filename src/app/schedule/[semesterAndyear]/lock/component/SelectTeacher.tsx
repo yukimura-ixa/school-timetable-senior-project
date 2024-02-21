@@ -9,47 +9,43 @@ type Props = {
   teacherSelected: any;
   addTeacherFunction: any;
   removeTeacherFunction: any;
-  required:boolean;
+  required: boolean;
 };
 
 function SelectTeacher(props: Props) {
-  const {data, isLoading, error, mutate} = useTeacherData();
+  const { data, isLoading, error, mutate } = useTeacherData();
   const [teacher, setTeacher] = useState<teacher[]>([]);
   const [teacherFilter, setTeacherFilter] = useState<teacher[]>([]);
   const [searchText, setSearchText] = useState("");
   useEffect(() => {
-    console.log(teacher);
-    
-    if(!isLoading){
+    if (data) {
       setTeacher(() => data);
       setTeacherFilter(() => data);
     }
-  }, [isLoading])
+  }, [isLoading]);
   const searchHandle = (event: any) => {
     let text = event.target.value;
     setSearchText(text);
     searchTeacher(text);
   };
   const searchTeacher = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
     let res = teacherFilter.filter((item) =>
       `${item.Firstname} ${item.Lastname} - ${item.Department}`.match(name)
     );
     setTeacher(res);
-    console.log(res);
   };
   return (
     <>
       <div className="flex flex-col gap-5 justify-between w-full">
         <div className="flex justify-between items-center relative">
           <div className="text-sm flex gap-1 items-center">
-            <p>เลือกครู</p>
+            <p>ครู</p>
             <p className="text-red-500">*</p>
             {props.required ? (
-            <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-              <BsInfo className="bg-red-500 rounded-full fill-white" />
-              <p className="text-red-500 text-sm">ต้องการ</p>
-            </div>
+              <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                <BsInfo className="bg-red-500 rounded-full fill-white" />
+                <p className="text-red-500 text-sm">ต้องการ</p>
+              </div>
             ) : null}
           </div>
           <SearchBar
@@ -63,7 +59,7 @@ function SelectTeacher(props: Props) {
               searchText.length == 0 ? "hidden" : null
             } absolute right-0 top-11 flex flex-col w-[276px] h-fit bg-white drop-shadow-sm border`}
           >
-            <div className="w-full flex flex-col gap-1 h-[200px] overflow-y-scroll">
+            <div className="w-full flex flex-col gap-1 h-[100px] overflow-y-scroll z-20">
               {teacher
                 .filter((item) => !props.teacherSelected.includes(item))
                 .map((item) => (
@@ -71,8 +67,10 @@ function SelectTeacher(props: Props) {
                     key={`searchteacher${item.TeacherID} ${item.Firstname}`}
                   >
                     <li
-                      onClick={() => {props.addTeacherFunction(item), setSearchText(() => "")}}
-                      className="flex h-[60px] items-center hover:bg-cyan-100 hover:text-cyan-600 p-3 cursor-pointer duration-300"
+                      onClick={() => {
+                        props.addTeacherFunction(item), setSearchText(() => "");
+                      }}
+                      className="flex items-center hover:bg-cyan-100 hover:text-cyan-600 p-3 cursor-pointer duration-300"
                     >
                       <p className="text-sm">
                         {item.Firstname} {item.Lastname} - {item.Department}
@@ -80,13 +78,20 @@ function SelectTeacher(props: Props) {
                     </li>
                   </Fragment>
                 ))}
+              {teacher.length == 0 ? (
+                <>
+                  <li className="flex items-center hover:bg-cyan-100 hover:text-cyan-600 p-3 duration-300 cursor-default">
+                    <p className="text-sm text-gray-500">ไม่พบข้อมูล</p>
+                  </li>
+                </>
+              ) : null}
             </div>
           </div>
         </div>
         <div className="flex flex-wrap gap-3 justify-end">
           {props.teacherSelected.map((item, index) => (
             <Fragment key={`teacherSelected${item.TeacherID}`}>
-              <MiniButton 
+              <MiniButton
                 handleClick={() => props.removeTeacherFunction(index)}
                 isSelected={true}
                 title={`${item.Firstname} - ${item.Department}`}

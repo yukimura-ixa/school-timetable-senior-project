@@ -1,6 +1,3 @@
-import SearchBar from "@/components/elements/input/field/SearchBar";
-import MiniButton from "@/components/elements/static/MiniButton";
-import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectDayOfWeek from "./SelectDayOfWeek";
@@ -9,10 +6,7 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import { useSubjectData } from "@/app/_hooks/subjectData";
-import { useRoomData } from "@/app/_hooks/roomData";
-import { useTeacherData } from "@/app/_hooks/teacherData";
-import { room } from "@prisma/client";
+import type { room, teacher } from "@prisma/client";
 
 type Props = {
   closeModal: any;
@@ -41,7 +35,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     RoomName: false,
   });
   const timeSlotHandleChange = (e: any) => {
-    let value = e.target.value
+    let value = e.target.value;
     let timeSlot = [...lockScheduleData.timeSlotID];
     setLockScheduledata(() => ({
       ...lockScheduleData,
@@ -50,29 +44,30 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
         : [...timeSlot, parseInt(value)].sort((a, b) => a - b),
     }));
     console.log(timeSlot);
-    
   };
   const classRoomHandleChange = (value: any) => {
     let grade = [...lockScheduleData.Grade];
-    if(!lockScheduleData.Grade.includes(value)){
-      grade.push(value)
-    }
-    else{
-      grade.splice(grade.indexOf(value), 1)
+    if (!lockScheduleData.Grade.includes(value)) {
+      grade.push(value);
+    } else {
+      grade.splice(grade.indexOf(value), 1);
     }
     setLockScheduledata(() => ({
       ...lockScheduleData,
-      Grade: grade
+      Grade: grade,
     }));
   };
   const validateData = () => {
     setIsEmptyData(() => ({
       Subject: lockScheduleData.Subject.SubjectCode.length == 0,
       DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
-      timeSlotID: lockScheduleData.timeSlotID.length == 0,
+      timeSlotID:
+        lockScheduleData.timeSlotID.length == 0 ||
+        lockScheduleData.timeSlotID.length > 2 ||
+        lockScheduleData.timeSlotID.reduce((a, b) => Math.abs(a - b), 0) > 1,
       Teachers: lockScheduleData.Teachers.length == 0,
       RoomName: lockScheduleData.RoomName == null,
-      ClassRooms: lockScheduleData.Grade.length == 0
+      ClassRooms: lockScheduleData.Grade.length == 0,
     }));
   };
   useEffect(() => {
@@ -123,7 +118,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       RoomName: value.RoomName,
     }));
   };
-  const handleAddTeacherList = (teacher: any) => {
+  const handleAddTeacherList = (teacher: teacher) => {
     setLockScheduledata(() => ({
       ...lockScheduleData,
       Teachers: [...lockScheduleData.Teachers, teacher],
@@ -149,7 +144,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
-            <p className="text-xl select-none" onClick={() => console.log(lockScheduleData)}>เพิ่มวิชาล็อก</p>
+            <p className="text-xl select-none">เพิ่มวิชาล็อก</p>
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
@@ -170,7 +165,9 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
             <SelectMultipleTimeSlot
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeSlotID}
-              required={isEmptyData.timeSlotID} daySelected={lockScheduleData.DayOfWeek} />
+              required={isEmptyData.timeSlotID}
+              daySelected={lockScheduleData.DayOfWeek}
+            />
             <SelectRoomName
               roomName={lockScheduleData.RoomName}
               handleRoomChange={handleRoomChange}

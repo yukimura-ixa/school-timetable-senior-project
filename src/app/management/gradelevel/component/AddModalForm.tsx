@@ -13,10 +13,9 @@ import api from "@/libs/axios";
 import type { gradelevel } from "@prisma/client";
 type props = {
   closeModal: any;
-  openSnackBar: any;
   mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
+function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([
     {

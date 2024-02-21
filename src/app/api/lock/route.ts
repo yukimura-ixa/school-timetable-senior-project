@@ -1,5 +1,5 @@
 import prisma from "@/libs/prisma"
-import { semester, type class_schedule } from "@prisma/client"
+import { semester } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     try {
         const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
         const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+        // const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
 
         //วิชาไหนมีคาบเรียนซ้ำกันบ้าง
         const locked = await prisma.class_schedule.groupBy({
@@ -16,6 +17,7 @@ export async function GET(request: NextRequest) {
                     AcademicYear: AcademicYear,
                     Semester: Semester,
                 },
+
             },
             having: {
                 GradeID: {
@@ -35,6 +37,13 @@ export async function GET(request: NextRequest) {
                 SubjectCode: {
                     in: locked.map((lock) => lock.SubjectCode),
                 },
+                // subject: {
+                //     teachers_responsibility: {
+                //         every: {
+                //             TeacherID: TeacherID,
+                //         },
+                //     },
+                // },
             },
             include: {
                 room: true,
@@ -114,6 +123,70 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: error }, { status: 500 })
     }
 
+}
+
+export async function POST(request: NextRequest) {
+
+    try {
+        let created = []
+        const body = await request.json()
+        for (const timeslot in body.timeslots) {
+            for (const grade in body.GradeIDs) {
+                const data = await prisma.class_schedule.create({
+                    data: {
+                        ClassID: body.timeslots[timeslot] + '-' + body.SubjectCode + '-' + body.GradeIDs[grade],
+                        subject: {
+                            connect: {
+                                SubjectCode: body.SubjectCode,
+                            },
+                        },
+                        timeslot: {
+                            connect: {
+                                TimeslotID: body.timeslots[timeslot],
+                            },
+                        },
+                        room: {
+                            connect: {
+                                RoomID: body.room.RoomID,
+                            },
+                        },
+                        gradelevel: {
+                            connect: {
+                                GradeID: body.GradeIDs[grade],
+                            },
+                        },
+                    }
+                })
+                created.push(data)
+            }
+        }
+
+        return NextResponse.json(created)
+    } catch (error) {
+        console.log(error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+}
+
+export async function DELETE(request: NextRequest) {
+    try {
+        const body = await request.json()
+        const deleted = await prisma.class_schedule.deleteMany({
+            where: {
+                ClassID: {
+                    in: body,
+                },
+            },
+        })
+
+        return NextResponse.json(body)
+
+    } catch (error) {
+        console.log(error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+
+    }
 }
 
 

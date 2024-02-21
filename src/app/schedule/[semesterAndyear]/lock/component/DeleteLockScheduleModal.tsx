@@ -3,49 +3,32 @@ import { AiOutlineClose } from "react-icons/ai";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import { gradelevel } from "@prisma/client";
 import api from "@/libs/axios";
+import { enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
   deleteData: any;
-  clearCheckList: any;
-  dataAmount: number;
-  checkedList: any;
   mutate: Function;
 };
 
-function ConfirmDeleteModal({
-  closeModal,
-  deleteData,
-  dataAmount,
-  clearCheckList,
-  checkedList,
-  mutate,
-}: props) {
+function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
   const confirmed = () => {
-    removeMultiData(deleteData, checkedList);
+    deleteLockSchedule(deleteData);
     closeModal();
   };
   const cancel = () => {
-    if (dataAmount === 1) {
-      clearCheckList();
-    }
     closeModal();
   };
-  const removeMultiData = async (data: gradelevel[], checkedList) => {
-    const deleteData = data
-      .filter((item, index) => checkedList.includes(index))
-      .map((item) => item.GradeID);
+
+  const deleteLockSchedule = async (data: any) => {
+    const deleteData = data.ClassIDs;
     try {
-      const response = await api.delete("/gradelevel", {
-        data: deleteData,
-      });
+      const response = await api.delete("/lock", { data: deleteData });
       if (response.status === 200) {
         mutate();
-        openSnackBar("DELETE");
+        enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       }
       console.log(response);
-      clearCheckList();
     } catch (err) {
       console.log(err);
     }
@@ -58,13 +41,14 @@ function ConfirmDeleteModal({
       >
         <div className="flex flex-col w-fit h-fit p-7 gap-10 bg-white rounded">
           {/* Content */}
-          <div className="flex w-full h-auto justify-between items-center">
-            <p className="text-lg select-none">ลบข้อมูล</p>
-            <AiOutlineClose className="cursor-pointer" onClick={cancel} />
-          </div>
+          {/* <div className="flex w-full h-auto justify-between items-center"></div> */}
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none font-bold">
-              คุณต้องการลบข้อมูลที่เลือกทั้งหมด {dataAmount} รายการใช่หรือไม่
+              คุณต้องการลบข้อมูลคาบล็อก{" "}
+              <i>
+                {deleteData.SubjectCode} - {deleteData.SubjectName}
+              </i>{" "}
+              ใช่หรือไม่
             </p>
           </div>
           <span className="w-full flex gap-3 justify-end h-11">
@@ -86,4 +70,4 @@ function ConfirmDeleteModal({
     </>
   );
 }
-export default ConfirmDeleteModal;
+export default DeleteLockScheduleModal;

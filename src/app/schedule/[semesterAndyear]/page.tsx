@@ -71,7 +71,6 @@ function Schedule({}: Props) {
               !isSetTimeslot ? "hidden" : ""
             }`}
           >
-            <HiLockClosed className="fill-gray-700" />
             <p>ล็อกคาบสอน</p>
           </button>
           <button
