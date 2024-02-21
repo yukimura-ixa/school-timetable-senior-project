@@ -64,11 +64,11 @@ function TimetableConfigValue({}: Props) {
     setConfigData(() => ({ ...configData, TimeslotPerDay: currentValue }));
   };
   const handleChangeDuration = (currentValue: number) => {
-    setConfigData(() => ({ ...configData, Duration: currentValue }));
+    setConfigData(() => ({ ...configData, Duration: currentValue, BreakDuration: currentValue }));
   };
-  const handleChangeBreakDuration = (currentValue: number) => {
-    setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
-  };
+  // const handleChangeBreakDuration = (currentValue: number) => {
+  //   setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
+  // };
   const handleChangeBreakTimeJ = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
@@ -176,7 +176,7 @@ function TimetableConfigValue({}: Props) {
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
             <BsTable size={25} className="fill-gray-500" />
-            <p className="text-md">กำหนดคาบต่อวัน</p>
+            <p onClick={() => console.log(configData)} className="text-md">กำหนดคาบต่อวัน</p>
           </div>
           <Counter
             classifier="คาบ"
@@ -241,7 +241,7 @@ function TimetableConfigValue({}: Props) {
           </div>
           <div className="flex flex-col-reverse gap-4">
             <div className="flex justify-between items-center gap-3">
-              <p className="text-md text-gray-500">มัธยมปลาย</p>
+              <p className="text-md text-gray-500">มัธยมปลายคาบที่</p>
               <Dropdown
                 width="100%"
                 height="40px"
@@ -256,7 +256,7 @@ function TimetableConfigValue({}: Props) {
               />
             </div>
             <div className="flex justify-between items-center gap-3">
-              <p className="text-md text-gray-500">มัธยมต้น</p>
+              <p className="text-md text-gray-500">มัธยมต้นคาบที่</p>
               <Dropdown
                 width="100%"
                 height="40px"
@@ -273,7 +273,7 @@ function TimetableConfigValue({}: Props) {
           </div>
         </div>
         {/* Config lunchtime duration */}
-        <div className="flex w-full h-[65px] justify-between py-4 items-center">
+        {/* <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดระยะเวลาพักเที่ยง</p>
@@ -283,7 +283,7 @@ function TimetableConfigValue({}: Props) {
             currentValue={configData.BreakDuration}
             onChange={handleChangeBreakDuration}
           />
-        </div>
+        </div> */}
         {/* Config day of week */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
