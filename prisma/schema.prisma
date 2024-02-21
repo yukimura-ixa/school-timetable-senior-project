@@ -18,6 +18,7 @@ model class_schedule {
   SubjectCode String
   RoomID      Int?
   GradeID     String
+  IsLocked    Boolean    @default(false)
   gradelevel  gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
   room        room?      @relation(fields: [RoomID], references: [RoomID], onDelete: SetNull)
   subject     subject    @relation(fields: [SubjectCode], references: [SubjectCode])

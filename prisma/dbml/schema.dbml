@@ -8,6 +8,7 @@ Table class_schedule {
   SubjectCode String [not null]
   RoomID Int
   GradeID String [not null]
+  IsLocked Boolean [not null, default: false]
 }
 
 Table gradelevel {

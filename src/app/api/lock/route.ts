@@ -31,12 +31,11 @@ export async function GET(request: NextRequest) {
         // ดึงข้อมูลคาบเรียนที่มีซ้ำ
         const data = await prisma.class_schedule.findMany({
             where: {
-                TimeslotID: {
-                    in: locked.map((lock) => lock.TimeslotID),
+                timeslot: {
+                    AcademicYear: AcademicYear,
+                    Semester: Semester,
                 },
-                SubjectCode: {
-                    in: locked.map((lock) => lock.SubjectCode),
-                },
+                IsLocked: true,
                 // subject: {
                 //     teachers_responsibility: {
                 //         every: {
