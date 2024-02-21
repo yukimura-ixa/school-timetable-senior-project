@@ -50,37 +50,40 @@ function Schedule({}: Props) {
             <p>ตั้งค่าตารางสอน</p>
           </button>
           <button
+            disabled={!isSetTimeslot}
             onClick={() => {
               router.replace(`${path}/assign`), setTabSelect(() => "assign");
             }}
             className={`flex w-fit h-[60px] ${
               tabSelect == "assign" ? "bg-gray-100" : "bg-white"
-            } items-center px-3 cursor-pointer focus:outline-none ${
-              !isSetTimeslot ? "hidden" : ""
+            } items-center px-3  focus:outline-none ${
+              !isSetTimeslot ? "text-gray-500" : "cursor-pointer"
             }`}
           >
             <p>มอบหมายวิชาเรียน</p>
           </button>
           <button
+            disabled={!isSetTimeslot}
             onClick={() => {
               router.replace(`${path}/lock`), setTabSelect(() => "lock");
             }}
             className={`flex gap-3 w-fit h-[60px] ${
               tabSelect == "lock" ? "bg-gray-100" : "bg-white"
-            } items-center px-3 cursor-pointer focus:outline-none ${
-              !isSetTimeslot ? "hidden" : ""
+            } items-center px-3  focus:outline-none ${
+              !isSetTimeslot ? "text-gray-500" : "cursor-pointer"
             }`}
           >
             <p>ล็อกคาบสอน</p>
           </button>
           <button
+            disabled={!isSetTimeslot}
             onClick={() => {
               router.replace(`${path}/arrange`), setTabSelect(() => "arrange");
             }}
             className={`flex w-fit h-[60px] ${
               tabSelect == "arrange" ? "bg-gray-100" : "bg-white"
-            } items-center px-3 cursor-pointer focus:outline-none ${
-              !isSetTimeslot ? "hidden" : ""
+            } items-center px-3  focus:outline-none ${
+              !isSetTimeslot ? "text-gray-500" : "cursor-pointer"
             }`}
           >
             <p>จัดตารางสอน</p>
