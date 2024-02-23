@@ -24,10 +24,11 @@ import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import SaveIcon from "@mui/icons-material/Save";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
+// TODO: ดึงวิชาใส่ตารางได้แล้ว เหลือคัดวิชาด้านบน
 // TODO: เช็คชน (ให้แสดงคล้าย diasbled) ยังไม่เสร็จดี
+// TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
 // TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน (ไว้ค่อยว่ากัน) อาจจะไมทำนะ
 // TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย  (ไว้ทีหลัง ยังไม่สำคัญ)
-// TODO: สงสัย classData ว่าสรุปแล้วตอน get มาต้องตัดคาบล็อกออกไหม ดึงแค่คาบที่สามารถสับเปลียนได้ก็พอ
 // TODO: ดึงวิชาที่ลงให้ครูแต่ละคนแล้วมาจาก database เพื่อนำมาแสดงบนช่องตาราง
 // TODO: เช็ควิชาที่ map กับหน่วยกิตให้สัมพันธ์กับวิชาที่อยู่ในตารางหลังจากทำ TODO ด้านบน
 // TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
@@ -39,7 +40,7 @@ function TimeSlot(props: Props) {
   ); //from "1-2566" to ["1", "2566"]
   const searchTeacherID = useSearchParams().get("TeacherID");
   const searchGradeID = useSearchParams().get("GradeID");
-  const classData = useClassData(
+  const fetchAllClassData = useClassData(
     parseInt(academicYear),
     parseInt(semester),
     parseInt(searchTeacherID)
@@ -74,7 +75,7 @@ function TimeSlot(props: Props) {
     fetcher
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
-  const [subjectData, setSubjectData] = useState([]);
+  const [subjectData, setSubjectData] = useState([]); //เก็บวิชากล่องบน
   const [lockData, setLockData] = useState([]);
   const [teacherData, setTeacherData] = useState<teacher>({
     Firstname: "",
@@ -84,7 +85,7 @@ function TimeSlot(props: Props) {
     TeacherID: null,
   });
   const [timeSlotData, setTimeSlotData] = useState({
-    AllData: [],
+    AllData: [], //ใช้กับตารางด้านล่าง
     SlotAmount: [],
     StartTime: { Hours: 8, Minutes: 30 },
     Duration: 50,
@@ -92,7 +93,7 @@ function TimeSlot(props: Props) {
     BreakSlot: [],
   });
 
-  function fetchTimeslotData(){
+  function fetchTimeslotData() {
     if (!fetchTimeSlot.isLoading) {
       let data = fetchTimeSlot.data;
       let dayofweek = data
@@ -143,6 +144,7 @@ function TimeSlot(props: Props) {
 
   function fetchSubject() {
     const data = fetchAllSubject.data; //get data
+    console.log(data);
     const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
     for (let i = 0; i < data.length; i++) {
       //for loop ตามข้อมูลที่มี
@@ -154,50 +156,83 @@ function TimeSlot(props: Props) {
     setSubjectData(() =>
       mapSubjectByCredit.map((item, index) => ({ itemID: index + 1, ...item }))
     );
+    console.log(mapSubjectByCredit)
   }
 
   useEffect(() => {
     if (!fetchTeacher.isLoading) {
       setTeacherData(() => fetchTeacher.data);
     }
-    if (!fetchAllSubject.isLoading) {
+    if (!fetchAllSubject.isLoading) { //(!fetchAllSubject.isLoading && !fetchAllClassData.isLoading) ใส่อันนี้แทน
       fetchSubject();
     }
     if (!fetchTimeSlot.isLoading) {
       fetchTimeslotData();
     }
-
-  }, [fetchTeacher.isLoading, fetchAllSubject.isLoading, fetchTimeSlot.isLoading]);
-
-  useEffect(() => {
-    if (!lockTimeslotData.isLoading) {
-      let data = lockTimeslotData.data;
-      let mapData = data.map((lockData) => ({
-        SubjectCode: lockData.SubjectCode,
-        SubjectName: lockData.SubjectName,
-        GradeID: lockData.GradeIDs,
-        RoomID: lockData.room.RoomName,
-        timeslots: lockData.timeslots,
-        gradelevel: { Year: 0 },
-      })); //อยากได้ชุดข้อมูลสวยๆกว่านี้อะ เดี๋ยวกลับมาดูทีหลังแล้วงง
-      setLockData(() => mapData);
-      if (!fetchTimeSlot.isLoading && timeSlotData.AllData.length > 0) {
-        setTimeSlotData(() => ({
-          ...timeSlotData,
-          AllData: timeSlotData.AllData.map((data) => ({
-            ...data,
-            subject:
-              mapData.filter((ts) =>
-                ts.timeslots
-                  .map((id) => id.TimeslotID)
-                  .includes(data.TimeslotID)
-              )[0] || {},
-          })),
-        }));
-      }
-      console.log(data);
+    if (!fetchAllClassData.isLoading) {
+      fetchClassData();
     }
-  }, [lockTimeslotData.isLoading]);
+  }, [
+    fetchTeacher.isLoading,
+    fetchAllSubject.isLoading,
+    fetchTimeSlot.isLoading,
+    fetchAllClassData.isLoading,
+  ]);
+
+  function fetchClassData() {
+    let puredata = fetchAllClassData.data;
+    let data = puredata.map((item) => ({
+      ...item,
+      SubjectName: item.subject.SubjectName,
+      RoomName: item.room.RoomName
+    }));
+    let filterLock = data.filter((item) => item.IsLocked);
+    let filterNotLock = data.filter((item) => !item.IsLocked);
+    //คัดข้อมูลคาบล็อก
+    let resFilterLock = []; //เก็บวิชาที่คัดซ้ำแล้ว
+    let keepId = []; //สำหรับเก็บ timeSlotID เพื่อเช็คซ้ำ
+    for (let i = 0; i < filterLock.length; i++) {
+      if (keepId.length == 0 || !keepId.includes(filterLock[i].TimeslotID)) { //ถ้ายังไม่เคยมีการเช็คมาก่อนหรือยังไม่เจอไอเทมซ้ำ
+        keepId.push(filterLock[i].TimeslotID); //เก็บไอดีที่เคยเพิ่มเอาไว้
+        resFilterLock.push({
+          ...filterLock[i],
+          GradeID: [filterLock[i].GradeID],
+        }); //เพิ่มข้อมูลลงไป
+      } else { //ถ้าเจอไอเทมซ้ำ
+        let tID = filterLock[i].TimeslotID; //get TimeslotID
+        resFilterLock = resFilterLock.map((item) =>
+          item.TimeslotID == tID //เช็คว่าเจอไอดีไหนให้ map ใส่อันนั้น
+            ? { ...item, GradeID: [...item.GradeID, filterLock[i].GradeID] }
+            : item
+        );
+      }
+    }
+    //คัดข้อมูลคาบล็อก
+    //หลังจากคัดข้อมูลเสร็จ นำข้อมูลคาบล็อกมารวมกับวิชาใน slot
+    let concatClassData = filterNotLock.concat(resFilterLock);
+    setLockData(() => resFilterLock);
+    if (!fetchTimeSlot.isLoading && timeSlotData.AllData.length > 0) {
+      setTimeSlotData(() => ({ //นำวิชาลงไปใน Timeslot
+        ...timeSlotData,
+        AllData: timeSlotData.AllData.map((data) => {
+          let checkMatchTimeslotID = concatClassData.map((id) => id.TimeslotID).includes(data.TimeslotID); //เช็คว่า TimeslotID ตรงกันไหม
+          if (checkMatchTimeslotID) { //ถ้าใช่
+            return {
+              ...data,
+              subject: concatClassData.filter((item) => item.TimeslotID == data.TimeslotID)[0], //เพิ่มวิชาลงไป
+            };
+          } else {
+            return {
+              ...data,
+              subject: {}, //ถ้าไม่เจอวิชาก็ใส่ {}
+            };
+          }
+        }),
+      }));
+      console.log(concatClassData.map((id) => id.TimeslotID));
+    }
+  }
+
   //convert millisec to min
   const getMinutes = (milliseconds: number) => {
     let seconds = Math.floor(milliseconds / 1000);
@@ -275,7 +310,7 @@ function TimeSlot(props: Props) {
     }));
   };
   const returnSubject = (subject: object) => {
-    delete subject.RoomID; //ลบ property RoomID ออกจาก object ก่อนคืน
+    delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
     setSubjectData(() => [...subjectData, subject]);
   };
   const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
@@ -283,7 +318,7 @@ function TimeSlot(props: Props) {
   const [subjectPayload, setSubjectPayload] = useState({
     timeslotID: "",
     selectedSubject: {},
-  });
+  }); //ใช้กับตอนเพิ่มห้องเรียนให้วิชา
   const handleDragStart = (result) => {
     const { source } = result;
     let index = source.index;
@@ -298,7 +333,7 @@ function TimeSlot(props: Props) {
       let getSubjectFromTimeslot = timeSlotData.AllData.filter(
         (item) => item.TimeslotID == timeslotID
       )[0]; //เอาวิชาที่อยู่ใน timeslot ออกมา
-      if (Object.keys(changeTimeSlotSubject).length == 0) {
+      if (Object.keys(changeTimeSlotSubject).length == 0) { //ถ้า action คือการเพิ่มวิชา
         clickOrDragToChangeTimeSlot(
           getSubjectFromTimeslot.subject,
           timeslotID,
@@ -380,11 +415,11 @@ function TimeSlot(props: Props) {
     destination: "",
   }); //เก็บ timeslotID ต้นทางและปลายทางเพื่อใช้สลับวิชา
   const [isCilckToChangeSubject, setIsCilckToChangeSubject] =
-    useState<boolean>(false);
+    useState<boolean>(false); //ถ้าคลิกเพื่อเปลี่ยนวิชาจะ = true และนำไปใช้กับ disabledDrag ทำให้ลากไอเทมมั่วซั่วตอนคลิกเปลี่ยนวิชา
   const [showErrorMsgByTimeslotID, setShowErrorMsgByTimeslotID] =
-    useState<string>("");
+    useState<string>(""); //
   const [showLockDataMsgByTimeslotID, setShowLockDataMsgByTimeslotID] =
-    useState<string>("");
+    useState<string>(""); //
   const clickOrDragToChangeTimeSlot = (
     subject: object,
     timeslotID: string,
@@ -510,7 +545,7 @@ function TimeSlot(props: Props) {
                       ${
                         Object.keys(storeSelectedSubject).length !== 0 &&
                         Object.keys(subjectInSlot).length == 0 //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
-                          ? "border-emerald-300 cursor-pointer"
+                          ? "border-emerald-300 cursor-pointer border-dashed"
                           : (
                                 Object.keys(subjectInSlot).length !== 0
                                   ? displayErrorChangeSubject(
@@ -521,7 +556,7 @@ function TimeSlot(props: Props) {
                               )
                             ? "border-red-300"
                             : Object.keys(changeTimeSlotSubject).length !== 0 //ถ้ากดเปลี่ยนวิชา จะให้กรอบสีฟ้า
-                              ? "border-blue-300"
+                              ? "border-blue-300 border-dashed"
                               : Object.keys(subjectInSlot).length !== 0 //ถ้ามีวิชาที่ลงแล้ว จะให้กรอบเป็นสีแดง
                                 ? "border-red-300"
                                 : "border-dashed" //ถ้าไม่มีวิชาอยู่ในช่อง จะให้แสดงเป็นเส้นกรอบขีดๆเอาไว้
@@ -612,12 +647,14 @@ function TimeSlot(props: Props) {
             onDragEnd={handleDragEnd}
             onDragStart={handleDragStart}
           >
+            {/* กล่องบน */}
             <div className="flex flex-col w-full border border-[rgb(237,238,243)] p-4 gap-4 mt-4">
               <p
                 className="text-sm"
                 onClick={() => {
                   // console.log(timeSlotData.AllData.map((data) => ({ ...data, subject: lockData.filter(ts => ts.timeslots.map(id => id.TimeslotID).includes(data.TimeslotID))[0] })))
-                  console.log(classData.data);
+                  console.log(fetchAllClassData.data);
+                  console.log(timeSlotData.AllData);
                   console.log(lockData);
                 }}
               >
@@ -901,7 +938,7 @@ function TimeSlot(props: Props) {
                                                     }`}
                                               </b>
                                               <p className="text-xs">
-                                                ห้อง {item.subject.RoomID}
+                                                ห้อง {item.subject.RoomName}
                                               </p>
                                             </div>
                                             <ChangeCircleIcon

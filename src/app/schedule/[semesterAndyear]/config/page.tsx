@@ -14,6 +14,7 @@ import api from "@/libs/axios";
 
 // ! กดคืนค่าเริ่มต้นไม่ได้
 // TODO: ทำปุ่มติ๊กเบรก 10 นาที (Minibreak)
+// TODO: Custombreak (อาจจะทำ)
 type Props = {};
 
 function TimetableConfigValue({}: Props) {

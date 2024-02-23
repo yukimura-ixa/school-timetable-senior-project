@@ -13,7 +13,7 @@ function Schedule({}: Props) {
   const params = useParams();
   const semesterSplit = (params.semesterAndyear as string).split("-"); //from "1-2566" to ["1", "2566"]
   const path = pathName.substring(0, 16);
-  const [isSetTimeslot, setIsSetTimeslot] = useState(false);
+  const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
   const timeslotData = useTimeslotData(
     parseInt(semesterSplit[1]),
     parseInt(semesterSplit[0])

@@ -13,16 +13,16 @@ type Props = {
 
 function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const payload = props.payload;
-  const [RoomID, setRoomID] = useState("");
+  const [RoomName, setRoomName] = useState("");
   const [validateIsPass, setValidateIsPass] = useState(false);
   // const gradeLevelData = useGradeLevelData();
   const roomData = useRoomData();
   const confirm = () => { //ถ้ากดยืนยัน
-    if (RoomID == "") { //เช็คว่ามีการเลือกห้องยังถ้ายังก็แจ้งเตือน
+    if (RoomName == "") { //เช็คว่ามีการเลือกห้องยังถ้ายังก็แจ้งเตือน
       setValidateIsPass(true);
     } else { //ถ้าเลือกห้องแล้ว
       props.addSubjectToSlot(
-        { ...payload.selectedSubject, RoomID: RoomID },
+        { ...payload.selectedSubject, RoomName: RoomName },
         payload.timeslotID
       )
     }
@@ -84,8 +84,8 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                     <p>{data}</p>
                   </>
                 )}
-                currentValue={RoomID}
-                handleChange={(data) => setRoomID(() => data)}
+                currentValue={RoomName}
+                handleChange={(data) => setRoomName(() => data)}
                 searchFunciton={undefined}
               />
             </div>
