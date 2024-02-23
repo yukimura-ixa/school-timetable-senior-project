@@ -8,6 +8,7 @@ import type { teacher } from "@prisma/client";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
+import { useClassData } from "@/app/_hooks/classData";
 
 function ChooseTeacher() {
   const router = useRouter();
@@ -35,9 +36,9 @@ function ChooseTeacher() {
   const [teachHour, setTeachHour] = useState<number>(0);
   useEffect(() => {
     if (responsibilityData.data) {
-      let map = responsibilityData.data.map(item => item.TeachHour)
-      let sumTeachHour = map.length == 0 ? [0] : map
-      let res = sumTeachHour.reduce((prev, curr) => prev + curr)
+      let map = responsibilityData.data.map((item) => item.TeachHour);
+      let sumTeachHour = map.length == 0 ? [0] : map;
+      let res = sumTeachHour.reduce((prev, curr) => prev + curr);
       setTeachHour(() => res);
     }
   }, [responsibilityData.data]);
@@ -60,82 +61,85 @@ function ChooseTeacher() {
 
   return (
     <>
-      {responsibilityData.isLoading 
-      ? <Loading /> 
-      :
-      <div className="flex flex-col gap-3">
-        {/* เลือกครู */}
-        <div className="flex w-full h-fit justify-between p-4 items-center border border-[#EDEEF3]">
-          <div className="flex items-center gap-4">
-            <p className="text-md" onClick={() => console.log(responsibilityData.data)}>
-              เลือกคุณครู
-            </p>
+      {responsibilityData.isLoading ? (
+        <Loading />
+      ) : (
+        <div className="flex flex-col gap-3">
+          {/* เลือกครู */}
+          <div className="flex w-full h-fit justify-between p-4 items-center border border-[#EDEEF3]">
+            <div className="flex items-center gap-4">
+              <p
+                className="text-md"
+                onClick={() => console.log(responsibilityData.data)}
+              >
+                เลือกคุณครู
+              </p>
+            </div>
+            <div className="flex flex-row justify-between gap-3">
+              <Dropdown
+                data={teacherFilterData}
+                renderItem={({ data }) => (
+                  <li className="w-full text-sm">
+                    {data.Firstname} {data.Lastname} - {data.Department}
+                  </li>
+                )}
+                width={400}
+                height="40"
+                currentValue={teacherLabel}
+                handleChange={(data: any) => {
+                  setTeacher(data);
+                  setTeacherLabel(
+                    `${data.Firstname} ${data.Lastname} - ${data.Department}`
+                  );
+                }}
+                placeHolder="เลือกคุณครู"
+                useSearchBar={true}
+                searchFunciton={searchHandle}
+              />
+            </div>
           </div>
-          <div className="flex flex-row justify-between gap-3">
-            <Dropdown
-              data={teacherFilterData}
-              renderItem={({ data }) => (
-                <li className="w-full text-sm">
-                  {data.Firstname} {data.Lastname} - {data.Department}
-                </li>
-              )}
-              width={400}
-              height="40"
-              currentValue={teacherLabel}
-              handleChange={(data: any) => {
-                setTeacher(data);
-                setTeacherLabel(
-                  `${data.Firstname} ${data.Lastname} - ${data.Department}`
-                );
-              }}
-              placeHolder="เลือกคุณครู"
-              useSearchBar={true}
-              searchFunciton={searchHandle}
-            />
-          </div>
+          {!responsibilityData.data ? null : (
+            <>
+              {/* Teacher name */}
+              <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
+                <div className="flex items-center gap-4">
+                  <p className="text-md">ชื่อ - นามสกุล</p>
+                </div>
+                <p className="text-md text-gray-500">
+                  {teacher.Firstname} {teacher.Lastname}
+                </p>
+              </div>
+              <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
+                <div className="flex items-center gap-4">
+                  <p className="text-md">กลุ่มสาระการเรียนรู้</p>
+                </div>
+                <p className="text-md text-gray-500">{teacher.Department}</p>
+              </div>
+              <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
+                <div className="flex items-center gap-4">
+                  <p className="text-md">ชั่วโมงที่สอนต่อสัปดาห์</p>
+                </div>
+                <p className="text-md text-gray-500">
+                  {teachHour === 0 ? `ไม่มีข้อมูล` : `${teachHour} คาบ`}
+                </p>
+              </div>
+              <div
+                onClick={() => {
+                  router.push(
+                    `${pathName}/teacher-arrange?TeacherID=${teacher.TeacherID}`
+                  );
+                }}
+                className="flex w-full h-[55px] justify-between p-4 text-cyan-500 items-center border border-cyan-200 cursor-pointer bg-cyan-50 hover:bg-cyan-100 duration-300"
+              >
+                <div className="flex items-center gap-4">
+                  <p className="text-md">วิชาที่รับผิดชอบทั้งหมด</p>
+                </div>
+                <MdArrowForwardIos className="cursor-pointer" />
+              </div>
+            </>
+          )}
         </div>
-        {!responsibilityData.data ? null : (
-          <>
-            {/* Teacher name */}
-            <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
-              <div className="flex items-center gap-4">
-                <p className="text-md">ชื่อ - นามสกุล</p>
-              </div>
-              <p className="text-md text-gray-500">
-                {teacher.Firstname} {teacher.Lastname}
-              </p>
-            </div>
-            <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
-              <div className="flex items-center gap-4">
-                <p className="text-md">กลุ่มสาระการเรียนรู้</p>
-              </div>
-              <p className="text-md text-gray-500">{teacher.Department}</p>
-            </div>
-            <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
-              <div className="flex items-center gap-4">
-                <p className="text-md">ชั่วโมงที่สอนต่อสัปดาห์</p>
-              </div>
-              <p className="text-md text-gray-500">
-                {teachHour === 0 ? `ไม่มีข้อมูล` : `${teachHour} คาบ`}
-              </p>
-            </div>
-            <div
-              onClick={() => {
-                router.push(
-                  `${pathName}/teacher-arrange?TeacherID=${teacher.TeacherID}`
-                );
-              }}
-              className="flex w-full h-[55px] justify-between p-4 text-cyan-500 items-center border border-cyan-200 cursor-pointer bg-cyan-50 hover:bg-cyan-100 duration-300"
-            >
-              <div className="flex items-center gap-4">
-                <p className="text-md">วิชาที่รับผิดชอบทั้งหมด</p>
-              </div>
-              <MdArrowForwardIos className="cursor-pointer" />
-            </div>
-          </>
-        )}
-      </div>
-      }
+      )}
     </>
   );
 }

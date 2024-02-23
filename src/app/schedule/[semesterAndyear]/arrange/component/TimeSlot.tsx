@@ -37,6 +37,7 @@ function TimeSlot(props: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-"
   ); //from "1-2566" to ["1", "2566"]
+  const allClassData = useClassData(parseInt(academicYear), parseInt(semester));
   const searchTeacherID = useSearchParams().get("TeacherID");
   const searchGradeID = useSearchParams().get("GradeID");
   const classData = useClassData(
@@ -92,7 +93,7 @@ function TimeSlot(props: Props) {
     BreakSlot: [],
   });
 
-  function fetchTimeslotData(){
+  function fetchTimeslotData() {
     if (!fetchTimeSlot.isLoading) {
       let data = fetchTimeSlot.data;
       let dayofweek = data
@@ -166,8 +167,11 @@ function TimeSlot(props: Props) {
     if (!fetchTimeSlot.isLoading) {
       fetchTimeslotData();
     }
-
-  }, [fetchTeacher.isLoading, fetchAllSubject.isLoading, fetchTimeSlot.isLoading]);
+  }, [
+    fetchTeacher.isLoading,
+    fetchAllSubject.isLoading,
+    fetchTimeSlot.isLoading,
+  ]);
 
   useEffect(() => {
     if (!lockTimeslotData.isLoading) {

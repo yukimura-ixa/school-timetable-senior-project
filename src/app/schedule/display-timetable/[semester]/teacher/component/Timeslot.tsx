@@ -1,5 +1,4 @@
 "use client";
-import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { MdAdd } from "react-icons/md";
 import {subjectInSlot} from "@/raw-data/subjectslot";
