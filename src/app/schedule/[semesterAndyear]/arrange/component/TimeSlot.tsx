@@ -38,6 +38,7 @@ function TimeSlot(props: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-"
   ); //from "1-2566" to ["1", "2566"]
+  const allClassData = useClassData(parseInt(academicYear), parseInt(semester));
   const searchTeacherID = useSearchParams().get("TeacherID");
   const searchGradeID = useSearchParams().get("GradeID");
   const fetchAllClassData = useClassData(

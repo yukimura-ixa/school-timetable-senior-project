@@ -134,6 +134,7 @@ export async function POST(request: NextRequest) {
                 const data = await prisma.class_schedule.create({
                     data: {
                         ClassID: body.timeslots[timeslot] + '-' + body.SubjectCode + '-' + body.GradeIDs[grade],
+                        IsLocked: true,
                         subject: {
                             connect: {
                                 SubjectCode: body.SubjectCode,

@@ -52,7 +52,26 @@ export async function GET(request: NextRequest) {
                 },
 
             })
+        } else {
+            // localhost:3000/api/class?AcademicYear=2566&Semester=SEMESTER_1
+            response = await prisma.class_schedule.findMany({
+                where: {
+                    timeslot: {
+                        AcademicYear: AcademicYear,
+                        Semester: Semester
+                    },
+                },
+                include: {
+                    subject: true,
+                    gradelevel: true,
+                    timeslot: true,
+                    room: true,
+                },
+
+            })
+
         }
+
         return NextResponse.json(response)
     } catch (error) {
         console.log(error)

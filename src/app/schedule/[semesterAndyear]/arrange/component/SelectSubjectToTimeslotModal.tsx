@@ -1,13 +1,14 @@
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
-import { useRoomData } from "@/app/_hooks/roomData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import { fetcher } from "@/libs/axios";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import { CircularProgress } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
+import useSWR from "swr";
 
 type Props = {
   addSubjectToSlot: any; //ฟังก์ชั่นเพิ่มวิชา
-  cancelAddRoom: any //เมื่อกดยกเลิก
+  cancelAddRoom: any; //เมื่อกดยกเลิก
   payload: any; //ข้อมูลทั้งหมดที่ส่งมาจากต้นทาง
 };
 
@@ -16,27 +17,39 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const [RoomName, setRoomName] = useState("");
   const [validateIsPass, setValidateIsPass] = useState(false);
   // const gradeLevelData = useGradeLevelData();
-  const roomData = useRoomData();
-  const confirm = () => { //ถ้ากดยืนยัน
-    if (RoomName == "") { //เช็คว่ามีการเลือกห้องยังถ้ายังก็แจ้งเตือน
+  const roomData = useSWR(
+    `room/availableRooms?TimeslotID=` + payload.timeslotID,
+    fetcher
+  );
+  const confirm = () => {
+    //ถ้ากดยืนยัน
+    if (RoomName == "") {
+      //เช็คว่ามีการเลือกห้องยังถ้ายังก็แจ้งเตือน
       setValidateIsPass(true);
-    } else { //ถ้าเลือกห้องแล้ว
+    } else {
+      //ถ้าเลือกห้องแล้ว
       props.addSubjectToSlot(
         { ...payload.selectedSubject, RoomName: RoomName },
         payload.timeslotID
-      )
+      );
     }
   };
   const dataDetails = (type: string) => {
     let timeslotID = payload.timeslotID;
     let subject = payload.selectedSubject;
-    let timeSlotDetails = `เทอม ${timeslotID[0]} ปีการศึกษา ${timeslotID.substring(2, 6)} - วัน${dayOfWeekThai[timeslotID.substring(7, 10)]} คาบ${timeslotID[timeslotID.length-1]}`
+    let timeSlotDetails = `เทอม ${
+      timeslotID[0]
+    } ปีการศึกษา ${timeslotID.substring(2, 6)} - วัน${
+      dayOfWeekThai[timeslotID.substring(7, 10)]
+    } คาบ${timeslotID[timeslotID.length - 1]}`;
     let subjectDetails = `${subject.SubjectCode} ${subject.SubjectName} 
-      ม.${subject.GradeID[0]}/${parseInt(subject.GradeID.substring(1, 2)) < 10
-      ? subject.GradeID[2]
-      : subject.GradeID.substring(1, 2)}`
+      ม.${subject.GradeID[0]}/${
+        parseInt(subject.GradeID.substring(1, 2)) < 10
+          ? subject.GradeID[2]
+          : subject.GradeID.substring(1, 2)
+      }`;
     return type == "TIMESLOT" ? timeSlotDetails : subjectDetails;
-  }
+  };
   return (
     <>
       <div
@@ -55,19 +68,22 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                   จัดวิชาเรียนลงในคาบ
                 </b>
                 {validateIsPass ? (
-                  <p className="text-xs text-red-500">
-                    โปรดเลือกห้องเรียน
-                  </p>
+                  <p className="text-xs text-red-500">โปรดเลือกห้องเรียน</p>
                 ) : null}
               </div>
               <AiOutlineClose
                 className="cursor-pointer"
-                onClick={() => props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)}
+                onClick={() =>
+                  props.cancelAddRoom(
+                    payload.selectedSubject,
+                    payload.timeslotID
+                  )
+                }
               />
             </div>
             <div>
-                <p>{dataDetails("TIMESLOT")}</p>
-                <b>{dataDetails("SUBJECT")}</b>
+              <p>{dataDetails("TIMESLOT")}</p>
+              <b>{dataDetails("SUBJECT")}</b>
             </div>
           </div>
           <div className="flex flex-col gap-3 p-4 w-full h-fit border border-[#EDEEF3]">
@@ -75,24 +91,30 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               <div className="flex gap-1 items-center">
                 <p>เลือกสถานที่เรียน</p>
               </div>
-              <Dropdown
-                width={250}
-                data={roomData.data.map((grade) => grade.RoomName)}
-                placeHolder="โปรดเลือก"
-                renderItem={({ data }) => (
-                  <>
-                    <p>{data}</p>
-                  </>
-                )}
-                currentValue={RoomName}
-                handleChange={(data) => setRoomName(() => data)}
-                searchFunciton={undefined}
-              />
+              {roomData.data ? (
+                <Dropdown
+                  width={250}
+                  data={roomData.data.map((grade) => grade.RoomName)}
+                  placeHolder="โปรดเลือก"
+                  renderItem={({ data }) => (
+                    <>
+                      <p>{data}</p>
+                    </>
+                  )}
+                  currentValue={RoomName}
+                  handleChange={(data) => setRoomName(() => data)}
+                  searchFunciton={undefined}
+                />
+              ) : (
+                <CircularProgress />
+              )}
             </div>
           </div>
           <div className="flex w-full items-end justify-end gap-4">
             <button
-              onClick={() => props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)}
+              onClick={() =>
+                props.cancelAddRoom(payload.selectedSubject, payload.timeslotID)
+              }
               className="w-[100px] h-[45px] rounded bg-red-100 text-red-500"
             >
               ยกเลิก
