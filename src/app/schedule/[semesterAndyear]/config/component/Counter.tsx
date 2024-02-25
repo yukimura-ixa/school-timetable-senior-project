@@ -27,4 +27,4 @@ function Counter({classifier, currentValue=1, onChange, isDisabled}: Props) {
   )
 }
 
-export default Counter
+export default Counter;

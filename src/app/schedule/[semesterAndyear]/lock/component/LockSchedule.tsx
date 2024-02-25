@@ -172,7 +172,7 @@ function LockSchedule(props: Props) {
           ))}
           <div
             onClick={handleClickAddLockSchedule}
-            className="flex justify-center cursor-pointer items-center p-4 gap-3 w-[49%] h-[214px] border border-[#EDEEF3] rounded hover:bg-gray-100 duration-300"
+            className="flex justify-center cursor-pointer items-center p-4 gap-3 w-[49%] h-[255px] border border-[#EDEEF3] rounded hover:bg-gray-100 duration-300"
           >
             <MdAddCircle size={24} className="fill-gray-500" />
             <p className="text-lg font-bold">เพิ่มคาบล็อก</p>
