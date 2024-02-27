@@ -56,7 +56,7 @@ function TimeSlot(props: Props) {
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => `/teacher?TeacherID=` + searchTeacherID,
-    fetcher
+    fetcher,{revalidateOnFocus : false}
   );
   const fetchAllSubject = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
@@ -67,7 +67,7 @@ function TimeSlot(props: Props) {
       semester +
       `&TeacherID=` +
       searchTeacherID,
-    fetcher
+    fetcher,{revalidateOnFocus : false}
   );
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
@@ -76,7 +76,7 @@ function TimeSlot(props: Props) {
       academicYear +
       `&Semester=SEMESTER_` +
       semester,
-    fetcher
+    fetcher,{revalidateOnFocus : false}
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [subjectData, setSubjectData] = useState([]); //เก็บวิชากล่องบน
@@ -98,7 +98,7 @@ function TimeSlot(props: Props) {
   });
 
   function fetchTimeslotData() {
-    if (!fetchTimeSlot.isLoading) {
+    if (!fetchTimeSlot.isValidating) {
       let data = fetchTimeSlot.data;
       let dayofweek = data
         .map((day) => day.DayOfWeek)
@@ -145,21 +145,23 @@ function TimeSlot(props: Props) {
       }));
     }
   }
-  const [scheduledSubjects, setScheduledSubjects] = useState([])
+  const [scheduledSubjects, setScheduledSubjects] = useState([]) //วิชาที่อยู่ในตารางอยู่แล้ว
   function fetchSubject() {
     const data = fetchAllSubject.data; //get data
     const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
     for (const resp of data) {
       let loopCredit = subjectCreditValues[resp.Credit] * 2; //เอาค่าหน่วยกิตมา
+      let filterSubjectLength = scheduledSubjects.filter(item => item.SubjectCode == resp.SubjectCode).length //หาว่าจำนวนคาบอยู่ในตารางเท่าไหร่
       if (
         scheduledSubjects
           .map((item) => item.subject.SubjectCode)
           .includes(resp.SubjectCode)
       ) {
         //ถ้าเจอวิชาที่อยู่ใน timeslot
-        loopCredit -= 1;
+        loopCredit -= filterSubjectLength;
       }
-      for (let i = 0; i < loopCredit; i++) {
+      let delTime = loopCredit < 0 ? 0 : loopCredit
+      for (let i = 0; i < delTime; i++) {
         //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
         mapSubjectByCredit.push(resp);
       }
@@ -167,14 +169,12 @@ function TimeSlot(props: Props) {
     setSubjectData(() =>
       mapSubjectByCredit.map((item, index) => ({ itemID: index + 1, ...item })),
     );
+    console.log("fffff")
   }
 
   useEffect(() => {
-    if (!fetchTeacher.isLoading) {
+    if (!fetchTeacher.isValidating) {
       setTeacherData(() => fetchTeacher.data);
-    }
-    if (!fetchAllSubject.isLoading) { //(!fetchAllSubject.isLoading && !fetchAllClassData.isLoading) ใส่อันนี้แทน
-      fetchSubject();
     }
     if (!fetchTimeSlot.isLoading) {
       fetchTimeslotData();
@@ -182,8 +182,11 @@ function TimeSlot(props: Props) {
     if (!fetchAllClassData.isValidating) {
       fetchClassData();
     }
+    if (!fetchAllSubject.isLoading) { //(!fetchAllSubject.isValidating && !fetchAllClassData.isValidating) ใส่อันนี้แทน
+      fetchSubject();
+    }
   }, [
-    fetchTeacher.isLoading,
+    fetchTeacher.isValidating,
     fetchAllSubject.isLoading,
     fetchTimeSlot.isLoading,
     fetchAllClassData.isValidating,
@@ -222,8 +225,6 @@ function TimeSlot(props: Props) {
     let concatClassData = filterNotLock.concat(resFilterLock);
     setScheduledSubjects(() => concatClassData);
     setLockData(() => resFilterLock);
-    console.log("มาเว้ย")
-    console.log(puredata)
     if (!fetchTimeSlot.isValidating && timeSlotData.AllData.length > 0) {
       setTimeSlotData(() => ({
         //นำวิชาลงไปใน Timeslot
