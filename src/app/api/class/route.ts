@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
                     },
                     subject: {
                         teachers_responsibility: {
-                            every: {
+                            some: {
                                 TeacherID: TeacherID
                             }
                         }
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
             })
 
         }
-
+        
         return NextResponse.json(response)
     } catch (error) {
         console.log(error)
