@@ -55,7 +55,7 @@ function EditModalForm({
   const editMultiData = async (data: any) => {
     console.log(data);
     try {
-      const response = await api.put("/rooms", data);
+      const response = await api.put("/room", data);
       if (response.status === 200) {
         mutate();
         openSnackBar("EDIT");

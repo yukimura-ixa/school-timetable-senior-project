@@ -38,7 +38,7 @@ function ConfirmDeleteModal({
   };
   const removeMultiData = async (data: subject[], checkedList) => {
     const deleteData = data
-      .filter((item, index) => checkedList.includes(index))
+      .filter((item, index) => checkedList.includes(item.SubjectCode))
       .map((item) => item.SubjectCode);
 
     try {

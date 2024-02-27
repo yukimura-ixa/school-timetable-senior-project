@@ -11,6 +11,7 @@ type props = {
   clearCheckList: any;
   dataAmount: number;
   checkedList: any;
+  openSnackBar: any
   mutate: Function;
 };
 
@@ -20,6 +21,7 @@ function ConfirmDeleteModal({
   dataAmount,
   clearCheckList,
   checkedList,
+  openSnackBar,
   mutate,
 }: props) {
   const confirmed = () => {
@@ -34,7 +36,7 @@ function ConfirmDeleteModal({
   };
   const removeMultiData = async (data: gradelevel[], checkedList) => {
     const deleteData = data
-      .filter((item, index) => checkedList.includes(index))
+      .filter((item, index) => checkedList.includes(item.GradeID))
       .map((item) => item.GradeID);
     try {
       const response = await api.delete("/gradelevel", {

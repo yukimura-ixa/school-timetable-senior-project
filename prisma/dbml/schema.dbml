@@ -46,6 +46,7 @@ Table teacher {
   Firstname String [not null]
   Lastname String [not null]
   Department String [not null, default: '-']
+  Email String [not null, default: '-']
 }
 
 Table timeslot {
@@ -99,15 +100,15 @@ Enum breaktime {
 
 Ref: class_schedule.GradeID > gradelevel.GradeID [delete: Cascade]
 
-Ref: class_schedule.RoomID > room.RoomID [delete: Set Null]
+Ref: class_schedule.RoomID > room.RoomID
 
 Ref: class_schedule.SubjectCode > subject.SubjectCode
 
 Ref: class_schedule.TimeslotID > timeslot.TimeslotID [delete: Cascade]
 
-Ref: gradelevel.ProgramID > program.ProgramID [delete: Set Null]
+Ref: gradelevel.ProgramID > program.ProgramID
 
-Ref: subject.ProgramID > program.ProgramID [delete: Set Null]
+Ref: subject.ProgramID > program.ProgramID
 
 Ref: teachers_responsibility.GradeID > gradelevel.GradeID [delete: Cascade]
 

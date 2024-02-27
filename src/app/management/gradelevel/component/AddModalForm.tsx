@@ -13,9 +13,10 @@ import api from "@/libs/axios";
 import type { gradelevel } from "@prisma/client";
 type props = {
   closeModal: any;
+  openSnackBar:any
   mutate: Function;
 };
-function AddModalForm({ closeModal, mutate }: props) {
+function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([
     {
@@ -164,27 +165,22 @@ function AddModalForm({ closeModal, mutate }: props) {
                     />
                   </div> */}
                   <div className="relative flex flex-col gap-2">
-                    <NumberField
-                      width="auto"
-                      height="auto"
-                      placeHolder="ex. 5"
-                      label="มัธยมศึกษาปีที่ (Year):"
-                      value={gradeLevel.Year}
-                      borderColor={
-                        isEmptyData &&
-                        (gradeLevel.Year < 1 ||
-                          gradeLevel.Year > 6 ||
-                          gradeLevel.Year == null)
-                          ? "#F96161"
-                          : ""
-                      }
-                      handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                    <label className="text-sm font-bold">
+                      มัธยมปีที่ (Year):
+                    </label>
+                    <Dropdown
+                      data={[1, 2, 3, 4, 5, 6]}
+                      renderItem={({ data }): JSX.Element => (
+                        <li className="w-full">{data}</li>
+                      )}
+                      width={150}
+                      height={40}
+                      currentValue={gradeLevel.Year}
+                      placeHolder={"ตัวเลือก"}
+                      handleChange={(value: number) => {
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
-                            index === ind
-                              ? { ...item, Year: parseInt(value) || null }
-                              : item
+                            index === ind ? { ...item, Year: value } : item
                           )
                         );
                       }}
@@ -229,10 +225,16 @@ function AddModalForm({ closeModal, mutate }: props) {
                       </div>
                     ) : null}
                   </div>
-
-                  <div className="relative flex flex-col gap-2">
+                  
+                  {
+                    (!gradeLevel.Year || !gradeLevel.Number)
+                    ?
+                    null
+                    :
+                    <p className="relative flex flex-col gap-2 mt-7 text-gray-400">
                     ชั้น ม.{gradeLevel.Year + "/" + gradeLevel.Number}
-                  </div>
+                    </p>
+                  }
                   {/* <div className="relative flex flex-col gap-2">
                     <TextField
                       width="auto"

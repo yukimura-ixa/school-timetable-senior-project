@@ -18,7 +18,7 @@ type props = {
 function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   const addData = async (data: room[]) => {
     console.log(data);
-    const response = await api.post("/rooms", data);
+    const response = await api.post("/room", data);
     console.log(response);
     if (response.status === 200) {
       mutate();

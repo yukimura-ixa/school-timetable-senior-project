@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // body: { Prefix, Firstname, Lastname, Department, Email}
+  // body: { Prefix, Firstname, Lastname, Department, Email }
   try {
     const body = await request.json()
     const data = await Promise.all(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
             Firstname: element.Firstname,
             Lastname: element.Lastname,
             Department: element.Department,
-            Email: element.Email,
+            Email: element.Email
           },
         })
       })
@@ -70,7 +70,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  // body: { TeacherID, Prefix, Firstname, Lastname, Department }
+  // body: { TeacherID, Prefix, Firstname, Lastname, Department, Email }
   try {
     const body = await request.json()
     const data = await Promise.all(
@@ -84,7 +84,7 @@ export async function PUT(request: NextRequest) {
             Firstname: element.Firstname,
             Lastname: element.Lastname,
             Department: element.Department,
-            Email: element.Email,
+            Email: element.Email
           },
         })
       })

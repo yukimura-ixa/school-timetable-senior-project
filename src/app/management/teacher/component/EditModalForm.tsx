@@ -51,7 +51,7 @@ function EditModalForm({
         data.Prefix == "" ||
         data.Firstname == "" ||
         data.Lastname == "" ||
-        data.Department == ""
+        data.Department == "" || data.Email == ""
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -221,6 +221,35 @@ function EditModalForm({
                     </div>
                   ) : null}
                 </div>
+                <div className="flex flex-col gap-2 h-30 relative">
+                    <TextField
+                      width="auto"
+                      height="auto"
+                      placeHolder="ex. example@example.com"
+                      label="อีเมล (Email) :"
+                      value={item.Email}
+                      borderColor={
+                        isEmptyData && item.Email.length == 0
+                          ? "#F96161"
+                          : ""
+                      }
+                      handleChange={(e: any) => {
+                        let value: string = e.target.value;
+                        setEditData(() =>
+                          editData.map((item, ind) =>
+                            index === ind ? { ...item, Email: value } : item
+                          )
+                        );
+                      }}
+                      disabled={false}
+                    />
+                    {isEmptyData && item.Email.length == 0 ? (
+                      <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                        <BsInfo className="bg-red-500 rounded-full fill-white" />
+                        <p className="text-red-500 text-sm">ต้องการ</p>
+                      </div>
+                    ) : null}
+                  </div>
               </div>
             </React.Fragment>
           ))}

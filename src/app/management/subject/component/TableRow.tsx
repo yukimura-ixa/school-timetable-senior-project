@@ -28,15 +28,15 @@ function TableRow({
           className="cursor-pointer"
           type="checkbox"
           name="itemdata"
-          onChange={() => clickToSelect(index)}
-          checked={checkedList.includes(index)}
+          onChange={() => clickToSelect(item.SubjectCode)}
+          checked={checkedList.includes(item.SubjectCode)}
         />
       </th>
       {["SubjectCode", "SubjectName", "Credit", "Category"].map((key) => (
         <td
           key={key}
           className="px-6 whitespace-nowrap select-none"
-          onClick={() => clickToSelect(index)}
+          onClick={() => clickToSelect(item.SubjectCode)}
         >
           {key === "Credit" ? subjectCreditTitles[item[key]] : item[key]}
         </td>
@@ -47,14 +47,14 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              setEditModalActive(true), clickToSelect(index);
+              setEditModalActive(true), clickToSelect(item.SubjectCode);
             }}
           />
           <TbTrash
             className="text-red-500"
             size={18}
             onClick={() => {
-              setDeleteModalActive(true), clickToSelect(index);
+              setDeleteModalActive(true), clickToSelect(item.SubjectCode);
             }}
           />
         </td>

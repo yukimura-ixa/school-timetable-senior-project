@@ -36,11 +36,11 @@ function ConfirmDeleteModal({
   };
   const removeMultiData = async (data: room[], checkedList) => {
     const deleteData = data
-      .filter((item, index) => checkedList.includes(index))
+      .filter((item, index) => checkedList.includes(item.RoomID))
       .map((item) => item.RoomID);
 
     try {
-      const response = await api.delete("/rooms", {
+      const response = await api.delete("/room", {
         data: deleteData,
       });
       if (response.status === 200) {

@@ -631,7 +631,7 @@ function TimeSlot(props: Props) {
             </div>
             <div className="flex gap-3 items-center">
               <div className="flex gap-3 items-center">
-                <div className="w-6 h-6 bg-white border-dashed border-2 rounded border-gray-500" />
+                <div className="w-6 h-6 bg-white border border-dashed rounded border-gray-500" />
                 <p className="text-xs select-none">คาบว่าง</p>
               </div>
               <div className="flex gap-3 items-center">
@@ -639,13 +639,13 @@ function TimeSlot(props: Props) {
                 <p className="text-xs select-none">คาบพัก</p>
               </div>
               <div className="flex gap-3 items-center">
-                <div className="w-6 h-6 bg-white border-green-300 border rounded flex items-center justify-center">
+                <div className="w-6 h-6 bg-white border-green-300 border border-dashed rounded flex items-center justify-center">
                   <AddCircleIcon style={{ width: "12px", color: "#10b981" }} />
                 </div>
                 <p className="text-xs select-none">เพิ่มคาบ</p>
               </div>
               <div className="flex gap-3 items-center">
-                <div className="w-6 h-6 bg-white border-blue-300 border rounded flex items-center justify-center">
+                <div className="w-6 h-6 bg-white border-blue-300 border border-dashed rounded flex items-center justify-center">
                   <ChangeCircleIcon
                     style={{ width: "12px", color: "#345eeb" }}
                     className="rotate-90"

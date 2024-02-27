@@ -13,7 +13,7 @@ function TeacherManage() {
         <Loading />
       ) : (
         <TeacherTable
-          tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ"]}
+          tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ", "อีเมล"]}
           tableData={data}
           mutate={mutate} 
         />

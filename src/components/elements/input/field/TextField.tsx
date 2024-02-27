@@ -30,7 +30,7 @@ function TextField({
     <div className="flex flex-col text-left">
       <label className="text-sm font-bold">{label}</label>
       <input
-        className="rounded text-field px-[15px] py-[10px] text-sm placeholder:text-sm"
+        className="rounded text-field mt-2 px-[15px] py-[10px] text-sm placeholder:text-sm"
         type='text'
         style={textFieldStyleProperty}
         placeholder={placeHolder}

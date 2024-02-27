@@ -115,7 +115,7 @@ function EditModalForm({
                   <p className="text-sm font-bold">รายการที่</p>
                   <p>{index + 1}</p>
                 </div>
-                <div className="relative flex flex-col gap-2">
+                {/* <div className="relative flex flex-col gap-2">
                   <TextField
                     width="auto"
                     height="auto"
@@ -142,7 +142,7 @@ function EditModalForm({
                       <p className="text-red-500 text-sm">ต้องการ</p>
                     </div>
                   ) : null}
-                </div>
+                </div> */}
                 <div className="relative flex flex-col gap-2">
                   <TextField
                     width="auto"

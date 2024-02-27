@@ -24,6 +24,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
       Firstname: "",
       Lastname: "",
       Department: "",
+      Email: "",
     },
   ]);
 
@@ -42,6 +43,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
       Firstname: "",
       Lastname: "",
       Department: "",
+      Email: ""
     };
     setTeachers(() => [...teachers, newTeacher]);
   };
@@ -57,7 +59,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
         data.Prefix == "" ||
         data.Firstname == "" ||
         data.Lastname == "" ||
-        data.Department == ""
+        data.Department == "" ||
+        data.Email == ""
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -247,6 +250,35 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                       }}
                     />
                     {isEmptyData && teacher.Department.length == 0 ? (
+                      <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                        <BsInfo className="bg-red-500 rounded-full fill-white" />
+                        <p className="text-red-500 text-sm">ต้องการ</p>
+                      </div>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-col gap-2 h-30 relative">
+                    <TextField
+                      width="auto"
+                      height="auto"
+                      placeHolder="ex. example@example.com"
+                      label="อีเมล (Email) :"
+                      value={teacher.Email}
+                      borderColor={
+                        isEmptyData && teacher.Email.length == 0
+                          ? "#F96161"
+                          : ""
+                      }
+                      handleChange={(e: any) => {
+                        let value: string = e.target.value;
+                        setTeachers(() =>
+                          teachers.map((item, ind) =>
+                            index === ind ? { ...item, Email: value } : item
+                          )
+                        );
+                      }}
+                      disabled={false}
+                    />
+                    {isEmptyData && teacher.Email.length == 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

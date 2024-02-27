@@ -47,17 +47,17 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };
-  const clickToSelect = (index: number) => {
-    //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม index ลงไปใน checkList
+  const clickToSelect = (itemID: number) => {
+    //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม itemID ลงไปใน checkList
     setCheckedList(() =>
-      //ก่อนอื่นเช็คว่า index ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
+      //ก่อนอื่นเช็คว่า itemID ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
       //ขยาย...เพราะเราต้องติ๊กเข้าติ๊กออก ต้อง toggle ค่า
-      checkedList.includes(index) //คำสั่ง includes return เป็น boolean
+      checkedList.includes(itemID) //คำสั่ง includes return เป็น boolean
         ? //เมื่อเป็นจริง (มีการติ๊กในแถวนั้นๆมาก่อนแล้ว แล้วกดติ๊กซ้ำ)
-          //ทำการวาง array ทับโดยการ filter index นั้นออกไป
-          checkedList.filter((item) => item != index)
-        : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม index ที่ติ๊กเข้าไป
-          [...checkedList, index]
+          //ทำการวาง array ทับโดยการ filter itemID นั้นออกไป
+          checkedList.filter((item) => item != itemID)
+        : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม itemID ที่ติ๊กเข้าไป
+          [...checkedList, itemID]
     );
   };
   useEffect(() => {
@@ -177,7 +177,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           }}
           openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
-          data={tableData.filter((item, index) => checkedList.includes(index))}
+          data={tableData.filter((item, index) => checkedList.includes(item.TeacherID))}
           mutate={mutate}
         />
       ) : null}
@@ -193,7 +193,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
                 <BsCheckLg className="fill-cyan-500" />
                 <p className="text-cyan-500 text-sm">
                   {checkedList.length === tableData.length
-                    ? `เลือกท้ังหมด (${checkedList.length})`
+                    ? `เลือกทั้งหมด (${checkedList.length})`
                     : `เลือก (${checkedList.length})`}
                 </p>
               </div>
@@ -223,7 +223,10 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             value={setSearchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
-            <p className="text-green-500 text-sm">
+            <p className="text-green-500 text-sm" onClick={() => {
+              console.log(teacherData)
+              console.log(checkedList)
+              }}>
               ทั้งหมด {teacherData.length} รายการ
             </p>
           </div>
@@ -280,6 +283,13 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
                 </th>
               </Fragment>
             ))}
+            {checkedList.length > 0 
+            ?
+            null
+            :
+            <th className="w-20 px-6">
+            </th>
+            }
           </tr>
         </thead>
         <tbody className="text-sm">
