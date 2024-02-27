@@ -23,7 +23,7 @@ function SelectSubject(props: Props) {
   const teacherIDpath = teacherIDs.join("&TeacherID=");
   const respData = useSWR(
     teacherIDs.length > 0
-      ? `assign/all?Semester=${semester}&AcademicYear=${academicYear}&TeacherID=${teacherIDpath}`
+      ? `assign/getLockedResp?Semester=${semester}&AcademicYear=${academicYear}&TeacherID=${teacherIDpath}`
       : [],
     fetcher
   );

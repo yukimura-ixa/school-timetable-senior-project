@@ -79,3 +79,14 @@ export async function GET(request: NextRequest) {
     }
 }
 
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json()
+        
+        return NextResponse.json(body)
+    } catch (error) {
+        console.log(error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+}
+

@@ -10,7 +10,7 @@ import type { room, teacher, timeslot } from "@prisma/client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import api from "@/libs/axios";
 import { enqueueSnackbar } from "notistack";
-
+//TODO: เช็คหน่วยกิตวิชาล็อกคาบ
 type Props = {
   closeModal: any;
   data?: any;

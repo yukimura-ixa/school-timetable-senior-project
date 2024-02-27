@@ -10,11 +10,12 @@ export const useClassData = (AcademicYear: number, Semester: number, TeacherID?:
     path += `&TeacherID=${TeacherID}`
   }
   preload(path, fetcher)
-  const { data, error, mutate } = useSWR<class_schedule[]>(path, fetcher)
+  const { data, error, mutate, isValidating } = useSWR<class_schedule[]>(path, fetcher)
 
   return {
     data: data ?? [],
     isLoading: !error && !data,
+    isValidating,
     error,
     mutate,
   }

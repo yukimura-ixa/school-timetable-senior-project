@@ -1,9 +1,7 @@
-import React from 'react'
 import TimeSlot from '../component/TimeSlot'
 
-type Props = {}
 
-const TeacherArrange = (props: Props) => {
+const TeacherArrange = () => {
   return (
     <TimeSlot />
   )

@@ -2,6 +2,11 @@
   "extends": [
     "next/core-web-vitals",
     "plugin:testing-library/react",
-    "plugin:jest-dom/recommended","next/babel"
+    "plugin:jest-dom/recommended",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
+    "prettier"
   ]
 }
