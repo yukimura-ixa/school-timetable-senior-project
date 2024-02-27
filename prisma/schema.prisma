@@ -20,7 +20,7 @@ model class_schedule {
   GradeID     String
   IsLocked    Boolean    @default(false)
   gradelevel  gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
-  room        room?      @relation(fields: [RoomID], references: [RoomID], onDelete: SetNull)
+  room        room?      @relation(fields: [RoomID], references: [RoomID])
   subject     subject    @relation(fields: [SubjectCode], references: [SubjectCode])
   timeslot    timeslot   @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade)
 
@@ -36,7 +36,7 @@ model gradelevel {
   Number                  Int
   ProgramID               Int?
   class_schedule          class_schedule[]
-  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: SetNull)
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID])
   teachers_responsibility teachers_responsibility[]
 
   @@index([ProgramID], map: "gradelevel_ProgramID_fkey")
@@ -57,7 +57,7 @@ model subject {
   Category                String                    @default("-")
   ProgramID               Int?
   class_schedule          class_schedule[]
-  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], onDelete: SetNull)
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID])
   teachers_responsibility teachers_responsibility[]
 
   @@index([ProgramID], map: "subject_ProgramID_fkey")
@@ -78,6 +78,7 @@ model teacher {
   Firstname               String
   Lastname                String
   Department              String                    @default("-")
+  Email                   String                    @default("-")
   teachers_responsibility teachers_responsibility[]
 }
 
