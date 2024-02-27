@@ -67,7 +67,7 @@ function LockSchedule(props: Props) {
             <Fragment key={`${item.SubjectCode}${item.DayOfWeek}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
                 <div className="flex justify-between items-center gap-3">
-                  <p className="text-lg font-medium">
+                  <p className="text-lg font-medium" onClick={() => console.log(lockData)}>
                     {item.SubjectCode} - {item.SubjectName}
                   </p>
                   <div className="flex gap-3">
@@ -92,7 +92,7 @@ function LockSchedule(props: Props) {
                   คาบที่ :{" "}
                   {item.timeslots
                     .map((item) =>
-                      item.TimeslotID.substring(item.TimeslotID.length - 1)
+                      item.TimeslotID.substring(item.TimeslotID.length > 11 ? item.TimeslotID.length - 2 : item.TimeslotID.length - 1)
                     )
                     .join(",")}
                 </p>

@@ -10,6 +10,10 @@ import { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
 import { useClassData } from "@/app/_hooks/classData";
 
+import { Select } from '@mui/base/Select';
+import { Option } from '@mui/base/Option';
+
+
 function ChooseTeacher() {
   const router = useRouter();
   const pathName = usePathname();
@@ -100,7 +104,6 @@ function ChooseTeacher() {
           </div>
           {!responsibilityData.data ? null : (
             <>
-              {/* Teacher name */}
               <div className="flex w-full h-[55px] justify-between p-4 items-center border border-[#EDEEF3]">
                 <div className="flex items-center gap-4">
                   <p className="text-md">ชื่อ - นามสกุล</p>
