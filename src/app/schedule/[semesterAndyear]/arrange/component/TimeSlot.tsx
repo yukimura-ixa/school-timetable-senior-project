@@ -33,22 +33,38 @@ type Props = {};
 // TODO: เช็ควิชาที่ map กับหน่วยกิตให้สัมพันธ์กับวิชาที่อยู่ในตารางหลังจากทำ TODO ด้านบน
 // TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
 //! คาบล็อกชอบไม่โหลด ต้องอาศัยการกด reload อยู่ตลอด;
+
 function TimeSlot(props: Props) {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-"
-  ); //from "1-2566" to ["1", "2566"]
-  const allClassData = useClassData(parseInt(academicYear), parseInt(semester));
   const searchTeacherID = useSearchParams().get("TeacherID");
   const searchGradeID = useSearchParams().get("GradeID");
-  // const fetchAllClassData = useClassData(
-  //   parseInt(academicYear),
-  //   parseInt(semester),
-  //   parseInt(searchTeacherID)
-  // );
+  const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
+  const [storeSelectedSubject, setStoreSelectedSubject] = useState({}); //เก็บวิชาที่เรากดเลือก
+  const [subjectPayload, setSubjectPayload] = useState({
+    timeslotID: "",
+    selectedSubject: {},
+  }); //ใช้กับตอนเพิ่มห้องเรียนให้วิชา
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-",
+  ); //from "1-2566" to ["1", "2566"]
+  const checkConflictData = useSWR(
+    () =>
+      "/class/checkConflict?AcademicYear=" +
+      academicYear +
+      "&Semester=SEMESTER_" +
+      semester +
+      "&TeacherID=" +
+      searchTeacherID,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
   const fetchAllClassData = useSWR(
-    () => `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${searchTeacherID}`,fetcher,{revalidateOnFocus : false}
-  )
+    () =>
+      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${searchTeacherID}`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
   // const lockTimeslotData = useLockData(
   //   parseInt(academicYear),
   //   parseInt(semester)
@@ -56,7 +72,8 @@ function TimeSlot(props: Props) {
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => `/teacher?TeacherID=` + searchTeacherID,
-    fetcher,{revalidateOnFocus : false}
+    fetcher,
+    { revalidateOnFocus: false },
   );
   const fetchAllSubject = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
@@ -67,7 +84,8 @@ function TimeSlot(props: Props) {
       semester +
       `&TeacherID=` +
       searchTeacherID,
-    fetcher,{revalidateOnFocus : false}
+    fetcher,
+    { revalidateOnFocus: false },
   );
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
@@ -76,7 +94,8 @@ function TimeSlot(props: Props) {
       academicYear +
       `&Semester=SEMESTER_` +
       semester,
-    fetcher,{revalidateOnFocus : false}
+    fetcher,
+    { revalidateOnFocus: false },
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [subjectData, setSubjectData] = useState([]); //เก็บวิชากล่องบน
@@ -87,6 +106,7 @@ function TimeSlot(props: Props) {
     Department: "",
     Prefix: "",
     TeacherID: null,
+    Email: "",
   });
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
@@ -104,7 +124,7 @@ function TimeSlot(props: Props) {
         .map((day) => day.DayOfWeek)
         .filter(
           (item, index) =>
-            data.map((day) => day.DayOfWeek).indexOf(item) === index
+            data.map((day) => day.DayOfWeek).indexOf(item) === index,
         )
         .map((item) => ({
           Day: dayOfWeekThai[item],
@@ -120,7 +140,7 @@ function TimeSlot(props: Props) {
             (item.Breaktime == "BREAK_BOTH" ||
               item.Breaktime == "BREAK_JUNIOR" ||
               item.Breaktime == "BREAK_SENIOR") &&
-            item.DayOfWeek == "MON" //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
+            item.DayOfWeek == "MON", //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
         )
         .map((item) => ({
           TimeslotID: item.TimeslotID,
@@ -133,7 +153,7 @@ function TimeSlot(props: Props) {
       };
       let duration = getMinutes(
         new Date(data[0].EndTime).getTime() -
-          new Date(data[0].StartTime).getTime()
+          new Date(data[0].StartTime).getTime(),
       ); //เอาเวลาจบลบเริ่มจะได้ duration
       setTimeSlotData(() => ({
         AllData: data.map((data) => ({ ...data, subject: {} })),
@@ -145,13 +165,15 @@ function TimeSlot(props: Props) {
       }));
     }
   }
-  const [scheduledSubjects, setScheduledSubjects] = useState([]) //วิชาที่อยู่ในตารางอยู่แล้ว
+  const [scheduledSubjects, setScheduledSubjects] = useState([]); //วิชาที่อยู่ในตารางอยู่แล้ว
   function fetchSubject() {
     const data = fetchAllSubject.data; //get data
     const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
     for (const resp of data) {
       let loopCredit = subjectCreditValues[resp.Credit] * 2; //เอาค่าหน่วยกิตมา
-      let filterSubjectLength = scheduledSubjects.filter(item => item.SubjectCode == resp.SubjectCode).length //หาว่าจำนวนคาบอยู่ในตารางเท่าไหร่
+      let filterSubjectLength = scheduledSubjects.filter(
+        (item) => item.SubjectCode == resp.SubjectCode,
+      ).length; //หาว่าจำนวนคาบอยู่ในตารางเท่าไหร่
       if (
         scheduledSubjects
           .map((item) => item.subject.SubjectCode)
@@ -160,7 +182,7 @@ function TimeSlot(props: Props) {
         //ถ้าเจอวิชาที่อยู่ใน timeslot
         loopCredit -= filterSubjectLength;
       }
-      let delTime = loopCredit < 0 ? 0 : loopCredit
+      let delTime = loopCredit < 0 ? 0 : loopCredit;
       for (let i = 0; i < delTime; i++) {
         //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
         mapSubjectByCredit.push(resp);
@@ -169,9 +191,7 @@ function TimeSlot(props: Props) {
     setSubjectData(() =>
       mapSubjectByCredit.map((item, index) => ({ itemID: index + 1, ...item })),
     );
-    console.log("fffff")
   }
-
   useEffect(() => {
     if (!fetchTeacher.isValidating) {
       setTeacherData(() => fetchTeacher.data);
@@ -182,7 +202,8 @@ function TimeSlot(props: Props) {
     if (!fetchAllClassData.isValidating) {
       fetchClassData();
     }
-    if (!fetchAllSubject.isLoading) { //(!fetchAllSubject.isValidating && !fetchAllClassData.isValidating) ใส่อันนี้แทน
+    if (!fetchAllSubject.isLoading) {
+      //(!fetchAllSubject.isValidating && !fetchAllClassData.isValidating) ใส่อันนี้แทน
       fetchSubject();
     }
   }, [
@@ -197,7 +218,7 @@ function TimeSlot(props: Props) {
     let data = puredata.map((item) => ({
       ...item,
       SubjectName: item.subject.SubjectName,
-      RoomName: item.room.RoomName
+      RoomName: item.room.RoomName,
     }));
     let filterLock = data.filter((item) => item.IsLocked);
     let filterNotLock = data.filter((item) => !item.IsLocked);
@@ -205,18 +226,20 @@ function TimeSlot(props: Props) {
     let resFilterLock = []; //เก็บวิชาที่คัดซ้ำแล้ว
     let keepId = []; //สำหรับเก็บ timeSlotID เพื่อเช็คซ้ำ
     for (let i = 0; i < filterLock.length; i++) {
-      if (keepId.length == 0 || !keepId.includes(filterLock[i].TimeslotID)) { //ถ้ายังไม่เคยมีการเช็คมาก่อนหรือยังไม่เจอไอเทมซ้ำ
+      if (keepId.length == 0 || !keepId.includes(filterLock[i].TimeslotID)) {
+        //ถ้ายังไม่เคยมีการเช็คมาก่อนหรือยังไม่เจอไอเทมซ้ำ
         keepId.push(filterLock[i].TimeslotID); //เก็บไอดีที่เคยเพิ่มเอาไว้
         resFilterLock.push({
           ...filterLock[i],
           GradeID: [filterLock[i].GradeID],
         }); //เพิ่มข้อมูลลงไป
-      } else { //ถ้าเจอไอเทมซ้ำ
+      } else {
+        //ถ้าเจอไอเทมซ้ำ
         let tID = filterLock[i].TimeslotID; //get TimeslotID
         resFilterLock = resFilterLock.map((item) =>
           item.TimeslotID == tID //เช็คว่าเจอไอดีไหนให้ map ใส่อันนั้น
             ? { ...item, GradeID: [...item.GradeID, filterLock[i].GradeID] }
-            : item
+            : item,
         );
       }
     }
@@ -293,7 +316,7 @@ function TimeSlot(props: Props) {
     let data = {
       TeacherID: searchTeacherID,
       Schedule: timeSlotData.AllData.filter(
-        (item) => Object.keys(item.subject).length !== 0
+        (item) => Object.keys(item.subject).length !== 0,
       ),
     };
     console.log(data);
@@ -303,11 +326,11 @@ function TimeSlot(props: Props) {
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
-        item.TimeslotID == timeSlotID ? { ...item, subject: subject } : item
+        item.TimeslotID == timeSlotID ? { ...item, subject: subject } : item,
       ),
     })); //map วิชาลงไปใน slot
     setSubjectData(() =>
-      subjectData.filter((item) => item.itemID != subject.itemID)
+      subjectData.filter((item) => item.itemID != subject.itemID),
     ); //เอาวิชาที่ถูกจัดลงออกไป
     setStoreSelectedSubject({}), setYearSelected(null); //หลังจากเพิ่มวิชาแล้วก็ต้องรีการ select วิชา
     setIsActiveModal(false);
@@ -325,7 +348,7 @@ function TimeSlot(props: Props) {
     setTimeSlotData(() => ({
       ...timeSlotData,
       AllData: data.map((item) =>
-        item.TimeslotID == timeSlotID ? { ...item, subject: {} } : item
+        item.TimeslotID == timeSlotID ? { ...item, subject: {} } : item,
       ),
     }));
   };
@@ -333,12 +356,55 @@ function TimeSlot(props: Props) {
     delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
     setSubjectData(() => [...subjectData, subject]);
   };
-  const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
-  const [storeSelectedSubject, setStoreSelectedSubject] = useState({}); //เก็บวิชาที่เรากดเลือก
-  const [subjectPayload, setSubjectPayload] = useState({
-    timeslotID: "",
-    selectedSubject: {},
-  }); //ใช้กับตอนเพิ่มห้องเรียนให้วิชา
+
+  useEffect(() => {
+    if (!checkConflictData.isValidating) {
+      onSelectSubject();
+    }
+  }, [storeSelectedSubject]);
+
+  function onSelectSubject() {
+    console.log(scheduledSubjects)
+    const clearScheduledData = () => {
+      setTimeSlotData({
+        ...timeSlotData,
+        AllData: timeSlotData.AllData.map((item) => (
+          item.subject.Scheduled ? {...item, subject : {}} : item
+        )
+        ),
+      });
+    }
+    if(Object.keys(storeSelectedSubject).length == 0){
+      clearScheduledData()
+    }
+    else{
+      const selectedGradeID = storeSelectedSubject.GradeID;
+      const scheduledGradeIDTimeslot = checkConflictData.data
+        .filter((item) => item.GradeID == selectedGradeID)
+        .map((slot) => ({
+          ...slot,
+          Scheduled: true,
+          SubjectName: slot.subject.SubjectName,
+          RoomName: slot.room.RoomName,
+        }));
+      if(scheduledGradeIDTimeslot.length > 0){
+        clearScheduledData()
+        setTimeSlotData({
+          ...timeSlotData,
+          AllData: timeSlotData.AllData.map((item) => (
+            Object.keys(item.subject).length !== 0 ? item :
+            scheduledGradeIDTimeslot.map(slot => slot.TimeslotID).includes(item.TimeslotID)
+            ? {...item, subject : scheduledGradeIDTimeslot.filter(data => data.TimeslotID == item.TimeslotID)[0]}
+            : item
+          )
+          ),
+        });
+      }
+      else{
+        clearScheduledData()
+      }
+    }
+  }
   const handleDragStart = (result) => {
     const { source } = result;
     let index = source.index;
@@ -351,13 +417,14 @@ function TimeSlot(props: Props) {
       //ถ้าลากวิชาเพื่อสลับวิชา
       let timeslotID = source.droppableId; //นำ timeslotID ขึ้นมา
       let getSubjectFromTimeslot = timeSlotData.AllData.filter(
-        (item) => item.TimeslotID == timeslotID
+        (item) => item.TimeslotID == timeslotID,
       )[0]; //เอาวิชาที่อยู่ใน timeslot ออกมา
-      if (Object.keys(changeTimeSlotSubject).length == 0) { //ถ้า action คือการเพิ่มวิชา
+      if (Object.keys(changeTimeSlotSubject).length == 0) {
+        //ถ้า action คือการเพิ่มวิชา
         clickOrDragToChangeTimeSlot(
           getSubjectFromTimeslot.subject,
           timeslotID,
-          false
+          false,
         );
       }
     }
@@ -380,12 +447,12 @@ function TimeSlot(props: Props) {
       //ถ้าเป็นการลากสลับ/เปลี่ยนช่อง
       let desti_tID = destination.droppableId; //นำ timeslotID ปลายทางขึ้นมา
       let getSubjectFromTimeslot = timeSlotData.AllData.filter(
-        (item) => item.TimeslotID == desti_tID
+        (item) => item.TimeslotID == desti_tID,
       )[0]; //เอาวิชาที่อยู่ใน timeslot ออกมา
       clickOrDragToChangeTimeSlot(
         getSubjectFromTimeslot.subject,
         desti_tID,
-        false
+        false,
       );
     }
     // console.log(result);
@@ -444,7 +511,7 @@ function TimeSlot(props: Props) {
   const clickOrDragToChangeTimeSlot = (
     subject: object,
     timeslotID: string,
-    isClickToChange: boolean
+    isClickToChange: boolean,
   ) => {
     let checkDulpicateSubject = subject === changeTimeSlotSubject; //เช็คว่ามีการกดวิชาที่เลือกอยู่แล้วหรือไม่
     if (
@@ -454,13 +521,13 @@ function TimeSlot(props: Props) {
       //ถ้ายังไม่มีการกดเพิ่มวิชาหรือมีวิชาที่กดซ้ำแล้ว ให้ set วิชาตามเงื่อนไขของ toggleChange
       let year = subject.gradelevel.Year;
       setIsCilckToChangeSubject(() =>
-        checkDulpicateSubject ? false : isClickToChange
+        checkDulpicateSubject ? false : isClickToChange,
       ); //DRAG = false, CLICK = true
       setChangeTimeSlotSubject(() => (checkDulpicateSubject ? {} : subject));
       setTimeslotIDtoChange(() =>
         checkDulpicateSubject
           ? { source: "", destination: "" }
-          : { ...timeslotIDtoChange, source: timeslotID }
+          : { ...timeslotIDtoChange, source: timeslotID },
       );
       setYearSelected(checkDulpicateSubject ? null : year);
     } else if (timeslotIDtoChange.source !== "") {
@@ -496,19 +563,19 @@ function TimeSlot(props: Props) {
           ? { ...item, subject: destinationSubj }
           : item.TimeslotID == destinationTimeslotID
             ? { ...item, subject: sourceSubj }
-            : item
+            : item,
       ),
     })); //map สลับวิชา
   };
   const checkBreakTimeOutOfRange = (
     breakTimeState: string,
-    year: number
+    year: number,
   ): boolean => {
     //เช็คคาบพักจากการกดเปลี่ยนวิชานอกคาบพัก
     //สรุปสั้นๆเป็นตัวอย่าง => การเช็คของฟังก์ชั่นนี้ก็คือ ถ้าเลือกสลับวิชามอต้นที่อยู่ในคาบพัก(วิชามอต้นจะอยู่ในคาบพักมอปลาย) จะแลกได้แค่วิชาของมอต้นเท่านั้น แต่ถ้าเลือกสลับวิชามอต้นที่อยู่นอกคาบพักก็จะแลกไม่ได้แค่วิชาที่อยู่ในคาบพักมอต้น
     if (timeslotIDtoChange.source !== "") {
       let getBreaktime = timeSlotData.AllData.filter(
-        (item) => item.TimeslotID == timeslotIDtoChange.source
+        (item) => item.TimeslotID == timeslotIDtoChange.source,
       )[0].Breaktime; //หาสถานะของคาบเรียนจากการกดปุ่มเปลี่ยนที่ TimeslotID นั้นๆ
       if (getBreaktime == "BREAK_JUNIOR") {
         //ถ้ากดโดนคาบพักมอต้น
@@ -529,7 +596,7 @@ function TimeSlot(props: Props) {
     //ใช้กับ isDropDisabled
     if (timeslotIDtoChange.source !== "") {
       let getBreaktime = timeSlotData.AllData.filter(
-        (item) => item.TimeslotID == timeslotIDtoChange.source
+        (item) => item.TimeslotID == timeslotIDtoChange.source,
       )[0].Breaktime; //หาสถานะของคาบเรียนจากการกดปุ่มเปลี่ยนที่ TimeslotID นั้นๆ
       let findYearRange = [1, 2, 3].includes(yearSelected)
         ? [1, 2, 3]
@@ -551,12 +618,13 @@ function TimeSlot(props: Props) {
   };
   const timeSlotCssClassName = (
     breakTimeState: string,
-    subjectInSlot: object
+    subjectInSlot: object,
   ) => {
     //เช็คคาบพักเมื่อไมีมีการกดเลือกวิชา (ตอนยังไม่มี action ไรเกิดขึ้น)
     let condition: boolean =
       Object.keys(storeSelectedSubject).length <= 1 &&
-      Object.keys(changeTimeSlotSubject).length == 0 && //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
+      Object.keys(changeTimeSlotSubject).length == 0 
+      && //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
       (breakTimeState == "BREAK_BOTH" ||
         breakTimeState == "BREAK_JUNIOR" ||
         breakTimeState == "BREAK_SENIOR") &&
@@ -571,7 +639,7 @@ function TimeSlot(props: Props) {
                                 Object.keys(subjectInSlot).length !== 0
                                   ? displayErrorChangeSubject(
                                       breakTimeState,
-                                      subjectInSlot.gradelevel.Year
+                                      subjectInSlot.gradelevel.Year,
                                     )
                                   : false
                               )
@@ -583,7 +651,7 @@ function TimeSlot(props: Props) {
                                 : "border-dashed" //ถ้าไม่มีวิชาอยู่ในช่อง จะให้แสดงเป็นเส้นกรอบขีดๆเอาไว้
                       } 
                       duration-200`;
-    return condition
+    return condition || subjectInSlot.Scheduled
       ? disabledSlot
       : typeof subjectInSlot.GradeID !== "string" &&
           Object.keys(subjectInSlot).length !== 0
@@ -598,7 +666,7 @@ function TimeSlot(props: Props) {
   };
   const displayErrorChangeSubject = (
     Breaktime: string,
-    Year: number
+    Year: number,
   ): boolean => {
     // Object.keys(storeSelectedSubject).length !== 0 ? 'none' //ถ้าเกิดกดเลือกวิชาเพื่อจะเพิ่มลง จะไม่แสดงปุ่มสลับวิชา
     // : //เงื่อนไขต่อมา ถ้ามีการกดเพื่อที่จะสลับวิชาแต่เลือกวิชาที่อยู่ใน slot คาบพัก จะให้ปุ่มแสดงแค่แถวพักแถวเดียว (กดเลือกชั้นปีมอปลาย แต่อยู่ใน break มอต้น มันจะ return false)
@@ -811,7 +879,7 @@ function TimeSlot(props: Props) {
                         </span>
                       </td>
                       {timeSlotData.AllData.filter(
-                        (item) => dayOfWeekThai[item.DayOfWeek] == day.Day
+                        (item) => dayOfWeekThai[item.DayOfWeek] == day.Day,
                       ).map((item, index) => (
                         <Fragment key={`DROPZONE${item.TimeslotID}`}>
                           <StrictModeDroppable
@@ -829,7 +897,7 @@ function TimeSlot(props: Props) {
                               (item.Breaktime == "NOT_BREAK" &&
                               Object.keys(item.subject).length !== 0
                                 ? checkRelatedYearDuringDragging(
-                                    item.subject.gradelevel.Year
+                                    item.subject.gradelevel.Year,
                                   )
                                 : false)
                             }
@@ -844,7 +912,7 @@ function TimeSlot(props: Props) {
                                 }}
                                 className={timeSlotCssClassName(
                                   item.Breaktime,
-                                  item.subject
+                                  item.subject,
                                 )}
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
@@ -884,7 +952,7 @@ function TimeSlot(props: Props) {
                                         clickOrDragToChangeTimeSlot(
                                           item.subject,
                                           item.TimeslotID,
-                                          true
+                                          true,
                                         )
                                       }
                                     />
@@ -933,7 +1001,7 @@ function TimeSlot(props: Props) {
                                               <b className="text-xs">
                                                 {item.subject.SubjectName.substring(
                                                   0,
-                                                  8
+                                                  8,
                                                 )}
                                                 ...
                                               </b>
@@ -947,14 +1015,14 @@ function TimeSlot(props: Props) {
                                                       parseInt(
                                                         item.subject.GradeID.substring(
                                                           1,
-                                                          2
-                                                        )
+                                                          2,
+                                                        ),
                                                       ) < 10
                                                         ? item.subject
                                                             .GradeID[2]
                                                         : item.subject.GradeID.substring(
                                                             1,
-                                                            2
+                                                            2,
                                                           )
                                                     }`}
                                               </b>
@@ -967,7 +1035,7 @@ function TimeSlot(props: Props) {
                                                 clickOrDragToChangeTimeSlot(
                                                   item.subject,
                                                   item.TimeslotID,
-                                                  true
+                                                  true,
                                                 ),
                                                   console.log(item);
                                               }}
@@ -979,15 +1047,15 @@ function TimeSlot(props: Props) {
                                                     : "#2563eb",
                                                 display:
                                                   Object.keys(
-                                                    storeSelectedSubject
+                                                    storeSelectedSubject,
                                                   ).length !== 0 ||
                                                   typeof item.subject
                                                     .GradeID !== "string"
-                                                    ? "none"
+                                                    ? "none" : item.subject.Scheduled ? "none"
                                                     : displayErrorChangeSubject(
                                                           item.Breaktime,
                                                           item.subject
-                                                            .gradelevel.Year
+                                                            .gradelevel.Year,
                                                         )
                                                       ? "none"
                                                       : "flex",
@@ -1002,7 +1070,7 @@ function TimeSlot(props: Props) {
                                             <ErrorIcon
                                               onMouseEnter={() =>
                                                 setShowErrorMsgByTimeslotID(
-                                                  item.TimeslotID
+                                                  item.TimeslotID,
                                                 )
                                               }
                                               onMouseLeave={() =>
@@ -1012,15 +1080,15 @@ function TimeSlot(props: Props) {
                                                 color: "#ef4444",
                                                 display:
                                                   Object.keys(
-                                                    storeSelectedSubject
+                                                    storeSelectedSubject,
                                                   ).length !== 0 ||
                                                   typeof item.subject
                                                     .GradeID !== "string"
-                                                    ? "none"
+                                                    ? "none" : item.subject.Scheduled ? "none"
                                                     : displayErrorChangeSubject(
                                                           item.Breaktime,
                                                           item.subject
-                                                            .gradelevel.Year
+                                                            .gradelevel.Year,
                                                         )
                                                       ? "flex"
                                                       : "none",
@@ -1030,7 +1098,7 @@ function TimeSlot(props: Props) {
                                             <div
                                               onMouseEnter={() =>
                                                 setShowErrorMsgByTimeslotID(
-                                                  item.TimeslotID
+                                                  item.TimeslotID,
                                                 )
                                               }
                                               onMouseLeave={() =>
@@ -1053,7 +1121,7 @@ function TimeSlot(props: Props) {
                                               onClick={() =>
                                                 removeSubjectFromSlot(
                                                   item.subject,
-                                                  item.TimeslotID
+                                                  item.TimeslotID,
                                                 )
                                               }
                                               style={{
@@ -1063,9 +1131,9 @@ function TimeSlot(props: Props) {
                                                     .GradeID !== "string"
                                                     ? "none"
                                                     : Object.keys(
-                                                          changeTimeSlotSubject
+                                                          changeTimeSlotSubject,
                                                         ).length !== 0
-                                                      ? "none"
+                                                      ? "none" : item.subject.Scheduled ? "none"
                                                       : "flex",
                                               }}
                                               className="cursor-pointer hover:fill-red-600 bg-white rounded-full duration-300 absolute right-[-11px] top-[-10px]"
@@ -1073,12 +1141,12 @@ function TimeSlot(props: Props) {
                                             <HttpsIcon
                                               onMouseEnter={() =>
                                                 setShowLockDataMsgByTimeslotID(
-                                                  item.TimeslotID
+                                                  item.TimeslotID,
                                                 )
                                               }
                                               onMouseLeave={() =>
                                                 setShowLockDataMsgByTimeslotID(
-                                                  ""
+                                                  "",
                                                 )
                                               }
                                               style={{
@@ -1094,12 +1162,12 @@ function TimeSlot(props: Props) {
                                             <div
                                               onMouseEnter={() =>
                                                 setShowLockDataMsgByTimeslotID(
-                                                  item.TimeslotID
+                                                  item.TimeslotID,
                                                 )
                                               }
                                               onMouseLeave={() =>
                                                 setShowLockDataMsgByTimeslotID(
-                                                  ""
+                                                  "",
                                                 )
                                               }
                                               style={{

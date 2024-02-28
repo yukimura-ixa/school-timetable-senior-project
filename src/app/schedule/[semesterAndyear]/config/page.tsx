@@ -21,7 +21,7 @@ type Props = {};
 function TimetableConfigValue({}: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-"
+    "-",
   ); //from "1-2566" to ["1", "2566"]
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [addMiniBreak, setAddMiniBreak] = useState<boolean>(false);
@@ -38,15 +38,16 @@ function TimetableConfigValue({}: Props) {
     Duration: 50,
     TimeslotPerDay: 10,
     MiniBreak: {
-      Duration : 10,
-      SlotNumber : 2
+      Duration: 10,
+      SlotNumber: 2,
     },
+    HasMinibreak: false,
   });
   const semesterSplit = (params.semesterAndyear as string).split("-"); //from "1-2566" to ["1", "2566"]
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
   const timeslotData = useTimeslotData(
     parseInt(semesterSplit[1]),
-    parseInt(semesterSplit[0])
+    parseInt(semesterSplit[0]),
   );
   useEffect(() => {
     setIsSetTimeslot(() => timeslotData.data.length > 0);
@@ -78,7 +79,11 @@ function TimetableConfigValue({}: Props) {
     setConfigData(() => ({ ...configData, TimeslotPerDay: currentValue }));
   };
   const handleChangeDuration = (currentValue: number) => {
-    setConfigData(() => ({ ...configData, Duration: currentValue, BreakDuration: currentValue }));
+    setConfigData(() => ({
+      ...configData,
+      Duration: currentValue,
+      BreakDuration: currentValue,
+    }));
   };
   // const handleChangeBreakDuration = (currentValue: number) => {
   //   setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
@@ -92,6 +97,19 @@ function TimetableConfigValue({}: Props) {
       },
     }));
   };
+
+  function handleDeleteTimeslot() {
+    try {
+      const response = api.delete("/timeslot", {
+        data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
+      });
+      if (response.status === 200) {
+        snackBarHandle("DELETED");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
   const handleChangeBreakTimeS = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
@@ -102,7 +120,13 @@ function TimetableConfigValue({}: Props) {
     }));
   };
   const handleChangeMiniBreak = (currentValue: number) => {
-    setConfigData(() => ({ ...configData, MiniBreak: {Duration : configData.MiniBreak.Duration, SlotNumber : currentValue} }));
+    setConfigData(() => ({
+      ...configData,
+      MiniBreak: {
+        Duration: configData.MiniBreak.Duration,
+        SlotNumber: currentValue,
+      },
+    }));
   };
   const reset = () => {
     setConfigData(() => ({
@@ -118,20 +142,21 @@ function TimetableConfigValue({}: Props) {
       Duration: 50,
       TimeslotPerDay: 10,
       MiniBreak: {
-        Duration : 10,
-        SlotNumber : 2
+        Duration: 10,
+        SlotNumber: 2,
       },
-    }))
-  }
+      HasMinibreak: addMiniBreak,
+    }));
+  };
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const saved = async () => {
     try {
-      const response = await api.post("/timeslot", configData);
-      console.log(response);
-      if (response.status === 200) {
-        snackBarHandle("SAVED");
-      }
+      // const response = await api.post("/timeslot", configData);
+      // if (response.status === 200) {
+      //   snackBarHandle("SAVED");
+      // }
+      console.log(configData);
     } catch (error) {
       console.log(error);
       snackBarHandle("ERROR");
@@ -206,16 +231,22 @@ function TimetableConfigValue({}: Props) {
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
             <BsTable size={25} className="fill-gray-500" />
-            <p onClick={() => console.log(configData)} className="text-md">กำหนดคาบต่อวัน</p>
+            <p onClick={() => console.log(configData)} className="text-md">
+              กำหนดคาบต่อวัน
+            </p>
           </div>
-          {isSetTimeslot ? <p className=" text-gray-600"><b>{configData.TimeslotPerDay}</b> คาบ</p> :
-          <Counter
-            classifier="คาบ"
-            currentValue={configData.TimeslotPerDay}
-            onChange={handleChangeTimeSlotPerDay}
-            isDisabled={isSetTimeslot}
-          />
-          }
+          {isSetTimeslot ? (
+            <p className=" text-gray-600">
+              <b>{configData.TimeslotPerDay}</b> คาบ
+            </p>
+          ) : (
+            <Counter
+              classifier="คาบ"
+              currentValue={configData.TimeslotPerDay}
+              onChange={handleChangeTimeSlotPerDay}
+              isDisabled={isSetTimeslot}
+            />
+          )}
         </div>
         {/* Config duration */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -223,14 +254,18 @@ function TimetableConfigValue({}: Props) {
             <TbTimeDuration45 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดระยะเวลาต่อคาบ</p>
           </div>
-          {isSetTimeslot ? <p className=" text-gray-600"><b>{configData.Duration}</b> นาที</p> :
-          <Counter
-            classifier="นาที"
-            currentValue={configData.Duration}
-            onChange={handleChangeDuration}
-            isDisabled={isSetTimeslot}
-          />
-          }
+          {isSetTimeslot ? (
+            <p className=" text-gray-600">
+              <b>{configData.Duration}</b> นาที
+            </p>
+          ) : (
+            <Counter
+              classifier="นาที"
+              currentValue={configData.Duration}
+              onChange={handleChangeDuration}
+              isDisabled={isSetTimeslot}
+            />
+          )}
         </div>
         {/* Config time for start class */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
@@ -238,17 +273,18 @@ function TimetableConfigValue({}: Props) {
             <LuClock10 size={25} className="stroke-gray-500" />
             <p className="text-md">กำหนดเวลาเริ่มคาบแรก</p>
           </div>
-          {isSetTimeslot 
-           ?
-            <p className=" text-gray-600"><b>{configData.StartTime}</b> นาฬิกา</p>
-           :
+          {isSetTimeslot ? (
+            <p className=" text-gray-600">
+              <b>{configData.StartTime}</b> นาฬิกา
+            </p>
+          ) : (
             <input
-            type="time"
-            value={configData.StartTime}
-            className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]"
-            onChange={handleChangeStartTime}
+              type="time"
+              value={configData.StartTime}
+              className="text-gray-500 outline-none h-[45px] border px-3 w-[140px]"
+              onChange={handleChangeStartTime}
             />
-           }
+          )}
         </div>
         {/* Config พักเล็ก */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center mt-3">
@@ -257,31 +293,58 @@ function TimetableConfigValue({}: Props) {
             <p className="text-md">กำหนดคาบพักเล็ก</p>
           </div>
           <div className="flex flex-col-reverse gap-4">
-            {!addMiniBreak && !isSetTimeslot ?
-            <u className=" text-blue-500 cursor-pointer select-none" onClick={() => setAddMiniBreak(true)}>เพิ่มเวลาพักเล็ก</u>
-            : !isSetTimeslot ?
-            <div className="flex gap-3 items-center">
-              <p className="text-md text-gray-500">พักเล็กคาบที่</p>
-              <Dropdown
-                width="100%"
-                height="40px"
-                data={breakSlotMap}
-                currentValue={configData.MiniBreak.SlotNumber}
-                placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
-                  <li className="w-[70px]">{data}</li>
-                )}
-                handleChange={handleChangeMiniBreak}
-                searchFunciton={undefined}
-              />
-              <p className=" text-gray-500">เวลา</p>
-              <input disabled={isSetTimeslot} type="number" className="border w-14 h-10 rounded pl-2" onChange={(e) => setConfigData(() => ({ ...configData, MiniBreak: {Duration : parseInt(e.target.value), SlotNumber : configData.MiniBreak.SlotNumber} }))} value={configData.MiniBreak.Duration} />
-              <p className=" text-gray-500">นาที</p>
-              <u className=" text-blue-500 ml-4 cursor-pointer select-none" onClick={() => setAddMiniBreak(false)}>ยกเลิก</u>
-            </div>
-            :
-            <p className=" text-gray-600">คาบที่ <b>{configData.MiniBreak.SlotNumber}</b> ระยะเวลา <b>{configData.MiniBreak.Duration}</b> นาที</p>
-            }
+            {!addMiniBreak && !isSetTimeslot ? (
+              <u
+                className=" text-blue-500 cursor-pointer select-none"
+                onClick={() => setAddMiniBreak(true)}
+              >
+                เพิ่มเวลาพักเล็ก
+              </u>
+            ) : !isSetTimeslot ? (
+              <div className="flex gap-3 items-center">
+                <p className="text-md text-gray-500">พักเล็กคาบที่</p>
+                <Dropdown
+                  width="100%"
+                  height="40px"
+                  data={breakSlotMap}
+                  currentValue={configData.MiniBreak.SlotNumber}
+                  placeHolder="เลือกคาบ"
+                  renderItem={({ data }): JSX.Element => (
+                    <li className="w-[70px]">{data}</li>
+                  )}
+                  handleChange={handleChangeMiniBreak}
+                  searchFunciton={undefined}
+                />
+                <p className=" text-gray-500">เวลา</p>
+                <input
+                  disabled={isSetTimeslot}
+                  type="number"
+                  className="border w-14 h-10 rounded pl-2"
+                  onChange={(e) =>
+                    setConfigData(() => ({
+                      ...configData,
+                      MiniBreak: {
+                        Duration: parseInt(e.target.value),
+                        SlotNumber: configData.MiniBreak.SlotNumber,
+                      },
+                    }))
+                  }
+                  value={configData.MiniBreak.Duration}
+                />
+                <p className=" text-gray-500">นาที</p>
+                <u
+                  className=" text-blue-500 ml-4 cursor-pointer select-none"
+                  onClick={() => setAddMiniBreak(false)}
+                >
+                  ยกเลิก
+                </u>
+              </div>
+            ) : (
+              <p className=" text-gray-600">
+                คาบที่ <b>{configData.MiniBreak.SlotNumber}</b> ระยะเวลา{" "}
+                <b>{configData.MiniBreak.Duration}</b> นาที
+              </p>
+            )}
           </div>
         </div>
         {/* Config lunch time */}
@@ -293,39 +356,45 @@ function TimetableConfigValue({}: Props) {
           <div className="flex flex-col-reverse gap-4">
             <div className="flex justify-between items-center gap-3">
               <p className="text-md text-gray-500">มัธยมปลายคาบที่</p>
-              {isSetTimeslot ? <b className="text-md text-gray-600">{configData.BreakTimeslots.Senior}</b> 
-              :
-              <Dropdown
-                width="100%"
-                height="40px"
-                data={breakSlotMap}
-                currentValue={configData.BreakTimeslots.Senior}
-                placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
-                  <li className="w-[70px]">{data}</li>
-                )}
-                handleChange={handleChangeBreakTimeS}
-                searchFunciton={undefined}
-              />
-              }
+              {isSetTimeslot ? (
+                <b className="text-md text-gray-600">
+                  {configData.BreakTimeslots.Senior}
+                </b>
+              ) : (
+                <Dropdown
+                  width="100%"
+                  height="40px"
+                  data={breakSlotMap}
+                  currentValue={configData.BreakTimeslots.Senior}
+                  placeHolder="เลือกคาบ"
+                  renderItem={({ data }): JSX.Element => (
+                    <li className="w-[70px]">{data}</li>
+                  )}
+                  handleChange={handleChangeBreakTimeS}
+                  searchFunciton={undefined}
+                />
+              )}
             </div>
             <div className="flex justify-between items-center gap-3">
               <p className=" text-gray-500">มัธยมต้นคาบที่</p>
-              {isSetTimeslot ? <b className=" text-gray-600">{configData.BreakTimeslots.Junior}</b> 
-              :
-              <Dropdown
-                width="100%"
-                height="40px"
-                data={breakSlotMap}
-                currentValue={configData.BreakTimeslots.Junior}
-                placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
-                  <li className="w-[70px]">{data}</li>
-                )}
-                handleChange={handleChangeBreakTimeJ}
-                searchFunciton={undefined}
-              />
-              }
+              {isSetTimeslot ? (
+                <b className=" text-gray-600">
+                  {configData.BreakTimeslots.Junior}
+                </b>
+              ) : (
+                <Dropdown
+                  width="100%"
+                  height="40px"
+                  data={breakSlotMap}
+                  currentValue={configData.BreakTimeslots.Junior}
+                  placeHolder="เลือกคาบ"
+                  renderItem={({ data }): JSX.Element => (
+                    <li className="w-[70px]">{data}</li>
+                  )}
+                  handleChange={handleChangeBreakTimeJ}
+                  searchFunciton={undefined}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -362,34 +431,34 @@ function TimetableConfigValue({}: Props) {
             <p className="text-green-400">บันทึกสำเร็จ !</p>
           ) : (
             <>
-            <div className="">
-            <PrimaryButton
-                handleClick={undefined}
-                title={"ลบเทอม"}
-                color={"danger"}
-                Icon={undefined}
-                reverseIcon={false}
-                isDisabled={!isSetTimeslot}
-              />
-            </div>
-            <div className="flex gap-3">
-              <PrimaryButton
-                handleClick={saved}
-                title={"บันทึก"}
-                color={""}
-                Icon={undefined}
-                reverseIcon={false}
-                isDisabled={isSetTimeslot}
-              />
-              <PrimaryButton
-                handleClick={reset}
-                title={"คืนค่าเริ่มต้น"}
-                color={""}
-                Icon={undefined}
-                reverseIcon={false}
-                isDisabled={isSetTimeslot}
-              />
-            </div>
+              <div className="">
+                <PrimaryButton
+                  handleClick={handleDeleteTimeslot}
+                  title={"ลบเทอม"}
+                  color={"danger"}
+                  Icon={undefined}
+                  reverseIcon={false}
+                  isDisabled={!isSetTimeslot}
+                />
+              </div>
+              <div className="flex gap-3">
+                <PrimaryButton
+                  handleClick={saved}
+                  title={"บันทึก"}
+                  color={""}
+                  Icon={undefined}
+                  reverseIcon={false}
+                  isDisabled={isSetTimeslot}
+                />
+                <PrimaryButton
+                  handleClick={reset}
+                  title={"คืนค่าเริ่มต้น"}
+                  color={""}
+                  Icon={undefined}
+                  reverseIcon={false}
+                  isDisabled={isSetTimeslot}
+                />
+              </div>
             </>
           )}
         </div>

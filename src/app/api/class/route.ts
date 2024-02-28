@@ -62,7 +62,11 @@ export async function GET(request: NextRequest) {
                     },
                 },
                 include: {
-                    subject: true,
+                    subject: {
+                        include: {
+                            teachers_responsibility: true
+                        }
+                    },
                     gradelevel: true,
                     timeslot: true,
                     room: true,
@@ -71,7 +75,7 @@ export async function GET(request: NextRequest) {
             })
 
         }
-        
+
         return NextResponse.json(response)
     } catch (error) {
         console.log(error)
@@ -82,7 +86,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        
+
         return NextResponse.json(body)
     } catch (error) {
         console.log(error)

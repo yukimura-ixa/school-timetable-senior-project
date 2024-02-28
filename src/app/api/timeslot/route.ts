@@ -80,9 +80,9 @@ export async function POST(request: NextRequest) {
         for (let day of body.Days) {
             for (let index = 0; index < body.TimeslotPerDay; index++) {
                 let startTime = new Date(`1970-01-01T${body.StartTime}:00Z`)
-                startTime.setMinutes(startTime.getMinutes() + (index + 1) * body.Duration)
-                if (body!.MiniBreakTimeslot === index + 1 && body!.MiniBreakDuration > 0) {
-                    startTime.setMinutes(startTime.getMinutes() + body.MiniBreakDuration)
+                startTime.setUTCMinutes(startTime.getUTCMinutes() + (index + 1) * body.Duration)
+                if (body.MiniBreak.SlotNumber === index + 1 && body.HasMinibreak) {
+                    startTime.setUTCMinutes(startTime.getUTCMinutes() + body.MiniBreak.Duration)
                 }
 
                 let isBreak: breaktime
@@ -97,9 +97,9 @@ export async function POST(request: NextRequest) {
                 }
 
                 let endTime = new Date(startTime)
-                endTime.setMinutes(endTime.getMinutes() + body.Duration)
+                endTime.setUTCMinutes(endTime.getUTCMinutes() + body.Duration)
                 if (isBreak !== breaktime["NOT_BREAK"]) {
-                    endTime.setMinutes(endTime.getMinutes() + body.BreakDuration)
+                    endTime.setUTCMinutes(endTime.getUTCMinutes() + body.BreakDuration)
                 }
 
                 timeslots.push({
@@ -126,26 +126,16 @@ export async function POST(request: NextRequest) {
 }
 
 
-export async function PUT(request: NextRequest) {
-    // body: { TimeslotPerDay, AcademicYear, Semester, StartTime, EndTime, Breaktime }
+export async function DELETE(request: NextRequest) {
+    // body: {AcademicYear, Semester }
     try {
         const body = await request.json()
-        const data = await Promise.all(
-            Array.from({ length: body.TimeslotPerDay }, (_, index) =>
-                prisma.timeslot.update({
-                    where: {
-                        TimeslotID: body.Semester + '-' + body.AcademicYear + '-' + (index + 1),
-                    },
-                    data: {
-                        AcademicYear: body.AcademicYear,
-                        Semester: body.Semester,
-                        StartTime: body.StartTime,
-                        EndTime: body.EndTime,
-                        Breaktime: body.Breaktime,
-                    },
-                })
-            )
-        )
+        const data = await prisma.timeslot.deleteMany({
+            where: {
+                AcademicYear: body.AcademicYear,
+                Semester: semester[body.Semester],
+            },
+        })
 
         return NextResponse.json(data)
     } catch (error) {
