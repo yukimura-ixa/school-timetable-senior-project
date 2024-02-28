@@ -22,15 +22,11 @@ import HttpsIcon from "@mui/icons-material/Https";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import SaveIcon from "@mui/icons-material/Save";
+import BlockIcon from '@mui/icons-material/Block';
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
-// TODO: ดึงวิชาใส่ตารางได้แล้ว เหลือคัดวิชาด้านบน
-// TODO: เช็คชน (ให้แสดงคล้าย diasbled) ยังไม่เสร็จดี
 // TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
-// TODO: ลากหรือคลิกวิชาจากด้านบนมาทับช่องตารางแล้วจะสลับกัน (ไว้ค่อยว่ากัน) อาจจะไมทำนะ
 // TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย  (ไว้ทีหลัง ยังไม่สำคัญ)
-// TODO: ดึงวิชาที่ลงให้ครูแต่ละคนแล้วมาจาก database เพื่อนำมาแสดงบนช่องตาราง
-// TODO: เช็ควิชาที่ map กับหน่วยกิตให้สัมพันธ์กับวิชาที่อยู่ในตารางหลังจากทำ TODO ด้านบน
 // TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
 //! คาบล็อกชอบไม่โหลด ต้องอาศัยการกด reload อยู่ตลอด;
 
@@ -40,6 +36,7 @@ function TimeSlot(props: Props) {
   const searchGradeID = useSearchParams().get("GradeID");
   const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
   const [storeSelectedSubject, setStoreSelectedSubject] = useState({}); //เก็บวิชาที่เรากดเลือก
+  const [changeTimeSlotSubject, setChangeTimeSlotSubject] = useState({}); //สำหรับเก็บวิชาที่ต้องการเปลี่ยนในการเลือกวิชาครั้งแรก
   const [subjectPayload, setSubjectPayload] = useState({
     timeslotID: "",
     selectedSubject: {},
@@ -356,15 +353,13 @@ function TimeSlot(props: Props) {
     delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
     setSubjectData(() => [...subjectData, subject]);
   };
-
   useEffect(() => {
     if (!checkConflictData.isValidating) {
       onSelectSubject();
     }
-  }, [storeSelectedSubject]);
+  }, [storeSelectedSubject, changeTimeSlotSubject]);
 
-  function onSelectSubject() {
-    console.log(scheduledSubjects)
+  function onSelectSubject() {    
     const clearScheduledData = () => {
       setTimeSlotData({
         ...timeSlotData,
@@ -374,11 +369,11 @@ function TimeSlot(props: Props) {
         ),
       });
     }
-    if(Object.keys(storeSelectedSubject).length == 0){
+    if(!isSelectedToAdd() && !isSelectedToChange()){
       clearScheduledData()
     }
     else{
-      const selectedGradeID = storeSelectedSubject.GradeID;
+      const selectedGradeID = !isSelectedToChange() ? storeSelectedSubject.GradeID : changeTimeSlotSubject.GradeID;
       const scheduledGradeIDTimeslot = checkConflictData.data
         .filter((item) => item.GradeID == selectedGradeID)
         .map((slot) => ({
@@ -496,7 +491,6 @@ function TimeSlot(props: Props) {
       setScheduledSubjects([...scheduledSubjects, storeSelectedSubject]);
     }
   };
-  const [changeTimeSlotSubject, setChangeTimeSlotSubject] = useState({}); //สำหรับเก็บวิชาที่ต้องการเปลี่ยนในการเลือกวิชาครั้งแรก
   const [destinationSubject, setDestinationSubject] = useState({}); //วิชาปลายทางที่จะเปลี่ยน
   const [timeslotIDtoChange, setTimeslotIDtoChange] = useState({
     source: "",
@@ -609,8 +603,8 @@ function TimeSlot(props: Props) {
   const checkBreakTime = (breakTimeState: string): boolean => {
     //เช็คคาบพักแบบมอต้นและปลาย
     let result: boolean =
-      ((Object.keys(storeSelectedSubject).length !== 0 ||
-        Object.keys(changeTimeSlotSubject).length !== 0) && //ถ้ามีการกดเลือกวิชาหรือกดเปลี่ยนวิชา
+      ((isSelectedToAdd() ||
+        isSelectedToChange()) && //ถ้ามีการกดเลือกวิชาหรือกดเปลี่ยนวิชา
         breakTimeState == "BREAK_JUNIOR" &&
         [1, 2, 3].includes(yearSelected)) || //สมมติเช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
       (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected));
@@ -620,23 +614,25 @@ function TimeSlot(props: Props) {
     breakTimeState: string,
     subjectInSlot: object,
   ) => {
+    let isSubjectInSlot = Object.keys(subjectInSlot).length !== 0 //ถ้ามีวิชาในตาราง
     //เช็คคาบพักเมื่อไมีมีการกดเลือกวิชา (ตอนยังไม่มี action ไรเกิดขึ้น)
-    let condition: boolean =
-      Object.keys(storeSelectedSubject).length <= 1 &&
-      Object.keys(changeTimeSlotSubject).length == 0 
-      && //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
-      (breakTimeState == "BREAK_BOTH" ||
-        breakTimeState == "BREAK_JUNIOR" ||
-        breakTimeState == "BREAK_SENIOR") &&
-      Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
-    let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200`; //slot ปิดตาย (คาบพัก)
+    // let condition: boolean =
+    //   Object.keys(storeSelectedSubject).length <= 1 &&
+    //   Object.keys(changeTimeSlotSubject).length == 0 
+    //   && //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
+    //   (breakTimeState == "BREAK_BOTH" ||
+    //     breakTimeState == "BREAK_JUNIOR" ||
+    //     breakTimeState == "BREAK_SENIOR") &&
+    //   Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
+    let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200
+                        ${subjectInSlot.Scheduled ? 'opacity-35' : 'opacity-100'}`; //slot ปิดตาย (คาบพัก)
     let enabledSlot = `grid w-[100%] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
                       ${
-                        Object.keys(storeSelectedSubject).length !== 0 &&
-                        Object.keys(subjectInSlot).length == 0 //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
+                        isSelectedToAdd() &&
+                        !isSubjectInSlot //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
                           ? "border-emerald-300 cursor-pointer border-dashed"
                           : (
-                                Object.keys(subjectInSlot).length !== 0
+                                  isSubjectInSlot
                                   ? displayErrorChangeSubject(
                                       breakTimeState,
                                       subjectInSlot.gradelevel.Year,
@@ -644,14 +640,14 @@ function TimeSlot(props: Props) {
                                   : false
                               )
                             ? "border-red-300"
-                            : Object.keys(changeTimeSlotSubject).length !== 0 //ถ้ากดเปลี่ยนวิชา จะให้กรอบสีฟ้า
+                            : isSelectedToChange() //ถ้ากดเปลี่ยนวิชา จะให้กรอบสีฟ้า
                               ? "border-blue-300 border-dashed"
-                              : Object.keys(subjectInSlot).length !== 0 //ถ้ามีวิชาที่ลงแล้ว จะให้กรอบเป็นสีแดง
+                              : isSubjectInSlot //ถ้ามีวิชาที่ลงแล้ว จะให้กรอบเป็นสีแดง
                                 ? "border-red-300"
                                 : "border-dashed" //ถ้าไม่มีวิชาอยู่ในช่อง จะให้แสดงเป็นเส้นกรอบขีดๆเอาไว้
                       } 
                       duration-200`;
-    return condition || subjectInSlot.Scheduled
+    return subjectInSlot.Scheduled
       ? disabledSlot
       : typeof subjectInSlot.GradeID !== "string" &&
           Object.keys(subjectInSlot).length !== 0
@@ -664,6 +660,12 @@ function TimeSlot(props: Props) {
     //checkBreakTime(breakTimeState) คือการส่งสถานะของคาบพักไปเช็คว่าเป็นคาบพักของมอต้นหรือมอปลาย จะใชร่วมกับตอนกดเลือกวิชาเพื่อเพิ่มหรือเลือกวิชาเพื่อสลับวืชา
     //&& Object.keys(subjectInSlot).length == 0 ส่วนอันนี้คือเช็คว่าถ้าไม่มีวิชาใน slot จะปิดคาบไว้
   };
+  const isSelectedToAdd = ():boolean => {
+    return Object.keys(storeSelectedSubject).length !== 0 //ถ้ามีการกดเลือกวิชาเพื่อเพิ่มข้อมูล จะ = true
+  }
+  const isSelectedToChange = ():boolean => {
+    return Object.keys(changeTimeSlotSubject).length !== 0
+  }
   const displayErrorChangeSubject = (
     Breaktime: string,
     Year: number,
@@ -721,6 +723,11 @@ function TimeSlot(props: Props) {
                 </div>
                 <p className="text-xs select-none">สลับคาบ</p>
               </div>
+              <div className="flex gap-3 items-center">
+                <div className="relative w-6 h-6 bg-white border-red-300 border rounded flex items-center justify-center">
+                </div>
+                <p className="text-xs select-none">มีวิชาแล้ว</p>
+              </div>
               <div className="flex gap-3 items-center relative">
                 <div className="w-6 h-6 bg-gray-200 border border-gray-300 rounded flex items-center justify-center">
                   <HttpsIcon
@@ -742,8 +749,8 @@ function TimeSlot(props: Props) {
                 className="text-sm"
                 onClick={() => {
                   // console.log(timeSlotData.AllData.map((data) => ({ ...data, subject: lockData.filter(ts => ts.timeslots.map(id => id.TimeslotID).includes(data.TimeslotID))[0] })))
-                  console.log(subjectData);
-                  console.log(timeSlotData.AllData);
+                  console.log(storeSelectedSubject);
+                  console.log(changeTimeSlotSubject);
                   console.log(lockData);
                 }}
               >
@@ -891,7 +898,7 @@ function TimeSlot(props: Props) {
                               (typeof item.subject.GradeID !== "string" &&
                                 Object.keys(item.subject).length !== 0) ||
                               //ถ้าลากเพิ่มวิชา ต้องลากลงได้แค่ช่องว่างเท่านั้น
-                              (Object.keys(storeSelectedSubject).length !== 0 &&
+                              (isSelectedToAdd() &&
                                 Object.keys(item.subject).length !== 0) ||
                               //ถ้าลากในออกนอก ให้เช็คว่าคาบ NOT_BREAK ที่มีวิชา related กับ yearSelected ไหม
                               (item.Breaktime == "NOT_BREAK" &&
@@ -921,6 +928,10 @@ function TimeSlot(props: Props) {
                                 {Object.keys(item.subject).length === 0 ? ( //ถ้าไม่มีวิชาใน timeslot
                                   //ถ้ายังไม่กดเลือกวิชาจะซ่อนปุ่ม + เอาไว้
                                   <>
+                                    <div style={{display : checkBreakTime(item.Breaktime) && isSelectedToAdd() ? "flex" : "none"}} className="flex-col">
+                                      <b className="text-sm">พัก</b>
+                                      <p className="text-sm">{item.Breaktime == "BREAK_JUNIOR" ? "มัธยมต้น" : "มัธยมปลาย"}</p>
+                                    </div>
                                     <AddCircleIcon
                                       style={{
                                         color: "#10b981",
@@ -965,7 +976,7 @@ function TimeSlot(props: Props) {
                                         (isCilckToChangeSubject &&
                                           item.TimeslotID !==
                                             timeslotIDtoChange.source) ||
-                                        typeof item.subject.GradeID !== "string"
+                                        typeof item.subject.GradeID !== "string" || item.subject.Scheduled
                                       } //true ถ้าเราสลับวิชาด้วยการกด จะไปลากอันอื่นไม่ได้นอกจากลากอันที่เคยกดเลือกไว้
                                       draggableId={`Slot-${item.TimeslotID}-Index-${index}`}
                                       key={`Slot-${item.TimeslotID}-Index-${index}`}
@@ -979,13 +990,13 @@ function TimeSlot(props: Props) {
                                         return (
                                           <>
                                             <div
-                                              style={{
-                                                display:
-                                                  Object.keys(item.subject)
-                                                    .length == 0
-                                                    ? "none"
-                                                    : "flex",
-                                              }}
+                                              // style={{
+                                              //   display:
+                                              //     Object.keys(item.subject)
+                                              //       .length == 0
+                                              //       ? "none"
+                                              //       : "flex",
+                                              // }}
                                               className={`text-center select-none flex flex-col ${
                                                 snapshot.isDragging
                                                   ? "w-fit h-fit bg-white rounded"
