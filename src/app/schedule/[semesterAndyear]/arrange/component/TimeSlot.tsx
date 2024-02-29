@@ -3,7 +3,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/elements/dnd/StrictModeDroppable";
-import { fetcher } from "@/libs/axios";
+import api, { fetcher } from "@/libs/axios";
 import { useParams, useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
@@ -22,7 +22,8 @@ import HttpsIcon from "@mui/icons-material/Https";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import SaveIcon from "@mui/icons-material/Save";
-import BlockIcon from '@mui/icons-material/Block';
+import BlockIcon from "@mui/icons-material/Block";
+import { enqueueSnackbar } from "notistack";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
 // TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
@@ -309,15 +310,29 @@ function TimeSlot(props: Props) {
     ];
     return map;
   };
-  const postData = () => {
+  async function postData() {
     let data = {
-      TeacherID: searchTeacherID,
+      TeacherID: parseInt(searchTeacherID),
       Schedule: timeSlotData.AllData.filter(
-        (item) => Object.keys(item.subject).length !== 0,
+        (item) =>
+          Object.keys(item.subject).length !== 0 &&
+          !item.subject.Scheduled &&
+          !item.subject.IsLocked,
       ),
     };
+
+    try {
+      const response = await api.post("/arrange", data);
+      console.log(response);
+      if (response.status == 200) {
+        enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
+      }
+    } catch (error) {
+      console.log(error);
+      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
+    }
     console.log(data);
-  };
+  }
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
     let data = timeSlotData.AllData; //นำช้อมูลตารางมา
     setTimeSlotData(() => ({
@@ -351,6 +366,7 @@ function TimeSlot(props: Props) {
   };
   const returnSubject = (subject: object) => {
     delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
+    delete subject.ClassID; //ลบ property ClassID ออกจาก object ก่อนคืน
     setSubjectData(() => [...subjectData, subject]);
   };
   useEffect(() => {
@@ -359,21 +375,21 @@ function TimeSlot(props: Props) {
     }
   }, [storeSelectedSubject, changeTimeSlotSubject]);
 
-  function onSelectSubject() {    
+  function onSelectSubject() {
     const clearScheduledData = () => {
       setTimeSlotData({
         ...timeSlotData,
-        AllData: timeSlotData.AllData.map((item) => (
-          item.subject.Scheduled ? {...item, subject : {}} : item
-        )
+        AllData: timeSlotData.AllData.map((item) =>
+          item.subject.Scheduled ? { ...item, subject: {} } : item,
         ),
       });
-    }
-    if(!isSelectedToAdd() && !isSelectedToChange()){
-      clearScheduledData()
-    }
-    else{
-      const selectedGradeID = !isSelectedToChange() ? storeSelectedSubject.GradeID : changeTimeSlotSubject.GradeID;
+    };
+    if (!isSelectedToAdd() && !isSelectedToChange()) {
+      clearScheduledData();
+    } else {
+      const selectedGradeID = !isSelectedToChange()
+        ? storeSelectedSubject.GradeID
+        : changeTimeSlotSubject.GradeID;
       const scheduledGradeIDTimeslot = checkConflictData.data
         .filter((item) => item.GradeID == selectedGradeID)
         .map((slot) => ({
@@ -382,21 +398,27 @@ function TimeSlot(props: Props) {
           SubjectName: slot.subject.SubjectName,
           RoomName: slot.room.RoomName,
         }));
-      if(scheduledGradeIDTimeslot.length > 0){
-        clearScheduledData()
+      if (scheduledGradeIDTimeslot.length > 0) {
+        clearScheduledData();
         setTimeSlotData({
           ...timeSlotData,
-          AllData: timeSlotData.AllData.map((item) => (
-            Object.keys(item.subject).length !== 0 ? item :
-            scheduledGradeIDTimeslot.map(slot => slot.TimeslotID).includes(item.TimeslotID)
-            ? {...item, subject : scheduledGradeIDTimeslot.filter(data => data.TimeslotID == item.TimeslotID)[0]}
-            : item
-          )
+          AllData: timeSlotData.AllData.map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? item
+              : scheduledGradeIDTimeslot
+                    .map((slot) => slot.TimeslotID)
+                    .includes(item.TimeslotID)
+                ? {
+                    ...item,
+                    subject: scheduledGradeIDTimeslot.filter(
+                      (data) => data.TimeslotID == item.TimeslotID,
+                    )[0],
+                  }
+                : item,
           ),
         });
-      }
-      else{
-        clearScheduledData()
+      } else {
+        clearScheduledData();
       }
     }
   }
@@ -603,8 +625,7 @@ function TimeSlot(props: Props) {
   const checkBreakTime = (breakTimeState: string): boolean => {
     //เช็คคาบพักแบบมอต้นและปลาย
     let result: boolean =
-      ((isSelectedToAdd() ||
-        isSelectedToChange()) && //ถ้ามีการกดเลือกวิชาหรือกดเปลี่ยนวิชา
+      ((isSelectedToAdd() || isSelectedToChange()) && //ถ้ามีการกดเลือกวิชาหรือกดเปลี่ยนวิชา
         breakTimeState == "BREAK_JUNIOR" &&
         [1, 2, 3].includes(yearSelected)) || //สมมติเช็คว่าถ้าคาบนั้นเป็นคาบพักของมอต้น จะนำวิชาที่คลิกเลือกมาเช็คว่า Year มันอยู่ใน [1, 2, 3] หรือไม่
       (breakTimeState == "BREAK_SENIOR" && [4, 5, 6].includes(yearSelected));
@@ -614,25 +635,26 @@ function TimeSlot(props: Props) {
     breakTimeState: string,
     subjectInSlot: object,
   ) => {
-    let isSubjectInSlot = Object.keys(subjectInSlot).length !== 0 //ถ้ามีวิชาในตาราง
+    let isSubjectInSlot = Object.keys(subjectInSlot).length !== 0; //ถ้ามีวิชาในตาราง
     //เช็คคาบพักเมื่อไมีมีการกดเลือกวิชา (ตอนยังไม่มี action ไรเกิดขึ้น)
     // let condition: boolean =
     //   Object.keys(storeSelectedSubject).length <= 1 &&
-    //   Object.keys(changeTimeSlotSubject).length == 0 
+    //   Object.keys(changeTimeSlotSubject).length == 0
     //   && //ถ้าไม่มีการกดเลือกหรือเปลี่ยนวิชาเลย
     //   (breakTimeState == "BREAK_BOTH" ||
     //     breakTimeState == "BREAK_JUNIOR" ||
     //     breakTimeState == "BREAK_SENIOR") &&
     //   Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
     let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200
-                        ${subjectInSlot.Scheduled ? 'opacity-35' : 'opacity-100'}`; //slot ปิดตาย (คาบพัก)
+                        ${
+                          subjectInSlot.Scheduled ? "opacity-35" : "opacity-100"
+                        }`; //slot ปิดตาย (คาบพัก)
     let enabledSlot = `grid w-[100%] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
                       ${
-                        isSelectedToAdd() &&
-                        !isSubjectInSlot //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
+                        isSelectedToAdd() && !isSubjectInSlot //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
                           ? "border-emerald-300 cursor-pointer border-dashed"
                           : (
-                                  isSubjectInSlot
+                                isSubjectInSlot
                                   ? displayErrorChangeSubject(
                                       breakTimeState,
                                       subjectInSlot.gradelevel.Year,
@@ -660,12 +682,12 @@ function TimeSlot(props: Props) {
     //checkBreakTime(breakTimeState) คือการส่งสถานะของคาบพักไปเช็คว่าเป็นคาบพักของมอต้นหรือมอปลาย จะใชร่วมกับตอนกดเลือกวิชาเพื่อเพิ่มหรือเลือกวิชาเพื่อสลับวืชา
     //&& Object.keys(subjectInSlot).length == 0 ส่วนอันนี้คือเช็คว่าถ้าไม่มีวิชาใน slot จะปิดคาบไว้
   };
-  const isSelectedToAdd = ():boolean => {
-    return Object.keys(storeSelectedSubject).length !== 0 //ถ้ามีการกดเลือกวิชาเพื่อเพิ่มข้อมูล จะ = true
-  }
-  const isSelectedToChange = ():boolean => {
-    return Object.keys(changeTimeSlotSubject).length !== 0
-  }
+  const isSelectedToAdd = (): boolean => {
+    return Object.keys(storeSelectedSubject).length !== 0; //ถ้ามีการกดเลือกวิชาเพื่อเพิ่มข้อมูล จะ = true
+  };
+  const isSelectedToChange = (): boolean => {
+    return Object.keys(changeTimeSlotSubject).length !== 0;
+  };
   const displayErrorChangeSubject = (
     Breaktime: string,
     Year: number,
@@ -724,8 +746,7 @@ function TimeSlot(props: Props) {
                 <p className="text-xs select-none">สลับคาบ</p>
               </div>
               <div className="flex gap-3 items-center">
-                <div className="relative w-6 h-6 bg-white border-red-300 border rounded flex items-center justify-center">
-                </div>
+                <div className="relative w-6 h-6 bg-white border-red-300 border rounded flex items-center justify-center"></div>
                 <p className="text-xs select-none">มีวิชาแล้ว</p>
               </div>
               <div className="flex gap-3 items-center relative">
@@ -928,9 +949,22 @@ function TimeSlot(props: Props) {
                                 {Object.keys(item.subject).length === 0 ? ( //ถ้าไม่มีวิชาใน timeslot
                                   //ถ้ายังไม่กดเลือกวิชาจะซ่อนปุ่ม + เอาไว้
                                   <>
-                                    <div style={{display : checkBreakTime(item.Breaktime) && isSelectedToAdd() ? "flex" : "none"}} className="flex-col">
+                                    <div
+                                      style={{
+                                        display:
+                                          checkBreakTime(item.Breaktime) &&
+                                          isSelectedToAdd()
+                                            ? "flex"
+                                            : "none",
+                                      }}
+                                      className="flex-col"
+                                    >
                                       <b className="text-sm">พัก</b>
-                                      <p className="text-sm">{item.Breaktime == "BREAK_JUNIOR" ? "มัธยมต้น" : "มัธยมปลาย"}</p>
+                                      <p className="text-sm">
+                                        {item.Breaktime == "BREAK_JUNIOR"
+                                          ? "มัธยมต้น"
+                                          : "มัธยมปลาย"}
+                                      </p>
                                     </div>
                                     <AddCircleIcon
                                       style={{
@@ -976,7 +1010,9 @@ function TimeSlot(props: Props) {
                                         (isCilckToChangeSubject &&
                                           item.TimeslotID !==
                                             timeslotIDtoChange.source) ||
-                                        typeof item.subject.GradeID !== "string" || item.subject.Scheduled
+                                        typeof item.subject.GradeID !==
+                                          "string" ||
+                                        item.subject.Scheduled
                                       } //true ถ้าเราสลับวิชาด้วยการกด จะไปลากอันอื่นไม่ได้นอกจากลากอันที่เคยกดเลือกไว้
                                       draggableId={`Slot-${item.TimeslotID}-Index-${index}`}
                                       key={`Slot-${item.TimeslotID}-Index-${index}`}
@@ -1062,14 +1098,16 @@ function TimeSlot(props: Props) {
                                                   ).length !== 0 ||
                                                   typeof item.subject
                                                     .GradeID !== "string"
-                                                    ? "none" : item.subject.Scheduled ? "none"
-                                                    : displayErrorChangeSubject(
-                                                          item.Breaktime,
-                                                          item.subject
-                                                            .gradelevel.Year,
-                                                        )
+                                                    ? "none"
+                                                    : item.subject.Scheduled
                                                       ? "none"
-                                                      : "flex",
+                                                      : displayErrorChangeSubject(
+                                                            item.Breaktime,
+                                                            item.subject
+                                                              .gradelevel.Year,
+                                                          )
+                                                        ? "none"
+                                                        : "flex",
                                               }}
                                               className={`cursor-pointer ${
                                                 item.TimeslotID ==
@@ -1095,14 +1133,16 @@ function TimeSlot(props: Props) {
                                                   ).length !== 0 ||
                                                   typeof item.subject
                                                     .GradeID !== "string"
-                                                    ? "none" : item.subject.Scheduled ? "none"
-                                                    : displayErrorChangeSubject(
-                                                          item.Breaktime,
-                                                          item.subject
-                                                            .gradelevel.Year,
-                                                        )
-                                                      ? "flex"
-                                                      : "none",
+                                                    ? "none"
+                                                    : item.subject.Scheduled
+                                                      ? "none"
+                                                      : displayErrorChangeSubject(
+                                                            item.Breaktime,
+                                                            item.subject
+                                                              .gradelevel.Year,
+                                                          )
+                                                        ? "flex"
+                                                        : "none",
                                               }}
                                               className="cursor-pointer hover:fill-red-600 bg-white rounded-full duration-300 absolute left-[-11px] top-[-10px]"
                                             />
@@ -1144,8 +1184,10 @@ function TimeSlot(props: Props) {
                                                     : Object.keys(
                                                           changeTimeSlotSubject,
                                                         ).length !== 0
-                                                      ? "none" : item.subject.Scheduled ? "none"
-                                                      : "flex",
+                                                      ? "none"
+                                                      : item.subject.Scheduled
+                                                        ? "none"
+                                                        : "flex",
                                               }}
                                               className="cursor-pointer hover:fill-red-600 bg-white rounded-full duration-300 absolute right-[-11px] top-[-10px]"
                                             />

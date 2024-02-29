@@ -10,9 +10,10 @@ import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
-import api from "@/libs/axios";
 import { useTimeslotData } from "@/app/_hooks/timeslotData";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
+import { enqueueSnackbar } from "notistack";
+import api from "@/libs/axios"
 
 // ! กดคืนค่าเริ่มต้นไม่ได้
 // TODO: ทำปุ่มติ๊กเบรก 10 นาที (Minibreak)
@@ -100,18 +101,6 @@ function TimetableConfigValue({}: Props) {
     }));
   };
 
-  // function handleDeleteTimeslot() {
-  //   try {
-  //     const response = api.delete("/timeslot", {
-  //       data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
-  //     });
-  //     if (response.status === 200) {
-  //       snackBarHandle("DELETED");
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
   const handleChangeBreakTimeS = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
@@ -147,26 +136,26 @@ function TimetableConfigValue({}: Props) {
         Duration: 10,
         SlotNumber: 2,
       },
-      HasMinibreak: addMiniBreak,
+      HasMinibreak: false,
     }));
   };
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const saved = async () => {
     try {
-      // const response = await api.post("/timeslot", configData);
-      // if (response.status === 200) {
-      //   snackBarHandle("SAVED");
-      // }
-      console.log(configData);
+      const response = await api.post("/timeslot", {...configData, HasMinibreak: addMiniBreak});
+      if (response.status === 200) {
+        enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });
+      }
+      console.log(response);
     } catch (error) {
       console.log(error);
-      snackBarHandle("ERROR");
+      enqueueSnackbar("เกิดข้อผิดพลาดในการตั้งค่าตาราง", { variant: "error" });
     }
   };
   const snackBarHandle = (commitMsg: string): void => {
-    setIsSnackBarOpen(true);
     let message: string;
+    let variant: "success" | "error" | "warning" | "info" = "success";
     if (commitMsg == "SAVED") {
       message = "บันทึกการตั้งค่าสำเร็จ!";
     } else if (commitMsg == "RESET") {
@@ -174,12 +163,19 @@ function TimetableConfigValue({}: Props) {
     } else if (commitMsg == "ERROR") {
       message = "บันทึกไม่สำเร็จ!";
     }
-
-    setSnackBarMsg(message);
+    enqueueSnackbar(message, { variant: variant });
   };
   return (
     <>
-      {isActiveModal ? <ConfirmDeleteModal closeModal={() => setIsActiveModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
+      {isActiveModal ? (
+        <ConfirmDeleteModal
+          closeModal={() => setIsActiveModal(false)}
+          openSnackBar={snackBarHandle}
+          mutate={undefined}
+          academicYear={academicYear}
+          semester={semester}
+        />
+      ) : null}
       <span className="flex flex-col gap-3 my-5 px-3">
         {/* Config timeslot per day */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">

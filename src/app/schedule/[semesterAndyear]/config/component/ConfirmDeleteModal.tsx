@@ -5,6 +5,7 @@ import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import { enqueueSnackbar } from "notistack"
 type props = { 
   closeModal: any;
   openSnackBar: any;
@@ -34,9 +35,10 @@ function ConfirmDeleteModal({
         data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
       });
       if (response.status === 200) {
-        openSnackBar("DELETED");
+        enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       }
     } catch (error) {
+      enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล", { variant: "error" });
       console.log(error);
     }
   };

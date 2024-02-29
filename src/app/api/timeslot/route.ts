@@ -41,28 +41,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    /*
-    {
-    "Days": [
-        "MON",
-        "TUE",
-        "WED",
-        "THU",
-        "FRI"
-    ],
-    "AcademicYear": 2566,
-    "Semester": "SEMESTER_2",
-    "StartTime": "08:30",
-    "BreakDuration": 50,
-    "BreakTimeslots": {
-        "Junior": 4,
-        "Senior": 5
-    },
-    "Duration": 50,
-    "TimeslotPerDay": 10
-}   "MiniBreakDuration": 10,
-    "MiniBreakTimeslot": 2,
-    */
 
     try {
         const body = await request.json()
@@ -78,11 +56,11 @@ export async function POST(request: NextRequest) {
         }
         const timeslots: timeslot[] = []
         for (let day of body.Days) {
+            let slotStart = new Date(`1970-01-01T${body.StartTime}:00Z`)
             for (let index = 0; index < body.TimeslotPerDay; index++) {
-                let startTime = new Date(`1970-01-01T${body.StartTime}:00Z`)
-                startTime.setUTCMinutes(startTime.getUTCMinutes() + (index + 1) * body.Duration)
+
                 if (body.MiniBreak.SlotNumber === index + 1 && body.HasMinibreak) {
-                    startTime.setUTCMinutes(startTime.getUTCMinutes() + body.MiniBreak.Duration)
+                    slotStart.setUTCMinutes(slotStart.getUTCMinutes() + body.MiniBreak.Duration)
                 }
 
                 let isBreak: breaktime
@@ -96,21 +74,26 @@ export async function POST(request: NextRequest) {
                     isBreak = breaktime["NOT_BREAK"]
                 }
 
-                let endTime = new Date(startTime)
-                endTime.setUTCMinutes(endTime.getUTCMinutes() + body.Duration)
+                let endTime = new Date(slotStart)
+
                 if (isBreak !== breaktime["NOT_BREAK"]) {
                     endTime.setUTCMinutes(endTime.getUTCMinutes() + body.BreakDuration)
+                } else {
+                    endTime.setUTCMinutes(endTime.getUTCMinutes() + body.Duration)
                 }
 
-                timeslots.push({
+
+                const newSlot: timeslot = {
                     TimeslotID: body.Semester[9] + '/' + body.AcademicYear + '-' + day_of_week[day] + (index + 1),
                     DayOfWeek: day_of_week[day],
                     AcademicYear: body.AcademicYear,
                     Semester: body.Semester,
-                    StartTime: startTime,
+                    StartTime: slotStart,
                     EndTime: endTime,
                     Breaktime: isBreak,
-                })
+                }
+                timeslots.push(newSlot)
+                slotStart = new Date(endTime)
             }
         }
 
