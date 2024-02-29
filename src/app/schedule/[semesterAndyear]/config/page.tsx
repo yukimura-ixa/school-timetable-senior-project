@@ -172,9 +172,12 @@ function TimetableConfigValue({}: Props) {
       {isActiveModal ? <ConfirmDeleteModal closeModal={() => setIsActiveModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
       {isCloneDataModal ? <CloneTimetableDataModal closeModal={() => setIsCloneDataModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
       <span className="flex flex-col gap-3 my-5 px-3">
+        {!isSetTimeslot ?
         <div className="flex w-full py-4 justify-end items-center">
           <u onClick={() => setIsCloneDataModal(true)} className="text-blue-500 cursor-pointer hover:text-blue-600 duration-300">เรียกข้อมูลตารางสอนที่มีอยู่</u>
         </div>
+         : null
+         }
         {/* Config timeslot per day */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
