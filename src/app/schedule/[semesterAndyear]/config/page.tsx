@@ -12,6 +12,7 @@ import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
 import api from "@/libs/axios";
 import { useTimeslotData } from "@/app/_hooks/timeslotData";
+import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 
 // ! กดคืนค่าเริ่มต้นไม่ได้
 // TODO: ทำปุ่มติ๊กเบรก 10 นาที (Minibreak)
@@ -23,6 +24,7 @@ function TimetableConfigValue({}: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
+  const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [addMiniBreak, setAddMiniBreak] = useState<boolean>(false);
   const [configData, setConfigData] = useState({
@@ -98,18 +100,18 @@ function TimetableConfigValue({}: Props) {
     }));
   };
 
-  function handleDeleteTimeslot() {
-    try {
-      const response = api.delete("/timeslot", {
-        data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
-      });
-      if (response.status === 200) {
-        snackBarHandle("DELETED");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // function handleDeleteTimeslot() {
+  //   try {
+  //     const response = api.delete("/timeslot", {
+  //       data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
+  //     });
+  //     if (response.status === 200) {
+  //       snackBarHandle("DELETED");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
   const handleChangeBreakTimeS = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
@@ -177,56 +179,8 @@ function TimetableConfigValue({}: Props) {
   };
   return (
     <>
-      {/* <div className="flex w-full h-[80px] justify-between items-center border-b border-[#EDEEF3] mb-7">
-        <h1 className="text-lg">
-          ตั้งค่าตารางสอน{" "}
-          <b>
-            เทอม {params.semester} ปีการศึกษา {params.year}
-          </b>
-        </h1>
-        <p className="text-[#3B8FEE]  cursor-pointer">
-          <u>รีเซ็ทเป็นค่าเริ่มต้น</u>
-        </p>
-      </div> */}
+      {isActiveModal ? <ConfirmDeleteModal closeModal={() => setIsActiveModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
       <span className="flex flex-col gap-3 my-5 px-3">
-        {/* Year */}
-        {/* <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <p className="text-md">ปีการศึกษา</p>
-          <Dropdown
-            width="100%"
-            height="40px"
-            data={[2566, 2567, 2568, 2569]}
-            currentValue={2566} //current year
-            renderItem={({ data }): JSX.Element => (
-              <li className="w-[70px]">{data}</li>
-            )}
-            handleChange={undefined}
-            searchFunciton={undefined}
-          />
-        </div> */}
-        {/* Semester */}
-        {/* <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <p className="text-md">เทอม</p>
-          <Dropdown
-            width="100%"
-            height="40px"
-            data={[1, 2]}
-            currentValue={1}
-            renderItem={({ data }): JSX.Element => (
-              <li className="w-[70px]">{data}</li>
-            )}
-            handleChange={undefined}
-            searchFunciton={undefined}
-          />
-        </div> */}
-        {/* School */}
-        {/* <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <MdSchool size={25} className="fill-gray-400" />
-            <p className="text-md">ชื่อโรงเรียน</p>
-          </div>
-          <p className="text-md text-gray-500">โรงเรียนศึกษาไอทีวิทยา</p>
-        </div> */}
         {/* Config timeslot per day */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
@@ -398,18 +352,6 @@ function TimetableConfigValue({}: Props) {
             </div>
           </div>
         </div>
-        {/* Config lunchtime duration */}
-        {/* <div className="flex w-full h-[65px] justify-between py-4 items-center">
-          <div className="flex items-center gap-4">
-            <TbTimeDuration45 size={25} className="stroke-gray-500" />
-            <p className="text-md">กำหนดระยะเวลาพักเที่ยง</p>
-          </div>
-          <Counter
-            classifier="นาที"
-            currentValue={configData.BreakDuration}
-            onChange={handleChangeBreakDuration}
-          />
-        </div> */}
         {/* Config day of week */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
@@ -433,7 +375,7 @@ function TimetableConfigValue({}: Props) {
             <>
               <div className="">
                 <PrimaryButton
-                  handleClick={handleDeleteTimeslot}
+                  handleClick={() => setIsActiveModal(true)}
                   title={"ลบเทอม"}
                   color={"danger"}
                   Icon={undefined}
