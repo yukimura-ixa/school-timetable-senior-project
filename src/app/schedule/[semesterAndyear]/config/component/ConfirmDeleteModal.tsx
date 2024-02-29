@@ -56,7 +56,7 @@ function ConfirmDeleteModal({
           </div>
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none font-bold">
-              คุณต้องการลบตารางสอนเทอม ... ปีการศึกษา ... ใช่หรือไม่
+              คุณต้องการลบตารางสอนเทอม {semester} ปีการศึกษา {academicYear} ใช่หรือไม่
             </p>
           </div>
           <span className="w-full flex gap-3 justify-end h-11">

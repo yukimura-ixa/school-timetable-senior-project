@@ -12,8 +12,9 @@ import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
 import { useTimeslotData } from "@/app/_hooks/timeslotData";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
+import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
 import { enqueueSnackbar } from "notistack";
-import api from "@/libs/axios"
+import api from "@/libs/axios";
 
 // ! กดคืนค่าเริ่มต้นไม่ได้
 // TODO: ทำปุ่มติ๊กเบรก 10 นาที (Minibreak)
@@ -26,6 +27,7 @@ function TimetableConfigValue({}: Props) {
     "-",
   ); //from "1-2566" to ["1", "2566"]
   const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
+  const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [addMiniBreak, setAddMiniBreak] = useState<boolean>(false);
   const [configData, setConfigData] = useState({
@@ -167,16 +169,12 @@ function TimetableConfigValue({}: Props) {
   };
   return (
     <>
-      {isActiveModal ? (
-        <ConfirmDeleteModal
-          closeModal={() => setIsActiveModal(false)}
-          openSnackBar={snackBarHandle}
-          mutate={undefined}
-          academicYear={academicYear}
-          semester={semester}
-        />
-      ) : null}
+      {isActiveModal ? <ConfirmDeleteModal closeModal={() => setIsActiveModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
+      {isCloneDataModal ? <CloneTimetableDataModal closeModal={() => setIsCloneDataModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
       <span className="flex flex-col gap-3 my-5 px-3">
+        <div className="flex w-full py-4 justify-end items-center">
+          <u onClick={() => setIsCloneDataModal(true)} className="text-blue-500 cursor-pointer hover:text-blue-600 duration-300">เรียกข้อมูลตารางสอนที่มีอยู่</u>
+        </div>
         {/* Config timeslot per day */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
