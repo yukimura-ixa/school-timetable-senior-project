@@ -1,5 +1,5 @@
 import { BiSolidBook, BiSolidUser, BiSolidFileFind } from 'react-icons/bi';
-import { BsTable } from 'react-icons/bs'
+import { BsDisplay, BsTable } from 'react-icons/bs'
 import { SiGoogleclassroom } from 'react-icons/si';
 import { AiFillSetting, AiFillPrinter, AiFillInfoCircle } from 'react-icons/ai'
 import { HiAcademicCap } from 'react-icons/hi2';
@@ -63,14 +63,14 @@ export const scheduleMenu = [
         // link : ["/schedule/timeslot/semester/1/classify", "/schedule/timeslot/semester/2/classify"] //default path
         link : "/schedule/select-semester"
     },
-    {
-        id : "showtimetable",
-        IconStyle : {
-            Icon : BiSolidFileFind,
-        },
-        title : "แสดงตารางสอน",
-        link : ["/schedule/display-timetable/semester/1/teacher", "/schedule/display-timetable/semester/2/teacher"]
-    },
+    // {
+    //     id : "showtimetable",
+    //     IconStyle : {
+    //         Icon : BiSolidFileFind,
+    //     },
+    //     title : "แสดงตารางสอน",
+    //     link : "/dashboard/select-semester"
+    // },
 ]
 export const othersMenu = [
     {
@@ -90,6 +90,24 @@ export const othersMenu = [
         link : "/others/docs"
     },
 ]
+export const showTimetableMenu = [
+    {
+        id : "teacher-timetable",
+        IconStyle : {
+            Icon : BsDisplay,
+        },
+        title : "แสดงตารางครู",
+        link : "dashboard/teacher-table"
+    },
+    {
+        id : "student-timetable",
+        IconStyle : {
+            Icon : BsDisplay,
+        },
+        title : "แสดงตารางนักเรียน",
+        link : "dashboard/student-table"
+    },
+]
 export const dashboardMenu = [
     {
         id : "teachertable",
@@ -97,7 +115,7 @@ export const dashboardMenu = [
             Icon : BiSolidUser,
         },
         title : "สรุปข้อมูลคุณครู",
-        link : "/dashboard/teacher"
+        link : "dashboard/teacher"
     },
     {
         id : "roomtable",
@@ -105,7 +123,7 @@ export const dashboardMenu = [
             Icon : SiGoogleclassroom,
         },
         title : "สรุปข้อมูลสถานที่เรียน",
-        link : "/dashboard/rooms"
+        link : "dashboard/rooms"
     },
     {
         id : "gradeleveltable",
@@ -113,6 +131,6 @@ export const dashboardMenu = [
             Icon : HiAcademicCap,
         },
         title : "สรุปข้อมูลชั้นเรียน",
-        link : "/dashboard/classroom"
+        link : "dashboard/classroom"
     }
 ]

@@ -645,11 +645,11 @@ function TimeSlot(props: Props) {
     //     breakTimeState == "BREAK_JUNIOR" ||
     //     breakTimeState == "BREAK_SENIOR") &&
     //   Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
-    let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200
+    let disabledSlot = `grid w-[${1062 / timeSlotData.SlotAmount.length - 10}px] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200
                         ${
                           subjectInSlot.Scheduled ? "opacity-35" : "opacity-100"
                         }`; //slot ปิดตาย (คาบพัก)
-    let enabledSlot = `grid w-[100%] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
+    let enabledSlot = `grid w-[${1062 / timeSlotData.SlotAmount.length - 10}px] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
                       ${
                         isSelectedToAdd() && !isSubjectInSlot //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
                           ? "border-emerald-300 cursor-pointer border-dashed"
@@ -770,9 +770,9 @@ function TimeSlot(props: Props) {
                 className="text-sm"
                 onClick={() => {
                   // console.log(timeSlotData.AllData.map((data) => ({ ...data, subject: lockData.filter(ts => ts.timeslots.map(id => id.TimeslotID).includes(data.TimeslotID))[0] })))
-                  console.log(storeSelectedSubject);
-                  console.log(changeTimeSlotSubject);
-                  console.log(lockData);
+                  console.log(timeSlotData);
+                  console.log(1062 / timeSlotData.SlotAmount.length - 10);
+                  console.log(fetchAllClassData);
                 }}
               >
                 วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>

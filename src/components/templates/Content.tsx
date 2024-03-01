@@ -19,7 +19,7 @@ function Content(props: Props) {
         <span className="w-full h-auto">{props.children}</span>
       ) : pathName.match("/dashboard") ? (
         <>
-          <DashboardMenubar />
+          {!pathName.match("/select-semester") ? <DashboardMenubar /> : null}
           <span className="w-[1190px] h-auto px-16 py-2">{props.children}</span>
         </>
       ) : (pathName.match('/arrange') || pathName.match('/assign') || pathName.match('/lock') || pathName.match('/config')) ? 
