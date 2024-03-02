@@ -11,7 +11,7 @@ function RoomsManage() {
         <Loading />
       ) : (
         <RoomsTable
-          tableHead={["ชื่อห้อง", "อาคาร", "ชั้น"]}
+          tableHead={["ชื่อห้อง", "อาคาร", "ชั้น", ""]}
           tableData={data}
           mutate={mutate}
         />

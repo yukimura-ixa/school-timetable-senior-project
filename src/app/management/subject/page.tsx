@@ -12,7 +12,7 @@ function SubjectManage() {
         <Loading />
       ) : (
         <SubjectTable
-        tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "กลุ่มสาระ"]}
+        tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "กลุ่มสาระ", ""]}
         tableData={data}
         mutate={mutate}
       />

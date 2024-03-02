@@ -14,7 +14,7 @@ function GradeLevelManage (props: Props) {
         <Loading />
       ) : (
         <GradeLevelTable
-          tableHead={["รหัสชั้นเรียน", "มัธยมปีที่", "ห้องที่", "หลักสูตร"]}
+          tableHead={["รหัสชั้นเรียน", "มัธยมปีที่", "ห้องที่", "หลักสูตร", ""]}
           tableData={data}
           mutate={mutate} 
         />

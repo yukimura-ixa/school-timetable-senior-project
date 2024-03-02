@@ -107,6 +107,14 @@ export const showTimetableMenu = [
         title : "แสดงตารางนักเรียน",
         link : "dashboard/student-table"
     },
+    {
+        id : "all-timetable",
+        IconStyle : {
+            Icon : BsDisplay,
+        },
+        title : "แสดงตารางรวมครู",
+        link : "dashboard/all-timeslot"
+    },
 ]
 export const dashboardMenu = [
     {
