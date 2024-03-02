@@ -23,7 +23,7 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import SaveIcon from "@mui/icons-material/Save";
 import BlockIcon from "@mui/icons-material/Block";
-import { enqueueSnackbar } from "notistack";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type Props = {};
 // TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
 // TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
@@ -33,6 +33,7 @@ type Props = {};
 
 function TimeSlot(props: Props) {
   const params = useParams();
+  const [isSaving, setIsSaving] = useState(false);
   const searchTeacherID = useSearchParams().get("TeacherID");
   const searchGradeID = useSearchParams().get("GradeID");
   const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
@@ -201,7 +202,6 @@ function TimeSlot(props: Props) {
       fetchClassData();
     }
     if (!fetchAllSubject.isLoading) {
-      //(!fetchAllSubject.isValidating && !fetchAllClassData.isValidating) ใส่อันนี้แทน
       fetchSubject();
     }
   }, [
@@ -216,7 +216,7 @@ function TimeSlot(props: Props) {
     let data = puredata.map((item) => ({
       ...item,
       SubjectName: item.subject.SubjectName,
-      RoomName: item.room.RoomName,
+      RoomName: item.room?.RoomName || "ไม่มีห้องเรียน",
     }));
     let filterLock = data.filter((item) => item.IsLocked);
     let filterNotLock = data.filter((item) => !item.IsLocked);
@@ -313,25 +313,29 @@ function TimeSlot(props: Props) {
   async function postData() {
     let data = {
       TeacherID: parseInt(searchTeacherID),
-      Schedule: timeSlotData.AllData.filter(
-        (item) =>
-          Object.keys(item.subject).length !== 0 &&
-          !item.subject.Scheduled &&
-          !item.subject.IsLocked,
-      ),
+      AcademicYear: parseInt(academicYear),
+      Semester: "SEMESTER_" + semester,
+      Schedule: timeSlotData.AllData,
     };
+    // console.log(data);
+    setIsSaving(true)
+    const savingSnackbar = enqueueSnackbar("กำลังบันทึกข้อมูล...", { variant: "info", persist: true})
 
     try {
       const response = await api.post("/arrange", data);
       console.log(response);
       if (response.status == 200) {
+        closeSnackbar(savingSnackbar)
         enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
+        fetchAllClassData.mutate();
+        setIsSaving(false)
       }
     } catch (error) {
       console.log(error);
+      closeSnackbar(savingSnackbar)
       enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
+      setIsSaving(false)
     }
-    console.log(data);
   }
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
     let data = timeSlotData.AllData; //นำช้อมูลตารางมา
@@ -853,6 +857,7 @@ function TimeSlot(props: Props) {
                 color={"success"}
                 Icon={<SaveIcon />}
                 reverseIcon={false}
+                isDisabled={isSaving}
               />
             </div>
             <table className="table-auto w-full flex flex-col gap-3 mt-4 mb-10">

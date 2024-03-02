@@ -15,9 +15,7 @@ import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import { enqueueSnackbar } from "notistack";
 import api from "@/libs/axios"
 
-// ! กดคืนค่าเริ่มต้นไม่ได้
-// TODO: ทำปุ่มติ๊กเบรก 10 นาที (Minibreak)
-// TODO: Custombreak (อาจจะทำ)
+// TODO: ถ้าตั้งค่าแล้ว GET มาจาก table_config
 type Props = {};
 
 function TimetableConfigValue({}: Props) {

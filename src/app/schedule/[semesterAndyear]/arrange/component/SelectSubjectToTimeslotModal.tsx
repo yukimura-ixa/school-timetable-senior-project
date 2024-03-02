@@ -2,6 +2,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { fetcher } from "@/libs/axios";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { CircularProgress } from "@mui/material";
+import { room } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import useSWR from "swr";
@@ -15,11 +16,12 @@ type Props = {
 function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const payload = props.payload;
   const [RoomName, setRoomName] = useState("");
+  const [room, setRoom] = useState<room>();
   const [validateIsPass, setValidateIsPass] = useState(false);
   // const gradeLevelData = useGradeLevelData();
   const roomData = useSWR(
     `room/availableRooms?TimeslotID=` + payload.timeslotID,
-    fetcher
+    fetcher,
   );
   const confirm = () => {
     //ถ้ากดยืนยัน
@@ -29,8 +31,8 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
     } else {
       //ถ้าเลือกห้องแล้ว
       props.addSubjectToSlot(
-        { ...payload.selectedSubject, RoomName: RoomName },
-        payload.timeslotID
+        { ...payload.selectedSubject, RoomName: RoomName, room: room },
+        payload.timeslotID,
       );
     }
   };
@@ -76,7 +78,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                 onClick={() =>
                   props.cancelAddRoom(
                     payload.selectedSubject,
-                    payload.timeslotID
+                    payload.timeslotID,
                   )
                 }
               />
@@ -102,7 +104,12 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                     </>
                   )}
                   currentValue={RoomName}
-                  handleChange={(data) => setRoomName(() => data)}
+                  handleChange={(data) => {
+                    setRoomName(() => data);
+                    setRoom(() =>
+                      roomData.data.find((room) => room.RoomName == data),
+                    );
+                  }}
                   searchFunciton={undefined}
                 />
               ) : (

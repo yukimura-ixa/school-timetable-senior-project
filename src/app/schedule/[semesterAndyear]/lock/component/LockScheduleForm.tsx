@@ -245,9 +245,9 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     try {
       const response = await api.post("/lock", data);
       enqueueSnackbar("กำลังเพิ่มข้อมูล", { variant: "info" });
+      closeModal();
       if (response.status === 200) {
         enqueueSnackbar("เพิ่มข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
-        closeModal();
         mutate();
       }
       console.log(response);
