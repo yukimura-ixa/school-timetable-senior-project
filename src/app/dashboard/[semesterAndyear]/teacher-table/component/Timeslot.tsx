@@ -1,8 +1,7 @@
 "use client";
-import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { MdAdd } from "react-icons/md";
-import {studentSlot} from "@/raw-data/subjectslot";
+import {subjectInSlot} from "@/raw-data/subjectslot";
 
 type Props = {};
 
@@ -53,9 +52,9 @@ function TimeSlot(props: Props) {
             <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
               <span
                 onClick={() => {
-                  // console.log(
-                  //   subjectInSlot.filter((slot) => slot.DayOfWeek == "จันทร์")
-                  // );
+                  console.log(
+                    subjectInSlot.filter((slot) => slot.DayOfWeek == "จันทร์")
+                  );
                 }}
                 className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center"
               >
@@ -101,7 +100,7 @@ function TimeSlot(props: Props) {
                     <p style={{ color: day.TextColor }}>{day.Day}</p>
                   </span>
                 </td>
-                {studentSlot
+                {subjectInSlot
                   .filter((slot) => slot.DayOfWeek == day.Day)
                   .map((item) => (
                     <Fragment key={`woohoo${item.DayOfWeek}`}>
@@ -110,11 +109,17 @@ function TimeSlot(props: Props) {
                           key={`weehhe${data.SlotNumber}${data.SubjectCode}`}
                         >
                           <td className="flex font-light grow items-center justify-center p-[10px] h-[76px] rounded border border-[#ABBAC1] cursor-pointer">
-                            <span className="flex w-[50px] flex-col items-center text-xs hover:w-[75px] hover:text-lg duration-300">
+                            <span className="flex w-[50px] flex-col items-center text-xs hover:text-lg duration-300">
                               {/* <MdAdd size={20} className="fill-gray-300" /> */}
+                              {data.GradeID != null ? 
+                                <>
                                 <p>{data.SubjectCode}</p>
-                                <p>{data.TeacherName}</p>
+                                <p>ม.{data.GradeID.toString().slice(0,1)}/{data.GradeID.toString().slice(2)}</p>
                                 <p>{data.RoomID}</p>
+                                </>
+                               :
+                               null
+                               }
                             </span>
                           </td>
                         </Fragment>

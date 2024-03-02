@@ -25,6 +25,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
+    "react-horizontal-scrolling-menu": "^6.0.2",
     "react-icons": "^4.11.0",
     "swr": "^2.2.4"
   },

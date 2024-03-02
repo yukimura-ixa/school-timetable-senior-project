@@ -22,7 +22,7 @@ function TableRow({
   }
 
   return (
-    <tr className="relative h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
+    <tr className="h-[60px] border-b bg-[#FFF] hover:bg-cyan-50 hover:text-cyan-600 even:bg-slate-50 cursor-pointer">
       <th>
         <input
           className="cursor-pointer"
@@ -42,7 +42,7 @@ function TableRow({
         </td>
       ))}
       {checkedList.length < 1 && (
-        <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
+        <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none">
           <BiEdit
             className="fill-[#A16207]"
             size={18}

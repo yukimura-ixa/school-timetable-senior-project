@@ -1,7 +1,7 @@
 "use client";
 import React, { Fragment, useEffect, useState } from "react";
 import SelectSubjectToTimeslotModal from "./SelectSubjectToTimeslotModal";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable } from "react-beautiful-dnd";
 import { StrictModeDroppable } from "@/components/elements/dnd/StrictModeDroppable";
 import api, { fetcher } from "@/libs/axios";
 import { useParams, useSearchParams } from "next/navigation";
@@ -9,7 +9,6 @@ import useSWR from "swr";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
-import { useClassData } from "@/app/_hooks/classData";
 import { teacher } from "@prisma/client";
 import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -17,10 +16,8 @@ import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import ErrorIcon from "@mui/icons-material/Error";
-import { useLockData } from "@/app/_hooks/lockData";
 import HttpsIcon from "@mui/icons-material/Https";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import SaveAltIcon from "@mui/icons-material/SaveAlt";
 import SaveIcon from "@mui/icons-material/Save";
 import BlockIcon from "@mui/icons-material/Block";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -323,7 +320,6 @@ function TimeSlot(props: Props) {
 
     try {
       const response = await api.post("/arrange", data);
-      console.log(response);
       if (response.status == 200) {
         closeSnackbar(savingSnackbar)
         enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
@@ -649,11 +645,11 @@ function TimeSlot(props: Props) {
     //     breakTimeState == "BREAK_JUNIOR" ||
     //     breakTimeState == "BREAK_SENIOR") &&
     //   Object.keys(subjectInSlot).length == 0; //เช็คว่ามีคาบพักมั้ย
-    let disabledSlot = `grid w-[100%] flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200
+    let disabledSlot = `grid flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200
                         ${
                           subjectInSlot.Scheduled ? "opacity-35" : "opacity-100"
                         }`; //slot ปิดตาย (คาบพัก)
-    let enabledSlot = `grid w-[100%] items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
+    let enabledSlot = `grid items-center justify-center h-[76px] rounded border-2 relative border-[#ABBAC1] bg-white
                       ${
                         isSelectedToAdd() && !isSubjectInSlot //ถ้ามีการเกิด action กำลังลากวิชาหรือมีการกดเลือกวิชา จะแสดงสีเขียวพร้อมกระพริบๆช่องที่พร้อมลง
                           ? "border-emerald-300 cursor-pointer border-dashed"
@@ -774,9 +770,9 @@ function TimeSlot(props: Props) {
                 className="text-sm"
                 onClick={() => {
                   // console.log(timeSlotData.AllData.map((data) => ({ ...data, subject: lockData.filter(ts => ts.timeslots.map(id => id.TimeslotID).includes(data.TimeslotID))[0] })))
-                  console.log(storeSelectedSubject);
-                  console.log(changeTimeSlotSubject);
-                  console.log(lockData);
+                  console.log(timeSlotData);
+                  console.log(1062 / timeSlotData.SlotAmount.length - 10);
+                  console.log(fetchAllClassData);
                 }}
               >
                 วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>
@@ -809,7 +805,7 @@ function TimeSlot(props: Props) {
                               return (
                                 <>
                                   <div
-                                    className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-pointer ${
+                                    className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-grab ${
                                       storeSelectedSubject == item //ถ้าคลิกหรือลากวิชา จะแสดงเขียวๆกะพริบๆ
                                         ? "bg-green-200 hover:bg-green-300 border-green-500 animate-pulse"
                                         : "bg-white hover:bg-slate-50"
@@ -882,17 +878,23 @@ function TimeSlot(props: Props) {
               </thead>
               <tbody className="flex flex-col gap-3">
                 <tr className="flex gap-4">
-                  <td className="flex items-center bg-gray-100 justify-center p-[10px] h-[40px] rounded">
-                    <span className="flex w-[50px] h-[24px] justify-center">
+                  <td className="flex items-center bg-gray-100 justify-center p-[10px] h-full rounded">
+                    <span className="flex w-[50px] justify-center">
                       <p className="text-gray-600">เวลา</p>
                     </span>
                   </td>
                   {/* Map duration ของคาบเรียน */}
                   {mapTime().map((item) => (
-                    <Fragment key={`woohoo${item.Start}${item.End}`}>
-                      <td className="flex grow items-center justify-center py-[10px] h-[40px] rounded bg-gray-100 select-none">
-                        <p className="flex text-xs w-full items-center justify-center h-[24px] text-gray-600">
-                          {item.Start}-{item.End}
+                    <Fragment key={`Time${item.Start}${item.End}`}>
+                      <td className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none">
+                        <p className="flex text-xs w-full items-center justify-center text-gray-600">
+                          {item.Start}
+                        </p>
+                        <p className="flex text-xs items-center justify-center text-gray-600">
+                          -
+                        </p>
+                        <p className="flex text-xs w-full items-center justify-center text-gray-600">
+                          {item.End}
                         </p>
                       </td>
                     </Fragment>
@@ -942,6 +944,7 @@ function TimeSlot(props: Props) {
                                   backgroundColor: snapshot.isDraggingOver
                                     ? "white"
                                     : null,
+                                  width : `${1062 / timeSlotData.SlotAmount.length - 10}px`
                                 }}
                                 className={timeSlotCssClassName(
                                   item.Breaktime,
@@ -958,7 +961,7 @@ function TimeSlot(props: Props) {
                                       style={{
                                         display:
                                           checkBreakTime(item.Breaktime) &&
-                                          isSelectedToAdd()
+                                          (isSelectedToAdd() || isSelectedToChange())
                                             ? "flex"
                                             : "none",
                                       }}
@@ -1088,8 +1091,7 @@ function TimeSlot(props: Props) {
                                                   item.subject,
                                                   item.TimeslotID,
                                                   true,
-                                                ),
-                                                  console.log(item);
+                                                )
                                               }}
                                               style={{
                                                 color:

@@ -40,13 +40,13 @@ function TableRow({
           {item[key]}
         </td>
       ))}
-      {checkedList.length < 1 && (
-        <td className="flex gap-5 px-6 whitespace-nowrap select-none absolute right-0 top-5">
+      {checkedList.length < 1 ? (
+        <td className="mt-5 flex items-center justify-center gap-5 px-6 whitespace-nowrap select-none">
           <BiEdit
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              setEditModalActive(true), clickToSelect(item.RoomID);
+              setEditModalActive(true), clickToSelect(item.RoomID), console.log("asdasdsa");
             }}
           />
           <TbTrash
@@ -57,7 +57,7 @@ function TableRow({
             }}
           />
         </td>
-      )}
+      ) : <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none" />}
     </tr>
   );
 }
