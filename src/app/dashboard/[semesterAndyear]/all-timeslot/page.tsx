@@ -4,16 +4,18 @@ import { fetcher } from "@/libs/axios";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { semester } from "@prisma/client";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { ScrollMenu, VisibilityContext } from "react-horizontal-scrolling-menu";
 import useSWR from "swr";
 import TableHead from "./component/TableHead";
 import TableBody from "./component/TableBody";
-
-type Props = {};
-
-const AllTimeslot = (props: Props) => {
+import TeacherList from "./component/TeacherList";
+import { DragDealer } from "./horizontalDrag/DragDealer";
+import MouseIcon from '@mui/icons-material/Mouse';
+import HeightIcon from '@mui/icons-material/Height';
+type scrollVisibilityApiType = React.ContextType<typeof VisibilityContext>;
+const AllTimeslot = () => {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
@@ -62,19 +64,67 @@ const AllTimeslot = (props: Props) => {
       fetchTimeslotData();
     }
   }, [fetchTimeSlot.isLoading]);
+
+  const dragState = useRef(new DragDealer());
+  const handleDrag =
+    ({ scrollContainer }: scrollVisibilityApiType) =>
+    (ev: React.MouseEvent) =>
+      dragState.current.dragMove(ev, (posDiff: number) => {
+        if (scrollContainer.current) {
+          scrollContainer.current.scrollLeft += posDiff;
+        }
+    });
   return (
     <>
-        <div className="w-full h-[650px] overflow-x-scroll overflow-y-scroll border rounded p-2">
-            {!fetchTimeSlot.isLoading ? (
-            <table>
-                <TableHead
+      <div className="relative w-full h-[650px] overflow-x-hidden overflow-y-scroll border rounded p-2">
+        {!fetchTimeSlot.isLoading && (
+          <div className="flex">
+            <TeacherList teachers={allTeacher.data} />
+            <div className="w-full h-full cursor-move  overflow-x-scroll" onMouseLeave={dragState.current.dragStop}>
+                <table>
+                  <TableHead
                     days={timeSlotData.DayOfWeek}
                     slotAmount={timeSlotData.SlotAmount}
-                />
-                <TableBody teachers={allTeacher.data} slotAmount={timeSlotData.SlotAmount} days={timeSlotData.DayOfWeek} />
-            </table>
-        ) : null}
+                  />
+                  <TableBody
+                    teachers={allTeacher.data}
+                    slotAmount={timeSlotData.SlotAmount}
+                    days={timeSlotData.DayOfWeek}
+                  />
+                </table>
+              {/* <ScrollMenu
+                onMouseDown={() => dragState.current.dragStart}
+                onMouseUp={() => dragState.current.dragStop}
+                onMouseMove={handleDrag}
+              >
+                <table>
+                  <TableHead
+                    days={timeSlotData.DayOfWeek}
+                    slotAmount={timeSlotData.SlotAmount}
+                  />
+                  <TableBody
+                    teachers={allTeacher.data}
+                    slotAmount={timeSlotData.SlotAmount}
+                    days={timeSlotData.DayOfWeek}
+                  />
+                </table>
+              </ScrollMenu> */}
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="w-full flex justify-end items-center gap-3 mt-3 cursor-default">
+        <div className="w-[75px] h-[35px] border rounded p-2 flex gap-1 items-center justify-start">
+          <p className="text-xs text-gray-400">Left Shift</p>
         </div>
+        <p className="text-sm text-gray-400">+</p>
+        <div className="w-[75px] h-[35px] border rounded p-2 flex gap-1 items-center justify-start">
+          <p className="text-xs text-gray-400">Scroll</p>
+          <HeightIcon color="action"/>
+        </div>
+        <p className="text-sm text-gray-400">=</p>
+        <p className="text-sm text-gray-400">เลื่อนดูเนื่้อหาแนวนอน</p>
+      </div>
     </>
   );
 };

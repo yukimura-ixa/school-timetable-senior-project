@@ -798,7 +798,7 @@ function TimeSlot(props: Props) {
                               return (
                                 <>
                                   <div
-                                    className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-pointer ${
+                                    className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-grab ${
                                       storeSelectedSubject == item //ถ้าคลิกหรือลากวิชา จะแสดงเขียวๆกะพริบๆ
                                         ? "bg-green-200 hover:bg-green-300 border-green-500 animate-pulse"
                                         : "bg-white hover:bg-slate-50"
