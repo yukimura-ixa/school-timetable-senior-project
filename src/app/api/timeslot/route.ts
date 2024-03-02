@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import type { timeslot } from "@prisma/client"
 import { day_of_week, breaktime, semester } from "@prisma/client"
 
+//TODO: เพิ่มลง table_config
 export async function GET(request: NextRequest) {
     // search: { AcademicYear, Semester }
     // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
@@ -54,6 +55,14 @@ export async function POST(request: NextRequest) {
         if (isExist) {
             return NextResponse.json({ error: "Timeslot already exists" }, { status: 400 })
         }
+        const saveConfig = await prisma.table_config.create({
+            data: {
+                ConfigID: body.Semester + '/' + body.AcademicYear,
+                AcademicYear: body.AcademicYear,
+                Semester: body.Semester,
+                Config: body
+            }
+        })
         const timeslots: timeslot[] = []
         for (let day of body.Days) {
             let slotStart = new Date(`1970-01-01T${body.StartTime}:00Z`)
@@ -101,7 +110,7 @@ export async function POST(request: NextRequest) {
             data: timeslots,
         })
 
-        return NextResponse.json(data)
+        return NextResponse.json({ message: "Timeslots created" })
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: error }, { status: 500 })

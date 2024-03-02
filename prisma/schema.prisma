@@ -111,7 +111,7 @@ model teachers_responsibility {
 }
 
 model table_config {
-  ConfigID     Int      @id @default(autoincrement())
+  ConfigID     String      @id
   AcademicYear Int
   Semester     semester
   Config       Json

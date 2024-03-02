@@ -70,7 +70,7 @@ Table teachers_responsibility {
 }
 
 Table table_config {
-  ConfigID Int [pk, increment]
+  ConfigID String [pk]
   AcademicYear Int [not null]
   Semester semester [not null]
   Config Json [not null]
