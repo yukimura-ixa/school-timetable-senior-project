@@ -123,7 +123,7 @@ const AllTimeslot = () => {
           <HeightIcon color="action"/>
         </div>
         <p className="text-sm text-gray-400">=</p>
-        <p className="text-sm text-gray-400">เลื่อนดูเนื่้อหาแนวนอน</p>
+        <p className="text-sm text-gray-400">เลื่อนดูเนื้อหาแนวนอน</p>
       </div>
     </>
   );
