@@ -69,6 +69,13 @@ Table teachers_responsibility {
   TeachHour Int [not null]
 }
 
+Table table_config {
+  ConfigID Int [pk, increment]
+  AcademicYear Int [not null]
+  Semester semester [not null]
+  Config Json [not null]
+}
+
 Enum day_of_week {
   MON
   TUE

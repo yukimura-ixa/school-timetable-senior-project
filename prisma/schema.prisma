@@ -110,6 +110,13 @@ model teachers_responsibility {
   @@index([SubjectCode], map: "teachers_responsibility_SubjectCode_fkey")
 }
 
+model table_config {
+  ConfigID     Int      @id @default(autoincrement())
+  AcademicYear Int
+  Semester     semester
+  Config       Json
+}
+
 enum day_of_week {
   MON
   TUE
