@@ -19,13 +19,11 @@ import ErrorIcon from "@mui/icons-material/Error";
 import HttpsIcon from "@mui/icons-material/Https";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import SaveIcon from "@mui/icons-material/Save";
-import BlockIcon from "@mui/icons-material/Block";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type Props = {};
-// TODO: เพิ่ม Tab มุมมองแต่ละชั้นเรียน ไว้ทีหลังเลย
+
+//! แสดงเวลาไม่ถูก
 // TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
-// TODO: ทำกรอบสีพักเที่ยง ม.ต้น/ปลาย  (ไว้ทีหลัง ยังไม่สำคัญ)
-// TODO: ใช้ useMemo หรืออะไรก็ได้มา Cache ข้อมูลไว้ที
 //! คาบล็อกชอบไม่โหลด ต้องอาศัยการกด reload อยู่ตลอด;
 
 function TimeSlot(props: Props) {

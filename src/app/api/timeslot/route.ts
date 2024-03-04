@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server"
 import type { timeslot } from "@prisma/client"
 import { day_of_week, breaktime, semester } from "@prisma/client"
 
-//TODO: เพิ่มลง table_config
 export async function GET(request: NextRequest) {
     // search: { AcademicYear, Semester }
     // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
@@ -55,14 +54,6 @@ export async function POST(request: NextRequest) {
         if (isExist) {
             return NextResponse.json({ error: "Timeslot already exists" }, { status: 400 })
         }
-        const saveConfig = await prisma.table_config.create({
-            data: {
-                ConfigID: body.Semester + '/' + body.AcademicYear,
-                AcademicYear: body.AcademicYear,
-                Semester: body.Semester,
-                Config: body
-            }
-        })
         const timeslots: timeslot[] = []
         for (let day of body.Days) {
             let slotStart = new Date(`1970-01-01T${body.StartTime}:00Z`)
@@ -70,6 +61,7 @@ export async function POST(request: NextRequest) {
 
                 if (body.MiniBreak.SlotNumber === index + 1 && body.HasMinibreak) {
                     slotStart.setUTCMinutes(slotStart.getUTCMinutes() + body.MiniBreak.Duration)
+                    console.log(day + slotStart.toISOString())
                 }
 
                 let isBreak: breaktime
@@ -106,9 +98,16 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        const data = await prisma.timeslot.createMany({
+        await prisma.table_config.create({
+            data: {
+                ConfigID: body.Semester[9] + '/' + body.AcademicYear,
+                AcademicYear: body.AcademicYear,
+                Semester: body.Semester,
+                Config: body
+            }
+        }).then(async () => await prisma.timeslot.createMany({
             data: timeslots,
-        })
+        }))
 
         return NextResponse.json({ message: "Timeslots created" })
     } catch (error) {
@@ -122,14 +121,19 @@ export async function DELETE(request: NextRequest) {
     // body: {AcademicYear, Semester }
     try {
         const body = await request.json()
-        const data = await prisma.timeslot.deleteMany({
+        await prisma.table_config.delete({
+            where: {
+                ConfigID: body.Semester[9] + '/' + body.AcademicYear,
+            },
+        }).then(async () => await prisma.timeslot.deleteMany({
             where: {
                 AcademicYear: body.AcademicYear,
                 Semester: semester[body.Semester],
             },
-        })
+        }))
 
-        return NextResponse.json(data)
+
+        return NextResponse.json("Timeslots deleted")
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: error }, { status: 500 })

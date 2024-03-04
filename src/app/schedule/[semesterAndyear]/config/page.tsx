@@ -1,4 +1,6 @@
 "use client";
+import CheckIcon from "@mui/icons-material/Check";
+import ReplayIcon from "@mui/icons-material/Replay";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -10,12 +12,14 @@ import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
-import { useTimeslotData } from "@/app/_hooks/timeslotData";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
-import { enqueueSnackbar } from "notistack";
-import api from "@/libs/axios";
-
+import { closeSnackbar, enqueueSnackbar } from "notistack";
+import api, { fetcher } from "@/libs/axios";
+import useSWR from "swr";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { table } from "console";
+import Loading from "@/app/loading";
 // TODO: ถ้าตั้งค่าแล้ว GET มาจาก table_config
 type Props = {};
 
@@ -32,29 +36,34 @@ function TimetableConfigValue({}: Props) {
     Days: ["MON", "TUE", "WED", "THU", "FRI"],
     AcademicYear: parseInt(academicYear),
     Semester: `SEMESTER_${semester}`,
-    StartTime: "08:00",
+    StartTime: "08:30",
     BreakDuration: 50,
     BreakTimeslots: {
       Junior: 4,
       Senior: 5,
     },
     Duration: 50,
-    TimeslotPerDay: 10,
+    TimeslotPerDay: 8,
     MiniBreak: {
       Duration: 10,
       SlotNumber: 2,
     },
     HasMinibreak: false,
   });
-  const semesterSplit = (params.semesterAndyear as string).split("-"); //from "1-2566" to ["1", "2566"]
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
-  const timeslotData = useTimeslotData(
-    parseInt(semesterSplit[1]),
-    parseInt(semesterSplit[0]),
+  const tableConfig = useSWR(
+    "/config/getConfig?AcademicYear=" +
+      academicYear +
+      "&Semester=SEMESTER_" +
+      semester,
+    fetcher,
   );
   useEffect(() => {
-    setIsSetTimeslot(() => timeslotData.data.length > 0);
-  }, [timeslotData.data]);
+    setIsSetTimeslot(() => tableConfig.data != undefined);
+    if (tableConfig.data) {
+      setConfigData(tableConfig.data.Config);
+    }
+  }, [tableConfig.isValidating]);
   const handleChangeStartTime = (e: any) => {
     let value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));
@@ -124,58 +133,78 @@ function TimetableConfigValue({}: Props) {
       Days: ["MON", "TUE", "WED", "THU", "FRI"],
       AcademicYear: parseInt(academicYear),
       Semester: `SEMESTER_${semester}`,
-      StartTime: "08:00",
+      StartTime: "08:30",
       BreakDuration: 50,
       BreakTimeslots: {
         Junior: 4,
         Senior: 5,
       },
       Duration: 50,
-      TimeslotPerDay: 10,
+      TimeslotPerDay: 8,
       MiniBreak: {
         Duration: 10,
         SlotNumber: 2,
       },
       HasMinibreak: false,
     }));
+    enqueueSnackbar("คืนค่าเริ่มต้นสำเร็จ", { variant: "success" });
   };
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
+
   const saved = async () => {
+    setIsSetTimeslot(true);
+    const saving = enqueueSnackbar("กำลังตั้งค่าตาราง", {
+      variant: "info",
+      persist: true,
+    });
     try {
-      const response = await api.post("/timeslot", {...configData, HasMinibreak: addMiniBreak});
+      const response = await api.post("/timeslot", {
+        ...configData,
+        HasMinibreak: addMiniBreak,
+        // BreakDuration: configData.Duration,
+      });
       if (response.status === 200) {
+        closeSnackbar(saving);
         enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });
+        tableConfig.mutate();
       }
       console.log(response);
     } catch (error) {
       console.log(error);
+      closeSnackbar(saving);
       enqueueSnackbar("เกิดข้อผิดพลาดในการตั้งค่าตาราง", { variant: "error" });
+      setIsSetTimeslot(false);
     }
   };
-  const snackBarHandle = (commitMsg: string): void => {
-    let message: string;
-    let variant: "success" | "error" | "warning" | "info" = "success";
-    if (commitMsg == "SAVED") {
-      message = "บันทึกการตั้งค่าสำเร็จ!";
-    } else if (commitMsg == "RESET") {
-      message = "รีเซ็ทข้อมูลสำเร็จ!";
-    } else if (commitMsg == "ERROR") {
-      message = "บันทึกไม่สำเร็จ!";
-    }
-    enqueueSnackbar(message, { variant: variant });
-  };
+
   return (
     <>
-      {isActiveModal ? <ConfirmDeleteModal closeModal={() => setIsActiveModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
-      {isCloneDataModal ? <CloneTimetableDataModal closeModal={() => setIsCloneDataModal(false)} openSnackBar={snackBarHandle} mutate={undefined} academicYear={academicYear} semester={semester} /> : null}
+      {isActiveModal ? (
+        <ConfirmDeleteModal
+          closeModal={() => setIsActiveModal(false)}
+          mutate={tableConfig.mutate}
+          academicYear={academicYear}
+          semester={semester}
+        />
+      ) : null}
+      {isCloneDataModal ? (
+        <CloneTimetableDataModal
+          closeModal={() => setIsCloneDataModal(false)}
+          mutate={tableConfig.mutate}
+          academicYear={academicYear}
+          semester={semester}
+        />
+      ) : null}
       <span className="flex flex-col gap-3 my-5 px-3">
-        {!isSetTimeslot ?
-        <div className="flex w-full py-4 justify-end items-center">
-          <u onClick={() => setIsCloneDataModal(true)} className="text-blue-500 cursor-pointer hover:text-blue-600 duration-300">เรียกข้อมูลตารางสอนที่มีอยู่</u>
-        </div>
-         : null
-         }
+        {!isSetTimeslot ? (
+          <div className="flex w-full py-4 justify-end items-center">
+            <u
+              onClick={() => setIsCloneDataModal(true)}
+              className="text-blue-500 cursor-pointer hover:text-blue-600 duration-300"
+            >
+              เรียกข้อมูลตารางสอนที่มีอยู่
+            </u>
+          </div>
+        ) : null}
         {/* Config timeslot per day */}
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
@@ -365,33 +394,33 @@ function TimetableConfigValue({}: Props) {
         </div>
         <div className="flex w-full h-[65px] justify-between items-center">
           {isSaved ? (
-            <p className="text-green-400">บันทึกสำเร็จ !</p>
+            <p className="text-green-400">ตั้งค่าสำเร็จ !</p>
           ) : (
             <>
-              <div className="">
+              <div>
                 <PrimaryButton
                   handleClick={() => setIsActiveModal(true)}
                   title={"ลบเทอม"}
                   color={"danger"}
-                  Icon={undefined}
+                  Icon={<DeleteIcon />}
                   reverseIcon={false}
                   isDisabled={!isSetTimeslot}
                 />
               </div>
               <div className="flex gap-3">
                 <PrimaryButton
-                  handleClick={saved}
-                  title={"บันทึก"}
+                  handleClick={reset}
+                  title={"คืนค่าเริ่มต้น"}
                   color={""}
-                  Icon={undefined}
+                  Icon={<ReplayIcon />}
                   reverseIcon={false}
                   isDisabled={isSetTimeslot}
                 />
                 <PrimaryButton
-                  handleClick={reset}
-                  title={"คืนค่าเริ่มต้น"}
-                  color={""}
-                  Icon={undefined}
+                  handleClick={saved}
+                  title={"ตั้งค่า"}
+                  color={"success"}
+                  Icon={<CheckIcon />}
                   reverseIcon={false}
                   isDisabled={isSetTimeslot}
                 />
@@ -399,19 +428,6 @@ function TimetableConfigValue({}: Props) {
             </>
           )}
         </div>
-        <Snackbar
-          open={isSnackBarOpen}
-          autoHideDuration={6000}
-          onClose={() => setIsSnackBarOpen(false)}
-        >
-          <Alert
-            onClose={() => setIsSnackBarOpen(false)}
-            severity="success"
-            sx={{ width: "100%" }}
-          >
-            {snackBarMsg}
-          </Alert>
-        </Snackbar>
       </span>
     </>
   );

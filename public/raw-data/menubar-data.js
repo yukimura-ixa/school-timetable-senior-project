@@ -3,13 +3,14 @@ import { BsDisplay, BsTable } from 'react-icons/bs'
 import { SiGoogleclassroom } from 'react-icons/si';
 import { AiFillSetting, AiFillPrinter, AiFillInfoCircle } from 'react-icons/ai'
 import { HiAcademicCap } from 'react-icons/hi2';
+import { MdPlace } from 'react-icons/md'
 export const managementMenu = [
     {
         id : "teachertable",
         IconStyle : {
             Icon : BiSolidUser,
         },
-        title : "ข้อมูลรายชื่อครู",
+        title : "ข้อมูลครู",
         link : "/management/teacher"
     },
     {
@@ -17,13 +18,13 @@ export const managementMenu = [
         IconStyle : {
             Icon : BiSolidBook,
         },
-        title : "ข้อมูลรายวิชา",
+        title : "ข้อมูลวิชา",
         link : "/management/subject"
     },
     {
         id : "roomtable",
         IconStyle : {
-            Icon : SiGoogleclassroom,
+            Icon : MdPlace,
         },
         title : "ข้อมูลสถานที่เรียน",
         link : "/management/rooms"
@@ -31,7 +32,7 @@ export const managementMenu = [
     {
         id : "gradeleveltable",
         IconStyle : {
-            Icon : HiAcademicCap,
+            Icon : SiGoogleclassroom,
         },
         title : "ข้อมูลชั้นเรียน",
         link : "/management/gradelevel"
@@ -41,7 +42,7 @@ export const managementMenu = [
         IconStyle : {
             Icon : HiAcademicCap,
         },
-        title : "หลักสูตร",
+        title : "ข้อมูลหลักสูตร",
         link : "/management/program"
     }
 ]

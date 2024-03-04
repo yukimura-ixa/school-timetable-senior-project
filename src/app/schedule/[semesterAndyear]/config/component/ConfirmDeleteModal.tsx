@@ -8,7 +8,6 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { enqueueSnackbar } from "notistack"
 type props = { 
   closeModal: any;
-  openSnackBar: any;
   academicYear: string;
   semester: string;
   mutate: Function;
@@ -16,7 +15,6 @@ type props = {
 
 function ConfirmDeleteModal({
   closeModal,
-  openSnackBar,
   academicYear,
   semester,
   mutate,
@@ -36,6 +34,7 @@ function ConfirmDeleteModal({
       });
       if (response.status === 200) {
         enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
+        mutate();
       }
     } catch (error) {
       enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล", { variant: "error" });

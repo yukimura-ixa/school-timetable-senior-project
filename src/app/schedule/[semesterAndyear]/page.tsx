@@ -4,30 +4,37 @@ import React, { useEffect, useState } from "react";
 import { Snackbar, Alert, Link } from "@mui/material";
 import { HiLockClosed } from "react-icons/hi2";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import { useTimeslotData } from "@/app/_hooks/timeslotData";
+import { fetcher } from "@/libs/axios";
+import useSWR from "swr";
+
 type Props = {};
 
 function Schedule({}: Props) {
   const pathName = usePathname();
   const router = useRouter();
   const params = useParams();
-  const semesterSplit = (params.semesterAndyear as string).split("-"); //from "1-2566" to ["1", "2566"]
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-",
+  ); //from "1-2566" to ["1", "2566"]
   const path = pathName.substring(0, 16);
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
-  const timeslotData = useTimeslotData(
-    parseInt(semesterSplit[1]),
-    parseInt(semesterSplit[0])
+  const tableConfig = useSWR(
+    "/config/getConfig?AcademicYear=" +
+      academicYear +
+      "&Semester=SEMESTER_" +
+      semester,
+    fetcher,
   );
   useEffect(() => {
-    setIsSetTimeslot(() => timeslotData.data.length > 0);
-  }, [timeslotData.data]);
+    setIsSetTimeslot(() => tableConfig.data != undefined);
+  }, [tableConfig.isValidating]);
 
   const [tabSelect, setTabSelect] = useState("");
   return (
     <>
       <div className="w-full flex justify-between items-center py-6">
         <h1 className="text-xl font-bold">
-          ตารางสอน เทอม {semesterSplit[0]} ปีการศึกษา {semesterSplit[1]}
+          ตารางสอน เทอม {semester} ปีการศึกษา {academicYear}
         </h1>
         <Link
           className="flex gap-3 items-center justify-between cursor-pointer"
