@@ -80,16 +80,16 @@ export const othersMenu = [
             Icon : AiFillPrinter,
         },
         title : "พิมพ์ตารางสอน",
-        link : "/others/print"
+        link : "others/print"
     },
-    {
-        id : "timetable-docs",
-        IconStyle : {
-            Icon : AiFillInfoCircle,
-        },
-        title : "คู่มือการใช้งาน",
-        link : "/others/docs"
-    },
+    // {
+    //     id : "timetable-docs",
+    //     IconStyle : {
+    //         Icon : AiFillInfoCircle,
+    //     },
+    //     title : "คู่มือการใช้งาน",
+    //     link : "/others/docs"
+    // },
 ]
 export const showTimetableMenu = [
     {

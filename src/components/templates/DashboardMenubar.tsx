@@ -110,7 +110,8 @@ function DashboardMenubar() {
             {othersMenu.map((item, index) => (
               <React.Fragment key={item.id}>
                 {makePath(item.link) === linkSelected ? (
-                  <div
+                  <Link
+                    href={makePath(item.link)}
                     onClick={() => setLinkSelected(makePath(item.link))}
                     className={`border-r-8 border-cyan-600 bg-cyan-100 text-cyan-600 flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer duration-500`}
                     style={{
@@ -119,9 +120,10 @@ function DashboardMenubar() {
                   >
                     <item.IconStyle.Icon className={`iconhover`} />
                     <p className="text-md ">{item.title}</p>
-                  </div>
+                  </Link>
                 ) : (
-                  <div
+                  <Link
+                    href={makePath(item.link)}
                     onClick={() => setLinkSelected(makePath(item.link))}
                     className={`hoverfill hover:border-r-8 hover:border-cyan-600 hover:bg-cyan-100 hover:text-cyan-600 flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#4F4F4F] duration-500`}
                     style={{
@@ -130,7 +132,7 @@ function DashboardMenubar() {
                   >
                     <item.IconStyle.Icon className={`iconhover`} />
                     <p className="text-md ">{item.title}</p>
-                  </div>
+                  </Link>
                 )}
               </React.Fragment>
             ))}
