@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
     let response: class_schedule[]
     try {
-        // localhost:3000/api/class?AcademicYear=2566&Semester=SEMESTER_1
+        // localhost:3000/api/class/summary?AcademicYear=2566&Semester=SEMESTER_1
         response = await prisma.class_schedule.findMany({
             where: {
                 timeslot: {
@@ -17,7 +17,15 @@ export async function GET(request: NextRequest) {
                 },
             },
             include: {
-                subject: true,
+                subject: {
+                    select: {
+                        teachers_responsibility: {
+                            select: {
+                                TeacherID: true,
+                            }
+                        }
+                    }
+                },
                 gradelevel: true,
                 timeslot: true,
                 room: true,
