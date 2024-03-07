@@ -1,7 +1,6 @@
 "use client";
 import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
-import { MdAdd } from "react-icons/md";
 import { studentSlot } from "@/raw-data/subjectslot";
 import { useTeacherData } from "@/app/_hooks/teacherData";
 import { fetcher } from "@/libs/axios";
@@ -198,9 +197,9 @@ function TimeSlot(props: Props) {
                     .filter((slot) => slot.DayOfWeek == day.Day)
                     .map((item) => (
                       <Fragment key={`day${item.DayOfWeek}`}>
-                        {item.SlotData.map((data) => (
+                        {timeSlotData.SlotAmount.map((data) => (
                           <Fragment
-                            key={`weehhe${data.SlotNumber}${data.SubjectCode}`}
+                            key={`slot${data}`}
                           >
                             <td
                               style={{
@@ -212,9 +211,9 @@ function TimeSlot(props: Props) {
                             >
                               <span className="flex flex-col items-center text-xs duration-300">
                                 {/* <MdAdd size={20} className="fill-gray-300" /> */}
-                                <p>{data.SubjectCode}</p>
+                                {/* <p>{data.SubjectCode}</p>
                                 <p>{data.TeacherName}</p>
-                                <p>{data.RoomID}</p>
+                                <p>{data.RoomID}</p> */}
                               </span>
                             </td>
                           </Fragment>

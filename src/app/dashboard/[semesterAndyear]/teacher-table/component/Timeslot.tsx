@@ -198,9 +198,9 @@ function TimeSlot(props: Props) {
                     .filter((slot) => slot.DayOfWeek == day.Day)
                     .map((item) => (
                       <Fragment key={`day-${item.DayOfWeek}`}>
-                        {item.SlotData.map((data) => (
+                        {timeSlotData.SlotAmount.map((data) => (
                           <Fragment
-                            key={`slot-no${data.SlotNumber}${data.SubjectCode}`}
+                            key={`slot-no${data}`}
                           >
                             <td
                               style={{
@@ -212,16 +212,14 @@ function TimeSlot(props: Props) {
                             >
                               <span className="flex flex-col items-center text-xs duration-300">
                                 {/* <MdAdd size={20} className="fill-gray-300" /> */}
-                                {data.GradeID != null && (
-                                  <>
-                                    <p>{data.SubjectCode}</p>
-                                    <p>
-                                      ม.{data.GradeID.toString().slice(0, 1)}/
-                                      {data.GradeID.toString().slice(2)}
-                                    </p>
-                                    <p>{data.RoomID}</p>
-                                  </>
-                                )}
+                                <>
+                                  {/* <p>{data.SubjectCode}</p>
+                                  <p>
+                                    ม.{data.GradeID.toString().slice(0, 1)}/
+                                    {data.GradeID.toString().slice(2)}
+                                  </p>
+                                  <p>{data.RoomID}</p> */}
+                                </>
                               </span>
                             </td>
                           </Fragment>

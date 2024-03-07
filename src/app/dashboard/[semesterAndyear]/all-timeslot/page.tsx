@@ -15,6 +15,7 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import ExcelJS from "exceljs";
 import TableResult from "./component/TableResult";
 const AllTimeslot = () => {
+  // TODO: คาบล็อกแสดงเป็นตัวอักษรสีแดง
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
@@ -44,9 +45,230 @@ const AllTimeslot = () => {
     fetcher,
     { revalidateOnFocus: false },
   );
+  const excelTableExport = () => {
+    // row.getCell(colNumber).border = {
+    //   top: { style: "thin" },
+    //   left: { style: "thin" },
+    //   bottom: { style: "thin" },
+    //   right: { style: "thin" },
+    // };
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("My Sheet", {pageSetup :{paperSize: 9, orientation:'landscape'}}); //add worksheet to created workbook
+    const generateTableHead = [
+      "ชั่วโมงที่",
+      ...timeSlotData.SlotAmount.map((item) => item),
+    ];
+    const alignCell = (v:string, h:string): object => {
+      return {
+        vertical: v,
+        horizontal: h,
+      };
+    }
+    let slotLength = timeSlotData.SlotAmount.length+1
+    let tableRow = { start: 1, end: 20 };
+    let keepCellRow = []
+    let keepCellCol = []
+    let keepLastRowLine = []
+    //Brute force แบบ 300%
+    for (let i = 0; i < allTeacher.data.length; i++) {
+      let tch = allTeacher.data[i];
+      for (let j = tableRow.start; j <= tableRow.end; j++) {
+        if (j == tableRow.start) {
+          const rowAfirst = sheet.getCell(`A${tableRow.start}`);
+          const rowEfirst = sheet.getCell(`E${tableRow.start}`);
+          rowAfirst.alignment = alignCell("middle", "left")
+          rowEfirst.alignment = alignCell("middle", "left")
+          rowAfirst.value = `ตารางสอน ${tch.Prefix}${tch.Firstname} ${tch.Lastname}`;
+          rowEfirst.value = `ภาคเรียนที่ ${semester}/${academicYear}`;
+        } else if (j == tableRow.start + 1) {
+          const row = sheet.getRow(tableRow.start + 1);
+          row.alignment = alignCell("middle", "center")
+          row.values = generateTableHead;
+          keepCellRow.push(tableRow.start + 1)
+        } else if (j == tableRow.start + 2) {
+          const row = sheet.getRow(tableRow.start + 2);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["วัน / เวลา", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 2)
+        } else if (j == tableRow.start + 3) {
+          const row = sheet.getRow(tableRow.start + 3);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellRow.push(tableRow.start + 3)
+        } else if (j == tableRow.start + 4) {
+          const row = sheet.getRow(tableRow.start + 4);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["จันทร์", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 4)
+        } else if (j == tableRow.start + 5) {
+          const row = sheet.getRow(tableRow.start + 5);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 5)
+        } else if (j == tableRow.start + 6) {
+          const row = sheet.getRow(tableRow.start + 6);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellRow.push(tableRow.start + 6)
+        } else if (j == tableRow.start + 7) {
+          const row = sheet.getRow(tableRow.start + 7);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["อังคาร", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 7)
+        } else if (j == tableRow.start + 8) {
+          const row = sheet.getRow(tableRow.start + 8);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 8)
+        } else if (j == tableRow.start + 9) {
+          const row = sheet.getRow(tableRow.start + 9);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellRow.push(tableRow.start + 9)
+        } else if (j == tableRow.start + 10) {
+          const row = sheet.getRow(tableRow.start + 10);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["พุธ", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 10)
+        } else if (j == tableRow.start + 11) {
+          const row = sheet.getRow(tableRow.start + 11);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 11)
+        } else if (j == tableRow.start + 12) {
+          const row = sheet.getRow(tableRow.start + 12);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellRow.push(tableRow.start + 12)
+        } else if (j == tableRow.start + 13) {
+          const row = sheet.getRow(tableRow.start + 13);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["พฤหัสบดี", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 13)
+        } else if (j == tableRow.start + 14) {
+          const row = sheet.getRow(tableRow.start + 14);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 14)
+        } else if (j == tableRow.start + 15) {
+          const row = sheet.getRow(tableRow.start + 15);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellRow.push(tableRow.start + 15)
+        } else if (j == tableRow.start + 16) {
+          const row = sheet.getRow(tableRow.start + 16);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["ศุกร์", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 16)
+        } else if (j == tableRow.start + 17) {
+          const row = sheet.getRow(tableRow.start + 17);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+          keepCellCol.push(tableRow.start + 17)
+          keepLastRowLine.push(tableRow.start + 17)
+        } else if (j == tableRow.start + 18) {
+          const row = sheet.getRow(tableRow.start + 18);
+          row.alignment = alignCell("middle", "center")
+          row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
+        }else if (j == tableRow.end) {
+          const rowlast = sheet.getCell(`B${tableRow.end}`);
+          rowlast.alignment = {
+            vertical: "middle",
+            horizontal: "left",
+          };
+          rowlast.value = `ลงชื่อ..........................................รองผอ.วิชาการ  ลงชื่อ..........................................ผู้อำนวยการ`;
+        }
+      }
+      tableRow = { start: tableRow.start + 22, end: tableRow.end + 22 };
+    }
+    // console.log(keepCellRow)
+    sheet.eachRow(function (row, rowNumber) {
+        if(keepCellRow.includes(rowNumber)){
+          row.eachCell(function (cell, colNumber) {
+            if(colNumber == 1){
+              row.getCell(colNumber).border = {
+                top: { style: "thin" },
+                right: { style: "thin" },
+                left: { style: "thin" },
+              };
+            }
+            else if(colNumber <= slotLength){
+              row.getCell(colNumber).border = {
+                top: { style: "thin" },
+                right: { style: "thin" },
+              };
+            }
+          });
+        }
+        if(keepCellCol.includes(rowNumber)){
+          row.eachCell(function (cell, colNumber) {
+            if(colNumber == 1){
+              row.getCell(colNumber).border = {
+                right: { style: "thin" },
+                left: { style: "thin" },
+              };
+            }
+            else if(colNumber <= slotLength){
+              row.getCell(colNumber).border = {
+                right: { style: "thin" },
+              };
+            }
+          });
+        }
+        if(keepLastRowLine.includes(rowNumber)){
+          row.eachCell(function (cell, colNumber) {
+            if(colNumber == 1){
+              row.getCell(colNumber).border = {
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+                left: { style: "thin" },
+              };
+            }
+            else if(colNumber <= slotLength){
+              row.getCell(colNumber).border = {
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+              };
+            }
+          });
+        }
+    });
+    sheet.eachRow(function (row, rowNumber) {
+      row.font = { name: "TH SarabunPSK", size: 14 };
+      row.height = 16.5;
+      // row.eachCell(function (cell, colNumber) {
+      //   // if (colNumber >= 3 && colNumber <= slotLength + 3)
+      //   //   cell.alignment = {
+      //   //     vertical: "middle",
+      //   //     horizontal: "center",
+      //   //   };
+      //   if (rowNumber == tableRow.start) {
+      //     row.getCell(colNumber).border = {
+      //       top: { style: "thin" },
+      //       // left: { style: "thin" },
+      //       // bottom: { style: "thin" },
+      //       // right: { style: "thin" },
+      //     };
+      //   }
+      // });
+    });
+
+    workbook.xlsx.writeBuffer().then((data) => {
+      const blob = new Blob([data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      (anchor.href = url), (anchor.download = "ตารางครู.xlsx");
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+    });
+  };
   const excelExport = () => {
     const workbook = new ExcelJS.Workbook(); //create workbook
-    const sheet = workbook.addWorksheet("My Sheet"); //add worksheet to created workbook
+    const sheet = workbook.addWorksheet("รวม", {
+      pageSetup:{paperSize: 9, orientation:'landscape'}
+    }); //add worksheet to created workbook
     // sheet.getCell("A1").font = { bold: true,}; //set font bold to A1
     const row1 = sheet.getCell("A1");
     const rows = sheet.getRow(2); //select row2
@@ -94,15 +316,15 @@ const AllTimeslot = () => {
 
     //สร้าง key ของ column ขึ้นมาพร้อมกับกำหนด width ให้ col
     const keyColumn = [
-      { key: "order", width: 5 },
-      { key: "teacherName", width: 35 },
+      { key: "order", width: 3 },
+      { key: "teacherName", width: 19 },
       ...timeSlotData.DayOfWeek.flatMap((item) =>
         timeSlotData.SlotAmount.map((num) => ({
           key: `${item.Day}-${num}`,
-          width: 12,
+          width: 2.29,
         })),
       ),
-      { key: "result", width: 5 },
+      { key: "result", width: 3 },
     ];
     sheet.columns = keyColumn;
     console.log(keyColumn);
@@ -179,8 +401,8 @@ const AllTimeslot = () => {
       };
     });
     sheet.eachRow(function (row, rowNumber) {
-      row.font = { name: "TH SarabunPSK", size: rowNumber == 1 ? 18 : 14 };
-      row.height = rowNumber == 1 ? 30 : rowNumber >= 3 ? 25 : 20;
+      row.font = { name: "TH SarabunPSK", size: 12 };
+      row.height = 15;
       row.eachCell(function (cell, colNumber) {
         if (colNumber >= 3 && colNumber <= slotLength + 3)
           cell.alignment = {
@@ -207,7 +429,7 @@ file. Here is a breakdown of the steps: */
       });
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
-      (anchor.href = url), (anchor.download = "downloaxcell.xlsx");
+      (anchor.href = url), (anchor.download = "รวม.xlsx");
       anchor.click();
       window.URL.revokeObjectURL(url);
     });
@@ -276,16 +498,29 @@ file. Here is a breakdown of the steps: */
         )}
       </div>
       <div className="w-full h-10 flex justify-between mt-3">
-        <PrimaryButton
-          handleClick={excelExport}
-          title={"นำออกเป็น Excel"}
-          color={"secondary"}
-          Icon={undefined}
-          reverseIcon={false}
-          isDisabled={false}
-        />
+        <div className="flex gap-3">
+          <PrimaryButton
+            handleClick={excelExport}
+            title={"นำตารางรวมออก"}
+            color={"secondary"}
+            Icon={undefined}
+            reverseIcon={false}
+            isDisabled={false}
+          />
+          <PrimaryButton
+            handleClick={excelTableExport}
+            title={"นำตารางสอนออก"}
+            color={"secondary"}
+            Icon={undefined}
+            reverseIcon={false}
+            isDisabled={false}
+          />
+        </div>
         <div className="w-full flex justify-end items-center gap-3 mt-3 cursor-default">
-          <div className="w-[75px] h-[35px] border rounded p-2 flex gap-1 items-center justify-start">
+          <div
+            onClick={() => console.log(classData)}
+            className="w-[75px] h-[35px] border rounded p-2 flex gap-1 items-center justify-start"
+          >
             <p className="text-xs text-gray-400">Left Shift</p>
           </div>
           <p className="text-sm text-gray-400">+</p>

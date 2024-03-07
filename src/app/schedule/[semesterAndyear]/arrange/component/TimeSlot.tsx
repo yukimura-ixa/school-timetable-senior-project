@@ -919,7 +919,7 @@ function TimeSlot(props: Props) {
                             //จะลากลงไม่ได้ก็ต่อเมื่อเป็นคาบพักและเป็นวิชาที่มีอยู่ใน slot แล้ว (ไม่รวมสลับวิชาระหว่างช่อง)
                             isDropDisabled={
                               //ถ้ามีพักเที่ยงก็ปิดช่องเลย
-                              checkBreakTime(item.Breaktime) ||
+                              checkBreakTime(item.Breaktime) || item.subject.Scheduled ||
                               //ถ้าเป็นวิชาล็อก GradeID จะเป็น array
                               (typeof item.subject.GradeID !== "string" &&
                                 Object.keys(item.subject).length !== 0) ||
