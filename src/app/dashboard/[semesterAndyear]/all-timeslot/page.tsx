@@ -65,7 +65,7 @@ const AllTimeslot = () => {
       };
     }
     let slotLength = timeSlotData.SlotAmount.length+1
-    let tableRow = { start: 1, end: 20 };
+    let tableRow = { start: 1, end: 31 };
     let keepCellRow = []
     let keepCellCol = []
     let keepLastRowLine = []
@@ -170,8 +170,8 @@ const AllTimeslot = () => {
           const row = sheet.getRow(tableRow.start + 18);
           row.alignment = alignCell("middle", "center")
           row.values = ["", ...timeSlotData.SlotAmount.map(item => "")];
-        }else if (j == tableRow.end) {
-          const rowlast = sheet.getCell(`B${tableRow.end}`);
+        }else if (j == tableRow.start + 21) {
+          const rowlast = sheet.getCell(`B${tableRow.start + 21}`);
           rowlast.alignment = {
             vertical: "middle",
             horizontal: "left",
@@ -179,7 +179,7 @@ const AllTimeslot = () => {
           rowlast.value = `ลงชื่อ..........................................รองผอ.วิชาการ  ลงชื่อ..........................................ผู้อำนวยการ`;
         }
       }
-      tableRow = { start: tableRow.start + 22, end: tableRow.end + 22 };
+      tableRow = { start: tableRow.start + 31, end: tableRow.end + 31 };
     }
     // console.log(keepCellRow)
     sheet.eachRow(function (row, rowNumber) {
