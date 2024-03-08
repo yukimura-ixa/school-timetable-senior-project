@@ -9,6 +9,10 @@ import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
+import Loading from "@/app/loading";
+import SelectClassRoom from "./SelectClassroom";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import { ExportTeacherTable } from "../../all-timeslot/functions/ExportTeacherTable";
 
 type Props = {};
 
@@ -123,8 +127,26 @@ function TimeSlot(props: Props) {
     ];
     return map;
   };
+  const fetchClassDatabyID = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
+    () => `/class?GradeID=` + searchGradeID,
+    fetcher
+  );
+  const [searchGradeID, setSearchGradeID] = useState('101')
+  const setGradeID = (id:string) => {
+    setSearchGradeID(id);
+  }
   return (
     <>
+      {fetchClassDatabyID.isLoading ? <Loading /> :
+      <>
+      <SelectClassRoom setGradeID={setGradeID} currentClassRoom={fetchClassDatabyID.data} />
+      <div className='flex w-full gap-3 justify-end'>
+        <PrimaryButton handleClick={() => ExportTeacherTable(timeSlotData, [], semester, academicYear)} title={'นำออกเป็น Excel'} color={''} Icon={undefined} reverseIcon={false} isDisabled={false} />
+        <PrimaryButton handleClick={() => console.log(fetchClassDatabyID)} title={'นำออกเป็น PDF'} color={''} Icon={undefined} reverseIcon={false} isDisabled={false} />
+      </div>
+      </>
+      } 
       {fetchTimeSlot.isLoading ? (
         <Loading />
       ) : (

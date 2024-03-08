@@ -283,7 +283,7 @@ function TimeSlot(props: Props) {
   };
   const mapTime = () => {
     let map = [
-      ...timeSlotData.SlotAmount.map((hour) => {
+      ...timeSlotData.SlotAmount.map((hour, index) => {
         //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
         let timeFormat = `0${timeSlotData.StartTime.Hours}:${
           timeSlotData.StartTime.Minutes == 0
@@ -294,8 +294,8 @@ function TimeSlot(props: Props) {
         const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         //นำไปใส่ใน function addHours เพื่อกำหนดเวลาเริ่ม-จบ
-        let start = addHours(timeStart, hour - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
-        let end = addHours(timeEnd, hour); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
+        let start = addHours(timeStart, index + 1 - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
+        let end = addHours(timeEnd, index + 1); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
         //แปลงจาก 2023-07-27T17:24:52.897Z เป็น 17:24 โดยใช้ slice
         return {
           Start: start.toISOString().slice(11, 16),
@@ -313,22 +313,25 @@ function TimeSlot(props: Props) {
       Schedule: timeSlotData.AllData,
     };
     // console.log(data);
-    setIsSaving(true)
-    const savingSnackbar = enqueueSnackbar("กำลังบันทึกข้อมูล...", { variant: "info", persist: true})
+    setIsSaving(true);
+    const savingSnackbar = enqueueSnackbar("กำลังบันทึกข้อมูล...", {
+      variant: "info",
+      persist: true,
+    });
 
     try {
       const response = await api.post("/arrange", data);
       if (response.status == 200) {
-        closeSnackbar(savingSnackbar)
+        closeSnackbar(savingSnackbar);
         enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
         fetchAllClassData.mutate();
-        setIsSaving(false)
+        setIsSaving(false);
       }
     } catch (error) {
       console.log(error);
-      closeSnackbar(savingSnackbar)
+      closeSnackbar(savingSnackbar);
       enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
-      setIsSaving(false)
+      setIsSaving(false);
     }
   }
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
@@ -858,13 +861,16 @@ function TimeSlot(props: Props) {
               <thead>
                 <tr className="flex gap-4">
                   <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
-                    <span className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center">
+                    <span
+                      onClick={() => console.log(timeSlotData)}
+                      className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center"
+                    >
                       คาบที่
                     </span>
                   </th>
                   {/* Map จำนวนคาบ */}
                   {timeSlotData.SlotAmount.map((item) => (
-                    <Fragment key={`woohoo${item}`}>
+                    <Fragment key={`slot-${item}`}>
                       <th className="flex font-light bg-gray-100 grow items-center justify-center p-[10px] h-[53px] rounded select-none">
                         <p className="text-gray-600">
                           {item < 10 ? `0${item}` : item}
@@ -919,7 +925,8 @@ function TimeSlot(props: Props) {
                             //จะลากลงไม่ได้ก็ต่อเมื่อเป็นคาบพักและเป็นวิชาที่มีอยู่ใน slot แล้ว (ไม่รวมสลับวิชาระหว่างช่อง)
                             isDropDisabled={
                               //ถ้ามีพักเที่ยงก็ปิดช่องเลย
-                              checkBreakTime(item.Breaktime) || item.subject.Scheduled ||
+                              checkBreakTime(item.Breaktime) ||
+                              item.subject.Scheduled ||
                               //ถ้าเป็นวิชาล็อก GradeID จะเป็น array
                               (typeof item.subject.GradeID !== "string" &&
                                 Object.keys(item.subject).length !== 0) ||
@@ -942,7 +949,9 @@ function TimeSlot(props: Props) {
                                   backgroundColor: snapshot.isDraggingOver
                                     ? "white"
                                     : null,
-                                  width : `${1062 / timeSlotData.SlotAmount.length - 10}px`
+                                  width: `${
+                                    1062 / timeSlotData.SlotAmount.length - 10
+                                  }px`,
                                 }}
                                 className={timeSlotCssClassName(
                                   item.Breaktime,
@@ -959,7 +968,8 @@ function TimeSlot(props: Props) {
                                       style={{
                                         display:
                                           checkBreakTime(item.Breaktime) &&
-                                          (isSelectedToAdd() || isSelectedToChange())
+                                          (isSelectedToAdd() ||
+                                            isSelectedToChange())
                                             ? "flex"
                                             : "none",
                                       }}
@@ -1089,7 +1099,7 @@ function TimeSlot(props: Props) {
                                                   item.subject,
                                                   item.TimeslotID,
                                                   true,
-                                                )
+                                                );
                                               }}
                                               style={{
                                                 color:

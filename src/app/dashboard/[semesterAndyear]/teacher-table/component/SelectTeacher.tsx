@@ -1,23 +1,37 @@
+import { useTeacherData } from "@/app/_hooks/teacherData";
+import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React from "react";
+import React, { useState } from "react";
 
-type Props = {};
+type Props = {
+  setTeacherID: Function;
+  currentTeacher : any;
+};
 
-function SelectTeacher({}: Props) {
+function SelectTeacher(props: Props) {
+  const allTeacher = useTeacherData();
+  const current = props.currentTeacher
+  const [teacher, setTeacher] = useState(`${current.Prefix}${current.Firstname} ${current.Lastname}`)
   return (
     <>
+      {allTeacher.isLoading ? <Loading />
+      :
       <div className="flex w-full items-center justify-between h-fit p-4 border border-[#EDEEF3]">
         <p>เลือกครู</p>
         <Dropdown
           width={300}
-          data={["Hi"]}
-          placeHolder="อเนก ประสงค์ - คณิตศาสตร์"
-          renderItem={({data}) => (<>{data}</>)}
-          currentValue={undefined}
-          handleChange={undefined}
+          data={allTeacher.data}
+          placeHolder="ตัวเลือก"
+          renderItem={({data}) => (<li><p>{`${data.Prefix}${data.Firstname} ${data.Lastname}`}</p></li>)}
+          currentValue={teacher}
+          handleChange={(data) => {
+            setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`)
+            props.setTeacherID(data.TeacherID)
+          }}
           searchFunciton={undefined}
         />
       </div>
+      }
     </>
   );
 }

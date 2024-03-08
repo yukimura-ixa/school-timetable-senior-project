@@ -7,12 +7,9 @@ import TimeSlot from './component/Timeslot';
 type Props = {}
 
 function page({}: Props) {
-    const router = useRouter();
-    const pathName = usePathname();
   return (
     <>
       <div className='flex flex-col gap-3'>
-        <SelectClassRoom />
         <TimeSlot/>
       </div>
     </>
