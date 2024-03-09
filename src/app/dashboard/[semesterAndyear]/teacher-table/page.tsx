@@ -160,12 +160,12 @@ function page({}: Props) {
         </div>
         <TimeSlot timeSlotData={timeSlotData} timeMap={mapTime()}/>
         <div ref={ref} className='p-10 flex flex-col items-center justify-center mt-5' style={{display : isPDFExport ? 'flex' : 'none'}}>
-        <div className='flex gap-10 mb-10'>
+        <div className='flex gap-10 mb-8'>
             <p>ตารางสอน {`${fetchTeacherDatabyID.data.Prefix}${fetchTeacherDatabyID.data.Firstname} ${fetchTeacherDatabyID.data.Lastname}`}</p>
             <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
           </div>
           <TimeSlot timeSlotData={timeSlotData} timeMap={mapTime()}/>
-          <div className='flex gap-2 mt-10'>
+          <div className='flex gap-2 mt-8'>
             <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
             <p>ลงชื่อ..............................ผู้อำนวยการ</p>
           </div>
