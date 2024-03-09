@@ -20,10 +20,10 @@ function SelectedClassRoom(props: Props) {
       <div className="flex flex-col gap-3 justify-between w-full">
         <div className="text-sm flex gap-2 items-center">
           <div className="text-sm flex gap-1">
-            <p onClick={() => asdas()}>เลือกห้องเรียน</p>
+            <p onClick={() => asdas()}>เลือกชั้นเรียน</p>
             <p className="text-red-500">*</p>
           </div>
-          <p className="text-blue-500">(คลิกที่ห้องเรียนเพื่อเลือก)</p>
+          <p className="text-blue-500">(คลิกที่ชั้นเรียนเพื่อเลือก)</p>
             {props.required ? (
             <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
               <BsInfo className="bg-red-500 rounded-full fill-white" />

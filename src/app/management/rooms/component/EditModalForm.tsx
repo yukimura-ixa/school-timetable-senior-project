@@ -7,22 +7,16 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import api from "@/libs/axios";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
   closeModal: any;
   data: any;
   clearCheckList: any;
-  openSnackBar: any;
   mutate: Function;
 };
 
-function EditModalForm({
-  closeModal,
-  data,
-  clearCheckList,
-  openSnackBar,
-  mutate,
-}: props) {
+function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const [editData, setEditData] = useState<rooms[]>(data);
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
@@ -53,19 +47,34 @@ function EditModalForm({
     closeModal();
   };
   const editMultiData = async (data: any) => {
+    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลชั้นเรียน", {
+      variant: "info",
+    });
+
     console.log(data);
-    try {
-      const response = await api.put("/room", data);
-      if (response.status === 200) {
+    const response = await api
+      .put("/room", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
+          variant: "success",
+        });
         mutate();
-        openSnackBar("EDIT");
-      }
-      //clear checkbox
-      clearCheckList();
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar(
+          "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data,
+          {
+            variant: "error",
+          },
+        );
+        console.log(error);
+      });
+
+    //clear checkbox
+    clearCheckList();
+    console.log(response);
   };
   return (
     <>
@@ -108,8 +117,8 @@ function EditModalForm({
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, RoomName: value } : item
-                        )
+                          index === ind ? { ...item, RoomName: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -134,8 +143,8 @@ function EditModalForm({
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Building: value } : item
-                        )
+                          index === ind ? { ...item, Building: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -162,8 +171,8 @@ function EditModalForm({
                       let value: number = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Floor: value } : item
-                        )
+                          index === ind ? { ...item, Floor: value } : item,
+                        ),
                       );
                     }}
                   />

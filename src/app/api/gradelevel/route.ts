@@ -9,10 +9,14 @@ export async function GET(request: NextRequest) {
       orderBy: {
         GradeID: "asc",
       },
+      include: {
+        program: true,
+      }
     })
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }
 
@@ -21,11 +25,21 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const data = await Promise.all(
+
+
       body.map(async (element) => {
+        const alreadyExist = await prisma.gradelevel.findFirst({
+          where: {
+            Year: element.Year,
+            Number: element.Number,
+          },
+        })
+        if (alreadyExist) {
+          throw new Error("มีข้อมูลชั้นปีนี้อยู่แล้ว กรุณาตรวจสอบอีกครั้ง")
+        }
         return await prisma.gradelevel.create({
           data: {
             GradeID: element.Year + '0' + element.Number,
-            ProgramID: null,
             Year: element.Year,
             Number: element.Number,
           },
@@ -36,7 +50,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ids)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }
 
@@ -53,7 +68,8 @@ export async function DELETE(request: NextRequest) {
     })
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }
 
@@ -63,12 +79,20 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const data = await Promise.all(
       body.map(async (element) => {
+        const alreadyExist = await prisma.gradelevel.findFirst({
+          where: {
+            Year: element.Year,
+            Number: element.Number,
+          },
+        })
+        if (!alreadyExist) {
+          throw new Error("ไม่พบข้อมูลชั้นเรียน กรุณาตรวจสอบอีกครั้ง")
+        }
         return await prisma.gradelevel.update({
           where: {
             GradeID: element.GradeID,
           },
           data: {
-            // ProgramID: element.ProgramID,
             Year: element.Year,
             Number: element.Number,
           },
@@ -79,6 +103,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(ids)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }

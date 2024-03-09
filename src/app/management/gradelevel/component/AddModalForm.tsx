@@ -1,5 +1,4 @@
 import React, { useState, Fragment } from "react";
-import TextField from "@/components/elements/input/field/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
@@ -11,19 +10,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
 import type { gradelevel } from "@prisma/client";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  openSnackBar:any
   mutate: Function;
 };
-function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
+function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([
     {
       GradeID: null,
       Year: null,
       Number: null,
-      ProgramID: 0,
     },
   ]);
   const addList = () => {
@@ -31,7 +29,6 @@ function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
       GradeID: null,
       Year: null,
       Number: null,
-      ProgramID: 0,
     };
     setGradeLevels(() => [...gradeLevels, struct]);
   };
@@ -52,14 +49,26 @@ function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
     return isValid;
   };
   const addData = async (data: gradelevel[]) => {
+    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลชั้นเรียน", {
+      variant: "info",
+    });
     console.log(data);
-    const response = await api.post("/gradelevel", data);
-    console.log(response);
-    if (response.status === 200) {
-      mutate();
-      openSnackBar("ADD");
-    }
+    const response = await api
+      .post("/gradelevel", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
+        mutate();
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนไม่สำเร็จ " + error.respnse.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
   };
+  
   const handleSubmit = () => {
     if (isValidData()) {
       addData(gradeLevels);
@@ -112,58 +121,6 @@ function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
                     </p>
                     <p>{index + 1}</p>
                   </div>
-                  {/* <div className="relative flex flex-col gap-2">
-                    <NumberField
-                      width="auto"
-                      height="auto"
-                      placeHolder="ex. 101"
-                      label="รหัสชั้นเรียน (GradeID):"
-                      value={gradeLevel.GradeID}
-                      borderColor={
-                        isEmptyData &&
-                        (gradeLevel.GradeID == 0 || gradeLevel.GradeID == null)
-                          ? "#F96161"
-                          : ""
-                      }
-                      handleChange={(e: any) => {
-                        let value: number = e.target.value;
-                        setGradeLevels(() =>
-                          gradeLevels.map((item, ind) =>
-                            index === ind ? { ...item, GradeID: value } : item
-                          )
-                        );
-                      }}
-                    />
-                    {isEmptyData &&
-                    (gradeLevel.GradeID == 0 || gradeLevel.GradeID == null) ? (
-                      <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-                        <BsInfo className="bg-red-500 rounded-full fill-white" />
-                        <p className="text-red-500 text-sm">ต้องการ</p>
-                      </div>
-                    ) : null}
-                  </div> */
-                  /* <div className="relative flex flex-col gap-2">
-                    <label className="text-sm font-bold">
-                      มัธยมปีที่ (Year):
-                    </label>
-                    <Dropdown
-                      data={[1, 2, 3, 4, 5, 6]}
-                      renderItem={({ data }): JSX.Element => (
-                        <li className="w-full">{data}</li>
-                      )}
-                      width={150}
-                      height={40}
-                      currentValue={gradeLevel.Year}
-                      placeHolder={"ตัวเลือก"}
-                      handleChange={(value: number) => {
-                        setGradeLevels(() =>
-                          gradeLevels.map((item, ind) =>
-                            index === ind ? { ...item, Year: value } : item
-                          )
-                        );
-                      }}
-                    />
-                  </div> */}
                   <div className="relative flex flex-col gap-2">
                     <label className="text-sm font-bold">
                       มัธยมปีที่ (Year):
@@ -180,8 +137,8 @@ function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
                       handleChange={(value: number) => {
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
-                            index === ind ? { ...item, Year: value } : item
-                          )
+                            index === ind ? { ...item, Year: value } : item,
+                          ),
                         );
                       }}
                     />
@@ -212,8 +169,8 @@ function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
                           gradeLevels.map((item, ind) =>
                             index === ind
                               ? { ...item, Number: parseInt(value) || null }
-                              : item
-                          )
+                              : item,
+                          ),
                         );
                       }}
                     />
@@ -225,16 +182,12 @@ function AddModalForm({ closeModal, mutate, openSnackBar }: props) {
                       </div>
                     ) : null}
                   </div>
-                  
-                  {
-                    (!gradeLevel.Year || !gradeLevel.Number)
-                    ?
-                    null
-                    :
+
+                  {!gradeLevel.Year || !gradeLevel.Number ? null : (
                     <p className="relative flex flex-col gap-2 mt-7 text-gray-400">
-                    ชั้น ม.{gradeLevel.Year + "/" + gradeLevel.Number}
+                      ชั้น ม.{gradeLevel.Year + "/" + gradeLevel.Number}
                     </p>
-                  }
+                  )}
                   {/* <div className="relative flex flex-col gap-2">
                     <TextField
                       width="auto"

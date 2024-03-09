@@ -13,8 +13,9 @@ function TableRow({
   pageOfData,
   searchTerm,
 }) {
+  console.log(item);
   const matchesSearchTerm = item.GradeID.toLowerCase().includes(
-    searchTerm.toLowerCase()
+    searchTerm.toLowerCase(),
   );
 
   if (!matchesSearchTerm) {
@@ -32,13 +33,20 @@ function TableRow({
           checked={checkedList.includes(item.GradeID)}
         />
       </th>
-      {["GradeID", "Year", "Number", "ProgramID"].map((key) => (
+      {["GradeID", "Year", "Number", "program"].map((key) => (
         <td
           key={key}
           className="px-6 whitespace-nowrap select-none"
           onClick={() => clickToSelect(item.GradeID)}
         >
-          {key === "ProgramID" && !item[key] ? "ไม่มีข้อมูล" : item[key]}
+          {key !== "program"
+            ? item[key]
+            : item[key].length > 0
+              ? item[key]
+                  .map((program) => program.ProgramName)
+                  .join(", ")
+                  .slice(0, 30) + (item[key].length > 1 ? "..." : "")
+              : "ไม่พบข้อมูล"}
         </td>
       ))}
       {checkedList.length < 1 ? (
@@ -58,7 +66,9 @@ function TableRow({
             }}
           />
         </td>
-      ) : <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none" />}
+      ) : (
+        <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none" />
+      )}
     </tr>
   );
 }

@@ -5,36 +5,38 @@ import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
 import api from "@/libs/axios";
 import { program, semester, subject } from "@prisma/client";
-import { useSubjectData } from "@/app/_hooks/subjectData";
 import YearSemester from "./YearSemester";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type Props = {
   closeModal: any;
   mutate: Function;
 };
-//TODO: เพิ่ม snackbar แจ้งเตือนเมื่อเพิ่มข้อมูลสำเร็จ
-function AddStudyProgramModal({ closeModal, mutate }: Props) {
-  const subjectData = useSubjectData();
 
+function AddStudyProgramModal({ closeModal, mutate }: Props) {
   const [newProgramData, setNewProgramData] = useState({
     ProgramName: "",
-    AcademicYear: "",
     Semester: "",
     gradelevel: [],
     subject: [],
   });
   const addProgram = async (program) => {
+    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูล", { variant: "info" });
     console.log(program);
-    const response = await api.post("/program", program);
     closeModal();
+    const response = await api.post("/program", program);
     if (response.status === 200) {
       mutate();
+      enqueueSnackbar("เพิ่มข้อมูลสำเร็จ", { variant: "success" });
+      closeSnackbar(loadbar);
+    } else {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มหลักสูตร", { variant: "error" });
     }
   };
 
   const [isEmptyData, setIsEmptyData] = useState({
     ProgramName: false,
-    AcademicYear: false,
     Semester: false,
     gradelevel: false,
     subject: false,
@@ -43,7 +45,6 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
   const validateData = () => {
     setIsEmptyData(() => ({
       ProgramName: newProgramData.ProgramName.length == 0,
-      AcademicYear: newProgramData.AcademicYear.length == 0,
       Semester: newProgramData.Semester == "",
       gradelevel: newProgramData.gradelevel.length == 0,
       subject: newProgramData.subject.length == 0,
@@ -51,13 +52,13 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
   };
   const classRoomHandleChange = (value: any) => {
     let removeDulpItem = newProgramData.gradelevel.filter(
-      (item) => item.GradeID != value.GradeID
+      (item) => item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
       ...newProgramData,
       gradelevel:
         newProgramData.gradelevel.filter(
-          (item) => item.GradeID === value.GradeID //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+          (item) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...newProgramData.gradelevel, value]
           : [...removeDulpItem],
@@ -70,7 +71,6 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     return validate();
   }, [
     newProgramData.ProgramName,
-    newProgramData.AcademicYear,
     newProgramData.Semester,
     newProgramData.gradelevel,
     newProgramData.subject,
@@ -83,12 +83,6 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     }));
   };
 
-  const handleChangeYear = (value: any) => {
-    setNewProgramData(() => ({
-      ...newProgramData,
-      AcademicYear: value,
-    }));
-  };
   const handleAddSubjectList = (subject: subject) => {
     setNewProgramData(() => ({
       ...newProgramData,
@@ -106,8 +100,8 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
       isEmptyData.ProgramName ||
       isEmptyData.gradelevel ||
       isEmptyData.subject ||
-      isEmptyData.AcademicYear ||
       isEmptyData.Semester;
+    console.log(cond);
     if (cond) {
       validateData();
     } else {
@@ -121,7 +115,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
         <div
-          className={`relative flex flex-col w-[831px] h-fit overflow-y-scroll overflow-x-hidden p-12 gap-10 bg-white rounded`}
+          className={`relative flex flex-col w-[831px] h-5/6 overflow-hidden p-12 gap-10 bg-white rounded`}
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
@@ -141,15 +135,12 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
               }}
             />
             <YearSemester
-              required={isEmptyData.AcademicYear && isEmptyData.Semester}
+              required={isEmptyData.Semester}
               semester={newProgramData.Semester}
-              year={newProgramData.AcademicYear}
               handleSemesterChange={handleSelectSemester}
-              handleYearChange={handleChangeYear}
             />
 
             <SelectSubjects
-              subjectData={subjectData.data}
               subjectSelected={newProgramData.subject}
               addSubjectFunction={handleAddSubjectList}
               removeSubjectFunction={removeSubjectFromList}

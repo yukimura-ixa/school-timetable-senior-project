@@ -12,12 +12,12 @@ import api from "@/libs/axios";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  openSnackBar: any;
   mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
+function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [subjects, setSubjects] = useState<subject[]>([
     {
@@ -44,17 +44,26 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
     }
   };
   const addData = async (data: subject[]) => {
+    const loadbar = enqueueSnackbar("กำลังเพิ่มวิชา", { variant: "info" });
     data.forEach((subject) => {
       subject.Credit = selectCredit(subject.Credit);
     });
-    console.log(data);
-    const response = await api.post("/subject", data);
-    console.log(response);
-    if (response.status === 200) {
-      mutate();
-      openSnackBar("ADD");
-    }
+    await api
+      .post("/subject", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เพิ่มวิชาสำเร็จ", { variant: "success" });
+        mutate();
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        console.log(error.response.data);
+        enqueueSnackbar("เพิ่มวิชาไม่สำเร็จ " + error.response.data, {
+          variant: "error",
+        });
+      });
   };
+
   const addList = () => {
     let struct: subject = {
       SubjectCode: "",
@@ -151,8 +160,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                           subjects.map((item, ind) =>
                             index === ind
                               ? { ...item, SubjectCode: value }
-                              : item
-                          )
+                              : item,
+                          ),
                         );
                       }}
                     />
@@ -181,8 +190,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                           subjects.map((item, ind) =>
                             index === ind
                               ? { ...item, SubjectName: value }
-                              : item
-                          )
+                              : item,
+                          ),
                         );
                       }}
                     />
@@ -216,8 +225,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                           subjects.map((item, ind) =>
                             index === ind
                               ? { ...item, Credit: subjectCreditTitles[value] }
-                              : item
-                          )
+                              : item,
+                          ),
                         );
                       }}
                     />
@@ -230,22 +239,10 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                   </div>
                   <div className="relative flex flex-col gap-2">
                     <label className="text-sm font-bold">
-                      กลุ่มสาระ (Category):
+                      สาระการเรียนรู้ (Category):
                     </label>
                     <Dropdown
-                      data={[
-                        "คณิตศาสตร์",
-                        "วิทยาศาสตร์และเทคโนโลยี",
-                        "ภาษาไทย",
-                        "ภาษาต่างประเทศ",
-                        "การงานอาชีพ",
-                        "ศิลปะ",
-                        "สังคมศึกษา ศาสนา และวัฒนธรรม",
-                        "สุขศึกษาและพลศึกษา",
-                        "กิจกรรม",
-                        "ชุมนุม",
-                        "เสรี",
-                      ]}
+                      data={["พื้นฐาน", "เพิ่มเติม", "กิจกรรมพัฒนาผู้เรียน"]}
                       renderItem={({ data }): JSX.Element => (
                         <li className="w-full">{data}</li>
                       )}
@@ -261,8 +258,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                       handleChange={(value: string) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
-                            index === ind ? { ...item, Category: value } : item
-                          )
+                            index === ind ? { ...item, Category: value } : item,
+                          ),
                         );
                       }}
                     />

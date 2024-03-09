@@ -16,7 +16,7 @@ const YearSemester = (props: Props) => {
   return (
     <div className="flex justify-between items-center align-middle">
       <div className="text-sm flex gap-1 items-center">
-        <p>เทอมและปีการศึกษา</p>
+        <p>เทอม</p>
         <p className="text-red-500">*</p>
         {props.required ? (
           <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
@@ -36,7 +36,7 @@ const YearSemester = (props: Props) => {
       cursor-pointer
       hover:bg-slate-100
       duration-300"
-          value={props.semester ? props.semester : "เลือกเทอม"}
+          value={props.semester ? props.semester : ""}
           placeholder="เลือกเทอม"
           onChange={(e: any) => props.handleSemesterChange(e.target.value)}
           variant="standard"
@@ -44,7 +44,7 @@ const YearSemester = (props: Props) => {
           <MenuItem value={semester["SEMESTER_1"]}>เทอม 1</MenuItem>
           <MenuItem value={semester["SEMESTER_2"]}>เทอม 2</MenuItem>
         </Select>
-        <TextField
+        {/* <TextField
           placeHolder="2560"
           value={props.year.toString()}
           handleChange={(e: any) => {
@@ -53,7 +53,7 @@ const YearSemester = (props: Props) => {
             }
           }}
           disabled={false}
-        />
+        /> */}
       </div>
     </div>
   );

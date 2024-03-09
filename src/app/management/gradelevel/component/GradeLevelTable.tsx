@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from "react";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
-import { BiEdit, BiSolidTrashAlt } from "react-icons/bi";
+import { BiSolidTrashAlt } from "react-icons/bi";
 import { BsCheckLg } from "react-icons/bs";
 import AddIcon from "@mui/icons-material/Add";
 //comp
@@ -12,9 +12,7 @@ import ConfirmDeleteModal from "../../gradelevel/component/ConfirmDeleteModal";
 import EditModalForm from "../../gradelevel/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import { Snackbar, Alert } from "@mui/material";
 import { gradelevel } from "@prisma/client";
-import { TbTrash } from "react-icons/tb";
 import TableRow from "./TableRow";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -27,8 +25,6 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const [gradeLevelData, setGradeLevelData] = useState<gradelevel[]>([]);
 
   useEffect(() => {
@@ -54,7 +50,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
           //ทำการวาง array ทับโดยการ filter itemID นั้นออกไป
           checkedList.filter((item) => item != itemID)
         : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม itemID ที่ติ๊กเข้าไป
-          [...checkedList, itemID]
+          [...checkedList, itemID],
     );
   };
   useEffect(() => {
@@ -112,20 +108,9 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
-  const snackBarHandle = (commitMsg: string): void => {
-    setIsSnackBarOpen(true);
-    setSnackBarMsg(
-      commitMsg == "ADD"
-        ? "เพิ่มข้อมูลชั้นเรียนสำเร็จ!"
-        : commitMsg == "EDIT"
-          ? "อัปเดตข้อมูลชั้นเรียนสำเร็จ!"
-          : "ลบข้อมูลชั้นเรียนสำเร็จ!"
-    );
-  };
   const requestSort = (key) => {
     if (key == "มัธยมปีที่") key = "Year";
     else if (key == "ห้องที่") key = "Number";
-    else if (key == "หลักสูตร") key = "ProgramID";
     else key = "GradeID";
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -140,7 +125,6 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
           closeModal={() => {
             setAddModalActive(false);
           }}
-          openSnackBar={snackBarHandle}
           mutate={mutate}
         />
       ) : null}
@@ -149,7 +133,6 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
           closeModal={() => {
             setDeleteModalActive(false);
           }}
-          openSnackBar={snackBarHandle}
           deleteData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
@@ -162,9 +145,10 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
           closeModal={() => {
             setEditModalActive(false);
           }}
-          openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
-          data={tableData.filter((item, index) => checkedList.includes(item.GradeID))}
+          data={tableData.filter((item, index) =>
+            checkedList.includes(item.GradeID),
+          )}
           mutate={mutate}
         />
       ) : null}
@@ -288,7 +272,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
             .filter(
               (item, index) =>
                 index >= (pageOfData === 1 ? 0 : pageOfData * 10 - 10) &&
-                index <= pageOfData * 10 - 1
+                index <= pageOfData * 10 - 1,
             )}
         </tbody>
       </table>
@@ -314,19 +298,6 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
-      <Snackbar
-        open={isSnackBarOpen}
-        autoHideDuration={6000}
-        onClose={() => setIsSnackBarOpen(false)}
-      >
-        <Alert
-          onClose={() => setIsSnackBarOpen(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {snackBarMsg}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

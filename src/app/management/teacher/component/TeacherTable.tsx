@@ -16,7 +16,6 @@ import EditModalForm from "../../teacher/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import TableRow from "./TableRow";
-import { Snackbar, Alert } from "@mui/material";
 
 type Table = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -28,8 +27,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const [teacherData, setTeacherData] = useState<teacher[]>([]);
 
   useEffect(() => {
@@ -136,16 +133,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
-  const snackBarHandle = (commitMsg: string): void => {
-    setIsSnackBarOpen(true);
-    setSnackBarMsg(
-      commitMsg == "ADD"
-        ? "เพิ่มข้อมูลคุณครูสำเร็จ!"
-        : commitMsg == "EDIT"
-          ? "อัปเดตข้อมูลคุณครูสำเร็จ!"
-          : "ลบข้อมูลคุณครูสำเร็จ!"
-    );
-  };
+
   return (
     <>
       {addModalActive ? (
@@ -153,7 +141,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           closeModal={() => {
             setAddModalActive(false);
           }}
-          openSnackBar={snackBarHandle}
           mutate={mutate}
         />
       ) : null}
@@ -162,7 +149,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           closeModal={() => {
             setDeleteModalActive(false);
           }}
-          openSnackBar={snackBarHandle}
           teacherData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
@@ -175,7 +161,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           closeModal={() => {
             setEditModalActive(false);
           }}
-          openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
           data={tableData.filter((item, index) => checkedList.includes(item.TeacherID))}
           mutate={mutate}
@@ -337,19 +322,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
-      <Snackbar
-        open={isSnackBarOpen}
-        autoHideDuration={6000}
-        onClose={() => setIsSnackBarOpen(false)}
-      >
-        <Alert
-          onClose={() => setIsSnackBarOpen(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {snackBarMsg}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

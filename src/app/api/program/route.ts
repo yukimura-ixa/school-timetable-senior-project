@@ -12,17 +12,13 @@ export async function GET(request: NextRequest) {
           every: {
             Year: Year,
           },
-        },
+        }
       },
       orderBy: {
         ProgramID: "asc",
       },
       include: {
-        gradelevel: {
-          orderBy: {
-            Year: "asc",
-          },
-        },
+        gradelevel: true,
         subject: {
           orderBy: {
             SubjectCode: "asc",
@@ -33,6 +29,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ error: error }, { status: 500 })
   }
 }
@@ -54,7 +51,6 @@ export async function POST(request: NextRequest) {
     const data = await prisma.program.create({
       data: {
         ProgramName: body.ProgramName,
-        AcademicYear: parseInt(body.AcademicYear),
         Semester: body.Semester,
         gradelevel: {
           connect: body.gradelevel.map((element: gradelevel) => {
@@ -76,7 +72,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.log(error)
-    return NextResponse.error()
+    return NextResponse.json({ error: error }, { status: 500 })
   }
 }
 
@@ -107,6 +103,7 @@ export async function PUT(request: NextRequest) {
       data: {
         ProgramName: body.ProgramName,
         gradelevel: {
+          set: [],
           connect: body.gradelevel.map((element: gradelevel) => {
             return {
               GradeID: element.GradeID,
@@ -114,6 +111,7 @@ export async function PUT(request: NextRequest) {
           }),
         },
         subject: {
+          set: [],
           connect: body.subject.map((element: subject) => {
             return {
               SubjectCode: element.SubjectCode,
@@ -127,6 +125,6 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.log(error)
-    return NextResponse.error()
+    return NextResponse.json({ error: error }, { status: 500 })
   }
 }

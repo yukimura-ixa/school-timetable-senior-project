@@ -5,12 +5,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
 import { room } from "@prisma/client";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
   deleteData: any;
   clearCheckList: any;
   dataAmount: number;
-  openSnackBar: any;
   checkedList: any;
   mutate: Function;
 };
@@ -20,7 +20,6 @@ function ConfirmDeleteModal({
   deleteData,
   dataAmount,
   clearCheckList,
-  openSnackBar,
   checkedList,
   mutate,
 }: props) {
@@ -35,24 +34,34 @@ function ConfirmDeleteModal({
     closeModal();
   };
   const removeMultiData = async (data: room[], checkedList) => {
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูลสถานที่เรียน", {
+      variant: "info",
+    });
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.RoomID))
       .map((item) => item.RoomID);
 
-    try {
-      const response = await api.delete("/room", {
+    const response = await api
+      .delete("/room", {
         data: deleteData,
-      });
-      if (response.status === 200) {
+      })
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
         mutate();
-        openSnackBar("DELETE");
-      }
-      console.log(response);
-      clearCheckList();
-    } catch (err) {
-      console.log(err);
-    }
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
+
+    console.log(response);
+    clearCheckList();
   };
+
   return (
     <>
       <div

@@ -10,20 +10,37 @@ import type { room } from "@prisma/client";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  openSnackBar: any;
   mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
+function AddModalForm({ closeModal, mutate }: props) {
+  const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
+    variant: "info",
+  });
   const addData = async (data: room[]) => {
     console.log(data);
-    const response = await api.post("/room", data);
+    const response = await api
+      .post("/room", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เพิ่มข้อมูลสถานที่เรียนสำเร็จ", {
+          variant: "success",
+        });
+        mutate();
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar(
+          "เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data,
+          {
+            variant: "error",
+          },
+        );
+        console.log(error);
+      });
     console.log(response);
-    if (response.status === 200) {
-      mutate();
-      openSnackBar("ADD");
-    }
   };
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [rooms, setRooms] = useState<room[]>([
@@ -123,8 +140,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         let value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
-                            index === ind ? { ...item, RoomName: value } : item
-                          )
+                            index === ind ? { ...item, RoomName: value } : item,
+                          ),
                         );
                       }}
                     />
@@ -151,8 +168,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         let value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
-                            index === ind ? { ...item, Building: value } : item
-                          )
+                            index === ind ? { ...item, Building: value } : item,
+                          ),
                         );
                       }}
                     />
@@ -179,8 +196,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         let value: number = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
-                            index === ind ? { ...item, Floor: value } : item
-                          )
+                            index === ind ? { ...item, Floor: value } : item,
+                          ),
                         );
                       }}
                     />

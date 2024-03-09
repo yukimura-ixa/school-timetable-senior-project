@@ -13,33 +13,33 @@ datasource db {
 }
 
 model class_schedule {
-  ClassID     String     @id
-  TimeslotID  String
-  SubjectCode String
-  RoomID      Int?
-  GradeID     String
-  IsLocked    Boolean    @default(false)
-  gradelevel  gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
-  room        room?      @relation(fields: [RoomID], references: [RoomID])
-  subject     subject    @relation(fields: [SubjectCode], references: [SubjectCode])
-  timeslot    timeslot   @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade)
+  ClassID                 String                  @id
+  TimeslotID              String
+  SubjectCode             String
+  RoomID                  Int?
+  GradeID                 String
+  RespID                  Int
+  IsLocked                Boolean                 @default(false)
+  gradelevel              gradelevel              @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
+  room                    room?                   @relation(fields: [RoomID], references: [RoomID])
+  subject                 subject                 @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade)
+  timeslot                timeslot                @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade)
+  teachers_responsibility teachers_responsibility @relation(fields: [RespID], references: [RespID], onDelete: Cascade)
 
   @@index([GradeID], map: "class_schedule_GradeID_fkey")
   @@index([RoomID], map: "class_schedule_RoomID_fkey")
   @@index([SubjectCode], map: "class_schedule_SubjectCode_fkey")
   @@index([TimeslotID], map: "class_schedule_TimeslotID_fkey")
+  @@index([RespID], map: "class_schedule_RespID_fkey")
 }
 
 model gradelevel {
   GradeID                 String                    @id
   Year                    Int
   Number                  Int
-  ProgramID               Int?
   class_schedule          class_schedule[]
-  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID])
+  program                 program[]
   teachers_responsibility teachers_responsibility[]
-
-  @@index([ProgramID], map: "gradelevel_ProgramID_fkey")
 }
 
 model room {
@@ -64,12 +64,11 @@ model subject {
 }
 
 model program {
-  ProgramID    Int          @id @default(autoincrement())
-  ProgramName  String       @unique
-  AcademicYear Int
-  Semester     semester
-  gradelevel   gradelevel[]
-  subject      subject[]
+  ProgramID   Int          @id @default(autoincrement())
+  ProgramName String       @unique
+  Semester    semester
+  gradelevel  gradelevel[]
+  subject     subject[]
 }
 
 model teacher {
@@ -94,16 +93,17 @@ model timeslot {
 }
 
 model teachers_responsibility {
-  RespID       Int        @id @default(autoincrement())
-  TeacherID    Int
-  GradeID      String
-  SubjectCode  String
-  AcademicYear Int
-  Semester     semester
-  TeachHour    Int
-  gradelevel   gradelevel @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
-  subject      subject    @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade)
-  teacher      teacher    @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade)
+  RespID         Int              @id @default(autoincrement())
+  TeacherID      Int
+  GradeID        String
+  SubjectCode    String
+  AcademicYear   Int
+  Semester       semester
+  TeachHour      Int
+  class_schedule class_schedule[]
+  gradelevel     gradelevel       @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
+  subject        subject          @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade)
+  teacher        teacher          @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade)
 
   @@index([TeacherID], map: "teachers_responsibility_TeacherID_fkey")
   @@index([GradeID], map: "teachers_responsibility_GradeID_fkey")

@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
     })
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }
 
@@ -20,6 +21,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const data = await Promise.all(
       body.map(async (element) => {
+        const alreadyExist = await prisma.room.findFirst({
+          where: {
+            RoomName: element.RoomName,
+            Building: element.Building,
+            Floor: element.Floor,
+          },
+        })
+        if (alreadyExist) {
+          throw new Error("มีข้อมูลห้องอยู่แล้ว กรุณาตรวจสอบอีกครั้ง")
+        }
         return await prisma.room.create({
           data: {
             RoomName: element.RoomName,
@@ -33,7 +44,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(ids)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }
 
@@ -49,7 +61,8 @@ export async function DELETE(request: NextRequest) {
     })
     return NextResponse.json(data)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }
 
@@ -58,6 +71,16 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const data = await Promise.all(
       body.map(async (element) => {
+        const alreadyExist = await prisma.room.findUnique({
+          where: {
+            RoomID: element.RoomID,
+          },
+        })
+        if (!alreadyExist) {
+          throw new Error("ไม่พบข้อมูลห้อง กรุณาตรวจสอบอีกครั้ง")
+        }
+
+
         return await prisma.room.update({
           where: {
             RoomID: element.RoomID,
@@ -74,6 +97,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(ids)
   } catch (error) {
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.log(error)
+    return NextResponse.json(error.message, { status: 500 })
   }
 }

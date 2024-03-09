@@ -13,7 +13,6 @@ import SearchBar from "@/components/elements/input/field/SearchBar";
 import ConfirmDeleteModal from "../../subject/component/ConfirmDeleteModal";
 import EditModalForm from "../../subject/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
-import { Snackbar, Alert } from "@mui/material";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import TableRow from "./TableRow";
 
@@ -27,8 +26,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const [subjectData, setSubjectData] = useState<subject[]>([]);
 
   useEffect(() => {
@@ -56,7 +53,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
           //ทำการวาง array ทับโดยการ filter itemID นั้นออกไป
           checkedList.filter((item) => item != itemID)
         : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม itemID ที่ติ๊กเข้าไป
-          [...checkedList, itemID]
+          [...checkedList, itemID],
     );
   };
   useEffect(() => {
@@ -72,7 +69,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const requestSort = (key) => {
     if (key == "ชื่อวิชา") key = "SubjectCode";
     else if (key == "หน่วยกิต") key = "Credit";
-    else if (key == "กลุ่มสาระ") key = "SubjectProgram";
+    else if (key == "สาระการเรียนรู้") key = "Category";
     else key = "SubjectCode";
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -113,7 +110,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
     const filteredData = tableData.filter(
       (item) =>
         item.SubjectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.SubjectCode.toLowerCase().includes(searchTerm.toLowerCase())
+        item.SubjectCode.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     setFilteredData(filteredData);
@@ -134,16 +131,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
   const previousPage = (): void => {
     setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
   };
-  const snackBarHandle = (commitMsg: string): void => {
-    setIsSnackBarOpen(true);
-    setSnackBarMsg(
-      commitMsg == "ADD"
-        ? "เพิ่มข้อมูลวิชาสำเร็จ!"
-        : commitMsg == "EDIT"
-          ? "อัปเดตข้อมูลวิชาสำเร็จ!"
-          : "ลบข้อมูลวิชาสำเร็จ!"
-    );
-  };
+
   return (
     <>
       {addModalActive ? (
@@ -152,7 +140,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             setAddModalActive(false);
           }}
           mutate={mutate}
-          openSnackBar={snackBarHandle}
         />
       ) : null}
       {deleteModalActive ? (
@@ -161,7 +148,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             setDeleteModalActive(false);
           }}
           mutate={mutate}
-          openSnackBar={snackBarHandle}
           subjectData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
@@ -174,9 +160,10 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             setEditModalActive(false);
           }}
           mutate={mutate}
-          openSnackBar={snackBarHandle}
           clearCheckList={() => setCheckedList(() => [])}
-          data={tableData.filter((item, index) => checkedList.includes(item.SubjectCode))}
+          data={tableData.filter((item, index) =>
+            checkedList.includes(item.SubjectCode),
+          )}
         />
       ) : null}
       <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
@@ -217,7 +204,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             height={"100%"}
             width={"100%"}
             handleChange={handleSearch}
-            placeHolder="ค้นหาชื่อครู"
+            placeHolder="ค้นหาชื่อวิชา"
             value={setSearchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
@@ -299,7 +286,7 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
             .filter(
               (item, index) =>
                 index >= (pageOfData === 1 ? 0 : pageOfData * 10 - 10) &&
-                index <= pageOfData * 10 - 1
+                index <= pageOfData * 10 - 1,
             )}
         </tbody>
       </table>
@@ -325,19 +312,6 @@ function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
         ))}
         <MiniButton title={"Next"} handleClick={nextPage} border={true} />
       </div>
-      <Snackbar
-        open={isSnackBarOpen}
-        autoHideDuration={6000}
-        onClose={() => setIsSnackBarOpen(false)}
-      >
-        <Alert
-          onClose={() => setIsSnackBarOpen(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          {snackBarMsg}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

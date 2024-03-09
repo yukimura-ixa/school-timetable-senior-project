@@ -4,45 +4,44 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-import { Teacher } from "../model/teacher";
 import api from "@/libs/axios";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import type { teacher } from "@prisma/client";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
   closeModal: any;
-  openSnackBar: any;
-  data: Teacher[];
+  data: teacher[];
   clearCheckList: any;
   mutate: Function;
 };
 
-function EditModalForm({
-  closeModal,
-  data,
-  clearCheckList,
-  openSnackBar,
-  mutate,
-}: props) {
-  const [editData, setEditData] = useState<Teacher[]>(Object.assign([], data));
+function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
+  const [editData, setEditData] = useState<teacher[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
 
   const editMultiData = async (data: any) => {
-    console.log(data);
-    try {
-      const response = await api.put("/teacher", data);
-      if (response.status === 200) {
-        mutate();
-        openSnackBar("EDIT");
-      }
+    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลครู", { variant: "info" });
 
-      //clear checkbox
-      clearCheckList();
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
+    const response = await api
+      .put("/teacher", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขข้อมูลครูสำเร็จ", { variant: "success" });
+        mutate();
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขข้อมูลครูไม่สำเร็จ " + error.respnse.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
+
+    //clear checkbox
+    clearCheckList();
   };
   const isValidData = (): boolean => {
     let isValid = true;
@@ -51,7 +50,8 @@ function EditModalForm({
         data.Prefix == "" ||
         data.Firstname == "" ||
         data.Lastname == "" ||
-        data.Department == "" || data.Email == ""
+        data.Department == "" ||
+        data.Email == ""
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -117,8 +117,8 @@ function EditModalForm({
                     handleChange={(value: string) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Prefix: value } : item
-                        )
+                          index === ind ? { ...item, Prefix: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -142,8 +142,8 @@ function EditModalForm({
                       let value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Firstname: value } : item
-                        )
+                          index === ind ? { ...item, Firstname: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -167,8 +167,8 @@ function EditModalForm({
                       let value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Lastname: value } : item
-                        )
+                          index === ind ? { ...item, Lastname: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -209,8 +209,8 @@ function EditModalForm({
                     handleChange={(value: string) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Department: value } : item
-                        )
+                          index === ind ? { ...item, Department: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -222,34 +222,32 @@ function EditModalForm({
                   ) : null}
                 </div>
                 <div className="flex flex-col gap-2 h-30 relative">
-                    <TextField
-                      width="auto"
-                      height="auto"
-                      placeHolder="ex. example@example.com"
-                      label="อีเมล (Email) :"
-                      value={item.Email}
-                      borderColor={
-                        isEmptyData && item.Email.length == 0
-                          ? "#F96161"
-                          : ""
-                      }
-                      handleChange={(e: any) => {
-                        let value: string = e.target.value;
-                        setEditData(() =>
-                          editData.map((item, ind) =>
-                            index === ind ? { ...item, Email: value } : item
-                          )
-                        );
-                      }}
-                      disabled={false}
-                    />
-                    {isEmptyData && item.Email.length == 0 ? (
-                      <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-                        <BsInfo className="bg-red-500 rounded-full fill-white" />
-                        <p className="text-red-500 text-sm">ต้องการ</p>
-                      </div>
-                    ) : null}
-                  </div>
+                  <TextField
+                    width="auto"
+                    height="auto"
+                    placeHolder="ex. example@example.com"
+                    label="อีเมล (Email) :"
+                    value={item.Email}
+                    borderColor={
+                      isEmptyData && item.Email.length == 0 ? "#F96161" : ""
+                    }
+                    handleChange={(e: any) => {
+                      let value: string = e.target.value;
+                      setEditData(() =>
+                        editData.map((item, ind) =>
+                          index === ind ? { ...item, Email: value } : item,
+                        ),
+                      );
+                    }}
+                    disabled={false}
+                  />
+                  {isEmptyData && item.Email.length == 0 ? (
+                    <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+                      <BsInfo className="bg-red-500 rounded-full fill-white" />
+                      <p className="text-red-500 text-sm">ต้องการ</p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </React.Fragment>
           ))}

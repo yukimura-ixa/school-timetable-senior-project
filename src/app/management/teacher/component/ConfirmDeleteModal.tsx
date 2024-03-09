@@ -1,14 +1,14 @@
 import React from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import { Teacher } from "../model/teacher";
 import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
+import type { teacher } from "@prisma/client";
 type props = {
   closeModal: any;
-  openSnackBar: any;
-  teacherData: Teacher[];
+  teacherData: teacher[];
   checkedList: any;
   clearCheckList: any;
   dataAmount: number;
@@ -21,7 +21,6 @@ function ConfirmDeleteModal({
   checkedList,
   dataAmount,
   clearCheckList,
-  openSnackBar,
   mutate,
 }: props) {
   const confirmed = () => {
@@ -35,24 +34,30 @@ function ConfirmDeleteModal({
     closeModal();
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = async (data: Teacher[], checkedList) => {
+  const removeMultiData = async (data: teacher[], checkedList) => {
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูลครู", { variant: "info" });
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.TeacherID))
       .map((item) => item.TeacherID);
 
-    try {
-      const response = await api.delete("/teacher", {
+    const response = await api
+      .delete("/teacher", {
         data: deleteData,
-      });
-      if (response.status === 200) {
+      })
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
         mutate();
-        openSnackBar("DELETE");
-      }
-      console.log(response);
-      clearCheckList();
-    } catch (err) {
-      console.log(err);
-    }
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ " + error.respnse.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
+    console.log(response);
+    clearCheckList();
   };
   return (
     <>

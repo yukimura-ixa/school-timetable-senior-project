@@ -1,5 +1,4 @@
 import NumberField from "@/components/elements/input/field/NumberField";
-import TextField from "@/components/elements/input/field/TextField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 
 import React, { useState } from "react";
@@ -10,11 +9,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
 import type { gradelevel } from "@prisma/client";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
   conFirmEdit: any;
   data: any;
-  openSnackBar: any;
   clearCheckList: any;
   mutate: Function;
 };
@@ -24,11 +23,10 @@ function EditModalForm({
   conFirmEdit,
   data,
   clearCheckList,
-  openSnackBar,
   mutate,
 }: props) {
   const [editData, setEditData] = useState<gradelevel[]>(
-    Object.assign([], data)
+    Object.assign([], data),
   );
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
@@ -61,19 +59,27 @@ function EditModalForm({
     closeModal();
   };
   const editMultiData = async (data: any) => {
+    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลชั้นเรียน", {
+      variant: "info",
+    });
     console.log(data);
-    try {
-      const response = await api.put("/gradelevel", data);
-      if (response.status === 200) {
+    const response = await api
+      .put("/gradelevel", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
         mutate();
-        openSnackBar("EDIT");
-      }
-      //clear checkbox
-      clearCheckList();
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + error.respnse.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
+    //clear checkbox
+    clearCheckList();
+    console.log(response);
   };
   return (
     <>
@@ -147,8 +153,8 @@ function EditModalForm({
                     handleChange={(value: number) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Year: value } : item
-                        )
+                          index === ind ? { ...item, Year: value } : item,
+                        ),
                       );
                     }}
                   />
@@ -171,8 +177,8 @@ function EditModalForm({
                         editData.map((item, ind) =>
                           index === ind
                             ? { ...item, Number: parseInt(value) }
-                            : item
-                        )
+                            : item,
+                        ),
                       );
                     }}
                   />

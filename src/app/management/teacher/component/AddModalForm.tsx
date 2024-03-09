@@ -10,12 +10,12 @@ import api from "@/libs/axios";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  openSnackBar: any;
   mutate: Function;
 };
-function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
+function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [teachers, setTeachers] = useState<teacher[]>([
     {
@@ -29,12 +29,22 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
   ]);
 
   const addData = async (data: teacher[]) => {
-    const response = await api.post("/teacher", data);
+    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลครู", { variant: "info" });
+    const response = await api
+      .post("/teacher", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", { variant: "success" });
+        mutate();
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เพิ่มข้อมูลครูไม่สำเร็จ " + error.respnse.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
     console.log(response);
-    if (response.status === 200) {
-      openSnackBar("ADD");
-      mutate();
-    }
   };
   const addList = () => {
     let newTeacher: teacher = {
@@ -43,7 +53,7 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
       Firstname: "",
       Lastname: "",
       Department: "",
-      Email: ""
+      Email: "",
     };
     setTeachers(() => [...teachers, newTeacher]);
   };
@@ -141,8 +151,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                       handleChange={(value: string) => {
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind ? { ...item, Prefix: value } : item
-                          )
+                            index === ind ? { ...item, Prefix: value } : item,
+                          ),
                         );
                       }}
                     />
@@ -169,8 +179,10 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         let value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind ? { ...item, Firstname: value } : item
-                          )
+                            index === ind
+                              ? { ...item, Firstname: value }
+                              : item,
+                          ),
                         );
                       }}
                       disabled={false}
@@ -198,8 +210,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         let value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind ? { ...item, Lastname: value } : item
-                          )
+                            index === ind ? { ...item, Lastname: value } : item,
+                          ),
                         );
                       }}
                       disabled={false}
@@ -244,8 +256,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                           teachers.map((item, ind) =>
                             index === ind
                               ? { ...item, Department: value }
-                              : item
-                          )
+                              : item,
+                          ),
                         );
                       }}
                     />
@@ -272,8 +284,8 @@ function AddModalForm({ closeModal, openSnackBar, mutate }: props) {
                         let value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind ? { ...item, Email: value } : item
-                          )
+                            index === ind ? { ...item, Email: value } : item,
+                          ),
                         );
                       }}
                       disabled={false}

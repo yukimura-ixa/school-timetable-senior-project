@@ -4,20 +4,14 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
   deleteData: any;
-  //   openSnackBar: any;
-
   mutate: Function;
 };
 
-function DeleteProgramModal({
-  closeModal,
-  deleteData,
-  //   openSnackBar,
-  mutate,
-}: props) {
+function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
   const confirmed = () => {
     removeData(deleteData);
     closeModal();
@@ -26,11 +20,16 @@ function DeleteProgramModal({
     closeModal();
   };
   const removeData = async (ProgramID: string) => {
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูล", { variant: "info" });
     try {
       const response = await api.delete("/program", { data: ProgramID });
       if (response.status === 200) {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
         mutate();
-        // openSnackBar("DELETE");
+      } else {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล", { variant: "error" });
       }
       console.log(response);
     } catch (err) {

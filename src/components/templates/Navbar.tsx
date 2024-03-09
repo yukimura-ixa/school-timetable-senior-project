@@ -26,7 +26,7 @@ function Navbar() {
               <ul className="flex w-fit justify-between gap-5">
                 <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
                   <Link href={"/management/teacher"}>
-                    <p className="text-md">เมนูทั้งหมด</p>
+                    <p className="text-md">จัดการ</p>
                   </Link>
                 </li>
                 <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
@@ -39,11 +39,11 @@ function Navbar() {
                     <p className="text-md">พิมพ์เอกสาร</p>
                   </Link>
                 </li> */}
-                <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
+                {/* <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
                   <Link href={"/dashboard/teacher"}>
                     <p className="text-md">คู่มือการใช้งาน</p>
                   </Link>
-                </li>
+                </li> */}
               </ul>
             </span>
             {/* Rightside */}

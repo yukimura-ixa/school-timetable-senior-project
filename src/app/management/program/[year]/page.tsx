@@ -28,7 +28,7 @@ function StudyProgram(props: Props) {
     useState<boolean>(false);
 
   const { data, isLoading, error, mutate } = useProgramData(
-    params.year.toString()
+    params.year.toString(),
   );
 
   const [editProgram, setEditProgram] = useState({});
@@ -52,7 +52,7 @@ function StudyProgram(props: Props) {
         <EditStudyProgramModal
           closeModal={() => setEditProgramModalActive(false)}
           mutate={mutate}
-          data={editProgram}
+          editData={editProgram}
         />
       ) : null}
 
@@ -88,7 +88,7 @@ function StudyProgram(props: Props) {
                   <p className="text-lg font-bold w-full">{item.ProgramName}</p>
                   {/* <div className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"></div> */}
                   <div className="flex gap-3  justify-end">
-                    {/* <TbSettings
+                    <TbSettings
                       size={24}
                       className="fill-[#EDEEF3]"
                       onClick={() => {
@@ -96,7 +96,7 @@ function StudyProgram(props: Props) {
                         setEditProgramIndex(index);
                         setEditProgram(item);
                       }}
-                    /> */}
+                    />
                     <TbTrash
                       size={24}
                       className="text-red-500 right-6 cursor-pointer hover:bg-gray-100 duration-300"
@@ -108,10 +108,10 @@ function StudyProgram(props: Props) {
                   </div>
                 </div>
                 <div className="flex flex-row justify-between items-center">
-                  <p className="text-gray-500 text-sm">ปีการศึกษา</p>
+                  <p className="text-gray-500 text-sm">เทอม</p>
                   <div className="flex flex-wrap w-[365px] h-fit gap-2">
                     <p className="text-gray-500 text-sm">
-                      {semesterThai[item.Semester]} / {item.AcademicYear}
+                      {semesterThai[item.Semester]}
                     </p>
                   </div>
                 </div>

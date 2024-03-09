@@ -8,6 +8,7 @@ Table class_schedule {
   SubjectCode String [not null]
   RoomID Int
   GradeID String [not null]
+  RespID Int [not null]
   IsLocked Boolean [not null, default: false]
 }
 
@@ -15,7 +16,6 @@ Table gradelevel {
   GradeID String [pk]
   Year Int [not null]
   Number Int [not null]
-  ProgramID Int
 }
 
 Table room {
@@ -36,7 +36,6 @@ Table subject {
 Table program {
   ProgramID Int [pk, increment]
   ProgramName String [unique, not null]
-  AcademicYear Int [not null]
   Semester semester [not null]
 }
 
@@ -109,11 +108,11 @@ Ref: class_schedule.GradeID > gradelevel.GradeID [delete: Cascade]
 
 Ref: class_schedule.RoomID > room.RoomID
 
-Ref: class_schedule.SubjectCode > subject.SubjectCode
+Ref: class_schedule.SubjectCode > subject.SubjectCode [delete: Cascade]
 
 Ref: class_schedule.TimeslotID > timeslot.TimeslotID [delete: Cascade]
 
-Ref: gradelevel.ProgramID > program.ProgramID
+Ref: class_schedule.RespID > teachers_responsibility.RespID [delete: Cascade]
 
 Ref: subject.ProgramID > program.ProgramID
 

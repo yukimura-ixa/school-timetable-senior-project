@@ -10,22 +10,16 @@ import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import api from "@/libs/axios";
 import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
   closeModal: any;
   data: any;
   clearCheckList: any;
-  openSnackBar: any;
   mutate: Function;
 };
 
-function EditModalForm({
-  closeModal,
-  data,
-  clearCheckList,
-  openSnackBar,
-  mutate,
-}: props) {
+function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const [editData, setEditData] = useState<subject[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
@@ -59,22 +53,28 @@ function EditModalForm({
   };
   const editMultiData = async (data: any) => {
     console.log(data);
-    try {
-      data.forEach((subject) => {
-        subject.Credit = selectCredit(subject.Credit);
-      });
-      const response = await api.put("/subject", data);
-      if (response.status === 200) {
+    const loadbar = enqueueSnackbar("กำลังแก้ไขวิชา", { variant: "info" });
+    data.forEach((subject) => {
+      subject.Credit = selectCredit(subject.Credit);
+    });
+    const response = await api
+      .put("/subject", data)
+      .then(() => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขวิชาสำเร็จ", { variant: "success" });
         mutate();
-        openSnackBar("EDIT");
-      }
-      //clear checkbox
-      clearCheckList();
+      })
+      .catch((error) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("แก้ไขวิชาไม่สำเร็จ " + error.response.data, {
+          variant: "error",
+        });
+        console.log(error);
+      });
+    //clear checkbox
+    clearCheckList();
 
-      console.log(response);
-    } catch (err) {
-      console.log(err);
-    }
+    console.log(response);
   };
   const confirmed = () => {
     if (isValidData()) {
@@ -159,8 +159,10 @@ function EditModalForm({
                       let value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, SubjectName: value } : item
-                        )
+                          index === ind
+                            ? { ...item, SubjectName: value }
+                            : item,
+                        ),
                       );
                     }}
                   />
@@ -194,8 +196,8 @@ function EditModalForm({
                         editData.map((item, ind) =>
                           index === ind
                             ? { ...item, Credit: subjectCreditTitles[value] }
-                            : item
-                        )
+                            : item,
+                        ),
                       );
                     }}
                   />
@@ -208,22 +210,10 @@ function EditModalForm({
                 </div>
                 <div className="relative flex flex-col gap-2">
                   <label className="text-sm font-bold">
-                    กลุ่มสาระ (Department):
+                    สาระการเรียนรู้ (Category):
                   </label>
                   <Dropdown
-                    data={[
-                      "คณิตศาสตร์",
-                      "วิทยาศาสตร์และเทคโนโลยี",
-                      "ภาษาไทย",
-                      "ภาษาต่างประเทศ",
-                      "การงานอาชีพ",
-                      "ศิลปะ",
-                      "สังคมศึกษา ศาสนา และวัฒนธรรม",
-                      "สุขศึกษาและพลศึกษา",
-                      "กิจกรรม",
-                      "ชุมนุม",
-                      "เสรี",
-                    ]}
+                    data={["พื้นฐาน", "เพิ่มเติม", "กิจกรรมพัฒนาผู้เรียน"]}
                     borderColor={
                       isEmptyData && subject.Category.length == 0
                         ? "#F96161"
@@ -239,8 +229,8 @@ function EditModalForm({
                     handleChange={(value: string) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Category: value } : item
-                        )
+                          index === ind ? { ...item, Category: value } : item,
+                        ),
                       );
                     }}
                   />
