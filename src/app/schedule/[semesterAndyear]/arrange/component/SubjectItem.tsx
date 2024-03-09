@@ -10,7 +10,7 @@ interface ISubjectItemProps {
     index: number;
     teacherData: {
         Firstname: string;
-    };
+    }; 
     storeSelectedSubject: any;
     clickOrDragToSelectSubject: any;
     dropOutOfZone: any;
