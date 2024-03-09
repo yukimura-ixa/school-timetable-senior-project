@@ -16,6 +16,7 @@ import SubjectDragBox from "../component/SubjectDragBox";
 import { enqueueSnackbar, closeSnackbar } from "notistack";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import SelectSubjectToTimeslotModal from "../component/SelectSubjectToTimeslotModal";
+import Loading from "@/app/loading";
 
 const TeacherArrange = () => {
   const params = useParams();
@@ -702,46 +703,60 @@ const TeacherArrange = () => {
           payload={subjectPayload} //ส่งชุดข้อมูล
         />
       )}
-      <PageHeader teacherData={teacherData} />
-      <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
-        <SubjectDragBox
-          subjectData={[]}
-          dropOutOfZone={dropOutOfZone}
-          clickOrDragToSelectSubject={clickOrDragToSelectSubject}
-          storeSelectedSubject={storeSelectedSubject} teacher={teacherData} />
-        <div className="w-full flex justify-end items-center mt-3">
-          <PrimaryButton
-            handleClick={postData}
-            title={"บันทึกข้อมูล"}
-            color={"success"}
-            Icon={<SaveIcon />}
-            reverseIcon={false}
-            isDisabled={isSaving}
-          />
-        </div>
-        <TimeSlot
-          timeSlotData={timeSlotData}
-          mapTime={mapTime}
-          checkBreakTime={checkBreakTime}
-          isSelectedToAdd={isSelectedToAdd}
-          isSelectedToChange={isSelectedToChange}
-          checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
-          timeSlotCssClassName={timeSlotCssClassName}
-          storeSelectedSubject={storeSelectedSubject}
-          addRoomModal={addRoomModal}
-          changeTimeSlotSubject={changeTimeSlotSubject}
-          clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
-          isCilckToChangeSubject={isCilckToChangeSubject}
-          timeslotIDtoChange={timeslotIDtoChange}
-          dropOutOfZone={dropOutOfZone}
-          displayErrorChangeSubject={displayErrorChangeSubject}
-          showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
-          removeSubjectFromSlot={removeSubjectFromSlot}
-          showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
-          setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
-          setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
-        />
-      </DragDropContext>
+      {fetchTeacher.isValidating ||
+      fetchAllSubject.isLoading ||
+      fetchTimeSlot.isLoading ||
+      fetchAllClassData.isValidating ? (
+        <Loading />
+      ) : (
+        <>
+          <PageHeader teacherData={teacherData} />
+          <DragDropContext
+            onDragEnd={handleDragEnd}
+            onDragStart={handleDragStart}
+          >
+            <SubjectDragBox
+              subjectData={[]}
+              dropOutOfZone={dropOutOfZone}
+              clickOrDragToSelectSubject={clickOrDragToSelectSubject}
+              storeSelectedSubject={storeSelectedSubject}
+              teacher={teacherData}
+            />
+            <div className="w-full flex justify-end items-center mt-3">
+              <PrimaryButton
+                handleClick={postData}
+                title={"บันทึกข้อมูล"}
+                color={"success"}
+                Icon={<SaveIcon />}
+                reverseIcon={false}
+                isDisabled={isSaving}
+              />
+            </div>
+            <TimeSlot
+              timeSlotData={timeSlotData}
+              mapTime={mapTime}
+              checkBreakTime={checkBreakTime}
+              isSelectedToAdd={isSelectedToAdd}
+              isSelectedToChange={isSelectedToChange}
+              checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
+              timeSlotCssClassName={timeSlotCssClassName}
+              storeSelectedSubject={storeSelectedSubject}
+              addRoomModal={addRoomModal}
+              changeTimeSlotSubject={changeTimeSlotSubject}
+              clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
+              isCilckToChangeSubject={isCilckToChangeSubject}
+              timeslotIDtoChange={timeslotIDtoChange}
+              dropOutOfZone={dropOutOfZone}
+              displayErrorChangeSubject={displayErrorChangeSubject}
+              showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
+              removeSubjectFromSlot={removeSubjectFromSlot}
+              showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
+              setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
+              setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
+            />
+          </DragDropContext>
+        </>
+      )}
     </>
   );
 };
