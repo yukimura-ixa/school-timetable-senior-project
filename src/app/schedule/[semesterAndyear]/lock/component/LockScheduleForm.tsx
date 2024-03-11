@@ -270,7 +270,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
         <div
-          className={`relative flex flex-col w-[831px] h-fit overflow-y-scroll overflow-x-hidden p-12 gap-10 bg-white rounded`}
+          className={`relative flex flex-col w-[831px] h-full overflow-hidden p-12 gap-10 bg-white rounded`}
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
@@ -278,17 +278,6 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
-            <SelectDayOfWeek
-              dayOfWeek={lockScheduleData.DayOfWeek}
-              handleDayChange={handleDayChange}
-              required={isEmptyData.DayOfWeek}
-            />
-            <SelectMultipleTimeSlot
-              timeSlotHandleChange={timeSlotHandleChange}
-              checkedCondition={lockScheduleData.timeslots}
-              required={isEmptyData.timeslots}
-              daySelected={lockScheduleData.DayOfWeek}
-            />
             <SelectTeacher
               teacherSelected={lockScheduleData.teachers}
               addTeacherFunction={handleAddTeacherList}
@@ -304,6 +293,17 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
               }`}
               handleSubjectChange={handleSubjectChange}
               required={isEmptyData.Subject}
+            />
+            <SelectDayOfWeek
+              dayOfWeek={lockScheduleData.DayOfWeek}
+              handleDayChange={handleDayChange}
+              required={isEmptyData.DayOfWeek}
+            />
+            <SelectMultipleTimeSlot
+              timeSlotHandleChange={timeSlotHandleChange}
+              checkedCondition={lockScheduleData.timeslots}
+              required={isEmptyData.timeslots}
+              daySelected={lockScheduleData.DayOfWeek}
             />
             <SelectRoomName
               roomName={lockScheduleData.room.RoomName}
