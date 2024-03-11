@@ -53,7 +53,10 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   };
   const editMultiData = async (data: any) => {
     console.log(data);
-    const loadbar = enqueueSnackbar("กำลังแก้ไขวิชา", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังแก้ไขวิชา", {
+      variant: "info",
+      persist: true,
+    });
     data.forEach((subject) => {
       subject.Credit = selectCredit(subject.Credit);
     });

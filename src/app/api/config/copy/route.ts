@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server"
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        console.log(body)
+        // console.log(body)
         const [fromSemester, fromAcademicYear] = body.from.split("/")
         const [toSemester, toAcademicYear] = body.to.split("/")
         if (body.assign) {
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
                 }
             })
 
-            // await prisma.teachers_responsibility.createMany({
-            //     data: toResp
-            // })
+            await prisma.teachers_responsibility.createMany({
+                data: toResp
+            })
             if (body.lock) {
                 const fromLock = await prisma.class_schedule.findMany({
                     where: {
@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
                     }
                 })
 
-                // await prisma.class_schedule.createMany({
-                //     data: toLock
-                // })
+                await prisma.class_schedule.createMany({
+                    data: toLock
+                })
                 console.log(toLock)
             }
 
@@ -75,19 +75,18 @@ export async function POST(request: NextRequest) {
                     }
                 })
 
-                // await prisma.class_schedule.createMany({
-                //     data: toTimetable
-                // })
+                await prisma.class_schedule.createMany({
+                    data: toTimetable
+                })
                 console.log(toTimetable)
             }
         }
 
 
-
-        return NextResponse.json(body)
+        return NextResponse.json({ message: "success" })
 
     } catch (error) {
         console.log(error)
-        return NextResponse.json({ error: error }, { status: 500 })
+        return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

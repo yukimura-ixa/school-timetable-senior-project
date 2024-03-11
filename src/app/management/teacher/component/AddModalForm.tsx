@@ -29,7 +29,10 @@ function AddModalForm({ closeModal, mutate }: props) {
   ]);
 
   const addData = async (data: teacher[]) => {
-    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลครู", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลครู", {
+      variant: "info",
+      persist: true,
+    });
     const response = await api
       .post("/teacher", data)
       .then(() => {

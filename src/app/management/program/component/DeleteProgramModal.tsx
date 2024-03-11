@@ -20,7 +20,10 @@ function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
     closeModal();
   };
   const removeData = async (ProgramID: string) => {
-    const loadbar = enqueueSnackbar("กำลังลบข้อมูล", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูล", {
+      variant: "info",
+      persist: true,
+    });
     try {
       const response = await api.delete("/program", { data: ProgramID });
       if (response.status === 200) {

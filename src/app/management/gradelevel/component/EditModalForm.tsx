@@ -61,6 +61,7 @@ function EditModalForm({
   const editMultiData = async (data: any) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลชั้นเรียน", {
       variant: "info",
+      persist: true,
     });
     console.log(data);
     const response = await api

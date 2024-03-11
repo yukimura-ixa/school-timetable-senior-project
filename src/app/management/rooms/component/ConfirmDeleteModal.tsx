@@ -36,6 +36,7 @@ function ConfirmDeleteModal({
   const removeMultiData = async (data: room[], checkedList) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลสถานที่เรียน", {
       variant: "info",
+      persist: true,
     });
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.RoomID))

@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(data)
     } catch (error) {
         console.log(error)
-        return NextResponse.json({ error: error }, { status: 500 })
+        return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
 
@@ -112,18 +112,19 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "Timeslots created" })
     } catch (error) {
         console.log(error)
-        return NextResponse.json({ error: error }, { status: 500 })
+        return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
 
 
 export async function DELETE(request: NextRequest) {
-    // body: {AcademicYear, Semester }
+    // body: {academicYear, Semester }
     try {
         const body = await request.json()
+
         await prisma.table_config.delete({
             where: {
-                ConfigID: body.Semester[9] + '/' + body.AcademicYear,
+                ConfigID: body.Semester[9] + '/' + body.academicYear,
             },
         }).then(async () => await prisma.timeslot.deleteMany({
             where: {
@@ -136,6 +137,6 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json("Timeslots deleted")
     } catch (error) {
         console.log(error)
-        return NextResponse.json({ error: error }, { status: 500 })
+        return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

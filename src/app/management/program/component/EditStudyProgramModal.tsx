@@ -17,7 +17,10 @@ type Props = {
 function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const [newProgramData, setNewProgramData] = useState(editData);
   const editProgram = async (program) => {
-    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูล", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูล", {
+      variant: "info",
+      persist: true,
+    });
     console.log(program);
     closeModal();
     const response = await api.put("/program", program);

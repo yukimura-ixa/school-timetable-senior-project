@@ -44,7 +44,10 @@ function AddModalForm({ closeModal, mutate }: props) {
     }
   };
   const addData = async (data: subject[]) => {
-    const loadbar = enqueueSnackbar("กำลังเพิ่มวิชา", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังเพิ่มวิชา", {
+      variant: "info",
+      persist: true,
+    });
     data.forEach((subject) => {
       subject.Credit = selectCredit(subject.Credit);
     });

@@ -15,7 +15,7 @@ type Props = {
   currentSubject: any; //รายวิชาทั้งหมดที่เคยมี
   subjectByGradeID: any; //รายวิชาของชั้นเรียนทีส่งมา
 };
-// TODO: เช็ค subject ที่จะเพิ่มว่ามีใน program มั้ย
+
 function AddSubjectModal(props: Props) {
   const { data, isLoading, isValidating, error, mutate } = useSWR(
     "subject/subjectsOfGrade?GradeID=" + props.classRoomData.GradeID,

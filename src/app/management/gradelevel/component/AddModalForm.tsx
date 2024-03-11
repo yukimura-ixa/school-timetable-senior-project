@@ -51,6 +51,7 @@ function AddModalForm({ closeModal, mutate }: props) {
   const addData = async (data: gradelevel[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลชั้นเรียน", {
       variant: "info",
+      persist: true,
     });
     console.log(data);
     const response = await api

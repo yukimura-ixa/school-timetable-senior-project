@@ -36,6 +36,7 @@ function ConfirmDeleteModal({
   const removeMultiData = async (data: gradelevel[], checkedList) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลชั้นเรียน", {
       variant: "info",
+      persist: true,
     });
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.GradeID))

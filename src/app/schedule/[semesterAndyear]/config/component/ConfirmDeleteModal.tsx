@@ -5,8 +5,8 @@ import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import { enqueueSnackbar } from "notistack"
-type props = { 
+import { closeSnackbar, enqueueSnackbar } from "notistack";
+type props = {
   closeModal: any;
   academicYear: string;
   semester: string;
@@ -28,18 +28,25 @@ function ConfirmDeleteModal({
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
   const removeMultiData = () => {
-    try {
-      const response = api.delete("/timeslot", {
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูล", {
+      variant: "info",
+      persist: true,
+    });
+    const response = api
+      .delete("/timeslot", {
         data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
-      });
-      if (response.status === 200) {
+      })
+      .then(() => {
+        closeSnackbar(loadbar);
         enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
         mutate();
-      }
-    } catch (error) {
-      enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล", { variant: "error" });
-      console.log(error);
-    }
+      })
+      .catch((err) => {
+        closeSnackbar(loadbar);
+        enqueueSnackbar("ลบข้อมูลไม่สำเร็จ " + err.response.data, {
+          variant: "error",
+        });
+      });
   };
   return (
     <>
@@ -55,7 +62,8 @@ function ConfirmDeleteModal({
           </div>
           <div className="flex w-full h-auto justify-between items-center">
             <p className="text-lg select-none font-bold">
-              คุณต้องการลบตารางสอนเทอม {semester} ปีการศึกษา {academicYear} ใช่หรือไม่
+              คุณต้องการลบตารางสอนเทอม {semester} ปีการศึกษา {academicYear}{" "}
+              ใช่หรือไม่
             </p>
           </div>
           <span className="w-full flex gap-3 justify-end h-11">

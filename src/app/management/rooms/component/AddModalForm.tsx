@@ -18,6 +18,7 @@ type props = {
 function AddModalForm({ closeModal, mutate }: props) {
   const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
     variant: "info",
+    persist: true,
   });
   const addData = async (data: room[]) => {
     console.log(data);

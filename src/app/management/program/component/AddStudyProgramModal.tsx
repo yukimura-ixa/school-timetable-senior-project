@@ -21,7 +21,10 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     subject: [],
   });
   const addProgram = async (program) => {
-    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูล", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูล", {
+      variant: "info",
+      persist: true,
+    });
     console.log(program);
     closeModal();
     const response = await api.post("/program", program);

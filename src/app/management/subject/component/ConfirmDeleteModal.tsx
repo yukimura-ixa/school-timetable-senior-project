@@ -36,7 +36,10 @@ function ConfirmDeleteModal({
     closeModal();
   };
   const removeMultiData = async (data: subject[], checkedList) => {
-    const loadbar = enqueueSnackbar("กำลังลบข้อมูล", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูล", {
+      variant: "info",
+      persist: true,
+    });
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.SubjectCode))
       .map((item) => item.SubjectCode);

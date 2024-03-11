@@ -23,7 +23,10 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
 
   const editMultiData = async (data: any) => {
-    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลครู", { variant: "info" });
+    const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลครู", {
+      variant: "info",
+      persist: true,
+    });
 
     const response = await api
       .put("/teacher", data)
