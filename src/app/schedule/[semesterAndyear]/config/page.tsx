@@ -10,7 +10,6 @@ import { MdSchool, MdLunchDining } from "react-icons/md";
 import { TbTimeDuration45 } from "react-icons/tb";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import { Snackbar, Alert } from "@mui/material";
 import Counter from "./component/Counter";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
@@ -52,18 +51,18 @@ function TimetableConfigValue({}: Props) {
   });
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
   const tableConfig = useSWR(
-    "/config/getConfig?AcademicYear=" +
-      academicYear +
-      "&Semester=SEMESTER_" +
-      semester,
+    `/config/getConfig?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
     fetcher,
   );
   useEffect(() => {
-    setIsSetTimeslot(() => tableConfig.data != undefined);
+    console.log("validate", tableConfig.isValidating);
+    const checkSetTimeslot = tableConfig.data != undefined;
+    console.log(checkSetTimeslot);
+    setIsSetTimeslot(() => checkSetTimeslot);
     if (tableConfig.data) {
       setConfigData(tableConfig.data.Config);
     }
-  }, [tableConfig.isValidating]);
+  }, [tableConfig.isValidating, academicYear, semester]);
   const handleChangeStartTime = (e: any) => {
     let value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));
@@ -386,6 +385,7 @@ function TimetableConfigValue({}: Props) {
             <CheckBox
               label="วันจันทร์ - ศุกร์ (ค่าเริ่มต้น)"
               checked={true}
+              disabled={true}
               value={""}
               name={""}
               handleClick={undefined}

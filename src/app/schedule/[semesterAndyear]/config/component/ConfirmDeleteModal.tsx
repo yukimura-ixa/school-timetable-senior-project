@@ -43,7 +43,7 @@ function ConfirmDeleteModal({
       })
       .catch((err) => {
         closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลไม่สำเร็จ " + err.response.data, {
+        enqueueSnackbar("ลบข้อมูลไม่สำเร็จ " + err.response.data.error, {
           variant: "error",
         });
       });
