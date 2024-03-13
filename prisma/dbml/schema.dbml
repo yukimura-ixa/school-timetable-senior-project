@@ -8,7 +8,6 @@ Table class_schedule {
   SubjectCode String [not null]
   RoomID Int
   GradeID String [not null]
-  RespID Int [not null]
   IsLocked Boolean [not null, default: false]
 }
 
@@ -111,8 +110,6 @@ Ref: class_schedule.RoomID > room.RoomID
 Ref: class_schedule.SubjectCode > subject.SubjectCode [delete: Cascade]
 
 Ref: class_schedule.TimeslotID > timeslot.TimeslotID [delete: Cascade]
-
-Ref: class_schedule.RespID > teachers_responsibility.RespID [delete: Cascade]
 
 Ref: subject.ProgramID > program.ProgramID
 

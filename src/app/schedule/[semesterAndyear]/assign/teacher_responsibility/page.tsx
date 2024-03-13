@@ -10,20 +10,18 @@ import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
 import api, { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
-import { gradelevel, subject, subject_credit } from "@prisma/client";
 import { subjectCreditValues } from "@/models/credit-value";
-import { Snackbar, Alert } from "@mui/material";
+import { enqueueSnackbar } from "notistack";
 type Props = {
   backPage: Function;
 };
 
-// ! ตอนลบชั้นเรียนใน SelectClassRoomModal แล้วกดบันทึกข้อมูล ข้อมูลชั้นเรียนเดิมยังไม่ถูกลบ
 
 function ClassroomResponsibility(props: Props) {
   const params = useParams();
   const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
   const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-"
+    "-",
   ); //from "1-2566" to ["1", "2566"]
   const searchTeacherID = useSearchParams().get("TeacherID");
   const responsibilityData = useSWR(
@@ -36,12 +34,12 @@ function ClassroomResponsibility(props: Props) {
       `&Semester=SEMESTER_` +
       semester,
     fetcher,
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
   const teacherData = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => `/teacher?TeacherID=` + searchTeacherID,
-    fetcher
+    fetcher,
   );
   // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
   const [data, setData] = useState({
@@ -71,7 +69,7 @@ function ClassroomResponsibility(props: Props) {
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
       //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
       const filterResData = responsibilityData.data.filter(
-        (data) => data.gradelevel.Year == year
+        (data) => data.gradelevel.Year == year,
       ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
       const mapGradeIDOnly = filterResData.map((data) => ({
         GradeID: data.GradeID,
@@ -80,7 +78,7 @@ function ClassroomResponsibility(props: Props) {
       const removeDulpicateGradeID = mapGradeIDOnly.filter(
         (obj, index) =>
           mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
-          index
+          index,
       ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
       return removeDulpicateGradeID;
     };
@@ -151,7 +149,7 @@ function ClassroomResponsibility(props: Props) {
     GradeID: null,
   }); //ตัวแปรนี้จะเก็บค่าตามที่เห็น จะเก็บก็ต่อเมื่อกดปุ่มห้องเรียน เช่น 1/1 ก็เก็บ Year = 1 GradeID = 101 เป็นต้น
   const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState(
-    []
+    [],
   ); //ตัวแปรนี้เก็บข้อมูลวิชาของห้องเรียนที่เราเลือก
   const setCurrentSubject = (subj) => {
     //จะเป็นตัว set ข้อมูลให้กับตัวแปรด้านบนเฉยๆ (ละจะสร้างให้เปลืองที่ไมฟะ??)
@@ -160,10 +158,10 @@ function ClassroomResponsibility(props: Props) {
   const [year, setYear] = useState<number>(null);
   const sumTeachHour = (year: number): number => {
     const getSubjectsByYear = data.Subjects.filter(
-      (subj) => parseInt(subj.GradeID[0]) == year
+      (subj) => parseInt(subj.GradeID[0]) == year,
     ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Subjects
     const mapTeachHour = getSubjectsByYear.map(
-      (item) => subjectCreditValues[item.Credit] * 2
+      (item) => subjectCreditValues[item.Credit] * 2,
     ); //map credit เป็น array ex. => [1, 3, 1]
     if (mapTeachHour.length == 0) {
       //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 คาบ
@@ -183,20 +181,11 @@ function ClassroomResponsibility(props: Props) {
   const validateEmptySubjects = (GradeID: string): boolean => {
     const mapGradeID = data.Subjects.map((item) => item.GradeID);
     const removeDulpicateGradeID = mapGradeID.filter(
-      (obj, index) => mapGradeID.findIndex((item) => item == obj) === index
+      (obj, index) => mapGradeID.findIndex((item) => item == obj) === index,
     ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
     return !removeDulpicateGradeID.includes(GradeID);
   };
-  const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
-  const [snackBarMsg, setSnackBarMsg] = useState<string>("");
-  const snackBarHandle = (commitMsg: string): void => {
-    setIsSnackBarOpen(true);
-    setSnackBarMsg(
-      commitMsg == "PASS"
-        ? "บันทึกข้อมูลการมอบหมายวิชาสำเร็จ!"
-        : `ไม่สามารถบันทึกข้อมูลได้เนื่องจากยังเพิ่มวิชาเรียนไม่ครบทุกชั้นเรียน`
-    );
-  };
+
   const saveData = () => {
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
     const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
@@ -206,7 +195,7 @@ function ClassroomResponsibility(props: Props) {
     //findEmptySubjectInClassRoom คือการหาว่า มีห้องไหนมั้ยที่ยังไม่เพิ่มวิชาเรียน ถ้ามีก็จะฟ้องครับผม
     //return as Array => if true array length > 0, if false array length = 0
     const filterSubject = data.Subjects.filter((item) =>
-      spreadClassRoom.map((item) => item.GradeID).includes(item.GradeID)
+      spreadClassRoom.map((item) => item.GradeID).includes(item.GradeID),
     );
     const postData = {
       TeacherID: data.Teacher.TeacherID,
@@ -215,14 +204,16 @@ function ClassroomResponsibility(props: Props) {
       Semester: `SEMESTER_${semester}`,
     };
     const findEmptySubjectInClassRoom = spreadClassRoom.filter((item) =>
-      validateEmptySubjects(item.GradeID)
+      validateEmptySubjects(item.GradeID),
     );
     if (findEmptySubjectInClassRoom.length > 0) {
       setValidateStatus(true);
-      snackBarHandle("ERROR");
+      enqueueSnackbar(
+        "ไม่สามารถบันทึกข้อมูลได้เนื่องจากยังเพิ่มวิชาเรียนไม่ครบทุกชั้นเรียน",
+        { variant: "warning" },
+      );
     } else {
       setValidateStatus(false);
-      snackBarHandle("PASS");
       console.log(postData);
       saveApi(postData);
     }
@@ -235,10 +226,12 @@ function ClassroomResponsibility(props: Props) {
     if (response.status === 200 && !responsibilityData.isValidating) {
       setValidateStatus(false);
       setIsApiLoading(false);
-      snackBarHandle("PASS");
+      enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
       responsibilityData.mutate();
     } else {
-      snackBarHandle("ERROR");
+      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก" + response.data, {
+        variant: "error",
+      });
     }
     setIsApiLoading(false);
   };
@@ -345,7 +338,7 @@ function ClassroomResponsibility(props: Props) {
                               }));
                             // setCurrentSubject(room.Subjects);
                             setCurrentSubject(
-                              getSubjectDataByGradeID(room.GradeID)
+                              getSubjectDataByGradeID(room.GradeID),
                             );
                           }}
                           title={`ม.${grade.Year}/${room.GradeID.substring(2)}`}
@@ -383,7 +376,7 @@ function ClassroomResponsibility(props: Props) {
                                 GradeID: room.GradeID,
                               }));
                             setCurrentSubject(
-                              getSubjectDataByGradeID(room.GradeID)
+                              getSubjectDataByGradeID(room.GradeID),
                             );
                           }}
                           title={`ม.${grade.Year}/${room.GradeID.substring(2)}`}
@@ -416,7 +409,7 @@ function ClassroomResponsibility(props: Props) {
                                   </p>
                                 </div>
                               </Fragment>
-                            )
+                            ),
                           )}
                         </div>
                       </div>
@@ -442,19 +435,6 @@ function ClassroomResponsibility(props: Props) {
           <p className="text-emerald-500 text-sm">บันทึกข้อมูล</p>
         </button>
       </span>
-      <Snackbar
-        open={isSnackBarOpen}
-        autoHideDuration={6000}
-        onClose={() => setIsSnackBarOpen(false)}
-      >
-        <Alert
-          onClose={() => setIsSnackBarOpen(false)}
-          severity={`${validateStatus ? "error" : "success"}`}
-          sx={{ width: "100%" }}
-        >
-          {snackBarMsg}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

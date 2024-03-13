@@ -129,12 +129,17 @@ export async function POST(request: NextRequest) {
     try {
         let created = []
         const body = await request.json()
+        console.log(body)
+        const RespIDs = body.subject.RespIDs.map((id) => { return { RespID: id } }).flat(1)
         for (const timeslot in body.timeslots) {
             for (const grade in body.GradeIDs) {
                 const data = await prisma.class_schedule.create({
                     data: {
                         ClassID: body.timeslots[timeslot] + '-' + body.SubjectCode + '-' + body.GradeIDs[grade],
                         IsLocked: true,
+                        teachers_responsibility: {
+                            connect: RespIDs,
+                        },
                         subject: {
                             connect: {
                                 SubjectCode: body.SubjectCode,

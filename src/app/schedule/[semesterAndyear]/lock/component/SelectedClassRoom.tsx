@@ -1,17 +1,27 @@
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import MiniButton from "@/components/elements/static/MiniButton";
-import { gradelevel } from "@prisma/client";
+import { fetcher } from "@/libs/axios";
+import { CircularProgress, Skeleton } from "@mui/material";
+import { subject } from "@prisma/client";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
+import useSWR from "swr";
 
 type Props = {
   Grade: any;
+  subject: subject;
   classRoomHandleChange: any;
-  required:boolean
+  required: boolean;
 };
 
 function SelectedClassRoom(props: Props) {
-  const {data, isLoading, error, mutate} = useGradeLevelData();
+  const { data, isLoading, error, isValidating } = useSWR(
+    `/gradelevel/getGradelevelForLock?SubjectCode=` +
+      props.subject?.SubjectCode,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+    },
+  );
   const [allClassRoom, setAllClassRoom] = useState([
     { Year: 1, rooms: [] },
     { Year: 2, rooms: [] },
@@ -27,15 +37,20 @@ function SelectedClassRoom(props: Props) {
       //{GradeID: '101', ...}
       //{GradeID: '101', ...}
       //{GradeID: '102', ...}
-      const filterResData = data.filter(
-        (data) => data.Year == year
-      ).map(item => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+      const filterResData = data
+        .filter((data) => data.Year == year)
+        .map((item) => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
       return filterResData;
     };
     if (!isLoading) {
-      setAllClassRoom(() => allClassRoom.map(item => ({...item, rooms : ClassRoomClassify(item.Year)})))
+      setAllClassRoom(() =>
+        allClassRoom.map((item) => ({
+          ...item,
+          rooms: ClassRoomClassify(item.Year),
+        })),
+      );
     }
-  }, [isLoading]);
+  }, [isValidating, data]);
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">
@@ -45,12 +60,12 @@ function SelectedClassRoom(props: Props) {
             <p className="text-red-500">*</p>
           </div>
           <p className="text-blue-500">(คลิกที่ชั้นเรียนเพื่อเลือก)</p>
-            {props.required ? (
+          {props.required ? (
             <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
               <BsInfo className="bg-red-500 rounded-full fill-white" />
               <p className="text-red-500 text-sm">ต้องการ</p>
             </div>
-            ) : null}
+          ) : null}
         </div>
         {[1, 2, 3, 4, 5, 6].map((grade) => (
           <Fragment key={`selectGrade${grade}`}>
@@ -58,38 +73,44 @@ function SelectedClassRoom(props: Props) {
               <p>{`ม.${grade}`}</p>
               {/* <CheckBox label={`ม.${grade}`} /> */}
               <div className="flex flex-wrap w-1/2 justify-end gap-3">
-                {allClassRoom
-                  .filter((item) => item.Year == grade)[0]
-                  .rooms.map((classroom: any) => (
-                    <Fragment key={`ม.${classroom}`}>
-                      <MiniButton
-                        titleColor={
-                          props.Grade.includes(classroom)
-                            ? "#008022"
-                            : "#222222"
-                        }
-                        borderColor={
-                          props.Grade.includes(classroom)
-                            ? "#9fedb3"
-                            : "#888888"
-                        }
-                        buttonColor={
-                          props.Grade.includes(classroom)
-                            ? "#abffc1"
-                            : "#ffffff"
-                        }
-                        border={true}
-                        title={`ม.${grade}/${classroom.substring(2)}`}
-                        handleClick={() => {
-                          props.classRoomHandleChange(classroom);
-                        }}
-                        width={""}
-                        height={""}
-                        isSelected={false}
-                        hoverable={false}
-                      />
-                    </Fragment>
-                  ))}
+                {isValidating ? (
+                  <Fragment>
+                    <Skeleton variant="rectangular" width={100} height={30} />
+                  </Fragment>
+                ) : (
+                  allClassRoom
+                    .filter((item) => item.Year == grade)[0]
+                    .rooms.map((classroom: any) => (
+                      <Fragment key={`ม.${classroom}`}>
+                        <MiniButton
+                          titleColor={
+                            props.Grade.includes(classroom)
+                              ? "#008022"
+                              : "#222222"
+                          }
+                          borderColor={
+                            props.Grade.includes(classroom)
+                              ? "#9fedb3"
+                              : "#888888"
+                          }
+                          buttonColor={
+                            props.Grade.includes(classroom)
+                              ? "#abffc1"
+                              : "#ffffff"
+                          }
+                          border={true}
+                          title={`ม.${grade}/${classroom.substring(2)}`}
+                          handleClick={() => {
+                            props.classRoomHandleChange(classroom);
+                          }}
+                          width={""}
+                          height={""}
+                          isSelected={false}
+                          hoverable={false}
+                        />
+                      </Fragment>
+                    ))
+                )}
               </div>
             </div>
           </Fragment>

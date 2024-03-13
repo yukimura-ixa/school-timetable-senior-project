@@ -2,7 +2,6 @@ import prisma from "@/libs/prisma"
 import { NextRequest, NextResponse } from "next/server"
 import { teachers_responsibility, semester, subject } from "@prisma/client"
 
-// TODO: หา resp ที่มี TeacherID เหมือนกันทุกอัน
 export async function GET(request: NextRequest) {
     // localhost:3000/api/assign/all&Semester=SEMESTER_1&AcademicYear=2566
     try {
@@ -14,7 +13,7 @@ export async function GET(request: NextRequest) {
                 AcademicYear: AcademicYear,
                 Semester: Semester,
                 TeacherID: {
-                    in: TeacherIDs,
+                    in: TeacherIDs
                 }
             },
             include: {
@@ -24,18 +23,47 @@ export async function GET(request: NextRequest) {
             },
         })
 
-        const subjectsWithoutDuplicate = new Set<string>()
-        const subjects: subject[] = []
-        data.forEach((item) => {
-            if (!subjectsWithoutDuplicate.has(item.SubjectCode)) {
-                subjectsWithoutDuplicate.add(item.SubjectCode)
-                subjects.push(item.subject)
+        const subjectsOfTeacher = []
+        for (const id of TeacherIDs) {
+            // แยก subjects ของแต่ละครู
+            const subjects = data.filter((item) => item.TeacherID === id).map((item) => {
+                const { subject, RespID } = item
+                return subject
+            })
+            subjectsOfTeacher.push(subjects)
+        }
+
+        const intersect = (arr1: subject[], arr2: subject[]) => {
+            return arr1.filter((value) => {
+                return arr2.some((item) => {
+                    return item.SubjectCode === value.SubjectCode
+                })
+            })
+        }
+
+
+        let intersectedSubjects = []
+        if (TeacherIDs.length === 1) intersectedSubjects = subjectsOfTeacher[0]
+        for (let i = 0; i < subjectsOfTeacher.length - 1; i++) {
+
+            const intersected = intersect(subjectsOfTeacher[i], subjectsOfTeacher[i + 1])
+            if (i === 0) {
+                intersectedSubjects = intersected
+            } else {
+                intersectedSubjects = intersect(intersectedSubjects, intersected)
             }
+        }
+
+        const response = intersectedSubjects.map((item) => {
+            const RespIDs = data.filter((resp) => resp.subject.SubjectCode === item.SubjectCode).map((resp) => resp.RespID)
+            return { ...item, RespIDs }
         })
 
-        return NextResponse.json(subjects)
+
+
+        return NextResponse.json(response)
     } catch (error) {
         console.log(error)
-        return NextResponse.json({ error: error }, { status: 500 })
+        return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

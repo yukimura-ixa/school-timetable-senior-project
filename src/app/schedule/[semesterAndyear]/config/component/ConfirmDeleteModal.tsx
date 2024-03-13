@@ -34,12 +34,13 @@ function ConfirmDeleteModal({
     });
     const response = api
       .delete("/timeslot", {
-        data: { academicYear: academicYear, Semester: "SEMESTER_" + semester },
+        data: { AcademicYear: academicYear, Semester: "SEMESTER_" + semester },
       })
       .then(() => {
         closeSnackbar(loadbar);
         enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
         mutate();
+        window.location.reload();
       })
       .catch((err) => {
         closeSnackbar(loadbar);

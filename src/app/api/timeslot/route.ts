@@ -124,14 +124,22 @@ export async function DELETE(request: NextRequest) {
 
         await prisma.table_config.delete({
             where: {
-                ConfigID: body.Semester[9] + '/' + body.academicYear,
+                ConfigID: body.Semester[9] + '/' + body.AcademicYear,
             },
-        }).then(async () => await prisma.timeslot.deleteMany({
-            where: {
-                AcademicYear: body.AcademicYear,
-                Semester: semester[body.Semester],
-            },
-        }))
+        }).then(async () => {
+            await prisma.timeslot.deleteMany({
+                where: {
+                    AcademicYear: parseInt(body.AcademicYear),
+                    Semester: semester[body.Semester],
+                },
+            })
+            await prisma.teachers_responsibility.deleteMany({
+                where: {
+                    AcademicYear: parseInt(body.AcademicYear),
+                    Semester: semester[body.Semester],
+                },
+            })
+        })
 
 
         return NextResponse.json("Timeslots deleted")

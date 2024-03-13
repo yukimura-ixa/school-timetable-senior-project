@@ -17,9 +17,6 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import api, { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { table } from "console";
-import Loading from "@/app/loading";
-// TODO: ถ้าตั้งค่าแล้ว GET มาจาก table_config
 type Props = {};
 
 function TimetableConfigValue({}: Props) {
@@ -54,10 +51,10 @@ function TimetableConfigValue({}: Props) {
     `/config/getConfig?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
     fetcher,
   );
+
   useEffect(() => {
-    console.log("validate", tableConfig.isValidating);
     const checkSetTimeslot = tableConfig.data != undefined;
-    console.log(checkSetTimeslot);
+    console.log(tableConfig.isLoading);
     setIsSetTimeslot(() => checkSetTimeslot);
     if (tableConfig.data) {
       setConfigData(tableConfig.data.Config);

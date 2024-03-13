@@ -46,6 +46,14 @@ export async function POST(request: NextRequest) {
                     return newResp
                 })
 
+                for (const item of toResp) {
+                    const check = await prisma.teachers_responsibility.findFirst({
+                        where: item
+                    })
+                    if (check) {
+                        throw new Error("มีการมอบหมายซ้ำกัน")
+                    }
+                }
 
                 await prisma.teachers_responsibility.createMany({
                     data: toResp,

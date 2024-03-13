@@ -1,10 +1,12 @@
 import { useTimeslotData } from "@/app/_hooks/timeslotData";
-import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import { subjectCreditValues } from "@/models/credit-value";
+import { subject, subject_credit } from "@prisma/client";
 import { useParams } from "next/navigation";
 import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
+  subject: subject;
   timeSlotHandleChange: any;
   checkedCondition: any;
   required: boolean;
@@ -15,11 +17,11 @@ function SelectMultipleTimeSlot(props: Props) {
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-"
+    "-",
   ); //from "1-2566" to ["1", "2566"]
   const timeSlotData = useTimeslotData(
     parseInt(academicYear),
-    parseInt(semester)
+    parseInt(semester),
   );
   const [timeSlot, setTimeSlot] = useState([]);
   useEffect(() => {
@@ -27,17 +29,22 @@ function SelectMultipleTimeSlot(props: Props) {
       setTimeSlot(() =>
         timeSlotData.data
           .filter((item) => item.DayOfWeek == props.daySelected)
-          .map((item) => item.TimeslotID)
+          .map((item) => item.TimeslotID),
       );
     }
   }, [timeSlotData.isLoading, props.daySelected]);
 
-  const isAdjacentTimeSlot = (timeslot, index) => {
+
+  const checkTimeslotCond = (index) => {
+    const timeslotCredit = subjectCreditValues[props.subject.Credit] * 2;
     const checkedIndex = props.checkedCondition.map((item) =>
-      timeSlot.indexOf(item)
+      timeSlot.indexOf(item),
     );
+
+    // ถ้าไม่มีการเลือก
     if (checkedIndex.length == 0 || checkedIndex.includes(index)) return true;
-    if (checkedIndex.length > 1) return false;
+    // ถ้าเลือกมากกว่า 1 ตัว
+    if (checkedIndex.length >= timeslotCredit) return false;
     const min = Math.min(...checkedIndex);
     const max = Math.max(...checkedIndex);
     return index == min - 1 || index == max + 1;
@@ -58,9 +65,9 @@ function SelectMultipleTimeSlot(props: Props) {
         </div>
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-3 w-[230px] relative">
-            {timeSlot.length == 0 ? (
+            {timeSlot.length == 0 || !props.subject ? (
               <p className="text-sm text-red-500 absolute right-0">
-                *กรุณาเลือกวันที่เรียน
+                *กรุณาเลือกวันที่เรียนและวิชา
               </p>
             ) : (
               timeSlot.map((item, index) => (
@@ -71,7 +78,7 @@ function SelectMultipleTimeSlot(props: Props) {
                     name="checkboxTimeSlot"
                     onChange={props.timeSlotHandleChange}
                     checked={props.checkedCondition.includes(item)}
-                    disabled={!isAdjacentTimeSlot(item, index)}
+                    disabled={!checkTimeslotCond(index)}
                   />
                   <label>{index + 1}</label>
                 </Fragment>

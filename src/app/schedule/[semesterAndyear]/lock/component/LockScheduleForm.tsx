@@ -6,11 +6,11 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, teacher, timeslot } from "@prisma/client";
+import type { room, subject, teacher, timeslot } from "@prisma/client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import api from "@/libs/axios";
-import { enqueueSnackbar } from "notistack";
-//TODO: เช็คหน่วยกิตวิชาล็อกคาบ
+import { closeSnackbar, enqueueSnackbar } from "notistack";
+
 type Props = {
   closeModal: any;
   data?: any;
@@ -25,6 +25,7 @@ type LockScheduleData = {
   teachers: teacher[];
   GradeIDs: string[];
   room: room;
+  subject: subject;
 };
 
 type IsEmptyData = {
@@ -57,6 +58,7 @@ const initialState: {
     teachers: [],
     GradeIDs: [],
     room: { RoomID: -1, RoomName: "", Building: "", Floor: "" },
+    subject: null,
   },
   isEmptyData: {
     Subject: false,
@@ -75,8 +77,9 @@ const reducer = (state: typeof initialState, action: Action) => {
         ...state,
         lockScheduleData: {
           ...state.lockScheduleData,
-          SubjectName: action.payload.SubjectName,
-          SubjectCode: action.payload.SubjectCode,
+          SubjectName: action.payload?.SubjectName || "",
+          SubjectCode: action.payload?.SubjectCode || "",
+          subject: action.payload,
         },
       };
     case "SET_DAY_OF_WEEK":
@@ -194,6 +197,26 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     lockScheduleData.room,
   ]);
 
+  useEffect(() => {
+    if (lockScheduleData.teachers.length == 0) {
+      dispatch({
+        type: "SET_SUBJECT",
+        payload: initialState.lockScheduleData.subject,
+      });
+      dispatch({
+        type: "SET_DAY_OF_WEEK",
+        payload: initialState.lockScheduleData.DayOfWeek,
+      });
+      dispatch({
+        type: "SET_TIME_SLOT",
+        payload: initialState.lockScheduleData.timeslots,
+      });
+      dispatch({
+        type: "SET_GRADE",
+        payload: initialState.lockScheduleData.GradeIDs,
+      });
+    }
+  }, [lockScheduleData.teachers]);
   const handleConfirm = () => {
     let cond =
       isEmptyData.Subject ||
@@ -204,7 +227,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       isEmptyData.room;
     if (cond) {
       validateData();
-      enqueueSnackbar("กรุณากรอกข้อมูลให้ครบถ้วน", { variant: "error" });
+      enqueueSnackbar("กรุณากรอกข้อมูลให้ครบถ้วน", { variant: "warning" });
       return;
     }
 
@@ -242,17 +265,21 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const addLockSchedule = async (data: any) => {
+    closeModal();
+    const loadbar = enqueueSnackbar("กำลังเพิ่มคาบล็อก", {
+      variant: "info",
+      persist: true,
+    });
     try {
       const response = await api.post("/lock", data);
-      enqueueSnackbar("กำลังเพิ่มข้อมูล", { variant: "info" });
-      closeModal();
       if (response.status === 200) {
+        closeSnackbar(loadbar);
         enqueueSnackbar("เพิ่มข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
         mutate();
       }
-      console.log(response);
     } catch (error) {
       console.log(error);
+      closeSnackbar(loadbar);
       enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มข้อมูลคาบล็อก", {
         variant: "error",
       });
@@ -300,6 +327,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
               required={isEmptyData.DayOfWeek}
             />
             <SelectMultipleTimeSlot
+              subject={lockScheduleData.subject}
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeslots}
               required={isEmptyData.timeslots}
@@ -311,6 +339,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
               required={isEmptyData.room}
             />
             <SelectedClassRoom
+              subject={lockScheduleData.subject}
               Grade={lockScheduleData.GradeIDs}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.GradeIDs}
