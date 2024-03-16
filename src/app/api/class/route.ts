@@ -43,6 +43,11 @@ export async function GET(request: NextRequest) {
                     GradeID: GradeID
                 },
                 include: {
+                    teachers_responsibility: {
+                        include: {
+                            teacher: true
+                        }
+                    },
                     subject: true,
                     gradelevel: true,
                     timeslot: true,
@@ -50,6 +55,9 @@ export async function GET(request: NextRequest) {
                 },
 
             })
+
+            response = response.map((item) => ({ ...item, teachers: item.teachers_responsibility.map((item) => item.teacher) }))
+
         } else {
             // localhost:3000/api/class?AcademicYear=2566&Semester=SEMESTER_1
             response = await prisma.class_schedule.findMany({
