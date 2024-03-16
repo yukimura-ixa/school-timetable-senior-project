@@ -8,10 +8,10 @@ type Props = {
   currentTeacher : any;
 };
 
-function SelectTeacher(props: Props) {
+function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
   const allTeacher = useTeacherData();
-  const current = props.currentTeacher
-  const [teacher, setTeacher] = useState(`${current.Prefix}${current.Firstname} ${current.Lastname}`)
+  const current = currentTeacher
+  const [teacher, setTeacher] = useState(Object.keys(currentTeacher).length !== 0 ? `${current.Prefix}${current.Firstname} ${current.Lastname}` : "")
   return (
     <>
       {allTeacher.isLoading ? <Loading />
@@ -26,7 +26,7 @@ function SelectTeacher(props: Props) {
           currentValue={teacher}
           handleChange={(data) => {
             setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`)
-            props.setTeacherID(data.TeacherID)
+            setTeacherID(data.TeacherID)
           }}
           searchFunciton={undefined}
         />

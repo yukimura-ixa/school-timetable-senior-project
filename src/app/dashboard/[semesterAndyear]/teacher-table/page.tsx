@@ -1,18 +1,18 @@
-"use client"
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import React, {useEffect, useRef, useState} from 'react'
-import TimeSlot from './component/Timeslot';
-import SelectTeacher from './component/SelectTeacher';
-import { fetcher } from '@/libs/axios';
-import { dayOfWeekTextColor } from '@/models/dayofWeek-textColor';
-import { dayOfWeekColor } from '@/models/dayofweek-color';
-import { dayOfWeekThai } from '@/models/dayofweek-thai';
-import useSWR from 'swr';
-import Loading from '@/app/loading';
-import PrimaryButton from '@/components/elements/static/PrimaryButton';
-import { ExportTeacherTable } from '../all-timeslot/functions/ExportTeacherTable';
-import { useReactToPrint } from 'react-to-print';
-type Props = {}
+"use client";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import TimeSlot from "./component/Timeslot";
+import SelectTeacher from "./component/SelectTeacher";
+import { fetcher } from "@/libs/axios";
+import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
+import { dayOfWeekColor } from "@/models/dayofweek-color";
+import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import useSWR from "swr";
+import Loading from "@/app/loading";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
+import { useReactToPrint } from "react-to-print";
+type Props = {};
 
 function page({}: Props) {
   // TODO: เช็คคาบพัก
@@ -20,7 +20,7 @@ function page({}: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
-  const [searchTeacherID, setSearchTeacherID] = useState(1)
+  const [searchTeacherID, setSearchTeacherID] = useState(null);
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
     SlotAmount: [],
@@ -29,6 +29,14 @@ function page({}: Props) {
     DayOfWeek: [],
     BreakSlot: [],
   });
+  const [classData, setClassData] = useState([]);
+  const fetchAllClassData = useSWR(
+    () =>
+      !!searchTeacherID &&
+      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${searchTeacherID}`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
   const fetchTimeSlot = useSWR(
     () =>
       `/timeslot?AcademicYear=` +
@@ -65,7 +73,7 @@ function page({}: Props) {
           Breaktime: item.Breaktime,
           SlotNumber: parseInt(item.TimeslotID.substring(10)),
         })); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
-        let slotAmount = data
+      let slotAmount = data
         .filter((item) => item.DayOfWeek == "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
         .map((item, index) => index + 1); //ใช้สำหรับ map หัวตารางในเว็บ จะ map จาก data เป็น number of array => [1, 2, 3, 4, 5, 6, 7]
       let startTime = {
@@ -86,11 +94,29 @@ function page({}: Props) {
       }));
     }
   }
+  function fetchClassData() {
+    if (!fetchAllClassData.isValidating && !!searchTeacherID) {
+      const data = fetchAllClassData.data;
+      setTimeSlotData(() => ({
+        ...timeSlotData,
+        AllData: timeSlotData.AllData.map((item) => ({
+          ...item,
+          subject: data.map((id) => id.TimeslotID).includes(item.TimeslotID)
+            ? data.filter((id) => id.TimeslotID == item.TimeslotID)[0]
+            : {},
+        })),
+      }));
+      setClassData(data);
+    }
+  }
   useEffect(() => {
     if (!fetchTimeSlot.isLoading) {
       fetchTimeslotData();
     }
-  }, [fetchTimeSlot.isLoading]);
+    if (!fetchAllClassData.isLoading && !!searchTeacherID) {
+      fetchClassData();
+    }
+  }, [fetchTimeSlot.isLoading, fetchAllClassData.isLoading]);
   //convert millisec to min
   const getMinutes = (milliseconds: number) => {
     let seconds = Math.floor(milliseconds / 1000);
@@ -115,8 +141,8 @@ function page({}: Props) {
         const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
         //นำไปใส่ใน function addHours เพื่อกำหนดเวลาเริ่ม-จบ
-        let start = addHours(timeStart, (index+1) - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
-        let end = addHours(timeEnd, index+1); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
+        let start = addHours(timeStart, index + 1 - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
+        let end = addHours(timeEnd, index + 1); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
         //แปลงจาก 2023-07-27T17:24:52.897Z เป็น 17:24 โดยใช้ slice
         return {
           Start: start.toISOString().slice(11, 16),
@@ -127,54 +153,92 @@ function page({}: Props) {
     return map;
   };
   const setTeacherID = (id: number) => {
-    setSearchTeacherID(id)
-  }
+    setSearchTeacherID(id);
+  };
   const fetchTeacherDatabyID = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
-    () => `/teacher?TeacherID=` + searchTeacherID,
-    fetcher
+    () => !!searchTeacherID && `/teacher?TeacherID=` + searchTeacherID,
+    fetcher,
   );
   const ref = useRef<HTMLDivElement>();
   const generatePDF = useReactToPrint({
-    content : () => ref.current,
-    documentTitle : "ตารางสอน",
+    content: () => ref.current,
+    documentTitle: "ตารางสอน",
     // onAfterPrint : () => alert("เรียบร้อย")
-  })
-  const [isPDFExport, setIsPDFExport] = useState(false)
+  });
+  const [isPDFExport, setIsPDFExport] = useState(false);
   const ExportToPDF = () => {
-    setIsPDFExport(true)
+    setIsPDFExport(true);
     setTimeout(() => {
-      generatePDF()
-      setIsPDFExport(false)
-    }, 1)
-  }
+      generatePDF();
+      setIsPDFExport(false);
+    }, 1);
+  };
   return (
     <>
-      <div className='flex flex-col gap-3'>
-        {fetchTeacherDatabyID.isLoading || fetchTimeSlot.isLoading ? <Loading /> :
-        <>
-        <SelectTeacher setTeacherID={setTeacherID} currentTeacher={fetchTeacherDatabyID.data} />
-        <div className='flex w-full gap-3 justify-end'>
-          <PrimaryButton handleClick={() => ExportTeacherTable(timeSlotData, [fetchTeacherDatabyID.data], semester, academicYear)} title={'นำออกเป็น Excel'} color={''} Icon={undefined} reverseIcon={false} isDisabled={false} />
-          <PrimaryButton handleClick={ExportToPDF} title={'นำออกเป็น PDF'} color={''} Icon={undefined} reverseIcon={false} isDisabled={false} />
-        </div>
-        <TimeSlot timeSlotData={timeSlotData} timeMap={mapTime()}/>
-        <div ref={ref} className='p-10 flex flex-col items-center justify-center mt-5' style={{display : isPDFExport ? 'flex' : 'none'}}>
-        <div className='flex gap-10 mb-8'>
-            <p>ตารางสอน {`${fetchTeacherDatabyID.data.Prefix}${fetchTeacherDatabyID.data.Firstname} ${fetchTeacherDatabyID.data.Lastname}`}</p>
-            <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
-          </div>
-          <TimeSlot timeSlotData={timeSlotData} timeMap={mapTime()}/>
-          <div className='flex gap-2 mt-8'>
-            <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
-            <p>ลงชื่อ..............................ผู้อำนวยการ</p>
-          </div>
-        </div>
-        </>
-        }
+      <div className="flex flex-col gap-3">
+        {fetchTeacherDatabyID.isLoading || fetchTimeSlot.isLoading || fetchAllClassData.isLoading ? (
+          <Loading />
+        ) : (
+          <>
+            <SelectTeacher
+              setTeacherID={setTeacherID}
+              currentTeacher={fetchTeacherDatabyID.data}
+            />
+            {!!searchTeacherID && (
+              <>
+                <div className="flex w-full gap-3 justify-end">
+                  <PrimaryButton
+                    handleClick={() => {
+                      ExportTeacherTable(
+                        timeSlotData,
+                        [fetchTeacherDatabyID.data],
+                        classData,
+                        semester,
+                        academicYear,
+                      );
+                    }}
+                    title={"นำออกเป็น Excel"}
+                    color={""}
+                    Icon={undefined}
+                    reverseIcon={false}
+                    isDisabled={fetchAllClassData.isLoading}
+                  />
+                  <PrimaryButton
+                    handleClick={ExportToPDF}
+                    title={"นำออกเป็น PDF"}
+                    color={""}
+                    Icon={undefined}
+                    reverseIcon={false}
+                    isDisabled={fetchAllClassData.isLoading}
+                  />
+                </div>
+                <TimeSlot timeSlotData={timeSlotData} timeMap={mapTime()} />
+                <div
+                  ref={ref}
+                  className="p-10 flex flex-col items-center justify-center mt-5"
+                  style={{ display: isPDFExport ? "flex" : "none" }}
+                >
+                  <div className="flex gap-10 mb-8">
+                    <p>
+                      ตารางสอน{" "}
+                      {`${fetchTeacherDatabyID.data.Prefix}${fetchTeacherDatabyID.data.Firstname} ${fetchTeacherDatabyID.data.Lastname}`}
+                    </p>
+                    <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
+                  </div>
+                  <TimeSlot timeSlotData={timeSlotData} timeMap={mapTime()} />
+                  <div className="flex gap-2 mt-8">
+                    <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
+                    <p>ลงชื่อ..............................ผู้อำนวยการ</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     </>
-  )
+  );
 }
 
-export default page
+export default page;

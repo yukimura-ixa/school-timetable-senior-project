@@ -31,7 +31,7 @@ function Navbar() {
                 </li>
                 <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">
                   <Link href={"/dashboard/select-semester"}>
-                    <p className="text-md">แดชบอร์ด</p>
+                    <p className="text-md">สรุปข้อมูล</p>
                   </Link>
                 </li>
                 {/* <li className="py-2 px-1 hover:border-b-4 hover:border-cyan-500 transition-all cursor-pointer">

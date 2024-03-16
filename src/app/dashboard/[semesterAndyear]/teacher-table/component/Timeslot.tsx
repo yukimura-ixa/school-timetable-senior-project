@@ -1,4 +1,5 @@
 "use client";
+import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React, { Fragment } from "react";
 
 type Props = {
@@ -72,28 +73,34 @@ function TimeSlot({ timeSlotData, timeMap }: Props) {
                     <p style={{ color: day.TextColor }}>{day.Day}</p>
                   </span>
                 </td>
-                {timeSlotData.SlotAmount.map((data) => (
-                  <Fragment key={`slot-no${data}`}>
+                {timeSlotData.AllData.filter(item => dayOfWeekThai[item.DayOfWeek] == day.Day).map((data) => (
+                  <Fragment key={`slot-no${data.TimeslotID}`}>
                     <td
                       style={{
                         width: `${
                           1062 / timeSlotData.SlotAmount.length - 10
                         }px`,
-                        backgroundColor : timeSlotData.BreakSlot.length == 1 && timeSlotData.BreakSlot[0].SlotNumber == data ? "lightgray" : "white"
+                        backgroundColor:
+                          timeSlotData.BreakSlot.length == 1 &&
+                          timeSlotData.BreakSlot[0].SlotNumber == data
+                            ? "lightgray"
+                            : "white",
                       }}
                       className="grid font-light items-center justify-center h-[76px] rounded border border-[#ABBAC1] cursor-default"
                     >
-                      {timeSlotData.BreakSlot.length == 1 && timeSlotData.BreakSlot[0].SlotNumber == data && <p className="mt-4">พัก</p>}
+                      {data.Breaktime == "BREAK_BOTH" &&
+                          <p className="mt-4">พักกลางวัน</p>
+                      }
                       <span className="flex flex-col items-center text-xs duration-300">
-                        {/* <MdAdd size={20} className="fill-gray-300" /> */}
-                        <>
-                          {/* <p>{data.SubjectCode}</p>
-                                  <p>
-                                    ม.{data.GradeID.toString().slice(0, 1)}/
-                                    {data.GradeID.toString().slice(2)}
-                                  </p>
-                                  <p>{data.RoomID}</p> */}
-                        </>
+                        {Object.keys(data.subject).length !== 0 && (
+                          <>
+                            <p className="text-sm">{data.subject.SubjectCode}</p>
+                            <p className="text-sm">
+                              ม.{data.subject.GradeID[0]}/{parseInt(data.subject.GradeID.substring(1))}
+                            </p>
+                            <p className="text-sm">{data.subject.room.RoomName}</p>
+                          </>
+                        )}
                       </span>
                     </td>
                   </Fragment>

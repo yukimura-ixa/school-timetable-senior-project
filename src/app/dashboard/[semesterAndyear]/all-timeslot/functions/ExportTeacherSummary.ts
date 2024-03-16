@@ -1,6 +1,6 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import ExcelJS from "exceljs";
-export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semester, academicYear) => {
+export const ExportTeacherSummary = (timeSlotData, allTeacher, classData, semester, academicYear) => {
     const workbook = new ExcelJS.Workbook(); //create workbook
     const sheet = workbook.addWorksheet("รวม", {
       pageSetup:{paperSize: 9, orientation:'landscape'}
@@ -57,13 +57,12 @@ export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semes
       ...timeSlotData.DayOfWeek.flatMap((item) =>
         timeSlotData.SlotAmount.map((num) => ({
           key: `${item.Day}-${num}`,
-          width: 2.29,
+          width: 3,
         })),
       ),
       { key: "result", width: 3 },
     ];
     sheet.columns = keyColumn;
-    console.log(keyColumn);
     const unLockObject = (obj, dataCount) => {
       //from [{"mon-1" : ""}, {"mon-2" : ""}] to {"mon-1" : "", "mon-2" : ""} จะเอาไป spread ใน jsonData ถ้าไม่คัดแบบนี้จะเป็น object ซ้อน object
       let a = {};
@@ -72,8 +71,14 @@ export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semes
       }
       return a;
     };
-    const convertClass = (GradeID: string) => {
-      return `${GradeID[0]}/${GradeID.substring(2)}`;
+    const findResult = (tID) => {
+      let filter1 = classData.filter((item) =>
+        item.teachers_responsibility
+          .map((tid) => tid.TeacherID)
+          .includes(tID),
+      );
+      let filter2 = filter1.filter((cid, index) => filter1.findIndex(item => item.TimeslotID == cid.TimeslotID) == index)
+      return filter2.length;
     };
     const jsonData = [
       ...allTeacher.data.map((tch, index) => {
@@ -81,7 +86,7 @@ export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semes
           timeSlotData.SlotAmount.flatMap((num) => {
             let filterClass = classData.filter(
               (item) =>
-                item.subject.teachers_responsibility
+                item.teachers_responsibility
                   .map((tid) => tid.TeacherID)
                   .includes(tch.TeacherID) &&
                 dayOfWeekThai[item.timeslot.DayOfWeek] == day.Day &&
@@ -89,12 +94,12 @@ export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semes
             );
             let obj = {};
             let keyname = `${day.Day}-${num}`;
+            let convertClass = filterClass.map(item => `${item.GradeID[0]}/${item.GradeID[2]}`).join(",") 
+            let res = filterClass.length == 0 ? "" : filterClass[0].IsLocked ? `${filterClass[0].SubjectCode}` : `${convertClass}`
             obj[keyname] =
               filterClass.length == 0
                 ? ""
-                : `${convertClass(filterClass[0].GradeID)} ${
-                    filterClass[0].SubjectCode
-                  }`;
+                : res
             return obj;
           }),
         );
@@ -102,15 +107,10 @@ export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semes
           order: index + 1,
           teacherName: `${tch.Prefix}${tch.Firstname} ${tch.Lastname}`,
           ...unLockObject(mapKey, mapKey.length),
-          result: classData.filter((item) =>
-            item.subject.teachers_responsibility
-              .map((tid) => tid.TeacherID)
-              .includes(tch.TeacherID),
-          ).length,
+          result: findResult(tch.TeacherID),
         };
       }),
     ];
-    console.log(jsonData);
     sheet.addRows(jsonData, "i");
     rows.eachCell(function (cell) {
       cell.alignment = {
@@ -137,7 +137,7 @@ export const ExportTeacherTimeslot = (timeSlotData, allTeacher, classData, semes
       };
     });
     sheet.eachRow(function (row, rowNumber) {
-      row.font = { name: "TH SarabunPSK", size: 12 };
+      row.font = { name: "TH SarabunPSK", size: rowNumber == 1 ? 16 : 12, bold : true };
       row.height = 15;
       row.eachCell(function (cell, colNumber) {
         if (colNumber >= 3 && colNumber <= slotLength + 3)

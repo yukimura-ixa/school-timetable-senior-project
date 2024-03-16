@@ -118,28 +118,28 @@ export const showTimetableMenu = [
     },
 ]
 export const dashboardMenu = [
-    {
-        id : "teachertable",
-        IconStyle : {
-            Icon : BiSolidUser,
-        },
-        title : "สรุปข้อมูลคุณครู",
-        link : "dashboard/teacher"
-    },
-    {
-        id : "roomtable",
-        IconStyle : {
-            Icon : SiGoogleclassroom,
-        },
-        title : "สรุปข้อมูลสถานที่เรียน",
-        link : "dashboard/rooms"
-    },
-    {
-        id : "gradeleveltable",
-        IconStyle : {
-            Icon : HiAcademicCap,
-        },
-        title : "สรุปข้อมูลชั้นเรียน",
-        link : "dashboard/classroom"
-    }
+    // {
+    //     id : "teachertable",
+    //     IconStyle : {
+    //         Icon : BiSolidUser,
+    //     },
+    //     title : "สรุปข้อมูลคุณครู",
+    //     link : "dashboard/teacher"
+    // },
+    // {
+    //     id : "roomtable",
+    //     IconStyle : {
+    //         Icon : SiGoogleclassroom,
+    //     },
+    //     title : "สรุปข้อมูลสถานที่เรียน",
+    //     link : "dashboard/rooms"
+    // },
+    // {
+    //     id : "gradeleveltable",
+    //     IconStyle : {
+    //         Icon : HiAcademicCap,
+    //     },
+    //     title : "สรุปข้อมูลชั้นเรียน",
+    //     link : "dashboard/classroom"
+    // }
 ]

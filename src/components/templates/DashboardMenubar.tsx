@@ -28,7 +28,7 @@ function DashboardMenubar() {
       {pathName == "/signin" ? null : (
         <aside className="flex flex-col gap-8 w-[270px] min-h-screen px-5 py-8 bg-[#F1F3F9]">
           {/* management */}
-          <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
+          {/* <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">
               สรุปข้อมูล
             </p>
@@ -65,7 +65,7 @@ function DashboardMenubar() {
                 </React.Fragment>
               );
             })}
-          </div>
+          </div> */}
           <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">
               แสดงตารางสอน
@@ -105,7 +105,7 @@ function DashboardMenubar() {
             })}
           </div>
           {/* others */}
-          <div className="flex flex-col w-full h-fit border-b gap-1 border-[#C8C9CD]">
+          {/* <div className="flex flex-col w-full h-fit border-b gap-1 border-[#C8C9CD]">
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">อื่นๆ</p>
             {othersMenu.map((item, index) => (
               <React.Fragment key={item.id}>
@@ -136,7 +136,7 @@ function DashboardMenubar() {
                 )}
               </React.Fragment>
             ))}
-          </div>
+          </div> */}
         </aside>
       )}
     </>

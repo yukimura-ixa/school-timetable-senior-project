@@ -14,7 +14,7 @@ import HeightIcon from "@mui/icons-material/Height";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import TableResult from "./component/TableResult";
 import { ExportTeacherTable } from "./functions/ExportTeacherTable";
-import { ExportTeacherTimeslot } from "./functions/ExportTeacherTimeslot";
+import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
 const AllTimeslot = () => {
   // TODO: คาบล็อกแสดงเป็นตัวอักษรสีแดง
   const params = useParams();
@@ -111,7 +111,6 @@ const AllTimeslot = () => {
     }
     if (!fetchAllClassData.isLoading) {
       fetchClassData();
-      console.log(fetchAllClassData.data);
     }
   }, [fetchTimeSlot.isLoading, fetchAllClassData.data]);
   return (
@@ -142,7 +141,7 @@ const AllTimeslot = () => {
         <div className="flex gap-3">
           <PrimaryButton
             handleClick={() =>
-              ExportTeacherTimeslot(
+              ExportTeacherSummary(
                 timeSlotData,
                 allTeacher,
                 classData,
@@ -154,13 +153,14 @@ const AllTimeslot = () => {
             color={"secondary"}
             Icon={undefined}
             reverseIcon={false}
-            isDisabled={false}
+            isDisabled={fetchAllClassData.isLoading}
           />
           <PrimaryButton
             handleClick={() =>
               ExportTeacherTable(
                 timeSlotData,
                 allTeacher.data,
+                classData,
                 semester,
                 academicYear,
               )
@@ -169,7 +169,7 @@ const AllTimeslot = () => {
             color={"secondary"}
             Icon={undefined}
             reverseIcon={false}
-            isDisabled={false}
+            isDisabled={fetchAllClassData.isLoading}
           />
         </div>
         <div className="w-full flex justify-end items-center gap-3 mt-3 cursor-default">
