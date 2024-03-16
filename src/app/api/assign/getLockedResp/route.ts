@@ -3,65 +3,66 @@ import { NextRequest, NextResponse } from "next/server"
 import { teachers_responsibility, semester, subject } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
-    // localhost:3000/api/assign/all&Semester=SEMESTER_1&AcademicYear=2566
+    // localhost:3000/api/assign/getLockedResp&Semester=SEMESTER_1&AcademicYear=2566
     try {
         const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
         const Semester = semester[request.nextUrl.searchParams.get("Semester")]
-        const TeacherIDs = request.nextUrl.searchParams.getAll("TeacherID").map((id) => parseInt(id))
-        const data: teachers_responsibility[] = await prisma.teachers_responsibility.findMany({
+        const groupBy = await prisma.teachers_responsibility.groupBy({
+            by: ["SubjectCode"],
             where: {
                 AcademicYear: AcademicYear,
                 Semester: Semester,
-                TeacherID: {
-                    in: TeacherIDs
+                class_schedule: {
+                    none: {}
+                }
+            },
+        })
+
+        const subjects = await prisma.subject.findMany({
+            where: {
+                SubjectCode: {
+                    in: groupBy.map((item) => item.SubjectCode)
                 }
             },
             include: {
-                subject: true,
-                gradelevel: true,
-                teacher: true,
-            },
+                teachers_responsibility: true
+            }
         })
 
-        const subjectsOfTeacher = []
-        for (const id of TeacherIDs) {
-            // แยก subjects ของแต่ละครู
-            const subjects = data.filter((item) => item.TeacherID === id).map((item) => {
-                const { subject, RespID } = item
-                return subject
-            })
-            subjectsOfTeacher.push(subjects)
-        }
 
-        const intersect = (arr1: subject[], arr2: subject[]) => {
-            return arr1.filter((value) => {
-                return arr2.some((item) => {
-                    return item.SubjectCode === value.SubjectCode
-                })
-            })
-        }
+        const responseSubjects = []
+        for (const subject of subjects) {
+            const hasSameGrade = subject.teachers_responsibility.reduce((acc, curr) => {
+                if (!acc[curr.GradeID]) {
+                    acc[curr.GradeID] = []
+                }
+                acc[curr.GradeID].push(curr)
+                return acc
+            }, {})
 
+            const moreThanOneGrade = Object.keys(hasSameGrade).filter((key) => hasSameGrade[key].length > 1)
 
-        let intersectedSubjects = []
-        if (TeacherIDs.length === 1) intersectedSubjects = subjectsOfTeacher[0]
-        for (let i = 0; i < subjectsOfTeacher.length - 1; i++) {
+            const hasSameTeacher = subject.teachers_responsibility.reduce((acc, curr) => {
+                if (!acc[curr.TeacherID]) {
+                    acc[curr.TeacherID] = []
+                }
+                acc[curr.TeacherID].push(curr)
+                return acc
+            }, {})
 
-            const intersected = intersect(subjectsOfTeacher[i], subjectsOfTeacher[i + 1])
-            if (i === 0) {
-                intersectedSubjects = intersected
-            } else {
-                intersectedSubjects = intersect(intersectedSubjects, intersected)
+            const moreThanOneTeacher = Object.keys(hasSameTeacher).filter((key) => hasSameTeacher[key].length > 1)
+            // console.log(moreThanOneTeacher)
+            if (moreThanOneGrade.length > 0) {
+                responseSubjects.push(subject)
+            }
+            if (moreThanOneTeacher.length > 0) {
+                responseSubjects.push(subject)
             }
         }
 
-        const response = intersectedSubjects.map((item) => {
-            const RespIDs = data.filter((resp) => resp.subject.SubjectCode === item.SubjectCode).map((resp) => resp.RespID)
-            return { ...item, RespIDs }
-        })
+        // const response = subjects.filter((item) => item.hasSameGrade === true)
 
-
-
-        return NextResponse.json(response)
+        return NextResponse.json(responseSubjects)
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: error.message }, { status: 500 })

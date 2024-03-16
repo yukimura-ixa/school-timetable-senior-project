@@ -2,11 +2,13 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { fetcher } from "@/libs/axios";
 import { CircularProgress, Skeleton } from "@mui/material";
 import { subject } from "@prisma/client";
+import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
 type Props = {
+  teachers: any;
   Grade: any;
   subject: subject;
   classRoomHandleChange: any;
@@ -14,14 +16,30 @@ type Props = {
 };
 
 function SelectedClassRoom(props: Props) {
+  const params = useParams();
+  const [semester, academicYear] = (params.semesterAndyear as string).split(
+    "-",
+  ); //from "1-2566" to ["1", "2566"]; //from "1-2566" to ["1", "2566"]
+  const teacherIDs = props.teachers.map((teacher) => teacher.TeacherID);
+  const teacherIDpath = teacherIDs.join("&TeacherID=");
+
   const { data, isLoading, error, isValidating } = useSWR(
-    `/gradelevel/getGradelevelForLock?SubjectCode=` +
-      props.subject?.SubjectCode,
+    props.subject
+      ? `/gradelevel/getGradelevelForLock?SubjectCode=` +
+          props.subject.SubjectCode +
+          `&AcademicYear=` +
+          academicYear +
+          `&Semester=SEMESTER_` +
+          semester +
+          `&TeacherID=` +
+          teacherIDpath
+      : null,
     fetcher,
     {
       revalidateOnFocus: false,
     },
   );
+
   const [allClassRoom, setAllClassRoom] = useState([
     { Year: 1, rooms: [] },
     { Year: 2, rooms: [] },
@@ -31,18 +49,19 @@ function SelectedClassRoom(props: Props) {
     { Year: 6, rooms: [] },
   ]);
   useEffect(() => {
-    const ClassRoomClassify = (year: number) => {
-      //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
-      //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
-      //{GradeID: '101', ...}
-      //{GradeID: '101', ...}
-      //{GradeID: '102', ...}
-      const filterResData = data
-        .filter((data) => data.Year == year)
-        .map((item) => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
-      return filterResData;
-    };
-    if (!isLoading) {
+    if (data) {
+      console.log(data);
+      const ClassRoomClassify = (year: number) => {
+        //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
+        //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
+        //{GradeID: '101', ...}
+        //{GradeID: '101', ...}
+        //{GradeID: '102', ...}
+        const filterResData = data
+          .filter((data) => data.Year == year)
+          .map((item) => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+        return filterResData;
+      };
       setAllClassRoom(() =>
         allClassRoom.map((item) => ({
           ...item,

@@ -51,20 +51,17 @@ const TeacherArrange = () => {
     fetcher,
     { revalidateOnFocus: false },
   );
-  // const lockTimeslotData = useLockData(
-  //   parseInt(academicYear),
-  //   parseInt(semester)
-  // );
+
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => `/teacher?TeacherID=` + searchTeacherID,
     fetcher,
     { revalidateOnFocus: false },
   );
-  const fetchAllSubject = useSWR(
+  const fetchResp = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      `/assign?AcademicYear=` +
+      `/assign/getAvailableResp?AcademicYear=` +
       academicYear +
       `&Semester=SEMESTER_` +
       semester +
@@ -152,32 +149,47 @@ const TeacherArrange = () => {
     }
   }
   const [scheduledSubjects, setScheduledSubjects] = useState([]); //วิชาที่อยู่ในตารางอยู่แล้ว
-  function fetchSubject() {
-    const data = fetchAllSubject.data; //get data
-    const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
-    for (const resp of data) {
-      let loopCredit = subjectCreditValues[resp.Credit] * 2; //เอาค่าหน่วยกิตมา
-      let filterSubjectLength = scheduledSubjects.filter(
-        (item) => item.SubjectCode == resp.SubjectCode,
-      ).length; //หาว่าจำนวนคาบอยู่ในตารางเท่าไหร่
-      if (
-        scheduledSubjects
-          .map((item) => item.subject.SubjectCode)
-          .includes(resp.SubjectCode)
-      ) {
-        //ถ้าเจอวิชาที่อยู่ใน timeslot
-        loopCredit -= filterSubjectLength;
-      }
-      let delTime = loopCredit < 0 ? 0 : loopCredit;
-      for (let i = 0; i < delTime; i++) {
-        //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
-        mapSubjectByCredit.push(resp);
-      }
-    }
-    setSubjectData(() =>
-      mapSubjectByCredit.map((item, index) => ({ itemID: index + 1, ...item })),
-    );
+
+  function fetchSubjectBox() {
+    const data = fetchResp.data; //get data
+    // const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
+    // for (const resp of data) {
+    //   let loopCredit = subjectCreditValues[resp.Credit] * 2; //เอาค่าหน่วยกิตมา
+    //   let filterSubjectLength = scheduledSubjects.filter(
+    //     (item) => item.SubjectCode == resp.SubjectCode,
+    //   ).length; //หาว่าจำนวนคาบอยู่ในตารางเท่าไหร่
+    //   if (
+    //     scheduledSubjects
+    //       .map((item) => item.subject.SubjectCode)
+    //       .includes(resp.SubjectCode)
+    //   ) {
+    //     //ถ้าเจอวิชาที่อยู่ใน timeslot
+    //     loopCredit -= filterSubjectLength;
+    //   }
+    //   let delTime = loopCredit < 0 ? 0 : loopCredit;
+    //   for (let i = 0; i < delTime; i++) {
+    //     //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
+    //     mapSubjectByCredit.push(resp);
+    //   }
+    // }
+
+    // const newSubjectData = mapSubjectByCredit.map((item, index) => ({
+    //   itemID: index + 1,
+    //   ...item,
+    // }));
+    setSubjectData(data);
   }
+
+  useEffect(() => {
+    if (fetchResp.data) {
+      fetchSubjectBox();
+    }
+  }, [fetchResp.isValidating]);
+
+  useEffect(() => {
+    console.log(subjectData);
+  }, [subjectData]);
+
   useEffect(() => {
     if (!fetchTeacher.isValidating) {
       setTeacherData(() => fetchTeacher.data);
@@ -188,12 +200,8 @@ const TeacherArrange = () => {
     if (!fetchAllClassData.isValidating) {
       fetchClassData();
     }
-    if (!fetchAllSubject.isLoading) {
-      fetchSubject();
-    }
   }, [
     fetchTeacher.isValidating,
-    fetchAllSubject.isLoading,
     fetchTimeSlot.isLoading,
     fetchAllClassData.isValidating,
   ]);
@@ -311,20 +319,22 @@ const TeacherArrange = () => {
       persist: true,
     });
 
-    try {
-      const response = await api.post("/arrange", data);
-      if (response.status == 200) {
-        closeSnackbar(savingSnackbar);
-        enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
-        fetchAllClassData.mutate();
-        setIsSaving(false);
-      }
-    } catch (error) {
-      console.log(error);
-      closeSnackbar(savingSnackbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
-      setIsSaving(false);
-    }
+    console.log(data);
+
+    // try {
+    //   const response = await api.post("/arrange", data);
+    //   if (response.status == 200) {
+    //     closeSnackbar(savingSnackbar);
+    //     enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
+    //     fetchAllClassData.mutate();
+    //     setIsSaving(false);
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    //   closeSnackbar(savingSnackbar);
+    //   enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
+    //   setIsSaving(false);
+    // }
   }
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
     let data = timeSlotData.AllData; //นำช้อมูลตารางมา
@@ -416,6 +426,7 @@ const TeacherArrange = () => {
     }
   }
   const handleDragStart = (result) => {
+    console.log("drag start");
     const { source } = result;
     let index = source.index;
     if (source.droppableId == "SUBJECTS") {
@@ -438,9 +449,10 @@ const TeacherArrange = () => {
         );
       }
     }
-    // console.log(result);
+    console.log(result);
   };
   const handleDragEnd = (result) => {
+    console.log("drag end");
     const { source, destination, type } = result;
     if (!destination) return;
     if (
@@ -448,6 +460,7 @@ const TeacherArrange = () => {
       destination.droppableId !== "SUBJECTS"
     ) {
       //ถ้าลากวิชามาลงกล่องเพิ่อเพื่ม
+      console.log(subjectData[source.index]);
       addRoomModal(destination.droppableId); //destination.droppableId = timeslotID
       clickOrDragToSelectSubject(subjectData[source.index]);
     } else if (
@@ -459,13 +472,14 @@ const TeacherArrange = () => {
       let getSubjectFromTimeslot = timeSlotData.AllData.filter(
         (item) => item.TimeslotID == desti_tID,
       )[0]; //เอาวิชาที่อยู่ใน timeslot ออกมา
+
       clickOrDragToChangeTimeSlot(
         getSubjectFromTimeslot.subject,
         desti_tID,
         false,
       );
     }
-    // console.log(result);
+    console.log(result);
   };
   const dropOutOfZone = (subject: object) => {
     //function เช็คว่าถ้ามีการ Drop item นอกพื้นที่ Droppable จะให้นับเวลาถอยหลัง 0.5 วิเพื่อยกเลิกการเลือกวิชาที่ลาก
@@ -480,6 +494,7 @@ const TeacherArrange = () => {
     }, 500);
   };
   const clickOrDragToSelectSubject = (subject: object) => {
+    console.log(subject);
     let checkDulpicateSubject = subject === storeSelectedSubject ? {} : subject; //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
     if (
       Object.keys(storeSelectedSubject).length == 0 ||
@@ -704,7 +719,7 @@ const TeacherArrange = () => {
         />
       )}
       {fetchTeacher.isValidating ||
-      fetchAllSubject.isLoading ||
+      fetchResp.isLoading ||
       fetchTimeSlot.isLoading ||
       fetchAllClassData.isValidating ? (
         <Loading />
@@ -716,13 +731,21 @@ const TeacherArrange = () => {
             onDragStart={handleDragStart}
           >
             <SubjectDragBox
-              subjectData={[]}
+              respData={subjectData}
               dropOutOfZone={dropOutOfZone}
               clickOrDragToSelectSubject={clickOrDragToSelectSubject}
               storeSelectedSubject={storeSelectedSubject}
               teacher={teacherData}
             />
-            <div className="w-full flex justify-end items-center mt-3">
+            <div className="w-full flex justify-end items-center mt-3 gap-3">
+              <PrimaryButton
+                handleClick={undefined}
+                title={"จัดตารางอัตโนมัติ"}
+                color={"success"}
+                Icon={<SaveIcon />}
+                reverseIcon={false}
+                isDisabled={isSaving}
+              />
               <PrimaryButton
                 handleClick={postData}
                 title={"บันทึกข้อมูล"}

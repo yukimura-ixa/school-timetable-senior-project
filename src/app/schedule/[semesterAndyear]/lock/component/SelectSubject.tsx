@@ -11,21 +11,16 @@ type Props = {
   currentValue: string;
   handleSubjectChange: any;
   required: boolean;
-  teachers: any;
 };
 
 function SelectSubject(props: Props) {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-"
-  ); //from "1-2566" to ["1", "2566"]; //from "1-2566" to ["1", "2566"]
-  const teacherIDs = props.teachers.map((teacher) => teacher.TeacherID);
-  const teacherIDpath = teacherIDs.join("&TeacherID=");
+    "-",
+  ); //from "1-2566" to ["1", "2566"]
   const respData = useSWR(
-    teacherIDs.length > 0
-      ? `assign/getLockedResp?Semester=${semester}&AcademicYear=${academicYear}&TeacherID=${teacherIDpath}`
-      : [],
-    fetcher
+    `assign/getLockedResp?Semester=${semester}&AcademicYear=${academicYear}`,
+    fetcher,
   );
   const [subject, setSubject] = useState<subject[]>([]);
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
@@ -35,16 +30,16 @@ function SelectSubject(props: Props) {
       setSubject(() => respData.data);
       setSubjectFilter(() => respData.data);
     }
-  }, [respData.isValidating, teacherIDs]);
+  }, [respData.isValidating]);
   const searchHandle = (event: any) => {
     let text = event.target.value;
     setSearchText(text);
     searchName(text);
   };
   const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
+
     let res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name)
+      `${item.SubjectCode} ${item.SubjectName}`.match(name),
     );
     setSubject(res);
   };
@@ -61,9 +56,7 @@ function SelectSubject(props: Props) {
             </div>
           ) : null}
         </div>
-        {teacherIDs.length == 0 ? (
-          <p className="text-sm text-red-500">*กรุณาเลือกครู</p>
-        ) : !respData.isValidating ? (
+        {!respData.isValidating ? (
           <Dropdown
             data={subject}
             renderItem={({ data }): JSX.Element => (

@@ -1,25 +1,28 @@
 import { StrictModeDroppable } from "@/components/elements/dnd/StrictModeDroppable";
 import React, { Fragment } from "react";
-import { Draggable } from "react-beautiful-dnd";
 import SubjectItem from "./SubjectItem";
 import { subject, teacher } from "@prisma/client";
 
 type Props = {
-    subjectData: [];
-    dropOutOfZone: Function;
-    clickOrDragToSelectSubject: Function;
-    storeSelectedSubject: any;
-    teacher: teacher;
+  respData: any;
+  dropOutOfZone: Function;
+  clickOrDragToSelectSubject: Function;
+  storeSelectedSubject: any;
+  teacher: teacher;
 };
 
-const SubjectDragBox = ({subjectData, dropOutOfZone, storeSelectedSubject, clickOrDragToSelectSubject, teacher}: Props) => {
+const SubjectDragBox = ({
+  respData,
+  dropOutOfZone,
+  storeSelectedSubject,
+  clickOrDragToSelectSubject,
+  teacher,
+}: Props) => {
   return (
     <>
       {/* กล่องบน */}
       <div className="flex flex-col w-full border border-[rgb(237,238,243)] p-4 gap-4 mt-4">
-        <p
-          className="text-sm"
-        >
+        <p className="text-sm">
           วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>
         </p>
         <div className="flex w-full text-center">
@@ -30,14 +33,21 @@ const SubjectDragBox = ({subjectData, dropOutOfZone, storeSelectedSubject, click
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
-                {subjectData.map((item, index) => (
-                  <SubjectItem item={{
-                    SubjectCode: item.SubjectCode,
-                    GradeID: item.GradeID,
-                    SubjectName: item.SubjectName
-                  }} index={index} teacherData={{
-                    Firstname: teacher.Firstname
-                  }} storeSelectedSubject={storeSelectedSubject} clickOrDragToSelectSubject={clickOrDragToSelectSubject} dropOutOfZone={dropOutOfZone} />
+                {respData.map((item, index) => (
+                  <SubjectItem
+                    item={{
+                      SubjectCode: item.SubjectCode,
+                      GradeID: item.GradeID,
+                      SubjectName: item.SubjectName,
+                    }}
+                    index={index}
+                    teacherData={{
+                      Firstname: teacher.Firstname,
+                    }}
+                    storeSelectedSubject={storeSelectedSubject}
+                    clickOrDragToSelectSubject={clickOrDragToSelectSubject}
+                    dropOutOfZone={dropOutOfZone}
+                  />
                 ))}
                 {provided.placeholder}
               </div>
@@ -51,7 +61,8 @@ const SubjectDragBox = ({subjectData, dropOutOfZone, storeSelectedSubject, click
 
 export default SubjectDragBox;
 
-{/* <Fragment
+{
+  /* <Fragment
                     key={`${item.SubjectCode}-${item.GradeID}-${index}`}
                   >
                     <Draggable
@@ -93,4 +104,5 @@ export default SubjectDragBox;
                         );
                       }}
                     </Draggable>
-                  </Fragment> */}
+                  </Fragment> */
+}

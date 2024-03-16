@@ -17,11 +17,9 @@ export async function GET(request: NextRequest) {
                         AcademicYear: AcademicYear,
                         Semester: Semester
                     },
-                    subject: {
-                        teachers_responsibility: {
-                            some: {
-                                TeacherID: TeacherID
-                            }
+                    teachers_responsibility: {
+                        some: {
+                            TeacherID: TeacherID
                         }
                     }
                 },

@@ -10,6 +10,7 @@ import type { room, subject, teacher, timeslot } from "@prisma/client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { useTeacherData } from "@/app/_hooks/teacherData";
 
 type Props = {
   closeModal: any;
@@ -133,6 +134,7 @@ const reducer = (state: typeof initialState, action: Action) => {
 };
 
 function LockScheduleForm({ closeModal, data, mutate }: Props) {
+  const teacherData = useTeacherData();
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     lockScheduleData: {
@@ -176,7 +178,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
           lockScheduleData.timeslots.length === 0 ||
           lockScheduleData.timeslots.length > 2,
         teachers: lockScheduleData.teachers.length === 0,
-        room: lockScheduleData.room === null,
+        room: lockScheduleData.room.RoomID === -1,
         GradeIDs: lockScheduleData.GradeIDs.length === 0,
       },
     });
@@ -198,25 +200,19 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   ]);
 
   useEffect(() => {
-    if (lockScheduleData.teachers.length == 0) {
-      dispatch({
-        type: "SET_SUBJECT",
-        payload: initialState.lockScheduleData.subject,
-      });
-      dispatch({
-        type: "SET_DAY_OF_WEEK",
-        payload: initialState.lockScheduleData.DayOfWeek,
-      });
-      dispatch({
-        type: "SET_TIME_SLOT",
-        payload: initialState.lockScheduleData.timeslots,
-      });
-      dispatch({
-        type: "SET_GRADE",
-        payload: initialState.lockScheduleData.GradeIDs,
-      });
-    }
-  }, [lockScheduleData.teachers]);
+    dispatch({
+      type: "SET_DAY_OF_WEEK",
+      payload: initialState.lockScheduleData.DayOfWeek,
+    });
+    dispatch({
+      type: "SET_TIME_SLOT",
+      payload: initialState.lockScheduleData.timeslots,
+    });
+    dispatch({
+      type: "SET_GRADE",
+      payload: initialState.lockScheduleData.GradeIDs,
+    });
+  }, [lockScheduleData.subject]);
   const handleConfirm = () => {
     let cond =
       isEmptyData.Subject ||
@@ -238,6 +234,11 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     }
   };
 
+  const setTeacherList = (value: teacher[]) => {
+    console.log(value);
+    dispatch({ type: "SET_TEACHERS", payload: value });
+  };
+
   const handleAddTeacherList = (value: teacher) => {
     let teacherList = [...lockScheduleData.teachers];
     teacherList.push(value);
@@ -252,6 +253,13 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const handleSubjectChange = (value: any) => {
+    // console.log(value);
+    const resps = value.teachers_responsibility;
+    const teacherIDs = new Set(resps.map((item) => item.TeacherID));
+    const teacherFilter = teacherData.data.filter((item) =>
+      teacherIDs.has(item.TeacherID),
+    );
+    setTeacherList(teacherFilter);
     dispatch({ type: "SET_SUBJECT", payload: value });
   };
 
@@ -305,14 +313,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
             <AiOutlineClose className="cursor-pointer" onClick={closeModal} />
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
-            <SelectTeacher
-              teacherSelected={lockScheduleData.teachers}
-              addTeacherFunction={handleAddTeacherList}
-              removeTeacherFunction={removeTeacherFromList}
-              required={isEmptyData.teachers}
-            />
             <SelectSubject
-              teachers={lockScheduleData.teachers}
               currentValue={`${
                 lockScheduleData.SubjectCode == ""
                   ? ""
@@ -320,6 +321,12 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
               }`}
               handleSubjectChange={handleSubjectChange}
               required={isEmptyData.Subject}
+            />
+            <SelectTeacher
+              teachers={lockScheduleData.teachers}
+              subject={lockScheduleData.subject}
+              setTeacherList={setTeacherList}
+              required={isEmptyData.teachers}
             />
             <SelectDayOfWeek
               dayOfWeek={lockScheduleData.DayOfWeek}
@@ -339,6 +346,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
               required={isEmptyData.room}
             />
             <SelectedClassRoom
+              teachers={lockScheduleData.teachers}
               subject={lockScheduleData.subject}
               Grade={lockScheduleData.GradeIDs}
               classRoomHandleChange={classRoomHandleChange}
