@@ -152,31 +152,6 @@ const TeacherArrange = () => {
 
   function fetchSubjectBox() {
     const data = fetchResp.data; //get data
-    // const mapSubjectByCredit = []; //สร้าง array เปล่ามาเก็บ
-    // for (const resp of data) {
-    //   let loopCredit = subjectCreditValues[resp.Credit] * 2; //เอาค่าหน่วยกิตมา
-    //   let filterSubjectLength = scheduledSubjects.filter(
-    //     (item) => item.SubjectCode == resp.SubjectCode,
-    //   ).length; //หาว่าจำนวนคาบอยู่ในตารางเท่าไหร่
-    //   if (
-    //     scheduledSubjects
-    //       .map((item) => item.subject.SubjectCode)
-    //       .includes(resp.SubjectCode)
-    //   ) {
-    //     //ถ้าเจอวิชาที่อยู่ใน timeslot
-    //     loopCredit -= filterSubjectLength;
-    //   }
-    //   let delTime = loopCredit < 0 ? 0 : loopCredit;
-    //   for (let i = 0; i < delTime; i++) {
-    //     //map ตามหน่วยกิต * 2 จะได้จำนวนคาบที่ต้องลงช่องตารางจริงๆในหนึงวิชา
-    //     mapSubjectByCredit.push(resp);
-    //   }
-    // }
-
-    // const newSubjectData = mapSubjectByCredit.map((item, index) => ({
-    //   itemID: index + 1,
-    //   ...item,
-    // }));
     setSubjectData(data);
   }
 

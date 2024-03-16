@@ -6,31 +6,26 @@ export async function GET(request: NextRequest) {
 
     const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
-    let response: class_schedule[]
+    let response
     try {
         // localhost:3000/api/class/summary?AcademicYear=2566&Semester=SEMESTER_1
+
         response = await prisma.class_schedule.findMany({
             where: {
                 timeslot: {
                     AcademicYear: AcademicYear,
                     Semester: Semester
                 },
+                NOT: {
+                    teachers_responsibility: {
+                        none: {}
+                    }
+                }
+
 
             },
             include: {
-                subject: {
-                    select: {
-                        teachers_responsibility: {
-                            where:{
-                                NOT:{
-                                    class_schedule:{
-                                        none:{}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
+                teachers_responsibility: true,
                 gradelevel: true,
                 timeslot: true,
                 room: true,
