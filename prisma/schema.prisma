@@ -23,7 +23,7 @@ model class_schedule {
   room                    room?                     @relation(fields: [RoomID], references: [RoomID])
   subject                 subject                   @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade)
   timeslot                timeslot                  @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade)
-  teachers_responsibility teachers_responsibility[] @relation("class_scheduleToteachers_responsibility")
+  teachers_responsibility teachers_responsibility[]
 
   @@index([GradeID], map: "class_schedule_GradeID_fkey")
   @@index([RoomID], map: "class_schedule_RoomID_fkey")
@@ -37,7 +37,7 @@ model gradelevel {
   Number                  Int
   class_schedule          class_schedule[]
   teachers_responsibility teachers_responsibility[]
-  program                 program[]                 @relation("gradelevelToprogram")
+  program                 program[]
 }
 
 model room {
@@ -66,7 +66,7 @@ model program {
   ProgramName String       @unique
   Semester    semester
   subject     subject[]
-  gradelevel  gradelevel[] @relation("gradelevelToprogram")
+  gradelevel  gradelevel[]
 }
 
 model teacher {
@@ -101,7 +101,7 @@ model teachers_responsibility {
   gradelevel     gradelevel       @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade)
   subject        subject          @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade)
   teacher        teacher          @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade)
-  class_schedule class_schedule[] @relation("class_scheduleToteachers_responsibility")
+  class_schedule class_schedule[]
 
   @@index([TeacherID], map: "teachers_responsibility_TeacherID_fkey")
   @@index([GradeID], map: "teachers_responsibility_GradeID_fkey")
