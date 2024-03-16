@@ -2,11 +2,7 @@ import { Fragment } from "react";
 import { Draggable } from "react-beautiful-dnd";
 
 interface ISubjectItemProps {
-    item: {
-        SubjectCode: string;
-        GradeID: string;
-        SubjectName: string;
-    };
+    item: object;
     index: number;
     teacherData: {
         Firstname: string;
