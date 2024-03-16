@@ -348,16 +348,15 @@ const TeacherArrange = () => {
       onSelectSubject();
     }
   }, [storeSelectedSubject, changeTimeSlotSubject]);
-
+  const clearScheduledData = () => {
+    setTimeSlotData({
+      ...timeSlotData,
+      AllData: timeSlotData.AllData.map((item) =>
+        item.subject.Scheduled ? { ...item, subject: {} } : item,
+      ),
+    });
+  };
   function onSelectSubject() {
-    const clearScheduledData = () => {
-      setTimeSlotData({
-        ...timeSlotData,
-        AllData: timeSlotData.AllData.map((item) =>
-          item.subject.Scheduled ? { ...item, subject: {} } : item,
-        ),
-      });
-    };
     if (!isSelectedToAdd() && !isSelectedToChange()) {
       clearScheduledData();
     } else {
@@ -460,6 +459,7 @@ const TeacherArrange = () => {
     }, 500);
   };
   const clickOrDragToSelectSubject = (subject: object) => {
+    clearScheduledData()
     let checkDulpicateSubject = subject === storeSelectedSubject ? {} : subject; //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
     if (
       Object.keys(storeSelectedSubject).length == 0 ||
