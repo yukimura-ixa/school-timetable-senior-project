@@ -187,24 +187,19 @@ const TeacherArrange = () => {
   }, [fetchResp.isValidating]);
 
   useEffect(() => {
-    console.log(subjectData);
-  }, [subjectData]);
-
-  useEffect(() => {
     if (!fetchTeacher.isValidating) {
       setTeacherData(() => fetchTeacher.data);
     }
-    if (!fetchTimeSlot.isLoading) {
+    if (!fetchTimeSlot.isValidating) {
       fetchTimeslotData();
     }
+  }, [fetchTeacher.isValidating, fetchTimeSlot.isValidating]);
+
+  useEffect(() => {
     if (!fetchAllClassData.isValidating) {
       fetchClassData();
     }
-  }, [
-    fetchTeacher.isValidating,
-    fetchTimeSlot.isLoading,
-    fetchAllClassData.isValidating,
-  ]);
+  }, [fetchAllClassData.isValidating]);
 
   function fetchClassData() {
     let puredata = fetchAllClassData.data;
@@ -312,29 +307,30 @@ const TeacherArrange = () => {
       Semester: "SEMESTER_" + semester,
       Schedule: timeSlotData.AllData,
     };
-    // console.log(data);
+
     setIsSaving(true);
     const savingSnackbar = enqueueSnackbar("กำลังบันทึกข้อมูล...", {
       variant: "info",
       persist: true,
     });
 
-    console.log(data);
+    // console.log(data);
 
-    // try {
-    //   const response = await api.post("/arrange", data);
-    //   if (response.status == 200) {
-    //     closeSnackbar(savingSnackbar);
-    //     enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
-    //     fetchAllClassData.mutate();
-    //     setIsSaving(false);
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    //   closeSnackbar(savingSnackbar);
-    //   enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
-    //   setIsSaving(false);
-    // }
+    try {
+      const response = await api.post("/arrange", data);
+      if (response.status == 200) {
+        console.log(response);
+        closeSnackbar(savingSnackbar);
+        enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
+        fetchAllClassData.mutate();
+        setIsSaving(false);
+      }
+    } catch (error) {
+      console.log(error);
+      closeSnackbar(savingSnackbar);
+      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
+      setIsSaving(false);
+    }
   }
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
     let data = timeSlotData.AllData; //นำช้อมูลตารางมา
@@ -426,7 +422,6 @@ const TeacherArrange = () => {
     }
   }
   const handleDragStart = (result) => {
-    console.log("drag start");
     const { source } = result;
     let index = source.index;
     if (source.droppableId == "SUBJECTS") {
@@ -449,10 +444,8 @@ const TeacherArrange = () => {
         );
       }
     }
-    console.log(result);
   };
   const handleDragEnd = (result) => {
-    console.log("drag end");
     const { source, destination, type } = result;
     if (!destination) return;
     if (
@@ -460,7 +453,6 @@ const TeacherArrange = () => {
       destination.droppableId !== "SUBJECTS"
     ) {
       //ถ้าลากวิชามาลงกล่องเพิ่อเพื่ม
-      console.log(subjectData[source.index]);
       addRoomModal(destination.droppableId); //destination.droppableId = timeslotID
       clickOrDragToSelectSubject(subjectData[source.index]);
     } else if (
@@ -479,7 +471,6 @@ const TeacherArrange = () => {
         false,
       );
     }
-    console.log(result);
   };
   const dropOutOfZone = (subject: object) => {
     //function เช็คว่าถ้ามีการ Drop item นอกพื้นที่ Droppable จะให้นับเวลาถอยหลัง 0.5 วิเพื่อยกเลิกการเลือกวิชาที่ลาก
@@ -494,7 +485,6 @@ const TeacherArrange = () => {
     }, 500);
   };
   const clickOrDragToSelectSubject = (subject: object) => {
-    console.log(subject);
     let checkDulpicateSubject = subject === storeSelectedSubject ? {} : subject; //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
     if (
       Object.keys(storeSelectedSubject).length == 0 ||
@@ -719,8 +709,8 @@ const TeacherArrange = () => {
         />
       )}
       {fetchTeacher.isValidating ||
-      fetchResp.isLoading ||
-      fetchTimeSlot.isLoading ||
+      fetchResp.isValidating ||
+      fetchTimeSlot.isValidating ||
       fetchAllClassData.isValidating ? (
         <Loading />
       ) : (

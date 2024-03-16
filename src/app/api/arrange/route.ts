@@ -44,15 +44,15 @@ export async function POST(request: NextRequest) {
                     AcademicYear: AcademicYear,
                     Semester: semester[Semester]
                 },
-                subject: {
-                    teachers_responsibility: {
-                        some: {
-                            TeacherID: TeacherID
-                        }
+                teachers_responsibility: {
+                    some: {
+                        TeacherID: TeacherID
                     }
                 }
+
             }
         })
+        console.log(existing)
 
         // return NextResponse.json(existing)
 
@@ -87,7 +87,12 @@ export async function POST(request: NextRequest) {
                             SubjectCode: schedule.subject.SubjectCode,
                             GradeID: schedule.subject.GradeID,
                             RoomID: schedule.subject.room.RoomID,
-                            IsLocked: false
+                            IsLocked: false,
+                            teachers_responsibility: {
+                                connect: {
+                                    RespID: schedule.subject.RespID
+                                }
+                            }
                         }
                     })
                     response['added'].push(newSchedule)
@@ -113,7 +118,12 @@ export async function POST(request: NextRequest) {
                             SubjectCode: schedule.subject.SubjectCode,
                             GradeID: schedule.subject.GradeID,
                             RoomID: schedule.subject.room.RoomID,
-                            IsLocked: false
+                            IsLocked: false,
+                            teachers_responsibility: {
+                                connect: {
+                                    RespID: schedule.subject.RespID
+                                }
+                            }
                         }
                     })
                     response['added'].push(newSchedule)

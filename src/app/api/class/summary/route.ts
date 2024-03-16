@@ -15,13 +15,18 @@ export async function GET(request: NextRequest) {
                     AcademicYear: AcademicYear,
                     Semester: Semester
                 },
+
             },
             include: {
                 subject: {
                     select: {
                         teachers_responsibility: {
-                            select: {
-                                TeacherID: true,
+                            where:{
+                                NOT:{
+                                    class_schedule:{
+                                        none:{}
+                                    }
+                                }
                             }
                         }
                     }
