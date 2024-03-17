@@ -8,21 +8,6 @@ export const ExportTeacherTable = (
   semester: string,
   academicYear: string,
 ) => {
-  console.log(
-    timeSlotData.AllData.map((item) =>
-      classData
-      .map((item) => item.TimeslotID)
-      .includes(item.TimeslotID)
-      ? {
-          ...item,
-          subject: classData.filter(
-            (id) => id.TimeslotID == item.TimeslotID,
-          )[0],
-        }
-      : { ...item, subject: {} },
-  ),
-  );
-  console.log(classData);
   const teachers = [...allTeacher];
   const addHours = (time: Date, hours: number): Date => {
     //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
