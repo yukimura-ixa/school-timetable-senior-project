@@ -149,7 +149,7 @@ const AllTimeslot = () => {
                 academicYear,
               )
             }
-            title={"นำตารางรวมออก"}
+            title={"นำสรุปข้อมูลออกเป็น Excel"}
             color={"secondary"}
             Icon={undefined}
             reverseIcon={false}
@@ -165,7 +165,7 @@ const AllTimeslot = () => {
                 academicYear,
               )
             }
-            title={"นำตารางสอนออก"}
+            title={"นำตารางสอนครูทั้งหมดออกเป็น Excel"}
             color={"secondary"}
             Icon={undefined}
             reverseIcon={false}
