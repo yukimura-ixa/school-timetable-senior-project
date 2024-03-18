@@ -13,7 +13,7 @@ function SelectYearAndSemester (props: Props) {
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="flex justify-start items-center border-b py-4">
-        <h1 className="text-lg font-bold">เลือกปีการศึกษาและเทอม</h1>
+        <h1 className="text-lg font-bold">เลือกปีการศึกษาและภาคเรียน</h1>
       </div>
       <div className="flex justify-between">
         <p>เลือกปีการศึกษา</p>
@@ -32,7 +32,7 @@ function SelectYearAndSemester (props: Props) {
         />
       </div>
       <div className="flex justify-between">
-        <p>เลือกเทอม</p>
+        <p>เลือกภาคเรียน</p>
         <Dropdown
           data={[1, 2]}
           renderItem={({ data }): JSX.Element => (
