@@ -9,6 +9,8 @@ import { useParams } from "next/navigation";
 import React, { Fragment, useState } from "react";
 import useSWR from "swr";
 import ExportAllProgram from "./function/ExportAllProgram";
+import { subjectCreditValues } from "@/models/credit-value";
+import { isUndefined } from "swr/_internal";
 
 type Props = {};
 
@@ -18,7 +20,7 @@ const page = (props: Props) => {
     "-",
   ); //from "1-2566" to ["1", "2566"]
   const gradeLevelData = useGradeLevelData();
-  const [currentGradeID, setCurrentGradeID] = useState("");
+  const [currentGradeID, setCurrentGradeID] = useState("101");
   const programOfGrade = useSWR(
     () =>
       currentGradeID !== "" &&
@@ -38,32 +40,36 @@ const page = (props: Props) => {
   };
   const primarySubjectData = () => {
     if (!programOfGrade.isLoading) {
-      return programOfGrade.data.subjects.filter(
+      return sortSubjectCategory(programOfGrade.data.subjects.filter(
         (item) => item.Category == "พื้นฐาน",
-      );
+      ));
     } else {
       return [];
     }
   };
   const extraSubjectData = () => {
     if (!programOfGrade.isLoading) {
-      return programOfGrade.data.subjects.filter(
+      return sortSubjectCategory(programOfGrade.data.subjects.filter(
         (item) => item.Category == "เพิ่มเติม",
-      );
+      ));
     } else {
       return [];
     }
   };
   const activitiesSubjectData = () => {
     if (!programOfGrade.isLoading) {
-      return programOfGrade.data.subjects.filter(
+      return sortSubjectCategory(programOfGrade.data.subjects.filter(
         (item) => item.Category == "กิจกรรมพัฒนาผู้เรียน",
-      );
+      ));
     } else {
       return [];
     }
   };
   const TableHead = (): JSX.Element => (
+    <>
+    <tr className="bg-emerald-300 h-10 text-center font-bold">
+      <td colSpan={5}>โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID[0]}/{parseInt(currentGradeID.substring(1))} ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}</td>
+    </tr>
     <tr className="bg-emerald-200 h-10">
       <th className="">
         <p>ลำดับ</p>
@@ -81,6 +87,7 @@ const page = (props: Props) => {
         <p>ครูผู้สอน</p>
       </th>
     </tr>
+    </>
   );
   const CategoryTablerow = (props): JSX.Element => (
     <tr className="h-10 bg-blue-100">
@@ -101,6 +108,7 @@ const page = (props: Props) => {
           SubjectCode={item.SubjectCode}
           SubjectName={item.SubjectName}
           Credit={item.Credit}
+          Category={item.Category}
           TeacherFullName={
             item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : ""
           }
@@ -119,13 +127,48 @@ const page = (props: Props) => {
         <p>{props.SubjectName}</p>
       </td>
       <td className="text-center">
-        <p>{subjectCreditTitles[props.Credit]}</p>
+        <p>{props.Category == "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[props.Credit]}</p>
       </td>
       <td className="">
         <p>{props.TeacherFullName}</p>
       </td>
     </tr>
   );
+  const SumCredit = (props): JSX.Element => (
+    <tr className="h-10 bg-cyan-100">
+      <td></td>
+      <td></td>
+      <td className="font-bold">{props.title}</td>
+      <td className="text-center font-bold">{props.credit.toFixed(1)}</td>
+      <td className="text-left font-bold">หน่วยกิต</td>
+    </tr>
+  )
+  const getSumCreditValue = () => {
+    if (!programOfGrade.isLoading) {
+      return programOfGrade.data.subjects.filter(
+        (item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน",
+      ).reduce((a, b) => a + subjectCreditValues[b.Credit], 0);
+    } else {
+      return 0;
+    }
+  }
+  const sortSubjectCategory = (data) => {
+    //ท ค ว ส พ ศ ก อ
+    let SubjectCodeVal = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
+    let sortedData = data.sort((a, b) => {
+      let getVal = (sCode) => {
+        return isUndefined(SubjectCodeVal[sCode]) ? 9 : SubjectCodeVal[sCode]
+      }
+      if(getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])){
+        return -1;
+      }
+      if(getVal(a.SubjectCode[0]) > getVal(b.SubjectCode[0])){
+        return 1;
+      }
+      return 0
+    })
+    return sortedData;
+  }
   return (
     <>
       {programOfGrade.isLoading || gradeLevelData.isLoading ? (
@@ -133,7 +176,7 @@ const page = (props: Props) => {
       ) : (
         <div className="flex flex-col gap-3">
           <div className="w-full flex justify-between items-center">
-            <div onClick={() => console.log(programOfGrade)}>
+            <div>
               เลือกชั้นเรียน
             </div>
             <Dropdown
@@ -158,7 +201,7 @@ const page = (props: Props) => {
               handleClick={() =>
                 ExportAllProgram(
                   programOfGrade.data,
-                  setCurrentGradeID,
+                  currentGradeID,
                   semester,
                   academicYear,
                 )
@@ -174,12 +217,15 @@ const page = (props: Props) => {
             <>
               <table>
                 <TableHead />
-                <CategoryTablerow categoryName={`วิชาพิ้นฐาน`} />
+                <CategoryTablerow categoryName={`สาระการเรียนรู้พิ้นฐาน`} />
                 <SubjectDataRow data={primarySubjectData()} indexStart={1} />
-                <CategoryTablerow categoryName={`วิชาเพิ่มเติม`} />
+                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน"} credit={primarySubjectData().reduce((a, b) => a + subjectCreditValues[b.Credit], 0)}/>
+                <CategoryTablerow categoryName={`สาระการเรียนรู้เพิ่มเติม`} />
                 <SubjectDataRow data={extraSubjectData()} indexStart={primarySubjectData().length + 1} />
+                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม"} credit={extraSubjectData().reduce((a, b) => a + subjectCreditValues[b.Credit], 0)}/>
                 <CategoryTablerow categoryName={`กิจกรรมพัฒนาผู้เรียน`} />
                 <SubjectDataRow data={activitiesSubjectData()} indexStart={primarySubjectData().length + extraSubjectData().length + 1} />
+                <SumCredit title={"รวมหน่วยกิตทั้งหมด"} credit={getSumCreditValue()}/>
               </table>
             </>
           )}

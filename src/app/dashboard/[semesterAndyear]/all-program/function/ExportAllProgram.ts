@@ -1,5 +1,7 @@
 import { subjectCreditTitles } from "@/models/credit-titles";
+import { subjectCreditValues } from "@/models/credit-value";
 import ExcelJS from "exceljs";
+import { isUndefined } from "swr/_internal";
 export default function ExportAllProgram (programData, GradeID, semester, academicYear) {
     const workbook = new ExcelJS.Workbook() ;
     const sheet = workbook.addWorksheet("หลักสูตร", {
@@ -22,19 +24,19 @@ export default function ExportAllProgram (programData, GradeID, semester, academ
     ]
     sheet.columns = keyColumn
     const primarySubjectData = () => {
-        return programData.subjects.filter(
+        return sortSubjectCategory(programData.subjects.filter(
             (item) => item.Category == "พื้นฐาน",
-          );
+          ));
       };
       const extraSubjectData = () => {
-        return programData.subjects.filter(
+        return sortSubjectCategory(programData.subjects.filter(
             (item) => item.Category == "เพิ่มเติม",
-          );
+          ));
       };
       const activitiesSubjectData = () => {
-        return programData.subjects.filter(
+        return sortSubjectCategory(programData.subjects.filter(
             (item) => item.Category == "กิจกรรมพัฒนาผู้เรียน",
-          );
+          ));
       };
       const CategoryObject = (catName) => {
         return {
@@ -46,8 +48,65 @@ export default function ExportAllProgram (programData, GradeID, semester, academ
             alt_notes : ""
         }
       }
+      const blankObject = () => {
+        return {
+            order : "",
+            subjectcode : "",
+            subjectname : "",
+            credit : "",
+            teacher : "",
+            alt_notes : ""
+        }
+      }
+      const SumCredit = (title, credit) => {
+        return {
+            order : "",
+            subjectcode : "",
+            subjectname : title,
+            credit : credit,
+            teacher : "",
+            alt_notes : ""
+        }
+      }
+      const getSumCreditValue = (CreditType) => {
+        if(CreditType == "PRIMARY"){
+            return programData.subjects.filter(
+                (item) => item.Category == "พื้นฐาน",
+              ).reduce((a, b) => a + subjectCreditValues[b.Credit], 0).toFixed(1);
+        }
+        else if(CreditType == "EXTRA"){
+            return programData.subjects.filter(
+                (item) => item.Category == "เพิ่มเติม",
+              ).reduce((a, b) => a + subjectCreditValues[b.Credit], 0).toFixed(1);
+        }
+        else if(CreditType == "ALL"){
+            return programData.subjects.filter(
+                (item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน",
+              ).reduce((a, b) => a + subjectCreditValues[b.Credit], 0).toFixed(1);
+        }
+        else{
+            return 0;
+        }
+      }
+      const sortSubjectCategory = (data) => {
+        //ท ค ว ส พ ศ ก อ
+        let SubjectCodeVal = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
+        let sortedData = data.sort((a, b) => {
+          let getVal = (sCode) => {
+            return isUndefined(SubjectCodeVal[sCode]) ? 9 : SubjectCodeVal[sCode]
+          }
+          if(getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])){
+            return -1;
+          }
+          if(getVal(a.SubjectCode[0]) > getVal(b.SubjectCode[0])){
+            return 1;
+          }
+          return 0
+        })
+        return sortedData;
+      }
     const jsonData = [
-        CategoryObject("วิชาพื้นฐาน"),
+        CategoryObject("สาระการเรียนรู้พื้นฐาน"),
         ...primarySubjectData().map((item, index) => ({
             order : index + 1,
             subjectcode : item.SubjectCode,
@@ -56,7 +115,9 @@ export default function ExportAllProgram (programData, GradeID, semester, academ
             teacher : item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : "",
             alt_notes : ""
         })),
-        CategoryObject("วิชาเพิ่มเติม"),
+        SumCredit("รวมหน่วยกิตสาระการเรียนรู้พื้นฐาน", getSumCreditValue("PRIMARY")),
+        blankObject(),
+        CategoryObject("สาระการเรียนรู้เพิ่มเติม"),
         ...extraSubjectData().map((item, index) => ({
             order : primarySubjectData().length + (index + 1),
             subjectcode : item.SubjectCode,
@@ -65,20 +126,23 @@ export default function ExportAllProgram (programData, GradeID, semester, academ
             teacher : item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : "",
             alt_notes : ""
         })),
+        SumCredit("รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม", getSumCreditValue("EXTRA")),
+        blankObject(),
         CategoryObject("กิจกรรมพัฒนาผู้เรียน"),
         ...activitiesSubjectData().map((item, index) => ({
             order : primarySubjectData().length + extraSubjectData().length + (index + 1),
             subjectcode : item.SubjectCode,
             subjectname : item.SubjectName,
-            credit : subjectCreditTitles[item.Credit],
+            credit : "",
             teacher : item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : "",
             alt_notes : ""
         })),
+        SumCredit("รวมหน่วยกิตทั้งหมด", getSumCreditValue("ALL")),
     ]
     sheet.addRows(jsonData, "i")
     const row1 = sheet.getRow(1)
     const row2 = sheet.getRow(2)
-    row1.values = [`โครงสร้างหลักสูตร ระดับชั้นมัธยมศึกษาปีที่ ${1}/${1} ภาคเรียนที่ ${semester} ปีการศึกษา ${academicYear}`]
+    row1.values = [`โครงสร้างหลักสูตร ระดับชั้นมัธยมศึกษาปีที่ ${GradeID[0]}/${parseInt(GradeID.substring(1))} ภาคเรียนที่ ${semester} ปีการศึกษา ${academicYear}`]
     row2.values = [`โรงเรียนศึกษาไอทีวิทยา เขตลาดกระบัง กรุงเทพมหานคร`]
     sheet.mergeCells("A1:F1")
     sheet.mergeCells("A2:F2")
