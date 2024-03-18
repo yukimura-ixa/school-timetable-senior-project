@@ -68,7 +68,7 @@ function ChooseTeacher() {
       {responsibilityData.isLoading ? (
         <Loading />
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="relative flex flex-col gap-3">
           {/* เลือกครู */}
           <div className="flex w-full h-fit justify-between p-4 items-center border border-[#EDEEF3]">
             <div className="flex items-center gap-4">
@@ -132,10 +132,10 @@ function ChooseTeacher() {
                     `${pathName}/teacher-arrange?TeacherID=${teacher.TeacherID}`
                   );
                 }}
-                className="flex w-full h-[55px] justify-between p-4 text-cyan-500 items-center border border-cyan-200 cursor-pointer bg-cyan-50 hover:bg-cyan-100 duration-300"
+                className="flex w-[150px] absolute right-0 bottom-[-70px] h-[55px] justify-between p-4 text-cyan-500 items-center border border-cyan-200 cursor-pointer bg-cyan-50 hover:bg-cyan-100 duration-300"
               >
                 <div className="flex items-center gap-4">
-                  <p className="text-md">วิชาที่รับผิดชอบทั้งหมด</p>
+                  <p className="text-md">ไปต่อ</p>
                 </div>
                 <MdArrowForwardIos className="cursor-pointer" />
               </div>

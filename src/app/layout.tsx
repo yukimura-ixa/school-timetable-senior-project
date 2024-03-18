@@ -24,9 +24,7 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <SnackbarProvider autoHideDuration={4000} maxSnack={1}>
               <Navbar />
-              <main className="flex justify-center w-[1280px] xl:w-full h-auto">
-                <Content children={children} />
-              </main>
+              <Content children={children} />
             </SnackbarProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
