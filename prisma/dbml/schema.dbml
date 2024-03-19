@@ -44,7 +44,8 @@ Table teacher {
   Firstname String [not null]
   Lastname String [not null]
   Department String [not null, default: '-']
-  Email String [not null, default: '-']
+  Email String [unique, not null]
+  Role String [not null, default: 'teacher']
 }
 
 Table timeslot {

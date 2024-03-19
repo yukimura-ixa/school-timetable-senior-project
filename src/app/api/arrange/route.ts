@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
 
             }
         })
-        console.log(existing)
 
         // return NextResponse.json(existing)
 
@@ -130,6 +129,7 @@ export async function POST(request: NextRequest) {
                 }
             }
         }
+
         return NextResponse.json(response)
     } catch (error) {
         console.log(error)

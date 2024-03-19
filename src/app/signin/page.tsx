@@ -1,18 +1,58 @@
 "use client";
-import Button from "@/components/elements/static/Button";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BiKey, BiUser } from "react-icons/bi";
-import CheckIcon from '@mui/icons-material/Check';
-import LoginIcon from '@mui/icons-material/Login';
-import Link from "next/link";
-
-type Props = {};
-
-function page({}: Props) {
-  const [showPassword, setShowPassWord] = useState<boolean>(false);
-  const [user, setUser] = useState({ Username: "", Password: "" });
+import LoginIcon from "@mui/icons-material/Login";
+import { signIn, signOut, useSession } from "next-auth/react";
+function SignInPage() {
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string>("");
+
+  function validateEmail() {
+    if (email === "") {
+      setEmailError("กรุณากรอกอีเมล");
+    } else if (!email.includes("@")) {
+      setEmailError("อีเมลไม่ถูกต้อง");
+    } else {
+      setEmailError("");
+    }
+  }
+
+  function validatePassword() {
+    if (password === "") {
+      setPasswordError("กรุณากรอกรหัสผ่าน");
+    } else {
+      setPasswordError("");
+    }
+  }
+
+  const session = useSession();
+
+  function handleGoogleLogin() {
+    signIn("google", { callbackUrl: "/dashboard/select-semester" });
+    console.log("google login");
+  }
+
+  function handleSignout() {
+    console.log("signout");
+    signOut();
+  }
+
+  function handleEmailPassSignIn() {
+    validateEmail();
+    validatePassword();
+    if (emailError === "" && passwordError === "") {
+      signIn("credentials", {
+        email: email,
+        password: password,
+        callbackUrl: "/management/teacher",
+      });
+    }
+
+    console.log("email pass signin");
+  }
   return (
     <>
       <div className="w-full flex justify-between">
@@ -35,18 +75,23 @@ function page({}: Props) {
             <div className="flex flex-col gap-5">
               {/* input username */}
               <div className="flex flex-col gap-3">
-                <label className="text-sm text-gray-600">ชื่อผู้ใช้</label>
+                <label className="text-sm text-gray-600">อีเมล</label>
                 <span className="relative flex">
                   <BiUser className="absolute left-2 top-1/3" />
                   <input
                     type="text"
-                    value={user.Username}
-                    onChange={(e: any) =>
-                      setUser(() => ({ ...user, Username: e.target.value }))
-                    }
-                    className="w-full h-[40px] border pl-8 border-gray-200 rounded outline-none"
+                    value={email}
+                    onChange={(e: any) => setEmail(() => e.target.value)}
+                    className={`w-full h-[40px] border pl-8 pr-2 rounded ${
+                      emailError
+                        ? "border-red-500 outline-red-500"
+                        : "border-gray-200"
+                    }`}
                   />
                 </span>
+                {emailError && (
+                  <span className="text-xs text-red-500">{emailError}</span>
+                )}
               </div>
               {/* input password */}
               <div className="flex flex-col gap-3">
@@ -55,17 +100,41 @@ function page({}: Props) {
                   <BiKey className="absolute left-2 top-1/3" />
                   <input
                     type="password"
-                    value={user.Password}
-                    onChange={(e: any) =>
-                      setUser(() => ({ ...user, Password: e.target.value }))
-                    }
-                    className="w-full h-[40px] border pl-8 pr-2 border-gray-200 rounded outline-none"
+                    value={password}
+                    onChange={(e: any) => setPassword(() => e.target.value)}
+                    className={`w-full h-[40px] border pl-8 pr-2 rounded ${
+                      passwordError
+                        ? "border-red-500 outline-red-500"
+                        : "border-gray-200"
+                    }`}
                   />
                 </span>
+                {passwordError && (
+                  <span className="text-xs text-red-500">{passwordError}</span>
+                )}
               </div>
-              <Link href={"/management/teacher"}>
-                <PrimaryButton handleClick={undefined} title={"ยืนยัน"} color={"primary"} Icon={<LoginIcon />} reverseIcon={false} />
-              </Link>
+              <PrimaryButton
+                handleClick={handleEmailPassSignIn}
+                title={"เข้าสู่ระบบ"}
+                color={"primary"}
+                Icon={<LoginIcon />}
+                reverseIcon={false}
+              />
+
+              <PrimaryButton
+                handleClick={handleGoogleLogin}
+                title={"Google"}
+                color={"primary"}
+                Icon={<LoginIcon />}
+                reverseIcon={false}
+              />
+              <PrimaryButton
+                handleClick={handleSignout}
+                title={"ออกจากระบบ"}
+                color={"primary"}
+                Icon={<LoginIcon />}
+                reverseIcon={false}
+              />
             </div>
           </div>
         </div>
@@ -74,4 +143,4 @@ function page({}: Props) {
   );
 }
 
-export default page;
+export default SignInPage;

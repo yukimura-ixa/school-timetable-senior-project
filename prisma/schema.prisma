@@ -75,7 +75,8 @@ model teacher {
   Firstname               String
   Lastname                String
   Department              String                    @default("-")
-  Email                   String                    @default("-")
+  Email                   String                    @unique
+  Role                    String                    @default("teacher")
   teachers_responsibility teachers_responsibility[]
 }
 

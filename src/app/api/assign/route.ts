@@ -72,6 +72,18 @@ export async function POST(request: NextRequest) {
       results.push({ deleted: deletedResp })
     }
 
+    const deleteNoRespSchedule = await prisma.class_schedule.deleteMany({
+      where: {
+        timeslot: {
+          AcademicYear: body.AcademicYear,
+          Semester: semester[body.Semester]
+        },
+        teachers_responsibility: {
+          none: {}
+        }
+      }
+    })
+
     return NextResponse.json({ status: "success", results: results })
   } catch (error) {
     console.log(error)

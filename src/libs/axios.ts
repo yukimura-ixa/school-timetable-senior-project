@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "axios"
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_HOST,
@@ -7,15 +7,14 @@ const api = axios.create({
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json; charset=utf-8",
   },
-});
+})
 
 export const fetcher = async (url: string) => {
-  return await api.get(url).then((res) => {
-    if (!res.data) {
-      throw Error(res.data.message);
-    }
-    return res.data;
-  });
-};
+  return await api.get(url)
+    .then((res) => res.data)
+    .catch((error) => {
+      console.log("axios error", error.code)
+    })
+}
 
-export default api;
+export default api

@@ -9,7 +9,7 @@ function NotFoundPage() {
           ไม่พบหน้าเว็บนี้
         </h1>
         <p className="mt-6 text-base leading-7 text-gray-600">
-          ขออภัยที่เราไม่สามารถหาหน้าเว็บที่คุณกำลังมองหาอยู่.
+          ขออภัยที่เราไม่สามารถหาหน้าเว็บที่คุณกำลังมองหาอยู่
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <a
