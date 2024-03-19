@@ -1,6 +1,5 @@
-import React from "react";
-
-interface CheckBox {
+/* eslint-disable no-undef */
+interface ICheckBoxProps {
   label: string;
   value: string | number;
   name: string;
@@ -15,7 +14,7 @@ function CheckBox({
   handleClick,
   checked = false,
   disabled = false,
-}: CheckBox): JSX.Element {
+}: ICheckBoxProps): JSX.Element {
   return (
     <div className="flex justify-center items-center gap-3 flex-row w-fit h-fit">
       {checked ? (

@@ -27,29 +27,29 @@ function Button({
   titleColor = "#FFF",
   fontSize = 16,
   fontWeight = 300,
-  width=null,
+  width = null,
   height = 0,
   disabled = false,
   handleClick,
-}: ButtonData): JSX.Element {
+}: ButtonData): React.JSX.Element {
   const [isHover, setIsHover] = useState(false); //Hover state ใช้กับปุ่ม
   // interface สำหรับเก็บค่า object property rgb จากการคืนค่าของฟังก์ชัน hexToRGB
-  interface buttonColor {
+  interface IbuttonColor {
     r: number;
     g: number;
     b: number;
   }
   //เก็บค่าสี RGB ของปุ่ม
-  const buttonRGB: buttonColor = hexToRGB(buttonColor);
+  const buttonRGB: IbuttonColor = hexToRGB(buttonColor);
   //เก็บค่าสี RGB ของข้อความ
-  const titleRGB: buttonColor = hexToRGB(titleColor);
+  const titleRGB: IbuttonColor = hexToRGB(titleColor);
   //style property ใช้เก็บค่าของ component props (ใส่ใน tailwind ไม่ได้ง่ะ ;-;)
   const buttonStyleProperty: object = {
     backgroundColor: isHover
       ? `rgb(${buttonRGB.r - 10}, ${buttonRGB.g - 10}, ${buttonRGB.b - 10})`
       : `rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`,
     color: `rgb(${titleRGB.r}, ${titleRGB.g}, ${titleRGB.b})`,
-    width: width === null ? 'fit-content' : width,
+    width: width === null ? "fit-content" : width,
     height: height === 0 ? 45 : height,
     opacity: disabled ? 0.5 : 1,
   };

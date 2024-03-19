@@ -1,8 +1,8 @@
-import { day_of_week } from "@prisma/client";
+import { day_of_week } from "@prisma/client"
 
 type DayOfWeekThai = {
-  [key in day_of_week]: string;
-};
+  [day_of_week: string]: string
+}
 
 export const dayOfWeekThai: DayOfWeekThai = {
   [day_of_week.MON]: "จันทร์",

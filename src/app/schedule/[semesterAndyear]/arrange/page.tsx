@@ -1,9 +1,7 @@
 "use client";
-import React from "react";
 import ChooseTeacher from "./component/ChooseTeacher";
-type Props = {};
 
-const ArrangeTimetable = (props: Props) => {
+const ArrangeTimetable = () => {
 
   return (
     <>

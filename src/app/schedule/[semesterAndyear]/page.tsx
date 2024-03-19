@@ -1,15 +1,13 @@
 "use client";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Snackbar, Alert, Link } from "@mui/material";
+import { Link } from "@mui/material";
 import { HiLockClosed } from "react-icons/hi2";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 
-type Props = {};
-
-function Schedule({}: Props) {
+function Schedule() {
   const pathName = usePathname();
   const router = useRouter();
   const params = useParams();
@@ -27,7 +25,7 @@ function Schedule({}: Props) {
   );
   useEffect(() => {
     setIsSetTimeslot(() => tableConfig.data != undefined);
-  }, [tableConfig.isValidating]);
+  }, [tableConfig.isValidating, tableConfig.data]);
 
   const [tabSelect, setTabSelect] = useState("");
   return (

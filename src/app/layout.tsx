@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import "./globals.css";
 import Navbar from "@/components/templates/Navbar";
 import Content from "@/components/templates/Content";

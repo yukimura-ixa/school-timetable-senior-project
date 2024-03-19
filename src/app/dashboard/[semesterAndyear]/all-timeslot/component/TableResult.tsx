@@ -1,5 +1,4 @@
 import { teacher } from "@prisma/client";
-import React from "react";
 
 type Props = {
   teachers: teacher[];

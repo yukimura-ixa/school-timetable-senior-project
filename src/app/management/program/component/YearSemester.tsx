@@ -1,7 +1,5 @@
-import TextField from "@/components/elements/input/field/TextField";
 import { MenuItem, Select } from "@mui/material";
 import { semester } from "@prisma/client";
-import React from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {

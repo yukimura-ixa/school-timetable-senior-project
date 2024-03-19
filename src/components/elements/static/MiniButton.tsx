@@ -1,9 +1,9 @@
 import { hexToRGB } from "@/functions/componentFunctions";
 import React, { useState } from "react";
 
-import { IoIosRemoveCircle } from 'react-icons/io'
+import { IoIosRemoveCircle } from "react-icons/io";
 
-interface MiniButton {
+interface IMiniButtonProps {
   title: string;
   buttonColor: string;
   titleColor: string;
@@ -23,10 +23,10 @@ function MiniButton({
   height = 30,
   border = false,
   borderColor = "#222222",
-  isSelected=false,
-  hoverable=false,
-  handleClick
-}: MiniButton): JSX.Element {
+  isSelected = false,
+  hoverable = false,
+  handleClick,
+}: IMiniButtonProps): React.JSX.Element {
   interface RGBColor {
     r: number;
     g: number;
@@ -55,10 +55,16 @@ function MiniButton({
           borderColor: borderRGBString,
           backgroundColor: buttonRGBString,
         }}
-        onMouseEnter={() => {hoverable ? setIsHover(true) : null}}
-        onMouseLeave={() => {hoverable ? setIsHover(false) : null}}
+        onMouseEnter={() => {
+          hoverable ? setIsHover(true) : null;
+        }}
+        onMouseLeave={() => {
+          hoverable ? setIsHover(false) : null;
+        }}
       >
-        <p className="text-sm" style={{ color: titleRGBString }}>{title}</p>
+        <p className="text-sm" style={{ color: titleRGBString }}>
+          {title}
+        </p>
         {isSelected ? <IoIosRemoveCircle className="fill-red-500" /> : null}
       </div>
     </div>

@@ -1,6 +1,6 @@
+/* eslint-disable no-undef */
 "use client";
-import { useParams, usePathname } from "next/navigation";
-import React from "react";
+import { usePathname } from "next/navigation";
 import Menubar from "./Menubar";
 import DashboardMenubar from "./DashboardMenubar";
 import Schedule from "@/app/schedule/[semesterAndyear]/page";
@@ -14,7 +14,13 @@ function Content(props: Props) {
   const pathName = usePathname();
   return (
     <>
-      <main className={`flex justify-center ${pathName.match('/dashboard/select-semester') ? "w-full" : "w-[1280px] xl:w-full"} h-auto`}>
+      <main
+        className={`flex justify-center ${
+          pathName.match("/dashboard/select-semester")
+            ? "w-full"
+            : "w-[1280px] xl:w-full"
+        } h-auto`}
+      >
         {pathName == "/" ? (
           <span className="flex w-full justify-center h-auto">
             {props.children}

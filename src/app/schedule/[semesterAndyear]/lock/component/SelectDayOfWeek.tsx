@@ -1,6 +1,5 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import React from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
