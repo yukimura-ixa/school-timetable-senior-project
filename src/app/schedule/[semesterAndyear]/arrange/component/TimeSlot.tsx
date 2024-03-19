@@ -62,7 +62,7 @@ function TimeSlot({
     <>
       <table className="table-auto w-full flex flex-col gap-3 mt-4 mb-10">
         <thead className="flex flex-col gap-3">
-          <TimetableHeader timeslot={timeSlotData} mapTime={mapTime()} />
+          <TimetableHeader timeslot={timeSlotData}/>
         </thead>
         <tbody className="flex flex-col gap-3">
           {timeSlotData.DayOfWeek.map((day) => (

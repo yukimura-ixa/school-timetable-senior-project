@@ -3,29 +3,25 @@ import { timeslot } from "@prisma/client";
 import { Fragment } from "react";
 interface ITimetableHeaderProps {
   timeslot: timeslot[];
-  mapTime: object[]
 }
 
-function TimetableHeader({ timeslot, mapTime }: ITimetableHeaderProps) {
-  const mondaySlots = timeslot.DayOfWeek.filter(
-    (item) => item.Day === dayOfWeekThai["MON"],
-  );
+function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
   const slotAmount = timeslot.SlotAmount.length;
   const mapSlot = Array.from({ length: slotAmount }, (_, i) => i + 1);
 
-  // function getTime(timeString: string | Date): string {
-  //   const time = new Date(timeString);
-  //   const hour = time.toISOString().slice(11, 13);
-  //   const minutes = time.toISOString().slice(14, 16);
-  //   return `${hour}:${minutes}`;
-  // }
+  function formatTime(time) {
+    const date = new Date(time)
+    const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
+    const minutes = date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
+    return `${hours}:${minutes}`
+  }
   return (
     <>
       <tr className="flex gap-4">
         {/* Column for time labels */}
         <td className="flex items-center bg-gray-100 justify-center p-[10px] h-full rounded">
             <span className="flex w-[50px] justify-center">
-              <p className="text-gray-600">คาบที่</p>
+              <p className="text-gray-600" onClick={() => console.log(timeslot)}>คาบที่</p>
             </span>
         </td>
 
@@ -44,17 +40,17 @@ function TimetableHeader({ timeslot, mapTime }: ITimetableHeaderProps) {
             <p className="text-gray-600">เวลา</p>
           </span>
         </td>
-        {mapTime.map((item) => (
-          <Fragment key={`Time${item.Start}${item.End}`}>
+        {timeslot.AllData.filter(item => item.DayOfWeek == "MON").map((item) => (
+          <Fragment key={`Time${item.StartTime}${item.EndTime}`}>
             <td className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none">
               <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                {item.Start}
+                {formatTime(item.StartTime)}
               </p>
               <p className="flex text-xs items-center justify-center text-gray-600">
                 -
               </p>
               <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                {item.End}
+                {formatTime(item.EndTime)}
               </p>
             </td>
           </Fragment>
