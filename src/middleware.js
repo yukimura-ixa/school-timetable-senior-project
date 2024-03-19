@@ -26,6 +26,7 @@ export default withAuth(
 
 export const config = {
   matcher: [
+    "/schedule/:path*",
     "/management/:path*",
     "/dashboard/:path/all-program",
     "/dashboard/:path/all-timeslot",

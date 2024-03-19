@@ -5,6 +5,9 @@ import { AuthOptions } from "next-auth"
 import prisma from "@/libs/prisma"
 
 export const authOptions: AuthOptions = {
+    pages: {
+        signIn: '/',
+    },
     session: {
         strategy: 'jwt',
     },
