@@ -94,8 +94,6 @@ const TeacherArrange = () => {
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
     SlotAmount: [],
-    StartTime: { Hours: 8, Minutes: 30 },
-    Duration: 50,
     DayOfWeek: [],
     BreakSlot: [],
   });
@@ -130,19 +128,9 @@ const TeacherArrange = () => {
           Breaktime: item.Breaktime,
           SlotNumber: parseInt(item.TimeslotID.substring(10)),
         })); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
-      let startTime = {
-        Hours: new Date(data[0].StartTime).getHours() - 7, //พอแปลงมันเอาเวลาของ indo เลย -7 กลับไป
-        Minutes: new Date(data[0].StartTime).getMinutes(),
-      };
-      let duration = getMinutes(
-        new Date(data[0].EndTime).getTime() -
-          new Date(data[0].StartTime).getTime(),
-      ); //เอาเวลาจบลบเริ่มจะได้ duration
       setTimeSlotData(() => ({
         AllData: data.map((data) => ({ ...data, subject: {} })),
         SlotAmount: slotAmount,
-        StartTime: startTime,
-        Duration: duration,
         DayOfWeek: dayofweek,
         BreakSlot: breakTime,
       }));
@@ -167,6 +155,7 @@ const TeacherArrange = () => {
     }
     if (!fetchTimeSlot.isValidating) {
       fetchTimeslotData();
+      console.log(fetchTimeSlot.data);
     }
   }, [fetchTeacher.isValidating, fetchTimeSlot.isValidating]);
 
@@ -240,41 +229,41 @@ const TeacherArrange = () => {
   }
 
   //convert millisec to min
-  const getMinutes = (milliseconds: number) => {
-    let seconds = Math.floor(milliseconds / 1000);
-    let minutes = Math.floor(seconds / 60);
-    return minutes;
-  };
-  //get Hours
-  const addHours = (time: Date, hours: number): Date => {
-    //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
-    time.setMinutes(time.getMinutes() + timeSlotData.Duration * hours);
-    return time;
-  };
-  const mapTime = () => {
-    let map = [
-      ...timeSlotData.SlotAmount.map((hour, index) => {
-        //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
-        let timeFormat = `0${timeSlotData.StartTime.Hours}:${
-          timeSlotData.StartTime.Minutes == 0
-            ? "00"
-            : timeSlotData.StartTime.Minutes
-        }`;
-        //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
-        const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
-        const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
-        //นำไปใส่ใน function addHours เพื่อกำหนดเวลาเริ่ม-จบ
-        let start = addHours(timeStart, index + 1 - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
-        let end = addHours(timeEnd, index + 1); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
-        //แปลงจาก 2023-07-27T17:24:52.897Z เป็น 17:24 โดยใช้ slice
-        return {
-          Start: start.toISOString().slice(11, 16),
-          End: end.toISOString().slice(11, 16),
-        };
-      }),
-    ];
-    return map;
-  };
+  // const getMinutes = (milliseconds: number) => {
+  //   let seconds = Math.floor(milliseconds / 1000);
+  //   let minutes = Math.floor(seconds / 60);
+  //   return minutes;
+  // };
+  // //get Hours
+  // const addHours = (time: Date, hours: number): Date => {
+  //   //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
+  //   time.setMinutes(time.getMinutes() + timeSlotData.Duration * hours);
+  //   return time;
+  // };
+  // const mapTime = () => {
+  //   let map = [
+  //     ...timeSlotData.SlotAmount.map((hour, index) => {
+  //       //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
+  //       let timeFormat = `0${timeSlotData.StartTime.Hours}:${
+  //         timeSlotData.StartTime.Minutes == 0
+  //           ? "00"
+  //           : timeSlotData.StartTime.Minutes
+  //       }`;
+  //       //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
+  //       const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
+  //       const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
+  //       //นำไปใส่ใน function addHours เพื่อกำหนดเวลาเริ่ม-จบ
+  //       let start = addHours(timeStart, index + 1 - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
+  //       let end = addHours(timeEnd, index + 1); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
+  //       //แปลงจาก 2023-07-27T17:24:52.897Z เป็น 17:24 โดยใช้ slice
+  //       return {
+  //         Start: start.toISOString().slice(11, 16),
+  //         End: end.toISOString().slice(11, 16),
+  //       };
+  //     }),
+  //   ];
+  //   return map;
+  // };
   async function postData() {
     let data = {
       TeacherID: parseInt(searchTeacherID),
@@ -722,7 +711,6 @@ const TeacherArrange = () => {
             </div>
             <TimeSlot
               timeSlotData={timeSlotData}
-              mapTime={mapTime}
               checkBreakTime={checkBreakTime}
               isSelectedToAdd={isSelectedToAdd}
               isSelectedToChange={isSelectedToChange}

@@ -9,35 +9,12 @@ export const ExportTeacherTable = (
   academicYear: string,
 ) => {
   const teachers = [...allTeacher];
-  const addHours = (time: Date, hours: number): Date => {
-    //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
-    time.setMinutes(time.getMinutes() + timeSlotData.Duration * hours);
-    return time;
-  };
-  const mapTime = () => {
-    let map = [
-      ...timeSlotData.SlotAmount.map((hour) => {
-        //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
-        let timeFormat = `0${timeSlotData.StartTime.Hours}:${
-          timeSlotData.StartTime.Minutes == 0
-            ? "00"
-            : timeSlotData.StartTime.Minutes
-        }`;
-        //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
-        const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
-        const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
-        //นำไปใส่ใน function addHours เพื่อกำหนดเวลาเริ่ม-จบ
-        let start = addHours(timeStart, hour - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
-        let end = addHours(timeEnd, hour); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
-        //แปลงจาก 2023-07-27T17:24:52.897Z เป็น 17:24 โดยใช้ slice
-        return {
-          Start: start.toISOString().slice(11, 16),
-          End: end.toISOString().slice(11, 16),
-        };
-      }),
-    ];
-    return map;
-  };
+  function formatTime(time) {
+    const date = new Date(time)
+    const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
+    const minutes = date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
+    return `${hours}:${minutes}`
+  }
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("ครู", {
     pageSetup: { paperSize: 9, orientation: "landscape" },
@@ -108,7 +85,7 @@ export const ExportTeacherTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "วัน / เวลา",
-          ...mapTime().map((item) => `${item.Start}-${item.End}`),
+          ...timeSlotData.AllData.filter(item => item.DayOfWeek == 'MON').map((item) => `${formatTime(item.StartTime)}-${formatTime(item.EndTime)}`),
         ];
         keepCellCol.push(tableRow.start + 2);
         keepTimeLine.push(tableRow.start + 2);

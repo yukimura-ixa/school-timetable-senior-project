@@ -4,10 +4,15 @@ import React, { Fragment } from "react";
 
 type Props = {
   timeSlotData: any;
-  timeMap: any;
 };
 
-function TimeSlot({ timeSlotData, timeMap }: Props) {
+function TimeSlot({ timeSlotData }: Props) {
+  function formatTime(time) {
+    const date = new Date(time)
+    const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
+    const minutes = date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
+    return `${hours}:${minutes}`
+  }
   return (
     <>
       <table className="table-auto w-full flex flex-col gap-3">
@@ -15,9 +20,6 @@ function TimeSlot({ timeSlotData, timeMap }: Props) {
           <tr className="flex gap-4">
             <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
               <span
-                onClick={() => {
-                  console.log(timeSlotData);
-                }}
                 className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center"
               >
                 คาบที่
@@ -41,7 +43,7 @@ function TimeSlot({ timeSlotData, timeMap }: Props) {
                 <p className="text-gray-600">เวลา</p>
               </span>
             </td>
-            {timeMap.map((item) => (
+            {timeSlotData.AllData.filter(item => item.DayOfWeek == "MON").map((item) => (
               <Fragment key={`time-${item.Start}${item.End}`}>
                 <td
                   style={{
@@ -50,13 +52,13 @@ function TimeSlot({ timeSlotData, timeMap }: Props) {
                   className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none"
                 >
                   <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                    {item.Start}
+                    {formatTime(item.StartTime)}
                   </p>
                   <p className="flex text-xs items-center justify-center text-gray-600">
                     -
                   </p>
                   <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                    {item.End}
+                    {formatTime(item.EndTime)}
                   </p>
                 </td>
               </Fragment>
