@@ -22,7 +22,6 @@ export const authOptions = {
       },
     }),
   ],
-  adapter: FirestoreAdapter(),
   theme: {
     colorScheme: "light",
   },
