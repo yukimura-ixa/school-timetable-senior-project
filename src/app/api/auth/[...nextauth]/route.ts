@@ -1,6 +1,5 @@
 import NextAuth from "next-auth/next"
 import GoogleProvider from "next-auth/providers/google"
-import { FirestoreAdapter } from "@auth/firebase-adapter"
 import prisma from "@/libs/prisma"
 
 export const authOptions = {
