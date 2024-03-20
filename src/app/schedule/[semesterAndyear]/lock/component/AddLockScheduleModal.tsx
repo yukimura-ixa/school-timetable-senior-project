@@ -137,7 +137,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     <>
       <div
         style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
-        className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
+        className="z-40 flex w-full h-[500px] bg-red-200 items-center justify-center fixed left-0 top-0"
       >
         <div
           className={`relative flex flex-col w-[831px] h-fit overflow-y-scroll overflow-x-hidden p-12 gap-10 bg-white rounded`}
