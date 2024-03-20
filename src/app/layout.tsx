@@ -9,6 +9,13 @@ import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
+import { Sarabun } from "next/font/google";
+
+const sarabun = Sarabun({
+  subsets: ["thai", "latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-sarabun",
+});
 
 export default async function RootLayout({
   children,
@@ -17,7 +24,7 @@ export default async function RootLayout({
 }) {
   const session = await getServerSession(authOptions);
   return (
-    <html lang="th">
+    <html lang="th" className={`${sarabun.variable}`}>
       <body className={`overflow-scroll xl:overflow-x-hidden`}>
         <SessionProvider session={session}>
           <AppRouterCacheProvider>
