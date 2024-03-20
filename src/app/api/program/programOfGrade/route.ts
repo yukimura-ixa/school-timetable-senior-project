@@ -3,12 +3,11 @@ import { semester, subject } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
+    const GradeID = request.nextUrl.searchParams.get("GradeID")
+    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const Semester = semester[request.nextUrl.searchParams.get("Semester")]
 
     try {
-        const GradeID = request.nextUrl.searchParams.get("GradeID")
-        const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
-        const Semester = semester[request.nextUrl.searchParams.get("Semester")]
-
         // const data = await prisma.teachers_responsibility.findMany({
         //     where: {
         //         GradeID: GradeID,

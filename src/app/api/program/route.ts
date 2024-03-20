@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   // query: { ProgramID }
+  const Year = parseInt(request.nextUrl.searchParams.get("Year"))
   try {
-    const Year = parseInt(request.nextUrl.searchParams.get("Year"))
     const data: program[] = await prisma.program.findMany({
       where: {
         gradelevel: {
