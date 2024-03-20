@@ -1,25 +1,24 @@
-import React from "react";
-
-interface NumberField {
+/* eslint-disable no-undef */
+interface INumberFieldProps {
   width: string | number;
   height: string | number;
   placeHolder: string;
   disabled: boolean;
   label: string;
   value: number;
-  borderColor:string;
+  borderColor: string;
   handleChange;
 }
 function NumberField({
   width = "auto",
-  height = 'auto',
+  height = "auto",
   placeHolder = "",
   disabled = false,
   value,
   label,
   handleChange,
-  borderColor=""
-}: NumberField): JSX.Element {
+  borderColor = "",
+}: INumberFieldProps): JSX.Element {
   const numberFieldStyleProperty: object = {
     width: width,
     height: height,
@@ -31,7 +30,7 @@ function NumberField({
       <label className="text-sm font-bold">{label}</label>
       <input
         className="rounded text-field px-[15px] py-[10px] text-sm placeholder:text-sm"
-        type='number'
+        type="number"
         style={numberFieldStyleProperty}
         placeholder={placeHolder}
         onChange={handleChange}

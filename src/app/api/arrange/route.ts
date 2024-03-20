@@ -3,8 +3,8 @@ import { semester, type class_schedule } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
+    const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
     try {
-        const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
         const data: class_schedule[] = await prisma.class_schedule.findMany({
             where: {
                 subject: {

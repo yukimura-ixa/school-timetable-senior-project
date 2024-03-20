@@ -1,5 +1,4 @@
 import TextField from "@/components/elements/input/field/TextField";
-import React from "react";
 import { BsInfo } from "react-icons/bs"
 
 type Props = { required: boolean, title: string, handleChange: any };

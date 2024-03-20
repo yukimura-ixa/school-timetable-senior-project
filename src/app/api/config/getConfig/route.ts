@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from "next/server"
 
 
 export async function GET(request: NextRequest) {
+    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const Semester = request.nextUrl.searchParams.get("Semester")
     try {
-        const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
-        const Semester = request.nextUrl.searchParams.get("Semester")
+
         const data = await prisma.table_config.findFirst({
             where: {
                 AcademicYear: AcademicYear,

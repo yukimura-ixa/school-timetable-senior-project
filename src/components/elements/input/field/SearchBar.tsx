@@ -1,4 +1,3 @@
-import React from "react";
 
 //SVG
 import searchicon from "@/svg/crud/searchicon.svg";

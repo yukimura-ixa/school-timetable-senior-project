@@ -1,7 +1,7 @@
 import { semester } from "@prisma/client"
 
 export type SemesterThai = {
-    [key in semester]: string
+    [semester: string]: string
 }
 
 export const semesterThai: SemesterThai = {

@@ -4,11 +4,10 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
     // localhost:3000/api/lock?Semester=SEMESTER_1&AcademicYear=2566
+    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+    // const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
     try {
-        const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
-        const Semester = semester[request.nextUrl.searchParams.get("Semester")]
-        // const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
-
         //วิชาไหนมีคาบเรียนซ้ำกันบ้าง
         const locked = await prisma.class_schedule.groupBy({
             by: ["TimeslotID", "SubjectCode"],

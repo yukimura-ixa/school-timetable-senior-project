@@ -5,10 +5,12 @@ import { subjectCreditValues } from "@/models/credit-value"
 
 export async function GET(request: NextRequest) {
   // localhost:3000/api/assign?TeacherID=1&Semester=SEMESTER_1&AcademicYear=2566
+
+  const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
+  const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+  const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+  
   try {
-    const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
-    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
-    const Semester = semester[request.nextUrl.searchParams.get("Semester")]
     const data: teachers_responsibility[] = await prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: TeacherID,

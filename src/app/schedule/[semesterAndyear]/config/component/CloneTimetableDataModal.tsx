@@ -109,7 +109,7 @@ function CloneTimetableDataModal({
                   เลือกเทอมที่ต้องการคัดลอก
                 </b>
                 <div className="flex gap-3">
-                  {tableConfig.isValidating ? (
+                  {tableConfig.isValidating && !tableConfig.data ? (
                     <CircularProgress />
                   ) : (
                     <Dropdown

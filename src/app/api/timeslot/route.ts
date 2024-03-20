@@ -6,9 +6,10 @@ import { day_of_week, breaktime, semester } from "@prisma/client"
 export async function GET(request: NextRequest) {
     // search: { AcademicYear, Semester }
     // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
+    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const Semester = semester[request.nextUrl.searchParams.get("Semester")]
     try {
-        const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
-        const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+
         const data: timeslot[] = await prisma.timeslot.findMany({
             where: {
                 AcademicYear: AcademicYear,

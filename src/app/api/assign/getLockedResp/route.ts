@@ -4,9 +4,9 @@ import { teachers_responsibility, semester, subject } from "@prisma/client"
 
 export async function GET(request: NextRequest) {
     // localhost:3000/api/assign/getLockedResp&Semester=SEMESTER_1&AcademicYear=2566
+    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const Semester = semester[request.nextUrl.searchParams.get("Semester")]
     try {
-        const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
-        const Semester = semester[request.nextUrl.searchParams.get("Semester")]
         const groupBy = await prisma.teachers_responsibility.groupBy({
             by: ["SubjectCode"],
             where: {

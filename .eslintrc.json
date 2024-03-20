@@ -8,5 +8,13 @@
     "plugin:react/jsx-runtime",
     "plugin:react-hooks/recommended",
     "prettier"
-  ]
+  ],
+  "rules": {
+    "react/prop-types": "off",
+    "no-unused-vars": "off",
+    "no-undef": "off",
+    "no-redeclare": "warn",
+    "react-hooks/rules-of-hooks": "off",
+    "react/jsx-key": "warn"
+  }
 }

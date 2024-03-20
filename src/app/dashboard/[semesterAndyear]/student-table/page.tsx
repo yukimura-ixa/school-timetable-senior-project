@@ -15,9 +15,8 @@ import SelectClassRoom from "./component/SelectClassroom";
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import { isNull } from "util";
 import { ExportStudentTable } from "./function/ExportStudentTable";
-type Props = {};
 
-function page({}: Props) {
+function page() {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
@@ -130,11 +129,16 @@ function page({}: Props) {
   return (
     <>
       <div className="flex flex-col gap-3">
-        {fetchTimeSlot.isValidating || fetchAllClassData.isValidating || gradeLevelData.isLoading ? (
+        {fetchTimeSlot.isValidating ||
+        fetchAllClassData.isValidating ||
+        gradeLevelData.isLoading ? (
           <Loading />
         ) : (
           <>
-            <SelectClassRoom setGradeID={setGradeID} currentGrade={searchGradeID}/>
+            <SelectClassRoom
+              setGradeID={setGradeID}
+              currentGrade={searchGradeID}
+            />
             {!!searchGradeID && (
               <>
                 <div className="flex w-full gap-3 justify-end">
@@ -142,7 +146,9 @@ function page({}: Props) {
                     handleClick={() => {
                       ExportStudentTable(
                         timeSlotData,
-                        gradeLevelData.data.filter(item => item.GradeID == searchGradeID),
+                        gradeLevelData.data.filter(
+                          (item) => item.GradeID == searchGradeID,
+                        ),
                         classData,
                         semester,
                         academicYear,
@@ -171,7 +177,12 @@ function page({}: Props) {
                 >
                   <div className="flex gap-10 mb-8">
                     <p>
-                      ตารางเรียน ม.{isNull(searchGradeID) ? "" : `${searchGradeID[0]}/${parseInt(searchGradeID.substring(1))}`}
+                      ตารางเรียน ม.
+                      {isNull(searchGradeID)
+                        ? ""
+                        : `${searchGradeID[0]}/${parseInt(
+                            searchGradeID.substring(1),
+                          )}`}
                     </p>
                     <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
                   </div>

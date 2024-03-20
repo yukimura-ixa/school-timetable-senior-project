@@ -1,6 +1,4 @@
-import React from "react";
 import { AiOutlineClose } from "react-icons/ai";
-// import { Teacher } from "../model/teacher";
 import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";

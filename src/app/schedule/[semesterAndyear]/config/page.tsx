@@ -17,9 +17,8 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import api, { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
-type Props = {};
 
-function TimetableConfigValue({}: Props) {
+function TimetableConfigValue() {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",

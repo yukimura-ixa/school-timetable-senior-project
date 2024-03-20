@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import RoomsTable from "@/app/management/rooms/component/RoomsTable";
 import { useRoomData } from "../../_hooks/roomData"
 import Loading from "@/app/loading";

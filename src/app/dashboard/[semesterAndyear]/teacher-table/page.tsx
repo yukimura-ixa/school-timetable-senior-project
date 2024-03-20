@@ -12,9 +12,8 @@ import Loading from "@/app/loading";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
 import { useReactToPrint } from "react-to-print";
-type Props = {};
 
-function page({}: Props) {
+function page() {
   // TODO: เช็คคาบพัก
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -130,7 +129,9 @@ function page({}: Props) {
   return (
     <>
       <div className="flex flex-col gap-3">
-        {fetchTeacherDatabyID.isLoading || fetchTimeSlot.isLoading || fetchAllClassData.isLoading ? (
+        {fetchTeacherDatabyID.isLoading ||
+        fetchTimeSlot.isLoading ||
+        fetchAllClassData.isLoading ? (
           <Loading />
         ) : (
           <>

@@ -10,9 +10,7 @@ import { useLockData } from "@/app/_hooks/lockData";
 import LockScheduleForm from "./LockScheduleForm";
 import DeleteLockScheduleModal from "./DeleteLockScheduleModal";
 
-type Props = {};
-
-function LockSchedule(props: Props) {
+function LockSchedule() {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
     useState<boolean>(false);
 

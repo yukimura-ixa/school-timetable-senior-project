@@ -6,11 +6,15 @@ export async function GET(request: NextRequest) {
 
     const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+    const hasTeacherID = request.nextUrl.searchParams.has("TeacherID")
+    const hasGradeID = request.nextUrl.searchParams.has("GradeID")
+    const GradeID = request.nextUrl.searchParams.get("GradeID")
+    const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
     let response: class_schedule[]
     try {
-        if (request.nextUrl.searchParams.has("TeacherID")) {
+        if (hasTeacherID) {
             // localhost:3000/api/class?AcademicYear=2566&Semester=SEMESTER_1&TeacherID=1
-            const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
+
             response = await prisma.class_schedule.findMany({
                 where: {
                     timeslot: {
@@ -31,9 +35,9 @@ export async function GET(request: NextRequest) {
                 },
 
             })
-        } else if (request.nextUrl.searchParams.has("GradeID")) {
+        } else if (hasGradeID) {
             // localhost:3000/api/class?AcademicYear=2566&Semester=SEMESTER_1&GradeID=101
-            const GradeID = request.nextUrl.searchParams.get("GradeID")
+
             response = await prisma.class_schedule.findMany({
                 where: {
                     timeslot: {
