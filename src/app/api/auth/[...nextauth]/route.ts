@@ -95,7 +95,6 @@ const handler = NextAuth({
       },
     }),
   ],
-  adapter: FirestoreAdapter(),
   theme: {
     colorScheme: "light",
   },
