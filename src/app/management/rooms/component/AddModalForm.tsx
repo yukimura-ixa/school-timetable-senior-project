@@ -16,12 +16,13 @@ type props = {
   mutate: Function;
 };
 function AddModalForm({ closeModal, mutate }: props) {
-  const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
-    variant: "info",
-    persist: true,
-  });
+
   const addData = async (data: room[]) => {
     console.log(data);
+    const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
+      variant: "info",
+      persist: true,
+    });
     const response = await api
       .post("/room", data)
       .then(() => {
