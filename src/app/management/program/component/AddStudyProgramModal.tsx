@@ -118,7 +118,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
         className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
       >
         <div
-          className={`relative flex flex-col w-[831px] h-5/6 overflow-hidden p-12 gap-10 bg-white rounded`}
+          className={`relative flex flex-col w-[831px] h-fit overflow-hidden p-12 gap-10 bg-white rounded`}
         >
           {/* Content */}
           <div className="flex w-full h-auto justify-between items-center">
