@@ -100,7 +100,7 @@ function TimeSlot({ timeSlotData}: Props) {
                         {Object.keys(data.subject).length !== 0 && (
                           <>
                             <p className="text-sm">{data.subject.SubjectCode}</p>
-                            <p style={{visibility : data.subject.IsLocked || data.subject.teachers.length == 0 ? 'hidden' : 'visible'}} className="text-sm">{data.subject.teachers.length == 0 ? "NONE" : data.subject.teachers[0].Firstname}</p>
+                            <p style={{visibility : data.subject.teachers.length == 0 ? 'hidden' : 'visible'}} className="text-sm">{data.subject.teachers.length == 0 ? "NONE" : data.subject.teachers[0].Firstname}</p>
                             <p className="text-sm">{data.subject.room.RoomName}</p>
                           </>
                         )}

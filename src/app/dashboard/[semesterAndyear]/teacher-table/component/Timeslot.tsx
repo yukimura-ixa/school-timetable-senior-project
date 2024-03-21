@@ -21,7 +21,7 @@ function TimeSlot({ timeSlotData }: Props) {
             <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
               <span
                 className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center"
-              >
+              onClick={() => console.log(timeSlotData)}>
                 คาบที่
               </span>
             </th>
@@ -97,7 +97,7 @@ function TimeSlot({ timeSlotData }: Props) {
                         {Object.keys(data.subject).length !== 0 && (
                           <>
                             <p className="text-sm">{data.subject.SubjectCode}</p>
-                            <p className="text-sm">
+                            <p className="text-sm" style={{visibility : data.subject.IsLocked ? 'hidden' : 'visible'}}>
                               ม.{data.subject.GradeID[0]}/{parseInt(data.subject.GradeID.substring(1))}
                             </p>
                             <p className="text-sm">{data.subject.room.RoomName}</p>
