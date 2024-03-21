@@ -1,6 +1,6 @@
 import { semester } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
-
+import prisma from "@/libs/prisma"
 
 export async function POST(request: NextRequest) {
     try {
