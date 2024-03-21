@@ -83,7 +83,7 @@ function Schedule() {
           <button
             disabled={!isSetTimeslot}
             onClick={() => {
-              router.replace(`${path}/arrange`), setTabSelect(() => "arrange");
+              router.replace(`${path}/arrange/teacher-arrange`), setTabSelect(() => "arrange");
             }}
             className={`flex w-fit h-[60px] ${
               tabSelect == "arrange" ? "bg-gray-100" : "bg-white"

@@ -15,8 +15,9 @@ import { DragDropContext } from "react-beautiful-dnd";
 import SubjectDragBox from "../component/SubjectDragBox";
 import { enqueueSnackbar, closeSnackbar } from "notistack";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import SelectSubjectToTimeslotModal from "../component/SelectSubjectToTimeslotModal";
+import SelectSubjectToTimeslotModal from "../component/SelectRoomToTimeslotModal";
 import Loading from "@/app/loading";
+import SelectTeacher from "../component/SelectTeacher";
 
 const TeacherArrange = () => {
   const params = useParams();
@@ -33,10 +34,11 @@ const TeacherArrange = () => {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
-  const [currentTeacherID, setCurrentTeacherID] = useState(searchTeacherID)
+  //currentTeacherID จะเช็ค searchParams ว่า ถ้ามี teacherID อยู่แล้ว จะให้เลือกจาก searchParams ก่อน (ในกรณ๊รีโหลดเพจเป็นต้น)
+  const [currentTeacherID, setCurrentTeacherID] = useState(!!searchTeacherID && searchTeacherID)
   const checkConflictData = useSWR(
     () =>
-      "/class/checkConflict?AcademicYear=" +
+      !!currentTeacherID && "/class/checkConflict?AcademicYear=" +
       academicYear +
       "&Semester=SEMESTER_" +
       semester +
@@ -48,21 +50,21 @@ const TeacherArrange = () => {
 
   const fetchAllClassData = useSWR(
     () =>
-      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
+    !!currentTeacherID && `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
     fetcher,
     { revalidateOnFocus: false },
   );
 
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
-    () => `/teacher?TeacherID=` + currentTeacherID,
+    () => !!currentTeacherID && `/teacher?TeacherID=` + currentTeacherID,
     fetcher,
     { revalidateOnFocus: false },
   );
   const fetchResp = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      `/assign/getAvailableResp?AcademicYear=` +
+      !!currentTeacherID && `/assign/getAvailableResp?AcademicYear=` +
       academicYear +
       `&Semester=SEMESTER_` +
       semester +
@@ -74,7 +76,7 @@ const TeacherArrange = () => {
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
     () =>
-      `/timeslot?AcademicYear=` +
+      !!currentTeacherID && `/timeslot?AcademicYear=` +
       academicYear +
       `&Semester=SEMESTER_` +
       semester,
@@ -141,27 +143,26 @@ const TeacherArrange = () => {
 
   function fetchSubjectBox() {
     const data = fetchResp.data; //get data
-    setSubjectData(data);
+    setSubjectData(data.map(data => ({...data, room : {}})));
   }
 
   useEffect(() => {
-    if (fetchResp.data) {
+    if (fetchResp.data && !!currentTeacherID) {
       fetchSubjectBox();
     }
   }, [fetchResp.isValidating]);
-
+ 
   useEffect(() => {
-    if (!fetchTeacher.isValidating) {
+    if (!fetchTeacher.isValidating && !!currentTeacherID) {
       setTeacherData(() => fetchTeacher.data);
     }
-    if (!fetchTimeSlot.isValidating) {
+    if (!fetchTimeSlot.isValidating && !!currentTeacherID) {
       fetchTimeslotData();
-      console.log(fetchTimeSlot.data);
     }
   }, [fetchTeacher.isValidating, fetchTimeSlot.isValidating]);
 
   useEffect(() => {
-    if (!fetchAllClassData.isValidating) {
+    if (!fetchAllClassData.isValidating && !!currentTeacherID) {
       fetchClassData();
     }
   }, [fetchAllClassData.isValidating]);
@@ -243,8 +244,6 @@ const TeacherArrange = () => {
       persist: true,
     });
 
-    // console.log(data);
-
     try {
       const response = await api.post("/arrange", data);
       if (response.status == 200) {
@@ -262,13 +261,14 @@ const TeacherArrange = () => {
     }
   }
   const addSubjectToSlot = (subject: object, timeSlotID: string) => {
-    let data = timeSlotData.AllData; //นำช้อมูลตารางมา
-    setTimeSlotData(() => ({
+    let data = timeSlotData.AllData; //นำข้อมูลตารางมา
+    let mapTimeSlot = {
       ...timeSlotData,
       AllData: data.map((item) =>
-        item.TimeslotID == timeSlotID ? { ...item, subject: subject } : item,
+        item.TimeslotID == timeSlotID ? { ...item, subject: {...subject} } : item,
       ),
-    })); //map วิชาลงไปใน slot
+    }
+    setTimeSlotData(() => mapTimeSlot); //map วิชาลงไปใน slot
     setSubjectData(() =>
       subjectData.filter((item) => item.itemID != subject.itemID),
     ); //เอาวิชาที่ถูกจัดลงออกไป
@@ -294,8 +294,9 @@ const TeacherArrange = () => {
   };
   const returnSubject = (subject: object) => {
     delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
+    delete subject.room;
     delete subject.ClassID; //ลบ property ClassID ออกจาก object ก่อนคืน
-    setSubjectData(() => [...subjectData, subject]);
+    setSubjectData(() => [...subjectData, {...subject, itemID : subjectData.length+1}]);
   };
   useEffect(() => {
     if (!checkConflictData.isValidating) {
@@ -380,7 +381,7 @@ const TeacherArrange = () => {
       source.droppableId == "SUBJECTS" &&
       destination.droppableId !== "SUBJECTS"
     ) {
-      //ถ้าลากวิชามาลงกล่องเพิ่อเพื่ม
+      //ถ้าลากวิชามาลงกล่องเพื่อเพื่ม
       addRoomModal(destination.droppableId); //destination.droppableId = timeslotID
       clickOrDragToSelectSubject(subjectData[source.index]);
     } else if (
@@ -436,8 +437,8 @@ const TeacherArrange = () => {
         selectedSubject: storeSelectedSubject,
       })); //set ข้อมูลก่อนส่งไปให้ modal
       addSubjectToSlot(storeSelectedSubject, timeslotID); //เพิ่มวิชาลงไปใน slot ก่อน ทำเนียนๆไป
+      setScheduledSubjects([...scheduledSubjects, storeSelectedSubject]); //เพิ่มไปว่าวิชานี้จัดลงตารางแล้ว เอาไว้เช็คชน
       setIsActiveModal(true);
-      setScheduledSubjects([...scheduledSubjects, storeSelectedSubject]);
     }
   };
   const [destinationSubject, setDestinationSubject] = useState({}); //วิชาปลายทางที่จะเปลี่ยน
@@ -628,6 +629,11 @@ const TeacherArrange = () => {
       ? checkBreakTimeOutOfRange(Breaktime, Year)
       : false;
   };
+  const fetchTeacherDatabyID = useSWR(
+    //ข้อมูลหลักที่ fetch มาจาก api
+    () => !!currentTeacherID && `/teacher?TeacherID=` + currentTeacherID,
+    fetcher,
+  );
   return (
     <>
       {isActiveModal && (
@@ -637,57 +643,59 @@ const TeacherArrange = () => {
           payload={subjectPayload} //ส่งชุดข้อมูล
         />
       )}
+      <div className="mt-4" onClick={() => console.log(subjectData)}></div>
       {fetchTeacher.isValidating ||
       fetchResp.isValidating ||
       fetchTimeSlot.isValidating ||
-      fetchAllClassData.isValidating ? (
-        <Loading />
-      ) : (
+      fetchAllClassData.isValidating ? <Loading /> : (
         <>
-          <PageHeader teacherData={teacherData} />
+        {!!currentTeacherID && <PageHeader teacherData={teacherData} />}
+        <SelectTeacher setTeacherID={setCurrentTeacherID} currentTeacher={fetchTeacherDatabyID.data} />
+        {currentTeacherID &&
           <DragDropContext
-            onDragEnd={handleDragEnd}
-            onDragStart={handleDragStart}
-          >
-            <SubjectDragBox
-              respData={subjectData}
-              dropOutOfZone={dropOutOfZone}
-              clickOrDragToSelectSubject={clickOrDragToSelectSubject}
-              storeSelectedSubject={storeSelectedSubject}
-              teacher={teacherData}
+          onDragEnd={handleDragEnd}
+          onDragStart={handleDragStart}
+        >
+          <SubjectDragBox
+            respData={subjectData}
+            dropOutOfZone={dropOutOfZone}
+            clickOrDragToSelectSubject={clickOrDragToSelectSubject}
+            storeSelectedSubject={storeSelectedSubject}
+            teacher={teacherData}
+          />
+          <div className="w-full flex justify-end items-center mt-3 gap-3">
+            <PrimaryButton
+              handleClick={postData}
+              title={"บันทึกข้อมูล"}
+              color={"success"}
+              Icon={<SaveIcon />}
+              reverseIcon={false}
+              isDisabled={isSaving}
             />
-            <div className="w-full flex justify-end items-center mt-3 gap-3">
-              <PrimaryButton
-                handleClick={postData}
-                title={"บันทึกข้อมูล"}
-                color={"success"}
-                Icon={<SaveIcon />}
-                reverseIcon={false}
-                isDisabled={isSaving}
-              />
-            </div>
-            <TimeSlot
-              timeSlotData={timeSlotData}
-              checkBreakTime={checkBreakTime}
-              isSelectedToAdd={isSelectedToAdd}
-              isSelectedToChange={isSelectedToChange}
-              checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
-              timeSlotCssClassName={timeSlotCssClassName}
-              storeSelectedSubject={storeSelectedSubject}
-              addRoomModal={addRoomModal}
-              changeTimeSlotSubject={changeTimeSlotSubject}
-              clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
-              isCilckToChangeSubject={isCilckToChangeSubject}
-              timeslotIDtoChange={timeslotIDtoChange}
-              dropOutOfZone={dropOutOfZone}
-              displayErrorChangeSubject={displayErrorChangeSubject}
-              showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
-              removeSubjectFromSlot={removeSubjectFromSlot}
-              showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
-              setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
-              setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
-            />
-          </DragDropContext>
+          </div>
+          <TimeSlot
+            timeSlotData={timeSlotData}
+            checkBreakTime={checkBreakTime}
+            isSelectedToAdd={isSelectedToAdd}
+            isSelectedToChange={isSelectedToChange}
+            checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
+            timeSlotCssClassName={timeSlotCssClassName}
+            storeSelectedSubject={storeSelectedSubject}
+            addRoomModal={addRoomModal}
+            changeTimeSlotSubject={changeTimeSlotSubject}
+            clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
+            isCilckToChangeSubject={isCilckToChangeSubject}
+            timeslotIDtoChange={timeslotIDtoChange}
+            dropOutOfZone={dropOutOfZone}
+            displayErrorChangeSubject={displayErrorChangeSubject}
+            showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
+            removeSubjectFromSlot={removeSubjectFromSlot}
+            showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
+            setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
+            setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
+          />
+        </DragDropContext>
+        }
         </>
       )}
     </>
