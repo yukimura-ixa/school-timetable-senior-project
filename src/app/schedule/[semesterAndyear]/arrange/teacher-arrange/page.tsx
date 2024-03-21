@@ -692,14 +692,6 @@ const TeacherArrange = () => {
               teacher={teacherData}
             />
             <div className="w-full flex justify-end items-center mt-3 gap-3">
-              {/* <PrimaryButton
-                handleClick={undefined}
-                title={"จัดตารางอัตโนมัติ"}
-                color={"success"}
-                Icon={<SaveIcon />}
-                reverseIcon={false}
-                isDisabled={isSaving}
-              /> */}
               <PrimaryButton
                 handleClick={postData}
                 title={"บันทึกข้อมูล"}

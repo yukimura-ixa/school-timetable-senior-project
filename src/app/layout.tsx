@@ -10,6 +10,7 @@ import SessionProvider from "@/components/elements/nextauth/SessionProvider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 import { Sarabun } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const sarabun = Sarabun({
   subsets: ["thai", "latin"],
@@ -33,6 +34,7 @@ export default async function RootLayout({
                 <Navbar />
                 <main className="flex justify-center w-[1280px] xl:w-full h-auto">
                   <Content children={children} />
+                  <SpeedInsights />
                 </main>
               </SnackbarProvider>
             </ThemeProvider>

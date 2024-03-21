@@ -14,7 +14,6 @@ import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable
 import { useReactToPrint } from "react-to-print";
 
 function page() {
-  // TODO: เช็คคาบพัก
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
@@ -97,13 +96,13 @@ function page() {
     }
   }
   useEffect(() => {
-    if (!fetchTimeSlot.isLoading) {
+    if (!fetchTimeSlot.isValidating) {
       fetchTimeslotData();
     }
-    if (!fetchAllClassData.isLoading && !!searchTeacherID) {
+    if (!fetchAllClassData.isValidating && !!searchTeacherID) {
       fetchClassData();
     }
-  }, [fetchTimeSlot.isLoading, fetchAllClassData.isLoading]);
+  }, [fetchTimeSlot.isValidating, fetchAllClassData.isValidating]);
   const setTeacherID = (id: number) => {
     setSearchTeacherID(id);
   };

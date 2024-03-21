@@ -275,7 +275,7 @@ function TimetableConfigValue() {
               </u>
             ) : !isSetTimeslot ? (
               <div className="flex gap-3 items-center">
-                <p className="text-md text-gray-500">พักเล็กคาบที่</p>
+                <p className="text-md text-gray-500">พักเล็กก่อนคาบที่</p>
                 <Dropdown
                   width="100%"
                   height="40px"

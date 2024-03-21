@@ -9,11 +9,9 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import useSWR from "swr";
 import Loading from "@/app/loading";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
 import { useReactToPrint } from "react-to-print";
 import SelectClassRoom from "./component/SelectClassroom";
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
-import { isNull } from "util";
 import { ExportStudentTable } from "./function/ExportStudentTable";
 
 function page() {
@@ -178,7 +176,7 @@ function page() {
                   <div className="flex gap-10 mb-8">
                     <p>
                       ตารางเรียน ม.
-                      {isNull(searchGradeID)
+                      {searchGradeID === null
                         ? ""
                         : `${searchGradeID[0]}/${parseInt(
                             searchGradeID.substring(1),
