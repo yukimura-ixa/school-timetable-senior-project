@@ -33,6 +33,7 @@ const TeacherArrange = () => {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
+  const [currentTeacherID, setCurrentTeacherID] = useState(searchTeacherID)
   const checkConflictData = useSWR(
     () =>
       "/class/checkConflict?AcademicYear=" +
@@ -40,21 +41,21 @@ const TeacherArrange = () => {
       "&Semester=SEMESTER_" +
       semester +
       "&TeacherID=" +
-      searchTeacherID,
+      currentTeacherID,
     fetcher,
     { revalidateOnFocus: false },
   );
 
   const fetchAllClassData = useSWR(
     () =>
-      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${searchTeacherID}`,
+      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
     fetcher,
     { revalidateOnFocus: false },
   );
 
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
-    () => `/teacher?TeacherID=` + searchTeacherID,
+    () => `/teacher?TeacherID=` + currentTeacherID,
     fetcher,
     { revalidateOnFocus: false },
   );
@@ -66,7 +67,7 @@ const TeacherArrange = () => {
       `&Semester=SEMESTER_` +
       semester +
       `&TeacherID=` +
-      searchTeacherID,
+      currentTeacherID,
     fetcher,
     { revalidateOnFocus: false },
   );
@@ -228,42 +229,6 @@ const TeacherArrange = () => {
     }
   }
 
-  //convert millisec to min
-  // const getMinutes = (milliseconds: number) => {
-  //   let seconds = Math.floor(milliseconds / 1000);
-  //   let minutes = Math.floor(seconds / 60);
-  //   return minutes;
-  // };
-  // //get Hours
-  // const addHours = (time: Date, hours: number): Date => {
-  //   //set เวลาด้วยการบวกตาม duration และคูณ hours ถ้าจะให้ skip ไปหลายชั่วโมง
-  //   time.setMinutes(time.getMinutes() + timeSlotData.Duration * hours);
-  //   return time;
-  // };
-  // const mapTime = () => {
-  //   let map = [
-  //     ...timeSlotData.SlotAmount.map((hour, index) => {
-  //       //สร้าง format เวลา ตัวอย่าง => 2023-07-27T17:24:52.897Z
-  //       let timeFormat = `0${timeSlotData.StartTime.Hours}:${
-  //         timeSlotData.StartTime.Minutes == 0
-  //           ? "00"
-  //           : timeSlotData.StartTime.Minutes
-  //       }`;
-  //       //แยก เวลาเริ่มกับเวลาจบไว้ตัวแปรละอัน
-  //       const timeStart = new Date(`2024-03-14T${timeFormat}:00.000Z`);
-  //       const timeEnd = new Date(`2024-03-14T${timeFormat}:00.000Z`);
-  //       //นำไปใส่ใน function addHours เพื่อกำหนดเวลาเริ่ม-จบ
-  //       let start = addHours(timeStart, index + 1 - 1); //เวลาเริ่มใส่ hours-1 เพราะคาบแรกไม่ต้องการให้บวกเวลา
-  //       let end = addHours(timeEnd, index + 1); //จะต้องมากกว่า start ตาม duration ที่กำหนดไว้
-  //       //แปลงจาก 2023-07-27T17:24:52.897Z เป็น 17:24 โดยใช้ slice
-  //       return {
-  //         Start: start.toISOString().slice(11, 16),
-  //         End: end.toISOString().slice(11, 16),
-  //       };
-  //     }),
-  //   ];
-  //   return map;
-  // };
   async function postData() {
     let data = {
       TeacherID: parseInt(searchTeacherID),
