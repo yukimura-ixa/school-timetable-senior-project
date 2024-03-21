@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
         let created = []
         const body = await request.json()
         console.log(body)
-        const RespIDs = body.subject.RespIDs.map((id) => { return { RespID: id } }).flat(1)
+        const RespIDs = body.subject.teachers_responsibility.map((resp) => { return { RespID: resp.RespID } }).flat(1)
         for (const timeslot in body.timeslots) {
             for (const grade in body.GradeIDs) {
                 const data = await prisma.class_schedule.create({
