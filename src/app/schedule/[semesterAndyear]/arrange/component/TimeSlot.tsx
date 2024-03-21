@@ -38,7 +38,6 @@ type Props = {
 
 function TimeSlot({
   timeSlotData,
-  mapTime,
   checkBreakTime,
   isSelectedToAdd,
   checkRelatedYearDuringDragging,
@@ -130,7 +129,7 @@ function TimeSlot({
                                 <p className="text-sm">
                                   {item.Breaktime == "BREAK_JUNIOR"
                                     ? "มัธยมต้น"
-                                    : "มัธยมปลาย"}
+                                    : item.Breaktime == "BREAK_SENIOR" ? "มัธยมปลาย" : "กลางวัน"}
                                 </p>
                               </div>
                               <AddCircleIcon
