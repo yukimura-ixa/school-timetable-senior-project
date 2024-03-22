@@ -11,7 +11,7 @@ type Props = {
 const PageHeader = ({teacherData}: Props) => {
   return (
     <div className="w-full flex justify-between items-center">
-    <div className="p-4 mt-4 flex gap-3">
+    <div className="py-4 my-4 flex gap-3">
       <p className="text-sm">ตารางสอนของ</p>
       <p className="text-sm font-bold">
         คุณครู {teacherData.Firstname} {teacherData.Lastname}

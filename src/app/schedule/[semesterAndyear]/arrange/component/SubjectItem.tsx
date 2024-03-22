@@ -45,7 +45,10 @@ function SubjectItem({ item, index, teacherData, storeSelectedSubject, clickOrDr
                     ? item.GradeID[2]
                     : item.GradeID.substring(1, 2)}
                 </b>
-                <p className="text-xs">{teacherData.Firstname}</p>
+                <div className="flex gap-1 justify-center">
+                  <p className="text-xs">{teacherData.Firstname}</p>
+                  {/* <p style={{display : Object.keys(item.room).length == 0 ? 'none' : 'flex' ,fontSize : 10}}>({item.RoomName})</p> */}
+                </div>
               </div>
             </>
           );

@@ -38,7 +38,6 @@ type Props = {
 
 function TimeSlot({
   timeSlotData,
-  mapTime,
   checkBreakTime,
   isSelectedToAdd,
   checkRelatedYearDuringDragging,
@@ -130,7 +129,7 @@ function TimeSlot({
                                 <p className="text-sm">
                                   {item.Breaktime == "BREAK_JUNIOR"
                                     ? "มัธยมต้น"
-                                    : "มัธยมปลาย"}
+                                    : item.Breaktime == "BREAK_SENIOR" ? "มัธยมปลาย" : "กลางวัน"}
                                 </p>
                               </div>
                               <AddCircleIcon
@@ -215,22 +214,12 @@ function TimeSlot({
                                           )}
                                           ...
                                         </b>
-                                        <b className="text-xs">
+                                        <b style={{display : item.subject.IsLocked ? 'none' : 'flex', justifyContent : 'center'}} className="text-xs">
                                           {typeof item.subject.GradeID !==
                                           "string"
                                             ? null
                                             : `ม.${item.subject.GradeID[0]}/${
-                                                parseInt(
-                                                  item.subject.GradeID.substring(
-                                                    1,
-                                                    2,
-                                                  ),
-                                                ) < 10
-                                                  ? item.subject.GradeID[2]
-                                                  : item.subject.GradeID.substring(
-                                                      1,
-                                                      2,
-                                                    )
+                                                parseInt(item.subject.GradeID.substring(1))
                                               }`}
                                         </b>
                                         <p className="text-xs">

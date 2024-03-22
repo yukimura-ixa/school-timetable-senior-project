@@ -35,6 +35,7 @@ const SubjectDragBox = ({
               >
                 {respData.map((item, index) => (
                   <SubjectItem
+                    key={`${item.SubjectCode}-${index}`}
                     item={item}
                     index={index}
                     teacherData={{
