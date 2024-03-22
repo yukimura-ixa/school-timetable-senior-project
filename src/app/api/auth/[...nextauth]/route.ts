@@ -125,8 +125,7 @@ const handler = NextAuth({
       if (teacher) {
         token.role = teacher.Role
         token.id = teacher.TeacherID
-        token.name =
-          teacher.Prefix + teacher.Firstname + " " + teacher.Lastname
+        token.name = teacher.Role === "teacher" ? teacher.Prefix + teacher.Firstname + " " + teacher.Lastname : token.name
       }
       return token
     },

@@ -314,7 +314,7 @@ function TimetableConfigValue() {
               </div>
             ) : (
               <p className=" text-gray-600">
-                คาบที่ <b>{configData.MiniBreak.SlotNumber}</b> ระยะเวลา{" "}
+                ก่อนคาบที่ <b>{configData.MiniBreak.SlotNumber}</b> ระยะเวลา{" "}
                 <b>{configData.MiniBreak.Duration}</b> นาที
               </p>
             )}
