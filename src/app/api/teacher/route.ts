@@ -18,9 +18,6 @@ export async function GET(request: NextRequest) {
         orderBy: {
           TeacherID: "asc",
         },
-        where: {
-          Role: "teacher"
-        }
       })
       return NextResponse.json(data)
     }
