@@ -141,9 +141,9 @@ export default function ExportAllProgram (programData, GradeID, semester, academ
     ]
     sheet.addRows(jsonData, "i")
     const row1 = sheet.getRow(1)
-    const row2 = sheet.getRow(2)
+    // const row2 = sheet.getRow(2)
     row1.values = [`โครงสร้างหลักสูตร ระดับชั้นมัธยมศึกษาปีที่ ${GradeID[0]}/${parseInt(GradeID.substring(1))} ภาคเรียนที่ ${semester} ปีการศึกษา ${academicYear}`]
-    row2.values = [`โรงเรียนศึกษาไอทีวิทยา เขตลาดกระบัง กรุงเทพมหานคร`]
+    // row2.values = [`โรงเรียนศึกษาไอทีวิทยา เขตลาดกระบัง กรุงเทพมหานคร`]
     sheet.mergeCells("A1:F1")
     sheet.mergeCells("A2:F2")
     sheet.eachRow(function (row, rowNumber) {
