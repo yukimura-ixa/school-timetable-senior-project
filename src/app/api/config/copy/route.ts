@@ -23,6 +23,24 @@ export async function POST(request: NextRequest) {
                 Config: fromConfig.Config
             }
         }).then(async () => {
+            const fromSlots = await prisma.timeslot.findMany({
+                where: {
+                    AcademicYear: parseInt(fromAcademicYear),
+                    Semester: semester["SEMESTER_" + fromSemester]
+                }
+            })
+
+            const toSlots = fromSlots.map((item) => {
+                const newSlot = {
+                    ...item,
+                    AcademicYear: parseInt(toAcademicYear),
+                    Semester: semester["SEMESTER_" + toSemester],
+                    TimeslotID: item.TimeslotID.replace(body.from, body.to)
+                }
+
+                return newSlot
+            })
+
 
             if (body.assign) {
 
