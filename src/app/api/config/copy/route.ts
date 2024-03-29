@@ -41,6 +41,11 @@ export async function POST(request: NextRequest) {
                 return newSlot
             })
 
+            await prisma.timeslot.createMany({
+                data: toSlots,
+                skipDuplicates: true
+            })
+
 
             if (body.assign) {
 

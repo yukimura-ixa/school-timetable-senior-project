@@ -19,13 +19,16 @@ export async function GET(request: NextRequest) {
                     Semester: Semester
                 },
                 // GradeID: GradeID,
-                subject: {
-                    teachers_responsibility: {
-                        none: {
+                teachers_responsibility: {
+                    some: {
+                        Semester: Semester,
+                        AcademicYear: AcademicYear,
+                        NOT: {
                             TeacherID: TeacherID
                         }
-                    }
+                    },
                 }
+
             },
             include: {
                 subject: {

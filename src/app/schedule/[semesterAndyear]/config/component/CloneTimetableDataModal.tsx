@@ -38,6 +38,8 @@ function CloneTimetableDataModal({
     }
   }
 
+  const [currentTime, setCurrentTime] = useState(semester + "/" + academicYear);
+
   useEffect(() => {
     validateData();
     console.log(validate);
@@ -114,9 +116,11 @@ function CloneTimetableDataModal({
                   ) : (
                     <Dropdown
                       data={tableConfig.data}
-                      renderItem={({ data }): JSX.Element => (
-                        <li className="w-full text-sm">{data.ConfigID}</li>
-                      )}
+                      renderItem={({ data }): JSX.Element =>
+                        data.ConfigID != currentTime && (
+                          <li className="w-full text-sm">{data.ConfigID}</li>
+                        )
+                      }
                       currentValue={selectedCloneData}
                       handleChange={(value: string) => {
                         setSelectedCloneData(() => value.ConfigID);
