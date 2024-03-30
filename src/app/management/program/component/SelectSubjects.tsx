@@ -16,7 +16,7 @@ type Props = {
 
 function SelectSubjects(props: Props) {
   const subjectData = useSWR("/subject/notInPrograms", fetcher, {
-    refreshInterval: 5000,
+    refreshInterval: 30000,
   });
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
 
