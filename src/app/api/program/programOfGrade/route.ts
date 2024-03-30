@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
                         subject: {
                             include: {
                                 teachers_responsibility: {
+                                    distinct: ['TeacherID'],
                                     where: {
                                         AcademicYear: AcademicYear,
                                         Semester: Semester

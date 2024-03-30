@@ -167,7 +167,10 @@ function page() {
                     isDisabled={fetchAllClassData.isLoading}
                   />
                 </div>
-                <TimeSlot timeSlotData={timeSlotData} />
+                <TimeSlot
+                  searchGradeID={searchGradeID}
+                  timeSlotData={timeSlotData}
+                />
                 <div
                   ref={ref}
                   className="p-10 flex flex-col items-center justify-center mt-5"

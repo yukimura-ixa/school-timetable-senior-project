@@ -110,7 +110,7 @@ const page = (props: Props) => {
           Credit={item.Credit}
           Category={item.Category}
           TeacherFullName={
-            item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : ""
+            item.teachers.length == 1 ? item.teachers[0].TeacherFullName : ""
           }
         />
       </Fragment>

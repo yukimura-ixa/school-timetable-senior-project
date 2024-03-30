@@ -8,10 +8,14 @@ type Props = {
 
 function TimeSlot({ timeSlotData }: Props) {
   function formatTime(time) {
-    const date = new Date(time)
-    const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
-    const minutes = date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
-    return `${hours}:${minutes}`
+    const date = new Date(time);
+    const hours =
+      date.getHours() - 7 < 10
+        ? `0${date.getHours() - 7}`
+        : date.getHours() - 7;
+    const minutes =
+      date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
+    return `${hours}:${minutes}`;
   }
   return (
     <>
@@ -21,7 +25,8 @@ function TimeSlot({ timeSlotData }: Props) {
             <th className="flex items-center bg-gray-100 justify-center p-[10px] h-[53px] rounded select-none">
               <span
                 className="flex text-gray-600 font-light w-[50px] h-[24px] justify-center"
-              onClick={() => console.log(timeSlotData)}>
+                onClick={() => console.log(timeSlotData)}
+              >
                 คาบที่
               </span>
             </th>
@@ -43,26 +48,28 @@ function TimeSlot({ timeSlotData }: Props) {
                 <p className="text-gray-600">เวลา</p>
               </span>
             </td>
-            {timeSlotData.AllData.filter(item => item.DayOfWeek == "MON").map((item) => (
-              <Fragment key={`time-${item.Start}${item.End}`}>
-                <td
-                  style={{
-                    width: `${1062 / timeSlotData.SlotAmount.length - 10}px`,
-                  }}
-                  className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none"
-                >
-                  <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                    {formatTime(item.StartTime)}
-                  </p>
-                  <p className="flex text-xs items-center justify-center text-gray-600">
-                    -
-                  </p>
-                  <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                    {formatTime(item.EndTime)}
-                  </p>
-                </td>
-              </Fragment>
-            ))}
+            {timeSlotData.AllData.filter((item) => item.DayOfWeek == "MON").map(
+              (item) => (
+                <Fragment key={`time-${item.StartTime}${item.EndTime}`}>
+                  <td
+                    style={{
+                      width: `${1062 / timeSlotData.SlotAmount.length - 10}px`,
+                    }}
+                    className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none"
+                  >
+                    <p className="flex text-xs w-full items-center justify-center text-gray-600">
+                      {formatTime(item.StartTime)}
+                    </p>
+                    <p className="flex text-xs items-center justify-center text-gray-600">
+                      -
+                    </p>
+                    <p className="flex text-xs w-full items-center justify-center text-gray-600">
+                      {formatTime(item.EndTime)}
+                    </p>
+                  </td>
+                </Fragment>
+              ),
+            )}
           </tr>
           {timeSlotData.DayOfWeek.map((day) => (
             <Fragment key={`day${day.Day}`}>
@@ -75,7 +82,9 @@ function TimeSlot({ timeSlotData }: Props) {
                     <p style={{ color: day.TextColor }}>{day.Day}</p>
                   </span>
                 </td>
-                {timeSlotData.AllData.filter(item => dayOfWeekThai[item.DayOfWeek] == day.Day).map((data) => (
+                {timeSlotData.AllData.filter(
+                  (item) => dayOfWeekThai[item.DayOfWeek] == day.Day,
+                ).map((data) => (
                   <Fragment key={`slot-no${data.TimeslotID}`}>
                     <td
                       style={{
@@ -90,17 +99,31 @@ function TimeSlot({ timeSlotData }: Props) {
                       }}
                       className="grid font-light items-center justify-center h-[76px] rounded border border-[#ABBAC1] cursor-default"
                     >
-                      {data.Breaktime == "BREAK_BOTH" &&
-                          <p className="mt-4">พักกลางวัน</p>
-                      }
+                      {data.Breaktime == "BREAK_BOTH" && (
+                        <p className="mt-4">พักกลางวัน</p>
+                      )}
                       <span className="flex flex-col items-center text-xs duration-300">
                         {Object.keys(data.subject).length !== 0 && (
                           <>
-                            <p className="text-sm">{data.subject.SubjectCode}</p>
-                            <p className="text-sm" style={{visibility : data.subject.IsLocked ? 'hidden' : 'visible'}}>
-                              ม.{data.subject.GradeID[0]}/{parseInt(data.subject.GradeID.substring(1))}
+                            <p className="text-sm">
+                              {data.subject.SubjectCode}
                             </p>
-                            <p className="text-sm">{data.subject.room.RoomName}</p>
+                            <p
+                              className="text-sm"
+                              style={{
+                                visibility: data.subject.IsLocked
+                                  ? "hidden"
+                                  : "visible",
+                              }}
+                            >
+                              ม.{data.subject.GradeID[0]}/
+                              {parseInt(data.subject.GradeID.substring(1))}
+                            </p>
+                            <p className="text-xs">
+                              {data.subject.room.RoomName.length > 9
+                                ? data.subject.room.RoomName.substring(0, 9)
+                                : data.subject.room.RoomName}
+                            </p>
                           </>
                         )}
                       </span>
