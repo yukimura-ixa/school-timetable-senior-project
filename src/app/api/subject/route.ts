@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
         return await prisma.subject.create({
           data: {
-            SubjectCode: element.SubjectCode,
+            SubjectCode: element.SubjectCode.replace(/\s/g, ""),
             SubjectName: element.SubjectName,
             ProgramID: null,
             Credit: element.Credit,
