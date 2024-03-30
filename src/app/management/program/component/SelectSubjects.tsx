@@ -16,7 +16,7 @@ type Props = {
 
 function SelectSubjects(props: Props) {
   const subjectData = useSWR("/subject/notInPrograms", fetcher, {
-    refreshInterval: 30000,
+    refreshInterval: 15000,
   });
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
 
@@ -59,7 +59,7 @@ function SelectSubjects(props: Props) {
             ) : null}
           </div>
           <div className="flex flex-row justify-between gap-3">
-            {subjectData.isValidating ? (
+            {!subjectData.data ? (
               <CircularProgress />
             ) : (
               <Dropdown
