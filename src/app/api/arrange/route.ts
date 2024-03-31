@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
                 if (!schedule.subject.ClassID) {
                     // ลากวิชาใหม่มาลง
                     console.log('Add new subject')
-                    console.log(schedule)
+                    // console.log(schedule)
                     const newSchedule = await prisma.class_schedule.create({
                         data: {
                             ClassID: schedule.TimeslotID + '-' + schedule.subject.SubjectCode + '-' + schedule.subject.GradeID,
