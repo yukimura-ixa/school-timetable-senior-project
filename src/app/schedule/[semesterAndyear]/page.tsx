@@ -27,13 +27,6 @@ function Schedule() {
     setIsSetTimeslot(() => tableConfig.data != undefined);
   }, [tableConfig.isValidating, tableConfig.data]);
 
-  useEffect(() => {
-    const url = `${pathName}?${searchParams}`
-    console.log(url)
-    // You can now use the current URL
-    // ...
-  }, [pathName, searchParams])
-
   const [tabSelect, setTabSelect] = useState("");
   return (
     <>
