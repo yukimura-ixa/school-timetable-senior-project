@@ -121,13 +121,13 @@ function TimeSlot({ timeSlotData, searchGradeID }: Props) {
                             <p
                               style={{
                                 visibility:
-                                  data.subject.teachers.length == 0
+                                  data.subject.teachers.length == 0 || data.subject.IsLocked
                                     ? "hidden"
                                     : "visible",
                               }}
                               className="text-sm"
                             >
-                              {data.subject.teachers.length == 0
+                              {data.subject.teachers.length == 0 || data.subject.IsLocked
                                 ? "NONE"
                                 : data.subject.teachers[0].Firstname}
                             </p>
