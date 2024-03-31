@@ -31,6 +31,17 @@ const TeacherArrange = () => {
     timeslotID: "",
     selectedSubject: {},
   }); //ใช้กับตอนเพิ่มห้องเรียนให้วิชา
+
+  useEffect(() => {
+    return () => {
+      setStoreSelectedSubject({}),
+        setYearSelected(null),
+        setChangeTimeSlotSubject({}),
+        setTimeslotIDtoChange({ source: "", destination: "" }),
+        setDestinationSubject({}),
+        setSubjectPayload({ timeslotID: "", selectedSubject: {} });
+    };
+  }, [searchTeacherID]);
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
@@ -180,6 +191,7 @@ const TeacherArrange = () => {
       SubjectName: item.subject.SubjectName,
       RoomName: item.room?.RoomName || "ไม่มีห้องเรียน",
     }));
+    console.log(data);
     let filterLock = data.filter((item) => item.IsLocked);
     let filterNotLock = data.filter((item) => !item.IsLocked);
     //คัดข้อมูลคาบล็อก
@@ -220,10 +232,12 @@ const TeacherArrange = () => {
             const addSubject = concatClassData.find(
               (item) => item.TimeslotID == data.TimeslotID,
             );
+
             const addData = {
               ...data,
               subject: addSubject,
             };
+
             return addData;
             //เอาข้อมูลที่เจอมาใส่
           } else {
@@ -459,6 +473,14 @@ const TeacherArrange = () => {
   }); //เก็บ timeslotID ต้นทางและปลายทางเพื่อใช้สลับวิชา
   const [isCilckToChangeSubject, setIsCilckToChangeSubject] =
     useState<boolean>(false); //ถ้าคลิกเพื่อเปลี่ยนวิชาจะ = true และนำไปใช้กับ disabledDrag ทำให้ลากไอเทมมั่วซั่วตอนคลิกเปลี่ยนวิชา
+
+  useEffect(() => {
+    return () => {
+      setDestinationSubject({}),
+        setTimeslotIDtoChange({ source: "", destination: "" }),
+        setIsCilckToChangeSubject(false);
+    };
+  }, [searchTeacherID]);
   const [showErrorMsgByTimeslotID, setShowErrorMsgByTimeslotID] =
     useState<string>(""); //
   const [showLockDataMsgByTimeslotID, setShowLockDataMsgByTimeslotID] =

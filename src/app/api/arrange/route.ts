@@ -9,15 +9,15 @@ export async function GET(request: NextRequest) {
     try {
         const data: class_schedule[] = await prisma.class_schedule.findMany({
             where: {
-                subject: {
-                    teachers_responsibility: {
-                        every: {
-                            TeacherID: TeacherID
-                        }
+                teachers_responsibility: {
+                    every: {
+                        TeacherID: TeacherID
                     }
                 }
+
             },
             include: {
+                teachers_responsibility: true,
                 subject: true,
                 gradelevel: true,
                 timeslot: true,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
                             IsLocked: false,
                             teachers_responsibility: {
                                 connect: {
-                                    RespID: schedule.subject.RespID
+                                    RespID: schedule.subject.teachers_responsibility[0].RespID ?? schedule.RespID
                                 }
                             }
                         }
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
                             IsLocked: false,
                             teachers_responsibility: {
                                 connect: {
-                                    RespID: schedule.subject.RespID
+                                    RespID: schedule.subject.teachers_responsibility[0].RespID ?? schedule.RespID
                                 }
                             }
                         }
@@ -131,10 +131,12 @@ export async function POST(request: NextRequest) {
                 }
             }
         }
-
-        return NextResponse.json(response)
+        console.log(response)
+        return NextResponse.json({ ...response, Schedule: Schedule })
     } catch (error) {
         console.log(error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
+
+

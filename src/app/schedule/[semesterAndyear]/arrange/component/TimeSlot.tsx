@@ -236,12 +236,13 @@ function TimeSlot({
                                               )}`}
                                         </b>
                                         <p className="text-xs">
-                                          {item.subject.RoomName.length > 9
+                                          {(item.subject.RoomName ?? "")
+                                            .length > 9
                                             ? item.subject.RoomName.substring(
                                                 0,
                                                 9,
                                               ) + "..."
-                                            : item.subject.RoomName}
+                                            : item.subject.RoomName ?? ""}
                                         </p>
                                       </div>
                                       <ChangeCircleIcon

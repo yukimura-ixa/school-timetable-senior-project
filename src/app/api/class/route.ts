@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
                     }
                 },
                 include: {
+                    teachers_responsibility: true,
                     subject: true,
                     gradelevel: true,
                     timeslot: true,

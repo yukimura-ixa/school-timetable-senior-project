@@ -219,8 +219,8 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       isEmptyData.DayOfWeek ||
       isEmptyData.timeslots ||
       isEmptyData.teachers ||
-      isEmptyData.GradeIDs ||
-      // isEmptyData.room;
+      isEmptyData.GradeIDs;
+    // isEmptyData.room;
     if (cond) {
       validateData();
       enqueueSnackbar("กรุณากรอกข้อมูลให้ครบถ้วน", { variant: "warning" });
