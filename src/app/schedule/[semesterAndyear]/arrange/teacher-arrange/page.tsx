@@ -56,7 +56,7 @@ const TeacherArrange = () => {
       !!currentTeacherID &&
       `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
     fetcher,
-    { revalidateOnFocus: false, revalidateOnMount: true},
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
 
   const fetchTeacher = useSWR(
@@ -156,7 +156,7 @@ const TeacherArrange = () => {
     if (fetchResp.data && !!currentTeacherID) {
       fetchSubjectBox();
     }
-  }, [fetchResp.isValidating]);
+  }, [fetchResp.isValidating, currentTeacherID]);
 
   useEffect(() => {
     if (!fetchTeacher.isValidating && !!currentTeacherID) {
@@ -165,13 +165,13 @@ const TeacherArrange = () => {
     if (!fetchTimeSlot.isValidating && !!currentTeacherID) {
       fetchTimeslotData();
     }
-  }, [fetchTeacher.isValidating, fetchTimeSlot.isValidating]);
+  }, [fetchTeacher.isValidating, fetchTimeSlot.isValidating, currentTeacherID]);
 
   useEffect(() => {
     if (!fetchAllClassData.isValidating && !!currentTeacherID) {
       fetchClassData();
     }
-  }, [fetchAllClassData.isValidating]);
+  }, [fetchAllClassData.isValidating, currentTeacherID]);
 
   function fetchClassData() {
     let puredata = fetchAllClassData.data;
