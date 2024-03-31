@@ -1,5 +1,5 @@
 "use client";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Link } from "@mui/material";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
@@ -8,6 +8,7 @@ import useSWR from "swr";
 
 function Schedule() {
   const pathName = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -25,6 +26,13 @@ function Schedule() {
   useEffect(() => {
     setIsSetTimeslot(() => tableConfig.data != undefined);
   }, [tableConfig.isValidating, tableConfig.data]);
+
+  useEffect(() => {
+    const url = `${pathName}?${searchParams}`
+    console.log(url)
+    // You can now use the current URL
+    // ...
+  }, [pathName, searchParams])
 
   const [tabSelect, setTabSelect] = useState("");
   return (

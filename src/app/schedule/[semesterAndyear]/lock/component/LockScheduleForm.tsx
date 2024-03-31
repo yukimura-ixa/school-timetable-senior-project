@@ -25,7 +25,7 @@ type LockScheduleData = {
   timeslots: timeslot[];
   teachers: teacher[];
   GradeIDs: string[];
-  room: room;
+  room: room | null;
   subject: subject;
 };
 
@@ -35,7 +35,7 @@ type IsEmptyData = {
   timeslots: boolean;
   teachers: boolean;
   GradeIDs: boolean;
-  room: boolean;
+  // room: boolean;
 };
 
 type Action =
@@ -67,7 +67,7 @@ const initialState: {
     timeslots: false,
     teachers: false,
     GradeIDs: false,
-    room: false,
+    // room: false,
   },
 };
 
@@ -178,7 +178,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
           lockScheduleData.timeslots.length === 0 ||
           lockScheduleData.timeslots.length > 2,
         teachers: lockScheduleData.teachers.length === 0,
-        room: lockScheduleData.room.RoomID === -1,
+        // room: lockScheduleData.room.RoomID === -1,
         GradeIDs: lockScheduleData.GradeIDs.length === 0,
       },
     });
@@ -196,7 +196,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     lockScheduleData.timeslots,
     lockScheduleData.teachers,
     lockScheduleData.GradeIDs,
-    lockScheduleData.room,
+    // lockScheduleData.room,
   ]);
 
   useEffect(() => {
@@ -220,7 +220,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       isEmptyData.timeslots ||
       isEmptyData.teachers ||
       isEmptyData.GradeIDs ||
-      isEmptyData.room;
+      // isEmptyData.room;
     if (cond) {
       validateData();
       enqueueSnackbar("กรุณากรอกข้อมูลให้ครบถ้วน", { variant: "warning" });
@@ -343,7 +343,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
             <SelectRoomName
               roomName={lockScheduleData.room.RoomName}
               handleRoomChange={handleRoomChange}
-              required={isEmptyData.room}
+              // required={isEmptyData.room}
             />
             <SelectedClassRoom
               teachers={lockScheduleData.teachers}
