@@ -48,7 +48,7 @@ const TeacherArrange = () => {
         "&TeacherID=" +
         currentTeacherID,
     fetcher,
-    { revalidateOnFocus: false, revalidateOnMount: true },
+    { revalidateOnFocus: false },
   );
 
   const fetchAllClassData = useSWR(
@@ -56,14 +56,14 @@ const TeacherArrange = () => {
       !!currentTeacherID &&
       `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
     fetcher,
-    { revalidateOnFocus: false, revalidateOnMount: true },
+    { revalidateOnFocus: false },
   );
 
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => !!currentTeacherID && `/teacher?TeacherID=` + currentTeacherID,
     fetcher,
-    { revalidateOnFocus: false, revalidateOnMount: true },
+    { revalidateOnFocus: false },
   );
   const fetchResp = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
@@ -76,7 +76,7 @@ const TeacherArrange = () => {
         `&TeacherID=` +
         currentTeacherID,
     fetcher,
-    { revalidateOnFocus: false, revalidateOnMount: true },
+    { revalidateOnFocus: false },
   );
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
@@ -87,7 +87,7 @@ const TeacherArrange = () => {
         `&Semester=SEMESTER_` +
         semester,
     fetcher,
-    { revalidateOnFocus: false, revalidateOnMount: true },
+    { revalidateOnFocus: false },
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [subjectData, setSubjectData] = useState([]); //เก็บวิชากล่องบน
