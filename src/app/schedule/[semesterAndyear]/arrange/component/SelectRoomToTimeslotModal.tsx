@@ -22,6 +22,10 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const roomData = useSWR(
     `room/availableRooms?TimeslotID=` + payload.timeslotID,
     fetcher,
+    {
+      //refreshInterval: 15000,
+      revalidateOnMount: true,
+    },
   );
   const confirm = () => {
     //ถ้ากดยืนยัน

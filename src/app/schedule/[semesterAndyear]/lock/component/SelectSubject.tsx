@@ -21,6 +21,10 @@ function SelectSubject(props: Props) {
   const respData = useSWR(
     `assign/getLockedResp?Semester=${semester}&AcademicYear=${academicYear}`,
     fetcher,
+    {
+      //refreshInterval: 15000,
+      revalidateOnMount: true,
+    },
   );
   const [subject, setSubject] = useState<subject[]>([]);
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);

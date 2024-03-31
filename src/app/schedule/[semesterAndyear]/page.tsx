@@ -2,7 +2,6 @@
 import { useParams, usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { Link } from "@mui/material";
-import { HiLockClosed } from "react-icons/hi2";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import { fetcher } from "@/libs/axios";
 import useSWR from "swr";
