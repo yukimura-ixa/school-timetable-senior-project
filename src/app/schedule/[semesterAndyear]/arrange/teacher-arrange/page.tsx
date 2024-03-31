@@ -35,53 +35,59 @@ const TeacherArrange = () => {
     "-",
   ); //from "1-2566" to ["1", "2566"]
   //currentTeacherID จะเช็ค searchParams ว่า ถ้ามี teacherID อยู่แล้ว จะให้เลือกจาก searchParams ก่อน (ในกรณ๊รีโหลดเพจเป็นต้น)
-  const [currentTeacherID, setCurrentTeacherID] = useState(!!searchTeacherID && searchTeacherID)
+  const [currentTeacherID, setCurrentTeacherID] = useState(
+    !!searchTeacherID && searchTeacherID,
+  );
   const checkConflictData = useSWR(
     () =>
-      !!currentTeacherID && "/class/checkConflict?AcademicYear=" +
-      academicYear +
-      "&Semester=SEMESTER_" +
-      semester +
-      "&TeacherID=" +
-      currentTeacherID,
+      !!currentTeacherID &&
+      "/class/checkConflict?AcademicYear=" +
+        academicYear +
+        "&Semester=SEMESTER_" +
+        semester +
+        "&TeacherID=" +
+        currentTeacherID,
     fetcher,
-    { revalidateOnFocus: false },
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
 
   const fetchAllClassData = useSWR(
     () =>
-    !!currentTeacherID && `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
+      !!currentTeacherID &&
+      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
     fetcher,
-    { revalidateOnFocus: false },
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
 
   const fetchTeacher = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () => !!currentTeacherID && `/teacher?TeacherID=` + currentTeacherID,
     fetcher,
-    { revalidateOnFocus: false },
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
   const fetchResp = useSWR(
     //ข้อมูลหลักที่ fetch มาจาก api
     () =>
-      !!currentTeacherID && `/assign/getAvailableResp?AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester +
-      `&TeacherID=` +
-      currentTeacherID,
+      !!currentTeacherID &&
+      `/assign/getAvailableResp?AcademicYear=` +
+        academicYear +
+        `&Semester=SEMESTER_` +
+        semester +
+        `&TeacherID=` +
+        currentTeacherID,
     fetcher,
-    { revalidateOnFocus: false },
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const fetchTimeSlot = useSWR(
     () =>
-      !!currentTeacherID && `/timeslot?AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester,
+      !!currentTeacherID &&
+      `/timeslot?AcademicYear=` +
+        academicYear +
+        `&Semester=SEMESTER_` +
+        semester,
     fetcher,
-    { revalidateOnFocus: false },
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
   const [isActiveModal, setIsActiveModal] = useState(false);
   const [subjectData, setSubjectData] = useState([]); //เก็บวิชากล่องบน
@@ -143,7 +149,7 @@ const TeacherArrange = () => {
 
   function fetchSubjectBox() {
     const data = fetchResp.data; //get data
-    setSubjectData(data.map(data => ({...data, room : {}})));
+    setSubjectData(data.map((data) => ({ ...data, room: {} })));
   }
 
   useEffect(() => {
@@ -151,7 +157,7 @@ const TeacherArrange = () => {
       fetchSubjectBox();
     }
   }, [fetchResp.isValidating]);
- 
+
   useEffect(() => {
     if (!fetchTeacher.isValidating && !!currentTeacherID) {
       setTeacherData(() => fetchTeacher.data);
@@ -265,9 +271,11 @@ const TeacherArrange = () => {
     let mapTimeSlot = {
       ...timeSlotData,
       AllData: data.map((item) =>
-        item.TimeslotID == timeSlotID ? { ...item, subject: {...subject} } : item,
+        item.TimeslotID == timeSlotID
+          ? { ...item, subject: { ...subject } }
+          : item,
       ),
-    }
+    };
     setTimeSlotData(() => mapTimeSlot); //map วิชาลงไปใน slot
     setSubjectData(() =>
       subjectData.filter((item) => item.itemID != subject.itemID),
@@ -296,7 +304,10 @@ const TeacherArrange = () => {
     delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
     delete subject.room;
     delete subject.ClassID; //ลบ property ClassID ออกจาก object ก่อนคืน
-    setSubjectData(() => [...subjectData, {...subject, itemID : subjectData.length+1}]);
+    setSubjectData(() => [
+      ...subjectData,
+      { ...subject, itemID: subjectData.length + 1 },
+    ]);
   };
   useEffect(() => {
     if (!checkConflictData.isValidating) {
@@ -647,55 +658,60 @@ const TeacherArrange = () => {
       {fetchTeacher.isValidating ||
       fetchResp.isValidating ||
       fetchTimeSlot.isValidating ||
-      fetchAllClassData.isValidating ? <Loading /> : (
+      fetchAllClassData.isValidating ? (
+        <Loading />
+      ) : (
         <>
-        {!!currentTeacherID && <PageHeader teacherData={teacherData} />}
-        <SelectTeacher setTeacherID={setCurrentTeacherID} currentTeacher={fetchTeacherDatabyID.data} />
-        {currentTeacherID &&
-          <DragDropContext
-          onDragEnd={handleDragEnd}
-          onDragStart={handleDragStart}
-        >
-          <SubjectDragBox
-            respData={subjectData}
-            dropOutOfZone={dropOutOfZone}
-            clickOrDragToSelectSubject={clickOrDragToSelectSubject}
-            storeSelectedSubject={storeSelectedSubject}
-            teacher={teacherData}
+          {!!currentTeacherID && <PageHeader teacherData={teacherData} />}
+          <SelectTeacher
+            setTeacherID={setCurrentTeacherID}
+            currentTeacher={fetchTeacherDatabyID.data}
           />
-          <div className="w-full flex justify-end items-center mt-3 gap-3">
-            <PrimaryButton
-              handleClick={postData}
-              title={"บันทึกข้อมูล"}
-              color={"success"}
-              Icon={<SaveIcon />}
-              reverseIcon={false}
-              isDisabled={isSaving}
-            />
-          </div>
-          <TimeSlot
-            timeSlotData={timeSlotData}
-            checkBreakTime={checkBreakTime}
-            isSelectedToAdd={isSelectedToAdd}
-            isSelectedToChange={isSelectedToChange}
-            checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
-            timeSlotCssClassName={timeSlotCssClassName}
-            storeSelectedSubject={storeSelectedSubject}
-            addRoomModal={addRoomModal}
-            changeTimeSlotSubject={changeTimeSlotSubject}
-            clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
-            isCilckToChangeSubject={isCilckToChangeSubject}
-            timeslotIDtoChange={timeslotIDtoChange}
-            dropOutOfZone={dropOutOfZone}
-            displayErrorChangeSubject={displayErrorChangeSubject}
-            showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
-            removeSubjectFromSlot={removeSubjectFromSlot}
-            showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
-            setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
-            setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
-          />
-        </DragDropContext>
-        }
+          {currentTeacherID && (
+            <DragDropContext
+              onDragEnd={handleDragEnd}
+              onDragStart={handleDragStart}
+            >
+              <SubjectDragBox
+                respData={subjectData}
+                dropOutOfZone={dropOutOfZone}
+                clickOrDragToSelectSubject={clickOrDragToSelectSubject}
+                storeSelectedSubject={storeSelectedSubject}
+                teacher={teacherData}
+              />
+              <div className="w-full flex justify-end items-center mt-3 gap-3">
+                <PrimaryButton
+                  handleClick={postData}
+                  title={"บันทึกข้อมูล"}
+                  color={"success"}
+                  Icon={<SaveIcon />}
+                  reverseIcon={false}
+                  isDisabled={isSaving}
+                />
+              </div>
+              <TimeSlot
+                timeSlotData={timeSlotData}
+                checkBreakTime={checkBreakTime}
+                isSelectedToAdd={isSelectedToAdd}
+                isSelectedToChange={isSelectedToChange}
+                checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
+                timeSlotCssClassName={timeSlotCssClassName}
+                storeSelectedSubject={storeSelectedSubject}
+                addRoomModal={addRoomModal}
+                changeTimeSlotSubject={changeTimeSlotSubject}
+                clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
+                isCilckToChangeSubject={isCilckToChangeSubject}
+                timeslotIDtoChange={timeslotIDtoChange}
+                dropOutOfZone={dropOutOfZone}
+                displayErrorChangeSubject={displayErrorChangeSubject}
+                showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
+                removeSubjectFromSlot={removeSubjectFromSlot}
+                showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
+                setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
+                setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
+              />
+            </DragDropContext>
+          )}
         </>
       )}
     </>

@@ -90,14 +90,6 @@ export async function PUT(request: NextRequest) {
           throw new Error("ไม่พบวิชานี้ กรุณาตรวจสอบอีกครั้ง")
         }
 
-        const nameExist = await prisma.subject.findFirst({
-          where: {
-            SubjectName: element.SubjectName,
-          },
-        })
-        if (nameExist) {
-          throw new Error("มีชื่อวิชานี้อยู่แล้ว กรุณาตรวจสอบอีกครั้ง")
-        }
         return await prisma.subject.update({
           where: {
             SubjectCode: element.SubjectCode,
