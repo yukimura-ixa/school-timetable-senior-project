@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const { TeacherID, AcademicYear, Semester, Schedule } = await request.json()
-        console.log(TeacherID, Schedule)
+        // console.log(TeacherID, Schedule)
         let response = { deleted: [], added: [] }
 
         // Fetch all existing schedules for the teacher
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
                 if (!schedule.subject.ClassID) {
                     // ลากวิชาใหม่มาลง
                     console.log('Add new subject')
+                    console.log(schedule)
                     const newSchedule = await prisma.class_schedule.create({
                         data: {
                             ClassID: schedule.TimeslotID + '-' + schedule.subject.SubjectCode + '-' + schedule.subject.GradeID,
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
                             IsLocked: false,
                             teachers_responsibility: {
                                 connect: {
-                                    RespID: schedule.subject.teachers_responsibility[0].RespID ?? schedule.RespID
+                                    RespID: schedule.subject.RespID || schedule.subject.teachers_responsibility[0].RespID
                                 }
                             }
                         }
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
                             IsLocked: false,
                             teachers_responsibility: {
                                 connect: {
-                                    RespID: schedule.subject.teachers_responsibility[0].RespID ?? schedule.RespID
+                                    RespID: schedule.subject.teachers_responsibility[0].RespID || schedule.subject.RespID
                                 }
                             }
                         }
