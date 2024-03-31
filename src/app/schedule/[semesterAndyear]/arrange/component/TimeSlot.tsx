@@ -55,13 +55,13 @@ function TimeSlot({
   removeSubjectFromSlot,
   showLockDataMsgByTimeslotID,
   setShowLockDataMsgByTimeslotID,
-  setShowErrorMsgByTimeslotID
+  setShowErrorMsgByTimeslotID,
 }: Props) {
   return (
     <>
       <table className="table-auto w-full flex flex-col gap-3 mt-4 mb-10">
         <thead className="flex flex-col gap-3">
-          <TimetableHeader timeslot={timeSlotData}/>
+          <TimetableHeader timeslot={timeSlotData} />
         </thead>
         <tbody className="flex flex-col gap-3">
           {timeSlotData.DayOfWeek.map((day) => (
@@ -129,7 +129,9 @@ function TimeSlot({
                                 <p className="text-sm">
                                   {item.Breaktime == "BREAK_JUNIOR"
                                     ? "มัธยมต้น"
-                                    : item.Breaktime == "BREAK_SENIOR" ? "มัธยมปลาย" : "กลางวัน"}
+                                    : item.Breaktime == "BREAK_SENIOR"
+                                      ? "มัธยมปลาย"
+                                      : "กลางวัน"}
                                 </p>
                               </div>
                               <AddCircleIcon
@@ -214,16 +216,33 @@ function TimeSlot({
                                           )}
                                           ...
                                         </b>
-                                        <b style={{display : item.subject.IsLocked ? 'none' : 'flex', justifyContent : 'center'}} className="text-xs">
+                                        <b
+                                          style={{
+                                            display: item.subject.IsLocked
+                                              ? "none"
+                                              : "flex",
+                                            justifyContent: "center",
+                                          }}
+                                          className="text-xs"
+                                        >
                                           {typeof item.subject.GradeID !==
                                           "string"
                                             ? null
-                                            : `ม.${item.subject.GradeID[0]}/${
-                                                parseInt(item.subject.GradeID.substring(1))
-                                              }`}
+                                            : `ม.${
+                                                item.subject.GradeID[0]
+                                              }/${parseInt(
+                                                item.subject.GradeID.substring(
+                                                  1,
+                                                ),
+                                              )}`}
                                         </b>
                                         <p className="text-xs">
-                                          ห้อง {item.subject.RoomName}
+                                          {item.subject.RoomName.length > 9
+                                            ? item.subject.RoomName.substring(
+                                                0,
+                                                9,
+                                              ) + "..."
+                                            : item.subject.RoomName}
                                         </p>
                                       </div>
                                       <ChangeCircleIcon
