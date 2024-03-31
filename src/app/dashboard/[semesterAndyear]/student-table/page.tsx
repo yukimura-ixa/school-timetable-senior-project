@@ -113,7 +113,9 @@ function page() {
   const ref = useRef<HTMLDivElement>();
   const generatePDF = useReactToPrint({
     content: () => ref.current,
-    documentTitle: "ตารางสอน",
+    copyStyles: true,
+    documentTitle:
+      "ตารางเรียน" + searchGradeID + " " + semester + "-" + academicYear,
     // onAfterPrint : () => alert("เรียบร้อย")
   });
   const [isPDFExport, setIsPDFExport] = useState(false);
@@ -173,10 +175,10 @@ function page() {
                 />
                 <div
                   ref={ref}
-                  className="p-10 flex flex-col items-center justify-center mt-5"
+                  className="printFont p-10 flex flex-col items-center justify-center mt-5"
                   style={{ display: isPDFExport ? "flex" : "none" }}
                 >
-                  <div className="flex gap-10 mb-8">
+                  <div className="printFont flex gap-10 mb-8">
                     <p>
                       ตารางเรียน ม.
                       {searchGradeID === null
@@ -187,7 +189,10 @@ function page() {
                     </p>
                     <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
                   </div>
-                  <TimeSlot timeSlotData={timeSlotData} />
+                  <TimeSlot
+                    searchGradeID={searchGradeID}
+                    timeSlotData={timeSlotData}
+                  />
                   <div className="flex gap-2 mt-8">
                     <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
                     <p>ลงชื่อ..............................ผู้อำนวยการ</p>

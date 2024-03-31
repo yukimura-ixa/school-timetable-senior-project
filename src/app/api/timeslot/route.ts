@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 import type { timeslot } from "@prisma/client"
 import { day_of_week, breaktime, semester } from "@prisma/client"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     // search: { AcademicYear, Semester }
     // /timeslot?AcademicYear=2566&Semester=SEMESTER_2

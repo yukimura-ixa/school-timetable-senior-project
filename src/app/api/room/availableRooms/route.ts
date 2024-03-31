@@ -9,8 +9,10 @@ export async function GET(request: NextRequest) {
         const data: room[] = await prisma.room.findMany({
             where: {
                 class_schedule: {
-                    none: {
-                        TimeslotID: TimeslotID
+                    some: {
+                        NOT: {
+                            TimeslotID: TimeslotID
+                        }
                     }
                 }
             },

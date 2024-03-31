@@ -114,7 +114,16 @@ function page() {
   const ref = useRef<HTMLDivElement>();
   const generatePDF = useReactToPrint({
     content: () => ref.current,
-    documentTitle: "ตารางสอน",
+    copyStyles: true,
+    documentTitle:
+      "ตารางสอน" +
+      (fetchTeacherDatabyID.data
+        ? `ครู${fetchTeacherDatabyID.data.Firstname}`
+        : "") +
+      " " +
+      semester +
+      "-" +
+      academicYear,
     // onAfterPrint : () => alert("เรียบร้อย")
   });
   const [isPDFExport, setIsPDFExport] = useState(false);
@@ -169,7 +178,7 @@ function page() {
                 <TimeSlot timeSlotData={timeSlotData} />
                 <div
                   ref={ref}
-                  className="p-10 flex flex-col items-center justify-center mt-5"
+                  className="printFont p-10 flex flex-col items-center justify-center mt-5"
                   style={{ display: isPDFExport ? "flex" : "none" }}
                 >
                   <div className="flex gap-10 mb-8">

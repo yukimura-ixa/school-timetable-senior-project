@@ -2,6 +2,8 @@ import prisma from "@/libs/prisma"
 import { semester, type class_schedule } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
     try {
@@ -33,7 +35,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const { TeacherID, AcademicYear, Semester, Schedule } = await request.json()
-        // console.log(TeacherID, Schedule)
+        console.log(TeacherID, Schedule)
         let response = { deleted: [], added: [] }
 
         // Fetch all existing schedules for the teacher

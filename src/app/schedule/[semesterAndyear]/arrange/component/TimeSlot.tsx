@@ -33,7 +33,6 @@ type Props = {
   setShowLockDataMsgByTimeslotID: Function;
 };
 
-//! แสดงเวลาไม่ถูก
 // TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
 
 function TimeSlot({

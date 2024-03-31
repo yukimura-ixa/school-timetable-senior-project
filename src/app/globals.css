@@ -20,6 +20,13 @@
   font-size: 14px;
 }
 
+.printFont {
+  font-family: 'Sarabun', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* เอาไว้เปลี่ยน fill ของ icon */
 .hoverfill:hover > .iconhover {
   fill : #0891B2

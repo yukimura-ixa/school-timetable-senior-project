@@ -2,6 +2,8 @@ import prisma from "@/libs/prisma"
 import type { gradelevel, program, subject } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   // query: { ProgramID }
   const Year = parseInt(request.nextUrl.searchParams.get("Year"))

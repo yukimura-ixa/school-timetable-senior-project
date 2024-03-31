@@ -56,7 +56,7 @@ const TeacherArrange = () => {
       !!currentTeacherID &&
       `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
     fetcher,
-    { revalidateOnFocus: false },
+    { revalidateOnFocus: false, revalidateOnMount: true},
   );
 
   const fetchTeacher = useSWR(

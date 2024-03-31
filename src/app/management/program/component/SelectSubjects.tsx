@@ -16,7 +16,7 @@ type Props = {
 
 function SelectSubjects(props: Props) {
   const subjectData = useSWR("/subject/notInPrograms", fetcher, {
-    refreshInterval: 15000,
+    // refreshInterval: 15000,
     revalidateOnMount: true,
 
   });

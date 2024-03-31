@@ -2,6 +2,8 @@ import { semester } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/libs/prisma"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = request.nextUrl.searchParams.get("Semester")
