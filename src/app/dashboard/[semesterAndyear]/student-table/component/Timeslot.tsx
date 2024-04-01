@@ -112,10 +112,10 @@ function TimeSlot({ timeSlotData, searchGradeID }: Props) {
                       ) : data.Breaktime == "BREAK_BOTH" ? (
                         <p className="mt-4">พักกลางวัน</p>
                       ) : null}
-                      <span className="flex flex-col items-center text-xs duration-300">
+                      <span className="flex flex-col items-center text-center text-xs duration-300">
                         {Object.keys(data.subject).length !== 0 && (
                           <>
-                            <p className="text-sm">
+                            <p className="text-sm font-bold" style={{fontSize : data.subject.SubjectCode.length > 8 ? 12 : 14}}>
                               {data.subject.SubjectCode}
                             </p>
                             <p
@@ -128,7 +128,7 @@ function TimeSlot({ timeSlotData, searchGradeID }: Props) {
                               className="text-sm"
                             >
                               {data.subject.teachers.length == 0 || data.subject.IsLocked
-                                ? "NONE"
+                                ? ""
                                 : data.subject.teachers[0].Firstname}
                             </p>
                             <p className="text-xs">
