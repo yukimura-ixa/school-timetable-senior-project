@@ -14,9 +14,9 @@ export async function GET(request: NextRequest) {
             where: {
                 AcademicYear: AcademicYear,
                 Semester: Semester,
-                class_schedule: {
-                    none: {}
-                }
+                // class_schedule: {
+                //     none: {}
+                // }
             },
         })
 
@@ -31,9 +31,9 @@ export async function GET(request: NextRequest) {
                     some: {
                         AcademicYear: AcademicYear,
                         Semester: Semester,
-                        class_schedule: {
-                            none: {}
-                        }
+                        // class_schedule: {
+                        //     none: {}
+                        // }
                     }
                 }
             },
