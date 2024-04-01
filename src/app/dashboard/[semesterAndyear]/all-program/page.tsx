@@ -20,7 +20,7 @@ const page = (props: Props) => {
     "-",
   ); //from "1-2566" to ["1", "2566"]
   const gradeLevelData = useGradeLevelData();
-  const [currentGradeID, setCurrentGradeID] = useState("101");
+  const [currentGradeID, setCurrentGradeID] = useState("");
   const programOfGrade = useSWR(
     () =>
       currentGradeID !== "" &&
@@ -191,12 +191,13 @@ const page = (props: Props) => {
                   </li>
                 </>
               )}
+              placeHolder="เลือกชั้นเรียน"
               currentValue={convertDropdownItem(currentGradeID)}
               handleChange={(item) => setCurrentGradeID(item)}
               searchFunciton={undefined}
             />
           </div>
-          <div className="w-full items-center flex justify-end">
+          <div style={{display : currentGradeID == "" ? "none" : 'flex'}} className="w-full items-center flex justify-end">
             <PrimaryButton
               handleClick={() =>
                 ExportAllProgram(
