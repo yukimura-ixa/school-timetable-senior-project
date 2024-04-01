@@ -97,7 +97,7 @@ function TimeSlot({ timeSlotData }: Props) {
                             ? "lightgray"
                             : "white",
                       }}
-                      className="grid font-light items-center justify-center h-[76px] rounded border border-[#ABBAC1] cursor-default"
+                      className="grid font-light text-center items-center justify-center h-[76px] rounded border border-[#ABBAC1] cursor-default"
                     >
                       {data.Breaktime == "BREAK_BOTH" && (
                         <p className="mt-4">พักกลางวัน</p>
@@ -105,18 +105,18 @@ function TimeSlot({ timeSlotData }: Props) {
                       <span className="flex flex-col items-center text-xs duration-300">
                         {Object.keys(data.subject).length !== 0 && (
                           <>
-                            <p className="text-sm">
+                            <p className="font-bold text-sm" style={{fontSize : data.subject.SubjectCode.length > 8 ? 12 : 14}}>
                               {data.subject.SubjectCode}
                             </p>
                             <p
                               className="text-sm"
                               style={{
-                                visibility: data.subject.IsLocked
-                                  ? "hidden"
-                                  : "visible",
+                                display: data.subject.IsLocked
+                                  ? "none"
+                                  : "flex",
                               }}
                             >
-                              ม.{data.subject.GradeID[0]}/
+                              ม.{data.subject.GradeID[0]}/ 
                               {parseInt(data.subject.GradeID.substring(1))}
                             </p>
                             <p className="text-xs">
