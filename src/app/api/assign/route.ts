@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
   const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
   const Semester = semester[request.nextUrl.searchParams.get("Semester")]
-  
+
   try {
     const data: teachers_responsibility[] = await prisma.teachers_responsibility.findMany({
       where: {
@@ -81,7 +81,11 @@ export async function POST(request: NextRequest) {
           Semester: semester[body.Semester]
         },
         teachers_responsibility: {
-          none: {}
+          every: {
+            TeacherID: body.TeacherID,
+            AcademicYear: body.AcademicYear,
+            Semester: body.Semester,
+          }
         }
       }
     })

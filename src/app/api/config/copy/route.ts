@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/libs/prisma"
 
 export const dynamic = 'force-dynamic'
-
+// TODO: Optimize queries
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
-        // console.log(body)
+        console.log("copying")
         const [fromSemester, fromAcademicYear] = body.from.split("/")
         const [toSemester, toAcademicYear] = body.to.split("/")
 
@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
                 skipDuplicates: true
             })
 
+            console.log("timeslot success")
+
 
             if (body.assign) {
 
@@ -84,6 +86,16 @@ export async function POST(request: NextRequest) {
                     data: toResp,
                     skipDuplicates: true
                 })
+
+                const newResp = await prisma.teachers_responsibility.findMany({
+                    where: {
+                        AcademicYear: parseInt(toAcademicYear),
+                        Semester: semester["SEMESTER_" + toSemester]
+                    }
+                })
+
+                console.log("assign success")
+
                 if (body.lock) {
                     const fromLock = await prisma.class_schedule.findMany({
                         where: {
@@ -92,24 +104,68 @@ export async function POST(request: NextRequest) {
                                 AcademicYear: parseInt(fromAcademicYear),
                                 Semester: semester["SEMESTER_" + fromSemester]
                             }
+                        },
+                        include: {
+                            teachers_responsibility: true
                         }
                     })
                     const toLock = fromLock.map((item) => {
                         const newTimeslotID = item.TimeslotID.replace(body.from, body.to)
                         const newClassID = item.ClassID.replace(body.from, body.to)
+                        const newRespIDs = newResp.filter((resp) => {
+                            return resp.Semester === semester["SEMESTER_" + toSemester] &&
+                                resp.GradeID === item.GradeID &&
+                                resp.SubjectCode === item.SubjectCode
+                        })
 
                         return {
                             ...item,
                             ClassID: newClassID,
                             TimeslotID: newTimeslotID,
+                            teachers_responsibility: {
+                                connect: newRespIDs.map((item) => {
+                                    return {
+                                        RespID: item.RespID
+                                    }
+                                })
+                            }
                         }
                     })
 
-                    await prisma.class_schedule.createMany({
-                        data: toLock,
-                        skipDuplicates: true
-                    })
-                    console.log(toLock)
+                    console.table(toLock)
+
+                    const lockSuccess = await Promise.all(toLock.map(async (item) => {
+                        try {
+                            const newSchedule = await prisma.class_schedule.create({
+                                data: item,
+                                include: { teachers_responsibility: true }
+                            })
+
+                            // for (const resp of newSchedule.teachers_responsibility) {
+                            //     await prisma.teachers_responsibility.update({
+                            //         where: {
+                            //             RespID: resp.RespID
+                            //         },
+                            //         data: {
+                            //             class_schedule: {
+                            //                 connect: {
+                            //                     ClassID: newSchedule.ClassID
+                            //                 }
+                            //             }
+                            //         }
+                            //     })
+                            // }
+
+                            return true
+
+                        } catch (error) {
+                            return false
+                        }
+
+
+                    }))
+
+                    console.log("lock success", lockSuccess)
                 }
 
                 if (body.timetable) {
@@ -120,30 +176,73 @@ export async function POST(request: NextRequest) {
                                 AcademicYear: parseInt(fromAcademicYear),
                                 Semester: semester["SEMESTER_" + fromSemester]
                             }
+                        },
+                        include: {
+                            teachers_responsibility: true
                         }
                     })
+
                     const toTimetable = fromTimetable.map((item) => {
                         const newTimeslotID = item.TimeslotID.replace(body.from, body.to)
                         const newClassID = item.ClassID.replace(body.from, body.to)
+                        const newRespIDs = newResp.filter((resp) => {
+                            return resp.Semester === semester["SEMESTER_" + toSemester] &&
+                                resp.GradeID === item.GradeID &&
+                                resp.SubjectCode === item.SubjectCode
+                        })
 
                         return {
                             ...item,
                             ClassID: newClassID,
                             TimeslotID: newTimeslotID,
+                            teachers_responsibility: {
+                                connect: newRespIDs.map((item) => {
+                                    return {
+                                        RespID: item.RespID
+                                    }
+                                })
+                            }
                         }
                     })
 
-                    await prisma.class_schedule.createMany({
-                        data: toTimetable,
-                        skipDuplicates: true
-                    })
-                    console.log(toTimetable)
+                    console.table(toTimetable)
+
+                    const timetableSuccess = await Promise.all(toTimetable.map(async (item) => {
+                        try {
+                            const newSchedule = await prisma.class_schedule.create({
+                                data: item,
+                                include: { teachers_responsibility: true }
+                            })
+
+                            // for (const resp of newSchedule.teachers_responsibility) {
+                            //     await prisma.teachers_responsibility.update({
+                            //         where: {
+                            //             RespID: resp.RespID
+                            //         },
+                            //         data: {
+                            //             class_schedule: {
+                            //                 connect: {
+                            //                     ClassID: newSchedule.ClassID
+                            //                 }
+                            //             }
+                            //         }
+                            //     })
+                            // }
+
+                            return true
+
+                        } catch (error) {
+                            return false
+                        }
+                    }))
+
+                    console.log("schedule success", timetableSuccess)
                 }
             }
         })
 
 
-
+        console.log("copy success")
         return NextResponse.json({ message: "success" })
 
     } catch (error) {

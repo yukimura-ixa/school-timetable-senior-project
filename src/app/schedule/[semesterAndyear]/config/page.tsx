@@ -17,12 +17,13 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import api, { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import Loading from "@/app/loading";
 function TimetableConfigValue() {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
+  const [isCopying, setIsCopying] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
   const [isSaved, setIsSaved] = useState<boolean>(false);
@@ -173,6 +174,7 @@ function TimetableConfigValue() {
 
   return (
     <>
+      {isCopying ? <Loading /> : null}
       {isActiveModal ? (
         <ConfirmDeleteModal
           closeModal={() => setIsActiveModal(false)}
@@ -183,6 +185,7 @@ function TimetableConfigValue() {
       ) : null}
       {isCloneDataModal ? (
         <CloneTimetableDataModal
+          setIsCopying={setIsCopying}
           closeModal={() => setIsCloneDataModal(false)}
           mutate={tableConfig.mutate}
           academicYear={academicYear}

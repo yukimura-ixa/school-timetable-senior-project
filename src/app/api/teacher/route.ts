@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     } else {
       const data = await prisma.teacher.findMany({
         orderBy: {
-          TeacherID: "asc",
+          Firstname: "asc",
         },
       })
       return NextResponse.json(data)

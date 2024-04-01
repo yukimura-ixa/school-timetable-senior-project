@@ -6,14 +6,16 @@ import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
-import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { enqueueSnackbar } from "notistack";
 import useSWR from "swr";
 import { CircularProgress } from "@mui/material";
+
 type props = {
   closeModal: any;
   academicYear: string;
   semester: string;
   mutate: Function;
+  setIsCopying: Function;
 };
 
 function CloneTimetableDataModal({
@@ -21,6 +23,7 @@ function CloneTimetableDataModal({
   academicYear,
   semester,
   mutate,
+  setIsCopying,
 }: props) {
   const [selectedCloneData, setSelectedCloneData] = useState<string>(""); //เก็บปีและเทอมที่จะเอาข้อมูลมา
   const [cloneList, setCloneList] = useState({
@@ -55,6 +58,7 @@ function CloneTimetableDataModal({
       });
       return;
     }
+    setIsCopying(true);
     copyData();
     closeModal();
   };
@@ -63,27 +67,34 @@ function CloneTimetableDataModal({
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
   async function copyData() {
-    const copying = enqueueSnackbar("กำลังเรียกข้อมูล", {
-      variant: "info",
-      persist: true,
-    });
     try {
-      const response = await api.post("/config/copy", {
-        from: selectedCloneData,
-        to: semester + "/" + academicYear,
-        ...cloneList,
+      const response = await api.request({
+        timeout: 300000, // 5 minutes
+        method: "POST",
+        url: "/config/copy",
+        data: {
+          from: selectedCloneData,
+          to: semester + "/" + academicYear,
+          ...cloneList,
+        },
       });
+
+      // const response = await api.post("/config/copy", {
+      //   from: selectedCloneData,
+      //   to: semester + "/" + academicYear,
+      //   ...cloneList,
+      // });
       console.log(response);
 
       if (response.status === 200) {
-        closeSnackbar(copying);
         enqueueSnackbar("เรียกข้อมูลสำเร็จ", { variant: "success" });
         mutate();
       }
     } catch (error) {
-      closeSnackbar(copying);
       console.log(error);
       enqueueSnackbar("เกิดข้อผิดพลาดในการเรียกข้อมูล", { variant: "error" });
+    } finally {
+      setIsCopying(false);
     }
   }
   return (
