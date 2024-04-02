@@ -17,9 +17,10 @@ function LockSchedule() {
   const [deleteLockScheduleModalActive, setDeleteLockScheduleModalActive] =
     useState<boolean>(false);
 
+  const [showMoreteachherData, setShowMoreteacherData] = useState(null); //index
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-"
+    "-",
   ); //from "1-2566" to ["1", "2566"]
   const lockData = useLockData(parseInt(academicYear), parseInt(semester));
 
@@ -61,11 +62,14 @@ function LockSchedule() {
         <Loading />
       ) : (
         <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
-          {lockData.data.map((item, index) => (
+          {lockData.data.map((item, lockIndex) => (
             <Fragment key={`${item.SubjectCode}${item.DayOfWeek}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
                 <div className="flex justify-between items-center gap-3">
-                  <p className="text-lg font-medium" onClick={() => console.log(lockData)}>
+                  <p
+                    className="text-lg font-medium"
+                    onClick={() => console.log(lockData)}
+                  >
                     {item.SubjectCode} - {item.SubjectName}
                   </p>
                   <div className="flex gap-3">
@@ -90,7 +94,11 @@ function LockSchedule() {
                   คาบที่ :{" "}
                   {item.timeslots
                     .map((item) =>
-                      item.TimeslotID.substring(item.TimeslotID.length > 11 ? item.TimeslotID.length - 2 : item.TimeslotID.length - 1)
+                      item.TimeslotID.substring(
+                        item.TimeslotID.length > 11
+                          ? item.TimeslotID.length - 2
+                          : item.TimeslotID.length - 1,
+                      ),
                     )
                     .join(",")}
                 </p>
@@ -157,9 +165,48 @@ function LockSchedule() {
                             }`}
                           />
                         ) : index < 4 ? (
-                          <div className="hover:bg-gray-100 duration-300 w-[100px] h-[25px] border rounded text-center border-[#c7c7c7] text-[#4F515E]">
-                            <p>...</p>
-                          </div>
+                          <>
+                            <div
+                              onMouseEnter={() => {
+                                setShowMoreteacherData(lockIndex);
+                              }}
+                              onMouseLeave={() => setShowMoreteacherData(null)}
+                              className="relative hover:bg-gray-100 duration-300 w-[100px] h-[25px] border rounded text-center border-[#c7c7c7] text-[#4F515E]"
+                            >
+                              <p>...</p>
+                              <div
+                                style={{
+                                  display:
+                                    lockIndex == showMoreteachherData
+                                      ? "block"
+                                      : "none",
+                                }}
+                                className="absolute bottom-[23px] right-[0px] text-left border w-[200px] h-fit p-3 bg-white rounded drop-shadow-sm"
+                                onMouseEnter={() => {
+                                  setShowMoreteacherData(lockIndex);
+                                }}
+                                onMouseLeave={() => setShowMoreteacherData(null)}
+                              >
+                                {item.teachers.map((item, index) => (
+                                  <Fragment key={`moredata${index}`}>
+                                    <div className="flex gap-2">
+                                      <p className="font-bold text-sm">
+                                        {item.Firstname}
+                                      </p>
+                                      <p className="text-sm">
+                                        {item.Department.length > 10
+                                          ? `${item.Department.substring(
+                                              0,
+                                              10,
+                                            )}...`
+                                          : item.Department}
+                                      </p>
+                                    </div>
+                                  </Fragment>
+                                ))}
+                              </div>
+                            </div>
+                          </>
                         ) : null}
                       </Fragment>
                     ))}
