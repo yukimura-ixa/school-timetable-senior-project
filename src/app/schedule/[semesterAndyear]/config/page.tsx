@@ -84,9 +84,15 @@ function TimetableConfigValue() {
     } //เช็คว่าถ้าคาบพักเที่ยงมี range ที่เกินจำนวนคาบต่อวัน จะให้ set เป็นค่าสูงสุดของจำนวนคาบโดยอัตโนมัติ
   }, [configData.TimeslotPerDay]);
   const handleChangeTimeSlotPerDay = (currentValue: number) => {
+    if (currentValue < 7 || currentValue > 10) {
+      return;
+    }
     setConfigData(() => ({ ...configData, TimeslotPerDay: currentValue }));
   };
   const handleChangeDuration = (currentValue: number) => {
+    if (currentValue < 30 || currentValue > 120) {
+      return;
+    }
     setConfigData(() => ({
       ...configData,
       Duration: currentValue,

@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json()
         console.log("copying")
+        console.time("copying")
         const [fromSemester, fromAcademicYear] = body.from.split("/")
         const [toSemester, toAcademicYear] = body.to.split("/")
 
@@ -141,21 +142,6 @@ export async function POST(request: NextRequest) {
                                 include: { teachers_responsibility: true }
                             })
 
-                            // for (const resp of newSchedule.teachers_responsibility) {
-                            //     await prisma.teachers_responsibility.update({
-                            //         where: {
-                            //             RespID: resp.RespID
-                            //         },
-                            //         data: {
-                            //             class_schedule: {
-                            //                 connect: {
-                            //                     ClassID: newSchedule.ClassID
-                            //                 }
-                            //             }
-                            //         }
-                            //     })
-                            // }
-
                             return true
 
                         } catch (error) {
@@ -214,20 +200,6 @@ export async function POST(request: NextRequest) {
                                 include: { teachers_responsibility: true }
                             })
 
-                            // for (const resp of newSchedule.teachers_responsibility) {
-                            //     await prisma.teachers_responsibility.update({
-                            //         where: {
-                            //             RespID: resp.RespID
-                            //         },
-                            //         data: {
-                            //             class_schedule: {
-                            //                 connect: {
-                            //                     ClassID: newSchedule.ClassID
-                            //                 }
-                            //             }
-                            //         }
-                            //     })
-                            // }
 
                             return true
 
@@ -239,6 +211,7 @@ export async function POST(request: NextRequest) {
                     console.log("schedule success", timetableSuccess)
                 }
             }
+            console.timeEnd("copying")
         })
 
 
@@ -250,3 +223,4 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }
+

@@ -17,14 +17,6 @@ type Props = {
 };
 
 function AddSubjectModal(props: Props) {
-  const { data, isLoading, isValidating, error, mutate } = useSWR(
-    "subject/subjectsOfGrade?GradeID=" + props.classRoomData.GradeID,
-    fetcher,
-    {
-      //refreshInterval: 15000,
-      revalidateOnMount: true,
-    },
-  ); //เรียกข้อมูลวิชาทั้งหมดของชั้นเรียนที่ส่งมา
   const [subject, setSubject] = useState<subject[]>([]); //เก็บรายวิชาที่ fetch มา
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]); //กรองรายวิชาที่ค้นหาเพื่อนำมาแสดง
   const [searchText, setSearchText] = useState<string>(""); //เก็บtextค้นหารายวิชา
@@ -39,6 +31,17 @@ function AddSubjectModal(props: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
+  const { data, isLoading, isValidating, error, mutate } = useSWR(
+    "subject/subjectsOfGrade?GradeID=" +
+      props.classRoomData.GradeID +
+      "&Semester=SEMESTER_" +
+      semester,
+    fetcher,
+    {
+      //refreshInterval: 15000,
+      revalidateOnMount: true,
+    },
+  ); //เรียกข้อมูลวิชาทั้งหมดของชั้นเรียนที่ส่งมา
   const searchTeacherID = useSearchParams().get("TeacherID");
   useEffect(() => {
     if (!isValidating) {
