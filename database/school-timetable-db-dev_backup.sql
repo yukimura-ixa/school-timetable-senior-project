@@ -23,8 +23,8 @@ SET @@SESSION.SQL_LOG_BIN= 0;
 -- GTID state at the beginning of the backup 
 --
 
-SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '0ae2ccd9-bb2e-11ee-9a14-42010a400004:1-142577,
-11cd8659-9f67-11ee-afa0-42010a400002:1-473106';
+-- SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '0ae2ccd9-bb2e-11ee-9a14-42010a400004:1-142577,
+-- 11cd8659-9f67-11ee-afa0-42010a400002:1-473106';
 
 --
 -- Table structure for table `_class_scheduleToteachers_responsibility`
