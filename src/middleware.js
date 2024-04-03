@@ -6,7 +6,7 @@ export default withAuth(
     const token = req.nextauth.token;
     if (
       token?.role === "teacher" &&
-      !req.nextUrl.pathname.startsWith("/dashboard")
+      !(req.nextUrl.pathname.endsWith("/teacher-table") || req.nextUrl.pathname.endsWith("/student-table"))
     ) {
       const url = new URL("/dashboard/select-semester", req.nextUrl).href;
       return NextResponse.redirect(url);

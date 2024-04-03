@@ -20,7 +20,7 @@ const TableResult = (props: Props) => {
       <thead>
         <th className="flex gap-2 bg-white">
           <td className="w-[50px] h-[60px] flex items-center justify-center bg-slate-100 rounded">
-            <p onClick={() => console.log(props.classData)}>รวม</p>
+            <p onClick={() => console.log(props.classData)}>รวมคาบ</p>
           </td>
         </th>
       </thead>
