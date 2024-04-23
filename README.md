@@ -1,1 +1,1 @@
-![System Architecture](https://imgur.com/jwUDzdd)
+![System Architecture](systemarch.png)
