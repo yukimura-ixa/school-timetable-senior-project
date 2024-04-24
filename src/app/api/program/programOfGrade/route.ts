@@ -24,6 +24,9 @@ export async function GET(request: NextRequest) {
             },
             include: {
                 program: {
+                    where: {
+                        Semester: Semester
+                    },
                     include: {
                         subject: {
                             include: {
