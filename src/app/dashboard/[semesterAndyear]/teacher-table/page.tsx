@@ -1,206 +1,194 @@
 "use client";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
-import TimeSlot from "./component/Timeslot";
-import SelectTeacher from "./component/SelectTeacher";
-import { fetcher } from "@/libs/axios";
-import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
-import { dayOfWeekColor } from "@/models/dayofweek-color";
-import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import { useParams } from "next/navigation";
+import React, { useMemo, useRef, useState } from "react";
 import useSWR from "swr";
-import Loading from "@/app/loading";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
 import { useReactToPrint } from "react-to-print";
 
-function page() {
+import Loading from "@/app/loading";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import ErrorState from "@/components/elements/static/ErrorState";
+import { fetcher } from "@/libs/axios";
+
+import TimeSlot from "./component/Timeslot";
+import SelectTeacher from "./component/SelectTeacher";
+import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
+import { createTimeSlotTableData } from "../shared/timeSlot";
+
+const formatTeacherName = (teacher?: Record<string, any>) => {
+  if (!teacher) {
+    return "";
+  }
+
+  const prefix = teacher.Prefix ?? "";
+  const firstname = teacher.Firstname ?? "";
+  const lastname = teacher.Lastname ?? "";
+
+  return `${prefix}${firstname}${firstname && lastname ? " " : ""}${lastname}`.trim();
+};
+
+function TeacherTablePage() {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
-  const [searchTeacherID, setSearchTeacherID] = useState(null);
-  const [timeSlotData, setTimeSlotData] = useState({
-    AllData: [], //ใช้กับตารางด้านล่าง
-    SlotAmount: [],
-    DayOfWeek: [],
-    BreakSlot: [],
-  });
-  const [classData, setClassData] = useState([]);
-  const fetchAllClassData = useSWR(
-    () =>
-      !!searchTeacherID &&
-      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${searchTeacherID}`,
+  const [semester, academicYear] = (params.semesterAndyear as string).split("-");
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
+
+  const {
+    data: timeslotResponse,
+    error: timeslotError,
+    isLoading: isTimeslotLoading,
+  } = useSWR(
+    `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
     fetcher,
     { revalidateOnFocus: false },
   );
-  const fetchTimeSlot = useSWR(
+
+  const {
+    data: classDataResponse,
+    error: classError,
+    isLoading: isClassLoading,
+  } = useSWR(
     () =>
-      `/timeslot?AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester,
+      selectedTeacherId
+        ? `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${selectedTeacherId}`
+        : null,
     fetcher,
-    { revalidateOnFocus: false },
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    },
   );
-  function fetchTimeslotData() {
-    if (!fetchTimeSlot.isValidating) {
-      let data = fetchTimeSlot.data;
-      let dayofweek = data
-        .map((day) => day.DayOfWeek)
-        .filter(
-          (item, index) =>
-            data.map((day) => day.DayOfWeek).indexOf(item) === index,
-        )
-        .map((item) => ({
-          Day: dayOfWeekThai[item],
-          TextColor: dayOfWeekTextColor[item],
-          BgColor: dayOfWeekColor[item],
-        })); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
-      let breakTime = data
-        .filter(
-          (item) =>
-            (item.Breaktime == "BREAK_BOTH" ||
-              item.Breaktime == "BREAK_JUNIOR" ||
-              item.Breaktime == "BREAK_SENIOR") &&
-            item.DayOfWeek == "MON", //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
-        )
-        .map((item) => ({
-          TimeslotID: item.TimeslotID,
-          Breaktime: item.Breaktime,
-          SlotNumber: parseInt(item.TimeslotID.substring(10)),
-        })); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
-      let slotAmount = data
-        .filter((item) => item.DayOfWeek == "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
-        .map((item, index) => index + 1); //ใช้สำหรับ map หัวตารางในเว็บ จะ map จาก data เป็น number of array => [1, 2, 3, 4, 5, 6, 7]
-      setTimeSlotData(() => ({
-        AllData: data.map((data) => ({ ...data, subject: {} })),
-        SlotAmount: slotAmount,
-        DayOfWeek: dayofweek,
-        BreakSlot: breakTime,
-      }));
-    }
-  }
-  function fetchClassData() {
-    if (!fetchAllClassData.isValidating && !!searchTeacherID) {
-      const data = fetchAllClassData.data;
-      setTimeSlotData(() => ({
-        ...timeSlotData,
-        AllData: timeSlotData.AllData.map((item) => ({
-          ...item,
-          subject: data.map((id) => id.TimeslotID).includes(item.TimeslotID)
-            ? data.filter((id) => id.TimeslotID == item.TimeslotID)[0]
-            : {},
-        })),
-      }));
-      setClassData(data);
-    }
-  }
-  useEffect(() => {
-    if (!fetchTimeSlot.isValidating) {
-      fetchTimeslotData();
-    }
-    if (!fetchAllClassData.isValidating && !!searchTeacherID) {
-      fetchClassData();
-    }
-  }, [fetchTimeSlot.isValidating, fetchAllClassData.isValidating]);
-  const setTeacherID = (id: number) => {
-    setSearchTeacherID(id);
-  };
-  const fetchTeacherDatabyID = useSWR(
-    //ข้อมูลหลักที่ fetch มาจาก api
-    () => !!searchTeacherID && `/teacher?TeacherID=` + searchTeacherID,
+
+  const {
+    data: teacherResponse,
+    error: teacherError,
+    isLoading: isTeacherLoading,
+  } = useSWR(
+    () =>
+      selectedTeacherId ? `/teacher?TeacherID=${selectedTeacherId}` : null,
     fetcher,
+    {
+      revalidateOnFocus: false,
+    },
   );
-  const ref = useRef<HTMLDivElement>();
+
+  const classData = useMemo(() => classDataResponse ?? [], [classDataResponse]);
+  const timeSlotData = useMemo(
+    () => createTimeSlotTableData(timeslotResponse, classData),
+    [timeslotResponse, classData],
+  );
+
+  const showLoadingOverlay =
+    isTimeslotLoading ||
+    (selectedTeacherId ? isClassLoading || isTeacherLoading : false);
+
+  const errors: string[] = [];
+  if (timeslotError) {
+    errors.push("ไม่สามารถโหลดข้อมูลคาบเรียนได้");
+  }
+  if (classError && selectedTeacherId) {
+    errors.push("ไม่สามารถโหลดตารางสอนของครูที่เลือกได้");
+  }
+  if (teacherError && selectedTeacherId) {
+    errors.push("ไม่สามารถโหลดข้อมูลครูที่เลือกได้");
+  }
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [isPDFExport, setIsPDFExport] = useState(false);
+
+  const teacherName = formatTeacherName(teacherResponse);
+
   const generatePDF = useReactToPrint({
     content: () => ref.current,
     copyStyles: true,
-    documentTitle:
-      "ตารางสอน" +
-      (fetchTeacherDatabyID.data
-        ? `ครู${fetchTeacherDatabyID.data.Firstname}`
-        : "") +
-      " " +
-      semester +
-      "-" +
-      academicYear,
-    // onAfterPrint : () => alert("เรียบร้อย")
+    documentTitle: `ตารางสอน${teacherName ? teacherName : ""} ${semester}-${academicYear}`,
   });
-  const [isPDFExport, setIsPDFExport] = useState(false);
-  const ExportToPDF = () => {
+
+  const handleExportPDF = () => {
     setIsPDFExport(true);
     setTimeout(() => {
       generatePDF();
       setIsPDFExport(false);
     }, 1);
   };
+
+  const handleSelectTeacher = (teacherId: number | null) => {
+    setSelectedTeacherId(teacherId);
+  };
+
+  const disableExport =
+    isClassLoading ||
+    isTeacherLoading ||
+    !selectedTeacherId ||
+    !!classError ||
+    !!timeslotError ||
+    !!teacherError;
+
   return (
-    <>
-      <div className="flex flex-col gap-3">
-        {fetchTeacherDatabyID.isLoading ||
-        fetchTimeSlot.isLoading ||
-        fetchAllClassData.isLoading ? (
-          <Loading />
-        ) : (
-          <>
-            <SelectTeacher
-              setTeacherID={setTeacherID}
-              currentTeacher={fetchTeacherDatabyID.data}
-            />
-            {!!searchTeacherID && (
+    <div className="flex flex-col gap-3">
+      {showLoadingOverlay ? (
+        <Loading />
+      ) : (
+        <>
+          <SelectTeacher
+            setTeacherID={handleSelectTeacher}
+            currentTeacher={teacherResponse}
+          />
+          {errors.map((message) => (
+            <ErrorState key={message} message={message} />
+          ))}
+          {selectedTeacherId &&
+            teacherResponse &&
+            !classError &&
+            !timeslotError &&
+            !teacherError && (
               <>
-                <div className="flex w-full gap-3 justify-end">
+                <div className="flex w-full justify-end gap-3">
                   <PrimaryButton
-                    handleClick={() => {
+                    handleClick={() =>
                       ExportTeacherTable(
                         timeSlotData,
-                        [fetchTeacherDatabyID.data],
+                        [teacherResponse],
                         classData,
                         semester,
                         academicYear,
-                      );
-                    }}
+                      )
+                    }
                     title={"นำออกเป็น Excel"}
                     color={""}
                     Icon={undefined}
                     reverseIcon={false}
-                    isDisabled={fetchAllClassData.isLoading}
+                    isDisabled={disableExport}
                   />
                   <PrimaryButton
-                    handleClick={ExportToPDF}
+                    handleClick={handleExportPDF}
                     title={"นำออกเป็น PDF"}
                     color={""}
                     Icon={undefined}
                     reverseIcon={false}
-                    isDisabled={fetchAllClassData.isLoading}
+                    isDisabled={disableExport}
                   />
                 </div>
                 <TimeSlot timeSlotData={timeSlotData} />
                 <div
                   ref={ref}
-                  className="printFont p-10 flex flex-col items-center justify-center mt-5"
+                  className="printFont mt-5 flex flex-col items-center justify-center p-10"
                   style={{ display: isPDFExport ? "flex" : "none" }}
                 >
-                  <div className="flex gap-10 mb-8">
-                    <p>
-                      ตารางสอน{" "}
-                      {`${fetchTeacherDatabyID.data.Prefix}${fetchTeacherDatabyID.data.Firstname} ${fetchTeacherDatabyID.data.Lastname}`}
-                    </p>
+                  <div className="mb-8 flex gap-10">
+                    <p>ตารางสอน {teacherName}</p>
                     <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
                   </div>
                   <TimeSlot timeSlotData={timeSlotData} />
-                  <div className="flex gap-2 mt-8">
+                  <div className="mt-8 flex gap-2">
                     <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
                     <p>ลงชื่อ..............................ผู้อำนวยการ</p>
                   </div>
                 </div>
               </>
             )}
-          </>
-        )}
-      </div>
-    </>
+        </>
+      )}
+    </div>
   );
 }
 
-export default page;
+export default TeacherTablePage;
