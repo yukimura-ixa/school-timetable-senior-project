@@ -2,23 +2,42 @@
 // ตัวอย่าง
 // input : #000000
 // return : rgb(0,0,0)
-export const hexToRGB: Function = (hex: string) => {
-    let r: number;
-    let g: number;
-    let b: number;
-    // ถ้าหากมีการใส่รูปย่อเช่น #000 จะให้ใช้สีเดียวกันตลอดทาง
-    if (hex.length === 4) {
-        r = parseInt(hex.slice(1, 3), 16);
-        g = parseInt(hex.slice(1, 3), 16);
-        b = parseInt(hex.slice(1, 3), 16);
-    } else { 
-        // ทำการ String slice แบ่งเป็น 2 ตัว 3 ชุด
-        // ตัวอย่าง #2F80ED จะได้ r = 2F g = 80 b = ED พวกนี้คือเลขฐาน 16
-        // นำเหล่านี้มาแปลงเป็นเลขฐาน 10 แล้วเก็บใส่ตัวแปร
-        r = parseInt(hex.slice(1, 3), 16);
-        g = parseInt(hex.slice(3, 5), 16);
-        b = parseInt(hex.slice(5, 7), 16);
-    }
-    //จากนั้น Return ค่าออกไปเป็น object
-    return { r: r, g: g, b: b };
+
+type RGBColor = {
+  r: number;
+  g: number;
+  b: number;
+};
+
+export const hexToRGB = (hex: string): RGBColor => {
+  if (typeof hex !== "string") {
+    throw new Error("Invalid hex color format");
+  }
+
+  const normalizedHex = hex.trim();
+  const shorthandRegex = /^#([0-9a-fA-F]{3})$/;
+  const fullRegex = /^#([0-9a-fA-F]{6})$/;
+
+  if (!shorthandRegex.test(normalizedHex) && !fullRegex.test(normalizedHex)) {
+    throw new Error("Invalid hex color format");
+  }
+
+  const expandShorthand = (value: string): string => value + value;
+
+  const [rHex, gHex, bHex] = normalizedHex.length === 4
+    ? normalizedHex
+        .slice(1)
+        .split("")
+        .map((char) => expandShorthand(char))
+    : [
+        normalizedHex.slice(1, 3),
+        normalizedHex.slice(3, 5),
+        normalizedHex.slice(5, 7),
+      ];
+
+  return {
+    r: parseInt(rHex, 16),
+    g: parseInt(gHex, 16),
+    b: parseInt(bHex, 16),
+  };
 };
