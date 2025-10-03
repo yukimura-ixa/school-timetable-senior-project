@@ -31,7 +31,17 @@ export const fetcher = async (url: string) => {
       });
 
       if (message !== error.message) {
-        error.message = message;
+        // Create a new error object with the updated message, preserving relevant properties
+        const newError = new axios.AxiosError(
+          message,
+          error.code,
+          error.config,
+          error.request,
+          error.response
+        );
+        newError.name = error.name;
+        newError.stack = error.stack;
+        throw newError;
       }
 
       throw error;
