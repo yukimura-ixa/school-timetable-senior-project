@@ -455,681 +455,13 @@ The system uses NextAuth.js with Google OAuth for authentication:
 
 ระบบมีส่วนติดต่อที่ทันสมัยและตอบสนองที่ออกแบบเพื่อความง่ายในการใช้งาน:
 
-   - กำหนดวิชาให้กับหลักสูตรของแต่ละชั้น
-
-- เลย์เอาต์ที่สะอาดและใช้งานง่ายด้วยคอมโพเนนต์ Material-UI   - ระบุวิชาบังคับและวิชาเลือก
-
-- ตารางที่มีรหัสสีเพื่อการมองเห็นที่ง่าย
-
-- ฟังก์ชันลากและวางสำหรับการจัดตาราง**English:**
-
-- การตรวจจับความขัดแย้งแบบเรียลไทม์พร้อมผลตอบรับทางภาพ1. **Add Basic Data**:
-
-- ออกแบบให้ตอบสนองสำหรับการดูตารางบนอุปกรณ์ใดก็ได้   - Teachers (name, department)
-
-   - Subjects (code, name, credits, category)
-
----   - Classrooms (name, building, floor)
-
-   - Grade levels and class sections
-
-## 📊 ผลการประเมิน
-
-2. **Set Up Curriculum**:
-
-ผลการสำรวจความพึงพอใจของผู้ใช้ (ผู้ตอบ 25 คน: ครู 20 คน นักเรียน 5 คน):   - Define curriculum for each grade level
-
-   - Assign subjects to each grade's program
-
-- **ความพึงพอใจโดยรวม**: 4.53/5.00   - Specify required subjects and electives
-
-- **การจัดการข้อมูล**: 4.49/5.00
-
-- **การสรุปรายงาน**: 4.54/5.00### การสร้างตาราง | Creating Schedules
-
-- **การออกแบบส่วนติดต่อผู้ใช้**: 4.56/5.00
-
-- **ประโยชน์**: 4.61/5.00**ภาษาไทย:**
-
-1. **มอบหมายความรับผิดชอบในการสอน**:
-
-**ผลสำคัญ:**   - เลือกครู
-
-- ✅ ลดเวลาที่ใช้ในการสร้างตาราง   - เลือกชั้นเรียนที่สอน
-
-- ✅ ทำให้การจัดการตารางสะดวกสบายขึ้น   - กำหนดวิชาพร้อมจำนวนคาบต่อสัปดาห์
-
-- ✅ ให้ภาพรวมที่ชัดเจนของหลักสูตรและตาราง
-
-- ✅ เข้าใจและใช้งานง่าย2. **ล็อกคาบเรียน** (ตัวเลือก):
-
-   - สร้างช่วงเวลาคงที่สำหรับกิจกรรมทั้งโรงเรียน
-
----   - กำหนดหลายชั้นเรียนให้กับช่วงเวลาเดียวกัน
-
-
-
-## 🚧 ข้อจำกัดที่ทราบ3. **จัดตาราง**:
-
-   - เลือกครูที่จะจัดตาราง
-
-1. ต้องการการเชื่อมต่ออินเทอร์เน็ตสำหรับการใช้งานเต็มรูปแบบ   - ลากวิชาไปยังช่วงเวลาที่ว่าง
-
-2. เหมาะสมที่สุดสำหรับการใช้งานบนคอมพิวเตอร์และแท็บเล็ต (ฟีเจอร์การจัดตาราง)   - ระบบแสดงความขัดแย้งโดยอัตโนมัติ
-
-3. รองรับการใช้งานโรงเรียนเดียวในปัจจุบัน   - กำหนดห้องเรียนสำหรับแต่ละคาบ
-
-4. ไม่มีอัลกอริทึมการสร้างตารางอัตโนมัติ
-
-**English:**
-
----1. **Assign Teaching Responsibilities**:
-
-   - Select teacher
-
-## 🔮 การพัฒนาในอนาคต   - Choose classes they teach
-
-   - Assign subjects with number of periods per week
-
-1. **การจัดตารางอัตโนมัติด้วย AI**: พัฒนาอัลกอริทึมเพื่อแนะนำตารางที่เหมาะสมที่สุด
-
-2. **แอปพลิเคชันมือถือ**: แอปพลิเคชันสำหรับ iOS และ Android2. **Lock Timeslots** (Optional):
-
-3. **รองรับหลายโรงเรียน**: ทำให้ระบบสามารถจัดการหลายโรงเรียนจากอินสแตนซ์เดียว   - Create fixed periods for school-wide activities
-
-4. **การวิเคราะห์ขั้นสูง**: วิเคราะห์ภาระงานของครูและข้อมูลเชิงลึกการเพิ่มประสิทธิภาพตาราง   - Assign multiple classes to the same timeslot
-
-5. **การเชื่อมต่อ**: เชื่อมต่อกับระบบจัดการโรงเรียนและระบบข้อมูลนักเรียน
-
-6. **การแจ้งเตือน**: การแจ้งเตือนแบบพุชสำหรับการเปลี่ยนแปลงตาราง3. **Arrange Timetable**:
-
-7. **โหมดออฟไลน์**: ฟังก์ชันจำกัดเมื่อไม่มีอินเทอร์เน็ต   - Select teacher to schedule
-
-   - Drag subjects to available timeslots
-
----   - System shows conflicts automatically
-
-   - Assign classrooms for each period
-
-## 📄 สิทธิ์การใช้งาน
-
-### การดูและนำออกข้อมูล | Viewing and Exporting
-
-โครงการนี้พัฒนาขึ้นเป็นโครงงานปริญญานิพนธ์ที่สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
-
-**ภาษาไทย:**
-
-ลิขสิทธิ์ © 2567 คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง- เข้าถึงมุมมองสรุปจากแดชบอร์ด
-
-- เลือกภาคเรียนที่จะดู
-
----- นำออกเป็นรูปแบบ Excel หรือ PDF
-
-- แชร์ลิงก์ออนไลน์กับครูและนักเรียน
-
-## 🤝 กิตติกรรมประกาศ
-
-**English:**
-
-ขอขอบคุณเป็นพิเศษ:- Access summary views from the dashboard
-
-- **โรงเรียนพระซองสามัคคีวิทยา** สำหรับการให้ข้อมูลเชิงลึกจากการใช้งานจริงและข้อเสนอแนะจากการทดสอบ- Select semester to view
-
-- **คุณนงค์รักษ์ พ่อบุตรดี** (ครู) สำหรับการสัมภาษณ์และการรวบรวมความต้องการ- Export to Excel or PDF format
-
-- **คณะเทคโนโลยีสารสนเทศ สจล.** สำหรับสิ่งอำนวยความสะดวกและการสนับสนุน- Share online links with teachers and students
-
-- อาจารย์ที่ปรึกษาสำหรับคำแนะนำตลอดโครงการ
-
----
-
----
-
-## 🧪 การทดสอบ | Testing
-
-## 📞 ติดต่อ
-
-รันการทดสอบด้วย Jest | Run tests with Jest:
-
-สำหรับคำถามหรือการสนับสนุน:
-
-```bash
-
-**นายณภัทร พ่อบุตรดี**npm test
-
-- Email: 63070046@kmitl.ac.thnpm run test:watch
-
-- Phone: 062-532-5510```
-
-
-
-**นายณัฐพล วังคำ**---
-
-- Email: nataponball@hotmail.com
-
-- Phone: 096-969-2320## 📁 โครงสร้างโปรเจค | Project Structure
-
-
-
----```
-
-school-timetable-senior-project/
-
-## 📚 เอกสารประกอบ├── src/
-
-│   ├── app/                    # Next.js app directory
-
-สำหรับเอกสารโดยละเอียด กรุณาดูที่:│   │   ├── api/               # API routes (เส้นทาง API)
-
-- **รายงานโครงงาน**: `/63070046-63070056.pdf` (เอกสารโครงการฉบับสมบูรณ์ภาษาไทย)│   │   ├── dashboard/         # Dashboard pages (หน้าแดชบอร์ด)
-
-- **แผนภาพ ER**: `/database/er-diagram.mwb` (โครงสร้างฐานข้อมูล)│   │   ├── management/        # Data management pages (หน้าจัดการข้อมูล)
-
-- **สำรองฐานข้อมูล**: `/database/*.sql` (ข้อมูลตัวอย่างและโครงสร้าง)│   │   ├── schedule/          # Scheduling pages (หน้าจัดตาราง)
-
-│   │   └── signin/            # Authentication (การยืนยันตัวตน)
-
----│   ├── components/            # React components (คอมโพเนนต์)
-
----│   │   ├── elements/          # Reusable UI elements (องค์ประกอบ UI)
-
-│   │   └── templates/         # Page templates (เทมเพลตหน้า)
-
-<div id="english-version"></div>│   ├── functions/             # Utility functions (ฟังก์ชันช่วยเหลือ)
-
-│   ├── libs/                  # Third-party library configs (การตั้งค่าไลบรารี)
-
-# English Version│   └── models/                # Data models and types (โมเดลข้อมูล)
-
-├── prisma/
-
-# School Timetable Management System│   ├── schema.prisma          # Database schema (โครงสร้างฐานข้อมูล)
-
-│   └── migrations/            # Database migrations (การย้ายข้อมูล)
-
-> **[🇹🇭 ไทย (Thai)](#ระบบจัดตารางเรียนตารางสอนสำหรับโรงเรียน)**├── database/
-
-│   ├── er-diagram.mwb         # ER diagram (แผนภาพ ER)
-
----│   └── *.sql                  # Database backups (สำรองฐานข้อมูล)
-
-├── public/                    # Static assets (ไฟล์คงที่)
-
-## 📋 Project Overview└── __test__/                  # Test files (ไฟล์ทดสอบ)
-
-```
-
-A comprehensive web application designed to streamline the process of creating and managing class and teaching schedules for secondary schools. This system addresses the complexity of coordinating teacher assignments, classroom allocations, and student timetables while preventing scheduling conflicts.
-
----
-
-### Authors
-
-- **Napat Phobutdee** - Student ID: 63070046## 🔒 การยืนยันตัวตน | Authentication
-
-- **Natapon Wangkham** - Student ID: 63070056
-
-### ภาษาไทย
-
-**Advisors:**
-
-- Asst. Prof. Dr. Pattanapong Chantamit-O-Pasระบบใช้ NextAuth.js กับ Google OAuth สำหรับการยืนยันตัวตน:
-
-- Asst. Prof. Dr. Supannada Chotipant
-
-- **ผู้ดูแลระบบ (Admin)**: เข้าถึงระบบได้เต็มรูปแบบรวมถึงฟีเจอร์การจัดการทั้งหมด
-
-**School of Information Technology**  - **ครู (Teacher)**: สามารถดูตารางสอนของตนเองและตารางเรียนของนักเรียน
-
-**King Mongkut's Institute of Technology Ladkrabang**  - **แขก/นักเรียน (Guest/Student)**: สามารถดูตารางโดยไม่ต้องยืนยันตัวตน
-
-**Academic Year 2023**
-
-### English
-
----
-
-The system uses NextAuth.js with Google OAuth for authentication:
-
-## 🎯 Objectives
-
-- **Admin**: Full system access including all management features
-
-1. Develop an online timetable management system that facilitates efficient scheduling- **Teacher**: Can view their teaching schedule and student timetables
-
-2. Reduce the time required for creating class and teaching schedules- **Guest/Student**: Can view timetables without authentication
-
-3. Provide accessible online viewing of schedules for teachers and students
-
-4. Enable data backup, retrieval, and export functionality---
-
-5. Implement conflict detection to prevent double-booking
-
-## 🎨 ส่วนติดต่อผู้ใช้ | User Interface
-
----
-
-### ภาษาไทย
-
-## ✨ Key Features
-
-ระบบมีส่วนติดต่อที่ทันสมัยและตอบสนองที่ออกแบบเพื่อความง่ายในการใช้งาน:
-
-### 🔧 Management Tools
-
 - เลย์เอาต์ที่สะอาดและใช้งานง่ายด้วยคอมโพเนนต์ Material-UI
-
-- **Teacher Management**: Add, edit, and delete teacher information including name, department, and teaching responsibilities- ตารางที่มีรหัสสีเพื่อการมองเห็นที่ง่าย
-
-- **Subject Management**: Organize subjects with course codes, credits, and categories- ฟังก์ชันลากและวางสำหรับการจัดตาราง
-
-- **Classroom Management**: Manage classroom information including building, floor, and room names- การตรวจจับความขัดแย้งแบบเรียลไทม์พร้อมผลตอบรับทางภาพ
-
-- **Grade Level Management**: Configure grade levels, programs, and class sections- ออกแบบให้ตอบสนองสำหรับการดูตารางบนอุปกรณ์ใดก็ได้
-
-- **Curriculum Management**: Define curriculum structure for each grade level and semester
+- ตารางที่มีรหัสสีเพื่อการมองเห็นที่ง่าย
+- ฟังก์ชันลากและวางสำหรับการจัดตาราง
+- การตรวจจับความขัดแย้งแบบเรียลไทม์พร้อมผลตอบรับทางภาพ
+- ออกแบบให้ตอบสนองสำหรับการดูตารางบนอุปกรณ์ใดก็ได้
 
 ### English
-
-### 📅 Scheduling Features
-
-The system features a modern, responsive interface designed for ease of use:
-
-- **Timetable Configuration**: Set up academic year, semester, class periods, break times, and daily schedules
-
-- **Teaching Assignment**: Assign subjects and classes to teachers- Clean, intuitive layout with Material-UI components
-
-- **Locked Timeslots**: Create fixed periods for activities involving multiple classes (e.g., assemblies, club activities)- Color-coded schedules for easy visualization
-
-- **Drag-and-Drop Interface**: Intuitive scheduling with visual conflict detection- Drag-and-drop functionality for scheduling
-
-- **Conflict Prevention**: Automatic checking to prevent overlapping schedules for teachers and classrooms- Real-time conflict detection with visual feedback
-
-- **Schedule Copying**: Reuse and modify schedules from previous semesters- Mobile-responsive design for viewing schedules on any device
-
-
-
-### 📊 Reporting & Viewing---
-
-
-
-- **Teacher Timetables**: Individual teaching schedules with room assignments## 📊 ผลการประเมิน | Evaluation Results
-
-- **Student Timetables**: Class schedules organized by grade and section
-
-- **Summary Tables**: Consolidated view of all teachers' schedules### ภาษาไทย
-
-- **Curriculum Overview**: Summary of subjects and credits by grade level
-
-- **Export Functionality**: Generate schedules in Excel (.xlsx) and PDF formatsผลการสำรวจความพึงพอใจของผู้ใช้ (ผู้ตอบ 25 คน: ครู 20 คน นักเรียน 5 คน):
-
-- **Online Access**: View schedules anytime via web browser (desktop and mobile)
-
-- **ความพึงพอใจโดยรวม**: 4.53/5.00
-
-### 👥 User Roles- **การจัดการข้อมูล**: 4.49/5.00
-
-- **การสรุปรายงาน**: 4.54/5.00
-
-- **Admin**: Full access to all management and scheduling features- **การออกแบบส่วนติดต่อผู้ใช้**: 4.56/5.00
-
-- **Teacher**: View personal teaching schedule and student timetables- **ประโยชน์**: 4.61/5.00
-
-- **Student**: View class timetables
-
-ผลสำคัญ:
-
----- ✅ ลดเวลาที่ใช้ในการสร้างตาราง
-
-- ✅ ทำให้การจัดการตารางสะดวกสบายขึ้น
-
-## 🏗️ System Architecture- ✅ ให้ภาพรวมที่ชัดเจนของหลักสูตรและตาราง
-
-- ✅ เข้าใจและใช้งานง่าย
-
-![System Architecture](systemarch.png)
-
-### English
-
-### Technology Stack
-
-User satisfaction survey results (25 respondents: 20 teachers, 5 students):
-
-**Frontend:**
-
-- Next.js 14.2 (React Framework)- **Overall Satisfaction**: 4.53/5.00
-
-- Material-UI 5.18 (Component Library)- **Data Management**: 4.49/5.00
-
-- Tailwind CSS (Styling)- **Report Summary**: 4.54/5.00
-
-- TypeScript (Type Safety)- **User Interface Design**: 4.56/5.00
-
-- **Usefulness**: 4.61/5.00
-
-**Backend:**
-
-- Next.js API RoutesKey findings:
-
-- Prisma ORM- ✅ Reduces time spent on schedule creation
-
-- NextAuth.js (Authentication with Google OAuth)- ✅ Makes schedule management more convenient
-
-- ✅ Provides clear overview of curriculum and schedules
-
-**Database:**- ✅ Easy to understand and use
-
-- MySQL 8.0
-
-- Google Cloud SQL (Production)---
-
-
-
-**Additional Libraries:**## 🚧 ข้อจำกัดที่ทราบ | Known Limitations
-
-- ExcelJS (Excel export)
-
-- React-to-Print (PDF generation)### ภาษาไทย
-
-- React Beautiful DnD (Drag and drop)1. ต้องการการเชื่อมต่ออินเทอร์เน็ตสำหรับการใช้งานเต็มรูปแบบ
-
-- SWR (Data fetching)2. เหมาะสมที่สุดสำหรับการใช้งานบนคอมพิวเตอร์และแท็บเล็ต (ฟีเจอร์การจัดตาราง)
-
-- Notistack (Notifications)3. รองรับการใช้งานโรงเรียนเดียวในปัจจุบัน
-
-4. ไม่มีอัลกอริทึมการสร้างตารางอัตโนมัติ
-
----
-
-### English
-
-## 📊 Database Schema1. Requires internet connection for full functionality
-
-2. Optimized for desktop and tablet use (scheduling features)
-
-The system uses a relational database with the following main entities:3. Currently supports single-school deployment
-
-4. Does not include automatic schedule generation algorithm
-
-- **Teacher**: Teacher information and department assignments
-
-- **Subject**: Course details including code, name, category, and credits---
-
-- **GradeLevel**: Class sections organized by year and program
-
-- **Room**: Classroom locations and details## 🔮 การพัฒนาในอนาคต | Future Enhancements
-
-- **TimeSlot**: Time periods including day, start/end times, and break indicators
-
-- **ClassSchedule**: Core scheduling data linking teachers, subjects, classrooms, and timeslots### ภาษาไทย
-
-- **TeacherResponsibility**: Teaching assignments for each semester1. **การจัดตารางอัตโนมัติด้วย AI**: พัฒนาอัลกอริทึมเพื่อแนะนำตารางที่เหมาะสมที่สุด
-
-- **Program**: Curriculum structure for each grade level2. **แอปพลิเคชันมือถือ**: แอปพลิเคชันสำหรับ iOS และ Android
-
-- **TableConfig**: Timetable configuration settings per semester3. **รองรับหลายโรงเรียน**: ทำให้ระบบสามารถจัดการหลายโรงเรียนจากอินสแตนซ์เดียว
-
-4. **การวิเคราะห์ขั้นสูง**: วิเคราะห์ภาระงานของครูและข้อมูลเชิงลึกการเพิ่มประสิทธิภาพตาราง
-
-**Entity-Relationship Diagram:** See `/database/er-diagram.mwb` for complete schema5. **การเชื่อมต่อ**: เชื่อมต่อกับระบบจัดการโรงเรียนและระบบข้อมูลนักเรียน
-
-6. **การแจ้งเตือน**: การแจ้งเตือนแบบพุชสำหรับการเปลี่ยนแปลงตาราง
-
----7. **โหมดออฟไลน์**: ฟังก์ชันจำกัดเมื่อไม่มีอินเทอร์เน็ต
-
-
-
-## 🚀 Getting Started### English
-
-1. **AI-Powered Auto-Scheduling**: Implement algorithm to suggest optimal schedules
-
-### Prerequisites2. **Mobile App**: Native mobile applications for iOS and Android
-
-3. **Multi-School Support**: Enable system to manage multiple schools from one instance
-
-- Node.js 18.x or higher4. **Advanced Analytics**: Teacher workload analysis and schedule optimization insights
-
-- MySQL 8.05. **Integration**: Connect with school management systems and student information systems
-
-- npm or yarn package manager6. **Notifications**: Push notifications for schedule changes
-
-7. **Offline Mode**: Limited functionality when internet is unavailable
-
-### Installation
-
----
-
-1. **Clone the repository**
-
-```bash## 📄 สิทธิ์การใช้งาน | License
-
-git clone https://github.com/yukimura-ixa/school-timetable-senior-project.git
-
-cd school-timetable-senior-project### ภาษาไทย
-
-```
-
-โครงการนี้พัฒนาขึ้นเป็นโครงงานปริญญานิพนธ์ที่สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
-
-2. **Install dependencies**
-
-```bashลิขสิทธิ์ © 2567 คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
-
-npm install
-
-```### English
-
-
-
-3. **Set up MySQL database**This project was developed as a senior project at King Mongkut's Institute of Technology Ladkrabang.
-
-```sql
-
-CREATE DATABASE `school-timetable-db-dev`;Copyright © 2024 School of Information Technology, KMITL
-
-```
-
----
-
-4. **Configure environment variables**
-
-## 🤝 กิตติกรรมประกาศ | Acknowledgments
-
-Create a `.env` file in the root directory:
-
-### ภาษาไทย
-
-```env
-
-# Databaseขอขอบคุณเป็นพิเศษ:
-
-DATABASE_URL="mysql://username:password@localhost:3306/school-timetable-db-dev?connection_limit=40&connect_timeout=0&pool_timeout=0"- **โรงเรียนพระซองสามัคคีวิทยา** สำหรับการให้ข้อมูลเชิงลึกจากการใช้งานจริงและข้อเสนอแนะจากการทดสอบ
-
-- **คุณนงค์รักษ์ พ่อบุตรดี** (ครู) สำหรับการสัมภาษณ์และการรวบรวมความต้องการ
-
-# NextAuth- **คณะเทคโนโลยีสารสนเทศ สจล.** สำหรับสิ่งอำนวยความสะดวกและการสนับสนุน
-
-NEXTAUTH_URL="http://localhost:3000"- อาจารย์ที่ปรึกษาสำหรับคำแนะนำตลอดโครงการ
-
-NEXTAUTH_SECRET="your-secret-key-here"
-
-### English
-
-# Google OAuth (for authentication)
-
-GOOGLE_CLIENT_ID="your-google-client-id"Special thanks to:
-
-GOOGLE_CLIENT_SECRET="your-google-client-secret"- **Prasong Sammakee Wittaya School** for providing real-world insights and testing feedback
-
-- **Khun Nongrak Phobutdee** (Teacher) for interviews and requirement gathering
-
-# Firebase (optional, if using Firebase services)- **Faculty of Information Technology, KMITL** for facilities and support
-
-NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"- Our advisors for guidance throughout the project
-
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-firebase-auth-domain"
-
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"---
-
-```
-
-## 📞 ติดต่อ | Contact
-
-5. **Run database migrations**
-
-```bash### สำหรับคำถามหรือการสนับสนุน | For questions or support:
-
-npx prisma migrate dev --name init
-
-npx prisma generate**นายณภัทร พ่อบุตรดี | Napat Phobutdee**
-
-```- Email: 63070046@kmitl.ac.th
-
-- Phone: 062-532-5510
-
-6. **Start development server**
-
-```bash**นายณัฐพล วังคำ | Natapon Wangkham**
-
-npm run dev- Email: nataponball@hotmail.com
-
-```- Phone: 096-969-2320
-
-
-
-The application will be available at `http://localhost:3000`---
-
-
-
-### Building for Production## 📚 เอกสารประกอบ | Documentation
-
-
-
-```bash### ภาษาไทย
-
-npm run build
-
-npm startสำหรับเอกสารโดยละเอียด กรุณาดูที่:
-
-```- **รายงานโครงงาน**: `/63070046-63070056.pdf` (เอกสารโครงการฉบับสมบูรณ์ภาษาไทย)
-
-- **แผนภาพ ER**: `/database/er-diagram.mwb` (โครงสร้างฐานข้อมูล)
-
----- **สำรองฐานข้อมูล**: `/database/*.sql` (ข้อมูลตัวอย่างและโครงสร้าง)
-
-
-
-## 📖 Usage Guide### English
-
-
-
-### Initial SetupFor detailed documentation, please refer to:
-
-- **Project Thesis**: `/63070046-63070056.pdf` (Complete project documentation in Thai)
-
-1. **Login**: Authenticate with Google account (Admin/Teacher only)- **ER Diagram**: `/database/er-diagram.mwb` (Database structure)
-
-2. **Configure Timetable Settings**:- **Database Backup**: `/database/*.sql` (Sample data and schema)
-
-   - Select academic year and semester
-
-   - Set number of periods per day---
-
-   - Define class duration and break times
-
-   - Configure school days**พัฒนาด้วย ❤️ ที่ สจล. | Developed with ❤️ at KMITL**
-
-
-### Data Management
-
-1. **Add Basic Data**:
-   - Teachers (name, department)
-   - Subjects (code, name, credits, category)
-   - Classrooms (name, building, floor)
-   - Grade levels and class sections
-
-2. **Set Up Curriculum**:
-   - Define curriculum for each grade level
-   - Assign subjects to each grade's program
-   - Specify required subjects and electives
-
-### Creating Schedules
-
-1. **Assign Teaching Responsibilities**:
-   - Select teacher
-   - Choose classes they teach
-   - Assign subjects with number of periods per week
-
-2. **Lock Timeslots** (Optional):
-   - Create fixed periods for school-wide activities
-   - Assign multiple classes to the same timeslot
-
-3. **Arrange Timetable**:
-   - Select teacher to schedule
-   - Drag subjects to available timeslots
-   - System shows conflicts automatically
-   - Assign classrooms for each period
-
-### Viewing and Exporting
-
-- Access summary views from the dashboard
-- Select semester to view
-- Export to Excel or PDF format
-- Share online links with teachers and students
-
----
-
-## 🧪 Testing
-
-Run tests with Jest:
-
-```bash
-npm test
-npm run test:watch
-```
-
----
-
-## 📁 Project Structure
-
-```
-school-timetable-senior-project/
-├── src/
-│   ├── app/                    # Next.js app directory
-│   │   ├── api/               # API routes
-│   │   ├── dashboard/         # Dashboard pages
-│   │   ├── management/        # Data management pages
-│   │   ├── schedule/          # Scheduling pages
-│   │   └── signin/            # Authentication
-│   ├── components/            # React components
-│   │   ├── elements/          # Reusable UI elements
-│   │   └── templates/         # Page templates
-│   ├── functions/             # Utility functions
-│   ├── libs/                  # Third-party library configs
-│   └── models/                # Data models and types
-├── prisma/
-│   ├── schema.prisma          # Database schema
-│   └── migrations/            # Database migrations
-├── database/
-│   ├── er-diagram.mwb         # ER diagram (MySQL Workbench)
-│   └── *.sql                  # Database backups
-├── public/                    # Static assets
-└── __test__/                  # Test files
-```
-
----
-
-## 🔒 Authentication
-
-The system uses NextAuth.js with Google OAuth for authentication:
-
-- **Admin**: Full system access including all management features
-- **Teacher**: Can view their teaching schedule and student timetables
-- **Guest/Student**: Can view timetables without authentication
-
----
-
-## 🎨 User Interface
 
 The system features a modern, responsive interface designed for ease of use:
 
@@ -1141,7 +473,26 @@ The system features a modern, responsive interface designed for ease of use:
 
 ---
 
-## 📊 Evaluation Results
+## 📊 ผลการประเมิน | Evaluation Results
+
+### ภาษาไทย
+
+ผลการสำรวจความพึงพอใจของผู้ใช้ (ผู้ตอบ 25 คน: ครู 20 คน นักเรียน 5 คน):
+
+- **ความพึงพอใจโดยรวม**: 4.53/5.00
+- **การจัดการข้อมูล**: 4.49/5.00
+- **การสรุปรายงาน**: 4.54/5.00
+- **การออกแบบส่วนติดต่อผู้ใช้**: 4.56/5.00
+- **ประโยชน์**: 4.61/5.00
+
+**ผลสำคัญ:**
+
+- ✅ ลดเวลาที่ใช้ในการสร้างตาราง
+- ✅ ทำให้การจัดการตารางสะดวกสบายขึ้น
+- ✅ ให้ภาพรวมที่ชัดเจนของหลักสูตรและตาราง
+- ✅ เข้าใจและใช้งานง่าย
+
+### English
 
 User satisfaction survey results (25 respondents: 20 teachers, 5 students):
 
@@ -1152,6 +503,7 @@ User satisfaction survey results (25 respondents: 20 teachers, 5 students):
 - **Usefulness**: 4.61/5.00
 
 **Key findings:**
+
 - ✅ Reduces time spent on schedule creation
 - ✅ Makes schedule management more convenient
 - ✅ Provides clear overview of curriculum and schedules
@@ -1159,7 +511,16 @@ User satisfaction survey results (25 respondents: 20 teachers, 5 students):
 
 ---
 
-## 🚧 Known Limitations
+## 🚧 ข้อจำกัดที่ทราบ | Known Limitations
+
+### ภาษาไทย
+
+1. ต้องการการเชื่อมต่ออินเทอร์เน็ตสำหรับการใช้งานเต็มรูปแบบ
+2. เหมาะสมที่สุดสำหรับการใช้งานบนคอมพิวเตอร์และแท็บเล็ต (ฟีเจอร์การจัดตาราง)
+3. รองรับการใช้งานโรงเรียนเดียวในปัจจุบัน
+4. ไม่มีอัลกอริทึมการสร้างตารางอัตโนมัติ
+
+### English
 
 1. Requires internet connection for full functionality
 2. Optimized for desktop and tablet use (scheduling features)
@@ -1168,7 +529,19 @@ User satisfaction survey results (25 respondents: 20 teachers, 5 students):
 
 ---
 
-## 🔮 Future Enhancements
+## 🔮 การพัฒนาในอนาคต | Future Enhancements
+
+### ภาษาไทย
+
+1. **การจัดตารางอัตโนมัติด้วย AI**: พัฒนาอัลกอริทึมเพื่อแนะนำตารางที่เหมาะสมที่สุด
+2. **แอปพลิเคชันมือถือ**: แอปพลิเคชันสำหรับ iOS และ Android
+3. **รองรับหลายโรงเรียน**: ทำให้ระบบสามารถจัดการหลายโรงเรียนจากอินสแตนซ์เดียว
+4. **การวิเคราะห์ขั้นสูง**: วิเคราะห์ภาระงานของครูและข้อมูลเชิงลึกการเพิ่มประสิทธิภาพตาราง
+5. **การเชื่อมต่อ**: เชื่อมต่อกับระบบจัดการโรงเรียนและระบบข้อมูลนักเรียน
+6. **การแจ้งเตือน**: การแจ้งเตือนแบบพุชสำหรับการเปลี่ยนแปลงตาราง
+7. **โหมดออฟไลน์**: ฟังก์ชันจำกัดเมื่อไม่มีอินเทอร์เน็ต
+
+### English
 
 1. **AI-Powered Auto-Scheduling**: Implement algorithm to suggest optimal schedules
 2. **Mobile App**: Native mobile applications for iOS and Android
@@ -1180,7 +553,15 @@ User satisfaction survey results (25 respondents: 20 teachers, 5 students):
 
 ---
 
-## 📄 License
+## 📄 สิทธิ์การใช้งาน | License
+
+### ภาษาไทย
+
+โครงการนี้พัฒนาขึ้นเป็นโครงงานปริญญานิพนธ์ที่สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
+
+ลิขสิทธิ์ © 2567 คณะเทคโนโลยีสารสนเทศ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
+
+### English
 
 This project was developed as a senior project at King Mongkut's Institute of Technology Ladkrabang.
 
@@ -1188,9 +569,21 @@ Copyright © 2024 School of Information Technology, KMITL
 
 ---
 
-## 🤝 Acknowledgments
+## 🤝 กิตติกรรมประกาศ | Acknowledgments
+
+### ภาษาไทย
+
+ขอขอบคุณเป็นพิเศษ:
+
+- **โรงเรียนพระซองสามัคคีวิทยา** สำหรับการให้ข้อมูลเชิงลึกจากการใช้งานจริงและข้อเสนอแนะจากการทดสอบ
+- **คุณนงค์รักษ์ พ่อบุตรดี** (ครู) สำหรับการสัมภาษณ์และการรวบรวมความต้องการ
+- **คณะเทคโนโลยีสารสนเทศ สจล.** สำหรับสิ่งอำนวยความสะดวกและการสนับสนุน
+- อาจารย์ที่ปรึกษาสำหรับคำแนะนำตลอดโครงการ
+
+### English
 
 Special thanks to:
+
 - **Prasong Sammakee Wittaya School** for providing real-world insights and testing feedback
 - **Khun Nongrak Phobutdee** (Teacher) for interviews and requirement gathering
 - **Faculty of Information Technology, KMITL** for facilities and support
@@ -1198,27 +591,38 @@ Special thanks to:
 
 ---
 
-## 📞 Contact
+## 📞 ติดต่อ | Contact
 
-For questions or support:
+### สำหรับคำถามหรือการสนับสนุน | For questions or support:
 
-**Napat Phobutdee**
+**นายณภัทร พ่อบุตรดี | Napat Phobutdee**
 - Email: 63070046@kmitl.ac.th
 - Phone: 062-532-5510
 
-**Natapon Wangkham**
+**นายณัฐพล วังคำ | Natapon Wangkham**
 - Email: nataponball@hotmail.com
 - Phone: 096-969-2320
 
 ---
 
-## 📚 Documentation
+## 📚 เอกสารประกอบ | Documentation
+
+### ภาษาไทย
+
+สำหรับเอกสารโดยละเอียด กรุณาดูที่:
+
+- **รายงานโครงงาน**: `/63070046-63070056.pdf` (เอกสารโครงการฉบับสมบูรณ์ภาษาไทย)
+- **แผนภาพ ER**: `/database/er-diagram.mwb` (โครงสร้างฐานข้อมูล)
+- **สำรองฐานข้อมูล**: `/database/*.sql` (ข้อมูลตัวอย่างและโครงสร้าง)
+
+### English
 
 For detailed documentation, please refer to:
+
 - **Project Thesis**: `/63070046-63070056.pdf` (Complete project documentation in Thai)
 - **ER Diagram**: `/database/er-diagram.mwb` (Database structure)
 - **Database Backup**: `/database/*.sql` (Sample data and schema)
 
 ---
 
-**Developed with ❤️ at KMITL**
+**พัฒนาด้วย ❤️ ที่ สจล. | Developed with ❤️ at KMITL**
