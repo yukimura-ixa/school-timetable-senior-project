@@ -18,7 +18,17 @@ const formatTime = (time: string | Date) => {
   return `${hoursText}:${minutesText}`;
 };
 
-const isBreakSlot = (breaktime: string) => breaktime !== "NOT_BREAK";
+const isBreakSlot = (
+  breaktime: string,
+  subject?: Record<string, unknown>,
+) => {
+  const hasSubject = Boolean(subject && Object.keys(subject).length > 0);
+  if (!hasSubject) {
+    return true;
+  }
+
+  return breaktime === "BREAK_BOTH";
+};
 
 const formatGrade = (gradeId?: string) => {
   if (!gradeId) {
@@ -83,8 +93,8 @@ function TimeSlot({ timeSlotData }: Props) {
               </td>
               {timeSlotData.AllData.filter((item) => dayOfWeekThai[item.DayOfWeek] === day.Day).map(
                 (data) => {
-                  const breakSlot = isBreakSlot(data.Breaktime);
                   const subject = data.subject as Record<string, any>;
+                  const breakSlot = isBreakSlot(data.Breaktime, subject);
                   const subjectCode = subject?.SubjectCode ?? "";
                   const isLocked = Boolean(subject?.IsLocked);
                   const grade = formatGrade(subject?.GradeID);
