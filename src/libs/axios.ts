@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_HOST,
@@ -7,14 +7,40 @@ const api = axios.create({
     Accept: "application/json, text/plain, */*",
     "Content-Type": "application/json; charset=utf-8",
   },
-})
+});
+
+type ApiErrorResponse = {
+  message?: string;
+};
+
+const FALLBACK_ERROR_MESSAGE = "Unexpected error occurred while fetching data.";
 
 export const fetcher = async (url: string) => {
-  return await api.get(url)
-    .then((res) => res.data)
-    .catch((error) => {
-      console.log("axios error", error.code)
-    })
-}
+  try {
+    const response = await api.get(url);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError<ApiErrorResponse>(error)) {
+      const message =
+        error.response?.data?.message ?? error.message ?? FALLBACK_ERROR_MESSAGE;
 
-export default api
+      console.error("API request failed", {
+        url,
+        status: error.response?.status,
+        message: error.message,
+      });
+
+      if (message !== error.message) {
+        error.message = message;
+      }
+
+      throw error;
+    }
+
+    console.error("Unexpected non-Axios error", { url, error });
+
+    throw error instanceof Error ? error : new Error(FALLBACK_ERROR_MESSAGE);
+  }
+};
+
+export default api;
