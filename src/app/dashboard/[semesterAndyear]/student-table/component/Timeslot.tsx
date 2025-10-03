@@ -24,7 +24,12 @@ const getGradeLevel = (gradeId: string | null) => {
     return undefined;
   }
 
-  const level = Number.parseInt(gradeId[0] ?? "", 10);
+  const normalizedGradeId = gradeId.trim();
+  if (normalizedGradeId.length === 0) {
+    return undefined;
+  }
+
+  const level = Number.parseInt(normalizedGradeId[0] ?? "", 10);
   return Number.isNaN(level) ? undefined : level;
 };
 
