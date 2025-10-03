@@ -1,104 +1,174 @@
-import React, { useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type MouseEventHandler,
+  type ReactElement,
+} from "react";
 
 //Image component from next
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 //Import functions
 import { hexToRGB } from "@/functions/componentFunctions";
 
-// ใช้กับ props ที่รับมาให้ component
-interface ButtonData {
-  icon: string; //SVG
-  title: string; //Label
-  buttonColor: string; //สีปุ่ม
-  titleColor: string; //สีข้อความ
-  fontSize: number; //ขนาดข้อความ
-  fontWeight: number; //ความหนาของข้อความ
-  width: number | string; //ความกว้างปุ่ม ใส่ได้ทั้งค่าตัวเลขและ ค่าเปอร์เซ็นเป็น string ex '75%'
-  height: number | string; //เช่นเดียวกันกับความกว้าง
-  disabled: boolean; //ล็อคปุ่มไม่ให้ใช้
-  handleClick; //รับฟังก์ชั่นเพื่อใช้กับ onClick
-}
-function Button({
-  //ตรงนี้คือ Property ทั้งหมดที่สามารถรับเข้ามาได้พร้อมกับกำหนดค่าเริ่มต้น
-  icon = "",
-  title = "",
-  buttonColor = "#2F80ED",
-  titleColor = "#FFF",
-  fontSize = 16,
-  fontWeight = 300,
-  width = null,
-  height = 0,
-  disabled = false,
-  handleClick,
-}: ButtonData): React.JSX.Element {
+// ใช้กับ props ที่รับมาให้ component พร้อมกำหนดค่า default
+type ButtonProps = {
+  icon?: string | StaticImageData | ReactElement; //SVG หรือ React Element สำหรับแสดงไอคอน
+  iconAlt?: string; //ข้อความ alt ของ icon
+  title?: string; //Label
+  buttonColor?: string; //สีปุ่ม
+  titleColor?: string; //สีข้อความ
+  fontSize?: number; //ขนาดข้อความ
+  fontWeight?: CSSProperties["fontWeight"]; //ความหนาของข้อความ
+  width?: number | string | null; //ความกว้างปุ่ม ใส่ได้ทั้งค่าตัวเลขและ ค่าเปอร์เซ็นเป็น string ex '75%'
+  height?: number | string | null; //เช่นเดียวกันกับความกว้าง
+  handleClick?: MouseEventHandler<HTMLButtonElement>; //รับฟังก์ชั่นเพื่อใช้กับ onClick (รองรับชื่อเดิม)
+  className?: string; //className เพิ่มเติมของปุ่ม
+  labelClassName?: string; //className เพิ่มเติมของตัวหนังสือ
+  labelStyle?: CSSProperties; //style ของตัวหนังสือ
+  iconPosition?: "left" | "right"; //กำหนดตำแหน่งของ icon
+} & Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "title" | "color" | "onClick"
+>;
+
+const clampColorValue = (value: number): number => Math.max(0, Math.min(255, value));
+
+const isStaticImageData = (value: string | StaticImageData | ReactElement): value is StaticImageData => {
+  return typeof value === "object" && value !== null && "src" in value && "height" in value && "width" in value;
+};
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    icon,
+    iconAlt,
+    title,
+    buttonColor = "#2F80ED",
+    titleColor = "#FFF",
+    fontSize = 16,
+    fontWeight = 300,
+    width,
+    height = 45,
+    handleClick,
+    className,
+    labelClassName,
+    labelStyle,
+    iconPosition = "left",
+    style: customStyle,
+    disabled: disabledProp = false,
+    onClick,
+    onMouseEnter: onMouseEnterProp,
+    onMouseLeave: onMouseLeaveProp,
+    ...rest
+  },
+  ref
+): React.JSX.Element {
   const [isHover, setIsHover] = useState(false); //Hover state ใช้กับปุ่ม
-  // interface สำหรับเก็บค่า object property rgb จากการคืนค่าของฟังก์ชัน hexToRGB
-  interface IbuttonColor {
-    r: number;
-    g: number;
-    b: number;
-  }
-  //เก็บค่าสี RGB ของปุ่ม
-  const buttonRGB: IbuttonColor = hexToRGB(buttonColor);
-  //เก็บค่าสี RGB ของข้อความ
-  const titleRGB: IbuttonColor = hexToRGB(titleColor);
+
+  const { ["aria-label"]: ariaLabelProp, type: typeProp = "button", ...buttonProps } = rest;
+
+  const disabled = disabledProp;
+
+  useEffect(() => {
+    // รีเซ็ต hover state เมื่อปุ่มถูก disabled เพื่อป้องกันสีผิดพลาด
+    if (disabled && isHover) {
+      setIsHover(false);
+    }
+  }, [disabled, isHover]);
+
+  const buttonRGB = useMemo(() => hexToRGB(buttonColor), [buttonColor]);
+  const titleRGB = useMemo(() => hexToRGB(titleColor), [titleColor]);
+
+  //เก็บค่าสี RGB ของปุ่ม เพื่อนำไปใช้คำนวณ hover color
+  const backgroundColor = !disabled && isHover
+    ? `rgb(${clampColorValue(buttonRGB.r - 10)}, ${clampColorValue(buttonRGB.g - 10)}, ${clampColorValue(buttonRGB.b - 10)})`
+    : `rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`;
+
+  const textColor = `rgb(${titleRGB.r}, ${titleRGB.g}, ${titleRGB.b})`;
+
+  const resolvedWidth = width ?? "fit-content";
+  const resolvedHeight = height ?? 45;
+
   //style property ใช้เก็บค่าของ component props (ใส่ใน tailwind ไม่ได้ง่ะ ;-;)
-  const buttonStyleProperty: object = {
-    backgroundColor: isHover
-      ? `rgb(${buttonRGB.r - 10}, ${buttonRGB.g - 10}, ${buttonRGB.b - 10})`
-      : `rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`,
-    color: `rgb(${titleRGB.r}, ${titleRGB.g}, ${titleRGB.b})`,
-    width: width === null ? "fit-content" : width,
-    height: height === 0 ? 45 : height,
+  const buttonStyleProperty: CSSProperties = {
+    backgroundColor,
+    color: textColor,
+    width: resolvedWidth,
+    height: resolvedHeight,
     opacity: disabled ? 0.5 : 1,
+    ...(customStyle ?? {}),
   };
-  //style property ใช้เก็บค่าของ component props (ใส่ใน tailwind ไม่ได้ง่ะ ;-;)
+
+  const titleStyle: CSSProperties = {
+    color: textColor,
+    fontSize,
+    fontWeight,
+    ...(labelStyle ?? {}),
+  };
+
+  const clickHandler = handleClick ?? onClick;
+
+  const handleMouseEnter = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    if (!disabled) {
+      setIsHover(true);
+    }
+    onMouseEnterProp?.(event);
+  };
+
+  const handleMouseLeave = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    if (!disabled) {
+      setIsHover(false);
+    }
+    onMouseLeaveProp?.(event);
+  };
+
+  const displayTitle = typeof title === "string" && title.trim().length > 0 ? title : "Button";
+
+  const finalAriaLabel = ariaLabelProp ?? displayTitle;
+
+  const contentClassName = `flex gap-[10px] items-center${iconPosition === "right" ? " flex-row-reverse" : ""}`;
+  const titleClassName = labelClassName ? `text-sm ${labelClassName}` : "text-sm";
+
+  const renderIcon = (): React.ReactNode => {
+    if (!icon) {
+      return null;
+    }
+
+    if (typeof icon === "string" || isStaticImageData(icon)) {
+      return <Image src={icon} alt={iconAlt ?? displayTitle} />;
+    }
+
+    return icon;
+  };
+
+  const baseButtonClass = `flex items-center justify-center px-[15px] py-[10px] rounded${
+    disabled ? "" : " cursor-pointer duration-300"
+  } select-none`;
+  const mergedButtonClass = className ? `${baseButtonClass} ${className}` : baseButtonClass;
+
   return (
-    <>
-      {/* 
-        เช็คปุ่ม disabled ถ้ามีการส่ง property disabled เป็น true
-        ปุ่มจะถูกปิดการใช้งาน 
-        ถ้าไม่ส่งอะไรมา (default is false) หรือส่ง false ผ่าน prop ปุ่มจะกดได้ปกติ
-       */}
-      {disabled ? (
-        <button
-          className={`flex items-center justify-center p-3 rounded ${
-            disabled ? null : "cursor-pointer"
-          } select-none`}
-          style={buttonStyleProperty}
-        >
-          <div className="flex gap-[10px]">
-            {icon === "" ? null : <Image src={icon} alt="iconfromprops" />}
-            {title === "" ? (
-              <p className="text-sm">Button</p>
-            ) : (
-              <p className="text-sm">{title}</p>
-            )}
-          </div>
-        </button>
-      ) : (
-        <button
-          className={`flex items-center justify-center px-[15px] py-[10px] rounded ${
-            disabled ? null : "cursor-pointer duration-300"
-          } select-none`}
-          style={buttonStyleProperty}
-          onClick={handleClick}
-          onMouseEnter={() => setIsHover(true)}
-          onMouseLeave={() => setIsHover(false)}
-        >
-          <div className="flex gap-[10px] items-center">
-            {icon === "" ? null : <Image src={icon} alt="icon" />}
-            {title === "" ? (
-              <p className="text-sm">Button</p>
-            ) : (
-              <p className="text-sm">{title}</p>
-            )}
-          </div>
-        </button>
-      )}
-    </>
+    <button
+      ref={ref}
+      type={typeProp}
+      className={mergedButtonClass}
+      style={buttonStyleProperty}
+      onClick={clickHandler}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      disabled={disabled}
+      aria-label={finalAriaLabel}
+      {...buttonProps}
+    >
+      <div className={contentClassName}>
+        {renderIcon()}
+        <p className={titleClassName} style={titleStyle}>
+          {displayTitle}
+        </p>
+      </div>
+    </button>
   );
-}
+});
 
 export default Button;
