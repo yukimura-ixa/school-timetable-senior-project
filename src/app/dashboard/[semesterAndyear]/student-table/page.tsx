@@ -1,210 +1,187 @@
 "use client";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
-import TimeSlot from "./component/Timeslot";
-import { fetcher } from "@/libs/axios";
-import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
-import { dayOfWeekColor } from "@/models/dayofweek-color";
-import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import { useParams } from "next/navigation";
+import React, { useMemo, useRef, useState } from "react";
 import useSWR from "swr";
+import { useReactToPrint } from "react-to-print";
+
+import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import Loading from "@/app/loading";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import { useReactToPrint } from "react-to-print";
-import SelectClassRoom from "./component/SelectClassroom";
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
-import { ExportStudentTable } from "./function/ExportStudentTable";
+import ErrorState from "@/components/elements/static/ErrorState";
+import { fetcher } from "@/libs/axios";
 
-function page() {
+import TimeSlot from "./component/Timeslot";
+import SelectClassRoom from "./component/SelectClassroom";
+import { ExportStudentTable } from "./function/ExportStudentTable";
+import { createTimeSlotTableData } from "../shared/timeSlot";
+
+const getGradeLabel = (gradeId: string | null) => {
+  if (!gradeId) {
+    return "";
+  }
+  const roomNumber = Number.parseInt(gradeId.substring(1), 10);
+  return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
+};
+
+function StudentTablePage() {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
-  const [searchGradeID, setSearchGradeID] = useState(null);
-  const [timeSlotData, setTimeSlotData] = useState({
-    AllData: [], //ใช้กับตารางด้านล่าง
-    SlotAmount: [],
-    DayOfWeek: [],
-    BreakSlot: [],
-  });
+  const [semester, academicYear] = (params.semesterAndyear as string).split("-");
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+
+  const {
+    data: timeslotResponse,
+    error: timeslotError,
+    isLoading: isTimeslotLoading,
+    isValidating: isTimeslotValidating,
+  } = useSWR(
+    `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
+  const {
+    data: classDataResponse,
+    error: classError,
+    isLoading: isClassLoading,
+    isValidating: isClassValidating,
+  } = useSWR(
+    () =>
+      selectedGradeId
+        ? `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&GradeID=${selectedGradeId}`
+        : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    },
+  );
+
   const gradeLevelData = useGradeLevelData();
-  const [classData, setClassData] = useState([]);
-  const fetchAllClassData = useSWR(
-    () =>
-      !!searchGradeID &&
-      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&GradeID=${searchGradeID}`,
-    fetcher,
-    { revalidateOnFocus: false },
+
+  const classData = useMemo(() => classDataResponse ?? [], [classDataResponse]);
+  const timeSlotData = useMemo(
+    () => createTimeSlotTableData(timeslotResponse, classData),
+    [timeslotResponse, classData],
   );
-  const fetchTimeSlot = useSWR(
-    () =>
-      `/timeslot?AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
-  function fetchTimeslotData() {
-    if (!fetchTimeSlot.isValidating) {
-      let data = fetchTimeSlot.data;
-      let dayofweek = data
-        .map((day) => day.DayOfWeek)
-        .filter(
-          (item, index) =>
-            data.map((day) => day.DayOfWeek).indexOf(item) === index,
-        )
-        .map((item) => ({
-          Day: dayOfWeekThai[item],
-          TextColor: dayOfWeekTextColor[item],
-          BgColor: dayOfWeekColor[item],
-        })); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
-      let breakTime = data
-        .filter(
-          (item) =>
-            (item.Breaktime == "BREAK_BOTH" ||
-              item.Breaktime == "BREAK_JUNIOR" ||
-              item.Breaktime == "BREAK_SENIOR") &&
-            item.DayOfWeek == "MON", //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
-        )
-        .map((item) => ({
-          TimeslotID: item.TimeslotID,
-          Breaktime: item.Breaktime,
-          SlotNumber: parseInt(item.TimeslotID.substring(10)),
-        })); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
-      let slotAmount = data
-        .filter((item) => item.DayOfWeek == "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
-        .map((item, index) => index + 1); //ใช้สำหรับ map หัวตารางในเว็บ จะ map จาก data เป็น number of array => [1, 2, 3, 4, 5, 6, 7]
-      setTimeSlotData(() => ({
-        AllData: data.map((data) => ({ ...data, subject: {} })),
-        SlotAmount: slotAmount,
-        DayOfWeek: dayofweek,
-        BreakSlot: breakTime,
-      }));
-    }
+
+  const showLoadingOverlay =
+    gradeLevelData.isLoading ||
+    isTimeslotLoading ||
+    isTimeslotValidating ||
+    (selectedGradeId ? isClassLoading || isClassValidating : false);
+
+  const errors: string[] = [];
+  if (timeslotError) {
+    errors.push("ไม่สามารถโหลดข้อมูลคาบเรียนได้");
   }
-  function fetchClassData() {
-    if (!fetchAllClassData.isValidating && !!searchGradeID) {
-      const data = fetchAllClassData.data;
-      setTimeSlotData(() => ({
-        ...timeSlotData,
-        AllData: timeSlotData.AllData.map((item) => ({
-          ...item,
-          subject: data.map((id) => id.TimeslotID).includes(item.TimeslotID)
-            ? data.filter((id) => id.TimeslotID == item.TimeslotID)[0]
-            : {},
-        })),
-      }));
-      setClassData(data);
-    }
+  if (classError) {
+    errors.push("ไม่สามารถโหลดตารางเรียนของชั้นเรียนที่เลือกได้");
   }
-  useEffect(() => {
-    if (!fetchTimeSlot.isValidating) {
-      fetchTimeslotData();
-    }
-  }, [fetchTimeSlot.isValidating]);
-  useEffect(() => {
-    if (!fetchAllClassData.isValidating && !!searchGradeID) {
-      fetchClassData();
-    }
-  }, [fetchAllClassData.isValidating]);
-  const setGradeID = (id: number) => {
-    setSearchGradeID(id);
-  };
-  const ref = useRef<HTMLDivElement>();
+
+  const ref = useRef<HTMLDivElement>(null);
+  const [isPDFExport, setIsPDFExport] = useState(false);
+
   const generatePDF = useReactToPrint({
     content: () => ref.current,
     copyStyles: true,
-    documentTitle:
-      "ตารางเรียน" + searchGradeID + " " + semester + "-" + academicYear,
-    // onAfterPrint : () => alert("เรียบร้อย")
+    documentTitle: `ตารางเรียน${selectedGradeId ?? ""} ${semester}-${academicYear}`,
   });
-  const [isPDFExport, setIsPDFExport] = useState(false);
-  const ExportToPDF = () => {
+
+  const handleExportPDF = () => {
     setIsPDFExport(true);
     setTimeout(() => {
       generatePDF();
       setIsPDFExport(false);
     }, 1);
   };
+
+  const handleSelectGrade = (gradeId: string | null) => {
+    setSelectedGradeId(gradeId);
+  };
+
+  const selectedGradeInfo = selectedGradeId
+    ? gradeLevelData.data.filter((item) => item.GradeID === selectedGradeId)
+    : [];
+
+  const disableExport =
+    isClassLoading ||
+    isClassValidating ||
+    !selectedGradeId ||
+    !!classError ||
+    !!timeslotError;
+
   return (
-    <>
-      <div className="flex flex-col gap-3">
-        {fetchTimeSlot.isValidating ||
-        fetchAllClassData.isValidating ||
-        gradeLevelData.isLoading ? (
-          <Loading />
-        ) : (
-          <>
-            <SelectClassRoom
-              setGradeID={setGradeID}
-              currentGrade={searchGradeID}
-            />
-            {!!searchGradeID && (
-              <>
-                <div className="flex w-full gap-3 justify-end">
-                  <PrimaryButton
-                    handleClick={() => {
-                      ExportStudentTable(
-                        timeSlotData,
-                        gradeLevelData.data.filter(
-                          (item) => item.GradeID == searchGradeID,
-                        ),
-                        classData,
-                        semester,
-                        academicYear,
-                      );
-                    }}
-                    title={"นำออกเป็น Excel"}
-                    color={""}
-                    Icon={undefined}
-                    reverseIcon={false}
-                    isDisabled={fetchAllClassData.isLoading}
-                  />
-                  <PrimaryButton
-                    handleClick={ExportToPDF}
-                    title={"นำออกเป็น PDF"}
-                    color={""}
-                    Icon={undefined}
-                    reverseIcon={false}
-                    isDisabled={fetchAllClassData.isLoading}
-                  />
+    <div className="flex flex-col gap-3">
+      {showLoadingOverlay ? (
+        <Loading />
+      ) : (
+        <>
+          <SelectClassRoom
+            setGradeID={handleSelectGrade}
+            currentGrade={selectedGradeId}
+            gradeLevels={gradeLevelData.data}
+            isLoading={gradeLevelData.isLoading}
+            error={gradeLevelData.error}
+          />
+          {errors.map((message) => (
+            <ErrorState key={message} message={message} />
+          ))}
+          {selectedGradeId && !classError && !timeslotError && (
+            <>
+              <div className="flex w-full justify-end gap-3">
+                <PrimaryButton
+                  handleClick={() =>
+                    ExportStudentTable(
+                      timeSlotData,
+                      selectedGradeInfo,
+                      classData,
+                      semester,
+                      academicYear,
+                    )
+                  }
+                  title={"นำออกเป็น Excel"}
+                  color={""}
+                  Icon={undefined}
+                  reverseIcon={false}
+                  isDisabled={disableExport}
+                />
+                <PrimaryButton
+                  handleClick={handleExportPDF}
+                  title={"นำออกเป็น PDF"}
+                  color={""}
+                  Icon={undefined}
+                  reverseIcon={false}
+                  isDisabled={disableExport}
+                />
+              </div>
+              <TimeSlot
+                searchGradeID={selectedGradeId}
+                timeSlotData={timeSlotData}
+              />
+              <div
+                ref={ref}
+                className="printFont mt-5 flex flex-col items-center justify-center p-10"
+                style={{ display: isPDFExport ? "flex" : "none" }}
+              >
+                <div className="printFont mb-8 flex gap-10">
+                  <p>ตารางเรียน {getGradeLabel(selectedGradeId)}</p>
+                  <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
                 </div>
                 <TimeSlot
-                  searchGradeID={searchGradeID}
+                  searchGradeID={selectedGradeId}
                   timeSlotData={timeSlotData}
                 />
-                <div
-                  ref={ref}
-                  className="printFont p-10 flex flex-col items-center justify-center mt-5"
-                  style={{ display: isPDFExport ? "flex" : "none" }}
-                >
-                  <div className="printFont flex gap-10 mb-8">
-                    <p>
-                      ตารางเรียน ม.
-                      {searchGradeID === null
-                        ? ""
-                        : `${searchGradeID[0]}/${parseInt(
-                            searchGradeID.substring(1),
-                          )}`}
-                    </p>
-                    <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
-                  </div>
-                  <TimeSlot
-                    searchGradeID={searchGradeID}
-                    timeSlotData={timeSlotData}
-                  />
-                  <div className="flex gap-2 mt-8">
-                    <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
-                    <p>ลงชื่อ..............................ผู้อำนวยการ</p>
-                  </div>
+                <div className="mt-8 flex gap-2">
+                  <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
+                  <p>ลงชื่อ..............................ผู้อำนวยการ</p>
                 </div>
-              </>
-            )}
-          </>
-        )}
-      </div>
-    </>
+              </div>
+            </>
+          )}
+        </>
+      )}
+    </div>
   );
 }
 
-export default page;
+export default StudentTablePage;
