@@ -21,12 +21,12 @@ const formatTime = (time: string | Date) => {
 const isBreakSlot = (breaktime: string) => breaktime !== "NOT_BREAK";
 
 const formatGrade = (gradeId?: string) => {
-  if (!gradeId) {
+  if (!gradeId || gradeId.trim().length === 0) {
     return "";
   }
-
-  const roomNumber = Number.parseInt(gradeId.substring(1), 10);
-  return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
+  const trimmedGradeId = gradeId.trim();
+  const roomNumber = Number.parseInt(trimmedGradeId.substring(1), 10);
+  return `ม.${trimmedGradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
 };
 
 function TimeSlot({ timeSlotData }: Props) {
