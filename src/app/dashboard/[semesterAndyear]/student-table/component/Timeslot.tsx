@@ -10,13 +10,13 @@ type Props = {
 
 const formatTime = (time: string | Date) => {
   const date = new Date(time);
-  const hour = date.getHours() - 7;
-  const minutes = date.getMinutes();
-
-  const hoursText = hour < 10 ? `0${hour}` : hour.toString();
-  const minutesText = minutes === 0 ? `0${minutes}` : minutes.toString();
-
-  return `${hoursText}:${minutesText}`;
+  // Format time in Asia/Bangkok timezone (UTC+7)
+  return date.toLocaleTimeString("th-TH", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Bangkok",
+  });
 };
 
 const getGradeLevel = (gradeId: string | null) => {
