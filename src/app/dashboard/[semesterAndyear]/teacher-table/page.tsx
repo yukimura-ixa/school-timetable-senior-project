@@ -14,7 +14,13 @@ import SelectTeacher from "./component/SelectTeacher";
 import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
 import { createTimeSlotTableData } from "../shared/timeSlot";
 
-const formatTeacherName = (teacher?: Record<string, any>) => {
+interface Teacher {
+  Prefix?: string;
+  Firstname?: string;
+  Lastname?: string;
+}
+
+const formatTeacherName = (teacher?: Teacher) => {
   if (!teacher) {
     return "";
   }
