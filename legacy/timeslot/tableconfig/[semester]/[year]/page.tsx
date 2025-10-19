@@ -6,7 +6,7 @@ import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
 import { MdSchool, MdLunchDining } from "react-icons/md";
 import { TbTimeDuration45 } from "react-icons/tb";
-import Counter from "../tableconfig/component/Counter";
+import Counter from "../../component/Counter";
 import CheckBox from "@/components/elements/input/selected_input/CheckBox";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import { Snackbar, Alert } from "@mui/material";
@@ -53,7 +53,7 @@ function TimetableConfigValue({}: Props) {
             height="40px"
             data={[2566, 2567, 2568, 2569]}
             currentValue={2566} //current year
-            renderItem={({ data }): JSX.Element => (
+            renderItem={({ data }: { data: any }): JSX.Element => (
               <li className="w-[70px]">{data}</li>
             )}
             handleChange={undefined}
@@ -68,7 +68,7 @@ function TimetableConfigValue({}: Props) {
             height="40px"
             data={[1, 2]}
             currentValue={1}
-            renderItem={({ data }): JSX.Element => (
+            renderItem={({ data }: { data: any }): JSX.Element => (
               <li className="w-[70px]">{data}</li>
             )}
             handleChange={undefined}
@@ -125,9 +125,9 @@ function TimetableConfigValue({}: Props) {
                 width="100%"
                 height="40px"
                 data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                currentValue={5}
+                currentValue="5"
                 placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
+                renderItem={({ data }: { data: any }): JSX.Element => (
                   <li className="w-[70px]">{data}</li>
                 )}
                 handleChange={undefined}
@@ -142,7 +142,7 @@ function TimetableConfigValue({}: Props) {
                 data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
                 currentValue={4}
                 placeHolder="เลือกคาบ"
-                renderItem={({ data }): JSX.Element => (
+                renderItem={({ data }: { data: any }): JSX.Element => (
                   <li className="w-[70px]">{data}</li>
                 )}
                 handleChange={undefined}

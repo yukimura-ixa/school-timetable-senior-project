@@ -12,12 +12,8 @@ import api, { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
-type Props = {
-  backPage: Function;
-};
 
-
-function ClassroomResponsibility(props: Props) {
+function ClassroomResponsibility() {
   const params = useParams();
   const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
   const [semester, academicYear] = (params.semesterAndyear as string).split(

@@ -35,7 +35,7 @@ function TeacherIndividualDashboard({}: Props) {
     };
     return () => getData();
   }, []);
-  const handleChange = (value: teacher) => {
+  const handleChange = (value: any) => {
     console.log(value);
     setTeacherData(() => ({ ...teacherData, Teacher: value }));
   };
@@ -51,7 +51,7 @@ function TeacherIndividualDashboard({}: Props) {
             data={teacher}
             width={400}
             height={45}
-            renderItem={({ data }): JSX.Element => (
+            renderItem={({ data }: { data: any }): JSX.Element => (
               <li className="w-full text-sm">
                 {data.Firstname} {data.Lastname} - {data.Department}
               </li>
