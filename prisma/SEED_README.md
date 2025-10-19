@@ -16,7 +16,7 @@ The seed generates realistic data for a medium-sized Thai secondary school:
 | **Rooms** | 40 | 3 specialized buildings (Academic, Science, Sports/Arts) |
 | **Subjects** | 42+ | Thai curriculum (core + elective + activities) |
 | **Timeslots** | 40 | 8 periods/day × 5 days (MON-FRI) |
-| **Teacher Responsibilities** | 100+ | Subject assignments per grade/teacher |
+| **Teacher Responsibilities** | 150+ | Subject assignments per grade/teacher (following Ministry standards: 1-3 subjects/teacher) |
 | **Class Schedules** | 40+ | Sample schedules including locked slots |
 
 ## Data Structure
@@ -162,6 +162,27 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 
 **Timeslot ID Format**: `1/2567-{DAY}{PERIOD}`
 - Example: `1/2567-MON1` = Semester 1, Year 2567, Monday Period 1
+
+### Teacher Responsibilities (ความรับผิดชอบครู)
+
+**Ministry of Education Standards**:
+- Each teacher is assigned **1-3 subjects** per semester
+- Core subject teachers (Thai, Math, Science, English, Social) typically teach their subject across 2-3 grade levels
+- Secondary subject teachers (PE, Arts, Career) may teach across more grade levels with fewer periods per week
+- Activity coordinators (ชุมนุม, ลูกเสือ) are assigned as additional responsibilities, typically to PE, Arts, or Social Studies teachers
+
+**Assignment Distribution**:
+- **Core Subjects (Thai, Math, Science, English, Social)**: All 18 grade levels covered, 3 periods/week each
+- **PE & Health**: All 18 grade levels, 1 period/week
+- **Arts**: All 18 grade levels, 2 periods/week
+- **Career/Technology**: All 18 grade levels, 1 period/week
+- **ชุมนุม (Club Activities)**: All 18 grade levels, 1 period/week (assigned to PE/Arts/Career teachers)
+- **ลูกเสือ/ยุวกาชาด (Scouts)**: All 18 grade levels, 1 period/week (assigned to PE/Social teachers)
+
+**Teacher Workload**:
+- Most teachers have 2-3 subject assignments
+- Activity subjects count toward the 3-subject maximum
+- Workload is balanced across departments to simulate realistic teaching assignments
 
 ## Edge Cases Covered
 

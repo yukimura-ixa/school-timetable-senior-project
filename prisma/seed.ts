@@ -329,184 +329,199 @@ async function main() {
   const getSubjectsByCategory = (category: string) => 
     createdSubjects.filter(s => s.Category === category);
 
-  // Assign Thai teachers to ALL classes (M.1-M.6)
+  // Activity subjects that will be assigned as additional responsibilities
+  const activitySubjects = createdSubjects.filter(s => 
+    ['ชุมนุม', 'ลูกเสือ/ยุวกาชาด'].includes(s.SubjectCode)
+  );
+
+  // Track teacher workload (each teacher can have 1-3 subjects per the Ministry standard)
+  const teacherWorkload = new Map<number, number>();
+  
+  // Function to assign a responsibility and track workload
+  const assignResponsibility = async (teacherID: number, gradeID: string, subjectCode: string, teachHour: number) => {
+    const currentLoad = teacherWorkload.get(teacherID) || 0;
+    if (currentLoad >= 3) {
+      // Teacher already has 3 subjects, skip
+      return null;
+    }
+    
+    const resp = await prisma.teachers_responsibility.create({
+      data: {
+        TeacherID: teacherID,
+        GradeID: gradeID,
+        SubjectCode: subjectCode,
+        AcademicYear: academicYear,
+        Semester: sem,
+        TeachHour: teachHour,
+      }
+    });
+    
+    teacherWorkload.set(teacherID, currentLoad + 1);
+    responsibilities.push(resp);
+    return resp;
+  };
+
+  // Assign core subjects first (Thai, Math, Science, English, Social)
+  // Core subjects: Assign to all 18 grades
+  
+  // 1. Thai Language
   const thaiTeachers = getTeachersByDept('ภาษาไทย');
   const thaiSubjects = getSubjectsByCategory('ภาษาไทย');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = thaiTeachers[i % thaiTeachers.length];
-    // Choose subject based on grade year
-    const subject = gradeLevel.Year <= 3 
-      ? thaiSubjects[0] // ภาษาไทย 1 for M.1-M.3
-      : thaiSubjects[3]; // ภาษาไทย 4 for M.4-M.6
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 3, // 3 periods per week
-      }
-    });
-    responsibilities.push(resp);
+    const subject = gradeLevel.Year <= 3 ? thaiSubjects[0] : thaiSubjects[3];
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
   }
 
-  // Assign Math teachers to ALL classes (M.1-M.6)
+  // 2. Mathematics
   const mathTeachers = getTeachersByDept('คณิตศาสตร์');
   const mathSubjects = getSubjectsByCategory('คณิตศาสตร์');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = mathTeachers[i % mathTeachers.length];
-    // Choose subject based on grade year
-    const subject = gradeLevel.Year <= 3 
-      ? mathSubjects[0] // คณิตศาสตร์ 1 for M.1-M.3
-      : mathSubjects[3]; // คณิตศาสตร์ 4 for M.4-M.6
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 3,
-      }
-    });
-    responsibilities.push(resp);
+    const subject = gradeLevel.Year <= 3 ? mathSubjects[0] : mathSubjects[3];
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
   }
 
-  // Assign Science teachers to ALL classes
+  // 3. Science
   const scienceTeachers = getTeachersByDept('วิทยาศาสตร์');
   const scienceSubjects = getSubjectsByCategory('วิทยาศาสตร์');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = scienceTeachers[i % scienceTeachers.length];
-    // Choose subject based on grade year
-    const subject = gradeLevel.Year <= 3 
-      ? scienceSubjects[0] // วิทยาศาสตร์ 1 for M.1-M.3
-      : scienceSubjects[Math.min(3, scienceSubjects.length - 1)]; // Later science subjects for M.4-M.6
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 3,
-      }
-    });
-    responsibilities.push(resp);
+    const subject = gradeLevel.Year <= 3 ? scienceSubjects[0] : scienceSubjects[Math.min(3, scienceSubjects.length - 1)];
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
   }
 
-  // Assign English teachers
+  // 4. English
   const englishTeachers = getTeachersByDept('ภาษาอังกฤษ');
   const englishSubjects = createdSubjects.filter(s => s.Category === 'ภาษาต่างประเทศ');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = englishTeachers[i % englishTeachers.length];
-    const subject = englishSubjects[gradeLevel.Year <= 3 ? 0 : 3];
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 3,
-      }
-    });
-    responsibilities.push(resp);
+    const subject = gradeLevel.Year <= 3 ? englishSubjects[0] : englishSubjects[3];
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
   }
 
-  // Assign Social Studies teachers
+  // 5. Social Studies
   const socialTeachers = getTeachersByDept('สังคมศึกษา');
   const socialSubjects = getSubjectsByCategory('สังคมศึกษา');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = socialTeachers[i % socialTeachers.length];
     const subject = socialSubjects[0];
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 3,
-      }
-    });
-    responsibilities.push(resp);
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
   }
 
-  // Assign PE teachers (1 period per week)
+  // Assign secondary subjects with consideration for teacher workload
+  
+  // 6. Physical Education
   const peTeachers = getTeachersByDept('พลศึกษา');
   const peSubjects = getSubjectsByCategory('สุขศึกษา-พลศึกษา');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = peTeachers[i % peTeachers.length];
-    const subject = peSubjects[0];
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 1,
-      }
-    });
-    responsibilities.push(resp);
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, peSubjects[0].SubjectCode, 1);
   }
 
-  // Assign Arts teachers
+  // 7. Arts
   const artsTeachers = getTeachersByDept('ศิลปะ');
   const artsSubjects = getSubjectsByCategory('ศิลปะ');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = artsTeachers[i % artsTeachers.length];
-    const subject = artsSubjects[0];
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 2,
-      }
-    });
-    responsibilities.push(resp);
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, artsSubjects[0].SubjectCode, 2);
   }
 
-  // Assign Career teachers
+  // 8. Career/Technology
   const careerTeachers = getTeachersByDept('การงานอาชีพ');
   const careerSubjects = getSubjectsByCategory('การงานอาชีพ');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = careerTeachers[i % careerTeachers.length];
-    const subject = careerSubjects[0];
-    
-    const resp = await prisma.teachers_responsibility.create({
-      data: {
-        TeacherID: teacher.TeacherID,
-        GradeID: gradeLevel.GradeID,
-        SubjectCode: subject.SubjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
-        TeachHour: 1,
+    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, careerSubjects[0].SubjectCode, 1);
+  }
+
+  // 9. Assign activity subjects (ชุมนุม, ลูกเสือ) to teachers who have capacity
+  // These count as additional teaching subjects following Ministry standards
+  const chumNumSubject = activitySubjects.find(s => s.SubjectCode === 'ชุมนุม');
+  const scoutSubject = activitySubjects.find(s => s.SubjectCode === 'ลูกเสือ/ยุวกาชาด');
+  
+  // Assign ชุมนุม - try to distribute across available teachers
+  // Use teachers from multiple departments to ensure coverage
+  const activityTeacherPool = [...peTeachers, ...artsTeachers, ...careerTeachers];
+  if (chumNumSubject) {
+    let teacherIndex = 0;
+    for (const gradeLevel of gradeLevels) {
+      let assigned = false;
+      // Try up to 3 times to find a teacher with capacity
+      for (let attempt = 0; attempt < activityTeacherPool.length && !assigned; attempt++) {
+        const teacher = activityTeacherPool[teacherIndex % activityTeacherPool.length];
+        const resp = await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, chumNumSubject.SubjectCode, 1);
+        if (resp) {
+          assigned = true;
+        }
+        teacherIndex++;
       }
-    });
-    responsibilities.push(resp);
+      if (!assigned) {
+        // If no teacher with capacity, assign to first teacher anyway (override the limit for activities)
+        const teacher = activityTeacherPool[0];
+        const resp = await prisma.teachers_responsibility.create({
+          data: {
+            TeacherID: teacher.TeacherID,
+            GradeID: gradeLevel.GradeID,
+            SubjectCode: chumNumSubject.SubjectCode,
+            AcademicYear: academicYear,
+            Semester: sem,
+            TeachHour: 1,
+          }
+        });
+        responsibilities.push(resp);
+      }
+    }
+  }
+
+  // Assign ลูกเสือ - similarly try to distribute across available teachers
+  const scoutTeacherPool = [...peTeachers, ...socialTeachers];
+  if (scoutSubject) {
+    let teacherIndex = 0;
+    for (const gradeLevel of gradeLevels) {
+      let assigned = false;
+      for (let attempt = 0; attempt < scoutTeacherPool.length && !assigned; attempt++) {
+        const teacher = scoutTeacherPool[teacherIndex % scoutTeacherPool.length];
+        const resp = await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, scoutSubject.SubjectCode, 1);
+        if (resp) {
+          assigned = true;
+        }
+        teacherIndex++;
+      }
+      if (!assigned) {
+        // If no teacher with capacity, assign to first teacher anyway (override the limit for activities)
+        const teacher = scoutTeacherPool[0];
+        const resp = await prisma.teachers_responsibility.create({
+          data: {
+            TeacherID: teacher.TeacherID,
+            GradeID: gradeLevel.GradeID,
+            SubjectCode: scoutSubject.SubjectCode,
+            AcademicYear: academicYear,
+            Semester: sem,
+            TeachHour: 1,
+          }
+        });
+        responsibilities.push(resp);
+      }
+    }
   }
 
   console.log(`✅ Created ${responsibilities.length} teacher responsibilities`);
+  
+  // Log teacher workload statistics
+  const workloadStats = Array.from(teacherWorkload.entries()).reduce((acc, [_, count]) => {
+    acc[count] = (acc[count] || 0) + 1;
+    return acc;
+  }, {} as Record<number, number>);
+  console.log(`   Teacher workload distribution (subjects per teacher):`, workloadStats);
 
   // ===== SAMPLE TIMETABLE CONFIGURATION =====
   console.log('⚙️  Creating timetable configuration...');
@@ -534,93 +549,65 @@ async function main() {
   console.log('📅 Creating sample class schedules...');
   const classSchedules: any[] = [];
 
-  // Create locked slots for school-wide activities
-  // Activity subjects (ชุมนุม, ลูกเสือ, แนะแนว, โครงงาน, จริยธรรม)
-  const activitySubjects = createdSubjects.filter(s => 
-    ['ชุมนุม', 'ลูกเสือ/ยุวกาชาด', 'แนะแนว', 'โครงงาน', 'จริยธรรม'].includes(s.SubjectCode)
-  );
-
   // Lock period 8 on Monday for ชุมนุม (all classes)
-  const chumNumSubject = activitySubjects.find(s => s.SubjectCode === 'ชุมนุม');
+  // Use existing teacher responsibilities created above
+  const chumNumSubject = createdSubjects.find(s => s.SubjectCode === 'ชุมนุม');
   if (chumNumSubject) {
     for (const gradeLevel of gradeLevels) {
       const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-MON8`);
       if (timeslot) {
-        // Create a shared responsibility for activities (using first teacher as coordinator)
-        let activityResp = responsibilities.find(r => 
+        // Find the existing responsibility for this grade and subject
+        const activityResp = responsibilities.find(r => 
           r.GradeID === gradeLevel.GradeID && r.SubjectCode === chumNumSubject.SubjectCode
         );
         
-        if (!activityResp) {
-          activityResp = await prisma.teachers_responsibility.create({
+        if (activityResp) {
+          const schedule = await prisma.class_schedule.create({
             data: {
-              TeacherID: teachers[0].TeacherID,
-              GradeID: gradeLevel.GradeID,
+              ClassID: `${timeslot.TimeslotID}-${chumNumSubject.SubjectCode}-${gradeLevel.GradeID}`,
+              TimeslotID: timeslot.TimeslotID,
               SubjectCode: chumNumSubject.SubjectCode,
-              AcademicYear: academicYear,
-              Semester: sem,
-              TeachHour: 1,
+              GradeID: gradeLevel.GradeID,
+              RoomID: null, // Activities don't need specific rooms
+              IsLocked: true, // Locked slot
+              teachers_responsibility: {
+                connect: [{ RespID: activityResp.RespID }]
+              }
             }
           });
-          responsibilities.push(activityResp);
+          classSchedules.push(schedule);
         }
-
-        const schedule = await prisma.class_schedule.create({
-          data: {
-            ClassID: `${timeslot.TimeslotID}-${chumNumSubject.SubjectCode}-${gradeLevel.GradeID}`,
-            TimeslotID: timeslot.TimeslotID,
-            SubjectCode: chumNumSubject.SubjectCode,
-            GradeID: gradeLevel.GradeID,
-            RoomID: null, // Activities don't need specific rooms
-            IsLocked: true, // Locked slot
-            teachers_responsibility: {
-              connect: [{ RespID: activityResp.RespID }]
-            }
-          }
-        });
-        classSchedules.push(schedule);
       }
     }
   }
 
   // Lock period 8 on Wednesday for ลูกเสือ/ยุวกาชาด (all classes)
-  const scoutSubject = activitySubjects.find(s => s.SubjectCode === 'ลูกเสือ/ยุวกาชาด');
+  const scoutSubject = createdSubjects.find(s => s.SubjectCode === 'ลูกเสือ/ยุวกาชาด');
   if (scoutSubject) {
     for (const gradeLevel of gradeLevels) {
       const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-WED8`);
       if (timeslot) {
-        let activityResp = responsibilities.find(r => 
+        // Find the existing responsibility for this grade and subject
+        const activityResp = responsibilities.find(r => 
           r.GradeID === gradeLevel.GradeID && r.SubjectCode === scoutSubject.SubjectCode
         );
         
-        if (!activityResp) {
-          activityResp = await prisma.teachers_responsibility.create({
+        if (activityResp) {
+          const schedule = await prisma.class_schedule.create({
             data: {
-              TeacherID: teachers[1].TeacherID,
-              GradeID: gradeLevel.GradeID,
+              ClassID: `${timeslot.TimeslotID}-${scoutSubject.SubjectCode}-${gradeLevel.GradeID}`,
+              TimeslotID: timeslot.TimeslotID,
               SubjectCode: scoutSubject.SubjectCode,
-              AcademicYear: academicYear,
-              Semester: sem,
-              TeachHour: 1,
+              GradeID: gradeLevel.GradeID,
+              RoomID: null,
+              IsLocked: true,
+              teachers_responsibility: {
+                connect: [{ RespID: activityResp.RespID }]
+              }
             }
           });
-          responsibilities.push(activityResp);
+          classSchedules.push(schedule);
         }
-
-        const schedule = await prisma.class_schedule.create({
-          data: {
-            ClassID: `${timeslot.TimeslotID}-${scoutSubject.SubjectCode}-${gradeLevel.GradeID}`,
-            TimeslotID: timeslot.TimeslotID,
-            SubjectCode: scoutSubject.SubjectCode,
-            GradeID: gradeLevel.GradeID,
-            RoomID: null,
-            IsLocked: true,
-            teachers_responsibility: {
-              connect: [{ RespID: activityResp.RespID }]
-            }
-          }
-        });
-        classSchedules.push(schedule);
       }
     }
   }
