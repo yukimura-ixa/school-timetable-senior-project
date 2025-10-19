@@ -6,6 +6,7 @@ This folder contains all project documentation organized for easy reference.
 
 ### Getting Started
 - **[DEVELOPMENT_GUIDE.md](DEVELOPMENT_GUIDE.md)** - **START HERE** - Development setup and OAuth bypass for testing
+- **[OAUTH_BYPASS_SUMMARY.md](OAUTH_BYPASS_SUMMARY.md)** - Complete technical summary of OAuth bypass implementation
 - [QUICKSTART.md](QUICKSTART.md) - Quick start guide for developers
 
 ### Project Overview
