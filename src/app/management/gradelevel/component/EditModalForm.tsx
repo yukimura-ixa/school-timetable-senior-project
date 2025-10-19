@@ -110,7 +110,7 @@ function EditModalForm({
                   <p>{index + 1}</p>
                 </div>
                 {/* <div className="relative flex flex-col gap-2">
-                  <NumberField
+                  <NumberField disabled={false}
                     width="auto"
                     height="auto"
                     label={`รหัสชั้นเรียน (GradeID):`}
@@ -121,7 +121,7 @@ function EditModalForm({
                         ? "#F96161"
                         : ""
                     }
-                    handleChange={(e: any) => {
+                    disabled={false} handleChange={(e: any) => {
                       let value: number = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -144,7 +144,7 @@ function EditModalForm({
                   </label>
                   <Dropdown
                     data={[1, 2, 3, 4, 5, 6]}
-                    renderItem={({ data }): JSX.Element => (
+                    renderItem={({ data }: { data: any }): JSX.Element => (
                       <li className="w-full">{data}</li>
                     )}
                     width={150}
@@ -161,7 +161,7 @@ function EditModalForm({
                   />
                 </div>
                 <div className="relative flex flex-col gap-2">
-                  <NumberField
+                  <NumberField disabled={false}
                     width="auto"
                     height="auto"
                     label={`ห้องที่ (Number):`}
@@ -172,7 +172,7 @@ function EditModalForm({
                         ? "#F96161"
                         : ""
                     }
-                    handleChange={(e: any) => {
+                    disabled={false} handleChange={(e: any) => {
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -202,7 +202,7 @@ function EditModalForm({
                         ? "#F96161"
                         : ""
                     }
-                    handleChange={(e: any) => {
+                    disabled={false} handleChange={(e: any) => {
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -228,13 +228,13 @@ function EditModalForm({
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
             />
           </span>
         </div>

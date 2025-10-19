@@ -1,6 +1,16 @@
 import prisma from "@/libs/prisma"
-import { semester, type class_schedule } from "@prisma/client"
+import { semester, type class_schedule, Prisma } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
+
+type ClassScheduleWithRelations = Prisma.class_scheduleGetPayload<{
+  include: {
+    teachers_responsibility: { include: { teacher: true } };
+    subject: true;
+    gradelevel: true;
+    timeslot: true;
+    room: true;
+  }
+}>;
 
 export async function GET(request: NextRequest) {
 
@@ -10,7 +20,7 @@ export async function GET(request: NextRequest) {
     const hasGradeID = request.nextUrl.searchParams.has("GradeID")
     const GradeID = request.nextUrl.searchParams.get("GradeID")
     const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
-    let response: class_schedule[]
+    let response: ClassScheduleWithRelations[]
     try {
         if (hasTeacherID) {
             // localhost:3000/api/class?AcademicYear=2566&Semester=SEMESTER_1&TeacherID=1
@@ -28,7 +38,11 @@ export async function GET(request: NextRequest) {
                     }
                 },
                 include: {
-                    teachers_responsibility: true,
+                    teachers_responsibility: {
+                        include: {
+                            teacher: true
+                        }
+                    },
                     subject: true,
                     gradelevel: true,
                     timeslot: true,
@@ -73,11 +87,12 @@ export async function GET(request: NextRequest) {
                     },
                 },
                 include: {
-                    subject: {
+                    teachers_responsibility: {
                         include: {
-                            teachers_responsibility: true
+                            teacher: true
                         }
                     },
+                    subject: true,
                     gradelevel: true,
                     timeslot: true,
                     room: true,

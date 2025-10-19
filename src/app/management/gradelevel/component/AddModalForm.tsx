@@ -102,6 +102,9 @@ function AddModalForm({ closeModal, mutate }: props) {
             border={true}
             hoverable={true}
             borderColor="#222222"
+            width="auto"
+            height={30}
+            isSelected={false}
             handleClick={addList}
           />
           {/* inputfield */}
@@ -128,12 +131,12 @@ function AddModalForm({ closeModal, mutate }: props) {
                     </label>
                     <Dropdown
                       data={[1, 2, 3, 4, 5, 6]}
-                      renderItem={({ data }): JSX.Element => (
+                      renderItem={({ data }: { data: any }): JSX.Element => (
                         <li className="w-full">{data}</li>
                       )}
                       width={150}
                       height={40}
-                      currentValue={gradeLevel.Year}
+                      currentValue={String(gradeLevel.Year)}
                       placeHolder={"ตัวเลือก"}
                       handleChange={(value: number) => {
                         setGradeLevels(() =>
@@ -158,6 +161,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder="ex. 5"
                       label="ห้องที่ (Number):"
                       value={gradeLevel.Number}
+                      disabled={false}
                       borderColor={
                         isEmptyData &&
                         (gradeLevel.Number == 0 || gradeLevel.Number == null)
@@ -236,13 +240,17 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              reverseIcon={false}
+              isDisabled={false}
             />
             <PrimaryButton
               handleClick={handleSubmit}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              reverseIcon={false}
+              isDisabled={false}
             />
           </span>
         </div>

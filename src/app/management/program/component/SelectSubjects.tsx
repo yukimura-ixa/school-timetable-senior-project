@@ -66,7 +66,7 @@ function SelectSubjects(props: Props) {
             ) : (
               <Dropdown
                 data={subjectFilter}
-                renderItem={({ data }) => (
+                renderItem={({ data }: { data: any }) => (
                   <li className="w-full text-sm">
                     {data.SubjectCode} - {data.SubjectName}
                   </li>

@@ -1,11 +1,24 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { teacher } from "@prisma/client";
 
+type ClassData = {
+  teachers_responsibility: Array<{ TeacherID: number }>;
+  timeslot: { DayOfWeek: string; TimeslotID: string };
+  GradeID: string;
+  [key: string]: any;
+};
+
+type DayData = {
+  Day: string;
+  BgColor: string;
+  [key: string]: any;
+};
+
 type Props = {
   teachers: teacher[];
   slotAmount: number[];
-  classData: object[];
-  days: object[];
+  classData: ClassData[];
+  days: DayData[];
 };
 
 const TableBody = (props: Props) => {

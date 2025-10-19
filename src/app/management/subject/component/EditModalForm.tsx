@@ -182,7 +182,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                   </label>
                   <Dropdown
                     data={Object.values(subject_credit)}
-                    renderItem={({ data }): JSX.Element => (
+                    renderItem={({ data }: { data: any }): JSX.Element => (
                       <li className="w-full">{subjectCreditTitles[data]}</li>
                     )}
                     width={150}
@@ -222,7 +222,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                         ? "#F96161"
                         : ""
                     }
-                    renderItem={({ data }): JSX.Element => (
+                    renderItem={({ data }: { data: any }): JSX.Element => (
                       <li className="w-full">{data}</li>
                     )}
                     width={150}
@@ -252,13 +252,13 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
             />
           </span>
         </div>

@@ -140,7 +140,7 @@ function TimetableConfigValue({}: Props) {
                 width="100%"
                 height="40px"
                 data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
-                currentValue={4}
+                currentValue="4"
                 placeHolder="เลือกคาบ"
                 renderItem={({ data }: { data: any }): JSX.Element => (
                   <li className="w-[70px]">{data}</li>
@@ -198,6 +198,7 @@ function TimetableConfigValue({}: Props) {
                 color={""}
                 Icon={undefined}
                 reverseIcon={false}
+                isDisabled={false}
               />
               <PrimaryButton
                 handleClick={undefined}
@@ -205,6 +206,7 @@ function TimetableConfigValue({}: Props) {
                 color={""}
                 Icon={undefined}
                 reverseIcon={false}
+                isDisabled={false}
               />
             </div>
           )}

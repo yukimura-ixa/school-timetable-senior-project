@@ -61,7 +61,7 @@ export const createTimeSlotTableData = (
 
   const scheduleMap = new Map<string, ScheduleEntry>();
   (scheduleEntries ?? [])
-    .filter((entry): entry is ScheduleEntry => entry && entry.TimeslotID)
+    .filter((entry): entry is ScheduleEntry => !!(entry && entry.TimeslotID))
     .forEach((entry) => {
       scheduleMap.set(entry.TimeslotID, entry);
     });
