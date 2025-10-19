@@ -551,7 +551,7 @@ async function main() {
 
   // Lock period 8 on Monday for ชุมนุม (all classes)
   // Use existing teacher responsibilities created above
-  const chumNumSubject = createdSubjects.find(s => s.SubjectCode === 'ชุมนุม');
+  // Reuse chumNumSubject declared earlier in the function
   if (chumNumSubject) {
     for (const gradeLevel of gradeLevels) {
       const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-MON8`);
@@ -582,7 +582,7 @@ async function main() {
   }
 
   // Lock period 8 on Wednesday for ลูกเสือ/ยุวกาชาด (all classes)
-  const scoutSubject = createdSubjects.find(s => s.SubjectCode === 'ลูกเสือ/ยุวกาชาด');
+  // Reuse scoutSubject declared earlier in the function
   if (scoutSubject) {
     for (const gradeLevel of gradeLevels) {
       const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-WED8`);
