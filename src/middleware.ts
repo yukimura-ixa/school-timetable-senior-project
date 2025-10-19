@@ -1,8 +1,10 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequestWithAuth } from "next-auth/middleware";
+
 export default withAuth(
   // `withAuth` augments your `Request` with the user's token.
-  function middleware(req) {
+  function middleware(req: NextRequestWithAuth) {
     const token = req.nextauth.token;
     if (
       token?.role === "teacher" &&
@@ -17,8 +19,10 @@ export default withAuth(
       authorized({ req, token }) {
         if (token?.role === "admin") return true;
 
-        if (token?.role === "student" && !req.nextUrl.endsWith("student-table"))
+        if (token?.role === "student" && !req.nextUrl.pathname.endsWith("student-table"))
           return false;
+        
+        return true;
       },
     },
   },
