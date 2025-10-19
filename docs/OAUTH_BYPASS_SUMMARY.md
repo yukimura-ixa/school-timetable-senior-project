@@ -79,10 +79,41 @@ Implemented a development-mode authentication bypass using NextAuth's Credential
 4. **Separate provider**: Dev bypass uses separate provider ID, keeping Google OAuth clean
 5. **Backward compatible**: All existing OAuth functionality remains unchanged
 
-### ⚠️ Important Warnings
-1. **Never deploy with bypass enabled**: `NEXT_PUBLIC_BYPASS_AUTH` must be "false" or unset in production
-2. **No database validation**: Bypass mode doesn't check if user exists in database
-3. **Fixed credentials**: All bypass users use the same configured credentials
+### ⚠️ Critical Security Warnings
+
+#### 1. Never Deploy with Bypass Enabled
+**Risk**: If `NEXT_PUBLIC_BYPASS_AUTH="true"` is deployed to production, **anyone** can access the system without authentication.
+- Unauthorized users could access admin features
+- Data could be compromised or modified
+- No audit trail of who performed actions
+
+**Prevention**:
+- Always verify environment variables before deployment
+- Use CI/CD checks to prevent bypass-enabled deployments
+- Set up monitoring to alert if bypass is enabled in production
+
+#### 2. No Database Validation
+**Risk**: Bypass mode doesn't check if user exists in database, allowing access with any configured credentials.
+- Could create orphaned sessions
+- Breaks referential integrity assumptions
+- May cause errors in code expecting valid teacher records
+
+**Mitigation**: Only use bypass in isolated development environments, never in staging or production.
+
+#### 3. Fixed Credentials in Shared Environments
+**Risk**: All developers using bypass share the same credentials, making it difficult to:
+- Track who made specific changes
+- Test multi-user scenarios
+- Identify source of bugs in multi-developer environments
+
+**Best Practice**: Each developer should use unique `DEV_USER_EMAIL` values in their personal `.env.local` file.
+
+### 🔒 Production Deployment Checklist
+- [ ] Verify `NEXT_PUBLIC_BYPASS_AUTH` is unset or "false"
+- [ ] Test Google OAuth flow works correctly
+- [ ] Remove or secure any `.env` files with bypass enabled
+- [ ] Review and validate all authentication middleware
+- [ ] Set up monitoring for unauthorized access attempts
 
 ## Testing Results
 
@@ -94,9 +125,12 @@ Implemented a development-mode authentication bypass using NextAuth's Credential
 5. **Unit tests**: All 20 existing unit tests pass without modification
 
 ### 📸 Screenshots
-1. Home page with bypass button: https://github.com/user-attachments/assets/29b7d290-79aa-4a19-bd0a-98e57b76ab1e
-2. Dashboard after bypass login: https://github.com/user-attachments/assets/52e2629e-53d5-4113-ba04-3b2738c2397d
-3. Sign-in page with bypass button: https://github.com/user-attachments/assets/19523c2c-dad8-43b4-9fd2-168df2af5ed8
+Screenshots showing the bypass feature in action (see PR description for latest screenshots):
+1. Home page with bypass button
+2. Dashboard after bypass login  
+3. Sign-in page with bypass button
+
+Note: Screenshot URLs are included in the PR description with the latest images.
 
 ## Additional Bug Fixes
 While implementing the bypass, we fixed several pre-existing TypeScript errors:
@@ -180,9 +214,10 @@ If needed, bypass can be disabled by:
 
 ### For Development
 1. Keep bypass enabled in local `.env`
-2. Use `.env.local` for personal overrides
-3. Never commit `.env` with bypass enabled
-4. Document any role-specific features being tested
+2. Use `.env.local` for personal overrides (ensure it's in `.gitignore`)
+3. Each developer should use unique `DEV_USER_EMAIL` in `.env.local` for better tracking
+4. Never commit `.env` or `.env.local` files
+5. Document any role-specific features being tested
 
 ## Conclusion
 The OAuth bypass implementation successfully provides a convenient way to test the application locally without requiring Google OAuth credentials, while maintaining security through environment-based gating and comprehensive documentation.
