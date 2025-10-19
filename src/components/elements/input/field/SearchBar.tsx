@@ -7,11 +7,11 @@ import Image from "next/image";
 interface SearchBarProps {
   width: string | number;
   height: string | number;
-  placeHolder: string; //TEXT
-  fill: string; //HEX
-  handleChange: Function; //ส่งฟังก์ชั่นจับ event ของ input เสยๆ ส่วนข้างในฟังก์ชั่นอาจจะใส่ Logic Search ลงไป จุ๊บมัวฟ์
-  value: string;
+  placeHolder?: string;
+  fill?: string;
+  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
+
 function SearchBar({
   width = null,
   height,
