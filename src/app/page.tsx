@@ -6,12 +6,29 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function Home() {
+  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === "true";
+
+  const handleBypassLogin = () => {
+    // Using signIn with dev-bypass provider
+    signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
+  };
+
   return (
     <main className="flex w-[1440px] h-screen flex-col justify-center pl-10 gap-5">
       <div className="flex gap-6 items-center">
         <div className="w-3 h-full bg-blue-600" />
         <h1 className="text-[64px]">ระบบจัดตารางเรียนตารางสอนโรงเรียน</h1>
       </div>
+
+      {bypassAuth && (
+        <PrimaryButton
+          handleClick={handleBypassLogin}
+          title={"เข้าสู่ระบบ (Dev Bypass)"}
+          color={"secondary"}
+          Icon={<StartIcon />}
+          reverseIcon={true}
+        />
+      )}
 
       <PrimaryButton
         handleClick={() =>

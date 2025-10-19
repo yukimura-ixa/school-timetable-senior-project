@@ -17,6 +17,11 @@ export default withAuth(
   {
     callbacks: {
       authorized({ req, token }) {
+        // Allow bypass in development mode
+        if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+          return true;
+        }
+
         if (token?.role === "admin") return true;
 
         if (token?.role === "student" && !req.nextUrl.pathname.endsWith("student-table"))

@@ -29,10 +29,16 @@ function SignInPage() {
   }
 
   const session = useSession();
+  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === "true";
 
   function handleGoogleLogin() {
     signIn("google", { callbackUrl: "/dashboard/select-semester" });
     console.log("google login");
+  }
+
+  function handleDevBypass() {
+    signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
+    console.log("dev bypass login");
   }
 
   function handleSignout() {
@@ -128,6 +134,15 @@ function SignInPage() {
                 Icon={<LoginIcon />}
                 reverseIcon={false}
               />
+              {bypassAuth && (
+                <PrimaryButton
+                  handleClick={handleDevBypass}
+                  title={"Dev Bypass (Testing)"}
+                  color={"secondary"}
+                  Icon={<LoginIcon />}
+                  reverseIcon={false}
+                />
+              )}
               <PrimaryButton
                 handleClick={handleSignout}
                 title={"ออกจากระบบ"}

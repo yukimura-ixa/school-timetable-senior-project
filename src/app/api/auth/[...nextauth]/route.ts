@@ -1,8 +1,9 @@
-import NextAuth from "next-auth/next"
+import NextAuth, { AuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
 import prisma from "@/libs/prisma"
 
-export const authOptions = {
+const authConfig: AuthOptions = {
   pages: {
     signIn: "/",
   },
@@ -11,14 +12,32 @@ export const authOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.NEXT_GOOGLE_AUTH_CLIENT_ID,
-      clientSecret: process.env.NEXT_GOOGLE_AUTH_CLIENT_SECRET,
+      clientId: process.env.NEXT_GOOGLE_AUTH_CLIENT_ID || "",
+      clientSecret: process.env.NEXT_GOOGLE_AUTH_CLIENT_SECRET || "",
       authorization: {
         params: {
           access_type: "offline",
           prompt: "consent",
           response_type: "code",
         },
+      },
+    }),
+    // Development/Testing bypass provider
+    CredentialsProvider({
+      id: "dev-bypass",
+      name: "Development Bypass",
+      credentials: {},
+      async authorize() {
+        // Only allow bypass in development mode
+        if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+          return {
+            id: process.env.DEV_USER_ID || "1",
+            email: process.env.DEV_USER_EMAIL || "admin@test.com",
+            name: process.env.DEV_USER_NAME || "Test Admin",
+            role: process.env.DEV_USER_ROLE || "admin",
+          }
+        }
+        return null
       },
     }),
   ],
@@ -28,11 +47,18 @@ export const authOptions = {
   callbacks: {
     async signIn({ account, profile }) {
       console.log("Sign in callback")
-      if (account.provider === "google") {
+      
+      // Allow dev bypass provider
+      if (account?.provider === "dev-bypass") {
+        console.log("Dev bypass authentication")
+        return true
+      }
+      
+      if (account?.provider === "google") {
         console.log("Google provider")
         const isTeacherExist = await prisma.teacher.findUnique({
           where: {
-            Email: profile.email,
+            Email: profile?.email,
           },
         })
         if (isTeacherExist) {
@@ -44,18 +70,31 @@ export const authOptions = {
       }
       return false
     },
-    async jwt({ token }) {
+    async jwt({ token, user }) {
       console.log("JWT callback")
-      const teacher = await prisma.teacher.findUnique({
-        where: {
-          Email: token.email,
-        },
-      })
-      if (teacher) {
-        token.role = teacher.Role
-        token.id = teacher.TeacherID
-        token.name =
-          teacher.Prefix + teacher.Firstname + " " + teacher.Lastname
+      
+      // For dev bypass, use the role from user object
+      if (user?.role) {
+        token.role = user.role
+        token.id = user.id
+        token.name = user.name
+        return token
+      }
+      
+      // For Google auth, fetch teacher from database
+      if (token.email) {
+        const teacher = await prisma.teacher.findUnique({
+          where: {
+            Email: token.email,
+          },
+        })
+        if (teacher) {
+          token.role = teacher.Role
+          token.id = teacher.TeacherID
+          token.name = teacher.Role === "teacher" 
+            ? teacher.Prefix + teacher.Firstname + " " + teacher.Lastname 
+            : token.name
+        }
       }
       return token
     },
@@ -64,83 +103,14 @@ export const authOptions = {
       if (session.user) {
         session.user = {
           ...session.user,
-          role: token.role,
+          role: token.role as string,
         }
       }
-      // console.log(session)
       return session
     },
   },
 }
 
-const handler = NextAuth({
-  pages: {
-    signIn: "/",
-  },
-  session: {
-    strategy: "jwt",
-  },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.NEXT_GOOGLE_AUTH_CLIENT_ID,
-      clientSecret: process.env.NEXT_GOOGLE_AUTH_CLIENT_SECRET,
-      authorization: {
-        params: {
-          access_type: "offline",
-          prompt: "consent",
-          response_type: "code",
-        },
-      },
-    }),
-  ],
-  theme: {
-    colorScheme: "light",
-  },
-  callbacks: {
-    async signIn({ account, profile }) {
-      console.log("Sign in callback")
-      if (account.provider === "google") {
-        console.log("Google provider")
-        const isTeacherExist = await prisma.teacher.findUnique({
-          where: {
-            Email: profile.email,
-          },
-        })
-        if (isTeacherExist) {
-          console.log("Teacher found")
-          return true
-        }
-        console.log("Teacher not found")
-        return false
-      }
-      return false
-    },
-    async jwt({ token }) {
-      console.log("JWT callback")
-      const teacher = await prisma.teacher.findUnique({
-        where: {
-          Email: token.email,
-        },
-      })
-      if (teacher) {
-        token.role = teacher.Role
-        token.id = teacher.TeacherID
-        token.name = teacher.Role === "teacher" ? teacher.Prefix + teacher.Firstname + " " + teacher.Lastname : token.name
-      }
-      return token
-    },
-    async session({ session, token }) {
-      console.log("Session Callback")
-      if (session.user) {
-        session.user = {
-          ...session.user,
-          role: token.role,
-        }
-      }
-      // console.log(session)
-      return session
-    },
-  },
-})
+const handler = NextAuth(authConfig)
 
 export { handler as GET, handler as POST }
