@@ -267,7 +267,24 @@ npx prisma migrate dev --name init
 npx prisma generate
 ```
 
-6. **เริ่มต้น development server | Start development server**
+6. **เติมข้อมูลทดสอบ (ตัวเลือก) | Seed test data (Optional)**
+
+```bash
+# Seed database with mock Thai school data
+npx prisma db seed
+```
+
+ระบบจะสร้างข้อมูลจำลองสำหรับโรงเรียนขนาดกลาง:
+- 60 ครู, 18 ชั้นเรียน, 40 ห้องเรียน, 42+ วิชา
+- ตารางตัวอย่างพร้อม edge cases สำหรับทดสอบ
+
+The system will create mock data for a medium-sized school:
+- 60 teachers, 18 classes, 40 rooms, 42+ subjects
+- Sample schedules with edge cases for testing
+
+📖 [ดูรายละเอียดเพิ่มเติม | See details](./prisma/QUICKSTART.md)
+
+7. **เริ่มต้น development server | Start development server**
 
 ```bash
 npm run dev
