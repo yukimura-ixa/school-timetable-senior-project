@@ -6,18 +6,19 @@ import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
 import Image from "next/image";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 
-interface Dropdown {
-  data: any[]; //ข้อมูลที่เป็น Array ทุกชนิด
-  renderItem: Function; //ส่ง Component ผ่าน props
-  width: string | number;
-  height: string | number;
-  currentValue: string; //ค่าปัจจุบันที่ Dropdown ได้ทำการเลือก
-  placeHolder: string; //ตอนยังไม่เลือกค่าให้ใส่อะไรมาก็ได้ default คือ "Options"
-  handleChange: Function; //ฟังก์ชั่นที่ส่งมาให้สำหรับกดเลือกค่าใน Dropdown
-  useSearchBar: boolean;
-  searchFunciton: Function;
-  borderColor: string;
+interface DropdownProps {
+  data: Array<unknown>;
+  renderItem: React.ComponentType<{ data: unknown }>;
+  width?: string | number | null;
+  height?: string | number;
+  currentValue?: string;
+  placeHolder?: string;
+  handleChange: (item: unknown, index: number) => void;
+  useSearchBar?: boolean;
+  searchFunciton?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  borderColor?: string;
 }
+
 function Dropdown({
   data,
   renderItem: ItemElement, //ทำการ Map ให้เป็นชื่อที่ขึ้นต้นด้วย Capital letter
@@ -29,7 +30,7 @@ function Dropdown({
   useSearchBar = false,
   searchFunciton,
   borderColor = "",
-}): JSX.Element {
+}: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
   return (
@@ -73,7 +74,7 @@ function Dropdown({
           currentValue === "" ||
           currentValue == null
             ? placeHolder
-            : width < 200
+            : typeof width === "number" && width < 200
               ? currentValue.length > 15
                 ? `${currentValue.substring(0, 10)}...`
                 : currentValue
@@ -82,7 +83,7 @@ function Dropdown({
         <Image
           className={`
             duration-300
-            ${isHidden ? "rotate-180" : null}
+            ${isHidden ? "rotate-180" : ""}
         `}
           src={arrowdownIcon}
           alt="arrowicon"
@@ -103,19 +104,19 @@ function Dropdown({
             mt-1
             bg-white
             gap-3
-            ${useSearchBar ? "pt-5" : null}
+            ${useSearchBar ? "pt-5" : ""}
             overflow-y-scroll
             duration-300
             transition-all ease-out
-            ${isHidden ? null : `scale-y-0 translate-y-[-75px]`} 
+            ${isHidden ? "" : `scale-y-0 translate-y-[-75px]`} 
             `} //เช็คสถานะของ isHidden เพื่อเปิด Dropdown List
         style={{
           width: width === null ? "fit-content" : width,
           height: data.length < 3 ? "auto" : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
         }}
       >
-        {useSearchBar ? (
-          <SearchBar fill="#FFFFFF" handleChange={searchFunciton} />
+        {useSearchBar && searchFunciton ? (
+          <SearchBar height="auto" fill="#FFFFFF" handleChange={searchFunciton} />
         ) : null}
         {data.length === 0 ? (
           <div
@@ -133,7 +134,7 @@ function Dropdown({
           </div>
         ) : (
           <div className="bg-white">
-            {data.map((item: any, index: number) => {
+            {data.map((item, index: number) => {
               return (
                 <ul
                   className={`
@@ -147,12 +148,13 @@ function Dropdown({
                     hover:bg-cyan-50
                     hover:text-cyan-500
                   `}
-                  key={`${item}(${index})`}
+                  key={`${String(item)}(${index})`}
                   onClick={() => {
-                    setIsHidden(false), handleChange(item, index);
+                    setIsHidden(false);
+                    handleChange(item, index);
                   }}
                   //เมื่อกดเลือกข้อมูลใน List Dropdown จะพับกลับขึ้นไปแล้วเรียก handleChange
-                  //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้องการ
+                  //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้นการ
                 >
                   {/* Component ที่ส่งมาให้ใช้งาน รับ props เป็น data */}
                   <ItemElement data={item} />
