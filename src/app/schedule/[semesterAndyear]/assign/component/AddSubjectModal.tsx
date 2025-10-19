@@ -234,7 +234,7 @@ function AddSubjectModal(props: Props) {
                         );
                       }}
                       useSearchBar={true}
-                      searchFunciton={searchHandle}
+                      searchFunction={searchHandle}
                     />
                     <div className="flex justify-between gap-5 items-center">
                       <div className="flex gap-3">

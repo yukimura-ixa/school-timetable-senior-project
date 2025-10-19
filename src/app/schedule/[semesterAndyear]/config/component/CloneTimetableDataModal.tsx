@@ -136,7 +136,7 @@ function CloneTimetableDataModal({
                       handleChange={(value: string) => {
                         setSelectedCloneData(() => value.ConfigID);
                       }}
-                      searchFunciton={undefined}
+                      searchFunction={undefined}
                     />
                   )}
                 </div>

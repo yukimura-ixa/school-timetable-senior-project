@@ -55,7 +55,7 @@ function SelectRoomName(props: Props) {
           placeHolder={"ตัวเลือก"}
           handleChange={props.handleRoomChange}
           useSearchBar={true}
-          searchFunciton={searchHandle}
+          searchFunction={searchHandle}
         />
       </div>
     </>

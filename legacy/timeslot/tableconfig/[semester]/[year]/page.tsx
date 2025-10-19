@@ -57,7 +57,7 @@ function TimetableConfigValue({}: Props) {
               <li className="w-[70px]">{data}</li>
             )}
             handleChange={undefined}
-            searchFunciton={undefined}
+            searchFunction={undefined}
           />
         </div> */}
         {/* Semester */}
@@ -72,7 +72,7 @@ function TimetableConfigValue({}: Props) {
               <li className="w-[70px]">{data}</li>
             )}
             handleChange={undefined}
-            searchFunciton={undefined}
+            searchFunction={undefined}
           />
         </div> */}
         {/* School */}
@@ -131,7 +131,7 @@ function TimetableConfigValue({}: Props) {
                   <li className="w-[70px]">{data}</li>
                 )}
                 handleChange={undefined}
-                searchFunciton={undefined}
+                searchFunction={undefined}
               />
             </div>
             <div className="flex justify-between items-center gap-3">
@@ -146,7 +146,7 @@ function TimetableConfigValue({}: Props) {
                   <li className="w-[70px]">{data}</li>
                 )}
                 handleChange={undefined}
-                searchFunciton={undefined}
+                searchFunction={undefined}
               />
             </div>
           </div>

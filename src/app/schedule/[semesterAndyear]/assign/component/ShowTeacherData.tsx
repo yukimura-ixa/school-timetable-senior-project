@@ -95,7 +95,7 @@ function ShowTeacherData() {
                 }}
                 placeHolder="เลือกคุณครู"
                 useSearchBar={true}
-                searchFunciton={searchHandle}
+                searchFunction={searchHandle}
               />
             </div>
           </div>

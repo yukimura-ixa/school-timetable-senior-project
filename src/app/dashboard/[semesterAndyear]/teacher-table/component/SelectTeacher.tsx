@@ -54,7 +54,7 @@ function SelectTeacher({ setTeacherID, currentTeacher = {} }: Props) {
           setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`);
           setTeacherID(data.TeacherID ?? null);
         }}
-        searchFunciton={undefined}
+        searchFunction={undefined}
       />
     </div>
   );

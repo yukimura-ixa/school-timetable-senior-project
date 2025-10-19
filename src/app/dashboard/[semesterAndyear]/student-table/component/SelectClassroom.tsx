@@ -60,7 +60,7 @@ function SelectClassRoom({
           setClassRoom(formatGradeLabel(gradeId));
           setGradeID(gradeId);
         }}
-        searchFunciton={undefined}
+        searchFunction={undefined}
       />
     </div>
   );

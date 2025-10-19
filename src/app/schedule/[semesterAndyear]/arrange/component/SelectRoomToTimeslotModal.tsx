@@ -114,7 +114,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                       roomData.data.find((room) => room.RoomName == data),
                     );
                   }}
-                  searchFunciton={undefined}
+                  searchFunction={undefined}
                 />
               ) : (
                 <CircularProgress />

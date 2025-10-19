@@ -38,7 +38,7 @@ function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
             setTeacherID(data.TeacherID)
             pushLink(data.TeacherID)
           }}
-          searchFunciton={undefined}
+          searchFunction={undefined}
         />
       </div>
       }
