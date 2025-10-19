@@ -79,7 +79,7 @@ function SelectSubjects(props: Props) {
                 }}
                 placeHolder="เลือกวิชา"
                 useSearchBar={true}
-                searchFunciton={searchHandle}
+                searchFunction={searchHandle}
               />
             )}
           </div>

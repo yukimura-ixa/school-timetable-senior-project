@@ -74,7 +74,7 @@ function SelectSubject(props: Props) {
             placeHolder={"ตัวเลือก"}
             handleChange={props.handleSubjectChange}
             useSearchBar={true}
-            searchFunciton={searchHandle}
+            searchFunction={searchHandle}
           />
         ) : (
           <CircularProgress size={20} />

@@ -194,7 +194,7 @@ const page = (props: Props) => {
               placeHolder="เลือกชั้นเรียน"
               currentValue={convertDropdownItem(currentGradeID)}
               handleChange={(item) => setCurrentGradeID(item)}
-              searchFunciton={undefined}
+              searchFunction={undefined}
             />
           </div>
           <div style={{display : currentGradeID == "" ? "none" : 'flex'}} className="w-full items-center flex justify-end">

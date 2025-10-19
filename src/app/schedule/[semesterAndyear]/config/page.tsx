@@ -295,7 +295,7 @@ function TimetableConfigValue() {
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeMiniBreak}
-                  searchFunciton={undefined}
+                  searchFunction={undefined}
                 />
                 <p className=" text-gray-500">เวลา</p>
                 <input
@@ -353,7 +353,7 @@ function TimetableConfigValue() {
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeBreakTimeS}
-                  searchFunciton={undefined}
+                  searchFunction={undefined}
                 />
               )}
             </div>
@@ -374,7 +374,7 @@ function TimetableConfigValue() {
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeBreakTimeJ}
-                  searchFunciton={undefined}
+                  searchFunction={undefined}
                 />
               )}
             </div>

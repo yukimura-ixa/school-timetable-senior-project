@@ -6,10 +6,11 @@ import Image from "next/image";
 
 interface SearchBarProps {
   width?: string | number | null;
-  height: string | number;
+  height?: string | number;
   placeHolder?: string;
   fill?: string;
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  value?: string;
 }
 
 function SearchBar({
@@ -18,6 +19,7 @@ function SearchBar({
   placeHolder = "ค้นหา",
   fill = "#EDEEF3",
   handleChange,
+  value,
 }: SearchBarProps) {
   return (
     <div className="flex items-center rounded relative">

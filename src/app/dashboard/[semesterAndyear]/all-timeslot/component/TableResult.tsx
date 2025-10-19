@@ -26,7 +26,7 @@ const TableResult = (props: Props) => {
       </thead>
       <tbody>
         {props.teachers.map((tch, index) => (
-          <tr className="flex items-center gap-2 h-fit mt-1 select-none">
+          <tr key={tch.TeacherID} className="flex items-center gap-2 h-fit mt-1 select-none">
             <td className="w-[50px] h-[59.8px] flex items-center justify-center bg-slate-100 rounded">
               <p className="text-sm">
                 {

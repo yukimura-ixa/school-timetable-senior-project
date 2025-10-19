@@ -89,7 +89,7 @@ function RoomIndividualDashboard({}: Props) {
             currentValue={""}
             // handleChange={handleChange}
             useSearchBar={true}
-            // searchFunciton={searchHandle}
+            // searchFunction={searchHandle}
           /> */}
         </div>
         <table className="flex flex-col mt-3 gap-3">
