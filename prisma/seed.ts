@@ -329,13 +329,16 @@ async function main() {
   const getSubjectsByCategory = (category: string) => 
     createdSubjects.filter(s => s.Category === category);
 
-  // Assign Thai teachers to M.1-M.3 classes
+  // Assign Thai teachers to ALL classes (M.1-M.6)
   const thaiTeachers = getTeachersByDept('ภาษาไทย');
   const thaiSubjects = getSubjectsByCategory('ภาษาไทย');
-  for (let i = 0; i < 9 && i < thaiTeachers.length; i++) {
+  for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = thaiTeachers[i % thaiTeachers.length];
-    const subject = thaiSubjects[Math.floor(i / 3) % thaiSubjects.length];
+    // Choose subject based on grade year
+    const subject = gradeLevel.Year <= 3 
+      ? thaiSubjects[0] // ภาษาไทย 1 for M.1-M.3
+      : thaiSubjects[3]; // ภาษาไทย 4 for M.4-M.6
     
     const resp = await prisma.teachers_responsibility.create({
       data: {
@@ -350,13 +353,16 @@ async function main() {
     responsibilities.push(resp);
   }
 
-  // Assign Math teachers to M.1-M.6 classes
+  // Assign Math teachers to ALL classes (M.1-M.6)
   const mathTeachers = getTeachersByDept('คณิตศาสตร์');
   const mathSubjects = getSubjectsByCategory('คณิตศาสตร์');
-  for (let i = 0; i < gradeLevels.length && i < mathTeachers.length * 2; i++) {
+  for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = mathTeachers[i % mathTeachers.length];
-    const subject = mathSubjects[gradeLevel.Year <= 3 ? 0 : 3];
+    // Choose subject based on grade year
+    const subject = gradeLevel.Year <= 3 
+      ? mathSubjects[0] // คณิตศาสตร์ 1 for M.1-M.3
+      : mathSubjects[3]; // คณิตศาสตร์ 4 for M.4-M.6
     
     const resp = await prisma.teachers_responsibility.create({
       data: {
@@ -371,13 +377,16 @@ async function main() {
     responsibilities.push(resp);
   }
 
-  // Assign Science teachers
+  // Assign Science teachers to ALL classes
   const scienceTeachers = getTeachersByDept('วิทยาศาสตร์');
   const scienceSubjects = getSubjectsByCategory('วิทยาศาสตร์');
-  for (let i = 0; i < gradeLevels.length && i < scienceTeachers.length * 2; i++) {
+  for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = scienceTeachers[i % scienceTeachers.length];
-    const subject = scienceSubjects[Math.floor(i / 3) % scienceSubjects.length];
+    // Choose subject based on grade year
+    const subject = gradeLevel.Year <= 3 
+      ? scienceSubjects[0] // วิทยาศาสตร์ 1 for M.1-M.3
+      : scienceSubjects[Math.min(3, scienceSubjects.length - 1)]; // Later science subjects for M.4-M.6
     
     const resp = await prisma.teachers_responsibility.create({
       data: {
