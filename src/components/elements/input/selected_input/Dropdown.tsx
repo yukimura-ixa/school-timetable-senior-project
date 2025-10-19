@@ -29,7 +29,7 @@ function Dropdown({
   useSearchBar = false,
   searchFunciton,
   borderColor = "",
-}): JSX.Element {
+}: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
   return (

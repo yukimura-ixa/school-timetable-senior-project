@@ -19,7 +19,7 @@ function SearchBar({
   fill = "#EDEEF3",
   handleChange,
   value,
-}) {
+}: SearchBarProps) {
   return (
     <div className="flex items-center rounded relative">
       <input
