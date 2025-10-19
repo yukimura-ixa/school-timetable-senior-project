@@ -11,6 +11,9 @@
     "test:watch": "jest --watchAll",
     "postinstall": "prisma generate"
   },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -59,6 +62,7 @@
     "prisma-dbml-generator": "^0.10.0",
     "tailwindcss": "^4.1.14",
     "ts-jest": "^29.4.4",
+    "ts-node": "^10.9.2",
     "typescript": "latest"
   },
   "prettier": {
