@@ -19,11 +19,22 @@ Junior High (มัธยมต้น)          Senior High (มัธยมป�
 └─ M.3: 301, 302, 303           └─ M.6: 601, 602, 603
 
 🏢 ROOMS (40)
-อาคาร 1 (Building 1)            อาคาร 2 (Building 2)
-├─ Floor 1: 1101-1105           ├─ Floor 1: 2101-2105
-├─ Floor 2: 1201-1205           ├─ Floor 2: 2201-2205
-├─ Floor 3: 1301-1305           ├─ Floor 3: 2301-2305
-└─ Floor 4: 1401-1405           └─ Floor 4: 2401-2405
+อาคารเรียน (Academic Building)
+├─ ห้อง 101-116 (16 rooms)
+└─ Regular classrooms
+
+อาคารวิทยาศาสตร์ (Science Building)
+├─ ห้อง 117-132 (16 rooms)
+├─ Science labs
+├─ Computer rooms
+└─ Specialized classrooms
+
+อาคารกีฬา (Sports/Arts Building)
+├─ ห้อง 133-140 (8 rooms)
+├─ PE rooms (ห้องพลศึกษา)
+├─ Music rooms (ห้องดนตรี)
+├─ Dance rooms (ห้องนาฎศิลป์)
+└─ Art rooms (ห้องศิลปะ)
 
 👨‍🏫 TEACHERS (60) - 8 Departments
 ├─ คณิตศาสตร์ (Math) .............. 7 teachers
@@ -242,7 +253,7 @@ Entity                Count    Notes
 Programs              4        2 core + 2 elective
 Grade Levels          18       M.1-M.6 × 3 sections
 Teachers              60       8 departments
-Rooms                 40       2 buildings × 20 rooms
+Rooms                 40       3 specialized buildings
 Subjects              42+      Core + electives + activities
 Timeslots             40       5 days × 8 periods
 Teacher Resp.         100+     Assignments per semester

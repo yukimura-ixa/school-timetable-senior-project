@@ -13,7 +13,7 @@ The seed generates realistic data for a medium-sized Thai secondary school:
 | **Programs** | 4 | Core curriculum (junior/senior) + electives (Science-Math, Arts-Language) |
 | **Grade Levels** | 18 | M.1-M.6 with 3 sections each (101-603) |
 | **Teachers** | 60 | Distributed across 8 departments |
-| **Rooms** | 40 | 2 buildings × 4 floors × 5 rooms |
+| **Rooms** | 40 | 3 specialized buildings (Academic, Science, Sports/Arts) |
 | **Subjects** | 42+ | Thai curriculum (core + elective + activities) |
 | **Timeslots** | 40 | 8 periods/day × 5 days (MON-FRI) |
 | **Teacher Responsibilities** | 100+ | Subject assignments per grade/teacher |
@@ -59,12 +59,21 @@ Each teacher has:
 
 ### Rooms (ห้องเรียน)
 
-40 classrooms across 2 buildings:
+40 classrooms across 3 specialized buildings:
 
-- **อาคาร 1**: Rooms 1101-1105, 1201-1205, 1301-1305, 1401-1405
-- **อาคาร 2**: Rooms 2101-2105, 2201-2205, 2301-2305, 2401-2405
+- **อาคารเรียน (Academic Building)**: 16 rooms (ห้อง 101-116)
+  - Regular classrooms for standard subjects
+  - Examples: "ห้อง 101 อาคารเรียน ห้องเรียน", "ห้อง 102 อาคารเรียน ห้องเรียน"
 
-Format: `[Building][Floor][Room]` (e.g., 1101 = Building 1, Floor 1, Room 01)
+- **อาคารวิทยาศาสตร์ (Science Building)**: 16 rooms (ห้อง 117-132)
+  - Science labs, computer rooms, and classrooms
+  - Examples: "ห้อง 117 อาคารวิทยาศาสตร์ ห้องปฏิบัติการวิทยาศาสตร์", "ห้อง 118 อาคารวิทยาศาสตร์ ห้องคอมพิวเตอร์"
+
+- **อาคารกีฬา (Sports/Arts Building)**: 8 rooms (ห้อง 133-140)
+  - Specialized rooms for PE, music, dance, and arts
+  - Examples: "ห้อง 133 อาคารกีฬา ห้องพลศึกษา", "ห้อง 134 อาคารกีฬา ห้องดนตรี", "ห้อง 135 อาคารกีฬา ห้องนาฎศิลป์"
+
+Format: `ห้อง [Number] [Building Type] [Room Type]`
 
 ### Subjects (วิชา)
 

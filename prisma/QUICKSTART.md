@@ -27,7 +27,7 @@ npx prisma db seed
 ### Core Data
 - ✅ 4 Programs (หลักสูตร)
 - ✅ 18 Grade Levels (ระดับชั้น M.1-M.6)
-- ✅ 40 Rooms (ห้องเรียน in 2 buildings)
+- ✅ 40 Rooms (ห้องเรียน in 3 specialized buildings)
 - ✅ 60 Teachers (ครู with Thai names)
 - ✅ 42 Subjects (วิชา - Thai curriculum)
 - ✅ 40 Timeslots (ช่วงเวลา - 8 periods × 5 days)

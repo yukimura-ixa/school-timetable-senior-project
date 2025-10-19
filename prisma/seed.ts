@@ -63,8 +63,24 @@ const DEPARTMENTS = [
   'การงานอาชีพ'
 ];
 
-// Building names
-const BUILDINGS = ['อาคาร 1', 'อาคาร 2'];
+// Building names and types
+const BUILDINGS = [
+  { name: 'อาคารเรียน', shortName: '1', type: 'อาคารเรียน' },
+  { name: 'อาคารวิทยาศาสตร์', shortName: '2', type: 'อาคารวิทยาศาสตร์' },
+  { name: 'อาคารกีฬา', shortName: '3', type: 'อาคารกีฬา' },
+];
+
+// Room types for different purposes
+const ROOM_TYPES = [
+  'ห้องเรียน',
+  'ห้องปฏิบัติการวิทยาศาสตร์',
+  'ห้องคอมพิวเตอร์',
+  'ห้องดนตรี',
+  'ห้องนาฎศิลป์',
+  'ห้องศิลปะ',
+  'ห้องพลศึกษา',
+  'ห้องประชุม',
+];
 
 async function main() {
   console.log('🌱 Starting seed...');
@@ -146,19 +162,34 @@ async function main() {
   // ===== ROOMS =====
   console.log('🏫 Creating rooms...');
   const rooms: any[] = [];
+  let roomCounter = 101;
+  
   for (const building of BUILDINGS) {
-    for (let floor = 1; floor <= 4; floor++) {
-      const roomsPerFloor = 5;
-      for (let roomNum = 1; roomNum <= roomsPerFloor; roomNum++) {
-        const room = await prisma.room.create({
-          data: {
-            RoomName: `${building.replace('อาคาร ', '')}${floor}0${roomNum}`,
-            Building: building,
-            Floor: `ชั้น ${floor}`,
-          }
-        });
-        rooms.push(room);
+    const roomsInBuilding = building.shortName === '3' ? 8 : 16; // Sports building has fewer rooms
+    
+    for (let i = 0; i < roomsInBuilding; i++) {
+      const floor = Math.floor(i / 4) + 1;
+      
+      // Determine room type based on building
+      let roomType = 'ห้องเรียน';
+      if (building.shortName === '2') {
+        // Science building
+        roomType = i % 3 === 0 ? 'ห้องปฏิบัติการวิทยาศาสตร์' : i % 3 === 1 ? 'ห้องคอมพิวเตอร์' : 'ห้องเรียน';
+      } else if (building.shortName === '3') {
+        // Sports/Arts building
+        const types = ['ห้องพลศึกษา', 'ห้องดนตรี', 'ห้องนาฎศิลป์', 'ห้องศิลปะ'];
+        roomType = types[i % types.length];
       }
+      
+      const room = await prisma.room.create({
+        data: {
+          RoomName: `ห้อง ${roomCounter} ${building.type} ${roomType}`,
+          Building: building.name,
+          Floor: `ชั้น ${floor}`,
+        }
+      });
+      rooms.push(room);
+      roomCounter++;
     }
   }
   console.log(`✅ Created ${rooms.length} rooms`);
