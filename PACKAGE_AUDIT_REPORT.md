@@ -1,6 +1,6 @@
 # Package Audit Report
 
-**Date**: 2025-10-19  
+**Date**: October 2025  
 **Project**: School Timetable Senior Project  
 **Audit Type**: Deprecated Packages & Version Audit
 
@@ -274,4 +274,4 @@ The project's dependency health is **generally good**. The main concern is the d
 **Overall Health Score**: 8/10
 
 **Report Prepared By**: GitHub Copilot  
-**Last Updated**: 2025-10-19
+**Last Updated**: October 2025
