@@ -2,7 +2,8 @@
 
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-18.3-61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748)](https://www.prisma.io/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)](https://www.mysql.com/)
@@ -145,10 +146,11 @@ A comprehensive web application designed to streamline the process of creating a
 
 **ส่วนหน้าบ้าน (Frontend):**
 
-- Next.js 14.2 (React Framework)
+- Next.js 15.5 (React Framework)
+- React 18.3 (UI Library)
 - Material-UI 5.18 (Component Library)
-- Tailwind CSS (Styling)
-- TypeScript (Type Safety)
+- Tailwind CSS 4.1 (Styling)
+- TypeScript 5.x (Type Safety)
 
 **ส่วนหลังบ้าน (Backend):**
 
@@ -160,14 +162,18 @@ A comprehensive web application designed to streamline the process of creating a
 
 - MySQL 8.0
 - Google Cloud SQL (Production)
+- Prisma 5.22 (ORM)
 
 **ไลบรารีเสริม (Additional Libraries):**
 
-- ExcelJS (Excel export)
-- React-to-Print (PDF generation)
-- React Beautiful DnD (Drag and drop)
-- SWR (Data fetching)
-- Notistack (Notifications)
+- ExcelJS 4.4 (Excel export)
+- React-to-Print 2.15 (PDF generation)
+- React Beautiful DnD 13.1 (Drag and drop) ⚠️ **Deprecated**
+- SWR 2.3 (Data fetching)
+- Notistack 3.0 (Notifications)
+- Firebase 10.14 (Authentication & Services)
+
+> ⚠️ **หมายเหตุ | Note**: `react-beautiful-dnd` ถูกระงับการพัฒนาแล้ว แต่ยังคงใช้งานได้ตามปกติ | `react-beautiful-dnd` is deprecated but still functional. See [Package Status](#package-status) for details.
 
 ---
 
@@ -213,7 +219,7 @@ The system uses a relational database with the following main entities:
 
 - Node.js 18.x หรือสูงกว่า (or higher)
 - MySQL 8.0
-- npm หรือ yarn package manager
+- pnpm package manager (recommended) หรือ npm/yarn
 
 ### การติดตั้ง | Installation
 
@@ -227,6 +233,18 @@ cd school-timetable-senior-project
 ```
 
 2. **ติดตั้ง dependencies | Install dependencies**
+
+แนะนำให้ใช้ pnpm (Recommended using pnpm):
+
+```bash
+# Install pnpm if not already installed
+npm install -g pnpm
+
+# Install dependencies
+pnpm install
+```
+
+หรือใช้ npm (Or use npm):
 
 ```bash
 npm install
@@ -263,11 +281,24 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"
 5. **รัน database migrations | Run database migrations**
 
 ```bash
+pnpm prisma migrate dev --name init
+pnpm prisma generate
+```
+
+หรือ (Or with npm):
+
+```bash
 npx prisma migrate dev --name init
 npx prisma generate
 ```
 
 6. **เริ่มต้น development server | Start development server**
+
+```bash
+pnpm dev
+```
+
+หรือ (Or with npm):
 
 ```bash
 npm run dev
@@ -276,6 +307,13 @@ npm run dev
 แอปพลิเคชันจะพร้อมใช้งานที่ | The application will be available at `http://localhost:3000`
 
 ### สร้างเวอร์ชันสำหรับ Production | Building for Production
+
+```bash
+pnpm build
+pnpm start
+```
+
+หรือ (Or with npm):
 
 ```bash
 npm run build
@@ -391,6 +429,13 @@ npm start
 ## 🧪 การทดสอบ | Testing
 
 รันการทดสอบด้วย Jest | Run tests with Jest:
+
+```bash
+pnpm test
+pnpm test:watch
+```
+
+หรือ (Or with npm):
 
 ```bash
 npm test
@@ -526,6 +571,66 @@ User satisfaction survey results (25 respondents: 20 teachers, 5 students):
 2. Optimized for desktop and tablet use (scheduling features)
 3. Currently supports single-school deployment
 4. Does not include automatic schedule generation algorithm
+
+---
+
+## 📦 สถานะแพ็กเกจ | Package Status
+
+### ภาษาไทย
+
+**แพ็กเกจที่ระงับการพัฒนา (Deprecated):**
+
+#### React Beautiful DnD (v13.1.1) ⚠️
+- **สถานะ**: ระงับการพัฒนาโดยผู้สร้าง Atlassian แต่ยังคงใช้งานได้
+- **การใช้งานในโปรเจค**: ใช้สำหรับฟีเจอร์ลากและวางในการจัดตารางเรียน
+- **ไฟล์ที่เกี่ยวข้อง**:
+  - `src/app/schedule/[semesterAndyear]/arrange/component/TimeSlot.tsx`
+  - `src/app/schedule/[semesterAndyear]/arrange/component/SubjectItem.tsx`
+  - `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+  - `src/components/elements/dnd/StrictModeDroppable.tsx`
+- **ผลกระทบ**: ไม่มีผลกระทบต่อการใช้งานในปัจจุบัน แพ็กเกจยังคงทำงานได้ปกติและเสถียร
+- **แนวทางในอนาคต**: พิจารณาย้ายไปใช้ [@dnd-kit](https://dndkit.com/) ซึ่งเป็นทางเลือกที่ทันสมัยและได้รับการดูแลอย่างดี
+
+**การอัปเดตแพ็กเกจที่แนะนำ:**
+
+จากการตรวจสอบพบว่ามีแพ็กเกจที่มีเวอร์ชันใหม่กว่า แต่การอัปเดตต้องระมัดระวังเนื่องจากอาจมี Breaking Changes:
+
+- **Firebase**: 10.14.1 → 12.4.0 (แก้ไขช่องโหว่ความปลอดภัยเล็กน้อยใน undici)
+- **Material-UI**: 5.18.0 → 7.3.4 (2 major versions - ต้องศึกษา migration guide)
+- **Prisma**: 5.22.0 → 6.17.1 (1 major version - ต้องทดสอบอย่างละเอียด)
+- **React**: 18.3.1 → 19.2.0 (1 major version - ต้องทดสอบ compatibility)
+
+**การดูแลรักษา:**
+
+โปรเจคนี้ได้รับการอัปเดตเป็น Next.js 15.5 เรียบร้อยแล้ว (ดู [MIGRATION_NEXTJS15.md](MIGRATION_NEXTJS15.md)) และพร้อมใช้งานในสภาพแวดล้อม production
+
+### English
+
+**Deprecated Packages:**
+
+#### React Beautiful DnD (v13.1.1) ⚠️
+- **Status**: Deprecated by maintainer (Atlassian) but still functional
+- **Project Usage**: Used for drag-and-drop functionality in timetable arrangement
+- **Related Files**:
+  - `src/app/schedule/[semesterAndyear]/arrange/component/TimeSlot.tsx`
+  - `src/app/schedule/[semesterAndyear]/arrange/component/SubjectItem.tsx`
+  - `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+  - `src/components/elements/dnd/StrictModeDroppable.tsx`
+- **Impact**: No immediate impact on functionality. The package remains stable and operational.
+- **Future Consideration**: Consider migrating to [@dnd-kit](https://dndkit.com/), a modern and well-maintained alternative.
+
+**Recommended Package Updates:**
+
+Package audit identified newer versions available, but updates require careful consideration due to potential breaking changes:
+
+- **Firebase**: 10.14.1 → 12.4.0 (fixes minor security vulnerabilities in undici)
+- **Material-UI**: 5.18.0 → 7.3.4 (2 major versions - requires migration guide review)
+- **Prisma**: 5.22.0 → 6.17.1 (1 major version - requires thorough testing)
+- **React**: 18.3.1 → 19.2.0 (1 major version - requires compatibility testing)
+
+**Maintenance Status:**
+
+This project has been successfully upgraded to Next.js 15.5 (see [MIGRATION_NEXTJS15.md](MIGRATION_NEXTJS15.md)) and is production-ready.
 
 ---
 
