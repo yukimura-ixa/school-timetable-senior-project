@@ -10,7 +10,6 @@ interface SearchBarProps {
   placeHolder?: string;
   fill?: string;
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  value?: string;
 }
 
 function SearchBar({

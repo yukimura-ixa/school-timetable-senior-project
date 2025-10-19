@@ -15,7 +15,7 @@ interface DropdownProps {
   placeHolder?: string;
   handleChange: (item: unknown, index: number) => void;
   useSearchBar?: boolean;
-  searchFunciton?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  searchFunction?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   borderColor?: string;
 }
 
@@ -28,7 +28,7 @@ function Dropdown({
   placeHolder = "Options",
   handleChange,
   useSearchBar = false,
-  searchFunciton,
+  searchFunction,
   borderColor = "",
 }: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
@@ -115,8 +115,8 @@ function Dropdown({
           height: data.length < 3 ? "auto" : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
         }}
       >
-        {useSearchBar && searchFunciton ? (
-          <SearchBar height="auto" fill="#FFFFFF" handleChange={searchFunciton} />
+        {useSearchBar && searchFunction ? (
+          <SearchBar height="auto" fill="#FFFFFF" handleChange={searchFunction} />
         ) : null}
         {data.length === 0 ? (
           <div
@@ -154,7 +154,7 @@ function Dropdown({
                     handleChange(item, index);
                   }}
                   //เมื่อกดเลือกข้อมูลใน List Dropdown จะพับกลับขึ้นไปแล้วเรียก handleChange
-                  //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้นการ
+                  //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้องการ
                 >
                   {/* Component ที่ส่งมาให้ใช้งาน รับ props เป็น data */}
                   <ItemElement data={item} />
