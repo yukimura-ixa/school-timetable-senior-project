@@ -19,9 +19,9 @@ describe('Seed Data Validation', () => {
     'การงานอาชีพ'
   ];
   const BUILDINGS = [
-    { name: 'อาคารเรียน', shortName: '1', type: 'อาคารเรียน' },
-    { name: 'อาคารวิทยาศาสตร์', shortName: '2', type: 'อาคารวิทยาศาสตร์' },
-    { name: 'อาคารกีฬา', shortName: '3', type: 'อาคารกีฬา' },
+    { name: 'ตึกเรียน', shortName: '1' },
+    { name: 'ตึกวิทยาศาสตร์', shortName: '2' },
+    { name: 'ตึกกีฬา', shortName: '3' },
   ];
 
   describe('Data Dimensions', () => {
@@ -77,44 +77,49 @@ describe('Seed Data Validation', () => {
   describe('Room Generation', () => {
     it('should generate 40 rooms across 3 buildings', () => {
       const rooms = [];
-      let roomCounter = 101;
       
       for (const building of BUILDINGS) {
         const roomsInBuilding = building.shortName === '3' ? 8 : 16;
         for (let i = 0; i < roomsInBuilding; i++) {
+          const floor = Math.floor(i / 4) + 1;
+          const roomNum = (i % 4) + 1;
+          const roomName = `ห้อง ${building.shortName}${floor}${roomNum}`;
           rooms.push({
-            RoomName: `ห้อง ${roomCounter} ${building.type}`,
+            RoomName: roomName,
             Building: building.name,
           });
-          roomCounter++;
         }
       }
       expect(rooms.length).toBe(40);
     });
 
-    it('should generate correct room name format', () => {
+    it('should generate correct room name format (ห้อง xyz)', () => {
       const rooms = [];
-      let roomCounter = 101;
       
       for (const building of BUILDINGS) {
         const roomsInBuilding = building.shortName === '3' ? 8 : 16;
         for (let i = 0; i < roomsInBuilding; i++) {
-          rooms.push(`ห้อง ${roomCounter} ${building.type}`);
-          roomCounter++;
+          const floor = Math.floor(i / 4) + 1;
+          const roomNum = (i % 4) + 1;
+          const roomName = `ห้อง ${building.shortName}${floor}${roomNum}`;
+          rooms.push(roomName);
         }
       }
       
-      // First room in first building
-      expect(rooms[0]).toContain('ห้อง 101');
-      expect(rooms[0]).toContain('อาคารเรียน');
+      // First room in first building (building 1, floor 1, room 1)
+      expect(rooms[0]).toBe('ห้อง 111');
       
-      // First room in science building (after 16 rooms)
-      expect(rooms[16]).toContain('ห้อง 117');
-      expect(rooms[16]).toContain('อาคารวิทยาศาสตร์');
+      // Last room in first building (building 1, floor 4, room 4)
+      expect(rooms[15]).toBe('ห้อง 144');
       
-      // First room in sports building (after 16+16 rooms)
-      expect(rooms[32]).toContain('ห้อง 133');
-      expect(rooms[32]).toContain('อาคารกีฬา');
+      // First room in science building (building 2, floor 1, room 1)
+      expect(rooms[16]).toBe('ห้อง 211');
+      
+      // First room in sports building (building 3, floor 1, room 1)
+      expect(rooms[32]).toBe('ห้อง 311');
+      
+      // Last room in sports building (building 3, floor 2, room 4)
+      expect(rooms[39]).toBe('ห้อง 324');
     });
   });
 

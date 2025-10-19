@@ -59,21 +59,25 @@ Each teacher has:
 
 ### Rooms (ห้องเรียน)
 
-40 classrooms across 3 specialized buildings:
+40 classrooms across 3 buildings:
 
-- **อาคารเรียน (Academic Building)**: 16 rooms (ห้อง 101-116)
-  - Regular classrooms for standard subjects
-  - Examples: "ห้อง 101 อาคารเรียน ห้องเรียน", "ห้อง 102 อาคารเรียน ห้องเรียน"
+- **ตึกเรียน (Academic Building)**: 16 rooms
+  - ห้อง 111, 112, 113, 114 (Floor 1)
+  - ห้อง 121, 122, 123, 124 (Floor 2)
+  - ห้อง 131, 132, 133, 134 (Floor 3)
+  - ห้อง 141, 142, 143, 144 (Floor 4)
 
-- **อาคารวิทยาศาสตร์ (Science Building)**: 16 rooms (ห้อง 117-132)
-  - Science labs, computer rooms, and classrooms
-  - Examples: "ห้อง 117 อาคารวิทยาศาสตร์ ห้องปฏิบัติการวิทยาศาสตร์", "ห้อง 118 อาคารวิทยาศาสตร์ ห้องคอมพิวเตอร์"
+- **ตึกวิทยาศาสตร์ (Science Building)**: 16 rooms
+  - ห้อง 211, 212, 213, 214 (Floor 1)
+  - ห้อง 221, 222, 223, 224 (Floor 2)
+  - ห้อง 231, 232, 233, 234 (Floor 3)
+  - ห้อง 241, 242, 243, 244 (Floor 4)
 
-- **อาคารกีฬา (Sports/Arts Building)**: 8 rooms (ห้อง 133-140)
-  - Specialized rooms for PE, music, dance, and arts
-  - Examples: "ห้อง 133 อาคารกีฬา ห้องพลศึกษา", "ห้อง 134 อาคารกีฬา ห้องดนตรี", "ห้อง 135 อาคารกีฬา ห้องนาฎศิลป์"
+- **ตึกกีฬา (Sports/Arts Building)**: 8 rooms
+  - ห้อง 311, 312, 313, 314 (Floor 1)
+  - ห้อง 321, 322, 323, 324 (Floor 2)
 
-Format: `ห้อง [Number] [Building Type] [Room Type]`
+Room naming format: `ห้อง xyz` where x=building number, y=floor number, z=room number
 
 ### Subjects (วิชา)
 

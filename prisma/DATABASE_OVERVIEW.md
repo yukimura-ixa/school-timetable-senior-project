@@ -19,22 +19,19 @@ Junior High (มัธยมต้น)          Senior High (มัธยมป�
 └─ M.3: 301, 302, 303           └─ M.6: 601, 602, 603
 
 🏢 ROOMS (40)
-อาคารเรียน (Academic Building)
-├─ ห้อง 101-116 (16 rooms)
-└─ Regular classrooms
+ตึกเรียน (Academic Building)
+├─ ห้อง 111-114, 121-124, 131-134, 141-144 (16 rooms)
+└─ 4 floors, 4 rooms per floor
 
-อาคารวิทยาศาสตร์ (Science Building)
-├─ ห้อง 117-132 (16 rooms)
-├─ Science labs
-├─ Computer rooms
-└─ Specialized classrooms
+ตึกวิทยาศาสตร์ (Science Building)
+├─ ห้อง 211-214, 221-224, 231-234, 241-244 (16 rooms)
+└─ 4 floors, 4 rooms per floor
 
-อาคารกีฬา (Sports/Arts Building)
-├─ ห้อง 133-140 (8 rooms)
-├─ PE rooms (ห้องพลศึกษา)
-├─ Music rooms (ห้องดนตรี)
-├─ Dance rooms (ห้องนาฎศิลป์)
-└─ Art rooms (ห้องศิลปะ)
+ตึกกีฬา (Sports/Arts Building)
+├─ ห้อง 311-314, 321-324 (8 rooms)
+└─ 2 floors, 4 rooms per floor
+
+Format: ห้อง xyz (x=building, y=floor, z=room)
 
 👨‍🏫 TEACHERS (60) - 8 Departments
 ├─ คณิตศาสตร์ (Math) .............. 7 teachers
