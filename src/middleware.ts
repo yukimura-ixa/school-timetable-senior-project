@@ -17,8 +17,10 @@ export default withAuth(
   {
     callbacks: {
       authorized({ req, token }) {
-        // Allow bypass in development mode
-        if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+        // SECURITY: Use server-only env variable to prevent bypass in production
+        // This variable is NOT embedded in the client bundle
+        if (process.env.ENABLE_DEV_BYPASS === "true") {
+          console.log("[AUTH] Dev bypass is enabled - allowing all requests")
           return true;
         }
 

@@ -9,6 +9,16 @@ function SignInPage() {
   const [password, setPassword] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
+  const [bypassEnabled, setBypassEnabled] = useState(false);
+
+  // Check if dev bypass is enabled via server-side API
+  // This prevents the flag from being embedded in the client bundle
+  useEffect(() => {
+    fetch("/api/auth/dev-bypass-enabled")
+      .then((res) => res.json())
+      .then((data) => setBypassEnabled(data.enabled))
+      .catch(() => setBypassEnabled(false));
+  }, []);
 
   function validateEmail() {
     if (email === "") {
@@ -29,7 +39,6 @@ function SignInPage() {
   }
 
   const session = useSession();
-  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === "true";
 
   function handleGoogleLogin() {
     signIn("google", { callbackUrl: "/dashboard/select-semester" });
@@ -134,7 +143,7 @@ function SignInPage() {
                 Icon={<LoginIcon />}
                 reverseIcon={false}
               />
-              {bypassAuth && (
+              {bypassEnabled && (
                 <PrimaryButton
                   handleClick={handleDevBypass}
                   title={"Dev Bypass (Testing)"}

@@ -23,13 +23,16 @@ export const authOptions: AuthOptions = {
       },
     }),
     // Development/Testing bypass provider
+    // SECURITY: Only enabled when server-only ENABLE_DEV_BYPASS is explicitly set
     CredentialsProvider({
       id: "dev-bypass",
       name: "Development Bypass",
       credentials: {},
       async authorize() {
-        // Only allow bypass in development mode
-        if (process.env.NEXT_PUBLIC_BYPASS_AUTH === "true") {
+        // SECURITY: Check server-only env variable (not embedded in client bundle)
+        // Defaults to disabled for security
+        if (process.env.ENABLE_DEV_BYPASS === "true") {
+          console.log("[AUTH] Dev bypass provider authenticated user")
           return {
             id: process.env.DEV_USER_ID || "1",
             email: process.env.DEV_USER_EMAIL || "admin@test.com",
@@ -37,6 +40,7 @@ export const authOptions: AuthOptions = {
             role: process.env.DEV_USER_ROLE || "admin",
           }
         }
+        console.log("[AUTH] Dev bypass provider rejected - not enabled")
         return null
       },
     }),

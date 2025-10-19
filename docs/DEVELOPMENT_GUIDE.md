@@ -4,6 +4,14 @@
 
 For local development and testing without requiring Google OAuth credentials, you can use the built-in bypass mechanism.
 
+### ⚠️ Security Notice
+
+The bypass mechanism uses a **server-only** environment variable (`ENABLE_DEV_BYPASS`) that:
+- Is **NOT** embedded in the client-side bundle
+- Defaults to **disabled** (`false`) for security
+- Must be **explicitly** enabled in your local `.env` file
+- Should **NEVER** be enabled in production deployments
+
 ### Setup Instructions
 
 1. **Copy the environment template**
@@ -11,9 +19,11 @@ For local development and testing without requiring Google OAuth credentials, yo
    cp .env.example .env
    ```
 
-2. **Enable bypass mode in `.env`**
+2. **Enable bypass mode in `.env`** (OPT-IN for local dev only)
    ```env
-   NEXT_PUBLIC_BYPASS_AUTH="true"
+   # Set to "true" ONLY for local development
+   # NEVER enable in production
+   ENABLE_DEV_BYPASS="true"
    ```
 
 3. **Configure the development user**
@@ -22,6 +32,11 @@ For local development and testing without requiring Google OAuth credentials, yo
    DEV_USER_ROLE="admin"
    DEV_USER_ID="1"
    DEV_USER_NAME="Test Admin"
+   ```
+
+4. **Restart the dev server** (required for env changes)
+   ```bash
+   npm run dev
    ```
 
 ### Usage
@@ -57,18 +72,29 @@ DEV_USER_ROLE="student"
 
 ### Security Notes
 
-⚠️ **IMPORTANT**: 
-- Never deploy with `NEXT_PUBLIC_BYPASS_AUTH="true"` to production
-- The bypass mode is for development and testing only
-- Always use proper Google OAuth in production environments
+⚠️ **CRITICAL - READ CAREFULLY**: 
+
+**Why the bypass is secure:**
+- Uses `ENABLE_DEV_BYPASS` (server-only variable) instead of `NEXT_PUBLIC_*`
+- Server-only variables are **never embedded** in the client bundle
+- Defaults to disabled (`false`) - must be explicitly enabled
+- Production builds will not include the bypass even if accidentally enabled in `.env`
+
+**Security checklist:**
+- ✅ Bypass is **OPT-IN** - disabled by default
+- ✅ Uses **server-only** environment variable
+- ✅ Not embedded in production JavaScript bundles
+- ✅ Checked server-side in middleware and auth callbacks
+- ⚠️ NEVER set `ENABLE_DEV_BYPASS="true"` in production deployments
+- ⚠️ Always use proper Google OAuth in production environments
 
 ### Disabling Bypass Mode
 
 To use Google OAuth (production mode):
 
-1. Set in `.env`:
+1. Set in `.env` (or remove the variable entirely):
    ```env
-   NEXT_PUBLIC_BYPASS_AUTH="false"
+   ENABLE_DEV_BYPASS="false"
    ```
 
 2. Configure Google OAuth credentials:

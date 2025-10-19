@@ -6,7 +6,16 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 
 export default function Home() {
-  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === "true";
+  const [bypassEnabled, setBypassEnabled] = useState(false);
+
+  // Check if dev bypass is enabled via server-side API
+  // This prevents the flag from being embedded in the client bundle
+  useState(() => {
+    fetch("/api/auth/dev-bypass-enabled")
+      .then((res) => res.json())
+      .then((data) => setBypassEnabled(data.enabled))
+      .catch(() => setBypassEnabled(false));
+  });
 
   const handleBypassLogin = () => {
     // Using signIn with dev-bypass provider
@@ -20,7 +29,7 @@ export default function Home() {
         <h1 className="text-[64px]">ระบบจัดตารางเรียนตารางสอนโรงเรียน</h1>
       </div>
 
-      {bypassAuth && (
+      {bypassEnabled && (
         <PrimaryButton
           handleClick={handleBypassLogin}
           title={"เข้าสู่ระบบ (Dev Bypass)"}
