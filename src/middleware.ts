@@ -17,6 +17,13 @@ export default withAuth(
   {
     callbacks: {
       authorized({ req, token }) {
+        // SECURITY: Use server-only env variable to prevent bypass in production
+        // This variable is NOT embedded in the client bundle
+        if (process.env.ENABLE_DEV_BYPASS === "true") {
+          console.log("[AUTH] Dev bypass is enabled - allowing all requests")
+          return true;
+        }
+
         if (token?.role === "admin") return true;
 
         if (token?.role === "student" && !req.nextUrl.pathname.endsWith("student-table"))

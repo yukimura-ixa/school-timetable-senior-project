@@ -94,7 +94,7 @@ function GradeLevelIndividualDashboard({}: Props) {
     };
     return () => getData();
   }, []);
-  const handleChange = (value: teacher) => {
+  const handleChange = (value: any) => {
     console.log(value);
     setClassRoomData(() => ({ ...classRoomData, Teacher: value }));
   };

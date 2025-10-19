@@ -211,7 +211,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                     </label>
                     <Dropdown
                       data={Object.values(subject_credit)}
-                      renderItem={({ data }): JSX.Element => (
+                      renderItem={({ data }: { data: any }): JSX.Element => (
                         <li className="w-full">{subjectCreditTitles[data]}</li>
                       )}
                       width={150}
@@ -246,7 +246,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                     </label>
                     <Dropdown
                       data={["พื้นฐาน", "เพิ่มเติม", "กิจกรรมพัฒนาผู้เรียน"]}
-                      renderItem={({ data }): JSX.Element => (
+                      renderItem={({ data }: { data: any }): JSX.Element => (
                         <li className="w-full">{data}</li>
                       )}
                       width={150}
@@ -290,13 +290,13 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
             />
             <PrimaryButton
               handleClick={handleSubmit}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
             />
           </span>
         </div>

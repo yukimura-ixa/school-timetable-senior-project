@@ -182,7 +182,7 @@ const page = (props: Props) => {
             <Dropdown
               width={300}
               data={gradeLevelData.data.map((item) => item.GradeID)}
-              renderItem={({ data }) => (
+              renderItem={({ data }: { data: any }) => (
                 <>
                   <li>
                     <p>
@@ -193,7 +193,7 @@ const page = (props: Props) => {
               )}
               placeHolder="เลือกชั้นเรียน"
               currentValue={convertDropdownItem(currentGradeID)}
-              handleChange={(item) => setCurrentGradeID(item)}
+              handleChange={(item: any) => setCurrentGradeID(item)}
               searchFunction={undefined}
             />
           </div>

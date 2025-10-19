@@ -1,9 +1,13 @@
 import prisma from "@/libs/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { teachers_responsibility, semester } from "@prisma/client";
+import { semester, Prisma, teachers_responsibility } from "@prisma/client";
 import { subjectCreditValues } from "@/models/credit-value";
 import { safeParseInt } from "@/functions/parseUtils";
 import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling";
+
+type TeacherResponsibilityWithRelations = Prisma.teachers_responsibilityGetPayload<{
+  include: { subject: true; gradelevel: true; teacher: true }
+}>;
 
 export async function GET(request: NextRequest) {
   // localhost:3000/api/assign?TeacherID=1&Semester=SEMESTER_1&AcademicYear=2566
@@ -16,7 +20,7 @@ export async function GET(request: NextRequest) {
     const validation = validateRequiredParams({ TeacherID, AcademicYear, Semester });
     if (validation) return validation;
 
-    const data: teachers_responsibility[] = await prisma.teachers_responsibility.findMany({
+    const data: TeacherResponsibilityWithRelations[] = await prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: TeacherID!,
         AcademicYear: AcademicYear!,

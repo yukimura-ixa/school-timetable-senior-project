@@ -1,8 +1,14 @@
 import { teacher } from "@prisma/client";
 
+type ClassData = {
+  teachers_responsibility: Array<{ TeacherID: number }>;
+  TimeslotID: string;
+  [key: string]: any;
+};
+
 type Props = {
   teachers: teacher[];
-  classData: object[];
+  classData: ClassData[];
 };
 
 const TableResult = (props: Props) => {

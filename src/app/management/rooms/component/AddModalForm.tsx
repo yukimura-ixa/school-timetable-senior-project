@@ -138,7 +138,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      disabled={false} handleChange={(e: any) => {
                         let value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -166,7 +166,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      disabled={false} handleChange={(e: any) => {
                         let value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -183,7 +183,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                     ) : null}
                   </div>
                   <div className="relative flex flex-col gap-2">
-                    <NumberField
+                    <NumberField disabled={false}
                       width="auto"
                       height="auto"
                       label={`ชั้น (Floor):`}
@@ -194,7 +194,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      disabled={false} handleChange={(e: any) => {
                         let value: number = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -226,13 +226,13 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
             />
             <PrimaryButton
               handleClick={handleSubmit}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
             />
           </span>
         </div>

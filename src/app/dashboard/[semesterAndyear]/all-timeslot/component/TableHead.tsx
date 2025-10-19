@@ -1,7 +1,14 @@
 import React from "react";
 
+type DayData = {
+  Day: string;
+  BgColor: string;
+  TextColor: string;
+  [key: string]: any;
+};
+
 type Props = {
-  days: string[];
+  days: DayData[];
   slotAmount: number[];
 };
 

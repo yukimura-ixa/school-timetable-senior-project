@@ -114,7 +114,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.RoomName.length == 0 ? "#F96161" : ""
                     }
-                    handleChange={(e: any) => {
+                    disabled={false} handleChange={(e: any) => {
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -140,7 +140,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.Building.length == 0 ? "#F96161" : ""
                     }
-                    handleChange={(e: any) => {
+                    disabled={false} handleChange={(e: any) => {
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -157,7 +157,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                   ) : null}
                 </div>
                 <div className="relative flex flex-col gap-2">
-                  <NumberField
+                  <NumberField disabled={false}
                     width="auto"
                     height="auto"
                     label={`ชั้น (Floor):`}
@@ -168,7 +168,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                         ? "#F96161"
                         : ""
                     }
-                    handleChange={(e: any) => {
+                    disabled={false} handleChange={(e: any) => {
                       let value: number = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -192,13 +192,13 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
             />
           </span>
         </div>

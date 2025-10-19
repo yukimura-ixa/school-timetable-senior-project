@@ -56,14 +56,14 @@ function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />}
+              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
               reverseIcon={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />}
+              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
               reverseIcon={false}
             />
           </span>

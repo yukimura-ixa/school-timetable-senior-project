@@ -83,6 +83,7 @@ function TableConfig({}: Props) {
             color={"primary"}
             Icon={undefined}
             reverseIcon={false}
+            isDisabled={false}
           />
         </div>
       </div>
@@ -110,6 +111,7 @@ function TableConfig({}: Props) {
                     color={"warning"}
                     Icon={undefined}
                     reverseIcon={false}
+                    isDisabled={false}
                   />
                 </div>
               </div>

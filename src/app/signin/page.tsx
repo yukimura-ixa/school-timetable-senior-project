@@ -9,6 +9,16 @@ function SignInPage() {
   const [password, setPassword] = useState<string>("");
   const [emailError, setEmailError] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
+  const [bypassEnabled, setBypassEnabled] = useState(false);
+
+  // Check if dev bypass is enabled via server-side API
+  // This prevents the flag from being embedded in the client bundle
+  useEffect(() => {
+    fetch("/api/auth/dev-bypass-enabled")
+      .then((res) => res.json())
+      .then((data) => setBypassEnabled(data.enabled))
+      .catch(() => setBypassEnabled(false));
+  }, []);
 
   function validateEmail() {
     if (email === "") {
@@ -33,6 +43,11 @@ function SignInPage() {
   function handleGoogleLogin() {
     signIn("google", { callbackUrl: "/dashboard/select-semester" });
     console.log("google login");
+  }
+
+  function handleDevBypass() {
+    signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
+    console.log("dev bypass login");
   }
 
   function handleSignout() {
@@ -128,6 +143,15 @@ function SignInPage() {
                 Icon={<LoginIcon />}
                 reverseIcon={false}
               />
+              {bypassEnabled && (
+                <PrimaryButton
+                  handleClick={handleDevBypass}
+                  title={"Dev Bypass (Testing)"}
+                  color={"secondary"}
+                  Icon={<LoginIcon />}
+                  reverseIcon={false}
+                />
+              )}
               <PrimaryButton
                 handleClick={handleSignout}
                 title={"ออกจากระบบ"}

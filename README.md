@@ -207,7 +207,20 @@ The system uses a relational database with the following main entities:
 
 ---
 
+## 📖 Documentation
+
+**All project documentation has been organized in the `/docs` folder.**
+
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup instructions with OAuth bypass for testing
+- **[Documentation Index](docs/INDEX.md)** - Complete documentation catalog
+- **[Test Plan](docs/TEST_PLAN.md)** - 29 comprehensive test cases
+- **[Database Overview](docs/DATABASE_OVERVIEW.md)** - Schema and data model
+
+---
+
 ## 🚀 การเริ่มต้นใช้งาน | Getting Started
+
+**👉 For detailed setup instructions with OAuth bypass, see [docs/DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md)**
 
 ### ข้อกำหนดเบื้องต้น | Prerequisites
 
