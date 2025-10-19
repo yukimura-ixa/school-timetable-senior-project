@@ -2,7 +2,7 @@
 import "./globals.css";
 import Navbar from "@/components/templates/Navbar";
 import Content from "@/components/templates/Content";
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
