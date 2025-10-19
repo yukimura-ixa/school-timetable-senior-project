@@ -16,6 +16,7 @@ interface DropdownProps {
   handleChange: (item: unknown, index: number) => void;
   useSearchBar?: boolean;
   searchFunction?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  searchFunciton?: (event: React.ChangeEvent<HTMLInputElement>) => void; // Support legacy typo
   borderColor?: string;
 }
 
@@ -29,10 +30,13 @@ function Dropdown({
   handleChange,
   useSearchBar = false,
   searchFunction,
+  searchFunciton, // Support legacy typo
   borderColor = "",
 }: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
+  // Use searchFunction if provided, otherwise fall back to searchFunciton for backward compatibility
+  const handleSearch = searchFunction || searchFunciton;
   return (
     <div className="relative">
       <div
@@ -115,8 +119,8 @@ function Dropdown({
           height: data.length < 3 ? "auto" : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
         }}
       >
-        {useSearchBar && searchFunction ? (
-          <SearchBar height="auto" fill="#FFFFFF" handleChange={searchFunction} />
+        {useSearchBar && handleSearch ? (
+          <SearchBar height="auto" fill="#FFFFFF" handleChange={handleSearch} />
         ) : null}
         {data.length === 0 ? (
           <div
