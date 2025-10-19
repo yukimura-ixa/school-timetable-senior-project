@@ -20,7 +20,7 @@ const TeacherList = (props: Props) => {
     </thead>
     <tbody>
     {props.teachers.map((item, index) => (
-        <tr className="flex items-center gap-2 h-fit mt-1 select-none">
+        <tr key={item.TeacherID} className="flex items-center gap-2 h-fit mt-1 select-none">
             <td className="w-[50px] h-[60px] flex items-center justify-center bg-slate-100 rounded">
                 <p>{index + 1}</p>
             </td>

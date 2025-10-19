@@ -4,7 +4,7 @@ import searchicon from "@/svg/crud/searchicon.svg";
 
 import Image from "next/image";
 
-interface SearchBar {
+interface SearchBarProps {
   width: string | number;
   height: string | number;
   placeHolder: string; //TEXT

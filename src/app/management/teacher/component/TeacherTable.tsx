@@ -17,12 +17,12 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import TableRow from "./TableRow";
 
-type Table = {
+type TeacherTableProps = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: teacher[];
   mutate: Function;
 };
-function Table({ tableHead, tableData, mutate }: Table): JSX.Element {
+function Table({ tableHead, tableData, mutate }: TeacherTableProps): JSX.Element {
   const [pageOfData, setPageOfData] = useState<number>(1);
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);

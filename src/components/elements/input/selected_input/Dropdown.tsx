@@ -6,7 +6,7 @@ import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
 import Image from "next/image";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 
-interface Dropdown {
+interface DropdownProps {
   data: any[]; //ข้อมูลที่เป็น Array ทุกชนิด
   renderItem: Function; //ส่ง Component ผ่าน props
   width: string | number;
