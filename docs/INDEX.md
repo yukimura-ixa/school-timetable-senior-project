@@ -26,6 +26,14 @@ This folder contains all project documentation organized for easy reference.
 
 ### Development & Maintenance
 - [MIGRATION_NEXTJS15.md](MIGRATION_NEXTJS15.md) - Next.js 15 migration notes
+- [TAILWIND_V4_MIGRATION_REVIEW.md](TAILWIND_V4_MIGRATION_REVIEW.md) - Tailwind CSS v4 migration review
+- [TAILWIND_V4_MUI_V7_MIGRATION_SUMMARY.md](TAILWIND_V4_MUI_V7_MIGRATION_SUMMARY.md) - Combined Tailwind v4 + MUI v7 migration
+- **[MUI_MIGRATION_COMPLETE.md](MUI_MIGRATION_COMPLETE.md)** - **🎉 FINAL SUMMARY** - Complete migration report
+- [MUI_MIGRATION_PLAN.md](MUI_MIGRATION_PLAN.md) - MUI v7 migration strategy (15 pages)
+- [MUI_MIGRATION_QUICKSTART.md](MUI_MIGRATION_QUICKSTART.md) - MUI migration quick start guide (10 pages)
+- [MUI_MIGRATION_EXECUTION_SUMMARY.md](MUI_MIGRATION_EXECUTION_SUMMARY.md) - Phase 1 execution summary
+- [PHASE_2_MIGRATION_SUMMARY.md](PHASE_2_MIGRATION_SUMMARY.md) - Phase 2 execution summary (TextField, SearchBar, CheckBox)
+- [E2E_TEST_RESULTS_POST_MIGRATION.md](E2E_TEST_RESULTS_POST_MIGRATION.md) - E2E test results after Phase 1
 - [REFACTORING_ANALYSIS.md](REFACTORING_ANALYSIS.md) - Code refactoring analysis
 - [REVIEW_SUMMARY.md](REVIEW_SUMMARY.md) - Code review summary
 
