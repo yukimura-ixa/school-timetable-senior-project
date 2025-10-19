@@ -139,7 +139,7 @@ test.describe('Schedule Assignment', () => {
         fullPage: true 
       });
       
-      const hasSelectorhape = await teacherSelector.count() > 0;
+      const hasSelector = await teacherSelector.count() > 0;
       console.log(`Teacher selector found: ${hasSelector}`);
       
     } catch (error) {
