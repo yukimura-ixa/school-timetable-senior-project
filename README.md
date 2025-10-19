@@ -390,12 +390,44 @@ npm start
 
 ## 🧪 การทดสอบ | Testing
 
+### Unit Tests
+
 รันการทดสอบด้วย Jest | Run tests with Jest:
 
 ```bash
 npm test
 npm run test:watch
 ```
+
+### E2E Tests
+
+รันการทดสอบ E2E ด้วย Playwright | Run E2E tests with Playwright:
+
+```bash
+# Run all E2E tests
+pnpm test:e2e
+
+# Run with interactive UI
+pnpm test:e2e:ui
+
+# View test report
+pnpm test:report
+```
+
+**E2E Test Documentation:**
+- **Test Plan**: See `e2e/TEST_PLAN.md` for 29 comprehensive test cases
+- **Execution Guide**: See `E2E_TEST_EXECUTION_GUIDE.md` for detailed instructions
+- **Test Results**: See `e2e/TEST_RESULTS_SUMMARY.md` for current status
+
+**Test Coverage:**
+- ✅ 29 E2E test cases covering all major workflows
+- ✅ Authentication and authorization
+- ✅ Data management (CRUD operations)
+- ✅ Timetable configuration and arrangement
+- ✅ Conflict detection
+- ✅ Export functionality (Excel/PDF)
+- ✅ Viewing schedules (teacher and student)
+- ✅ Mobile responsiveness
 
 ---
 
