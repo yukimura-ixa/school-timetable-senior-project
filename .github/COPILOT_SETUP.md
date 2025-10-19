@@ -138,7 +138,7 @@ A school timetable management system that:
 ### Tech Stack
 
 - **Next.js 15** with App Router
-- **React 18** with Server Components
+- **React 18** with Next.js Server Components
 - **TypeScript** (latest)
 - **Prisma 5** with MySQL
 - **Tailwind CSS 4**
@@ -227,4 +227,4 @@ For more details, see:
 
 ---
 
-**Last Updated**: 2025-10-19
+**Last Updated**: October 2024
