@@ -227,4 +227,4 @@ For more details, see:
 
 ---
 
-**Last Updated**: October 19, 2024
+**Last Updated**: October 19, 2025
