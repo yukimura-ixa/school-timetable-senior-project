@@ -8,7 +8,7 @@ import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import Loading from "@/app/loading";
 type props = {
   closeModal: any;
-  classList: object[];
+  classList: any[];
   confirmChange: any;
   year: number;
 };
@@ -38,7 +38,7 @@ function SelectClassRoomModal({
     //ทำเพื่ออะไร ? เพื่อตอนกดสลับเลือกห้องเรียนไปมา ข้อมูลของวิชาที่ติดอยู่กับห้องเรียนที่เคยเลือกแล้วจะได้ไม่หายไปไหน ของเก่าเนี่ย ถ้าเรากดลบห้องเรียนแล้วเพิ่มกลับมาใหม่ ข้อมูลวิชาในนั้นจะหายไป
     setClassRoomList(() => mapClassRoomData); //นำข้อมูลมา set state
   }, [isLoading]);
-  const addSelectedList = (item: object) => {
+  const addSelectedList = (item: any) => {
     setClassRoomList(() =>
       classRoomList.map((classRoom) =>
         classRoom.GradeID == item.GradeID
@@ -47,7 +47,7 @@ function SelectClassRoomModal({
       )
     ); //ถ้ามีการกด Add ห้องเรียนเข้ามาใหม่ ก็จะเปลี่ยนแค่ boolean ของ isSelected ด้วยการเช็คว่า GradeID ไหนต้องการเปลี่ยน
   };
-  const removeSelectedList = (item: object) => {
+  const removeSelectedList = (item: any) => {
     setClassRoomList(() =>
       classRoomList.map((classRoom) =>
         classRoom.GradeID == item.GradeID

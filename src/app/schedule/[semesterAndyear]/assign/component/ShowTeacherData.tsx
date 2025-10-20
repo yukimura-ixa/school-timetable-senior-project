@@ -79,7 +79,7 @@ function ShowTeacherData() {
             <div className="flex flex-row justify-between gap-3">
               <Dropdown
                 data={teacherFilterData}
-                renderItem={({ data }) => (
+                renderItem={({ data }: { data: any }) => (
                   <li className="w-full text-sm">
                     {data.Firstname} {data.Lastname} - {data.Department}
                   </li>

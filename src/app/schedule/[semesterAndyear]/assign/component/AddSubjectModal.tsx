@@ -207,7 +207,7 @@ function AddSubjectModal(props: Props) {
                   <div className="flex justify-between items-center">
                     <Dropdown
                       data={subject}
-                      renderItem={({ data }): JSX.Element => (
+                      renderItem={({ data }: { data: any }): JSX.Element => (
                         <li className="text-sm">
                           {data.SubjectCode} - {data.SubjectName}
                         </li>
