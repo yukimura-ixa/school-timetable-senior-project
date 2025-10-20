@@ -45,6 +45,7 @@ interface LegacyPrimaryButtonProps {
 type PrimaryButtonProps = LegacyPrimaryButtonProps & 
   Omit<ButtonProps, 'color'> & {
     color?: 'info' | 'secondary' | 'warning' | 'success' | 'danger' | 'primary' | 'error' | 'inherit';
+    onClick?: React.MouseEventHandler<HTMLButtonElement>;
   };
 
 /**
