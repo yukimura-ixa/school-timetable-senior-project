@@ -1,5 +1,5 @@
 "use client";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import React, { useEffect, useState } from "react";
 import { BiKey, BiUser } from "react-icons/bi";
 import LoginIcon from "@mui/icons-material/Login";

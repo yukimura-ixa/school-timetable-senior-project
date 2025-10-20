@@ -1,5 +1,5 @@
 "use client";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import React, { useState } from "react";
 import StartIcon from "@mui/icons-material/Start";
 import Link from "next/link";

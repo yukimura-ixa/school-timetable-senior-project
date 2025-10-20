@@ -6,8 +6,8 @@ import { useReactToPrint } from "react-to-print";
 
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import Loading from "@/app/loading";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
-import ErrorState from "@/components/elements/static/ErrorState";
+import PrimaryButton from "@/components/mui/PrimaryButton";
+import ErrorState from "@/components/mui/ErrorState";
 import { fetcher } from "@/libs/axios";
 
 import TimeSlot from "./component/Timeslot";

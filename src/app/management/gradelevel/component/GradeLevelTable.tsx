@@ -7,11 +7,11 @@ import { BsCheckLg } from "react-icons/bs";
 import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/gradelevel/component/AddModalForm";
-import SearchBar from "@/components/elements/input/field/SearchBar";
+import SearchBar from "@/components/mui/SearchBar";
 import ConfirmDeleteModal from "../../gradelevel/component/ConfirmDeleteModal";
 import EditModalForm from "../../gradelevel/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import { gradelevel } from "@prisma/client";
 import TableRow from "./TableRow";
 interface Table {

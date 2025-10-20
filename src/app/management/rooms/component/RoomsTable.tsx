@@ -10,12 +10,12 @@ import { TbTrash } from "react-icons/tb";
 import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/rooms/component/AddModalForm";
-import SearchBar from "@/components/elements/input/field/SearchBar";
+import SearchBar from "@/components/mui/SearchBar";
 import ConfirmDeleteModal from "../../rooms/component/ConfirmDeleteModal";
 import EditModalForm from "../../rooms/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { Snackbar, Alert } from "@mui/material";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableRow from "./TableRow";
 
 type RoomsTableProps = {
