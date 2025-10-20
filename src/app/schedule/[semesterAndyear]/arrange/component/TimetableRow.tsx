@@ -4,7 +4,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { Fragment } from "react";
 
 interface ITimetableRowProps {
-  day: object;
+  day: any;
 }
 function TimetableRow({ day }: ITimetableRowProps) {
   return (

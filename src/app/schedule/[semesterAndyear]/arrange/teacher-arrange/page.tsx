@@ -25,8 +25,8 @@ const TeacherArrange = () => {
   const searchTeacherID = useSearchParams().get("TeacherID");
   const searchGradeID = useSearchParams().get("GradeID");
   const [yearSelected, setYearSelected] = useState(null); //เก็บค่าของระดับชั้นที่ต้องสอนในวิชานั้นๆเพื่อใช้เช็คกับคาบพักเที่ยง
-  const [storeSelectedSubject, setStoreSelectedSubject] = useState({}); //เก็บวิชาที่เรากดเลือก
-  const [changeTimeSlotSubject, setChangeTimeSlotSubject] = useState({}); //สำหรับเก็บวิชาที่ต้องการเปลี่ยนในการเลือกวิชาครั้งแรก
+  const [storeSelectedSubject, setStoreSelectedSubject] = useState<any>({}); //เก็บวิชาที่เรากดเลือก
+  const [changeTimeSlotSubject, setChangeTimeSlotSubject] = useState<any>({}); //สำหรับเก็บวิชาที่ต้องการเปลี่ยนในการเลือกวิชาครั้งแรก
   const [subjectPayload, setSubjectPayload] = useState({
     timeslotID: "",
     selectedSubject: {},
@@ -110,6 +110,7 @@ const TeacherArrange = () => {
     Prefix: "",
     TeacherID: null,
     Email: "",
+    Role: "teacher",
   });
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
@@ -280,7 +281,7 @@ const TeacherArrange = () => {
       setIsSaving(false);
     }
   }
-  const addSubjectToSlot = (subject: object, timeSlotID: string) => {
+  const addSubjectToSlot = (subject: any, timeSlotID: string) => {
     let data = timeSlotData.AllData; //นำข้อมูลตารางมา
     let mapTimeSlot = {
       ...timeSlotData,
@@ -297,13 +298,13 @@ const TeacherArrange = () => {
     setStoreSelectedSubject({}), setYearSelected(null); //หลังจากเพิ่มวิชาแล้วก็ต้องรีการ select วิชา
     setIsActiveModal(false);
   };
-  const cancelAddRoom = (subject: object, timeSlotID: string) => {
+  const cancelAddRoom = (subject: any, timeSlotID: string) => {
     //ถ้ามีการกดยกเลิกหรือปิด modal
     removeSubjectFromSlot(subject, timeSlotID); //ลบวิชาออกจาก timeslot ที่ได้ไป hold ไว้ตอนแรก
     setStoreSelectedSubject({}), setYearSelected(null);
     setIsActiveModal(false);
   };
-  const removeSubjectFromSlot = (subject: object, timeSlotID: string) => {
+  const removeSubjectFromSlot = (subject: any, timeSlotID: string) => {
     //ถ้ามีการกดลบวิชาออกจาก timeslot
     let data = timeSlotData.AllData; //ดึงข้อมูล timeslot มา
     returnSubject(subject); // คืนวิชาลงกล่องพักวิชา
@@ -314,7 +315,7 @@ const TeacherArrange = () => {
       ),
     }));
   };
-  const returnSubject = (subject: object) => {
+  const returnSubject = (subject: any) => {
     delete subject.RoomName; //ลบ property RoomName ออกจาก object ก่อนคืน
     delete subject.room;
     delete subject.ClassID; //ลบ property ClassID ออกจาก object ก่อนคืน
@@ -426,7 +427,7 @@ const TeacherArrange = () => {
       );
     }
   };
-  const dropOutOfZone = (subject: object) => {
+  const dropOutOfZone = (subject: any) => {
     //function เช็คว่าถ้ามีการ Drop item นอกพื้นที่ Droppable จะให้นับเวลาถอยหลัง 0.5 วิเพื่อยกเลิกการเลือกวิชาที่ลาก
     setTimeout(() => {
       if (Object.keys(changeTimeSlotSubject).length == 0) {
@@ -438,7 +439,7 @@ const TeacherArrange = () => {
       }
     }, 500);
   };
-  const clickOrDragToSelectSubject = (subject: object) => {
+  const clickOrDragToSelectSubject = (subject: any) => {
     clearScheduledData();
     let checkDulpicateSubject = subject === storeSelectedSubject ? {} : subject; //ถ้าวิชาที่ส่งผ่าน params เข้ามาเป็นตัวเดิมจะให้มัน unselected วิชา
     if (
@@ -486,7 +487,7 @@ const TeacherArrange = () => {
   const [showLockDataMsgByTimeslotID, setShowLockDataMsgByTimeslotID] =
     useState<string>(""); //
   const clickOrDragToChangeTimeSlot = (
-    subject: object,
+    subject: any,
     timeslotID: string,
     isClickToChange: boolean,
   ) => {
@@ -594,7 +595,7 @@ const TeacherArrange = () => {
   };
   const timeSlotCssClassName = (
     breakTimeState: string,
-    subjectInSlot: object,
+    subjectInSlot: any,
   ) => {
     let isSubjectInSlot = Object.keys(subjectInSlot).length !== 0; //ถ้ามีวิชาในตาราง
     //เช็คคาบพักเมื่อไมีมีการกดเลือกวิชา (ตอนยังไม่มี action ไรเกิดขึ้น)
