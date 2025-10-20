@@ -205,7 +205,7 @@ function Table({ tableHead, tableData, mutate }: TeacherTableProps): JSX.Element
             width={"100%"}
             handleChange={handleSearch}
             placeHolder="ค้นหาชื่อครู"
-            value={setSearchTerm}
+            value={searchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm" onClick={() => {

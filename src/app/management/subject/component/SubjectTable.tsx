@@ -32,18 +32,17 @@ function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element
     setSubjectData(tableData);
   }, [tableData]);
 
-  const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
+  const [checkedList, setCheckedList] = useState<string[]>([]); //เก็บค่าของ checkbox เป็น SubjectCode
 
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
-      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
-        //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => subjectData.map((item, index) => index))
+      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล SubjectCode ของ data ทั้งหมดลงไปใน checkList
+        setCheckedList(() => subjectData.map((item) => item.SubjectCode))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };
-  const clickToSelect = (itemID: number) => {
+  const clickToSelect = (itemID: string) => {
     //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม itemID ลงไปใน checkList
     setCheckedList(() =>
       //ก่อนอื่นเช็คว่า itemID ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
@@ -205,7 +204,7 @@ function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element
             width={"100%"}
             handleChange={handleSearch}
             placeHolder="ค้นหาชื่อวิชา"
-            value={setSearchTerm}
+            value={searchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
