@@ -291,7 +291,7 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={configData.MiniBreak.SlotNumber}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }): JSX.Element => (
+                  renderItem={({ data }: { data: any }): JSX.Element => (
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeMiniBreak}
@@ -349,7 +349,7 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={configData.BreakTimeslots.Senior}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }): JSX.Element => (
+                  renderItem={({ data }: { data: any }): JSX.Element => (
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeBreakTimeS}
@@ -370,7 +370,7 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={configData.BreakTimeslots.Junior}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }): JSX.Element => (
+                  renderItem={({ data }: { data: any }): JSX.Element => (
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeBreakTimeJ}

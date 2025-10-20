@@ -19,7 +19,7 @@ function SelectYearAndSemester (props: Props) {
         <p>เลือกปีการศึกษา</p>
         <Dropdown
           data={[2566, 2567, 2568, 2569]}
-          renderItem={({ data }): JSX.Element => (
+          renderItem={({ data }: { data: any }): JSX.Element => (
             <li className="w-full text-sm">{data}</li>
           )}
           width={400}
@@ -35,7 +35,7 @@ function SelectYearAndSemester (props: Props) {
         <p>เลือกภาคเรียน</p>
         <Dropdown
           data={[1, 2]}
-          renderItem={({ data }): JSX.Element => (
+          renderItem={({ data }: { data: any }): JSX.Element => (
             <li className="w-full text-sm">{data}</li>
           )}
           width={400}
