@@ -216,6 +216,8 @@ function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element
             title={"เพิ่มวิชา"}
             color="primary"
             Icon={<AddIcon />}
+            reverseIcon={false}
+            isDisabled={false}
           />
         </div>
       </div>

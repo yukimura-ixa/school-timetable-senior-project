@@ -220,6 +220,8 @@ function Table({ tableHead, tableData, mutate }: TeacherTableProps): JSX.Element
             title={"เพิ่มครู"}
             color="primary"
             Icon={<AddIcon />}
+            reverseIcon={false}
+            isDisabled={false}
           />
         </div>
       </div>

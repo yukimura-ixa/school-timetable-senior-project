@@ -25,6 +25,7 @@ function AddModalForm({ closeModal, mutate }: props) {
       Lastname: "",
       Department: "",
       Email: "",
+      Role: "teacher",
     },
   ]);
 
@@ -57,6 +58,7 @@ function AddModalForm({ closeModal, mutate }: props) {
       Lastname: "",
       Department: "",
       Email: "",
+      Role: "teacher",
     };
     setTeachers(() => [...teachers, newTeacher]);
   };

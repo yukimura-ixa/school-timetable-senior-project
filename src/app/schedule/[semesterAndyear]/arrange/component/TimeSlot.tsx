@@ -11,7 +11,7 @@ import HttpsIcon from "@mui/icons-material/Https";
 import TimetableHeader from "./TimetableHeader";
 import TimetableRow from "./TimetableRow";
 type Props = {
-  timeSlotData: any[];
+  timeSlotData: any;
   mapTime: Function;
   checkBreakTime: Function;
   isSelectedToAdd: Function;

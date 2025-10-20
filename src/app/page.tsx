@@ -36,6 +36,7 @@ export default function Home() {
           color={"secondary"}
           Icon={<StartIcon />}
           reverseIcon={true}
+          isDisabled={false}
         />
       )}
 
@@ -47,6 +48,7 @@ export default function Home() {
         color={""}
         Icon={<StartIcon />}
         reverseIcon={true}
+        isDisabled={false}
       />
 
       <Link href={"/dashboard/select-semester"}>
@@ -56,6 +58,7 @@ export default function Home() {
           color={""}
           Icon={<StartIcon />}
           reverseIcon={true}
+          isDisabled={false}
         />
       </Link>
     </main>
