@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
 interface ITextFieldProps {
-  width: string | number;
-  height: string | number;
-  placeHolder: string;
-  disabled: boolean;
-  label: string;
-  handleChange;
-  value: string;
-  borderColor: string;
+  width?: string | number;
+  height?: string | number;
+  placeHolder?: string;
+  disabled?: boolean;
+  label?: string;
+  handleChange?: any;
+  value?: string;
+  borderColor?: string;
 }
 function TextField({
   width = "auto",

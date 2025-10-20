@@ -86,7 +86,7 @@ function AddModalForm({ closeModal, mutate }: props) {
       if (
         data.SubjectCode == "" ||
         data.SubjectName == "" ||
-        data.Credit == "" ||
+        !data.Credit ||
         data.Category == ""
       ) {
         setIsEmptyData(true);

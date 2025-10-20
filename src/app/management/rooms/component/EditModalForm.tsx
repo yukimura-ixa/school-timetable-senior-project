@@ -7,6 +7,7 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import api from "@/libs/axios";
+import type { room } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
@@ -14,10 +15,11 @@ type props = {
   data: any;
   clearCheckList: any;
   mutate: Function;
+  openSnackBar?: any;
 };
 
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
-  const [editData, setEditData] = useState<rooms[]>(data);
+  const [editData, setEditData] = useState<room[]>(data);
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
     let isValid = true;
@@ -25,8 +27,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       if (
         data.RoomName == "" ||
         data.Building == "" ||
-        data.Floor == null ||
-        data.Floor == 0
+        !data.Floor
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -157,19 +158,20 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                   ) : null}
                 </div>
                 <div className="relative flex flex-col gap-2">
-                  <NumberField disabled={false}
+                  <NumberField
                     width="auto"
                     height="auto"
                     label={`ชั้น (Floor):`}
                     placeHolder="ex. 5"
                     value={item.Floor}
                     borderColor={
-                      isEmptyData && (item.Floor == 0 || item.Floor == null)
+                      isEmptyData && !item.Floor
                         ? "#F96161"
                         : ""
                     }
-                    disabled={false} handleChange={(e: any) => {
-                      let value: number = e.target.value;
+                    disabled={false}
+                    handleChange={(e: any) => {
+                      let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Floor: value } : item,
@@ -177,7 +179,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && (item.Floor == 0 || item.Floor == null) ? (
+                  {isEmptyData && !item.Floor ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>

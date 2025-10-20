@@ -13,6 +13,7 @@ type props = {
   dataAmount: number;
   checkedList: any;
   mutate: Function;
+  openSnackBar?: any;
 };
 
 function ConfirmDeleteModal({

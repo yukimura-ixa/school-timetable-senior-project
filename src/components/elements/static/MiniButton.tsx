@@ -5,15 +5,15 @@ import { IoIosRemoveCircle } from "react-icons/io";
 
 interface IMiniButtonProps {
   title: string;
-  buttonColor: string;
-  titleColor: string;
-  width: string | number;
-  height: string | number;
-  border: boolean;
-  borderColor: string;
-  isSelected: boolean;
-  handleClick: any;
-  hoverable: boolean;
+  buttonColor?: string;
+  titleColor?: string;
+  width?: string | number;
+  height?: string | number;
+  border?: boolean;
+  borderColor?: string;
+  isSelected?: boolean;
+  handleClick?: any;
+  hoverable?: boolean;
 }
 function MiniButton({
   title = "Button",
