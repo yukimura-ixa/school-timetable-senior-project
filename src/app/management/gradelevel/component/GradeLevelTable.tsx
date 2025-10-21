@@ -24,7 +24,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
   const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
+  const [checkedList, setCheckedList] = useState<string[]>([]); //เก็บค่าของ checkbox เป็น GradeID
   const [gradeLevelData, setGradeLevelData] = useState<gradelevel[]>([]);
 
   useEffect(() => {
@@ -34,13 +34,12 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
   const handleChange = (event: any) => {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
-      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
-        //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => gradeLevelData.map((item, index) => index))
+      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล GradeID ของ data ทั้งหมดลงไปใน checkList
+        setCheckedList(() => gradeLevelData.map((item) => item.GradeID))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
   };
-  const clickToSelect = (itemID: number) => {
+  const clickToSelect = (itemID: string) => {
     //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม itemID ลงไปใน checkList
     setCheckedList(() =>
       //ก่อนอื่นเช็คว่า itemID ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
@@ -191,7 +190,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
             width={"100%"}
             handleChange={handleSearch}
             placeHolder="ค้นหาชั้นเรียน"
-            value={setSearchTerm}
+            value={searchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
@@ -277,26 +276,61 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
+        <MiniButton 
+          handleClick={previousPage} 
+          title={"Prev"} 
+          buttonColor="#FFF"
+          titleColor="#000"
+          width={60}
+          height={30}
+          border={true} 
+          borderColor="#222"
+          isSelected={false}
+          hoverable={true}
+        />
         {numberOfPage().map((page) => (
           <Fragment key={`page${page}`}>
             {pageOfData == page ? (
               <MiniButton
                 title={page.toString()}
                 width={30}
+                height={30}
                 buttonColor="#222"
                 titleColor="#FFF"
+                border={false}
+                borderColor="#222"
+                isSelected={true}
+                handleClick={undefined}
+                hoverable={false}
               />
             ) : (
               <MiniButton
                 handleClick={() => setPageOfData(() => page)}
                 width={30}
+                height={30}
                 title={page.toString()}
+                buttonColor="#FFF"
+                titleColor="#000"
+                border={true}
+                borderColor="#222"
+                isSelected={false}
+                hoverable={true}
               />
             )}
           </Fragment>
         ))}
-        <MiniButton title={"Next"} handleClick={nextPage} border={true} />
+        <MiniButton 
+          title={"Next"} 
+          handleClick={nextPage} 
+          buttonColor="#FFF"
+          titleColor="#000"
+          width={60}
+          height={30}
+          border={true} 
+          borderColor="#222"
+          isSelected={false}
+          hoverable={true}
+        />
       </div>
     </>
   );

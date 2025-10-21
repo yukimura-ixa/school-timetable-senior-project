@@ -82,7 +82,7 @@ function ConfirmDeleteModal({
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
               reverseIcon={false}
               isDisabled={false}
             />
@@ -90,7 +90,7 @@ function ConfirmDeleteModal({
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
               reverseIcon={false}
               isDisabled={false}
             />

@@ -62,8 +62,8 @@ function SelectedClassRoom(props: Props) {
           .map((item) => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
         return filterResData;
       };
-      setAllClassRoom(() =>
-        allClassRoom.map((item) => ({
+      setAllClassRoom((prev) =>
+        prev.map((item) => ({
           ...item,
           rooms: ClassRoomClassify(item.Year),
         })),
@@ -122,8 +122,8 @@ function SelectedClassRoom(props: Props) {
                           handleClick={() => {
                             props.classRoomHandleChange(classroom);
                           }}
-                          width={""}
-                          height={""}
+                          width="fit-content"
+                          height={30}
                           isSelected={false}
                           hoverable={false}
                         />

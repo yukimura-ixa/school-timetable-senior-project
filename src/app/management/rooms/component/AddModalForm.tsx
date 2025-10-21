@@ -3,6 +3,7 @@ import TextField from "@/components/mui/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
+import CustomTextField from "@/components/elements/input/field/TextField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import api from "@/libs/axios";
@@ -107,9 +108,12 @@ function AddModalForm({ closeModal, mutate }: props) {
               title="เพิ่มรายการ"
               titleColor="#000000"
               buttonColor="#FFFFFF"
+              width={100}
+              height={30}
               border={true}
               hoverable={true}
               borderColor="#222222"
+              isSelected={false}
               handleClick={addList}
             />
           </div>
@@ -183,7 +187,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                     ) : null}
                   </div>
                   <div className="relative flex flex-col gap-2">
-                    <NumberField
+                    <CustomTextField
                       disabled={false}
                       width="auto"
                       height="auto"
@@ -191,12 +195,12 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder="ex. 5"
                       value={room.Floor}
                       borderColor={
-                        isEmptyData && (room.Floor == 0 || !room.Floor)
+                        isEmptyData && (!room.Floor || room.Floor.trim() === "")
                           ? "#F96161"
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: number = e.target.value;
+                        let value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
                             index === ind ? { ...item, Floor: value } : item,
@@ -204,7 +208,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && (room.Floor == 0 || !room.Floor) ? (
+                    {isEmptyData && (!room.Floor || room.Floor === "") ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

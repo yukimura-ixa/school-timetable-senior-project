@@ -28,7 +28,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       if (
         data.SubjectCode == "" ||
         data.SubjectName == "" ||
-        data.Credit == "" ||
+        !data.Credit ||
         data.Category == ""
       ) {
         setIsEmptyData(true);
@@ -198,7 +198,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
-                            ? { ...item, Credit: subjectCreditTitles[value] }
+                            ? { ...item, Credit: value as subject_credit }
                             : item,
                         ),
                       );

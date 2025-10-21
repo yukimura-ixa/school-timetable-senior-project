@@ -127,7 +127,7 @@ function StudyProgram(props: Props) {
                           borderColor="#c7c7c7"
                           titleColor="#4F515E"
                           title={`ม.${grade.Year}/${grade.Number}`}
-                          buttonColor={""}
+                          buttonColor={"primary"}
                           isSelected={false}
                           handleClick={undefined}
                           hoverable={false}
@@ -170,7 +170,7 @@ function StudyProgram(props: Props) {
                             borderColor="#c7c7c7"
                             titleColor="#4F515E"
                             title={`${subject.SubjectCode}`}
-                            buttonColor={""}
+                            buttonColor={"primary"}
                             width={""}
                             isSelected={false}
                             handleClick={undefined}

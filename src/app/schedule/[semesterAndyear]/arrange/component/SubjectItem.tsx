@@ -1,8 +1,14 @@
 import { Fragment } from "react";
 import { Draggable } from "react-beautiful-dnd";
 
+interface SubjectItemData {
+    SubjectCode: string;
+    SubjectName: string;
+    GradeID: string;
+}
+
 interface ISubjectItemProps {
-    item: object;
+    item: SubjectItemData;
     index: number;
     teacherData: {
         Firstname: string;

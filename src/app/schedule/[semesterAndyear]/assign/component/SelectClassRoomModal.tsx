@@ -6,9 +6,16 @@ import type { gradelevel } from "@prisma/client";
 import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import Loading from "@/app/loading";
+
+interface ClassRoomItem {
+  GradeID: string;
+  isSelected?: boolean;
+  [key: string]: any;
+}
+
 type props = {
   closeModal: any;
-  classList: object[];
+  classList: ClassRoomItem[];
   confirmChange: any;
   year: number;
 };
@@ -38,7 +45,7 @@ function SelectClassRoomModal({
     //ทำเพื่ออะไร ? เพื่อตอนกดสลับเลือกห้องเรียนไปมา ข้อมูลของวิชาที่ติดอยู่กับห้องเรียนที่เคยเลือกแล้วจะได้ไม่หายไปไหน ของเก่าเนี่ย ถ้าเรากดลบห้องเรียนแล้วเพิ่มกลับมาใหม่ ข้อมูลวิชาในนั้นจะหายไป
     setClassRoomList(() => mapClassRoomData); //นำข้อมูลมา set state
   }, [isLoading]);
-  const addSelectedList = (item: object) => {
+  const addSelectedList = (item: ClassRoomItem) => {
     setClassRoomList(() =>
       classRoomList.map((classRoom) =>
         classRoom.GradeID == item.GradeID
@@ -47,7 +54,7 @@ function SelectClassRoomModal({
       )
     ); //ถ้ามีการกด Add ห้องเรียนเข้ามาใหม่ ก็จะเปลี่ยนแค่ boolean ของ isSelected ด้วยการเช็คว่า GradeID ไหนต้องการเปลี่ยน
   };
-  const removeSelectedList = (item: object) => {
+  const removeSelectedList = (item: ClassRoomItem) => {
     setClassRoomList(() =>
       classRoomList.map((classRoom) =>
         classRoom.GradeID == item.GradeID
@@ -104,10 +111,14 @@ function SelectClassRoomModal({
                     {classRoom.isSelected ? (
                       <MiniButton
                         handleClick={() => removeSelectedList(classRoom)}
+                        width={60}
                         height={25}
+                        buttonColor="#fff"
+                        titleColor="#000"
                         border={true}
-                        isSelected={true}
                         borderColor="#c7c7c7"
+                        isSelected={true}
+                        hoverable={true}
                         title={`ม.${classRoom.GradeID.substring(
                           0,
                           1
@@ -134,9 +145,14 @@ function SelectClassRoomModal({
                     {!classRoom.isSelected ? (
                       <MiniButton
                         handleClick={() => addSelectedList(classRoom)}
+                        width={60}
                         height={25}
+                        buttonColor="#fff"
+                        titleColor="#000"
                         border={true}
                         borderColor="#c7c7c7"
+                        isSelected={false}
+                        hoverable={true}
                         title={`ม.${classRoom.GradeID.substring(
                           0,
                           1

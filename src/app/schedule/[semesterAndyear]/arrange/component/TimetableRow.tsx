@@ -4,7 +4,11 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { Fragment } from "react";
 
 interface ITimetableRowProps {
-  day: object;
+  day: {
+    Day: string;
+    BgColor: string;
+    TextColor: string;
+  };
 }
 function TimetableRow({ day }: ITimetableRowProps) {
   return (

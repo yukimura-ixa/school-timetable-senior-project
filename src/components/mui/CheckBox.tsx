@@ -48,6 +48,7 @@ interface LegacyCheckBoxProps {
 type CheckBoxProps = LegacyCheckBoxProps & 
   Omit<MuiCheckboxProps, 'onChange'> & {
     FormControlLabelProps?: Partial<FormControlLabelProps>;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
   };
 
 /**

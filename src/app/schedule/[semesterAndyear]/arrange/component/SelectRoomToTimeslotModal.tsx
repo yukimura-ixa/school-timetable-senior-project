@@ -102,13 +102,13 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                   width={250}
                   data={roomData.data.map((grade) => grade.RoomName)}
                   placeHolder="โปรดเลือก"
-                  renderItem={({ data }) => (
+                  renderItem={({ data }: { data: string }) => (
                     <>
                       <p>{data}</p>
                     </>
                   )}
                   currentValue={RoomName}
-                  handleChange={(data) => {
+                  handleChange={(data: string) => {
                     setRoomName(() => data);
                     setRoom(() =>
                       roomData.data.find((room) => room.RoomName == data),

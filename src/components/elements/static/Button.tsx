@@ -25,6 +25,7 @@ type ButtonProps = {
   width?: number | string | null; //ความกว้างปุ่ม ใส่ได้ทั้งค่าตัวเลขและ ค่าเปอร์เซ็นเป็น string ex '75%'
   height?: number | string | null; //เช่นเดียวกันกับความกว้าง
   handleClick?: MouseEventHandler<HTMLButtonElement>; //รับฟังก์ชั่นเพื่อใช้กับ onClick (รองรับชื่อเดิม)
+  onClick?: React.MouseEventHandler<HTMLButtonElement>; // standard onClick prop
   className?: string; //className เพิ่มเติมของปุ่ม
   labelClassName?: string; //className เพิ่มเติมของตัวหนังสือ
   labelStyle?: CSSProperties; //style ของตัวหนังสือ

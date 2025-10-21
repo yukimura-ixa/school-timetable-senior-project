@@ -31,9 +31,9 @@ function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
           width={300}
           data={allTeacher.data}
           placeHolder="ตัวเลือก"
-          renderItem={({data}) => (<li><p>{`${data.Prefix}${data.Firstname} ${data.Lastname}`}</p></li>)}
+          renderItem={({data}: {data: any}) => (<li><p>{`${data.Prefix}${data.Firstname} ${data.Lastname}`}</p></li>)}
           currentValue={teacher}
-          handleChange={(data) => {
+          handleChange={(data: any) => {
             setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`)
             setTeacherID(data.TeacherID)
             pushLink(data.TeacherID)

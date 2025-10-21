@@ -37,14 +37,15 @@ function SelectTeacher(props: Props) {
               {props.teachers.map((item, index) => (
                 <Fragment key={`teacherSelected${item.TeacherID}`}>
                   <MiniButton
-                    handleClick={undefined}
+                    handleClick={() => {}}
                     title={`${item.Firstname} - ${item.Department}`}
                     border={true}
-                    buttonColor={""}
-                    titleColor={""}
-                    width={""}
-                    height={""}
-                    borderColor={""}
+                    buttonColor="#ffffff"
+                    titleColor="#222222"
+                    width="fit-content"
+                    height={30}
+                    borderColor="#888888"
+                    isSelected={false}
                     hoverable={false}
                   />
                 </Fragment>

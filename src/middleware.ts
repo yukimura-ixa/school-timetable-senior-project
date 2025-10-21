@@ -1,39 +1,44 @@
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
-import type { NextRequestWithAuth } from "next-auth/middleware";
+import { auth } from "../auth"
+import { NextResponse } from "next/server"
 
-export default withAuth(
-  // `withAuth` augments your `Request` with the user's token.
-  function middleware(req: NextRequestWithAuth) {
-    const token = req.nextauth.token;
-    if (
-      token?.role === "teacher" &&
-      !(req.nextUrl.pathname.endsWith("/teacher-table") || req.nextUrl.pathname.endsWith("/student-table"))
-    ) {
-      const url = new URL("/dashboard/select-semester", req.nextUrl).href;
-      return NextResponse.redirect(url);
-    }
-  },
-  {
-    callbacks: {
-      authorized({ req, token }) {
-        // SECURITY: Use server-only env variable to prevent bypass in production
-        // This variable is NOT embedded in the client bundle
-        if (process.env.ENABLE_DEV_BYPASS === "true") {
-          console.log("[AUTH] Dev bypass is enabled - allowing all requests")
-          return true;
-        }
+export default auth((req) => {
+  const token = req.auth
+  
+  // SECURITY: Use server-only env variable to prevent bypass in production
+  // This variable is NOT embedded in the client bundle
+  if (process.env.ENABLE_DEV_BYPASS === "true") {
+    console.log("[AUTH] Dev bypass is enabled - allowing all requests")
+    return NextResponse.next()
+  }
 
-        if (token?.role === "admin") return true;
+  // Check if user is authenticated
+  if (!token) {
+    const signInUrl = new URL("/", req.url)
+    return NextResponse.redirect(signInUrl)
+  }
 
-        if (token?.role === "student" && !req.nextUrl.pathname.endsWith("student-table"))
-          return false;
-        
-        return true;
-      },
-    },
-  },
-);
+  // Teacher-specific redirects
+  if (
+    token?.user?.role === "teacher" &&
+    !(req.nextUrl.pathname.endsWith("/teacher-table") || req.nextUrl.pathname.endsWith("/student-table"))
+  ) {
+    const dashboardUrl = new URL("/dashboard/select-semester", req.url)
+    return NextResponse.redirect(dashboardUrl)
+  }
+
+  // Admin always allowed
+  if (token?.user?.role === "admin") {
+    return NextResponse.next()
+  }
+
+  // Student restrictions
+  if (token?.user?.role === "student" && !req.nextUrl.pathname.endsWith("student-table")) {
+    const signInUrl = new URL("/", req.url)
+    return NextResponse.redirect(signInUrl)
+  }
+  
+  return NextResponse.next()
+})
 
 export const config = {
   matcher: [
@@ -43,4 +48,4 @@ export const config = {
     "/dashboard/:path/all-timeslot",
     "/dashboard/:path/teacher-table",
   ],
-};
+}

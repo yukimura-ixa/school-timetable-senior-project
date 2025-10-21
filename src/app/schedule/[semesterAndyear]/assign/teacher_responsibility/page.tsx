@@ -322,10 +322,14 @@ function ClassroomResponsibility() {
                     {grade.ClassRooms.map((room: any) => (
                       <Fragment key={`Class${room.GradeID}`}>
                         <MiniButton
+                          width={80}
                           height={30}
+                          buttonColor="#fff"
+                          titleColor="#000dff"
                           border={true}
                           borderColor="#EDEEF3"
-                          titleColor="#000dff"
+                          isSelected={false}
+                          hoverable={true}
                           handleClick={() => {
                             setAddSubjectModalActive(true),
                               setClassRoomForAddSubj(() => ({
@@ -361,10 +365,14 @@ function ClassroomResponsibility() {
                     <Fragment key={`Details for Class ${room.GradeID}`}>
                       <div className="flex gap-3">
                         <MiniButton
+                          width={80}
                           height={30}
+                          buttonColor="#fff"
+                          titleColor="#000dff"
                           border={true}
                           borderColor="#EDEEF3"
-                          titleColor="#000dff"
+                          isSelected={false}
+                          hoverable={true}
                           handleClick={() => {
                             setAddSubjectModalActive(true),
                               setClassRoomForAddSubj(() => ({
@@ -392,10 +400,15 @@ function ClassroomResponsibility() {
                               >
                                 <div className="flex justify-between items-center pr-3">
                                   <MiniButton
+                                    width={200}
                                     height={30}
+                                    buttonColor="#fff"
+                                    titleColor="#4F515E"
                                     border={true}
                                     borderColor="#EDEEF3"
-                                    titleColor="#4F515E"
+                                    isSelected={false}
+                                    hoverable={false}
+                                    handleClick={() => {}}
                                     title={`${subject.SubjectCode} ${subject.SubjectName}`}
                                   />
                                   <p className="text-sm text-[#4F515E]">

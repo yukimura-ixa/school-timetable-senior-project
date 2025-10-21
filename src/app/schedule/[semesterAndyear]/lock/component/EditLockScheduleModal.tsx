@@ -158,20 +158,34 @@ function EditLockScheduleModal({
               required={isEmptyData.DayOfWeek}
             />
             <SelectMultipleTimeSlot
+              subject={{
+                SubjectCode: lockScheduleData.SubjectCode || "",
+                SubjectName: lockScheduleData.SubjectName || "",
+                Credit: null,
+                Category: "",
+                ProgramID: null,
+              } as any}
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeslots.map(item => item.TimeslotID.substring(item.TimeslotID.length - 1))}
               required={isEmptyData.timeSlotID}
+              daySelected={dayOfWeekThai[lockScheduleData.timeslots[0].DayOfWeek]}
             />
             <SelectRoomName
               roomName={lockScheduleData.room.RoomName}
               handleRoomChange={handleRoomChange}
-              required={isEmptyData.RoomName}
             />
             <SelectTeacher
-              teacherSelected={lockScheduleData.teachers}
-              addTeacherFunction={handleAddTeacherList}
-              removeTeacherFunction={removeTeacherFromList}
-              required={isEmptyData.Teachers}/>
+              subject={{
+                SubjectCode: lockScheduleData.SubjectCode || "",
+                SubjectName: lockScheduleData.SubjectName || "",
+                Credit: null,
+                Category: "",
+                ProgramID: null,
+              } as any}
+              setTeacherList={null}
+              required={isEmptyData.Teachers}
+              teachers={lockScheduleData.teachers}
+            />
             {/* <SelectedClassRoom
               Grade={lockScheduleData.GradeIDs}
               classRoomHandleChange={classRoomHandleChange}

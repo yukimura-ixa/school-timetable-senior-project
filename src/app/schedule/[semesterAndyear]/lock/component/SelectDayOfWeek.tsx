@@ -24,7 +24,7 @@ function SelectDayOfWeek(props: Props) {
         </div>
         <Dropdown
           data={["MON", "TUE", "WED", "THU", "FRI"]}
-          renderItem={({ data }): JSX.Element => (
+          renderItem={({ data }: { data: any }): JSX.Element => (
             <li className="w-full text-sm">{dayOfWeekThai[data]}</li>
           )}
           width={200}

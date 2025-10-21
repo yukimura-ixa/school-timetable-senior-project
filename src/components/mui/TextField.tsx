@@ -44,7 +44,10 @@ interface LegacyTextFieldProps {
 
 // Combined type that accepts both old and new APIs
 type TextFieldProps = LegacyTextFieldProps & 
-  Omit<MuiTextFieldProps, 'placeholder' | 'onChange'>;
+  Omit<MuiTextFieldProps, 'placeholder' | 'onChange'> & {
+    placeholder?: string;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  };
 
 /**
  * TextField - MUI-based text field with backward compatibility

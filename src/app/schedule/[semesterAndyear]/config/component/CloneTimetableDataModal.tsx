@@ -127,13 +127,13 @@ function CloneTimetableDataModal({
                   ) : (
                     <Dropdown
                       data={tableConfig.data}
-                      renderItem={({ data }): JSX.Element =>
+                      renderItem={({ data }: { data: any }): JSX.Element =>
                         data.ConfigID != currentTime && (
                           <li className="w-full text-sm">{data.ConfigID}</li>
                         )
                       }
                       currentValue={selectedCloneData}
-                      handleChange={(value: string) => {
+                      handleChange={(value: any) => {
                         setSelectedCloneData(() => value.ConfigID);
                       }}
                       searchFunction={undefined}

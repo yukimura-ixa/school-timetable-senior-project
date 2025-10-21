@@ -37,16 +37,10 @@ function SelectRoomName(props: Props) {
         <div className="text-sm flex gap-1 items-center">
           <p>สถานที่เรียน</p>
           <p className="text-red-500">*</p>
-          {props.required ? (
-            <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-              <BsInfo className="bg-red-500 rounded-full fill-white" />
-              <p className="text-red-500 text-sm">ต้องการ</p>
-            </div>
-          ) : null}
         </div>
         <Dropdown
           data={rooms}
-          renderItem={({ data }): JSX.Element => (
+          renderItem={({ data }: { data: any }): JSX.Element => (
             <li className="w-full text-sm">{data.RoomName}</li>
           )}
           width={300}
