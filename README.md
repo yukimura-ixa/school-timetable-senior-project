@@ -2,11 +2,12 @@
 
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748)](https://www.prisma.io/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)](https://www.mysql.com/)
-[![Material-UI](https://img.shields.io/badge/Material--UI-5.18-007FFF)](https://mui.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1-38B2AC)](https://tailwindcss.com/)
+[![Material-UI](https://img.shields.io/badge/Material--UI-7.3-007FFF)](https://mui.com/)
 
 > **[English Version](#english-version)** | **[เวอร์ชันภาษาอังกฤษ](#english-version)**
 
@@ -145,10 +146,10 @@ A comprehensive web application designed to streamline the process of creating a
 
 **ส่วนหน้าบ้าน (Frontend):**
 
-- Next.js 14.2 (React Framework)
-- Material-UI 5.18 (Component Library)
-- Tailwind CSS (Styling)
-- TypeScript (Type Safety)
+- Next.js 15.5 (React Framework)
+- Material-UI 7.3 (Component Library)
+- Tailwind CSS 4.1 (Styling)
+- TypeScript 5.x (Type Safety)
 
 **ส่วนหลังบ้าน (Backend):**
 
@@ -226,7 +227,7 @@ The system uses a relational database with the following main entities:
 
 - Node.js 18.x หรือสูงกว่า (or higher)
 - MySQL 8.0
-- npm หรือ yarn package manager
+- pnpm package manager (recommended)
 
 ### การติดตั้ง | Installation
 
@@ -242,7 +243,7 @@ cd school-timetable-senior-project
 2. **ติดตั้ง dependencies | Install dependencies**
 
 ```bash
-npm install
+pnpm install
 ```
 
 3. **ตั้งค่าฐานข้อมูล MySQL | Set up MySQL database**
@@ -276,15 +277,15 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"
 5. **รัน database migrations | Run database migrations**
 
 ```bash
-npx prisma migrate dev --name init
-npx prisma generate
+pnpm prisma migrate dev --name init
+pnpm prisma generate
 ```
 
 6. **เติมข้อมูลทดสอบ (ตัวเลือก) | Seed test data (Optional)**
 
 ```bash
 # Seed database with mock Thai school data
-npx prisma db seed
+pnpm prisma db seed
 ```
 
 ระบบจะสร้างข้อมูลจำลองสำหรับโรงเรียนขนาดกลาง:
@@ -300,7 +301,7 @@ The system will create mock data for a medium-sized school:
 7. **เริ่มต้น development server | Start development server**
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 แอปพลิเคชันจะพร้อมใช้งานที่ | The application will be available at `http://localhost:3000`
@@ -308,8 +309,8 @@ npm run dev
 ### สร้างเวอร์ชันสำหรับ Production | Building for Production
 
 ```bash
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
 ---
@@ -425,8 +426,8 @@ npm start
 รันการทดสอบด้วย Jest | Run tests with Jest:
 
 ```bash
-npm test
-npm run test:watch
+pnpm test
+pnpm test:watch
 ```
 
 ### E2E Tests
