@@ -43,7 +43,7 @@ interface LegacyTextFieldProps {
 }
 
 // Combined type that accepts both old and new APIs
-type TextFieldProps = LegacyTextFieldProps & 
+type TextFieldProps = LegacyTextFieldProps &
   Omit<MuiTextFieldProps, 'placeholder' | 'onChange'> & {
     placeholder?: string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
