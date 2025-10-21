@@ -171,7 +171,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     }
                     disabled={false}
                     handleChange={(e: any) => {
-                      let value: number = parseInt(e.target.value, 10) || 0;
+                      let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Floor: value } : item,

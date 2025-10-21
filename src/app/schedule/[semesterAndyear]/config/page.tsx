@@ -289,7 +289,7 @@ function TimetableConfigValue() {
                   width="100%"
                   height="40px"
                   data={breakSlotMap}
-                  currentValue={configData.MiniBreak.SlotNumber}
+                  currentValue={configData.MiniBreak.SlotNumber.toString()}
                   placeHolder="เลือกคาบ"
                   renderItem={({ data }: { data: any }): JSX.Element => (
                     <li className="w-[70px]">{data}</li>
@@ -347,7 +347,7 @@ function TimetableConfigValue() {
                   width="100%"
                   height="40px"
                   data={breakSlotMap}
-                  currentValue={configData.BreakTimeslots.Senior}
+                  currentValue={configData.BreakTimeslots.Senior.toString()}
                   placeHolder="เลือกคาบ"
                   renderItem={({ data }: { data: any }): JSX.Element => (
                     <li className="w-[70px]">{data}</li>
@@ -368,7 +368,7 @@ function TimetableConfigValue() {
                   width="100%"
                   height="40px"
                   data={breakSlotMap}
-                  currentValue={configData.BreakTimeslots.Junior}
+                  currentValue={configData.BreakTimeslots.Junior.toString()}
                   placeHolder="เลือกคาบ"
                   renderItem={({ data }: { data: any }): JSX.Element => (
                     <li className="w-[70px]">{data}</li>
@@ -416,7 +416,7 @@ function TimetableConfigValue() {
                 <PrimaryButton
                   handleClick={reset}
                   title={"คืนค่าเริ่มต้น"}
-                  color={""}
+                  color={"primary"}
                   Icon={<ReplayIcon />}
                   reverseIcon={false}
                   isDisabled={isSetTimeslot}

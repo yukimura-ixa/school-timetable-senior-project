@@ -6,7 +6,7 @@ import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
-  subject: subject;
+  subject?: subject;
   timeSlotHandleChange: any;
   checkedCondition: any;
   required: boolean;

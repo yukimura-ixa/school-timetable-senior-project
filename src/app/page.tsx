@@ -45,7 +45,7 @@ export default function Home() {
           signIn("google", { callbackUrl: "/dashboard/select-semester" })
         }
         title={"เข้าสู่ระบบ"}
-        color={""}
+        color={"primary"}
         Icon={<StartIcon />}
         reverseIcon={true}
         isDisabled={false}
@@ -55,7 +55,7 @@ export default function Home() {
         <PrimaryButton
           handleClick={() => {}}
           title={"ดูตารางเรียนตารางสอน"}
-          color={""}
+          color={"primary"}
           Icon={<StartIcon />}
           reverseIcon={true}
           isDisabled={false}

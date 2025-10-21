@@ -48,7 +48,7 @@ function SelectYearAndSemester (props: Props) {
         />
       </div>
       <div className="flex justify-end items-center">
-        <PrimaryButton handleClick={() => {router.replace(`/schedule/${semester}-${year}`)}} title={"ยืนยัน"} color={""} Icon={undefined} reverseIcon={false} />
+        <PrimaryButton handleClick={() => {router.replace(`/schedule/${semester}-${year}`)}} title={"ยืนยัน"} color={"primary"} Icon={undefined} reverseIcon={false} />
       </div>
     </div>
   );

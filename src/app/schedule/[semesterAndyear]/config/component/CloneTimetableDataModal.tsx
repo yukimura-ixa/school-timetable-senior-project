@@ -133,7 +133,7 @@ function CloneTimetableDataModal({
                         )
                       }
                       currentValue={selectedCloneData}
-                      handleChange={(value: string) => {
+                      handleChange={(value: any) => {
                         setSelectedCloneData(() => value.ConfigID);
                       }}
                       searchFunction={undefined}
