@@ -10,7 +10,7 @@ type Props = {
   timeSlotHandleChange: any;
   checkedCondition: any;
   required: boolean;
-  daySelected: string;
+  daySelected?: string;
 };
 
 function SelectMultipleTimeSlot(props: Props) {
