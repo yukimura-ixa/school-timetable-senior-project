@@ -5,7 +5,7 @@ interface ITextFieldProps {
   placeHolder?: string;
   disabled?: boolean;
   label?: string;
-  handleChange?: any;
+  handleChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value?: string;
   borderColor?: string;
 }
