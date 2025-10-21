@@ -31,7 +31,7 @@ type ButtonProps = {
   iconPosition?: "left" | "right"; //กำหนดตำแหน่งของ icon
 } & Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
-  "title" | "color" | "onClick"
+  "title" | "color"
 >;
 
 const clampColorValue = (value: number): number => Math.max(0, Math.min(255, value));
