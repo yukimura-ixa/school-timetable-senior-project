@@ -49,7 +49,6 @@ type CheckBoxProps = LegacyCheckBoxProps &
   Omit<MuiCheckboxProps, 'onChange'> & {
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
     FormControlLabelProps?: Partial<FormControlLabelProps>;
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
   };
 
 /**
