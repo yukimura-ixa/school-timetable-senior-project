@@ -302,7 +302,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
                 border={false}
                 borderColor="#222"
                 isSelected={true}
-                handleClick={undefined}
+                handleClick={() => {}}
                 hoverable={false}
               />
             ) : (
