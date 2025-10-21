@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TextField from "@/components/elements/input/field/TextField";
+import TextField from "@/components/mui/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
@@ -9,7 +9,7 @@ import type { subject } from "@prisma/client";
 import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import api from "@/libs/axios";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { closeSnackbar, enqueueSnackbar } from "notistack";

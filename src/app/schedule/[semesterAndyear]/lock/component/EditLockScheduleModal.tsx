@@ -1,4 +1,4 @@
-import SearchBar from "@/components/elements/input/field/SearchBar";
+import SearchBar from "@/components/mui/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
 import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";

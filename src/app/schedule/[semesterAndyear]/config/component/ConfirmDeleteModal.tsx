@@ -2,7 +2,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;

@@ -2,7 +2,7 @@
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import { fetcher } from "@/libs/axios";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { useParams } from "next/navigation";

@@ -4,7 +4,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";

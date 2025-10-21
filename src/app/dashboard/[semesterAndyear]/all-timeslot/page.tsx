@@ -11,7 +11,7 @@ import TableHead from "./component/TableHead";
 import TableBody from "./component/TableBody";
 import TeacherList from "./component/TeacherList";
 import HeightIcon from "@mui/icons-material/Height";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableResult from "./component/TableResult";
 import { ExportTeacherTable } from "./functions/ExportTeacherTable";
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";

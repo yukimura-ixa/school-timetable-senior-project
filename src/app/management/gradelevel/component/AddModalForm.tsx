@@ -5,7 +5,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";

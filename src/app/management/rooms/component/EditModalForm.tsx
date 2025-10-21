@@ -1,6 +1,6 @@
 import NumberField from "@/components/elements/input/field/NumberField";
-import TextField from "@/components/elements/input/field/TextField";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import TextField from "@/components/mui/TextField";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
@@ -157,7 +157,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                   ) : null}
                 </div>
                 <div className="relative flex flex-col gap-2">
-                  <NumberField disabled={false}
+                  <NumberField
+                    disabled={false}
                     width="auto"
                     height="auto"
                     label={`ชั้น (Floor):`}
@@ -168,7 +169,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                         ? "#F96161"
                         : ""
                     }
-                    disabled={false} handleChange={(e: any) => {
+                    handleChange={(e: any) => {
                       let value: number = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>

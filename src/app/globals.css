@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/* Configure Tailwind to scan source files */
+@source "../pages/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../components/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../app/**/*.{js,ts,jsx,tsx,mdx}";
+
+/* Tailwind CSS v4 Theme Configuration */
+@theme {
+  /* Font families */
+  --font-sans: var(--font-sarabun);
+  --font-serif: var(--font-sarabun);
+  
+  /* Custom gradients */
+  --gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+}
+
 /* @layer base {
 	html {
 	  font-family: "Sarabun";

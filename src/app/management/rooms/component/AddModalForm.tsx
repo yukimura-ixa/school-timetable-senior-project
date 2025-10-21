@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TextField from "@/components/elements/input/field/TextField";
+import TextField from "@/components/mui/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
@@ -7,7 +7,7 @@ import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import api from "@/libs/axios";
 import type { room } from "@prisma/client";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -183,7 +183,8 @@ function AddModalForm({ closeModal, mutate }: props) {
                     ) : null}
                   </div>
                   <div className="relative flex flex-col gap-2">
-                    <NumberField disabled={false}
+                    <NumberField
+                      disabled={false}
                       width="auto"
                       height="auto"
                       label={`ชั้น (Floor):`}
@@ -194,7 +195,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      disabled={false} handleChange={(e: any) => {
+                      handleChange={(e: any) => {
                         let value: number = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
