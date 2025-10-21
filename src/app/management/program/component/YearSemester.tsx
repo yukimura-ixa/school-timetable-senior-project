@@ -4,10 +4,10 @@ import { BsInfo } from "react-icons/bs";
 
 type Props = {
   required: boolean;
-  semester: semester;
-  year: number;
+  semester: semester | string;
+  year?: number;
   handleSemesterChange: any;
-  handleYearChange: any;
+  handleYearChange?: any;
 };
 
 const YearSemester = (props: Props) => {
@@ -35,7 +35,6 @@ const YearSemester = (props: Props) => {
       hover:bg-slate-100
       duration-300"
           value={props.semester ? props.semester : ""}
-          placeholder="เลือกเทอม"
           onChange={(e: any) => props.handleSemesterChange(e.target.value)}
           variant="standard"
         >

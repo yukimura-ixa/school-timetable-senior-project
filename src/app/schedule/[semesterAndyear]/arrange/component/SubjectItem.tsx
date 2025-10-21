@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { Draggable } from "react-beautiful-dnd";
 
 interface ISubjectItemProps {
-    item: object;
+    item: any;
     index: number;
     teacherData: {
         Firstname: string;

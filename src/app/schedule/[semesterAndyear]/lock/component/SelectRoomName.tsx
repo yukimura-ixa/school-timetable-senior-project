@@ -7,7 +7,7 @@ import { BsInfo } from "react-icons/bs";
 type Props = {
   roomName: any;
   handleRoomChange: any;
-  // required: boolean;
+  required?: boolean;
 };
 
 function SelectRoomName(props: Props) {
@@ -46,7 +46,7 @@ function SelectRoomName(props: Props) {
         </div>
         <Dropdown
           data={rooms}
-          renderItem={({ data }): JSX.Element => (
+          renderItem={({ data }: { data: any }): JSX.Element => (
             <li className="w-full text-sm">{data.RoomName}</li>
           )}
           width={300}

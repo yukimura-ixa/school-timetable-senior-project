@@ -14,6 +14,7 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
   mutate: Function;
+  openSnackBar?: any;
 };
 function AddModalForm({ closeModal, mutate }: props) {
 
@@ -184,19 +185,19 @@ function AddModalForm({ closeModal, mutate }: props) {
                   </div>
                   <div className="relative flex flex-col gap-2">
                     <NumberField
-                      disabled={false}
                       width="auto"
                       height="auto"
                       label={`ชั้น (Floor):`}
                       placeHolder="ex. 5"
                       value={room.Floor}
                       borderColor={
-                        isEmptyData && (room.Floor == 0 || !room.Floor)
+                        isEmptyData && !room.Floor
                           ? "#F96161"
                           : ""
                       }
+                      disabled={false}
                       handleChange={(e: any) => {
-                        let value: number = e.target.value;
+                        let value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
                             index === ind ? { ...item, Floor: value } : item,
@@ -204,7 +205,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && (room.Floor == 0 || !room.Floor) ? (
+                    {isEmptyData && !room.Floor ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

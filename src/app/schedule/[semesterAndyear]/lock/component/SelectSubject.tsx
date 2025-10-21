@@ -63,7 +63,7 @@ function SelectSubject(props: Props) {
         {!respData.isValidating ? (
           <Dropdown
             data={subject}
-            renderItem={({ data }): JSX.Element => (
+            renderItem={({ data }: { data: any }): JSX.Element => (
               <li className="w-full text-sm">
                 {data.SubjectCode} {data.SubjectName}
               </li>

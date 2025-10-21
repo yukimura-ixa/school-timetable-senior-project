@@ -214,7 +214,7 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
             width={"100%"}
             handleChange={handleSearch}
             placeHolder="ค้นหาชื่อสถานที่"
-            value={setSearchTerm}
+            value={searchTerm}
           />
           <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
             <p className="text-green-500 text-sm">
@@ -226,6 +226,8 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
             title={"เพิ่มสถานที่"}
             color="primary"
             Icon={<AddIcon />}
+            reverseIcon={false}
+            isDisabled={false}
           />
         </div>
       </div>

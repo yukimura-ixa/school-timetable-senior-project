@@ -5,8 +5,8 @@ import useSWR from "swr";
 import { useReactToPrint } from "react-to-print";
 
 import Loading from "@/app/loading";
-import PrimaryButton from "@/components/mui/PrimaryButton";
-import ErrorState from "@/components/mui/ErrorState";
+import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import ErrorState from "@/components/elements/static/ErrorState";
 import { fetcher } from "@/libs/axios";
 
 import TimeSlot from "./component/Timeslot";
@@ -170,7 +170,7 @@ function TeacherTablePage() {
                       )
                     }
                     title={"นำออกเป็น Excel"}
-                    color={""}
+                    color={"primary"}
                     Icon={undefined}
                     reverseIcon={false}
                     isDisabled={disableExport}
@@ -178,7 +178,7 @@ function TeacherTablePage() {
                   <PrimaryButton
                     handleClick={handleExportPDF}
                     title={"นำออกเป็น PDF"}
-                    color={""}
+                    color={"primary"}
                     Icon={undefined}
                     reverseIcon={false}
                     isDisabled={disableExport}

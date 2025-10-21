@@ -12,7 +12,7 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
   const [selectedClassList, setSelectedClassList] =
     useState(classList);
   //ชั้นเรียนที่ยังไม่เลือก
-  const [unSelectedClassList, setUnSelectedClassList] = useState<object[]>(
+  const [unSelectedClassList, setUnSelectedClassList] = useState<any[]>(
     [
       { Year: "1" },
       { Year: "2" },
@@ -22,7 +22,7 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
       { Year: "6" },
     ].filter(
       (item) =>
-        !selectedClassList.map((item) => `${item.Year}`).includes(item.Year)
+        !selectedClassList.map((item: any) => `${item.Year || item}`).includes(item.Year)
     )
   );
   const addSelectedClassList = (item: string) => {
@@ -76,7 +76,7 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
                     border={true}
                     isSelected={true}
                     borderColor="#c7c7c7"
-                    title={`ม.${item.Year}`}
+                    title={`ม.${item}`}
                   />
                 </React.Fragment>
               ))}

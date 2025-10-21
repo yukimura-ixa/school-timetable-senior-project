@@ -2,7 +2,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { timeslot } from "@prisma/client";
 import { Fragment } from "react";
 interface ITimetableHeaderProps {
-  timeslot: timeslot[];
+  timeslot: any;
 }
 
 function TimetableHeader({ timeslot }: ITimetableHeaderProps) {

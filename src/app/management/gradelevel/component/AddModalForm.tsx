@@ -240,7 +240,7 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
               reverseIcon={false}
               isDisabled={false}
             />
@@ -248,7 +248,7 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={handleSubmit}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
               reverseIcon={false}
               isDisabled={false}
             />

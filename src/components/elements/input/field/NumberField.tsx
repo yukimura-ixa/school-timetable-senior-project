@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
 interface INumberFieldProps {
-  width: string | number;
-  height: string | number;
-  placeHolder: string;
-  disabled: boolean;
-  label: string;
-  value: number;
-  borderColor: string;
-  handleChange;
+  width?: string | number;
+  height?: string | number;
+  placeHolder?: string;
+  disabled?: boolean;
+  label?: string;
+  value?: number | string;
+  borderColor?: string;
+  handleChange?: any;
 }
 function NumberField({
   width = "auto",

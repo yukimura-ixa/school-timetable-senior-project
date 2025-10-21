@@ -14,7 +14,12 @@ type Props = {
 };
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
-  const [newProgramData, setNewProgramData] = useState({
+  const [newProgramData, setNewProgramData] = useState<{
+    ProgramName: string;
+    Semester: semester | string;
+    gradelevel: any[];
+    subject: any[];
+  }>({
     ProgramName: "",
     Semester: "",
     gradelevel: [],

@@ -12,7 +12,7 @@ import type { gradelevel } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  conFirmEdit: any;
+  conFirmEdit?: any;
   data: any;
   clearCheckList: any;
   mutate: Function;
@@ -161,7 +161,7 @@ function EditModalForm({
                   />
                 </div>
                 <div className="relative flex flex-col gap-2">
-                  <NumberField disabled={false}
+                  <NumberField
                     width="auto"
                     height="auto"
                     label={`ห้องที่ (Number):`}
@@ -172,7 +172,8 @@ function EditModalForm({
                         ? "#F96161"
                         : ""
                     }
-                    disabled={false} handleChange={(e: any) => {
+                    disabled={false}
+                    handleChange={(e: any) => {
                       let value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -228,13 +229,17 @@ function EditModalForm({
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
           </span>
         </div>

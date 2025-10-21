@@ -8,11 +8,11 @@ import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
 type Props = {
-  teachers: any;
+  teachers?: any;
   Grade: any;
-  subject: subject;
+  subject?: subject;
   classRoomHandleChange: any;
-  required: boolean;
+  required?: boolean;
 };
 
 function SelectedClassRoom(props: Props) {
