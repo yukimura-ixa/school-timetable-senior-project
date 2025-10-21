@@ -12,7 +12,7 @@ interface IMiniButtonProps {
   border?: boolean;
   borderColor?: string;
   isSelected?: boolean;
-  handleClick?: any;
+  handleClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
   hoverable?: boolean;
 }
 function MiniButton({
