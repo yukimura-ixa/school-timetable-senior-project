@@ -1,6 +1,6 @@
 import NumberField from "@/components/elements/input/field/NumberField";
-import TextField from "@/components/elements/input/field/TextField";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import TextField from "@/components/mui/TextField";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";

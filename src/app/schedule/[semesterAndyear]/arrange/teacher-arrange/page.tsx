@@ -14,7 +14,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import { DragDropContext } from "react-beautiful-dnd";
 import SubjectDragBox from "../component/SubjectDragBox";
 import { enqueueSnackbar, closeSnackbar } from "notistack";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import SelectSubjectToTimeslotModal from "../component/SelectRoomToTimeslotModal";
 import Loading from "@/app/loading";
 import SelectTeacher from "../component/SelectTeacher";

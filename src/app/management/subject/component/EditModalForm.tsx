@@ -1,4 +1,4 @@
-import TextField from "@/components/elements/input/field/TextField";
+import TextField from "@/components/mui/TextField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import type { subject } from "@prisma/client";
 import { BsInfo } from "react-icons/bs";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import api from "@/libs/axios";
 import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";

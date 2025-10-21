@@ -9,11 +9,11 @@ import { BsCheckLg } from "react-icons/bs";
 import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/subject/component/AddModalForm";
-import SearchBar from "@/components/elements/input/field/SearchBar";
+import SearchBar from "@/components/mui/SearchBar";
 import ConfirmDeleteModal from "../../subject/component/ConfirmDeleteModal";
 import EditModalForm from "../../subject/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableRow from "./TableRow";
 
 type SubjectTableProps = {

@@ -1,4 +1,3 @@
-/* eslint-disable react/no-children-prop */
 import "./globals.css";
 import Navbar from "@/components/templates/Navbar";
 import Content from "@/components/templates/Content";
@@ -8,7 +7,7 @@ import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "@/libs/auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -33,7 +32,7 @@ export default async function RootLayout({
               <SnackbarProvider autoHideDuration={4000} maxSnack={1}>
                 <Navbar />
                 <main className="flex justify-center w-[1280px] xl:w-full h-auto">
-                  <Content children={children} />
+                  <Content>{children}</Content>
                   <SpeedInsights />
                 </main>
               </SnackbarProvider>

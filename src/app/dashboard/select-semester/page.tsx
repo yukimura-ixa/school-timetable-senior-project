@@ -1,6 +1,6 @@
 "use client"
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import PrimaryButton from "@/components/elements/static/PrimaryButton";
+import PrimaryButton from "@/components/mui/PrimaryButton";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
