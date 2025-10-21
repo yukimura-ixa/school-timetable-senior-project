@@ -47,8 +47,7 @@ interface LegacySearchBarProps {
 }
 
 // Combined type that accepts both old and new APIs
-type SearchBarProps = LegacySearchBarProps & 
-  Omit<TextFieldProps, 'onChange'>;
+type SearchBarProps = LegacySearchBarProps & TextFieldProps;
 
 /**
  * SearchBar - MUI-based search field with backward compatibility
