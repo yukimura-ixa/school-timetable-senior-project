@@ -147,7 +147,6 @@ function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element
             setDeleteModalActive(false);
           }}
           mutate={mutate}
-          deleteData={tableData}
           subjectData={tableData}
           checkedList={checkedList}
           clearCheckList={() => setCheckedList(() => [])}
