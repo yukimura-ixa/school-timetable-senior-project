@@ -197,7 +197,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }
                       disabled={false}
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        let value: number = parseInt(e.target.value, 10);
                         setRooms(() =>
                           rooms.map((item, ind) =>
                             index === ind ? { ...item, Floor: value } : item,
