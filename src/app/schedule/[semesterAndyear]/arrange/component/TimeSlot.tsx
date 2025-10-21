@@ -22,9 +22,9 @@ type Props = {
   isSelectedToChange: Function;
   checkRelatedYearDuringDragging: Function;
   timeSlotCssClassName: Function;
-  storeSelectedSubject: object;
+  storeSelectedSubject: any;
   addRoomModal: Function;
-  changeTimeSlotSubject: object;
+  changeTimeSlotSubject: any;
   clickOrDragToChangeTimeSlot: Function;
   isCilckToChangeSubject: boolean;
   timeslotIDtoChange: {

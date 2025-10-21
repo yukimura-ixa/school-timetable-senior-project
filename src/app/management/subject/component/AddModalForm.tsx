@@ -19,7 +19,7 @@ type props = {
 };
 function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [subjects, setSubjects] = useState<subject[]>([
+  const [subjects, setSubjects] = useState<(Omit<subject, 'Credit'> & { Credit: subject_credit | string | undefined })[]>([
     {
       SubjectCode: "",
       SubjectName: "",
@@ -43,13 +43,13 @@ function AddModalForm({ closeModal, mutate }: props) {
         return subject_credit.CREDIT_05;
     }
   };
-  const addData = async (data: subject[]) => {
+  const addData = async (data: (Omit<subject, 'Credit'> & { Credit: subject_credit | string | undefined })[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มวิชา", {
       variant: "info",
       persist: true,
     });
     data.forEach((subject) => {
-      subject.Credit = selectCredit(subject.Credit);
+      subject.Credit = selectCredit(subject.Credit as string);
     });
     await api
       .post("/subject", data)
@@ -222,7 +222,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       currentValue={subject.Credit}
                       placeHolder={"ตัวเลือก"}
                       borderColor={
-                        isEmptyData && subject.Credit.length == 0
+                        isEmptyData && !subject.Credit
                           ? "#F96161"
                           : ""
                       }

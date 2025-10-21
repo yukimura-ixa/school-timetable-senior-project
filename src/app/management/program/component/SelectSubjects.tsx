@@ -12,6 +12,8 @@ type Props = {
   addSubjectFunction: any;
   removeSubjectFunction: any;
   required: boolean;
+  searchHandleSubject?: any;
+  searchTextSubject?: string;
 };
 
 function SelectSubjects(props: Props) {

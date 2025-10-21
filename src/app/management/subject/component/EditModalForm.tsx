@@ -20,7 +20,7 @@ type props = {
 };
 
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
-  const [editData, setEditData] = useState<subject[]>(Object.assign([], data));
+  const [editData, setEditData] = useState<(Omit<subject, 'Credit'> & { Credit: subject_credit | string | undefined })[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
   const isValidData = (): boolean => {
     let isValid = true;
@@ -188,7 +188,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     width={150}
                     height={40}
                     borderColor={
-                      isEmptyData && subject.Credit.length == 0 ? "#F96161" : ""
+                      isEmptyData && !subject.Credit ? "#F96161" : ""
                     }
                     currentValue={
                       subjectCreditTitles[subject.Credit] || subject.Credit
@@ -204,7 +204,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && subject.Credit.length == 0 ? (
+                  {isEmptyData && !subject.Credit ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>

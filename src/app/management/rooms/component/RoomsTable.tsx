@@ -223,6 +223,8 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
             title={"เพิ่มสถานที่"}
             color="primary"
             Icon={<AddIcon />}
+            reverseIcon={false}
+            isDisabled={false}
           />
         </div>
       </div>

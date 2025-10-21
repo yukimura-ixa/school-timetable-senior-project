@@ -5,10 +5,13 @@ import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
-  subject: any;
-  setTeacherList: any;
-  required: boolean;
-  teachers: teacher[];
+  subject?: any;
+  setTeacherList?: any;
+  required?: boolean;
+  teachers?: teacher[];
+  teacherSelected?: any[];
+  addTeacherFunction?: any;
+  removeTeacherFunction?: any;
 };
 
 function SelectTeacher(props: Props) {

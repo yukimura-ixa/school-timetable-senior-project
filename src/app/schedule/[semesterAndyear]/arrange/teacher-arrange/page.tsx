@@ -125,7 +125,7 @@ const TeacherArrange = () => {
     Prefix: "",
     TeacherID: null,
     Email: "",
-    Role: "",
+    Role: "teacher",
   });
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
@@ -442,7 +442,7 @@ const TeacherArrange = () => {
       );
     }
   };
-  const dropOutOfZone = (subject: object) => {
+  const dropOutOfZone = (subject: any) => {
     //function เช็คว่าถ้ามีการ Drop item นอกพื้นที่ Droppable จะให้นับเวลาถอยหลัง 0.5 วิเพื่อยกเลิกการเลือกวิชาที่ลาก
     setTimeout(() => {
       if (Object.keys(changeTimeSlotSubject).length == 0) {

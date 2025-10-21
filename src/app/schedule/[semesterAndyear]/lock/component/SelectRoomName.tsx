@@ -7,7 +7,7 @@ import { BsInfo } from "react-icons/bs";
 type Props = {
   roomName: any;
   handleRoomChange: any;
-  // required: boolean;
+  required?: boolean;
 };
 
 function SelectRoomName(props: Props) {

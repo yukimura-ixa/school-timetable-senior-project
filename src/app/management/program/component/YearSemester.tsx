@@ -4,7 +4,7 @@ import { BsInfo } from "react-icons/bs";
 
 type Props = {
   required: boolean;
-  semester: semester | "";
+  semester: semester | string;
   year?: number;
   handleSemesterChange: any;
   handleYearChange?: any;

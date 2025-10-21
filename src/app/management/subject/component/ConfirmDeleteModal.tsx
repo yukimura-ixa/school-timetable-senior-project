@@ -8,9 +8,9 @@ import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  deleteData: any;
-  clearCheckList: any;
-  dataAmount: number;
+  deleteData?: any;
+  clearCheckList?: any;
+  dataAmount?: number;
   subjectData: subject[];
   checkedList: any;
   mutate: Function;

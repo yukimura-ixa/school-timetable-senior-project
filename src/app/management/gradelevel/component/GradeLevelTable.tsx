@@ -202,6 +202,8 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
             title={"เพิ่มชั้นเรียน"}
             color="primary"
             Icon={<AddIcon />}
+            reverseIcon={false}
+            isDisabled={false}
           />
         </div>
       </div>
