@@ -2,17 +2,23 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import React, { useState } from "react";
 
 import { AiOutlineClose } from "react-icons/ai";
+
+type ClassItem = {
+  Year: string;
+};
+
 type props = {
   closeModal: any;
-  classList: string[];
+  classList: ClassItem[];
   confirmChange: any;
 };
+
 function SelectClassModal({ closeModal, classList, confirmChange }: props) {
   //เลือกชั้นเรียนที่รับผิดชอบแล้ว
   const [selectedClassList, setSelectedClassList] =
-    useState(classList);
+    useState<ClassItem[]>(classList);
   //ชั้นเรียนที่ยังไม่เลือก
-  const [unSelectedClassList, setUnSelectedClassList] = useState<any[]>(
+  const [unSelectedClassList, setUnSelectedClassList] = useState<ClassItem[]>(
     [
       { Year: "1" },
       { Year: "2" },
@@ -22,10 +28,10 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
       { Year: "6" },
     ].filter(
       (item) =>
-        !selectedClassList.map((item: any) => `${item.Year || item}`).includes(item.Year)
+        !selectedClassList.map((selectedItem) => selectedItem.Year).includes(item.Year)
     )
   );
-  const addSelectedClassList = (item: string) => {
+  const addSelectedClassList = (item: ClassItem) => {
     //ตัวแปร newList จะเพิ่มของใหม่ลงไปพร้อมกับ sort แล้ว set state
     let newList = [...selectedClassList, item]//.sort((a, b) => a.Year.localeCompare(b.Year))
     setSelectedClassList(() => newList);
@@ -35,7 +41,7 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
     //วาง array ที่ลบแล้วลงไป
     setUnSelectedClassList(() => unSelected);
   };
-  const removeSelectedClassList = (item: string) => {
+  const removeSelectedClassList = (item: ClassItem) => {
     //ทำงานเหมือนกันกับ addSelectedClassList
     let newList = [...unSelectedClassList, item]//.sort((a, b) => a.Year.localeCompare(b.Year))
     setUnSelectedClassList(() => newList);
@@ -69,14 +75,18 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
               } border border-gray-300 px-3 py-3 rounded`}
             >
               {selectedClassList.map((item) => (
-                <React.Fragment key={item}>
+                <React.Fragment key={item.Year}>
                   <MiniButton
                     handleClick={() => removeSelectedClassList(item)}
+                    width="fit-content"
                     height={25}
                     border={true}
                     isSelected={true}
                     borderColor="#c7c7c7"
-                    title={`ม.${item}`}
+                    buttonColor="#ffffff"
+                    titleColor="#222222"
+                    title={`ม.${item.Year}`}
+                    hoverable={false}
                   />
                 </React.Fragment>
               ))}
@@ -91,14 +101,18 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
               } border border-gray-300 px-3 py-3 rounded`}
             >
               {unSelectedClassList.map((item) => (
-                <React.Fragment key={item}>
+                <React.Fragment key={item.Year}>
                   <MiniButton
                     handleClick={() => addSelectedClassList(item)}
                     width={45}
                     height={25}
                     border={true}
                     borderColor="#c7c7c7"
-                    title={`ม.${item.Year}`}
+                    buttonColor="#ffffff"
+                    titleColor="#222222"
+                    title={`ম.${item.Year}`}
+                    isSelected={false}
+                    hoverable={false}
                   />
                 </React.Fragment>
               ))}

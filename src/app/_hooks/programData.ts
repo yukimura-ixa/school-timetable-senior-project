@@ -2,7 +2,8 @@ import useSWR, { preload } from "swr"
 import type { program, gradelevel, subject } from "@prisma/client"
 import { fetcher } from "@/libs/axios"
 
-type ProgramWithGradeLevel = program & {
+// Type for program with included relations
+export type ProgramWithRelations = program & {
   gradelevel: gradelevel[]
   subject: subject[]
 }
@@ -10,7 +11,7 @@ type ProgramWithGradeLevel = program & {
 export const useProgramData = (gradeYear: string) => {
   const path = `/program?Year=${gradeYear}`
   preload(path, fetcher)
-  const { data, error, mutate } = useSWR<ProgramWithGradeLevel[]>(path, fetcher, {
+  const { data, error, mutate } = useSWR<ProgramWithRelations[]>(path, fetcher, {
   })
 
   return {

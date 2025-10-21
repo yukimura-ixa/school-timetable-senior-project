@@ -143,8 +143,6 @@ function EditStudyProgramModal({
               subjectSelected={programData.subject}
               addSubjectFunction={handleAddSubjectList}
               removeSubjectFunction={removeSubjectFromList}
-              searchHandleSubject={searchHandleSubject}
-              searchTextSubject={searchTextSubject}
               required={isEmptyData.subject}
             />
             <SelectedClassRoom

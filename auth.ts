@@ -1,16 +1,17 @@
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
+import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+import Credentials from "next-auth/providers/credentials"
 import prisma from "@/libs/prisma"
 
-export const authOptions = {
+export const authConfig = {
   pages: {
     signIn: "/",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
   },
   providers: [
-    GoogleProvider({
+    Google({
       clientId: process.env.NEXT_GOOGLE_AUTH_CLIENT_ID || "",
       clientSecret: process.env.NEXT_GOOGLE_AUTH_CLIENT_SECRET || "",
       authorization: {
@@ -23,7 +24,7 @@ export const authOptions = {
     }),
     // Development/Testing bypass provider
     // SECURITY: Only enabled when server-only ENABLE_DEV_BYPASS is explicitly set
-    CredentialsProvider({
+    Credentials({
       id: "dev-bypass",
       name: "Development Bypass",
       credentials: {},
@@ -45,36 +46,36 @@ export const authOptions = {
     }),
   ],
   theme: {
-    colorScheme: "light",
+    colorScheme: "light" as const,
   },
   callbacks: {
-    async signIn({ account, profile }) {
-      console.log("Sign in callback")
+    async signIn({ account, profile, user }) {
+      console.log("[AUTH] Sign in callback - provider:", account?.provider)
       
       // Allow dev bypass provider
       if (account?.provider === "dev-bypass") {
-        console.log("Dev bypass authentication")
+        console.log("[AUTH] Dev bypass authentication")
         return true
       }
       
-      if (account?.provider === "google") {
-        console.log("Google provider")
+      if (account?.provider === "google" && profile?.email) {
+        console.log("[AUTH] Google provider - checking email:", profile.email)
         const isTeacherExist = await prisma.teacher.findUnique({
           where: {
-            Email: profile?.email,
+            Email: profile.email,
           },
         })
         if (isTeacherExist) {
-          console.log("Teacher found")
+          console.log("[AUTH] Teacher found in database")
           return true
         }
-        console.log("Teacher not found")
+        console.log("[AUTH] Teacher not found - access denied")
         return false
       }
       return false
     },
     async jwt({ token, user }) {
-      console.log("JWT callback")
+      console.log("[AUTH] JWT callback")
       
       // For dev bypass, use the role from user object
       if (user?.role) {
@@ -102,14 +103,38 @@ export const authOptions = {
       return token
     },
     async session({ session, token }) {
-      console.log("Session Callback")
+      console.log("[AUTH] Session callback")
       if (session.user) {
-        session.user = {
-          ...session.user,
-          role: token.role as string,
-        }
+        session.user.role = token.role as string
+        session.user.id = token.id as string
       }
       return session
     },
   },
+}
+
+export const { auth, handlers, signIn, signOut } = NextAuth(authConfig)
+
+// Type augmentation for NextAuth
+declare module "next-auth" {
+  interface Session {
+    user: {
+      name?: string | null
+      email?: string | null
+      image?: string | null
+      role?: string
+      id?: string
+    }
+  }
+
+  interface User {
+    role?: string
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string
+    id?: string | number
+  }
 }

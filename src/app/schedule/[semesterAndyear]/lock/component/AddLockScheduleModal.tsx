@@ -14,11 +14,13 @@ type Props = {
 };
 
 function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
-  const [lockScheduleData, setLockScheduledata] = useState({
+  const [lockScheduleData, setLockScheduledata] = useState<any>({
     Subject: {
-      SubjectID: null,
       SubjectCode: "",
       SubjectName: "",
+      Credit: null,
+      Category: "",
+      ProgramID: null,
     },
     DayOfWeek: "",
     timeSlotID: [],
@@ -163,6 +165,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
               required={isEmptyData.DayOfWeek}
             />
             <SelectMultipleTimeSlot
+              subject={lockScheduleData.Subject}
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeSlotID}
               required={isEmptyData.timeSlotID}
@@ -171,16 +174,17 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
             <SelectRoomName
               roomName={lockScheduleData.RoomName}
               handleRoomChange={handleRoomChange}
-              required={isEmptyData.RoomName}
             />
             <SelectTeacher
-              teacherSelected={lockScheduleData.Teachers}
-              addTeacherFunction={handleAddTeacherList}
-              removeTeacherFunction={removeTeacherFromList}
+              subject={lockScheduleData.Subject}
+              setTeacherList={null}
               required={isEmptyData.Teachers}
+              teachers={lockScheduleData.Teachers}
             />
             <SelectedClassRoom
+              teachers={lockScheduleData.Teachers}
               Grade={lockScheduleData.Grade}
+              subject={lockScheduleData.Subject}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.ClassRooms}
             />

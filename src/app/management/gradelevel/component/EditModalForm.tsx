@@ -12,7 +12,6 @@ import type { gradelevel } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
-  conFirmEdit?: any;
   data: any;
   clearCheckList: any;
   mutate: Function;
@@ -20,7 +19,6 @@ type props = {
 
 function EditModalForm({
   closeModal,
-  conFirmEdit,
   data,
   clearCheckList,
   mutate,

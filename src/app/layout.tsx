@@ -6,8 +6,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/libs/auth";
+import { auth } from "../../auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -22,7 +21,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   return (
     <html lang="th" className={`${sarabun.variable}`}>
       <body className={`overflow-scroll xl:overflow-x-hidden`}>

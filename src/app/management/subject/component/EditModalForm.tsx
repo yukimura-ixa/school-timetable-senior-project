@@ -198,7 +198,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
-                            ? { ...item, Credit: subjectCreditTitles[value] }
+                            ? { ...item, Credit: value as subject_credit }
                             : item,
                         ),
                       );

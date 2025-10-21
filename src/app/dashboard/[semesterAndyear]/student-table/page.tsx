@@ -140,7 +140,7 @@ function StudentTablePage() {
                     )
                   }
                   title={"นำออกเป็น Excel"}
-                  color={"primary"}
+                  color={"success"}
                   Icon={undefined}
                   reverseIcon={false}
                   isDisabled={disableExport}
@@ -148,7 +148,7 @@ function StudentTablePage() {
                 <PrimaryButton
                   handleClick={handleExportPDF}
                   title={"นำออกเป็น PDF"}
-                  color={"primary"}
+                  color={"success"}
                   Icon={undefined}
                   reverseIcon={false}
                   isDisabled={disableExport}

@@ -11,7 +11,11 @@ import HttpsIcon from "@mui/icons-material/Https";
 import TimetableHeader from "./TimetableHeader";
 import TimetableRow from "./TimetableRow";
 type Props = {
-  timeSlotData: any;
+  timeSlotData: {
+    DayOfWeek: any[];
+    AllData: any[];
+    SlotAmount: any[];
+  };
   mapTime?: Function;
   checkBreakTime: Function;
   isSelectedToAdd: Function;
@@ -23,7 +27,10 @@ type Props = {
   changeTimeSlotSubject: any;
   clickOrDragToChangeTimeSlot: Function;
   isCilckToChangeSubject: boolean;
-  timeslotIDtoChange: any;
+  timeslotIDtoChange: {
+    source: string;
+    destination: string;
+  };
   dropOutOfZone: Function;
   displayErrorChangeSubject: Function;
   showErrorMsgByTimeslotID: string;

@@ -303,26 +303,61 @@ function Table({ tableHead, tableData, mutate }: TeacherTableProps): JSX.Element
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
+        <MiniButton 
+          handleClick={previousPage} 
+          title={"Prev"} 
+          border={true}
+          buttonColor="#ffffff"
+          titleColor="#222222"
+          width={60}
+          height={30}
+          borderColor="#c7c7c7"
+          isSelected={false}
+          hoverable={true}
+        />
         {numberOfPage().map((page) => (
           <Fragment key={`page${page}`}>
             {pageOfData == page ? (
               <MiniButton
+                handleClick={() => {}}
                 title={page.toString()}
                 width={30}
+                height={30}
                 buttonColor="#222"
                 titleColor="#FFF"
+                border={true}
+                borderColor="#222"
+                isSelected={true}
+                hoverable={false}
               />
             ) : (
               <MiniButton
                 handleClick={() => setPageOfData(() => page)}
                 width={30}
+                height={30}
                 title={page.toString()}
+                buttonColor="#ffffff"
+                titleColor="#222222"
+                border={true}
+                borderColor="#c7c7c7"
+                isSelected={false}
+                hoverable={true}
               />
             )}
           </Fragment>
         ))}
-        <MiniButton title={"Next"} handleClick={nextPage} border={true} />
+        <MiniButton 
+          title={"Next"} 
+          handleClick={nextPage} 
+          border={true}
+          buttonColor="#ffffff"
+          titleColor="#222222"
+          width={60}
+          height={30}
+          borderColor="#c7c7c7"
+          isSelected={false}
+          hoverable={true}
+        />
       </div>
     </>
   );

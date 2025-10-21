@@ -130,6 +130,9 @@ function AddModalForm({ closeModal, mutate }: props) {
               hoverable={true}
               borderColor="#222222"
               handleClick={addList}
+              width="fit-content"
+              height={35}
+              isSelected={false}
             />
           </div>
           {/* inputfield */}
@@ -227,7 +230,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
                             index === ind
-                              ? { ...item, Credit: subjectCreditTitles[value] }
+                              ? { ...item, Credit: value as subject_credit }
                               : item,
                           ),
                         );

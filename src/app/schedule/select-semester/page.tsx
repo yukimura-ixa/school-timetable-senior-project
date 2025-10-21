@@ -24,7 +24,7 @@ function SelectYearAndSemester (props: Props) {
           )}
           width={400}
           height={40}
-          currentValue={year.toString()}
+          currentValue={String(year)}
           placeHolder="เลือกปีการศึกษา"
           handleChange={(value:number) => {
             setYear(() => value)
@@ -40,7 +40,7 @@ function SelectYearAndSemester (props: Props) {
           )}
           width={400}
           height={40}
-          currentValue={semester.toString()}
+          currentValue={String(semester)}
           placeHolder="เลือกภาคเรียน"
           handleChange={(value:number) => {
             setSemester(() => value)

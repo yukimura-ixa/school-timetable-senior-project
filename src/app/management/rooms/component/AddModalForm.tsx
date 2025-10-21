@@ -108,9 +108,12 @@ function AddModalForm({ closeModal, mutate }: props) {
               title="เพิ่มรายการ"
               titleColor="#000000"
               buttonColor="#FFFFFF"
+              width={100}
+              height={30}
               border={true}
               hoverable={true}
               borderColor="#222222"
+              isSelected={false}
               handleClick={addList}
             />
           </div>

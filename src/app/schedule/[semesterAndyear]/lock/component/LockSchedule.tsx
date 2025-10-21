@@ -117,9 +117,13 @@ function LockSchedule() {
                           border={true}
                           borderColor="#c7c7c7"
                           titleColor="#4F515E"
+                          buttonColor="#ffffff"
                           title={`ม.${grade.toString()[0]}/${
                             grade.toString()[2]
                           }`}
+                          handleClick={() => {}}
+                          isSelected={false}
+                          hoverable={false}
                         />
                         {/* {index < 9 ? (
                         <MiniButton
@@ -153,16 +157,20 @@ function LockSchedule() {
                       <Fragment key={`${teacher.TeacherID}${index}`}>
                         {index < 3 ? (
                           <MiniButton
-                            // width={54}
+                            width="fit-content"
                             height={25}
                             border={true}
                             borderColor="#c7c7c7"
                             titleColor="#4F515E"
+                            buttonColor="#ffffff"
                             title={`${teacher.Firstname} - ${
                               teacher.Department.length > 10
                                 ? `${teacher.Department.substring(0, 10)}...`
                                 : teacher.Department
                             }`}
+                            handleClick={() => {}}
+                            isSelected={false}
+                            hoverable={false}
                           />
                         ) : index < 4 ? (
                           <>

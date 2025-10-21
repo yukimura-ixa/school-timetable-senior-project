@@ -35,7 +35,6 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
     //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
     event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
       ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล GradeID ของ data ทั้งหมดลงไปใน checkList
-        //เช่น จำนวน data มี 5 ชุด จะได้เป็น => ["101", "102", "103", "104", "105"]
         setCheckedList(() => gradeLevelData.map((item) => item.GradeID))
       : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
         setCheckedList(() => []);
@@ -279,26 +278,61 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
         </tbody>
       </table>
       <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        <MiniButton handleClick={previousPage} title={"Prev"} border={true} />
+        <MiniButton 
+          handleClick={previousPage} 
+          title={"Prev"} 
+          buttonColor="#FFF"
+          titleColor="#000"
+          width={60}
+          height={30}
+          border={true} 
+          borderColor="#222"
+          isSelected={false}
+          hoverable={true}
+        />
         {numberOfPage().map((page) => (
           <Fragment key={`page${page}`}>
             {pageOfData == page ? (
               <MiniButton
                 title={page.toString()}
                 width={30}
+                height={30}
                 buttonColor="#222"
                 titleColor="#FFF"
+                border={false}
+                borderColor="#222"
+                isSelected={true}
+                handleClick={() => {}}
+                hoverable={false}
               />
             ) : (
               <MiniButton
                 handleClick={() => setPageOfData(() => page)}
                 width={30}
+                height={30}
                 title={page.toString()}
+                buttonColor="#FFF"
+                titleColor="#000"
+                border={true}
+                borderColor="#222"
+                isSelected={false}
+                hoverable={true}
               />
             )}
           </Fragment>
         ))}
-        <MiniButton title={"Next"} handleClick={nextPage} border={true} />
+        <MiniButton 
+          title={"Next"} 
+          handleClick={nextPage} 
+          buttonColor="#FFF"
+          titleColor="#000"
+          width={60}
+          height={30}
+          border={true} 
+          borderColor="#222"
+          isSelected={false}
+          hoverable={true}
+        />
       </div>
     </>
   );
