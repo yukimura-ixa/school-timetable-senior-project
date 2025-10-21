@@ -132,7 +132,7 @@ function LockSchedule() {
                           border={true}
                           borderColor="#c7c7c7"
                           titleColor="#4F515E"
-                          title={`ম.${item.toString().substring(0, 1)}/${item
+                          title={`ม.${item.toString().substring(0, 1)}/${item
                             .toString()
                             .substring(2)}`}
                         />
