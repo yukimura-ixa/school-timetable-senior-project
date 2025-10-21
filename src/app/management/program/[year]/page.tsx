@@ -170,7 +170,7 @@ function StudyProgram(props: Props) {
                             borderColor="#c7c7c7"
                             titleColor="#4F515E"
                             title={`${subject.SubjectCode}`}
-                            buttonColor={"primary"}
+                            buttonColor="#1976d2"
                             width={""}
                             isSelected={false}
                             handleClick={undefined}
