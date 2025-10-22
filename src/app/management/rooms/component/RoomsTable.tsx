@@ -11,12 +11,14 @@ import AddIcon from "@mui/icons-material/Add";
 //comp
 import AddModalForm from "@/app/management/rooms/component/AddModalForm";
 import SearchBar from "@/components/mui/SearchBar";
-import ConfirmDeleteModal from "../../rooms/component/ConfirmDeleteModal";
+import { useConfirmDialog } from "@/components/dialogs";
 import EditModalForm from "../../rooms/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { Snackbar, Alert } from "@mui/material";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableRow from "./TableRow";
+import api from "@/libs/axios";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type RoomsTableProps = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -26,11 +28,11 @@ type RoomsTableProps = {
 function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
   const [pageOfData, setPageOfData] = useState<number>(1);
   const [addModalActive, setAddModalActive] = useState<boolean>(false);
-  const [deleteModalActive, setDeleteModalActive] = useState<boolean>(false);
   const [editModalActive, setEditModalActive] = useState<boolean>(false);
   const [isSnackBarOpen, setIsSnackBarOpen] = useState<boolean>(false);
   const [snackBarMsg, setSnackBarMsg] = useState<string>("");
   const [roomData, setRoomData] = useState<room[]>([]);
+  const { confirm, dialog } = useConfirmDialog();
 
   useEffect(() => {
     setRoomData(tableData);
@@ -140,25 +142,52 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
           : "ลบข้อมูลสถานที่สำเร็จ!"
     );
   };
+
+  const handleDeleteRooms = async () => {
+    const confirmed = await confirm({
+      title: "ลบข้อมูลสถานที่เรียน",
+      message: `คุณต้องการลบข้อมูลสถานที่เรียนที่เลือกทั้งหมด ${checkedList.length} รายการใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+      variant: "danger",
+      confirmText: "ลบ",
+      cancelText: "ยกเลิก",
+    });
+
+    if (!confirmed) return;
+
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูลสถานที่เรียน", {
+      variant: "info",
+      persist: true,
+    });
+
+    // checkedList contains RoomIDs, not indices
+    const deleteIds = tableData
+      .filter((item) => checkedList.includes(item.RoomID))
+      .map((item) => item.RoomID);
+
+    try {
+      await api.delete("/room", { data: deleteIds });
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
+      setCheckedList([]);
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar(
+        "ลบข้อมูลสถานที่เรียนไม่สำเร็จ: " + (error.response?.data || error.message),
+        { variant: "error" }
+      );
+      console.error(error);
+    }
+  };
+
   return (
     <>
+      {dialog}
       {addModalActive ? (
         <AddModalForm
           closeModal={() => {
             setAddModalActive(false);
           }}
-          mutate={mutate}
-        />
-      ) : null}
-      {deleteModalActive ? (
-        <ConfirmDeleteModal
-          closeModal={() => {
-            setDeleteModalActive(false);
-          }}
-          deleteData={tableData}
-          checkedList={checkedList}
-          clearCheckList={() => setCheckedList(() => [])}
-          dataAmount={checkedList.length}
           mutate={mutate}
         />
       ) : null}
@@ -196,7 +225,7 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
                 <p className="text-sm text-yellow-700">แก้ไข</p>
               </div>
               <div
-                onClick={() => setDeleteModalActive(true)}
+                onClick={handleDeleteRooms}
                 className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 hover:bg-red-200 duration-300 cursor-pointer select-none"
               >
                 <BiSolidTrashAlt className="fill-red-500" />
@@ -285,7 +314,6 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
                   clickToSelect={clickToSelect}
                   checkedList={checkedList}
                   setEditModalActive={setEditModalActive}
-                  setDeleteModalActive={setDeleteModalActive}
                   pageOfData={pageOfData}
                   searchTerm={searchTerm}
                 />

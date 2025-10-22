@@ -8,7 +8,6 @@ function TableRow({
   clickToSelect,
   checkedList,
   setEditModalActive,
-  setDeleteModalActive,
   pageOfData,
   searchTerm,
 }) {
@@ -46,16 +45,10 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              setEditModalActive(true), clickToSelect(item.RoomID), console.log("asdasdsa");
+              setEditModalActive(true), clickToSelect(item.RoomID);
             }}
           />
-          <TbTrash
-            className="text-red-500"
-            size={18}
-            onClick={() => {
-              setDeleteModalActive(true), clickToSelect(item.RoomID);
-            }}
-          />
+          {/* Delete action removed - use top toolbar button with multi-select */}
         </td>
       ) : <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none" />}
     </tr>

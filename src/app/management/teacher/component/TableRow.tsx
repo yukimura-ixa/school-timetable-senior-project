@@ -9,7 +9,6 @@ function TableRow({
   clickToSelect,
   checkedList,
   setEditModalActive,
-  setDeleteModalActive,
   pageOfData,
   searchTerm,
 }) {
@@ -50,13 +49,7 @@ function TableRow({
               setEditModalActive(true), clickToSelect(item.TeacherID);
             }}
           />
-          <TbTrash
-            className="text-red-500"
-            size={18}
-            onClick={() => {
-              setDeleteModalActive(true), clickToSelect(item.TeacherID);
-            }}
-          />
+          {/* Delete action removed - use top toolbar button with multi-select */}
         </td>
       )}
     </tr>
