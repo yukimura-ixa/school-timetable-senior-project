@@ -1,21 +1,29 @@
 "use client";
 import RoomsTable from "@/app/management/rooms/component/RoomsTable";
-import { useRoomData } from "../../_hooks/roomData"
-import Loading from "@/app/loading";
+import { useRoomData } from "../../_hooks/roomData";
+import { TableSkeleton, NoRoomsEmptyState, NetworkErrorEmptyState } from "@/components/feedback";
+
 function RoomsManage() {
   const { data, isLoading, error, mutate } = useRoomData();
+
+  if (isLoading) {
+    return <TableSkeleton rows={6} />;
+  }
+
+  if (error) {
+    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
+  }
+
+  if (!data || data.length === 0) {
+    return <NoRoomsEmptyState />;
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <RoomsTable
-          tableHead={["ชื่อห้อง", "อาคาร", "ชั้น", ""]}
-          tableData={data}
-          mutate={mutate}
-        />
-      )}
-    </>
+    <RoomsTable
+      tableHead={["ชื่อห้อง", "อาคาร", "ชั้น", ""]}
+      tableData={data}
+      mutate={mutate}
+    />
   );
 }
 

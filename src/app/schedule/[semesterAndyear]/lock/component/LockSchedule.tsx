@@ -4,7 +4,6 @@ import React, { Fragment, useEffect, useState } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import { useParams } from "next/navigation";
-import Loading from "@/app/loading";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useLockData } from "@/app/_hooks/lockData";
 import LockScheduleForm from "./LockScheduleForm";
@@ -12,6 +11,12 @@ import { useConfirmDialog } from "@/components/dialogs";
 import type { LockScheduleExtended } from "@/types/lock-schedule";
 import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { Box } from "@mui/material";
+import {
+  CardSkeleton,
+  NoLockedSchedulesEmptyState,
+  NetworkErrorEmptyState,
+} from "@/components/feedback";
 
 function LockSchedule() {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
@@ -73,6 +78,26 @@ function LockSchedule() {
     }
   };
 
+  if (lockData.isLoading) {
+    return (
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, py: 2 }}>
+        {[...Array(4)].map((_, i) => (
+          <Box key={i} sx={{ width: '49%' }}>
+            <CardSkeleton />
+          </Box>
+        ))}
+      </Box>
+    );
+  }
+
+  if (lockData.error) {
+    return <NetworkErrorEmptyState onRetry={() => lockData.mutate()} />;
+  }
+
+  if (!lockData.data || lockData.data.length === 0) {
+    return <NoLockedSchedulesEmptyState />;
+  }
+
   return (
     <>
       {dialog}
@@ -83,12 +108,9 @@ function LockSchedule() {
           mutate={() => lockData.mutate()}
         />
       ) : null}
-      {lockData.isLoading ? (
-        <Loading />
-      ) : (
-        <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
-          {lockData.data.map((item, lockIndex) => (
-            <Fragment key={`${item.SubjectCode}${item.DayOfWeek}`}>
+      <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
+        {lockData.data.map((item, lockIndex) => (
+          <Fragment key={`${item.SubjectCode}${item.DayOfWeek}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
                 <div className="flex justify-between items-center gap-3">
                   <p
@@ -256,7 +278,6 @@ function LockSchedule() {
             <p className="text-lg font-bold">เพิ่มคาบล็อก</p>
           </div>
         </div>
-      )}
     </>
   );
 }

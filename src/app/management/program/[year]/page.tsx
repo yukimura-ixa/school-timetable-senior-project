@@ -4,7 +4,6 @@ import React, { useState, Fragment } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import type { program } from "@prisma/client";
-import Loading from "@/app/loading";
 import { useProgramData } from "@/app/_hooks/programData";
 import AddStudyProgramModal from "../component/AddStudyProgramModal";
 import EditStudyProgramModal from "../component/EditStudyProgramModal";
@@ -15,6 +14,12 @@ import { semesterThai } from "@/models/semester-thai";
 import { useConfirmDialog } from "@/components/dialogs";
 import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { Box } from "@mui/material";
+import {
+  CardSkeleton,
+  NoDataEmptyState,
+  NetworkErrorEmptyState,
+} from "@/components/feedback";
 type Props = {};
 
 function StudyProgram(props: Props) {
@@ -69,6 +74,26 @@ function StudyProgram(props: Props) {
   //   setMockupData(() => [...mockUpData, newProgram]);
   // };
 
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, py: 2 }}>
+        {[...Array(4)].map((_, i) => (
+          <Box key={i} sx={{ width: '49%' }}>
+            <CardSkeleton />
+          </Box>
+        ))}
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
+  }
+
+  if (!data || data.length === 0) {
+    return <NoDataEmptyState />;
+  }
+
   return (
     <>
       {dialog}
@@ -100,18 +125,15 @@ function StudyProgram(props: Props) {
         </Link>
       </div>
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
-        {isLoading ? ( //if data fetch is unsuccessed -> show loading component
-          <Loading /> //Loading component
-        ) : (
-          data.map((item, index) => (
-            <Fragment key={`${item.ProgramName}${index}`}>
-              <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
-                <div className="flex items-center gap-3">
-                  <p className="text-lg font-bold w-full">{item.ProgramName}</p>
-                  {/* <div className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"></div> */}
-                  <div className="flex gap-3  justify-end">
-                    <TbSettings
-                      size={24}
+        {data.map((item, index) => (
+          <Fragment key={`${item.ProgramName}${index}`}>
+            <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
+              <div className="flex items-center gap-3">
+                <p className="text-lg font-bold w-full">{item.ProgramName}</p>
+                {/* <div className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"></div> */}
+                <div className="flex gap-3  justify-end">
+                  <TbSettings
+                    size={24}
                       className="fill-[#EDEEF3]"
                       onClick={() => {
                         setEditProgramModalActive(true);
@@ -207,7 +229,7 @@ function StudyProgram(props: Props) {
               </div>
             </Fragment>
           ))
-        )}
+        }
         <div
           onClick={() => setAddProgramModalActive(true)}
           className="flex justify-center cursor-pointer items-center p-4 gap-3 w-[49%] h-[214px] border border-[#EDEEF3] rounded hover:bg-gray-100 duration-300"

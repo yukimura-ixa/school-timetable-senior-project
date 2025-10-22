@@ -18,6 +18,10 @@ import api, { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
+import {
+  PageLoadingSkeleton,
+  NetworkErrorEmptyState,
+} from "@/components/feedback";
 function TimetableConfigValue() {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -177,6 +181,14 @@ function TimetableConfigValue() {
       setIsSetTimeslot(false);
     }
   };
+
+  if (tableConfig.isLoading && !isCopying) {
+    return <PageLoadingSkeleton />;
+  }
+
+  if (tableConfig.error) {
+    return <NetworkErrorEmptyState onRetry={() => tableConfig.mutate()} />;
+  }
 
   return (
     <>
