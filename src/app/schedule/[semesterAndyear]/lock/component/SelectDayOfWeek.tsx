@@ -3,8 +3,8 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
-  dayOfWeek: any;
-  handleDayChange: any;
+  dayOfWeek: string;
+  handleDayChange: (value: string) => void;
   required: boolean;
 };
 
@@ -24,7 +24,7 @@ function SelectDayOfWeek(props: Props) {
         </div>
         <Dropdown
           data={["MON", "TUE", "WED", "THU", "FRI"]}
-          renderItem={({ data }: { data: any }): JSX.Element => (
+          renderItem={({ data }: { data: string }): JSX.Element => (
             <li className="w-full text-sm">{dayOfWeekThai[data]}</li>
           )}
           width={200}

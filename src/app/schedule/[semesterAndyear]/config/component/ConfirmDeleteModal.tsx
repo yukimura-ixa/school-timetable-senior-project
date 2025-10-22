@@ -4,11 +4,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+import type { ModalCloseHandler } from "@/types/events";
+
 type props = {
-  closeModal: any;
+  closeModal: ModalCloseHandler;
   academicYear: string;
   semester: string;
-  mutate: Function;
+  mutate: () => void;
 };
 
 function ConfirmDeleteModal({

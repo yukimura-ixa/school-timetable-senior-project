@@ -10,12 +10,21 @@ import { enqueueSnackbar } from "notistack";
 import useSWR from "swr";
 import { CircularProgress } from "@mui/material";
 
+import type { ModalCloseHandler } from "@/types/events";
+
+type TableConfigItem = {
+  ConfigID: string;
+  AcademicYear: number;
+  Semester: string;
+  ConfigJSON: string;
+};
+
 type props = {
-  closeModal: any;
+  closeModal: ModalCloseHandler;
   academicYear: string;
   semester: string;
-  mutate: Function;
-  setIsCopying: Function;
+  mutate: () => void;
+  setIsCopying: (copying: boolean) => void;
 };
 
 function CloneTimetableDataModal({
@@ -127,13 +136,13 @@ function CloneTimetableDataModal({
                   ) : (
                     <Dropdown
                       data={tableConfig.data}
-                      renderItem={({ data }: { data: any }): JSX.Element =>
+                      renderItem={({ data }: { data: TableConfigItem }): JSX.Element =>
                         data.ConfigID != currentTime && (
                           <li className="w-full text-sm">{data.ConfigID}</li>
                         )
                       }
                       currentValue={selectedCloneData}
-                      handleChange={(value: any) => {
+                      handleChange={(value: TableConfigItem) => {
                         setSelectedCloneData(() => value.ConfigID);
                       }}
                       searchFunction={undefined}

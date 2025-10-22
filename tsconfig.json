@@ -6,6 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "types": ["jest", "node"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -26,7 +27,10 @@
       "@/*": [
         "./src/*",
         "./public/*"
-      ]
+      ],
+      "@/features/*": ["./src/features/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/app/*": ["./src/app/*"]
     },
     "forceConsistentCasingInFileNames": true,
     // These are disabled for now to avoid massive breaking changes

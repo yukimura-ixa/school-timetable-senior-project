@@ -1,7 +1,85 @@
 # Test Environment Setup Guide
 
-**Date:** October 20, 2025  
-**Purpose:** Configure E2E testing environment for Playwright tests
+**Last Updated:** October 22, 2025  
+**Purpose:** Complete guide for running unit, integration, and E2E tests
+
+---
+
+## 🚀 Quick Start: Running Tests
+
+### Unit & Integration Tests (Jest)
+```bash
+# Run all unit/integration tests (excludes E2E)
+pnpm test
+
+# Run specific test file
+pnpm test schedule-arrangement.actions.test.ts
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run with coverage
+pnpm test -- --coverage
+```
+
+**What's Tested:**
+- Domain layer: Conflict detection service (28 tests)
+- Infrastructure layer: Repository data access (10 tests)
+- Application layer: Server Actions (11 tests)
+- Component tests, utility functions, seed validation
+
+**Total:** 88 tests
+
+### E2E Tests (Playwright)
+```bash
+# Run all E2E tests (headless)
+pnpm test:e2e
+
+# Run E2E with UI mode (interactive)
+pnpm test:e2e:ui
+
+# Run E2E in headed mode (see browser)
+pnpm test:e2e:headed
+
+# Debug specific test
+pnpm test:e2e:debug
+
+# List all E2E tests
+pnpm test:e2e --list
+
+# View last test report
+pnpm test:report
+```
+
+**What's Tested:**
+- Home page & authentication (3 tests)
+- Data management (7 tests)
+- Schedule configuration (5 tests)
+- Timetable arrangement (7 tests)
+- Viewing & exports (8 tests)
+
+**Total:** 30 E2E tests
+
+---
+
+## 📊 Test Configuration
+
+### Jest Configuration (`jest.config.js`)
+
+**Key Settings:**
+- **testEnvironment:** `jest-environment-jsdom` (React component testing)
+- **testPathIgnorePatterns:** Excludes `/e2e/` directory (Playwright tests)
+- **transformIgnorePatterns:** Handles `next-auth` ESM modules
+- **moduleNameMapper:** Path aliases (`@/...`)
+
+### Playwright Configuration (`playwright.config.ts`)
+
+**Key Settings:**
+- **Browser:** Chromium only (optimized for speed)
+- **Base URL:** `http://localhost:3000`
+- **Environment:** Loads `.env.test` automatically
+- **Retries:** 0 (fail fast for debugging)
+- **Workers:** 1 (sequential execution)
 
 ---
 

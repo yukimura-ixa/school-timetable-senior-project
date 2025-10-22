@@ -1,66 +1,91 @@
-import { Fragment } from "react";
-import { Draggable } from "react-beautiful-dnd";
+/**
+ * SubjectItem Component - Refactored with @dnd-kit
+ * 
+ * Week 6.1 - Component Migration
+ * Migrated from react-beautiful-dnd to @dnd-kit for better performance
+ */
+
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface SubjectItemData {
-    SubjectCode: string;
-    SubjectName: string;
-    GradeID: string;
+  SubjectCode: string;
+  SubjectName: string;
+  GradeID: string;
+  itemID?: number;
 }
 
 interface ISubjectItemProps {
-    item: SubjectItemData;
-    index: number;
-    teacherData: {
-        Firstname: string;
-    }; 
-    storeSelectedSubject: any;
-    clickOrDragToSelectSubject: any;
-    dropOutOfZone: any;
-    }
-function SubjectItem({ item, index, teacherData, storeSelectedSubject, clickOrDragToSelectSubject, dropOutOfZone }: ISubjectItemProps) {
+  item: SubjectItemData;
+  index: number;
+  teacherData: {
+    Firstname: string;
+  };
+  storeSelectedSubject: any;
+  clickOrDragToSelectSubject: any;
+  dropOutOfZone?: any;
+}
+
+function SubjectItem({
+  item,
+  index,
+  teacherData,
+  storeSelectedSubject,
+  clickOrDragToSelectSubject,
+  dropOutOfZone,
+}: ISubjectItemProps) {
+  // @dnd-kit sortable hook
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`,
+    data: {
+      type: "subject",
+      item,
+      index,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  // Check if this item is currently selected
+  const isSelected = storeSelectedSubject === item ||
+    storeSelectedSubject?.SubjectCode === item.SubjectCode;
+
   return (
-    <Fragment key={`${item.SubjectCode}-${item.GradeID}-${index}`}>
-      <Draggable
-        draggableId={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
-        key={`${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`}
-        index={index}
-      >
-        {(provided, snapshot) => {
-          if (snapshot.isDropAnimating) {
-            //เช็คว่ามีการปล่อยเมาส์มั้ย
-            dropOutOfZone(item); //ถ้ามีก็เรียกใช้ฟังก์ชั่นพร้อมส่งวิชาที่เลือกลงไป
-          }
-          return (
-            <>
-              <div
-                className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-pointer ${
-                  storeSelectedSubject == item //ถ้าคลิกหรือลากวิชา จะแสดงเขียวๆกะพริบๆ
-                    ? "bg-green-200 hover:bg-green-300 border-green-500 animate-pulse"
-                    : "bg-white hover:bg-slate-50"
-                } duration-100 select-none`}
-                {...provided.dragHandleProps}
-                {...provided.draggableProps}
-                ref={provided.innerRef}
-                onClick={() => clickOrDragToSelectSubject(item)}
-              >
-                <b className="text-sm">{item.SubjectCode}</b>
-                <p className="text-sm">{item.SubjectName.substring(0, 8)}...</p>
-                <b className="text-xs">
-                  ม.{item.GradeID[0]}/
-                  {parseInt(item.GradeID.substring(1, 2)) < 10
-                    ? item.GradeID[2]
-                    : item.GradeID.substring(1, 2)}
-                </b>
-                <div className="flex gap-1 justify-center">
-                  <p className="text-xs">{teacherData.Firstname}</p>
-                  {/* <p style={{display : Object.keys(item.room).length == 0 ? 'none' : 'flex' ,fontSize : 10}}>({item.RoomName})</p> */}
-                </div>
-              </div>
-            </>
-          );
-        }}
-      </Draggable>
-    </Fragment>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-pointer ${
+        isSelected
+          ? "bg-green-200 hover:bg-green-300 border-green-500 animate-pulse"
+          : "bg-white hover:bg-slate-50"
+      } duration-100 select-none`}
+      onClick={() => clickOrDragToSelectSubject(item)}
+    >
+      <b className="text-sm">{item.SubjectCode}</b>
+      <p className="text-sm">{item.SubjectName.substring(0, 8)}...</p>
+      <b className="text-xs">
+        ม.{item.GradeID[0]}/
+        {parseInt(item.GradeID.substring(1, 2)) < 10
+          ? item.GradeID[2]
+          : item.GradeID.substring(1, 2)}
+      </b>
+      <div className="flex gap-1 justify-center">
+        <p className="text-xs">{teacherData.Firstname}</p>
+      </div>
+    </div>
   );
 }
 

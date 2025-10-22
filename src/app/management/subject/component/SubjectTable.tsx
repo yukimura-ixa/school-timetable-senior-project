@@ -160,8 +160,8 @@ function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element
           }}
           mutate={mutate}
           clearCheckList={() => setCheckedList(() => [])}
-          data={tableData.filter((item, index) =>
-            checkedList.includes(index),
+          data={tableData.filter((item) =>
+            checkedList.includes(item.SubjectCode),
           )}
         />
       ) : null}

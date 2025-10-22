@@ -2,29 +2,40 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { Fragment, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash } from "react-icons/tb";
-import type { subject } from "@prisma/client";
+import type { subject, gradelevel, subject_credit } from "@prisma/client";
 import Loading from "@/app/loading";
 import { useParams, useSearchParams } from "next/navigation";
 import { subjectCreditValues } from "@/models/credit-value";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
+
+import type { ModalCloseHandler, InputChangeHandler } from "@/types/events";
+
+type SubjectAssignment = subject & {
+  TeachHour?: number;
+  AcademicYear?: number;
+  Semester?: string;
+  GradeID?: string;
+  TeacherID?: number;
+};
+
 type Props = {
-  closeModal: any;
-  addSubjectToClass: any; //ฟังก์ชั่นไว้อัปเดตข้อมูล
-  classRoomData: any; //ข้อมูลห้องเรียนนั้นๆ
-  currentSubject: any; //รายวิชาทั้งหมดที่เคยมี
-  subjectByGradeID: any; //รายวิชาของชั้นเรียนทีส่งมา
+  closeModal: ModalCloseHandler;
+  addSubjectToClass: (subjects: SubjectAssignment[]) => void;
+  classRoomData: gradelevel;
+  currentSubject: SubjectAssignment[];
+  subjectByGradeID: SubjectAssignment[];
 };
 
 function AddSubjectModal(props: Props) {
   const [subject, setSubject] = useState<subject[]>([]); //เก็บรายวิชาที่ fetch มา
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]); //กรองรายวิชาที่ค้นหาเพื่อนำมาแสดง
   const [searchText, setSearchText] = useState<string>(""); //เก็บtextค้นหารายวิชา
-  const [subjectList, setSubjectList] = useState([]); //เก็บวิชาที่เพิ่มใหม่
-  const [currentSubject, setCurrentSubject] = useState(
+  const [subjectList, setSubjectList] = useState<SubjectAssignment[]>([]); //เก็บวิชาที่เพิ่มใหม่
+  const [currentSubject, setCurrentSubject] = useState<SubjectAssignment[]>(
     props.currentSubject || [],
   ); //รายวิชาทั้งหมดที่เคยมี
-  const [subjectByGradeID, setSubjectByGradeID] = useState(
+  const [subjectByGradeID, setSubjectByGradeID] = useState<SubjectAssignment[]>(
     props.subjectByGradeID || [],
   ); //รายวิชาของชั้นเรียนทีส่งมา
   const params = useParams();
@@ -81,13 +92,13 @@ function AddSubjectModal(props: Props) {
     setSubjectFilter(() => filterDataR2);
     setSubject(() => filterDataR2);
   }, [subjectList, currentSubject]); //useEffect นี้จะทำงานก็ต่อเมื่อมีการเพิ่มหรือลบวิชาอะไรซักอันนึง
-  const addSubjectToList = (item: any) => {
+  const addSubjectToList = (item: SubjectAssignment) => {
     setSubjectList(() => [...subjectList, item]);
   };
   const removeFromSubjectList = (index: number) => {
     setSubjectList(() => subjectList.filter((item, ind) => ind != index));
   };
-  const removeCurrentSubject = (subject) => {
+  const removeCurrentSubject = (subject: SubjectAssignment) => {
     // การลบวิชาที่เคยมีอยู่แล้วออกไป ทำไมถึงต้องทำอะไรกับตัวแปรตั้งสองตัว??
     // currentSubject จะเก็บวิชาทั้งหมดตั้งแต่มอหนึ่งถึงหก
     // subjectByGradeID จะเก็บวิชาของมอนั้นๆ
@@ -121,7 +132,7 @@ function AddSubjectModal(props: Props) {
     );
     setSubject(res);
   };
-  const searchHandle = (event: any) => {
+  const searchHandle: InputChangeHandler = (event) => {
     let text = event.target.value;
     setSearchText(text);
     searchName(text);
@@ -165,11 +176,13 @@ function AddSubjectModal(props: Props) {
                     {
                       AcademicYear: parseInt(academicYear),
                       GradeID: props.classRoomData.GradeID,
-                      Semester: `SEMESTER_${semester}`,
+                      Semester: `SEMESTER_${semester}` as any,
                       SubjectCode: "",
                       SubjectName: "",
-                      Credit: "",
+                      Credit: "CREDIT_10" as subject_credit,
                       TeacherID: parseInt(searchTeacherID),
+                      Category: "",
+                      ProgramID: 0,
                     },
                   )
                 }
@@ -207,7 +220,7 @@ function AddSubjectModal(props: Props) {
                   <div className="flex justify-between items-center">
                     <Dropdown
                       data={subject}
-                      renderItem={({ data }: { data: any }): JSX.Element => (
+                      renderItem={({ data }: { data: subject }): JSX.Element => (
                         <li className="text-sm">
                           {data.SubjectCode} - {data.SubjectName}
                         </li>
@@ -220,7 +233,7 @@ function AddSubjectModal(props: Props) {
                           : `${item.SubjectCode} - ${item.SubjectName}`
                       }`}
                       placeHolder="เลือกวิชา"
-                      handleChange={(item: any) => {
+                      handleChange={(item: subject) => {
                         let data = {
                           ...subjectList[index],
                           SubjectCode: item.SubjectCode,

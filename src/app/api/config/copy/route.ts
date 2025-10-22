@@ -1,6 +1,8 @@
 import { semester } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
 import prisma from "@/libs/prisma"
+import { safeParseInt } from "@/functions/parseUtils"
+import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling"
 
 export const dynamic = 'force-dynamic'
 // TODO: Optimize queries
@@ -9,8 +11,37 @@ export async function POST(request: NextRequest) {
         const body = await request.json()
         console.log("copying")
         console.time("copying")
+        
+        // Validate body structure
+        if (!body.from || !body.to) {
+            return createErrorResponse(
+                new Error("Missing required parameters"),
+                "Both 'from' and 'to' parameters are required",
+                400
+            )
+        }
+        
         const [fromSemester, fromAcademicYear] = body.from.split("/")
         const [toSemester, toAcademicYear] = body.to.split("/")
+        
+        // Parse and validate academic years
+        const parsedFromYear = safeParseInt(fromAcademicYear)
+        const parsedToYear = safeParseInt(toAcademicYear)
+        
+        const validation = validateRequiredParams({
+            fromAcademicYear: parsedFromYear,
+            toAcademicYear: parsedToYear
+        })
+        if (validation) return validation
+        
+        // Validate semesters
+        if (!fromSemester || !toSemester) {
+            return createErrorResponse(
+                new Error("Invalid semester format"),
+                "Semester values must be specified in the 'from' and 'to' parameters",
+                400
+            )
+        }
 
         const fromConfig = await prisma.table_config.findUnique({
             where: {
@@ -22,13 +53,13 @@ export async function POST(request: NextRequest) {
             data: {
                 ConfigID: body.to,
                 Semester: semester["SEMESTER_" + toSemester],
-                AcademicYear: parseInt(toAcademicYear),
+                AcademicYear: parsedToYear,
                 Config: fromConfig.Config
             }
         }).then(async () => {
             const fromSlots = await prisma.timeslot.findMany({
                 where: {
-                    AcademicYear: parseInt(fromAcademicYear),
+                    AcademicYear: parsedFromYear,
                     Semester: semester["SEMESTER_" + fromSemester]
                 }
             })
@@ -36,7 +67,7 @@ export async function POST(request: NextRequest) {
             const toSlots = fromSlots.map((item) => {
                 const newSlot = {
                     ...item,
-                    AcademicYear: parseInt(toAcademicYear),
+                    AcademicYear: parsedToYear,
                     Semester: semester["SEMESTER_" + toSemester],
                     TimeslotID: item.TimeslotID.replace(body.from, body.to)
                 }
@@ -56,7 +87,7 @@ export async function POST(request: NextRequest) {
 
                 const fromResp = await prisma.teachers_responsibility.findMany({
                     where: {
-                        AcademicYear: parseInt(fromAcademicYear),
+                        AcademicYear: parsedFromYear,
                         Semester: semester["SEMESTER_" + fromSemester]
                     }
 
@@ -67,7 +98,7 @@ export async function POST(request: NextRequest) {
                         GradeID: item.GradeID,
                         SubjectCode: item.SubjectCode,
                         TeachHour: item.TeachHour,
-                        AcademicYear: parseInt(toAcademicYear),
+                        AcademicYear: parsedToYear,
                         Semester: semester["SEMESTER_" + toSemester]
                     }
 
@@ -90,7 +121,7 @@ export async function POST(request: NextRequest) {
 
                 const newResp = await prisma.teachers_responsibility.findMany({
                     where: {
-                        AcademicYear: parseInt(toAcademicYear),
+                        AcademicYear: parsedToYear,
                         Semester: semester["SEMESTER_" + toSemester]
                     }
                 })
@@ -102,7 +133,7 @@ export async function POST(request: NextRequest) {
                         where: {
                             IsLocked: true,
                             timeslot: {
-                                AcademicYear: parseInt(fromAcademicYear),
+                                AcademicYear: parsedFromYear,
                                 Semester: semester["SEMESTER_" + fromSemester]
                             }
                         },
@@ -159,7 +190,7 @@ export async function POST(request: NextRequest) {
                         where: {
                             IsLocked: false,
                             timeslot: {
-                                AcademicYear: parseInt(fromAcademicYear),
+                                AcademicYear: parsedFromYear,
                                 Semester: semester["SEMESTER_" + fromSemester]
                             }
                         },
@@ -219,8 +250,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: "success" })
 
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("[API Error - /api/config/copy POST]:", error)
+        return createErrorResponse(error, "Failed to copy configuration", 500)
     }
 }
 

@@ -1,14 +1,16 @@
 import { useTimeslotData } from "@/app/_hooks/timeslotData";
 import { subjectCreditValues } from "@/models/credit-value";
-import { subject, subject_credit } from "@prisma/client";
+import { subject_credit } from "@prisma/client";
 import { useParams } from "next/navigation";
 import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
+import type { subject, teacher } from "@prisma/client";
+
 type Props = {
   subject?: subject;
-  timeSlotHandleChange: any;
-  checkedCondition: any;
+  timeSlotHandleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  checkedCondition: number[];
   required: boolean;
   daySelected?: string;
 };

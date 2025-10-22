@@ -1,11 +1,18 @@
-import { StrictModeDroppable } from "@/components/elements/dnd/StrictModeDroppable";
-import React, { Fragment } from "react";
+/**
+ * SubjectDragBox Component - Refactored with @dnd-kit
+ * 
+ * Week 6.1 - Component Migration
+ * Container for draggable subject items using @dnd-kit
+ */
+
+import React from "react";
+import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import SubjectItem from "./SubjectItem";
-import { subject, teacher } from "@prisma/client";
+import { teacher } from "@prisma/client";
 
 type Props = {
-  respData: any;
-  dropOutOfZone: Function;
+  respData: any[];
+  dropOutOfZone?: Function;
   clickOrDragToSelectSubject: Function;
   storeSelectedSubject: any;
   teacher: teacher;
@@ -18,38 +25,35 @@ const SubjectDragBox = ({
   clickOrDragToSelectSubject,
   teacher,
 }: Props) => {
+  // Generate IDs for SortableContext
+  const itemIds = respData.map(
+    (item, index) => `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`
+  );
+
   return (
     <>
-      {/* กล่องบน */}
       <div className="flex flex-col w-full border border-[rgb(237,238,243)] p-4 gap-4 mt-4">
         <p className="text-sm">
           วิชาที่สามารถจัดลงได้ <b>(คลิกหรือลากวิชาที่ต้องการ)</b>
         </p>
         <div className="flex w-full text-center">
-          <StrictModeDroppable droppableId="SUBJECTS" direction="horizontal">
-            {(provided, snapshot) => (
-              <div
-                className="grid w-full h-[125px] text-center grid-cols-8 overflow-y-scroll overflow-x-hidden"
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                {respData.map((item, index) => (
-                  <SubjectItem
-                    key={`${item.SubjectCode}-${index}`}
-                    item={item}
-                    index={index}
-                    teacherData={{
-                      Firstname: teacher.Firstname,
-                    }}
-                    storeSelectedSubject={storeSelectedSubject}
-                    clickOrDragToSelectSubject={clickOrDragToSelectSubject}
-                    dropOutOfZone={dropOutOfZone}
-                  />
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </StrictModeDroppable>
+          <SortableContext items={itemIds} strategy={rectSortingStrategy}>
+            <div className="grid w-full h-[125px] text-center grid-cols-8 overflow-y-scroll overflow-x-hidden">
+              {respData.map((item, index) => (
+                <SubjectItem
+                  key={`${item.SubjectCode}-${index}`}
+                  item={item}
+                  index={index}
+                  teacherData={{
+                    Firstname: teacher.Firstname,
+                  }}
+                  storeSelectedSubject={storeSelectedSubject}
+                  clickOrDragToSelectSubject={clickOrDragToSelectSubject}
+                  dropOutOfZone={dropOutOfZone}
+                />
+              ))}
+            </div>
+          </SortableContext>
         </div>
       </div>
     </>

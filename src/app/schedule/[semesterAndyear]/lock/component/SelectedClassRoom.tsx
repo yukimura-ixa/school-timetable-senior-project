@@ -7,11 +7,13 @@ import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
+import type { teacher } from "@prisma/client";
+
 type Props = {
-  teachers?: any;
-  Grade: any;
+  teachers?: teacher[];
+  Grade: string[];
   subject?: subject;
-  classRoomHandleChange: any;
+  classRoomHandleChange: (value: string) => void;
   required?: boolean;
 };
 
@@ -99,7 +101,7 @@ function SelectedClassRoom(props: Props) {
                 ) : (
                   allClassRoom
                     .filter((item) => item.Year == grade)[0]
-                    .rooms.map((classroom: any) => (
+                    .rooms.map((classroom: string) => (
                       <Fragment key={`ม.${classroom}`}>
                         <MiniButton
                           titleColor={

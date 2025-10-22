@@ -3,10 +3,18 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import api from "@/libs/axios";
 import { enqueueSnackbar } from "notistack";
+import type { ModalCloseHandler } from "@/types/events";
+
+type DeleteLockScheduleData = {
+  ClassIDs: string[];
+  SubjectCode: string;
+  SubjectName: string;
+};
+
 type props = {
-  closeModal: any;
-  deleteData: any;
-  mutate: Function;
+  closeModal: ModalCloseHandler;
+  deleteData: DeleteLockScheduleData;
+  mutate: () => void;
 };
 
 function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
@@ -18,7 +26,7 @@ function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
     closeModal();
   };
 
-  const deleteLockSchedule = async (data: any) => {
+  const deleteLockSchedule = async (data: DeleteLockScheduleData) => {
     const deleteData = data.ClassIDs;
     try {
       const response = await api.delete("/lock", { data: deleteData });

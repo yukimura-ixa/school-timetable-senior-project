@@ -79,7 +79,7 @@ function ShowTeacherData() {
             <div className="flex flex-row justify-between gap-3">
               <Dropdown
                 data={teacherFilterData}
-                renderItem={({ data }: { data: any }) => (
+                renderItem={({ data }: { data: teacher }) => (
                   <li className="w-full text-sm">
                     {data.Firstname} {data.Lastname} - {data.Department}
                   </li>
@@ -87,7 +87,7 @@ function ShowTeacherData() {
                 width={400}
                 height="40"
                 currentValue={teacherLabel}
-                handleChange={(data: any) => {
+                handleChange={(data: teacher) => {
                   setTeacher(data);
                   setTeacherLabel(
                     `${data.Firstname} ${data.Lastname} - ${data.Department}`

@@ -1,17 +1,18 @@
 import SearchBar from "@/components/mui/SearchBar";
 import MiniButton from "@/components/elements/static/MiniButton";
-import { subject, teacher } from "@prisma/client";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
+import type { subject, teacher } from "@prisma/client";
+
 type Props = {
-  subject?: any;
-  setTeacherList?: any;
+  subject?: subject;
+  setTeacherList?: (teachers: teacher[]) => void;
   required?: boolean;
   teachers?: teacher[];
-  teacherSelected?: any[];
-  addTeacherFunction?: any;
-  removeTeacherFunction?: any;
+  teacherSelected?: teacher[];
+  addTeacherFunction?: (teacher: teacher) => void;
+  removeTeacherFunction?: (index: number) => void;
 };
 
 function SelectTeacher(props: Props) {

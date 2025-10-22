@@ -1,11 +1,17 @@
 import prisma from "@/libs/prisma"
 import { semester, type class_schedule } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
+import { safeParseInt } from "@/functions/parseUtils"
+import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-    const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
+    const TeacherID = safeParseInt(request.nextUrl.searchParams.get("TeacherID"))
+    
+    // Validate required parameters
+    const validation = validateRequiredParams({ TeacherID })
+    if (validation) return validation
     try {
         const data: class_schedule[] = await prisma.class_schedule.findMany({
             where: {
@@ -27,8 +33,8 @@ export async function GET(request: NextRequest) {
         })
         return NextResponse.json(data)
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("[API Error - /api/arrange GET]:", error)
+        return createErrorResponse(error, "Failed to fetch teacher schedule", 500)
     }
 }
 

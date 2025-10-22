@@ -12,21 +12,24 @@ import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { useTeacherData } from "@/app/_hooks/teacherData";
 
+import type { ModalCloseHandler, InputChangeHandler } from "@/types/events";
+import type { SubjectWithResponsibilities } from "@/types/lock-schedule";
+
 type Props = {
-  closeModal: any;
-  data?: any;
-  mutate: Function;
+  closeModal: ModalCloseHandler;
+  data?: LockScheduleData;
+  mutate: () => void;
 };
 
 type LockScheduleData = {
   SubjectCode: string;
   SubjectName: string;
   DayOfWeek: string;
-  timeslots: timeslot[];
+  timeslots: number[];
   teachers: teacher[];
   GradeIDs: string[];
   room: room | null;
-  subject: subject;
+  subject: SubjectWithResponsibilities | null;
 };
 
 type IsEmptyData = {
@@ -39,9 +42,9 @@ type IsEmptyData = {
 };
 
 type Action =
-  | { type: "SET_SUBJECT"; payload: any }
+  | { type: "SET_SUBJECT"; payload: SubjectWithResponsibilities }
   | { type: "SET_DAY_OF_WEEK"; payload: string }
-  | { type: "SET_TIME_SLOT"; payload: timeslot[] }
+  | { type: "SET_TIME_SLOT"; payload: number[] }
   | { type: "SET_TEACHERS"; payload: teacher[] }
   | { type: "SET_GRADE"; payload: string[] }
   | { type: "SET_ROOM_NAME"; payload: room | null }
@@ -140,25 +143,26 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     lockScheduleData: {
       ...initialState.lockScheduleData,
       ...data,
-      DayOfWeek: dayOfWeekThai[data?.timeslots[0].DayOfWeek] || "",
+      DayOfWeek: data?.DayOfWeek || "",
     },
   });
 
   const { lockScheduleData, isEmptyData } = state;
 
-  const timeSlotHandleChange = (e: any) => {
-    let value = e.target.value;
+  const timeSlotHandleChange: InputChangeHandler = (e) => {
+    let valueStr = e.target.value;
+    let value = parseInt(valueStr, 10);
     console.log(value);
     let timeSlot = [...lockScheduleData.timeslots];
     dispatch({
       type: "SET_TIME_SLOT",
       payload: timeSlot.includes(value)
-        ? timeSlot.filter((item) => item != value)
+        ? timeSlot.filter((item) => item !== value)
         : [...timeSlot, value],
     });
   };
 
-  const classRoomHandleChange = (value: any) => {
+  const classRoomHandleChange = (value: string) => {
     let grade = [...lockScheduleData.GradeIDs];
     if (!lockScheduleData.GradeIDs.includes(value)) {
       grade.push(value);
@@ -252,7 +256,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     dispatch({ type: "SET_TEACHERS", payload: teacherList });
   };
 
-  const handleSubjectChange = (value: any) => {
+  const handleSubjectChange = (value: SubjectWithResponsibilities) => {
     // console.log(value);
     const resps = value.teachers_responsibility;
     const teacherIDs = new Set(resps.map((item) => item.TeacherID));
@@ -272,7 +276,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     dispatch({ type: "SET_ROOM_NAME", payload: value });
   };
 
-  const addLockSchedule = async (data: any) => {
+  const addLockSchedule = async (data: LockScheduleData) => {
     closeModal();
     const loadbar = enqueueSnackbar("กำลังเพิ่มคาบล็อก", {
       variant: "info",
@@ -294,7 +298,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     }
   };
 
-  const editLockSchedule = (data: any) => {
+  const editLockSchedule = (data: LockScheduleData) => {
     console.log(data);
   };
 

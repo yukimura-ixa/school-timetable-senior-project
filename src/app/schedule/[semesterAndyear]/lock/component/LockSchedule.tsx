@@ -9,6 +9,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useLockData } from "@/app/_hooks/lockData";
 import LockScheduleForm from "./LockScheduleForm";
 import DeleteLockScheduleModal from "./DeleteLockScheduleModal";
+import type { LockScheduleExtended } from "@/types/lock-schedule";
 
 function LockSchedule() {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
@@ -24,7 +25,7 @@ function LockSchedule() {
   ); //from "1-2566" to ["1", "2566"]
   const lockData = useLockData(parseInt(academicYear), parseInt(semester));
 
-  const [selectedLock, setSelectedLock] = useState<any>(null);
+  const [selectedLock, setSelectedLock] = useState<LockScheduleExtended | null>(null);
 
   const handleClickAddLockSchedule = () => {
     setSelectedLock(null);
@@ -47,14 +48,14 @@ function LockSchedule() {
       {lockScheduleFormActive ? (
         <LockScheduleForm
           closeModal={() => setLockScheduleFormActive(false)}
-          data={selectedLock}
+          data={selectedLock as any}
           mutate={() => lockData.mutate()}
         />
       ) : null}
       {deleteLockScheduleModalActive ? (
         <DeleteLockScheduleModal
           closeModal={() => setDeleteLockScheduleModalActive(false)}
-          deleteData={selectedLock}
+          deleteData={selectedLock as any}
           mutate={lockData.mutate}
         />
       ) : null}

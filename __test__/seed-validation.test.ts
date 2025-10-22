@@ -3,8 +3,6 @@
  * This validates the logic without requiring a database connection
  */
 
-import { describe, it, expect } from '@jest/globals';
-
 describe('Seed Data Validation', () => {
   // Test constants from seed.ts
   const THAI_PREFIXES = ['นาย', 'นางสาว', 'นาง', 'ครู', 'อาจารย์'];

@@ -7,9 +7,12 @@ import React, { useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
+import type { InputChangeHandler } from "@/types/events";
+import type { SubjectWithResponsibilities } from "@/types/lock-schedule";
+
 type Props = {
   currentValue: string;
-  handleSubjectChange: any;
+  handleSubjectChange: (value: SubjectWithResponsibilities) => void;
   required: boolean;
 };
 
@@ -26,8 +29,8 @@ function SelectSubject(props: Props) {
       revalidateOnMount: true,
     },
   );
-  const [subject, setSubject] = useState<subject[]>([]);
-  const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
+  const [subject, setSubject] = useState<SubjectWithResponsibilities[]>([]);
+  const [subjectFilter, setSubjectFilter] = useState<SubjectWithResponsibilities[]>([]);
   const [searchText, setSearchText] = useState("");
   useEffect(() => {
     if (respData.data) {
@@ -35,7 +38,7 @@ function SelectSubject(props: Props) {
       setSubjectFilter(() => respData.data);
     }
   }, [respData.isValidating]);
-  const searchHandle = (event: any) => {
+  const searchHandle: InputChangeHandler = (event) => {
     let text = event.target.value;
     setSearchText(text);
     searchName(text);
@@ -63,7 +66,7 @@ function SelectSubject(props: Props) {
         {!respData.isValidating ? (
           <Dropdown
             data={subject}
-            renderItem={({ data }: { data: any }): JSX.Element => (
+            renderItem={({ data }: { data: SubjectWithResponsibilities }): JSX.Element => (
               <li className="w-full text-sm">
                 {data.SubjectCode} {data.SubjectName}
               </li>

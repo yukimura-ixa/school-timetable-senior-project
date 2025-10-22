@@ -6,15 +6,17 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, teacher } from "@prisma/client";
+import type { room, teacher, subject } from "@prisma/client";
+import type { ModalCloseHandler, ModalConfirmHandler, InputChangeHandler, SelectChangeHandler } from "@/types/events";
+import type { LockScheduleFormData } from "@/types/lock-schedule";
 
 type Props = {
-  closeModal: any;
-  confirmChange: any;
+  closeModal: ModalCloseHandler;
+  confirmChange: ModalConfirmHandler<LockScheduleFormData>;
 };
 
 function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
-  const [lockScheduleData, setLockScheduledata] = useState<any>({
+  const [lockScheduleData, setLockScheduledata] = useState<LockScheduleFormData>({
     Subject: {
       SubjectCode: "",
       SubjectName: "",
@@ -36,7 +38,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     ClassRooms: false,
     RoomName: false,
   });
-  const timeSlotHandleChange = (e: any) => {
+  const timeSlotHandleChange: InputChangeHandler = (e) => {
     let value = e.target.value;
     let timeSlot = [...lockScheduleData.timeSlotID];
     setLockScheduledata(() => ({
@@ -47,7 +49,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     }));
     console.log(timeSlot);
   };
-  const classRoomHandleChange = (value: any) => {
+  const classRoomHandleChange = (value: string) => {
     let grade = [...lockScheduleData.Grade];
     if (!lockScheduleData.Grade.includes(value)) {
       grade.push(value);
@@ -102,7 +104,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     }
   };
   // ใช้สลับสับเปลี่ยนข้อมูลกับ component ย่อย //
-  const handleSubjectChange = (value: any) => {
+  const handleSubjectChange = (value: subject) => {
     setLockScheduledata(() => ({
       ...lockScheduleData,
       Subject: value,

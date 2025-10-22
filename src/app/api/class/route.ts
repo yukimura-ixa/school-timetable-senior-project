@@ -1,6 +1,8 @@
 import prisma from "@/libs/prisma"
 import { semester, type class_schedule, Prisma } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
+import { safeParseInt } from "@/functions/parseUtils"
+import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling"
 
 type ClassScheduleWithRelations = Prisma.class_scheduleGetPayload<{
   include: {
@@ -14,12 +16,34 @@ type ClassScheduleWithRelations = Prisma.class_scheduleGetPayload<{
 
 export async function GET(request: NextRequest) {
 
-    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const AcademicYear = safeParseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
     const hasTeacherID = request.nextUrl.searchParams.has("TeacherID")
     const hasGradeID = request.nextUrl.searchParams.has("GradeID")
     const GradeID = request.nextUrl.searchParams.get("GradeID")
-    const TeacherID = parseInt(request.nextUrl.searchParams.get("TeacherID"))
+    const TeacherID = safeParseInt(request.nextUrl.searchParams.get("TeacherID"))
+    
+    // Validate required parameters
+    const validation = validateRequiredParams({ AcademicYear })
+    if (validation) return validation
+    
+    if (!Semester) {
+        return createErrorResponse(
+            new Error("Invalid semester"),
+            "Semester parameter is required and must be valid",
+            400
+        )
+    }
+    
+    // Validate TeacherID if provided
+    if (hasTeacherID && TeacherID === null) {
+        return createErrorResponse(
+            new Error("Invalid TeacherID"),
+            "TeacherID must be a valid number",
+            400
+        )
+    }
+    
     let response: ClassScheduleWithRelations[]
     try {
         if (hasTeacherID) {
@@ -104,8 +128,8 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(response)
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("[API Error - /api/class GET]:", error)
+        return createErrorResponse(error, "Failed to fetch class schedules", 500)
     }
 }
 
@@ -115,8 +139,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(body)
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("[API Error - /api/class POST]:", error)
+        return createErrorResponse(error, "Failed to process class data", 500)
     }
 }
 

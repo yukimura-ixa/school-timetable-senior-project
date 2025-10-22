@@ -1,13 +1,27 @@
 import prisma from "@/libs/prisma"
 import { NextRequest, NextResponse } from "next/server"
 import { teachers_responsibility, semester, subject } from "@prisma/client"
+import { safeParseInt } from "@/functions/parseUtils"
+import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     // localhost:3000/api/assign/getLockedResp&Semester=SEMESTER_1&AcademicYear=2566
-    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const AcademicYear = safeParseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+    
+    // Validate required parameters
+    const validation = validateRequiredParams({ AcademicYear })
+    if (validation) return validation
+    
+    if (!Semester) {
+        return createErrorResponse(
+            new Error("Invalid semester"),
+            "Semester parameter is required and must be valid",
+            400
+        )
+    }
     try {
         const groupBy = await prisma.teachers_responsibility.groupBy({
             by: ["SubjectCode"],
@@ -78,7 +92,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(subjects)
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("[API Error - /api/assign/getLockedResp GET]:", error)
+        return createErrorResponse(error, "Failed to fetch locked responsibilities", 500)
     }
 }

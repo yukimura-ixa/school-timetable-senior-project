@@ -1,12 +1,19 @@
 import prisma from "@/libs/prisma"
 import type { gradelevel, program, subject } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
+import { safeParseInt } from "@/functions/parseUtils"
+import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   // query: { ProgramID }
-  const Year = parseInt(request.nextUrl.searchParams.get("Year"))
+  const Year = safeParseInt(request.nextUrl.searchParams.get("Year"))
+  
+  // Validate required parameters
+  const validation = validateRequiredParams({ Year })
+  if (validation) return validation
+  
   try {
     const data: program[] = await prisma.program.findMany({
       where: {
@@ -31,8 +38,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.error("[API Error - /api/program GET]:", error)
+    return createErrorResponse(error, "Failed to fetch programs", 500)
   }
 }
 
@@ -73,8 +80,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.error("[API Error - /api/program POST]:", error)
+    return createErrorResponse(error, "Failed to create program", 500)
   }
 }
 
@@ -89,8 +96,8 @@ export async function DELETE(request: NextRequest) {
     })
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.error()
+    console.error("[API Error - /api/program DELETE]:", error)
+    return createErrorResponse(error, "Failed to delete program", 500)
   }
 }
 
@@ -126,7 +133,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(data)
   } catch (error) {
-    console.log(error)
-    return NextResponse.json({ error: error }, { status: 500 })
+    console.error("[API Error - /api/program PUT]:", error)
+    return createErrorResponse(error, "Failed to update program", 500)
   }
 }

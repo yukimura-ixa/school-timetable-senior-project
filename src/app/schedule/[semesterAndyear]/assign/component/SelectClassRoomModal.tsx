@@ -7,16 +7,20 @@ import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
 import Loading from "@/app/loading";
 
+import type { ModalCloseHandler } from "@/types/events";
+
 interface ClassRoomItem {
   GradeID: string;
   isSelected?: boolean;
-  [key: string]: any;
+  SubjectCode?: string;
+  SubjectName?: string;
+  TeachHour?: number;
 }
 
 type props = {
-  closeModal: any;
+  closeModal: ModalCloseHandler;
   classList: ClassRoomItem[];
-  confirmChange: any;
+  confirmChange: (selectedClasses: ClassRoomItem[], year: number) => void;
   year: number;
 };
 function SelectClassRoomModal({
@@ -26,7 +30,7 @@ function SelectClassRoomModal({
   year,
 }: props) {
   const { data, isLoading, error, mutate } = useGradeLevelData();
-  const [classRoomList, setClassRoomList] = useState([]);
+  const [classRoomList, setClassRoomList] = useState<ClassRoomItem[]>([]);
   useEffect(() => {
     // ตัวอย่างข้อมูลแบบคร่าวๆ //
     // {GradeID : 101}

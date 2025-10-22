@@ -141,8 +141,9 @@ function ClassroomResponsibility() {
     setClassRoomList(() => Classrooms);
   };
   const [classRoomForAddSubj, setClassRoomForAddSubj] = useState({
-    Year: null,
-    GradeID: null,
+    Year: 0,
+    GradeID: "",
+    Number: 0,
   }); //ตัวแปรนี้จะเก็บค่าตามที่เห็น จะเก็บก็ต่อเมื่อกดปุ่มห้องเรียน เช่น 1/1 ก็เก็บ Year = 1 GradeID = 101 เป็นต้น
   const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState(
     [],
@@ -335,6 +336,7 @@ function ClassroomResponsibility() {
                               setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
+                                Number: parseInt(room.GradeID.substring(2)),
                               }));
                             // setCurrentSubject(room.Subjects);
                             setCurrentSubject(
@@ -378,6 +380,7 @@ function ClassroomResponsibility() {
                               setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
+                                Number: parseInt(room.GradeID.substring(2)),
                               }));
                             setCurrentSubject(
                               getSubjectDataByGradeID(room.GradeID),

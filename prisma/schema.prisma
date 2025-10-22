@@ -29,6 +29,10 @@ model class_schedule {
   @@index([RoomID], map: "class_schedule_RoomID_fkey")
   @@index([SubjectCode], map: "class_schedule_SubjectCode_fkey")
   @@index([TimeslotID], map: "class_schedule_TimeslotID_fkey")
+  // Performance indexes for conflict detection
+  @@index([TimeslotID, GradeID], map: "class_schedule_timeslot_grade_idx")
+  @@index([TimeslotID, RoomID], map: "class_schedule_timeslot_room_idx")
+  @@index([GradeID, IsLocked], map: "class_schedule_grade_locked_idx")
 }
 
 model gradelevel {
@@ -89,6 +93,9 @@ model timeslot {
   Breaktime      breaktime
   DayOfWeek      day_of_week
   class_schedule class_schedule[]
+
+  // Performance index for finding timeslots by term and day
+  @@index([AcademicYear, Semester, DayOfWeek], map: "timeslot_term_day_idx")
 }
 
 model teachers_responsibility {
@@ -107,6 +114,9 @@ model teachers_responsibility {
   @@index([TeacherID], map: "teachers_responsibility_TeacherID_fkey")
   @@index([GradeID], map: "teachers_responsibility_GradeID_fkey")
   @@index([SubjectCode], map: "teachers_responsibility_SubjectCode_fkey")
+  // Performance indexes for finding teacher assignments
+  @@index([TeacherID, AcademicYear, Semester], map: "teachers_responsibility_teacher_term_idx")
+  @@index([GradeID, SubjectCode, AcademicYear, Semester], map: "teachers_responsibility_grade_subject_term_idx")
 }
 
 model table_config {

@@ -4,9 +4,11 @@ import { room } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
+import type { InputChangeHandler } from "@/types/events";
+
 type Props = {
-  roomName: any;
-  handleRoomChange: any;
+  roomName: string | null;
+  handleRoomChange: (value: room) => void;
   required?: boolean;
 };
 
@@ -21,7 +23,7 @@ function SelectRoomName(props: Props) {
       setRoomsFilter(() => data);
     }
   }, [isLoading]);
-  const searchHandle = (event: any) => {
+  const searchHandle: InputChangeHandler = (event) => {
     let text = event.target.value;
     setSearchText(text);
     searchName(text);
@@ -40,7 +42,7 @@ function SelectRoomName(props: Props) {
         </div>
         <Dropdown
           data={rooms}
-          renderItem={({ data }: { data: any }): JSX.Element => (
+          renderItem={({ data }: { data: room }): JSX.Element => (
             <li className="w-full text-sm">{data.RoomName}</li>
           )}
           width={300}

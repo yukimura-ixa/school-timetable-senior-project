@@ -2,14 +2,20 @@ import prisma from "@/libs/prisma"
 import { NextRequest, NextResponse } from "next/server"
 import type { timeslot } from "@prisma/client"
 import { day_of_week, breaktime, semester } from "@prisma/client"
+import { safeParseInt } from "@/functions/parseUtils"
+import { validateRequiredParams, createErrorResponse } from "@/functions/apiErrorHandling"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     // search: { AcademicYear, Semester }
     // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
-    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const AcademicYear = safeParseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+
+    const paramValidation = validateRequiredParams({ AcademicYear, Semester })
+    if (paramValidation !== null) return paramValidation
+
     try {
 
         const data: timeslot[] = await prisma.timeslot.findMany({
@@ -38,8 +44,8 @@ export async function GET(request: NextRequest) {
         })
         return NextResponse.json(data)
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error(error)
+        return createErrorResponse(error, "Failed to fetch timeslots")
     }
 }
 
@@ -114,8 +120,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ message: "Timeslots created" })
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error(error)
+        return createErrorResponse(error, "Failed to create timeslots")
     }
 }
 
@@ -124,6 +130,11 @@ export async function DELETE(request: NextRequest) {
     // body: {academicYear, Semester }
     try {
         const body = await request.json()
+        const AcademicYear = safeParseInt(body.AcademicYear)
+        const Semester = semester[body.Semester]
+
+        const paramValidation = validateRequiredParams({ AcademicYear, Semester })
+        if (paramValidation !== null) return paramValidation
 
         await prisma.table_config.delete({
             where: {
@@ -132,14 +143,14 @@ export async function DELETE(request: NextRequest) {
         }).then(async () => {
             await prisma.timeslot.deleteMany({
                 where: {
-                    AcademicYear: parseInt(body.AcademicYear),
-                    Semester: semester[body.Semester],
+                    AcademicYear: AcademicYear,
+                    Semester: Semester,
                 },
             })
             await prisma.teachers_responsibility.deleteMany({
                 where: {
-                    AcademicYear: parseInt(body.AcademicYear),
-                    Semester: semester[body.Semester],
+                    AcademicYear: AcademicYear,
+                    Semester: Semester,
                 },
             })
         })
@@ -147,7 +158,7 @@ export async function DELETE(request: NextRequest) {
 
         return NextResponse.json("Timeslots deleted")
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error(error)
+        return createErrorResponse(error, "Failed to delete timeslots")
     }
 }

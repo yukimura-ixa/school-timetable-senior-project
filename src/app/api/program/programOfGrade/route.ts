@@ -1,13 +1,35 @@
 import prisma from "@/libs/prisma"
 import { semester, subject } from "@prisma/client"
 import { NextRequest, NextResponse } from "next/server"
+import { safeParseInt } from "@/functions/parseUtils"
+import { createErrorResponse, validateRequiredParams } from "@/functions/apiErrorHandling"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     const GradeID = request.nextUrl.searchParams.get("GradeID")
-    const AcademicYear = parseInt(request.nextUrl.searchParams.get("AcademicYear"))
+    const AcademicYear = safeParseInt(request.nextUrl.searchParams.get("AcademicYear"))
     const Semester = semester[request.nextUrl.searchParams.get("Semester")]
+    
+    // Validate required parameters
+    const validation = validateRequiredParams({ AcademicYear })
+    if (validation) return validation
+    
+    if (!Semester) {
+        return createErrorResponse(
+            new Error("Invalid semester"),
+            "Semester parameter is required and must be valid",
+            400
+        )
+    }
+    
+    if (!GradeID) {
+        return createErrorResponse(
+            new Error("Missing GradeID"),
+            "GradeID parameter is required",
+            400
+        )
+    }
 
     try {
         // const data = await prisma.teachers_responsibility.findMany({
@@ -79,7 +101,7 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(response)
     } catch (error) {
-        console.log(error)
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error("[API Error - /api/program/programOfGrade GET]:", error)
+        return createErrorResponse(error, "Failed to fetch program for grade", 500)
     }
 }
