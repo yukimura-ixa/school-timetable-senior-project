@@ -11,12 +11,14 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { CircularProgress } from "@mui/material";
 type props = {
   closeModal: any;
   mutate: Function;
 };
 function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [teachers, setTeachers] = useState<teacher[]>([
     {
       TeacherID: null,
@@ -83,10 +85,15 @@ function AddModalForm({ closeModal, mutate }: props) {
     });
     return isValid;
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isValidData()) {
-      addData(teachers);
-      closeModal();
+      setIsSubmitting(true);
+      try {
+        await addData(teachers);
+        closeModal();
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
   const cancel = () => {
@@ -318,13 +325,17 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />} 
+              reverseIcon={false} 
+              isDisabled={isSubmitting}
             />
             <PrimaryButton
               handleClick={handleSubmit}
-              title={"ยืนยัน"}
+              title={isSubmitting ? "" : "ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />} 
+              reverseIcon={false} 
+              isDisabled={isSubmitting}
             />
           </span>
         </div>

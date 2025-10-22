@@ -10,6 +10,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import type { teacher } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { CircularProgress } from "@mui/material";
 
 type props = {
   closeModal: any;
@@ -21,6 +22,7 @@ type props = {
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const [editData, setEditData] = useState<teacher[]>(Object.assign([], data));
   const [isEmptyData, setIsEmptyData] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editMultiData = async (data: any) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลครู", {
@@ -62,10 +64,15 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     });
     return isValid;
   };
-  const confirmed = () => {
+  const confirmed = async () => {
     if (isValidData()) {
-      editMultiData(editData);
-      closeModal();
+      setIsSubmitting(true);
+      try {
+        await editMultiData(editData);
+        closeModal();
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
   const cancelEdit = () => {
@@ -259,13 +266,17 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />} 
+              reverseIcon={false} 
+              isDisabled={isSubmitting}
             />
             <PrimaryButton
               handleClick={confirmed}
-              title={"ยืนยัน"}
+              title={isSubmitting ? "" : "ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />} 
+              reverseIcon={false} 
+              isDisabled={isSubmitting}
             />
           </span>
         </div>
