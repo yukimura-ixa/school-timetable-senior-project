@@ -24,7 +24,9 @@
 
 .text-field:focus {
   caret-color: rgb(143, 143, 143);
-  outline: none;
+  outline: 2px solid transparent; /* Accessible focus indicator for forced colors mode */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* Blue focus ring */
 }
 .text-field::-webkit-outer-spin-button,
 .text-field::-webkit-inner-spin-button{

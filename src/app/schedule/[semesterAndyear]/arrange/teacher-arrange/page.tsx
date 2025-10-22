@@ -23,6 +23,9 @@ import SaveIcon from "@mui/icons-material/Save";
 // MUI Components
 import PrimaryButton from "@/components/mui/PrimaryButton";
 
+// Feedback Components
+import { TimetableGridSkeleton, EmptyState, NetworkErrorEmptyState } from "@/components/feedback";
+
 // API & Data Fetching
 import api, { fetcher } from "@/libs/axios";
 
@@ -812,12 +815,61 @@ export default function TeacherArrangePageRefactored() {
     fetchAllClassData.isValidating,
   ]);
 
+  const hasError = useMemo(() => {
+    return (
+      fetchTeacher.error ||
+      fetchResp.error ||
+      fetchTimeSlot.error ||
+      fetchAllClassData.error
+    );
+  }, [
+    fetchTeacher.error,
+    fetchResp.error,
+    fetchTimeSlot.error,
+    fetchAllClassData.error,
+  ]);
+
   // ============================================================================
   // RENDER
   // ============================================================================
   
   if (isLoading) {
-    return <Loading />;
+    return (
+      <div className="p-6">
+        <TimetableGridSkeleton />
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <NetworkErrorEmptyState 
+        onRetry={() => {
+          fetchTeacher.mutate();
+          fetchResp.mutate();
+          fetchTimeSlot.mutate();
+          fetchAllClassData.mutate();
+        }} 
+      />
+    );
+  }
+
+  if (!currentTeacherID) {
+    return (
+      <div className="p-6">
+        <SelectTeacher
+          setTeacherID={setCurrentTeacherID}
+          currentTeacher={fetchTeacher.data}
+        />
+        <div className="mt-8">
+          <EmptyState
+            icon="👨‍🏫"
+            title="เลือกครูเพื่อเริ่มจัดตาราง"
+            description="กรุณาเลือกครูจากรายการด้านบนเพื่อดูและจัดตารางสอน"
+          />
+        </div>
+      </div>
+    );
   }
 
   return (

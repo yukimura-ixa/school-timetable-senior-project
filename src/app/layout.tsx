@@ -6,6 +6,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
+import { ErrorBoundary } from "@/components/error";
 import { auth } from "../../auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -29,11 +30,13 @@ export default async function RootLayout({
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>
               <SnackbarProvider autoHideDuration={4000} maxSnack={1}>
-                <Navbar />
-                <main className="flex justify-center w-[1280px] xl:w-full h-auto">
-                  <Content>{children}</Content>
-                  <SpeedInsights />
-                </main>
+                <ErrorBoundary>
+                  <Navbar />
+                  <main className="flex justify-center w-[1280px] xl:w-full h-auto">
+                    <Content>{children}</Content>
+                    <SpeedInsights />
+                  </main>
+                </ErrorBoundary>
               </SnackbarProvider>
             </ThemeProvider>
           </AppRouterCacheProvider>
