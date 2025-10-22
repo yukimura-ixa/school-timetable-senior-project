@@ -8,15 +8,16 @@ import Loading from "@/app/loading";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useLockData } from "@/app/_hooks/lockData";
 import LockScheduleForm from "./LockScheduleForm";
-import DeleteLockScheduleModal from "./DeleteLockScheduleModal";
+import { useConfirmDialog } from "@/components/dialogs";
 import type { LockScheduleExtended } from "@/types/lock-schedule";
+import api from "@/libs/axios";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 function LockSchedule() {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
     useState<boolean>(false);
 
-  const [deleteLockScheduleModalActive, setDeleteLockScheduleModalActive] =
-    useState<boolean>(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const [showMoreteachherData, setShowMoreteacherData] = useState(null); //index
   const params = useParams();
@@ -38,25 +39,48 @@ function LockSchedule() {
     setLockScheduleFormActive(true);
   };
 
-  const handleClickDeleteLockSchedule = (item) => {
-    setSelectedLock(() => item);
-    setDeleteLockScheduleModalActive(true);
+  const handleClickDeleteLockSchedule = async (item: LockScheduleExtended) => {
+    const confirmed = await confirm({
+      title: "ลบข้อมูลคาบล็อก",
+      message: `คุณต้องการลบข้อมูลคาบล็อก "${item.SubjectCode} - ${item.SubjectName}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+      variant: "danger",
+      confirmText: "ลบ",
+      cancelText: "ยกเลิก",
+    });
+
+    if (!confirmed) return;
+
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูลคาบล็อก", {
+      variant: "info",
+      persist: true,
+    });
+
+    try {
+      // Build ClassIDs array from GradeIDs (lock schedule may span multiple classes)
+      // If there's a specific ClassID, use that; otherwise build from GradeIDs pattern
+      const classIds = (item as any).ClassIDs || [item.ClassID];
+      await api.delete("/lock", { data: classIds });
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
+      lockData.mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar(
+        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.response?.data || error.message),
+        { variant: "error" }
+      );
+      console.error(error);
+    }
   };
 
   return (
     <>
+      {dialog}
       {lockScheduleFormActive ? (
         <LockScheduleForm
           closeModal={() => setLockScheduleFormActive(false)}
           data={selectedLock as any}
           mutate={() => lockData.mutate()}
-        />
-      ) : null}
-      {deleteLockScheduleModalActive ? (
-        <DeleteLockScheduleModal
-          closeModal={() => setDeleteLockScheduleModalActive(false)}
-          deleteData={selectedLock as any}
-          mutate={lockData.mutate}
         />
       ) : null}
       {lockData.isLoading ? (

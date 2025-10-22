@@ -12,10 +12,11 @@ import { useParams } from "next/navigation";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import Link from "next/link";
 import { semesterThai } from "@/models/semester-thai";
-import DeleteProgramModal from "../component/DeleteProgramModal";
+import { useConfirmDialog } from "@/components/dialogs";
+import api from "@/libs/axios";
+import { closeSnackbar, enqueueSnackbar } from "notistack";
 type Props = {};
 
-// TODO: ทำ deleteProgram Modal
 function StudyProgram(props: Props) {
   const params = useParams(); //get params
   const [addProgramModalActive, setAddProgramModalActive] =
@@ -24,8 +25,7 @@ function StudyProgram(props: Props) {
   const [editProgramModalActive, setEditProgramModalActive] =
     useState<boolean>(false);
 
-  const [deleteProgramModalActive, setDeleteProgramModalActive] =
-    useState<boolean>(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const { data, isLoading, error, mutate } = useProgramData(
     params.year.toString(),
@@ -34,7 +34,36 @@ function StudyProgram(props: Props) {
   const [editProgram, setEditProgram] = useState({});
   const [editProgramIndex, setEditProgramIndex] = useState<number>(null);
 
-  const [deleteProgram, setDeleteProgram] = useState<program>(null);
+  const handleDeleteProgram = async (programData: program) => {
+    const confirmed = await confirm({
+      title: "ลบข้อมูลหลักสูตร",
+      message: `คุณต้องการลบข้อมูลหลักสูตร "${programData.ProgramName}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+      variant: "danger",
+      confirmText: "ลบ",
+      cancelText: "ยกเลิก",
+    });
+
+    if (!confirmed) return;
+
+    const loadbar = enqueueSnackbar("กำลังลบข้อมูลหลักสูตร", {
+      variant: "info",
+      persist: true,
+    });
+
+    try {
+      await api.delete("/program", { data: programData.ProgramID });
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลหลักสูตรสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar(
+        "ลบข้อมูลหลักสูตรไม่สำเร็จ: " + (error.response?.data || error.message),
+        { variant: "error" }
+      );
+      console.error(error);
+    }
+  };
 
   // const testAddProgram = (newProgram) => {
   //   setMockupData(() => [...mockUpData, newProgram]);
@@ -42,6 +71,7 @@ function StudyProgram(props: Props) {
 
   return (
     <>
+      {dialog}
       {addProgramModalActive ? (
         <AddStudyProgramModal
           closeModal={() => setAddProgramModalActive(false)}
@@ -53,14 +83,6 @@ function StudyProgram(props: Props) {
           closeModal={() => setEditProgramModalActive(false)}
           mutate={mutate}
           editData={editProgram}
-        />
-      ) : null}
-
-      {deleteProgramModalActive ? (
-        <DeleteProgramModal
-          closeModal={() => setDeleteProgramModalActive(false)}
-          deleteData={deleteProgram}
-          mutate={mutate}
         />
       ) : null}
 
@@ -100,10 +122,7 @@ function StudyProgram(props: Props) {
                     <TbTrash
                       size={24}
                       className="text-red-500 right-6 cursor-pointer hover:bg-gray-100 duration-300"
-                      onClick={() => {
-                        setDeleteProgram(item);
-                        setDeleteProgramModalActive(true);
-                      }}
+                      onClick={() => handleDeleteProgram(item)}
                     />
                   </div>
                 </div>
