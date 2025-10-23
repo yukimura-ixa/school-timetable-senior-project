@@ -72,20 +72,20 @@ const BUILDINGS = [
 
 async function main() {
   console.log('🌱 Starting seed...');
-  console.log('🗑️  Cleaning existing data...');
+  // console.log('🗑️  Cleaning existing data...');
 
-  // Clean existing data in correct order (respecting foreign keys)
-  await prisma.class_schedule.deleteMany({});
-  await prisma.teachers_responsibility.deleteMany({});
-  await prisma.timeslot.deleteMany({});
-  await prisma.table_config.deleteMany({});
-  await prisma.subject.deleteMany({});
-  await prisma.teacher.deleteMany({});
-  await prisma.room.deleteMany({});
-  await prisma.gradelevel.deleteMany({});
-  await prisma.program.deleteMany({});
+  // // Clean existing data in correct order (respecting foreign keys)
+  // await prisma.class_schedule.deleteMany({});
+  // await prisma.teachers_responsibility.deleteMany({});
+  // await prisma.timeslot.deleteMany({});
+  // await prisma.table_config.deleteMany({});
+  // await prisma.subject.deleteMany({});
+  // await prisma.teacher.deleteMany({});
+  // await prisma.room.deleteMany({});
+  // await prisma.gradelevel.deleteMany({});
+  // await prisma.program.deleteMany({});
 
-  console.log('✅ Existing data cleaned');
+  // console.log('✅ Existing data cleaned');
 
   // ===== PROGRAMS =====
   console.log('📚 Creating programs...');
