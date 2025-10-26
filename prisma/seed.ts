@@ -24,7 +24,8 @@
  *   npx prisma db seed
  */
 
-import { PrismaClient, day_of_week, semester, subject_credit, breaktime } from '@prisma/client';
+import { PrismaClient, day_of_week, semester, subject_credit, breaktime } from '../prisma/generated';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -72,20 +73,59 @@ const BUILDINGS = [
 
 async function main() {
   console.log('🌱 Starting seed...');
-  // console.log('🗑️  Cleaning existing data...');
+  
+  // ===== AUTH.JS USERS =====
+  console.log('👤 Creating admin user...');
+  
+  // Hash password for admin
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  
+  // Check if admin already exists
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: 'admin@school.local' }
+  });
+  
+  if (!existingAdmin) {
+    await prisma.user.create({
+      data: {
+        email: 'admin@school.local',
+        name: 'System Administrator',
+        password: adminPassword,
+        role: 'admin',
+        emailVerified: new Date(),
+      }
+    });
+    console.log('✅ Admin user created (email: admin@school.local, password: admin123)');
+  } else {
+    console.log('ℹ️  Admin user already exists');
+  }
+  
+  // Check if we should clean existing data
+  // Set SEED_CLEAN_DATA=true environment variable to enable data cleaning
+  const shouldCleanData = process.env.SEED_CLEAN_DATA === 'true';
+  
+  if (!shouldCleanData) {
+    console.log('ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true to enable)');
+    console.log('✅ Seed completed - admin user ready');
+    return;
+  }
+  
+  console.log('⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data...');
+  console.log('⚠️  This will DELETE all timetable data but preserve User/Account/Session tables');
 
-  // // Clean existing data in correct order (respecting foreign keys)
-  // await prisma.class_schedule.deleteMany({});
-  // await prisma.teachers_responsibility.deleteMany({});
-  // await prisma.timeslot.deleteMany({});
-  // await prisma.table_config.deleteMany({});
-  // await prisma.subject.deleteMany({});
-  // await prisma.teacher.deleteMany({});
-  // await prisma.room.deleteMany({});
-  // await prisma.gradelevel.deleteMany({});
-  // await prisma.program.deleteMany({});
+  // Clean existing timetable data in correct order (respecting foreign keys)
+  // NOTE: This does NOT delete Auth.js tables (User, Account, Session, VerificationToken)
+  await prisma.class_schedule.deleteMany({});
+  await prisma.teachers_responsibility.deleteMany({});
+  await prisma.timeslot.deleteMany({});
+  await prisma.table_config.deleteMany({});
+  await prisma.subject.deleteMany({});
+  await prisma.teacher.deleteMany({});
+  await prisma.room.deleteMany({});
+  await prisma.gradelevel.deleteMany({});
+  await prisma.program.deleteMany({});
 
-  // console.log('✅ Existing data cleaned');
+  console.log('✅ Timetable data cleaned (Auth.js tables preserved)');
 
   // ===== PROGRAMS =====
   console.log('📚 Creating programs...');

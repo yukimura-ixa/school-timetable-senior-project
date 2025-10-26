@@ -320,8 +320,20 @@ npm start
 
 **ภาษาไทย:**
 
-1. **เข้าสู่ระบบ**: ยืนยันตัวตนด้วยบัญชี Google (เฉพาะผู้ดูแลระบบ/ครู)
-2. **ตั้งค่าตาราง**:
+1. **สร้างฐานข้อมูล**: รัน migration และ seed ข้อมูลตัวอย่าง
+   ```bash
+   pnpm db:deploy        # ใช้ migrations
+   pnpm db:seed:clean    # เติมข้อมูลตัวอย่าง (ล้างข้อมูลเก่า)
+   # OR
+   pnpm db:seed          # สร้างแค่ admin (ปลอดภัย - ไม่ลบข้อมูล)
+   ```
+   📚 ดูรายละเอียด: [docs/SEED_SAFETY_GUIDE.md](docs/SEED_SAFETY_GUIDE.md)
+
+2. **เข้าสู่ระบบ**: 
+   - **Admin**: `admin@school.local` / `admin123` (เปลี่ยนรหัสผ่านในระบบจริง!)
+   - **Google OAuth**: ยืนยันตัวตนด้วยบัญชี Google (เฉพาะผู้ดูแลระบบ/ครู)
+
+3. **ตั้งค่าตาราง**:
    - เลือกปีการศึกษาและภาคเรียน
    - กำหนดจำนวนคาบต่อวัน
    - กำหนดระยะเวลาคาบเรียนและเวลาพัก
@@ -329,8 +341,20 @@ npm start
 
 **English:**
 
-1. **Login**: Authenticate with Google account (Admin/Teacher only)
-2. **Configure Timetable Settings**:
+1. **Setup Database**: Run migrations and seed sample data
+   ```bash
+   pnpm db:deploy        # Apply migrations
+   pnpm db:seed:clean    # Populate sample data (clean mode)
+   # OR
+   pnpm db:seed          # Create admin only (safe - no data deletion)
+   ```
+   📚 See details: [docs/SEED_SAFETY_GUIDE.md](docs/SEED_SAFETY_GUIDE.md)
+
+2. **Login**: 
+   - **Admin**: `admin@school.local` / `admin123` (change password in production!)
+   - **Google OAuth**: Authenticate with Google account (Admin/Teacher only)
+
+3. **Configure Timetable Settings**:
    - Select academic year and semester
    - Set number of periods per day
    - Define class duration and break times

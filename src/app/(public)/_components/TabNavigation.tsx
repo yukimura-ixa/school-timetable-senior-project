@@ -24,11 +24,13 @@ export function TabNavigation() {
   }, [searchParams]);
 
   const handleTabChange = (tab: TabValue) => {
+    if (tab === activeTab) return; // no-op if unchanged
     setActiveTab(tab);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     params.delete("page"); // Reset pagination
-    router.push(`${pathname}?${params.toString()}`);
+    // Use replace to avoid stacking history and reduce scroll jank
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   return (

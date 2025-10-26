@@ -16,7 +16,8 @@ export const metadata: Metadata = {
   description: "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
 };
 
-export const revalidate = 60;
+// Homepage data changes infrequently (per semester), revalidate every 30 days
+export const revalidate = 60 * 60 * 24 * 30; // 30 days
 
 type PageProps = {
   searchParams: Promise<{

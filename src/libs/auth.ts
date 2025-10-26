@@ -1,35 +1,86 @@
 /**
  * Auth.js v5 Configuration
  * 
- * Standard Auth.js v5 setup with Google OAuth and development bypass.
+ * Prisma adapter for multi-tenant authentication with:
+ * - Google OAuth
+ * - Credential (username/password) login for admin
+ * - Development bypass for testing
  * 
  * @see https://authjs.dev/getting-started/installation
+ * @see https://authjs.dev/getting-started/adapters/prisma
  */
 
 import NextAuth, { type DefaultSession } from "next-auth"
+import { PrismaAdapter } from "@auth/prisma-adapter"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import prisma from "@/libs/prisma"
+import bcrypt from "bcryptjs"
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   secret: process.env.AUTH_SECRET,
   trustHost: true,
   pages: {
-    signIn: "/",
+    signIn: "/signin",
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt", // Use JWT for serverless compatibility
   },
   providers: [
     Google({
-      clientId: process.env.NEXT_GOOGLE_AUTH_CLIENT_ID || "",
-      clientSecret: process.env.NEXT_GOOGLE_AUTH_CLIENT_SECRET || "",
+      // Prefer new Auth.js env names, fallback to legacy NEXT_* keys
+      clientId: process.env.AUTH_GOOGLE_ID || process.env.NEXT_GOOGLE_AUTH_CLIENT_ID || "",
+      clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.NEXT_GOOGLE_AUTH_CLIENT_SECRET || "",
       authorization: {
         params: {
           access_type: "offline",
           prompt: "consent",
           response_type: "code",
         },
+      },
+    }),
+    // Credential provider for admin username/password login
+    Credentials({
+      id: "credentials",
+      name: "Username/Password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        // Find user with password
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email as string },
+        })
+
+        if (!user || !user.password) {
+          console.log("[AUTH] User not found or no password set")
+          return null
+        }
+
+        // Verify password
+        const isValid = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        )
+
+        if (!isValid) {
+          console.log("[AUTH] Invalid password")
+          return null
+        }
+
+        console.log("[AUTH] Credential authentication successful for:", user.email)
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        }
       },
     }),
     // Development/Testing bypass provider
@@ -60,7 +111,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn(params) {
-      const { account, profile } = params
+      const { account, profile, user } = params
       console.log("[AUTH] Sign in callback - provider:", account?.provider)
       
       // Allow dev bypass provider
@@ -69,49 +120,79 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return true
       }
       
+      // Allow credential provider
+      if (account?.provider === "credentials") {
+        console.log("[AUTH] Credential authentication")
+        return true
+      }
+      
+      // Google OAuth: check if email exists in teacher table OR User table
       if (account?.provider === "google" && profile?.email) {
         console.log("[AUTH] Google provider - checking email:", profile.email)
-        const isTeacherExist = await prisma.teacher.findUnique({
-          where: {
-            Email: profile.email,
-          },
+        
+        // Check if user already exists in User table
+        const existingUser = await prisma.user.findUnique({
+          where: { email: profile.email },
         })
-        if (isTeacherExist) {
-          console.log("[AUTH] Teacher found in database")
+        
+        if (existingUser) {
+          console.log("[AUTH] User found in User table")
           return true
         }
-        console.log("[AUTH] Teacher not found - access denied")
+        
+        // Check legacy teacher table
+        const isTeacherExist = await prisma.teacher.findUnique({
+          where: { Email: profile.email },
+        })
+        
+        if (isTeacherExist) {
+          console.log("[AUTH] Teacher found in database - creating User record")
+          // User will be created by Prisma adapter automatically
+          return true
+        }
+        
+        console.log("[AUTH] Email not authorized - access denied")
         return false
       }
+      
       return false
     },
     async jwt(params) {
-      const { token, user } = params
+      const { token, user, account } = params
       console.log("[AUTH] JWT callback")
       
-      // For dev bypass, use the role from user object
-      if (user?.role) {
-        token.role = user.role
-        token.id = user.id
-        token.name = user.name
-        return token
-      }
-      
-      // For Google auth, fetch teacher from database
-      if (token.email) {
-        const teacher = await prisma.teacher.findUnique({
-          where: {
-            Email: token.email,
-          },
+      // On sign in, add role to token
+      if (user) {
+        // For credential/dev-bypass, user.role is already set
+        if (user.role) {
+          token.role = user.role
+          token.id = user.id
+          return token
+        }
+        
+        // For Google OAuth, fetch from User table first
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email! },
         })
-        if (teacher) {
-          token.role = teacher.Role
-          token.id = teacher.TeacherID
-          token.name = teacher.Role === "teacher" 
-            ? teacher.Prefix + teacher.Firstname + " " + teacher.Lastname 
-            : token.name
+        
+        if (dbUser) {
+          token.role = dbUser.role
+          token.id = dbUser.id
+          return token
+        }
+        
+        // Fallback: check legacy teacher table
+        if (user.email) {
+          const teacher = await prisma.teacher.findUnique({
+            where: { Email: user.email },
+          })
+          if (teacher) {
+            token.role = teacher.Role
+            token.id = teacher.TeacherID.toString()
+          }
         }
       }
+      
       return token
     },
     async session(params) {

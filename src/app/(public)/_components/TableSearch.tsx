@@ -25,20 +25,28 @@ export function TableSearch({
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
+      const current = (searchParams.get("search") || "").trim();
+      const next = (searchValue || "").trim();
+
+      // Avoid redundant navigation that can cause scroll reset loops
+      if (current === next) return;
+
       const params = new URLSearchParams(searchParams.toString());
-      
-      if (searchValue) {
-        params.set("search", searchValue);
+      if (next) {
+        params.set("search", next);
         params.delete("page"); // Reset to page 1 on search
       } else {
         params.delete("search");
       }
-      
-      router.push(`${pathname}?${params.toString()}`);
+
+      // Use replace to avoid stacking history and reduce scroll jank
+      router.replace(`${pathname}?${params.toString()}`);
     }, 500); // 500ms delay
 
     return () => clearTimeout(timer);
-  }, [searchValue, pathname, router, searchParams]);
+    // Intentionally exclude router/searchParams identity to prevent infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchValue, pathname]);
 
   const handleClear = () => {
     setSearchValue("");

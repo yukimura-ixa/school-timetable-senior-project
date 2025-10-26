@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-      // Next.js 16 optimizations
-    reactCompiler: true,
+  // Next.js 16 optimizations
+  reactCompiler: true,
   images: {
     remotePatterns: [
       {

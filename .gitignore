@@ -45,3 +45,4 @@ cloud-sql-proxy.exe
 school-timetable-408413-firebase-adminsdk-ti3po-5dec40ec69.json
 serviceAccount.json
 /.firebase
+.env*.local
