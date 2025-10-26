@@ -3,7 +3,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import { program, semester, subject } from "@prisma/client";
+import type { program, subject } from "@/prisma/generated";
+import { semester } from "@/prisma/generated";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 

@@ -39,6 +39,9 @@
       ],
       "@/app/*": [
         "./src/app/*"
+      ],
+      "@/prisma/generated": [
+        "./prisma/generated"
       ]
     },
     "forceConsistentCasingInFileNames": true,
