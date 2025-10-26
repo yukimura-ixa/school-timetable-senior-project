@@ -4,9 +4,15 @@ import axios from "axios";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 type Props = {};
 
+interface ClassRoomItem {
+  SubjectCode: string;
+  SubjectName: string;
+  [key: string]: any;
+}
+
 function GradeLevelIndividualDashboard({}: Props) {
-  const [classRooms, setClassRooms] = useState([]);
-  const [classRoomsFilter, setClassRoomsFilter] = useState([]);
+  const [classRooms, setClassRooms] = useState<ClassRoomItem[]>([]);
+  const [classRoomsFilter, setClassRoomsFilter] = useState<ClassRoomItem[]>([]);
   const [searchText, setSearchText] = useState("");
   const [classRoomData, setClassRoomData] = useState({
     RoomName: 323,

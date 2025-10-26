@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 import TextField from "@/components/mui/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
@@ -8,7 +8,7 @@ import { BsInfo } from "react-icons/bs";
 import type { subject } from "@prisma/client";
 import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
-import api from "@/libs/axios";
+import { createSubjectAction } from "@/features/subject/application/actions/subject.actions";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -50,23 +50,32 @@ function AddModalForm({ closeModal, mutate }: props) {
       variant: "info",
       persist: true,
     });
-    data.forEach((subject) => {
-      subject.Credit = selectCredit(subject.Credit as string);
-    });
-    await api
-      .post("/subject", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มวิชาสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        console.log(error.response.data);
-        enqueueSnackbar("เพิ่มวิชาไม่สำเร็จ " + error.response.data, {
-          variant: "error",
-        });
+    
+    const subjectsToCreate = data.map((subject) => ({
+      ...subject,
+      Credit: selectCredit(subject.Credit as string),
+    }));
+
+    try {
+      const result = await createSubjectAction({ subjects: subjectsToCreate });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มวิชาสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มวิชาไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
       });
+      console.error(error);
+    }
   };
 
   const addList = () => {

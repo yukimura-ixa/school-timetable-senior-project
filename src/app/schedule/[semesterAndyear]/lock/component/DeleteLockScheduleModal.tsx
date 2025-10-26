@@ -1,7 +1,7 @@
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import api from "@/libs/axios";
+import { deleteLocksAction } from "@/features/lock/application/actions/lock.actions";
 import { enqueueSnackbar } from "notistack";
 import type { ModalCloseHandler } from "@/types/events";
 
@@ -28,15 +28,16 @@ function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
 
   const deleteLockSchedule = async (data: DeleteLockScheduleData) => {
     const deleteData = data.ClassIDs;
+    
     try {
-      const response = await api.delete("/lock", { data: deleteData });
-      if (response.status === 200) {
-        mutate();
-        enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
-      }
-      console.log(response);
-    } catch (err) {
-      console.log(err);
+      await deleteLocksAction(deleteData);
+      mutate();
+      enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
+    } catch (error: any) {
+      enqueueSnackbar("ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.message || "Unknown error"), {
+        variant: "error",
+      });
+      console.error(error);
     }
   };
   return (

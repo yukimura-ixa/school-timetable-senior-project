@@ -2,6 +2,8 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { BsInfo } from "react-icons/bs";
 
+import type { JSX } from "react";
+
 type Props = {
   dayOfWeek: string;
   handleDayChange: (value: string) => void;

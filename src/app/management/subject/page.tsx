@@ -1,36 +1,24 @@
-"use client";
-import SubjectTable from "@/app/management/subject/component/SubjectTable";
-import { useSubjectData } from "../../_hooks/subjectData";
-import { SubjectListSkeleton, NoSubjectsEmptyState, NetworkErrorEmptyState } from "@/components/feedback";
-import { useRouter } from "next/navigation";
+import { SubjectListSkeleton, NetworkErrorEmptyState } from "@/components/feedback";
+import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+import { SubjectManageClient } from "./component/SubjectManageClient";
+import { Suspense } from "react";
 
-function SubjectManage() {
-  const { data, isLoading, error, mutate } = useSubjectData();
-  const router = useRouter();
-
-  // Loading state
-  if (isLoading) {
-    return <SubjectListSkeleton count={8} />;
-  }
+/**
+ * Subject Management Page - Server Component
+ * Fetches subject data on the server, passes to client component
+ */
+export default async function SubjectManagePage() {
+  const result = await getSubjectsAction();
 
   // Error state
-  if (error) {
-    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
+  if (!result.success) {
+    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
   }
 
-  // Empty state
-  if (!data || data.length === 0) {
-    return <NoSubjectsEmptyState onAdd={() => router.push("/management/subject")} />;
-  }
-
-  // Success state
   return (
-    <SubjectTable
-      tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "สาระการเรียนรู้", ""]}
-      tableData={data}
-      mutate={mutate}
-    />
+    <Suspense fallback={<SubjectListSkeleton count={8} />}>
+      <SubjectManageClient initialData={result.data} />
+    </Suspense>
   );
 }
 
-export default SubjectManage;

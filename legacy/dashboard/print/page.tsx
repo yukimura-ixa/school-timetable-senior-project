@@ -6,11 +6,11 @@ import ReactToPrint, { useReactToPrint } from "react-to-print";
 type Props = {};
 
 const PrintTable = (props: Props) => {
-  const ref = useRef<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement>(undefined);
   const generatePDF = useReactToPrint({
-    content : () => ref.current,
-    documentTitle : "MyTable",
-    onAfterPrint : () => alert("เรียบร้อย")
+    contentRef: ref,
+    documentTitle: "MyTable",
+    onAfterPrint: () => alert("เรียบร้อย")
   })
   return (
     <>
@@ -18,7 +18,6 @@ const PrintTable = (props: Props) => {
         handleClick={generatePDF}
         title={"Print"}
         color={""}
-        Icon={undefined}
         reverseIcon={false}
         isDisabled={false}
         />

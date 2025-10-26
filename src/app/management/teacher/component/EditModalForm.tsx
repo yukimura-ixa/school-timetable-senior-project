@@ -1,16 +1,18 @@
 import TextField from "@/components/mui/TextField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-import api from "@/libs/axios";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import type { teacher } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
+
+// Server Actions
+import { updateTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
 type props = {
   closeModal: any;
@@ -30,20 +32,36 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       persist: true,
     });
 
-    const response = await api
-      .put("/teacher", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขข้อมูลครูสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขข้อมูลครูไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    try {
+      const result = await updateTeachersAction({
+        teachers: data.map((t: teacher) => ({
+          TeacherID: t.TeacherID!,
+          Prefix: t.Prefix,
+          Firstname: t.Firstname,
+          Lastname: t.Lastname,
+          Department: t.Department,
+          Email: t.Email,
+          Role: t.Role || "teacher",
+        })),
       });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขข้อมูลครูสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"), {
+        variant: "error",
+      });
+      console.log(error);
+    }
 
     //clear checkbox
     clearCheckList();

@@ -112,8 +112,7 @@ function TeacherTablePage() {
   const teacherName = formatTeacherName(teacherResponse);
 
   const generatePDF = useReactToPrint({
-    content: () => ref.current,
-    copyStyles: true,
+    contentRef: ref,
     documentTitle: `ตารางสอน${teacherName ? teacherName : ""} ${semester}-${academicYear}`,
   });
 

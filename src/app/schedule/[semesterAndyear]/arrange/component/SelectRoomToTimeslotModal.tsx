@@ -3,7 +3,7 @@ import { fetcher } from "@/libs/axios";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { CircularProgress } from "@mui/material";
 import { room } from "@prisma/client";
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import useSWR from "swr";
 

@@ -3,7 +3,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import ReplayIcon from "@mui/icons-material/Replay";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type JSX } from "react";
 import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
 import { MdSchool, MdLunchDining } from "react-icons/md";
@@ -14,7 +14,6 @@ import Counter from "./component/Counter";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import api, { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
@@ -22,6 +21,10 @@ import {
   PageLoadingSkeleton,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
+
+// Server Actions (Clean Architecture)
+import { getConfigByTermAction } from "@/features/config/application/actions/config.actions";
+import { createTimeslotsAction } from "@/features/timeslot/application/actions/timeslot.actions";
 function TimetableConfigValue() {
   const params = useParams();
   const [semester, academicYear] = (params.semesterAndyear as string).split(
@@ -51,9 +54,22 @@ function TimetableConfigValue() {
     HasMinibreak: false,
   });
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
-  const tableConfig = useSWR(
-    `/config/getConfig?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
-    fetcher,
+  
+  // Fetch config data using Server Action
+  const tableConfig = useSWR<any>(
+    `config-${academicYear}-${semester}`,
+    async () => {
+      try {
+        const result = await getConfigByTermAction({
+          AcademicYear: parseInt(academicYear),
+          Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+        });
+        return result;
+      } catch (error) {
+        console.error("Error fetching config:", error);
+        return null;
+      }
+    },
   );
 
   useEffect(() => {
@@ -163,21 +179,21 @@ function TimetableConfigValue() {
       persist: true,
     });
     try {
-      const response = await api.post("/timeslot", {
+      const result = await createTimeslotsAction({
         ...configData,
         HasMinibreak: addMiniBreak,
-        // BreakDuration: configData.Duration,
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
-      if (response.status === 200) {
-        closeSnackbar(saving);
-        enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });
-        tableConfig.mutate();
-      }
-      console.log(response);
+      
+      closeSnackbar(saving);
+      enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });
+      tableConfig.mutate();
     } catch (error) {
       console.log(error);
       closeSnackbar(saving);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการตั้งค่าตาราง", { variant: "error" });
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เกิดข้อผิดพลาดในการตั้งค่าตาราง: " + errorMessage, { variant: "error" });
       setIsSetTimeslot(false);
     }
   };

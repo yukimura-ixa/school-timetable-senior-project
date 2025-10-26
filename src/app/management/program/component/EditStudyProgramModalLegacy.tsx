@@ -4,7 +4,7 @@ import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
 import { program, subject } from "@prisma/client";
-import api from "@/libs/axios";
+import { updateProgramAction } from "@/features/program/application/actions/program.actions";
 
 
 type Props = {
@@ -84,9 +84,20 @@ function EditStudyProgramModal({
     programData.subject,
   ]);
   const editProgram = async (program: program) => {
-    const response = await api.put("/program", program);
-    if (response.status === 200) {
+    try {
+      const result = await updateProgramAction({ programs: [program] });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       mutate();
+    } catch (error: any) {
+      console.error("Failed to update program:", error);
+      throw error;
     }
   };
   const editItemAndCloseModal = () => {

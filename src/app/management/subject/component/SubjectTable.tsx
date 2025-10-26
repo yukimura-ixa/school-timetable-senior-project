@@ -1,5 +1,5 @@
 // "use client";
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, type JSX } from "react";
 import type { subject } from "@prisma/client";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
@@ -15,8 +15,10 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableRow from "./TableRow";
 import { useConfirmDialog } from "@/components/dialogs";
-import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+// Server Actions
+import { deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
 type SubjectTableProps = {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -156,14 +158,22 @@ function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element
       .map((item) => item.SubjectCode);
 
     try {
-      await api.delete("/subject", { data: deleteIds });
+      const result = await deleteSubjectsAction({ subjectCodes: deleteIds });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลรายวิชาสำเร็จ", { variant: "success" });
       setCheckedList([]);
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลรายวิชาไม่สำเร็จ: " + (error.response?.data || error.message), {
+      enqueueSnackbar("ลบข้อมูลรายวิชาไม่สำเร็จ: " + (error.message || "Unknown error"), {
         variant: "error",
       });
       console.error(error);

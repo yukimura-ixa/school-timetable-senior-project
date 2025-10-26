@@ -15,7 +15,7 @@ import { hexToRGB } from "@/functions/componentFunctions";
 
 // ใช้กับ props ที่รับมาให้ component พร้อมกำหนดค่า default
 type ButtonProps = {
-  icon?: string | StaticImageData | ReactElement; //SVG หรือ React Element สำหรับแสดงไอคอน
+  icon?: string | StaticImageData | ReactElement<any>; //SVG หรือ React Element สำหรับแสดงไอคอน
   iconAlt?: string; //ข้อความ alt ของ icon
   title?: string; //Label
   buttonColor?: string; //สีปุ่ม
@@ -37,7 +37,7 @@ type ButtonProps = {
 
 const clampColorValue = (value: number): number => Math.max(0, Math.min(255, value));
 
-const isStaticImageData = (value: string | StaticImageData | ReactElement): value is StaticImageData => {
+const isStaticImageData = (value: string | StaticImageData | ReactElement<any>): value is StaticImageData => {
   return typeof value === "object" && value !== null && "src" in value && "height" in value && "width" in value;
 };
 

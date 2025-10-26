@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, type JSX } from "react";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
@@ -14,7 +14,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { gradelevel } from "@prisma/client";
 import TableRow from "./TableRow";
-import api from "@/libs/axios";
+import { deleteGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 interface Table {
   tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
@@ -142,7 +142,15 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
       .map((item) => item.GradeID);
 
     try {
-      await api.delete("/gradelevel", { data: deleteIds });
+      const result = await deleteGradeLevelsAction({ gradeIds: deleteIds });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
       setCheckedList([]);
@@ -150,7 +158,7 @@ function GradeLevelTable({ tableHead, tableData, mutate }: Table): JSX.Element {
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "ลบข้อมูลชั้นเรียนไม่สำเร็จ: " + (error.response?.data || error.message),
+        "ลบข้อมูลชั้นเรียนไม่สำเร็จ: " + (error.message || "Unknown error"),
         { variant: "error" }
       );
       console.error(error);

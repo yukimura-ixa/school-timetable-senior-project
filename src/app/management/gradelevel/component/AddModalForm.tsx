@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
@@ -8,7 +8,7 @@ import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import api from "@/libs/axios";
+import { createGradeLevelAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import type { gradelevel } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
@@ -53,21 +53,27 @@ function AddModalForm({ closeModal, mutate }: props) {
       variant: "info",
       persist: true,
     });
-    console.log(data);
-    const response = await api
-      .post("/gradelevel", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    
+    try {
+      const result = await createGradeLevelAction({ gradeLevels: data });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
       });
+      console.error(error);
+    }
   };
   
   const handleSubmit = () => {

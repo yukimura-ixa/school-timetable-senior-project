@@ -4,7 +4,7 @@ import React, { useState, Fragment } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import type { program } from "@prisma/client";
-import { useProgramData } from "@/app/_hooks/programData";
+import useSWR from "swr";
 import AddStudyProgramModal from "../component/AddStudyProgramModal";
 import EditStudyProgramModal from "../component/EditStudyProgramModal";
 import { useParams } from "next/navigation";
@@ -12,7 +12,6 @@ import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import Link from "next/link";
 import { semesterThai } from "@/models/semester-thai";
 import { useConfirmDialog } from "@/components/dialogs";
-import api from "@/libs/axios";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { Box } from "@mui/material";
 import {
@@ -20,6 +19,10 @@ import {
   NoDataEmptyState,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
+
+// Server Actions (Clean Architecture)
+import { getProgramsByYearAction, deleteProgramAction } from "@/features/program/application/actions/program.actions";
+
 type Props = {};
 
 function StudyProgram(props: Props) {
@@ -32,8 +35,20 @@ function StudyProgram(props: Props) {
 
   const { confirm, dialog } = useConfirmDialog();
 
-  const { data, isLoading, error, mutate } = useProgramData(
-    params.year.toString(),
+  // Fetch programs using Server Action
+  const { data, isLoading, error, mutate } = useSWR(
+    `programs-year-${params.year}`,
+    async () => {
+      try {
+        const result = await getProgramsByYearAction({
+          Year: parseInt(params.year.toString()),
+        });
+        return result?.data ?? [];
+      } catch (error) {
+        console.error("Error fetching programs:", error);
+        return [];
+      }
+    },
   );
 
   const [editProgram, setEditProgram] = useState({});
@@ -56,14 +71,24 @@ function StudyProgram(props: Props) {
     });
 
     try {
-      await api.delete("/program", { data: programData.ProgramID });
+      const result = await deleteProgramAction({
+        ProgramID: programData.ProgramID,
+      });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลหลักสูตรสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "ลบข้อมูลหลักสูตรไม่สำเร็จ: " + (error.response?.data || error.message),
+        "ลบข้อมูลหลักสูตรไม่สำเร็จ: " + (error.message || "Unknown error"),
         { variant: "error" }
       );
       console.error(error);

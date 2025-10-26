@@ -8,6 +8,11 @@
  * - Improved performance with memoization
  * - Better TypeScript types
  * 
+ * Week 8 Migration:
+ * - Migrated from API routes to Server Actions
+ * - Using Clean Architecture actions for all data operations
+ * - Removed deprecated api/fetcher imports
+ * 
  * Original: 760 lines, 34+ useState
  * Refactored: ~400-500 lines, centralized state
  */
@@ -26,8 +31,12 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 // Feedback Components
 import { TimetableGridSkeleton, EmptyState, NetworkErrorEmptyState } from "@/components/feedback";
 
-// API & Data Fetching
-import api, { fetcher } from "@/libs/axios";
+// Server Actions (Clean Architecture)
+import { getTeacherScheduleAction, syncTeacherScheduleAction } from "@/features/arrange/application/actions/arrange.actions";
+import { getConflictsAction } from "@/features/class/application/actions/class.actions";
+import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+import { getAvailableRespsAction } from "@/features/assign/application/actions/assign.actions";
+import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 
 // Zustand Store
 import { useArrangementUIStore } from "@/features/schedule-arrangement/presentation/stores/arrangement-ui.store";
@@ -154,44 +163,100 @@ export default function TeacherArrangePageRefactored() {
   const validation = useConflictValidation();
 
   // ============================================================================
-  // DATA FETCHING (SWR)
+  // DATA FETCHING (Server Actions - Clean Architecture)
   // ============================================================================
   
-  const checkConflictData = useSWR(
+  // Use SWR with Server Actions for client-side data fetching
+  const checkConflictData = useSWR<any>(
     () =>
-      !!currentTeacherID &&
-      `/class/checkConflict?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
-    fetcher,
+      currentTeacherID
+        ? `conflicts-${academicYear}-${semester}-${currentTeacherID}`
+        : null,
+    async () => {
+      if (!currentTeacherID) return null;
+      const result = await getConflictsAction({
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+        TeacherID: parseInt(currentTeacherID),
+      });
+      if (!result || typeof result !== 'object' || !('success' in result)) {
+        return null;
+      }
+      return (result.success && 'data' in result) ? result.data : null;
+    },
     { revalidateOnFocus: false }
   );
 
-  const fetchAllClassData = useSWR(
+  const fetchAllClassData = useSWR<any>(
     () =>
-      !!currentTeacherID &&
-      `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
-    fetcher,
+      currentTeacherID
+        ? `teacher-schedule-${academicYear}-${semester}-${currentTeacherID}`
+        : null,
+    async () => {
+      if (!currentTeacherID) return null;
+      const result = await getTeacherScheduleAction({
+        TeacherID: parseInt(currentTeacherID),
+      });
+      if (!result || typeof result !== 'object' || !('success' in result)) {
+        return null;
+      }
+      return (result.success && 'data' in result) ? result.data : null;
+    },
     { revalidateOnFocus: false, revalidateOnMount: true }
   );
 
-  const fetchTeacher = useSWR(
-    () => !!currentTeacherID && `/teacher?TeacherID=${currentTeacherID}`,
-    fetcher,
+  const fetchTeacher = useSWR<any>(
+    () => (currentTeacherID ? `teacher-${currentTeacherID}` : null),
+    async () => {
+      if (!currentTeacherID) return null;
+      const result = await getTeachersAction();
+      if (!result || typeof result !== 'object' || !('success' in result)) {
+        return null;
+      }
+      if (result.success && 'data' in result) {
+        const teacher = (result.data as any[]).find(
+          (t: any) => t.TeacherID === parseInt(currentTeacherID)
+        );
+        return teacher || null;
+      }
+      return null;
+    },
     { revalidateOnFocus: false }
   );
 
-  const fetchResp = useSWR(
+  const fetchResp = useSWR<any>(
     () =>
-      !!currentTeacherID &&
-      `/assign/getAvailableResp?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${currentTeacherID}`,
-    fetcher,
+      currentTeacherID
+        ? `available-resp-${academicYear}-${semester}-${currentTeacherID}`
+        : null,
+    async () => {
+      if (!currentTeacherID) return null;
+      const result = await getAvailableRespsAction({
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+        TeacherID: parseInt(currentTeacherID),
+      });
+      if (!result || typeof result !== 'object' || !('success' in result)) {
+        return null;
+      }
+      return (result.success && 'data' in result) ? result.data : null;
+    },
     { revalidateOnFocus: false }
   );
 
-  const fetchTimeSlot = useSWR(
-    () =>
-      !!currentTeacherID &&
-      `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
-    fetcher,
+  const fetchTimeSlot = useSWR<any>(
+    () => (currentTeacherID ? `timeslots-${academicYear}-${semester}` : null),
+    async () => {
+      if (!currentTeacherID) return null;
+      const result = await getTimeslotsByTermAction({
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+      });
+      if (!result || typeof result !== 'object' || !('success' in result)) {
+        return null;
+      }
+      return (result.success && 'data' in result) ? result.data : null;
+    },
     { revalidateOnFocus: false }
   );
 
@@ -332,7 +397,11 @@ export default function TeacherArrangePageRefactored() {
       room: room | null;
     };
     
-    const puredata: ClassScheduleWithRelations[] = fetchAllClassData.data;
+    // fetchAllClassData.data is the array extracted by the SWR fetcher
+    const puredata: ClassScheduleWithRelations[] = Array.isArray(fetchAllClassData.data) 
+      ? fetchAllClassData.data 
+      : [];
+    
     const data = puredata.map((item: ClassScheduleWithRelations) => ({
       ...item,
       SubjectName: item.subject.SubjectName,
@@ -343,8 +412,8 @@ export default function TeacherArrangePageRefactored() {
     const filterNotLock = data.filter((item: ClassScheduleWithRelations & { SubjectName: string; RoomName: string }) => !item.IsLocked);
     
     // Process locked timeslots (combine multiple grade IDs for same timeslot)
-    const resFilterLock = [];
-    const keepId = [];
+    const resFilterLock: any[] = [];
+    const keepId: string[] = [];
     
     for (let i = 0; i < filterLock.length; i++) {
       if (keepId.length === 0 || !keepId.includes(filterLock[i].TimeslotID)) {
@@ -391,13 +460,6 @@ export default function TeacherArrangePageRefactored() {
   // ============================================================================
 
   const postData = useCallback(async () => {
-    const data = {
-      TeacherID: parseInt(searchTeacherID || "0"),
-      AcademicYear: parseInt(academicYear),
-      Semester: "SEMESTER_" + semester,
-      Schedule: timeSlotData.AllData,
-    };
-
     setIsSaving(true);
     const savingSnackbar = enqueueSnackbar("กำลังบันทึกข้อมูล...", {
       variant: "info",
@@ -405,11 +467,23 @@ export default function TeacherArrangePageRefactored() {
     });
 
     try {
-      const response = await api.post("/arrange", data);
-      if (response.status === 200) {
-        closeSnackbar(savingSnackbar);
+      const result = await syncTeacherScheduleAction({
+        TeacherID: parseInt(searchTeacherID || "0"),
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+        Schedule: timeSlotData.AllData,
+      });
+
+      closeSnackbar(savingSnackbar);
+
+      if (result.success) {
         enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
         fetchAllClassData.mutate();
+      } else {
+        enqueueSnackbar(
+          result.error?.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+          { variant: "error" }
+        );
       }
     } catch (error) {
       console.error(error);

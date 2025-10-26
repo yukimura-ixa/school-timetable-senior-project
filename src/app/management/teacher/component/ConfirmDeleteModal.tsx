@@ -1,10 +1,13 @@
 import { AiOutlineClose } from "react-icons/ai";
-import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import type { teacher } from "@prisma/client";
+
+// Server Actions
+import { deleteTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+
 type props = {
   closeModal: any;
   teacherData: teacher[];
@@ -42,23 +45,28 @@ function ConfirmDeleteModal({
       .filter((item, index) => checkedList.includes(item.TeacherID))
       .map((item) => item.TeacherID);
 
-    const response = await api
-      .delete("/teacher", {
-        data: deleteData,
-      })
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    try {
+      const result = await deleteTeachersAction({
+        teacherIds: deleteData,
       });
-    console.log(response);
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"), {
+        variant: "error",
+      });
+      console.log(error);
+    }
     clearCheckList();
   };
   return (

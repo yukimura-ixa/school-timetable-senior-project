@@ -5,7 +5,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import api from "@/libs/axios";
+import { createRoomAction } from "@/features/room/application/actions/room.actions";
 import type { room } from "@prisma/client";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -19,31 +19,36 @@ type props = {
 function AddModalForm({ closeModal, mutate }: props) {
 
   const addData = async (data: room[]) => {
-    console.log(data);
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
       variant: "info",
       persist: true,
     });
-    const response = await api
-      .post("/room", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลสถานที่เรียนสำเร็จ", {
-          variant: "success",
-        });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar(
-          "เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data,
-          {
-            variant: "error",
-          },
-        );
-        console.log(error);
+    
+    try {
+      const result = await createRoomAction({ rooms: data });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลสถานที่เรียนสำเร็จ", {
+        variant: "success",
       });
-    console.log(response);
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar(
+        "เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
+      console.error(error);
+    }
   };
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [rooms, setRooms] = useState<room[]>([

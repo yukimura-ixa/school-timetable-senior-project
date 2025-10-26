@@ -1,33 +1,23 @@
-"use client";
-import React from "react";
-import { useGradeLevelData } from "../../_hooks/gradeLevelData";
-import GradeLevelTable from "@/app/management/gradelevel/component/GradeLevelTable";
-import { TableSkeleton, NoDataEmptyState, NetworkErrorEmptyState } from "@/components/feedback";
+import { TableSkeleton, NetworkErrorEmptyState } from "@/components/feedback";
+import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import { GradeLevelManageClient } from "./component/GradeLevelManageClient";
+import { Suspense } from "react";
 
-type Props = {};
+/**
+ * GradeLevel Management Page - Server Component
+ * Fetches gradelevel data on the server, passes to client component
+ */
+export default async function GradeLevelManagePage() {
+  const result = await getGradeLevelsAction();
 
-function GradeLevelManage(props: Props) {
-  const { data, isLoading, error, mutate } = useGradeLevelData();
-
-  if (isLoading) {
-    return <TableSkeleton rows={6} />;
-  }
-
-  if (error) {
-    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
-  }
-
-  if (!data || data.length === 0) {
-    return <NoDataEmptyState />;
+  // Error state
+  if (!result.success) {
+    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
   }
 
   return (
-    <GradeLevelTable
-      tableHead={["รหัสชั้นเรียน", "มัธยมปีที่", "ห้องที่", "หลักสูตร", ""]}
-      tableData={data}
-      mutate={mutate}
-    />
+    <Suspense fallback={<TableSkeleton rows={6} />}>
+      <GradeLevelManageClient initialData={result.data} />
+    </Suspense>
   );
 }
-
-export default GradeLevelManage;

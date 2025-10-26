@@ -6,7 +6,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import { fetcher } from "@/libs/axios";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { useParams } from "next/navigation";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, type JSX } from "react";
 import useSWR from "swr";
 import ExportAllProgram from "./function/ExportAllProgram";
 import { subjectCreditValues } from "@/models/credit-value";
@@ -33,7 +33,7 @@ const page = (props: Props) => {
     fetcher,
     { revalidateOnFocus: false },
   );
-  const convertDropdownItem = (gradeID) => {
+  const convertDropdownItem = (gradeID: string) => {
     return gradeID == ""
       ? ""
       : `ม.${gradeID[0]}/${parseInt(gradeID.substring(1))}`;
@@ -41,7 +41,7 @@ const page = (props: Props) => {
   const primarySubjectData = () => {
     if (!programOfGrade.isLoading) {
       return sortSubjectCategory(programOfGrade.data.subjects.filter(
-        (item) => item.Category == "พื้นฐาน",
+        (item: any) => item.Category == "พื้นฐาน",
       ));
     } else {
       return [];
@@ -50,7 +50,7 @@ const page = (props: Props) => {
   const extraSubjectData = () => {
     if (!programOfGrade.isLoading) {
       return sortSubjectCategory(programOfGrade.data.subjects.filter(
-        (item) => item.Category == "เพิ่มเติม",
+        (item: any) => item.Category == "เพิ่มเติม",
       ));
     } else {
       return [];
@@ -59,7 +59,7 @@ const page = (props: Props) => {
   const activitiesSubjectData = () => {
     if (!programOfGrade.isLoading) {
       return sortSubjectCategory(programOfGrade.data.subjects.filter(
-        (item) => item.Category == "กิจกรรมพัฒนาผู้เรียน",
+        (item: any) => item.Category == "กิจกรรมพัฒนาผู้เรียน",
       ));
     } else {
       return [];
@@ -89,7 +89,7 @@ const page = (props: Props) => {
     </tr>
     </>
   );
-  const CategoryTablerow = (props): JSX.Element => (
+  const CategoryTablerow = (props: any): JSX.Element => (
     <tr className="h-10 bg-blue-100">
       <td></td>
       <td></td>
@@ -100,8 +100,8 @@ const page = (props: Props) => {
       <td></td>
     </tr>
   );
-  const SubjectDataRow = (props): JSX.Element =>
-    props.data.map((item, index) => (
+  const SubjectDataRow = (props: any): JSX.Element =>
+    props.data.map((item: any, index: number) => (
       <Fragment key={`${programOfGrade.data.GradeID}-${item.SubjectCode}`}>
         <DataList
           index={props.indexStart + index}
@@ -115,7 +115,7 @@ const page = (props: Props) => {
         />
       </Fragment>
     ));
-  const DataList = (props): JSX.Element => (
+  const DataList = (props: any): JSX.Element => (
     <tr className="h-10" style={{backgroundColor : props.index % 2 == 0 ? "#f0f0f0" : "white" }}>
       <td className="text-center">
         <p>{props.index}</p>
@@ -134,7 +134,7 @@ const page = (props: Props) => {
       </td>
     </tr>
   );
-  const SumCredit = (props): JSX.Element => (
+  const SumCredit = (props: any): JSX.Element => (
     <tr className="h-10 bg-cyan-100">
       <td></td>
       <td></td>
@@ -146,18 +146,18 @@ const page = (props: Props) => {
   const getSumCreditValue = () => {
     if (!programOfGrade.isLoading) {
       return programOfGrade.data.subjects.filter(
-        (item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน",
-      ).reduce((a, b) => a + subjectCreditValues[b.Credit], 0);
+        (item: any) => item.Category !== "กิจกรรมพัฒนาผู้เรียน",
+      ).reduce((a: number, b: any) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
     } else {
       return 0;
     }
   }
-  const sortSubjectCategory = (data) => {
+  const sortSubjectCategory = (data: any[]) => {
     //ท ค ว ส พ ศ ก อ
-    let SubjectCodeVal = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
-    let sortedData = data.sort((a, b) => {
-      let getVal = (sCode) => {
-        return isUndefined(SubjectCodeVal[sCode]) ? 9 : SubjectCodeVal[sCode]
+    let SubjectCodeVal: Record<string, number> = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
+    let sortedData = data.sort((a: any, b: any) => {
+      let getVal = (sCode: string) => {
+        return isUndefined(SubjectCodeVal[sCode]) ? 9 : (SubjectCodeVal[sCode] ?? 9)
       }
       if(getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])){
         return -1;

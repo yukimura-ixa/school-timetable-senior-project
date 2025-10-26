@@ -6,7 +6,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-import api from "@/libs/axios";
+import { updateRoomAction } from "@/features/room/application/actions/room.actions";
 import type { room } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
@@ -53,30 +53,34 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       persist: true,
     });
 
-    console.log(data);
-    const response = await api
-      .put("/room", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
-          variant: "success",
-        });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar(
-          "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data,
-          {
-            variant: "error",
-          },
-        );
-        console.log(error);
+    try {
+      const result = await updateRoomAction({ rooms: data });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
+        variant: "success",
       });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar(
+        "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
+      console.error(error);
+    }
 
     //clear checkbox
     clearCheckList();
-    console.log(response);
   };
   return (
     <>

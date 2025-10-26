@@ -1,5 +1,5 @@
 // "use client";
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, type JSX } from "react";
 import type { room } from "@prisma/client";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
@@ -17,7 +17,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { Snackbar, Alert } from "@mui/material";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableRow from "./TableRow";
-import api from "@/libs/axios";
+import { deleteRoomsAction } from "@/features/room/application/actions/room.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type RoomsTableProps = {
@@ -165,7 +165,15 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
       .map((item) => item.RoomID);
 
     try {
-      await api.delete("/room", { data: deleteIds });
+      const result = await deleteRoomsAction({ roomIds: deleteIds });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
       setCheckedList([]);
@@ -173,7 +181,7 @@ function Table({ tableHead, tableData, mutate }: RoomsTableProps): JSX.Element {
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "ลบข้อมูลสถานที่เรียนไม่สำเร็จ: " + (error.response?.data || error.message),
+        "ลบข้อมูลสถานที่เรียนไม่สำเร็จ: " + (error.message || "Unknown error"),
         { variant: "error" }
       );
       console.error(error);

@@ -11,7 +11,6 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type {} from '@redux-devtools/extension'; // Required for devtools typing
 import type { SubjectData, TimeslotData } from '@/types';
 import type { class_schedule } from '@prisma/client';
 

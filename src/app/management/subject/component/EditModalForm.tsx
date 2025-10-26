@@ -2,12 +2,12 @@ import TextField from "@/components/mui/TextField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import type { subject } from "@prisma/client";
 import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
-import api from "@/libs/axios";
+import { updateSubjectAction } from "@/features/subject/application/actions/subject.actions";
 import { subject_credit } from "@prisma/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -52,32 +52,38 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     }
   };
   const editMultiData = async (data: any) => {
-    console.log(data);
     const loadbar = enqueueSnackbar("กำลังแก้ไขวิชา", {
       variant: "info",
       persist: true,
     });
-    data.forEach((subject) => {
-      subject.Credit = selectCredit(subject.Credit);
-    });
-    const response = await api
-      .put("/subject", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขวิชาสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขวิชาไม่สำเร็จ " + error.response.data, {
-          variant: "error",
-        });
-        console.log(error);
-      });
-    //clear checkbox
-    clearCheckList();
+    
+    const subjectsToUpdate = data.map((subject) => ({
+      ...subject,
+      Credit: selectCredit(subject.Credit),
+    }));
 
-    console.log(response);
+    try {
+      const result = await updateSubjectAction({ subjects: subjectsToUpdate });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขวิชาสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขวิชาไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
+      });
+      console.error(error);
+    }
+    
+    clearCheckList();
   };
   const confirmed = () => {
     if (isValidData()) {

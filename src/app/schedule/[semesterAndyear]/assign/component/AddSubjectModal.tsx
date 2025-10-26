@@ -1,5 +1,5 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash } from "react-icons/tb";
 import type { subject, gradelevel, subject_credit } from "@prisma/client";

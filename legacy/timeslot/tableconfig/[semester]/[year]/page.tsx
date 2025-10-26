@@ -1,7 +1,7 @@
 "use client";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { useParams } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 import { BsTable, BsCalendar2Day } from "react-icons/bs";
 import { LuClock10 } from "react-icons/lu";
 import { MdSchool, MdLunchDining } from "react-icons/md";
@@ -191,7 +191,7 @@ function TimetableConfigValue({}: Props) {
             // >
             //   บันทึก
             // </button>
-            <div className="flex gap-3">
+            (<div className="flex gap-3">
               <PrimaryButton
                 handleClick={saved}
                 title={"บันทึก"}
@@ -208,7 +208,7 @@ function TimetableConfigValue({}: Props) {
                 reverseIcon={false}
                 isDisabled={false}
               />
-            </div>
+            </div>)
           )}
         </div>
         <Snackbar

@@ -9,7 +9,7 @@ import { useLockData } from "@/app/_hooks/lockData";
 import LockScheduleForm from "./LockScheduleForm";
 import { useConfirmDialog } from "@/components/dialogs";
 import type { LockScheduleExtended } from "@/types/lock-schedule";
-import api from "@/libs/axios";
+import { deleteLocksAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { Box } from "@mui/material";
 import {
@@ -64,14 +64,14 @@ function LockSchedule() {
       // Build ClassIDs array from GradeIDs (lock schedule may span multiple classes)
       // If there's a specific ClassID, use that; otherwise build from GradeIDs pattern
       const classIds = (item as any).ClassIDs || [item.ClassID];
-      await api.delete("/lock", { data: classIds });
+      await deleteLocksAction(classIds);
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       lockData.mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.response?.data || error.message),
+        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.message || "Unknown error"),
         { variant: "error" }
       );
       console.error(error);

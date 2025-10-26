@@ -1,9 +1,11 @@
 import { AiOutlineClose } from "react-icons/ai";
-import api from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+// Server Actions
+import { deleteTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 
 import type { ModalCloseHandler } from "@/types/events";
 
@@ -28,27 +30,35 @@ function ConfirmDeleteModal({
     closeModal();
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = () => {
+  const removeMultiData = async () => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูล", {
       variant: "info",
       persist: true,
     });
-    const response = api
-      .delete("/timeslot", {
-        data: { AcademicYear: academicYear, Semester: "SEMESTER_" + semester },
-      })
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
-        mutate();
-        window.location.reload();
-      })
-      .catch((err) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลไม่สำเร็จ " + err.response.data.error, {
-          variant: "error",
-        });
+    
+    try {
+      const result = await deleteTimeslotsByTermAction({
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
+      mutate();
+      window.location.reload();
+    } catch (err: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลไม่สำเร็จ " + (err.message || "Unknown error"), {
+        variant: "error",
+      });
+    }
   };
   return (
     <>

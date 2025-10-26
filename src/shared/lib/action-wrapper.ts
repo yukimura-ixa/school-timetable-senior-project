@@ -20,7 +20,7 @@
  */
 
 import * as v from 'valibot';
-import { auth } from '../../../auth'; // Relative path to auth.ts at project root
+import { auth } from '@/libs/auth';
 import { isConflictError, isValidationError, isLockedScheduleError, type ServerActionError } from '@/types';
 
 /**

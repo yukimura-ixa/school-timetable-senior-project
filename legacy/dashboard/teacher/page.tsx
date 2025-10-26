@@ -1,5 +1,5 @@
 "use client";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, type JSX } from "react";
 import axios from "axios";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import teacher_resp from "@/raw-data/teahcer_responsib";

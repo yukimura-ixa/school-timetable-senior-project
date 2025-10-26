@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import api from "@/libs/axios";
+import { deleteRoomsAction } from "@/features/room/application/actions/room.actions";
 import { room } from "@prisma/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
@@ -39,28 +39,32 @@ function ConfirmDeleteModal({
       variant: "info",
       persist: true,
     });
+    
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.RoomID))
       .map((item) => item.RoomID);
 
-    const response = await api
-      .delete("/room", {
-        data: deleteData,
-      })
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    try {
+      const result = await deleteRoomsAction({ roomIds: deleteData });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
       });
+      console.error(error);
+    }
 
-    console.log(response);
     clearCheckList();
   };
 

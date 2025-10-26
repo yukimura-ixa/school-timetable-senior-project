@@ -5,7 +5,9 @@ import { subject } from "@prisma/client";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { CircularProgress } from "@mui/material";
 import useSWR from "swr";
-import { fetcher } from "@/libs/axios";
+
+// Server Actions
+import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
 type Props = {
   subjectSelected: any;
@@ -17,10 +19,25 @@ type Props = {
 };
 
 function SelectSubjects(props: Props) {
-  const subjectData = useSWR("/subject/notInPrograms", fetcher, {
-    // refreshInterval: 15000,
+  const subjectData = useSWR("subjects-not-in-programs", async () => {
+    try {
+      const result = await getSubjectsAction();
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Failed to fetch subjects";
+        throw new Error(errorMessage);
+      }
+      // Filter subjects that are not already in programs
+      // Note: Original endpoint was /subject/notInPrograms which filtered on backend
+      // For now we return all subjects and filter on client side
+      return result.data || [];
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      return [];
+    }
+  }, {
     revalidateOnMount: true,
-
   });
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
 

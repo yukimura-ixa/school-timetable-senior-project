@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { subject } from "@prisma/client";
-import api from "@/libs/axios";
+import { deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
@@ -40,28 +40,32 @@ function ConfirmDeleteModal({
       variant: "info",
       persist: true,
     });
+    
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.SubjectCode))
       .map((item) => item.SubjectCode);
 
-    const response = await api
-      .delete("/subject", {
-        data: deleteData,
-      })
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลวิชาสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลวิชาไม่สำเร็จ " + error.response.data, {
-          variant: "error",
-        });
-        console.log(error);
+    try {
+      const result = await deleteSubjectsAction({ subjectCodes: deleteData });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลวิชาสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลวิชาไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
       });
+      console.error(error);
+    }
 
-    console.log(response);
     clearCheckList();
   };
   return (

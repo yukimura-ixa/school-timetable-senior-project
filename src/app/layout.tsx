@@ -7,7 +7,7 @@ import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
 import { ErrorBoundary } from "@/components/error";
-import { auth } from "../../auth";
+import { auth } from "@/libs/auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 

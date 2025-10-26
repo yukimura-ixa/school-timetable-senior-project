@@ -36,7 +36,7 @@ interface LegacyPrimaryButtonProps {
   handleClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   title?: string;
   color?: 'info' | 'secondary' | 'warning' | 'success' | 'danger' | 'primary';
-  Icon?: React.ReactNode;
+  Icon?: React.ReactNode | null;
   reverseIcon?: boolean;
   isDisabled?: boolean;
 }
