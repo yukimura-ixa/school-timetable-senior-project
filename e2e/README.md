@@ -10,13 +10,16 @@ e2e/
 ├── TEST_PLAN.md              # Comprehensive test plan with all 29 test cases
 ├── helpers/                  # Helper utilities
 │   ├── auth.ts              # Authentication helpers
-│   └── navigation.ts        # Navigation helpers
+│   ├── navigation.ts        # Navigation helpers
+│   └── drag-drop.helper.ts  # Drag-and-drop test utilities (@dnd-kit)
 ├── 01-home-page.spec.ts     # Home page and auth tests (TC-001, TC-002)
 ├── 02-data-management.spec.ts   # Data management tests (TC-003 to TC-006)
 ├── 03-schedule-config.spec.ts   # Configuration tests (TC-007 to TC-009)
 ├── 04-timetable-arrangement.spec.ts  # Arrangement tests (TC-010 to TC-016)
 ├── 05-viewing-exports.spec.ts       # Viewing and export tests (TC-017 to TC-024)
-└── 07-server-component-migration.spec.ts  # Server Component migration tests (TC-007-01 to TC-007-12)
+├── 06-public-homepage.spec.ts       # Public homepage tests (TC-006-01 to TC-006-08)
+├── 07-server-component-migration.spec.ts  # Server Component migration tests (TC-007-01 to TC-007-12)
+└── 08-drag-and-drop.spec.ts         # Drag-and-drop tests (TC-DND-001 to TC-DND-007)
 ```
 
 ## Prerequisites
@@ -41,6 +44,18 @@ e2e/
 ### Run All Tests
 ```bash
 pnpm test:e2e
+```
+
+### Run Specific Test Suites
+
+**Drag-and-drop tests only:**
+```bash
+pnpm playwright test e2e/08-drag-and-drop.spec.ts
+```
+
+**Core functionality tests:**
+```bash
+pnpm playwright test e2e/02-data-management.spec.ts e2e/04-timetable-arrangement.spec.ts
 ```
 
 ### Run Tests in UI Mode (Interactive)
@@ -98,6 +113,42 @@ For comprehensive testing, ensure your test database contains:
 ✅ Timetable configuration  
 ✅ Subject assignment  
 ✅ Timetable arrangement  
+
+### Phase 2: Drag-and-Drop Interactions (NEW)
+✅ **Subject List to Timeslot** (TC-DND-001)
+  - Draggable subject items
+  - Click selection
+  - Drag to empty timeslot
+  - Visual feedback during drag
+
+✅ **Between Timeslots** (TC-DND-002)
+  - Identify filled timeslots
+  - Drag subjects between slots
+  - Click-to-change mode
+
+✅ **Conflict Detection** (TC-DND-003)
+  - Error indicators
+  - Invalid drop attempts
+  - Occupied slot conflicts
+
+✅ **Lock State Behavior** (TC-DND-004)
+  - Identify locked timeslots
+  - Prevent drops on locked slots
+  - Locked slots not draggable
+
+✅ **Keyboard Accessibility** (TC-DND-005)
+  - Keyboard focus on subjects
+  - Space/Arrow key navigation
+  - Escape cancels drag
+
+✅ **Student Arrange Page** (TC-DND-006)
+  - Student page drag functionality
+  - Class selection affects drag
+
+✅ **Performance & Edge Cases** (TC-DND-007)
+  - Multiple rapid drags
+  - Drag outside boundaries
+  - Responsive viewports  
 ✅ Conflict detection  
 ✅ View schedules  
 ✅ Export to Excel  
