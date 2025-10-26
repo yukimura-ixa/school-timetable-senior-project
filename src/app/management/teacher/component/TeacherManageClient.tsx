@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
 import { TeacherListSkeleton, NoTeachersEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";

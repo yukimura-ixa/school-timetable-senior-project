@@ -4,7 +4,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { deleteRoomsAction } from "@/features/room/application/actions/room.actions";
-import { room } from "@prisma/client";
+import { room } from "@/prisma/generated";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;

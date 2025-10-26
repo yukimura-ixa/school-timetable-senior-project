@@ -4,11 +4,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import type { subject } from "@prisma/client";
+import type { subject } from "@/prisma/generated";
 import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { updateSubjectAction } from "@/features/subject/application/actions/subject.actions";
-import { subject_credit } from "@prisma/client";
+import { subject_credit } from "@/prisma/generated";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 

@@ -12,7 +12,7 @@ import { useConfirmDialog } from "@/components/dialogs";
 import EditModalForm from "../../gradelevel/component/EditModalForm";
 import MiniButton from "@/components/elements/static/MiniButton";
 import PrimaryButton from "@/components/mui/PrimaryButton";
-import { gradelevel } from "@prisma/client";
+import { gradelevel } from "@/prisma/generated";
 import TableRow from "./TableRow";
 import { deleteGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";

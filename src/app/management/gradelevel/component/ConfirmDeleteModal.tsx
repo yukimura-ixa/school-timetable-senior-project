@@ -2,7 +2,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import { gradelevel } from "@prisma/client";
+import { gradelevel } from "@/prisma/generated";
 import { deleteGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {

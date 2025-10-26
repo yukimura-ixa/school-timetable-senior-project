@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
-import { subject } from "@prisma/client";
+import { subject } from "@/prisma/generated";
 import { deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {

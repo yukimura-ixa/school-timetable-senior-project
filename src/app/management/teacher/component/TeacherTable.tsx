@@ -1,6 +1,6 @@
 // "use client";
 import React, { useState, useEffect, Fragment, type JSX } from "react";
-import type { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 //ICON
 import { IoIosArrowDown } from "react-icons/io";
 import { MdModeEditOutline } from "react-icons/md";
