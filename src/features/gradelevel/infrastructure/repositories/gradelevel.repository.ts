@@ -8,7 +8,7 @@
  */
 
 import prisma from '@/libs/prisma';
-import type { semester } from '@prisma/client';
+import type { semester } from '@/prisma/generated';
 import type { CreateGradeLevelInput, UpdateGradeLevelInput } from '../../application/schemas/gradelevel.schemas';
 
 export const gradeLevelRepository = {

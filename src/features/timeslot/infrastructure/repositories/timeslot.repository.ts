@@ -8,7 +8,7 @@
  */
 
 import prisma from '@/libs/prisma';
-import type { timeslot, semester } from '@prisma/client';
+import type { timeslot, semester } from '@/prisma/generated';
 
 export const timeslotRepository = {
   /**

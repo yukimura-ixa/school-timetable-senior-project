@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import type { subject } from "@prisma/client"
+import type { subject } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 export const useSubjectData = () => {

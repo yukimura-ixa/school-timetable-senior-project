@@ -5,7 +5,7 @@
  * No side effects, no database access - only business rules.
  */
 
-import { teacher } from '@prisma/client';
+import { teacher } from '@/prisma/generated';
 
 /**
  * Validate schedule query parameters

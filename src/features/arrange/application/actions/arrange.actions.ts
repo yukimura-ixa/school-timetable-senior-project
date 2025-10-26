@@ -7,7 +7,7 @@
 
 'use server';
 
-import { semester } from '@prisma/client';
+import { semester } from '@/prisma/generated';
 import { createAction } from '@/shared/lib/action-wrapper';
 import {
   getTeacherScheduleSchema,

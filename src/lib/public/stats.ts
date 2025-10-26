@@ -3,7 +3,7 @@
  */
 
 import prisma from "@/libs/prisma";
-import { day_of_week } from "@prisma/client";
+import { day_of_week } from "@/prisma/generated";
 
 export type QuickStats = {
   totalTeachers: number;

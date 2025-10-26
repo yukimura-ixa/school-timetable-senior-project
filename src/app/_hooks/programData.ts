@@ -1,5 +1,5 @@
 import useSWR, { preload } from "swr"
-import type { program, gradelevel, subject } from "@prisma/client"
+import type { program, gradelevel, subject } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 // Type for program with included relations

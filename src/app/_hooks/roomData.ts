@@ -1,5 +1,5 @@
 import useSWR from "swr"
-import type { room } from "@prisma/client"
+import type { room } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 export const useRoomData = () => {

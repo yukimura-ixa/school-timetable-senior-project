@@ -8,7 +8,7 @@
  */
 
 import type { CreateRoomInput } from '../../application/schemas/room.schemas';
-import type { room } from '@prisma/client';
+import type { room } from '@/prisma/generated';
 
 export interface DuplicateCheckResult {
   isDuplicate: boolean;

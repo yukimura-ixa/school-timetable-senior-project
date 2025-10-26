@@ -8,7 +8,7 @@
  */
 
 import * as v from 'valibot';
-import { semester } from '@prisma/client';
+import { semester } from '@/prisma/generated';
 
 /**
  * Schema for creating a program

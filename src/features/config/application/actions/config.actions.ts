@@ -10,7 +10,7 @@
 
 import { createAction } from '@/shared/lib/action-wrapper';
 import prisma from '@/libs/prisma';
-import { semester } from '@prisma/client';
+import { semester } from '@/prisma/generated';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
 import {
   validateConfigExists,

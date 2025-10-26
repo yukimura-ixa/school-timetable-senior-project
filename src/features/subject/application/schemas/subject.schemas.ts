@@ -8,7 +8,7 @@
  */
 
 import * as v from 'valibot';
-import { subject_credit } from '@prisma/client';
+import { subject_credit } from '@/prisma/generated';
 
 /**
  * Schema for creating a single subject

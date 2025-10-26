@@ -5,7 +5,7 @@
  * No side effects, no database access - only business rules.
  */
 
-import { teachers_responsibility } from '@prisma/client';
+import { teachers_responsibility } from '@/prisma/generated';
 import { ResponsibilityOutput } from '../../application/schemas/assign.schemas';
 
 /**

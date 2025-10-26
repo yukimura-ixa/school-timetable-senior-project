@@ -7,7 +7,7 @@
 
 'use server';
 
-import { semester } from '@prisma/client';
+import { semester } from '@/prisma/generated';
 import * as v from 'valibot';
 import prisma from '@/libs/prisma';
 

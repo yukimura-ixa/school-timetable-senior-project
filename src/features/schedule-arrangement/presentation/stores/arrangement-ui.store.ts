@@ -12,7 +12,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { SubjectData, TimeslotData } from '@/types';
-import type { class_schedule } from '@prisma/client';
+import type { class_schedule } from '@/prisma/generated';
 
 // ============================================================================
 // Type Definitions

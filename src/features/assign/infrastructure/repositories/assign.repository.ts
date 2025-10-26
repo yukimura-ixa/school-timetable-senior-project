@@ -6,7 +6,7 @@
  */
 
 import prisma from '@/libs/prisma';
-import { semester, Prisma } from '@prisma/client';
+import { semester, Prisma } from '@/prisma/generated';
 
 /**
  * Type: Teacher responsibility with full relations

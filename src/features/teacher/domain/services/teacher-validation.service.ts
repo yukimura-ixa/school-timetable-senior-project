@@ -8,7 +8,7 @@
  */
 
 import type { CreateTeacherInput } from '../../application/schemas/teacher.schemas';
-import type { teacher } from '@prisma/client';
+import type { teacher } from '@/prisma/generated';
 
 export interface DuplicateCheckResult {
   isDuplicate: boolean;

@@ -24,7 +24,7 @@ import {
 } from '../schemas/schedule-arrangement.schemas';
 import type { ConflictResult } from '../../domain/models/conflict.model';
 import { createConflictError } from '@/types';
-import type { class_schedule } from '@prisma/client';
+import type { class_schedule } from '@/prisma/generated';
 
 /**
  * Arrange (create or update) a class schedule

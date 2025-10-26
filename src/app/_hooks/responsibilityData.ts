@@ -1,5 +1,5 @@
 import useSWR, { preload } from "swr"
-import type { teachers_responsibility } from "@prisma/client"
+import type { teachers_responsibility } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 export const useResponsibilityData = (TeacherID: number) => {
