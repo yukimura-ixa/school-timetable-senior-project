@@ -15,7 +15,8 @@ e2e/
 ├── 02-data-management.spec.ts   # Data management tests (TC-003 to TC-006)
 ├── 03-schedule-config.spec.ts   # Configuration tests (TC-007 to TC-009)
 ├── 04-timetable-arrangement.spec.ts  # Arrangement tests (TC-010 to TC-016)
-└── 05-viewing-exports.spec.ts       # Viewing and export tests (TC-017 to TC-024)
+├── 05-viewing-exports.spec.ts       # Viewing and export tests (TC-017 to TC-024)
+└── 07-server-component-migration.spec.ts  # Server Component migration tests (TC-007-01 to TC-007-12)
 ```
 
 ## Prerequisites

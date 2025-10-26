@@ -19,6 +19,12 @@ const page = (props: Props) => {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
+  
+  // Ensure semester and academicYear are defined
+  if (!semester || !academicYear) {
+    return <Loading />;
+  }
+  
   const gradeLevelData = useGradeLevelData();
   const [currentGradeID, setCurrentGradeID] = useState("");
   const programOfGrade = useSWR(

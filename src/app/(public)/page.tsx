@@ -9,6 +9,7 @@ import { PublicClassesTable, PublicClassesTableSkeleton } from "./_components/Pu
 import { TablePagination } from "./_components/TablePagination";
 import { getTeacherCount } from "@/lib/public/teachers";
 import { getClassCount } from "@/lib/public/classes";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
@@ -43,9 +44,18 @@ export default async function HomePage({ searchParams }: PageProps) {
     <main className="min-h-screen bg-gray-50">
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
         <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold mb-4">
+          <div className="flex items-start justify-between">
+            <h1 className="text-4xl font-bold mb-4">
             ระบบตารางเรียนตารางสอน
-          </h1>
+            </h1>
+            <Link
+              href="/signin"
+              prefetch={false}
+              className="mt-1 inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-white/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
+            >
+              Admin Login
+            </Link>
+          </div>
           <p className="text-xl text-blue-100">
             ค้นหาและดูตารางเรียนของครูผู้สอนและชั้นเรียนได้ทันที
           </p>

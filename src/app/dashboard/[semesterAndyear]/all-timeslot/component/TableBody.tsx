@@ -39,22 +39,28 @@ const TableBody = (props: Props) => {
       .map((item) => `${item.GradeID[0]}/${item.GradeID[2]}`)
       .join(",");
     // let convertClass = ["101", "102", "301", "302", "303", "304", "305", "306", "307", "308", "309", "310"].map(item => `${item[0]}/${item[2]}`).join(",")
-    let res =
-      filterClass.length == 0
-        ? ""
-        : filterClass[0].IsLocked
-          ? `${filterClass[0].SubjectCode}`
-          : `${convertClass}\n${filterClass[0].SubjectCode}`;
-    return (
-      filterClass.length !== 0 && (
+    
+      if (filterClass.length === 0) {
+        return null;
+      }
+    
+      const firstClass = filterClass[0];
+      if (!firstClass) {
+        return null;
+      }
+    
+      let res = firstClass.IsLocked
+        ? `${firstClass.SubjectCode}`
+        : `${convertClass}\n${firstClass.SubjectCode}`;
+      
+      return (
         <p
-          style={{ color: filterClass[0].IsLocked ? "red" : "black" }}
+          style={{ color: firstClass.IsLocked ? "red" : "black" }}
           className="text-xs text-center"
         >
           {res}
         </p>
-      )
-    );
+      );
   }
   return (
     <tbody>

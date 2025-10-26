@@ -105,7 +105,7 @@ export async function findLockedSubjectsByTerm(
   const subjects = await prisma.subject.findMany({
     where: {
       SubjectCode: {
-        in: groupedSubjects.map((item) => item.SubjectCode),
+        in: groupedSubjects.map((item: { SubjectCode: string }) => item.SubjectCode),
       },
     },
     include: {

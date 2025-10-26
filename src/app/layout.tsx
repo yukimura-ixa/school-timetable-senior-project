@@ -25,7 +25,7 @@ export default async function RootLayout({
   const session = await auth();
   return (
     <html lang="th" className={`${sarabun.variable}`}>
-      <body className={`overflow-scroll xl:overflow-x-hidden`}>
+      <body className={`font-sans min-h-screen bg-gray-50`}>
         <SessionProvider session={session}>
           <AppRouterCacheProvider>
             <ThemeProvider theme={theme}>

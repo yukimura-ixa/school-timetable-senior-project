@@ -1,169 +1,109 @@
-# GitHub Copilot Instructions
+# GitHub Copilot Instructions (Next.js 16 + Vercel Postgres + MCP)
 
-> **GitHub Copilot**: This file configures your behavior for this repository.
-
----
-
-## Primary Instructions Source
-
-**Always refer to and follow the instructions in `AGENTS.md` at the root of this repository.**
-
-The `AGENTS.md` file contains the complete operating manual for AI coding agents working on this project.
+> This file configures how Copilot (Agent Mode) should work in this repo.  
+> **Always follow `AGENTS.md` for full context.** PNPM‑only.
 
 ---
 
-## Key Directives
+## 0) MCP Priority & Routing
 
-### 0. MCP Priority & Routing (MANDATORY)
+**Use these MCP servers by default:**
 
-**You MUST route work through these MCPs in this exact order of responsibility:**
+- **Next DevTools MCP** (`next-devtools-mcp`) — upgrades, diagnostics, codemods for **Next.js 16**.  
+- **Prisma MCP** (`@prisma/mcp`) — Prisma schema reasoning, migrations, CLI.
 
-1. **Serena (code-first MCP, REQUIRED for all code operations)**  
-   - Use Serena for *reading, navigating, and editing* the codebase.  
-   - Prefer Serena’s symbol-aware tools over raw text edits.  
-   - Do **not** write/overwrite files directly via Files MCP unless Serena is unavailable.
-   - Core Serena tools to prefer:  
-     - `list_dir`, `search_for_pattern`, `read_file` (discovery)  
-     - `rename_symbol`, `replace_symbol_body`, `replace_lines`, `insert_at_line` (edits)  
-     - `summarize_changes`, `restart_language_server`, `get_current_config` (hygiene)
-
-2. **context7 (docs MCP, REQUIRED before using any external library)**  
-   - Always query context7 for the **exact versions** from `package.json`/lockfiles and pull **version-specific docs & examples**.  
-   - If context7 contradicts prior knowledge, **follow context7** and note the delta in the Evidence Panel.
-
-3. **Sequential-Thinking MCP (planner)**  
-   - Use a planning MCP (e.g., `sequential-thinking`, `planner`, or equivalent) to form an internal step plan **before** doing edits.  
-   - Keep raw chain-of-thought internal; expose only a concise **Plan Summary** (bulleted, ≤5 items) in outputs.
-
-4. **Files MCP (read-only fallback)**  
-   - Use for *reading* only when Serena read ops are insufficient. Avoid write ops here.
-
-5. **GitHub MCP (issues/PRs)**  
-   - Use for fetching issue/PR context, labels, discussions, and posting summaries as needed.
-
-If Serena is not available, **fail fast** with a short note and proceed read-only; do not attempt risky text rewrites without Serena.
-
-> **Definitions (C1/C2):**  
-> *Idempotent* — safe to retry without changing the end result beyond the first execution.  
-> *Delta* — the difference/change between two states (e.g., docs vs. code).  
-> *Symbol-aware* — operations that understand code structure (types/functions), not just plain text.
+**Also available:**  
+- **context7** — version‑specific docs lookup (resolve exact package versions).  
+- **Serena** — symbol‑aware edits & code navigation.  
+- **GitHub MCP** — issues/PR context & summaries.  
+- **Files MCP** — read‑only fallback.
+- **Playwright MCP** — for E2E test generation.
+> If a code MCP is unavailable, proceed read‑only and state constraints. No risky text rewrites.
 
 ---
 
-### 1. MCP-First Workflow (MANDATORY)
+## 1) Technology Stack (authoritative)
 
-**Always use MCP servers when reasoning about code, APIs, CLIs, or SDKs.**
-
-#### Primary MCPs
-- **Serena** — the default interface for *code navigation & edits*.  
-- **context7** — the default interface for *library docs & examples* (version-specific).
-
-#### Supporting MCPs
-- **Sequential-Thinking MCP** — internal plan creation (output only a Plan Summary).  
-- **GitHub MCP** — issues/PRs.  
-- **Files MCP** — read-only fallback.
-
-**Before implementing any feature that uses external libraries:**
-- Query **context7** for the exact versions used in this project.  
-- Prefer examples that match those versions.  
-- Document versions and APIs in the Evidence Panel.
+- **Framework**: **Next.js 16** (App Router, **proxy.ts** convention; **async Request APIs only**)  
+- **ORM**: Prisma  
+- **DB**: **Vercel Storage: Postgres** (Marketplace integration; `DATABASE_URL` injected by Vercel)  
+- **UI**: Tailwind CSS  
+- **Auth**: NextAuth (Google)
 
 ---
 
-### 2. Package Manager
+## 2) Common Upgrade/Refactor Tasks (what the agent should do)
 
-**⚠️ USE PNPM** — This project uses pnpm as the package manager. Always use `pnpm` commands, not npm or yarn.
-
----
-
-### 3. Technology Stack
-
-This is a **Next.js/TypeScript** project with:
-- **Frontend/Backend**: Next.js 15 (React 18)
-- **UI**: Tailwind CSS 4
-- **ORM**: Prisma 5
-- **DB**: MySQL 8 (Google Cloud SQL in prod)
-- **Auth**: Google OAuth via NextAuth.js
-
-> Always confirm versions via context7 using the repo’s `package.json` and lockfile(s).
+- Rename `middleware.ts` → **`proxy.ts`** and exported function to `proxy`; keep logic equivalent.  
+- Replace any sync Request API usage with **async** (`await cookies()/headers()/draftMode()`).  
+- Remove explicit `--turbopack` flags from scripts (Turbopack is default).  
+- For DB provider changes or schema evolution, use **Prisma MCP** to diff/plan/apply migrations.
 
 ---
 
-### 4. Code Quality Standards
+## 3) Terminal Auto‑Approval (safe narrow scope)
 
-- **TypeScript everywhere** — No `any` types.
-- **Prisma schema** is the single source of truth.
-- **Pure functions** for constraint checks.
-- **Table-driven tests** for all business logic.
-- **Idempotent DB operations** (safe to retry).
+Auto‑approve only **`pnpm build`** pipelines to reduce prompts; deny obvious risky commands:
 
----
-
-### 5. Execution Flow
-
-When given a task:
-
-1. **Plan (Sequential-Thinking MCP)**  
-   - Create an internal step plan.  
-   - Output a compact **Plan Summary** (≤5 bullets) — no raw chain-of-thought.
-
-2. **Evidence (context7)**  
-   - Query for exact library versions and the APIs you’ll use.  
-   - Capture **version numbers**, **API signatures**, and **links to canonical examples**.
-
-3. **Implement (Serena)**  
-   - Use Serena to navigate and edit code (symbol-aware where possible).  
-   - Prefer `rename_symbol`/`replace_symbol_body` over ad-hoc string edits.  
-   - Keep commits minimal, logically scoped.
-
-4. **Test**  
-   - Add/extend unit tests and table-driven cases for non-trivial logic.  
-   - Add Playwright E2E when behavior spans multiple pages/roles.
-
-5. **Runbook**  
-   - Provide exact commands (pnpm), migrations (Prisma), and any env vars.  
-   - Include a brief **MCP usage recap**: context7 queries (library@version) and Serena tools invoked.
-
----
-
-## Project Context
-
-This is a **school timetable management system** that:
-- Helps schools create conflict-free class timetables
-- Supports Admin, Teacher, and Student roles
-- Handles teacher assignments, room allocations, and schedule conflicts
-- Exports schedules to Excel and PDF
-
-**Full project context and requirements are in `AGENTS.md`.**
-
----
-
-## Quick Reference
-
-```bash
-# Dev commands
-pnpm install
-pnpm prisma generate && pnpm prisma migrate dev
-pnpm dev
-
-# Test commands
-pnpm test
-pnpm test:e2e
-
-# Lint/format
-pnpm lint
-pnpm format
+```jsonc
+// .vscode/settings.json
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^\\s*pnpm\\s+(?:-r\\s+)?build(?:\\s+[^|;&]*)*(?:\\s+2>\\s*&1)?\\s*(?:\\|[\\s\\S]*)?$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/(^|\\s)(rm|rmdir|del|mkfs|chmod|chown|kill|wget|curl)\\b/i": false,
+    "/(&&|;|\\|\\|)/": false
+  }
+}
 ```
 
-## Remember
-
-1. **Always consult `AGENTS.md` first** for complete instructions
-2. **Always use Serena for code** (navigation/edits) and **context7** for documentation.
-3. **Always use a Sequential-Thinking MCP** to plan; expose only a concise Plan Summary.
-4. **Always use pnpm** for package management
-5. **Always write TypeScript** with strong types
-6. **Always add tests** for business logic
+Reset approvals anytime: **Command Palette → “Chat: Reset Tool Confirmations.”**
 
 ---
 
-**For complete instructions, see `AGENTS.md` in the repository root.**
+## 4) Dev & DB Commands (what Copilot should run)
+
+```bash
+# Pull env (DATABASE_URL) locally from Vercel
+vercel env pull .env
+
+# Prisma
+pnpm prisma generate
+pnpm prisma migrate dev    # dev‑only
+pnpm prisma migrate deploy # CI/prod
+
+# App
+pnpm dev
+pnpm build && pnpm start
+```
+
+**Provider switch (MySQL → Postgres)** — baseline a new migration:
+
+```bash
+pnpm prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0001_init.sql
+pnpm prisma migrate deploy
+```
+
+---
+
+## 5) Evidence Panel (always include)
+
+- Resolved versions (from `package.json`/lockfile) for next, react, prisma, tailwind, next-auth.  
+- API list you’ll use (e.g., Route Handlers, Prisma `upsert/transaction`, Zod validation).  
+- Any deltas (docs vs. code).
+
+---
+
+## 6) Quick Reference
+
+```bash
+pnpm i
+pnpm db:deploy
+pnpm dev
+pnpm test
+pnpm lint && pnpm format
+```
+
+**Remember:** follow `AGENTS.md`. Keep edits small, typed, and covered by tests.

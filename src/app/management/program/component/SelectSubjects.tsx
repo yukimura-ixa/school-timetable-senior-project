@@ -23,10 +23,7 @@ function SelectSubjects(props: Props) {
     try {
       const result = await getSubjectsAction();
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Failed to fetch subjects";
-        throw new Error(errorMessage);
+        throw new Error(result.error);
       }
       // Filter subjects that are not already in programs
       // Note: Original endpoint was /subject/notInPrograms which filtered on backend

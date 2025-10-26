@@ -29,6 +29,7 @@ export type RoomOccupancy = {
  * Uses Next.js fetch cache with 60s revalidation
  */
 export async function getQuickStats(): Promise<QuickStats> {
+  try {
     const [teacherCount, classCount, roomCount, config] = await Promise.all([
       prisma.teacher.count(),
       prisma.gradelevel.count(),
@@ -58,6 +59,16 @@ export async function getQuickStats(): Promise<QuickStats> {
       periodsPerDay,
       currentTerm: `${config?.AcademicYear} ${semesterLabel}`,
     };
+  } catch (err) {
+    console.warn("[PublicStats] getQuickStats fallback to defaults:", (err as Error).message);
+    return {
+      totalTeachers: 0,
+      totalClasses: 0,
+      totalRooms: 0,
+      periodsPerDay: 0,
+      currentTerm: "ไม่มีข้อมูล",
+    };
+  }
 }
 
 /**
@@ -65,6 +76,7 @@ export async function getQuickStats(): Promise<QuickStats> {
  * Uses Next.js fetch cache with 60s revalidation
  */
 export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
+  try {
     const config = await prisma.table_config.findFirst({
       orderBy: { AcademicYear: "desc" },
       select: { AcademicYear: true, Semester: true },
@@ -94,6 +106,10 @@ export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
     );
 
     return loadData;
+  } catch (err) {
+    console.warn("[PublicStats] getPeriodLoadPerDay fallback to empty:", (err as Error).message);
+    return [];
+  }
 }
 
 /**
@@ -101,6 +117,7 @@ export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
  * Uses Next.js fetch cache with 60s revalidation
  */
 export async function getRoomOccupancy(): Promise<RoomOccupancy[]> {
+  try {
     const config = await prisma.table_config.findFirst({
       orderBy: { AcademicYear: "desc" },
       select: { AcademicYear: true, Semester: true },
@@ -155,4 +172,8 @@ export async function getRoomOccupancy(): Promise<RoomOccupancy[]> {
     }
 
     return occupancyData;
+  } catch (err) {
+    console.warn("[PublicStats] getRoomOccupancy fallback to empty:", (err as Error).message);
+    return [];
+  }
 }

@@ -138,10 +138,16 @@ export const createClassScheduleAction = createAction(
   async (input: CreateClassScheduleInput) => {
     const schedule = await classRepository.create({
       ClassID: input.ClassID,
-      TimeslotID: input.TimeslotID,
-      SubjectCode: input.SubjectCode,
-      GradeID: input.GradeID,
       IsLocked: input.IsLocked ?? false,
+      timeslot: {
+        connect: { TimeslotID: input.TimeslotID },
+      },
+      subject: {
+        connect: { SubjectCode: input.SubjectCode },
+      },
+      gradelevel: {
+        connect: { GradeID: input.GradeID },
+      },
       room: input.RoomID
         ? {
             connect: { RoomID: input.RoomID },

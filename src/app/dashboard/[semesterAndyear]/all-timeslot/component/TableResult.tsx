@@ -12,7 +12,7 @@ type Props = {
 };
 
 const TableResult = (props: Props) => {
-  const findResult = (tID) => {
+  const findResult = (tID: number) => {
     let filter1 = props.classData.filter((item) =>
       item.teachers_responsibility
         .map((tid) => tid.TeacherID)

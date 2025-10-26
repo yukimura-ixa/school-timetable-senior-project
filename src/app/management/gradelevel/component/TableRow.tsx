@@ -40,7 +40,7 @@ function TableRow({
         >
           {key !== "program"
             ? item[key]
-            : item[key].length > 0
+            : Array.isArray(item[key]) && item[key].length > 0
               ? item[key]
                   .map((program) => program.ProgramName)
                   .join(", ")

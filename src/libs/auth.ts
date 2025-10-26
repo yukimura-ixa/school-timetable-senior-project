@@ -1,16 +1,24 @@
-import NextAuth from "next-auth"
+/**
+ * Auth.js v5 Configuration
+ * 
+ * Standard Auth.js v5 setup with Google OAuth and development bypass.
+ * 
+ * @see https://authjs.dev/getting-started/installation
+ */
+
+import NextAuth, { type DefaultSession } from "next-auth"
 import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import prisma from "@/libs/prisma"
 
-export const authConfig = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   trustHost: true,
   pages: {
     signIn: "/",
   },
   session: {
-    strategy: "jwt" as const,
+    strategy: "jwt",
   },
   providers: [
     Google({
@@ -48,10 +56,11 @@ export const authConfig = {
     }),
   ],
   theme: {
-    colorScheme: "light" as const,
+    colorScheme: "light",
   },
   callbacks: {
-    async signIn({ account, profile, user }) {
+    async signIn(params) {
+      const { account, profile } = params
       console.log("[AUTH] Sign in callback - provider:", account?.provider)
       
       // Allow dev bypass provider
@@ -76,7 +85,8 @@ export const authConfig = {
       }
       return false
     },
-    async jwt({ token, user }) {
+    async jwt(params) {
+      const { token, user } = params
       console.log("[AUTH] JWT callback")
       
       // For dev bypass, use the role from user object
@@ -104,7 +114,8 @@ export const authConfig = {
       }
       return token
     },
-    async session({ session, token }) {
+    async session(params) {
+      const { session, token } = params
       console.log("[AUTH] Session callback")
       if (session.user) {
         session.user.role = token.role as string
@@ -113,20 +124,15 @@ export const authConfig = {
       return session
     },
   },
-}
-
-export const { auth, handlers, signIn, signOut } = NextAuth(authConfig)
+})
 
 // Type augmentation for NextAuth
 declare module "next-auth" {
   interface Session {
     user: {
-      name?: string | null
-      email?: string | null
-      image?: string | null
       role?: string
       id?: string
-    }
+    } & DefaultSession["user"]
   }
 
   interface User {

@@ -24,62 +24,63 @@ export async function getPublicClasses(
   sortBy?: "grade" | "hours" | "subjects",
   sortOrder?: "asc" | "desc",
 ) {
-    // Get current academic term from latest table_config
-    const config = await prisma.table_config.findFirst({
-      orderBy: { AcademicYear: "desc" },
-      select: { AcademicYear: true, Semester: true },
-    });
+    try {
+      // Get current academic term from latest table_config
+      const config = await prisma.table_config.findFirst({
+        orderBy: { AcademicYear: "desc" },
+        select: { AcademicYear: true, Semester: true },
+      });
 
-    if (!config) {
-      return [];
-    }
+      if (!config) {
+        return [];
+      }
 
-    // Query grade levels with their schedules
-    const gradeLevels = await prisma.gradelevel.findMany({
-      where: searchQuery
-        ? {
-            GradeID: { contains: searchQuery, mode: "insensitive" },
-          }
-        : undefined,
-      select: {
-        GradeID: true,
-        Year: true,
-        Number: true,
-        class_schedule: {
-          where: {
-            timeslot: {
+      // Query grade levels with their schedules
+      const gradeLevels = await prisma.gradelevel.findMany({
+        where: searchQuery
+          ? {
+              GradeID: { contains: searchQuery, mode: "insensitive" },
+            }
+          : undefined,
+        select: {
+          GradeID: true,
+          Year: true,
+          Number: true,
+          class_schedule: {
+            where: {
+              timeslot: {
+                AcademicYear: config.AcademicYear,
+                Semester: config.Semester,
+              },
+            },
+            select: {
+              SubjectCode: true,
+              RoomID: true,
+              timeslot: {
+                select: {
+                  TimeslotID: true,
+                },
+              },
+            },
+          },
+          teachers_responsibility: {
+            where: {
               AcademicYear: config.AcademicYear,
               Semester: config.Semester,
             },
-          },
-          select: {
-            SubjectCode: true,
-            RoomID: true,
-            timeslot: {
-              select: {
-                TimeslotID: true,
+            select: {
+              teacher: {
+                select: {
+                  Prefix: true,
+                  Firstname: true,
+                  Lastname: true,
+                },
               },
             },
+            take: 1, // Get one representative teacher (homeroom concept)
           },
         },
-        teachers_responsibility: {
-          where: {
-            AcademicYear: config.AcademicYear,
-            Semester: config.Semester,
-          },
-          select: {
-            teacher: {
-              select: {
-                Prefix: true,
-                Firstname: true,
-                Lastname: true,
-              },
-            },
-          },
-          take: 1, // Get one representative teacher (homeroom concept)
-        },
-      },
-    });
+      });
 
     // Map to public view model
     const publicClasses: PublicClass[] = gradeLevels.map((grade) => {
@@ -129,7 +130,11 @@ export async function getPublicClasses(
       }
     });
 
-    return sortedClasses;
+      return sortedClasses;
+    } catch (err) {
+      console.warn("[PublicClasses] Falling back to empty dataset due to error:", (err as Error).message);
+      return [];
+    }
 }
 
 /**
@@ -168,5 +173,10 @@ export async function getPaginatedClasses(params: {
  * Get total class count
  */
 export async function getClassCount() {
-  return await prisma.gradelevel.count();
+  try {
+    return await prisma.gradelevel.count();
+  } catch (err) {
+    console.warn("[PublicClasses] getClassCount fallback to 0:", (err as Error).message);
+    return 0;
+  }
 }
