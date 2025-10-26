@@ -1,5 +1,5 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { timeslot } from "@prisma/client";
+import type { timeslot } from "@/prisma/generated";
 import { Fragment } from "react";
 interface ITimetableHeaderProps {
   timeslot: {

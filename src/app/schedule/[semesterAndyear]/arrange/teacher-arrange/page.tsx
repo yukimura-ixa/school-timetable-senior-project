@@ -41,7 +41,7 @@ import { getTimeslotsByTermAction } from "@/features/timeslot/application/action
 // Zustand Store
 import { useArrangementUIStore } from "@/features/schedule-arrangement/presentation/stores/arrangement-ui.store";
 import type { SubjectData } from "@/types";
-import type { timeslot, class_schedule, subject, room } from "@prisma/client";
+import type { timeslot, class_schedule, subject, room } from "@/prisma/generated";
 
 // Custom Hooks
 import {

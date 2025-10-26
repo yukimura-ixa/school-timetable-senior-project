@@ -1,7 +1,7 @@
 import { auth } from "@/libs/auth"
 import { NextResponse } from "next/server"
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const token = req.auth
   
   // SECURITY: Use server-only env variable to prevent bypass in production
@@ -40,12 +40,4 @@ export default auth((req) => {
   return NextResponse.next()
 })
 
-export const config = {
-  matcher: [
-    "/schedule/:path*",
-    "/management/:path*",
-    "/dashboard/:path/all-program",
-    "/dashboard/:path/all-timeslot",
-    "/dashboard/:path/teacher-table",
-  ],
-}
+// If you need to limit matching paths, reintroduce a matcher here once verified for Next.js 16 proxy.

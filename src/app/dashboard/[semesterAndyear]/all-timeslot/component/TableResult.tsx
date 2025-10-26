@@ -1,4 +1,4 @@
-import { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;

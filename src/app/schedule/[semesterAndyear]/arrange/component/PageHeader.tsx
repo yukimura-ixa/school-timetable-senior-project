@@ -1,4 +1,4 @@
-import { teacher } from '@prisma/client'
+import type { teacher } from '@/prisma/generated'
 import React from 'react'
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";

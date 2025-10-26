@@ -1,5 +1,5 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
@@ -70,7 +70,7 @@ const TableBody = (props: Props) => {
           className="flex items-center gap-2 mt-[2px] h-fit select-none"
         >
           {props.days.map((day) => (
-            <td key={`day-${day}`}>
+            <td key={`day-${day.Day}`}>
               <div className="flex flex-col items-center">
                 <div className="flex gap-2 w-fit">
                   {props.slotAmount.map((item, index) => (

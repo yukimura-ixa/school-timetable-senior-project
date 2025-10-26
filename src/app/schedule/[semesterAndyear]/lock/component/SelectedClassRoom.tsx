@@ -1,13 +1,13 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import { fetcher } from "@/libs/axios";
 import { CircularProgress, Skeleton } from "@mui/material";
-import { subject } from "@prisma/client";
+import type { subject } from "@/prisma/generated";
 import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
-import type { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 
 type Props = {
   teachers?: teacher[];

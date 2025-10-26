@@ -1,4 +1,4 @@
-import { gradelevel } from "@prisma/client";
+import type { gradelevel } from "@/prisma/generated";
 import ExcelJS from "exceljs";
 
 export const ExportStudentTable = (

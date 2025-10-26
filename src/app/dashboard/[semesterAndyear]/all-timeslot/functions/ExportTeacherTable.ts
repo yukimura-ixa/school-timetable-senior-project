@@ -1,4 +1,4 @@
-import { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 import ExcelJS from "exceljs";
 
 export const ExportTeacherTable = (

@@ -3,7 +3,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import React, { useState, Fragment } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
-import type { program } from "@prisma/client";
+import type { program } from "@/prisma/generated";
 import useSWR from "swr";
 import AddStudyProgramModal from "../component/AddStudyProgramModal";
 import EditStudyProgramModal from "../component/EditStudyProgramModal";

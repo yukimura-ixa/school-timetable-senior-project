@@ -8,7 +8,7 @@
 import React from "react";
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import SubjectItem from "./SubjectItem";
-import { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 
 type Props = {
   respData: any[];

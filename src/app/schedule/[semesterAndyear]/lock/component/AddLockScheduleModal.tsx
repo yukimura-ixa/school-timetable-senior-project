@@ -6,7 +6,7 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, teacher, subject } from "@prisma/client";
+import type { room, teacher, subject } from "@/prisma/generated";
 import type { ModalCloseHandler, ModalConfirmHandler, InputChangeHandler, SelectChangeHandler } from "@/types/events";
 import type { LockScheduleFormData } from "@/types/lock-schedule";
 

@@ -6,7 +6,7 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, subject, teacher, timeslot } from "@prisma/client";
+import type { room, subject, teacher, timeslot } from "@/prisma/generated";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
