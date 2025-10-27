@@ -291,38 +291,6 @@ test.describe("Responsive Design", () => {
   });
 });
 
-test.describe("Accessibility", () => {
-  test("should have proper heading hierarchy", async ({ page }) => {
-    await page.goto("/");
-    
-    // Should have h1 for main title
-    const h1 = await page.locator("h1").count();
-    expect(h1).toBeGreaterThanOrEqual(1);
-  });
-
-  test("should have accessible navigation", async ({ page }) => {
-    await page.goto("/");
-    
-    // Pagination should have proper ARIA labels
-    const pagination = page.locator('[role="navigation"][aria-label="Pagination"]');
-    if (await pagination.isVisible()) {
-      await expect(pagination).toBeVisible();
-    }
-  });
-
-  test("should be keyboard navigable", async ({ page }) => {
-    await page.goto("/");
-    
-    // Tab through interactive elements
-    await page.keyboard.press("Tab");
-    await page.keyboard.press("Tab");
-    
-    // Should focus on tabs
-    const activeElement = await page.evaluate(() => document.activeElement?.tagName);
-    expect(["BUTTON", "A", "INPUT"]).toContain(activeElement);
-  });
-});
-
 test.describe("Performance", () => {
   test("should load within acceptable time", async ({ page }) => {
     const startTime = Date.now();

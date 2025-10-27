@@ -15,6 +15,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : 1,
+  
+  /* Global setup - seeds database before tests */
+  globalSetup: require.resolve('./playwright.global-setup.ts'),
+  
   reporter: [
     ['html'],
     ['list'],

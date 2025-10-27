@@ -102,15 +102,21 @@ async function main() {
   
   // Check if we should clean existing data
   // Set SEED_CLEAN_DATA=true environment variable to enable data cleaning
-  const shouldCleanData = process.env.SEED_CLEAN_DATA === 'true';
+  // Set SEED_FOR_TESTS=true for E2E testing environment (auto-cleans data)
+  const shouldCleanData = process.env.SEED_CLEAN_DATA === 'true' || process.env.SEED_FOR_TESTS === 'true';
   
   if (!shouldCleanData) {
-    console.log('ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true to enable)');
+    console.log('ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true or SEED_FOR_TESTS=true to enable)');
     console.log('✅ Seed completed - admin user ready');
     return;
   }
   
-  console.log('⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data...');
+  const isTestMode = process.env.SEED_FOR_TESTS === 'true';
+  if (isTestMode) {
+    console.log('🧪 Test mode enabled - Seeding E2E test data...');
+  } else {
+    console.log('⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data...');
+  }
   console.log('⚠️  This will DELETE all timetable data but preserve User/Account/Session tables');
 
   // Clean existing timetable data in correct order (respecting foreign keys)
