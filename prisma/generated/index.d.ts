@@ -83,7 +83,17 @@ export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTok
  * Enums
  */
 export namespace $Enums {
-  export const day_of_week: {
+  export const SemesterStatus: {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  LOCKED: 'LOCKED',
+  ARCHIVED: 'ARCHIVED'
+};
+
+export type SemesterStatus = (typeof SemesterStatus)[keyof typeof SemesterStatus]
+
+
+export const day_of_week: {
   MON: 'MON',
   TUE: 'TUE',
   WED: 'WED',
@@ -124,6 +134,10 @@ export const breaktime: {
 export type breaktime = (typeof breaktime)[keyof typeof breaktime]
 
 }
+
+export type SemesterStatus = $Enums.SemesterStatus
+
+export const SemesterStatus: typeof $Enums.SemesterStatus
 
 export type day_of_week = $Enums.day_of_week
 
@@ -11470,22 +11484,38 @@ export namespace Prisma {
 
   export type Table_configAvgAggregateOutputType = {
     AcademicYear: number | null
+    configCompleteness: number | null
   }
 
   export type Table_configSumAggregateOutputType = {
     AcademicYear: number | null
+    configCompleteness: number | null
   }
 
   export type Table_configMinAggregateOutputType = {
     ConfigID: string | null
     AcademicYear: number | null
     Semester: $Enums.semester | null
+    status: $Enums.SemesterStatus | null
+    publishedAt: Date | null
+    isPinned: boolean | null
+    lastAccessedAt: Date | null
+    configCompleteness: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type Table_configMaxAggregateOutputType = {
     ConfigID: string | null
     AcademicYear: number | null
     Semester: $Enums.semester | null
+    status: $Enums.SemesterStatus | null
+    publishedAt: Date | null
+    isPinned: boolean | null
+    lastAccessedAt: Date | null
+    configCompleteness: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type Table_configCountAggregateOutputType = {
@@ -11493,28 +11523,51 @@ export namespace Prisma {
     AcademicYear: number
     Semester: number
     Config: number
+    status: number
+    publishedAt: number
+    isPinned: number
+    lastAccessedAt: number
+    configCompleteness: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
 
   export type Table_configAvgAggregateInputType = {
     AcademicYear?: true
+    configCompleteness?: true
   }
 
   export type Table_configSumAggregateInputType = {
     AcademicYear?: true
+    configCompleteness?: true
   }
 
   export type Table_configMinAggregateInputType = {
     ConfigID?: true
     AcademicYear?: true
     Semester?: true
+    status?: true
+    publishedAt?: true
+    isPinned?: true
+    lastAccessedAt?: true
+    configCompleteness?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type Table_configMaxAggregateInputType = {
     ConfigID?: true
     AcademicYear?: true
     Semester?: true
+    status?: true
+    publishedAt?: true
+    isPinned?: true
+    lastAccessedAt?: true
+    configCompleteness?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type Table_configCountAggregateInputType = {
@@ -11522,6 +11575,13 @@ export namespace Prisma {
     AcademicYear?: true
     Semester?: true
     Config?: true
+    status?: true
+    publishedAt?: true
+    isPinned?: true
+    lastAccessedAt?: true
+    configCompleteness?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -11616,6 +11676,13 @@ export namespace Prisma {
     AcademicYear: number
     Semester: $Enums.semester
     Config: JsonValue
+    status: $Enums.SemesterStatus
+    publishedAt: Date | null
+    isPinned: boolean
+    lastAccessedAt: Date
+    configCompleteness: number
+    createdAt: Date
+    updatedAt: Date
     _count: Table_configCountAggregateOutputType | null
     _avg: Table_configAvgAggregateOutputType | null
     _sum: Table_configSumAggregateOutputType | null
@@ -11642,6 +11709,13 @@ export namespace Prisma {
     AcademicYear?: boolean
     Semester?: boolean
     Config?: boolean
+    status?: boolean
+    publishedAt?: boolean
+    isPinned?: boolean
+    lastAccessedAt?: boolean
+    configCompleteness?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["table_config"]>
 
   export type table_configSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11649,6 +11723,13 @@ export namespace Prisma {
     AcademicYear?: boolean
     Semester?: boolean
     Config?: boolean
+    status?: boolean
+    publishedAt?: boolean
+    isPinned?: boolean
+    lastAccessedAt?: boolean
+    configCompleteness?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["table_config"]>
 
   export type table_configSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11656,6 +11737,13 @@ export namespace Prisma {
     AcademicYear?: boolean
     Semester?: boolean
     Config?: boolean
+    status?: boolean
+    publishedAt?: boolean
+    isPinned?: boolean
+    lastAccessedAt?: boolean
+    configCompleteness?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["table_config"]>
 
   export type table_configSelectScalar = {
@@ -11663,9 +11751,16 @@ export namespace Prisma {
     AcademicYear?: boolean
     Semester?: boolean
     Config?: boolean
+    status?: boolean
+    publishedAt?: boolean
+    isPinned?: boolean
+    lastAccessedAt?: boolean
+    configCompleteness?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type table_configOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ConfigID" | "AcademicYear" | "Semester" | "Config", ExtArgs["result"]["table_config"]>
+  export type table_configOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ConfigID" | "AcademicYear" | "Semester" | "Config" | "status" | "publishedAt" | "isPinned" | "lastAccessedAt" | "configCompleteness" | "createdAt" | "updatedAt", ExtArgs["result"]["table_config"]>
 
   export type $table_configPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "table_config"
@@ -11675,6 +11770,13 @@ export namespace Prisma {
       AcademicYear: number
       Semester: $Enums.semester
       Config: Prisma.JsonValue
+      status: $Enums.SemesterStatus
+      publishedAt: Date | null
+      isPinned: boolean
+      lastAccessedAt: Date
+      configCompleteness: number
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["table_config"]>
     composites: {}
   }
@@ -12102,6 +12204,13 @@ export namespace Prisma {
     readonly AcademicYear: FieldRef<"table_config", 'Int'>
     readonly Semester: FieldRef<"table_config", 'semester'>
     readonly Config: FieldRef<"table_config", 'Json'>
+    readonly status: FieldRef<"table_config", 'SemesterStatus'>
+    readonly publishedAt: FieldRef<"table_config", 'DateTime'>
+    readonly isPinned: FieldRef<"table_config", 'Boolean'>
+    readonly lastAccessedAt: FieldRef<"table_config", 'DateTime'>
+    readonly configCompleteness: FieldRef<"table_config", 'Int'>
+    readonly createdAt: FieldRef<"table_config", 'DateTime'>
+    readonly updatedAt: FieldRef<"table_config", 'DateTime'>
   }
     
 
@@ -16949,7 +17058,14 @@ export namespace Prisma {
     ConfigID: 'ConfigID',
     AcademicYear: 'AcademicYear',
     Semester: 'Semester',
-    Config: 'Config'
+    Config: 'Config',
+    status: 'status',
+    publishedAt: 'publishedAt',
+    isPinned: 'isPinned',
+    lastAccessedAt: 'lastAccessedAt',
+    configCompleteness: 'configCompleteness',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type Table_configScalarFieldEnum = (typeof Table_configScalarFieldEnum)[keyof typeof Table_configScalarFieldEnum]
@@ -17170,6 +17286,20 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'SemesterStatus'
+   */
+  export type EnumSemesterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SemesterStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'SemesterStatus[]'
+   */
+  export type ListEnumSemesterStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SemesterStatus[]'>
     
 
 
@@ -17700,6 +17830,13 @@ export namespace Prisma {
     AcademicYear?: IntFilter<"table_config"> | number
     Semester?: EnumsemesterFilter<"table_config"> | $Enums.semester
     Config?: JsonFilter<"table_config">
+    status?: EnumSemesterStatusFilter<"table_config"> | $Enums.SemesterStatus
+    publishedAt?: DateTimeNullableFilter<"table_config"> | Date | string | null
+    isPinned?: BoolFilter<"table_config"> | boolean
+    lastAccessedAt?: DateTimeFilter<"table_config"> | Date | string
+    configCompleteness?: IntFilter<"table_config"> | number
+    createdAt?: DateTimeFilter<"table_config"> | Date | string
+    updatedAt?: DateTimeFilter<"table_config"> | Date | string
   }
 
   export type table_configOrderByWithRelationInput = {
@@ -17707,6 +17844,13 @@ export namespace Prisma {
     AcademicYear?: SortOrder
     Semester?: SortOrder
     Config?: SortOrder
+    status?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    isPinned?: SortOrder
+    lastAccessedAt?: SortOrder
+    configCompleteness?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type table_configWhereUniqueInput = Prisma.AtLeast<{
@@ -17717,6 +17861,13 @@ export namespace Prisma {
     AcademicYear?: IntFilter<"table_config"> | number
     Semester?: EnumsemesterFilter<"table_config"> | $Enums.semester
     Config?: JsonFilter<"table_config">
+    status?: EnumSemesterStatusFilter<"table_config"> | $Enums.SemesterStatus
+    publishedAt?: DateTimeNullableFilter<"table_config"> | Date | string | null
+    isPinned?: BoolFilter<"table_config"> | boolean
+    lastAccessedAt?: DateTimeFilter<"table_config"> | Date | string
+    configCompleteness?: IntFilter<"table_config"> | number
+    createdAt?: DateTimeFilter<"table_config"> | Date | string
+    updatedAt?: DateTimeFilter<"table_config"> | Date | string
   }, "ConfigID">
 
   export type table_configOrderByWithAggregationInput = {
@@ -17724,6 +17875,13 @@ export namespace Prisma {
     AcademicYear?: SortOrder
     Semester?: SortOrder
     Config?: SortOrder
+    status?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    isPinned?: SortOrder
+    lastAccessedAt?: SortOrder
+    configCompleteness?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: table_configCountOrderByAggregateInput
     _avg?: table_configAvgOrderByAggregateInput
     _max?: table_configMaxOrderByAggregateInput
@@ -17739,6 +17897,13 @@ export namespace Prisma {
     AcademicYear?: IntWithAggregatesFilter<"table_config"> | number
     Semester?: EnumsemesterWithAggregatesFilter<"table_config"> | $Enums.semester
     Config?: JsonWithAggregatesFilter<"table_config">
+    status?: EnumSemesterStatusWithAggregatesFilter<"table_config"> | $Enums.SemesterStatus
+    publishedAt?: DateTimeNullableWithAggregatesFilter<"table_config"> | Date | string | null
+    isPinned?: BoolWithAggregatesFilter<"table_config"> | boolean
+    lastAccessedAt?: DateTimeWithAggregatesFilter<"table_config"> | Date | string
+    configCompleteness?: IntWithAggregatesFilter<"table_config"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"table_config"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"table_config"> | Date | string
   }
 
   export type UserWhereInput = {
@@ -18510,6 +18675,13 @@ export namespace Prisma {
     AcademicYear: number
     Semester: $Enums.semester
     Config: JsonNullValueInput | InputJsonValue
+    status?: $Enums.SemesterStatus
+    publishedAt?: Date | string | null
+    isPinned?: boolean
+    lastAccessedAt?: Date | string
+    configCompleteness?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type table_configUncheckedCreateInput = {
@@ -18517,6 +18689,13 @@ export namespace Prisma {
     AcademicYear: number
     Semester: $Enums.semester
     Config: JsonNullValueInput | InputJsonValue
+    status?: $Enums.SemesterStatus
+    publishedAt?: Date | string | null
+    isPinned?: boolean
+    lastAccessedAt?: Date | string
+    configCompleteness?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type table_configUpdateInput = {
@@ -18524,6 +18703,13 @@ export namespace Prisma {
     AcademicYear?: IntFieldUpdateOperationsInput | number
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
     Config?: JsonNullValueInput | InputJsonValue
+    status?: EnumSemesterStatusFieldUpdateOperationsInput | $Enums.SemesterStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    lastAccessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    configCompleteness?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type table_configUncheckedUpdateInput = {
@@ -18531,6 +18717,13 @@ export namespace Prisma {
     AcademicYear?: IntFieldUpdateOperationsInput | number
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
     Config?: JsonNullValueInput | InputJsonValue
+    status?: EnumSemesterStatusFieldUpdateOperationsInput | $Enums.SemesterStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    lastAccessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    configCompleteness?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type table_configCreateManyInput = {
@@ -18538,6 +18731,13 @@ export namespace Prisma {
     AcademicYear: number
     Semester: $Enums.semester
     Config: JsonNullValueInput | InputJsonValue
+    status?: $Enums.SemesterStatus
+    publishedAt?: Date | string | null
+    isPinned?: boolean
+    lastAccessedAt?: Date | string
+    configCompleteness?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type table_configUpdateManyMutationInput = {
@@ -18545,6 +18745,13 @@ export namespace Prisma {
     AcademicYear?: IntFieldUpdateOperationsInput | number
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
     Config?: JsonNullValueInput | InputJsonValue
+    status?: EnumSemesterStatusFieldUpdateOperationsInput | $Enums.SemesterStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    lastAccessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    configCompleteness?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type table_configUncheckedUpdateManyInput = {
@@ -18552,6 +18759,13 @@ export namespace Prisma {
     AcademicYear?: IntFieldUpdateOperationsInput | number
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
     Config?: JsonNullValueInput | InputJsonValue
+    status?: EnumSemesterStatusFieldUpdateOperationsInput | $Enums.SemesterStatus
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isPinned?: BoolFieldUpdateOperationsInput | boolean
+    lastAccessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    configCompleteness?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateInput = {
@@ -19425,31 +19639,72 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type EnumSemesterStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SemesterStatus | EnumSemesterStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSemesterStatusFilter<$PrismaModel> | $Enums.SemesterStatus
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type table_configCountOrderByAggregateInput = {
     ConfigID?: SortOrder
     AcademicYear?: SortOrder
     Semester?: SortOrder
     Config?: SortOrder
+    status?: SortOrder
+    publishedAt?: SortOrder
+    isPinned?: SortOrder
+    lastAccessedAt?: SortOrder
+    configCompleteness?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type table_configAvgOrderByAggregateInput = {
     AcademicYear?: SortOrder
+    configCompleteness?: SortOrder
   }
 
   export type table_configMaxOrderByAggregateInput = {
     ConfigID?: SortOrder
     AcademicYear?: SortOrder
     Semester?: SortOrder
+    status?: SortOrder
+    publishedAt?: SortOrder
+    isPinned?: SortOrder
+    lastAccessedAt?: SortOrder
+    configCompleteness?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type table_configMinOrderByAggregateInput = {
     ConfigID?: SortOrder
     AcademicYear?: SortOrder
     Semester?: SortOrder
+    status?: SortOrder
+    publishedAt?: SortOrder
+    isPinned?: SortOrder
+    lastAccessedAt?: SortOrder
+    configCompleteness?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type table_configSumOrderByAggregateInput = {
     AcademicYear?: SortOrder
+    configCompleteness?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -19478,6 +19733,30 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type EnumSemesterStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SemesterStatus | EnumSemesterStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSemesterStatusWithAggregatesFilter<$PrismaModel> | $Enums.SemesterStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSemesterStatusFilter<$PrismaModel>
+    _max?: NestedEnumSemesterStatusFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type StringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -19491,17 +19770,6 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type AccountListRelationFilter = {
@@ -19576,20 +19844,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type UserScalarRelationFilter = {
@@ -20353,6 +20607,14 @@ export namespace Prisma {
     deleteMany?: class_scheduleScalarWhereInput | class_scheduleScalarWhereInput[]
   }
 
+  export type EnumSemesterStatusFieldUpdateOperationsInput = {
+    set?: $Enums.SemesterStatus
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type AccountCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -20383,10 +20645,6 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
-  }
-
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
   }
 
   export type AccountUpdateManyWithoutUserNestedInput = {
@@ -20685,6 +20943,24 @@ export namespace Prisma {
     _min?: NestedEnumday_of_weekFilter<$PrismaModel>
     _max?: NestedEnumday_of_weekFilter<$PrismaModel>
   }
+
+  export type NestedEnumSemesterStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.SemesterStatus | EnumSemesterStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSemesterStatusFilter<$PrismaModel> | $Enums.SemesterStatus
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -20709,6 +20985,30 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedEnumSemesterStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SemesterStatus | EnumSemesterStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SemesterStatus[] | ListEnumSemesterStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumSemesterStatusWithAggregatesFilter<$PrismaModel> | $Enums.SemesterStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSemesterStatusFilter<$PrismaModel>
+    _max?: NestedEnumSemesterStatusFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedStringNullableFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -20721,17 +21021,6 @@ export namespace Prisma {
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -20749,20 +21038,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type gradelevelCreateWithoutClass_scheduleInput = {

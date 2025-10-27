@@ -190,7 +190,14 @@ exports.Prisma.Table_configScalarFieldEnum = {
   ConfigID: 'ConfigID',
   AcademicYear: 'AcademicYear',
   Semester: 'Semester',
-  Config: 'Config'
+  Config: 'Config',
+  status: 'status',
+  publishedAt: 'publishedAt',
+  isPinned: 'isPinned',
+  lastAccessedAt: 'lastAccessedAt',
+  configCompleteness: 'configCompleteness',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -286,6 +293,13 @@ exports.day_of_week = exports.$Enums.day_of_week = {
   FRI: 'FRI',
   SAT: 'SAT',
   SUN: 'SUN'
+};
+
+exports.SemesterStatus = exports.$Enums.SemesterStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  LOCKED: 'LOCKED',
+  ARCHIVED: 'ARCHIVED'
 };
 
 exports.Prisma.ModelName = {

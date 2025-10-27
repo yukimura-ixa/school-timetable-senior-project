@@ -73,6 +73,13 @@ Table table_config {
   AcademicYear Int [not null]
   Semester semester [not null]
   Config Json [not null]
+  status SemesterStatus [not null, default: 'DRAFT']
+  publishedAt DateTime
+  isPinned Boolean [not null, default: false]
+  lastAccessedAt DateTime [default: `now()`, not null]
+  configCompleteness Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [default: `now()`, not null]
 }
 
 Table User {
@@ -123,6 +130,13 @@ Table VerificationToken {
   indexes {
     (identifier, token) [pk]
   }
+}
+
+Enum SemesterStatus {
+  DRAFT
+  PUBLISHED
+  LOCKED
+  ARCHIVED
 }
 
 Enum day_of_week {

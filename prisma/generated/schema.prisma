@@ -126,6 +126,27 @@ model table_config {
   AcademicYear Int
   Semester     semester
   Config       Json
+
+  // New fields for semester status and metadata
+  status             SemesterStatus @default(DRAFT)
+  publishedAt        DateTime?
+  isPinned           Boolean        @default(false)
+  lastAccessedAt     DateTime       @default(now())
+  configCompleteness Int            @default(0) // 0-100%
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([status], map: "table_config_status_idx")
+  @@index([isPinned], map: "table_config_pinned_idx")
+  @@index([lastAccessedAt], map: "table_config_accessed_idx")
+}
+
+enum SemesterStatus {
+  DRAFT
+  PUBLISHED
+  LOCKED
+  ARCHIVED
 }
 
 enum day_of_week {
