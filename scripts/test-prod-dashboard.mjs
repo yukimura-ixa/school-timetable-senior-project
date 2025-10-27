@@ -159,8 +159,81 @@ async function testDashboard() {
     
     console.log(`Auth mode: ${bypassEnabled ? '✅ Dev bypass enabled (local credentials work)' : '⚠️  Production mode (Google OAuth only)'}`);
     
+    // Try credentials login if bypass is enabled
+    if (bypassEnabled) {
+      console.log('\n🔐 Attempting credentials login...');
+      
+      // Reset viewport to desktop
+      await page.setViewportSize({ width: 1280, height: 720 });
+      await page.goto(`${PROD_URL}/signin`, { waitUntil: 'networkidle' });
+      
+      // Fill in credentials
+      await page.fill('input[type="email"]', ADMIN_EMAIL);
+      await page.fill('input[type="password"]', ADMIN_PASSWORD);
+      await page.screenshot({ path: 'screenshots/05-credentials-filled.png' });
+      
+      // Click login button
+      const loginButton = page.locator('button:has-text("เข้าสู่ระบบ")').first();
+      await loginButton.click();
+      
+      // Wait for navigation
+      await Promise.race([
+        page.waitForURL('**/dashboard/**', { timeout: 5000 }),
+        page.waitForTimeout(3000),
+      ]);
+      
+      const currentUrl = page.url();
+      await page.screenshot({ path: 'screenshots/06-after-login.png' });
+      
+      if (currentUrl.includes('/dashboard')) {
+        console.log('✅ Successfully logged in to dashboard!');
+        console.log(`   Current URL: ${currentUrl}\n`);
+        
+        // Test key dashboard pages
+        console.log('🗺️  Testing dashboard pages...\n');
+        
+        const dashboardRoutes = [
+          { name: 'Semester Selection', path: '/dashboard/select-semester' },
+          { name: 'Teacher Table', path: '/dashboard/1-2567/teacher-table' },
+          { name: 'Config', path: '/config' },
+        ];
+
+        for (const route of dashboardRoutes) {
+          try {
+            console.log(`  📄 ${route.name}...`);
+            await page.goto(`${PROD_URL}${route.path}`, { waitUntil: 'networkidle', timeout: 10000 });
+            
+            const hasError = await page.evaluate(() => {
+              return document.body.innerText.includes('Error') || 
+                     document.body.innerText.includes('404');
+            });
+
+            const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
+            const viewportWidth = await page.evaluate(() => window.innerWidth);
+
+            if (hasError) {
+              console.log(`     ❌ Error on page`);
+            } else if (bodyWidth > viewportWidth + 5) {
+              console.log(`     ⚠️  Has horizontal scroll (${bodyWidth}px > ${viewportWidth}px)`);
+            } else {
+              console.log(`     ✅ Loaded successfully`);
+            }
+
+            await page.screenshot({ path: `screenshots/dash-${route.name.toLowerCase().replace(/\s+/g, '-')}.png` });
+          } catch (error) {
+            console.log(`     ❌ Failed: ${error.message}`);
+          }
+        }
+      } else {
+        console.log('❌ Login failed');
+        const errorEl = await page.locator('[role="alert"]').first().textContent().catch(() => '');
+        if (errorEl) console.log(`   Error: ${errorEl}`);
+      }
+    }
+    
     // Check responsive width on signin page
     console.log('\n🔍 Checking signin page responsive width...');
+    await page.goto(`${PROD_URL}/signin`, { waitUntil: 'networkidle' });
     for (const size of [{ width: 375, name: 'Mobile' }, { width: 768, name: 'Tablet' }]) {
       await page.setViewportSize({ width: size.width, height: 720 });
       await page.waitForTimeout(500);

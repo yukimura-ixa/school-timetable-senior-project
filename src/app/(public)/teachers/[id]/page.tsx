@@ -1,8 +1,7 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowBack } from "@mui/icons-material";
+import ArrowBack from "@mui/icons-material/ArrowBack";
 import { getPublicTeacherById, getTeacherSchedule } from "@/lib/public/teachers";
 
 type PageProps = {
@@ -66,12 +65,12 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
   );
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-gray-50 py-8 print:p-0 print:bg-white">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Back Link */}
         <Link
           href="/?tab=teachers"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6"
+          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6 print:hidden"
         >
           <ArrowBack className="w-5 h-5" />
           กลับไปหน้าแรก
@@ -91,10 +90,10 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
             <p className="text-gray-500 text-lg">ไม่มีตารางสอนในภาคเรียนนี้</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 print:break-inside-avoid">
             {(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => (
-              <div key={day} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="bg-blue-600 text-white px-4 py-3 font-semibold text-center">
+              <div key={day} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:shadow-none">
+                <div className="bg-blue-600 text-white px-4 py-3 font-semibold text-center print:bg-blue-600 print:text-white">
                   {dayNames[day]}
                 </div>
                 <div className="p-2 space-y-2">
@@ -144,7 +143,7 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
         )}
 
         {/* Print Button */}
-        <div className="mt-6 flex justify-center">
+        <div className="mt-6 flex justify-center print:hidden">
           <button
             onClick={() => window.print()}
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -153,28 +152,6 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
           </button>
         </div>
       </div>
-
-      {/* Print Styles */}
-      <style jsx global>{`
-        @media print {
-          body {
-            print-color-adjust: exact;
-            -webkit-print-color-adjust: exact;
-          }
-          
-          main {
-            padding: 0 !important;
-          }
-          
-          a, button {
-            display: none !important;
-          }
-          
-          .grid {
-            page-break-inside: avoid;
-          }
-        }
-      `}</style>
     </main>
   );
 }
