@@ -137,7 +137,7 @@ export async function PublicTeachersTable({ searchParams }: Props) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <Link
-                      href={`/dashboard/select-semester`}
+                      href={`/teachers/${teacher.teacherId}`}
                       className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                     >
                       ดูตาราง

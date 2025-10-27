@@ -164,3 +164,99 @@ export async function getTopTeachersByUtilization(limit = 5) {
     return [];
   }
 }
+
+/**
+ * Get a single teacher by ID with public-safe data
+ */
+export async function getPublicTeacherById(teacherId: number) {
+  try {
+    const teacher = await prisma.teacher.findUnique({
+      where: { TeacherID: teacherId },
+      select: {
+        TeacherID: true,
+        Prefix: true,
+        Firstname: true,
+        Lastname: true,
+        Department: true,
+      },
+    });
+
+    if (!teacher) return null;
+
+    return {
+      teacherId: teacher.TeacherID,
+      name: `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`,
+      department: teacher.Department,
+    };
+  } catch (err) {
+    console.warn("[PublicTeachers] getPublicTeacherById error:", (err as Error).message);
+    return null;
+  }
+}
+
+/**
+ * Get teacher's schedule for current semester
+ */
+export async function getTeacherSchedule(teacherId: number) {
+  try {
+    // Get current academic term
+    const config = await prisma.table_config.findFirst({
+      orderBy: { AcademicYear: "desc" },
+      select: { AcademicYear: true, Semester: true },
+    });
+
+    if (!config) return [];
+
+    // Get teacher's responsibilities for this term
+    const responsibilities = await prisma.teachers_responsibility.findMany({
+      where: {
+        TeacherID: teacherId,
+        AcademicYear: config.AcademicYear,
+        Semester: config.Semester,
+      },
+      include: {
+        class_schedule: {
+          include: {
+            timeslot: true,
+            subject: {
+              select: {
+                SubjectCode: true,
+                SubjectName: true,
+              },
+            },
+            gradelevel: {
+              select: {
+                GradeID: true,
+                Year: true,
+                Number: true,
+              },
+            },
+            room: {
+              select: {
+                RoomID: true,
+                RoomName: true,
+                Building: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Flatten to class schedules
+    const schedules = responsibilities.flatMap((resp) => resp.class_schedule);
+
+    // Sort by day and time
+    return schedules.sort((a, b) => {
+      const dayOrder = { MON: 0, TUE: 1, WED: 2, THU: 3, FRI: 4 };
+      const dayDiff = dayOrder[a.timeslot.DayOfWeek as keyof typeof dayOrder] - 
+                      dayOrder[b.timeslot.DayOfWeek as keyof typeof dayOrder];
+      if (dayDiff !== 0) return dayDiff;
+      
+      return a.timeslot.StartTime < b.timeslot.StartTime ? -1 : 1;
+    });
+  } catch (err) {
+    console.warn("[PublicTeachers] getTeacherSchedule error:", (err as Error).message);
+    return [];
+  }
+}

@@ -32,10 +32,10 @@ export default async function RootLayout({
               <SnackbarProvider autoHideDuration={4000} maxSnack={1}>
                 <ErrorBoundary>
                   <Navbar />
-                  <main className="flex justify-center w-[1280px] xl:w-full h-auto">
+                  <div className="flex justify-center w-full h-auto">
                     <Content>{children}</Content>
                     <SpeedInsights />
-                  </main>
+                  </div>
                 </ErrorBoundary>
               </SnackbarProvider>
             </ThemeProvider>

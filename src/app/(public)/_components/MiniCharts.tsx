@@ -43,7 +43,9 @@ export async function MiniCharts() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           ครูที่มีภาระสอนสูงสุด (Top 5)
         </h3>
-        <TeacherUtilizationChart data={teacherChartData} />
+        <div className="w-full h-[200px]">
+          <TeacherUtilizationChart data={teacherChartData} />
+        </div>
       </div>
 
       {/* Period Load Sparkline */}
@@ -51,7 +53,9 @@ export async function MiniCharts() {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           จำนวนคาบเรียนต่อวัน
         </h3>
-        <PeriodLoadChart data={periodChartData} />
+        <div className="w-full h-[80px]">
+          <PeriodLoadChart data={periodChartData} />
+        </div>
       </div>
 
       {/* Room Occupancy Mini Heatmap */}

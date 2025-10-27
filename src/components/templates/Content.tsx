@@ -12,11 +12,11 @@ function Content(props: Props) {
   const pathName = usePathname();
   return (
     <>
-      <main
+      <div
         className={`flex justify-center ${
           pathName.match("/dashboard/select-semester")
             ? "w-full"
-            : "w-[1280px] xl:w-full"
+            : "w-full max-w-7xl mx-auto"
         } h-auto`}
       >
         {pathName == "/" ? (
@@ -58,7 +58,7 @@ function Content(props: Props) {
             </span>
           </>
         )}
-      </main>
+      </div>
     </>
   );
 }
