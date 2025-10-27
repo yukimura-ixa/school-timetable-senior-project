@@ -9,10 +9,12 @@ import { chromium } from 'playwright';
 
 const PROD_URL = 'https://phrasongsa-timetable.vercel.app';
 const ADMIN_EMAIL = 'admin@school.local';
-const ADMIN_PASSWORD = 'admin';
+const ADMIN_PASSWORD = 'admin123';
 
 async function testDashboard() {
-  console.log('🚀 Starting Production Dashboard Test...\n');
+  console.log('🚀 Starting Production Visual Bugs Test...\n');
+  console.log('⚠️  Note: Production requires Google OAuth for login.');
+  console.log('    Testing public pages and visual bugs instead.\n');
   
   const browser = await chromium.launch({
     headless: false, // Show browser window
@@ -26,21 +28,28 @@ async function testDashboard() {
   const page = await context.newPage();
 
   try {
-    // Step 1: Navigate to signin page
-    console.log('📍 Step 1: Navigating to signin page...');
-    await page.goto(`${PROD_URL}/signin`, { waitUntil: 'networkidle' });
-    await page.screenshot({ path: 'screenshots/01-signin-page.png' });
-    console.log('✅ Signin page loaded\n');
+    // Test 1: Homepage - Check responsive width and nested main tags
+    console.log('═══════════════════════════════════════════════════');
+    console.log('TEST 1: HOMEPAGE - Responsive Width & HTML Structure');
+    console.log('═══════════════════════════════════════════════════\n');
+    
+    console.log('📍 Navigating to homepage...');
+    await page.goto(`${PROD_URL}/`, { waitUntil: 'networkidle' });
+    await page.screenshot({ path: 'screenshots/01-homepage.png', fullPage: true });
+    console.log('✅ Homepage loaded\n');
 
-    // Step 2: Check for responsive width bug at different sizes
-    console.log('🔍 Step 2: Checking for responsive width bug...');
+    console.log('🔍 Checking responsive width at different viewport sizes...');
     
     const viewportSizes = [
-      { width: 375, name: 'Mobile' },
-      { width: 768, name: 'Tablet' },
+      { width: 375, name: 'Mobile (iPhone)' },
+      { width: 768, name: 'Tablet (iPad)' },
+      { width: 1024, name: 'Laptop' },
       { width: 1280, name: 'Desktop' },
+      { width: 1920, name: 'Large Desktop' },
     ];
 
+    let horizontalScrollBugs = [];
+    
     for (const size of viewportSizes) {
       await page.setViewportSize({ width: size.width, height: 720 });
       await page.waitForTimeout(500);
@@ -48,122 +57,158 @@ async function testDashboard() {
       const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
       const viewportWidth = await page.evaluate(() => window.innerWidth);
       
-      if (bodyWidth > viewportWidth) {
-        console.log(`❌ ${size.name} (${size.width}px): HORIZONTAL SCROLL - Body ${bodyWidth}px > Viewport ${viewportWidth}px`);
+      if (bodyWidth > viewportWidth + 5) { // 5px tolerance for scrollbar
+        console.log(`❌ ${size.name} (${size.width}px): HORIZONTAL SCROLL`);
+        console.log(`   Body: ${bodyWidth}px > Viewport: ${viewportWidth}px`);
+        horizontalScrollBugs.push(size.name);
       } else {
-        console.log(`✅ ${size.name} (${size.width}px): No scroll - Body ${bodyWidth}px <= Viewport ${viewportWidth}px`);
+        console.log(`✅ ${size.name} (${size.width}px): No scroll`);
       }
     }
 
     // Reset to desktop viewport
     await page.setViewportSize({ width: 1280, height: 720 });
 
-    // Step 3: Check for nested main tags
-    console.log('\n🔍 Step 3: Checking for nested main tags...');
+    console.log('\n🔍 Checking for nested <main> tags...');
     const mainTagCount = await page.evaluate(() => {
       return document.querySelectorAll('main').length;
     });
     
     if (mainTagCount > 1) {
-      console.log(`❌ NESTED MAIN TAGS BUG: Found ${mainTagCount} <main> tags`);
+      console.log(`❌ HTML SEMANTIC BUG: Found ${mainTagCount} <main> tags (should be exactly 1)`);
     } else {
-      console.log(`✅ No nested main tags: Found ${mainTagCount} <main> tag`);
+      console.log(`✅ Correct HTML: Found ${mainTagCount} <main> tag`);
     }
 
-    // Step 4: Fill in login credentials
-    console.log('\n📝 Step 4: Entering login credentials...');
-    await page.fill('input[type="email"]', ADMIN_EMAIL);
-    await page.fill('input[type="password"]', ADMIN_PASSWORD);
-    await page.screenshot({ path: 'screenshots/02-credentials-entered.png' });
-    console.log('✅ Credentials entered\n');
-
-    // Step 5: Click login button
-    console.log('🔐 Step 5: Clicking login button...');
-    const loginButton = page.locator('button:has-text("เข้าสู่ระบบ")').first();
-    await loginButton.click();
+    // Test 2: Teacher Links
+    console.log('\n═══════════════════════════════════════════════════');
+    console.log('TEST 2: TEACHER SCHEDULE LINKS');
+    console.log('═══════════════════════════════════════════════════\n');
     
-    // Wait for either navigation or error message
-    await Promise.race([
-      page.waitForURL('**/dashboard/**', { timeout: 5000 }).catch(() => null),
-      page.waitForSelector('[role="alert"]', { timeout: 5000 }).catch(() => null),
-      page.waitForTimeout(3000),
-    ]);
+    console.log('📍 Checking teacher schedule links...');
+    await page.goto(`${PROD_URL}/?tab=teachers`, { waitUntil: 'networkidle' });
+    await page.screenshot({ path: 'screenshots/02-teachers-tab.png', fullPage: true });
     
-    await page.screenshot({ path: 'screenshots/03-after-login.png' });
+    // Find first "ดูตาราง" link
+    const teacherLinks = await page.locator('a:has-text("ดูตาราง")').all();
     
-    const currentUrl = page.url();
-    console.log(`Current URL: ${currentUrl}`);
-
-    // Step 6: Check if redirected to dashboard
-    if (currentUrl.includes('/dashboard')) {
-      console.log('✅ Successfully logged in to dashboard!\n');
+    if (teacherLinks.length > 0) {
+      console.log(`✅ Found ${teacherLinks.length} teacher schedule links`);
       
-      // Step 7: Test navigation to key pages
-      console.log('🗺️  Step 7: Testing dashboard navigation...\n');
+      const firstLink = teacherLinks[0];
+      const href = await firstLink.getAttribute('href');
+      console.log(`   First link href: ${href}`);
       
-      const routes = [
-        { name: 'Teacher Table', path: '/dashboard/1-2567/teacher-table' },
-        { name: 'Room Management', path: '/dashboard/1-2567/room' },
-        { name: 'Subject Management', path: '/dashboard/1-2567/subject' },
-        { name: 'Config', path: '/config' },
-      ];
+      if (href?.includes('/dashboard/select-semester')) {
+        console.log('❌ BUG: Links point to /dashboard/select-semester (admin route)');
+        console.log('   Should point to: /teachers/[id]');
+      } else if (href?.startsWith('/teachers/')) {
+        console.log('✅ Links correctly point to public teacher view');
+      } else {
+        console.log(`⚠️  Unexpected link pattern: ${href}`);
+      }
+    } else {
+      console.log('⚠️  No teacher schedule links found');
+    }
 
-      for (const route of routes) {
-        try {
-          console.log(`  📄 Testing ${route.name}...`);
-          await page.goto(`${PROD_URL}${route.path}`, { waitUntil: 'networkidle', timeout: 10000 });
-          
-          // Check for errors
-          const hasError = await page.evaluate(() => {
-            return document.body.innerText.includes('Error') || 
-                   document.body.innerText.includes('404') ||
-                   document.body.innerText.includes('ไม่พบ');
-          });
-
-          if (hasError) {
-            console.log(`  ❌ ${route.name}: Page shows error`);
+    // Test 3: Charts Rendering
+    console.log('\n═══════════════════════════════════════════════════');
+    console.log('TEST 3: DATA VISUALIZATION - Charts');
+    console.log('═══════════════════════════════════════════════════\n');
+    
+    console.log('📊 Checking charts rendering...');
+    await page.goto(`${PROD_URL}/`, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(2000); // Wait for charts to render
+    
+    const chartElements = await page.locator('.recharts-wrapper, svg[class*="recharts"]').all();
+    console.log(`Found ${chartElements.length} chart elements`);
+    
+    if (chartElements.length > 0) {
+      for (let i = 0; i < Math.min(chartElements.length, 3); i++) {
+        const box = await chartElements[i].boundingBox();
+        if (box) {
+          if (box.width < 10 || box.height < 10) {
+            console.log(`❌ Chart ${i + 1}: Too small (${box.width}x${box.height}px) - likely width:0 bug`);
           } else {
-            console.log(`  ✅ ${route.name}: Loaded successfully`);
+            console.log(`✅ Chart ${i + 1}: Rendered properly (${box.width}x${box.height}px)`);
           }
-
-          await page.screenshot({ path: `screenshots/04-${route.name.toLowerCase().replace(/\s+/g, '-')}.png` });
-        } catch (error) {
-          console.log(`  ❌ ${route.name}: Navigation failed - ${error.message}`);
         }
       }
-
-    } else if (currentUrl.includes('/signin')) {
-      console.log('❌ Login failed - still on signin page');
-      console.log('   Check if credentials are correct or if there are validation errors');
-      
-      // Check for error messages
-      const errorText = await page.evaluate(() => {
-        const alerts = document.querySelectorAll('[role="alert"], .error, .MuiAlert-root');
-        return Array.from(alerts).map(el => el.textContent).join(', ');
-      });
-      
-      if (errorText) {
-        console.log(`   Error message: ${errorText}`);
-      }
     } else {
-      console.log(`⚠️  Redirected to unexpected page: ${currentUrl}`);
+      console.log('⚠️  No chart elements found');
     }
 
-    // Step 8: Final summary
-    console.log('\n📊 Test Summary:');
-    console.log('================');
-    console.log('Screenshots saved to screenshots/ directory');
-    console.log('Review screenshots for visual bugs');
+    await page.screenshot({ path: 'screenshots/03-charts.png', fullPage: true });
+
+    // Test 4: Sign-in Page
+    console.log('\n═══════════════════════════════════════════════════');
+    console.log('TEST 4: SIGN-IN PAGE - Auth UI');
+    console.log('═══════════════════════════════════════════════════\n');
+    
+    console.log('� Navigating to signin page...');
+    await page.goto(`${PROD_URL}/signin`, { waitUntil: 'networkidle' });
+    await page.screenshot({ path: 'screenshots/04-signin-page.png' });
+    
+    // Check for dev bypass availability
+    const bypassEnabled = await page.evaluate(() => {
+      return fetch('/api/auth/dev-bypass-enabled')
+        .then(res => res.json())
+        .then(data => data.enabled)
+        .catch(() => false);
+    });
+    
+    console.log(`Auth mode: ${bypassEnabled ? '✅ Dev bypass enabled (local credentials work)' : '⚠️  Production mode (Google OAuth only)'}`);
+    
+    // Check responsive width on signin page
+    console.log('\n🔍 Checking signin page responsive width...');
+    for (const size of [{ width: 375, name: 'Mobile' }, { width: 768, name: 'Tablet' }]) {
+      await page.setViewportSize({ width: size.width, height: 720 });
+      await page.waitForTimeout(500);
+      
+      const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
+      const viewportWidth = await page.evaluate(() => window.innerWidth);
+      
+      if (bodyWidth > viewportWidth + 5) {
+        console.log(`❌ ${size.name}: HORIZONTAL SCROLL (${bodyWidth}px > ${viewportWidth}px)`);
+      } else {
+        console.log(`✅ ${size.name}: No scroll`);
+      }
+    }
+
+    // Final Summary
+    console.log('\n\n═══════════════════════════════════════════════════');
+    console.log('📊 PRODUCTION BUGS SUMMARY');
+    console.log('═══════════════════════════════════════════════════\n');
+    
+    if (horizontalScrollBugs.length > 0) {
+      console.log(`❌ HORIZONTAL SCROLL BUG on: ${horizontalScrollBugs.join(', ')}`);
+      console.log('   Cause: Fixed width w-[1280px] in layout\n');
+    } else {
+      console.log('✅ No horizontal scroll bugs detected\n');
+    }
+    
+    if (mainTagCount > 1) {
+      console.log(`❌ NESTED MAIN TAGS: ${mainTagCount} <main> elements found`);
+      console.log('   Cause: Both root layout and Content.tsx render <main>\n');
+    } else {
+      console.log('✅ No nested main tags\n');
+    }
+    
+    console.log('📸 Screenshots saved to screenshots/ directory');
+    console.log('   - 01-homepage.png (full page)');
+    console.log('   - 02-teachers-tab.png (teacher list)');
+    console.log('   - 03-charts.png (data visualizations)');
+    console.log('   - 04-signin-page.png (auth page)');
     
   } catch (error) {
-    console.error('❌ Test failed:', error.message);
+    console.error('\n❌ Test failed:', error.message);
     await page.screenshot({ path: 'screenshots/error.png' });
   } finally {
-    console.log('\n⏸️  Pausing for 5 seconds for manual inspection...');
-    await page.waitForTimeout(5000);
+    console.log('\n⏸️  Keeping browser open for 10 seconds for manual inspection...');
+    await page.waitForTimeout(10000);
     
     await browser.close();
-    console.log('✅ Browser closed. Test complete.');
+    console.log('✅ Browser closed. Test complete.\n');
   }
 }
 
