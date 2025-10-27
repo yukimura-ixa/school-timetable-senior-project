@@ -20,7 +20,7 @@ function Content(props: Props) {
         } h-auto`}
       >
         {pathName == "/" ? (
-          <span className="flex w-full justify-center h-auto">
+          <span className="flex w-full h-auto">
             {props.children}
           </span>
         ) : pathName == "/signin" ? (
