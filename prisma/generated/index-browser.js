@@ -153,7 +153,8 @@ exports.Prisma.SubjectScalarFieldEnum = {
 exports.Prisma.ProgramScalarFieldEnum = {
   ProgramID: 'ProgramID',
   ProgramName: 'ProgramName',
-  Semester: 'Semester'
+  Semester: 'Semester',
+  AcademicYear: 'AcademicYear'
 };
 
 exports.Prisma.TeacherScalarFieldEnum = {

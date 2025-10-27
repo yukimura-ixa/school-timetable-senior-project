@@ -5,7 +5,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import { createRoomAction } from "@/features/room/application/actions/room.actions";
+import { createRoomsAction } from "@/features/room/application/actions/room.actions";
 import type { room } from "@/prisma/generated";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
@@ -25,7 +25,13 @@ function AddModalForm({ closeModal, mutate }: props) {
     });
     
     try {
-      const result = await createRoomAction({ rooms: data });
+      // Map local shape to server action input (Floor must be string)
+      const payload = data.map((r) => ({
+        RoomName: r.RoomName,
+        Building: r.Building,
+        Floor: String(r.Floor ?? ""),
+      }));
+      const result = await createRoomsAction(payload);
       
       if (!result.success) {
         const errorMessage = typeof result.error === 'string' 

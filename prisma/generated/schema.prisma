@@ -68,11 +68,15 @@ model subject {
 }
 
 model program {
-  ProgramID   Int          @id @default(autoincrement())
-  ProgramName String       @unique
-  Semester    semester
-  subject     subject[]
-  gradelevel  gradelevel[]
+  ProgramID    Int          @id @default(autoincrement())
+  ProgramName  String
+  Semester     semester
+  AcademicYear Int
+  subject      subject[]
+  gradelevel   gradelevel[]
+
+  @@unique([ProgramName, Semester, AcademicYear], map: "program_unique_term")
+  @@index([AcademicYear, Semester], map: "program_term_idx")
 }
 
 model teacher {

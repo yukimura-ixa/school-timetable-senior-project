@@ -6,7 +6,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-import { updateRoomAction } from "@/features/room/application/actions/room.actions";
+import { updateRoomsAction } from "@/features/room/application/actions/room.actions";
 import type { room } from "@/prisma/generated";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
@@ -54,7 +54,14 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     });
 
     try {
-      const result = await updateRoomAction({ rooms: data });
+      // Map local shape to server action input (Floor must be string)
+      const payload = data.map((r: room) => ({
+        RoomID: Number(r.RoomID),
+        RoomName: r.RoomName,
+        Building: r.Building,
+        Floor: String(r.Floor ?? ""),
+      }));
+      const result = await updateRoomsAction(payload);
       
       if (!result.success) {
         const errorMessage = typeof result.error === 'string' 

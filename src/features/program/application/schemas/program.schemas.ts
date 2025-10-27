@@ -9,6 +9,7 @@
 
 import * as v from 'valibot';
 import { semester } from '@/prisma/generated';
+import { academicYearSchema } from '@/shared/schemas/common.schemas';
 
 /**
  * Schema for creating a program
@@ -17,6 +18,7 @@ import { semester } from '@/prisma/generated';
 export const createProgramSchema = v.object({
   ProgramName: v.pipe(v.string(), v.minLength(1, 'ชื่อหลักสูตรห้ามว่าง')),
   Semester: v.enum(semester, 'ภาคเรียนไม่ถูกต้อง'),
+  AcademicYear: academicYearSchema,
   gradelevel: v.array(
     v.object({
       GradeID: v.pipe(v.string(), v.minLength(1, 'รหัสชั้นเรียนห้ามว่าง')),
@@ -41,6 +43,7 @@ export const updateProgramSchema = v.object({
   ProgramID: v.number('รหัสหลักสูตรต้องเป็นตัวเลข'),
   ProgramName: v.pipe(v.string(), v.minLength(1, 'ชื่อหลักสูตรห้ามว่าง')),
   Semester: v.enum(semester, 'ภาคเรียนไม่ถูกต้อง'),
+  AcademicYear: academicYearSchema,
   gradelevel: v.array(
     v.object({
       GradeID: v.pipe(v.string(), v.minLength(1, 'รหัสชั้นเรียนห้ามว่าง')),
@@ -81,6 +84,8 @@ export type GetProgramByIdInput = v.InferOutput<typeof getProgramByIdSchema>;
  */
 export const getProgramsByYearSchema = v.object({
   Year: v.number('ปีต้องเป็นตัวเลข'),
+  Semester: v.optional(v.enum(semester, 'ภาคเรียนไม่ถูกต้อง')),
+  AcademicYear: v.optional(academicYearSchema),
 });
 
 export type GetProgramsByYearInput = v.InferOutput<typeof getProgramsByYearSchema>;

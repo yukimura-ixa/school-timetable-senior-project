@@ -59,13 +59,14 @@ export async function getProgramsAction() {
 /**
  * Get programs by Year
  * Returns programs where all gradelevels have the specified Year
+ * Optionally filters by Semester and AcademicYear
  * 
- * @param input - Year number
+ * @param input - Year number, optional Semester and AcademicYear
  * @returns Array of programs
  * 
  * @example
  * ```tsx
- * const result = await getProgramsByYearAction({ Year: 1 });
+ * const result = await getProgramsByYearAction({ Year: 1, Semester: "SEMESTER_1", AcademicYear: 2568 });
  * if (result.success) {
  *   console.log(result.data); // program[]
  * }
@@ -74,7 +75,11 @@ export async function getProgramsAction() {
 export const getProgramsByYearAction = createAction(
   getProgramsByYearSchema,
   async (input: GetProgramsByYearInput) => {
-    const programs = await programRepository.findByYear(input.Year);
+    const programs = await programRepository.findByYear(
+      input.Year,
+      input.Semester,
+      input.AcademicYear
+    );
     return programs;
   }
 );
@@ -102,10 +107,11 @@ export const getProgramByIdAction = createAction(
 );
 
 /**
- * Create a program with ProgramName uniqueness validation
+ * Create a program with uniqueness validation
+ * Validates unique combination of ProgramName, Semester, AcademicYear
  * Connects to gradelevels and subjects via their IDs
  * 
- * @param input - ProgramName, Semester, gradelevel[], subject[]
+ * @param input - ProgramName, Semester, AcademicYear, gradelevel[], subject[]
  * @returns Created program
  * 
  * @example
@@ -113,6 +119,7 @@ export const getProgramByIdAction = createAction(
  * const result = await createProgramAction({
  *   ProgramName: "วิทยาศาสตร์-คณิตศาสตร์",
  *   Semester: "SEMESTER_1",
+ *   AcademicYear: 2568,
  *   gradelevel: [{ GradeID: "101" }, { GradeID: "102" }],
  *   subject: [{ SubjectCode: "MATH101" }, { SubjectCode: "SCI101" }],
  * });
@@ -121,8 +128,12 @@ export const getProgramByIdAction = createAction(
 export const createProgramAction = createAction(
   createProgramSchema,
   async (input: CreateProgramInput) => {
-    // Validate no duplicate
-    const duplicateError = await validateNoDuplicateProgram(input.ProgramName);
+    // Validate no duplicate (ProgramName + Semester + AcademicYear)
+    const duplicateError = await validateNoDuplicateProgram(
+      input.ProgramName,
+      input.Semester,
+      input.AcademicYear
+    );
     if (duplicateError) {
       throw new Error(duplicateError);
     }
@@ -140,10 +151,10 @@ export const createProgramAction = createAction(
 
 /**
  * Update a program
- * Validates ProgramName uniqueness (excluding current program)
+ * Validates unique combination of ProgramName, Semester, AcademicYear (excluding current program)
  * Replaces all gradelevel and subject connections
  * 
- * @param input - ProgramID, ProgramName, Semester, gradelevel[], subject[]
+ * @param input - ProgramID, ProgramName, Semester, AcademicYear, gradelevel[], subject[]
  * @returns Updated program
  * 
  * @example
@@ -152,6 +163,7 @@ export const createProgramAction = createAction(
  *   ProgramID: 1,
  *   ProgramName: "วิทยาศาสตร์-คณิตศาสตร์",
  *   Semester: "SEMESTER_1",
+ *   AcademicYear: 2568,
  *   gradelevel: [{ GradeID: "101" }],
  *   subject: [{ SubjectCode: "MATH101" }],
  * });
@@ -169,7 +181,9 @@ export const updateProgramAction = createAction(
     // Validate no duplicate (excluding self)
     const duplicateError = await validateNoDuplicateProgramForUpdate(
       input.ProgramID,
-      input.ProgramName
+      input.ProgramName,
+      input.Semester,
+      input.AcademicYear
     );
     if (duplicateError) {
       throw new Error(duplicateError);
@@ -179,6 +193,7 @@ export const updateProgramAction = createAction(
     const program = await programRepository.update(input.ProgramID, {
       ProgramName: input.ProgramName,
       Semester: input.Semester,
+      AcademicYear: input.AcademicYear,
       gradelevel: input.gradelevel,
       subject: input.subject,
     });

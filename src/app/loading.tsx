@@ -1,12 +1,19 @@
+"use client";
+
+import * as React from "react";
+import { Backdrop, CircularProgress, Stack, Typography } from "@mui/material";
+
 export default function Loading() {
-    // Or a custom loading skeleton component
-    return (
-      <>
-      <div className="fixed top-0 left-0 right-0 bottom-0 w-full h-screen z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center">
-        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-        <h2 className="text-center text-white text-xl font-semibold">กำลังโหลด...</h2>
-        <p className="w-1/3 text-center text-white">ขั้นตอนนี้จะใช้เวลาเพียงชั่วครู่, กรุณาอย่าเพิ่งปิดหน้านี้</p>
-      </div>
-      </>
-    )
-  }
+  return (
+    <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}>
+      <Stack spacing={2} alignItems="center">
+        <CircularProgress color="inherit" thickness={4} size={56} />
+        <Typography variant="body2" sx={{ opacity: 0.9, textAlign: "center" }}>
+          กำลังโหลดข้อมูล...
+          <br />
+          ขั้นตอนนี้จะใช้เวลาเพียงชั่วครู่ กรุณาอย่าเพิ่งปิดหน้านี้
+        </Typography>
+      </Stack>
+    </Backdrop>
+  );
+}

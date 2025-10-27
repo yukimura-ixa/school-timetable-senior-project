@@ -6942,56 +6942,66 @@ export namespace Prisma {
 
   export type ProgramAvgAggregateOutputType = {
     ProgramID: number | null
+    AcademicYear: number | null
   }
 
   export type ProgramSumAggregateOutputType = {
     ProgramID: number | null
+    AcademicYear: number | null
   }
 
   export type ProgramMinAggregateOutputType = {
     ProgramID: number | null
     ProgramName: string | null
     Semester: $Enums.semester | null
+    AcademicYear: number | null
   }
 
   export type ProgramMaxAggregateOutputType = {
     ProgramID: number | null
     ProgramName: string | null
     Semester: $Enums.semester | null
+    AcademicYear: number | null
   }
 
   export type ProgramCountAggregateOutputType = {
     ProgramID: number
     ProgramName: number
     Semester: number
+    AcademicYear: number
     _all: number
   }
 
 
   export type ProgramAvgAggregateInputType = {
     ProgramID?: true
+    AcademicYear?: true
   }
 
   export type ProgramSumAggregateInputType = {
     ProgramID?: true
+    AcademicYear?: true
   }
 
   export type ProgramMinAggregateInputType = {
     ProgramID?: true
     ProgramName?: true
     Semester?: true
+    AcademicYear?: true
   }
 
   export type ProgramMaxAggregateInputType = {
     ProgramID?: true
     ProgramName?: true
     Semester?: true
+    AcademicYear?: true
   }
 
   export type ProgramCountAggregateInputType = {
     ProgramID?: true
     ProgramName?: true
     Semester?: true
+    AcademicYear?: true
     _all?: true
   }
 
@@ -7085,6 +7095,7 @@ export namespace Prisma {
     ProgramID: number
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     _count: ProgramCountAggregateOutputType | null
     _avg: ProgramAvgAggregateOutputType | null
     _sum: ProgramSumAggregateOutputType | null
@@ -7110,6 +7121,7 @@ export namespace Prisma {
     ProgramID?: boolean
     ProgramName?: boolean
     Semester?: boolean
+    AcademicYear?: boolean
     subject?: boolean | program$subjectArgs<ExtArgs>
     gradelevel?: boolean | program$gradelevelArgs<ExtArgs>
     _count?: boolean | ProgramCountOutputTypeDefaultArgs<ExtArgs>
@@ -7119,21 +7131,24 @@ export namespace Prisma {
     ProgramID?: boolean
     ProgramName?: boolean
     Semester?: boolean
+    AcademicYear?: boolean
   }, ExtArgs["result"]["program"]>
 
   export type programSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     ProgramID?: boolean
     ProgramName?: boolean
     Semester?: boolean
+    AcademicYear?: boolean
   }, ExtArgs["result"]["program"]>
 
   export type programSelectScalar = {
     ProgramID?: boolean
     ProgramName?: boolean
     Semester?: boolean
+    AcademicYear?: boolean
   }
 
-  export type programOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ProgramID" | "ProgramName" | "Semester", ExtArgs["result"]["program"]>
+  export type programOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"ProgramID" | "ProgramName" | "Semester" | "AcademicYear", ExtArgs["result"]["program"]>
   export type programInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     subject?: boolean | program$subjectArgs<ExtArgs>
     gradelevel?: boolean | program$gradelevelArgs<ExtArgs>
@@ -7152,6 +7167,7 @@ export namespace Prisma {
       ProgramID: number
       ProgramName: string
       Semester: $Enums.semester
+      AcademicYear: number
     }, ExtArgs["result"]["program"]>
     composites: {}
   }
@@ -7580,6 +7596,7 @@ export namespace Prisma {
     readonly ProgramID: FieldRef<"program", 'Int'>
     readonly ProgramName: FieldRef<"program", 'String'>
     readonly Semester: FieldRef<"program", 'semester'>
+    readonly AcademicYear: FieldRef<"program", 'Int'>
   }
     
 
@@ -17009,7 +17026,8 @@ export namespace Prisma {
   export const ProgramScalarFieldEnum: {
     ProgramID: 'ProgramID',
     ProgramName: 'ProgramName',
-    Semester: 'Semester'
+    Semester: 'Semester',
+    AcademicYear: 'AcademicYear'
   };
 
   export type ProgramScalarFieldEnum = (typeof ProgramScalarFieldEnum)[keyof typeof ProgramScalarFieldEnum]
@@ -17569,6 +17587,7 @@ export namespace Prisma {
     ProgramID?: IntFilter<"program"> | number
     ProgramName?: StringFilter<"program"> | string
     Semester?: EnumsemesterFilter<"program"> | $Enums.semester
+    AcademicYear?: IntFilter<"program"> | number
     subject?: SubjectListRelationFilter
     gradelevel?: GradelevelListRelationFilter
   }
@@ -17577,25 +17596,29 @@ export namespace Prisma {
     ProgramID?: SortOrder
     ProgramName?: SortOrder
     Semester?: SortOrder
+    AcademicYear?: SortOrder
     subject?: subjectOrderByRelationAggregateInput
     gradelevel?: gradelevelOrderByRelationAggregateInput
   }
 
   export type programWhereUniqueInput = Prisma.AtLeast<{
     ProgramID?: number
-    ProgramName?: string
+    ProgramName_Semester_AcademicYear?: programProgramNameSemesterAcademicYearCompoundUniqueInput
     AND?: programWhereInput | programWhereInput[]
     OR?: programWhereInput[]
     NOT?: programWhereInput | programWhereInput[]
+    ProgramName?: StringFilter<"program"> | string
     Semester?: EnumsemesterFilter<"program"> | $Enums.semester
+    AcademicYear?: IntFilter<"program"> | number
     subject?: SubjectListRelationFilter
     gradelevel?: GradelevelListRelationFilter
-  }, "ProgramID" | "ProgramName">
+  }, "ProgramID" | "ProgramName_Semester_AcademicYear">
 
   export type programOrderByWithAggregationInput = {
     ProgramID?: SortOrder
     ProgramName?: SortOrder
     Semester?: SortOrder
+    AcademicYear?: SortOrder
     _count?: programCountOrderByAggregateInput
     _avg?: programAvgOrderByAggregateInput
     _max?: programMaxOrderByAggregateInput
@@ -17610,6 +17633,7 @@ export namespace Prisma {
     ProgramID?: IntWithAggregatesFilter<"program"> | number
     ProgramName?: StringWithAggregatesFilter<"program"> | string
     Semester?: EnumsemesterWithAggregatesFilter<"program"> | $Enums.semester
+    AcademicYear?: IntWithAggregatesFilter<"program"> | number
   }
 
   export type teacherWhereInput = {
@@ -18413,6 +18437,7 @@ export namespace Prisma {
   export type programCreateInput = {
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     subject?: subjectCreateNestedManyWithoutProgramInput
     gradelevel?: gradelevelCreateNestedManyWithoutProgramInput
   }
@@ -18421,6 +18446,7 @@ export namespace Prisma {
     ProgramID?: number
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     subject?: subjectUncheckedCreateNestedManyWithoutProgramInput
     gradelevel?: gradelevelUncheckedCreateNestedManyWithoutProgramInput
   }
@@ -18428,6 +18454,7 @@ export namespace Prisma {
   export type programUpdateInput = {
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
     subject?: subjectUpdateManyWithoutProgramNestedInput
     gradelevel?: gradelevelUpdateManyWithoutProgramNestedInput
   }
@@ -18436,6 +18463,7 @@ export namespace Prisma {
     ProgramID?: IntFieldUpdateOperationsInput | number
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
     subject?: subjectUncheckedUpdateManyWithoutProgramNestedInput
     gradelevel?: gradelevelUncheckedUpdateManyWithoutProgramNestedInput
   }
@@ -18444,17 +18472,20 @@ export namespace Prisma {
     ProgramID?: number
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
   }
 
   export type programUpdateManyMutationInput = {
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
   }
 
   export type programUncheckedUpdateManyInput = {
     ProgramID?: IntFieldUpdateOperationsInput | number
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
   }
 
   export type teacherCreateInput = {
@@ -19396,30 +19427,41 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type programProgramNameSemesterAcademicYearCompoundUniqueInput = {
+    ProgramName: string
+    Semester: $Enums.semester
+    AcademicYear: number
+  }
+
   export type programCountOrderByAggregateInput = {
     ProgramID?: SortOrder
     ProgramName?: SortOrder
     Semester?: SortOrder
+    AcademicYear?: SortOrder
   }
 
   export type programAvgOrderByAggregateInput = {
     ProgramID?: SortOrder
+    AcademicYear?: SortOrder
   }
 
   export type programMaxOrderByAggregateInput = {
     ProgramID?: SortOrder
     ProgramName?: SortOrder
     Semester?: SortOrder
+    AcademicYear?: SortOrder
   }
 
   export type programMinOrderByAggregateInput = {
     ProgramID?: SortOrder
     ProgramName?: SortOrder
     Semester?: SortOrder
+    AcademicYear?: SortOrder
   }
 
   export type programSumOrderByAggregateInput = {
     ProgramID?: SortOrder
+    AcademicYear?: SortOrder
   }
 
   export type EnumsemesterWithAggregatesFilter<$PrismaModel = never> = {
@@ -21351,6 +21393,7 @@ export namespace Prisma {
   export type programCreateWithoutGradelevelInput = {
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     subject?: subjectCreateNestedManyWithoutProgramInput
   }
 
@@ -21358,6 +21401,7 @@ export namespace Prisma {
     ProgramID?: number
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     subject?: subjectUncheckedCreateNestedManyWithoutProgramInput
   }
 
@@ -21433,6 +21477,7 @@ export namespace Prisma {
     ProgramID?: IntFilter<"program"> | number
     ProgramName?: StringFilter<"program"> | string
     Semester?: EnumsemesterFilter<"program"> | $Enums.semester
+    AcademicYear?: IntFilter<"program"> | number
   }
 
   export type class_scheduleCreateWithoutRoomInput = {
@@ -21510,6 +21555,7 @@ export namespace Prisma {
   export type programCreateWithoutSubjectInput = {
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     gradelevel?: gradelevelCreateNestedManyWithoutProgramInput
   }
 
@@ -21517,6 +21563,7 @@ export namespace Prisma {
     ProgramID?: number
     ProgramName: string
     Semester: $Enums.semester
+    AcademicYear: number
     gradelevel?: gradelevelUncheckedCreateNestedManyWithoutProgramInput
   }
 
@@ -21584,6 +21631,7 @@ export namespace Prisma {
   export type programUpdateWithoutSubjectInput = {
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
     gradelevel?: gradelevelUpdateManyWithoutProgramNestedInput
   }
 
@@ -21591,6 +21639,7 @@ export namespace Prisma {
     ProgramID?: IntFieldUpdateOperationsInput | number
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
     gradelevel?: gradelevelUncheckedUpdateManyWithoutProgramNestedInput
   }
 
@@ -22358,6 +22407,7 @@ export namespace Prisma {
   export type programUpdateWithoutGradelevelInput = {
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
     subject?: subjectUpdateManyWithoutProgramNestedInput
   }
 
@@ -22365,6 +22415,7 @@ export namespace Prisma {
     ProgramID?: IntFieldUpdateOperationsInput | number
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
     subject?: subjectUncheckedUpdateManyWithoutProgramNestedInput
   }
 
@@ -22372,6 +22423,7 @@ export namespace Prisma {
     ProgramID?: IntFieldUpdateOperationsInput | number
     ProgramName?: StringFieldUpdateOperationsInput | string
     Semester?: EnumsemesterFieldUpdateOperationsInput | $Enums.semester
+    AcademicYear?: IntFieldUpdateOperationsInput | number
   }
 
   export type class_scheduleCreateManyRoomInput = {

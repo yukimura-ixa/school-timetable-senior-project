@@ -17,14 +17,19 @@ type Props = {
 };
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
+  // Get current Thai Buddhist year as default
+  const currentThaiYear = new Date().getFullYear() + 543;
+  
   const [newProgramData, setNewProgramData] = useState<{
     ProgramName: string;
     Semester: semester | string;
+    AcademicYear: number;
     gradelevel: any[];
     subject: any[];
   }>({
     ProgramName: "",
     Semester: "",
+    AcademicYear: currentThaiYear,
     gradelevel: [],
     subject: [],
   });
@@ -40,8 +45,9 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
       const result = await createProgramAction({
         ProgramName: program.ProgramName,
         Semester: program.Semester,
-        gradeLevelIds: program.gradelevel.map((g: any) => g.GradeID),
-        subjectCodes: program.subject.map((s: any) => s.SubjectCode),
+        AcademicYear: program.AcademicYear,
+        gradelevel: program.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
+        subject: program.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
       });
       
       if (!result.success) {

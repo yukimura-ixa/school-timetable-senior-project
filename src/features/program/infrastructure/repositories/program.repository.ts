@@ -33,8 +33,9 @@ export const programRepository = {
   /**
    * Find programs by Year
    * Returns programs where all gradelevels have the specified Year
+   * Optionally filters by Semester and AcademicYear
    */
-  async findByYear(year: number) {
+  async findByYear(year: number, semester?: string, academicYear?: number) {
     return prisma.program.findMany({
       where: {
         gradelevel: {
@@ -42,10 +43,14 @@ export const programRepository = {
             Year: year,
           },
         },
+        ...(semester && { Semester: semester as any }),
+        ...(academicYear && { AcademicYear: academicYear }),
       },
-      orderBy: {
-        ProgramID: 'asc',
-      },
+      orderBy: [
+        { AcademicYear: 'desc' },
+        { Semester: 'asc' },
+        { ProgramID: 'asc' },
+      ],
       include: {
         gradelevel: true,
         subject: {
@@ -77,12 +82,14 @@ export const programRepository = {
   },
 
   /**
-   * Find program by name (for duplicate check)
+   * Find program by unique constraint (for duplicate check)
    */
-  async findByName(programName: string) {
-    return prisma.program.findUnique({
+  async findByNameAndTerm(programName: string, semester: string, academicYear: number) {
+    return prisma.program.findFirst({
       where: {
         ProgramName: programName,
+        Semester: semester as any,
+        AcademicYear: academicYear,
       },
     });
   },
@@ -95,6 +102,7 @@ export const programRepository = {
       data: {
         ProgramName: data.ProgramName,
         Semester: data.Semester,
+        AcademicYear: data.AcademicYear,
         gradelevel: {
           connect: data.gradelevel.map((element) => ({
             GradeID: element.GradeID,
@@ -125,6 +133,7 @@ export const programRepository = {
       data: {
         ProgramName: data.ProgramName,
         Semester: data.Semester,
+        AcademicYear: data.AcademicYear,
         gradelevel: {
           set: [], // Clear existing connections
           connect: data.gradelevel.map((element) => ({

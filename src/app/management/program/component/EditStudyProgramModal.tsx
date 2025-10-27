@@ -18,7 +18,12 @@ type Props = {
 };
 
 function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
-  const [newProgramData, setNewProgramData] = useState(editData);
+  // Ensure AcademicYear exists in editData
+  const currentThaiYear = new Date().getFullYear() + 543;
+  const [newProgramData, setNewProgramData] = useState({
+    ...editData,
+    AcademicYear: editData?.AcademicYear || currentThaiYear,
+  });
   const editProgram = async (program) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูล", {
       variant: "info",
@@ -32,8 +37,9 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
         ProgramID: program.ProgramID,
         ProgramName: program.ProgramName,
         Semester: program.Semester,
-        gradeLevelIds: program.gradelevel.map((g: any) => g.GradeID),
-        subjectCodes: program.subject.map((s: any) => s.SubjectCode),
+        AcademicYear: program.AcademicYear,
+        gradelevel: program.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
+        subject: program.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
       });
       
       if (!result.success) {

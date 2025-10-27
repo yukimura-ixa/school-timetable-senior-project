@@ -135,25 +135,134 @@ async function main() {
 
   // ===== PROGRAMS =====
   console.log('📚 Creating programs...');
+  
+  // Current Thai Buddhist calendar year (Gregorian + 543)
+  const currentThaiYear = new Date().getFullYear() + 543; // 2568
+  
+  // Create programs for multiple academic years and semesters to test filtering
   const programs = await Promise.all([
+    // Academic Year 2567, Semester 1
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2567
+      }
     }),
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2567
+      }
+    }),
+    
+    // Academic Year 2567, Semester 2
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: 2567
+      }
     }),
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรเพิ่มเติม วิทย์-คณิต', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: 2567
+      }
+    }),
+    
+    // Academic Year 2568 (current), Semester 1
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
     }),
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรเพิ่มเติม วิทย์-คณิต', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    
+    // Academic Year 2568 (current), Semester 2
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    
+    // Academic Year 2569 (future), Semester 1
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2569
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2569
+      }
     }),
   ]);
-  console.log(`✅ Created ${programs.length} programs`);
+  console.log(`✅ Created ${programs.length} programs across multiple academic years`);
 
   // ===== GRADE LEVELS =====
   console.log('🎓 Creating grade levels...');
   const gradeLevels: any[] = [];
+  
+  // Find current year programs for grade level connections
+  const currentYearJuniorProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรแกนกลาง ม.ต้น' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  const currentYearSeniorProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรแกนกลาง ม.ปลาย' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  const currentYearSciMathProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรเพิ่มเติม วิทย์-คณิต' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  const currentYearArtsLangProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  
   // M.1 - M.3 (Junior High - มัธยมต้น)
   for (let year = 1; year <= 3; year++) {
     for (let section = 1; section <= 3; section++) {
@@ -164,7 +273,7 @@ async function main() {
           Number: section,
           program: {
             connect: [
-              { ProgramID: programs[0].ProgramID }, // Core curriculum
+              { ProgramID: currentYearJuniorProgram!.ProgramID }, // Core curriculum for current year
             ]
           }
         }
@@ -182,8 +291,8 @@ async function main() {
           Number: section,
           program: {
             connect: [
-              { ProgramID: programs[1].ProgramID }, // Core curriculum
-              { ProgramID: section === 1 ? programs[2].ProgramID : programs[3].ProgramID }, // Elective based on section
+              { ProgramID: currentYearSeniorProgram!.ProgramID }, // Core curriculum for current year
+              { ProgramID: section === 1 ? currentYearSciMathProgram!.ProgramID : currentYearArtsLangProgram!.ProgramID }, // Elective based on section
             ]
           }
         }
