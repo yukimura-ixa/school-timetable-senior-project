@@ -1,392 +1,271 @@
-// "use client";
-import React, { useState, useEffect, Fragment, type JSX } from "react";
-import type { subject } from "@/prisma/generated";
-//ICON
-import { IoIosArrowDown } from "react-icons/io";
-import { MdModeEditOutline } from "react-icons/md";
-import { BiSolidTrashAlt } from "react-icons/bi";
-import { BsCheckLg } from "react-icons/bs";
-import AddIcon from "@mui/icons-material/Add";
-//comp
-import AddModalForm from "@/app/management/subject/component/AddModalForm";
-import SearchBar from "@/components/mui/SearchBar";
-import EditModalForm from "../../subject/component/EditModalForm";
-import MiniButton from "@/components/elements/static/MiniButton";
-import PrimaryButton from "@/components/mui/PrimaryButton";
-import TableRow from "./TableRow";
-import { useConfirmDialog } from "@/components/dialogs";
-import { closeSnackbar, enqueueSnackbar } from "notistack";
-
-// Server Actions
-import { deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+"use client";
+import type { 
+  subject, 
+  subject_credit, 
+  $Enums 
+} from "@/prisma/generated";
+import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
+import { deleteSubjectsAction, updateSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
 type SubjectTableProps = {
-  tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: subject[];
-  mutate: Function;
+  mutate: () => void | Promise<void>;
 };
-function Table({ tableHead, tableData, mutate }: SubjectTableProps): JSX.Element {
-  const [pageOfData, setPageOfData] = useState<number>(1);
-  const [addModalActive, setAddModalActive] = useState<boolean>(false);
-  const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [subjectData, setSubjectData] = useState<subject[]>([]);
-  const { confirm, dialog } = useConfirmDialog();
 
-  useEffect(() => {
-    setSubjectData(tableData);
-  }, [tableData]);
-
-  const [checkedList, setCheckedList] = useState<string[]>([]); //เก็บค่าของ checkbox เป็น SubjectCode
-
-  const handleChange = (event: any) => {
-    //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
-    event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
-      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล SubjectCode ของ data ทั้งหมดลงไปใน checkList
-        setCheckedList(() => subjectData.map((item) => item.SubjectCode))
-      : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
-        setCheckedList(() => []);
-  };
-  const clickToSelect = (itemID: string) => {
-    //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม itemID ลงไปใน checkList
-    setCheckedList(() =>
-      //ก่อนอื่นเช็คว่า itemID ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
-      //ขยาย...เพราะเราต้องติ๊กเข้าติ๊กออก ต้อง toggle ค่า
-      checkedList.includes(itemID) //คำสั่ง includes return เป็น boolean
-        ? //เมื่อเป็นจริง (มีการติ๊กในแถวนั้นๆมาก่อนแล้ว แล้วกดติ๊กซ้ำ)
-          //ทำการวาง array ทับโดยการ filter itemID นั้นออกไป
-          checkedList.filter((item) => item != itemID)
-        : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม itemID ที่ติ๊กเข้าไป
-          [...checkedList, itemID],
-    );
-  };
-  useEffect(() => {
-    checkedList.sort();
-  }, [checkedList]); //ตรงนี้เป็นการ sort Checklist
-
-  const [orderedIndex, setOrderedIndex] = useState(-1);
-  const [sortConfig, setSortConfig] = useState({
+// Column definitions for subjects table
+const subjectColumns: ColumnDef<subject>[] = [
+  {
     key: "SubjectCode",
-    direction: "desc",
-  });
+    label: "รหัสวิชา",
+    editable: false, // Protected - primary key, used in FK relationships
+    width: 120,
+  },
+  {
+    key: "SubjectName",
+    label: "ชื่อวิชา",
+    editable: true,
+    required: true,
+    type: "text",
+  },
+  {
+    key: "Credit",
+    label: "หน่วยกิต",
+    editable: true,
+    required: true,
+    type: "select",
+    options: [
+      { value: "CREDIT_05", label: "0.5" },
+      { value: "CREDIT_10", label: "1.0" },
+      { value: "CREDIT_15", label: "1.5" },
+      { value: "CREDIT_20", label: "2.0" },
+    ],
+    width: 120,
+    render: (value: subject_credit) => {
+      const map: Record<subject_credit, string> = {
+        CREDIT_05: "0.5",
+        CREDIT_10: "1.0",
+        CREDIT_15: "1.5",
+        CREDIT_20: "2.0",
+      };
+      return map[value] || value;
+    },
+  },
+  {
+    key: "Category",
+    label: "ประเภทวิชา",
+    editable: true,
+    required: true,
+    type: "select",
+    options: [
+      { value: "CORE", label: "รายวิชาพื้นฐาน" },
+      { value: "ADDITIONAL", label: "รายวิชาเพิ่มเติม" },
+      { value: "ACTIVITY", label: "กิจกรรมพัฒนาผู้เรียน" },
+    ],
+    width: 150,
+    render: (value: $Enums.SubjectCategory) => {
+      const map: Record<$Enums.SubjectCategory, string> = {
+        CORE: "รายวิชาพื้นฐาน",
+        ADDITIONAL: "รายวิชาเพิ่มเติม",
+        ACTIVITY: "กิจกรรมพัฒนาผู้เรียน",
+      };
+      return map[value] || value;
+    },
+  },
+  {
+    key: "LearningArea",
+    label: "สาระการเรียนรู้",
+    editable: true,
+    type: "select",
+    options: [
+      { value: "", label: "-" },
+      { value: "THAI", label: "ภาษาไทย" },
+      { value: "MATHEMATICS", label: "คณิตศาสตร์" },
+      { value: "SCIENCE", label: "วิทยาศาสตร์และเทคโนโลยี" },
+      { value: "SOCIAL", label: "สังคมศึกษา ศาสนา และวัฒนธรรม" },
+      { value: "HEALTH_PE", label: "สุขศึกษาและพลศึกษา" },
+      { value: "ARTS", label: "ศิลปะ" },
+      { value: "CAREER", label: "การงานอาชีพ" },
+      { value: "FOREIGN_LANGUAGE", label: "ภาษาต่างประเทศ" },
+    ],
+    width: 180,
+    render: (value: $Enums.LearningArea | null) => {
+      if (!value) return "-";
+      const map: Record<$Enums.LearningArea, string> = {
+        THAI: "ภาษาไทย",
+        MATHEMATICS: "คณิตศาสตร์",
+        SCIENCE: "วิทยาศาสตร์และเทคโนโลยี",
+        SOCIAL: "สังคมศึกษา ศาสนา และวัฒนธรรม",
+        HEALTH_PE: "สุขศึกษาและพลศึกษา",
+        ARTS: "ศิลปะ",
+        CAREER: "การงานอาชีพ",
+        FOREIGN_LANGUAGE: "ภาษาต่างประเทศ",
+      };
+      return map[value] || value;
+    },
+  },
+  {
+    key: "ActivityType",
+    label: "ประเภทกิจกรรม",
+    editable: true,
+    type: "select",
+    options: [
+      { value: "", label: "-" },
+      { value: "CLUB", label: "ชุมนุม" },
+      { value: "SCOUT", label: "ลูกเสือ/เนตรนารี" },
+      { value: "GUIDANCE", label: "แนะแนว" },
+      { value: "SOCIAL_SERVICE", label: "กิจกรรมเพื่อสังคม" },
+    ],
+    width: 150,
+    render: (value: $Enums.ActivityType | null) => {
+      if (!value) return "-";
+      const map: Record<$Enums.ActivityType, string> = {
+        CLUB: "ชุมนุม",
+        SCOUT: "ลูกเสือ/เนตรนารี",
+        GUIDANCE: "แนะแนว",
+        SOCIAL_SERVICE: "กิจกรรมเพื่อสังคม",
+      };
+      return map[value] || value;
+    },
+  },
+  {
+    key: "IsGraded",
+    label: "ให้คะแนน",
+    editable: true,
+    type: "select",
+    options: [
+      { value: "true", label: "ใช่" },
+      { value: "false", label: "ไม่" },
+    ],
+    width: 100,
+    render: (value: boolean) => (value ? "ใช่" : "ไม่"),
+  },
+];
 
-  const requestSort = (key) => {
-    if (key == "ชื่อวิชา") key = "SubjectCode";
-    else if (key == "หน่วยกิต") key = "Credit";
-    else if (key == "สาระการเรียนรู้") key = "Category";
-    else key = "SubjectCode";
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+// Validation function for subjects
+const validateSubject: ValidationFn<subject> = (id, data) => {
+  // Check required fields
+  if (typeof id === "string") {
+    // Creating new subject
+    if (!data.SubjectCode || data.SubjectCode.trim() === "") {
+      return "รหัสวิชาต้องไม่เป็นค่าว่าง";
     }
-    setSortConfig({ key, direction });
-  };
-  const sortData = (key, direction) => {
-    if (!tableData) return; // Handle case when data is not yet available
 
-    const sortedData = [...tableData].sort((a, b) => {
-      const aValue = a[key].toLowerCase();
-      const bValue = b[key].toLowerCase();
-
-      if (direction === "asc") {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-    setSubjectData(sortedData);
-  };
-
-  useEffect(() => {
-    if (orderedIndex != -1) {
-      sortData(sortConfig.key, sortConfig.direction);
+    // Subject code format validation (alphanumeric, no spaces)
+    const codeRegex = /^[A-Z0-9]+$/;
+    if (!codeRegex.test(data.SubjectCode)) {
+      return "รหัสวิชาต้องเป็นตัวอักษรภาษาอังกฤษและตัวเลขเท่านั้น";
     }
-  }, [sortConfig]);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  useEffect(() => {
-    // Apply the search filter on top of sorting
-    const filteredData = tableData.filter(
-      (item) =>
-        item.SubjectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.SubjectCode.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-
-    setFilteredData(filteredData);
-    sortData(sortConfig.key, sortConfig.direction); // Sort the filtered data
-  }, [searchTerm, sortConfig]);
-
-  const numberOfPage = (): number[] => {
-    let allPage = Math.ceil(tableData.length / 10);
-    let page: number[] = tableData
-      .filter((item, index) => index < allPage)
-      .map((item, index) => index + 1);
-    return page;
-  };
-  const nextPage = (): void => {
-    let allPage = Math.ceil(tableData.length / 10);
-    setPageOfData(() => (pageOfData + 1 > allPage ? allPage : pageOfData + 1));
-  };
-  const previousPage = (): void => {
-    setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
-  };
-
-  // Delete handler using new ConfirmDialog
-  const handleDeleteSubjects = async () => {
-    const confirmed = await confirm({
-      title: "ลบข้อมูลรายวิชา",
-      message: `คุณต้องการลบรายวิชาที่เลือกทั้งหมด ${checkedList.length} รายการใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
-      variant: "danger",
-      confirmText: "ลบ",
-      cancelText: "ยกเลิก"
-    });
-
-    if (!confirmed) return;
-
-    const loadbar = enqueueSnackbar("กำลังลบข้อมูลรายวิชา", {
-      variant: "info",
-      persist: true,
-    });
-
-    // checkedList contains SubjectCodes (strings), not indices
-    const deleteIds = tableData
-      .filter((item) => checkedList.includes(item.SubjectCode as any))
-      .map((item) => item.SubjectCode);
-
-    try {
-      const result = await deleteSubjectsAction({ subjectCodes: deleteIds });
-      
-      if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
-        throw new Error(errorMessage);
-      }
-      
-      closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลรายวิชาสำเร็จ", { variant: "success" });
-      setCheckedList([]);
-      mutate();
-    } catch (error: any) {
-      closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลรายวิชาไม่สำเร็จ: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
-      console.error(error);
+    if (data.SubjectCode.length > 20) {
+      return "รหัสวิชาต้องไม่เกิน 20 ตัวอักษร";
     }
-  };
+  }
 
+  if (!data.SubjectName || data.SubjectName.trim() === "") {
+    return "ชื่อวิชาต้องไม่เป็นค่าว่าง";
+  }
+
+  if (data.SubjectName.length > 200) {
+    return "ชื่อวิชาต้องไม่เกิน 200 ตัวอักษร";
+  }
+
+  if (!data.Credit) {
+    return "กรุณาเลือกหน่วยกิต";
+  }
+
+  if (!data.Category) {
+    return "กรุณาเลือกประเภทวิชา";
+  }
+
+  // MOE Compliance: LearningArea required if NOT activity
+  if (data.Category !== "ACTIVITY" && !data.LearningArea) {
+    return "กรุณาเลือกสาระการเรียนรู้สำหรับรายวิชาพื้นฐานและเพิ่มเติม";
+  }
+
+  // MOE Compliance: ActivityType required if activity
+  if (data.Category === "ACTIVITY" && !data.ActivityType) {
+    return "กรุณาเลือกประเภทกิจกรรมสำหรับกิจกรรมพัฒนาผู้เรียน";
+  }
+
+  // MOE Compliance: Activity subjects should not have LearningArea
+  if (data.Category === "ACTIVITY" && data.LearningArea) {
+    return "กิจกรรมพัฒนาผู้เรียนไม่ควรมีสาระการเรียนรู้";
+  }
+
+  // MOE Compliance: Non-activity subjects should not have ActivityType
+  if (data.Category !== "ACTIVITY" && data.ActivityType) {
+    return "รายวิชาพื้นฐานและเพิ่มเติมไม่ควรมีประเภทกิจกรรม";
+  }
+
+  return null;
+};
+
+// Empty subject factory for creating new rows
+const createEmptySubject = (): Partial<subject> => ({
+  SubjectCode: "",
+  SubjectName: "",
+  Credit: "CREDIT_10",
+  Category: "CORE",
+  LearningArea: null,
+  ActivityType: null,
+  IsGraded: true,
+  Description: null,
+});
+
+// Wrapper for create action
+const handleCreate = async (newSubject: Partial<subject>) => {
+  return await updateSubjectsAction([
+    {
+      SubjectCode: newSubject.SubjectCode?.trim().toUpperCase() || "",
+      SubjectName: newSubject.SubjectName?.trim() || "",
+      Credit: newSubject.Credit || "CREDIT_10",
+      Category: newSubject.Category || "CORE",
+      LearningArea: newSubject.LearningArea || null,
+      ActivityType: newSubject.ActivityType || null,
+      IsGraded: newSubject.IsGraded ?? true,
+      Description: newSubject.Description?.trim() || null,
+    },
+  ]);
+};
+
+// Wrapper for update action
+const handleUpdate = async (subjects: Partial<subject>[]) => {
+  return await updateSubjectsAction(
+    subjects.map((s) => ({
+      SubjectCode: s.SubjectCode!,
+      SubjectName: s.SubjectName?.trim() || "",
+      Credit: s.Credit || "CREDIT_10",
+      Category: s.Category || "CORE",
+      LearningArea: s.LearningArea || null,
+      ActivityType: s.ActivityType || null,
+      IsGraded: s.IsGraded ?? true,
+      Description: s.Description?.trim() || null,
+    }))
+  );
+};
+
+// Wrapper for delete action
+const handleDelete = async (ids: (string | number)[]) => {
+  return await deleteSubjectsAction({ subjectCodes: ids as string[] });
+};
+
+export default function SubjectTable({ tableData, mutate }: SubjectTableProps) {
   return (
-    <>
-      {dialog}
-      {addModalActive ? (
-        <AddModalForm
-          closeModal={() => {
-            setAddModalActive(false);
-          }}
-          mutate={mutate}
-        />
-      ) : null}
-      {editModalActive ? (
-        <EditModalForm
-          closeModal={() => {
-            setEditModalActive(false);
-          }}
-          mutate={mutate}
-          clearCheckList={() => setCheckedList(() => [])}
-          data={tableData.filter((item) =>
-            checkedList.includes(item.SubjectCode),
-          )}
-        />
-      ) : null}
-      <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
-        <div className="flex gap-3">
-          {/* แสดงจำนวน checkbox ที่เลือก */}
-          {checkedList.length === 0 ? null : (
-            <>
-              <div
-                onClick={() => setCheckedList(() => [])}
-                className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none"
-              >
-                <BsCheckLg className="fill-cyan-500" />
-                <p className="text-cyan-500 text-sm">
-                  {checkedList.length === tableData.length
-                    ? `เลือกท้ังหมด (${checkedList.length})`
-                    : `เลือก (${checkedList.length})`}
-                </p>
-              </div>
-              <div
-                onClick={() => setEditModalActive(true)}
-                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-yellow-100 hover:bg-yellow-200 duration-300 cursor-pointer select-none"
-              >
-                <MdModeEditOutline className="fill-yellow-700" />
-                <p className="text-sm text-yellow-700">แก้ไข</p>
-              </div>
-              <div
-                onClick={handleDeleteSubjects}
-                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 hover:bg-red-200 duration-300 cursor-pointer select-none"
-              >
-                <BiSolidTrashAlt className="fill-red-500" />
-                <p className="text-sm text-red-500">ลบ</p>
-              </div>
-            </>
-          )}
-        </div>
-        <div className="flex gap-3">
-          <SearchBar
-            height={"100%"}
-            width={"100%"}
-            handleChange={handleSearch}
-            placeHolder="ค้นหาชื่อวิชา"
-            value={searchTerm}
-          />
-          <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
-            <p className="text-green-500 text-sm">
-              ทั้งหมด {tableData.length} รายการ
-            </p>
-          </div>
-          <PrimaryButton
-            handleClick={() => setAddModalActive(true)}
-            title={"เพิ่มวิชา"}
-            color="primary"
-            Icon={<AddIcon />}
-            reverseIcon={false}
-            isDisabled={false}
-          />
-        </div>
-      </div>
-      <table className="table-auto w-full">
-        <thead>
-          <tr className="h-[60px] bg-[#F1F3F9]">
-            <th className="w-20 px-6">
-              {/* input ที่ select all item ในตาราง */}
-              <input
-                className="cursor-pointer"
-                type="checkbox"
-                name="selectedAll"
-                onChange={handleChange}
-                //ตรงนี้เช็คว่า array length ของ checkList กับ data ยาวเท่ากันไหม
-                //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
-                //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
-                checked={
-                  checkedList.length === tableData.length &&
-                  tableData.length !== 0
-                }
-              />
-            </th>
-            {tableHead.map((item, index) => (
-              <Fragment key={index}>
-                <th
-                  className="text-left px-6 select-none cursor-pointer"
-                  onClick={() => {
-                    setOrderedIndex(index);
-                    requestSort(item);
-                  }}
-                >
-                  <div className="flex gap-1 items-center">
-                    <p className="">{item}</p>
-                    {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
-                    {orderedIndex === index ? (
-                      <IoIosArrowDown
-                        className={`fill-cyan-400 duration-500`}
-                        style={{
-                          transform: `rotate(${
-                            sortConfig.direction === "asc" ? "0deg" : "180deg"
-                          })`,
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                </th>
-              </Fragment>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="text-sm">
-          {subjectData
-            .map((item, index) => (
-              <Fragment key={item.SubjectCode}>
-                <TableRow
-                  item={item}
-                  index={index}
-                  clickToSelect={clickToSelect}
-                  checkedList={checkedList}
-                  setEditModalActive={setEditModalActive}
-                  pageOfData={pageOfData}
-                  searchTerm={searchTerm}
-                />
-              </Fragment>
-            ))
-            .filter(
-              (item, index) =>
-                index >= (pageOfData === 1 ? 0 : pageOfData * 10 - 10) &&
-                index <= pageOfData * 10 - 1,
-            )}
-        </tbody>
-      </table>
-      <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        <MiniButton 
-          handleClick={previousPage} 
-          title={"Prev"} 
-          border={true}
-          buttonColor="#ffffff"
-          titleColor="#222222"
-          width={60}
-          height={30}
-          borderColor="#c7c7c7"
-          isSelected={false}
-          hoverable={true}
-        />
-        {numberOfPage().map((page) => (
-          <Fragment key={`page${page}`}>
-            {pageOfData == page ? (
-              <MiniButton
-                handleClick={() => {}}
-                title={page.toString()}
-                width={30}
-                height={30}
-                buttonColor="#222"
-                titleColor="#FFF"
-                border={true}
-                borderColor="#222"
-                isSelected={true}
-                hoverable={false}
-              />
-            ) : (
-              <MiniButton
-                handleClick={() => setPageOfData(() => page)}
-                width={30}
-                height={30}
-                title={page.toString()}
-                buttonColor="#ffffff"
-                titleColor="#222222"
-                border={true}
-                borderColor="#c7c7c7"
-                isSelected={false}
-                hoverable={true}
-              />
-            )}
-          </Fragment>
-        ))}
-        <MiniButton 
-          title={"Next"} 
-          handleClick={nextPage} 
-          border={true}
-          buttonColor="#ffffff"
-          titleColor="#222222"
-          width={60}
-          height={30}
-          borderColor="#c7c7c7"
-          isSelected={false}
-          hoverable={true}
-        />
-      </div>
-    </>
+    <EditableTable<subject>
+      title="จัดการวิชา"
+      columns={subjectColumns}
+      data={tableData}
+      idField="SubjectCode"
+      searchFields={["SubjectCode", "SubjectName"]}
+      searchPlaceholder="ค้นหารหัสวิชา หรือชื่อวิชา"
+      validate={validateSubject}
+      onCreate={handleCreate}
+      onUpdate={handleUpdate}
+      onDelete={handleDelete}
+      onMutate={mutate}
+      emptyRowFactory={createEmptySubject}
+      rowsPerPageOptions={[5, 10, 25, 50]}
+      defaultRowsPerPage={10}
+    />
   );
 }
-
-export default Table;

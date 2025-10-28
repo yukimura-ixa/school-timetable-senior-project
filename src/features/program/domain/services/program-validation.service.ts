@@ -8,44 +8,43 @@
  */
 
 import { programRepository } from '../../infrastructure/repositories/program.repository';
+import type { ProgramTrack } from '@/prisma/generated';
 
 /**
- * Validate that a program with the same combination doesn't exist
- * Checks unique constraint: ProgramName + Semester + AcademicYear
+ * Validate that a program with the same Year + Track combination doesn't exist
+ * MOE-compliant: Each year can only have one program per track
  * Returns error message in Thai if duplicate found, null otherwise
  */
 export async function validateNoDuplicateProgram(
-  programName: string,
-  semester: string,
-  academicYear: number
+  year: number,
+  track: ProgramTrack
 ): Promise<string | null> {
-  const existing = await programRepository.findByNameAndTerm(programName, semester, academicYear);
+  const existing = await programRepository.findByYearAndTrack(year, track);
   
   if (existing) {
-    return 'มีชื่อหลักสูตรนี้สำหรับภาคเรียนและปีการศึกษาที่ระบุแล้ว กรุณาตรวจสอบอีกครั้ง';
+    return `มีหลักสูตรสำหรับ ม.${year} แผนการเรียน${track} อยู่แล้ว กรุณาตรวจสอบอีกครั้ง`;
   }
   
   return null;
 }
 
 /**
- * Validate that a program with the same combination doesn't exist (excluding current program)
- * Used during update to allow keeping the same name/term combination
+ * Validate that a program with the same Year + Track combination doesn't exist (excluding current program)
+ * Used during update to allow keeping the same year/track combination
  */
 export async function validateNoDuplicateProgramForUpdate(
   programId: number,
-  programName: string,
-  semester: string,
-  academicYear: number
+  year: number,
+  track: ProgramTrack
 ): Promise<string | null> {
-  const existing = await programRepository.findByNameAndTerm(programName, semester, academicYear);
+  const existing = await programRepository.findByYearAndTrack(year, track);
   
-  // Allow if it's the same program or no duplicate
+  // Allow if it is the same program or no duplicate
   if (!existing || existing.ProgramID === programId) {
     return null;
   }
   
-  return 'มีชื่อหลักสูตรนี้สำหรับภาคเรียนและปีการศึกษาที่ระบุแล้ว กรุณาตรวจสอบอีกครั้ง';
+  return `มีหลักสูตรสำหรับ ม.${year} แผนการเรียน${track} อยู่แล้ว กรุณาตรวจสอบอีกครั้ง`;
 }
 
 /**
@@ -62,4 +61,38 @@ export async function validateProgramExists(
   }
   
   return null;
+}
+
+/**
+ * Validate that a ProgramCode is unique
+ * Returns error message in Thai if code already exists, null otherwise
+ */
+export async function validateUniqueProgramCode(
+  programCode: string
+): Promise<string | null> {
+  const existing = await programRepository.findByCode(programCode);
+  
+  if (existing) {
+    return `รหัสหลักสูตร "${programCode}" ถูกใช้ไปแล้ว กรุณาใช้รหัสอื่น`;
+  }
+  
+  return null;
+}
+
+/**
+ * Validate that a ProgramCode is unique (excluding current program)
+ * Used during update
+ */
+export async function validateUniqueProgramCodeForUpdate(
+  programId: number,
+  programCode: string
+): Promise<string | null> {
+  const existing = await programRepository.findByCode(programCode);
+  
+  // Allow if it is the same program or no duplicate
+  if (!existing || existing.ProgramID === programId) {
+    return null;
+  }
+  
+  return `รหัสหลักสูตร "${programCode}" ถูกใช้ไปแล้ว กรุณาใช้รหัสอื่น`;
 }

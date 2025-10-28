@@ -1,61 +1,46 @@
 /**
- * Infrastructure Layer: Program Repository
+ * Infrastructure Layer: Program Repository (MOE-Compliant)
  * 
- * Handles all database operations for programs using Prisma.
+ * Handles all database operations for MOE-compliant programs using Prisma.
  * Pure data access layer with no business logic.
  * 
  * @module program.repository
  */
 
 import prisma from '@/libs/prisma';
-import type { CreateProgramInput, UpdateProgramInput } from '../../application/schemas/program.schemas';
+import type { 
+  CreateProgramInput, 
+  UpdateProgramInput,
+  AssignSubjectsToProgramInput 
+} from '../../application/schemas/program.schemas';
+import type { ProgramTrack } from '@/prisma/generated';
 
 export const programRepository = {
   /**
-   * Find all programs ordered by ProgramID with gradelevel and subject relations
+   * Find all programs ordered by Year and Track
+   * Includes gradelevel relations and program_subject with subject details
    */
   async findAll() {
     return prisma.program.findMany({
-      orderBy: {
-        ProgramID: 'asc',
-      },
-      include: {
-        gradelevel: true,
-        subject: {
-          orderBy: {
-            SubjectCode: 'asc',
-          },
-        },
-      },
-    });
-  },
-
-  /**
-   * Find programs by Year
-   * Returns programs where all gradelevels have the specified Year
-   * Optionally filters by Semester and AcademicYear
-   */
-  async findByYear(year: number, semester?: string, academicYear?: number) {
-    return prisma.program.findMany({
       where: {
-        gradelevel: {
-          every: {
-            Year: year,
-          },
-        },
-        ...(semester && { Semester: semester as any }),
-        ...(academicYear && { AcademicYear: academicYear }),
+        IsActive: true,
       },
       orderBy: [
-        { AcademicYear: 'desc' },
-        { Semester: 'asc' },
-        { ProgramID: 'asc' },
+        { Year: 'asc' },
+        { Track: 'asc' },
       ],
       include: {
-        gradelevel: true,
-        subject: {
+        gradelevel: {
           orderBy: {
-            SubjectCode: 'asc',
+            Number: 'asc',
+          },
+        },
+        program_subject: {
+          include: {
+            subject: true,
+          },
+          orderBy: {
+            SortOrder: 'asc',
           },
         },
       },
@@ -63,7 +48,43 @@ export const programRepository = {
   },
 
   /**
-   * Find a single program by ID with relations
+   * Find programs by Year (optional), Track (optional), and IsActive
+   */
+  async findByFilters(filters: {
+    Year?: number;
+    Track?: ProgramTrack;
+    IsActive?: boolean;
+  }) {
+    return prisma.program.findMany({
+      where: {
+        ...(filters.Year !== undefined && { Year: filters.Year }),
+        ...(filters.Track && { Track: filters.Track }),
+        ...(filters.IsActive !== undefined && { IsActive: filters.IsActive }),
+      },
+      orderBy: [
+        { Year: 'asc' },
+        { Track: 'asc' },
+      ],
+      include: {
+        gradelevel: {
+          orderBy: {
+            Number: 'asc',
+          },
+        },
+        program_subject: {
+          include: {
+            subject: true,
+          },
+          orderBy: {
+            SortOrder: 'asc',
+          },
+        },
+      },
+    });
+  },
+
+  /**
+   * Find a single program by ID with all relations
    */
   async findById(programId: number) {
     return prisma.program.findUnique({
@@ -71,10 +92,17 @@ export const programRepository = {
         ProgramID: programId,
       },
       include: {
-        gradelevel: true,
-        subject: {
+        gradelevel: {
           orderBy: {
-            SubjectCode: 'asc',
+            Number: 'asc',
+          },
+        },
+        program_subject: {
+          include: {
+            subject: true,
+          },
+          orderBy: {
+            SortOrder: 'asc',
           },
         },
       },
@@ -82,80 +110,144 @@ export const programRepository = {
   },
 
   /**
-   * Find program by unique constraint (for duplicate check)
+   * Find program by ProgramCode
    */
-  async findByNameAndTerm(programName: string, semester: string, academicYear: number) {
-    return prisma.program.findFirst({
+  async findByCode(programCode: string) {
+    return prisma.program.findUnique({
       where: {
-        ProgramName: programName,
-        Semester: semester as any,
-        AcademicYear: academicYear,
+        ProgramCode: programCode,
       },
     });
   },
 
   /**
-   * Create a program with gradelevel and subject connections
+   * Find program by Year and Track (for duplicate check)
+   */
+  async findByYearAndTrack(year: number, track: ProgramTrack) {
+    return prisma.program.findFirst({
+      where: {
+        Year: year,
+        Track: track,
+      },
+    });
+  },
+
+  /**
+   * Create a program (without subjects initially)
    */
   async create(data: CreateProgramInput) {
     return prisma.program.create({
       data: {
+        ProgramCode: data.ProgramCode,
         ProgramName: data.ProgramName,
-        Semester: data.Semester,
-        AcademicYear: data.AcademicYear,
-        gradelevel: {
-          connect: data.gradelevel.map((element) => ({
-            GradeID: element.GradeID,
-          })),
-        },
-        subject: {
-          connect: data.subject.map((element) => ({
-            SubjectCode: element.SubjectCode,
-          })),
-        },
+        Year: data.Year,
+        Track: data.Track,
+        Description: data.Description,
+        MinTotalCredits: data.MinTotalCredits,
+        IsActive: data.IsActive ?? true,
       },
       include: {
         gradelevel: true,
-        subject: true,
+        program_subject: {
+          include: {
+            subject: true,
+          },
+        },
       },
     });
   },
 
   /**
-   * Update a program
-   * Uses set: [] to clear existing relations, then connects new ones
+   * Update a program basic info (not subjects)
    */
-  async update(programId: number, data: Omit<UpdateProgramInput, 'ProgramID'>) {
+  async update(programId: number, data: Partial<UpdateProgramInput>) {
     return prisma.program.update({
       where: {
         ProgramID: programId,
       },
       data: {
-        ProgramName: data.ProgramName,
-        Semester: data.Semester,
-        AcademicYear: data.AcademicYear,
-        gradelevel: {
-          set: [], // Clear existing connections
-          connect: data.gradelevel.map((element) => ({
-            GradeID: element.GradeID,
-          })),
-        },
-        subject: {
-          set: [], // Clear existing connections
-          connect: data.subject.map((element) => ({
-            SubjectCode: element.SubjectCode,
-          })),
-        },
+        ...(data.ProgramCode && { ProgramCode: data.ProgramCode }),
+        ...(data.ProgramName && { ProgramName: data.ProgramName }),
+        ...(data.Track && { Track: data.Track }),
+        ...(data.Description !== undefined && { Description: data.Description }),
+        ...(data.MinTotalCredits !== undefined && { MinTotalCredits: data.MinTotalCredits }),
+        ...(data.IsActive !== undefined && { IsActive: data.IsActive }),
       },
       include: {
         gradelevel: true,
-        subject: true,
+        program_subject: {
+          include: {
+            subject: true,
+          },
+        },
       },
     });
   },
 
   /**
-   * Delete a program by ID
+   * Assign subjects to a program (replaces all existing assignments)
+   * Uses transaction to ensure atomicity
+   */
+  async assignSubjects(data: AssignSubjectsToProgramInput) {
+    return prisma.$transaction(async (tx) => {
+      await tx.program_subject.deleteMany({
+        where: {
+          ProgramID: data.ProgramID,
+        },
+      });
+
+      await tx.program_subject.createMany({
+        data: data.subjects.map((subject, index) => ({
+          ProgramID: data.ProgramID,
+          SubjectCode: subject.SubjectCode,
+          Category: subject.Category,
+          IsMandatory: subject.IsMandatory,
+          MinCredits: subject.MinCredits,
+          MaxCredits: subject.MaxCredits,
+          SortOrder: subject.SortOrder ?? index + 1,
+        })),
+      });
+
+      return tx.program.findUnique({
+        where: {
+          ProgramID: data.ProgramID,
+        },
+        include: {
+          gradelevel: true,
+          program_subject: {
+            include: {
+              subject: true,
+            },
+            orderBy: {
+              SortOrder: 'asc',
+            },
+          },
+        },
+      });
+    });
+  },
+
+  /**
+   * Get program subjects with full subject details (for MOE validation)
+   */
+  async getProgramSubjectsWithDetails(programId: number) {
+    return prisma.program_subject.findMany({
+      where: {
+        ProgramID: programId,
+      },
+      include: {
+        subject: true,
+      },
+      orderBy: {
+        SortOrder: 'asc',
+      },
+    });
+  },
+
+  /**
+   * Delete a program
+   * Note: Will cascade delete program_subject entries
+   * Will set ProgramID to null in gradelevel (due to SetNull)
    */
   async delete(programId: number) {
     return prisma.program.delete({
@@ -166,9 +258,57 @@ export const programRepository = {
   },
 
   /**
-   * Get program count (useful for statistics)
+   * Count programs by filters (for pagination)
    */
-  async count() {
-    return prisma.program.count();
+  async count(filters: {
+    Year?: number;
+    Track?: ProgramTrack;
+    IsActive?: boolean;
+  }) {
+    return prisma.program.count({
+      where: {
+        ...(filters.Year !== undefined && { Year: filters.Year }),
+        ...(filters.Track && { Track: filters.Track }),
+        ...(filters.IsActive !== undefined && { IsActive: filters.IsActive }),
+      },
+    });
+  },
+
+  /**
+   * Get programs grouped by Year (for program management page)
+   */
+  async findGroupedByYear() {
+    const programs = await prisma.program.findMany({
+      where: {
+        IsActive: true,
+      },
+      orderBy: [
+        { Year: 'asc' },
+        { Track: 'asc' },
+      ],
+      include: {
+        gradelevel: {
+          select: {
+            GradeID: true,
+            Number: true,
+          },
+        },
+        program_subject: {
+          select: {
+            SubjectCode: true,
+          },
+        },
+      },
+    });
+
+    const grouped: Record<number, typeof programs> = {};
+    for (const program of programs) {
+      if (!grouped[program.Year]) {
+        grouped[program.Year] = [];
+      }
+      grouped[program.Year].push(program);
+    }
+
+    return grouped;
   },
 };

@@ -92,13 +92,16 @@ export const gradeLevelRepository = {
    * GradeID is auto-generated from Year + '0' + Number
    */
   async create(data: CreateGradeLevelInput) {
-    const gradeId = data.Year + '0' + data.Number;
-    
+    // Generate GradeID in the canonical format: M{Year}-{Number} e.g., M1-1
+    const gradeId = `M${data.Year}-${data.Number}`;
+
     return prisma.gradelevel.create({
       data: {
         GradeID: gradeId,
         Year: data.Year,
         Number: data.Number,
+        StudentCount: data.StudentCount ?? 0,
+        ProgramID: data.ProgramID ?? null,
       },
     });
   },
@@ -114,6 +117,8 @@ export const gradeLevelRepository = {
       data: {
         Year: data.Year,
         Number: data.Number,
+        StudentCount: data.StudentCount ?? undefined,
+        ProgramID: data.ProgramID ?? undefined,
       },
     });
   },

@@ -1,6 +1,6 @@
 /**
- * Verification script to check program seed data
- * Shows programs grouped by Academic Year and Semester
+ * Verification script to check program seed data (MOE model)
+ * Shows programs grouped by Year (M.1–M.6) and Track
  */
 
 import { PrismaClient } from '../prisma/generated';
@@ -8,14 +8,14 @@ import { PrismaClient } from '../prisma/generated';
 const prisma = new PrismaClient();
 
 async function verifyProgramSeed() {
-  console.log('🔍 Verifying Program Seed Data\n');
-  console.log('='.repeat(80));
+  console.warn('🔍 Verifying Program Seed Data\n');
+  console.warn('='.repeat(80));
   
-  // Get all programs ordered by AcademicYear, Semester, ProgramName
+  // Get all programs ordered by Year, Track, ProgramName
   const programs = await prisma.program.findMany({
     orderBy: [
-      { AcademicYear: 'desc' },
-      { Semester: 'asc' },
+      { Year: 'asc' },
+      { Track: 'asc' },
       { ProgramName: 'asc' }
     ],
     include: {
@@ -27,11 +27,11 @@ async function verifyProgramSeed() {
     }
   });
   
-  console.log(`\n📊 Total Programs: ${programs.length}\n`);
+  console.warn(`\n📊 Total Programs: ${programs.length}\n`);
   
-  // Group by Academic Year
+  // Group by Year (1..6)
   const groupedByYear = programs.reduce((acc, program) => {
-    const year = program.AcademicYear;
+    const year = program.Year;
     if (!acc[year]) {
       acc[year] = [];
     }
@@ -40,43 +40,40 @@ async function verifyProgramSeed() {
   }, {} as Record<number, typeof programs>);
   
   // Display grouped data
-  for (const [year, yearPrograms] of Object.entries(groupedByYear).sort((a, b) => Number(b[0]) - Number(a[0]))) {
-    console.log(`\n📅 Academic Year ${year} (${yearPrograms.length} programs)`);
-    console.log('-'.repeat(80));
-    
-    const semester1 = yearPrograms.filter(p => p.Semester === 'SEMESTER_1');
-    const semester2 = yearPrograms.filter(p => p.Semester === 'SEMESTER_2');
-    
-    if (semester1.length > 0) {
-      console.log('\n  📖 Semester 1:');
-      semester1.forEach(p => {
-        console.log(`    • ${p.ProgramName.padEnd(40)} (${p._count.gradelevel} grade levels)`);
-      });
-    }
-    
-    if (semester2.length > 0) {
-      console.log('\n  📖 Semester 2:');
-      semester2.forEach(p => {
-        console.log(`    • ${p.ProgramName.padEnd(40)} (${p._count.gradelevel} grade levels)`);
+  for (const [year, yearPrograms] of Object.entries(groupedByYear).sort((a, b) => Number(a[0]) - Number(b[0]))) {
+  console.warn(`\n📅 Year ม.${year} (${yearPrograms.length} programs)`);
+  console.warn('-'.repeat(80));
+
+    const groupedByTrack = yearPrograms.reduce((acc, p) => {
+      if (!acc[p.Track]) acc[p.Track] = [] as typeof yearPrograms;
+      acc[p.Track].push(p);
+      return acc;
+    }, {} as Record<string, typeof yearPrograms>);
+
+    for (const [track, list] of Object.entries(groupedByTrack)) {
+  console.warn(`\n  📖 Track: ${track}`);
+      list.forEach(p => {
+  console.warn(`    • ${p.ProgramCode.padEnd(14)} ${p.ProgramName.padEnd(40)} (${p._count.gradelevel} grade levels)`);
       });
     }
   }
   
-  console.log('\n' + '='.repeat(80));
-  console.log('✅ Verification Complete\n');
-  
-  // Test composite uniqueness
-  console.log('🔐 Testing Composite Unique Constraint...');
-  const duplicateTest = await prisma.program.findMany({
-    where: {
-      ProgramName: 'หลักสูตรแกนกลาง ม.ต้น',
-      Semester: 'SEMESTER_1',
-      AcademicYear: 2568
-    }
-  });
-  
-  console.log(`   Found ${duplicateTest.length} program(s) with (หลักสูตรแกนกลาง ม.ต้น, SEMESTER_1, 2568)`);
-  console.log(`   ✓ Composite constraint ${duplicateTest.length === 1 ? 'working correctly' : 'FAILED - duplicate found!'}\n`);
+  console.warn('\n' + '='.repeat(80));
+  console.warn('✅ Verification Complete\n');
+
+  // Test composite uniqueness (client-side check)
+  console.warn('🔐 Testing Composite Unique Constraint (Year + Track)...');
+  const counts = new Map<string, number>();
+  for (const p of programs) {
+    const key = `${p.Year}-${p.Track}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const dups = Array.from(counts.entries()).filter(([_, c]) => c > 1);
+  if (dups.length === 0) {
+    console.warn('   ✓ No duplicate Year+Track combinations found');
+  } else {
+    console.warn('   ✗ Duplicates found for Year+Track:', dups);
+  }
   
   await prisma.$disconnect();
 }

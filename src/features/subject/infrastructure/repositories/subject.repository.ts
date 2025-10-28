@@ -55,7 +55,10 @@ export const subjectRepository = {
         SubjectName: data.SubjectName,
         Credit: data.Credit,
         Category: data.Category,
-        ProgramID: data.ProgramID,
+        LearningArea: data.LearningArea,
+        ActivityType: data.ActivityType,
+        IsGraded: data.IsGraded,
+        Description: data.Description,
       },
     });
   },
@@ -74,7 +77,10 @@ export const subjectRepository = {
         SubjectName: data.SubjectName,
         Credit: data.Credit,
         Category: data.Category,
-        ProgramID: data.ProgramID,
+        LearningArea: data.LearningArea,
+        ActivityType: data.ActivityType,
+        IsGraded: data.IsGraded,
+        Description: data.Description,
       },
     });
   },

@@ -11,37 +11,28 @@ import {
   NoDataEmptyState,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
-import ProgramTable from "../component/ProgramTable";
-import type { ProgramRow } from "../component/ProgramTable";
+import ProgramEditableTable from "../component/ProgramEditableTable";
 
 // Server Actions (Clean Architecture)
 import { getProgramsByYearAction } from "@/features/program/application/actions/program.actions";
 
-type Props = {};
-
-function StudyProgram(props: Props) {
-  const params = useParams(); //get params
+function StudyProgram() {
+  const params = useParams();
+  const yearNum = Number(params.year?.toString() ?? "0");
 
   // Fetch programs using Server Action
-  const { data, isLoading, error, mutate } = useSWR(
-    `programs-year-${params.year}`,
+  const swr = useSWR<program[]>(
+    ["programs-year", String(yearNum)],
     async () => {
-      try {
-        const result = await getProgramsByYearAction({
-          Year: parseInt(params.year.toString()),
-        });
-        return result?.data ?? [];
-      } catch (error) {
-        console.error("Error fetching programs:", error);
-        return [];
-      }
-    },
+      const result = await getProgramsByYearAction({ Year: yearNum });
+      return result?.data ?? [];
+    }
   );
 
-  if (isLoading) {
+  if (swr.isLoading) {
     return (
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, py: 2 }}>
-        {[...Array(4)].map((_, i) => (
+        {Array.from({ length: 4 }).map((_, i) => (
           <Box key={i} sx={{ width: '49%' }}>
             <CardSkeleton />
           </Box>
@@ -50,11 +41,11 @@ function StudyProgram(props: Props) {
     );
   }
 
-  if (error) {
-    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
+  if (swr.error) {
+    return <NetworkErrorEmptyState onRetry={() => { void swr.mutate(); }} />;
   }
 
-  if (!data || data.length === 0) {
+  if (!swr.data || swr.data.length === 0) {
     return <NoDataEmptyState />;
   }
 
@@ -64,7 +55,7 @@ function StudyProgram(props: Props) {
       {/* <AllStudyProgram /> */}
       <div className="flex justify-between my-4">
         <h1 className="text-xl font-bold">
-          หลักสูตรมัธยมศึกษาปีที่ {params.year}
+          หลักสูตรมัธยมศึกษาปีที่ {yearNum}
         </h1>
         <Link
           href={"/management/program"}
@@ -75,11 +66,13 @@ function StudyProgram(props: Props) {
         </Link>
       </div>
       <div className="py-4">
-        <ProgramTable
-          year={parseInt(params.year.toString())}
-          rows={data as ProgramRow[]}
-          mutate={mutate}
-        />
+        {swr.data && (
+          <ProgramEditableTable
+            year={yearNum}
+            rows={swr.data}
+            mutate={() => { void swr.mutate(); }}
+          />
+        )}
       </div>
     </>
   );

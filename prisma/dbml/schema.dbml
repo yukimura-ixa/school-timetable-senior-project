@@ -15,6 +15,12 @@ Table gradelevel {
   GradeID String [pk]
   Year Int [not null]
   Number Int [not null]
+  StudentCount Int [not null, default: 0]
+  ProgramID Int
+
+  indexes {
+    (Year, Number) [unique]
+  }
 }
 
 Table room {
@@ -28,18 +34,40 @@ Table subject {
   SubjectCode String [pk]
   SubjectName String [not null]
   Credit subject_credit [not null]
-  Category String [not null, default: '-']
-  ProgramID Int
+  Category SubjectCategory [not null, default: 'CORE']
+  LearningArea LearningArea
+  ActivityType ActivityType
+  IsGraded Boolean [not null, default: true]
+  Description String
 }
 
 Table program {
   ProgramID Int [pk, increment]
+  ProgramCode String [unique, not null]
   ProgramName String [not null]
-  Semester semester [not null]
-  AcademicYear Int [not null]
+  Year Int [not null]
+  Track ProgramTrack [not null]
+  Description String
+  MinTotalCredits Float [not null, default: 0]
+  IsActive Boolean [not null, default: true]
 
   indexes {
-    (ProgramName, Semester, AcademicYear) [unique]
+    (Year, Track) [unique]
+  }
+}
+
+Table program_subject {
+  ProgramSubjectID Int [pk, increment]
+  ProgramID Int [not null]
+  SubjectCode String [not null]
+  Category SubjectCategory [not null]
+  IsMandatory Boolean [not null, default: true]
+  MinCredits Float [not null]
+  MaxCredits Float
+  SortOrder Int [not null, default: 0]
+
+  indexes {
+    (ProgramID, SubjectCode) [unique]
   }
 }
 
@@ -173,6 +201,37 @@ Enum breaktime {
   NOT_BREAK
 }
 
+Enum ProgramTrack {
+  SCIENCE_MATH
+  LANGUAGE_MATH
+  LANGUAGE_ARTS
+  GENERAL
+}
+
+Enum SubjectCategory {
+  CORE
+  ADDITIONAL
+  ACTIVITY
+}
+
+Enum LearningArea {
+  THAI
+  MATHEMATICS
+  SCIENCE
+  SOCIAL
+  HEALTH_PE
+  ARTS
+  CAREER
+  FOREIGN_LANGUAGE
+}
+
+Enum ActivityType {
+  CLUB
+  SCOUT
+  GUIDANCE
+  SOCIAL_SERVICE
+}
+
 Ref: class_schedule.GradeID > gradelevel.GradeID [delete: Cascade]
 
 Ref: class_schedule.RoomID > room.RoomID
@@ -181,7 +240,11 @@ Ref: class_schedule.SubjectCode > subject.SubjectCode [delete: Cascade]
 
 Ref: class_schedule.TimeslotID > timeslot.TimeslotID [delete: Cascade]
 
-Ref: subject.ProgramID > program.ProgramID
+Ref: gradelevel.ProgramID > program.ProgramID [delete: Set Null]
+
+Ref: program_subject.ProgramID > program.ProgramID [delete: Cascade]
+
+Ref: program_subject.SubjectCode > subject.SubjectCode [delete: Cascade]
 
 Ref: teachers_responsibility.GradeID > gradelevel.GradeID [delete: Cascade]
 

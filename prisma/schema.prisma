@@ -9,8 +9,8 @@ generator dbml {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // directUrl = env("DIRECT_DATABASE_URL")
 }
 
@@ -38,12 +38,20 @@ model class_schedule {
 }
 
 model gradelevel {
-  GradeID                 String                    @id
-  Year                    Int
-  Number                  Int
+  GradeID      String @id
+  Year         Int
+  Number       Int
+  StudentCount Int    @default(0)
+
+  ProgramID Int?
+  program   program? @relation(fields: [ProgramID], references: [ProgramID], onDelete: SetNull, map: "fk_gradelevel_program")
+
   class_schedule          class_schedule[]
   teachers_responsibility teachers_responsibility[]
-  program                 program[]
+
+  @@unique([Year, Number], map: "gradelevel_year_number_unique")
+  @@index([ProgramID], map: "gradelevel_ProgramID_idx")
+  @@index([Year], map: "gradelevel_Year_idx")
 }
 
 model room {
@@ -55,28 +63,62 @@ model room {
 }
 
 model subject {
-  SubjectCode             String                    @id
-  SubjectName             String
-  Credit                  subject_credit
-  Category                String                    @default("-")
-  ProgramID               Int?
-  class_schedule          class_schedule[]
-  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], map: "fk_subject_program")
-  teachers_responsibility teachers_responsibility[]
+  SubjectCode String         @id
+  SubjectName String
+  Credit      subject_credit
 
-  @@index([ProgramID], map: "subject_ProgramID_idx")
+  // MOE Curriculum Fields
+  Category     SubjectCategory @default(CORE)
+  LearningArea LearningArea?
+  ActivityType ActivityType?
+  IsGraded     Boolean         @default(true)
+  Description  String?
+
+  class_schedule          class_schedule[]
+  teachers_responsibility teachers_responsibility[]
+  program_subject         program_subject[]
+
+  @@index([Category], map: "subject_Category_idx")
+  @@index([LearningArea], map: "subject_LearningArea_idx")
+  @@index([ActivityType], map: "subject_ActivityType_idx")
 }
 
 model program {
-  ProgramID    Int          @id @default(autoincrement())
-  ProgramName  String
-  Semester     semester
-  AcademicYear Int
-  subject      subject[]
-  gradelevel   gradelevel[]
+  ProgramID       Int          @id @default(autoincrement())
+  ProgramCode     String       @unique
+  ProgramName     String
+  Year            Int
+  Track           ProgramTrack
+  Description     String?
+  MinTotalCredits Float        @default(0)
+  IsActive        Boolean      @default(true)
 
-  @@unique([ProgramName, Semester, AcademicYear], map: "program_unique_term")
-  @@index([AcademicYear, Semester], map: "program_term_idx")
+  gradelevel      gradelevel[]
+  program_subject program_subject[]
+
+  @@unique([Year, Track], map: "program_year_track_unique")
+  @@index([Year], map: "program_Year_idx")
+  @@index([IsActive], map: "program_IsActive_idx")
+}
+
+model program_subject {
+  ProgramSubjectID Int    @id @default(autoincrement())
+  ProgramID        Int
+  SubjectCode      String
+
+  Category    SubjectCategory
+  IsMandatory Boolean         @default(true)
+  MinCredits  Float
+  MaxCredits  Float?
+  SortOrder   Int             @default(0)
+
+  program program @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, map: "fk_program_subject_program")
+  subject subject @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_program_subject_subject")
+
+  @@unique([ProgramID, SubjectCode], map: "program_subject_unique")
+  @@index([ProgramID], map: "program_subject_ProgramID_idx")
+  @@index([SubjectCode], map: "program_subject_SubjectCode_idx")
+  @@index([Category], map: "program_subject_Category_idx")
 }
 
 model teacher {
@@ -126,21 +168,21 @@ model teachers_responsibility {
 }
 
 model table_config {
-  ConfigID            String         @id
-  AcademicYear        Int
-  Semester            semester
-  Config              Json
-  
+  ConfigID     String   @id
+  AcademicYear Int
+  Semester     semester
+  Config       Json
+
   // New fields for semester status and metadata
-  status              SemesterStatus @default(DRAFT)
-  publishedAt         DateTime?
-  isPinned            Boolean        @default(false)
-  lastAccessedAt      DateTime       @default(now())
-  configCompleteness  Int            @default(0) // 0-100%
-  
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @default(now()) @updatedAt
-  
+  status             SemesterStatus @default(DRAFT)
+  publishedAt        DateTime?
+  isPinned           Boolean        @default(false)
+  lastAccessedAt     DateTime       @default(now())
+  configCompleteness Int            @default(0) // 0-100%
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
   @@index([status], map: "table_config_status_idx")
   @@index([isPinned], map: "table_config_pinned_idx")
   @@index([lastAccessedAt], map: "table_config_accessed_idx")
@@ -183,6 +225,41 @@ enum breaktime {
 }
 
 // ====================
+// MOE Curriculum Enums
+// ====================
+
+enum ProgramTrack {
+  SCIENCE_MATH // วิทย์-คณิต
+  LANGUAGE_MATH // ศิลป์-คำนวณ
+  LANGUAGE_ARTS // ศิลป์-ภาษา
+  GENERAL // ทั่วไป
+}
+
+enum SubjectCategory {
+  CORE // รายวิชาพื้นฐาน (graded, mandatory)
+  ADDITIONAL // รายวิชาเพิ่มเติม (graded, may be elective)
+  ACTIVITY // กิจกรรมพัฒนาผู้เรียน (non-graded)
+}
+
+enum LearningArea {
+  THAI // ภาษาไทย
+  MATHEMATICS // คณิตศาสตร์
+  SCIENCE // วิทยาศาสตร์และเทคโนโลยี
+  SOCIAL // สังคมศึกษา ศาสนา และวัฒนธรรม
+  HEALTH_PE // สุขศึกษาและพลศึกษา
+  ARTS // ศิลปะ
+  CAREER // การงานอาชีพ
+  FOREIGN_LANGUAGE // ภาษาต่างประเทศ
+}
+
+enum ActivityType {
+  CLUB // ชุมนุม
+  SCOUT // ลูกเสือ/เนตรนารี
+  GUIDANCE // แนะแนว
+  SOCIAL_SERVICE // กิจกรรมเพื่อสังคมและสาธารณประโยชน์
+}
+
+// ====================
 // Auth.js v5 Models (Prisma Adapter)
 // Required for multi-tenant authentication
 // @see https://authjs.dev/getting-started/adapters/prisma
@@ -194,11 +271,11 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
-  password      String?   // For credential-based login (hashed with bcrypt)
+  password      String? // For credential-based login (hashed with bcrypt)
   role          String    @default("user") // user, teacher, admin
   accounts      Account[]
   sessions      Session[]
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

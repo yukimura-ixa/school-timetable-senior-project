@@ -16,6 +16,9 @@ import { semester } from '@/prisma/generated';
 export const createGradeLevelSchema = v.object({
   Year: v.number('ปีต้องเป็นตัวเลข'),
   Number: v.number('หมายเลขชั้นต้องเป็นตัวเลข'),
+  StudentCount: v.optional(v.number('จำนวนนักเรียนต้องเป็นตัวเลข')),
+  // ProgramID can be number or null, and is optional in input
+  ProgramID: v.optional(v.union([v.number('รหัสหลักสูตรต้องเป็นตัวเลข'), v.null()])),
 });
 
 export type CreateGradeLevelInput = v.InferOutput<typeof createGradeLevelSchema>;
@@ -34,6 +37,8 @@ export const updateGradeLevelSchema = v.object({
   GradeID: v.pipe(v.string(), v.minLength(1, 'รหัสชั้นเรียนห้ามว่าง')),
   Year: v.number('ปีต้องเป็นตัวเลข'),
   Number: v.number('หมายเลขชั้นต้องเป็นตัวเลข'),
+  StudentCount: v.optional(v.number('จำนวนนักเรียนต้องเป็นตัวเลข')),
+  ProgramID: v.optional(v.union([v.number('รหัสหลักสูตรต้องเป็นตัวเลข'), v.null()])),
 });
 
 export type UpdateGradeLevelInput = v.InferOutput<typeof updateGradeLevelSchema>;

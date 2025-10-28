@@ -44,7 +44,6 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
   // Success state
   return (
     <SubjectTable
-      tableHead={["รหัสวิชา", "ชื่อวิชา", "หน่วยกิต", "สาระการเรียนรู้", ""]}
       tableData={subjects}
       mutate={handleMutate}
     />

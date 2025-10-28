@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { gradelevel } from "@/prisma/generated";
+import type { gradelevel, program } from "@/prisma/generated";
 import GradeLevelTable from "@/app/management/gradelevel/component/GradeLevelTable";
 import { TableSkeleton, NoDataEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";
@@ -9,13 +9,14 @@ import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/
 
 type GradeLevelManageClientProps = {
   initialData: gradelevel[];
+  programsByYear: Record<number, program[]>;
 };
 
 /**
  * Client wrapper for GradeLevel Management
  * Handles UI state, mutations, and re-fetching
  */
-export function GradeLevelManageClient({ initialData }: GradeLevelManageClientProps) {
+export function GradeLevelManageClient({ initialData, programsByYear }: GradeLevelManageClientProps) {
   const [gradelevels, setGradelevels] = useState<gradelevel[]>(initialData);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
@@ -44,9 +45,9 @@ export function GradeLevelManageClient({ initialData }: GradeLevelManageClientPr
   // Success state
   return (
     <GradeLevelTable
-      tableHead={["รหัสชั้นเรียน", "มัธยมปีที่", "ห้องที่", "หลักสูตร", ""]}
       tableData={gradelevels}
       mutate={handleMutate}
+      programsByYear={programsByYear}
     />
   );
 }

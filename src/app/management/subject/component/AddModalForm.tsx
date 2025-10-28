@@ -6,7 +6,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import type { subject } from "@/prisma/generated";
-import { subject_credit } from "@/prisma/generated";
+import { subject_credit, SubjectCategory } from "@/prisma/generated";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { createSubjectAction } from "@/features/subject/application/actions/subject.actions";
 import PrimaryButton from "@/components/mui/PrimaryButton";
@@ -14,38 +14,27 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
-type props = {
-  closeModal: any;
-  mutate: Function;
+type Props = {
+  closeModal: () => void;
+  mutate: () => void;
 };
-function AddModalForm({ closeModal, mutate }: props) {
+function AddModalForm({ closeModal, mutate }: Props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [subjects, setSubjects] = useState<(Omit<subject, 'Credit'> & { Credit: subject_credit | string | undefined })[]>([
+  const [subjects, setSubjects] = useState<(Omit<subject, 'Credit'> & { Credit: subject_credit | undefined })[]>([
     {
       SubjectCode: "",
       SubjectName: "",
       Credit: undefined,
-      Category: "",
-      ProgramID: undefined,
+      Category: SubjectCategory.CORE,
+      LearningArea: null,
+      ActivityType: null,
+      IsGraded: true,
+      Description: "",
     },
   ]);
 
-  const selectCredit = (value: string): subject_credit => {
-    switch (value) {
-      case "0.5":
-        return subject_credit.CREDIT_05;
-      case "1.0":
-        return subject_credit.CREDIT_10;
-      case "1.5":
-        return subject_credit.CREDIT_15;
-      case "2.0":
-        return subject_credit.CREDIT_20;
-      default:
-        return subject_credit.CREDIT_05;
-    }
-  };
-  const addData = async (data: (Omit<subject, 'Credit'> & { Credit: subject_credit | string | undefined })[]) => {
+  const addData = async (data: (Omit<subject, 'Credit'> & { Credit: subject_credit | undefined })[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มวิชา", {
       variant: "info",
       persist: true,
@@ -53,7 +42,6 @@ function AddModalForm({ closeModal, mutate }: props) {
     
     const subjectsToCreate = data.map((subject) => ({
       ...subject,
-      Credit: selectCredit(subject.Credit as string),
     }));
 
     try {
@@ -79,12 +67,15 @@ function AddModalForm({ closeModal, mutate }: props) {
   };
 
   const addList = () => {
-    let struct: subject = {
+    const struct: subject = {
       SubjectCode: "",
       SubjectName: "",
-      Credit: undefined,
-      Category: "",
-      ProgramID: undefined,
+      Credit: subject_credit.CREDIT_05,
+      Category: SubjectCategory.CORE,
+      LearningArea: null,
+      ActivityType: null,
+      IsGraded: true,
+      Description: "",
     };
     setSubjects(() => [...subjects, struct]);
   };
@@ -95,10 +86,10 @@ function AddModalForm({ closeModal, mutate }: props) {
     let isValid = true;
     subjects.forEach((data) => {
       if (
-        data.SubjectCode == "" ||
-        data.SubjectName == "" ||
+        data.SubjectCode === "" ||
+        data.SubjectName === "" ||
         !data.Credit ||
-        data.Category == ""
+        !data.Category
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -264,20 +255,24 @@ function AddModalForm({ closeModal, mutate }: props) {
                       สาระการเรียนรู้ (Category):
                     </label>
                     <Dropdown
-                      data={["พื้นฐาน", "เพิ่มเติม", "กิจกรรมพัฒนาผู้เรียน"]}
-                      renderItem={({ data }: { data: any }): JSX.Element => (
-                        <li className="w-full">{data}</li>
+                      data={[SubjectCategory.CORE, SubjectCategory.ADDITIONAL, SubjectCategory.ACTIVITY]}
+                      renderItem={({ data }: { data: SubjectCategory }): JSX.Element => (
+                        <li className="w-full">{
+                          data === SubjectCategory.CORE ? "พื้นฐาน" :
+                          data === SubjectCategory.ADDITIONAL ? "เพิ่มเติม" :
+                          "กิจกรรมพัฒนาผู้เรียน"
+                        }</li>
                       )}
                       width={150}
                       height={40}
                       currentValue={subject.Category}
                       borderColor={
-                        isEmptyData && subject.Category.length == 0
+                        isEmptyData && !subject.Category
                           ? "#F96161"
                           : ""
                       }
                       placeHolder={"ตัวเลือก"}
-                      handleChange={(value: string) => {
+                      handleChange={(value: SubjectCategory) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
                             index === ind ? { ...item, Category: value } : item,
@@ -285,7 +280,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && subject.Category.length == 0 ? (
+                    {isEmptyData && !subject.Category ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

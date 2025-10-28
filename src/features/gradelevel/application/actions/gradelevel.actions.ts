@@ -12,7 +12,6 @@
 import { createAction } from '@/shared/lib/action-wrapper';
 import { gradeLevelRepository } from '../../infrastructure/repositories/gradelevel.repository';
 import {
-  generateGradeId,
   validateNoDuplicateGradeLevel,
   validateBulkGradeLevels,
   findGradeLevelsForLock,
@@ -51,7 +50,7 @@ export async function getGradeLevelsAction() {
   try {
     const gradelevels = await gradeLevelRepository.findAll();
     return { success: true as const, data: gradelevels };
-  } catch (error) {
+  } catch {
     return {
       success: false as const,
       error: 'ไม่สามารถดึงข้อมูลชั้นเรียนได้',
@@ -150,6 +149,8 @@ export const updateGradeLevelAction = createAction(
     const gradelevel = await gradeLevelRepository.update(input.GradeID, {
       Year: input.Year,
       Number: input.Number,
+      StudentCount: input.StudentCount,
+      ProgramID: input.ProgramID ?? null,
     });
 
     return gradelevel;
@@ -178,6 +179,8 @@ export const updateGradeLevelsAction = createAction(
         gradeLevelRepository.update(data.GradeID, {
           Year: data.Year,
           Number: data.Number,
+          StudentCount: data.StudentCount,
+          ProgramID: data.ProgramID ?? null,
         })
       )
     );
@@ -257,7 +260,7 @@ export async function getGradeLevelCountAction() {
   try {
     const count = await gradeLevelRepository.count();
     return { success: true as const, data: { count } };
-  } catch (error) {
+  } catch {
     return {
       success: false as const,
       error: 'ไม่สามารถนับจำนวนชั้นเรียนได้',

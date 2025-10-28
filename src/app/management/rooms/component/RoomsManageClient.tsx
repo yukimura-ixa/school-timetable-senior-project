@@ -44,7 +44,6 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
   // Success state
   return (
     <RoomsTable
-      tableHead={["ชื่อห้อง", "อาคาร", "ชั้น", ""]}
       tableData={rooms}
       mutate={handleMutate}
     />

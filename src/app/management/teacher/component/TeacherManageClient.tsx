@@ -44,7 +44,6 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
   // Success state
   return (
     <TeacherTable
-      tableHead={["คำนำหน้าชื่อ", "ชื่อ", "นามสกุล", "กลุ่มสาระ", "อีเมล"]}
       tableData={teachers}
       mutate={handleMutate}
     />

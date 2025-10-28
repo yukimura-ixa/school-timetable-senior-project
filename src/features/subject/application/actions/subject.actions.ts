@@ -265,7 +265,7 @@ export const updateSubjectsAction = createAction(
 export const deleteSubjectsAction = createAction(
   deleteSubjectsSchema,
   async (input: DeleteSubjectsInput) => {
-    const result = await subjectRepository.deleteMany(input);
+    const result = await subjectRepository.deleteMany(input.subjectCodes);
 
     return {
       count: result.count,
@@ -291,7 +291,7 @@ export async function getSubjectCountAction() {
   try {
     const count = await subjectRepository.count();
     return { success: true as const, data: { count } };
-  } catch (error) {
+  } catch {
     return {
       success: false as const,
       error: 'ไม่สามารถนับจำนวนวิชาได้',

@@ -132,7 +132,9 @@ exports.Prisma.Class_scheduleScalarFieldEnum = {
 exports.Prisma.GradelevelScalarFieldEnum = {
   GradeID: 'GradeID',
   Year: 'Year',
-  Number: 'Number'
+  Number: 'Number',
+  StudentCount: 'StudentCount',
+  ProgramID: 'ProgramID'
 };
 
 exports.Prisma.RoomScalarFieldEnum = {
@@ -147,14 +149,32 @@ exports.Prisma.SubjectScalarFieldEnum = {
   SubjectName: 'SubjectName',
   Credit: 'Credit',
   Category: 'Category',
-  ProgramID: 'ProgramID'
+  LearningArea: 'LearningArea',
+  ActivityType: 'ActivityType',
+  IsGraded: 'IsGraded',
+  Description: 'Description'
 };
 
 exports.Prisma.ProgramScalarFieldEnum = {
   ProgramID: 'ProgramID',
+  ProgramCode: 'ProgramCode',
   ProgramName: 'ProgramName',
-  Semester: 'Semester',
-  AcademicYear: 'AcademicYear'
+  Year: 'Year',
+  Track: 'Track',
+  Description: 'Description',
+  MinTotalCredits: 'MinTotalCredits',
+  IsActive: 'IsActive'
+};
+
+exports.Prisma.Program_subjectScalarFieldEnum = {
+  ProgramSubjectID: 'ProgramSubjectID',
+  ProgramID: 'ProgramID',
+  SubjectCode: 'SubjectCode',
+  Category: 'Category',
+  IsMandatory: 'IsMandatory',
+  MinCredits: 'MinCredits',
+  MaxCredits: 'MaxCredits',
+  SortOrder: 'SortOrder'
 };
 
 exports.Prisma.TeacherScalarFieldEnum = {
@@ -274,6 +294,37 @@ exports.subject_credit = exports.$Enums.subject_credit = {
   CREDIT_20: 'CREDIT_20'
 };
 
+exports.SubjectCategory = exports.$Enums.SubjectCategory = {
+  CORE: 'CORE',
+  ADDITIONAL: 'ADDITIONAL',
+  ACTIVITY: 'ACTIVITY'
+};
+
+exports.LearningArea = exports.$Enums.LearningArea = {
+  THAI: 'THAI',
+  MATHEMATICS: 'MATHEMATICS',
+  SCIENCE: 'SCIENCE',
+  SOCIAL: 'SOCIAL',
+  HEALTH_PE: 'HEALTH_PE',
+  ARTS: 'ARTS',
+  CAREER: 'CAREER',
+  FOREIGN_LANGUAGE: 'FOREIGN_LANGUAGE'
+};
+
+exports.ActivityType = exports.$Enums.ActivityType = {
+  CLUB: 'CLUB',
+  SCOUT: 'SCOUT',
+  GUIDANCE: 'GUIDANCE',
+  SOCIAL_SERVICE: 'SOCIAL_SERVICE'
+};
+
+exports.ProgramTrack = exports.$Enums.ProgramTrack = {
+  SCIENCE_MATH: 'SCIENCE_MATH',
+  LANGUAGE_MATH: 'LANGUAGE_MATH',
+  LANGUAGE_ARTS: 'LANGUAGE_ARTS',
+  GENERAL: 'GENERAL'
+};
+
 exports.semester = exports.$Enums.semester = {
   SEMESTER_1: 'SEMESTER_1',
   SEMESTER_2: 'SEMESTER_2'
@@ -309,6 +360,7 @@ exports.Prisma.ModelName = {
   room: 'room',
   subject: 'subject',
   program: 'program',
+  program_subject: 'program_subject',
   teacher: 'teacher',
   timeslot: 'timeslot',
   teachers_responsibility: 'teachers_responsibility',

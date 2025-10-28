@@ -1,5 +1,6 @@
 import { TableSkeleton, NetworkErrorEmptyState } from "@/components/feedback";
 import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import { getProgramsGroupedByYearAction } from "@/features/program/application/actions/program.actions";
 import { GradeLevelManageClient } from "./component/GradeLevelManageClient";
 import { Suspense } from "react";
 
@@ -9,6 +10,7 @@ import { Suspense } from "react";
  */
 export default async function GradeLevelManagePage() {
   const result = await getGradeLevelsAction();
+  const programsByYear = await getProgramsGroupedByYearAction();
 
   // Error state
   if (!result.success) {
@@ -17,7 +19,7 @@ export default async function GradeLevelManagePage() {
 
   return (
     <Suspense fallback={<TableSkeleton rows={6} />}>
-      <GradeLevelManageClient initialData={result.data} />
+      <GradeLevelManageClient initialData={result.data} programsByYear={programsByYear.success ? programsByYear.data : {}} />
     </Suspense>
   );
 }
