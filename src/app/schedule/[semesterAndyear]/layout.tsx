@@ -18,9 +18,10 @@ export default async function ScheduleSemesterLayout({
   params,
 }: {
   children: ReactNode;
-  params: { semesterAndyear: string };
+  params: Promise<{ semesterAndyear: string }>;
 }) {
-  const { semester, year } = parseParam(params.semesterAndyear);
+  const { semesterAndyear } = await params;
+  const { semester, year } = parseParam(semesterAndyear);
 
   // Validate format
   if (!semester || !year) {
