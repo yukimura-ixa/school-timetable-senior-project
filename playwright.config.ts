@@ -37,7 +37,29 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Use Playwright's bundled Chromium (headless by default)
+        // This will work after running: npx playwright install chromium
+      },
+    },
+    {
+      name: 'brave',
+      use: {
+        ...devices['Desktop Chrome'],
+        // Use installed Brave browser
+        // Note: Do NOT set `channel` when using a custom `executablePath`.
+        // Setting both will cause Playwright to ignore the executablePath and try to launch the channel instead.
+        // Launch options for better automation
+          launchOptions: {
+            executablePath: 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe',
+          args: [
+            '--disable-blink-features=AutomationControlled', // Hide automation
+            '--disable-dev-shm-usage', // Overcome limited resource problems
+            '--no-sandbox', // Required for some environments
+          ],
+        },
+      },
     },
   ],
 

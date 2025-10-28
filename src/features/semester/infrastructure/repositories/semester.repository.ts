@@ -70,7 +70,8 @@ export class SemesterRepository {
     return prisma.table_config.findMany({
       where: {
         status: { not: "ARCHIVED" },
-        lastAccessedAt: { not: null },
+        // Exclude rows where lastAccessedAt is null by requiring a minimal date
+        lastAccessedAt: { gt: new Date(0) },
       },
       orderBy: { lastAccessedAt: "desc" },
       take: limit,

@@ -1,31 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import {
-  dashboardMenu,
-  scheduleMenu,
-  othersMenu,
-  showTimetableMenu,
-} from "@/raw-data/menubar-data";
-import { IoIosArrowDown } from "react-icons/io";
-import { useParams, usePathname } from "next/navigation";
+import { showTimetableMenu } from "@/raw-data/menubar-data";
+import { usePathname } from "next/navigation";
 function DashboardMenubar() {
   const pathName = usePathname();
-  const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
-  const [indexPoint, setIndexPoint] = useState<number>(-1);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  // State placeholders removed: component no longer depends on semester params
 
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
-  const makePath = (link: string):string => {
-    let splitLink = link.split("/")
-    return `${splitLink[1]}`
-  }
+  const makePath = (link: string): string => {
+    const splitLink = link.split("/");
+    return `${splitLink[1]}`;
+  };
   return (
     <>
-      {pathName == "/signin" ? null : (
+      {pathName === "/signin" ? null : (
         <aside className="flex flex-col gap-8 w-[270px] min-h-screen px-5 py-8 bg-[#F1F3F9]">
           {/* management */}
           {/* <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
@@ -80,7 +69,7 @@ function DashboardMenubar() {
                       className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer border-r-8 border-cyan-600 bg-cyan-100 text-cyan-600 duration-500`}
                       style={{
                         marginBottom:
-                          index == showTimetableMenu.length - 1 ? "10px" : 0,
+                          index === showTimetableMenu.length - 1 ? "10px" : 0,
                       }}
                     >
                       <item.IconStyle.Icon className={`fill-[#0891B2]`} />
@@ -93,7 +82,7 @@ function DashboardMenubar() {
                       className={`hoverfill flex items-center w-full gap-5 h-[45px] p-[10px] cursor-pointer text-[#4F4F4F] hover:bg-cyan-100 hover:text-cyan-600 duration-500`}
                       style={{
                         marginBottom:
-                          index == showTimetableMenu.length - 1 ? "10px" : 0,
+                          index === showTimetableMenu.length - 1 ? "10px" : 0,
                       }}
                     >
                       <item.IconStyle.Icon className={`iconhover`} />
