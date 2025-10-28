@@ -7,7 +7,6 @@ import { getPaginatedTeachers } from "@/lib/public/teachers";
 import Link from "next/link";
 import { ArrowForward } from "./Icons";
 import { TablePagination } from "./TablePagination";
-import { TableSearch } from "./TableSearch";
 
 type Props = {
   searchParams: {
@@ -174,7 +173,7 @@ export function PublicTeachersTableSkeleton() {
             <div className="h-4 bg-gray-200 rounded w-32"></div>
             <div className="h-4 bg-gray-200 rounded w-32"></div>
           </div>
-          {[...Array(10)].map((_, i) => (
+          {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="px-6 py-4 border-t border-gray-200">
               <div className="flex justify-between items-center">
                 <div className="h-4 bg-gray-200 rounded w-40"></div>

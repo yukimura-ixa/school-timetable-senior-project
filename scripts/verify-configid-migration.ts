@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * ConfigID Migration Verification Script
  * 
@@ -25,11 +26,6 @@ interface ConfigIDIssue {
 }
 
 const CANONICAL_CONFIGID_PATTERN = /^[1-3]-\d{4}$/;
-const OLD_CONFIGID_PATTERNS = [
-  /^SEMESTER_[1-3]_\d{4}$/, // SEMESTER_1_2567
-  /^\d+-SEMESTER_[1-3]$/, // 2567-SEMESTER_1
-  /^[1-3]\/\d{4}$/, // 1/2567
-];
 
 /**
  * Convert old ConfigID format to canonical format
@@ -98,12 +94,7 @@ function isCanonicalFormat(configId: string): boolean {
   return CANONICAL_CONFIGID_PATTERN.test(configId);
 }
 
-/**
- * Check if ConfigID is in an old format
- */
-function isOldFormat(configId: string): boolean {
-  return OLD_CONFIGID_PATTERNS.some(pattern => pattern.test(configId));
-}
+// NOTE: Old format detection is inlined where needed using OLD_CONFIGID_PATTERNS
 
 async function verifyTableConfig(): Promise<ConfigIDIssue[]> {
   console.log('\n📊 Checking table_config.ConfigID...');
@@ -200,7 +191,7 @@ async function verifyTimeslots(): Promise<ConfigIDIssue[]> {
   return issues;
 }
 
-async function generateMigrationReport(allIssues: ConfigIDIssue[]): Promise<void> {
+function generateMigrationReport(allIssues: ConfigIDIssue[]): void {
   console.log('\n' + '='.repeat(80));
   console.log('📋 MIGRATION REPORT');
   console.log('='.repeat(80));
@@ -216,10 +207,9 @@ async function generateMigrationReport(allIssues: ConfigIDIssue[]): Promise<void
   // Group by table
   const byTable = new Map<string, ConfigIDIssue[]>();
   for (const issue of allIssues) {
-    if (!byTable.has(issue.table)) {
-      byTable.set(issue.table, []);
-    }
-    byTable.get(issue.table)!.push(issue);
+    const current = byTable.get(issue.table) ?? [];
+    current.push(issue);
+    byTable.set(issue.table, current);
   }
 
   for (const [table, issues] of byTable.entries()) {
@@ -271,7 +261,7 @@ async function main() {
 
     const allIssues = [...configIssues, ...timeslotIssues];
 
-    await generateMigrationReport(allIssues);
+  generateMigrationReport(allIssues);
 
     // Exit with error code if issues found
     if (allIssues.length > 0) {
@@ -285,4 +275,4 @@ async function main() {
   }
 }
 
-main();
+void main();

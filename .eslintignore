@@ -1,0 +1,13 @@
+# Ignore generated Prisma client and artifacts
+prisma/generated/**
+
+# Build outputs
+.next/**
+coverage/**
+
+# Playwright artifacts
+test-results/**
+playwright-report/**
+
+# Ignore lockfiles in nested folders
+**/node_modules/**

@@ -7,13 +7,14 @@
 
 import prisma from "@/libs/prisma";
 import {
-  ConfigStatusSchema,
   UpdateConfigStatusSchema,
   calculateCompleteness,
   canTransitionStatus,
 } from "../schemas/config-lifecycle.schemas";
 import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 import * as v from "valibot";
+
+type ConfigStatus = "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
 
 /**
  * Update config status with validation
@@ -41,8 +42,8 @@ export async function updateConfigStatusAction(input: {
 
     // Check if transition is allowed
     const canTransition = canTransitionStatus(
-      config.status as any,
-      validated.status as any,
+      config.status as ConfigStatus,
+      validated.status as ConfigStatus,
       config.configCompleteness
     );
 
@@ -57,7 +58,7 @@ export async function updateConfigStatusAction(input: {
     const updated = await prisma.table_config.update({
       where: { ConfigID: validated.configId },
       data: {
-        status: validated.status as any,
+        status: validated.status as ConfigStatus,
         publishedAt: validated.status === "PUBLISHED" ? new Date() : config.publishedAt,
         updatedAt: new Date(),
       },
@@ -118,7 +119,7 @@ export async function updateConfigCompletenessAction(input: {
     });
 
     // Update config
-    const updated = await prisma.table_config.update({
+    await prisma.table_config.update({
       where: { ConfigID: configId },
       data: {
         configCompleteness: completeness,
@@ -199,7 +200,6 @@ export async function getConfigWithCompletenessAction(input: {
       success: true,
       data: {
         ...config,
-        Config: config.Config as any,
         counts: {
           timeslots: timeslotCount,
           teachers: teacherCount,

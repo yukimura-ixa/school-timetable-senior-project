@@ -24,7 +24,7 @@ import {
 } from "../schemas/semester.schemas";
 import prisma from "@/libs/prisma";
 
-type ActionResult<T = any> = {
+type ActionResult<T = unknown> = {
   success: boolean;
   data?: T;
   error?: string;
@@ -68,9 +68,10 @@ export async function getSemestersAction(
     );
 
     return { success: true, data: enrichedSemesters };
-  } catch (error: any) {
-    console.error("[getSemestersAction] Error:", error);
-    return { success: false, error: error.message || "Failed to fetch semesters" };
+  } catch (err: unknown) {
+    console.error("[getSemestersAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to fetch semesters";
+    return { success: false, error: message };
   }
 }
 
@@ -106,9 +107,10 @@ export async function getRecentSemestersAction(
     );
 
     return { success: true, data: enrichedSemesters };
-  } catch (error: any) {
-    console.error("[getRecentSemestersAction] Error:", error);
-    return { success: false, error: error.message };
+  } catch (err: unknown) {
+    console.error("[getRecentSemestersAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to fetch recent semesters";
+    return { success: false, error: message };
   }
 }
 
@@ -142,9 +144,10 @@ export async function getPinnedSemestersAction(): Promise<ActionResult<SemesterD
     );
 
     return { success: true, data: enrichedSemesters };
-  } catch (error: any) {
-    console.error("[getPinnedSemestersAction] Error:", error);
-    return { success: false, error: error.message };
+  } catch (err: unknown) {
+    console.error("[getPinnedSemestersAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to fetch pinned semesters";
+    return { success: false, error: message };
   }
 }
 
@@ -246,9 +249,10 @@ export async function createSemesterAction(
         subjectCount: stats?.subjectCount || 0,
       } as SemesterDTO,
     };
-  } catch (error: any) {
-    console.error("[createSemesterAction] Error:", error);
-    return { success: false, error: error.message || "Failed to create semester" };
+  } catch (err: unknown) {
+    console.error("[createSemesterAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to create semester";
+    return { success: false, error: message };
   }
 }
 
@@ -264,9 +268,10 @@ export async function updateSemesterStatusAction(
     await semesterRepository.updateStatus(input.configId, input.status);
 
     return { success: true };
-  } catch (error: any) {
-    console.error("[updateSemesterStatusAction] Error:", error);
-    return { success: false, error: error.message };
+  } catch (err: unknown) {
+    console.error("[updateSemesterStatusAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to update semester status";
+    return { success: false, error: message };
   }
 }
 
@@ -280,9 +285,10 @@ export async function pinSemesterAction(input: PinSemester): Promise<ActionResul
     await semesterRepository.togglePin(input.configId, input.isPinned);
 
     return { success: true };
-  } catch (error: any) {
-    console.error("[pinSemesterAction] Error:", error);
-    return { success: false, error: error.message };
+  } catch (err: unknown) {
+    console.error("[pinSemesterAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to pin semester";
+    return { success: false, error: message };
   }
 }
 
@@ -298,9 +304,10 @@ export async function trackSemesterAccessAction(
     await semesterRepository.trackAccess(input.configId);
 
     return { success: true };
-  } catch (error: any) {
-    console.error("[trackSemesterAccessAction] Error:", error);
-    return { success: false, error: error.message };
+  } catch (err: unknown) {
+    console.error("[trackSemesterAccessAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to track semester access";
+    return { success: false, error: message };
   }
 }
 
@@ -385,9 +392,10 @@ export async function copySemesterAction(
         subjectCount: stats?.subjectCount || 0,
       } as SemesterDTO,
     };
-  } catch (error: any) {
-    console.error("[copySemesterAction] Error:", error);
-    return { success: false, error: error.message };
+  } catch (err: unknown) {
+    console.error("[copySemesterAction] Error:", err);
+    const message = err instanceof Error ? err.message : "Failed to copy semester";
+    return { success: false, error: message };
   }
 }
 

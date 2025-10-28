@@ -21,16 +21,19 @@ jest.mock("@/libs/prisma", () => ({
     timeslot: {
       count: jest.fn(),
     },
-    teacher: {
+    teachers_responsibility: {
       count: jest.fn(),
     },
     subject: {
       count: jest.fn(),
     },
-    program: {
+    gradelevel: {
       count: jest.fn(),
     },
-    rooms: {
+    room: {
+      count: jest.fn(),
+    },
+    class_schedule: {
       count: jest.fn(),
     },
   },
@@ -89,7 +92,8 @@ describe("updateConfigStatusAction", () => {
 
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
-    expect(result.error).toContain("30%");
+    // Reason from canTransitionStatus: must set timeslots first
+    expect(result.error).toContain("ตั้งค่าคาบเรียน");
     expect(mockPrisma.table_config.update).not.toHaveBeenCalled();
   });
 
@@ -194,10 +198,10 @@ describe("updateConfigCompletenessAction", () => {
 
   it("should calculate 0% completeness when no data exists", async () => {
     mockPrisma.timeslot.count.mockResolvedValue(0);
-    mockPrisma.teacher.count.mockResolvedValue(0);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
     mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.program.count.mockResolvedValue(0);
-    mockPrisma.rooms.count.mockResolvedValue(0);
+    mockPrisma.gradelevel.count.mockResolvedValue(0);
+    mockPrisma.room.count.mockResolvedValue(0);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 0,
     } as any);
@@ -213,10 +217,10 @@ describe("updateConfigCompletenessAction", () => {
 
   it("should calculate 100% completeness when all data exists", async () => {
     mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teacher.count.mockResolvedValue(15);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
     mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.program.count.mockResolvedValue(20);
-    mockPrisma.rooms.count.mockResolvedValue(10);
+    mockPrisma.gradelevel.count.mockResolvedValue(20);
+    mockPrisma.room.count.mockResolvedValue(10);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 100,
     } as any);
@@ -232,10 +236,10 @@ describe("updateConfigCompletenessAction", () => {
 
   it("should calculate 30% completeness when only timeslots exist", async () => {
     mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teacher.count.mockResolvedValue(0);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
     mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.program.count.mockResolvedValue(0);
-    mockPrisma.rooms.count.mockResolvedValue(0);
+    mockPrisma.gradelevel.count.mockResolvedValue(0);
+    mockPrisma.room.count.mockResolvedValue(0);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 30,
     } as any);
@@ -251,10 +255,10 @@ describe("updateConfigCompletenessAction", () => {
 
   it("should use Promise.all for parallel counting", async () => {
     mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teacher.count.mockResolvedValue(15);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
     mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.program.count.mockResolvedValue(20);
-    mockPrisma.rooms.count.mockResolvedValue(10);
+    mockPrisma.gradelevel.count.mockResolvedValue(20);
+    mockPrisma.room.count.mockResolvedValue(10);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 100,
     } as any);
@@ -266,10 +270,10 @@ describe("updateConfigCompletenessAction", () => {
 
     // All counts should be called
     expect(mockPrisma.timeslot.count).toHaveBeenCalled();
-    expect(mockPrisma.teacher.count).toHaveBeenCalled();
+    expect(mockPrisma.teachers_responsibility.count).toHaveBeenCalled();
     expect(mockPrisma.subject.count).toHaveBeenCalled();
-    expect(mockPrisma.program.count).toHaveBeenCalled();
-    expect(mockPrisma.rooms.count).toHaveBeenCalled();
+    expect(mockPrisma.gradelevel.count).toHaveBeenCalled();
+    expect(mockPrisma.room.count).toHaveBeenCalled();
     expect(result.success).toBe(true);
   });
 
@@ -289,10 +293,10 @@ describe("updateConfigCompletenessAction", () => {
 
   it("should update config with correct configId format", async () => {
     mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teacher.count.mockResolvedValue(15);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
     mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.program.count.mockResolvedValue(20);
-    mockPrisma.rooms.count.mockResolvedValue(10);
+    mockPrisma.gradelevel.count.mockResolvedValue(20);
+    mockPrisma.room.count.mockResolvedValue(10);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 100,
     } as any);
@@ -341,26 +345,23 @@ describe("getConfigWithCompletenessAction", () => {
       },
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teacher.count.mockResolvedValue(15);
-    mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.program.count.mockResolvedValue(20);
-    mockPrisma.rooms.count.mockResolvedValue(10);
+  mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
+  mockPrisma.timeslot.count.mockResolvedValue(8);
+  mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
+  mockPrisma.class_schedule.count.mockResolvedValue(20);
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
       semester: "SEMESTER_1",
     });
 
-    expect(result.success).toBe(true);
-    expect(result.data).toBeDefined();
-    expect(result.data?.config).toEqual(mockConfig);
-    expect(result.data?.timeslotCount).toBe(8);
-    expect(result.data?.teacherCount).toBe(15);
-    expect(result.data?.subjectCount).toBe(12);
-    expect(result.data?.classCount).toBe(20);
-    expect(result.data?.roomCount).toBe(10);
+  expect(result.success).toBe(true);
+  expect(result.data).toBeDefined();
+  // Returned data spreads config and adds counts object
+  expect(result.data?.ConfigID).toBe("1-2024");
+  expect(result.data?.counts?.timeslots).toBe(8);
+  expect(result.data?.counts?.teachers).toBe(15);
+  expect(result.data?.counts?.schedules).toBe(20);
   });
 
   it("should handle database errors gracefully", async () => {
@@ -427,10 +428,8 @@ describe("getConfigWithCompletenessAction", () => {
 
     mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
     mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teacher.count.mockResolvedValue(15);
-    mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.program.count.mockResolvedValue(20);
-    mockPrisma.rooms.count.mockResolvedValue(10);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
+    mockPrisma.class_schedule.count.mockResolvedValue(20);
 
     await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -444,7 +443,7 @@ describe("getConfigWithCompletenessAction", () => {
       },
     });
 
-    expect(mockPrisma.teacher.count).toHaveBeenCalledWith({
+    expect(mockPrisma.teachers_responsibility.count).toHaveBeenCalledWith({
       where: {
         AcademicYear: 2024,
         Semester: "SEMESTER_1",

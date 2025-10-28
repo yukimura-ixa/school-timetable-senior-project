@@ -4,6 +4,7 @@
  */
 
 import prisma from "@/libs/prisma";
+import type { Prisma } from "../../../prisma/generated";
 
 export type PublicTeacher = {
   teacherId: number;
@@ -13,6 +14,18 @@ export type PublicTeacher = {
   weeklyHours: number;
   utilization: number; // percentage based on max hours (e.g., 40)
 };
+
+// Typed shape for teachers + responsibilities using Prisma payload
+type TeacherWithResponsibilities = Prisma.teacherGetPayload<{
+  include: {
+    teachers_responsibility: {
+      select: {
+        SubjectCode: true;
+        TeachHour: true;
+      };
+    };
+  };
+}>;
 
 const MAX_WEEKLY_HOURS = 40;
 
@@ -24,7 +37,7 @@ export async function getPublicTeachers(
   searchQuery?: string,
   sortBy?: "name" | "hours" | "utilization",
   sortOrder?: "asc" | "desc",
-) {
+) : Promise<PublicTeacher[]> {
     try {
       // Get current academic term from latest table_config
       const config = await prisma.table_config.findFirst({
@@ -37,7 +50,7 @@ export async function getPublicTeachers(
       }
 
       // Query teachers with their teaching responsibilities
-      const teachers = await prisma.teacher.findMany({
+      const teachers = (await prisma.teacher.findMany({
         where: searchQuery
           ? {
               OR: [
@@ -65,22 +78,24 @@ export async function getPublicTeachers(
             },
           },
         },
-      });
+      })) as TeacherWithResponsibilities[];
 
     // Map to public view model (excluding Email for PII protection)
-    const publicTeachers: PublicTeacher[] = teachers.map((teacher: any) => {
+    const publicTeachers: PublicTeacher[] = teachers.map((teacher) => {
       const uniqueSubjects = new Set(
-        teacher.teachers_responsibility.map((r: any) => r.SubjectCode),
+        teacher.teachers_responsibility.map((r) => r.SubjectCode),
       );
       const totalHours = teacher.teachers_responsibility.reduce(
-        (sum: number, r: any) => sum + r.TeachHour,
+        (sum, r) => sum + r.TeachHour,
         0,
       );
 
+      const prefix = teacher.Prefix ?? "";
+
       return {
         teacherId: teacher.TeacherID,
-        name: `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`,
-        department: teacher.Department,
+        name: `${prefix}${teacher.Firstname} ${teacher.Lastname}`,
+        department: teacher.Department ?? "",
         subjectCount: uniqueSubjects.size,
         weeklyHours: totalHours,
         utilization: Math.round((totalHours / MAX_WEEKLY_HOURS) * 100),
@@ -118,7 +133,13 @@ export async function getPaginatedTeachers(params: {
   search?: string;
   sortBy?: "name" | "hours" | "utilization";
   sortOrder?: "asc" | "desc";
-}) {
+}): Promise<{
+  data: PublicTeacher[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}> {
   const {
     page = 1,
     perPage = 25,
@@ -144,7 +165,7 @@ export async function getPaginatedTeachers(params: {
 /**
  * Get total teacher count
  */
-export async function getTeacherCount() {
+export async function getTeacherCount(): Promise<number> {
   try {
     return await prisma.teacher.count();
   } catch (err) {
@@ -156,7 +177,7 @@ export async function getTeacherCount() {
 /**
  * Get top teachers by utilization for visualization
  */
-export async function getTopTeachersByUtilization(limit = 5) {
+export async function getTopTeachersByUtilization(limit = 5): Promise<PublicTeacher[]> {
   try {
     const teachers = await getPublicTeachers(undefined, "utilization", "desc");
     return teachers.slice(0, limit);
@@ -168,7 +189,11 @@ export async function getTopTeachersByUtilization(limit = 5) {
 /**
  * Get a single teacher by ID with public-safe data
  */
-export async function getPublicTeacherById(teacherId: number) {
+export async function getPublicTeacherById(teacherId: number): Promise<{
+  teacherId: number;
+  name: string;
+  department: string | null;
+} | null> {
   try {
     const teacher = await prisma.teacher.findUnique({
       where: { TeacherID: teacherId },

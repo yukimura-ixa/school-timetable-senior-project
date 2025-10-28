@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 "use client";
 import { usePathname } from "next/navigation";
 import Menubar from "./Menubar";
@@ -19,11 +18,11 @@ function Content(props: Props) {
             : "w-full max-w-7xl mx-auto"
         } h-auto`}
       >
-        {pathName == "/" ? (
+        {pathName === "/" ? (
           <span className="flex w-full h-auto">
             {props.children}
           </span>
-        ) : pathName == "/signin" ? (
+        ) : pathName === "/signin" ? (
           <span className="w-full h-auto">{props.children}</span>
         ) : pathName.match("/dashboard") ? (
           <>

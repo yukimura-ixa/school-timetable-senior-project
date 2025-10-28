@@ -57,6 +57,7 @@
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
+    "scripts/**/*.ts",
     "proxy.ts",
     "playwright.config.ts",
     "prisma.config.ts",

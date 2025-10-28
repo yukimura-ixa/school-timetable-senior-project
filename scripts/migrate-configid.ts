@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * ConfigID Migration Script
  * 
@@ -15,6 +16,7 @@
  */
 
 import prisma from '../src/libs/prisma';
+import { Prisma } from '@prisma/client';
 
 interface MigrationResult {
   success: boolean;
@@ -78,7 +80,7 @@ async function migrateTableConfig(): Promise<MigrationResult> {
               ConfigID: canonical,
               AcademicYear: config.AcademicYear,
               Semester: config.Semester,
-              Config: config.Config,
+              Config: config.Config as unknown as Prisma.InputJsonValue,
               status: config.status,
               publishedAt: config.publishedAt,
               isPinned: config.isPinned,
@@ -206,7 +208,7 @@ async function migrateTimeslots(): Promise<MigrationResult> {
                 where: { TimeslotID: timeslot.TimeslotID },
               });
               console.log(`   🗑️  Deleted old: ${timeslot.TimeslotID}`);
-            } catch (error) {
+            } catch {
               console.log(`   ⚠️  Could not delete ${timeslot.TimeslotID} (may be referenced by class_schedule)`);
             }
           } catch (error) {
@@ -283,4 +285,4 @@ async function main() {
   }
 }
 
-main();
+void main();
