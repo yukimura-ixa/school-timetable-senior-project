@@ -360,6 +360,28 @@ npm start
    - Define class duration and break times
    - Configure school days
 
+### 🌐 Production Setup (Vercel)
+
+**Seeding Production Database:**
+
+If you need to create semester records in production (e.g., 2567-2568):
+
+```pwsh
+# 1. Add SEED_SECRET to Vercel environment variables (one-time setup)
+pnpm seed:setup
+
+# 2. Run the production seed script
+pnpm seed:prod
+```
+
+📖 **Quick Guide**: [docs/QUICK_SEED_SETUP.md](docs/QUICK_SEED_SETUP.md)  
+📚 **Full Documentation**: [docs/PRODUCTION_SEED_GUIDE.md](docs/PRODUCTION_SEED_GUIDE.md)
+
+This will:
+- ✅ Create missing semester records (idempotent - safe to run multiple times)
+- ✅ Enable access to routes like `/dashboard/1-2567/all-timeslot`
+- ✅ Prevent redirect loops for valid semesters
+
 ### การจัดการข้อมูล | Data Management
 
 **ภาษาไทย:**
