@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import HomeIcon from "@mui/icons-material/Home";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -14,6 +14,10 @@ export default function Error({
   reset: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const match = pathname?.match(/\/(dashboard|schedule)\/(\d-\d{4})\//);
+  const termLabel = match?.[2]?.replace("-", "/");
 
   useEffect(() => {
     // Log the error to an error reporting service
@@ -44,7 +48,9 @@ export default function Error({
         </h1>
 
         <p className="mt-6 text-base leading-7 text-gray-600">
-          ขออภัย เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้งหรือกลับหน้าแรก
+          {termLabel
+            ? `ไม่พบภาคเรียน ${termLabel} ในระบบ หรือยังไม่ได้ตั้งค่า`
+            : "ขออภัย เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้งหรือกลับหน้าแรก"}
         </p>
 
         {error.message && (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import HomeIcon from "@mui/icons-material/Home";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -14,6 +14,9 @@ export default function Error({
   reset: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const match = pathname?.match(/\/(dashboard|schedule)\/(\d-\d{4})\//);
+  const termLabel = match?.[2]?.replace("-", "/");
 
   useEffect(() => {
     console.error("Schedule route error:", error);
@@ -27,7 +30,9 @@ export default function Error({
           เกิดข้อผิดพลาด
         </h1>
         <p className="mt-6 text-base leading-7 text-gray-600">
-          {error.message || "ไม่สามารถโหลดข้อมูลการตั้งค่าตารางเรียนได้"}
+          {termLabel
+            ? `ไม่พบภาคเรียน ${termLabel} ในระบบ หรือยังไม่ได้ตั้งค่า`
+            : error.message || "ไม่สามารถโหลดข้อมูลการตั้งค่าตารางเรียนได้"}
         </p>
         <p className="mt-2 text-sm text-gray-500">
           กรุณาตรวจสอบว่าภาคเรียนและปีการศึกษามีอยู่ในระบบ
