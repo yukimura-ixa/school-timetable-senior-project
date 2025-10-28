@@ -12,6 +12,7 @@ import {
   calculateCompleteness,
   canTransitionStatus,
 } from "../schemas/config-lifecycle.schemas";
+import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 import * as v from "valibot";
 
 /**
@@ -83,7 +84,9 @@ export async function updateConfigCompletenessAction(input: {
   semester: "SEMESTER_1" | "SEMESTER_2";
 }) {
   try {
-    const configId = `${input.semester}_${input.academicYear}`;
+    // Convert SEMESTER_1 to "1", SEMESTER_2 to "2"
+    const semesterNum = input.semester === "SEMESTER_1" ? "1" : input.semester === "SEMESTER_2" ? "2" : "3";
+    const configId = generateConfigID(semesterNum, input.academicYear);
 
     // Count related data
     const [timeslotCount, teacherCount, subjectCount, classCount, roomCount] =
@@ -153,7 +156,9 @@ export async function getConfigWithCompletenessAction(input: {
   semester: "SEMESTER_1" | "SEMESTER_2";
 }) {
   try {
-    const configId = `${input.semester}_${input.academicYear}`;
+    // Convert SEMESTER_1 to "1", SEMESTER_2 to "2"
+    const semesterNum = input.semester === "SEMESTER_1" ? "1" : input.semester === "SEMESTER_2" ? "2" : "3";
+    const configId = generateConfigID(semesterNum, input.academicYear);
 
     const config = await prisma.table_config.findUnique({
       where: { ConfigID: configId },

@@ -99,9 +99,9 @@ teachersResponsibilityRepository:
 //     6. Set next slot StartTime = current EndTime
 ```
 
-**TimeslotID Pattern:**
-- Format: `"Semester[9]/AcademicYear-DayOfWeek+SlotNumber"`
-- Example: `"1/2567-MON1"`, `"2/2567-FRI8"`
+**TimeslotID Pattern (Updated October 2025):**
+- Format: `"SEMESTER-YEAR-DAYPERIOD"`
+- Example: `"1-2567-MON1"`, `"2-2567-FRI8"`
 
 **Breaktime Logic:**
 ```typescript
@@ -261,7 +261,7 @@ MON8: 12:50-13:40 (NOT_BREAK)
 // timeslot.service.test.ts
 describe('generateTimeslotId', () => {
   it('should format correctly', () => {
-    expect(generateTimeslotId('SEMESTER_1', 2567, 'MON', 1)).toBe('1/2567-MON1');
+    expect(generateTimeslotId('SEMESTER_1', 2567, 'MON', 1)).toBe('1-2567-MON1');
   });
 });
 

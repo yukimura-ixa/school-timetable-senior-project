@@ -160,8 +160,8 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 | 7 | 14:30-15:20 | None |
 | 8 | 15:20-16:10 | None |
 
-**Timeslot ID Format**: `1/2567-{DAY}{PERIOD}`
-- Example: `1/2567-MON1` = Semester 1, Year 2567, Monday Period 1
+**Timeslot ID Format**: `1-2567-{DAY}{PERIOD}`
+- Example: `1-2567-MON1` = Semester 1, Year 2567, Monday Period 1
 
 ### Teacher Responsibilities (ความรับผิดชอบครู)
 

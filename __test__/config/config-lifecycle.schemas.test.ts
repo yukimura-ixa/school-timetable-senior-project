@@ -39,21 +39,21 @@ describe("ConfigStatusSchema", () => {
 describe("UpdateConfigStatusSchema", () => {
   it("should accept valid input with required fields", () => {
     const input = {
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "PUBLISHED",
     };
     
     const result = v.safeParse(UpdateConfigStatusSchema, input);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.output.configId).toBe("SEMESTER_1_2024");
+      expect(result.output.configId).toBe("1-2024");
       expect(result.output.status).toBe("PUBLISHED");
     }
   });
 
   it("should accept valid input with optional reason", () => {
     const input = {
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "LOCKED",
       reason: "Finalizing timetable for exam period",
     };
@@ -67,7 +67,7 @@ describe("UpdateConfigStatusSchema", () => {
 
   it("should reject input with missing required fields", () => {
     const invalidInputs = [
-      { configId: "SEMESTER_1_2024" }, // missing status
+      { configId: "1-2024" }, // missing status
       { status: "PUBLISHED" }, // missing configId
       {}, // missing both
     ];
@@ -80,7 +80,7 @@ describe("UpdateConfigStatusSchema", () => {
 
   it("should reject input with invalid status", () => {
     const input = {
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "INVALID_STATUS",
     };
     

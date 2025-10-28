@@ -211,10 +211,15 @@ The system uses a relational database with the following main entities:
 
 **All project documentation has been organized in the `/docs` folder.**
 
+### Core Documentation
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup instructions with OAuth bypass for testing
 - **[Documentation Index](docs/INDEX.md)** - Complete documentation catalog
 - **[Test Plan](docs/TEST_PLAN.md)** - 29 comprehensive test cases
 - **[Database Overview](docs/DATABASE_OVERVIEW.md)** - Schema and data model
+
+### Operations & Testing
+- **[Seeding and Testing Guide](docs/SEEDING_AND_TESTING_GUIDE.md)** - Production seeding and test workflows
+- **[ConfigID Format Migration](docs/CONFIGID_FORMAT_MIGRATION.md)** - ConfigID standardization plan
 
 ---
 
@@ -370,15 +375,20 @@ If you need to create semester records in production (e.g., 2567-2568):
 # 1. Add SEED_SECRET to Vercel environment variables (one-time setup)
 pnpm seed:setup
 
-# 2. Run the production seed script
+# 2. Run the production seed script (basic - semesters only)
 pnpm seed:prod
+
+# OR run with full data seeding (semesters + timeslots + config)
+.\scripts\seed-production.ps1 -SeedData
 ```
 
 📖 **Quick Guide**: [docs/QUICK_SEED_SETUP.md](docs/QUICK_SEED_SETUP.md)  
-📚 **Full Documentation**: [docs/PRODUCTION_SEED_GUIDE.md](docs/PRODUCTION_SEED_GUIDE.md)
+📚 **Full Documentation**: [docs/PRODUCTION_SEED_GUIDE.md](docs/PRODUCTION_SEED_GUIDE.md)  
+🧪 **Testing Guide**: [docs/SEEDING_AND_TESTING_GUIDE.md](docs/SEEDING_AND_TESTING_GUIDE.md)
 
 This will:
 - ✅ Create missing semester records (idempotent - safe to run multiple times)
+- ✅ Optionally create baseline timeslots and table config (with `-SeedData` flag)
 - ✅ Enable access to routes like `/dashboard/1-2567/all-timeslot`
 - ✅ Prevent redirect loops for valid semesters
 

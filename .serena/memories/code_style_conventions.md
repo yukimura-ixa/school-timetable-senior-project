@@ -1,189 +1,355 @@
-# Code Style and Conventions
+# Code Style & Conventions
 
-## TypeScript Configuration
+## General Principles
+- **Feature-based architecture** with clear separation of concerns
+- **Pure functions** for business logic (domain layer)
+- **Idempotent operations** for all database mutations
+- **Type safety** preferred but strict mode disabled (legacy)
+- **Server components** by default; client components marked with `"use client"`
 
-### Current Settings (Intentionally Relaxed)
-The project has **intentionally relaxed TypeScript settings** to avoid massive breaking changes:
+## TypeScript
 
-```jsonc
-{
-  "strict": false,                    // Strict mode disabled
-  "noUnusedLocals": false,           // Allow unused variables
-  "noUnusedParameters": false,       // Allow unused parameters
-  "noImplicitReturns": false,        // Allow implicit returns
-  "noFallthroughCasesInSwitch": true // Prevent switch fallthrough
-}
+### Configuration
+- Target: ES5
+- Module: ESNext
+- Module Resolution: Bundler
+- Strict: **false** (legacy - gradually improving)
+- JSX: react-jsx (React 19 automatic runtime)
+
+### Type Conventions
+- Use TypeScript types, avoid `any` where possible
+- Prefer interfaces for object shapes
+- Use type aliases for unions and primitives
+- Export types alongside implementations
+- Use Valibot's `InferOutput<>` for schema-derived types
+
+### Naming Conventions
+```typescript
+// Interfaces/Types - PascalCase
+interface TeacherData {}
+type ConfigID = string;
+
+// Functions - camelCase
+function generateConfigID() {}
+export async function getTeachers() {}
+
+// Server Actions - camelCase with descriptive names
+export async function createSemester() {}
+export async function validateConfigID() {}
+
+// Constants - UPPER_SNAKE_CASE or PascalCase
+const MAX_PERIODS = 8;
+const DefaultConfig = {...};
+
+// Components - PascalCase
+export default function TeacherTable() {}
+
+// Files - kebab-case for utilities, PascalCase for components
+// teacher-validation.service.ts
+// TeacherTable.tsx
 ```
 
-### Future Improvement Goal
-During refactoring, progressively enable stricter TypeScript checks:
-1. Enable `strict: true`
-2. Enable `noUnusedLocals: true`
-3. Enable `noUnusedParameters: true`
-4. Enable `noImplicitReturns: true`
-5. Eliminate all `any` types
-
-## Naming Conventions
-
-### Files & Directories
-- **Components**: PascalCase (e.g., `TeacherTable.tsx`, `AddModalForm.tsx`)
-- **Utilities**: camelCase (e.g., `parseUtils.ts`, `apiErrorHandling.ts`)
-- **API Routes**: lowercase with hyphens (e.g., `route.ts` in directories)
-- **Pages**: lowercase with hyphens or `page.tsx` (Next.js App Router)
-- **Hooks**: camelCase with descriptive names (e.g., `teacherData.ts`, `useTeachers`)
-
-### Variables & Functions
-- **Variables**: camelCase (e.g., `teacherData`, `isLoading`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `API_BASE_URL`)
-- **Functions**: camelCase (e.g., `fetchTeachers`, `checkConflict`)
-- **React Components**: PascalCase (e.g., `TeacherTable`, `SearchBar`)
-- **Interfaces/Types**: PascalCase (e.g., `Teacher`, `ClassSchedule`)
-
-### Database Models (Prisma)
-- **Table names**: snake_case (e.g., `class_schedule`, `teacher_responsibility`)
-- **Column names**: PascalCase (e.g., `TeacherID`, `FirstName`, `SubjectCode`)
-- **Relationships**: camelCase (e.g., `teacher`, `gradelevel`)
+### Path Aliases
+```typescript
+@/           // Root (src/)
+@/features   // Feature modules
+@/components // Shared components
+@/lib        // Utilities
+@/prisma/generated       // Prisma client
+@/prisma/generated/edge  // Prisma edge client (for Accelerate)
+```
 
 ## Code Organization
 
-### Component Structure
+### Feature Structure
+```
+features/semester/
+├── application/
+│   ├── actions/          # Server actions (async, "use server")
+│   │   └── semester.actions.ts
+│   └── schemas/          # Valibot validation schemas
+│       └── semester.schemas.ts
+├── domain/
+│   └── services/         # Pure business logic functions
+│       └── semester-validation.service.ts
+├── infrastructure/
+│   └── repositories/     # Database access layer
+│       └── semester.repository.ts
+└── presentation/         # (optional) UI-specific code
+    ├── components/
+    ├── hooks/
+    └── stores/
+```
+
+### Domain Layer Rules
+- **Pure functions only** - no side effects
+- **No database access** - use repository pattern
+- **Validation returns**: `string | null` (error message or null)
+- **Clear function names**: `validateConfigExists()`, `checkDuplicateConfig()`
+
+### Repository Layer
+- Export named functions/objects, not classes
+- Use Prisma client singleton
+- Idempotent operations (upsert, skipDuplicates)
+- Return domain types, not Prisma types directly
+
+### Action Layer (Server Actions)
+- Mark with `"use server"` directive
+- Return `ActionResult<T>` pattern:
+  ```typescript
+  type ActionResult<T> = {
+    success: boolean;
+    data?: T;
+    error?: string;
+  };
+  ```
+- Validate input with Valibot schemas
+- Call domain services for business logic
+- Call repositories for data access
+- Wrap in try-catch with user-friendly errors
+
+## React Components
+
+### File Structure
 ```tsx
-// 1. Imports (external libraries first, then local)
-import { useState } from "react";
+// Imports - grouped logically
+import { ReactNode } from "react";
+import { redirect } from "next/navigation";
 import { Button } from "@mui/material";
-import { CustomComponent } from "@/components/custom";
+import { customUtil } from "@/lib/utils";
 
-// 2. Types/Interfaces
-interface ComponentProps {
-  title: string;
-  onAction: () => void;
+// Types/Interfaces
+interface TeacherTableProps {
+  teachers: Teacher[];
+  semester: string;
 }
 
-// 3. Component Definition
-export default function Component({ title, onAction }: ComponentProps) {
-  // 4. State declarations
-  const [state, setState] = useState();
-
-  // 5. Effects and hooks
-  useEffect(() => {}, []);
-
-  // 6. Event handlers
-  const handleClick = () => {};
-
-  // 7. Render helpers
-  const renderSection = () => {};
-
-  // 8. Return JSX
-  return <div>{/* ... */}</div>;
+// Component
+export default function TeacherTable({ teachers, semester }: TeacherTableProps) {
+  // Hooks at top
+  const [selected, setSelected] = useState<number[]>([]);
+  
+  // Event handlers
+  const handleSelect = (id: number) => {
+    setSelected(prev => [...prev, id]);
+  };
+  
+  // Render
+  return <div>...</div>;
 }
 ```
 
-### API Route Structure
-```typescript
-// Current structure (to be refactored):
-// - HTTP concerns mixed with Prisma queries and business logic
-// - Direct Prisma calls in route handlers
+### Component Conventions
+- Default export for page components
+- Named exports for reusable components
+- Props interface defined above component
+- Server components by default (no `"use client"` unless needed)
+- Client components: state, effects, event handlers, browser APIs
 
-// Future structure (Clean Architecture):
-// - Separate handlers, services, and repositories
-// - Use Server Actions for mutations
-```
-
-## Styling Conventions
-
-### Tailwind CSS
-- **Utility-first approach**: Use Tailwind utility classes
-- **Custom CSS**: Avoid unless absolutely necessary
-- **Responsive design**: Use Tailwind responsive prefixes (`sm:`, `md:`, `lg:`, etc.)
-- **Accessibility**: Ensure proper color contrast and keyboard navigation
-
-### Component Styling
+### Async Components (Server)
 ```tsx
-// Preferred: Tailwind utilities
-<button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-  Click Me
-</button>
-
-// For complex/reusable styles: Extract to component
-// For dynamic styles: Use clsx or cn utility
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ semesterAndyear: string }>;
+}) {
+  const { semesterAndyear } = await params;
+  // Await data fetching
+  const data = await fetchData();
+  return <div>{data}</div>;
+}
 ```
 
-## Code Quality Standards
+## Validation
 
-### Pure Functions
-- **Prefer pure functions** for business logic (no side effects)
-- **Constraint checks** should be pure and testable
-- **Keep side effects at edges** (API boundaries, React effects)
-
-### Error Handling
-- **Consistent error handling** across all routes
-- **Proper error types** (avoid generic `Error`)
-- **User-friendly error messages**
-
-### Testing
-- **Table-driven tests** for business logic
-- **Unit tests** for pure functions and utilities
-- **Integration tests** for API routes
-- **E2E tests** for critical user flows
-
-### Comments & Documentation
-- **Self-documenting code**: Prefer clear naming over comments
-- **JSDoc comments**: For public APIs and complex functions
-- **Inline comments**: Only when logic is non-obvious
-- **README files**: In feature directories when needed
-
-## Prisma Best Practices
-
-### Schema as Single Source of Truth
-- **All data models** defined in `schema.prisma`
-- **Generate TypeScript types** after schema changes
-- **Use Prisma relations** for data integrity
-
-### Query Patterns
+### Valibot Schemas
 ```typescript
-// Preferred: Type-safe queries
-const teacher = await prisma.teacher.findUnique({
-  where: { TeacherID: id },
-  include: { teachers_responsibility: true },
+import * as v from 'valibot';
+
+export const createConfigSchema = v.object({
+  ConfigID: v.pipe(
+    v.string('ConfigID ต้องเป็นข้อความ'),
+    v.nonEmpty('ConfigID ต้องไม่เป็นค่าว่าง'),
+    v.regex(/^[1-3]-\d{4}$/, 'ConfigID ต้องมีรูปแบบ "SEMESTER-YEAR"')
+  ),
+  AcademicYear: v.pipe(
+    v.number('ปีการศึกษาต้องเป็นตัวเลข'),
+    v.integer('ปีการศึกษาต้องเป็นจำนวนเต็ม'),
+    v.minValue(2500, 'ปีการศึกษาต้องไม่น้อยกว่า 2500')
+  ),
 });
 
-// Avoid: Raw SQL unless necessary
-// Use: Prisma's transaction API for complex operations
+export type CreateConfigInput = v.InferOutput<typeof createConfigSchema>;
 ```
 
-### Idempotent Operations
-- **Database operations should be safe to retry**
-- **Use upsert** when appropriate
-- **Handle concurrent updates** gracefully
+### Error Messages
+- Use **Thai language** for user-facing errors
+- Use **English** for developer errors (console, logs)
+- Provide actionable error messages
 
-## Import Aliases
+## Database (Prisma)
 
-### Path Aliases (tsconfig.json)
+### Client Usage
 ```typescript
-// Use @/ alias for src/ directory
-import { Teacher } from "@/types/teacher";
-import { fetchData } from "@/functions/api";
-import { Button } from "@/components/elements";
+import prisma from '@/lib/prisma'; // Singleton client
+
+// Idempotent create
+await prisma.timeslot.createMany({
+  data: timeslots,
+  skipDuplicates: true,
+});
+
+// Upsert for updates
+await prisma.table_config.upsert({
+  where: { ConfigID: configId },
+  update: { Config: newConfig },
+  create: { ConfigID: configId, Config: newConfig },
+});
 ```
 
-## Prettier Configuration
+### Migrations
+- Run `pnpm prisma migrate dev` after schema changes
+- Always name migrations descriptively
+- Never edit migration files manually
+- Run `pnpm prisma generate` after schema changes
 
-Current settings:
-```json
-{
-  "semi": true,                 // Use semicolons
-  "singleQuote": false,        // Use double quotes
-  "trailingComma": "all",      // Trailing commas everywhere
-  "bracketSameLine": false     // Closing brackets on new line
+### Seeding
+- Idempotent seed functions
+- Use `skipDuplicates: true` for createMany
+- Check existence before creating
+
+## Styling
+
+### Tailwind CSS v4
+- Utility-first approach
+- Use `@apply` sparingly
+- Responsive modifiers: `md:`, `lg:`, `xl:`
+- Dark mode: (not currently implemented)
+
+### MUI v7
+- Use theme customization in `src/app/theme.ts`
+- Prefer MUI components for consistency
+- Override styles with `sx` prop
+```tsx
+<Button sx={{ mb: 2, bgcolor: 'primary.main' }}>
+  Save
+</Button>
+```
+
+## Testing
+
+### Unit Tests (Jest)
+- Located in `__test__/` directory
+- Test pure functions (domain services)
+- Test validation logic
+- Mock Prisma client for repository tests
+```typescript
+describe('generateConfigID', () => {
+  it('should generate ConfigID in SEMESTER-YEAR format', () => {
+    expect(generateConfigID('1', 2567)).toBe('1-2567');
+  });
+});
+```
+
+### E2E Tests (Playwright)
+- Located in `e2e/` directory
+- Test critical user flows
+- Test all seeded semesters
+- Check for console errors
+```typescript
+test('should display dashboard for 1-2567', async ({ page }) => {
+  await page.goto('/dashboard/1-2567/all-timeslot');
+  await expect(page.locator('table')).toBeVisible();
+});
+```
+
+## Comments & Documentation
+
+### JSDoc for Public Functions
+```typescript
+/**
+ * Generate ConfigID from semester number and academic year
+ * Format: "SEMESTER-YEAR" (e.g., "1-2567", "2-2568")
+ * Pure function for deterministic ConfigID generation
+ */
+export function generateConfigID(semesterNum: string, academicYear: number): string {
+  return `${semesterNum}-${academicYear}`;
 }
 ```
 
-## Future Refactoring Goals
+### Inline Comments
+- Explain **why**, not what
+- Use for complex business logic
+- Mark TODOs with `// TODO:` and issue reference
+```typescript
+// Check for conflicts with existing schedules
+// Required by business rule: no teacher can teach two classes simultaneously
+const conflicts = await checkTeacherConflicts(teacherId, timeslotId);
+```
 
-1. **Feature-Based Architecture**: Organize code by feature, not by type
-2. **Clean Architecture**: Separate concerns (handlers, services, repositories)
-3. **Zustand**: Centralized client state management
-4. **Server Actions**: Replace API routes for mutations
-5. **Strong TypeScript**: Enable strict mode, eliminate `any` types
-6. **Pure Functions**: Extract business logic from components
-7. **Consistent Patterns**: Standardize data fetching and error handling
+## Git Conventions
+
+### Commit Messages
+```
+<type>: <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `refactor`: Code refactoring (no behavior change)
+- `test`: Adding tests
+- `docs`: Documentation only
+- `style`: Formatting, semicolons, etc.
+- `perf`: Performance improvements
+- `chore`: Maintenance, deps
+
+**Examples:**
+```
+feat: add timeslot seeding to seed API
+
+- Add seedTimeslots() function for baseline timeslot creation
+- Add seedData query parameter support
+- Update production seed script with -SeedData flag
+
+Closes #123
+```
+
+## Performance
+
+### Database Queries
+- Use `select` to limit fields
+- Use `include` sparingly
+- Add indexes for frequently queried fields
+- Batch operations when possible (createMany, deleteMany)
+
+### Server Components
+- Fetch data at component level
+- Use Suspense for loading states
+- Prefer server components for data-heavy pages
+
+### Client Components
+- Use `useMemo` for expensive computations
+- Use `useCallback` for stable function references
+- Lazy load heavy components
+
+## Security
+
+### Authentication
+- All admin routes require authentication
+- Check session server-side
+- Use NextAuth session management
+
+### API Routes
+- Validate all inputs with Valibot
+- Check permissions before mutations
+- Use SEED_SECRET for production seed endpoints
+
+### Environment Variables
+- Never commit `.env` files
+- Use Vercel environment variables for production
+- Validate env vars at runtime when critical

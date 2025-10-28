@@ -10,7 +10,7 @@ function parseParam(param: string): { semester: 1 | 2 | null; year: number | nul
   const yearNum = Number(yearStr);
   const validSem: 1 | 2 | null = semNum === 1 ? 1 : semNum === 2 ? 2 : null;
   const validYear = Number.isInteger(yearNum) ? yearNum : null;
-  return { semester: validSem, year: validYear, label: `${semStr}/${yearStr}` };
+  return { semester: validSem, year: validYear, label: `${semStr}-${yearStr}` };
 }
 
 export default async function DashboardSemesterLayout({

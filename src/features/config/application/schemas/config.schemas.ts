@@ -24,14 +24,14 @@ export type GetConfigByTermInput = v.InferOutput<typeof getConfigByTermSchema>;
 
 /**
  * Schema for creating a new config
- * ConfigID format: "SEMESTER/YEAR" (e.g., "1/2566")
+ * ConfigID format: "SEMESTER-YEAR" (e.g., "1-2567")
  * Config is JSON (any structure)
  */
 export const createConfigSchema = v.object({
   ConfigID: v.pipe(
     v.string('ConfigID ต้องเป็นข้อความ'),
     v.nonEmpty('ConfigID ต้องไม่เป็นค่าว่าง'),
-    v.regex(/^\d+\/\d{4}$/, 'ConfigID ต้องมีรูปแบบ "SEMESTER/YEAR" (เช่น "1/2566")')
+    v.regex(/^[1-3]-\d{4}$/, 'ConfigID ต้องมีรูปแบบ "SEMESTER-YEAR" (เช่น "1-2567")')
   ),
   AcademicYear: v.pipe(
     v.number('ปีการศึกษาต้องเป็นตัวเลข'),
@@ -86,12 +86,12 @@ export const copyConfigSchema = v.object({
   from: v.pipe(
     v.string('from ต้องเป็นข้อความ'),
     v.nonEmpty('from ต้องไม่เป็นค่าว่าง'),
-    v.regex(/^\d+\/\d{4}$/, 'from ต้องมีรูปแบบ "SEMESTER/YEAR" (เช่น "1/2566")')
+    v.regex(/^[1-3]-\d{4}$/, 'from ต้องมีรูปแบบ "SEMESTER-YEAR" (เช่น "1-2567")')
   ),
   to: v.pipe(
     v.string('to ต้องเป็นข้อความ'),
     v.nonEmpty('to ต้องไม่เป็นค่าว่าง'),
-    v.regex(/^\d+\/\d{4}$/, 'to ต้องมีรูปแบบ "SEMESTER/YEAR" (เช่น "2/2567")')
+    v.regex(/^[1-3]-\d{4}$/, 'to ต้องมีรูปแบบ "SEMESTER-YEAR" (เช่น "2-2568")')
   ),
   assign: v.boolean('assign ต้องเป็น boolean'),
   lock: v.boolean('lock ต้องเป็น boolean'),

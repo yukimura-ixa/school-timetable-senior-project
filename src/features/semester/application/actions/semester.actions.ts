@@ -203,11 +203,14 @@ export async function createSemesterAction(
         });
 
         if (timeslots.length > 0) {
+          const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2;
+          const targetSemesterNum = input.semester;
+          
           await prisma.timeslot.createMany({
             data: timeslots.map((ts) => ({
               TimeslotID: ts.TimeslotID.replace(
-                `${sourceSemester}-${sourceYear}`,
-                `${input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"}-${input.academicYear}`
+                `${sourceSemesterNum}-${sourceYear}`,
+                `${targetSemesterNum}-${input.academicYear}`
               ),
               AcademicYear: input.academicYear,
               Semester: input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
@@ -348,7 +351,7 @@ export async function copySemesterAction(
       if (timeslots.length > 0) {
         await prisma.timeslot.createMany({
           data: timeslots.map((ts) => ({
-            TimeslotID: `${input.targetSemester === 1 ? "SEMESTER_1" : "SEMESTER_2"}-${input.targetAcademicYear}-${ts.TimeslotID.split("-").pop()}`,
+            TimeslotID: `${input.targetSemester}-${input.targetAcademicYear}-${ts.TimeslotID.split("-").pop()}`,
             AcademicYear: input.targetAcademicYear,
             Semester: input.targetSemester === 1 ? "SEMESTER_1" : "SEMESTER_2",
             StartTime: ts.StartTime,

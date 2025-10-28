@@ -1,79 +1,143 @@
-# Project Overview
-
-## Project Name
-School Timetable Management System (ระบบจัดตารางเรียนตารางสอน)
+# School Timetable System - Project Overview
 
 ## Purpose
-A comprehensive web application designed to streamline the creation and management of class and teaching schedules for secondary schools. The system addresses the complexity of coordinating teacher assignments, classroom allocations, and student timetables while preventing scheduling conflicts.
-
-## Key Features
-1. **Data Management**: Teachers, rooms, subjects, grade levels, and programs
-2. **Subject Assignment**: Assign teachers to classes with weekly lesson counts
-3. **Timetable Configuration**: Set academic year, semester, periods, breaks, and school days
-4. **Timetable Arrangement**: Drag-and-drop interface with real-time conflict detection
-5. **Lock Timeslots**: Create fixed periods for multi-class activities (assemblies, clubs)
-6. **Views & Exports**: Teacher/class schedules, curriculum summaries in Excel and PDF formats
-7. **Authentication**: Google OAuth for Admin/Teacher roles; public viewing for students
+A comprehensive web application designed for secondary schools to create and manage class and teaching schedules efficiently. The system prevents scheduling conflicts and provides accessible online viewing for teachers and students.
 
 ## Tech Stack
-- **Framework**: Next.js 15.5.6 (App Router)
-- **Runtime**: React 18.3.1
-- **Language**: TypeScript (latest)
-- **UI Libraries**: 
-  - Tailwind CSS 4.1.14
-  - Material-UI (MUI) 7.3.4
-  - Emotion (styling engine)
-- **Database**: MySQL 8.0 (Google Cloud SQL in production)
-- **ORM**: Prisma 5.22.0
-- **Authentication**: NextAuth.js 5.0.0-beta.29 (Google OAuth)
-- **State Management**: SWR 2.3.6 (currently)
-- **Testing**:
-  - Jest 29.7.0 (unit tests)
-  - Playwright 1.56.1 (E2E tests)
-  - Testing Library (React)
-- **Package Manager**: pnpm 10.18.3
 
-## Project Structure
+### Core Framework
+- **Next.js 16.0.0** (App Router, React 19.2.0)
+- **TypeScript** (latest) with strict type checking disabled
+- **Node.js 18+** required
+
+### Database & ORM
+- **Prisma 6.18.0** with Prisma Client and Accelerate extension
+- **PostgreSQL** via Vercel Storage (production)
+- **MySQL 8.0** (legacy/development support)
+
+### UI Framework
+- **Material-UI (MUI) v7.3.4** - Component library
+- **Tailwind CSS v4.1.14** - Utility-first styling
+- **Emotion** - CSS-in-JS for MUI
+
+### Authentication
+- **NextAuth.js 5.0.0-beta.29** (Auth.js) with Google OAuth
+- **Prisma Adapter** for session management
+
+### State Management & Data Fetching
+- **Zustand 5.0.8** - Client state management
+- **SWR 2.3.6** - Data fetching and caching
+- **@dnd-kit** - Drag-and-drop for schedule arrangement
+
+### Validation & Forms
+- **Valibot 1.1.0** - Schema validation (lightweight Zod alternative)
+
+### Testing
+- **Jest 29.7.0** - Unit testing
+- **Playwright 1.56.1** - E2E testing
+- **React Testing Library 16.3.0**
+
+### Additional Libraries
+- **ExcelJS 4.4.0** - Excel export
+- **react-to-print 3.2.0** - PDF generation
+- **Recharts 3.3.0** - Data visualization
+- **Notistack 3.0.2** - Toast notifications
+
+### Package Manager
+- **pnpm 10.18.3+** (required - not npm/yarn)
+
+## Architecture
+
+### Directory Structure
 ```
 src/
-├── app/                    # Next.js App Router pages
+├── app/                    # Next.js App Router
 │   ├── api/               # API routes
-│   │   ├── arrange/       # Timetable arrangement endpoints
-│   │   ├── assign/        # Subject assignment endpoints
-│   │   ├── auth/          # Authentication endpoints
-│   │   ├── class/         # Class management endpoints
-│   │   ├── config/        # Timetable configuration endpoints
-│   │   ├── gradelevel/    # Grade level endpoints
-│   │   ├── lock/          # Lock timeslot endpoints
-│   │   ├── program/       # Program endpoints
-│   │   ├── room/          # Room endpoints
-│   │   ├── subject/       # Subject endpoints
-│   │   ├── teacher/       # Teacher endpoints
-│   │   └── timeslot/      # Timeslot endpoints
-│   ├── dashboard/         # Dashboard pages (viewing/exports)
-│   ├── management/        # Data management pages
-│   ├── schedule/          # Schedule management pages
-│   ├── signin/            # Sign-in page
-│   └── _hooks/            # Custom React hooks (SWR wrappers)
-├── components/            # Reusable components
-│   ├── elements/          # Basic UI elements
-│   ├── mui/              # MUI wrapper components
-│   └── templates/         # Layout templates
-├── functions/             # Utility functions
-├── libs/                  # Third-party library configurations
-├── models/                # Static data models
-└── types/                 # TypeScript type definitions
+│   ├── dashboard/         # Dashboard pages
+│   ├── schedule/          # Schedule viewing pages
+│   └── [semesterAndyear]/ # Dynamic routes (format: "1-2567")
+├── features/              # Feature-based modules
+│   ├── config/           # Table configuration
+│   ├── semester/         # Semester management
+│   ├── teacher/          # Teacher management
+│   ├── subject/          # Subject management
+│   ├── schedule-arrangement/ # Timetable scheduling
+│   └── */
+│       ├── application/  # Actions & schemas
+│       ├── domain/       # Business logic & services
+│       ├── infrastructure/ # Repositories
+│       └── presentation/ # UI components & hooks
+├── components/           # Shared UI components
+├── lib/                  # Utility libraries
+├── shared/              # Shared schemas & utilities
+└── types/               # TypeScript type definitions
 
 prisma/
-├── schema.prisma          # Prisma schema (single source of truth)
-├── migrations/            # Database migrations
-└── seed.ts               # Database seeding script
+├── schema.prisma        # Database schema
+├── migrations/          # Migration history
+└── seed.ts             # Database seeding
+
+__test__/               # Unit tests
+e2e/                    # Playwright E2E tests
+docs/                   # Documentation
+scripts/                # Build & deployment scripts
 ```
 
-## Current Architecture Issues (To Be Addressed)
-1. **API Routes**: Mix HTTP concerns with Prisma queries and business logic
-2. **Frontend Components**: Tightly coupled UI state, data fetching, and domain logic
-3. **Data Fetching**: Inconsistent use of helper hooks, scattered SWR calls
-4. **TypeScript**: Strict mode disabled (`strict: false`), widespread `any` usage
-5. **Error Handling**: Inconsistent parsing/error handling across routes
-6. **State Management**: No centralized state management solution
+### Feature-Based Architecture
+Each feature follows a layered architecture:
+- **Application Layer**: Server actions, validation schemas
+- **Domain Layer**: Business logic, validation services (pure functions)
+- **Infrastructure Layer**: Database repositories
+- **Presentation Layer**: React components, hooks, stores
+
+## Key Conventions
+
+### ConfigID Format (CRITICAL - Recently Standardized)
+**Canonical Format**: `"SEMESTER-YEAR"` (e.g., `"1-2567"`, `"2-2568"`)
+
+**Usage:**
+- Route segments: `/dashboard/1-2567/all-timeslot`
+- Database `ConfigID` field in `table_config` table
+- TimeslotID prefix: `"1-2567-MON1"`, `"2-2568-TUE3"`
+
+**Migration Status:**
+- ✅ Validation layer updated (regex: `/^[1-3]-\d{4}$/`)
+- ✅ Route parsing updated
+- ✅ Action layers updated (TimeslotID generation)
+- ✅ Seed API updated
+- 🔄 Tests being updated
+- ⏳ Database migration pending
+
+**Note:** Database enum values `SEMESTER_1`, `SEMESTER_2` remain unchanged.
+
+### Route Patterns
+- Dynamic routes use `[semesterAndyear]` parameter
+- Format: hyphen-separated (e.g., `/dashboard/1-2567/`)
+- Validation in layout.tsx ensures ConfigID exists in DB
+
+### API Routes
+- Located in `src/app/api/`
+- Use Next.js App Router conventions
+- Return `Response.json()` for API responses
+
+### Environment Variables
+```env
+DATABASE_URL          # Postgres connection (Vercel Storage)
+NEXTAUTH_URL         # App URL
+NEXTAUTH_SECRET      # Auth secret
+GOOGLE_CLIENT_ID     # OAuth
+GOOGLE_CLIENT_SECRET # OAuth
+SEED_SECRET          # Production seed API protection
+```
+
+## Deployment
+- **Platform**: Vercel
+- **Database**: Vercel Storage: Postgres (via Marketplace)
+- **Production URL**: https://phrasongsa-timetable.vercel.app
+
+## Recent Major Changes
+1. **ConfigID Standardization** (Oct 2025) - Migrated from multiple formats to canonical `"SEMESTER-YEAR"`
+2. **Seed API Enhancement** - Added timeslot/config seeding with `-SeedData` flag
+3. **Next.js 16 Upgrade** - Async Request APIs, proxy.ts convention
+4. **MUI v7 Migration** - Updated from MUI v5/v6
+5. **Tailwind CSS v4** - Migrated from v3

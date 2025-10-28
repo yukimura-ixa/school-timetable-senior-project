@@ -47,7 +47,7 @@ describe("updateConfigStatusAction", () => {
 
   it("should successfully update status from DRAFT to PUBLISHED with sufficient completeness", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "DRAFT",
       configCompleteness: 50,
       publishedAt: null,
@@ -61,20 +61,20 @@ describe("updateConfigStatusAction", () => {
     } as any);
 
     const result = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "PUBLISHED",
     });
 
     expect(result.success).toBe(true);
     expect(mockPrisma.table_config.findUnique).toHaveBeenCalledWith({
-      where: { ConfigID: "SEMESTER_1_2024" },
+      where: { ConfigID: "1-2024" },
     });
     expect(mockPrisma.table_config.update).toHaveBeenCalled();
   });
 
   it("should fail to update status from DRAFT to PUBLISHED with insufficient completeness", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "DRAFT",
       configCompleteness: 20, // Less than 30%
       publishedAt: null,
@@ -83,7 +83,7 @@ describe("updateConfigStatusAction", () => {
     mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
 
     const result = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "PUBLISHED",
     });
 
@@ -95,7 +95,7 @@ describe("updateConfigStatusAction", () => {
 
   it("should successfully update status from PUBLISHED to LOCKED", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "PUBLISHED",
       configCompleteness: 80,
       publishedAt: new Date(),
@@ -108,7 +108,7 @@ describe("updateConfigStatusAction", () => {
     } as any);
 
     const result = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "LOCKED",
     });
 
@@ -131,7 +131,7 @@ describe("updateConfigStatusAction", () => {
 
   it("should handle invalid status transition", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "DRAFT",
       configCompleteness: 50,
       publishedAt: null,
@@ -140,7 +140,7 @@ describe("updateConfigStatusAction", () => {
     mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
 
     const result = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "ARCHIVED", // Cannot go directly from DRAFT to ARCHIVED
     });
 
@@ -155,7 +155,7 @@ describe("updateConfigStatusAction", () => {
     );
 
     const result = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "PUBLISHED",
     });
 
@@ -165,7 +165,7 @@ describe("updateConfigStatusAction", () => {
 
   it("should include reason in update when provided", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "PUBLISHED",
       configCompleteness: 80,
       publishedAt: new Date(),
@@ -178,7 +178,7 @@ describe("updateConfigStatusAction", () => {
     } as any);
 
     const result = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "LOCKED",
       reason: "Finalizing for exam period",
     });
@@ -303,7 +303,7 @@ describe("updateConfigCompletenessAction", () => {
     });
 
     expect(mockPrisma.table_config.update).toHaveBeenCalledWith({
-      where: { ConfigID: "SEMESTER_1_2024" },
+      where: { ConfigID: "1-2024" },
       data: expect.objectContaining({
         configCompleteness: 100,
       }),
@@ -330,7 +330,7 @@ describe("getConfigWithCompletenessAction", () => {
 
   it("should return config with completeness data when config exists", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "PUBLISHED",
       configCompleteness: 80,
       publishedAt: new Date(),
@@ -386,13 +386,13 @@ describe("getConfigWithCompletenessAction", () => {
     });
 
     expect(mockPrisma.table_config.findUnique).toHaveBeenCalledWith({
-      where: { ConfigID: "SEMESTER_2_2024" },
+      where: { ConfigID: "2-2024" },
     });
   });
 
   it("should fetch counts in parallel with Promise.all", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "DRAFT",
       configCompleteness: 0,
     };
@@ -420,7 +420,7 @@ describe("getConfigWithCompletenessAction", () => {
 
   it("should filter counts by academicYear and semester", async () => {
     const mockConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "DRAFT",
       configCompleteness: 0,
     };
@@ -461,7 +461,7 @@ describe("Integration scenarios", () => {
   it("should allow complete workflow: create, publish, lock, archive", async () => {
     // Step 1: Start with DRAFT
     const mockDraftConfig = {
-      ConfigID: "SEMESTER_1_2024",
+      ConfigID: "1-2024",
       status: "DRAFT",
       configCompleteness: 50,
       publishedAt: null,
@@ -476,7 +476,7 @@ describe("Integration scenarios", () => {
     } as any);
 
     const publishResult = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "PUBLISHED",
     });
 
@@ -496,7 +496,7 @@ describe("Integration scenarios", () => {
     } as any);
 
     const lockResult = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "LOCKED",
     });
 
@@ -515,7 +515,7 @@ describe("Integration scenarios", () => {
     } as any);
 
     const archiveResult = await updateConfigStatusAction({
-      configId: "SEMESTER_1_2024",
+      configId: "1-2024",
       status: "ARCHIVED",
     });
 

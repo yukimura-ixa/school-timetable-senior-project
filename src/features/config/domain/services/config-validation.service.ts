@@ -18,11 +18,11 @@ export type ParsedConfigID = {
 
 /**
  * Generate ConfigID from semester number and academic year
- * Format: "SEMESTER/YEAR" (e.g., "1/2566", "2/2567")
+ * Format: "SEMESTER-YEAR" (e.g., "1-2567", "2-2568")
  * Pure function for deterministic ConfigID generation
  */
 export function generateConfigID(semesterNum: string, academicYear: number): string {
-  return `${semesterNum}/${academicYear}`;
+  return `${semesterNum}-${academicYear}`;
 }
 
 /**
@@ -32,10 +32,10 @@ export function generateConfigID(semesterNum: string, academicYear: number): str
  * @throws Error if format is invalid
  */
 export function parseConfigID(configId: string): ParsedConfigID {
-  const parts = configId.split('/');
+  const parts = configId.split('-');
   
   if (parts.length !== 2) {
-    throw new Error('รูปแบบ ConfigID ไม่ถูกต้อง ต้องเป็น "SEMESTER/YEAR"');
+    throw new Error('รูปแบบ ConfigID ไม่ถูกต้อง ต้องเป็น "SEMESTER-YEAR"');
   }
 
   const semester = parts[0];
@@ -53,10 +53,10 @@ export function parseConfigID(configId: string): ParsedConfigID {
  * Returns error message if invalid, null if valid
  */
 export function validateConfigIDFormat(configId: string): string | null {
-  const regex = /^\d+\/\d{4}$/;
+  const regex = /^[1-3]-\d{4}$/;
   
   if (!regex.test(configId)) {
-    return 'รูปแบบ ConfigID ไม่ถูกต้อง ต้องเป็น "SEMESTER/YEAR" (เช่น "1/2566")';
+    return 'รูปแบบ ConfigID ไม่ถูกต้อง ต้องเป็น "SEMESTER-YEAR" (เช่น "1-2567")';
   }
 
   try {

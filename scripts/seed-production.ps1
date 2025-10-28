@@ -1,6 +1,12 @@
 #!/usr/bin/env pwsh
 # Script to seed production database with semesters 2567-2568
-# Usage: .\scripts\seed-production.ps1
+# Usage: 
+#   .\scripts\seed-production.ps1              # Create semesters only
+#   .\scripts\seed-production.ps1 -SeedData    # Also create timeslots + config
+
+param(
+    [switch]$SeedData
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -10,9 +16,17 @@ $SEED_SECRET = "df83c9b4a1e2f5d6c3a8b9e0f1d2c3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0
 Write-Host "🌱 Seeding production database..." -ForegroundColor Cyan
 Write-Host "URL: $PRODUCTION_URL"
 Write-Host "Years: 2567, 2568 (semesters 1 & 2)"
+if ($SeedData) {
+    Write-Host "Mode: FULL (semesters + timeslots + config)" -ForegroundColor Yellow
+} else {
+    Write-Host "Mode: MINIMAL (semesters only)" -ForegroundColor Green
+}
 Write-Host ""
 
 $uri = "$PRODUCTION_URL/api/admin/seed-semesters?secret=$SEED_SECRET&years=2567,2568"
+if ($SeedData) {
+    $uri += "&seedData=true"
+}
 
 try {
     $response = Invoke-RestMethod -Uri $uri -Method GET -UseBasicParsing
@@ -25,7 +39,16 @@ try {
         foreach ($result in $response.results) {
             $emoji = if ($result.created) { "✨" } else { "📋" }
             $status = if ($result.created) { "CREATED" } else { "EXISTS" }
-            Write-Host "$emoji Semester $($result.semester)/$($result.year) - $status (ConfigID: $($result.configId))"
+            $line = "$emoji Semester $($result.semester)/$($result.year) - $status (ConfigID: $($result.configId))"
+            
+            if ($result.timeslots) {
+                $line += " | Timeslots: $($result.timeslots)"
+            }
+            if ($result.tableConfig) {
+                $line += " | Config: ✓"
+            }
+            
+            Write-Host $line
         }
         
         Write-Host ""
