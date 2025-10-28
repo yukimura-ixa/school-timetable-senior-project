@@ -31,7 +31,9 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "admin:create": "tsx scripts/create-admin.ts",
-    "admin:verify": "tsx scripts/verify-admin.ts"
+    "admin:verify": "tsx scripts/verify-admin.ts",
+    "seed:prod": "pwsh -File scripts/seed-production.ps1",
+    "seed:setup": "pwsh -File scripts/add-seed-secret.ps1"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
