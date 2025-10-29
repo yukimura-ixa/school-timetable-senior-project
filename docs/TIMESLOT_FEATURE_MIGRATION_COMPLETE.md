@@ -65,7 +65,7 @@ teachersResponsibilityRepository:
 
 **Key Logic:**
 - **Multi-entity management:** timeslot, table_config, teachers_responsibility
-- **ConfigID generation:** `${semester[9]}/${academicYear}` (e.g., "1/2567")
+- **ConfigID generation:** Uses `generateConfigID()` from validation service (e.g., "1-2567") - canonical format
 - **Cascade deletion support:** Helper methods for related data cleanup
 
 ---

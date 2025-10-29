@@ -12,9 +12,15 @@ import { breaktime as breaktimeEnum } from '@/prisma/generated';
 import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
 import type { CreateTimeslotsInput } from '../../application/schemas/timeslot.schemas';
 
+// Helper: convert Prisma semester enum to number string
+const toSemesterNum = (sem: semester): string => {
+  const match = String(sem).match(/_(\d)$/);
+  return match ? match[1] : String(sem);
+};
+
 /**
- * Generate TimeslotID following the pattern: Semester[9]/AcademicYear-DayOfWeek+SlotNumber
- * Example: "1/2567-MON1"
+ * Generate TimeslotID following the canonical pattern: SEMESTER-YEAR-DAYPERIOD
+ * Example: "1-2567-MON1"
  */
 export function generateTimeslotId(
   semester: semester,
@@ -22,7 +28,8 @@ export function generateTimeslotId(
   dayOfWeek: day_of_week,
   slotNumber: number
 ): string {
-  return `${semester[9]}/${academicYear}-${dayOfWeek}${slotNumber}`;
+  const semesterNum = toSemesterNum(semester);
+  return `${semesterNum}-${academicYear}-${dayOfWeek}${slotNumber}`;
 }
 
 /**
@@ -109,9 +116,9 @@ export function sortTimeslots(timeslots: timeslot[]): timeslot[] {
     const dayA = dayOrder.indexOf(a.DayOfWeek);
     const dayB = dayOrder.indexOf(b.DayOfWeek);
 
-    // Extract slot number from TimeslotID (format: "1/2567-MON1")
-    const slotA = parseInt(a.TimeslotID.split('-')[1].substring(3));
-    const slotB = parseInt(b.TimeslotID.split('-')[1].substring(3));
+    // Extract slot number from TimeslotID (format: "1-2567-MON1")
+    const slotA = parseInt(a.TimeslotID.split('-')[2].substring(3));
+    const slotB = parseInt(b.TimeslotID.split('-')[2].substring(3));
 
     // Sort by day first, then by slot number
     if (dayA === dayB) {

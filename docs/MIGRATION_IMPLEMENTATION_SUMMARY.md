@@ -248,13 +248,13 @@ src/features/config/
 **Server Actions**: 7 total (CRUD + copy + query + count)  
 **Special Features**:
 - **Complex Copy Operation**: Transaction-based term cloning (config + timeslots + assignments + schedules)
-- **ConfigID Format**: "SEMESTER/YEAR" with regex validation
+- **ConfigID Format**: "SEMESTER-YEAR" with regex validation (canonical format)
 - **JSON Configuration**: Unstructured Config field (Prisma.JsonValue)
 - **ID Replacement**: Pure function replaces ConfigID pattern across related tables
 - **Conditional Copying**: Boolean flags (assign, lock, timetable) control what gets copied
 
 **Business Rules**:
-- ConfigID format: "SEMESTER/YEAR" (e.g., "1/2566")
+- ConfigID format: "SEMESTER-YEAR" (e.g., "1-2567") - canonical format
 - One config per AcademicYear + Semester (uniqueness)
 - Copy validation: from must exist, to must not exist, from ≠ to
 - Transaction atomicity: all-or-nothing for copy operation

@@ -8,7 +8,15 @@
  */
 
 import prisma from '@/libs/prisma';
-import type { timeslot, semester } from '@/prisma/generated';
+import type { Prisma, timeslot, semester } from '@/prisma/generated';
+import type { TimetableConfig } from '@/lib/timetable-config';
+import { generateConfigID } from '@/features/config/domain/services/config-validation.service';
+
+// Helper: convert Prisma semester enum (e.g., 'SEMESTER_1') to canonical number string ('1')
+const toSemesterNum = (sem: semester): string => {
+  const match = String(sem).match(/_(\d)$/);
+  return match ? match[1] : String(sem);
+};
 
 export const timeslotRepository = {
   /**
@@ -53,6 +61,7 @@ export const timeslotRepository = {
   async createMany(timeslots: timeslot[]) {
     return prisma.timeslot.createMany({
       data: timeslots,
+      skipDuplicates: true, // ensure idempotent seeding
     });
   },
 
@@ -98,7 +107,8 @@ export const tableConfigRepository = {
    * Find config by term
    */
   async findByTerm(academicYear: number, semester: semester) {
-    const configId = `${semester[9]}/${academicYear}`;
+    const semesterNum = toSemesterNum(semester);
+    const configId = generateConfigID(semesterNum, academicYear);
     return prisma.table_config.findUnique({
       where: {
         ConfigID: configId,
@@ -109,14 +119,16 @@ export const tableConfigRepository = {
   /**
    * Create table config
    */
-  async create(academicYear: number, semester: semester, config: any) {
-    const configId = `${semester[9]}/${academicYear}`;
+  async create(academicYear: number, semester: semester, config: TimetableConfig) {
+    const semesterNum = toSemesterNum(semester);
+    const configId = generateConfigID(semesterNum, academicYear);
     return prisma.table_config.create({
       data: {
         ConfigID: configId,
         AcademicYear: academicYear,
         Semester: semester,
-        Config: config,
+        // Persist config JSON with correct Prisma type
+        Config: config as unknown as Prisma.InputJsonValue,
       },
     });
   },
@@ -125,7 +137,8 @@ export const tableConfigRepository = {
    * Delete table config by term
    */
   async deleteByTerm(academicYear: number, semester: semester) {
-    const configId = `${semester[9]}/${academicYear}`;
+    const semesterNum = toSemesterNum(semester);
+    const configId = generateConfigID(semesterNum, academicYear);
     return prisma.table_config.delete({
       where: {
         ConfigID: configId,

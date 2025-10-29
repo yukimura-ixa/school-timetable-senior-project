@@ -4,18 +4,18 @@
  */
 
 import prisma from "@/libs/prisma";
+import type { Prisma } from "@/prisma/generated";
 import type {
   SemesterFilter,
   SemesterStatus,
 } from "../../application/schemas/semester.schemas";
-import type { table_config } from "@/prisma/generated";
 
 export class SemesterRepository {
   /**
    * Get all semesters with optional filtering
    */
   async findMany(filter?: SemesterFilter) {
-    const where: any = {};
+    const where: Prisma.table_configWhereInput = {};
 
     // Apply filters
     if (filter?.status) {
@@ -39,7 +39,7 @@ export class SemesterRepository {
     }
 
     // Build orderBy
-    const orderBy: any = {};
+    const orderBy: Prisma.table_configOrderByWithRelationInput = {};
     if (filter?.sortBy === "recent") {
       orderBy.lastAccessedAt = filter.sortOrder || "desc";
     } else if (filter?.sortBy === "name") {
@@ -119,7 +119,7 @@ export class SemesterRepository {
   async create(data: {
     academicYear: number;
     semester: number;
-    config?: any;
+    config?: Prisma.InputJsonValue;
   }) {
     const semesterEnum = data.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
     const configId = `${data.semester}-${data.academicYear}`;
@@ -129,7 +129,7 @@ export class SemesterRepository {
         ConfigID: configId,
         AcademicYear: data.academicYear,
         Semester: semesterEnum,
-        Config: data.config || {},
+        Config: (data.config || {}) as Prisma.InputJsonValue,
         status: "DRAFT",
         configCompleteness: 0,
         isPinned: false,
@@ -141,7 +141,7 @@ export class SemesterRepository {
    * Update semester status
    */
   async updateStatus(configId: string, status: SemesterStatus) {
-    const updates: any = { status };
+    const updates: Prisma.table_configUpdateInput = { status };
 
     // Set publishedAt when publishing
     if (status === "PUBLISHED") {
@@ -253,12 +253,16 @@ export class SemesterRepository {
       distinct: ["SubjectCode"],
     });
 
+    // Get total room count (rooms are not semester-specific)
+    const roomCount = await prisma.room.count();
+
     return {
       timeslotCount,
       teacherCount: uniqueTeachers.length,
       classCount: uniqueClasses.length,
       subjectCount: uniqueSubjects.length,
       responsibilityCount,
+      roomCount,
     };
   }
 }

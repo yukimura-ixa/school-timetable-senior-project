@@ -10,11 +10,7 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
-import {
-  timeslotRepository,
-  tableConfigRepository,
-  teachersResponsibilityRepository,
-} from '../../infrastructure/repositories/timeslot.repository';
+import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
 import {
   generateTimeslots,
   sortTimeslots,
@@ -135,8 +131,9 @@ export const createTimeslotsAction = createAction(
 
     // Use transaction to create table_config and timeslots atomically
     await prisma.$transaction(async (tx) => {
-      // Create table config
-      const configId = `${input.Semester[9]}/${input.AcademicYear}`;
+      // Create table config with canonical ConfigID format
+      const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
+      const configId = `${semesterNum}-${input.AcademicYear}`;
       await tx.table_config.create({
         data: {
           ConfigID: configId,
@@ -190,8 +187,9 @@ export const deleteTimeslotsByTermAction = createAction(
 
     // Use transaction for cascade deletion
     await prisma.$transaction(async (tx) => {
-      // Delete table config
-      const configId = `${input.Semester[9]}/${input.AcademicYear}`;
+      // Delete table config with canonical ConfigID format
+      const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
+      const configId = `${semesterNum}-${input.AcademicYear}`;
       await tx.table_config.delete({
         where: {
           ConfigID: configId,
