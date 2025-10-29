@@ -1,170 +1,168 @@
 "use client";
-import PrimaryButton from "@/components/mui/PrimaryButton";
-import React, { useEffect, useState } from "react";
-import { BiKey, BiUser } from "react-icons/bi";
+
+import React, { useEffect, useMemo, useState } from "react";
+import { signIn, signOut } from "next-auth/react";
+import { Alert, Button, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
 import LoginIcon from "@mui/icons-material/Login";
-import { signIn, signOut, useSession } from "next-auth/react";
-function SignInPage() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [emailError, setEmailError] = useState<string>("");
-  const [passwordError, setPasswordError] = useState<string>("");
+import LogoutIcon from "@mui/icons-material/Logout";
+
+export default function SignInPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [bypassEnabled, setBypassEnabled] = useState(false);
 
-  // Check if dev bypass is enabled via server-side API
-  // This prevents the flag from being embedded in the client bundle
   useEffect(() => {
     fetch("/api/auth/dev-bypass-enabled")
       .then((res) => res.json())
-      .then((data) => setBypassEnabled(data.enabled))
+      .then((data) => setBypassEnabled(Boolean(data?.enabled)))
       .catch(() => setBypassEnabled(false));
   }, []);
 
-  function validateEmail() {
-    if (email === "") {
+  const validate = () => {
+    let ok = true;
+    if (!email) {
       setEmailError("กรุณากรอกอีเมล");
+      ok = false;
     } else if (!email.includes("@")) {
       setEmailError("อีเมลไม่ถูกต้อง");
-    } else {
-      setEmailError("");
-    }
-  }
+      ok = false;
+    } else setEmailError(null);
 
-  function validatePassword() {
-    if (password === "") {
+    if (!password) {
       setPasswordError("กรุณากรอกรหัสผ่าน");
-    } else {
-      setPasswordError("");
-    }
-  }
+      ok = false;
+    } else setPasswordError(null);
 
-  const session = useSession();
+    return ok;
+  };
 
-  function handleGoogleLogin() {
-    signIn("google", { callbackUrl: "/dashboard/select-semester" });
-    console.log("google login");
-  }
+  const handleEmailPassSignIn = async () => {
+    setFormError(null);
+    if (!validate()) return;
 
-  function handleDevBypass() {
-    signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
-    console.log("dev bypass login");
-  }
-
-  function handleSignout() {
-    console.log("signout");
-    signOut();
-  }
-
-  function handleEmailPassSignIn() {
-    validateEmail();
-    validatePassword();
-    if (emailError === "" && passwordError === "") {
-      signIn("credentials", {
-        email: email,
-        password: password,
-        callbackUrl: "/management/teacher",
+    setSubmitting(true);
+    try {
+      // Use redirect: false to capture auth errors and show feedback
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
+      if (!res) {
+        setFormError("ไม่สามารถเข้าสู่ระบบได้ ขัดข้องทางเครือข่าย");
+      } else if (res.error) {
+        // NextAuth v5 returns error string keys; display a friendly message
+        setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      } else if (res.ok) {
+        // Manual navigation not needed if middleware handles redirect; fallback:
+        window.location.href = "/dashboard/select-semester";
+      }
+    } catch (e) {
+      setFormError("เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย");
+    } finally {
+      setSubmitting(false);
     }
+  };
 
-    console.log("email pass signin");
-  }
+  const handleGoogleLogin = () => signIn("google", { callbackUrl: "/dashboard/select-semester" });
+  const handleDevBypass = () => signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
+  const handleSignout = () => signOut();
+
   return (
-    <>
-      <div className="w-full flex justify-between">
-        <div className="flex flex-col w-1/2 h-screen bg-gray-300 justify-center pl-16 gap-2">
-          <p className="text-2xl font-bold">School</p>
-          <p className="text-2xl font-bold">Timetable</p>
-          <p className="text-2xl font-bold">Management System</p>
-          <p className="text-lg">
+    <Container maxWidth="lg" sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
+      <Stack direction={{ xs: "column", md: "row" }} spacing={4} sx={{ width: "100%" }}>
+        <Paper
+          sx={{
+            flex: 1,
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            background: (theme) =>
+              `linear-gradient(180deg, ${theme.palette.primary.light}22 0%, ${theme.palette.primary.main}22 100%)`,
+          }}
+          elevation={0}
+        >
+          <Typography variant="h4" fontWeight={700} gutterBottom>
+            School Timetable Management System
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
             ระบบจัดตารางเรียนตารางสอนสำหรับโรงเรียน (มัธยม)
-          </p>
-        </div>
-        <div className="w-[960px] h-screen bg-white flex justify-center items-center">
-          <div className="flex flex-col gap-5 w-[500px] h-[500px] drop-shadow rounded-md bg-white py-16 px-10">
-            <div className="flex flex-col gap-3">
-              <h1 className="text-2xl">เข้าสู่ระบบ</h1>
-              <p className="text-sm text-gray-400">
+          </Typography>
+        </Paper>
+        <Paper sx={{ flex: 1, p: 4 }}>
+          <Stack spacing={3}>
+            <div>
+              <Typography variant="h5" fontWeight={600}>
+                เข้าสู่ระบบ
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
                 ระบบจัดตารางเรียนตารางสอนสำหรับโรงเรียน
-              </p>
+              </Typography>
             </div>
-            <div className="flex flex-col gap-5">
-              {/* input username */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm text-gray-600">อีเมล</label>
-                <span className="relative flex">
-                  <BiUser className="absolute left-2 top-1/3" />
-                  <input
-                    type="text"
-                    value={email}
-                    onChange={(e: any) => setEmail(() => e.target.value)}
-                    className={`w-full h-[40px] border pl-8 pr-2 rounded ${
-                      emailError
-                        ? "border-red-500 outline-red-500"
-                        : "border-gray-200"
-                    }`}
-                  />
-                </span>
-                {emailError && (
-                  <span className="text-xs text-red-500">{emailError}</span>
-                )}
-              </div>
-              {/* input password */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm text-gray-600">รหัสผ่าน</label>
-                <span className="relative flex">
-                  <BiKey className="absolute left-2 top-1/3" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e: any) => setPassword(() => e.target.value)}
-                    className={`w-full h-[40px] border pl-8 pr-2 rounded ${
-                      passwordError
-                        ? "border-red-500 outline-red-500"
-                        : "border-gray-200"
-                    }`}
-                  />
-                </span>
-                {passwordError && (
-                  <span className="text-xs text-red-500">{passwordError}</span>
-                )}
-              </div>
-              <PrimaryButton
-                handleClick={handleEmailPassSignIn}
-                title={"เข้าสู่ระบบ"}
-                color={"primary"}
-                Icon={<LoginIcon />}
-                reverseIcon={false}
-              />
 
-              <PrimaryButton
-                handleClick={handleGoogleLogin}
-                title={"Google"}
-                color={"primary"}
-                Icon={<LoginIcon />}
-                reverseIcon={false}
-              />
+            {formError && <Alert severity="error">{formError}</Alert>}
+
+            <TextField
+              label="อีเมล"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => validate()}
+              error={Boolean(emailError)}
+              helperText={emailError ?? ""}
+              fullWidth
+            />
+
+            <TextField
+              label="รหัสผ่าน"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => validate()}
+              error={Boolean(passwordError)}
+              helperText={passwordError ?? ""}
+              fullWidth
+            />
+
+            <Button
+              variant="contained"
+              startIcon={<LoginIcon />}
+              onClick={handleEmailPassSignIn}
+              disabled={submitting}
+            >
+              {submitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
+            </Button>
+
+            <Divider>หรือ</Divider>
+
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <Button
+                variant="outlined"
+                startIcon={<GoogleIcon />}
+                onClick={handleGoogleLogin}
+                fullWidth
+              >
+                เข้าสู่ระบบด้วย Google
+              </Button>
               {bypassEnabled && (
-                <PrimaryButton
-                  handleClick={handleDevBypass}
-                  title={"Dev Bypass (Testing)"}
-                  color={"secondary"}
-                  Icon={<LoginIcon />}
-                  reverseIcon={false}
-                />
+                <Button variant="outlined" onClick={handleDevBypass} fullWidth>
+                  Dev Bypass (Testing)
+                </Button>
               )}
-              <PrimaryButton
-                handleClick={handleSignout}
-                title={"ออกจากระบบ"}
-                color={"primary"}
-                Icon={<LoginIcon />}
-                reverseIcon={false}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+            </Stack>
+
+            <Button variant="text" color="inherit" startIcon={<LogoutIcon />} onClick={handleSignout}>
+              ออกจากระบบ
+            </Button>
+          </Stack>
+        </Paper>
+      </Stack>
+    </Container>
   );
 }
-
-export default SignInPage;

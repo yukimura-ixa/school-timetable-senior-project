@@ -1,83 +1,38 @@
 "use client";
-import MiniButton from "@/components/elements/static/MiniButton";
-import React, { useState, Fragment } from "react";
-import { MdAddCircle } from "react-icons/md";
-import { TbSettings, TbTrash } from "react-icons/tb";
-import type { program } from "@prisma/client";
-import { useProgramData } from "@/app/_hooks/programData";
-import AddStudyProgramModal from "../component/AddStudyProgramModal";
-import EditStudyProgramModal from "../component/EditStudyProgramModal";
+import React from "react";
+import type { program } from "@/prisma/generated";
+import useSWR from "swr";
 import { useParams } from "next/navigation";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import Link from "next/link";
-import { semesterThai } from "@/models/semester-thai";
-import { useConfirmDialog } from "@/components/dialogs";
-import api from "@/libs/axios";
-import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { Box } from "@mui/material";
 import {
   CardSkeleton,
   NoDataEmptyState,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
-type Props = {};
+import ProgramEditableTable from "../component/ProgramEditableTable";
 
-function StudyProgram(props: Props) {
-  const params = useParams(); //get params
-  const [addProgramModalActive, setAddProgramModalActive] =
-    useState<boolean>(false);
+// Server Actions (Clean Architecture)
+import { getProgramsByYearAction } from "@/features/program/application/actions/program.actions";
 
-  const [editProgramModalActive, setEditProgramModalActive] =
-    useState<boolean>(false);
+function StudyProgram() {
+  const params = useParams();
+  const yearNum = Number(params.year?.toString() ?? "0");
 
-  const { confirm, dialog } = useConfirmDialog();
-
-  const { data, isLoading, error, mutate } = useProgramData(
-    params.year.toString(),
+  // Fetch programs using Server Action
+  const swr = useSWR<program[]>(
+    ["programs-year", String(yearNum)],
+    async () => {
+      const result = await getProgramsByYearAction({ Year: yearNum });
+      return result?.data ?? [];
+    }
   );
 
-  const [editProgram, setEditProgram] = useState({});
-  const [editProgramIndex, setEditProgramIndex] = useState<number>(null);
-
-  const handleDeleteProgram = async (programData: program) => {
-    const confirmed = await confirm({
-      title: "ลบข้อมูลหลักสูตร",
-      message: `คุณต้องการลบข้อมูลหลักสูตร "${programData.ProgramName}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
-      variant: "danger",
-      confirmText: "ลบ",
-      cancelText: "ยกเลิก",
-    });
-
-    if (!confirmed) return;
-
-    const loadbar = enqueueSnackbar("กำลังลบข้อมูลหลักสูตร", {
-      variant: "info",
-      persist: true,
-    });
-
-    try {
-      await api.delete("/program", { data: programData.ProgramID });
-      closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลหลักสูตรสำเร็จ", { variant: "success" });
-      mutate();
-    } catch (error: any) {
-      closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "ลบข้อมูลหลักสูตรไม่สำเร็จ: " + (error.response?.data || error.message),
-        { variant: "error" }
-      );
-      console.error(error);
-    }
-  };
-
-  // const testAddProgram = (newProgram) => {
-  //   setMockupData(() => [...mockUpData, newProgram]);
-  // };
-
-  if (isLoading) {
+  if (swr.isLoading) {
     return (
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, py: 2 }}>
-        {[...Array(4)].map((_, i) => (
+        {Array.from({ length: 4 }).map((_, i) => (
           <Box key={i} sx={{ width: '49%' }}>
             <CardSkeleton />
           </Box>
@@ -86,35 +41,21 @@ function StudyProgram(props: Props) {
     );
   }
 
-  if (error) {
-    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
+  if (swr.error) {
+    return <NetworkErrorEmptyState onRetry={() => { void swr.mutate(); }} />;
   }
 
-  if (!data || data.length === 0) {
+  if (!swr.data || swr.data.length === 0) {
     return <NoDataEmptyState />;
   }
 
   return (
     <>
-      {dialog}
-      {addProgramModalActive ? (
-        <AddStudyProgramModal
-          closeModal={() => setAddProgramModalActive(false)}
-          mutate={mutate}
-        />
-      ) : null}
-      {editProgramModalActive ? (
-        <EditStudyProgramModal
-          closeModal={() => setEditProgramModalActive(false)}
-          mutate={mutate}
-          editData={editProgram}
-        />
-      ) : null}
 
       {/* <AllStudyProgram /> */}
       <div className="flex justify-between my-4">
         <h1 className="text-xl font-bold">
-          หลักสูตรมัธยมศึกษาปีที่ {params.year}
+          หลักสูตรมัธยมศึกษาปีที่ {yearNum}
         </h1>
         <Link
           href={"/management/program"}
@@ -124,119 +65,14 @@ function StudyProgram(props: Props) {
           <p className="text-sm">ย้อนกลับ</p>
         </Link>
       </div>
-      <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
-        {data.map((item, index) => (
-          <Fragment key={`${item.ProgramName}${index}`}>
-            <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-[214px] border border-[#EDEEF3] rounded">
-              <div className="flex items-center gap-3">
-                <p className="text-lg font-bold w-full">{item.ProgramName}</p>
-                {/* <div className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1"></div> */}
-                <div className="flex gap-3  justify-end">
-                  <TbSettings
-                    size={24}
-                      className="fill-[#EDEEF3]"
-                      onClick={() => {
-                        setEditProgramModalActive(true);
-                        setEditProgramIndex(index);
-                        setEditProgram(item);
-                      }}
-                    />
-                    <TbTrash
-                      size={24}
-                      className="text-red-500 right-6 cursor-pointer hover:bg-gray-100 duration-300"
-                      onClick={() => handleDeleteProgram(item)}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-row justify-between items-center">
-                  <p className="text-gray-500 text-sm">เทอม</p>
-                  <div className="flex flex-wrap w-[365px] h-fit gap-2">
-                    <p className="text-gray-500 text-sm">
-                      {semesterThai[item.Semester]}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-row justify-between items-center">
-                  <p className="text-gray-500 text-sm">ชั้นเรียน</p>
-                  <div className="flex flex-wrap w-[365px] h-fit gap-2">
-                    {item.gradelevel.map((grade, index) => (
-                      <Fragment key={`${grade.GradeID}`}>
-                        <MiniButton
-                          width={54}
-                          height={25}
-                          border={true}
-                          borderColor="#c7c7c7"
-                          titleColor="#4F515E"
-                          title={`ม.${grade.Year}/${grade.Number}`}
-                          buttonColor={"primary"}
-                          isSelected={false}
-                          handleClick={undefined}
-                          hoverable={false}
-                        />
-                        {/* {index < 9 ? (
-                        <MiniButton
-                          width={54}
-                          height={25}
-                          border={true}
-                          borderColor="#c7c7c7"
-                          titleColor="#4F515E"
-                          title={`ม.${item.toString().substring(0, 1)}/${item
-                            .toString()
-                            .substring(2)}`}
-                        />
-                      ) : index < 10 ? (
-                        <div
-                          onMouseEnter={() => {}}
-                          onMouseLeave={() => {}}
-                          className="hover:bg-gray-100 duration-300 w-[45px] h-[25px] border rounded text-center border-[#c7c7c7] text-[#4F515E]"
-                        >
-                          <p>...</p>
-                        </div>
-                      ) : null} */}
-                      </Fragment>
-                    ))}
-                  </div>
-                </div>
-                {/* ชั้นที่เลือก */}
-                <div className="flex flex-row justify-between items-center">
-                  <p className="text-gray-500 text-sm">รายวิชา</p>
-                  <div className="flex flex-wrap w-[365px] h-fit gap-2">
-                    {item.subject.map((subject, index) => (
-                      <Fragment key={`${subject.SubjectCode}`}>
-                        {index < 3 ? (
-                          <MiniButton
-                            // width={54}
-                            height={25}
-                            border={true}
-                            borderColor="#c7c7c7"
-                            titleColor="#4F515E"
-                            title={`${subject.SubjectCode}`}
-                            buttonColor="#1976d2"
-                            width={""}
-                            isSelected={false}
-                            handleClick={undefined}
-                            hoverable={false}
-                          />
-                        ) : index < 4 ? (
-                          <div className="hover:bg-gray-100 duration-300 w-[100px] h-[25px] border rounded text-center border-[#c7c7c7] text-[#4F515E]">
-                            <p>...</p>
-                          </div>
-                        ) : null}
-                      </Fragment>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Fragment>
-          ))
-        }
-        <div
-          onClick={() => setAddProgramModalActive(true)}
-          className="flex justify-center cursor-pointer items-center p-4 gap-3 w-[49%] h-[214px] border border-[#EDEEF3] rounded hover:bg-gray-100 duration-300"
-        >
-          <MdAddCircle size={24} className="fill-gray-500" />
-          <p className="text-lg font-bold">เพิ่มหลักสูตร</p>
-        </div>
+      <div className="py-4">
+        {swr.data && (
+          <ProgramEditableTable
+            year={yearNum}
+            rows={swr.data}
+            mutate={() => { void swr.mutate(); }}
+          />
+        )}
       </div>
     </>
   );

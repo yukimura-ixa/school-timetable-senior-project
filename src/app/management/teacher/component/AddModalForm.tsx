@@ -1,17 +1,20 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, type JSX } from "react";
 import TextField from "@/components/mui/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import type { teacher } from "@prisma/client";
-import api from "@/libs/axios";
+import type { teacher } from "@/prisma/generated";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
+
+// Server Actions
+import { createTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+
 type props = {
   closeModal: any;
   mutate: Function;
@@ -36,21 +39,36 @@ function AddModalForm({ closeModal, mutate }: props) {
       variant: "info",
       persist: true,
     });
-    const response = await api
-      .post("/teacher", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลครูไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    
+    try {
+      const result = await createTeachersAction({
+        teachers: data.map(t => ({
+          Prefix: t.Prefix,
+          Firstname: t.Firstname,
+          Lastname: t.Lastname,
+          Department: t.Department,
+          Email: t.Email,
+          Role: t.Role || "teacher",
+        })),
       });
-    console.log(response);
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"), {
+        variant: "error",
+      });
+      console.log(error);
+    }
   };
   const addList = () => {
     let newTeacher: teacher = {

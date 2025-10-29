@@ -39,9 +39,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma generated client (custom output path)
+/prisma/generated/
+
 cloud-sql-proxy.exe
 
 /.idea
 school-timetable-408413-firebase-adminsdk-ti3po-5dec40ec69.json
 serviceAccount.json
 /.firebase
+.env*.local

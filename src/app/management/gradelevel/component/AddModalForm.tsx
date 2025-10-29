@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
@@ -8,71 +8,81 @@ import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import api from "@/libs/axios";
-import type { gradelevel } from "@prisma/client";
+import { createGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import type { gradelevel } from "@/prisma/generated";
+import type { CreateGradeLevelsInput } from "@/features/gradelevel/application/schemas/gradelevel.schemas";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-type props = {
-  closeModal: any;
-  mutate: Function;
+type Props = {
+  closeModal: () => void;
+  mutate: () => void;
 };
-function AddModalForm({ closeModal, mutate }: props) {
+function AddModalForm({ closeModal, mutate }: Props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [gradeLevels, setGradeLevels] = useState<gradelevel[]>([
+  const [gradeLevels, setGradeLevels] = useState<Partial<gradelevel>[]>([
     {
-      GradeID: null,
-      Year: null,
-      Number: null,
+      Year: null as unknown as number,
+      Number: null as unknown as number,
     },
   ]);
   const addList = () => {
-    let struct: gradelevel = {
-      GradeID: null,
-      Year: null,
-      Number: null,
+    const struct: Partial<gradelevel> = {
+      Year: null as unknown as number,
+      Number: null as unknown as number,
     };
     setGradeLevels(() => [...gradeLevels, struct]);
   };
   const removeList = (index: number): void => {
-    let copyArray = [...gradeLevels];
+    const copyArray = [...gradeLevels];
     copyArray.splice(index, 1);
     setGradeLevels(() => copyArray);
   };
   const isValidData = (): boolean => {
     let isValid = true;
     gradeLevels.forEach((data) => {
-      if (data.Year == null || data.Number == null) {
+      if (data.Year === null || data.Number === null) {
         setIsEmptyData(true);
         isValid = false;
       }
-      data.GradeID = data.Year + "0" + data.Number;
     });
     return isValid;
   };
-  const addData = async (data: gradelevel[]) => {
+  const addData = async (data: Partial<gradelevel>[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลชั้นเรียน", {
       variant: "info",
       persist: true,
     });
-    console.log(data);
-    const response = await api
-      .post("/gradelevel", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    
+    try {
+      const payload: CreateGradeLevelsInput = data
+        .filter((d): d is { Year: number; Number: number } =>
+          d.Year !== null && d.Year !== undefined && d.Number !== null && d.Number !== undefined
+        )
+        .map((d) => ({ Year: Number(d.Year), Number: Number(d.Number) }));
+      const result = await createGradeLevelsAction(payload);
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนไม่สำเร็จ " + message, {
+        variant: "error",
       });
+      console.error(error);
+    }
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isValidData()) {
-      addData(gradeLevels);
+      await addData(gradeLevels);
       closeModal();
     }
   };
@@ -113,13 +123,12 @@ function AddModalForm({ closeModal, mutate }: props) {
               <Fragment key={`AddData${index + 1}`}>
                 <div
                   className={`flex flex-row gap-3 items-center ${
-                    index == gradeLevels.length - 1 ? "" : "mt-8"
+                    index === gradeLevels.length - 1 ? "" : "mt-8"
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
                     <p
                       className="text-sm font-bold"
-                      onClick={() => console.log(gradeLevels)}
                     >
                       รายการที่
                     </p>
@@ -131,7 +140,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                     </label>
                     <Dropdown
                       data={[1, 2, 3, 4, 5, 6]}
-                      renderItem={({ data }: { data: any }): JSX.Element => (
+                      renderItem={({ data }: { data: number }): JSX.Element => (
                         <li className="w-full">{data}</li>
                       )}
                       width={150}
@@ -147,7 +156,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }}
                     />
                     {isEmptyData &&
-                    (gradeLevel.Year == 0 || gradeLevel.Year == null) ? (
+                    (gradeLevel.Year === 0 || gradeLevel.Year === null) ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -164,12 +173,12 @@ function AddModalForm({ closeModal, mutate }: props) {
                       disabled={false}
                       borderColor={
                         isEmptyData &&
-                        (gradeLevel.Number == 0 || gradeLevel.Number == null)
+                        (gradeLevel.Number === 0 || gradeLevel.Number === null)
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                      handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const value: string = e.target.value;
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
                             index === ind
@@ -180,7 +189,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }}
                     />
                     {isEmptyData &&
-                    (gradeLevel.Number == 0 || gradeLevel.Number == null) ? (
+                    (gradeLevel.Number === 0 || gradeLevel.Number === null) ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -245,7 +254,7 @@ function AddModalForm({ closeModal, mutate }: props) {
               isDisabled={false}
             />
             <PrimaryButton
-              handleClick={handleSubmit}
+              handleClick={() => void handleSubmit()}
               title={"ยืนยัน"}
               color={"success"}
               Icon={<CheckIcon />}

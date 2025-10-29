@@ -7,7 +7,7 @@
 
 import { ScheduleRepository } from './schedule.repository';
 import prisma from '@/libs/prisma';
-import { semester } from '@prisma/client';
+import { semester } from '@/prisma/generated';
 
 // Mock Prisma client
 jest.mock('@/libs/prisma', () => ({

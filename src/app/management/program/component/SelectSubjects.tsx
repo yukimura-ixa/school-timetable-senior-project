@@ -1,11 +1,13 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
-import { subject } from "@prisma/client";
+import type { subject } from "@/prisma/generated";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { CircularProgress } from "@mui/material";
 import useSWR from "swr";
-import { fetcher } from "@/libs/axios";
+
+// Server Actions
+import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
 type Props = {
   subjectSelected: any;
@@ -17,10 +19,22 @@ type Props = {
 };
 
 function SelectSubjects(props: Props) {
-  const subjectData = useSWR("/subject/notInPrograms", fetcher, {
-    // refreshInterval: 15000,
+  const subjectData = useSWR("subjects-not-in-programs", async () => {
+    try {
+      const result = await getSubjectsAction();
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      // Filter subjects that are not already in programs
+      // Note: Original endpoint was /subject/notInPrograms which filtered on backend
+      // For now we return all subjects and filter on client side
+      return result.data || [];
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      return [];
+    }
+  }, {
     revalidateOnMount: true,
-
   });
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
 

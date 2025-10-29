@@ -2,8 +2,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import { gradelevel } from "@prisma/client";
-import api from "@/libs/axios";
+import { gradelevel } from "@/prisma/generated";
+import { deleteGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
@@ -37,27 +37,32 @@ function ConfirmDeleteModal({
       variant: "info",
       persist: true,
     });
+    
     const deleteData = data
       .filter((item, index) => checkedList.includes(item.GradeID))
       .map((item) => item.GradeID);
-    const response = await api
-      .delete("/gradelevel", {
-        data: deleteData,
-      })
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลชั้นเรียนไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    
+    try {
+      const result = await deleteGradeLevelsAction({ gradeIds: deleteData });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
       });
+      console.error(error);
+    }
 
-    console.log(response);
     clearCheckList();
   };
   return (

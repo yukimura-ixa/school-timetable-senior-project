@@ -6,8 +6,8 @@ import CheckIcon from "@mui/icons-material/Check";
 import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
-import api from "@/libs/axios";
-import type { room } from "@prisma/client";
+import { updateRoomsAction } from "@/features/room/application/actions/room.actions";
+import type { room } from "@/prisma/generated";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
@@ -53,30 +53,41 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       persist: true,
     });
 
-    console.log(data);
-    const response = await api
-      .put("/room", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
-          variant: "success",
-        });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar(
-          "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + error.respnse.data,
-          {
-            variant: "error",
-          },
-        );
-        console.log(error);
+    try {
+      // Map local shape to server action input (Floor must be string)
+      const payload = data.map((r: room) => ({
+        RoomID: Number(r.RoomID),
+        RoomName: r.RoomName,
+        Building: r.Building,
+        Floor: String(r.Floor ?? ""),
+      }));
+      const result = await updateRoomsAction(payload);
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
+        variant: "success",
       });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar(
+        "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
+      console.error(error);
+    }
 
     //clear checkbox
     clearCheckList();
-    console.log(response);
   };
   return (
     <>

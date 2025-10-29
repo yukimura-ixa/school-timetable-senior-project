@@ -3,10 +3,13 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import api from "@/libs/axios";
-import { program, semester, subject } from "@prisma/client";
+import type { program, subject } from "@/prisma/generated";
+import { semester } from "@/prisma/generated";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+// Server Actions
+import { updateProgramAction } from "@/features/program/application/actions/program.actions";
 
 type Props = {
   closeModal: any;
@@ -15,7 +18,12 @@ type Props = {
 };
 
 function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
-  const [newProgramData, setNewProgramData] = useState(editData);
+  // Ensure AcademicYear exists in editData
+  const currentThaiYear = new Date().getFullYear() + 543;
+  const [newProgramData, setNewProgramData] = useState({
+    ...editData,
+    AcademicYear: editData?.AcademicYear || currentThaiYear,
+  });
   const editProgram = async (program) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูล", {
       variant: "info",
@@ -23,14 +31,30 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     });
     console.log(program);
     closeModal();
-    const response = await api.put("/program", program);
-    if (response.status === 200) {
+    
+    try {
+      const result = await updateProgramAction({
+        ProgramID: program.ProgramID,
+        ProgramName: program.ProgramName,
+        Semester: program.Semester,
+        AcademicYear: program.AcademicYear,
+        gradelevel: program.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
+        subject: program.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
+      });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       mutate();
       enqueueSnackbar("แก้ไขหลักสูตรสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
-    } else {
+    } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการแก้ไขหลักสูตร", { variant: "error" });
+      enqueueSnackbar("เกิดข้อผิดพลาดในการแก้ไขหลักสูตร: " + (error.message || "Unknown error"), { variant: "error" });
     }
   };
 

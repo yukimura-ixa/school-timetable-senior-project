@@ -1,4 +1,4 @@
-import { subject_credit } from "@prisma/client"
+import { subject_credit } from "@/prisma/generated"
 
 type SubjectCreditWithTitles = {
   [subject_credit: string]: string

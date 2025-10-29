@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 
 //SVG Icon
 import arrowdownIcon from "@/svg/arrow/arrowdown.svg";

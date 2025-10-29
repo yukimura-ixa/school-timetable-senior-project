@@ -3,7 +3,7 @@ type Props = {
   handleClick: any;
   title: string;
   color: string;
-  Icon: React.JSX.Element;
+  Icon?: React.JSX.Element | null;
   reverseIcon: boolean;
   isDisabled: boolean;
 };

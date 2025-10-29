@@ -82,8 +82,7 @@ function StudentTablePage() {
   const [isPDFExport, setIsPDFExport] = useState(false);
 
   const generatePDF = useReactToPrint({
-    content: () => ref.current,
-    copyStyles: true,
+    contentRef: ref,
     documentTitle: `ตารางเรียน${selectedGradeId ?? ""} ${semester}-${academicYear}`,
   });
 

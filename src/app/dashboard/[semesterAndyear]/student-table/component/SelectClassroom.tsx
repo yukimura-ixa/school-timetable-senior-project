@@ -1,7 +1,7 @@
 import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
-import type { gradelevel } from "@prisma/client";
+import type { gradelevel } from "@/prisma/generated";
 import React, { useEffect, useState } from "react";
 
 type Props = {

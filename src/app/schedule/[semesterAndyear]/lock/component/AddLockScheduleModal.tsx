@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectDayOfWeek from "./SelectDayOfWeek";
 import SelectSubject from "./SelectSubject";
@@ -6,8 +6,9 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, teacher, subject } from "@prisma/client";
-import type { ModalCloseHandler, ModalConfirmHandler, InputChangeHandler, SelectChangeHandler } from "@/types/events";
+import type { room, subject } from "@/prisma/generated";
+import { subject_credit, SubjectCategory } from "@/prisma/generated";
+import type { ModalCloseHandler, ModalConfirmHandler, InputChangeHandler } from "@/types/events";
 import type { LockScheduleFormData } from "@/types/lock-schedule";
 
 type Props = {
@@ -15,14 +16,17 @@ type Props = {
   confirmChange: ModalConfirmHandler<LockScheduleFormData>;
 };
 
-function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
+function AddLockScheduleModal({ closeModal, confirmChange: _confirmChange }: Props) {
   const [lockScheduleData, setLockScheduledata] = useState<LockScheduleFormData>({
     Subject: {
       SubjectCode: "",
       SubjectName: "",
-      Credit: null,
-      Category: "",
-      ProgramID: null,
+      Credit: subject_credit.CREDIT_05,
+      Category: SubjectCategory.CORE,
+      LearningArea: null,
+      ActivityType: null,
+      IsGraded: true,
+      Description: "",
     },
     DayOfWeek: "",
     timeSlotID: [],
@@ -39,18 +43,17 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     RoomName: false,
   });
   const timeSlotHandleChange: InputChangeHandler = (e) => {
-    let value = e.target.value;
-    let timeSlot = [...lockScheduleData.timeSlotID];
+    const value = e.target.value;
+    const timeSlot = [...lockScheduleData.timeSlotID];
     setLockScheduledata(() => ({
       ...lockScheduleData,
       timeSlotID: timeSlot.includes(parseInt(value))
         ? timeSlot.filter((item) => item !== parseInt(value))
         : [...timeSlot, parseInt(value)].sort((a, b) => a - b),
     }));
-    console.log(timeSlot);
   };
   const classRoomHandleChange = (value: string) => {
-    let grade = [...lockScheduleData.Grade];
+    const grade = [...lockScheduleData.Grade];
     if (!lockScheduleData.Grade.includes(value)) {
       grade.push(value);
     } else {
@@ -63,15 +66,15 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
   };
   const validateData = () => {
     setIsEmptyData(() => ({
-      Subject: lockScheduleData.Subject.SubjectCode.length == 0,
-      DayOfWeek: lockScheduleData.DayOfWeek.length == 0,
+      Subject: lockScheduleData.Subject.SubjectCode.length === 0,
+      DayOfWeek: lockScheduleData.DayOfWeek.length === 0,
       timeSlotID:
-        lockScheduleData.timeSlotID.length == 0 ||
+        lockScheduleData.timeSlotID.length === 0 ||
         lockScheduleData.timeSlotID.length > 2 ||
         lockScheduleData.timeSlotID.reduce((a, b) => Math.abs(a - b), 0) > 1,
-      Teachers: lockScheduleData.Teachers.length == 0,
+      Teachers: lockScheduleData.Teachers.length === 0,
       RoomName: lockScheduleData.RoomName == null,
-      ClassRooms: lockScheduleData.Grade.length == 0,
+      ClassRooms: lockScheduleData.Grade.length === 0,
     }));
   };
   useEffect(() => {
@@ -88,7 +91,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     lockScheduleData.RoomName,
   ]);
   const addItemAndCloseModal = () => {
-    let cond =
+    const cond =
       isEmptyData.Subject ||
       isEmptyData.DayOfWeek ||
       isEmptyData.timeSlotID ||
@@ -100,7 +103,6 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
     } else {
       // confirmChange(lockScheduleData);
       // closeModal();
-      console.log(lockScheduleData);
     }
   };
   // ใช้สลับสับเปลี่ยนข้อมูลกับ component ย่อย //
@@ -122,20 +124,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
       RoomName: value.RoomName,
     }));
   };
-  const handleAddTeacherList = (teacher: teacher) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      Teachers: [...lockScheduleData.Teachers, teacher],
-    }));
-  };
-  const removeTeacherFromList = (index: number) => {
-    setLockScheduledata(() => ({
-      ...lockScheduleData,
-      Teachers: [
-        ...lockScheduleData.Teachers.filter((item, ind) => ind != index),
-      ],
-    }));
-  };
+  // Note: teacher list is managed by child components via props
   // ใช้สลับสับเปลี่ยนข้อมูลกับ component ย่อย //
   return (
     <>
@@ -154,7 +143,7 @@ function AddLockScheduleModal({ closeModal, confirmChange }: Props) {
           <div className="flex flex-col gap-5 p-4 w-full h-[550px] overflow-y-scroll border border-[#EDEEF3]">
             <SelectSubject
               currentValue={`${
-                lockScheduleData.Subject.SubjectCode == ""
+                lockScheduleData.Subject.SubjectCode === ""
                   ? ""
                   : `${lockScheduleData.Subject.SubjectCode} ${lockScheduleData.Subject.SubjectName}`
               }`}

@@ -1,393 +1,177 @@
-// "use client";
-import React, { useState, useEffect, Fragment } from "react";
-import type { teacher } from "@prisma/client";
-//ICON
-import { IoIosArrowDown } from "react-icons/io";
-import { MdModeEditOutline } from "react-icons/md";
-import { BiSolidTrashAlt } from "react-icons/bi";
-import { BsCheckLg } from "react-icons/bs";
-import AddIcon from "@mui/icons-material/Add";
-
-//comp
-import AddModalForm from "@/app/management/teacher/component/AddModalForm";
-import SearchBar from "@/components/mui/SearchBar";
-import EditModalForm from "../../teacher/component/EditModalForm";
-import MiniButton from "@/components/elements/static/MiniButton";
-import PrimaryButton from "@/components/mui/PrimaryButton";
-import TableRow from "./TableRow";
-import { useConfirmDialog } from "@/components/dialogs";
-import api from "@/libs/axios";
-import { closeSnackbar, enqueueSnackbar } from "notistack";
+"use client";
+import type { teacher } from "@/prisma/generated";
+import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
+import { deleteTeachersAction, updateTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
 type TeacherTableProps = {
-  tableHead: string[]; //กำหนดเป็น Array ของ property ทั้งหมดเพื่อสร้าง table head
   tableData: teacher[];
-  mutate: Function;
+  mutate: () => void | Promise<void>;
 };
-function Table({ tableHead, tableData, mutate }: TeacherTableProps): JSX.Element {
-  const [pageOfData, setPageOfData] = useState<number>(1);
-  const [addModalActive, setAddModalActive] = useState<boolean>(false);
-  const [editModalActive, setEditModalActive] = useState<boolean>(false);
-  const [teacherData, setTeacherData] = useState<teacher[]>([]);
-  const { confirm, dialog } = useConfirmDialog();
 
-  useEffect(() => {
-    setTeacherData(tableData);
-  }, [tableData]);
-
-  const [checkedList, setCheckedList] = useState<number[]>([]); //เก็บค่าของ checkbox เป็น index
-
-  const handleChange = (event: any) => {
-    //เช็คการเปลี่ยนแปลงที่นี่ พร้อมรับ event
-    event.target.checked //เช็คว่าเรากดติ๊กหรือยัง
-      ? //ถ้ากดติ๊กแล้ว จะเซ็ทข้อมูล index ของ data ทั้งหมดลงไปใน checkList
-        //เช่น จำนวน data มี 5 ชุด จะได้เป็น => [0, 1, 2, 3, 4]
-        setCheckedList(() => teacherData.map((item, index) => index))
-      : //ถ้าติ๊กออก จะล้างค่าทั้งหมดโดยการแปะ empty array ทับลงไป
-        setCheckedList(() => []);
-  };
-  const clickToSelect = (itemID: number) => {
-    //เมื่อติ๊ก checkbox ในแต่ละ row เราจะทำการเพิ่ม itemID ลงไปใน checkList
-    setCheckedList(() =>
-      //ก่อนอื่นเช็คว่า itemID ที่จะเพิ่มลงไปมีใน checkList แล้วหรือยัง
-      //ขยาย...เพราะเราต้องติ๊กเข้าติ๊กออก ต้อง toggle ค่า
-      checkedList.includes(itemID) //คำสั่ง includes return เป็น boolean
-        ? //เมื่อเป็นจริง (มีการติ๊กในแถวนั้นๆมาก่อนแล้ว แล้วกดติ๊กซ้ำ)
-          //ทำการวาง array ทับโดยการ filter itemID นั้นออกไป
-          checkedList.filter((item) => item != itemID)
-        : //เมื่อยังไม่ถูกติ๊กมาก่อน ก็จะเพิ่ม itemID ที่ติ๊กเข้าไป
-          [...checkedList, itemID]
-    );
-  };
-  useEffect(() => {
-    checkedList.sort();
-  }, [checkedList]); //ตรงนี้เป็นการ sort Checklist
-
-  const [orderedIndex, setOrderedIndex] = useState(-1);
-  const [sortConfig, setSortConfig] = useState({
+// Column definitions for teachers table
+const teacherColumns: ColumnDef<teacher>[] = [
+  {
+    key: "TeacherID",
+    label: "ID",
+    editable: false, // Protected - primary key
+    width: 80,
+  },
+  {
+    key: "Prefix",
+    label: "คำนำหน้าชื่อ",
+    editable: true,
+    required: true,
+    type: "select",
+    options: [
+      { value: "นาย", label: "นาย" },
+      { value: "นาง", label: "นาง" },
+      { value: "นางสาว", label: "นางสาว" },
+      { value: "ผศ.", label: "ผศ." },
+      { value: "อ.", label: "อ." },
+    ],
+    width: 120,
+  },
+  {
     key: "Firstname",
-    direction: "asc",
-  });
+    label: "ชื่อ",
+    editable: true,
+    required: true,
+    type: "text",
+  },
+  {
+    key: "Lastname",
+    label: "นามสกุล",
+    editable: true,
+    required: true,
+    type: "text",
+  },
+  {
+    key: "Department",
+    label: "กลุ่มสาระ",
+    editable: true,
+    type: "text",
+  },
+  {
+    key: "Email",
+    label: "อีเมล",
+    editable: false, // Protected - used in auth, must be unique
+    type: "text",
+  },
+  {
+    key: "Role",
+    label: "บทบาท",
+    editable: true,
+    type: "select",
+    options: [
+      { value: "teacher", label: "ครู" },
+      { value: "admin", label: "ผู้ดูแลระบบ" },
+    ],
+    width: 150,
+  },
+];
 
-  const requestSort = (key) => {
-    if (key == "คำนำหน้าชื่อ") key = "Prefix";
-    else if (key == "นามสกุล") key = "Lastname";
-    else if (key == "กลุ่มสาระ") key = "Department";
-    else key = "Firstname";
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+// Validation function for teachers
+const validateTeacher: ValidationFn<teacher> = (id, data, allData) => {
+  // Check required fields
+  if (!data.Prefix || data.Prefix.trim() === "") {
+    return "คำนำหน้าชื่อต้องไม่เป็นค่าว่าง";
+  }
+
+  if (!data.Firstname || data.Firstname.trim() === "") {
+    return "ชื่อต้องไม่เป็นค่าว่าง";
+  }
+
+  if (data.Firstname.length > 100) {
+    return "ชื่อต้องไม่เกิน 100 ตัวอักษร";
+  }
+
+  if (!data.Lastname || data.Lastname.trim() === "") {
+    return "นามสกุลต้องไม่เป็นค่าว่าง";
+  }
+
+  if (data.Lastname.length > 100) {
+    return "นามสกุลต้องไม่เกิน 100 ตัวอักษร";
+  }
+
+  // Email is protected in editing, but validate on create
+  if (typeof id === "string" && data.Email) {
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.Email)) {
+      return "รูปแบบอีเมลไม่ถูกต้อง";
     }
-    setSortConfig({ key, direction });
-  };
-  const sortData = (key, direction) => {
-    if (!tableData) return; // Handle case when data is not yet available
 
-    const sortedData = [...tableData].sort((a, b) => {
-      const aValue = a[key].toLowerCase();
-      const bValue = b[key].toLowerCase();
-
-      if (direction === "asc") {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
-      }
-    });
-    // mutate(sortedData, false);
-    setTeacherData(sortedData);
-  };
-
-  useEffect(() => {
-    if (orderedIndex != -1) {
-      sortData(sortConfig.key, sortConfig.direction);
+    // Check for duplicate email
+    const duplicate = allData.find((t) => t.Email === data.Email);
+    if (duplicate) {
+      return "อีเมลนี้ถูกใช้งานแล้ว";
     }
-  }, [sortConfig]);
+  }
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  return null;
+};
 
-  useEffect(() => {
-    // Apply the search filter on top of sorting
-    const filteredData = tableData.filter(
-      (item) =>
-        item.Firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.Lastname.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+// Empty teacher factory for creating new rows
+const createEmptyTeacher = (): Partial<teacher> => ({
+  Prefix: "นาย",
+  Firstname: "",
+  Lastname: "",
+  Department: "-",
+  Email: "",
+  Role: "teacher",
+});
 
-    setFilteredData(filteredData);
-    sortData(sortConfig.key, sortConfig.direction); // Sort the filtered data
-  }, [searchTerm, sortConfig]);
+// Wrapper for create action
+const handleCreate = async (newTeacher: Partial<teacher>) => {
+  return await updateTeachersAction([
+    {
+      Prefix: newTeacher.Prefix?.trim() || "นาย",
+      Firstname: newTeacher.Firstname?.trim() || "",
+      Lastname: newTeacher.Lastname?.trim() || "",
+      Department: newTeacher.Department?.trim() || "-",
+      Email: newTeacher.Email?.trim() || "",
+      Role: newTeacher.Role || "teacher",
+    },
+  ]);
+};
 
-  const numberOfPage = (): number[] => {
-    let allPage = Math.ceil(tableData.length / 10);
-    let page: number[] = tableData
-      .filter((item, index) => index < allPage)
-      .map((item, index) => index + 1);
-    return page;
-  };
-  const nextPage = (): void => {
-    let allPage = Math.ceil(tableData.length / 10);
-    setPageOfData(() => (pageOfData + 1 > allPage ? allPage : pageOfData + 1));
-  };
-  const previousPage = (): void => {
-    setPageOfData(() => (pageOfData - 1 < 1 ? 1 : pageOfData - 1));
-  };
+// Wrapper for update action
+const handleUpdate = async (teachers: Partial<teacher>[]) => {
+  return await updateTeachersAction(
+    teachers.map((t) => ({
+      TeacherID: t.TeacherID as number,
+      Prefix: t.Prefix?.trim() || "นาย",
+      Firstname: t.Firstname?.trim() || "",
+      Lastname: t.Lastname?.trim() || "",
+      Department: t.Department?.trim() || "-",
+      Email: t.Email?.trim() || "", // Email is protected but include in payload
+      Role: t.Role || "teacher",
+    }))
+  );
+};
 
-  // Delete handler using new ConfirmDialog
-  const handleDeleteTeachers = async () => {
-    const confirmed = await confirm({
-      title: "ลบข้อมูลครู",
-      message: `คุณต้องการลบข้อมูลครูที่เลือกทั้งหมด ${checkedList.length} รายการใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
-      variant: "danger",
-      confirmText: "ลบ",
-      cancelText: "ยกเลิก"
-    });
+// Wrapper for delete action
+const handleDelete = async (ids: (string | number)[]) => {
+  return await deleteTeachersAction({ teacherIds: ids as number[] });
+};
 
-    if (!confirmed) return;
-
-    const loadbar = enqueueSnackbar("กำลังลบข้อมูลครู", {
-      variant: "info",
-      persist: true,
-    });
-
-    // checkedList contains TeacherIDs, not indices
-    const deleteIds = tableData
-      .filter((item) => checkedList.includes(item.TeacherID))
-      .map((item) => item.TeacherID);
-
-    try {
-      await api.delete("/teacher", { data: deleteIds });
-      closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
-      setCheckedList([]);
-      mutate();
-    } catch (error: any) {
-      closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ: " + (error.response?.data || error.message), {
-        variant: "error",
-      });
-      console.error(error);
-    }
-  };
-
+export default function TeacherTable({ tableData, mutate }: TeacherTableProps) {
   return (
-    <>
-      {dialog}
-      {addModalActive ? (
-        <AddModalForm
-          closeModal={() => {
-            setAddModalActive(false);
-          }}
-          mutate={mutate}
-        />
-      ) : null}
-      {editModalActive ? (
-        <EditModalForm
-          closeModal={() => {
-            setEditModalActive(false);
-          }}
-          clearCheckList={() => setCheckedList(() => [])}
-          data={tableData.filter((item, index) => checkedList.includes(item.TeacherID))}
-          mutate={mutate}
-        />
-      ) : null}
-      <div className="w-full flex justify-between h-[60px] py-[10px] pl-[15px]">
-        <div className="flex gap-3">
-          {/* แสดงจำนวน checkbox ที่เลือก */}
-          {checkedList.length === 0 ? null : (
-            <>
-              <div
-                onClick={() => setCheckedList(() => [])}
-                className="flex w-fit h-full items-center p-3 gap-1 bg-cyan-100 hover:bg-cyan-200 cursor-pointer duration-300 rounded-lg text-center select-none"
-              >
-                <BsCheckLg className="fill-cyan-500" />
-                <p className="text-cyan-500 text-sm">
-                  {checkedList.length === tableData.length
-                    ? `เลือกทั้งหมด (${checkedList.length})`
-                    : `เลือก (${checkedList.length})`}
-                </p>
-              </div>
-              <div
-                onClick={() => setEditModalActive(true)}
-                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-yellow-100 hover:bg-yellow-200 duration-300 cursor-pointer select-none"
-              >
-                <MdModeEditOutline className="fill-yellow-700" />
-                <p className="text-sm text-yellow-700">แก้ไข</p>
-              </div>
-              <div
-                onClick={handleDeleteTeachers}
-                className="flex w-fit items-center p-3 gap-3 h-full rounded-lg bg-red-100 hover:bg-red-200 duration-300 cursor-pointer select-none"
-              >
-                <BiSolidTrashAlt className="fill-red-500" />
-                <p className="text-sm text-red-500">ลบ</p>
-              </div>
-            </>
-          )}
-        </div>
-        <div className="flex gap-3">
-          <SearchBar
-            height={"100%"}
-            width={"100%"}
-            handleChange={handleSearch}
-            placeHolder="ค้นหาชื่อครู"
-            value={searchTerm}
-          />
-          <div className="flex w-fit h-full items-center p-3 bg-green-100 rounded-lg text-center select-none">
-            <p className="text-green-500 text-sm" onClick={() => {
-              console.log(teacherData)
-              console.log(checkedList)
-              }}>
-              ทั้งหมด {teacherData.length} รายการ
-            </p>
-          </div>
-          <PrimaryButton
-            handleClick={() => setAddModalActive(true)}
-            title={"เพิ่มครู"}
-            color="primary"
-            Icon={<AddIcon />}
-            reverseIcon={false}
-            isDisabled={false}
-          />
-        </div>
-      </div>
-      <table className="table-auto w-full">
-        <thead>
-          <tr className="h-[60px] bg-[#F1F3F9]">
-            <th className="w-20 px-6">
-              {/* input ที่ select all item ในตาราง */}
-              <input
-                className="cursor-pointer"
-                type="checkbox"
-                name="selectedAll"
-                onChange={handleChange}
-                //ตรงนี้เช็คว่า array length ของ checkList กับ data ยาวเท่ากันไหม
-                //ขยาย...ถ้าเราติ๊กหมดมันก็จะขึ้นเป็น checked
-                //ขยาย(2)...แต่ถ้าเรา unchecked ข้อมูลบางชุดในตาราง ไอ้ checkbox ตัวนี้ก็ต้องมีสถานะ checked = false
-                checked={
-                  checkedList.length === tableData.length &&
-                  tableData.length !== 0
-                }
-              />
-            </th>
-            {tableHead.map((item, index) => (
-              <Fragment key={index}>
-                <th
-                  className="text-left px-6 select-none cursor-pointer"
-                  onClick={() => {
-                    setOrderedIndex(index);
-                    requestSort(item);
-                  }}
-                >
-                  <div className="flex gap-1 items-center">
-                    <p className="">{item}</p>
-                    {/* ตรงนี้ไม่มีไรมาก แสดงลูกศรแบบ rotate กลับไปกลับมาโดยเช็คจาก orderState */}
-                    {orderedIndex === index ? (
-                      <IoIosArrowDown
-                        className={`fill-cyan-400 duration-500`}
-                        style={{
-                          transform: `rotate(${
-                            sortConfig.direction === "asc" ? "0deg" : "180deg"
-                          })`,
-                        }}
-                      />
-                    ) : null}
-                  </div>
-                </th>
-              </Fragment>
-            ))}
-            {checkedList.length > 0 
-            ?
-            null
-            :
-            <th className="w-20 px-6">
-            </th>
-            }
-          </tr>
-        </thead>
-        <tbody className="text-sm">
-          {teacherData
-            .map((item, index) => (
-              <Fragment key={item.TeacherID}>
-                <TableRow
-                  item={item}
-                  index={index}
-                  clickToSelect={clickToSelect}
-                  checkedList={checkedList}
-                  setEditModalActive={setEditModalActive}
-                  pageOfData={pageOfData}
-                  searchTerm={searchTerm}
-                />
-              </Fragment>
-            ))
-            .filter(
-              (item, index) =>
-                index >= (pageOfData === 1 ? 0 : pageOfData * 10 - 10) &&
-                index <= pageOfData * 10 - 1
-            )}
-        </tbody>
-      </table>
-      <div className="flex w-full gap-3 h-fit items-center justify-end mt-3">
-        <MiniButton 
-          handleClick={previousPage} 
-          title={"Prev"} 
-          border={true}
-          buttonColor="#ffffff"
-          titleColor="#222222"
-          width={60}
-          height={30}
-          borderColor="#c7c7c7"
-          isSelected={false}
-          hoverable={true}
-        />
-        {numberOfPage().map((page) => (
-          <Fragment key={`page${page}`}>
-            {pageOfData == page ? (
-              <MiniButton
-                handleClick={() => {}}
-                title={page.toString()}
-                width={30}
-                height={30}
-                buttonColor="#222"
-                titleColor="#FFF"
-                border={true}
-                borderColor="#222"
-                isSelected={true}
-                hoverable={false}
-              />
-            ) : (
-              <MiniButton
-                handleClick={() => setPageOfData(() => page)}
-                width={30}
-                height={30}
-                title={page.toString()}
-                buttonColor="#ffffff"
-                titleColor="#222222"
-                border={true}
-                borderColor="#c7c7c7"
-                isSelected={false}
-                hoverable={true}
-              />
-            )}
-          </Fragment>
-        ))}
-        <MiniButton 
-          title={"Next"} 
-          handleClick={nextPage} 
-          border={true}
-          buttonColor="#ffffff"
-          titleColor="#222222"
-          width={60}
-          height={30}
-          borderColor="#c7c7c7"
-          isSelected={false}
-          hoverable={true}
-        />
-      </div>
-    </>
+    <EditableTable<teacher>
+      title="จัดการข้อมูลครู"
+      columns={teacherColumns}
+      data={tableData}
+      idField="TeacherID"
+      searchFields={["Firstname", "Lastname", "Department", "Email"]}
+      searchPlaceholder="ค้นหาชื่อ นามสกุล กลุ่มสาระ หรืออีเมล"
+      validate={validateTeacher}
+      onCreate={handleCreate}
+      onUpdate={handleUpdate}
+      onDelete={handleDelete}
+      onMutate={mutate}
+      emptyRowFactory={createEmptyTeacher}
+      rowsPerPageOptions={[5, 10, 25, 50]}
+      defaultRowsPerPage={10}
+    />
   );
 }
-
-export default Table;

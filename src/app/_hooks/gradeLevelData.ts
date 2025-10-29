@@ -1,5 +1,5 @@
 import useSWR, { preload } from "swr"
-import type { gradelevel } from "@prisma/client"
+import type { gradelevel } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 export const useGradeLevelData = () => {

@@ -24,7 +24,8 @@
  *   npx prisma db seed
  */
 
-import { PrismaClient, day_of_week, semester, subject_credit, breaktime } from '@prisma/client';
+import { PrismaClient, day_of_week, semester, subject_credit, breaktime } from '../prisma/generated';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -72,42 +73,196 @@ const BUILDINGS = [
 
 async function main() {
   console.log('🌱 Starting seed...');
-  // console.log('🗑️  Cleaning existing data...');
+  
+  // ===== AUTH.JS USERS =====
+  console.log('👤 Creating admin user...');
+  
+  // Hash password for admin
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  
+  // Check if admin already exists
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: 'admin@school.local' }
+  });
+  
+  if (!existingAdmin) {
+    await prisma.user.create({
+      data: {
+        email: 'admin@school.local',
+        name: 'System Administrator',
+        password: adminPassword,
+        role: 'admin',
+        emailVerified: new Date(),
+      }
+    });
+    console.log('✅ Admin user created (email: admin@school.local, password: admin123)');
+  } else {
+    console.log('ℹ️  Admin user already exists');
+  }
+  
+  // Check if we should clean existing data
+  // Set SEED_CLEAN_DATA=true environment variable to enable data cleaning
+  // Set SEED_FOR_TESTS=true for E2E testing environment (auto-cleans data)
+  const shouldCleanData = process.env.SEED_CLEAN_DATA === 'true' || process.env.SEED_FOR_TESTS === 'true';
+  
+  if (!shouldCleanData) {
+    console.log('ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true or SEED_FOR_TESTS=true to enable)');
+    console.log('✅ Seed completed - admin user ready');
+    return;
+  }
+  
+  const isTestMode = process.env.SEED_FOR_TESTS === 'true';
+  if (isTestMode) {
+    console.log('🧪 Test mode enabled - Seeding E2E test data...');
+  } else {
+    console.log('⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data...');
+  }
+  console.log('⚠️  This will DELETE all timetable data but preserve User/Account/Session tables');
 
-  // // Clean existing data in correct order (respecting foreign keys)
-  // await prisma.class_schedule.deleteMany({});
-  // await prisma.teachers_responsibility.deleteMany({});
-  // await prisma.timeslot.deleteMany({});
-  // await prisma.table_config.deleteMany({});
-  // await prisma.subject.deleteMany({});
-  // await prisma.teacher.deleteMany({});
-  // await prisma.room.deleteMany({});
-  // await prisma.gradelevel.deleteMany({});
-  // await prisma.program.deleteMany({});
+  // Clean existing timetable data in correct order (respecting foreign keys)
+  // NOTE: This does NOT delete Auth.js tables (User, Account, Session, VerificationToken)
+  await prisma.class_schedule.deleteMany({});
+  await prisma.teachers_responsibility.deleteMany({});
+  await prisma.timeslot.deleteMany({});
+  await prisma.table_config.deleteMany({});
+  await prisma.subject.deleteMany({});
+  await prisma.teacher.deleteMany({});
+  await prisma.room.deleteMany({});
+  await prisma.gradelevel.deleteMany({});
+  await prisma.program.deleteMany({});
 
-  // console.log('✅ Existing data cleaned');
+  console.log('✅ Timetable data cleaned (Auth.js tables preserved)');
 
   // ===== PROGRAMS =====
   console.log('📚 Creating programs...');
+  
+  // Current Thai Buddhist calendar year (Gregorian + 543)
+  const currentThaiYear = new Date().getFullYear() + 543; // 2568
+  
+  // Create programs for multiple academic years and semesters to test filtering
   const programs = await Promise.all([
+    // Academic Year 2567, Semester 1
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2567
+      }
     }),
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2567
+      }
+    }),
+    
+    // Academic Year 2567, Semester 2
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: 2567
+      }
     }),
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรเพิ่มเติม วิทย์-คณิต', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: 2567
+      }
+    }),
+    
+    // Academic Year 2568 (current), Semester 1
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
     }),
     prisma.program.create({
-      data: { ProgramName: 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา', Semester: 'SEMESTER_1' }
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรเพิ่มเติม วิทย์-คณิต', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    
+    // Academic Year 2568 (current), Semester 2
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_2',
+        AcademicYear: currentThaiYear
+      }
+    }),
+    
+    // Academic Year 2569 (future), Semester 1
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2569
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
+        Semester: 'SEMESTER_1',
+        AcademicYear: 2569
+      }
     }),
   ]);
-  console.log(`✅ Created ${programs.length} programs`);
+  console.log(`✅ Created ${programs.length} programs across multiple academic years`);
 
   // ===== GRADE LEVELS =====
   console.log('🎓 Creating grade levels...');
   const gradeLevels: any[] = [];
+  
+  // Find current year programs for grade level connections
+  const currentYearJuniorProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรแกนกลาง ม.ต้น' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  const currentYearSeniorProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรแกนกลาง ม.ปลาย' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  const currentYearSciMathProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรเพิ่มเติม วิทย์-คณิต' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  const currentYearArtsLangProgram = programs.find(p => 
+    p.ProgramName === 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา' && 
+    p.Semester === 'SEMESTER_1' && 
+    p.AcademicYear === currentThaiYear
+  );
+  
   // M.1 - M.3 (Junior High - มัธยมต้น)
   for (let year = 1; year <= 3; year++) {
     for (let section = 1; section <= 3; section++) {
@@ -118,7 +273,7 @@ async function main() {
           Number: section,
           program: {
             connect: [
-              { ProgramID: programs[0].ProgramID }, // Core curriculum
+              { ProgramID: currentYearJuniorProgram!.ProgramID }, // Core curriculum for current year
             ]
           }
         }
@@ -136,8 +291,8 @@ async function main() {
           Number: section,
           program: {
             connect: [
-              { ProgramID: programs[1].ProgramID }, // Core curriculum
-              { ProgramID: section === 1 ? programs[2].ProgramID : programs[3].ProgramID }, // Elective based on section
+              { ProgramID: currentYearSeniorProgram!.ProgramID }, // Core curriculum for current year
+              { ProgramID: section === 1 ? currentYearSciMathProgram!.ProgramID : currentYearArtsLangProgram!.ProgramID }, // Elective based on section
             ]
           }
         }

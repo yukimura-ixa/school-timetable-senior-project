@@ -1,9 +1,9 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { fetcher } from "@/libs/axios";
 import { CircularProgress } from "@mui/material";
-import { subject } from "@prisma/client";
+import type { subject } from "@/prisma/generated";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type JSX } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 

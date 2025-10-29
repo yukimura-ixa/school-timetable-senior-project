@@ -1,14 +1,14 @@
 import NumberField from "@/components/elements/input/field/NumberField";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 
-import React, { useState } from "react";
+import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import api from "@/libs/axios";
-import type { gradelevel } from "@prisma/client";
+import { updateGradeLevelAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import type { gradelevel } from "@/prisma/generated";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
@@ -61,24 +61,30 @@ function EditModalForm({
       variant: "info",
       persist: true,
     });
-    console.log(data);
-    const response = await api
-      .put("/gradelevel", data)
-      .then(() => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
-        mutate();
-      })
-      .catch((error) => {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + error.respnse.data, {
-          variant: "error",
-        });
-        console.log(error);
+    
+    try {
+      const result = await updateGradeLevelAction({ gradeLevels: data });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"), {
+        variant: "error",
       });
+      console.error(error);
+    }
+    
     //clear checkbox
     clearCheckList();
-    console.log(response);
   };
   return (
     <>

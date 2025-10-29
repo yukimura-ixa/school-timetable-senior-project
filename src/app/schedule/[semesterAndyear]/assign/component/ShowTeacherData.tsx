@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { MdArrowForwardIos } from "react-icons/md";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useTeacherData } from "@/app/_hooks/teacherData";
-import type { teacher } from "@prisma/client";
+import type { teacher } from "@/prisma/generated";
 import useSWR from "swr";
 import { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";

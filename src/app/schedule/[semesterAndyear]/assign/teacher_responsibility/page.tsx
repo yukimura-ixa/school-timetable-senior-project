@@ -8,10 +8,13 @@ import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
 import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
-import api, { fetcher } from "@/libs/axios";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
+
+// Server Actions (Clean Architecture)
+import { getAssignmentsAction, syncAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
+import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
 function ClassroomResponsibility() {
   const params = useParams();
@@ -20,22 +23,48 @@ function ClassroomResponsibility() {
     "-",
   ); //from "1-2566" to ["1", "2566"]
   const searchTeacherID = useSearchParams().get("TeacherID");
-  const responsibilityData = useSWR(
-    //ข้อมูลหลักที่ fetch มาจาก api
+  
+  // Fetch teacher responsibilities using Server Action
+  const responsibilityData = useSWR<any>(
     () =>
-      `/assign?TeacherID=` +
-      searchTeacherID +
-      `&AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester,
-    fetcher,
+      searchTeacherID
+        ? `assign-${searchTeacherID}-${academicYear}-${semester}`
+        : null,
+    async () => {
+      if (!searchTeacherID) return null;
+      try {
+        const result = await getAssignmentsAction({
+          TeacherID: parseInt(searchTeacherID),
+          AcademicYear: parseInt(academicYear),
+          Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+        });
+        // getAssignmentsAction returns data directly (array)
+        return result;
+      } catch (error) {
+        console.error("Error fetching assignments:", error);
+        return null;
+      }
+    },
     { revalidateOnFocus: false },
   );
-  const teacherData = useSWR(
-    //ข้อมูลหลักที่ fetch มาจาก api
-    () => `/teacher?TeacherID=` + searchTeacherID,
-    fetcher,
+  
+  // Fetch teacher data using Server Action
+  const teacherData = useSWR<any>(
+    () => searchTeacherID ? `teacher-${searchTeacherID}` : null,
+    async () => {
+      if (!searchTeacherID) return null;
+      const result = await getTeachersAction();
+      if (!result || typeof result !== 'object' || !('success' in result)) {
+        return null;
+      }
+      if (result.success && 'data' in result) {
+        const teacher = (result.data as any[]).find(
+          (t: any) => t.TeacherID === parseInt(searchTeacherID)
+        );
+        return teacher || null;
+      }
+      return null;
+    },
   );
   // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
   const [data, setData] = useState({
@@ -216,21 +245,27 @@ function ClassroomResponsibility() {
     }
   };
 
-  const saveApi = async (data) => {
+  const saveApi = async (data: any) => {
     setIsApiLoading(true);
-    const response = await api.post("/assign", data);
-    console.log(response);
-    if (response.status === 200 && !responsibilityData.isValidating) {
+    try {
+      const result = await syncAssignmentsAction({
+        TeacherID: data.TeacherID,
+        Resp: data.Resp,
+        AcademicYear: data.AcademicYear,
+        Semester: data.Semester as "SEMESTER_1" | "SEMESTER_2",
+      });
+      
+      // syncAssignmentsAction returns result directly, not wrapped in success/error
       setValidateStatus(false);
       setIsApiLoading(false);
       enqueueSnackbar("บันทึกข้อมูลสำเร็จ", { variant: "success" });
       responsibilityData.mutate();
-    } else {
-      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก" + response.data, {
-        variant: "error",
-      });
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก: " + errorMessage, { variant: "error" });
+      setIsApiLoading(false);
     }
-    setIsApiLoading(false);
   };
   return (
     <>

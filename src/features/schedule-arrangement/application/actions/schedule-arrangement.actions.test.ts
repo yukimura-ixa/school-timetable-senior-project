@@ -7,8 +7,8 @@
  * @module schedule-arrangement.actions.test
  */
 
-// Mock auth.ts at project root (5 levels up from actions folder)
-jest.mock('../../../../../auth', () => ({
+// Mock auth.ts from libs folder
+jest.mock('@/libs/auth', () => ({
   auth: jest.fn().mockResolvedValue({
     user: { id: 'test-user-123', email: 'test@example.com' },
   }),

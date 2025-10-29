@@ -6,9 +6,9 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, subject, teacher, timeslot } from "@prisma/client";
+import type { room, subject, teacher, timeslot } from "@/prisma/generated";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import api from "@/libs/axios";
+import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { useTeacherData } from "@/app/_hooks/teacherData";
 
@@ -282,19 +282,27 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       variant: "info",
       persist: true,
     });
+    
     try {
-      const response = await api.post("/lock", data);
-      if (response.status === 200) {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เพิ่มข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
-        mutate();
-      }
-    } catch (error) {
-      console.log(error);
+      // Transform data to match createLockAction schema
+      const lockInput = {
+        SubjectCode: data.SubjectCode,
+        timeslots: data.timeslots,
+        GradeIDs: data.GradeIDs,
+        RespIDs: data.teachers.map(t => t.TeacherID),
+        RoomID: data.room?.RoomID || null,
+      };
+      
+      await createLockAction(lockInput);
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มข้อมูลคาบล็อก", {
+      enqueueSnackbar("เพิ่มข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มข้อมูลคาบล็อก: " + (error.message || "Unknown error"), {
         variant: "error",
       });
+      console.error(error);
     }
   };
 

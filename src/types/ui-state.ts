@@ -18,7 +18,7 @@ import type {
   semester,
   teachers_responsibility,
   teacher,
-} from '@prisma/client';
+} from '@/prisma/generated';
 
 // ============================================================================
 // Subject Data (for Drag & Drop Operations)

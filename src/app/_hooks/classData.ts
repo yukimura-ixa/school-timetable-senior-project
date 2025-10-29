@@ -1,5 +1,5 @@
 import useSWR, { preload } from "swr"
-import type { class_schedule } from "@prisma/client"
+import type { class_schedule } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 export const useClassData = (AcademicYear: number, Semester: number, TeacherID?: number, GradeID?: string) => {

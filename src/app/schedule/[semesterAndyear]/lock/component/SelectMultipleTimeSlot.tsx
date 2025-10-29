@@ -1,11 +1,11 @@
 import { useTimeslotData } from "@/app/_hooks/timeslotData";
 import { subjectCreditValues } from "@/models/credit-value";
-import { subject_credit } from "@prisma/client";
+import type { subject_credit } from "@/prisma/generated";
 import { useParams } from "next/navigation";
 import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
-import type { subject, teacher } from "@prisma/client";
+import type { subject, teacher } from "@/prisma/generated";
 
 type Props = {
   subject?: subject;

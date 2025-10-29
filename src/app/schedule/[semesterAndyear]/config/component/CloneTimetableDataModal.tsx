@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
-import api, { fetcher } from "@/libs/axios";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
@@ -9,6 +8,9 @@ import CheckBox from "@/components/mui/CheckBox";
 import { enqueueSnackbar } from "notistack";
 import useSWR from "swr";
 import { CircularProgress } from "@mui/material";
+
+// Server Actions
+import { getAllConfigsAction, copyConfigAction } from "@/features/config/application/actions/config.actions";
 
 import type { ModalCloseHandler } from "@/types/events";
 
@@ -57,7 +59,18 @@ function CloneTimetableDataModal({
     console.log(validate);
   }, [cloneList]);
 
-  const tableConfig = useSWR("/config", fetcher);
+  const tableConfig = useSWR("all-configs", async () => {
+    try {
+      const result = await getAllConfigsAction(undefined);
+      if (!result.success) {
+        throw new Error(result.error?.message || "Failed to fetch configs");
+      }
+      return result.data;
+    } catch (error) {
+      console.error("Error fetching configs:", error);
+      return [];
+    }
+  });
 
   // เก็บค่าของที่ติ๊ก checkbox
   const confirmed = () => {
@@ -77,31 +90,27 @@ function CloneTimetableDataModal({
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
   async function copyData() {
     try {
-      const response = await api.request({
-        timeout: 300000, // 5 minutes
-        method: "POST",
-        url: "/config/copy",
-        data: {
-          from: selectedCloneData,
-          to: semester + "/" + academicYear,
-          ...cloneList,
-        },
+      const result = await copyConfigAction({
+        fromConfigId: selectedCloneData,
+        toAcademicYear: parseInt(academicYear),
+        toSemester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+        copyAssignments: cloneList.assign,
+        copyLocks: cloneList.lock,
+        copySchedules: cloneList.timetable,
       });
 
-      // const response = await api.post("/config/copy", {
-      //   from: selectedCloneData,
-      //   to: semester + "/" + academicYear,
-      //   ...cloneList,
-      // });
-      console.log(response);
-
-      if (response.status === 200) {
-        enqueueSnackbar("เรียกข้อมูลสำเร็จ", { variant: "success" });
-        mutate();
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
       }
-    } catch (error) {
+
+      enqueueSnackbar("เรียกข้อมูลสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
       console.log(error);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการเรียกข้อมูล", { variant: "error" });
+      enqueueSnackbar("เกิดข้อผิดพลาดในการเรียกข้อมูล: " + (error.message || "Unknown error"), { variant: "error" });
     } finally {
       setIsCopying(false);
     }

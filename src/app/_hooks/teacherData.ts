@@ -1,5 +1,5 @@
 import useSWR, { preload } from "swr"
-import type { teacher } from "@prisma/client"
+import type { teacher } from "@/prisma/generated"
 import { fetcher } from "@/libs/axios"
 
 export const useTeacherData = () => {

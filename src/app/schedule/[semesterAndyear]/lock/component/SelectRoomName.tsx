@@ -1,7 +1,7 @@
 import { useRoomData } from "@/app/_hooks/roomData";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import { room } from "@prisma/client";
-import React, { useEffect, useState } from "react";
+import type { room } from "@/prisma/generated";
+import React, { useEffect, useState, type JSX } from "react";
 import { BsInfo } from "react-icons/bs";
 
 import type { InputChangeHandler } from "@/types/events";

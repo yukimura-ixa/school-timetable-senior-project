@@ -3,10 +3,13 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import api from "@/libs/axios";
-import { program, semester, subject } from "@prisma/client";
+import type { program, subject } from "@/prisma/generated";
+import { semester } from "@/prisma/generated";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+// Server Actions
+import { createProgramAction } from "@/features/program/application/actions/program.actions";
 
 type Props = {
   closeModal: any;
@@ -14,14 +17,19 @@ type Props = {
 };
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
+  // Get current Thai Buddhist year as default
+  const currentThaiYear = new Date().getFullYear() + 543;
+  
   const [newProgramData, setNewProgramData] = useState<{
     ProgramName: string;
     Semester: semester | string;
+    AcademicYear: number;
     gradelevel: any[];
     subject: any[];
   }>({
     ProgramName: "",
     Semester: "",
+    AcademicYear: currentThaiYear,
     gradelevel: [],
     subject: [],
   });
@@ -32,14 +40,29 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     });
     console.log(program);
     closeModal();
-    const response = await api.post("/program", program);
-    if (response.status === 200) {
+    
+    try {
+      const result = await createProgramAction({
+        ProgramName: program.ProgramName,
+        Semester: program.Semester,
+        AcademicYear: program.AcademicYear,
+        gradelevel: program.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
+        subject: program.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
+      });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
+      }
+      
       mutate();
       enqueueSnackbar("เพิ่มข้อมูลสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
-    } else {
+    } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มหลักสูตร", { variant: "error" });
+      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มหลักสูตร: " + (error.message || "Unknown error"), { variant: "error" });
     }
   };
 

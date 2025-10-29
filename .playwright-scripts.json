@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:brave": "playwright test --project=brave",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:e2e:admin": "playwright test e2e/admin-auth-flow.spec.ts",
+    "test:e2e:admin:brave": "playwright test e2e/admin-auth-flow.spec.ts --project=brave",
+    "test:e2e:admin:headed": "playwright test e2e/admin-auth-flow.spec.ts --headed",
+    "test:e2e:admin:debug": "playwright test e2e/admin-auth-flow.spec.ts --debug",
+    "test:e2e:report": "playwright show-report"
+  }
+}

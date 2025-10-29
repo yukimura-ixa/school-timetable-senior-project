@@ -19,6 +19,13 @@ pnpm prisma migrate dev --name <descriptive-migration-name>
 # - add_user_preferences_table
 # - add_index_to_class_schedule
 # - update_teacher_role_enum
+# - standardize_configid_format
+```
+
+**For production:**
+```powershell
+# Apply migrations to production database
+pnpm prisma migrate deploy
 ```
 
 ### 2. Code Verification
@@ -26,9 +33,13 @@ pnpm prisma migrate dev --name <descriptive-migration-name>
 #### a. TypeScript Compilation
 ```powershell
 # Verify TypeScript compiles without errors
-# (This happens automatically during build)
-pnpm build
+pnpm tsc --noEmit --skipLibCheck
 ```
+
+If there are errors:
+- Fix type errors immediately
+- Don't suppress with `@ts-ignore` unless absolutely necessary
+- Update types in affected files
 
 #### b. Linting
 ```powershell
@@ -36,8 +47,17 @@ pnpm build
 pnpm lint
 
 # Auto-fix fixable issues
-pnpm lint --fix
+pnpm lint:fix
+
+# Manual ESLint run with specific options
+pnpm eslint src/**/*.ts --max-warnings=0
 ```
+
+**Common lint errors to watch for:**
+- Unused variables/imports
+- Missing return types
+- `any` types (avoid when possible)
+- Console.log statements (use warn/error only)
 
 #### c. Formatting
 ```powershell
@@ -45,7 +65,7 @@ pnpm lint --fix
 pnpm prettier --check .
 
 # Auto-format all files
-pnpm prettier --write .
+pnpm format
 ```
 
 ### 3. Testing
@@ -56,34 +76,101 @@ pnpm prettier --write .
 pnpm test
 
 # Run specific test file
-pnpm test <test-file-name>
+pnpm test <test-file-path>
 
-# Run tests in watch mode (during development)
+# Run with coverage
+pnpm test --coverage
+
+# Run in watch mode (during development)
 pnpm test:watch
 ```
 
 **When to write unit tests:**
 - Pure functions (constraint checks, utilities, parsers)
-- Business logic functions
+- Business logic functions in domain layer
+- Validation services
 - Complex calculations
 - Data transformations
+- ConfigID parsing/generation functions
+
+**Example test structure:**
+```typescript
+import { generateConfigID, parseConfigID } from '@/features/config/domain/services/config-validation.service';
+
+describe('Config Validation Service', () => {
+  describe('generateConfigID', () => {
+    it('should generate ConfigID in SEMESTER-YEAR format', () => {
+      expect(generateConfigID('1', 2567)).toBe('1-2567');
+      expect(generateConfigID('2', 2568)).toBe('2-2568');
+    });
+  });
+
+  describe('parseConfigID', () => {
+    it('should parse valid ConfigID', () => {
+      const result = parseConfigID('1-2567');
+      expect(result).toEqual({ semester: '1', academicYear: 2567 });
+    });
+
+    it('should throw error for invalid format', () => {
+      expect(() => parseConfigID('invalid')).toThrow();
+    });
+  });
+});
+```
 
 #### b. E2E Tests (Playwright)
 ```powershell
-# Run E2E tests
-pnpm test:e2e
+# Install browsers (first time only)
+pnpm playwright:install
 
-# Run specific test file
-pnpm test:e2e <test-file-name>
+# Run all E2E tests
+pnpm test:e2e
 
 # Run with UI mode (debugging)
 pnpm test:e2e:ui
+
+# Run in headed mode (see browser)
+pnpm test:e2e:headed
+
+# Run specific test file
+pnpm test:e2e e2e/smoke/semester-smoke.spec.ts
+
+# Show test report
+pnpm test:report
 ```
 
 **When to write E2E tests:**
-- Critical user flows
+- Critical user flows (login, schedule creation)
 - New features that affect user interaction
 - Bug fixes for user-facing issues
+- After ConfigID migration (verify all routes work)
+- Multi-page workflows
+
+**Example E2E test:**
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Dashboard - 1-2567', () => {
+  test('should display schedule config page', async ({ page }) => {
+    await page.goto('/dashboard/1-2567/all-timeslot');
+    
+    // Check for 200 OK
+    expect(page.url()).toContain('1-2567');
+    
+    // Check UI elements
+    await expect(page.locator('table')).toBeVisible();
+    await expect(page.locator('h1')).toContainText('ตาราง');
+    
+    // No console errors
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+    await page.waitForLoadState('networkidle');
+    expect(consoleErrors).toHaveLength(0);
+  });
+});
+```
 
 ### 4. Documentation
 
@@ -92,6 +179,13 @@ Update documentation if:
 - You changed the API or public interfaces
 - You modified the database schema significantly
 - You changed configuration or environment variables
+- You completed a migration (like ConfigID standardization)
+
+**Files to update:**
+- `README.md` - User-facing changes
+- `docs/*.md` - Technical documentation
+- Inline code comments (JSDoc for public functions)
+- `AGENTS.md` - If changing agent workflows
 
 ### 5. Git Workflow
 
@@ -106,11 +200,17 @@ git diff
 git add .
 
 # 4. Commit with descriptive message
-git commit -m "feat: add teacher conflict detection
+git commit -m "feat: standardize ConfigID format to SEMESTER-YEAR
 
-- Implement checkTeacherConflict function
-- Add unit tests for conflict scenarios
-- Update API route to use new validation"
+- Update validation service to use canonical format
+- Update schemas regex patterns
+- Update route parsing logic
+- Update action layers for TimeslotID generation
+- Update seed API to use new format
+
+Affects: validation, routes, actions, repositories
+Breaking change: ConfigID format changed from SEMESTER/YEAR to SEMESTER-YEAR
+"
 
 # 5. Push to remote
 git push
@@ -128,12 +228,12 @@ git push
 **Types:**
 - `feat`: New feature
 - `fix`: Bug fix
-- `refactor`: Code refactoring
+- `refactor`: Code refactoring (no behavior change)
 - `test`: Adding tests
 - `docs`: Documentation changes
-- `style`: Formatting, missing semicolons, etc.
+- `style`: Formatting, semicolons, etc.
 - `perf`: Performance improvements
-- `chore`: Maintenance tasks
+- `chore`: Maintenance tasks (deps, build)
 
 ### 6. Pre-Deployment Checklist
 
@@ -148,33 +248,42 @@ pnpm test
 pnpm test:e2e
 
 # 3. Check for type errors
-# (Covered by build step)
+pnpm tsc --noEmit --skipLibCheck
 
 # 4. Verify linting
 pnpm lint
 
 # 5. Check environment variables
-# Ensure all required env vars are set in production
+# Ensure all required env vars are set in Vercel
 ```
+
+**Environment variables to verify:**
+- `DATABASE_URL`
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `SEED_SECRET` (for production seed API)
 
 ### 7. Post-Task Verification
 
 After completing a task:
 
-- [ ] Code compiles without errors
+- [ ] Code compiles without errors (`pnpm tsc --noEmit --skipLibCheck`)
 - [ ] All tests pass (unit + E2E)
-- [ ] No linting errors
-- [ ] Code is formatted consistently
+- [ ] No linting errors (`pnpm lint`)
+- [ ] Code is formatted consistently (`pnpm format`)
 - [ ] Database migrations applied (if any)
 - [ ] Documentation updated (if needed)
 - [ ] Changes committed with descriptive message
 - [ ] Feature verified in development environment
+- [ ] E2E smoke tests pass for affected routes
 
-## Special Cases
+### 8. Special Cases
 
-### Prisma Schema Changes
+#### Prisma Schema Changes
 
-When modifying `schema.prisma`:
+When modifying `prisma/schema.prisma`:
 
 1. **Always generate client first:**
    ```powershell
@@ -188,15 +297,15 @@ When modifying `schema.prisma`:
 
 3. **Test with seeded data:**
    ```powershell
-   pnpm prisma db seed
+   pnpm db:seed
    ```
 
 4. **Verify in Prisma Studio:**
    ```powershell
-   pnpm prisma studio
+   pnpm db:studio
    ```
 
-### Breaking Changes
+#### Breaking Changes
 
 If your changes break existing functionality:
 
@@ -204,8 +313,29 @@ If your changes break existing functionality:
 2. **Update tests** to reflect new behavior
 3. **Document the breaking change** in commit message
 4. **Consider migration path** for existing data
+5. **Communicate to team** if in collaborative environment
 
-### Performance-Critical Changes
+**Example breaking change commit:**
+```
+refactor: standardize ConfigID format (BREAKING CHANGE)
+
+BREAKING CHANGE: ConfigID format changed from "SEMESTER/YEAR" to "SEMESTER-YEAR"
+
+Migration required:
+- Update existing database records
+- Update all hardcoded ConfigID references
+- Run integration tests after deployment
+
+Affected areas:
+- Validation layer (regex patterns)
+- Route parsing
+- TimeslotID generation
+- Seed operations
+
+Rollback plan: Revert commit and redeploy previous version
+```
+
+#### Performance-Critical Changes
 
 For changes affecting performance:
 
@@ -214,14 +344,21 @@ For changes affecting performance:
 3. **Monitor database query performance**
 4. **Consider indexing** for new query patterns
 
-## Error Recovery
+**Example:**
+```powershell
+# Before optimization: measure query time
+# After optimization: measure again
+# Document improvement in commit message
+```
+
+### 9. Error Recovery
 
 If tests fail after changes:
 
 1. **Read the error message carefully**
 2. **Run failing test in isolation:**
    ```powershell
-   pnpm test <test-name>
+   pnpm test <specific-test-file>
    ```
 3. **Use debugger or console.log** to investigate
 4. **Fix the issue** and re-run tests
@@ -232,13 +369,55 @@ If build fails:
 1. **Check TypeScript errors** in output
 2. **Verify all imports** are correct
 3. **Ensure Prisma Client is generated**
+   ```powershell
+   pnpm prisma generate
+   ```
 4. **Check for missing dependencies**
+   ```powershell
+   pnpm install
+   ```
 
-## Quick Reference
+### 10. ConfigID Migration Specific Checklist
+
+For the recent ConfigID standardization work:
+
+#### Phase-by-Phase Verification
+```powershell
+# After Phase 1 (Validation)
+pnpm test src/features/config/domain/services/config-validation.service.test.ts
+
+# After Phase 2 (Routes)
+pnpm test:e2e e2e/smoke/semester-smoke.spec.ts
+
+# After Phase 3 (Actions)
+pnpm test src/features/semester/application/actions/semester.actions.test.ts
+
+# After Phase 4 (Repository)
+pnpm test __test__/integration/seed-endpoint.integration.test.ts
+
+# After Phase 5 (Tests)
+pnpm test
+
+# After Phase 6 (Database)
+# Run SQL verification query
+# Check no old format records remain
+
+# After Phase 7 (Docs)
+# Manual review of all docs
+
+# After Phase 8 (Deploy)
+pnpm test:e2e
+pnpm build
+# Deploy to Vercel
+# Monitor production logs
+```
+
+### Quick Reference
 
 **Most Common Workflow:**
 ```powershell
 # 1. Make changes
+
 # 2. Generate Prisma (if schema changed)
 pnpm prisma generate
 
@@ -246,14 +425,25 @@ pnpm prisma generate
 pnpm test
 
 # 4. Lint & Format
-pnpm lint --fix
-pnpm prettier --write .
+pnpm lint:fix
+pnpm format
 
-# 5. Build
+# 5. Type check
+pnpm tsc --noEmit --skipLibCheck
+
+# 6. Build
 pnpm build
 
-# 6. Commit
+# 7. Commit
 git add .
 git commit -m "feat: your change description"
 git push
 ```
+
+## Summary
+
+Always remember the golden rule:
+
+> **Before committing: test → lint → format → type-check → build**
+
+This ensures code quality and prevents regressions from reaching production.

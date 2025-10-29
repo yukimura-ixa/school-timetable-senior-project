@@ -136,10 +136,15 @@ The system uses a relational database with the following main entities:
 
 **All project documentation has been organized in the `/docs` folder.**
 
+### Core Documentation
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup instructions with OAuth bypass for testing
 - **[Documentation Index](docs/INDEX.md)** - Complete documentation catalog
 - **[Test Plan](docs/TEST_PLAN.md)** - 29 comprehensive test cases
 - **[Database Overview](docs/DATABASE_OVERVIEW.md)** - Schema and data model
+
+### Operations & Testing
+- **[Seeding and Testing Guide](docs/SEEDING_AND_TESTING_GUIDE.md)** - Production seeding and test workflows
+- **[ConfigID Format Migration](docs/CONFIGID_FORMAT_MIGRATION.md)** - ConfigID standardization plan
 
 ---
 
@@ -239,14 +244,68 @@ pnpm start
 
 ### Initial Setup
 
-1. **Login**: Authenticate with Google account (Admin/Teacher only)
-2. **Configure Timetable Settings**:
+1. **Setup Database**: Run migrations and seed sample data
+   ```bash
+   pnpm db:deploy        # Apply migrations
+   pnpm db:seed:clean    # Populate sample data (clean mode)
+   # OR
+   pnpm db:seed          # Create admin only (safe - no data deletion)
+   ```
+   📚 See details: [docs/SEED_SAFETY_GUIDE.md](docs/SEED_SAFETY_GUIDE.md)
+
+2. **Login**: 
+   - **Admin**: `admin@school.local` / `admin123` (change password in production!)
+   - **Google OAuth**: Authenticate with Google account (Admin/Teacher only)
+
+3. **Configure Timetable Settings**:
    - Select academic year and semester
    - Set number of periods per day
    - Define class duration and break times
    - Configure school days
 
-### Data Management
+### 🌐 Production Setup (Vercel)
+
+**Seeding Production Database:**
+
+If you need to create semester records in production (e.g., 2567-2568):
+
+```pwsh
+# 1. Add SEED_SECRET to Vercel environment variables (one-time setup)
+pnpm seed:setup
+
+# 2. Run the production seed script (basic - semesters only)
+pnpm seed:prod
+
+# OR run with full data seeding (semesters + timeslots + config)
+.\scripts\seed-production.ps1 -SeedData
+```
+
+📖 **Quick Guide**: [docs/QUICK_SEED_SETUP.md](docs/QUICK_SEED_SETUP.md)  
+📚 **Full Documentation**: [docs/PRODUCTION_SEED_GUIDE.md](docs/PRODUCTION_SEED_GUIDE.md)  
+🧪 **Testing Guide**: [docs/SEEDING_AND_TESTING_GUIDE.md](docs/SEEDING_AND_TESTING_GUIDE.md)
+
+This will:
+- ✅ Create missing semester records (idempotent - safe to run multiple times)
+- ✅ Optionally create baseline timeslots and table config (with `-SeedData` flag)
+- ✅ Enable access to routes like `/dashboard/1-2567/all-timeslot`
+- ✅ Prevent redirect loops for valid semesters
+
+### การจัดการข้อมูล | Data Management
+
+**ภาษาไทย:**
+
+1. **เพิ่มข้อมูลพื้นฐาน**:
+   - ครู (ชื่อ กลุ่มสาระ)
+   - วิชา (รหัสวิชา ชื่อ หน่วยกิต หมวดหมู่)
+   - ห้องเรียน (ชื่อ อาคาร ชั้น)
+   - ระดับชั้นและห้องเรียน
+
+2. **ตั้งค่าหลักสูตร**:
+   - กำหนดหลักสูตรสำหรับแต่ละระดับชั้น
+   - กำหนดวิชาให้กับหลักสูตรของแต่ละชั้น
+   - ระบุวิชาบังคับและวิชาเลือก
+
+**English:**
 
 1. **Add Basic Data**:
    - Teachers (name, department)

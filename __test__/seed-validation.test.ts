@@ -144,14 +144,14 @@ describe('Seed Data Validation', () => {
       const timeslots = [];
       for (const day of days) {
         for (let periodNum = 1; periodNum <= periods; periodNum++) {
-          timeslots.push(`1/${academicYear}-${day}${periodNum}`);
+          timeslots.push(`1-${academicYear}-${day}${periodNum}`);
         }
       }
       
-      expect(timeslots[0]).toBe('1/2567-MON1');
-      expect(timeslots[7]).toBe('1/2567-MON8');
-      expect(timeslots[8]).toBe('1/2567-TUE1');
-      expect(timeslots[39]).toBe('1/2567-FRI8');
+      expect(timeslots[0]).toBe('1-2567-MON1');
+      expect(timeslots[7]).toBe('1-2567-MON8');
+      expect(timeslots[8]).toBe('1-2567-TUE1');
+      expect(timeslots[39]).toBe('1-2567-FRI8');
     });
   });
 

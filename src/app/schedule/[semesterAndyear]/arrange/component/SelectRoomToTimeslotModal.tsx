@@ -2,8 +2,8 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { fetcher } from "@/libs/axios";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { CircularProgress } from "@mui/material";
-import { room } from "@prisma/client";
-import React, { useState } from "react";
+import type { room } from "@/prisma/generated";
+import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import useSWR from "swr";
 

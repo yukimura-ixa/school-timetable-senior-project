@@ -1,7 +1,7 @@
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import api from "@/libs/axios";
+import { deleteProgramAction } from "@/features/program/application/actions/program.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
@@ -22,19 +22,26 @@ function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
       variant: "info",
       persist: true,
     });
+    
     try {
-      const response = await api.delete("/program", { data: ProgramID });
-      if (response.status === 200) {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
-        mutate();
-      } else {
-        closeSnackbar(loadbar);
-        enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล", { variant: "error" });
+      const result = await deleteProgramAction({ programId: ProgramID });
+      
+      if (!result.success) {
+        const errorMessage = typeof result.error === 'string' 
+          ? result.error 
+          : result.error?.message || "Unknown error";
+        throw new Error(errorMessage);
       }
-      console.log(response);
-    } catch (err) {
-      console.log(err);
+      
+      closeSnackbar(loadbar);
+      enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
+      mutate();
+    } catch (error: any) {
+      closeSnackbar(loadbar);
+      enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล: " + (error.message || "Unknown error"), {
+        variant: "error",
+      });
+      console.error(error);
     }
   };
   return (

@@ -1,8 +1,9 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash } from "react-icons/tb";
-import type { subject, gradelevel, subject_credit } from "@prisma/client";
+import type { subject, subject_credit } from "@/prisma/generated";
+import { SubjectCategory } from "@/prisma/generated";
 import Loading from "@/app/loading";
 import { useParams, useSearchParams } from "next/navigation";
 import { subjectCreditValues } from "@/models/credit-value";
@@ -22,7 +23,7 @@ type SubjectAssignment = subject & {
 type Props = {
   closeModal: ModalCloseHandler;
   addSubjectToClass: (subjects: SubjectAssignment[]) => void;
-  classRoomData: gradelevel;
+  classRoomData: { Year: number; GradeID: string; Number: number };
   currentSubject: SubjectAssignment[];
   subjectByGradeID: SubjectAssignment[];
 };
@@ -181,8 +182,11 @@ function AddSubjectModal(props: Props) {
                       SubjectName: "",
                       Credit: "CREDIT_10" as subject_credit,
                       TeacherID: parseInt(searchTeacherID),
-                      Category: "",
-                      ProgramID: 0,
+                      Category: SubjectCategory.CORE,
+                      LearningArea: null,
+                      ActivityType: null,
+                      IsGraded: true,
+                      Description: "",
                     },
                   )
                 }

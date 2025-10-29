@@ -1,30 +1,24 @@
-"use client";
-import RoomsTable from "@/app/management/rooms/component/RoomsTable";
-import { useRoomData } from "../../_hooks/roomData";
-import { TableSkeleton, NoRoomsEmptyState, NetworkErrorEmptyState } from "@/components/feedback";
+import { TableSkeleton, NetworkErrorEmptyState } from "@/components/feedback";
+import { getRoomsAction } from "@/features/room/application/actions/room.actions";
+import { RoomsManageClient } from "./component/RoomsManageClient";
+import { Suspense } from "react";
 
-function RoomsManage() {
-  const { data, isLoading, error, mutate } = useRoomData();
+/**
+ * Rooms Management Page - Server Component
+ * Fetches room data on the server, passes to client component
+ */
+export default async function RoomsManagePage() {
+  const result = await getRoomsAction();
 
-  if (isLoading) {
-    return <TableSkeleton rows={6} />;
-  }
-
-  if (error) {
-    return <NetworkErrorEmptyState onRetry={() => mutate()} />;
-  }
-
-  if (!data || data.length === 0) {
-    return <NoRoomsEmptyState />;
+  // Error state
+  if (!result.success) {
+    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
   }
 
   return (
-    <RoomsTable
-      tableHead={["ชื่อห้อง", "อาคาร", "ชั้น", ""]}
-      tableData={data}
-      mutate={mutate}
-    />
+    <Suspense fallback={<TableSkeleton rows={6} />}>
+      <RoomsManageClient initialData={result.data} />
+    </Suspense>
   );
 }
 
-export default RoomsManage;
