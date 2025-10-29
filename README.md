@@ -3,7 +3,7 @@
 > **🇬🇧 English Version** | **[🇹🇭 เวอร์ชันภาษาไทย](README.th.md)**
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.18-2D3748)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org/)
@@ -88,7 +88,7 @@ A comprehensive web application designed to streamline the process of creating a
 
 **Frontend:**
 
-- Next.js 15.5 (React Framework)
+- Next.js 16 (React Framework)
 - Material-UI 7.3 (Component Library)
 - Tailwind CSS 4.1 (Styling)
 - TypeScript (Type Safety)
