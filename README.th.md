@@ -2,11 +2,11 @@
 
 > **[🇬🇧 English Version](README.md)** | **🇹🇭 เวอร์ชันภาษาไทย**
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748)](https://www.prisma.io/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)](https://www.mysql.com/)
-[![Material-UI](https://img.shields.io/badge/Material--UI-5.18-007FFF)](https://mui.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.18-2D3748)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org/)
+[![Material-UI](https://img.shields.io/badge/Material--UI-7.3-007FFF)](https://mui.com/)
 
 ---
 
@@ -85,9 +85,9 @@
 
 **ส่วนหน้าบ้าน (Frontend):**
 
-- Next.js 14.2 (React Framework)
-- Material-UI 5.18 (Component Library)
-- Tailwind CSS (Styling)
+- Next.js 15.5 (React Framework)
+- Material-UI 7.3 (Component Library)
+- Tailwind CSS 4.1 (Styling)
 - TypeScript (Type Safety)
 
 **ส่วนหลังบ้าน (Backend):**
@@ -98,14 +98,14 @@
 
 **ฐานข้อมูล (Database):**
 
-- MySQL 8.0
-- Google Cloud SQL (Production)
+- PostgreSQL 16
+- Cloud-hosted PostgreSQL (Production)
 
 **ไลบรารีเสริม (Additional Libraries):**
 
 - ExcelJS (Excel export)
 - React-to-Print (PDF generation)
-- React Beautiful DnD (Drag and drop)
+- DnD Kit (Drag and drop)
 - SWR (Data fetching)
 - Notistack (Notifications)
 
@@ -147,8 +147,8 @@
 ### ข้อกำหนดเบื้องต้น
 
 - Node.js 18.x หรือสูงกว่า
-- MySQL 8.0
-- npm หรือ yarn package manager
+- PostgreSQL 16 หรือสูงกว่า
+- pnpm package manager
 
 ### การติดตั้ง
 
@@ -162,13 +162,13 @@ cd school-timetable-senior-project
 2. **ติดตั้ง dependencies**
 
 ```bash
-npm install
+pnpm install
 ```
 
-3. **ตั้งค่าฐานข้อมูล MySQL**
+3. **ตั้งค่าฐานข้อมูล PostgreSQL**
 
 ```sql
-CREATE DATABASE `school-timetable-db-dev`;
+CREATE DATABASE "school-timetable-db-dev";
 ```
 
 4. **ตั้งค่า environment variables**
@@ -177,7 +177,7 @@ CREATE DATABASE `school-timetable-db-dev`;
 
 ```env
 # Database
-DATABASE_URL="mysql://username:password@localhost:3306/school-timetable-db-dev?connection_limit=40&connect_timeout=0&pool_timeout=0"
+DATABASE_URL="postgresql://username:password@localhost:5432/school-timetable-db-dev"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
@@ -196,15 +196,15 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"
 5. **รัน database migrations**
 
 ```bash
-npx prisma migrate dev --name init
-npx prisma generate
+pnpm prisma migrate dev --name init
+pnpm prisma generate
 ```
 
 6. **เติมข้อมูลทดสอบ (ตัวเลือก)**
 
 ```bash
 # Seed database with mock Thai school data
-npx prisma db seed
+pnpm prisma db seed
 ```
 
 ระบบจะสร้างข้อมูลจำลองสำหรับโรงเรียนขนาดกลาง:
@@ -216,7 +216,7 @@ npx prisma db seed
 7. **เริ่มต้น development server**
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 แอปพลิเคชันจะพร้อมใช้งานที่ `http://localhost:3000`
@@ -224,8 +224,8 @@ npm run dev
 ### สร้างเวอร์ชันสำหรับ Production
 
 ```bash
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
 ---
@@ -287,8 +287,8 @@ npm start
 รันการทดสอบด้วย Jest:
 
 ```bash
-npm test
-npm run test:watch
+pnpm test
+pnpm test:watch
 ```
 
 ### E2E Tests

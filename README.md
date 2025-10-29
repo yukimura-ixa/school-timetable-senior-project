@@ -3,11 +3,11 @@
 > **🇬🇧 English Version** | **[🇹🇭 เวอร์ชันภาษาไทย](README.th.md)**
 
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748)](https://www.prisma.io/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)](https://www.mysql.com/)
-[![Material-UI](https://img.shields.io/badge/Material--UI-5.18-007FFF)](https://mui.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-6.18-2D3748)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org/)
+[![Material-UI](https://img.shields.io/badge/Material--UI-7.3-007FFF)](https://mui.com/)
 
 ---
 
@@ -88,9 +88,9 @@ A comprehensive web application designed to streamline the process of creating a
 
 **Frontend:**
 
-- Next.js 14.2 (React Framework)
-- Material-UI 5.18 (Component Library)
-- Tailwind CSS (Styling)
+- Next.js 15.5 (React Framework)
+- Material-UI 7.3 (Component Library)
+- Tailwind CSS 4.1 (Styling)
 - TypeScript (Type Safety)
 
 **Backend:**
@@ -101,14 +101,14 @@ A comprehensive web application designed to streamline the process of creating a
 
 **Database:**
 
-- MySQL 8.0
-- Google Cloud SQL (Production)
+- PostgreSQL 16
+- Cloud-hosted PostgreSQL (Production)
 
 **Additional Libraries:**
 
 - ExcelJS (Excel export)
 - React-to-Print (PDF generation)
-- React Beautiful DnD (Drag and drop)
+- DnD Kit (Drag and drop)
 - SWR (Data fetching)
 - Notistack (Notifications)
 
@@ -150,8 +150,8 @@ The system uses a relational database with the following main entities:
 ### Prerequisites
 
 - Node.js 18.x or higher
-- MySQL 8.0
-- npm or yarn package manager
+- PostgreSQL 16 or higher
+- pnpm package manager
 
 ### Installation
 
@@ -167,13 +167,13 @@ cd school-timetable-senior-project
 2. **Install dependencies**
 
 ```bash
-npm install
+pnpm install
 ```
 
-3. **Set up MySQL database**
+3. **Set up PostgreSQL database**
 
 ```sql
-CREATE DATABASE `school-timetable-db-dev`;
+CREATE DATABASE "school-timetable-db-dev";
 ```
 
 4. **Configure environment variables**
@@ -182,7 +182,7 @@ Create a `.env` file in the root directory:
 
 ```env
 # Database
-DATABASE_URL="mysql://username:password@localhost:3306/school-timetable-db-dev?connection_limit=40&connect_timeout=0&pool_timeout=0"
+DATABASE_URL="postgresql://username:password@localhost:5432/school-timetable-db-dev"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
@@ -201,15 +201,15 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"
 5. **Run database migrations**
 
 ```bash
-npx prisma migrate dev --name init
-npx prisma generate
+pnpm prisma migrate dev --name init
+pnpm prisma generate
 ```
 
 6. **Seed test data (Optional)**
 
 ```bash
 # Seed database with mock Thai school data
-npx prisma db seed
+pnpm prisma db seed
 ```
 
 The system will create mock data for a medium-sized school:
@@ -221,7 +221,7 @@ The system will create mock data for a medium-sized school:
 7. **Start development server**
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 The application will be available at `http://localhost:3000`
@@ -229,8 +229,8 @@ The application will be available at `http://localhost:3000`
 ### Building for Production
 
 ```bash
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
 ---
@@ -292,8 +292,8 @@ npm start
 Run tests with Jest:
 
 ```bash
-npm test
-npm run test:watch
+pnpm test
+pnpm test:watch
 ```
 
 ### E2E Tests
