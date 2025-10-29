@@ -6,10 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-  "lint": "pnpm run lint:eslint",
-  "lint:eslint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings=0",
-  "lint:fix": "eslint . --ext .ts,.tsx --fix",
-  "format": "prettier --write .",
+    "lint": "pnpm run lint:eslint",
+    "lint:eslint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings=0",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write .",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "test:e2e": "playwright test",
@@ -59,7 +59,7 @@
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "exceljs": "^4.4.0",
-    "next": "16.0.0",
+    "next": "16.0.1",
     "next-auth": "5.0.0-beta.29",
     "next-devtools-mcp": "^0.2.1",
     "notistack": "^3.0.2",
@@ -119,7 +119,7 @@
     "trailingComma": "all",
     "bracketSameLine": false
   },
-  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d",
+  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
   "pnpm": {
     "overrides": {
       "@types/react": "19.2.2",
