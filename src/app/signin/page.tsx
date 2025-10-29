@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { signIn, signOut } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 import { Alert, Button, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import LoginIcon from "@mui/icons-material/Login";
-import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -71,7 +70,6 @@ export default function SignInPage() {
 
   const handleGoogleLogin = () => signIn("google", { callbackUrl: "/dashboard/select-semester" });
   const handleDevBypass = () => signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
-  const handleSignout = () => signOut();
 
   return (
     <Container maxWidth="lg" sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
@@ -156,10 +154,6 @@ export default function SignInPage() {
                 </Button>
               )}
             </Stack>
-
-            <Button variant="text" color="inherit" startIcon={<LogoutIcon />} onClick={handleSignout}>
-              ออกจากระบบ
-            </Button>
           </Stack>
         </Paper>
       </Stack>

@@ -61,7 +61,7 @@ export async function getSemestersAction(
           updatedAt: semester.updatedAt,
           classCount: stats?.classCount || 0,
           teacherCount: stats?.teacherCount || 0,
-          roomCount: 0, // TODO: implement room counting
+          roomCount: stats?.roomCount || 0,
           subjectCount: stats?.subjectCount || 0,
         } as SemesterDTO;
       })

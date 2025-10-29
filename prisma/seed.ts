@@ -136,169 +136,212 @@ async function main() {
   // ===== PROGRAMS =====
   console.log('📚 Creating programs...');
   
-  // Current Thai Buddhist calendar year (Gregorian + 543)
-  const currentThaiYear = new Date().getFullYear() + 543; // 2568
-  
-  // Create programs for multiple academic years and semesters to test filtering
+  // Create programs for different grade levels and tracks
   const programs = await Promise.all([
-    // Academic Year 2567, Semester 1
+    // Junior High (M.1-M.3) - General Track
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: 2567
+        ProgramCode: 'GENERAL-M1-2567',
+        ProgramName: 'หลักสูตรทั่วไป ม.1',
+        Year: 1, // Thai year ม.1
+        Track: 'GENERAL',
+        Description: 'หลักสูตรการศึกษาขั้นพื้นฐาน ชั้นมัธยมศึกษาปีที่ 1',
+        MinTotalCredits: 40,
+        IsActive: true
       }
     }),
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: 2567
-      }
-    }),
-    
-    // Academic Year 2567, Semester 2
-    prisma.program.create({
-      data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
-        Semester: 'SEMESTER_2',
-        AcademicYear: 2567
+        ProgramCode: 'GENERAL-M2-2567',
+        ProgramName: 'หลักสูตรทั่วไป ม.2',
+        Year: 2, // Thai year ม.2
+        Track: 'GENERAL',
+        Description: 'หลักสูตรการศึกษาขั้นพื้นฐาน ชั้นมัธยมศึกษาปีที่ 2',
+        MinTotalCredits: 40,
+        IsActive: true
       }
     }),
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
-        Semester: 'SEMESTER_2',
-        AcademicYear: 2567
-      }
-    }),
-    
-    // Academic Year 2568 (current), Semester 1
-    prisma.program.create({
-      data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: currentThaiYear
-      }
-    }),
-    prisma.program.create({
-      data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: currentThaiYear
-      }
-    }),
-    prisma.program.create({
-      data: { 
-        ProgramName: 'หลักสูตรเพิ่มเติม วิทย์-คณิต', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: currentThaiYear
-      }
-    }),
-    prisma.program.create({
-      data: { 
-        ProgramName: 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: currentThaiYear
+        ProgramCode: 'GENERAL-M3-2567',
+        ProgramName: 'หลักสูตรทั่วไป ม.3',
+        Year: 3, // Thai year ม.3
+        Track: 'GENERAL',
+        Description: 'หลักสูตรการศึกษาขั้นพื้นฐาน ชั้นมัธยมศึกษาปีที่ 3',
+        MinTotalCredits: 40,
+        IsActive: true
       }
     }),
     
-    // Academic Year 2568 (current), Semester 2
+    // Senior High (M.4-M.6) - Science-Math Track
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
-        Semester: 'SEMESTER_2',
-        AcademicYear: currentThaiYear
+        ProgramCode: 'SCI_MATH-M4-2567',
+        ProgramName: 'วิทย์-คณิต ม.4',
+        Year: 4, // Thai year ม.4
+        Track: 'SCIENCE_MATH',
+        Description: 'หลักสูตรแผนการเรียนวิทยาศาสตร์-คณิตศาสตร์ ชั้นมัธยมศึกษาปีที่ 4',
+        MinTotalCredits: 60,
+        IsActive: true
       }
     }),
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
-        Semester: 'SEMESTER_2',
-        AcademicYear: currentThaiYear
+        ProgramCode: 'SCI_MATH-M5-2567',
+        ProgramName: 'วิทย์-คณิต ม.5',
+        Year: 5, // Thai year ม.5
+        Track: 'SCIENCE_MATH',
+        Description: 'หลักสูตรแผนการเรียนวิทยาศาสตร์-คณิตศาสตร์ ชั้นมัธยมศึกษาปีที่ 5',
+        MinTotalCredits: 60,
+        IsActive: true
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramCode: 'SCI_MATH-M6-2567',
+        ProgramName: 'วิทย์-คณิต ม.6',
+        Year: 6, // Thai year ม.6
+        Track: 'SCIENCE_MATH',
+        Description: 'หลักสูตรแผนการเรียนวิทยาศาสตร์-คณิตศาสตร์ ชั้นมัธยมศึกษาปีที่ 6',
+        MinTotalCredits: 60,
+        IsActive: true
       }
     }),
     
-    // Academic Year 2569 (future), Semester 1
+    // Senior High (M.4-M.6) - Language-Arts Track
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ต้น', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: 2569
+        ProgramCode: 'LANG_ARTS-M4-2567',
+        ProgramName: 'ศิลป์-ภาษา ม.4',
+        Year: 4, // Thai year ม.4
+        Track: 'LANGUAGE_ARTS',
+        Description: 'หลักสูตรแผนการเรียนศิลป์-ภาษา ชั้นมัธยมศึกษาปีที่ 4',
+        MinTotalCredits: 60,
+        IsActive: true
       }
     }),
     prisma.program.create({
       data: { 
-        ProgramName: 'หลักสูตรแกนกลาง ม.ปลาย', 
-        Semester: 'SEMESTER_1',
-        AcademicYear: 2569
+        ProgramCode: 'LANG_ARTS-M5-2567',
+        ProgramName: 'ศิลป์-ภาษา ม.5',
+        Year: 5, // Thai year ม.5
+        Track: 'LANGUAGE_ARTS',
+        Description: 'หลักสูตรแผนการเรียนศิลป์-ภาษา ชั้นมัธยมศึกษาปีที่ 5',
+        MinTotalCredits: 60,
+        IsActive: true
+      }
+    }),
+    prisma.program.create({
+      data: { 
+        ProgramCode: 'LANG_ARTS-M6-2567',
+        ProgramName: 'ศิลป์-ภาษา ม.6',
+        Year: 6, // Thai year ม.6
+        Track: 'LANGUAGE_ARTS',
+        Description: 'หลักสูตรแผนการเรียนศิลป์-ภาษา ชั้นมัธยมศึกษาปีที่ 6',
+        MinTotalCredits: 60,
+        IsActive: true
       }
     }),
   ]);
-  console.log(`✅ Created ${programs.length} programs across multiple academic years`);
+  console.log(`✅ Created ${programs.length} programs`);
 
   // ===== GRADE LEVELS =====
   console.log('🎓 Creating grade levels...');
   const gradeLevels: any[] = [];
   
-  // Find current year programs for grade level connections
-  const currentYearJuniorProgram = programs.find(p => 
-    p.ProgramName === 'หลักสูตรแกนกลาง ม.ต้น' && 
-    p.Semester === 'SEMESTER_1' && 
-    p.AcademicYear === currentThaiYear
-  );
-  const currentYearSeniorProgram = programs.find(p => 
-    p.ProgramName === 'หลักสูตรแกนกลาง ม.ปลาย' && 
-    p.Semester === 'SEMESTER_1' && 
-    p.AcademicYear === currentThaiYear
-  );
-  const currentYearSciMathProgram = programs.find(p => 
-    p.ProgramName === 'หลักสูตรเพิ่มเติม วิทย์-คณิต' && 
-    p.Semester === 'SEMESTER_1' && 
-    p.AcademicYear === currentThaiYear
-  );
-  const currentYearArtsLangProgram = programs.find(p => 
-    p.ProgramName === 'หลักสูตรเพิ่มเติม ศิลป์-ภาษา' && 
-    p.Semester === 'SEMESTER_1' && 
-    p.AcademicYear === currentThaiYear
-  );
+  // Find programs by Year and Track (using Thai years 1-6)
+  const generalM1 = programs.find(p => p.Year === 1 && p.Track === 'GENERAL');
+  const generalM2 = programs.find(p => p.Year === 2 && p.Track === 'GENERAL');
+  const generalM3 = programs.find(p => p.Year === 3 && p.Track === 'GENERAL');
+  const sciMathM4 = programs.find(p => p.Year === 4 && p.Track === 'SCIENCE_MATH');
+  const sciMathM5 = programs.find(p => p.Year === 5 && p.Track === 'SCIENCE_MATH');
+  const sciMathM6 = programs.find(p => p.Year === 6 && p.Track === 'SCIENCE_MATH');
+  const langArtsM4 = programs.find(p => p.Year === 4 && p.Track === 'LANGUAGE_ARTS');
+  const langArtsM5 = programs.find(p => p.Year === 5 && p.Track === 'LANGUAGE_ARTS');
+  const langArtsM6 = programs.find(p => p.Year === 6 && p.Track === 'LANGUAGE_ARTS');
   
-  // M.1 - M.3 (Junior High - มัธยมต้น)
-  for (let year = 1; year <= 3; year++) {
-    for (let section = 1; section <= 3; section++) {
-      const gradeLevel = await prisma.gradelevel.create({
-        data: {
-          GradeID: `${year}0${section}`,
-          Year: year,
-          Number: section,
-          program: {
-            connect: [
-              { ProgramID: currentYearJuniorProgram!.ProgramID }, // Core curriculum for current year
-            ]
-          }
-        }
-      });
-      gradeLevels.push(gradeLevel);
-    }
+  // M.1 (Thai Year 1) - 3 sections
+  for (let section = 1; section <= 3; section++) {
+    const gradeLevel = await prisma.gradelevel.create({
+      data: {
+        GradeID: `ม.1/${section}`,
+        Year: 1,
+        Number: section,
+        StudentCount: 30 + section,
+        ProgramID: generalM1!.ProgramID
+      }
+    });
+    gradeLevels.push(gradeLevel);
   }
-  // M.4 - M.6 (Senior High - มัธยมปลาย)
-  for (let year = 4; year <= 6; year++) {
-    for (let section = 1; section <= 3; section++) {
-      const gradeLevel = await prisma.gradelevel.create({
-        data: {
-          GradeID: `${year}0${section}`,
-          Year: year,
-          Number: section,
-          program: {
-            connect: [
-              { ProgramID: currentYearSeniorProgram!.ProgramID }, // Core curriculum for current year
-              { ProgramID: section === 1 ? currentYearSciMathProgram!.ProgramID : currentYearArtsLangProgram!.ProgramID }, // Elective based on section
-            ]
-          }
-        }
-      });
-      gradeLevels.push(gradeLevel);
-    }
+  
+  // M.2 (Thai Year 2) - 3 sections
+  for (let section = 1; section <= 3; section++) {
+    const gradeLevel = await prisma.gradelevel.create({
+      data: {
+        GradeID: `ม.2/${section}`,
+        Year: 2,
+        Number: section,
+        StudentCount: 30 + section,
+        ProgramID: generalM2!.ProgramID
+      }
+    });
+    gradeLevels.push(gradeLevel);
+  }
+  
+  // M.3 (Thai Year 3) - 3 sections
+  for (let section = 1; section <= 3; section++) {
+    const gradeLevel = await prisma.gradelevel.create({
+      data: {
+        GradeID: `ม.3/${section}`,
+        Year: 3,
+        Number: section,
+        StudentCount: 30 + section,
+        ProgramID: generalM3!.ProgramID
+      }
+    });
+    gradeLevels.push(gradeLevel);
+  }
+  
+  // M.4 (Thai Year 4) - 2 sections Science-Math, 1 section Language-Arts
+  for (let section = 1; section <= 3; section++) {
+    const gradeLevel = await prisma.gradelevel.create({
+      data: {
+        GradeID: `ม.4/${section}`,
+        Year: 4,
+        Number: section,
+        StudentCount: 28 + section,
+        ProgramID: section <= 2 ? sciMathM4!.ProgramID : langArtsM4!.ProgramID
+      }
+    });
+    gradeLevels.push(gradeLevel);
+  }
+  
+  // M.5 (Thai Year 5) - 2 sections Science-Math, 1 section Language-Arts
+  for (let section = 1; section <= 3; section++) {
+    const gradeLevel = await prisma.gradelevel.create({
+      data: {
+        GradeID: `ม.5/${section}`,
+        Year: 5,
+        Number: section,
+        StudentCount: 28 + section,
+        ProgramID: section <= 2 ? sciMathM5!.ProgramID : langArtsM5!.ProgramID
+      }
+    });
+    gradeLevels.push(gradeLevel);
+  }
+  
+  // M.6 (Thai Year 6) - 2 sections Science-Math, 1 section Language-Arts
+  for (let section = 1; section <= 3; section++) {
+    const gradeLevel = await prisma.gradelevel.create({
+      data: {
+        GradeID: `ม.6/${section}`,
+        Year: 6,
+        Number: section,
+        StudentCount: 28 + section,
+        ProgramID: section <= 2 ? sciMathM6!.ProgramID : langArtsM6!.ProgramID
+      }
+    });
+    gradeLevels.push(gradeLevel);
   }
   console.log(`✅ Created ${gradeLevels.length} grade levels`);
 
@@ -423,13 +466,20 @@ async function main() {
 
   const createdSubjects: any[] = [];
   for (const subject of subjects) {
+    // Map Thai category names to SubjectCategory enum
+    let category: 'CORE' | 'ADDITIONAL' | 'ACTIVITY' = 'CORE';
+    if (subject.category === 'กิจกรรมพัฒนาผู้เรียน') {
+      category = 'ACTIVITY';
+    } else if (subject.code.startsWith('ง') || subject.code.startsWith('ศ20') || subject.code.startsWith('อ312')) {
+      category = 'ADDITIONAL';
+    }
+    
     const created = await prisma.subject.create({
       data: {
         SubjectCode: subject.code,
         SubjectName: subject.name,
         Credit: subject.credit as any,
-        Category: subject.category,
-        ProgramID: subject.programId,
+        Category: category,
       }
     });
     createdSubjects.push(created);
@@ -476,13 +526,31 @@ async function main() {
   console.log('📝 Creating teacher responsibilities...');
   const responsibilities: any[] = [];
 
-  // Helper function to get teachers by department
-  const getTeachersByDept = (dept: string) => 
+  // Simplified teacher responsibility assignment for testing
+  // Assign first 3 teachers to first 3 subjects for first grade level
+  const sampleGrade = gradeLevels[0];
+  const sampleSubjects = createdSubjects.slice(0, 5);
+  
+  for (let i = 0; i < Math.min(5, teachers.length, sampleSubjects.length); i++) {
+    const resp = await prisma.teachers_responsibility.create({
+      data: {
+        TeacherID: teachers[i].TeacherID,
+        GradeID: sampleGrade.GradeID,
+        SubjectCode: sampleSubjects[i].SubjectCode,
+        AcademicYear: 2567,
+        Semester: 'SEMESTER_1',
+        TeachHour: 4,
+      }
+    });
+    responsibilities.push(resp);
+  }
+  
+  console.log(`✅ Created ${responsibilities.length} teacher responsibilities`); 
     teachers.filter(t => t.Department === dept);
 
-  // Helper function to get subjects by category
-  const getSubjectsByCategory = (category: string) => 
-    createdSubjects.filter(s => s.Category === category);
+  // Helper function to get subjects by name pattern
+  const getSubjectsByPattern = (pattern: string) => 
+    createdSubjects.filter(s => s.SubjectName.includes(pattern));
 
   // Activity subjects that will be assigned as additional responsibilities
   const activitySubjects = createdSubjects.filter(s => 
@@ -505,8 +573,8 @@ async function main() {
         TeacherID: teacherID,
         GradeID: gradeID,
         SubjectCode: subjectCode,
-        AcademicYear: academicYear,
-        Semester: sem,
+        AcademicYear: 2567,
+        Semester: 'SEMESTER_1',
         TeachHour: teachHour,
       }
     });
@@ -521,32 +589,42 @@ async function main() {
   
   // 1. Thai Language
   const thaiTeachers = getTeachersByDept('ภาษาไทย');
-  const thaiSubjects = getSubjectsByCategory('ภาษาไทย');
-  for (let i = 0; i < gradeLevels.length; i++) {
+  const thaiSubjects = getSubjectsByPattern('ภาษาไทย');
+  for (let i = 0; i < gradeLevels.length && i < thaiTeachers.length * 2; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = thaiTeachers[i % thaiTeachers.length];
-    const subject = gradeLevel.Year <= 3 ? thaiSubjects[0] : thaiSubjects[3];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    const subject = thaiSubjects[Math.min(i, thaiSubjects.length - 1)];
+    if (subject) {
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    }
   }
 
   // 2. Mathematics
   const mathTeachers = getTeachersByDept('คณิตศาสตร์');
-  const mathSubjects = getSubjectsByCategory('คณิตศาสตร์');
-  for (let i = 0; i < gradeLevels.length; i++) {
+  const mathSubjects = getSubjectsByPattern('คณิตศาสตร์');
+  for (let i = 0; i < gradeLevels.length && i < mathTeachers.length * 2; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = mathTeachers[i % mathTeachers.length];
-    const subject = gradeLevel.Year <= 3 ? mathSubjects[0] : mathSubjects[3];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    const subject = mathSubjects[Math.min(i, mathSubjects.length - 1)];
+    if (subject) {
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    }
   }
 
   // 3. Science
   const scienceTeachers = getTeachersByDept('วิทยาศาสตร์');
-  const scienceSubjects = getSubjectsByCategory('วิทยาศาสตร์');
-  for (let i = 0; i < gradeLevels.length; i++) {
+  const scienceSubjects = getSubjectsByPattern('วิทยาศาสตร์').concat(
+    getSubjectsByPattern('ฟิสิกส์'),
+    getSubjectsByPattern('เคมี'),
+    getSubjectsByPattern('ชีววิทยา')
+  );
+  for (let i = 0; i < gradeLevels.length && i < scienceTeachers.length * 2; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = scienceTeachers[i % scienceTeachers.length];
-    const subject = gradeLevel.Year <= 3 ? scienceSubjects[0] : scienceSubjects[Math.min(3, scienceSubjects.length - 1)];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    const subject = scienceSubjects[Math.min(i, scienceSubjects.length - 1)];
+    if (subject) {
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    }
   }
 
   // 4. English
@@ -561,7 +639,7 @@ async function main() {
 
   // 5. Social Studies
   const socialTeachers = getTeachersByDept('สังคมศึกษา');
-  const socialSubjects = getSubjectsByCategory('สังคมศึกษา');
+  const socialSubjects = getSubjectsByPattern('สังคมศึกษา');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = socialTeachers[i % socialTeachers.length];
@@ -573,7 +651,7 @@ async function main() {
   
   // 6. Physical Education
   const peTeachers = getTeachersByDept('พลศึกษา');
-  const peSubjects = getSubjectsByCategory('สุขศึกษา-พลศึกษา');
+  const peSubjects = getSubjectsByPattern('สุขศึกษา-พลศึกษา');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = peTeachers[i % peTeachers.length];
@@ -582,7 +660,7 @@ async function main() {
 
   // 7. Arts
   const artsTeachers = getTeachersByDept('ศิลปะ');
-  const artsSubjects = getSubjectsByCategory('ศิลปะ');
+  const artsSubjects = getSubjectsByPattern('ศิลปะ');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = artsTeachers[i % artsTeachers.length];
@@ -591,7 +669,7 @@ async function main() {
 
   // 8. Career/Technology
   const careerTeachers = getTeachersByDept('การงานอาชีพ');
-  const careerSubjects = getSubjectsByCategory('การงานอาชีพ');
+  const careerSubjects = getSubjectsByPattern('การงานอาชีพ');
   for (let i = 0; i < gradeLevels.length; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = careerTeachers[i % careerTeachers.length];
@@ -881,3 +959,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

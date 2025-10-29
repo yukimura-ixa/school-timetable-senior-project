@@ -1,8 +1,12 @@
 "use client";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { Link } from "@mui/material";
+import { Box, Tabs, Tab, Link, Chip } from "@mui/material";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import SettingsIcon from "@mui/icons-material/Settings";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import LockIcon from "@mui/icons-material/Lock";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { fetcher } from "@/libs/axios";
 import useSWR from "swr";
 
@@ -27,74 +31,77 @@ function Schedule() {
     setIsSetTimeslot(() => tableConfig.data != undefined);
   }, [tableConfig.isValidating, tableConfig.data]);
 
-  const [tabSelect, setTabSelect] = useState("");
+  const [tabSelect, setTabSelect] = useState<string>("");
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
+    setTabSelect(newValue);
+    router.replace(`${path}/${newValue}`);
+  };
+
   return (
     <>
-      <div className="w-full flex justify-between items-center py-6">
-        <h1 className="text-xl font-bold">
-          ตารางสอน ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
-        </h1>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 3 }}>
+        <Box>
+          <h1 className="text-xl font-bold">
+            ตารางสอน ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
+          </h1>
+          {isSetTimeslot && (
+            <Chip 
+              label="ตั้งค่าคาบเรียนแล้ว" 
+              color="success" 
+              size="small" 
+              sx={{ mt: 1 }}
+            />
+          )}
+        </Box>
         <Link
-          className="flex gap-3 items-center justify-between cursor-pointer"
-          href={"/schedule/select-semester"}
+          sx={{ display: 'flex', gap: 1, alignItems: 'center', cursor: 'pointer', textDecoration: 'none' }}
+          href="/schedule/select-semester"
         >
-          <KeyboardBackspaceIcon className="fill-gray-500" />
-          <p className="select-none text-gray-500 text-sm">เปลี่ยนภาคเรียน</p>
+          <KeyboardBackspaceIcon sx={{ color: 'text.secondary' }} />
+          <Box component="span" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
+            เปลี่ยนภาคเรียน
+          </Box>
         </Link>
-      </div>
-      <div className="flex flex-col gap-3">
-        <div className="flex pt-5 w-full h-fit border-b">
-          <button
-            onClick={() => {
-              router.replace(`${path}/config`), setTabSelect(() => "config");
-            }}
-            className={`flex w-fit h-[60px] ${
-              tabSelect == "config" ? "bg-gray-100" : "bg-white"
-            } items-center px-3 cursor-pointer focus:outline-none`}
-          >
-            <p>ตั้งค่าตารางสอน</p>
-          </button>
-          <button
+      </Box>
+
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs
+          value={tabSelect}
+          onChange={handleTabChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="schedule tabs"
+        >
+          <Tab
+            icon={<SettingsIcon />}
+            iconPosition="start"
+            label="ตั้งค่าตารางสอน"
+            value="config"
+          />
+          <Tab
+            icon={<AssignmentIcon />}
+            iconPosition="start"
+            label="มอบหมายวิชาเรียน"
+            value="assign"
             disabled={!isSetTimeslot}
-            onClick={() => {
-              router.replace(`${path}/assign`), setTabSelect(() => "assign");
-            }}
-            className={`flex w-fit h-[60px] ${
-              tabSelect == "assign" ? "bg-gray-100" : "bg-white"
-            } items-center px-3  focus:outline-none ${
-              !isSetTimeslot ? "text-gray-500" : "cursor-pointer"
-            }`}
-          >
-            <p>มอบหมายวิชาเรียน</p>
-          </button>
-          <button
+          />
+          <Tab
+            icon={<LockIcon />}
+            iconPosition="start"
+            label="ล็อกคาบสอน"
+            value="lock"
             disabled={!isSetTimeslot}
-            onClick={() => {
-              router.replace(`${path}/lock`), setTabSelect(() => "lock");
-            }}
-            className={`flex gap-3 w-fit h-[60px] ${
-              tabSelect == "lock" ? "bg-gray-100" : "bg-white"
-            } items-center px-3  focus:outline-none ${
-              !isSetTimeslot ? "text-gray-500" : "cursor-pointer"
-            }`}
-          >
-            <p>ล็อกคาบสอน</p>
-          </button>
-          <button
+          />
+          <Tab
+            icon={<CalendarMonthIcon />}
+            iconPosition="start"
+            label="จัดตารางสอน"
+            value="arrange/teacher-arrange"
             disabled={!isSetTimeslot}
-            onClick={() => {
-              router.replace(`${path}/arrange/teacher-arrange`), setTabSelect(() => "arrange");
-            }}
-            className={`flex w-fit h-[60px] ${
-              tabSelect == "arrange" ? "bg-gray-100" : "bg-white"
-            } items-center px-3  focus:outline-none ${
-              !isSetTimeslot ? "text-gray-500" : "cursor-pointer"
-            }`}
-          >
-            <p>จัดตารางสอน</p>
-          </button>
-        </div>
-      </div>
+          />
+        </Tabs>
+      </Box>
     </>
   );
 }

@@ -1,4 +1,19 @@
 {
+    // Prisma settings - point to correct schema file only
+    "prisma.schema": "${workspaceFolder}/prisma/schema.prisma",
+    "[prisma]": {
+        "editor.defaultFormatter": "Prisma.prisma"
+    },
+    // Exclude files from search and problems
+    "files.exclude": {
+        "**/prisma/generated/**": true
+    },
+    "search.exclude": {
+        "**/prisma/generated/**": true
+    },
+    "files.watcherExclude": {
+        "**/prisma/generated/**": true
+    },
     "chat.tools.terminal.autoApprove": {
         "pnpm" : true,
         "cd": true,

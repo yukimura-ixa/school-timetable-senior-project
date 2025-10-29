@@ -71,15 +71,6 @@ export default async function HomePage({ searchParams }: PageProps) {
       </section>
 
       <section className="container mx-auto px-4 mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          ภาพรวมการใช้งาน
-        </h2>
-        <Suspense fallback={<MiniChartsSkeleton />}>
-          <MiniCharts />
-        </Suspense>
-      </section>
-
-      <section className="container mx-auto px-4 mb-12">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="border-b border-gray-200 bg-white px-6 py-4">
             <TabNavigation />
@@ -132,6 +123,15 @@ export default async function HomePage({ searchParams }: PageProps) {
             </div>
           )}
         </div>
+      </section>
+
+      <section className="container mx-auto px-4 mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          ภาพรวมการใช้งาน
+        </h2>
+        <Suspense fallback={<MiniChartsSkeleton />}>
+          <MiniCharts />
+        </Suspense>
       </section>
 
       <footer className="bg-white border-t border-gray-200 py-8 mt-12">

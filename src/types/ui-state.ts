@@ -43,6 +43,7 @@ export interface SubjectData {
   room?: room | null;
   ClassID?: string;
   teacherID?: number;
+  Category?: 'CORE' | 'ADDITIONAL' | 'ACTIVITY'; // Subject category
   gradelevel?: {
     Year: number;
     Number: number;

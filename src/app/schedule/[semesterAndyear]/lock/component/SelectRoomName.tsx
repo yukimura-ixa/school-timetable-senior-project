@@ -17,12 +17,11 @@ function SelectRoomName(props: Props) {
   const [rooms, setRooms] = useState<room[]>([]);
   const [roomsFilter, setRoomsFilter] = useState<room[]>([]);
   const [searchText, setSearchText] = useState("");
+  
   useEffect(() => {
-    if (!isLoading) {
-      setRooms(() => data);
-      setRoomsFilter(() => data);
-    }
-  }, [isLoading]);
+    setRooms(() => data);
+    setRoomsFilter(() => data);
+  }, [data]);
   const searchHandle: InputChangeHandler = (event) => {
     let text = event.target.value;
     setSearchText(text);

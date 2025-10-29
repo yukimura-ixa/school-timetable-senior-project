@@ -60,9 +60,9 @@ const validateProgram: (year: number) => ValidationFn<program> = (year: number) 
   if (!data.ProgramName || String(data.ProgramName).trim() === "") {
     return "ชื่อหลักสูตรห้ามว่าง";
   }
-  // ProgramCode format
-  if (!/^M[1-6]-[A-Z-]+$/.test(String(data.ProgramCode))) {
-    return "รหัสต้องมีรูปแบบ M1-SCI, M2-LANG เป็นต้น";
+  // ProgramCode format (M1-M6 for Thai years ม.1-ม.6)
+  if (!/^[A-Z_]+-M[1-6]-\d{4}$/.test(String(data.ProgramCode))) {
+    return "รหัสต้องมีรูปแบบ GENERAL-M1-2567, SCI_MATH-M4-2567 เป็นต้น";
   }
   // Unique ProgramCode among rows (client-side)
   const dup = all.find((r) => r.ProgramCode === data.ProgramCode && r.ProgramID !== data.ProgramID);
@@ -81,7 +81,7 @@ const validateProgram: (year: number) => ValidationFn<program> = (year: number) 
 
 // Empty row for creation
 const emptyProgram = (year: number): Partial<program> => ({
-  ProgramCode: `M${year}-`,
+  ProgramCode: `GENERAL-M${year}-2567`,
   ProgramName: "",
   Year: year,
   Track: "GENERAL" as unknown as $Enums.ProgramTrack,

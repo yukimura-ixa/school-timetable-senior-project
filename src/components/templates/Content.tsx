@@ -15,13 +15,13 @@ function Content(props: Props) {
         className={`flex justify-center ${
           pathName.match("/dashboard/select-semester")
             ? "w-full"
+            : pathName === "/"
+            ? "w-full"
             : "w-full max-w-7xl mx-auto"
         } h-auto`}
       >
         {pathName === "/" ? (
-          <span className="flex w-full h-auto">
-            {props.children}
-          </span>
+          props.children
         ) : pathName === "/signin" ? (
           <span className="w-full h-auto">{props.children}</span>
         ) : pathName.match("/dashboard") ? (

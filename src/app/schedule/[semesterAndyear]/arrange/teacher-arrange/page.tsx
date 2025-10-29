@@ -66,10 +66,11 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 // Local Components (to be refactored separately)
 import TimeSlot from "../component/TimeSlot";
 import PageHeader from "../component/PageHeader";
-import SubjectDragBox from "../component/SubjectDragBox";
+// Phase 2: Replace SubjectDragBox with enhanced SearchableSubjectPalette
+import SearchableSubjectPalette from "../_components/SearchableSubjectPalette";
+import ScheduleActionToolbar from "../_components/ScheduleActionToolbar";
 import SelectSubjectToTimeslotModal from "../component/SelectRoomToTimeslotModal";
 import SelectTeacher from "../component/SelectTeacher";
-import Loading from "@/app/loading";
 
 // Models
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
@@ -974,8 +975,8 @@ export default function TeacherArrangePageRefactored() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          {/* Subject Drag Box */}
-          <SubjectDragBox
+          {/* Phase 2: Enhanced Searchable Subject Palette */}
+          <SearchableSubjectPalette
             respData={subjectData}
             dropOutOfZone={dropOutOfZone}
             clickOrDragToSelectSubject={clickOrDragToSelectSubject}
@@ -983,10 +984,33 @@ export default function TeacherArrangePageRefactored() {
             teacher={teacherData}
           />
 
+          {/* Phase 2: Action Toolbar */}
+          <ScheduleActionToolbar
+            onClearDay={(day) => {
+              enqueueSnackbar(`ฟีเจอร์ล้างวันที่ ${day} กำลังพัฒนา`, { variant: 'info' });
+            }}
+            onClearAll={() => {
+              enqueueSnackbar('ฟีเจอร์ล้างทั้งหมดกำลังพัฒนา', { variant: 'info' });
+            }}
+            onCopyDay={(src, tgt) => {
+              enqueueSnackbar(`ฟีเจอร์คัดลอกจากวันที่ ${src} ไปวันที่ ${tgt} กำลังพัฒนา`, { variant: 'info' });
+            }}
+            onUndo={() => {
+              enqueueSnackbar('ฟีเจอร์ย้อนกลับกำลังพัฒนา', { variant: 'info' });
+            }}
+            onAutoArrange={() => {
+              enqueueSnackbar('ฟีเจอร์จัดอัตโนมัติกำลังพัฒนา', { variant: 'info' });
+            }}
+            canUndo={false}
+            hasChanges={false}
+            totalSlots={timeSlotData?.AllData?.length || 0}
+            filledSlots={timeSlotData?.AllData?.filter((slot: timeslot & { subject?: SubjectData }) => !!slot.subject).length || 0}
+          />
+
           {/* Save Button */}
           <div className="w-full flex justify-end items-center mt-3 gap-3">
             <PrimaryButton
-              handleClick={postData}
+              handleClick={() => void postData()}
               title={"บันทึกข้อมูล"}
               color={"success"}
               Icon={<SaveIcon />}

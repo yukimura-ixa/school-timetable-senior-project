@@ -116,7 +116,7 @@ export function PublicClassesTableSkeleton() {
   return (
     <div className="space-y-4">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
-        {[...Array(10)].map((_, i) => (
+        {Array.from({ length: 10 }, (_, i) => (
           <div key={i} className="flex justify-between py-3 border-b">
             <div className="h-4 bg-gray-200 rounded w-24"></div>
             <div className="h-4 bg-gray-200 rounded w-32"></div>
