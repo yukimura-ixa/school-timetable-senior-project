@@ -422,3 +422,102 @@ export const getConfigCountAction = createAction(
     return { count };
   }
 );
+
+/**
+ * Update config and regenerate timeslots
+ * 
+ * This action updates the table_config and regenerates all timeslots.
+ * Use when configuration changes require new timeslot generation.
+ * 
+ * Steps:
+ * 1. Validate config exists
+ * 2. Delete existing timeslots and teacher responsibilities
+ * 3. Update config
+ * 4. Regenerate timeslots with new configuration
+ * 
+ * @param input - UpdateConfigInput with Config data
+ * @returns Updated config with timeslot count
+ * 
+ * @example
+ * ```tsx
+ * const result = await updateConfigWithTimeslotsAction({
+ *   ConfigID: "1-2567",
+ *   Config: {
+ *     Days: ["MON", "TUE", "WED", "THU", "FRI"],
+ *     StartTime: "08:30",
+ *     Duration: 50,
+ *     TimeslotPerDay: 9, // Changed from 8 to 9
+ *     // ... rest of config
+ *   }
+ * });
+ * ```
+ */
+export const updateConfigWithTimeslotsAction = createAction(
+  updateConfigSchema,
+  async (input: UpdateConfigInput) => {
+    // Validate config exists
+    const existsError = await validateConfigExists(input.ConfigID);
+    if (existsError) {
+      throw new Error(existsError);
+    }
+
+    // Import timeslot service for regeneration
+    const { generateTimeslots } = await import(
+      '../../../timeslot/domain/services/timeslot.service'
+    );
+
+    // Get existing config to extract AcademicYear and Semester
+    const existingConfig = await configRepository.findByConfigId(input.ConfigID);
+    if (!existingConfig) {
+      throw new Error('ไม่พบการตั้งค่า');
+    }
+
+    // Use transaction to ensure atomicity
+    const result = await prisma.$transaction(async (tx) => {
+      // Step 1: Delete existing teacher responsibilities
+      await tx.teacherResponsibility.deleteMany({
+        where: {
+          timeslot: {
+            AcademicYear: existingConfig.AcademicYear,
+            Semester: existingConfig.Semester,
+          },
+        },
+      });
+
+      // Step 2: Delete existing timeslots
+      await tx.timeslot.deleteMany({
+        where: {
+          AcademicYear: existingConfig.AcademicYear,
+          Semester: existingConfig.Semester,
+        },
+      });
+
+      // Step 3: Update config
+      const updatedConfig = await tx.table_config.update({
+        where: { ConfigID: input.ConfigID },
+        data: {
+          Config: input.Config as any,
+        },
+      });
+
+      // Step 4: Generate new timeslots
+      const newTimeslots = generateTimeslots({
+        AcademicYear: existingConfig.AcademicYear,
+        Semester: existingConfig.Semester,
+        ...(input.Config as any),
+      });
+
+      // Step 5: Create new timeslots
+      await tx.timeslot.createMany({
+        data: newTimeslots,
+      });
+
+      return {
+        config: updatedConfig,
+        timeslotCount: newTimeslots.length,
+      };
+    });
+
+    return result;
+  }
+);
