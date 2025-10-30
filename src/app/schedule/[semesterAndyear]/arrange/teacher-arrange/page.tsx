@@ -67,8 +67,8 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import TimeSlot from "../component/TimeSlot";
 import PageHeader from "../component/PageHeader";
 // Phase 2: Replace SubjectDragBox with enhanced SearchableSubjectPalette
-import SearchableSubjectPalette from "../_components/SearchableSubjectPalette";
-import ScheduleActionToolbar from "../_components/ScheduleActionToolbar";
+import { SearchableSubjectPalette } from "../_components/SearchableSubjectPalette";
+import { ScheduleActionToolbar } from "../_components/ScheduleActionToolbar";
 import SelectSubjectToTimeslotModal from "../component/SelectRoomToTimeslotModal";
 import SelectTeacher from "../component/SelectTeacher";
 
@@ -215,8 +215,9 @@ export default function TeacherArrangePageRefactored() {
         return null;
       }
       if (result.success && 'data' in result) {
-        const teacher = (result.data as any[]).find(
-          (t: any) => t.TeacherID === parseInt(currentTeacherID)
+        const teachers = result.data as Array<{ TeacherID: number; [key: string]: unknown }>;
+        const teacher = teachers.find(
+          (t) => t.TeacherID === parseInt(currentTeacherID)
         );
         return teacher || null;
       }
@@ -413,7 +414,12 @@ export default function TeacherArrangePageRefactored() {
     const filterNotLock = data.filter((item: ClassScheduleWithRelations & { SubjectName: string; RoomName: string }) => !item.IsLocked);
     
     // Process locked timeslots (combine multiple grade IDs for same timeslot)
-    const resFilterLock: any[] = [];
+    type LockedScheduleItem = ClassScheduleWithRelations & { 
+      SubjectName: string; 
+      RoomName: string; 
+      GradeID: string | string[]; // Can be array when multiple grades share same timeslot
+    };
+    const resFilterLock: LockedScheduleItem[] = [];
     const keepId: string[] = [];
     
     for (let i = 0; i < filterLock.length; i++) {

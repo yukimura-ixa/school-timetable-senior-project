@@ -53,8 +53,8 @@ interface GradeClassViewProps {
   /** All classes for this grade */
   classes: ClassScheduleData[];
   
-  /** Expected periods per week */
-  expectedPeriodsPerWeek?: number;
+  /** Expected periods per week (unused, kept for future use) */
+  _expectedPeriodsPerWeek?: number;
   
   /** Loading state */
   isLoading?: boolean;

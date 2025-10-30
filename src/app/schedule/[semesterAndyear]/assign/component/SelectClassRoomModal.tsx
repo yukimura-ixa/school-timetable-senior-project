@@ -1,10 +1,10 @@
-import { useTeacherData } from "@/app/_hooks/teacherData";
+import { useTeachers } from "@/hooks";
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import type { gradelevel } from "@/prisma/generated";
 
 import { AiOutlineClose } from "react-icons/ai";
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
+import { useGradeLevels } from "@/hooks";
 import Loading from "@/app/loading";
 
 import type { ModalCloseHandler } from "@/types/events";
@@ -29,7 +29,7 @@ function SelectClassRoomModal({
   confirmChange,
   year,
 }: props) {
-  const { data, isLoading, error, mutate } = useGradeLevelData();
+  const { data, isLoading, error, mutate } = useGradeLevels();
   const [classRoomList, setClassRoomList] = useState<ClassRoomItem[]>([]);
   useEffect(() => {
     // ตัวอย่างข้อมูลแบบคร่าวๆ //

@@ -22,11 +22,11 @@ export const UpdateConfigStatusSchema = v.object({
 
 // Calculate config completeness
 export const ConfigCompletenessSchema = v.object({
-  hasTimeslots: v.boolean(),
-  hasTeachers: v.boolean(),
-  hasSubjects: v.boolean(),
-  hasClasses: v.boolean(),
-  hasRooms: v.boolean(),
+  timeslotCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  teacherCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  subjectCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  classCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
+  roomCount: v.pipe(v.number(), v.integer(), v.minValue(0)),
 });
 
 // Type exports
@@ -48,11 +48,11 @@ export function calculateCompleteness(config: ConfigCompleteness): number {
   };
 
   let total = 0;
-  if (config.hasTimeslots) total += weights.hasTimeslots;
-  if (config.hasTeachers) total += weights.hasTeachers;
-  if (config.hasSubjects) total += weights.hasSubjects;
-  if (config.hasClasses) total += weights.hasClasses;
-  if (config.hasRooms) total += weights.hasRooms;
+  if (config.timeslotCount > 0) total += weights.hasTimeslots;
+  if (config.teacherCount > 0) total += weights.hasTeachers;
+  if (config.subjectCount > 0) total += weights.hasSubjects;
+  if (config.classCount > 0) total += weights.hasClasses;
+  if (config.roomCount > 0) total += weights.hasRooms;
 
   return total;
 }
@@ -71,7 +71,7 @@ export function canTransitionStatus(
     if (completeness < 30) {
       return {
         allowed: false,
-        reason: "ต้องตั้งค่าคาบเรียนก่อนเผยแพร่",
+        reason: "ต้องตั้งค่าอย่างน้อย 30% ก่อนเผยแพร่ (ต้องตั้งค่าคาบเรียน)",
       };
     }
     return { allowed: true };

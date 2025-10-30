@@ -1,8 +1,7 @@
-import { useRoomData } from "@/app/_hooks/roomData";
+import { useRooms } from "@/hooks";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import type { room } from "@/prisma/generated";
 import React, { useEffect, useState, type JSX } from "react";
-import { BsInfo } from "react-icons/bs";
 
 import type { InputChangeHandler } from "@/types/events";
 
@@ -13,23 +12,21 @@ type Props = {
 };
 
 function SelectRoomName(props: Props) {
-  const { data, isLoading, error, mutate } = useRoomData();
+  const { data } = useRooms();
   const [rooms, setRooms] = useState<room[]>([]);
   const [roomsFilter, setRoomsFilter] = useState<room[]>([]);
-  const [searchText, setSearchText] = useState("");
   
   useEffect(() => {
     setRooms(() => data);
     setRoomsFilter(() => data);
   }, [data]);
   const searchHandle: InputChangeHandler = (event) => {
-    let text = event.target.value;
-    setSearchText(text);
+    const text = event.target.value;
     searchName(text);
   };
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = roomsFilter.filter((item) => `${item.RoomName}`.match(name));
+    const res = roomsFilter.filter((item) => `${item.RoomName}`.match(name));
     setRooms(res);
   };
   return (

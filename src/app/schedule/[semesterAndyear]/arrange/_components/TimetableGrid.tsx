@@ -112,7 +112,7 @@ export function TimetableGrid({
         <Box sx={{ bgcolor: 'grey.100', p: 2, borderBottom: 2, borderColor: 'divider' }}>
           <Grid container spacing={1}>
             {/* Empty cell for period column */}
-            <Grid item xs={1}>
+            <Grid size={1}>
               <Typography
                 variant="caption"
                 fontWeight="bold"
@@ -128,7 +128,7 @@ export function TimetableGrid({
             {DAYS_OF_WEEK.map(day => {
               const colors = DAY_COLORS[day];
               return (
-                <Grid item xs key={day}>
+                <Grid size="grow" key={day}>
                   <Paper
                     elevation={0}
                     sx={{
@@ -162,7 +162,7 @@ export function TimetableGrid({
               return (
                 <Grid container spacing={1} key={periodNum}>
                   {/* Period Number */}
-                  <Grid item xs={1}>
+                  <Grid size={1}>
                     <Box
                       sx={{
                         height: '100%',
@@ -192,7 +192,7 @@ export function TimetableGrid({
                     
                     if (!timeslot) {
                       return (
-                        <Grid item xs key={`${day}-${periodNum}`}>
+                        <Grid size="grow" key={`${day}-${periodNum}`}>
                           <Paper
                             variant="outlined"
                             sx={{
@@ -218,7 +218,7 @@ export function TimetableGrid({
                     const isSelected = selectedTimeslotID === timeslot.TimeslotID;
 
                     return (
-                      <Grid item xs key={timeslot.TimeslotID}>
+                      <Grid size="grow" key={timeslot.TimeslotID}>
                         <TimeslotCard
                           timeslot={timeslot}
                           isBreak={isBreak}

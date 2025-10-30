@@ -1,5 +1,5 @@
 "use client";
-import { useTeacherData } from "@/app/_hooks/teacherData";
+import { useTeachers } from "@/hooks";
 import { fetcher } from "@/libs/axios";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
@@ -21,7 +21,7 @@ const AllTimeslot = () => {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
-  const allTeacher = useTeacherData();
+  const allTeacher = useTeachers();
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
     SlotAmount: [],

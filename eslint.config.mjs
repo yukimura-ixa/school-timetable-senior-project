@@ -39,6 +39,7 @@ export default [
       // Keep it minimal to avoid churn; can be tightened later
       'no-unused-vars': 'off', // handled by TS
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'error', // Phase 1: Prevent 'any' type regressions
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       eqeqeq: ['error', 'smart'],
     },

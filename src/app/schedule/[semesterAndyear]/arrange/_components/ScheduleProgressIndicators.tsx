@@ -46,7 +46,7 @@ interface ScheduleProgressIndicatorsProps {
   };
 }
 
-export default function ScheduleProgressIndicators({
+export function ScheduleProgressIndicators({
   teacherProgress = [],
   classProgress = [],
   overallProgress,

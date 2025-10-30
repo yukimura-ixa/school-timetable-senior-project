@@ -1,5 +1,5 @@
 "use client";
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
+import { useGradeLevels } from "@/hooks";
 import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import PrimaryButton from "@/components/mui/PrimaryButton";
@@ -25,7 +25,7 @@ const page = (props: Props) => {
     return <Loading />;
   }
   
-  const gradeLevelData = useGradeLevelData();
+  const gradeLevelData = useGradeLevels();
   const [currentGradeID, setCurrentGradeID] = useState("");
   const programOfGrade = useSWR(
     () =>

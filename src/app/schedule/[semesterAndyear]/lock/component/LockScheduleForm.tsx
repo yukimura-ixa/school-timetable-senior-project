@@ -10,7 +10,7 @@ import type { room, subject, teacher, timeslot } from "@/prisma/generated";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import { useTeacherData } from "@/app/_hooks/teacherData";
+import { useTeachers } from "@/hooks";
 
 import type { ModalCloseHandler, InputChangeHandler } from "@/types/events";
 import type { SubjectWithResponsibilities } from "@/types/lock-schedule";
@@ -137,7 +137,7 @@ const reducer = (state: typeof initialState, action: Action) => {
 };
 
 function LockScheduleForm({ closeModal, data, mutate }: Props) {
-  const teacherData = useTeacherData();
+  const teacherData = useTeachers();
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     lockScheduleData: {

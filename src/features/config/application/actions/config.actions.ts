@@ -475,12 +475,10 @@ export const updateConfigWithTimeslotsAction = createAction(
     // Use transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
       // Step 1: Delete existing teacher responsibilities
-      await tx.teacherResponsibility.deleteMany({
+      await tx.teachers_responsibility.deleteMany({
         where: {
-          timeslot: {
-            AcademicYear: existingConfig.AcademicYear,
-            Semester: existingConfig.Semester,
-          },
+          AcademicYear: existingConfig.AcademicYear,
+          Semester: existingConfig.Semester,
         },
       });
 

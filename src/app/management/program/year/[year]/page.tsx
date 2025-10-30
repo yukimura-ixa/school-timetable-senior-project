@@ -57,8 +57,7 @@ function StudyProgram() {
           {!swr.isLoading && !swr.error && programs.length === 0 && (
             <div className="flex justify-center items-center">
               <NoDataEmptyState
-                title="ไม่มีข้อมูลหลักสูตร"
-                message={`ไม่พบข้อมูลหลักสูตรสำหรับมัธยมศึกษาปีที่ ${yearNum}`}
+                entityName={`หลักสูตรสำหรับมัธยมศึกษาปีที่ ${yearNum}`}
               />
             </div>
           )}
@@ -68,7 +67,7 @@ function StudyProgram() {
               <ProgramEditableTable
                 year={yearNum}
                 rows={programs}
-                mutate={swr.mutate}
+                mutate={() => { void swr.mutate(); }}
               />
             </div>
           )}

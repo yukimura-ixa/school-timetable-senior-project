@@ -1,4 +1,4 @@
-import { useTimeslotData } from "@/app/_hooks/timeslotData";
+import { useTimeslots } from "@/hooks";
 import { subjectCreditValues } from "@/models/credit-value";
 import type { subject_credit } from "@/prisma/generated";
 import { useParams } from "next/navigation";
@@ -21,7 +21,7 @@ function SelectMultipleTimeSlot(props: Props) {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
-  const timeSlotData = useTimeslotData(
+  const timeSlotData = useTimeslots(
     parseInt(academicYear),
     parseInt(semester),
   );

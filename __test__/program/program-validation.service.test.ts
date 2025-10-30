@@ -6,9 +6,9 @@
  * - Duplicate detection on update (excluding current ProgramID)
  * - Existence check by ProgramID
  * - Thai error messages
+ * 
+ * Jest globals (describe, test, expect, beforeEach, jest) are available globally
  */
-
-import { describe, test, expect, beforeEach, jest } from "@jest/globals";
 
 import {
   validateNoDuplicateProgram,
@@ -19,9 +19,8 @@ import {
 import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 
 describe("Program Validation Service", () => {
-  const semester = "SEMESTER_1";
-  const academicYear = 2568;
-  const programName = "หลักสูตรแกนกลาง ม.ต้น";
+  const year = 1; // ม.1
+  const track: "GENERAL" | "MINI_ENGLISH" = "GENERAL";
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -30,41 +29,37 @@ describe("Program Validation Service", () => {
   describe("validateNoDuplicateProgram (create)", () => {
     test("returns null when no duplicate exists", async () => {
       jest
-        .spyOn(programRepository, "findByNameAndTerm")
+        .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue(null as any);
 
       const result = await validateNoDuplicateProgram(
-        programName,
-        semester,
-        academicYear
+        year,
+        track
       );
 
-      expect(programRepository.findByNameAndTerm).toHaveBeenCalledWith(
-        programName,
-        semester,
-        academicYear
+      expect(programRepository.findByYearAndTrack).toHaveBeenCalledWith(
+        year,
+        track
       );
       expect(result).toBeNull();
     });
 
     test("returns Thai error message when duplicate exists", async () => {
       jest
-        .spyOn(programRepository, "findByNameAndTerm")
+        .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue({
         ProgramID: 101,
-        ProgramName: programName,
-        Semester: semester,
-        AcademicYear: academicYear,
+        Year: year,
+        Track: track,
         } as any);
 
       const result = await validateNoDuplicateProgram(
-        programName,
-        semester,
-        academicYear
+        year,
+        track
       );
 
       expect(result).toBe(
-        "มีชื่อหลักสูตรนี้สำหรับภาคเรียนและปีการศึกษาที่ระบุแล้ว กรุณาตรวจสอบอีกครั้ง"
+        "มีหลักสูตรสำหรับ ม.1 แผนการเรียนGENERAL อยู่แล้ว กรุณาตรวจสอบอีกครั้ง"
       );
     });
   });
@@ -72,55 +67,50 @@ describe("Program Validation Service", () => {
   describe("validateNoDuplicateProgramForUpdate (update)", () => {
     test("returns null when no duplicate exists", async () => {
       jest
-        .spyOn(programRepository, "findByNameAndTerm")
+        .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue(null as any);
 
       const result = await validateNoDuplicateProgramForUpdate(
         101,
-        programName,
-        semester,
-        academicYear
+        year,
+        track
       );
       expect(result).toBeNull();
     });
 
     test("returns null when existing record is the same ProgramID", async () => {
       jest
-        .spyOn(programRepository, "findByNameAndTerm")
+        .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue({
         ProgramID: 101,
-        ProgramName: programName,
-        Semester: semester,
-        AcademicYear: academicYear,
+        Year: year,
+        Track: track,
         } as any);
 
       const result = await validateNoDuplicateProgramForUpdate(
         101,
-        programName,
-        semester,
-        academicYear
+        year,
+        track
       );
       expect(result).toBeNull();
     });
 
-    test("returns Thai error message when another program has same name/term/year", async () => {
+    test("returns Thai error message when another program has same year/track", async () => {
       jest
-        .spyOn(programRepository, "findByNameAndTerm")
+        .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue({
         ProgramID: 202, // different program
-        ProgramName: programName,
-        Semester: semester,
-        AcademicYear: academicYear,
+        Year: year,
+        Track: track,
         } as any);
 
       const result = await validateNoDuplicateProgramForUpdate(
         101,
-        programName,
-        semester,
-        academicYear
+        year,
+        track
       );
       expect(result).toBe(
-        "มีชื่อหลักสูตรนี้สำหรับภาคเรียนและปีการศึกษาที่ระบุแล้ว กรุณาตรวจสอบอีกครั้ง"
+        "มีหลักสูตรสำหรับ ม.1 แผนการเรียนGENERAL อยู่แล้ว กรุณาตรวจสอบอีกครั้ง"
       );
     });
   });

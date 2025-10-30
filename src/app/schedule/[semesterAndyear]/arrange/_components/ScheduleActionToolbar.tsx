@@ -32,6 +32,7 @@ import {
   ContentCopy as CopyIcon,
   Refresh as RefreshIcon,
   Undo as UndoIcon,
+  Redo as RedoIcon,
   AutoAwesome as AutoIcon,
   Warning as WarningIcon,
 } from '@mui/icons-material';
@@ -41,20 +42,24 @@ interface ScheduleActionToolbarProps {
   onClearAll?: () => void;
   onCopyDay?: (sourceDay: number, targetDay: number) => void;
   onUndo?: () => void;
+  onRedo?: () => void;
   onAutoArrange?: () => void;
   canUndo?: boolean;
+  canRedo?: boolean;
   hasChanges?: boolean;
   totalSlots?: number;
   filledSlots?: number;
 }
 
-export default function ScheduleActionToolbar({
+export function ScheduleActionToolbar({
   onClearDay,
   onClearAll,
   onCopyDay,
   onUndo,
+  onRedo,
   onAutoArrange,
   canUndo = false,
+  canRedo = false,
   hasChanges = false,
   totalSlots = 0,
   filledSlots = 0,
@@ -169,6 +174,19 @@ export default function ScheduleActionToolbar({
                 disabled={!canUndo}
               >
                 ย้อนกลับ
+              </Button>
+            </span>
+          </Tooltip>
+
+          {/* Redo */}
+          <Tooltip title="ทำซ้ำการเปลี่ยนแปลง">
+            <span>
+              <Button
+                startIcon={<RedoIcon />}
+                onClick={onRedo}
+                disabled={!canRedo}
+              >
+                ทำซ้ำ
               </Button>
             </span>
           </Tooltip>

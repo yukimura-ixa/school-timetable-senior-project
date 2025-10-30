@@ -111,11 +111,11 @@ export async function updateConfigCompletenessAction(input: {
 
     // Calculate completeness
     const completeness = calculateCompleteness({
-      hasTimeslots: timeslotCount > 0,
-      hasTeachers: teacherCount > 0,
-      hasSubjects: subjectCount > 0,
-      hasClasses: classCount > 0,
-      hasRooms: roomCount > 0,
+      timeslotCount,
+      teacherCount,
+      subjectCount,
+      classCount,
+      roomCount,
     });
 
     // Update config

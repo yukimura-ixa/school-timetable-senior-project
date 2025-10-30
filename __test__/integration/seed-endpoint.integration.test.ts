@@ -15,14 +15,18 @@ const SEED_SECRET = process.env.SEED_SECRET || 'test-secret';
 const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000';
 
 describe('Seed Semesters API (Integration)', () => {
+  // Skip if fetch is not available (integration tests require server + fetch)
+  const hasFetch = typeof fetch !== 'undefined';
   // Skip if not in test/dev environment
-  const shouldRun = process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development';
+  const shouldRun = hasFetch && (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development');
   
   beforeAll(() => {
-    if (!shouldRun) {
+    if (!hasFetch) {
+      console.warn('⚠️  Skipping seed endpoint tests (fetch not available - integration tests require a running server)');
+    } else if (!shouldRun) {
       console.warn('⚠️  Skipping seed endpoint tests (not in test/dev environment)');
     }
-    if (!process.env.SEED_SECRET) {
+    if (shouldRun && !process.env.SEED_SECRET) {
       console.warn('⚠️  SEED_SECRET not set; using default test secret');
     }
   });

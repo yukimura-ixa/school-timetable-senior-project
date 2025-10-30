@@ -16,3 +16,8 @@ export { TimetableGrid } from './TimetableGrid';
 export { RoomSelectionDialog } from './RoomSelectionDialog';
 export { ActionToolbar } from './ActionToolbar';
 export { GradeClassView } from './GradeClassView';
+
+// Phase 2: Interactive Enhancements
+export { SearchableSubjectPalette } from './SearchableSubjectPalette';
+export { ScheduleActionToolbar } from './ScheduleActionToolbar';
+export { ScheduleProgressIndicators } from './ScheduleProgressIndicators';

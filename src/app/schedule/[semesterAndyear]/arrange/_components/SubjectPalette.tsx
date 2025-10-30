@@ -137,7 +137,7 @@ function DraggableSubjectItem({
             color="text.secondary"
             noWrap
           >
-            {subject.SubjectCode} • ม.{subject.GradeLevel - 6}
+            {subject.SubjectCode} • ม.{(subject.gradelevel?.Year || 0) - 6}
           </Typography>
         </Box>
 
@@ -205,7 +205,7 @@ export function SubjectPalette({
 
       // Grade filter
       const matchesGrade = filterByGrade === null ||
-        subject.GradeLevel === filterByGrade;
+        subject.gradelevel?.Year === filterByGrade;
 
       return matchesSearch && matchesGrade;
     });
@@ -215,7 +215,7 @@ export function SubjectPalette({
   const subjectsByGrade = useMemo(() => {
     const groups: Record<number, typeof filteredSubjects> = {};
     filteredSubjects.forEach(subject => {
-      const grade = subject.GradeLevel;
+      const grade = subject.gradelevel?.Year || 0;
       if (!groups[grade]) {
         groups[grade] = [];
       }

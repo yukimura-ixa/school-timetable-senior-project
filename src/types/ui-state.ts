@@ -29,21 +29,27 @@ import type {
  * Used in SubjectDragBox, SubjectItem, and arrangement store
  * Supports both PascalCase (database) and camelCase (component) field names
  */
+/**
+ * @deprecated Use SubjectData from '@/types/schedule.types' instead
+ * This interface is kept for backward compatibility during Phase 1 migration
+ * All new code should import from schedule.types.ts
+ */
 export interface SubjectData {
   itemID?: number;
   SubjectCode?: string;
   SubjectName?: string;
-  subjectCode?: string; // Alternative naming (component usage)
-  subjectName?: string; // Alternative naming (component usage)
+  subjectCode?: string;
+  subjectName?: string;
   credit?: number;
   remainingHours?: number;
+  TeachHour?: number;
   GradeID?: string;
   RoomName?: string | null;
   RoomID?: number | null;
   room?: room | null;
   ClassID?: string;
   teacherID?: number;
-  Category?: 'CORE' | 'ADDITIONAL' | 'ACTIVITY'; // Subject category
+  Category?: 'CORE' | 'ADDITIONAL' | 'ACTIVITY';
   gradelevel?: {
     Year: number;
     Number: number;
@@ -347,3 +353,50 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: PaginationState;
 }
+
+// ============================================================================
+// Phase 1 Type Safety Migration
+// ============================================================================
+
+/**
+ * Re-export new strict types from schedule.types.ts
+ * These types replace the deprecated ones above during Phase 1 migration
+ */
+export type {
+  SubjectData as StrictSubjectData,
+  SubjectCategory,
+  PartialSubjectData,
+  TimeslotData as StrictTimeslotData,
+  TimeslotWithRelations,
+  BreakSlotData,
+  DayOfWeekDisplay,
+  TimeSlotGridData as StrictTimeSlotGridData,
+  TeacherData as StrictTeacherData,
+  TimeslotChange,
+  SubjectPayload,
+  DragSourceData,
+  DropTargetData,
+  TimeslotErrorState,
+  TimeslotErrorStateMap,
+  // Callback types
+  CheckBreakTimeCallback,
+  IsSelectedToAddCallback,
+  IsSelectedToChangeCallback,
+  TimeSlotCssClassNameCallback,
+  AddRoomModalCallback,
+  ClickOrDragToChangeCallback,
+  RemoveSubjectCallback,
+  DisplayErrorChangeSubjectCallback,
+  SetErrorStateCallback,
+  // Component props
+  TimeslotCellProps as StrictTimeslotCellProps,
+  TimeSlotProps,
+  // Response types
+  ScheduleDataResponse,
+  SaveScheduleResponse,
+  // Store actions
+  ScheduleStoreActions,
+} from './schedule.types';
+
+// Type guards
+export { isCompleteSubjectData, hasSubjectAssigned, isBreakTime } from './schedule.types';

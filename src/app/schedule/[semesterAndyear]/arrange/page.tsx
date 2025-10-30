@@ -47,11 +47,12 @@ import {
   ArrangementHeader,
   GradeLevelTabs,
   ConflictAlert,
-  SubjectPalette,
+  SearchableSubjectPalette,
   TimetableGrid,
   RoomSelectionDialog,
-  ActionToolbar,
+  ScheduleActionToolbar,
   GradeClassView,
+  ScheduleProgressIndicators,
 } from './_components';
 
 // Domain Constants
@@ -78,7 +79,7 @@ import { DEFAULT_TIMETABLE_CONFIG } from '@/lib/timetable-config';
 
 // Types
 import type { SubjectData } from '@/types';
-import type { gradelevel } from '@/prisma/generated';
+import type { gradelevel, teacher } from '@/prisma/generated';
 
 // Feedback Components
 import { TimetableGridSkeleton, NetworkErrorEmptyState } from '@/components/feedback';
@@ -95,7 +96,20 @@ export default function ArrangementPage() {
   const router = useRouter();
   const searchTeacherID = searchParams.get('TeacherID');
   
-  const [semester, academicYear] = (params.semesterAndyear as string).split('-');
+  // Safely extract semester and year from params
+  const semesterAndYear = params.semesterAndyear as string | undefined;
+  if (!semesterAndYear) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Alert severity="error">
+          <AlertTitle>ข้อผิดพลาด</AlertTitle>
+          ไม่พบข้อมูลภาคเรียนและปีการศึกษา
+        </Alert>
+      </Container>
+    );
+  }
+  
+  const [semester, academicYear] = semesterAndYear.split('-');
 
   // ============================================================================
   // TIMETABLE CONFIG
@@ -138,6 +152,13 @@ export default function ArrangementPage() {
     // Save state
     isSaving,
     setIsSaving,
+    
+    // History actions
+    pushHistory,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
     
     // Reset
     resetOnTeacherChange,
@@ -452,8 +473,302 @@ export default function ArrangementPage() {
   // HANDLERS - Clear All
   // ============================================================================
   const handleClearAll = useCallback(() => {
-    // TODO: Implement clear all logic
-    setIsDirty(true);
+    void (async () => {
+      if (!currentTeacherID || !teacherSchedule) {
+        enqueueSnackbar('ไม่พบข้อมูลตารางสอน', { variant: 'warning' });
+        return;
+      }
+
+      try {
+        // Push history before modification
+        pushHistory(scheduledSubjects);
+
+        // Clear all schedules
+        const result = await syncTeacherScheduleAction({
+          TeacherID: parseInt(currentTeacherID),
+          AcademicYear: parseInt(academicYear),
+          Semester: semester,
+          Schedule: [],
+        });
+
+        if (result.success) {
+          await mutateTeacherSchedule();
+          await mutateConflicts();
+          setIsDirty(false);
+          enqueueSnackbar('✅ ล้างตารางทั้งหมดสำเร็จ', { variant: 'success' });
+        } else {
+          enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
+        }
+      } catch (error) {
+        console.error('Clear all error:', error);
+        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
+      }
+    })();
+  }, [currentTeacherID, teacherSchedule, academicYear, semester, scheduledSubjects, pushHistory, mutateTeacherSchedule, mutateConflicts]);
+
+  // ============================================================================
+  // HANDLERS - Clear Day (Phase 2)
+  // ============================================================================
+  const handleClearDay = useCallback((day: number) => {
+    void (async () => {
+      if (!currentTeacherID || !teacherSchedule || !Array.isArray(teacherSchedule) || !timeslots) {
+        enqueueSnackbar('ไม่พบข้อมูลตารางสอน', { variant: 'warning' });
+        return;
+      }
+
+      try {
+        // Push history before modification
+        pushHistory(scheduledSubjects);
+
+        // Map day number to enum (1=MON, 2=TUE, 3=WED, 4=THU, 5=FRI)
+        const dayMap = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+        const dayOfWeek = dayMap[day - 1];
+        
+        if (!dayOfWeek) {
+          enqueueSnackbar('วันที่เลือกไม่ถูกต้อง', { variant: 'error' });
+          return;
+        }
+
+        // Get timeslot IDs for this day
+        const dayTimeslotIDs = new Set(
+          timeslots
+            .filter((ts) => {
+              const slot = ts as { DayOfWeek?: string };
+              return slot.DayOfWeek === dayOfWeek;
+            })
+            .map((ts) => {
+              const slot = ts as { TimeslotID?: string };
+              return slot.TimeslotID;
+            })
+        );
+
+        // Filter out schedules for this day
+        const remainingSchedules = teacherSchedule.filter((schedule) => {
+          const sched = schedule as { TimeslotID?: string };
+          return !dayTimeslotIDs.has(sched.TimeslotID || '');
+        });
+
+        // Sync updated schedule
+        const scheduleData = remainingSchedules.map((s) => {
+          const sched = s as { ClassID: string; TimeslotID: string; SubjectCode: string; GradeID: string; RoomID?: number; RespID?: number };
+          return {
+            ClassID: sched.ClassID,
+            TimeslotID: sched.TimeslotID,
+            SubjectCode: sched.SubjectCode,
+            GradeID: sched.GradeID,
+            RoomID: sched.RoomID || null,
+            RespID: sched.RespID || null,
+          };
+        });
+
+        const result = await syncTeacherScheduleAction({
+          TeacherID: parseInt(currentTeacherID),
+          AcademicYear: parseInt(academicYear),
+          Semester: semester,
+          Schedule: scheduleData,
+        });
+
+        if (result.success) {
+          await mutateTeacherSchedule();
+          await mutateConflicts();
+          setIsDirty(false);
+          enqueueSnackbar(`✅ ล้างตารางวัน${dayMap[day - 1]}สำเร็จ`, { variant: 'success' });
+        } else {
+          enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
+        }
+      } catch (error) {
+        console.error('Clear day error:', error);
+        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
+      }
+    })();
+  }, [currentTeacherID, teacherSchedule, timeslots, academicYear, semester, scheduledSubjects, pushHistory, mutateTeacherSchedule, mutateConflicts]);
+
+  // ============================================================================
+  // HANDLERS - Copy Day (Phase 2)
+  // ============================================================================
+  const handleCopyDay = useCallback((sourceDay: number, targetDay: number) => {
+    void (async () => {
+      if (!currentTeacherID || !teacherSchedule || !Array.isArray(teacherSchedule) || !timeslots) {
+        enqueueSnackbar('ไม่พบข้อมูลตารางสอน', { variant: 'warning' });
+        return;
+      }
+
+      if (sourceDay === targetDay) {
+        enqueueSnackbar('ไม่สามารถคัดลอกไปยังวันเดียวกันได้', { variant: 'warning' });
+        return;
+      }
+
+      try {
+        // Push history before modification
+        pushHistory(scheduledSubjects);
+
+        // Map day number to enum
+        const dayMap = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+        const sourceDayOfWeek = dayMap[sourceDay - 1];
+        const targetDayOfWeek = dayMap[targetDay - 1];
+        
+        if (!sourceDayOfWeek || !targetDayOfWeek) {
+          enqueueSnackbar('วันที่เลือกไม่ถูกต้อง', { variant: 'error' });
+          return;
+        }
+
+        // Build timeslot mapping (source period -> target period)
+        const sourceTimeslots = timeslots.filter((ts) => {
+          const slot = ts as { DayOfWeek?: string };
+          return slot.DayOfWeek === sourceDayOfWeek;
+        });
+        
+        const targetTimeslots = timeslots.filter((ts) => {
+          const slot = ts as { DayOfWeek?: string };
+          return slot.DayOfWeek === targetDayOfWeek;
+        });
+
+        // Sort by StartTime to align periods
+        const sortedSource = [...sourceTimeslots].sort((a, b) => {
+          const timeA = (a as { StartTime?: Date }).StartTime || new Date();
+          const timeB = (b as { StartTime?: Date }).StartTime || new Date();
+          return timeA.getTime() - timeB.getTime();
+        });
+
+        const sortedTarget = [...targetTimeslots].sort((a, b) => {
+          const timeA = (a as { StartTime?: Date }).StartTime || new Date();
+          const timeB = (b as { StartTime?: Date }).StartTime || new Date();
+          return timeA.getTime() - timeB.getTime();
+        });
+
+        // Create timeslot ID mapping
+        const timeslotMap = new Map<string, string>();
+        sortedSource.forEach((sourceSlot, idx) => {
+          const sourceID = (sourceSlot as { TimeslotID?: string }).TimeslotID;
+          const targetSlot = sortedTarget[idx];
+          const targetID = targetSlot ? (targetSlot as { TimeslotID?: string }).TimeslotID : null;
+          if (sourceID && targetID) {
+            timeslotMap.set(sourceID, targetID);
+          }
+        });
+
+        // Get target day timeslot IDs for clearing
+        const targetTimeslotIDs = new Set(sortedTarget.map((ts) => (ts as { TimeslotID?: string }).TimeslotID));
+
+        // Remove existing schedules from target day
+        const nonTargetSchedules = teacherSchedule.filter((schedule) => {
+          const sched = schedule as { TimeslotID?: string };
+          return !targetTimeslotIDs.has(sched.TimeslotID || '');
+        });
+
+        // Copy schedules from source day to target day
+        const copiedSchedules = teacherSchedule
+          .filter((schedule) => {
+            const sched = schedule as { TimeslotID?: string };
+            return timeslotMap.has(sched.TimeslotID || '');
+          })
+          .map((schedule) => {
+            const sched = schedule as { ClassID: string; TimeslotID: string; SubjectCode: string; GradeID: string; RoomID?: number; RespID?: number };
+            const newTimeslotID = timeslotMap.get(sched.TimeslotID) || sched.TimeslotID;
+            const newClassID = `${sched.GradeID}-${newTimeslotID}`;
+            
+            return {
+              ClassID: newClassID,
+              TimeslotID: newTimeslotID,
+              SubjectCode: sched.SubjectCode,
+              GradeID: sched.GradeID,
+              RoomID: sched.RoomID || null,
+              RespID: sched.RespID || null,
+            };
+          });
+
+        // Combine non-target schedules with copied schedules
+        const newScheduleData = [
+          ...nonTargetSchedules.map((s) => {
+            const sched = s as { ClassID: string; TimeslotID: string; SubjectCode: string; GradeID: string; RoomID?: number; RespID?: number };
+            return {
+              ClassID: sched.ClassID,
+              TimeslotID: sched.TimeslotID,
+              SubjectCode: sched.SubjectCode,
+              GradeID: sched.GradeID,
+              RoomID: sched.RoomID || null,
+              RespID: sched.RespID || null,
+            };
+          }),
+          ...copiedSchedules,
+        ];
+
+        // Sync updated schedule
+        const result = await syncTeacherScheduleAction({
+          TeacherID: parseInt(currentTeacherID),
+          AcademicYear: parseInt(academicYear),
+          Semester: semester,
+          Schedule: newScheduleData,
+        });
+
+        if (result.success) {
+          await mutateTeacherSchedule();
+          await mutateConflicts();
+          setIsDirty(false);
+          enqueueSnackbar(`✅ คัดลอกตารางจาก${dayMap[sourceDay - 1]}ไป${dayMap[targetDay - 1]}สำเร็จ`, { variant: 'success' });
+        } else {
+          enqueueSnackbar('❌ เกิดข้อผิดพลาดในการคัดลอกตาราง', { variant: 'error' });
+        }
+      } catch (error) {
+        console.error('Copy day error:', error);
+        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการคัดลอกตาราง', { variant: 'error' });
+      }
+    })();
+  }, [currentTeacherID, teacherSchedule, timeslots, academicYear, semester, scheduledSubjects, pushHistory, mutateTeacherSchedule, mutateConflicts]);
+
+  // ============================================================================
+  // HANDLERS - Undo (Phase 2)
+  // ============================================================================
+  const handleUndo = useCallback(() => {
+    void (async () => {
+      if (!canUndo()) {
+        enqueueSnackbar('ไม่มีประวัติที่จะย้อนกลับ', { variant: 'info' });
+        return;
+      }
+
+      try {
+        undo();
+        await mutateTeacherSchedule();
+        await mutateConflicts();
+        setIsDirty(true);
+        enqueueSnackbar('↩️ ย้อนกลับสำเร็จ', { variant: 'success' });
+      } catch (error) {
+        console.error('Undo error:', error);
+        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการย้อนกลับ', { variant: 'error' });
+      }
+    })();
+  }, [canUndo, undo, mutateTeacherSchedule, mutateConflicts]);
+
+  // ============================================================================
+  // HANDLERS - Redo (Phase 2)
+  // ============================================================================
+  const handleRedo = useCallback(() => {
+    void (async () => {
+      if (!canRedo()) {
+        enqueueSnackbar('ไม่มีประวัติที่จะทำซ้ำ', { variant: 'info' });
+        return;
+      }
+
+      try {
+        redo();
+        await mutateTeacherSchedule();
+        await mutateConflicts();
+        setIsDirty(true);
+        enqueueSnackbar('↪️ ทำซ้ำสำเร็จ', { variant: 'success' });
+      } catch (error) {
+        console.error('Redo error:', error);
+        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการทำซ้ำ', { variant: 'error' });
+      }
+    })();
+  }, [canRedo, redo, mutateTeacherSchedule, mutateConflicts]);
+
+  // ============================================================================
+  // HANDLERS - Auto Arrange (Phase 2)
+  // ============================================================================
+  const handleAutoArrange = useCallback(() => {
+    // TODO: Implement auto arrange algorithm or show "coming soon" dialog
+    // This would require complex constraint satisfaction logic
+    enqueueSnackbar('🚧 ฟีเจอร์จัดตารางอัตโนมัติกำลังพัฒนา', { variant: 'info' });
   }, []);
 
   // ============================================================================
@@ -467,6 +782,144 @@ export default function ArrangementPage() {
     // TODO: Get from lock data
     return new Set<string>();
   }, []);
+
+  // ============================================================================
+  // COMPUTED - Progress Data (Phase 2)
+  // ============================================================================
+  const overallProgress = useMemo(() => {
+    if (!timeslots || !teacherSchedule || !Array.isArray(teacherSchedule)) {
+      return {
+        totalSlots: 0,
+        filledSlots: 0,
+        conflictSlots: 0,
+      };
+    }
+
+    return {
+      totalSlots: timeslots.length,
+      filledSlots: teacherSchedule.length,
+      conflictSlots: conflicts?.length || 0,
+    };
+  }, [timeslots, teacherSchedule, conflicts]);
+
+  // Multi-teacher progress calculation - fetch all teachers' schedules
+  const { data: allTeacherSchedules } = useSWR(
+    allTeachers && timeslots ? `all-teacher-schedules-${academicYear}-${semester}` : null,
+    async () => {
+      if (!allTeachers || !timeslots) return [];
+
+      // Fetch schedules for all teachers
+      const schedulePromises = (allTeachers as unknown[]).map(async (t) => {
+        const teacher = t as { TeacherID?: number; Firstname?: string; Lastname?: string };
+        const teacherId = teacher.TeacherID;
+        if (!teacherId) return null;
+
+        try {
+          const result = await getTeacherScheduleAction({ TeacherID: teacherId });
+          if (!result || !result.success || !result.data) return null;
+
+          return {
+            teacherId,
+            teacherName: `${teacher.Firstname || ''} ${teacher.Lastname || ''}`,
+            schedule: Array.isArray(result.data) ? result.data : [],
+          };
+        } catch (error) {
+          console.error(`Error fetching schedule for teacher ${teacherId}:`, error);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(schedulePromises);
+      return results.filter(Boolean);
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  const teacherProgressData = useMemo(() => {
+    if (!allTeacherSchedules || !timeslots || !allTeachers) {
+      return [];
+    }
+
+    const totalSlots = timeslots.length;
+
+    // Map all teachers to progress items
+    return (allTeacherSchedules as unknown[])
+      .map((item) => {
+        const data = item as { 
+          teacherId?: number; 
+          teacherName?: string; 
+          schedule?: unknown[]; 
+        };
+        if (!data.teacherId) return null;
+
+        const completedSlots = data.schedule?.length || 0;
+        
+        // Get conflicts for this teacher (if they match current teacher)
+        const conflictSlots = currentTeacherID && parseInt(currentTeacherID) === data.teacherId
+          ? (conflicts?.length || 0)
+          : 0; // We don't have conflict data for non-selected teachers yet
+
+        return {
+          id: String(data.teacherId),
+          name: data.teacherName || '',
+          total: totalSlots,
+          completed: completedSlots,
+          conflicts: conflictSlots,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+  }, [allTeacherSchedules, timeslots, allTeachers, currentTeacherID, conflicts]);
+
+  const classProgressData = useMemo(() => {
+    if (!teacherSchedule || !Array.isArray(teacherSchedule) || !gradeLevels) {
+      return [];
+    }
+
+    // Group schedules by GradeID
+    const gradeScheduleMap = new Map<string, number>();
+    teacherSchedule.forEach((schedule) => {
+      const sched = schedule as { GradeID?: string };
+      const gradeId = sched.GradeID;
+      if (gradeId) {
+        gradeScheduleMap.set(gradeId, (gradeScheduleMap.get(gradeId) || 0) + 1);
+      }
+    });
+
+    // Get conflicts by class
+    const gradeConflictMap = new Map<string, number>();
+    if (conflicts && Array.isArray(conflicts)) {
+      conflicts.forEach((conflict) => {
+        const conf = conflict as { GradeID?: string };
+        const gradeId = conf.GradeID;
+        if (gradeId) {
+          gradeConflictMap.set(gradeId, (gradeConflictMap.get(gradeId) || 0) + 1);
+        }
+      });
+    }
+
+    // Calculate expected periods per class (from config)
+    const periodsPerWeek = timetableConfig.totalPeriodsPerWeek || 35;
+
+    // Map to ProgressItem format
+    return Array.from(gradeScheduleMap.entries()).map(([gradeId, completed]) => {
+      const grade = (gradeLevels as unknown[]).find((g) => {
+        const level = g as { GradeID?: string };
+        return level.GradeID === gradeId;
+      });
+      const gradeData = grade as { Year?: number; Number?: number };
+
+      return {
+        id: gradeId,
+        name: `ม.${gradeData.Year || '?'}/${gradeData.Number || '?'}`,
+        total: periodsPerWeek,
+        completed,
+        conflicts: gradeConflictMap.get(gradeId) || 0,
+      };
+    });
+  }, [teacherSchedule, gradeLevels, conflicts, timetableConfig]);
 
   // ============================================================================
   // LOADING STATE
@@ -542,33 +995,44 @@ export default function ArrangementPage() {
                 </Alert>
               ) : (
                 <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3}>
-                  {/* Subject Palette */}
+                  {/* Subject Palette - Phase 2 Enhanced */}
                   <Box sx={{ width: { xs: '100%', lg: 300 }, flexShrink: 0 }}>
-                    <SubjectPalette
-                      subjects={availableSubjects || []}
-                      scheduledSubjects={scheduledSubjects}
-                      onSubjectClick={() => {/* TODO: Handle subject click */}}
-                      selectedSubject={activeSubject}
+                    <SearchableSubjectPalette
+                      respData={availableSubjects || []}
+                      dropOutOfZone={() => {
+                        // Handle subject dropped outside grid - no action needed
+                      }}
+                      clickOrDragToSelectSubject={(subject) => {
+                        setActiveSubject(subject);
+                      }}
+                      storeSelectedSubject={activeSubject || {}}
+                      teacher={teacherData as teacher}
                     />
                   </Box>
 
                   {/* Main Content */}
                   <Box sx={{ flex: 1 }}>
                     <Stack spacing={2}>
-                      {/* Action Toolbar */}
-                      <ActionToolbar
-                        scheduledCount={scheduledSubjects.length}
-                        canUndo={false}
-                        canRedo={false}
-                        hasSchedules={scheduledSubjects.length > 0}
+                      {/* Action Toolbar - Phase 2 Enhanced */}
+                      <ScheduleActionToolbar
+                        onClearDay={handleClearDay}
                         onClearAll={handleClearAll}
-                        onUndo={() => {/* TODO: Implement undo */}}
-                        onRedo={() => {/* TODO: Implement redo */}}
-                        onCopyDay={() => {/* TODO: Implement copy day */}}
-                        onRefresh={() => {
-                          void mutateTeacherSchedule();
-                          void mutateConflicts();
-                        }}
+                        onCopyDay={handleCopyDay}
+                        onUndo={handleUndo}
+                        onRedo={handleRedo}
+                        onAutoArrange={handleAutoArrange}
+                        canUndo={canUndo()}
+                        canRedo={canRedo()}
+                        hasChanges={isDirty}
+                        totalSlots={timeslots?.length || 0}
+                        filledSlots={scheduledSubjects.length}
+                      />
+
+                      {/* Progress Indicators - Phase 2 Enhanced */}
+                      <ScheduleProgressIndicators
+                        overallProgress={overallProgress}
+                        teacherProgress={teacherProgressData}
+                        classProgress={classProgressData}
                       />
 
                       {/* Timetable Grid */}

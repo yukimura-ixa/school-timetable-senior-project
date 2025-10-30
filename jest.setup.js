@@ -64,6 +64,7 @@ jest.mock('@/libs/prisma', () => {
     teachers_responsibility: {
       findMany: jest.fn().mockResolvedValue([]),
       update: jest.fn().mockResolvedValue({}),
+      count: jest.fn().mockResolvedValue(0),
     },
     timeslot: {
       findMany: jest.fn().mockResolvedValue([
@@ -80,7 +81,20 @@ jest.mock('@/libs/prisma', () => {
     table_config: {
       findFirst: jest.fn().mockResolvedValue({ AcademicYear: 2566, Semester: 'SEMESTER_1', Config: {} }),
       findUnique: jest.fn().mockResolvedValue(null),
+      findMany: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({}),
       upsert: jest.fn().mockResolvedValue({}),
+      delete: jest.fn().mockResolvedValue({}),
+      count: jest.fn().mockResolvedValue(0),
+    },
+    program: {
+      findMany: jest.fn().mockResolvedValue([]),
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({}),
+      delete: jest.fn().mockResolvedValue({}),
+      count: jest.fn().mockResolvedValue(0),
     },
     $transaction: jest.fn((callback) => callback(mockPrismaClient)),
   };

@@ -1,6 +1,4 @@
 {
-    // Prisma settings - point to correct schema file only
-    "prisma.schema": "${workspaceFolder}/prisma/schema.prisma",
     "[prisma]": {
         "editor.defaultFormatter": "Prisma.prisma"
     },

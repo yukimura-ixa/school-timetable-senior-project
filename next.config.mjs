@@ -10,15 +10,15 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    optimizePackageImports: [
-      '@mui/material',
-      '@mui/icons-material',
-      'recharts',
-      '@dnd-kit/core',
-      '@dnd-kit/sortable',
-    ],
-  },
+  // experimental: {
+  //   optimizePackageImports: [
+  //     '@mui/material',
+  //     '@mui/icons-material',
+  //     'recharts',
+  //     '@dnd-kit/core',
+  //     '@dnd-kit/sortable',
+  //   ],
+  // },
 };
 
 export default nextConfig;

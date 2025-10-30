@@ -7,7 +7,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LockIcon from "@mui/icons-material/Lock";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { fetcher } from "@/libs/axios";
+import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
 import useSWR from "swr";
 
 function Schedule() {
@@ -20,15 +20,20 @@ function Schedule() {
   ); //from "1-2566" to ["1", "2566"]
   const path = pathName.substring(0, 16);
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
+  
   const tableConfig = useSWR(
-    "/config/getConfig?AcademicYear=" +
-      academicYear +
-      "&Semester=SEMESTER_" +
-      semester,
-    fetcher,
+    `timetable-config-${academicYear}-${semester}`,
+    async () => {
+      const result = await getTimetableConfigAction(
+        parseInt(academicYear),
+        `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
+      );
+      return result.success ? result.data : null;
+    }
   );
+  
   useEffect(() => {
-    setIsSetTimeslot(() => tableConfig.data != undefined);
+    setIsSetTimeslot(() => tableConfig.data !== undefined);
   }, [tableConfig.isValidating, tableConfig.data]);
 
   const [tabSelect, setTabSelect] = useState<string>("");

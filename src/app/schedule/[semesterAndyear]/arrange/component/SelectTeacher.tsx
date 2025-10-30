@@ -1,5 +1,5 @@
 "use client"
-import { useTeacherData } from "@/app/_hooks/teacherData";
+import { useTeachers } from "@/hooks";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -11,7 +11,7 @@ type Props = {
 
 function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
   const pathName = usePathname();
-  const allTeacher = useTeacherData();
+  const allTeacher = useTeachers();
   const router = useRouter();
   const current = currentTeacher
   const [teacher, setTeacher] = useState(Object.keys(currentTeacher).length !== 0 ? `${current.Prefix}${current.Firstname} ${current.Lastname}` : "")

@@ -545,7 +545,10 @@ async function main() {
     responsibilities.push(resp);
   }
   
-  console.log(`✅ Created ${responsibilities.length} teacher responsibilities`); 
+  console.log(`✅ Created ${responsibilities.length} teacher responsibilities`);
+
+  // Helper function to get teachers by department
+  const getTeachersByDept = (dept: string) =>
     teachers.filter(t => t.Department === dept);
 
   // Helper function to get subjects by name pattern
@@ -630,11 +633,14 @@ async function main() {
   // 4. English
   const englishTeachers = getTeachersByDept('ภาษาอังกฤษ');
   const englishSubjects = createdSubjects.filter(s => s.Category === 'ภาษาต่างประเทศ');
-  for (let i = 0; i < gradeLevels.length; i++) {
+  for (let i = 0; i < gradeLevels.length && englishSubjects.length > 0; i++) {
     const gradeLevel = gradeLevels[i];
     const teacher = englishTeachers[i % englishTeachers.length];
-    const subject = gradeLevel.Year <= 3 ? englishSubjects[0] : englishSubjects[3];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    const subjectIndex = gradeLevel.Year <= 3 ? 0 : Math.min(3, englishSubjects.length - 1);
+    const subject = englishSubjects[subjectIndex];
+    if (subject) {
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, subject.SubjectCode, 3);
+    }
   }
 
   // 5. Social Studies

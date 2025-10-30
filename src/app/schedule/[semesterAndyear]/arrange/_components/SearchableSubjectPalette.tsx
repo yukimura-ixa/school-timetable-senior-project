@@ -44,7 +44,7 @@ interface SearchableSubjectPaletteProps {
   teacher: teacher;
 }
 
-export default function SearchableSubjectPalette({
+export function SearchableSubjectPalette({
   respData,
   dropOutOfZone,
   storeSelectedSubject,
@@ -63,8 +63,10 @@ export default function SearchableSubjectPalette({
   // ============================================================================
   
   const filteredSubjects = useMemo(() => {
-    // Filter out items without GradeID (required by SubjectItem)
-    let filtered = respData.filter((item) => !!item.GradeID);
+    // Filter out items without required fields (GradeID, SubjectCode, SubjectName)
+    let filtered = respData.filter(
+      (item) => !!item.GradeID && !!item.SubjectCode && !!item.SubjectName
+    );
 
     // Search filter (subject code or name)
     if (searchQuery.trim()) {
@@ -96,7 +98,8 @@ export default function SearchableSubjectPalette({
       });
     }
 
-    return filtered as Array<SubjectDataType & { GradeID: string }>;
+    // Type assertion: after filtering, we know these fields are non-null
+    return filtered as Array<SubjectDataType & { GradeID: string; SubjectCode: string; SubjectName: string }>;
   }, [respData, searchQuery, categoryFilter, yearFilter]);
 
   // ============================================================================

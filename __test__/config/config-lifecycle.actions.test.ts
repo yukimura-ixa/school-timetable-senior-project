@@ -1,46 +1,19 @@
 /**
  * Config Lifecycle Actions Tests
  * Unit tests for Server Actions with mocked Prisma
+ * 
+ * Note: Prisma is mocked globally in jest.setup.js
+ * Jest globals (describe, it, expect, jest, beforeEach) are available globally
  */
 
-import { describe, it, expect, jest, beforeEach } from "@jest/globals";
 import {
   updateConfigStatusAction,
   updateConfigCompletenessAction,
   getConfigWithCompletenessAction,
 } from "@/features/config/application/actions/config-lifecycle.actions";
-
-// Mock Prisma
-jest.mock("@/libs/prisma", () => ({
-  __esModule: true,
-  default: {
-    table_config: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    timeslot: {
-      count: jest.fn(),
-    },
-    teachers_responsibility: {
-      count: jest.fn(),
-    },
-    subject: {
-      count: jest.fn(),
-    },
-    gradelevel: {
-      count: jest.fn(),
-    },
-    room: {
-      count: jest.fn(),
-    },
-    class_schedule: {
-      count: jest.fn(),
-    },
-  },
-}));
-
 import prisma from "@/libs/prisma";
 
+// Cast to mocked type for access to mock methods
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe("updateConfigStatusAction", () => {
@@ -400,22 +373,18 @@ describe("getConfigWithCompletenessAction", () => {
 
     mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
     mockPrisma.timeslot.count.mockResolvedValue(0);
-    mockPrisma.teacher.count.mockResolvedValue(0);
-    mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.program.count.mockResolvedValue(0);
-    mockPrisma.rooms.count.mockResolvedValue(0);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
+    mockPrisma.class_schedule.count.mockResolvedValue(0);
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
       semester: "SEMESTER_1",
     });
 
-    // All count queries should be called
+    // The counts that this action actually calls should be checked
     expect(mockPrisma.timeslot.count).toHaveBeenCalled();
-    expect(mockPrisma.teacher.count).toHaveBeenCalled();
-    expect(mockPrisma.subject.count).toHaveBeenCalled();
-    expect(mockPrisma.program.count).toHaveBeenCalled();
-    expect(mockPrisma.rooms.count).toHaveBeenCalled();
+    expect(mockPrisma.teachers_responsibility.count).toHaveBeenCalled();
+    expect(mockPrisma.class_schedule.count).toHaveBeenCalled();
     expect(result.success).toBe(true);
   });
 
@@ -524,10 +493,10 @@ describe("Integration scenarios", () => {
   it("should update completeness as data is added", async () => {
     // Initially no data
     mockPrisma.timeslot.count.mockResolvedValue(0);
-    mockPrisma.teacher.count.mockResolvedValue(0);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
     mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.program.count.mockResolvedValue(0);
-    mockPrisma.rooms.count.mockResolvedValue(0);
+    mockPrisma.gradelevel.count.mockResolvedValue(0);
+    mockPrisma.room.count.mockResolvedValue(0);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 0,
     } as any);
@@ -553,7 +522,7 @@ describe("Integration scenarios", () => {
     expect(result2.data?.completeness).toBe(30);
 
     // Add teachers and subjects
-    mockPrisma.teacher.count.mockResolvedValue(15);
+    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
     mockPrisma.subject.count.mockResolvedValue(12);
     mockPrisma.table_config.update.mockResolvedValue({
       configCompleteness: 70,
@@ -567,3 +536,4 @@ describe("Integration scenarios", () => {
     expect(result3.data?.completeness).toBe(70);
   });
 });
+

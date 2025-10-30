@@ -1,7 +1,7 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
-import { useGradeLevelData } from "../../../_hooks/gradeLevelData";
+import { useGradeLevels } from "@/hooks";
 
 type Props = {
   Grade: any;
@@ -10,7 +10,7 @@ type Props = {
 };
 
 function SelectedClassRoom(props: Props) {
-  const { data, isLoading, error, mutate } = useGradeLevelData();
+  const { data, isLoading, error, mutate } = useGradeLevels();
   const asdas = () => {
     let a = data.filter((item) => item.Year == 1).map((item) => item)
     console.log(props.Grade)

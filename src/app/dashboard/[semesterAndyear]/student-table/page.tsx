@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from "react";
 import useSWR from "swr";
 import { useReactToPrint } from "react-to-print";
 
-import { useGradeLevelData } from "@/app/_hooks/gradeLevelData";
+import { useGradeLevels } from "@/hooks";
 import Loading from "@/app/loading";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import ErrorState from "@/components/mui/ErrorState";
@@ -56,7 +56,7 @@ function StudentTablePage() {
     },
   );
 
-  const gradeLevelData = useGradeLevelData();
+  const gradeLevelData = useGradeLevels();
 
   const classData = useMemo(() => classDataResponse ?? [], [classDataResponse]);
   const timeSlotData = useMemo(

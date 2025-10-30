@@ -14,7 +14,8 @@ import Counter from "./component/Counter";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import api, { fetcher } from "@/libs/axios";
+import api from "@/libs/axios";
+import { getConfigByTermAction } from "@/features/config/application/actions/config.actions";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
@@ -52,16 +53,45 @@ function TimetableConfigValue() {
   });
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
   const tableConfig = useSWR(
-    `/config/getConfig?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
-    fetcher,
+    `config-${academicYear}-${semester}`,
+    async () => {
+      const result = await getConfigByTermAction({
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
+      });
+      return result.success ? result.data : null;
+    }
   );
 
   useEffect(() => {
-    const checkSetTimeslot = tableConfig.data != undefined;
-    console.log(tableConfig.isLoading);
+    const checkSetTimeslot = tableConfig.data !== undefined;
     setIsSetTimeslot(() => checkSetTimeslot);
-    if (tableConfig.data) {
-      setConfigData(tableConfig.data.Config);
+    if (tableConfig.data && tableConfig.data.Config) {
+      // Map table_config.Config JSON to legacy local state format
+      // Config is stored as unstructured JSON, so we need to parse it carefully
+      try {
+        const config = tableConfig.data.Config as any;
+        setConfigData({
+          Days: config.Days || ["MON", "TUE", "WED", "THU", "FRI"],
+          AcademicYear: tableConfig.data.AcademicYear,
+          Semester: tableConfig.data.Semester,
+          StartTime: config.StartTime || "08:30",
+          BreakDuration: config.BreakDuration || 50,
+          BreakTimeslots: {
+            Junior: config.BreakTimeslots?.Junior || 4,
+            Senior: config.BreakTimeslots?.Senior || 5,
+          },
+          Duration: config.Duration || 50,
+          TimeslotPerDay: config.TimeslotPerDay || 8,
+          MiniBreak: {
+            Duration: config.MiniBreak?.Duration || 10,
+            SlotNumber: config.MiniBreak?.SlotNumber || 2,
+          },
+          HasMinibreak: config.HasMinibreak || false,
+        });
+      } catch (error) {
+        console.error("Error parsing config JSON:", error);
+      }
     }
   }, [tableConfig.isValidating, academicYear, semester]);
   const handleChangeStartTime = (e: any) => {
@@ -303,7 +333,7 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={String(configData.MiniBreak.SlotNumber)}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }: { data: any }): JSX.Element => (
+                  renderItem={({ data }: { data: any }): React.JSX.Element => (
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeMiniBreak}
@@ -361,7 +391,7 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={String(configData.BreakTimeslots.Senior)}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }: { data: any }): JSX.Element => (
+                  renderItem={({ data }: { data: any }): React.JSX.Element => (
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeBreakTimeS}
@@ -382,7 +412,7 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={String(configData.BreakTimeslots.Junior)}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }: { data: any }): JSX.Element => (
+                  renderItem={({ data }: { data: any }): React.JSX.Element => (
                     <li className="w-[70px]">{data}</li>
                   )}
                   handleChange={handleChangeBreakTimeJ}

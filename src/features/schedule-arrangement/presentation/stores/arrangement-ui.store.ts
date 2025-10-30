@@ -11,46 +11,29 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { SubjectData, TimeslotData } from '@/types';
 import type { class_schedule } from '@/prisma/generated';
 
+// Phase 1: Import strict types from schedule.types.ts
+import type {
+  SubjectData,
+  TimeslotData,
+  SubjectPayload,
+  TimeslotChange,
+  TeacherData,
+  BreakSlotData,
+  DayOfWeekDisplay,
+} from '@/types/schedule.types';
+
 // ============================================================================
-// Type Definitions
+// Type Definitions (imported from schedule.types.ts)
 // ============================================================================
 
-// SubjectData and TimeslotData imported from @/types
-
-/**
- * Teacher data structure
- */
-export interface TeacherData {
-  TeacherID: number | null;
-  Firstname: string;
-  Lastname: string;
-  Prefix: string;
-  Department: string;
-  Email: string;
-  Role: string;
-}
-
-/**
- * Time slot change payload
- */
-export interface TimeslotChange {
-  source: string;
-  destination: string;
-}
-
-/**
- * Subject addition payload for modal
- */
-export interface SubjectPayload {
-  timeslotID: string;
-  selectedSubject: SubjectData;
-}
+// Phase 1: All main types imported from @/types/schedule.types
+// Local definitions removed to avoid conflicts
 
 /**
  * Error display state by timeslot
+ * Legacy type - TODO: migrate to TimeslotErrorState from schedule.types.ts
  */
 export interface ErrorState {
   [timeslotID: string]: boolean;
@@ -66,15 +49,15 @@ interface ArrangementUIState {
   teacherData: TeacherData;
 
   // === Subject Selection & Dragging ===
-  selectedSubject: SubjectData;
+  selectedSubject: SubjectData | null; // Changed from non-null to nullable
   draggedSubject: SubjectData | null;
   yearSelected: number | null;
 
   // === Subject Change/Swap Operations ===
-  changeTimeSlotSubject: SubjectData;
-  destinationSubject: SubjectData;
+  changeTimeSlotSubject: SubjectData | null; // Changed from non-null to nullable
+  destinationSubject: SubjectData | null; // Changed from non-null to nullable
   timeslotIDtoChange: TimeslotChange;
-  isCilckToChangeSubject: boolean;
+  isClickToChangeSubject: boolean; // Fixed typo: was isCilckToChangeSubject
 
   // === Subject Data ===
   subjectData: SubjectData[];
@@ -84,14 +67,14 @@ interface ArrangementUIState {
   timeSlotData: {
     AllData: TimeslotData[];
     SlotAmount: number[];
-    DayOfWeek: Array<{ Day: string; TextColor: string; BgColor: string }>;
-    BreakSlot: Array<{ TimeslotID: string; Breaktime: string; SlotNumber: number }>;
+    DayOfWeek: DayOfWeekDisplay[]; // Use proper type
+    BreakSlot: BreakSlotData[]; // Use proper type
   };
   lockData: class_schedule[];
 
   // === Modal State ===
   isActiveModal: boolean;
-  subjectPayload: SubjectPayload;
+  subjectPayload: SubjectPayload | null; // Changed to nullable
 
   // === Error & Lock Display ===
   showErrorMsgByTimeslotID: ErrorState;
@@ -105,6 +88,13 @@ interface ArrangementUIState {
     academicYear: number | null;
     semester: string | null;
     gradeLevel: string | null;
+  };
+
+  // === History Stack (Undo/Redo) ===
+  history: {
+    past: SubjectData[][];
+    present: SubjectData[];
+    future: SubjectData[][];
   };
 }
 
@@ -157,6 +147,14 @@ interface ArrangementUIActions {
   // === Filter Actions ===
   setFilters: (filters: Partial<ArrangementUIState['filters']>) => void;
 
+  // === History Actions (Undo/Redo) ===
+  pushHistory: (scheduledSubjects: SubjectData[]) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
+  clearHistory: () => void;
+
   // === Reset Actions ===
   resetAllState: () => void;
   resetOnTeacherChange: () => void;
@@ -170,25 +168,25 @@ const initialState: ArrangementUIState = {
   // Teacher
   currentTeacherID: null,
   teacherData: {
-    TeacherID: null,
-    Firstname: '',
-    Lastname: '',
-    Prefix: '',
-    Department: '',
-    Email: '',
-    Role: 'teacher',
+    teacherID: 0, // Changed from TeacherID, non-null with default
+    firstname: '',
+    lastname: '',
+    prefix: '',
+    department: '',
+    email: '',
+    role: 'teacher',
   },
 
-  // Subject Selection
-  selectedSubject: {},
+  // Subject Selection - now properly null
+  selectedSubject: null,
   draggedSubject: null,
   yearSelected: null,
 
-  // Subject Change
-  changeTimeSlotSubject: {},
-  destinationSubject: {},
+  // Subject Change - now properly null
+  changeTimeSlotSubject: null,
+  destinationSubject: null,
   timeslotIDtoChange: { source: '', destination: '' },
-  isCilckToChangeSubject: false,
+  isClickToChangeSubject: false, // Fixed typo
 
   // Subject Data
   subjectData: [],
@@ -203,9 +201,9 @@ const initialState: ArrangementUIState = {
   },
   lockData: [],
 
-  // Modal
+  // Modal - now properly null
   isActiveModal: false,
-  subjectPayload: { timeslotID: '', selectedSubject: {} },
+  subjectPayload: null,
 
   // Error Display
   showErrorMsgByTimeslotID: {},
@@ -219,6 +217,13 @@ const initialState: ArrangementUIState = {
     academicYear: null,
     semester: null,
     gradeLevel: null,
+  },
+
+  // History Stack
+  history: {
+    past: [],
+    present: [],
+    future: [],
   },
 };
 
@@ -245,7 +250,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
         set(
           {
             selectedSubject: subject,
-            yearSelected: subject.gradelevel?.Year || null,
+            yearSelected: subject?.gradelevel?.year || null, // Fixed casing: Year -> year
           },
           undefined,
           'arrangement/setSelectedSubject',
@@ -260,7 +265,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
       clearSelectedSubject: () =>
         set(
           {
-            selectedSubject: {},
+            selectedSubject: null,
             draggedSubject: null,
             yearSelected: null,
           },
@@ -282,20 +287,20 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
       setTimeslotIDtoChange: (change) =>
         set({ timeslotIDtoChange: change }, undefined, 'arrangement/setTimeslotIDtoChange'),
 
-      setIsCilckToChangeSubject: (isClicked) =>
+      setIsClickToChangeSubject: (isClicked: boolean) => // Fixed typo, added type
         set(
-          { isCilckToChangeSubject: isClicked },
+          { isClickToChangeSubject: isClicked },
           undefined,
-          'arrangement/setIsCilckToChangeSubject',
+          'arrangement/setIsClickToChangeSubject',
         ),
 
       clearChangeSubjectState: () =>
         set(
           {
-            changeTimeSlotSubject: {},
-            destinationSubject: {},
+            changeTimeSlotSubject: null,
+            destinationSubject: null,
             timeslotIDtoChange: { source: '', destination: '' },
-            isCilckToChangeSubject: false,
+            isClickToChangeSubject: false, // Fixed typo
           },
           undefined,
           'arrangement/clearChangeSubjectState',
@@ -320,7 +325,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
       removeSubjectFromData: (subjectCode) =>
         set(
           (state) => ({
-            subjectData: state.subjectData.filter((s) => s.SubjectCode !== subjectCode),
+            subjectData: state.subjectData.filter((s) => s.subjectCode !== subjectCode), // Fixed casing
           }),
           undefined,
           'arrangement/removeSubjectFromData',
@@ -362,7 +367,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
 
       closeModal: () =>
         set(
-          { isActiveModal: false, subjectPayload: { timeslotID: '', selectedSubject: {} } },
+          { isActiveModal: false, subjectPayload: null }, // Fixed: use null instead of empty object
           undefined,
           'arrangement/closeModal',
         ),
@@ -418,22 +423,109 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
           'arrangement/setFilters',
         ),
 
+      // === History Actions (Undo/Redo) ===
+      pushHistory: (scheduledSubjects) =>
+        set(
+          (state) => ({
+            history: {
+              past: [...state.history.past, state.history.present],
+              present: scheduledSubjects,
+              future: [], // Clear future when new action is performed
+            },
+            scheduledSubjects,
+          }),
+          undefined,
+          'arrangement/pushHistory',
+        ),
+
+      undo: () =>
+        set(
+          (state) => {
+            const { past, present, future } = state.history;
+            if (past.length === 0) return state;
+
+            const previous = past[past.length - 1];
+            const newPast = past.slice(0, past.length - 1);
+
+            return {
+              history: {
+                past: newPast,
+                present: previous,
+                future: [present, ...future],
+              },
+              scheduledSubjects: previous,
+            };
+          },
+          undefined,
+          'arrangement/undo',
+        ),
+
+      redo: () =>
+        set(
+          (state) => {
+            const { past, present, future } = state.history;
+            if (future.length === 0) return state;
+
+            const next = future[0];
+            const newFuture = future.slice(1);
+
+            return {
+              history: {
+                past: [...past, present],
+                present: next,
+                future: newFuture,
+              },
+              scheduledSubjects: next,
+            };
+          },
+          undefined,
+          'arrangement/redo',
+        ),
+
+      canUndo: () => {
+        const state = get();
+        return state.history.past.length > 0;
+      },
+
+      canRedo: () => {
+        const state = get();
+        return state.history.future.length > 0;
+      },
+
+      clearHistory: () =>
+        set(
+          {
+            history: {
+              past: [],
+              present: [],
+              future: [],
+            },
+          },
+          undefined,
+          'arrangement/clearHistory',
+        ),
+
       // === Reset Actions ===
       resetAllState: () => set(initialState, undefined, 'arrangement/resetAllState'),
 
       resetOnTeacherChange: () =>
         set(
           {
-            selectedSubject: {},
+            selectedSubject: null, // Fixed: use null
             draggedSubject: null,
             yearSelected: null,
-            changeTimeSlotSubject: {},
-            destinationSubject: {},
+            changeTimeSlotSubject: null, // Fixed: use null
+            destinationSubject: null, // Fixed: use null
             timeslotIDtoChange: { source: '', destination: '' },
-            isCilckToChangeSubject: false,
-            subjectPayload: { timeslotID: '', selectedSubject: {} },
+            isClickToChangeSubject: false, // Fixed typo
+            subjectPayload: null, // Fixed: use null
             showErrorMsgByTimeslotID: {},
             showLockDataMsgByTimeslotID: {},
+            history: {
+              past: [],
+              present: [],
+              future: [],
+            },
           },
           undefined,
           'arrangement/resetOnTeacherChange',

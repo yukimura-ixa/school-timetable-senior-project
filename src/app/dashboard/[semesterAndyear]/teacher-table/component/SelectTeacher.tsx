@@ -1,4 +1,4 @@
-import { useTeacherData } from "@/app/_hooks/teacherData";
+import { useTeachers } from "@/hooks";
 import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
@@ -22,7 +22,7 @@ const formatTeacherName = (teacher?: Record<string, any>) => {
 };
 
 function SelectTeacher({ setTeacherID, currentTeacher = {} }: Props) {
-  const allTeacher = useTeacherData();
+  const allTeacher = useTeachers();
   const [teacher, setTeacher] = useState<string>(formatTeacherName(currentTeacher));
 
   useEffect(() => {

@@ -5,10 +5,10 @@ import { MdAddCircle } from "react-icons/md";
 import { TbSettings, TbTrash } from "react-icons/tb";
 import { useParams } from "next/navigation";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { useLockData } from "@/app/_hooks/lockData";
+import { useLockedSchedules } from "@/hooks";
 import LockScheduleForm from "./LockScheduleForm";
 import { useConfirmDialog } from "@/components/dialogs";
-import type { LockScheduleExtended } from "@/types/lock-schedule";
+import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
 import { deleteLocksAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { Box } from "@mui/material";
@@ -29,9 +29,9 @@ function LockSchedule() {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
-  const lockData = useLockData(parseInt(academicYear), parseInt(semester));
+  const lockData = useLockedSchedules(parseInt(academicYear), parseInt(semester));
 
-  const [selectedLock, setSelectedLock] = useState<LockScheduleExtended | null>(null);
+  const [selectedLock, setSelectedLock] = useState<GroupedLockedSchedule | null>(null);
 
   const handleClickAddLockSchedule = () => {
     setSelectedLock(null);
@@ -44,7 +44,7 @@ function LockSchedule() {
     setLockScheduleFormActive(true);
   };
 
-  const handleClickDeleteLockSchedule = async (item: LockScheduleExtended) => {
+  const handleClickDeleteLockSchedule = async (item: GroupedLockedSchedule) => {
     const confirmed = await confirm({
       title: "ลบข้อมูลคาบล็อก",
       message: `คุณต้องการลบข้อมูลคาบล็อก "${item.SubjectCode} - ${item.SubjectName}" ใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
@@ -61,13 +61,11 @@ function LockSchedule() {
     });
 
     try {
-      // Build ClassIDs array from GradeIDs (lock schedule may span multiple classes)
-      // If there's a specific ClassID, use that; otherwise build from GradeIDs pattern
-      const classIds = (item as any).ClassIDs || [item.ClassID];
-      await deleteLocksAction(classIds);
+      // Use ClassIDs from grouped schedule
+      await deleteLocksAction({ ClassIDs: item.ClassIDs });
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
-      lockData.mutate();
+      await lockData.mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
@@ -110,7 +108,7 @@ function LockSchedule() {
       ) : null}
       <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
         {lockData.data.map((item, lockIndex) => (
-          <Fragment key={`${item.SubjectCode}${item.DayOfWeek}`}>
+          <Fragment key={`${item.SubjectCode}-${lockIndex}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
                 <div className="flex justify-between items-center gap-3">
                   <p
