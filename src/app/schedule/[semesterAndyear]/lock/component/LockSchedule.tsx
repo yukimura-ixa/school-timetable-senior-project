@@ -13,6 +13,8 @@ import { deleteLocksAction } from "@/features/lock/application/actions/lock.acti
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import {
   Box,
+  Button,
+  Stack,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -20,6 +22,8 @@ import {
 import {
   ViewList as ViewListIcon,
   CalendarMonth as CalendarIcon,
+  ContentPaste as TemplateIcon,
+  ContentCopy as BulkIcon,
 } from "@mui/icons-material";
 import {
   CardSkeleton,
@@ -27,12 +31,16 @@ import {
   NetworkErrorEmptyState,
 } from "@/components/feedback";
 import LockCalendarView from "./LockCalendarView";
+import BulkLockModal from "./BulkLockModal";
+import LockTemplatesModal from "./LockTemplatesModal";
 
 type ViewMode = "list" | "calendar";
 
 function LockSchedule() {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
     useState<boolean>(false);
+  const [bulkLockModalOpen, setBulkLockModalOpen] = useState<boolean>(false);
+  const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     // Load preference from localStorage
     if (typeof window !== "undefined") {
@@ -51,6 +59,9 @@ function LockSchedule() {
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   
   const lockData = useLockedSchedules(parseInt(academicYear), parseInt(semester));
+  
+  // Derive ConfigID from semesterAndyear params
+  const configId = `${semester}-${academicYear}`;
 
   const [selectedLock, setSelectedLock] = useState<GroupedLockedSchedule | null>(null);
 
@@ -121,7 +132,7 @@ function LockSchedule() {
   }
 
   if (lockData.error) {
-    return <NetworkErrorEmptyState onRetry={() => lockData.mutate()} />;
+    return <NetworkErrorEmptyState onRetry={() => void lockData.mutate()} />;
   }
 
   if (!lockData.data || lockData.data.length === 0) {
@@ -134,13 +145,33 @@ function LockSchedule() {
       {lockScheduleFormActive ? (
         <LockScheduleForm
           closeModal={() => setLockScheduleFormActive(false)}
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
           data={selectedLock as any}
-          mutate={() => lockData.mutate()}
+          mutate={() => void lockData.mutate()}
         />
       ) : null}
 
-      {/* View Toggle */}
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
+      {/* Action Buttons and View Toggle */}
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Stack direction="row" spacing={2}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<BulkIcon />}
+            onClick={() => setBulkLockModalOpen(true)}
+          >
+            ล็อกหลายคาบ
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<TemplateIcon />}
+            onClick={() => setTemplatesModalOpen(true)}
+          >
+            ใช้เทมเพลต
+          </Button>
+        </Stack>
+        
         <ToggleButtonGroup
           value={viewMode}
           exclusive
@@ -348,6 +379,30 @@ function LockSchedule() {
           </div>
         </div>
       )}
+
+      {/* Bulk Lock Modal */}
+      <BulkLockModal
+        open={bulkLockModalOpen}
+        onClose={() => setBulkLockModalOpen(false)}
+        configId={configId}
+        onSuccess={() => {
+          void lockData.mutate();
+          setBulkLockModalOpen(false);
+        }}
+      />
+
+      {/* Lock Templates Modal */}
+      <LockTemplatesModal
+        open={templatesModalOpen}
+        onClose={() => setTemplatesModalOpen(false)}
+        academicYear={parseInt(academicYear)}
+        semester={parseInt(semester)}
+        configId={configId}
+        onSuccess={() => {
+          void lockData.mutate();
+          setTemplatesModalOpen(false);
+        }}
+      />
     </>
   );
 }

@@ -658,28 +658,34 @@ async function main() {
   // 6. Physical Education
   const peTeachers = getTeachersByDept('พลศึกษา');
   const peSubjects = getSubjectsByPattern('สุขศึกษา-พลศึกษา');
-  for (let i = 0; i < gradeLevels.length; i++) {
-    const gradeLevel = gradeLevels[i];
-    const teacher = peTeachers[i % peTeachers.length];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, peSubjects[0].SubjectCode, 1);
+  if (peSubjects.length > 0 && peTeachers.length > 0) {
+    for (let i = 0; i < gradeLevels.length; i++) {
+      const gradeLevel = gradeLevels[i];
+      const teacher = peTeachers[i % peTeachers.length];
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, peSubjects[0].SubjectCode, 1);
+    }
   }
 
   // 7. Arts
   const artsTeachers = getTeachersByDept('ศิลปะ');
   const artsSubjects = getSubjectsByPattern('ศิลปะ');
-  for (let i = 0; i < gradeLevels.length; i++) {
-    const gradeLevel = gradeLevels[i];
-    const teacher = artsTeachers[i % artsTeachers.length];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, artsSubjects[0].SubjectCode, 2);
+  if (artsSubjects.length > 0 && artsTeachers.length > 0) {
+    for (let i = 0; i < gradeLevels.length; i++) {
+      const gradeLevel = gradeLevels[i];
+      const teacher = artsTeachers[i % artsTeachers.length];
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, artsSubjects[0].SubjectCode, 2);
+    }
   }
 
   // 8. Career/Technology
   const careerTeachers = getTeachersByDept('การงานอาชีพ');
   const careerSubjects = getSubjectsByPattern('การงานอาชีพ');
-  for (let i = 0; i < gradeLevels.length; i++) {
-    const gradeLevel = gradeLevels[i];
-    const teacher = careerTeachers[i % careerTeachers.length];
-    await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, careerSubjects[0].SubjectCode, 1);
+  if (careerSubjects.length > 0 && careerTeachers.length > 0) {
+    for (let i = 0; i < gradeLevels.length; i++) {
+      const gradeLevel = gradeLevels[i];
+      const teacher = careerTeachers[i % careerTeachers.length];
+      await assignResponsibility(teacher.TeacherID, gradeLevel.GradeID, careerSubjects[0].SubjectCode, 1);
+    }
   }
 
   // 9. Assign activity subjects (ชุมนุม, ลูกเสือ) to teachers who have capacity

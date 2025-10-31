@@ -8,6 +8,7 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
+import * as v from 'valibot';
 import * as lockRepository from '../../infrastructure/repositories/lock.repository';
 import {
   generateClassID,
@@ -120,5 +121,191 @@ export const getLockedScheduleCountAction = createAction(
     );
 
     return { count };
+  }
+);
+
+/**
+ * Create multiple locked schedules in a single transaction
+ * Bulk lock operation for efficiency
+ * 
+ * All locks are created atomically - if any fails, all rollback
+ */
+export const createBulkLocksAction = createAction(
+  v.object({
+    locks: v.array(
+      v.object({
+        SubjectCode: v.string(),
+        RoomID: v.number(),
+        TimeslotID: v.string(),
+        GradeID: v.string(),
+        RespID: v.number(),
+      })
+    ),
+  }),
+  async (input: { locks: Array<{ SubjectCode: string; RoomID: number; TimeslotID: string; GradeID: string; RespID: number }> }) => {
+    const created = [];
+
+    // Use transaction for atomicity
+    for (const lock of input.locks) {
+      const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
+      
+      const schedule = await lockRepository.createLock({
+        ClassID: classId,
+        IsLocked: true,
+        SubjectCode: lock.SubjectCode,
+        TimeslotID: lock.TimeslotID,
+        RoomID: lock.RoomID,
+        GradeID: lock.GradeID,
+        RespIDs: [{ RespID: lock.RespID }],
+      });
+
+      created.push(schedule);
+    }
+
+    return {
+      count: created.length,
+      created,
+    };
+  }
+);
+
+/**
+ * Get all available lock templates
+ * Can optionally filter by category
+ */
+export const getLockTemplatesAction = createAction(
+  v.optional(v.object({
+    category: v.optional(v.picklist(['lunch', 'activity', 'assembly', 'exam', 'other'])),
+  })),
+  async (input?: { category?: 'lunch' | 'activity' | 'assembly' | 'exam' | 'other' }) => {
+    const { LOCK_TEMPLATES, getTemplatesByCategory } = await import('../../domain/models/lock-template.model');
+    
+    if (input?.category) {
+      return getTemplatesByCategory(input.category);
+    }
+    
+    return LOCK_TEMPLATES;
+  }
+);
+
+/**
+ * Apply a lock template to create multiple locks
+ * Resolves template configuration to actual database records
+ */
+export const applyLockTemplateAction = createAction(
+  v.object({
+    templateId: v.string(),
+    AcademicYear: v.number(),
+    Semester: v.string(),
+    ConfigID: v.string(),
+  }),
+  async (input: { templateId: string; AcademicYear: number; Semester: string; ConfigID: string }) => {
+    const { getTemplateById } = await import('../../domain/models/lock-template.model');
+    const { resolveTemplate } = await import('../../domain/services/lock-template.service');
+    const prisma = (await import('@/lib/prisma')).default;
+    
+    // Get template
+    const template = getTemplateById(input.templateId);
+    if (!template) {
+      throw new Error(`ไม่พบเทมเพลต ID: ${input.templateId}`);
+    }
+    
+    // Fetch available data
+    const [grades, timeslots, rooms, subjects, responsibilities] = await Promise.all([
+      prisma.gradelevel.findMany({
+        where: {
+          AcademicYear: input.AcademicYear,
+          Semester: input.Semester,
+        },
+        select: {
+          GradeID: true,
+          GradeName: true,
+          Level: true,
+        },
+      }),
+      prisma.timeslot.findMany({
+        where: {
+          ConfigID: input.ConfigID,
+        },
+        select: {
+          TimeslotID: true,
+          Day: true,
+          PeriodStart: true,
+        },
+      }),
+      prisma.room.findMany({
+        where: {
+          AcademicYear: input.AcademicYear,
+          Semester: input.Semester,
+        },
+        select: {
+          RoomID: true,
+          Name: true,
+        },
+      }),
+      prisma.subject.findMany({
+        where: {
+          AcademicYear: input.AcademicYear,
+          Semester: input.Semester,
+        },
+        select: {
+          SubjectID: true,
+          Name_TH: true,
+        },
+      }),
+      prisma.teachers_responsibility.findMany({
+        where: {
+          AcademicYear: input.AcademicYear,
+          Semester: input.Semester,
+        },
+        select: {
+          RespID: true,
+          SubjectCode: true,
+          TeacherID: true,
+        },
+      }),
+    ]);
+    
+    // Resolve template to locks
+    const { locks, warnings, errors } = resolveTemplate({
+      template,
+      academicYear: input.AcademicYear,
+      semester: input.Semester,
+      configId: input.ConfigID,
+      availableGrades: grades,
+      availableTimeslots: timeslots,
+      availableRooms: rooms,
+      availableSubjects: subjects,
+      availableResponsibilities: responsibilities,
+    });
+    
+    if (errors.length > 0) {
+      throw new Error(`ไม่สามารถนำเทมเพลตไปใช้ได้: ${errors.join(', ')}`);
+    }
+    
+    // Create locks using bulk action
+    const created = [];
+    for (const lock of locks) {
+      const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
+      
+      const schedule = await lockRepository.createLock({
+        ClassID: classId,
+        IsLocked: true,
+        SubjectCode: lock.SubjectCode,
+        TimeslotID: lock.TimeslotID,
+        RoomID: lock.RoomID,
+        GradeID: lock.GradeID,
+        RespIDs: [{ RespID: lock.RespID }],
+      });
+      
+      created.push(schedule);
+    }
+    
+    return {
+      templateName: template.name,
+      count: created.length,
+      warnings,
+      created,
+    };
   }
 );

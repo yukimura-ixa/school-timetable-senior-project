@@ -172,6 +172,16 @@ export default async function DashboardPage({
             icon="📚"
             label="หลักสูตร"
           />
+          <QuickActionButton
+            href={`/dashboard/${semesterAndyear}/conflicts`}
+            icon="⚠️"
+            label="ตรวจสอบความซ้ำซ้อน"
+          />
+          <QuickActionButton
+            href={`/schedule/${semesterAndyear}/lock`}
+            icon="🔒"
+            label="ล็อกคาบเรียน"
+          />
         </div>
       </div>
 
