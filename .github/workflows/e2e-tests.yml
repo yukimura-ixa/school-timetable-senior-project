@@ -1,0 +1,86 @@
+# .github/workflows/e2e-tests.yml
+name: E2E Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    # Temporary PostgreSQL service container
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_timetable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install pnpm
+        run: npm install -g pnpm
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Setup environment
+        run: |
+          echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_timetable" >> .env.test.local
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env.test.local
+          echo "AUTH_GOOGLE_ID=${{ secrets.AUTH_GOOGLE_ID }}" >> .env.test.local
+          echo "AUTH_GOOGLE_SECRET=${{ secrets.AUTH_GOOGLE_SECRET }}" >> .env.test.local
+          echo "SEED_FOR_TESTS=true" >> .env.test.local
+          echo "SEED_CLEAN_DATA=true" >> .env.test.local
+          echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
+      
+      - name: Apply database migrations
+        run: pnpm db:deploy
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+      
+      - name: Seed test database (clean slate)
+        run: pnpm db:seed:clean
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+          SEED_FOR_TESTS: "true"
+          SEED_CLEAN_DATA: "true"
+      
+      - name: Install Playwright browsers
+        run: pnpm playwright:install
+      
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+      
+      - name: Upload test videos (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-videos
+          path: test-results/
+          retention-days: 7
+
+# Temporary database is automatically destroyed after job completes
