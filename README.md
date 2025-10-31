@@ -4,6 +4,7 @@
 
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.18-2D3748)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org/)
@@ -88,28 +89,35 @@ A comprehensive web application designed to streamline the process of creating a
 
 **Frontend:**
 
-- Next.js 16 (React Framework)
+- Next.js 16 (React Framework with React Compiler)
+- React 19.2 (UI Library)
 - Material-UI 7.3 (Component Library)
 - Tailwind CSS 4.1 (Styling)
 - TypeScript (Type Safety)
 
 **Backend:**
 
-- Next.js API Routes
-- Prisma ORM
-- NextAuth.js (Authentication with Google OAuth)
+- Next.js Server Actions & API Routes
+- Prisma ORM 6.18
+- NextAuth.js v5 (Authentication with Google OAuth)
+- Valibot (Runtime Validation)
 
 **Database:**
 
 - PostgreSQL 16
 - Cloud-hosted PostgreSQL (Production)
 
+**State Management & Data:**
+
+- Zustand (UI State Management)
+- SWR (Server State & Data Fetching)
+
 **Additional Libraries:**
 
 - ExcelJS (Excel export)
 - React-to-Print (PDF generation)
 - DnD Kit (Drag and drop)
-- SWR (Data fetching)
+- Recharts (Analytics & Charts)
 - Notistack (Notifications)
 
 ---
@@ -136,15 +144,25 @@ The system uses a relational database with the following main entities:
 
 **All project documentation has been organized in the `/docs` folder.**
 
+### Getting Started
+- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** ⭐ **START HERE** - Setup with OAuth bypass for local testing
+- **[OAuth Bypass Summary](docs/OAUTH_BYPASS_SUMMARY.md)** - Complete technical summary of dev bypass
+- **[Quickstart](docs/QUICKSTART.md)** - Quick setup guide
+
 ### Core Documentation
-- **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** - Setup instructions with OAuth bypass for testing
 - **[Documentation Index](docs/INDEX.md)** - Complete documentation catalog
-- **[Test Plan](docs/TEST_PLAN.md)** - 29 comprehensive test cases
+- **[Project Context](docs/PROJECT_CONTEXT.md)** - High-level project goals
 - **[Database Overview](docs/DATABASE_OVERVIEW.md)** - Schema and data model
 
-### Operations & Testing
-- **[Seeding and Testing Guide](docs/SEEDING_AND_TESTING_GUIDE.md)** - Production seeding and test workflows
-- **[ConfigID Format Migration](docs/CONFIGID_FORMAT_MIGRATION.md)** - ConfigID standardization plan
+### Testing
+- **[Test Plan](docs/TEST_PLAN.md)** - 29 comprehensive test cases
+- **[E2E Test Execution Guide](docs/E2E_TEST_EXECUTION_GUIDE.md)** - How to run E2E tests
+- **[Test Results Summary](docs/TEST_RESULTS_SUMMARY.md)** - Latest test status
+
+### Migrations & Architecture
+- **[Next.js 16 Migration](docs/LINTING_MIGRATION_NEXTJS16.md)** - Next.js 16 changes (no more `next lint`)
+- **[MUI v7 Migration](docs/MUI_MIGRATION_COMPLETE.md)** - Material-UI v7 upgrade summary
+- **[Architecture Decisions](docs/adr/)** - ADRs for key technical decisions
 
 ---
 
@@ -158,9 +176,7 @@ The system uses a relational database with the following main entities:
 - PostgreSQL 16 or higher
 - pnpm package manager
 
-### Installation
-
-
+### Quick Start
 
 1. **Clone the repository**
 
@@ -175,53 +191,64 @@ cd school-timetable-senior-project
 pnpm install
 ```
 
-3. **Set up PostgreSQL database**
+3. **Set up environment variables**
 
-```sql
-CREATE DATABASE "school-timetable-db-dev";
+Copy the example file and configure:
+
+```bash
+cp .env.example .env
 ```
 
-4. **Configure environment variables**
-
-Create a `.env` file in the root directory:
-
+**For local development (OAuth Bypass):**
 ```env
+# Enable dev bypass (local testing only - NEVER in production)
+ENABLE_DEV_BYPASS="true"
+DEV_USER_EMAIL="admin@test.com"
+DEV_USER_ROLE="admin"
+
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/school-timetable-db-dev"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
+```
 
-# Google OAuth (for authentication)
+**For production or Google OAuth:**
+```env
+# Disable dev bypass
+ENABLE_DEV_BYPASS="false"
+
+# Google OAuth credentials
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
+```
 
-# Firebase (optional, if using Firebase services)
-NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-firebase-auth-domain"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"
+📖 See [Development Guide](docs/DEVELOPMENT_GUIDE.md) for complete OAuth bypass setup
+
+4. **Set up PostgreSQL database**
+
+```sql
+CREATE DATABASE "school-timetable-db-dev";
 ```
 
 5. **Run database migrations**
 
 ```bash
-pnpm prisma migrate dev --name init
-pnpm prisma generate
+pnpm db:migrate     # Run migrations
+pnpm db:studio      # Open Prisma Studio (optional)
 ```
 
-6. **Seed test data (Optional)**
+6. **Seed test data** (Recommended for development)
 
 ```bash
-# Seed database with mock Thai school data
-pnpm prisma db seed
+# Clean seed with sample data
+pnpm db:seed:clean
 ```
 
 The system will create mock data for a medium-sized school:
 - 60 teachers, 18 classes, 40 rooms, 42+ subjects
 - Sample schedules with edge cases for testing
-
-📖 [See details](./prisma/QUICKSTART.md)
 
 7. **Start development server**
 
@@ -231,11 +258,41 @@ pnpm dev
 
 The application will be available at `http://localhost:3000`
 
+**First-time setup:** Click "เข้าสู่ระบบ (Dev Bypass)" to log in with admin access
+
 ### Building for Production
 
 ```bash
 pnpm build
 pnpm start
+```
+
+### Development Scripts
+
+```bash
+# Development
+pnpm dev                    # Start dev server
+pnpm lint                   # Run ESLint
+pnpm lint:fix               # Auto-fix linting issues
+pnpm format                 # Format with Prettier
+
+# Testing
+pnpm test                   # Run unit tests
+pnpm test:watch             # Watch mode
+pnpm test:e2e               # Run E2E tests
+pnpm test:e2e:ui            # E2E tests with UI
+pnpm test:report            # View test report
+
+# Database
+pnpm db:migrate             # Run migrations (dev)
+pnpm db:deploy              # Deploy migrations (prod)
+pnpm db:seed                # Seed database
+pnpm db:seed:clean          # Clean seed
+pnpm db:studio              # Open Prisma Studio
+
+# Admin tools
+pnpm admin:create           # Create admin user
+pnpm admin:verify           # Verify admin access
 ```
 
 ---

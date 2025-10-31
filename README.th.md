@@ -3,6 +3,7 @@
 > **[🇬🇧 English Version](README.md)** | **🇹🇭 เวอร์ชันภาษาไทย**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.18-2D3748)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1)](https://www.postgresql.org/)
@@ -85,28 +86,35 @@
 
 **ส่วนหน้าบ้าน (Frontend):**
 
-- Next.js 16 (React Framework)
+- Next.js 16 (React Framework with React Compiler)
+- React 19.2 (UI Library)
 - Material-UI 7.3 (Component Library)
 - Tailwind CSS 4.1 (Styling)
 - TypeScript (Type Safety)
 
 **ส่วนหลังบ้าน (Backend):**
 
-- Next.js API Routes
-- Prisma ORM
-- NextAuth.js (Authentication with Google OAuth)
+- Next.js Server Actions & API Routes
+- Prisma ORM 6.18
+- NextAuth.js v5 (Authentication with Google OAuth)
+- Valibot (Runtime Validation)
 
 **ฐานข้อมูล (Database):**
 
 - PostgreSQL 16
 - Cloud-hosted PostgreSQL (Production)
 
+**การจัดการ State และข้อมูล:**
+
+- Zustand (UI State Management)
+- SWR (Server State & Data Fetching)
+
 **ไลบรารีเสริม (Additional Libraries):**
 
 - ExcelJS (Excel export)
 - React-to-Print (PDF generation)
 - DnD Kit (Drag and drop)
-- SWR (Data fetching)
+- Recharts (Analytics & Charts)
 - Notistack (Notifications)
 
 ---
@@ -133,10 +141,25 @@
 
 **เอกสารทั้งหมดของโครงการจัดอยู่ในโฟลเดอร์ `/docs`**
 
-- **[คู่มือการพัฒนา](docs/DEVELOPMENT_GUIDE.md)** - คำแนะนำการติดตั้งพร้อมการข้าม OAuth สำหรับการทดสอบ
+### การเริ่มต้น
+- **[คู่มือการพัฒนา](docs/DEVELOPMENT_GUIDE.md)** ⭐ **เริ่มที่นี่** - การติดตั้งพร้อม OAuth bypass สำหรับการทดสอบ
+- **[สรุป OAuth Bypass](docs/OAUTH_BYPASS_SUMMARY.md)** - สรุปทางเทคนิคของ dev bypass
+- **[Quickstart](docs/QUICKSTART.md)** - คู่มือการติดตั้งอย่างรวดเร็ว
+
+### เอกสารหลัก
 - **[ดัชนีเอกสาร](docs/INDEX.md)** - แคตตาล็อกเอกสารฉบับสมบูรณ์
-- **[แผนการทดสอบ](docs/TEST_PLAN.md)** - 29 กรณีทดสอบที่ครอบคลุม
+- **[บริบทโครงการ](docs/PROJECT_CONTEXT.md)** - เป้าหมายโครงการในระดับสูง
 - **[ภาพรวมฐานข้อมูล](docs/DATABASE_OVERVIEW.md)** - โครงสร้างและโมเดลข้อมูล
+
+### การทดสอบ
+- **[แผนการทดสอบ](docs/TEST_PLAN.md)** - 29 กรณีทดสอบที่ครอบคลุม
+- **[คู่มือการทดสอบ E2E](docs/E2E_TEST_EXECUTION_GUIDE.md)** - วิธีการรันการทดสอบ E2E
+- **[สรุปผลการทดสอบ](docs/TEST_RESULTS_SUMMARY.md)** - สถานะการทดสอบล่าสุด
+
+### การอัปเกรดและสถาปัตยกรรม
+- **[การอัปเกรด Next.js 16](docs/LINTING_MIGRATION_NEXTJS16.md)** - การเปลี่ยนแปลงใน Next.js 16
+- **[การอัปเกรด MUI v7](docs/MUI_MIGRATION_COMPLETE.md)** - สรุปการอัปเกรด Material-UI v7
+- **[Architecture Decisions](docs/adr/)** - ADR สำหรับการตัดสินใจทางเทคนิค
 
 ---
 
@@ -173,45 +196,56 @@ CREATE DATABASE "school-timetable-db-dev";
 
 4. **ตั้งค่า environment variables**
 
-สร้างไฟล์ `.env` ในโฟลเดอร์หลัก:
+คัดลอกไฟล์ตัวอย่างและกำหนดค่า:
 
+```bash
+cp .env.example .env
+```
+
+**สำหรับการพัฒนาในเครื่อง (OAuth Bypass):**
 ```env
+# เปิดใช้งาน dev bypass (สำหรับทดสอบในเครื่องเท่านั้น - ห้ามใช้ใน production)
+ENABLE_DEV_BYPASS="true"
+DEV_USER_EMAIL="admin@test.com"
+DEV_USER_ROLE="admin"
+
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/school-timetable-db-dev"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="your-secret-key-here"
+```
 
-# Google OAuth (for authentication)
+**สำหรับ production หรือ Google OAuth:**
+```env
+# ปิดใช้งาน dev bypass
+ENABLE_DEV_BYPASS="false"
+
+# Google OAuth credentials
 GOOGLE_CLIENT_ID="your-google-client-id"
 GOOGLE_CLIENT_SECRET="your-google-client-secret"
-
-# Firebase (optional, if using Firebase services)
-NEXT_PUBLIC_FIREBASE_API_KEY="your-firebase-api-key"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="your-firebase-auth-domain"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="your-firebase-project-id"
 ```
+
+📖 ดู [คู่มือการพัฒนา](docs/DEVELOPMENT_GUIDE.md) สำหรับคำแนะนำ OAuth bypass แบบสมบูรณ์
 
 5. **รัน database migrations**
 
 ```bash
-pnpm prisma migrate dev --name init
-pnpm prisma generate
+pnpm db:migrate     # รัน migrations
+pnpm db:studio      # เปิด Prisma Studio (ตัวเลือก)
 ```
 
-6. **เติมข้อมูลทดสอบ (ตัวเลือก)**
+6. **เติมข้อมูลทดสอบ** (แนะนำสำหรับการพัฒนา)
 
 ```bash
-# Seed database with mock Thai school data
-pnpm prisma db seed
+# Clean seed พร้อมข้อมูลตัวอย่าง
+pnpm db:seed:clean
 ```
 
 ระบบจะสร้างข้อมูลจำลองสำหรับโรงเรียนขนาดกลาง:
 - 60 ครู, 18 ชั้นเรียน, 40 ห้องเรียน, 42+ วิชา
 - ตารางตัวอย่างพร้อม edge cases สำหรับทดสอบ
-
-📖 [ดูรายละเอียดเพิ่มเติม](./prisma/QUICKSTART.md)
 
 7. **เริ่มต้น development server**
 
@@ -221,11 +255,41 @@ pnpm dev
 
 แอปพลิเคชันจะพร้อมใช้งานที่ `http://localhost:3000`
 
+**การตั้งค่าครั้งแรก:** คลิก "เข้าสู่ระบบ (Dev Bypass)" เพื่อเข้าสู่ระบบด้วยสิทธิ์ admin
+
 ### สร้างเวอร์ชันสำหรับ Production
 
 ```bash
 pnpm build
 pnpm start
+```
+
+### คำสั่งสำหรับการพัฒนา
+
+```bash
+# การพัฒนา
+pnpm dev                    # เริ่ม dev server
+pnpm lint                   # รัน ESLint
+pnpm lint:fix               # แก้ไขปัญหา linting อัตโนมัติ
+pnpm format                 # จัดรูปแบบด้วย Prettier
+
+# การทดสอบ
+pnpm test                   # รัน unit tests
+pnpm test:watch             # โหมด watch
+pnpm test:e2e               # รัน E2E tests
+pnpm test:e2e:ui            # E2E tests พร้อม UI
+pnpm test:report            # ดูรายงานการทดสอบ
+
+# ฐานข้อมูล
+pnpm db:migrate             # รัน migrations (dev)
+pnpm db:deploy              # Deploy migrations (prod)
+pnpm db:seed                # Seed ฐานข้อมูล
+pnpm db:seed:clean          # Clean seed
+pnpm db:studio              # เปิด Prisma Studio
+
+# เครื่องมือ Admin
+pnpm admin:create           # สร้าง admin user
+pnpm admin:verify           # ตรวจสอบสิทธิ์ admin
 ```
 
 ---
