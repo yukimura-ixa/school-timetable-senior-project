@@ -5,9 +5,10 @@ import { getSummaryAction } from "@/features/class/application/actions/class.act
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
+import type { timeslot } from "@/prisma/generated";
 import TableHead from "./component/TableHead";
 import TableBody from "./component/TableBody";
 import TeacherList from "./component/TeacherList";
@@ -16,6 +17,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import TableResult from "./component/TableResult";
 import { ExportTeacherTable } from "./functions/ExportTeacherTable";
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
+import type { ActionResult } from "@/shared/lib/action-wrapper";
 const AllTimeslot = () => {
   // TODO: คาบล็อกแสดงเป็นตัวอักษรสีแดง
   const params = useParams();
@@ -52,9 +54,10 @@ const AllTimeslot = () => {
     { revalidateOnFocus: false },
   );
   function fetchTimeslotData() {
-    if (!fetchTimeSlot.isValidating && fetchTimeSlot.data && 'success' in fetchTimeSlot.data && fetchTimeSlot.data.success && fetchTimeSlot.data.data) {
-      const data = fetchTimeSlot.data.data;
-      let dayofweek = data
+    const result = fetchTimeSlot.data;
+    if (!fetchTimeSlot.isValidating && result?.success && result.data) {
+      const data: timeslot[] = result.data;
+      const dayofweek = data
         .map((day) => day.DayOfWeek)
         .filter(
           (item, index) =>
@@ -65,27 +68,27 @@ const AllTimeslot = () => {
           TextColor: dayOfWeekTextColor[item],
           BgColor: dayOfWeekColor[item],
         })); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
-      let slotAmount = data
-        .filter((item) => item.DayOfWeek == "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
+      const slotAmount = data
+        .filter((item) => item.DayOfWeek === "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
         .map((item, index) => index + 1); //ใช้สำหรับ map หัวตารางในเว็บ จะ map จาก data เป็น number of array => [1, 2, 3, 4, 5, 6, 7]
-      let breakTime = data
+      const breakTime = data
         .filter(
           (item) =>
-            (item.Breaktime == "BREAK_BOTH" ||
-              item.Breaktime == "BREAK_JUNIOR" ||
-              item.Breaktime == "BREAK_SENIOR") &&
-            item.DayOfWeek == "MON", //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
+            (item.Breaktime === "BREAK_BOTH" ||
+              item.Breaktime === "BREAK_JUNIOR" ||
+              item.Breaktime === "BREAK_SENIOR") &&
+            item.DayOfWeek === "MON", //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
         )
         .map((item) => ({
           TimeslotID: item.TimeslotID,
           Breaktime: item.Breaktime,
           SlotNumber: parseInt(item.TimeslotID.substring(10)),
         })); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
-      let startTime = {
+      const startTime = {
         Hours: new Date(data[0].StartTime).getHours() - 7, //พอแปลงมันเอาเวลาของ indo เลย -7 กลับไป
         Minutes: new Date(data[0].StartTime).getMinutes(),
       };
-      let duration = getMinutes(
+      const duration = getMinutes(
         new Date(data[0].EndTime).getTime() -
           new Date(data[0].StartTime).getTime(),
       ); //เอาเวลาจบลบเริ่มจะได้ duration
@@ -105,8 +108,9 @@ const AllTimeslot = () => {
     return minutes;
   };
   function fetchClassData() {
-    if (!fetchAllClassData.isValidating && fetchAllClassData.data && 'success' in fetchAllClassData.data && fetchAllClassData.data.success && fetchAllClassData.data.data) {
-      const data = fetchAllClassData.data.data;
+    const result = fetchAllClassData.data as ActionResult<any[]> | undefined;
+    if (!fetchAllClassData.isValidating && result?.success && result.data) {
+      const data = result.data as any[];
       setClassData(data);
     }
   }

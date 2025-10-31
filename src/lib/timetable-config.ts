@@ -5,7 +5,7 @@
  * Replaces hardcoded values throughout the application.
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import type { semester } from "@/prisma/generated";
 
 /**

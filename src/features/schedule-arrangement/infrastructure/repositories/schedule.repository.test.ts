@@ -6,11 +6,11 @@
  */
 
 import { ScheduleRepository } from './schedule.repository';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester } from '@/prisma/generated';
 
 // Mock Prisma client
-jest.mock('@/libs/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     class_schedule: {

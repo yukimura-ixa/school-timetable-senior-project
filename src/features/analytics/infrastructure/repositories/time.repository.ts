@@ -5,10 +5,10 @@
  * Provides data fetching methods for time-based analysis including peak hours and distribution by period/day.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { parseConfigId, extractDayFromTimeslotId, extractPeriodFromTimeslotId, getThaiDayLabel, formatPeriodTime } from '../../domain/services/calculation.service';
 import { DAYS_OF_WEEK } from '../../domain/types/analytics.types';
-import { day_of_week } from '@prisma/client';
+import type { day_of_week } from '@/prisma/generated';
 
 /**
  * Period distribution type

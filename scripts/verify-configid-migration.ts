@@ -15,7 +15,7 @@
  * - Suggested migration commands
  */
 
-import prisma from '../src/libs/prisma';
+import prisma from '../src/lib/prisma';
 
 interface ConfigIDIssue {
   table: string;

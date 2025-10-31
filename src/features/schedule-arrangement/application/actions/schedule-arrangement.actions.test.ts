@@ -8,14 +8,14 @@
  */
 
 // Mock auth.ts from libs folder
-jest.mock('@/libs/auth', () => ({
+jest.mock('@/lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({
     user: { id: 'test-user-123', email: 'test@example.com' },
   }),
 }));
 
 // Mock the Prisma client
-jest.mock('@/libs/prisma', () => ({
+jest.mock('@/lib/prisma', () => ({
   __esModule: true,
   default: {
     class_schedule: {
@@ -38,7 +38,7 @@ import {
   getSchedulesByTermAction,
   updateScheduleLockAction,
 } from './schedule-arrangement.actions';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 
 describe('Schedule Arrangement Actions', () => {
   beforeEach(() => {

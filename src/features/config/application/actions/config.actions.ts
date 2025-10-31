@@ -9,7 +9,7 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester } from '@/prisma/generated';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
 import {

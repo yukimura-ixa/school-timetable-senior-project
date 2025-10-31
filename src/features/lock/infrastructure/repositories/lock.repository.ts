@@ -5,7 +5,7 @@
  * Lock feature uses class_schedule table with IsLocked flag.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester } from '@/prisma/generated';
 
 /**

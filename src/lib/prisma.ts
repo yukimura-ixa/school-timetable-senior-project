@@ -1,6 +1,16 @@
-/**
- * Re-export of Prisma client for compatibility
- * Some modules import from @/lib/prisma, others from @/libs/prisma
- */
+import { PrismaClient } from '@/prisma/generated'
+import { withAccelerate } from '@prisma/extension-accelerate'
 
-export { default } from '@/libs/prisma';
+const globalForPrisma = global as unknown as { 
+    prisma: ReturnType<typeof createPrismaClient>
+}
+
+function createPrismaClient() {
+  return new PrismaClient().$extends(withAccelerate())
+}
+
+const prisma = globalForPrisma.prisma || createPrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+
+export default prisma

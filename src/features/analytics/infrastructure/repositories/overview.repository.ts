@@ -5,7 +5,7 @@
  * Handles data fetching for high-level statistics and health checks
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import type { OverviewStats } from "../../domain/types/analytics.types";
 import { parseConfigId } from "../../domain/services/calculation.service";
 

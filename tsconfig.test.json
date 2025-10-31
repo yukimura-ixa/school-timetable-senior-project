@@ -5,13 +5,18 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "bundler",
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "@testing-library/jest-dom"],
     "noEmit": true
   },
   "include": [
     "__test__/**/*.ts",
     "__test__/**/*.tsx",
-    "jest.setup.js"
+    "jest.setup.js",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "prisma/**/*.ts",
+    "prisma/**/*.d.ts",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"

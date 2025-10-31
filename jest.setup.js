@@ -2,7 +2,7 @@ import '@testing-library/jest-dom'
 import React from 'react'
 
 // Mock Auth.js to prevent ESM import errors
-jest.mock('@/libs/auth', () => ({
+jest.mock('@/lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({
     user: { 
       id: 'test-user-123', 
@@ -19,7 +19,7 @@ jest.mock('@/libs/auth', () => ({
 }));
 
 // Mock Prisma Client to prevent browser environment errors
-jest.mock('@/libs/prisma', () => {
+jest.mock('@/lib/prisma', () => {
   const mockPrismaClient = {
     teacher: {
       findMany: jest.fn().mockResolvedValue([]),

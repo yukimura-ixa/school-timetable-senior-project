@@ -135,14 +135,14 @@ export default function ConflictDetector() {
                 icon={<ErrorIcon />}
                 label={`พบ ${conflicts.totalConflicts} Conflict`}
                 color="error"
-                size="large"
+                size="medium"
               />
             ) : (
               <Chip
                 icon={<CheckCircleIcon />}
                 label="ไม่พบ Conflict"
                 color="success"
-                size="large"
+                size="medium"
               />
             )}
           </Stack>

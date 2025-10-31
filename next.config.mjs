@@ -1,4 +1,3 @@
-// @ts-expect-error: Sentry types are not yet ESM-compatible
 import {withSentryConfig} from '@sentry/nextjs';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,15 +11,6 @@ const nextConfig = {
       },
     ],
   },
-  // experimental: {
-  //   optimizePackageImports: [
-  //     '@mui/material',
-  //     '@mui/icons-material',
-  //     'recharts',
-  //     '@dnd-kit/core',
-  //     '@dnd-kit/sortable',
-  //   ],
-  // },
 };
 
 export default withSentryConfig(nextConfig, {

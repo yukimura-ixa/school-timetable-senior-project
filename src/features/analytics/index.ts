@@ -25,7 +25,13 @@ export { qualityRepository } from './infrastructure/repositories/quality.reposit
 export { timeRepository } from './infrastructure/repositories/time.repository';
 export { complianceRepository } from './infrastructure/repositories/compliance.repository';
 
-// Presentation Components
+// Presentation Components - Phase 1
 export { OverviewSection } from './presentation/components/OverviewSection';
 export { TeacherWorkloadSection } from './presentation/components/TeacherWorkloadSection';
 export { RoomUtilizationSection } from './presentation/components/RoomUtilizationSection';
+
+// Presentation Components - Phase 2
+export { SubjectDistributionSection } from './presentation/components/SubjectDistributionSection';
+export { QualityMetricsSection } from './presentation/components/QualityMetricsSection';
+export { TimeDistributionSection } from './presentation/components/TimeDistributionSection';
+export { ComplianceSection } from './presentation/components/ComplianceSection';

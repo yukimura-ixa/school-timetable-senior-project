@@ -5,7 +5,7 @@
  * Provides data fetching methods for subject distribution analysis by category, learning area, and program track.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { SubjectDistribution } from '../../domain/types/analytics.types';
 import { parseConfigId } from '../../domain/services/calculation.service';
 import { SUBJECT_CATEGORIES } from '../../domain/types/analytics.types';

@@ -12,9 +12,18 @@ import ExportAllProgram from "./function/ExportAllProgram";
 import { subjectCreditValues } from "@/models/credit-value";
 import { isUndefined } from "swr/_internal";
 
-type Props = {};
+type Props = Record<string, never>;
 
-const page = (props: Props) => {
+type CategoryType = "พื้นฐาน" | "เพิ่มเติม" | "กิจกรรมพัฒนาผู้เรียน";
+type SubjectRow = {
+  SubjectCode: string;
+  SubjectName: string;
+  Credit: keyof typeof subjectCreditValues;
+  Category: CategoryType;
+  teachers?: Array<{ TeacherFullName: string }>;
+};
+
+const page = (_props: Props) => {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   
@@ -33,34 +42,22 @@ const page = (props: Props) => {
     { revalidateOnFocus: false },
   );
   const convertDropdownItem = (gradeID: string) => {
-    return gradeID == ""
+    return gradeID === ""
       ? ""
       : `ม.${gradeID[0]}/${parseInt(gradeID.substring(1))}`;
   };
-  const primarySubjectData = () => {
-    if (!programOfGrade.isLoading && programOfGrade.data && 'success' in programOfGrade.data && programOfGrade.data.success && programOfGrade.data.data) {
-      return sortSubjectCategory(programOfGrade.data.data.subjects.filter(
-        (item: any) => item.Category === "พื้นฐาน",
-      ));
-    }
-    return [];
-  };
-  const extraSubjectData = () => {
-    if (!programOfGrade.isLoading && programOfGrade.data && 'success' in programOfGrade.data && programOfGrade.data.success && programOfGrade.data.data) {
-      return sortSubjectCategory(programOfGrade.data.data.subjects.filter(
-        (item: any) => item.Category === "เพิ่มเติม",
-      ));
-    }
-    return [];
-  };
-  const activitiesSubjectData = () => {
-    if (!programOfGrade.isLoading && programOfGrade.data && 'success' in programOfGrade.data && programOfGrade.data.success && programOfGrade.data.data) {
-      return sortSubjectCategory(programOfGrade.data.data.subjects.filter(
-        (item: any) => item.Category === "กิจกรรมพัฒนาผู้เรียน",
-      ));
-    }
-    return [];
-  };
+  const subjects: SubjectRow[] = (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data)
+    ? (programOfGrade.data.data.subjects as SubjectRow[])
+    : [];
+
+  const primarySubjectData = (): SubjectRow[] =>
+    sortSubjectCategory(subjects.filter((item) => item.Category === "พื้นฐาน"));
+
+  const extraSubjectData = (): SubjectRow[] =>
+    sortSubjectCategory(subjects.filter((item) => item.Category === "เพิ่มเติม"));
+
+  const activitiesSubjectData = (): SubjectRow[] =>
+    sortSubjectCategory(subjects.filter((item) => item.Category === "กิจกรรมพัฒนาผู้เรียน"));
   const TableHead = (): JSX.Element => (
     <>
     <tr className="bg-emerald-300 h-10 text-center font-bold">
@@ -85,7 +82,7 @@ const page = (props: Props) => {
     </tr>
     </>
   );
-  const CategoryTablerow = (props: any): JSX.Element => (
+  const CategoryTablerow = (props: { categoryName: string }): JSX.Element => (
     <tr className="h-10 bg-blue-100">
       <td></td>
       <td></td>
@@ -96,9 +93,10 @@ const page = (props: Props) => {
       <td></td>
     </tr>
   );
-  const SubjectDataRow = (props: any): JSX.Element =>
-    props.data.map((item: any, index: number) => (
-      <Fragment key={`${programOfGrade.data.GradeID}-${item.SubjectCode}`}>
+  const SubjectDataRow = (props: { data: SubjectRow[]; indexStart: number }): JSX.Element =>
+    (<>
+    {props.data.map((item, index) => (
+      <Fragment key={`${currentGradeID || 'unknown'}-${item.SubjectCode}`}>
         <DataList
           index={props.indexStart + index}
           SubjectCode={item.SubjectCode}
@@ -106,13 +104,21 @@ const page = (props: Props) => {
           Credit={item.Credit}
           Category={item.Category}
           TeacherFullName={
-            item.teachers.length == 1 ? item.teachers[0].TeacherFullName : ""
+            item.teachers?.length === 1 ? item.teachers[0].TeacherFullName : ""
           }
         />
       </Fragment>
-    ));
-  const DataList = (props: any): JSX.Element => (
-    <tr className="h-10" style={{backgroundColor : props.index % 2 == 0 ? "#f0f0f0" : "white" }}>
+    ))}
+    </>);
+  const DataList = (props: {
+    index: number;
+    SubjectCode: string;
+    SubjectName: string;
+    Credit: keyof typeof subjectCreditValues;
+    Category: SubjectRow["Category"];
+    TeacherFullName: string;
+  }): JSX.Element => (
+    <tr className="h-10" style={{backgroundColor : props.index % 2 === 0 ? "#f0f0f0" : "white" }}>
       <td className="text-center">
         <p>{props.index}</p>
       </td>
@@ -123,14 +129,14 @@ const page = (props: Props) => {
         <p>{props.SubjectName}</p>
       </td>
       <td className="text-center">
-        <p>{props.Category == "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[props.Credit]}</p>
+        <p>{props.Category === "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[props.Credit]}</p>
       </td>
       <td className="">
         <p>{props.TeacherFullName}</p>
       </td>
     </tr>
   );
-  const SumCredit = (props: any): JSX.Element => (
+  const SumCredit = (props: { title: string; credit: number }): JSX.Element => (
     <tr className="h-10 bg-cyan-100">
       <td></td>
       <td></td>
@@ -140,19 +146,19 @@ const page = (props: Props) => {
     </tr>
   )
   const getSumCreditValue = () => {
-    if (!programOfGrade.isLoading) {
-      return programOfGrade.data.subjects.filter(
-        (item: any) => item.Category !== "กิจกรรมพัฒนาผู้เรียน",
-      ).reduce((a: number, b: any) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
+    if (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data) {
+      return (programOfGrade.data.data.subjects as SubjectRow[])
+        .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
+        .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
     } else {
       return 0;
     }
   }
-  const sortSubjectCategory = (data: any[]) => {
+  const sortSubjectCategory = (data: SubjectRow[]) => {
     //ท ค ว ส พ ศ ก อ
-    let SubjectCodeVal: Record<string, number> = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
-    let sortedData = data.sort((a: any, b: any) => {
-      let getVal = (sCode: string) => {
+    const SubjectCodeVal: Record<string, number> = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
+    const sortedData = data.sort((a, b) => {
+      const getVal = (sCode: string) => {
         return isUndefined(SubjectCodeVal[sCode]) ? 9 : (SubjectCodeVal[sCode] ?? 9)
       }
       if(getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])){
@@ -178,7 +184,7 @@ const page = (props: Props) => {
             <Dropdown
               width={300}
               data={gradeLevelData.data.map((item) => item.GradeID)}
-              renderItem={({ data }: { data: any }) => (
+              renderItem={({ data }: { data: string }) => (
                 <>
                   <li>
                     <p>
@@ -189,11 +195,11 @@ const page = (props: Props) => {
               )}
               placeHolder="เลือกชั้นเรียน"
               currentValue={convertDropdownItem(currentGradeID)}
-              handleChange={(item: any) => setCurrentGradeID(item)}
+              handleChange={(item: string) => setCurrentGradeID(item)}
               searchFunction={undefined}
             />
           </div>
-          <div style={{display : currentGradeID == "" ? "none" : 'flex'}} className="w-full items-center flex justify-end">
+          <div style={{display : currentGradeID === "" ? "none" : 'flex'}} className="w-full items-center flex justify-end">
             <PrimaryButton
               handleClick={() =>
                 ExportAllProgram(

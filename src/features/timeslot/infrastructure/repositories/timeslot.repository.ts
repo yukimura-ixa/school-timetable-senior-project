@@ -7,7 +7,7 @@
  * @module timeslot.repository
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { Prisma, timeslot, semester } from '@/prisma/generated';
 import type { TimetableConfig } from '@/lib/timetable-config';
 import { generateConfigID } from '@/features/config/domain/services/config-validation.service';

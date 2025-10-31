@@ -30,7 +30,7 @@ export async function PublicClassesTable({ searchParams }: Props) {
     perPage: 25,
   });
 
-  if (result.data.length === 0) {
+  if (!result.data || result.data.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">

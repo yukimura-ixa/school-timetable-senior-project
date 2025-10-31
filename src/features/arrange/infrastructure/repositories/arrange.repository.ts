@@ -5,7 +5,7 @@
  * Handles all database operations related to arranging teacher timetables.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester, type Prisma } from '@/prisma/generated';
 
 // ============================================================================

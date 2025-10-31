@@ -17,7 +17,7 @@ export default async function RoomsManagePage() {
 
   return (
     <Suspense fallback={<TableSkeleton rows={6} />}>
-      <RoomsManageClient initialData={result.data} />
+      <RoomsManageClient initialData={result.success ? result.data : []} />
     </Suspense>
   );
 }

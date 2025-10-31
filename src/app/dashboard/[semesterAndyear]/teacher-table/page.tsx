@@ -15,7 +15,9 @@ import { getTeacherByIdAction } from "@/features/teacher/application/actions/tea
 import TimeSlot from "./component/Timeslot";
 import SelectTeacher from "./component/SelectTeacher";
 import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
-import { createTimeSlotTableData } from "../shared/timeSlot";
+import { createTimeSlotTableData, type TimeSlotTableData } from "../shared/timeSlot";
+import type { ScheduleEntry } from "../shared/timeSlot";
+import type { ActionResult } from "@/shared/lib/action-wrapper";
 
 interface Teacher {
   Prefix?: string;
@@ -42,7 +44,6 @@ function TeacherTablePage() {
 
   const {
     data: timeslotResponse,
-    error: timeslotError,
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
   } = useSWR(
@@ -60,7 +61,6 @@ function TeacherTablePage() {
 
   const {
     data: classDataResponse,
-    error: classError,
     isLoading: isClassLoading,
     isValidating: isClassValidating,
   } = useSWR(
@@ -82,7 +82,6 @@ function TeacherTablePage() {
 
   const {
     data: teacherResponse,
-    error: teacherError,
     isLoading: isTeacherLoading,
     isValidating: isTeacherValidating,
   } = useSWR(
@@ -95,18 +94,24 @@ function TeacherTablePage() {
     },
   );
 
-  const classData = useMemo(() => {
-    if (classDataResponse && 'success' in classDataResponse && classDataResponse.success && classDataResponse.data) {
-      return classDataResponse.data;
+  const hasTimeslotError = !timeslotResponse || ('success' in (timeslotResponse as object) && !(timeslotResponse as ActionResult<unknown>).success);
+  const hasClassError = classDataResponse && 'success' in (classDataResponse as object) && !(classDataResponse as ActionResult<unknown>).success;
+  const hasTeacherError = teacherResponse && 'success' in (teacherResponse as object) && !(teacherResponse as ActionResult<unknown>).success;
+
+  const classData = useMemo((): ScheduleEntry[] => {
+    const response = classDataResponse as ActionResult<ScheduleEntry[]> | undefined;
+    if (!response || !response.success || !response.data) {
+      return [];
     }
-    return [];
+    return response.data;
   }, [classDataResponse]);
   
-  const timeSlotData = useMemo(() => {
-    if (timeslotResponse && 'success' in timeslotResponse && timeslotResponse.success && timeslotResponse.data) {
-      return createTimeSlotTableData(timeslotResponse.data, classData);
-    }
-    return { timeslots: [], days: [], breakSlots: [] };
+  const timeSlotData: TimeSlotTableData = useMemo(() => {
+    const response = timeslotResponse;
+    const timeslots = (response && typeof response === 'object' && 'success' in response && response.success && 'data' in response && response.data) 
+      ? response.data 
+      : undefined;
+    return createTimeSlotTableData(timeslots, classData);
   }, [timeslotResponse, classData]);
 
   const showLoadingOverlay =
@@ -120,13 +125,13 @@ function TeacherTablePage() {
       : false);
 
   const errors: string[] = [];
-  if (timeslotError) {
+  if (hasTimeslotError) {
     errors.push("ไม่สามารถโหลดข้อมูลคาบเรียนได้");
   }
-  if (classError && selectedTeacherId) {
+  if (hasClassError && selectedTeacherId) {
     errors.push("ไม่สามารถโหลดตารางสอนของครูที่เลือกได้");
   }
-  if (teacherError && selectedTeacherId) {
+  if (hasTeacherError && selectedTeacherId) {
     errors.push("ไม่สามารถโหลดข้อมูลครูที่เลือกได้");
   }
 
@@ -163,9 +168,9 @@ function TeacherTablePage() {
     isTeacherLoading ||
     isTeacherValidating ||
     !selectedTeacherId ||
-    !!classError ||
-    !!timeslotError ||
-    !!teacherError;
+    hasClassError ||
+    hasTimeslotError ||
+    hasTeacherError;
 
   return (
     <div className="flex flex-col gap-3">
@@ -182,9 +187,9 @@ function TeacherTablePage() {
           ))}
           {selectedTeacherId &&
             teacherResponse &&
-            !classError &&
-            !timeslotError &&
-            !teacherError && (
+            !hasClassError &&
+            !hasTimeslotError &&
+            !hasTeacherError && (
               <>
                 <div className="flex w-full justify-end gap-3">
                   <PrimaryButton

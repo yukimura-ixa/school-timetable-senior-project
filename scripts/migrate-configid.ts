@@ -15,8 +15,8 @@
  * Safe to run multiple times (idempotent)
  */
 
-import prisma from '../src/libs/prisma';
-import { Prisma } from '@prisma/client';
+import prisma from '../src/lib/prisma';
+import { Prisma } from '@/prisma/generated';
 
 interface MigrationResult {
   success: boolean;

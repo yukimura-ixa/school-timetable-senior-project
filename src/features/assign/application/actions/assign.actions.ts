@@ -9,7 +9,7 @@
 
 import { semester } from '@/prisma/generated';
 import * as v from 'valibot';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 
 // Schemas
 import {

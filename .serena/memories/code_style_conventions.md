@@ -386,7 +386,7 @@ export default function InteractiveForm() {
 ### Type Imports
 ```typescript
 // ✅ Use type-only imports when possible
-import type { Teacher } from "@prisma/client";
+import type { Teacher } from "@/prisma/generated";
 import { type GetTeacherInput } from "../schemas/teacher.schemas";
 
 // ❌ Avoid mixing types and values in one import
@@ -396,7 +396,7 @@ import { Teacher, getTeacherByIdSchema } from "...";
 ### Prisma Types
 ```typescript
 // ✅ Use Prisma-generated types
-import type { teacher, subject } from "@prisma/client";
+import type { teacher, subject } from "@/prisma/generated";
 
 // For complex queries with includes
 type TeacherWithSubjects = teacher & {

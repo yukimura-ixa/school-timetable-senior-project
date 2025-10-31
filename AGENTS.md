@@ -82,7 +82,7 @@ Example workflows:
 - Maintain a Prisma client singleton with `withAccelerate` to avoid HMR churn.
 
 ```ts
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/prisma/generated";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 const globalForPrisma = globalThis as { prisma?: PrismaClient };

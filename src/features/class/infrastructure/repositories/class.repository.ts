@@ -5,7 +5,7 @@
  * Handles all database interactions via Prisma.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester, Prisma } from '@/prisma/generated';
 
 /**

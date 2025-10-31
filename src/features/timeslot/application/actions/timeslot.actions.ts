@@ -27,7 +27,7 @@ import {
   type DeleteTimeslotsByTermInput,
   type GetTimeslotByIdInput,
 } from '../schemas/timeslot.schemas';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * Get timeslots for a specific academic year and semester

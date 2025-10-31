@@ -7,7 +7,7 @@
  * @module program.repository
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { 
   CreateProgramInput, 
   UpdateProgramInput,
@@ -164,8 +164,10 @@ export const programRepository = {
       ...gradelevel.program,
       subjects: gradelevel.program.program_subject.map(ps => ({
         ...ps.subject,
-        Credits: ps.Credits,
+        MinCredits: ps.MinCredits,
+        MaxCredits: ps.MaxCredits,
         Category: ps.Category,
+        IsMandatory: ps.IsMandatory,
         SortOrder: ps.SortOrder,
       })),
     };

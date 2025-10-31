@@ -16,7 +16,7 @@ import { TeacherManageClient } from "@/app/management/teacher/component/TeacherM
 import { RoomsManageClient } from "@/app/management/rooms/component/RoomsManageClient";
 import { SubjectManageClient } from "@/app/management/subject/component/SubjectManageClient";
 import { GradeLevelManageClient } from "@/app/management/gradelevel/component/GradeLevelManageClient";
-import type { teacher, room, subject, gradelevel } from "@prisma/client";
+import type { teacher, room, subject, gradelevel } from "@/prisma/generated";
 
 // Mock Next.js router
 jest.mock("next/navigation", () => ({

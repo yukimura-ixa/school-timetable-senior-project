@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import { day_of_week, semester, breaktime } from "@/prisma/generated";
 
 export const runtime = "nodejs";

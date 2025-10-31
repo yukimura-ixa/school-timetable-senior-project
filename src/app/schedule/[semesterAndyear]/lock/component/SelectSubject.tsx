@@ -9,6 +9,7 @@ import { useSemesterSync } from "@/hooks";
 import { getLockedRespsAction } from "@/features/assign/application/actions/assign.actions";
 import type { InputChangeHandler } from "@/types/events";
 import type { SubjectWithResponsibilities } from "@/types/lock-schedule";
+import type { ActionResult } from "@/shared/lib/action-wrapper";
 
 type Props = {
   currentValue: string;
@@ -39,11 +40,12 @@ function SelectSubject(props: Props) {
   const [subjectFilter, setSubjectFilter] = useState<SubjectWithResponsibilities[]>([]);
   
   useEffect(() => {
-    if (respData.data && 'success' in respData.data && respData.data.success && respData.data.data) {
-      setSubject(respData.data.data as SubjectWithResponsibilities[]);
-      setSubjectFilter(respData.data.data as SubjectWithResponsibilities[]);
+    const result = respData.data as ActionResult<SubjectWithResponsibilities[]> | undefined;
+    if (result?.success && result.data) {
+      setSubject(result.data);
+      setSubjectFilter(result.data);
     }
-  }, [respData.isValidating]);
+  }, [respData.isValidating, respData.data]);
   
   const searchHandle: InputChangeHandler = (event) => {
     const text = event.target.value;

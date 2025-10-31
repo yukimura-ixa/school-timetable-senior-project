@@ -12,7 +12,7 @@
  * @module schedule.repository
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester } from '@/prisma/generated';
 import type { ExistingSchedule, TeacherResponsibility } from '../../domain/models/conflict.model';
 

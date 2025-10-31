@@ -9,7 +9,7 @@
  */
 
 import { cache } from 'react';
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { CreateTeacherInput, UpdateTeacherInput } from '../../application/schemas/teacher.schemas';
 
 /**

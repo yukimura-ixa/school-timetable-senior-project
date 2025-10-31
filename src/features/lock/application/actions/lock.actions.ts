@@ -10,6 +10,7 @@
 import { createAction } from '@/shared/lib/action-wrapper';
 import * as v from 'valibot';
 import * as lockRepository from '../../infrastructure/repositories/lock.repository';
+import type { Prisma, semester, class_schedule } from '@/prisma/generated';
 import {
   generateClassID,
   groupSchedulesBySubject,
@@ -64,7 +65,7 @@ export const createLockAction = createAction(
       throw new Error(validationError);
     }
 
-    const created = [];
+  const created: class_schedule[] = [];
     const respIds = input.RespIDs.map((respId) => ({ RespID: respId }));
 
     // Nested loops: for each timeslot, for each grade
@@ -74,7 +75,8 @@ export const createLockAction = createAction(
         const classId = generateClassID(timeslotId, input.SubjectCode, gradeId);
 
         // Create single locked schedule
-        const schedule = await lockRepository.createLock({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const schedule: class_schedule = await lockRepository.createLock({
           ClassID: classId,
           IsLocked: true,
           SubjectCode: input.SubjectCode,
@@ -99,7 +101,8 @@ export const createLockAction = createAction(
 export const deleteLocksAction = createAction(
   deleteLocksSchema,
   async (classIds: DeleteLocksInput) => {
-    const result = await lockRepository.deleteMany(classIds);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const result: Prisma.BatchPayload = await lockRepository.deleteMany(classIds);
 
     return {
       count: result.count,
@@ -143,13 +146,14 @@ export const createBulkLocksAction = createAction(
     ),
   }),
   async (input: { locks: Array<{ SubjectCode: string; RoomID: number; TimeslotID: string; GradeID: string; RespID: number }> }) => {
-    const created = [];
+  const created: class_schedule[] = [];
 
     // Use transaction for atomicity
     for (const lock of input.locks) {
       const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
       
-      const schedule = await lockRepository.createLock({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const schedule: class_schedule = await lockRepository.createLock({
         ClassID: classId,
         IsLocked: true,
         SubjectCode: lock.SubjectCode,
@@ -213,50 +217,39 @@ export const applyLockTemplateAction = createAction(
     // Fetch available data
     const [grades, timeslots, rooms, subjects, responsibilities] = await Promise.all([
       prisma.gradelevel.findMany({
-        where: {
-          AcademicYear: input.AcademicYear,
-          Semester: input.Semester,
-        },
         select: {
           GradeID: true,
-          GradeName: true,
-          Level: true,
+          Year: true,
+          Number: true,
         },
       }),
       prisma.timeslot.findMany({
         where: {
-          ConfigID: input.ConfigID,
+          AcademicYear: input.AcademicYear,
+          Semester: input.Semester as semester,
         },
         select: {
           TimeslotID: true,
-          Day: true,
-          PeriodStart: true,
+          DayOfWeek: true,
+          StartTime: true,
         },
       }),
       prisma.room.findMany({
-        where: {
-          AcademicYear: input.AcademicYear,
-          Semester: input.Semester,
-        },
         select: {
           RoomID: true,
-          Name: true,
+          RoomName: true,
         },
       }),
       prisma.subject.findMany({
-        where: {
-          AcademicYear: input.AcademicYear,
-          Semester: input.Semester,
-        },
         select: {
-          SubjectID: true,
-          Name_TH: true,
+          SubjectCode: true,
+          SubjectName: true,
         },
       }),
       prisma.teachers_responsibility.findMany({
         where: {
           AcademicYear: input.AcademicYear,
-          Semester: input.Semester,
+          Semester: input.Semester as semester,
         },
         select: {
           RespID: true,
@@ -266,16 +259,39 @@ export const applyLockTemplateAction = createAction(
       }),
     ]);
     
+    // Transform data to match expected format
+    const transformedGrades = grades.map(g => ({
+      GradeID: g.GradeID,
+      GradeName: `ม.${g.Year}/${g.Number}`,
+      Level: g.Number,
+    }));
+    
+    const transformedTimeslots = timeslots.map(t => ({
+      TimeslotID: t.TimeslotID,
+      Day: t.DayOfWeek,
+      PeriodStart: t.StartTime.getHours() * 60 + t.StartTime.getMinutes(),
+    }));
+    
+    const transformedRooms = rooms.map(r => ({
+      RoomID: r.RoomID,
+      Name: r.RoomName,
+    }));
+    
+    const transformedSubjects = subjects.map(s => ({
+      SubjectID: s.SubjectCode,
+      Name_TH: s.SubjectName,
+    }));
+    
     // Resolve template to locks
     const { locks, warnings, errors } = resolveTemplate({
       template,
       academicYear: input.AcademicYear,
       semester: input.Semester,
       configId: input.ConfigID,
-      availableGrades: grades,
-      availableTimeslots: timeslots,
-      availableRooms: rooms,
-      availableSubjects: subjects,
+      availableGrades: transformedGrades,
+      availableTimeslots: transformedTimeslots,
+      availableRooms: transformedRooms,
+      availableSubjects: transformedSubjects,
       availableResponsibilities: responsibilities,
     });
     
@@ -284,11 +300,12 @@ export const applyLockTemplateAction = createAction(
     }
     
     // Create locks using bulk action
-    const created = [];
+  const created: class_schedule[] = [];
     for (const lock of locks) {
       const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
       
-      const schedule = await lockRepository.createLock({
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const schedule: class_schedule = await lockRepository.createLock({
         ClassID: classId,
         IsLocked: true,
         SubjectCode: lock.SubjectCode,

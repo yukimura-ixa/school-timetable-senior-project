@@ -5,7 +5,7 @@
  * Provides data fetching methods for teacher workload metrics and department analysis.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { TeacherWorkload, DepartmentWorkload } from '../../domain/types/analytics.types';
 import { parseConfigId, getWorkloadStatus, calculateDepartmentWorkload } from '../../domain/services/calculation.service';
 

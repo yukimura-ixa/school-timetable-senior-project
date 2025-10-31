@@ -3,8 +3,8 @@
  * Tests all conflict detection logic including teacher, room, class, and unassigned conflicts
  */
 
-// Mock both prisma paths since @/lib/prisma re-exports from @/libs/prisma
-jest.mock("@/libs/prisma", () => ({
+// Mock both prisma paths since @/lib/prisma re-exports from @/lib/prisma
+jest.mock("@/lib/prisma", () => ({
   __esModule: true,
   default: {
     class_schedule: {
@@ -13,7 +13,7 @@ jest.mock("@/libs/prisma", () => ({
   },
 }));
 
-jest.mock("@/lib/prisma", () => jest.requireMock("@/libs/prisma"));
+jest.mock("@/lib/prisma", () => jest.requireMock("@/lib/prisma"));
 
 import { conflictRepository } from "@/features/conflict/infrastructure/repositories/conflict.repository";
 import prisma from "@/lib/prisma";

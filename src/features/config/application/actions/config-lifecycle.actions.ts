@@ -5,7 +5,7 @@
  * Server Actions for managing config status and completeness
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import {
   UpdateConfigStatusSchema,
   calculateCompleteness,

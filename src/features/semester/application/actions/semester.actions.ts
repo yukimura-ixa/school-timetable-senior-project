@@ -22,7 +22,7 @@ import {
   CopySemesterSchema,
   type SemesterDTO,
 } from "../schemas/semester.schemas";
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 

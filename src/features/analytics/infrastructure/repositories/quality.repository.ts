@@ -6,7 +6,7 @@
  * Reuses metrics from overview repository for consistency.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { parseConfigId } from '../../domain/services/calculation.service';
 import { overviewRepository } from './overview.repository';
 

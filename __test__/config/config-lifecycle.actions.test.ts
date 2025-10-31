@@ -11,7 +11,7 @@ import {
   updateConfigCompletenessAction,
   getConfigWithCompletenessAction,
 } from "@/features/config/application/actions/config-lifecycle.actions";
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 
 // Cast to mocked type for access to mock methods
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;

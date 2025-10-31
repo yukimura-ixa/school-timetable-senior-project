@@ -5,7 +5,7 @@
  * Provides data fetching methods for curriculum compliance analysis including program requirements and credit tracking.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { ProgramCompliance, CategoryCredits, MandatorySubjectInfo } from '../../domain/types/analytics.types';
 import { parseConfigId, sumCategoryCredits } from '../../domain/services/calculation.service';
 

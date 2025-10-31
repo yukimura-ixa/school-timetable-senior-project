@@ -3,7 +3,7 @@
  * Security: Strict field whitelisting, NO PII (email)
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import type { Prisma } from "../../../prisma/generated";
 
 export type PublicTeacher = {

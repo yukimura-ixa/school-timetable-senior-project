@@ -20,7 +20,7 @@
  */
 
 import * as v from 'valibot';
-import { auth } from '@/libs/auth';
+import { auth } from '@/lib/auth';
 import { isConflictError, isValidationError, isLockedScheduleError, type ServerActionError } from '@/types';
 
 /**

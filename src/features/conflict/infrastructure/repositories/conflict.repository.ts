@@ -33,7 +33,7 @@
  * ## Refactoring Checklist:
  * 
  * ### Phase 1: Foundation (~20% complete)
- * - [x] Import from `@/libs/prisma` (not `@/lib/prisma`)
+ * - [x] Import from `@/lib/prisma` (not `@/lib/prisma`)
  * - [x] Import Prisma types: `Prisma`, `semester`
  * - [x] Create `ScheduleWithRelations` type helper
  * - [x] Update query filter: `where: { timeslot: { AcademicYear, Semester } }`
@@ -97,7 +97,7 @@
  * @see https://github.com/yukimura-ixa/school-timetable-senior-project/issues/TBD
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import { Prisma, semester } from "@/prisma/generated";
 
 // Type for schedule with all relations

@@ -3,7 +3,7 @@
  * Shows programs grouped by Year (M.1–M.6) and Track
  */
 
-import { PrismaClient } from '../prisma/generated';
+import { PrismaClient } from '@/prisma/generated';
 
 const prisma = new PrismaClient();
 

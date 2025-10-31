@@ -5,7 +5,7 @@
  * Config stores timetable configuration settings as JSON.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import { semester, Prisma } from '@/prisma/generated';
 
 /**

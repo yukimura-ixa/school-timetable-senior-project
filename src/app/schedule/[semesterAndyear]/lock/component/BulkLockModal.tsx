@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   Checkbox,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -36,7 +35,8 @@ import { createBulkLocksAction } from '@/features/lock/application/actions/lock.
 interface BulkLockModalProps {
   open: boolean;
   onClose: () => void;
-  configId: string;
+  // configId may be wired later; keep but mark unused to satisfy lint
+  _configId?: string;
   timeslots?: Array<{ TimeslotID: string; Day: string; PeriodStart: number }>;
   grades?: Array<{ GradeID: string; GradeName: string }>;
   subjects?: Array<{ SubjectCode: string; SubjectName: string; RespID: number }>;
@@ -47,7 +47,7 @@ interface BulkLockModalProps {
 export default function BulkLockModal({
   open,
   onClose,
-  configId,
+  _configId,
   timeslots: propTimeslots,
   grades: propGrades,
   subjects: propSubjects,
@@ -145,7 +145,7 @@ export default function BulkLockModal({
   }, [selectedTimeslots, selectedGrades, selectedSubject, selectedRoom, timeslots, grades, subjects, rooms, DAY_NAMES]);
 
   const handleSubmit = async () => {
-    if (!selectedSubject || !selectedRoom || selectedTimeslots.size === 0 || selectedGrades.size === 0) {
+    if (!selectedSubject || selectedRoom == null || selectedTimeslots.size === 0 || selectedGrades.size === 0) {
       enqueueSnackbar('กรุณาเลือกข้อมูลให้ครบถ้วน', { variant: 'warning' });
       return;
     }
@@ -161,7 +161,7 @@ export default function BulkLockModal({
       const locks = Array.from(selectedTimeslots).flatMap((timeslotId) =>
         Array.from(selectedGrades).map((gradeId) => ({
           SubjectCode: selectedSubject,
-          RoomID: selectedRoom!,
+          RoomID: selectedRoom,
           TimeslotID: timeslotId,
           GradeID: gradeId,
           RespID: subject.RespID,
@@ -170,12 +170,13 @@ export default function BulkLockModal({
 
       const result = await createBulkLocksAction({ locks });
 
-      if ('success' in result && result.success) {
+      if (result.success) {
         enqueueSnackbar(`สร้างคาบล็อกสำเร็จ ${result.data?.count || 0} รายการ`, { variant: 'success' });
         onSuccess();
         handleClose();
       } else {
-        throw new Error(result.error || 'เกิดข้อผิดพลาด');
+        const message = result.error?.message || 'เกิดข้อผิดพลาด';
+        throw new Error(String(message));
       }
     } catch (error) {
       console.error(error);
@@ -209,7 +210,7 @@ export default function BulkLockModal({
       <DialogContent dividers>
         <Grid container spacing={3}>
           {/* Subject Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <FormControl fullWidth>
               <TextField
                 select
@@ -229,7 +230,7 @@ export default function BulkLockModal({
           </Grid>
 
           {/* Room Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <FormControl fullWidth>
               <TextField
                 select
@@ -249,7 +250,7 @@ export default function BulkLockModal({
           </Grid>
 
           {/* Timeslot Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined">
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
@@ -280,7 +281,7 @@ export default function BulkLockModal({
           </Grid>
 
           {/* Grade Selection */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card variant="outlined">
               <CardContent>
                 <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
@@ -311,7 +312,7 @@ export default function BulkLockModal({
           </Grid>
 
           {/* Preview */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Alert severity="info" icon={<CheckCircleIcon />}>
               จำนวนคาบล็อกที่จะสร้าง: <strong>{totalLocks} คาบ</strong>
               {totalLocks > 0 && (
@@ -363,7 +364,7 @@ export default function BulkLockModal({
           ยกเลิก
         </Button>
         <Button
-          onClick={handleSubmit}
+          onClick={() => { void handleSubmit(); }}
           variant="contained"
           color="primary"
           disabled={isSubmitting || !canPreview}

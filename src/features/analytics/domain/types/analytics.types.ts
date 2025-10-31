@@ -15,7 +15,7 @@ import type {
   program,
   semester,
   day_of_week
-} from "@prisma/client";
+} from "@/prisma/generated";
 
 import type {
   SubjectCategory,

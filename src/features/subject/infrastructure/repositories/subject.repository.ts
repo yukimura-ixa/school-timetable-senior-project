@@ -7,7 +7,7 @@
  * @module subject.repository
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { subject } from '@/prisma/generated';
 import type { CreateSubjectInput, UpdateSubjectInput } from '../../application/schemas/subject.schemas';
 

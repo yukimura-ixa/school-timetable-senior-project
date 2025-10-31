@@ -37,7 +37,7 @@ export async function PublicTeachersTable({ searchParams }: Props) {
     return sortOrder === "asc" ? "ascending" : "descending";
   };
 
-  if (result.data.length === 0) {
+  if (!result.data || result.data.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">

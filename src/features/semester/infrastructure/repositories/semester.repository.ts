@@ -3,7 +3,7 @@
  * Data access layer for semester/table_config operations
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import type { Prisma } from "@/prisma/generated";
 import type {
   SemesterFilter,

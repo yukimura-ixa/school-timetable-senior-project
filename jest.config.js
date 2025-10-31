@@ -19,6 +19,7 @@ const config = {
   },
   moduleNameMapper: {
     '^@/public/(.*)$': '<rootDir>/public/$1',
+    '^@/prisma/generated$': '<rootDir>/prisma/generated',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   transformIgnorePatterns: [

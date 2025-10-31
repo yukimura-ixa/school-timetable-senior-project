@@ -3,7 +3,7 @@
  * Security: Class-level data only, no individual student PII
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 
 export type PublicClass = {
   gradeId: string; // e.g., "M.1/1"

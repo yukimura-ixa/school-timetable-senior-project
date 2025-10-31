@@ -2,7 +2,7 @@
  * Public data access for system statistics and visualizations
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import { day_of_week } from "@/prisma/generated";
 
 export type QuickStats = {

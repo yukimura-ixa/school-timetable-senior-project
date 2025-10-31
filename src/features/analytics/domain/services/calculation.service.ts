@@ -18,7 +18,7 @@ import {
   ROOM_UTILIZATION_THRESHOLDS,
   COMPLETION_THRESHOLDS
 } from "../types/analytics.types";
-import type { semester } from "@prisma/client";
+import type { semester } from "@/prisma/generated";
 
 /**
  * Parse config ID string into structured format

@@ -5,11 +5,11 @@
  * Provides data fetching methods for room occupancy and utilization metrics.
  */
 
-import prisma from '@/libs/prisma';
+import prisma from '@/lib/prisma';
 import type { RoomOccupancy, DayOccupancy, PeriodOccupancy } from '../../domain/types/analytics.types';
 import { parseConfigId, getRoomUtilizationStatus, extractDayFromTimeslotId, extractPeriodFromTimeslotId, getThaiDayLabel, formatPeriodTime } from '../../domain/services/calculation.service';
 import { DAYS_OF_WEEK } from '../../domain/types/analytics.types';
-import { day_of_week } from '@prisma/client';
+import type { day_of_week } from '@/prisma/generated';
 
 /**
  * Get room occupancy data for all rooms

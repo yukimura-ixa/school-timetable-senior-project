@@ -5,7 +5,7 @@
  * @module dashboard.repository
  */
 
-import prisma from "@/libs/prisma";
+import prisma from "@/lib/prisma";
 import type { semester } from "@/prisma/generated";
 import { cache } from "react";
 

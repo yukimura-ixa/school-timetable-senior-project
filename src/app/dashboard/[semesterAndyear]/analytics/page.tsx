@@ -2,12 +2,26 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import {
+  // Phase 1 actions
   getOverviewStats,
   getTeacherWorkloads,
   getRoomOccupancy,
+  // Phase 2 actions
+  getSubjectDistribution,
+  getQualityMetrics,
+  isQualityAcceptable,
+  getPeriodDistribution,
+  getDayDistribution,
+  getProgramCompliance,
+  // Phase 1 components
   OverviewSection,
   TeacherWorkloadSection,
   RoomUtilizationSection,
+  // Phase 2 components
+  SubjectDistributionSection,
+  QualityMetricsSection,
+  TimeDistributionSection,
+  ComplianceSection,
 } from "@/features/analytics";
 
 export const metadata: Metadata = {
@@ -22,13 +36,30 @@ export default async function AnalyticsPage({
 }) {
   const { semesterAndyear } = await params;
 
-  // Fetch analytics data for Phase 1 (Overview, Teacher, Room)
-  const [overviewResult, teacherWorkloadsResult, roomOccupancyResult] =
-    await Promise.all([
-      getOverviewStats({ configId: semesterAndyear }),
-      getTeacherWorkloads({ configId: semesterAndyear }),
-      getRoomOccupancy({ configId: semesterAndyear }),
-    ]);
+  // Fetch analytics data for Phase 1 + Phase 2
+  const [
+    overviewResult,
+    teacherWorkloadsResult,
+    roomOccupancyResult,
+    subjectDistributionResult,
+    qualityMetricsResult,
+    qualityCheckResult,
+    periodDistributionResult,
+    dayDistributionResult,
+    programComplianceResult,
+  ] = await Promise.all([
+    // Phase 1
+    getOverviewStats({ configId: semesterAndyear }),
+    getTeacherWorkloads({ configId: semesterAndyear }),
+    getRoomOccupancy({ configId: semesterAndyear }),
+    // Phase 2
+    getSubjectDistribution({ configId: semesterAndyear }),
+    getQualityMetrics({ configId: semesterAndyear }),
+    isQualityAcceptable({ configId: semesterAndyear }),
+    getPeriodDistribution({ configId: semesterAndyear }),
+    getDayDistribution({ configId: semesterAndyear }),
+    getProgramCompliance({ configId: semesterAndyear }),
+  ]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -78,8 +109,71 @@ export default async function AnalyticsPage({
         )}
       </Suspense>
 
-      {/* TODO: Add remaining sections (Subject Distribution, Quality, Time, Compliance) */}
-      {/* We'll implement these in Phase 2 */}
+      {/* Section 4: Subject Distribution */}
+      <Suspense fallback={<SubjectSkeleton />}>
+        {subjectDistributionResult.success ? (
+          <SubjectDistributionSection distribution={subjectDistributionResult.data} />
+        ) : (
+          <ErrorDisplay
+            title="ไม่สามารถโหลดข้อมูลการกระจายรายวิชาได้"
+            message={"error" in subjectDistributionResult ? subjectDistributionResult.error : "Unknown error"}
+          />
+        )}
+      </Suspense>
+
+      {/* Section 5: Quality Metrics */}
+      <Suspense fallback={<QualitySkeleton />}>
+        {qualityMetricsResult.success && qualityCheckResult.success ? (
+          <QualityMetricsSection
+            metrics={qualityMetricsResult.data}
+            qualityCheck={qualityCheckResult.data}
+          />
+        ) : (
+          <ErrorDisplay
+            title="ไม่สามารถโหลดข้อมูลคุณภาพตารางได้"
+            message={
+              !qualityMetricsResult.success && "error" in qualityMetricsResult
+                ? qualityMetricsResult.error
+                : !qualityCheckResult.success && "error" in qualityCheckResult
+                ? qualityCheckResult.error
+                : "Unknown error"
+            }
+          />
+        )}
+      </Suspense>
+
+      {/* Section 6: Time Distribution */}
+      <Suspense fallback={<TimeSkeleton />}>
+        {periodDistributionResult.success && dayDistributionResult.success ? (
+          <TimeDistributionSection
+            periodDistribution={periodDistributionResult.data}
+            dayDistribution={dayDistributionResult.data}
+          />
+        ) : (
+          <ErrorDisplay
+            title="ไม่สามารถโหลดข้อมูลการกระจายช่วงเวลาได้"
+            message={
+              !periodDistributionResult.success && "error" in periodDistributionResult
+                ? periodDistributionResult.error
+                : !dayDistributionResult.success && "error" in dayDistributionResult
+                ? dayDistributionResult.error
+                : "Unknown error"
+            }
+          />
+        )}
+      </Suspense>
+
+      {/* Section 7: Curriculum Compliance */}
+      <Suspense fallback={<ComplianceSkeleton />}>
+        {programComplianceResult.success ? (
+          <ComplianceSection programCompliance={programComplianceResult.data} />
+        ) : (
+          <ErrorDisplay
+            title="ไม่สามารถโหลดข้อมูลการตรวจสอบหลักสูตรได้"
+            message={"error" in programComplianceResult ? programComplianceResult.error : "Unknown error"}
+          />
+        )}
+      </Suspense>
     </Box>
   );
 }
@@ -129,6 +223,46 @@ function WorkloadSkeleton() {
 }
 
 function RoomSkeleton() {
+  return (
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    </Box>
+  );
+}
+
+function SubjectSkeleton() {
+  return (
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    </Box>
+  );
+}
+
+function QualitySkeleton() {
+  return (
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    </Box>
+  );
+}
+
+function TimeSkeleton() {
+  return (
+    <Box sx={{ mb: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
+      </Box>
+    </Box>
+  );
+}
+
+function ComplianceSkeleton() {
   return (
     <Box sx={{ mb: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
