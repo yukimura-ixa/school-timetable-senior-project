@@ -7,8 +7,8 @@
 jest.mock("@/libs/prisma", () => ({
   __esModule: true,
   default: {
-    classschedule: {
-      findMany: jest.fn(), // Use jest.fn() directly in the mock
+    class_schedule: {
+      findMany: jest.fn(), // Updated table name: classschedule → class_schedule
     },
   },
 }));
@@ -21,31 +21,103 @@ import prisma from "@/lib/prisma";
 // Get reference to the mocked function
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
-describe.skip("Conflict Detection Repository - SCHEMA MIGRATION REQUIRED", () => {
+describe("Conflict Detection Repository", () => {
   /**
-   * ⚠️ TESTS SKIPPED - Repository needs schema migration
-   * 
-   * These tests were written for the old schema where:
-   * - class_schedule had direct TeacherID foreign key
-   * - AcademicYear/Semester were on class_schedule table
-   * 
-   * Current schema uses:
+   * ✅ Tests updated for current schema:
    * - teachers_responsibility many-to-many junction table
-   * - AcademicYear/Semester moved to timeslot table
-   * 
-   * See conflict.repository.ts for detailed migration guide.
-   * Tests will be re-enabled once repository is updated.
+   * - AcademicYear/Semester on timeslot table
+   * - Updated field names (SubjectCode, RoomName, DayOfWeek, etc.)
    */
   
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
+  /**
+   * Helper to create mock schedule with new schema structure
+   */
+  const createMockSchedule = (overrides: {
+    ClassID: string;
+    TimeslotID: string;
+    GradeID: string;
+    gradeYear: number;
+    gradeNumber: number;
+    SubjectCode: string;
+    SubjectName: string;
+    RoomID?: number;
+    RoomName?: string;
+    teachers: Array<{
+      TeacherID: number;
+      Prefix: string;
+      Firstname: string;
+      Lastname: string;
+    }>;
+    DayOfWeek: string;
+  }) => ({
+    ClassID: overrides.ClassID,
+    TimeslotID: overrides.TimeslotID,
+    SubjectCode: overrides.SubjectCode,
+    RoomID: overrides.RoomID || null,
+    GradeID: overrides.GradeID,
+    IsLocked: false,
+    gradelevel: {
+      GradeID: overrides.GradeID,
+      Year: overrides.gradeYear,
+      Number: overrides.gradeNumber,
+      StudentCount: 40,
+      ProgramID: 1,
+    },
+    subject: {
+      SubjectCode: overrides.SubjectCode,
+      SubjectName: overrides.SubjectName,
+      Credit: "1.0" as any,
+      Hours: 1,
+      Category: "MANDATORY" as any,
+      IsActive: true,
+      Description: "",
+    },
+    teachers_responsibility: overrides.teachers.map((t, idx) => ({
+      RespID: idx + 1,
+      TeacherID: t.TeacherID,
+      GradeID: overrides.GradeID,
+      SubjectCode: overrides.SubjectCode,
+      AcademicYear: 2567,
+      Semester: "1" as any,
+      teacher: {
+        TeacherID: t.TeacherID,
+        Prefix: t.Prefix,
+        Firstname: t.Firstname,
+        Lastname: t.Lastname,
+        Department: "คณิตศาสตร์",
+        IsActive: true,
+      },
+    })),
+    room: overrides.RoomID
+      ? {
+          RoomID: overrides.RoomID,
+          RoomName: overrides.RoomName || `ห้อง ${overrides.RoomID}`,
+          BuildingCode: "A",
+          Floor: 1,
+          Capacity: 40,
+          RoomType: "CLASSROOM" as any,
+        }
+      : null,
+    timeslot: {
+      TimeslotID: overrides.TimeslotID,
+      AcademicYear: 2567,
+      Semester: "1" as any,
+      StartTime: new Date('2024-01-01T08:00:00'),
+      EndTime: new Date('2024-01-01T09:00:00'),
+      Breaktime: "NONE" as any,
+      DayOfWeek: overrides.DayOfWeek as any,
+    },
+  });
+
   describe("findAllConflicts", () => {
     it("should return empty arrays when no schedules exist", async () => {
-      (mockPrisma.classschedule.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.class_schedule.findMany as jest.Mock).mockResolvedValue([]);
 
-      const result = await conflictRepository.findAllConflicts(2567, "SEMESTER_1");
+      const result = await conflictRepository.findAllConflicts(2567, "1");
 
       expect(result).toEqual({
         teacherConflicts: [],
@@ -57,37 +129,47 @@ describe.skip("Conflict Detection Repository - SCHEMA MIGRATION REQUIRED", () =>
 
     it("should detect teacher conflicts (same teacher in multiple classes at same timeslot)", async () => {
       const mockSchedules = [
-        {
-          ClassID: "1-1-MATH",
-          TimeslotID: "1-MON-1",
-          gradelevel: { GradeID: "1-1", GradeName: "ม.1/1" },
-          subject: { SubjectCode: "MATH", SubjectName: "คณิตศาสตร์" },
-          teacher: { TeacherID: 1, TitleName: "นาย", FirstName: "สมชาย", LastName: "ใจดี" },
-          room: { RoomID: 1, RoomName: "101" },
-          timeslot: { TimeslotID: "1-MON-1", Day: "MON", PeriodStart: 1 },
-        },
-        {
-          ClassID: "1-2-MATH",
-          TimeslotID: "1-MON-1",
-          gradelevel: { GradeID: "1-2", GradeName: "ม.1/2" },
-          subject: { SubjectCode: "MATH", SubjectName: "คณิตศาสตร์" },
-          teacher: { TeacherID: 1, TitleName: "นาย", FirstName: "สมชาย", LastName: "ใจดี" },
-          room: { RoomID: 2, RoomName: "102" },
-          timeslot: { TimeslotID: "1-MON-1", Day: "MON", PeriodStart: 1 },
-        },
+        createMockSchedule({
+          ClassID: "1-2567-M11-MATH",
+          TimeslotID: "1-2567-MON1",
+          GradeID: "M11",
+          gradeYear: 1,
+          gradeNumber: 1,
+          SubjectCode: "MATH",
+          SubjectName: "คณิตศาสตร์",
+          RoomID: 101,
+          RoomName: "101",
+          teachers: [{ TeacherID: 1, Prefix: "นาย", Firstname: "สมชาย", Lastname: "ใจดี" }],
+          DayOfWeek: "MONDAY",
+        }),
+        createMockSchedule({
+          ClassID: "1-2567-M12-MATH",
+          TimeslotID: "1-2567-MON1",
+          GradeID: "M12",
+          gradeYear: 1,
+          gradeNumber: 2,
+          SubjectCode: "MATH",
+          SubjectName: "คณิตศาสตร์",
+          RoomID: 102,
+          RoomName: "102",
+          teachers: [{ TeacherID: 1, Prefix: "นาย", Firstname: "สมชาย", Lastname: "ใจดี" }],
+          DayOfWeek: "MONDAY",
+        }),
       ];
 
-      (mockPrisma.classschedule.findMany as jest.Mock).mockResolvedValue(mockSchedules as any);
+      (mockPrisma.class_schedule.findMany as jest.Mock).mockResolvedValue(mockSchedules as any);
 
-      const result = await conflictRepository.findAllConflicts(2567, "SEMESTER_1");
+      const result = await conflictRepository.findAllConflicts(2567, "1");
 
       expect(result.teacherConflicts).toHaveLength(1);
       expect(result.teacherConflicts[0]).toMatchObject({
         teacherId: 1,
-        teacherName: "นาย สมชาย ใจดี",
-        timeslotId: "1-MON-1",
+        teacherName: "นายสมชาย ใจดี",
+        timeslotId: "1-2567-MON1",
+        day: "MONDAY",
+        periodStart: 1,
       });
-      expect(result.teacherConflicts[0].conflictingSchedules).toHaveLength(2);
+      expect(result.teacherConflicts[0].conflicts).toHaveLength(2);
     });
 
     it("should detect room conflicts (same room used by multiple classes at same timeslot)", async () => {

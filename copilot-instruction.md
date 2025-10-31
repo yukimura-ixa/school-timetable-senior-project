@@ -48,7 +48,7 @@ Use: "Use Serena to read the system-integration-map memory and show cross-system
 - Next.js 16 App Router; Node runtime for DB-backed routes
 - Prisma v6 on Vercel Storage: Postgres; Prisma schema is source of truth
 - Auth: Auth.js v5 (Google); Tailwind v4; MUI v7; Recharts for visualization
-- Use PNPM for all scripts; Prisma client singleton; validation via Zod at boundaries
+- Use PNPM for all scripts; Prisma client singleton; validation via Valibot at boundaries
 
 ## Fallback Policy
 
@@ -57,3 +57,4 @@ When MCP servers are not available:
 - Avoid risky multi-file changes without Serena; prefer small, surgical edits
 - Defer migrations and codemods until Prisma or Next DevTools MCP are reachable
 
+Refer AGENTS.md for additional project context

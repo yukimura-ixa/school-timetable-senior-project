@@ -97,10 +97,27 @@
  * @see https://github.com/yukimura-ixa/school-timetable-senior-project/issues/TBD
  */
 
-// Import commented out - will be needed for actual implementation
-// import prisma from "@/libs/prisma";
+import prisma from "@/libs/prisma";
+import { Prisma, semester } from "@/prisma/generated";
 
-// Export interfaces that match what tests expect (OLD schema structure)
+/**
+ * Type: Class schedule with full relations for conflict detection
+ */
+type ScheduleWithRelations = Prisma.class_scheduleGetPayload<{
+  include: {
+    gradelevel: true;
+    subject: true;
+    teachers_responsibility: {
+      include: {
+        teacher: true;
+      };
+    };
+    room: true;
+    timeslot: true;
+  };
+}>;
+
+// Export interfaces that match what tests expect
 // These will remain stable even after internal implementation is updated
 export interface TeacherConflict {
   type: 'TEACHER_CONFLICT';
@@ -188,32 +205,250 @@ export const conflictRepository = {
   /**
    * Find all scheduling conflicts for a given term
    * 
-   * @todo Implement with new schema:
-   * 1. Query: `where: { timeslot: { AcademicYear, Semester } }`
-   * 2. Include: `teachers_responsibility: { include: { teacher: true } }`
-   * 3. Teacher conflicts: Loop through responsibility array
-   * 4. Room conflicts: Handle null rooms, update field names
-   * 5. Class conflicts: Use array access for teachers
-   * 6. Unassigned: Check `teachers_responsibility.length === 0`
+   * Detects four types of conflicts:
+   * 1. Teacher conflicts - Same teacher scheduled in multiple classes at same time
+   * 2. Room conflicts - Same room assigned to multiple classes at same time
+   * 3. Class conflicts - Same class scheduled for multiple subjects at same time
+   * 4. Unassigned - Schedules missing teacher or room assignments
    */
   async findAllConflicts(
-    _academicYear: number,
-    _semester: string
+    academicYear: number,
+    semesterValue: string
   ): Promise<ConflictSummary> {
-    // Temporary stub - return empty results until migration is complete
-    // This allows UI and tests to run without crashing
-    
-    console.warn(
-      '[CONFLICT REPOSITORY] Schema migration incomplete. Returning empty results. ' +
-      'See TODO comments in conflict.repository.ts for migration guide.'
-    );
+    // Fetch all schedules for the term
+    const schedules = await prisma.class_schedule.findMany({
+      where: {
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: semesterValue as semester,
+        },
+      },
+      include: {
+        gradelevel: true,
+        subject: true,
+        teachers_responsibility: {
+          include: {
+            teacher: true,
+          },
+        },
+        room: true,
+        timeslot: true,
+      },
+      orderBy: [
+        { timeslot: { DayOfWeek: 'asc' } },
+        { timeslot: { StartTime: 'asc' } },
+      ],
+    }) as unknown as ScheduleWithRelations[];
+
+    // Initialize conflict collections
+    const teacherConflicts: TeacherConflict[] = [];
+    const roomConflicts: RoomConflict[] = [];
+    const classConflicts: ClassConflict[] = [];
+    const unassignedSchedules: UnassignedSchedule[] = [];
+
+    // Group schedules by timeslot + resource
+    const teacherGroups = new Map<string, ScheduleWithRelations[]>();
+    const roomGroups = new Map<string, ScheduleWithRelations[]>();
+    const classGroups = new Map<string, ScheduleWithRelations[]>();
+
+    // Build groups and detect unassigned
+    for (const schedule of schedules) {
+      const timeslotId = schedule.TimeslotID;
+      const hasTeacher = schedule.teachers_responsibility.length > 0;
+      const hasRoom = schedule.RoomID !== null;
+
+      // Check for unassigned resources
+      if (!hasTeacher || !hasRoom) {
+        const gradeName = `${schedule.gradelevel.Year}/${schedule.gradelevel.Number}`;
+        // Extract period number from TimeslotID (format: "SEMESTER-YEAR-DAYPERIOD")
+        const timeslotParts = timeslotId.split('-');
+        const dayAndPeriod = timeslotParts[timeslotParts.length - 1]; // e.g., "MON1"
+        const periodMatch = dayAndPeriod.match(/\d+$/);
+        const periodStart = periodMatch ? parseInt(periodMatch[0]) : 0;
+        
+        unassignedSchedules.push({
+          type: 'UNASSIGNED',
+          scheduleId: schedule.ClassID,
+          gradeId: schedule.GradeID,
+          gradeName,
+          subjectCode: schedule.SubjectCode,
+          subjectName: schedule.subject.SubjectName,
+          timeslotId,
+          day: schedule.timeslot.DayOfWeek,
+          periodStart,
+          missingResource: !hasTeacher && !hasRoom ? 'BOTH' : (!hasTeacher ? 'TEACHER' : 'ROOM'),
+        });
+      }
+
+      // Group by teacher + timeslot
+      if (hasTeacher) {
+        for (const responsibility of schedule.teachers_responsibility) {
+          const key = `${responsibility.TeacherID}_${timeslotId}`;
+          if (!teacherGroups.has(key)) {
+            teacherGroups.set(key, []);
+          }
+          const group = teacherGroups.get(key);
+          if (group) group.push(schedule);
+        }
+      }
+
+      // Group by room + timeslot
+      if (hasRoom) {
+        const key = `${schedule.RoomID}_${timeslotId}`;
+        if (!roomGroups.has(key)) {
+          roomGroups.set(key, []);
+        }
+        const group = roomGroups.get(key);
+        if (group) group.push(schedule);
+      }
+
+      // Group by class + timeslot
+      const classKey = `${schedule.GradeID}_${timeslotId}`;
+      if (!classGroups.has(classKey)) {
+        classGroups.set(classKey, []);
+      }
+      const group = classGroups.get(classKey);
+      if (group) group.push(schedule);
+    }
+
+    // Detect teacher conflicts (same teacher, same time, multiple classes)
+    for (const [key, group] of teacherGroups.entries()) {
+      if (group.length > 1) {
+        const firstSchedule = group[0];
+        const teacherId = parseInt(key.split('_')[0]);
+        const responsibility = firstSchedule.teachers_responsibility.find(
+          r => r.TeacherID === teacherId
+        );
+        
+        if (responsibility && responsibility.teacher) {
+          const teacher = responsibility.teacher;
+          const teacherName = `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`;
+          
+          // Extract period number from TimeslotID
+          const timeslotParts = firstSchedule.TimeslotID.split('-');
+          const dayAndPeriod = timeslotParts[timeslotParts.length - 1];
+          const periodMatch = dayAndPeriod.match(/\d+$/);
+          const periodStart = periodMatch ? parseInt(periodMatch[0]) : 0;
+          
+          teacherConflicts.push({
+            type: 'TEACHER_CONFLICT',
+            teacherId,
+            teacherName,
+            timeslotId: firstSchedule.TimeslotID,
+            day: firstSchedule.timeslot.DayOfWeek,
+            periodStart,
+            conflicts: group.map(s => {
+              const gradeName = `${s.gradelevel.Year}/${s.gradelevel.Number}`;
+              return {
+                scheduleId: s.ClassID,
+                gradeId: s.GradeID,
+                gradeName,
+                subjectCode: s.SubjectCode,
+                subjectName: s.subject.SubjectName,
+                roomId: s.RoomID || 0,
+                roomName: s.room?.RoomName || 'ไม่ระบุ',
+              };
+            }),
+          });
+        }
+      }
+    }
+
+    // Detect room conflicts (same room, same time, multiple classes)
+    for (const [key, group] of roomGroups.entries()) {
+      if (group.length > 1) {
+        const firstSchedule = group[0];
+        const roomId = parseInt(key.split('_')[0]);
+        
+        // Extract period number from TimeslotID
+        const timeslotParts = firstSchedule.TimeslotID.split('-');
+        const dayAndPeriod = timeslotParts[timeslotParts.length - 1];
+        const periodMatch = dayAndPeriod.match(/\d+$/);
+        const periodStart = periodMatch ? parseInt(periodMatch[0]) : 0;
+        
+        roomConflicts.push({
+          type: 'ROOM_CONFLICT',
+          roomId,
+          roomName: firstSchedule.room?.RoomName || 'ไม่ระบุ',
+          timeslotId: firstSchedule.TimeslotID,
+          day: firstSchedule.timeslot.DayOfWeek,
+          periodStart,
+          conflicts: group.map(s => {
+            const gradeName = `${s.gradelevel.Year}/${s.gradelevel.Number}`;
+            const firstResp = s.teachers_responsibility[0];
+            const teacher = firstResp?.teacher;
+            const teacherId = teacher?.TeacherID || 0;
+            const teacherName = teacher 
+              ? `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`
+              : 'ไม่ระบุ';
+            
+            return {
+              scheduleId: s.ClassID,
+              gradeId: s.GradeID,
+              gradeName,
+              subjectCode: s.SubjectCode,
+              subjectName: s.subject.SubjectName,
+              teacherId,
+              teacherName,
+            };
+          }),
+        });
+      }
+    }
+
+    // Detect class conflicts (same class, same time, multiple subjects)
+    for (const [, group] of classGroups.entries()) {
+      if (group.length > 1) {
+        const firstSchedule = group[0];
+        const gradeName = `${firstSchedule.gradelevel.Year}/${firstSchedule.gradelevel.Number}`;
+        
+        // Extract period number from TimeslotID
+        const timeslotParts = firstSchedule.TimeslotID.split('-');
+        const dayAndPeriod = timeslotParts[timeslotParts.length - 1];
+        const periodMatch = dayAndPeriod.match(/\d+$/);
+        const periodStart = periodMatch ? parseInt(periodMatch[0]) : 0;
+        
+        classConflicts.push({
+          type: 'CLASS_CONFLICT',
+          gradeId: firstSchedule.GradeID,
+          gradeName,
+          timeslotId: firstSchedule.TimeslotID,
+          day: firstSchedule.timeslot.DayOfWeek,
+          periodStart,
+          conflicts: group.map(s => {
+            const firstResp = s.teachers_responsibility[0];
+            const teacher = firstResp?.teacher;
+            const teacherId = teacher?.TeacherID || 0;
+            const teacherName = teacher 
+              ? `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`
+              : 'ไม่ระบุ';
+            
+            return {
+              scheduleId: s.ClassID,
+              subjectCode: s.SubjectCode,
+              subjectName: s.subject.SubjectName,
+              teacherId,
+              teacherName,
+              roomId: s.RoomID || 0,
+              roomName: s.room?.RoomName || 'ไม่ระบุ',
+            };
+          }),
+        });
+      }
+    }
+
+    const totalConflicts = 
+      teacherConflicts.length + 
+      roomConflicts.length + 
+      classConflicts.length + 
+      unassignedSchedules.length;
 
     return {
-      teacherConflicts: [],
-      roomConflicts: [],
-      classConflicts: [],
-      unassignedSchedules: [],
-      totalConflicts: 0,
+      teacherConflicts,
+      roomConflicts,
+      classConflicts,
+      unassignedSchedules,
+      totalConflicts,
     };
   },
 };
