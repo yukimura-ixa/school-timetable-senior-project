@@ -1,6 +1,17 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 
+// Polyfill fetch for Jest/Node environment (required by Prisma Accelerate)
+if (typeof global.fetch === 'undefined') {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: async () => ({}),
+      text: async () => '',
+    })
+  );
+}
+
 // Mock Auth.js to prevent ESM import errors
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({
