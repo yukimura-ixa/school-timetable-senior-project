@@ -43,9 +43,10 @@ export class NavigationHelper {
 
   /**
    * Navigate to schedule section
+   * Note: Redirects to dashboard/select-semester (modernized UI)
    */
   async goToScheduleSelector() {
-    await this.page.goto('/schedule/select-semester');
+    await this.page.goto('/dashboard/select-semester');
   }
 
   async goToSchedule(semesterAndYear: string) {

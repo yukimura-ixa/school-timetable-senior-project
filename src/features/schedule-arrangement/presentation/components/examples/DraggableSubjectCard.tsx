@@ -56,12 +56,17 @@ interface DraggableSubjectCardProps {
   /** Unique identifier (SubjectCode or composite key) */
   id: string;
   
-  /** Subject data from database */
+  /** Subject data from database (using strict types from schedule.types.ts) */
   subject: {
+    itemID: number;
     subjectCode: string;
     subjectName: string;
+    gradeID: string;
+    teacherID: number;
+    category: 'CORE' | 'ADDITIONAL' | 'ACTIVITY';
     credit: number;
-    remainingHours: number;
+    teachHour: number;
+    remainingHours?: number;
   };
   
   /** Teacher context (for validation/display) */
@@ -176,9 +181,14 @@ export function DraggableSubjectCard({
   const handleCardClick = () => {
     if (!disabled) {
       setSelectedSubject({
+        itemID: subject.itemID,
         subjectCode: subject.subjectCode,
         subjectName: subject.subjectName,
+        gradeID: subject.gradeID,
+        teacherID: subject.teacherID,
+        category: subject.category,
         credit: subject.credit,
+        teachHour: subject.teachHour,
         remainingHours: subject.remainingHours,
       });
     }

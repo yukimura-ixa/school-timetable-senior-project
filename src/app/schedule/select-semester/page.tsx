@@ -1,56 +1,40 @@
-"use client"
-import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import PrimaryButton from "@/components/mui/PrimaryButton";
+"use client";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import React, { useState, type JSX } from "react";
 
-type Props = {};
-
-function SelectYearAndSemester (props: Props) {
+/**
+ * Legacy redirect page for schedule/select-semester
+ * 
+ * This page has been replaced with the modern semester selection interface
+ * at /dashboard/select-semester which includes:
+ * - Card-based semester display
+ * - Advanced filtering and search
+ * - Analytics dashboard
+ * - Semester creation wizard
+ * - Integration with global semester selector in navbar
+ * 
+ * Users are automatically redirected to the modern interface.
+ */
+export default function SelectYearAndSemester() {
   const router = useRouter();
-  const [year, setYear] = useState(2566);
-  const [semester, setSemester] = useState(1);
+
+  useEffect(() => {
+    // Immediate redirect to modern semester selection page
+    router.replace("/dashboard/select-semester");
+  }, [router]);
+
+  // Fallback UI in case redirect takes time
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex justify-start items-center border-b py-4">
-        <h1 className="text-lg font-bold">เลือกปีการศึกษาและภาคเรียน</h1>
-      </div>
-      <div className="flex justify-between">
-        <p>เลือกปีการศึกษา</p>
-        <Dropdown
-          data={[2566, 2567, 2568, 2569]}
-          renderItem={({ data }: { data: any }): JSX.Element => (
-            <li className="w-full text-sm">{data}</li>
-          )}
-          width={400}
-          height={40}
-          currentValue={String(year)}
-          placeHolder="เลือกปีการศึกษา"
-          handleChange={(value:number) => {
-            setYear(() => value)
-          }}
-        />
-      </div>
-      <div className="flex justify-between">
-        <p>เลือกภาคเรียน</p>
-        <Dropdown
-          data={[1, 2]}
-          renderItem={({ data }: { data: any }): JSX.Element => (
-            <li className="w-full text-sm">{data}</li>
-          )}
-          width={400}
-          height={40}
-          currentValue={String(semester)}
-          placeHolder="เลือกภาคเรียน"
-          handleChange={(value:number) => {
-            setSemester(() => value)
-          }}
-        />
-      </div>
-      <div className="flex justify-end items-center">
-        <PrimaryButton handleClick={() => {router.replace(`/schedule/${semester}-${year}`)}} title={"ยืนยัน"} color={"primary"} Icon={undefined} reverseIcon={false} />
+    <div className="flex h-screen w-full items-center justify-center">
+      <div className="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+        <h2 className="text-lg font-semibold text-gray-800">
+          กำลังเปลี่ยนหน้า...
+        </h2>
+        <p className="text-sm text-gray-600">
+          กรุณารอสักครู่
+        </p>
       </div>
     </div>
   );
-};
-export default SelectYearAndSemester;
+}

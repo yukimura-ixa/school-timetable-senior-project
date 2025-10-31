@@ -8,8 +8,9 @@ import Loading from "@/app/loading";
 import { useParams, useSearchParams } from "next/navigation";
 import { subjectCreditValues } from "@/models/credit-value";
 import useSWR from "swr";
-import { fetcher } from "@/libs/axios";
 
+import { useSemesterSync } from "@/hooks";
+import { getSubjectsByGradeAction } from "@/features/subject/application/actions/subject.actions";
 import type { ModalCloseHandler, InputChangeHandler } from "@/types/events";
 
 type SubjectAssignment = subject & {
@@ -40,15 +41,15 @@ function AddSubjectModal(props: Props) {
     props.subjectByGradeID || [],
   ); //รายวิชาของชั้นเรียนทีส่งมา
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
-  const { data, isLoading, isValidating, error, mutate } = useSWR(
-    "subject/subjectsOfGrade?GradeID=" +
-      props.classRoomData.GradeID +
-      "&Semester=SEMESTER_" +
-      semester,
-    fetcher,
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  
+  const { data, isLoading, isValidating } = useSWR(
+    props.classRoomData?.GradeID
+      ? ['subjects-by-grade', props.classRoomData.GradeID]
+      : null,
+    async ([, gradeId]) => {
+      return await getSubjectsByGradeAction({ GradeID: gradeId });
+    },
     {
       //refreshInterval: 15000,
       revalidateOnMount: true,
@@ -56,9 +57,10 @@ function AddSubjectModal(props: Props) {
   ); //เรียกข้อมูลวิชาทั้งหมดของชั้นเรียนที่ส่งมา
   const searchTeacherID = useSearchParams().get("TeacherID");
   useEffect(() => {
-    if (!isValidating) {
-      setSubject(() => data);
-      const filterData = data.filter(
+    if (!isValidating && data && 'success' in data && data.success && data.data) {
+      const subjects = data.data as subject[];
+      setSubject(subjects);
+      const filterData = subjects.filter(
         (item) =>
           !subjectByGradeID
             .map((item) => item.SubjectCode)
@@ -67,14 +69,15 @@ function AddSubjectModal(props: Props) {
             .map((item) => item.SubjectName)
             .includes(item.SubjectName),
       ); //filterData มาตอนแรกเลยจะกรองวิชาที่เคยมีแล้วออกไปจาก dropdown โดยเช็คจากชื่อวิชาและรหัสวิชา
-      setSubject(() => filterData);
-      setSubjectFilter(() => filterData); //ที่set ทั้งสองตัวแปรเพราะว่าอันนึงไว้แสดง อันนึงไว้ search หาข้อมูลแล้วนำมา set ข้อมูลให้ตัวแปร subject เรื่อยๆ
+      setSubject(filterData);
+      setSubjectFilter(filterData); //ที่set ทั้งสองตัวแปรเพราะว่าอันนึงไว้แสดง อันนึงไว้ search หาข้อมูลแล้วนำมา set ข้อมูลให้ตัวแปร subject เรื่อยๆ
     }
   }, [isValidating]);
   useEffect(() => {
     //กรองวิชาที่เคยมีอยู่แล้วออกไปจาก dropdown โดยเช็คจากชื่อวิชาและรหัสวิชา
-    if (!data) return;
-    const filterDataR1 = data.filter(
+    if (!data || !('success' in data) || !data.success || !data.data) return;
+    const subjects = data.data as subject[];
+    const filterDataR1 = subjects.filter(
       (item) =>
         !subjectByGradeID
           .map((item) => item.SubjectCode)
@@ -90,8 +93,8 @@ function AddSubjectModal(props: Props) {
           .includes(item.SubjectCode) &&
         !subjectList.map((item) => item.SubjectName).includes(item.SubjectName),
     ); //R1 กับ R2 คือไร R1 คือกรองกับวิชาที่เคยเพิ่มอยู่แล้วตั้งแต่แรก R2 คือเมื่อเพิ่มวิชาไปใหม่ก็เอามากรองด้วย ไม่ให้ dropdown มีวิชาซ้ำจากรายวิชาที่แสดงอยู่บน modal
-    setSubjectFilter(() => filterDataR2);
-    setSubject(() => filterDataR2);
+    setSubjectFilter(filterDataR2);
+    setSubject(filterDataR2);
   }, [subjectList, currentSubject]); //useEffect นี้จะทำงานก็ต่อเมื่อมีการเพิ่มหรือลบวิชาอะไรซักอันนึง
   const addSubjectToList = (item: SubjectAssignment) => {
     setSubjectList(() => [...subjectList, item]);

@@ -78,7 +78,7 @@ import type { TimetableConfig } from '@/lib/timetable-config';
 import { DEFAULT_TIMETABLE_CONFIG } from '@/lib/timetable-config';
 
 // Types
-import type { SubjectData } from '@/types';
+import type { SubjectData, TeacherData } from '@/types/schedule.types';
 import type { gradelevel, teacher } from '@/prisma/generated';
 
 // Feedback Components
@@ -343,6 +343,15 @@ export default function ArrangementPage() {
   }, [gradeLevels]);
 
   // ============================================================================
+  // COMPUTED DATA - Teachers (Prisma type)
+  // ============================================================================
+  const transformedTeachers = useMemo(() => {
+    if (!allTeachers) return [];
+    // ArrangementHeader now expects Prisma's teacher type directly
+    return allTeachers as teacher[];
+  }, [allTeachers]);
+
+  // ============================================================================
   // EFFECTS - Initialize Teacher
   // ============================================================================
   useEffect(() => {
@@ -358,7 +367,18 @@ export default function ArrangementPage() {
         return teacherData.TeacherID === parseInt(currentTeacherID);
       });
       if (teacher) {
-        setTeacherData(teacher);
+        // Transform PascalCase to camelCase for store
+        const rawTeacher = teacher as { 
+          TeacherID: number; 
+          Prefix: string; 
+          Firstname: string; 
+          Lastname: string; 
+          Department: string; 
+          Email: string; 
+          Role: string; 
+        };
+        // Store now expects Prisma's teacher type directly
+        setTeacherData(rawTeacher);
       }
     }
   }, [currentTeacherID, allTeachers, setTeacherData]);
@@ -960,7 +980,7 @@ export default function ArrangementPage() {
           {/* Header */}
           <ArrangementHeader
             teacherData={teacherData}
-            availableTeachers={allTeachers || []}
+            availableTeachers={transformedTeachers}
             onTeacherChange={handleTeacherChange}
             onSave={() => void handleSave()}
             isSaving={isSaving}
@@ -1006,7 +1026,16 @@ export default function ArrangementPage() {
                         setActiveSubject(subject);
                       }}
                       storeSelectedSubject={activeSubject || {}}
-                      teacher={teacherData as teacher}
+                      teacher={teacherData || {
+                        // Default empty teacher if null
+                        TeacherID: 0,
+                        Prefix: '',
+                        Firstname: '',
+                        Lastname: '',
+                        Department: '',
+                        Email: '',
+                        Role: 'teacher',
+                      } as teacher}
                     />
                   </Box>
 
@@ -1080,7 +1109,7 @@ export default function ArrangementPage() {
         <RoomSelectionDialog
           open={roomDialogOpen}
           rooms={[]} // TODO: Fetch available rooms
-          subjectName={activeSubject?.SubjectName || ''}
+          subjectName={activeSubject?.subjectName || ''}
           timeslotLabel={selectedTimeslotForRoom || ''}
           onSelect={handleRoomSelect}
           onCancel={() => {
@@ -1103,7 +1132,7 @@ export default function ArrangementPage() {
                 cursor: 'grabbing',
               }}
             >
-              {activeSubject.SubjectName}
+              {activeSubject.subjectName}
             </Paper>
           )}
         </DragOverlay>

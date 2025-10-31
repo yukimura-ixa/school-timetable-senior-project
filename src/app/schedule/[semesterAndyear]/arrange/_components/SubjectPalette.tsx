@@ -32,7 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { SubjectData } from '@/types';
+import type { SubjectData } from '@/types/schedule.types';
 
 interface SubjectPaletteProps {
   /** Available subjects that can be assigned */
@@ -73,7 +73,7 @@ function DraggableSubjectItem({
     transition,
     isDragging,
   } = useSortable({
-    id: `subject-${subject.SubjectCode}`,
+    id: `subject-${subject.subjectCode}`,
     data: {
       type: 'subject',
       subject,
@@ -130,19 +130,19 @@ function DraggableSubjectItem({
             noWrap
             sx={{ color: isFullyScheduled ? 'text.disabled' : 'text.primary' }}
           >
-            {subject.SubjectName}
+            {subject.subjectName}
           </Typography>
           <Typography
             variant="caption"
             color="text.secondary"
             noWrap
           >
-            {subject.SubjectCode} • ม.{(subject.gradelevel?.Year || 0) - 6}
+            {subject.subjectCode} • ม.{(subject.gradelevel?.year || 0) - 6}
           </Typography>
         </Box>
 
         {/* Hours Badge */}
-        <Tooltip title={`เหลือ ${remainingHours} ชม. จาก ${subject.TeachHour} ชม.`}>
+        <Tooltip title={`เหลือ ${remainingHours} ชม. จาก ${subject.teachHour} ชม.`}>
           <Badge
             badgeContent={remainingHours}
             color={remainingHours > 0 ? 'primary' : 'default'}
@@ -155,7 +155,7 @@ function DraggableSubjectItem({
             }}
           >
             <Chip
-              label={`${subject.TeachHour}ชม.`}
+              label={`${subject.teachHour}ชม.`}
               size="small"
               variant="outlined"
               sx={{ minWidth: 50 }}
@@ -185,9 +185,9 @@ export function SubjectPalette({
   const subjectsWithHours = useMemo(() => {
     return subjects.map(subject => {
       const scheduledCount = scheduledSubjects.filter(
-        s => s.SubjectCode === subject.SubjectCode
+        s => s.subjectCode === subject.subjectCode
       ).length;
-      const remainingHours = (subject.TeachHour || 0) - scheduledCount;
+      const remainingHours = (subject.teachHour || 0) - scheduledCount;
       return {
         ...subject,
         remainingHours,
@@ -200,12 +200,12 @@ export function SubjectPalette({
     return subjectsWithHours.filter(subject => {
       // Search filter
       const matchesSearch = searchQuery === '' ||
-        subject.SubjectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        subject.SubjectCode.toLowerCase().includes(searchQuery.toLowerCase());
+        subject.subjectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        subject.subjectCode.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Grade filter
       const matchesGrade = filterByGrade === null ||
-        subject.gradelevel?.Year === filterByGrade;
+        subject.gradelevel?.year === filterByGrade;
 
       return matchesSearch && matchesGrade;
     });
@@ -215,7 +215,7 @@ export function SubjectPalette({
   const subjectsByGrade = useMemo(() => {
     const groups: Record<number, typeof filteredSubjects> = {};
     filteredSubjects.forEach(subject => {
-      const grade = subject.gradelevel?.Year || 0;
+      const grade = subject.gradelevel?.year || 0;
       if (!groups[grade]) {
         groups[grade] = [];
       }
@@ -326,10 +326,10 @@ export function SubjectPalette({
                     <Stack spacing={1}>
                       {gradeSubjects.map(subject => (
                         <DraggableSubjectItem
-                          key={subject.SubjectCode}
+                          key={subject.subjectCode}
                           subject={subject}
                           isSelected={
-                            selectedSubject?.SubjectCode === subject.SubjectCode
+                            selectedSubject?.subjectCode === subject.subjectCode
                           }
                           onClick={() => onSubjectClick?.(subject)}
                           remainingHours={subject.remainingHours}

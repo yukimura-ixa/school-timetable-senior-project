@@ -25,9 +25,11 @@ import {
   updateProgramSchema,
   deleteProgramSchema,
   getProgramByIdSchema,
+  getProgramByGradeSchema,
   getProgramsByYearSchema,
   assignSubjectsToProgramSchema,
   type CreateProgramInput,
+  type GetProgramByGradeInput,
   type UpdateProgramInput,
   type DeleteProgramInput,
   type GetProgramByIdInput,
@@ -106,6 +108,28 @@ export const getProgramByIdAction = createAction(
   getProgramByIdSchema,
   async (input: GetProgramByIdInput) => {
     const program = await programRepository.findById(input.ProgramID);
+    return program;
+  }
+);
+/**
+ * Get program by grade
+ * Returns program associated with a specific grade level including subjects
+ * 
+ * @param input - GradeID
+ * @returns Program with subjects or null
+ * 
+ * @example
+ * ```tsx
+ * const result = await getProgramByGradeAction({ GradeID: "101" });
+ * if (result.success && result.data) {
+ *   console.log(result.data.subjects); // subject[] with Credits, Category
+ * }
+ * ```
+ */
+export const getProgramByGradeAction = createAction(
+  getProgramByGradeSchema,
+  async (input: GetProgramByGradeInput) => {
+    const program = await programRepository.findByGrade(input.GradeID);
     return program;
   }
 );

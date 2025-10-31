@@ -20,6 +20,12 @@ import type {
   teacher,
 } from '@/prisma/generated';
 
+// Import strict types from schedule.types to avoid duplicates
+import type {
+  DragSourceData,
+  DropTargetData,
+} from './schedule.types';
+
 // ============================================================================
 // Subject Data (for Drag & Drop Operations)
 // ============================================================================
@@ -70,18 +76,11 @@ export type TimeslotData = timeslot & {
 };
 
 /**
- * Complete timeslot data with all relations
+ * @deprecated Use TimeslotWithRelations from '@/types/schedule.types' instead
+ * This type is re-exported below - do not use this definition directly
  */
-export type TimeslotWithRelations = timeslot & {
-  class_schedule: (class_schedule & {
-    subject: subject;
-    room: room | null;
-    gradelevel: gradelevel;
-    teachers_responsibility: (teachers_responsibility & {
-      teacher: teacher;
-    })[];
-  })[];
-};
+// export type TimeslotWithRelations = timeslot & { ... };
+// Removed to avoid conflict with schedule.types.ts
 
 // ============================================================================
 // Timeslot Grid Data
@@ -290,22 +289,18 @@ export interface SubjectSelectOption extends SelectOption<string> {
 // ============================================================================
 
 /**
- * Drag source data (from @dnd-kit)
+ * @deprecated Use DragSourceData from '@/types/schedule.types' instead
+ * This type is re-exported below - do not use this definition directly
  */
-export interface DragSourceData {
-  type: 'SUBJECT' | 'TIMESLOT';
-  id: string | number;
-  data: SubjectData | TimeslotData;
-}
+// export interface DragSourceData { ... };
+// Removed to avoid conflict with schedule.types.ts
 
 /**
- * Drop target data
+ * @deprecated Use DropTargetData from '@/types/schedule.types' instead  
+ * This type is re-exported below - do not use this definition directly
  */
-export interface DropTargetData {
-  type: 'TIMESLOT' | 'SUBJECT_BOX';
-  id: string;
-  accepts: ('SUBJECT' | 'TIMESLOT')[];
-}
+// export interface DropTargetData { ... };
+// Removed to avoid conflict with schedule.types.ts
 
 /**
  * Drag event data

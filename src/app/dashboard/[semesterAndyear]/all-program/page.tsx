@@ -1,9 +1,9 @@
 "use client";
-import { useGradeLevels } from "@/hooks";
+import { useGradeLevels, useSemesterSync } from "@/hooks";
 import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import PrimaryButton from "@/components/mui/PrimaryButton";
-import { fetcher } from "@/libs/axios";
+import { getProgramByGradeAction } from "@/features/program/application/actions/program.actions";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { useParams } from "next/navigation";
 import React, { Fragment, useState, type JSX } from "react";
@@ -16,9 +16,7 @@ type Props = {};
 
 const page = (props: Props) => {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   
   // Ensure semester and academicYear are defined
   if (!semester || !academicYear) {
@@ -28,15 +26,10 @@ const page = (props: Props) => {
   const gradeLevelData = useGradeLevels();
   const [currentGradeID, setCurrentGradeID] = useState("");
   const programOfGrade = useSWR(
-    () =>
-      currentGradeID !== "" &&
-      `/program/programOfGrade?GradeID=` +
-        currentGradeID +
-        `&AcademicYear=` +
-        academicYear +
-        `&Semester=SEMESTER_` +
-        semester,
-    fetcher,
+    currentGradeID !== "" ? ['program-by-grade', currentGradeID] : null,
+    async ([, gradeId]) => {
+      return await getProgramByGradeAction({ GradeID: gradeId });
+    },
     { revalidateOnFocus: false },
   );
   const convertDropdownItem = (gradeID: string) => {
@@ -45,31 +38,28 @@ const page = (props: Props) => {
       : `ม.${gradeID[0]}/${parseInt(gradeID.substring(1))}`;
   };
   const primarySubjectData = () => {
-    if (!programOfGrade.isLoading) {
-      return sortSubjectCategory(programOfGrade.data.subjects.filter(
-        (item: any) => item.Category == "พื้นฐาน",
+    if (!programOfGrade.isLoading && programOfGrade.data && 'success' in programOfGrade.data && programOfGrade.data.success && programOfGrade.data.data) {
+      return sortSubjectCategory(programOfGrade.data.data.subjects.filter(
+        (item: any) => item.Category === "พื้นฐาน",
       ));
-    } else {
-      return [];
     }
+    return [];
   };
   const extraSubjectData = () => {
-    if (!programOfGrade.isLoading) {
-      return sortSubjectCategory(programOfGrade.data.subjects.filter(
-        (item: any) => item.Category == "เพิ่มเติม",
+    if (!programOfGrade.isLoading && programOfGrade.data && 'success' in programOfGrade.data && programOfGrade.data.success && programOfGrade.data.data) {
+      return sortSubjectCategory(programOfGrade.data.data.subjects.filter(
+        (item: any) => item.Category === "เพิ่มเติม",
       ));
-    } else {
-      return [];
     }
+    return [];
   };
   const activitiesSubjectData = () => {
-    if (!programOfGrade.isLoading) {
-      return sortSubjectCategory(programOfGrade.data.subjects.filter(
-        (item: any) => item.Category == "กิจกรรมพัฒนาผู้เรียน",
+    if (!programOfGrade.isLoading && programOfGrade.data && 'success' in programOfGrade.data && programOfGrade.data.success && programOfGrade.data.data) {
+      return sortSubjectCategory(programOfGrade.data.data.subjects.filter(
+        (item: any) => item.Category === "กิจกรรมพัฒนาผู้เรียน",
       ));
-    } else {
-      return [];
     }
+    return [];
   };
   const TableHead = (): JSX.Element => (
     <>

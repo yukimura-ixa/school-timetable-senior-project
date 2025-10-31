@@ -78,6 +78,22 @@ export type DeleteSubjectsInput = v.InferOutput<typeof deleteSubjectsSchema>;
 /**
  * Schema for getting a single subject by SubjectCode
  */
+/**
+ * Schema for getting subjects by grade and semester
+ * Used to fetch subjects available for a specific grade level
+ */
+export const /**
+ * Schema for getting subjects by grade
+ * Used to fetch subjects available for a specific grade level through program
+ */
+export const getSubjectsByGradeSchema = v.object({
+  GradeID: v.pipe(v.string(), v.minLength(1, 'รหัสชั้นเรียนห้ามว่าง')),
+});
+
+export type GetSubjectsByGradeInput = v.InferOutput<typeof getSubjectsByGradeSchema>;;
+
+export type GetSubjectsByGradeInput = v.InferOutput<typeof getSubjectsByGradeSchema>;
+
 export const getSubjectByCodeSchema = v.object({
   SubjectCode: v.pipe(v.string(), v.minLength(1, 'รหัสวิชาห้ามว่าง')),
 });

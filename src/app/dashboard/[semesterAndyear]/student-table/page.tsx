@@ -4,11 +4,12 @@ import React, { useMemo, useRef, useState } from "react";
 import useSWR from "swr";
 import { useReactToPrint } from "react-to-print";
 
-import { useGradeLevels } from "@/hooks";
+import { useGradeLevels, useSemesterSync } from "@/hooks";
 import Loading from "@/app/loading";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import ErrorState from "@/components/mui/ErrorState";
-import { fetcher } from "@/libs/axios";
+import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 
 import TimeSlot from "./component/Timeslot";
 import SelectClassRoom from "./component/SelectClassroom";
@@ -25,7 +26,7 @@ const getGradeLabel = (gradeId: string | null) => {
 
 function StudentTablePage() {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split("-");
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
 
   const {
@@ -34,8 +35,15 @@ function StudentTablePage() {
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
   } = useSWR(
-    `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
-    fetcher,
+    semester && academicYear
+      ? ['timeslots-by-term', academicYear, semester]
+      : null,
+    async ([, year, sem]) => {
+      return await getTimeslotsByTermAction({
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+    },
     { revalidateOnFocus: false },
   );
 
@@ -45,11 +53,16 @@ function StudentTablePage() {
     isLoading: isClassLoading,
     isValidating: isClassValidating,
   } = useSWR(
-    () =>
-      selectedGradeId
-        ? `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&GradeID=${selectedGradeId}`
-        : null,
-    fetcher,
+    selectedGradeId && semester && academicYear
+      ? ['class-schedules-grade', selectedGradeId, academicYear, semester]
+      : null,
+    async ([, gradeId, year, sem]) => {
+      return await getClassSchedulesAction({
+        GradeID: gradeId,
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+    },
     {
       revalidateOnFocus: false,
       keepPreviousData: true,
@@ -58,11 +71,19 @@ function StudentTablePage() {
 
   const gradeLevelData = useGradeLevels();
 
-  const classData = useMemo(() => classDataResponse ?? [], [classDataResponse]);
-  const timeSlotData = useMemo(
-    () => createTimeSlotTableData(timeslotResponse, classData),
-    [timeslotResponse, classData],
-  );
+  const classData = useMemo(() => {
+    if (classDataResponse && 'success' in classDataResponse && classDataResponse.success && classDataResponse.data) {
+      return classDataResponse.data;
+    }
+    return [];
+  }, [classDataResponse]);
+  
+  const timeSlotData = useMemo(() => {
+    if (timeslotResponse && 'success' in timeslotResponse && timeslotResponse.success && timeslotResponse.data) {
+      return createTimeSlotTableData(timeslotResponse.data, classData);
+    }
+    return { timeslots: [], days: [], breakSlots: [] };
+  }, [timeslotResponse, classData]);
 
   const showLoadingOverlay =
     gradeLevelData.isLoading ||

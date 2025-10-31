@@ -284,11 +284,19 @@ export function findIncompletGrades(
 }
 
 /**
+ * Type for class_schedule with teachers_responsibility relation
+ * Used for conflict detection which needs teacher information
+ */
+type ScheduleWithTeachers = class_schedule & {
+  teachers_responsibility?: Array<{ TeacherID: number }>;
+};
+
+/**
  * Detect potential scheduling conflicts
  * Note: This is a simplified version. The actual conflict detection
  * is done at the database level during schedule creation.
  */
-export function detectConflicts(schedules: class_schedule[]): {
+export function detectConflicts(schedules: ScheduleWithTeachers[]): {
   teacherConflicts: number;
   classConflicts: number;
   roomConflicts: number;
@@ -304,14 +312,18 @@ export function detectConflicts(schedules: class_schedule[]): {
   schedules.forEach(schedule => {
     const timeslot = schedule.TimeslotID;
     
-    // Check teacher conflicts
-    if (!timeslotTeachers.has(timeslot)) {
-      timeslotTeachers.set(timeslot, new Set());
+    // Check teacher conflicts (via teachers_responsibility relation)
+    if (schedule.teachers_responsibility) {
+      schedule.teachers_responsibility.forEach(resp => {
+        if (!timeslotTeachers.has(timeslot)) {
+          timeslotTeachers.set(timeslot, new Set());
+        }
+        if (timeslotTeachers.get(timeslot)!.has(resp.TeacherID)) {
+          teacherConflicts++;
+        }
+        timeslotTeachers.get(timeslot)!.add(resp.TeacherID);
+      });
     }
-    if (timeslotTeachers.get(timeslot)!.has(schedule.TeacherID)) {
-      teacherConflicts++;
-    }
-    timeslotTeachers.get(timeslot)!.add(schedule.TeacherID);
     
     // Check class conflicts
     if (!timeslotClasses.has(timeslot)) {

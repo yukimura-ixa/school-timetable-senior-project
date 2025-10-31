@@ -7,7 +7,10 @@ import { useReactToPrint } from "react-to-print";
 import Loading from "@/app/loading";
 import PrimaryButton from "@/components/elements/static/PrimaryButton";
 import ErrorState from "@/components/elements/static/ErrorState";
-import { fetcher } from "@/libs/axios";
+import { useSemesterSync } from "@/hooks";
+import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
+import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
 
 import TimeSlot from "./component/Timeslot";
 import SelectTeacher from "./component/SelectTeacher";
@@ -34,7 +37,7 @@ const formatTeacherName = (teacher?: Teacher) => {
 
 function TeacherTablePage() {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split("-");
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
 
   const {
@@ -43,8 +46,15 @@ function TeacherTablePage() {
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
   } = useSWR(
-    `/timeslot?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}`,
-    fetcher,
+    semester && academicYear
+      ? ['timeslots-by-term', academicYear, semester]
+      : null,
+    async ([, year, sem]) => {
+      return await getTimeslotsByTermAction({
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+    },
     { revalidateOnFocus: false },
   );
 
@@ -54,11 +64,16 @@ function TeacherTablePage() {
     isLoading: isClassLoading,
     isValidating: isClassValidating,
   } = useSWR(
-    () =>
-      selectedTeacherId
-        ? `/class?AcademicYear=${academicYear}&Semester=SEMESTER_${semester}&TeacherID=${selectedTeacherId}`
-        : null,
-    fetcher,
+    selectedTeacherId && semester && academicYear
+      ? ['class-schedules-teacher', selectedTeacherId, academicYear, semester]
+      : null,
+    async ([, teacherId, year, sem]) => {
+      return await getClassSchedulesAction({
+        TeacherID: teacherId,
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+    },
     {
       revalidateOnFocus: false,
       keepPreviousData: true,
@@ -71,19 +86,28 @@ function TeacherTablePage() {
     isLoading: isTeacherLoading,
     isValidating: isTeacherValidating,
   } = useSWR(
-    () =>
-      selectedTeacherId ? `/teacher?TeacherID=${selectedTeacherId}` : null,
-    fetcher,
+    selectedTeacherId ? ['teacher-by-id', selectedTeacherId] : null,
+    async ([, teacherId]) => {
+      return await getTeacherByIdAction({ TeacherID: teacherId });
+    },
     {
       revalidateOnFocus: false,
     },
   );
 
-  const classData = useMemo(() => classDataResponse ?? [], [classDataResponse]);
-  const timeSlotData = useMemo(
-    () => createTimeSlotTableData(timeslotResponse, classData),
-    [timeslotResponse, classData],
-  );
+  const classData = useMemo(() => {
+    if (classDataResponse && 'success' in classDataResponse && classDataResponse.success && classDataResponse.data) {
+      return classDataResponse.data;
+    }
+    return [];
+  }, [classDataResponse]);
+  
+  const timeSlotData = useMemo(() => {
+    if (timeslotResponse && 'success' in timeslotResponse && timeslotResponse.success && timeslotResponse.data) {
+      return createTimeSlotTableData(timeslotResponse.data, classData);
+    }
+    return { timeslots: [], days: [], breakSlots: [] };
+  }, [timeslotResponse, classData]);
 
   const showLoadingOverlay =
     isTimeslotLoading ||
@@ -109,7 +133,12 @@ function TeacherTablePage() {
   const ref = useRef<HTMLDivElement>(null);
   const [isPDFExport, setIsPDFExport] = useState(false);
 
-  const teacherName = formatTeacherName(teacherResponse);
+  const teacherName = useMemo(() => {
+    if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
+      return formatTeacherName(teacherResponse.data);
+    }
+    return "";
+  }, [teacherResponse]);
 
   const generatePDF = useReactToPrint({
     contentRef: ref,
@@ -159,15 +188,17 @@ function TeacherTablePage() {
               <>
                 <div className="flex w-full justify-end gap-3">
                   <PrimaryButton
-                    handleClick={() =>
-                      ExportTeacherTable(
-                        timeSlotData,
-                        [teacherResponse],
-                        classData,
-                        semester,
-                        academicYear,
-                      )
-                    }
+                    handleClick={() => {
+                      if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
+                        ExportTeacherTable(
+                          timeSlotData,
+                          [teacherResponse.data],
+                          classData,
+                          semester,
+                          academicYear,
+                        );
+                      }
+                    }}
                     title={"นำออกเป็น Excel"}
                     color={"success"}
                     Icon={undefined}

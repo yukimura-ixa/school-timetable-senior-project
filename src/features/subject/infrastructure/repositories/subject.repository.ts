@@ -8,6 +8,7 @@
  */
 
 import prisma from '@/libs/prisma';
+import type { subject } from '@/prisma/generated';
 import type { CreateSubjectInput, UpdateSubjectInput } from '../../application/schemas/subject.schemas';
 
 export const subjectRepository = {
@@ -42,6 +43,38 @@ export const subjectRepository = {
         SubjectName: subjectName,
       },
     });
+  },
+
+  /**
+   * Find subjects by grade through program relationship
+   * Returns subjects available for a specific grade level
+   * Note: Subjects are determined by the grade's program, not by semester
+   */
+  async findByGrade(gradeId: string): Promise<subject[]> {
+    // Get the gradelevel with its program
+    const gradelevel = await prisma.gradelevel.findUnique({
+      where: { GradeID: gradeId },
+      include: {
+        program: {
+          include: {
+            program_subject: {
+              include: {
+                subject: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!gradelevel?.program) {
+      return [];
+    }
+
+    // Extract subjects from program_subject relation
+    const subjects = gradelevel.program.program_subject.map(ps => ps.subject);
+
+    return subjects;
   },
 
   /**

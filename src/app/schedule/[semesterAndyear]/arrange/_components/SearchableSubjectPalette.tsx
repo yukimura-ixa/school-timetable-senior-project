@@ -34,7 +34,7 @@ import {
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import SubjectItem from '../component/SubjectItem';
 import type { teacher } from '@/prisma/generated';
-import type { SubjectData as SubjectDataType } from '@/types';
+import type { SubjectData as SubjectDataType } from '@/types/schedule.types';
 
 interface SearchableSubjectPaletteProps {
   respData: SubjectDataType[];
@@ -63,9 +63,9 @@ export function SearchableSubjectPalette({
   // ============================================================================
   
   const filteredSubjects = useMemo(() => {
-    // Filter out items without required fields (GradeID, SubjectCode, SubjectName)
+    // Filter out items without required fields (gradeID, subjectCode, subjectName)
     let filtered = respData.filter(
-      (item) => !!item.GradeID && !!item.SubjectCode && !!item.SubjectName
+      (item) => !!item.gradeID && !!item.subjectCode && !!item.subjectName
     );
 
     // Search filter (subject code or name)
@@ -73,25 +73,25 @@ export function SearchableSubjectPalette({
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          item.SubjectCode?.toLowerCase().includes(query) ||
-          item.SubjectName?.toLowerCase().includes(query) ||
-          item.GradeID?.toLowerCase().includes(query)
+          item.subjectCode?.toLowerCase().includes(query) ||
+          item.subjectName?.toLowerCase().includes(query) ||
+          item.gradeID?.toLowerCase().includes(query)
       );
     }
 
     // Category filter
     if (categoryFilter.length > 0) {
       filtered = filtered.filter((item) =>
-        categoryFilter.includes(item.Category || 'CORE')
+        categoryFilter.includes(item.category || 'CORE')
       );
     }
 
     // Year filter
     if (yearFilter.length > 0) {
       filtered = filtered.filter((item) => {
-        if (!item.GradeID) return false;
-        // Extract year from GradeID format "ม.1/1"
-        const match = item.GradeID.match(/ม\.(\d)/);
+        if (!item.gradeID) return false;
+        // Extract year from gradeID format "ม.1/1"
+        const match = item.gradeID.match(/ม\.(\d)/);
         if (!match) return false;
         const year = parseInt(match[1]);
         return yearFilter.includes(year);
@@ -99,7 +99,7 @@ export function SearchableSubjectPalette({
     }
 
     // Type assertion: after filtering, we know these fields are non-null
-    return filtered as Array<SubjectDataType & { GradeID: string; SubjectCode: string; SubjectName: string }>;
+    return filtered as Array<SubjectDataType & { gradeID: string; subjectCode: string; subjectName: string }>;
   }, [respData, searchQuery, categoryFilter, yearFilter]);
 
   // ============================================================================
@@ -108,9 +108,9 @@ export function SearchableSubjectPalette({
   
   const stats = useMemo(() => {
     const total = respData.length;
-    const core = respData.filter((item) => item.Category === 'CORE').length;
-    const additional = respData.filter((item) => item.Category === 'ADDITIONAL').length;
-    const activity = respData.filter((item) => item.Category === 'ACTIVITY').length;
+    const core = respData.filter((item) => item.category === 'CORE').length;
+    const additional = respData.filter((item) => item.category === 'ADDITIONAL').length;
+    const activity = respData.filter((item) => item.category === 'ACTIVITY').length;
     
     return { total, core, additional, activity };
   }, [respData]);
@@ -143,7 +143,7 @@ export function SearchableSubjectPalette({
 
   // Generate IDs for SortableContext
   const itemIds = filteredSubjects.map(
-    (item, index) => `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`
+    (item, index) => `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`
   );
 
   // ============================================================================
@@ -318,7 +318,7 @@ export function SearchableSubjectPalette({
               >
                 {filteredSubjects.map((item, index) => (
                   <SubjectItem
-                    key={`${item.SubjectCode}-${index}`}
+                    key={`${item.subjectCode}-${index}`}
                     item={item}
                     index={index}
                     teacherData={{

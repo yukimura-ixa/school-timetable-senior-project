@@ -1,6 +1,7 @@
 "use client";
-import { useTeachers } from "@/hooks";
-import { fetcher } from "@/libs/axios";
+import { useTeachers, useSemesterSync } from "@/hooks";
+import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { getSummaryAction } from "@/features/class/application/actions/class.actions";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
@@ -18,9 +19,7 @@ import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
 const AllTimeslot = () => {
   // TODO: คาบล็อกแสดงเป็นตัวอักษรสีแดง
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const allTeacher = useTeachers();
   const [timeSlotData, setTimeSlotData] = useState({
     AllData: [], //ใช้กับตารางด้านล่าง
@@ -29,26 +28,32 @@ const AllTimeslot = () => {
   });
   const [classData, setClassData] = useState([]);
   const fetchTimeSlot = useSWR(
-    () =>
-      `/timeslot?AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester,
-    fetcher,
+    semester && academicYear
+      ? ['timeslots-by-term', academicYear, semester]
+      : null,
+    async ([, year, sem]) => {
+      return await getTimeslotsByTermAction({
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+    },
     { revalidateOnFocus: false },
   );
   const fetchAllClassData = useSWR(
-    () =>
-      `/class/summary?AcademicYear=` +
-      academicYear +
-      `&Semester=SEMESTER_` +
-      semester,
-    fetcher,
+    semester && academicYear
+      ? ['class-summary', academicYear, semester]
+      : null,
+    async ([, year, sem]) => {
+      return await getSummaryAction({
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+    },
     { revalidateOnFocus: false },
   );
   function fetchTimeslotData() {
-    if (!fetchTimeSlot.isValidating) {
-      let data = fetchTimeSlot.data;
+    if (!fetchTimeSlot.isValidating && fetchTimeSlot.data && 'success' in fetchTimeSlot.data && fetchTimeSlot.data.success && fetchTimeSlot.data.data) {
+      const data = fetchTimeSlot.data.data;
       let dayofweek = data
         .map((day) => day.DayOfWeek)
         .filter(
@@ -100,8 +105,8 @@ const AllTimeslot = () => {
     return minutes;
   };
   function fetchClassData() {
-    if (!fetchAllClassData.isValidating) {
-      const data = fetchAllClassData.data;
+    if (!fetchAllClassData.isValidating && fetchAllClassData.data && 'success' in fetchAllClassData.data && fetchAllClassData.data.success && fetchAllClassData.data.data) {
+      const data = fetchAllClassData.data.data;
       setClassData(data);
     }
   }

@@ -9,8 +9,7 @@
 
 import { useCallback } from 'react';
 import { useArrangementUIStore } from '../stores/arrangement-ui.store';
-import type { SubjectData } from '@/types';
-import type { SubjectPayload } from '../stores/arrangement-ui.store';
+import type { SubjectData, SubjectPayload } from '@/types/schedule.types';
 
 export interface ArrangeScheduleOperations {
   // Subject operations
@@ -75,7 +74,7 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
     clearSelectedSubject,
     setChangeTimeSlotSubject,
     setTimeslotIDtoChange,
-    setIsCilckToChangeSubject,
+    setIsClickToChangeSubject, // Fixed typo: was setIsCilckToChangeSubject
     setDestinationSubject,
     setYearSelected,
   } = useArrangementUIStore();
@@ -110,10 +109,10 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
     if (Object.keys(subject).length === 0) return;
     
     // Clear timeslot
-    updateTimeslotSubject(timeslotID, {});
+    updateTimeslotSubject(timeslotID, null);
     
     // Mark subject as unscheduled
-    const updatedSubject = { ...subject, Scheduled: false };
+    const updatedSubject = { ...subject, scheduled: false };
     addSubjectToData(updatedSubject);
     
     // Clear selection state
@@ -134,23 +133,23 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
     
     // Swap subjects
     const sourceSubject = sourceSlot.subject;
-    const destSubject = destSlot?.subject || {};
+    const destSubject = destSlot?.subject || null;
     
     updateTimeslotSubject(destinationID, sourceSubject);
     updateTimeslotSubject(sourceID, destSubject);
     
     // Clear change state
-    setChangeTimeSlotSubject({});
+    setChangeTimeSlotSubject(null);
     setTimeslotIDtoChange({ source: '', destination: '' });
-    setIsCilckToChangeSubject(false);
-    setDestinationSubject({});
-  }, [timeSlotData, updateTimeslotSubject, setChangeTimeSlotSubject, setTimeslotIDtoChange, setIsCilckToChangeSubject, setDestinationSubject]);
+    setIsClickToChangeSubject(false);
+    setDestinationSubject(null);
+  }, [timeSlotData, updateTimeslotSubject, setChangeTimeSlotSubject, setTimeslotIDtoChange, setIsClickToChangeSubject, setDestinationSubject]);
 
   /**
    * Return subject to subject list (mark as unscheduled)
    */
   const handleReturnSubject = useCallback((subject: SubjectData) => {
-    const updatedSubject = { ...subject, Scheduled: false };
+    const updatedSubject = { ...subject, scheduled: false };
     addSubjectToData(updatedSubject);
   }, [addSubjectToData]);
 
@@ -174,10 +173,10 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
   const handleCancelAddRoom = useCallback(() => {
     if (subjectPayload?.selectedSubject && subjectPayload?.timeslotID) {
       // Clear timeslot
-      updateTimeslotSubject(subjectPayload.timeslotID, {});
+      updateTimeslotSubject(subjectPayload.timeslotID, null);
       
       // Return subject to list
-      const updatedSubject = { ...subjectPayload.selectedSubject, Scheduled: false };
+      const updatedSubject = { ...subjectPayload.selectedSubject, scheduled: false };
       addSubjectToData(updatedSubject);
     }
     closeModal();
@@ -189,7 +188,7 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
   const handleSelectSubject = useCallback((subject: SubjectData) => {
     clearSelectedSubject();
     setChangeTimeSlotSubject(subject);
-    setYearSelected(subject.gradelevel?.Year ?? null);
+    setYearSelected(subject.gradelevel?.year ?? null);
   }, [clearSelectedSubject, setChangeTimeSlotSubject, setYearSelected]);
 
   /**
@@ -206,9 +205,9 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
   const handleInitiateChange = useCallback((subject: SubjectData, sourceID: string) => {
     setChangeTimeSlotSubject(subject);
     setTimeslotIDtoChange({ source: sourceID, destination: '' });
-    setIsCilckToChangeSubject(true);
-    setYearSelected(subject.gradelevel?.Year ?? null);
-  }, [setChangeTimeSlotSubject, setTimeslotIDtoChange, setIsCilckToChangeSubject, setYearSelected]);
+    setIsClickToChangeSubject(true);
+    setYearSelected(subject.gradelevel?.year ?? null);
+  }, [setChangeTimeSlotSubject, setTimeslotIDtoChange, setIsClickToChangeSubject, setYearSelected]);
 
   /**
    * Complete subject change operation (move to destination)
@@ -223,11 +222,11 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
    * Cancel subject change operation
    */
   const handleCancelChange = useCallback(() => {
-    setChangeTimeSlotSubject({});
+    setChangeTimeSlotSubject(null);
     setTimeslotIDtoChange({ source: '', destination: '' });
-    setIsCilckToChangeSubject(false);
+    setIsClickToChangeSubject(false);
     setYearSelected(null);
-  }, [setChangeTimeSlotSubject, setTimeslotIDtoChange, setIsCilckToChangeSubject, setYearSelected]);
+  }, [setChangeTimeSlotSubject, setTimeslotIDtoChange, setIsClickToChangeSubject, setYearSelected]);
 
   return {
     handleAddSubject,

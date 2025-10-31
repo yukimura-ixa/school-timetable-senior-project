@@ -8,6 +8,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { signOut, useSession } from "next-auth/react";
 
 import userIcon from "../../../public/svg/user/usericon.svg";
+import { SemesterSelector } from "./SemesterSelector";
 
 function Navbar() {
   const session = useSession();
@@ -53,6 +54,9 @@ function Navbar() {
             </span>
             {/* Rightside */}
             <div className="flex w-fit justify-between gap-3 items-center mr-10">
+              {/* Semester Selector */}
+              {session.status === "authenticated" && <SemesterSelector />}
+              
               {/* Leftside */}
               <div className={`flex justify-between gap-3 items-center`}>
                 <div
@@ -89,7 +93,7 @@ function Navbar() {
               {/* Rightside */}
               {session.status === "authenticated" ? (
                 <LogoutIcon
-                  onClick={() => signOut()}
+                  onClick={() => void signOut()}
                   className="cursor-pointer fill-gray-700"
                 />
               ) : null}

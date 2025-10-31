@@ -28,14 +28,14 @@ import {
   Person as PersonIcon,
   School as SchoolIcon,
 } from '@mui/icons-material';
-import type { TeacherData } from '@/features/schedule-arrangement/presentation/stores/slices/teacher-selection.slice';
+import type { teacher } from '@/prisma/generated';
 
 interface ArrangementHeaderProps {
   /** Current selected teacher data */
-  teacherData: TeacherData | null;
+  teacherData: teacher | null;
   
   /** List of available teachers */
-  availableTeachers: TeacherData[];
+  availableTeachers: teacher[];
   
   /** Handler for teacher selection */
   onTeacherChange: (teacherID: string) => void;
@@ -67,7 +67,7 @@ export function ArrangementHeader({
   semester,
   academicYear,
 }: ArrangementHeaderProps) {
-  const getTeacherFullName = (teacher: TeacherData) => {
+  const getTeacherFullName = (teacher: teacher) => {
     if (!teacher || !teacher.TeacherID) return '';
     return `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`;
   };

@@ -1,12 +1,13 @@
 import MiniButton from "@/components/elements/static/MiniButton";
-import { fetcher } from "@/libs/axios";
-import { CircularProgress, Skeleton } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import type { subject } from "@/prisma/generated";
 import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
+import { useSemesterSync } from "@/hooks";
+import { getGradeLevelsForLockAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import type { teacher } from "@/prisma/generated";
 
 type Props = {
@@ -19,49 +20,47 @@ type Props = {
 
 function SelectedClassRoom(props: Props) {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]; //from "1-2566" to ["1", "2566"]
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const teacherIDs = props.teachers.map((teacher) => teacher.TeacherID);
-  const teacherIDpath = teacherIDs.join("&TeacherID=");
 
-  const { data, isLoading, error, isValidating } = useSWR(
-    props.subject
-      ? `/gradelevel/getGradelevelForLock?SubjectCode=` +
-          props.subject.SubjectCode +
-          `&AcademicYear=` +
-          academicYear +
-          `&Semester=SEMESTER_` +
-          semester +
-          `&TeacherID=` +
-          teacherIDpath
+  const { data, isValidating } = useSWR(
+    props.subject && semester && academicYear && teacherIDs.length > 0
+      ? ['gradelevels-for-lock', props.subject.SubjectCode, semester, academicYear, ...teacherIDs]
       : null,
-    fetcher,
+    async ([, subjectCode, sem, year, ...ids]) => {
+      return await getGradeLevelsForLockAction({
+        SubjectCode: subjectCode,
+        AcademicYear: parseInt(year),
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        TeacherIDs: ids.map(id => Number(id)),
+      });
+    },
     {
       revalidateOnFocus: false,
     },
   );
 
   const [allClassRoom, setAllClassRoom] = useState([
-    { Year: 1, rooms: [] },
-    { Year: 2, rooms: [] },
-    { Year: 3, rooms: [] },
-    { Year: 4, rooms: [] },
-    { Year: 5, rooms: [] },
-    { Year: 6, rooms: [] },
+    { Year: 1, rooms: [] as string[] },
+    { Year: 2, rooms: [] as string[] },
+    { Year: 3, rooms: [] as string[] },
+    { Year: 4, rooms: [] as string[] },
+    { Year: 5, rooms: [] as string[] },
+    { Year: 6, rooms: [] as string[] },
   ]);
+  
   useEffect(() => {
-    if (data) {
-      console.log(data);
-      const ClassRoomClassify = (year: number) => {
+    if (data && 'success' in data && data.success && data.data) {
+      const ClassRoomClassify = (year: number): string[] => {
         //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
-        //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
-        //{GradeID: '101', ...}
-        //{GradeID: '101', ...}
-        //{GradeID: '102', ...}
-        const filterResData = data
-          .filter((data) => data.Year == year)
-          .map((item) => item.GradeID); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+        //รูปแบบข้อมูล จะมาประมาณนี้
+        //{GradeID: '101', Year: 1, Number: 1}
+        //{GradeID: '101', Year: 1, Number: 1}
+        //{GradeID: '102', Year: 1, Number: 2}
+        const grades = data.data as { GradeID: string; Year: number; Number: number }[];
+        const filterResData = grades
+          .filter((grade) => grade.Year === year)
+          .map((item) => item.GradeID); //เช่น Year === 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
         return filterResData;
       };
       setAllClassRoom((prev) =>
@@ -77,7 +76,7 @@ function SelectedClassRoom(props: Props) {
       <div className="flex flex-col gap-3 justify-between w-full">
         <div className="text-sm flex gap-2 items-center">
           <div className="text-sm flex gap-1">
-            <p onClick={() => console.log(allClassRoom)}>เลือกชั้นเรียน</p>
+            <p>เลือกชั้นเรียน</p>
             <p className="text-red-500">*</p>
           </div>
           <p className="text-blue-500">(คลิกที่ชั้นเรียนเพื่อเลือก)</p>
@@ -100,7 +99,7 @@ function SelectedClassRoom(props: Props) {
                   </Fragment>
                 ) : (
                   allClassRoom
-                    .filter((item) => item.Year == grade)[0]
+                    .filter((item) => item.Year === grade)[0]
                     .rooms.map((classroom: string) => (
                       <Fragment key={`ม.${classroom}`}>
                         <MiniButton

@@ -31,7 +31,7 @@ import {
 import { useDroppable } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { TimeslotData } from '@/types';
+import type { TimeslotData } from '@/types/schedule.types';
 import { CONFLICT_COLORS } from '@/features/schedule-arrangement/domain/constants';
 
 // Subject category colors (Phase 1 enhancement)
@@ -208,18 +208,18 @@ export function TimeslotCard({
 
   // Render occupied slot
   const subject = timeslot.subject;
-  const subjectName = subject?.SubjectName || 'ไม่มีข้อมูล';
-  const roomName = subject?.RoomName || 'ไม่ระบุห้อง';
+  const subjectName = subject?.subjectName || 'ไม่มีข้อมูล';
+  const roomName = subject?.roomName || 'ไม่ระบุห้อง';
   
-  // Extract class name from GradeID (format: "ม.1/1") or gradelevel object
-  const className = subject?.GradeID 
-    ? subject.GradeID 
+  // Extract class name from gradeID (format: "ม.1/1") or gradelevel object
+  const className = subject?.gradeID 
+    ? subject.gradeID 
     : subject?.gradelevel 
-      ? `ม.${subject.gradelevel.Year}/${subject.gradelevel.Number}`
+      ? `ม.${subject.gradelevel.year}/${subject.gradelevel.number}`
       : 'ไม่ระบุห้อง';
 
   // Subject category styling (Phase 1 enhancement)
-  const categoryKey = subject?.Category;
+  const categoryKey = subject?.category;
   const categoryStyle = 
     categoryKey && (categoryKey === 'CORE' || categoryKey === 'ADDITIONAL' || categoryKey === 'ACTIVITY')
     ? {

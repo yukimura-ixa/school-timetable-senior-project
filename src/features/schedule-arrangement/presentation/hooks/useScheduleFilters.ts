@@ -9,7 +9,7 @@
 
 import { useMemo, useCallback } from 'react';
 import { useArrangementUIStore } from '../stores/arrangement-ui.store';
-import type { SubjectData } from '@/types';
+import type { SubjectData } from '@/types/schedule.types';
 
 export interface ScheduleFiltersOperations {
   // Filtered data
@@ -62,8 +62,8 @@ export function useScheduleFilters(): ScheduleFiltersOperations {
     const yearsSet = new Set<number>();
     
     subjects.forEach((subject) => {
-      if (subject.gradelevel?.Year) {
-        yearsSet.add(subject.gradelevel.Year);
+      if (subject.gradelevel?.year) {
+        yearsSet.add(subject.gradelevel.year);
       }
     });
     
@@ -78,7 +78,7 @@ export function useScheduleFilters(): ScheduleFiltersOperations {
   }, [subjectData, extractAvailableYears]);
 
   /**
-   * Filter subjects by search text (SubjectCode or SubjectName)
+   * Filter subjects by search text (subjectCode or subjectName)
    */
   const filterBySearchText = useCallback((subjects: SubjectData[], searchText: string): SubjectData[] => {
     if (!searchText || searchText.trim() === '') {
@@ -88,8 +88,8 @@ export function useScheduleFilters(): ScheduleFiltersOperations {
     const search = searchText.toLowerCase().trim();
     
     return subjects.filter((subject) => {
-      const code = subject.SubjectCode?.toLowerCase() || '';
-      const name = subject.SubjectName?.toLowerCase() || '';
+      const code = subject.subjectCode?.toLowerCase() || '';
+      const name = subject.subjectName?.toLowerCase() || '';
       
       return code.includes(search) || name.includes(search);
     });
@@ -103,7 +103,7 @@ export function useScheduleFilters(): ScheduleFiltersOperations {
       return subjects;
     }
     
-    return subjects.filter((subject) => subject.gradelevel?.Year === year);
+    return subjects.filter((subject) => subject.gradelevel?.year === year);
   }, []);
 
   /**
@@ -117,7 +117,7 @@ export function useScheduleFilters(): ScheduleFiltersOperations {
       return subjects;
     }
     
-    return subjects.filter((subject) => !subject.Scheduled);
+    return subjects.filter((subject) => !subject.scheduled);
   }, []);
 
   /**

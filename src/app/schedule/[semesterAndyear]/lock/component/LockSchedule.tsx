@@ -2,47 +2,78 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import { MdAddCircle } from "react-icons/md";
-import { TbSettings, TbTrash } from "react-icons/tb";
+import { TbTrash } from "react-icons/tb";
 import { useParams } from "next/navigation";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { useLockedSchedules } from "@/hooks";
+import { useLockedSchedules, useSemesterSync } from "@/hooks";
 import LockScheduleForm from "./LockScheduleForm";
 import { useConfirmDialog } from "@/components/dialogs";
 import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
 import { deleteLocksAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import { Box } from "@mui/material";
+import {
+  Box,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
+import {
+  ViewList as ViewListIcon,
+  CalendarMonth as CalendarIcon,
+} from "@mui/icons-material";
 import {
   CardSkeleton,
   NoLockedSchedulesEmptyState,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
+import LockCalendarView from "./LockCalendarView";
+
+type ViewMode = "list" | "calendar";
 
 function LockSchedule() {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
     useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // Load preference from localStorage
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("lockScheduleViewMode");
+      return (saved as ViewMode) || "calendar";
+    }
+    return "calendar";
+  });
 
   const { confirm, dialog } = useConfirmDialog();
 
   const [showMoreteachherData, setShowMoreteacherData] = useState(null); //index
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  
+  // Sync URL params with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  
   const lockData = useLockedSchedules(parseInt(academicYear), parseInt(semester));
 
   const [selectedLock, setSelectedLock] = useState<GroupedLockedSchedule | null>(null);
+
+  // Save view preference
+  useEffect(() => {
+    localStorage.setItem("lockScheduleViewMode", viewMode);
+  }, [viewMode]);
+
+  const handleViewModeChange = (
+    _event: React.MouseEvent<HTMLElement>,
+    newMode: ViewMode | null
+  ) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
 
   const handleClickAddLockSchedule = () => {
     setSelectedLock(null);
     setLockScheduleFormActive(true);
   };
 
-  const handleClickEditLockSchedule = (index: number) => {
-    setSelectedLock(lockData.data[index]);
-    console.log(selectedLock);
-    setLockScheduleFormActive(true);
-  };
+
 
   const handleClickDeleteLockSchedule = async (item: GroupedLockedSchedule) => {
     const confirmed = await confirm({
@@ -66,10 +97,11 @@ function LockSchedule() {
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       await lockData.mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       enqueueSnackbar(
-        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.message || "Unknown error"),
+        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + errorMessage,
         { variant: "error" }
       );
       console.error(error);
@@ -106,26 +138,65 @@ function LockSchedule() {
           mutate={() => lockData.mutate()}
         />
       ) : null}
-      <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
-        {lockData.data.map((item, lockIndex) => (
+
+      {/* View Toggle */}
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={handleViewModeChange}
+          aria-label="view mode"
+          size="small"
+        >
+          <ToggleButton value="calendar" aria-label="calendar view">
+            <CalendarIcon sx={{ mr: 1 }} fontSize="small" />
+            <Typography variant="body2">ปฏิทิน</Typography>
+          </ToggleButton>
+          <ToggleButton value="list" aria-label="list view">
+            <ViewListIcon sx={{ mr: 1 }} fontSize="small" />
+            <Typography variant="body2">รายการ</Typography>
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      {/* Calendar View */}
+      {viewMode === "calendar" && (
+        <LockCalendarView
+          lockData={lockData.data}
+          academicYear={parseInt(academicYear)}
+          semester={parseInt(semester)}
+          onEditLock={(lock) => {
+            const index = lockData.data.findIndex(
+              (item) => item.SubjectCode === lock.SubjectCode
+            );
+            if (index !== -1) {
+              setSelectedLock(lockData.data[index]);
+              setLockScheduleFormActive(true);
+            }
+          }}
+          onDeleteLock={(lock) => {
+            void handleClickDeleteLockSchedule(lock);
+          }}
+        />
+      )}
+
+      {/* List View */}
+      {viewMode === "list" && (
+        <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
+          {lockData.data.map((item, lockIndex) => (
           <Fragment key={`${item.SubjectCode}-${lockIndex}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
                 <div className="flex justify-between items-center gap-3">
                   <p
                     className="text-lg font-medium"
-                    onClick={() => console.log(lockData)}
                   >
                     {item.SubjectCode} - {item.SubjectName}
                   </p>
                   <div className="flex gap-3">
-                    {/* <div
-                      onClick={() => handleClickEditLockSchedule(index)}
-                      className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
-                    >
-                      <TbSettings size={24} className="fill-[#EDEEF3]" />
-                    </div> */}
                     <div
-                      onClick={() => handleClickDeleteLockSchedule(item)}
+                      onClick={() => {
+                        void handleClickDeleteLockSchedule(item);
+                      }}
                       className="cursor-pointer hover:bg-gray-100 duration-300 rounded p-1 flex-end"
                     >
                       <TbTrash size={24} className="text-red-500" />
@@ -230,7 +301,7 @@ function LockSchedule() {
                               <div
                                 style={{
                                   display:
-                                    lockIndex == showMoreteachherData
+                                    lockIndex === showMoreteachherData
                                       ? "block"
                                       : "none",
                                 }}
@@ -276,6 +347,7 @@ function LockSchedule() {
             <p className="text-lg font-bold">เพิ่มคาบล็อก</p>
           </div>
         </div>
+      )}
     </>
   );
 }

@@ -177,8 +177,14 @@ export const getQuickStats = cache(async function getQuickStats(
   ] = await Promise.all([
     prisma.teacher.count(),
     prisma.gradelevel.count(),
+    // class_schedule doesn't have ConfigID - filter via timeslot relation
     prisma.class_schedule.count({
-      where: { ConfigID: configId },
+      where: {
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: sem,
+        },
+      },
     }),
     prisma.timeslot.count({
       where: {
@@ -187,8 +193,12 @@ export const getQuickStats = cache(async function getQuickStats(
       },
     }),
     prisma.subject.count(),
+    // teachers_responsibility has AcademicYear and Semester directly
     prisma.teachers_responsibility.count({
-      where: { ConfigID: configId },
+      where: {
+        AcademicYear: academicYear,
+        Semester: sem,
+      },
     }),
   ]);
   
@@ -204,17 +214,19 @@ export const getQuickStats = cache(async function getQuickStats(
 
 /**
  * Get teachers with their schedule counts for the semester
+ * Note: teacher doesn't have direct class_schedule relation - goes through teachers_responsibility
  */
 export const getTeachersWithScheduleCounts = cache(
-  async function getTeachersWithScheduleCounts(configId: string) {
+  async function getTeachersWithScheduleCounts(academicYear: number, sem: semester) {
     return prisma.teacher.findMany({
       include: {
-        class_schedule: {
+        teachers_responsibility: {
           where: {
-            ConfigID: configId,
+            AcademicYear: academicYear,
+            Semester: sem,
           },
           select: {
-            ClassScheduleID: true,
+            RespID: true,
             GradeID: true,
             SubjectCode: true,
           },
@@ -227,19 +239,23 @@ export const getTeachersWithScheduleCounts = cache(
 
 /**
  * Get grades with their schedule counts for the semester
+ * Note: class_schedule has ClassID (not ClassScheduleID) and no TeacherID field
  */
 export const getGradesWithScheduleCounts = cache(
-  async function getGradesWithScheduleCounts(configId: string) {
+  async function getGradesWithScheduleCounts(academicYear: number, sem: semester) {
     return prisma.gradelevel.findMany({
       include: {
         class_schedule: {
           where: {
-            ConfigID: configId,
+            timeslot: {
+              AcademicYear: academicYear,
+              Semester: sem,
+            },
           },
           select: {
-            ClassScheduleID: true,
+            ClassID: true,
             SubjectCode: true,
-            TeacherID: true,
+            TimeslotID: true,
           },
         },
         program: true,
@@ -251,23 +267,34 @@ export const getGradesWithScheduleCounts = cache(
 
 /**
  * Get subject distribution with counts
+ * Note: class_schedule primary key is ClassID (not ClassScheduleID)
  */
 export const getSubjectDistribution = cache(
-  async function getSubjectDistribution(configId: string) {
+  async function getSubjectDistribution(academicYear: number, sem: semester) {
+    type ScheduleGroup = {
+      SubjectCode: string;
+      _count: {
+        ClassID: number;
+      };
+    };
+    
     const schedules = await prisma.class_schedule.groupBy({
       by: ["SubjectCode"],
       where: {
-        ConfigID: configId,
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: sem,
+        },
       },
       _count: {
-        ClassScheduleID: true,
+        ClassID: true,
       },
       orderBy: {
         _count: {
-          ClassScheduleID: "desc",
+          ClassID: "desc",
         },
       },
-    });
+    }) as ScheduleGroup[];
     
     // Enrich with subject details
     const subjectCodes = schedules.map(s => s.SubjectCode);
@@ -284,7 +311,7 @@ export const getSubjectDistribution = cache(
       return {
         subjectCode: schedule.SubjectCode,
         subjectName: subject?.SubjectName || schedule.SubjectCode,
-        count: schedule._count.ClassScheduleID,
+        count: schedule._count.ClassID,
       };
     });
   }

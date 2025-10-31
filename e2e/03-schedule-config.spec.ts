@@ -27,8 +27,9 @@ test.describe('Timetable Configuration', () => {
       fullPage: true 
     });
     
-    expect(page.url()).toContain('/schedule/select-semester');
-    console.log('Schedule Semester Selector loaded');
+    // Expect dashboard/select-semester (modernized UI)
+    expect(page.url()).toContain('/dashboard/select-semester');
+    console.log('Schedule Semester Selector loaded (modernized UI)');
   });
 
   test('TC-007-02: Configuration page structure', async ({ page }) => {

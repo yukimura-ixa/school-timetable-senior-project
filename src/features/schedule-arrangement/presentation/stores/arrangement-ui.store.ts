@@ -11,7 +11,7 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { class_schedule } from '@/prisma/generated';
+import type { class_schedule, teacher } from '@/prisma/generated';
 
 // Phase 1: Import strict types from schedule.types.ts
 import type {
@@ -19,7 +19,6 @@ import type {
   TimeslotData,
   SubjectPayload,
   TimeslotChange,
-  TeacherData,
   BreakSlotData,
   DayOfWeekDisplay,
 } from '@/types/schedule.types';
@@ -46,7 +45,7 @@ export interface ErrorState {
 interface ArrangementUIState {
   // === Teacher Selection ===
   currentTeacherID: string | null;
-  teacherData: TeacherData;
+  teacherData: teacher | null;
 
   // === Subject Selection & Dragging ===
   selectedSubject: SubjectData | null; // Changed from non-null to nullable
@@ -105,19 +104,19 @@ interface ArrangementUIState {
 interface ArrangementUIActions {
   // === Teacher Actions ===
   setCurrentTeacherID: (id: string | null) => void;
-  setTeacherData: (data: TeacherData) => void;
+  setTeacherData: (data: teacher | null) => void;
 
   // === Subject Selection Actions ===
-  setSelectedSubject: (subject: SubjectData) => void;
+  setSelectedSubject: (subject: SubjectData | null) => void;
   setDraggedSubject: (subject: SubjectData | null) => void;
   setYearSelected: (year: number | null) => void;
   clearSelectedSubject: () => void;
 
   // === Subject Change Actions ===
-  setChangeTimeSlotSubject: (subject: SubjectData) => void;
-  setDestinationSubject: (subject: SubjectData) => void;
+  setChangeTimeSlotSubject: (subject: SubjectData | null) => void;
+  setDestinationSubject: (subject: SubjectData | null) => void;
   setTimeslotIDtoChange: (change: TimeslotChange) => void;
-  setIsCilckToChangeSubject: (isClicked: boolean) => void;
+  setIsClickToChangeSubject: (isClicked: boolean) => void;
   clearChangeSubjectState: () => void;
 
   // === Subject Data Actions ===
@@ -167,15 +166,7 @@ interface ArrangementUIActions {
 const initialState: ArrangementUIState = {
   // Teacher
   currentTeacherID: null,
-  teacherData: {
-    teacherID: 0, // Changed from TeacherID, non-null with default
-    firstname: '',
-    lastname: '',
-    prefix: '',
-    department: '',
-    email: '',
-    role: 'teacher',
-  },
+  teacherData: null,
 
   // Subject Selection - now properly null
   selectedSubject: null,

@@ -29,10 +29,14 @@ export default async function ScheduleSemesterLayout({
   }
 
   // Validate existence in DB (table_config)
+  // Note: We allow unconfigured semesters - they exist in semester table but may not have timeslot config yet
   const exists = await semesterRepository.findByYearAndSemester(year, semester);
   if (!exists) {
+    // Semester doesn't exist at all - redirect to selection
     return redirect("/dashboard/select-semester");
   }
 
+  // Semester exists (configured or not) - allow access
+  // Child pages will handle unconfigured state with helpful messages
   return <>{children}</>;
 }

@@ -26,12 +26,14 @@ import {
   updateSubjectsSchema,
   deleteSubjectsSchema,
   getSubjectByCodeSchema,
+  getSubjectsByGradeSchema,
   type CreateSubjectInput,
   type CreateSubjectsInput,
   type UpdateSubjectInput,
   type UpdateSubjectsInput,
   type DeleteSubjectsInput,
   type GetSubjectByCodeInput,
+  type GetSubjectsByGradeInput,
 } from '../schemas/subject.schemas';
 
 /**
@@ -80,6 +82,29 @@ export const getSubjectByCodeAction = createAction(
   async (input: GetSubjectByCodeInput) => {
     const subject = await subjectRepository.findByCode(input.SubjectCode);
     return subject;
+  }
+);
+
+/**
+ * Get subjects by grade
+ * Returns subjects available for a specific grade level through program relationship
+ * 
+ * @param input - GradeID
+ * @returns Array of subjects for the grade
+ * 
+ * @example
+ * ```tsx
+ * const result = await getSubjectsByGradeAction({ GradeID: "101" });
+ * if (result.success) {
+ *   console.log(result.data); // subject[]
+ * }
+ * ```
+ */
+export const getSubjectsByGradeAction = createAction(
+  getSubjectsByGradeSchema,
+  async (input: GetSubjectsByGradeInput) => {
+    const subjects = await subjectRepository.findByGrade(input.GradeID);
+    return subjects;
   }
 );
 

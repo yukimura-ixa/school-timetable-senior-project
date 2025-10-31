@@ -133,6 +133,47 @@ export const programRepository = {
   },
 
   /**
+   * Find program by grade ID with subjects
+   * Returns program associated with a specific grade level including subjects
+   */
+  async findByGrade(gradeId: string) {
+    const gradelevel = await prisma.gradelevel.findUnique({
+      where: { GradeID: gradeId },
+      include: {
+        program: {
+          include: {
+            program_subject: {
+              include: {
+                subject: true,
+              },
+              orderBy: {
+                SortOrder: 'asc',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!gradelevel?.program) {
+      return null;
+    }
+
+    // Transform program_subject to subjects array for easier consumption
+    const program = {
+      ...gradelevel.program,
+      subjects: gradelevel.program.program_subject.map(ps => ({
+        ...ps.subject,
+        Credits: ps.Credits,
+        Category: ps.Category,
+        SortOrder: ps.SortOrder,
+      })),
+    };
+
+    return program;
+  },
+
+  /**
    * Create a program (without subjects initially)
    */
   async create(data: CreateProgramInput) {

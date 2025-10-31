@@ -1,12 +1,12 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import { fetcher } from "@/libs/axios";
 import { CircularProgress } from "@mui/material";
-import type { subject } from "@/prisma/generated";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState, type JSX } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
+import { useSemesterSync } from "@/hooks";
+import { getLockedRespsAction } from "@/features/assign/application/actions/assign.actions";
 import type { InputChangeHandler } from "@/types/events";
 import type { SubjectWithResponsibilities } from "@/types/lock-schedule";
 
@@ -18,12 +18,18 @@ type Props = {
 
 function SelectSubject(props: Props) {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  
   const respData = useSWR(
-    `assign/getLockedResp?Semester=${semester}&AcademicYear=${academicYear}`,
-    fetcher,
+    semester && academicYear
+      ? ['locked-subjects', semester, academicYear]
+      : null,
+    async ([, sem, year]) => {
+      return await getLockedRespsAction({
+        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        AcademicYear: parseInt(year),
+      });
+    },
     {
       //refreshInterval: 15000,
       revalidateOnMount: true,
@@ -31,21 +37,21 @@ function SelectSubject(props: Props) {
   );
   const [subject, setSubject] = useState<SubjectWithResponsibilities[]>([]);
   const [subjectFilter, setSubjectFilter] = useState<SubjectWithResponsibilities[]>([]);
-  const [searchText, setSearchText] = useState("");
+  
   useEffect(() => {
-    if (respData.data) {
-      setSubject(() => respData.data);
-      setSubjectFilter(() => respData.data);
+    if (respData.data && 'success' in respData.data && respData.data.success && respData.data.data) {
+      setSubject(respData.data.data as SubjectWithResponsibilities[]);
+      setSubjectFilter(respData.data.data as SubjectWithResponsibilities[]);
     }
   }, [respData.isValidating]);
+  
   const searchHandle: InputChangeHandler = (event) => {
-    let text = event.target.value;
-    setSearchText(text);
+    const text = event.target.value;
     searchName(text);
   };
+  
   const searchName = (name: string) => {
-
-    let res = subjectFilter.filter((item) =>
+    const res = subjectFilter.filter((item) =>
       `${item.SubjectCode} ${item.SubjectName}`.match(name),
     );
     setSubject(res);

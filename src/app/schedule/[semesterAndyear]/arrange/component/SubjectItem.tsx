@@ -9,9 +9,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 interface SubjectItemData {
-  SubjectCode: string;
-  SubjectName: string;
-  GradeID: string;
+  subjectCode: string;
+  subjectName: string;
+  gradeID: string;
   itemID?: number;
 }
 
@@ -43,7 +43,7 @@ function SubjectItem({
     transition,
     isDragging,
   } = useSortable({
-    id: `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`,
+    id: `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`,
     data: {
       type: "subject",
       item,
@@ -59,7 +59,7 @@ function SubjectItem({
 
   // Check if this item is currently selected
   const isSelected = storeSelectedSubject === item ||
-    storeSelectedSubject?.SubjectCode === item.SubjectCode;
+    storeSelectedSubject?.subjectCode === item.subjectCode;
 
   return (
     <div
@@ -74,13 +74,13 @@ function SubjectItem({
       } duration-100 select-none`}
       onClick={() => clickOrDragToSelectSubject(item)}
     >
-      <b className="text-sm">{item.SubjectCode}</b>
-      <p className="text-sm">{item.SubjectName.substring(0, 8)}...</p>
+      <b className="text-sm">{item.subjectCode}</b>
+      <p className="text-sm">{item.subjectName.substring(0, 8)}...</p>
       <b className="text-xs">
-        ม.{item.GradeID[0]}/
-        {parseInt(item.GradeID.substring(1, 2)) < 10
-          ? item.GradeID[2]
-          : item.GradeID.substring(1, 2)}
+        ม.{item.gradeID[0]}/
+        {parseInt(item.gradeID.substring(1, 2)) < 10
+          ? item.gradeID[2]
+          : item.gradeID.substring(1, 2)}
       </b>
       <div className="flex gap-1 justify-center">
         <p className="text-xs">{teacherData.Firstname}</p>

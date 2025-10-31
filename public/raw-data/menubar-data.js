@@ -66,8 +66,8 @@ export const scheduleMenu = [
       Icon: BsTable,
     },
     title: "จัดตารางสอน",
-    // link : ["/schedule/timeslot/semester/1/classify", "/schedule/timeslot/semester/2/classify"] //default path
-    link: "/schedule/select-semester",
+    // Modernized: now points to dashboard/select-semester with card-based UI
+    link: "/dashboard/select-semester",
     roles: ["admin"],
   },
   // {

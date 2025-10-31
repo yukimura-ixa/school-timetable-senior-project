@@ -84,6 +84,14 @@ export const getProgramByIdSchema = v.object({
 });
 
 export type GetProgramByIdInput = v.InferOutput<typeof getProgramByIdSchema>;
+/**
+ * Get program by grade schema
+ */
+export const getProgramByGradeSchema = v.object({
+  GradeID: v.pipe(v.string(), v.minLength(1, 'รหัสชั้นเรียนห้ามว่าง')),
+});
+
+export type GetProgramByGradeInput = v.InferOutput<typeof getProgramByGradeSchema>;
 
 /**
  * Schema for getting programs by Year

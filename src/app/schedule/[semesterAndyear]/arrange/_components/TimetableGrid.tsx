@@ -19,7 +19,7 @@ import {
   Chip,
 } from '@mui/material';
 import { TimeslotCard } from './TimeslotCard';
-import type { TimeslotData } from '@/types';
+import type { TimeslotData } from '@/types/schedule.types';
 import {
   DAY_LABELS_TH,
   DAY_COLORS,

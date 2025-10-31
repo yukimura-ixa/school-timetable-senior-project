@@ -1,42 +1,40 @@
 "use client";
-import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { Box, Tabs, Tab, Link, Chip } from "@mui/material";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { Box, Tabs, Tab, Link } from "@mui/material";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import SettingsIcon from "@mui/icons-material/Settings";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import LockIcon from "@mui/icons-material/Lock";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
-import useSWR from "swr";
+import { useSemesterSync } from "@/hooks";
 
 function Schedule() {
   const pathName = usePathname();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  
+  // Sync URL params with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  
   const path = pathName.substring(0, 16);
-  const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
-  
-  const tableConfig = useSWR(
-    `timetable-config-${academicYear}-${semester}`,
-    async () => {
-      const result = await getTimetableConfigAction(
-        parseInt(academicYear),
-        `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
-      );
-      return result.success ? result.data : null;
-    }
-  );
-  
-  useEffect(() => {
-    setIsSetTimeslot(() => tableConfig.data !== undefined);
-  }, [tableConfig.isValidating, tableConfig.data]);
 
-  const [tabSelect, setTabSelect] = useState<string>("");
+  // Extract current tab from URL path (e.g., "/schedule/1-2567/assign" -> "assign")
+  const getCurrentTab = (): string => {
+    const parts = pathName.split("/");
+    if (parts.length > 3) {
+      // Handle nested routes like "arrange/teacher-arrange"
+      return parts.slice(3).join("/");
+    }
+    return "";
+  };
+
+  const [tabSelect, setTabSelect] = useState<string>(getCurrentTab());
+
+  // Sync tab state with URL changes
+  useEffect(() => {
+    const currentTab = getCurrentTab();
+    setTabSelect(currentTab);
+  }, [pathName]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setTabSelect(newValue);
@@ -50,18 +48,10 @@ function Schedule() {
           <h1 className="text-xl font-bold">
             ตารางสอน ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
           </h1>
-          {isSetTimeslot && (
-            <Chip 
-              label="ตั้งค่าคาบเรียนแล้ว" 
-              color="success" 
-              size="small" 
-              sx={{ mt: 1 }}
-            />
-          )}
         </Box>
         <Link
           sx={{ display: 'flex', gap: 1, alignItems: 'center', cursor: 'pointer', textDecoration: 'none' }}
-          href="/schedule/select-semester"
+          href="/dashboard/select-semester"
         >
           <KeyboardBackspaceIcon sx={{ color: 'text.secondary' }} />
           <Box component="span" sx={{ color: 'text.secondary', fontSize: '0.875rem' }}>
@@ -79,31 +69,22 @@ function Schedule() {
           aria-label="schedule tabs"
         >
           <Tab
-            icon={<SettingsIcon />}
-            iconPosition="start"
-            label="ตั้งค่าตารางสอน"
-            value="config"
-          />
-          <Tab
             icon={<AssignmentIcon />}
             iconPosition="start"
             label="มอบหมายวิชาเรียน"
             value="assign"
-            disabled={!isSetTimeslot}
           />
           <Tab
             icon={<LockIcon />}
             iconPosition="start"
             label="ล็อกคาบสอน"
             value="lock"
-            disabled={!isSetTimeslot}
           />
           <Tab
             icon={<CalendarMonthIcon />}
             iconPosition="start"
             label="จัดตารางสอน"
             value="arrange/teacher-arrange"
-            disabled={!isSetTimeslot}
           />
         </Tabs>
       </Box>

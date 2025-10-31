@@ -14,8 +14,7 @@ import Counter from "./component/Counter";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import api from "@/libs/axios";
-import { getConfigByTermAction } from "@/features/config/application/actions/config.actions";
+import { getConfigByTermAction, createConfigAction } from "@/features/config/application/actions/config.actions";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
@@ -23,11 +22,13 @@ import {
   PageLoadingSkeleton,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
+import { useSemesterSync } from "@/hooks";
+
 function TimetableConfigValue() {
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  
+  // Sync URL params with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const [isCopying, setIsCopying] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
@@ -193,19 +194,25 @@ function TimetableConfigValue() {
       persist: true,
     });
     try {
-      const response = await api.post("/timeslot", {
-        ...configData,
-        HasMinibreak: addMiniBreak,
-        // BreakDuration: configData.Duration,
+      const result = await createConfigAction({
+        ConfigID: `${semester}-${academicYear}`,
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Config: {
+          ...configData,
+          HasMinibreak: addMiniBreak,
+        },
       });
-      if (response.status === 200) {
+      
+      if (result.success) {
         closeSnackbar(saving);
         enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });
-        tableConfig.mutate();
+        await tableConfig.mutate();
+      } else {
+        throw new Error(result.error?.message || "Unknown error");
       }
-      console.log(response);
     } catch (error) {
-      console.log(error);
+      console.error("Config save error:", error);
       closeSnackbar(saving);
       enqueueSnackbar("เกิดข้อผิดพลาดในการตั้งค่าตาราง", { variant: "error" });
       setIsSetTimeslot(false);

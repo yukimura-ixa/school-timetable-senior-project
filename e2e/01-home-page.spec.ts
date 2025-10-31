@@ -52,7 +52,7 @@ test.describe('Home Page and Basic Navigation', () => {
       '/management/teacher',
       '/management/subject',
       '/management/rooms',
-      '/schedule/select-semester',
+      '/dashboard/select-semester',
     ];
 
     for (const route of protectedRoutes) {

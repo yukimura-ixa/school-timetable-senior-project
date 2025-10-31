@@ -5,7 +5,7 @@
  * Displays semester information with status, progress, and actions
  */
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -17,15 +17,18 @@ import {
   IconButton,
   Button,
   Tooltip,
+  Alert,
 } from "@mui/material";
 import {
   PushPin as PinIcon,
   PushPinOutlined as PinOutlinedIcon,
   FileCopy as CopyIcon,
+  Schedule as ScheduleIcon,
 } from "@mui/icons-material";
 import type { SemesterDTO } from "@/features/semester/application/schemas/semester.schemas";
 import { semesterThai } from "@/models/semester-thai";
 import { pinSemesterAction } from "@/features/semester/application/actions/semester.actions";
+import { ConfigureTimeslotsDialog } from "./ConfigureTimeslotsDialog";
 
 type Props = {
   semester: SemesterDTO;
@@ -56,9 +59,14 @@ export function SemesterCard({
   onUpdate,
   isSelected,
 }: Props) {
+  const [configDialogOpen, setConfigDialogOpen] = useState(false);
+  
   const semesterLabel = semesterThai[semester.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"];
   const statusColor = STATUS_COLORS[semester.status];
   const statusLabel = STATUS_LABELS[semester.status];
+  
+  // Check if timeslots need to be configured (completeness < 25%)
+  const needsTimeslotConfig = semester.configCompleteness < 25;
 
   const formatDate = (date?: Date | null) => {
     if (!date) return "-";
@@ -75,6 +83,11 @@ export function SemesterCard({
       configId: semester.configId,
       isPinned: !semester.isPinned,
     });
+    onUpdate?.();
+  };
+  
+  const handleConfigSuccess = () => {
+    setConfigDialogOpen(false);
     onUpdate?.();
   };
 
@@ -97,7 +110,7 @@ export function SemesterCard({
     >
       {/* Pin Button */}
       <IconButton
-        onClick={handlePin}
+        onClick={(e) => void handlePin(e)}
         sx={{
           position: "absolute",
           top: 8,
@@ -126,6 +139,15 @@ export function SemesterCard({
             sx={{ mb: 1 }}
           />
         </Box>
+        
+        {/* Warning for missing timeslots */}
+        {needsTimeslotConfig && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Typography variant="caption">
+              ยังไม่ได้ตั้งค่าตารางเรียน
+            </Typography>
+          </Alert>
+        )}
 
         {/* Progress */}
         <Box sx={{ mb: 2 }}>
@@ -201,29 +223,57 @@ export function SemesterCard({
       </CardContent>
 
       {/* Actions */}
-      <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
-        {onCopy && (
-          <Tooltip title="คัดลอก">
-            <IconButton
+      <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2, flexWrap: "wrap", gap: 1 }}>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          {onCopy && (
+            <Tooltip title="คัดลอก">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCopy(semester);
+                }}
+              >
+                <CopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Box>
+        
+        <Box sx={{ display: "flex", gap: 1, ml: "auto" }}>
+          {needsTimeslotConfig && (
+            <Button
+              variant="outlined"
               size="small"
+              startIcon={<ScheduleIcon />}
               onClick={(e) => {
                 e.stopPropagation();
-                onCopy(semester);
+                setConfigDialogOpen(true);
               }}
+              color="warning"
             >
-              <CopyIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        )}
-        <Button
-          variant="contained"
-          size="small"
-          onClick={() => onSelect(semester)}
-          sx={{ ml: "auto" }}
-        >
-          เลือก
-        </Button>
+              ตั้งค่าตาราง
+            </Button>
+          )}
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => onSelect(semester)}
+          >
+            เลือก
+          </Button>
+        </Box>
       </CardActions>
+      
+      {/* Configure Timeslots Dialog */}
+      <ConfigureTimeslotsDialog
+        open={configDialogOpen}
+        onClose={() => setConfigDialogOpen(false)}
+        onSuccess={handleConfigSuccess}
+        academicYear={semester.academicYear}
+        semester={semester.semester as 1 | 2}
+        configId={semester.configId}
+      />
     </Card>
   );
 }

@@ -113,5 +113,5 @@
         "eval": false,
         "Invoke-Expression": false,
         "iex": false
-    }
+    },
 }

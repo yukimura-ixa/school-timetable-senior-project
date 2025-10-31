@@ -23,6 +23,8 @@ import {
   type SemesterDTO,
 } from "../schemas/semester.schemas";
 import prisma from "@/libs/prisma";
+import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
+import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 
 type ActionResult<T = unknown> = {
   success: boolean;
@@ -252,6 +254,196 @@ export async function createSemesterAction(
   } catch (err: unknown) {
     console.error("[createSemesterAction] Error:", err);
     const message = err instanceof Error ? err.message : "Failed to create semester";
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Create semester with timeslots in one atomic transaction
+ * Combines semester creation and timeslot generation
+ * 
+ * @param input - Semester data + optional timeslot configuration
+ * @returns Created semester with statistics
+ * 
+ * @example
+ * ```tsx
+ * const result = await createSemesterWithTimeslotsAction({
+ *   academicYear: 2567,
+ *   semester: 1,
+ *   timeslotConfig: {
+ *     Days: ["MON", "TUE", "WED", "THU", "FRI"],
+ *     StartTime: "08:00",
+ *     Duration: 50,
+ *     // ... other config
+ *   },
+ * });
+ * ```
+ */
+export async function createSemesterWithTimeslotsAction(input: {
+  academicYear: number;
+  semester: number;
+  copyFromConfigId?: string;
+  copyConfig?: boolean;
+  timeslotConfig?: CreateTimeslotsInput;
+}): Promise<ActionResult<SemesterDTO>> {
+  try {
+    // Validate semester number
+    if (input.semester !== 1 && input.semester !== 2) {
+      return {
+        success: false,
+        error: "ภาคเรียนต้องเป็น 1 หรือ 2 เท่านั้น",
+      };
+    }
+
+    // Check if semester already exists
+    const existing = await semesterRepository.findByYearAndSemester(
+      input.academicYear,
+      input.semester
+    );
+
+    if (existing) {
+      return {
+        success: false,
+        error: `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
+      };
+    }
+
+    // Prepare semester enum
+    const semesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
+
+    // Use transaction for atomicity
+    const newSemester = await prisma.$transaction(async (tx) => {
+      // 1. Copy config from source if requested
+      let configData = {};
+      if (input.copyFromConfigId && input.copyConfig) {
+        const source = await tx.table_config.findUnique({
+          where: { ConfigID: input.copyFromConfigId },
+        });
+        if (source) {
+          configData = source.Config;
+        }
+      }
+
+      // 2. Create new semester
+      const semester = await tx.table_config.create({
+        data: {
+          ConfigID: `${input.semester}-${input.academicYear}`,
+          AcademicYear: input.academicYear,
+          Semester: semesterEnum,
+          Config: configData,
+          status: "DRAFT",
+          isPinned: false,
+          configCompleteness: 0,
+        },
+      });
+
+      // 3. Create timeslots if config provided
+      if (input.timeslotConfig) {
+        // Validate no existing timeslots (should never happen in transaction)
+        const existingTimeslots = await tx.timeslot.findFirst({
+          where: {
+            AcademicYear: input.academicYear,
+            Semester: semesterEnum,
+          },
+        });
+
+        if (existingTimeslots) {
+          throw new Error("มีตารางเวลาสำหรับภาคเรียนนี้อยู่แล้ว");
+        }
+
+        // Generate and create timeslots
+        const timeslots = generateTimeslots({
+          ...input.timeslotConfig,
+          AcademicYear: input.academicYear,
+          Semester: semesterEnum,
+        });
+
+        await tx.timeslot.createMany({
+          data: timeslots,
+        });
+
+        // Update config completeness (timeslots configured)
+        await tx.table_config.update({
+          where: { ConfigID: semester.ConfigID },
+          data: { configCompleteness: 25 }, // 25% complete after timeslots
+        });
+      }
+
+      // 4. Copy timeslots from source if requested (and no new config)
+      if (input.copyFromConfigId && !input.timeslotConfig) {
+        const source = await tx.table_config.findUnique({
+          where: { ConfigID: input.copyFromConfigId },
+        });
+
+        if (source) {
+          const sourceYear = source.AcademicYear;
+          const sourceSemester = source.Semester;
+
+          const timeslots = await tx.timeslot.findMany({
+            where: {
+              AcademicYear: sourceYear,
+              Semester: sourceSemester,
+            },
+          });
+
+          if (timeslots.length > 0) {
+            const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2;
+            const targetSemesterNum = input.semester;
+
+            await tx.timeslot.createMany({
+              data: timeslots.map((ts) => ({
+                TimeslotID: ts.TimeslotID.replace(
+                  `${sourceSemesterNum}-${sourceYear}`,
+                  `${targetSemesterNum}-${input.academicYear}`
+                ),
+                AcademicYear: input.academicYear,
+                Semester: semesterEnum,
+                StartTime: ts.StartTime,
+                EndTime: ts.EndTime,
+                Breaktime: ts.Breaktime,
+                DayOfWeek: ts.DayOfWeek,
+              })),
+              skipDuplicates: true,
+            });
+
+            // Update config completeness
+            await tx.table_config.update({
+              where: { ConfigID: semester.ConfigID },
+              data: { configCompleteness: 25 },
+            });
+          }
+        }
+      }
+
+      return semester;
+    });
+
+    // 5. Get statistics
+    const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
+
+    return {
+      success: true,
+      data: {
+        configId: newSemester.ConfigID,
+        academicYear: newSemester.AcademicYear,
+        semester: newSemester.Semester === "SEMESTER_1" ? 1 : 2,
+        status: newSemester.status,
+        isPinned: newSemester.isPinned,
+        configCompleteness: newSemester.configCompleteness,
+        lastAccessedAt: newSemester.lastAccessedAt,
+        publishedAt: newSemester.publishedAt,
+        createdAt: newSemester.createdAt,
+        updatedAt: newSemester.updatedAt,
+        classCount: stats?.classCount || 0,
+        teacherCount: stats?.teacherCount || 0,
+        roomCount: 0,
+        subjectCount: stats?.subjectCount || 0,
+      } as SemesterDTO,
+    };
+  } catch (err: unknown) {
+    console.error("[createSemesterWithTimeslotsAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to create semester with timeslots";
     return { success: false, error: message };
   }
 }

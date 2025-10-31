@@ -9,7 +9,8 @@
 
 import { useCallback, useMemo } from 'react';
 import { useArrangementUIStore } from '../stores/arrangement-ui.store';
-import type { SubjectData, TimeslotData } from '@/types';
+// Import from schedule.types.ts (strict camelCase types) instead of @/types (legacy PascalCase)
+import type { SubjectData } from '@/types/schedule.types';
 
 export interface ConflictType {
   type: 'teacher' | 'room' | 'lock' | 'none';
@@ -128,7 +129,7 @@ export function useConflictValidation(): ConflictValidationOperations {
         slot.TimeslotID !== timeslotID &&
         slot.DayOfWeek === timeslot.DayOfWeek &&
         slot.StartTime === timeslot.StartTime &&
-        slot.subject?.RoomID === roomID
+        slot.subject?.roomID === roomID // Fixed: RoomID → roomID (camelCase)
       );
     });
     
@@ -161,7 +162,7 @@ export function useConflictValidation(): ConflictValidationOperations {
     }
     
     // Check room conflict
-    if (subject.RoomID && checkRoomConflict(timeslotID, subject.RoomID)) {
+    if (subject.roomID && checkRoomConflict(timeslotID, subject.roomID)) {
       return {
         type: 'room',
         message: 'Room is already occupied by another class at this time',

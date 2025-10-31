@@ -11,6 +11,20 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import TimetableHeader from "./TimetableHeader";
 import TimetableRow from "./TimetableRow";
 import { TimeslotCell } from "./TimeslotCell";
+import type {
+  CheckBreakTimeCallback,
+  IsSelectedToAddCallback,
+  IsSelectedToChangeCallback,
+  TimeSlotCssClassNameCallback,
+  SubjectData,
+  AddRoomModalCallback,
+  ClickOrDragToChangeCallback,
+  RemoveSubjectCallback,
+  SetErrorStateCallback,
+  DisplayErrorChangeSubjectCallback,
+  TimeslotChange,
+} from '@/types/schedule.types';
+
 type Props = {
   timeSlotData: {
     DayOfWeek: any[];
@@ -18,27 +32,24 @@ type Props = {
     SlotAmount: any[];
   };
   mapTime?: Function;
-  checkBreakTime: Function;
-  isSelectedToAdd: Function;
-  isSelectedToChange: Function;
+  checkBreakTime: CheckBreakTimeCallback;
+  isSelectedToAdd: IsSelectedToAddCallback;
+  isSelectedToChange: IsSelectedToChangeCallback;
   checkRelatedYearDuringDragging: Function;
-  timeSlotCssClassName: Function;
-  storeSelectedSubject: any;
-  addRoomModal: Function;
-  changeTimeSlotSubject: any;
-  clickOrDragToChangeTimeSlot: Function;
-  isCilckToChangeSubject: boolean;
-  timeslotIDtoChange: {
-    source: string;
-    destination: string;
-  };
+  timeSlotCssClassName: TimeSlotCssClassNameCallback;
+  storeSelectedSubject: SubjectData | null;
+  addRoomModal: AddRoomModalCallback;
+  changeTimeSlotSubject: SubjectData | null;
+  clickOrDragToChangeTimeSlot: ClickOrDragToChangeCallback;
+  isClickToChangeSubject: boolean; // Fixed typo: was isCilckToChangeSubject
+  timeslotIDtoChange: TimeslotChange;
   dropOutOfZone: Function;
-  displayErrorChangeSubject: Function;
+  displayErrorChangeSubject: DisplayErrorChangeSubjectCallback;
   showErrorMsgByTimeslotID: string;
-  removeSubjectFromSlot: Function;
+  removeSubjectFromSlot: RemoveSubjectCallback;
   showLockDataMsgByTimeslotID: string;
-  setShowErrorMsgByTimeslotID: Function;
-  setShowLockDataMsgByTimeslotID: Function;
+  setShowErrorMsgByTimeslotID: SetErrorStateCallback;
+  setShowLockDataMsgByTimeslotID: SetErrorStateCallback;
 };
 
 // TODO: เสริม => เลือกห้องใส่วิชาไปเลยเพื่อความสะดวก
@@ -54,7 +65,7 @@ function TimeSlot({
   addRoomModal,
   changeTimeSlotSubject,
   clickOrDragToChangeTimeSlot,
-  isCilckToChangeSubject,
+  isClickToChangeSubject, // Fixed typo: was isCilckToChangeSubject
   timeslotIDtoChange,
   dropOutOfZone,
   displayErrorChangeSubject,
@@ -91,7 +102,7 @@ function TimeSlot({
                     addRoomModal={addRoomModal}
                     changeTimeSlotSubject={changeTimeSlotSubject}
                     clickOrDragToChangeTimeSlot={clickOrDragToChangeTimeSlot}
-                    isCilckToChangeSubject={isCilckToChangeSubject}
+                    isClickToChangeSubject={isClickToChangeSubject}
                     timeslotIDtoChange={timeslotIDtoChange}
                     removeSubjectFromSlot={removeSubjectFromSlot}
                     showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}

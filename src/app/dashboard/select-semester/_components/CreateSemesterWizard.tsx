@@ -29,8 +29,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
-import { createSemesterAction } from "@/features/semester/application/actions/semester.actions";
+import { createSemesterWithTimeslotsAction } from "@/features/semester/application/actions/semester.actions";
 import type { SemesterDTO } from "@/features/semester/application/schemas/semester.schemas";
+import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
+import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
 
 type Props = {
   open: boolean;
@@ -39,7 +41,7 @@ type Props = {
   existingSemesters?: SemesterDTO[];
 };
 
-const STEPS = ["ข้อมูลพื้นฐาน", "คัดลอกจากภาคเรียนก่อนหน้า", "ตรวจสอบและสร้าง"];
+const STEPS = ["ข้อมูลพื้นฐาน", "คัดลอกจากภาคเรียนก่อนหน้า", "ตั้งค่าตารางเรียน", "ตรวจสอบและสร้าง"];
 
 export function CreateSemesterWizard({
   open,
@@ -58,6 +60,10 @@ export function CreateSemesterWizard({
   const [copyFrom, setCopyFrom] = useState<string>("");
   const [copyConfig, setCopyConfig] = useState(true);
   const [copyTimeslots, setCopyTimeslots] = useState(true);
+
+  // Step 3: Timeslot configuration
+  const [timeslotConfig, setTimeslotConfig] = useState<CreateTimeslotsInput | null>(null);
+  const [isTimeslotConfigValid, setIsTimeslotConfigValid] = useState(false);
 
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);
@@ -79,11 +85,12 @@ export function CreateSemesterWizard({
   const handleCreate = async () => {
     setLoading(true);
     try {
-      const result = await createSemesterAction({
+      const result = await createSemesterWithTimeslotsAction({
         academicYear,
         semester,
         copyFromConfigId: copyFrom || undefined,
         copyConfig: copyFrom ? copyConfig : undefined,
+        timeslotConfig: timeslotConfig || undefined,
       });
 
       if (!result.success || !result.data) {
@@ -94,8 +101,9 @@ export function CreateSemesterWizard({
       onSuccess(result.data);
       handleReset();
       onClose();
-    } catch (error: any) {
-      enqueueSnackbar(error.message || "เกิดข้อผิดพลาดในการสร้างภาคเรียน", {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการสร้างภาคเรียน";
+      enqueueSnackbar(message, {
         variant: "error",
       });
     } finally {
@@ -187,6 +195,30 @@ export function CreateSemesterWizard({
         );
 
       case 2:
+        // Skip timeslot config if copying timeslots
+        if (copyFrom && copyTimeslots) {
+          // Auto-skip to next step
+          setTimeout(() => handleNext(), 0);
+          return (
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <CircularProgress />
+              <Typography sx={{ mt: 2 }}>
+                กำลังข้ามไปขั้นตอนถัดไป...
+              </Typography>
+            </Box>
+          );
+        }
+
+        return (
+          <TimeslotConfigurationStep
+            academicYear={academicYear}
+            semester={semester as 1 | 2}
+            onChange={setTimeslotConfig}
+            onValidationChange={setIsTimeslotConfigValid}
+          />
+        );
+
+      case 3:
         return (
           <Box sx={{ mt: 2 }}>
             <Typography variant="h6" gutterBottom>
@@ -212,6 +244,12 @@ export function CreateSemesterWizard({
                       .join(", ") || "ไม่มี"}
                   </Typography>
                 </>
+              )}
+              {timeslotConfig && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  <strong>ตารางเรียน:</strong> {timeslotConfig.Days.length} วัน,{" "}
+                  {timeslotConfig.TimeslotPerDay} คาบต่อวัน
+                </Typography>
               )}
             </Box>
             <Alert severity="warning">
@@ -250,12 +288,19 @@ export function CreateSemesterWizard({
           </Button>
         )}
         {activeStep < STEPS.length - 1 ? (
-          <Button onClick={handleNext} variant="contained">
+          <Button 
+            onClick={handleNext} 
+            variant="contained"
+            disabled={
+              // Disable Next on Step 2 (timeslot config) if config is invalid
+              activeStep === 2 && !copyFrom && !isTimeslotConfigValid
+            }
+          >
             ถัดไป
           </Button>
         ) : (
           <Button
-            onClick={handleCreate}
+            onClick={() => void handleCreate()}
             variant="contained"
             disabled={loading}
             startIcon={loading && <CircularProgress size={20} />}
