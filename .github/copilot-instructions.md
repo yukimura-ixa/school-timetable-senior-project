@@ -24,11 +24,15 @@
 
 ## 1) Technology Stack (authoritative)
 
-- **Framework**: **Next.js 16** (App Router, **proxy.ts** convention; **async Request APIs only**)  
-- **ORM**: Prisma  
+- **Framework**: **Next.js 16.0.1** (App Router, **proxy.ts** convention; **async Request APIs only**)  
+- **ORM**: Prisma 6.18.0 with Accelerate extension
 - **DB**: **Vercel Storage: Postgres** (Marketplace integration; `DATABASE_URL` injected by Vercel)  
-- **UI**: Tailwind CSS  
-- **Auth**: NextAuth (Google)
+- **UI**: Tailwind CSS 4.1.14, MUI 7.3.4
+- **Auth**: Auth.js (NextAuth) 5.0.0-beta.29 (Google OAuth)
+- **Validation**: Valibot 1.1.0
+- **State**: Zustand 5.0.8, SWR 2.3.6
+- **Charts**: Recharts 3.3.0
+- **Testing**: Jest 29.7.0, Playwright 1.56.1
 
 ---
 
@@ -90,9 +94,10 @@ pnpm prisma migrate deploy
 
 ## 5) Evidence Panel (always include)
 
-- Resolved versions (from `package.json`/lockfile) for next, react, prisma, tailwind, next-auth.  
-- API list you’ll use (e.g., Route Handlers, Prisma `upsert/transaction`, Zod validation).  
+- Resolved versions (from `package.json`/lockfile) for next, react, prisma, tailwind, auth.js, valibot.  
+- API list you'll use (e.g., Server Actions, Prisma `upsert/transaction`, Valibot validation).  
 - Any deltas (docs vs. code).
+- Test coverage plan (unit/E2E) when adding new features.
 
 ---
 

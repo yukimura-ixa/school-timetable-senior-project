@@ -17,8 +17,7 @@ export const metadata: Metadata = {
 };
 
 // Homepage data changes infrequently (per semester), revalidate every 30 days
-// NOTE: Temporarily disabling revalidate during build investigation
-// export const revalidate = 60 * 60 * 24 * 30; // 30 days
+export const revalidate = 60 * 60 * 24 * 30; // 30 days
 
 type PageProps = {
   searchParams: Promise<{

@@ -9,8 +9,11 @@ export type QuickStats = {
   totalTeachers: number;
   totalClasses: number;
   totalRooms: number;
+  totalSubjects: number;
+  totalPrograms: number;
   periodsPerDay: number;
   currentTerm: string;
+  lastUpdated: string;
 };
 
 export type PeriodLoad = {
@@ -30,13 +33,15 @@ export type RoomOccupancy = {
  */
 export async function getQuickStats(): Promise<QuickStats> {
   try {
-    const [teacherCount, classCount, roomCount, config] = await Promise.all([
+    const [teacherCount, classCount, roomCount, subjectCount, programCount, config] = await Promise.all([
       prisma.teacher.count(),
       prisma.gradelevel.count(),
       prisma.room.count(),
+      prisma.subject.count(),
+      prisma.program.count(),
       prisma.table_config.findFirst({
         orderBy: { AcademicYear: "desc" },
-        select: { AcademicYear: true, Semester: true, Config: true },
+        select: { AcademicYear: true, Semester: true, Config: true, updatedAt: true },
       }),
     ]);
 
@@ -52,12 +57,26 @@ export async function getQuickStats(): Promise<QuickStats> {
     const semesterLabel =
       config?.Semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2";
 
+    // Format last updated date in Thai
+    const lastUpdated = config?.updatedAt 
+      ? new Intl.DateTimeFormat('th-TH', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(config.updatedAt)
+      : "ไม่ทราบ";
+
     return {
       totalTeachers: teacherCount,
       totalClasses: classCount,
       totalRooms: roomCount,
+      totalSubjects: subjectCount,
+      totalPrograms: programCount,
       periodsPerDay,
       currentTerm: `${config?.AcademicYear} ${semesterLabel}`,
+      lastUpdated,
     };
   } catch (err) {
     console.warn("[PublicStats] getQuickStats fallback to defaults:", (err as Error).message);
@@ -65,8 +84,11 @@ export async function getQuickStats(): Promise<QuickStats> {
       totalTeachers: 0,
       totalClasses: 0,
       totalRooms: 0,
+      totalSubjects: 0,
+      totalPrograms: 0,
       periodsPerDay: 0,
       currentTerm: "ไม่มีข้อมูล",
+      lastUpdated: "ไม่ทราบ",
     };
   }
 }
@@ -142,7 +164,7 @@ export async function getRoomOccupancy(): Promise<RoomOccupancy[]> {
 
     // Group by day and calculate occupancy percentage
     const occupancyData: RoomOccupancy[] = [];
-    let periodCounter: Record<string, number> = {};
+    const periodCounter: Record<string, number> = {};
 
     for (const slot of timeslots) {
       const dayKey = slot.DayOfWeek;

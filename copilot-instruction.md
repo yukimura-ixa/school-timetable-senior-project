@@ -1,59 +1,34 @@
-# Copilot Instructions - MCP-First with Serena Priority
+# Copilot Instructions - Quick Reference
 
-This project mandates an MCP-first workflow for all code assistance. Always use MCP servers where available, and prefer PNPM for any package operations.
+See `AGENTS.md` for the full SubSentinel handbook. This file is a short reminder; defer to the handbook if anything conflicts.
 
-## Required Order of Operations
+## MCP Checklist
 
-- Serena (code MCP) - FIRST for analysis, navigation, memories, and symbol-aware edits
-- Next DevTools MCP - Next.js 16 diagnostics, codemods, upgrade guidance
-- Prisma MCP - schema reasoning, migrations, Prisma CLI
-- context7 - version-specific docs and API lookups
-- mui-mcp - Material UI component documentation and usage guidance
-- GitHub MCP - issues/PRs lookup and summaries
-- Files MCP - read-only fallback when Serena read ops are insufficient
-- Playwright MCP - E2E test generation
+1. Serena - launch first for memories, semantic search, and symbol-aware edits.
+2. Next DevTools MCP - Next.js 16 diagnostics and codemods.
+3. context7 - confirm package versions and look up APIs.
+4. GitHub MCP - review related pull requests or issues when useful.
 
-If any MCP is unavailable, proceed read-only, call out the limitation explicitly, and avoid risky multi-file edits.
+Optional (configure when available): Prisma MCP, Files MCP, Playwright MCP, MUI MCP. If a server is offline, say so and prefer read-only investigation until it recovers.
 
-## Detected MCP Servers (auto-discovery)
+## Serena-First Workflow
 
-- None detected by tooling in this workspace or session.
+- List relevant memories before digging into a task.
+- Use semantic queries instead of raw search to locate symbols.
+- Create or update Serena memories after you learn something important.
 
-Action: ensure your editor is configured with these servers: `serena`, `next-devtools-mcp`, `@prisma/mcp`, `context7`, `mui-mcp`, `github`, `files`, `playwright`.
+Example phrasing: "Use Serena to inspect timetable conflict resolvers and list dependent routes."
 
-## CRITICAL: Always Use Serena First (#serena MCP server)
+## Guardrails and Defaults
 
-For ALL analysis, investigation, and code understanding tasks, use Serena semantic tools:
+- TypeScript everywhere; keep `any` use minimal.
+- Next.js 16 App Router with Node runtime for DB-backed routes.
+- Prisma v6 on Vercel Postgres; Prisma schema is the source of truth.
+- Tailwind v4, MUI v7, Recharts for visualization components.
+- Use PNPM commands exclusively.
 
-### Standard Serena Workflow
-1. Start with Serena memories: Use Serena to list memories and read relevant ones for context #serena
-2. Use semantic analysis: Use Serena to find [symbols/functions/patterns] related to [issue] #serena
-3. Get symbol-level insights: Use Serena to analyze [specific function] and show all referencing symbols #serena
-4. Create new memories: Use Serena to write a memory about [findings] for future reference #serena
+## Working Without MCP Access
 
-### Serena-First Examples
-
-Instead of: "Search the codebase for database queries"
-Use: "Use Serena to find all database query functions and analyze their performance patterns #serena"
-
-Instead of: "Find all admin functions"
-Use: "Use Serena to get symbols overview of admin files and find capability-checking functions #serena"
-
-Instead of: "How do the three systems integrate?"
-Use: "Use Serena to read the system-integration-map memory and show cross-system dependencies #serena"
-
-## Guardrails and Defaults (Project-specific)
-
-- TypeScript everywhere; minimize `any`
-- Next.js 16 App Router; Node runtime for DB-backed routes
-- Prisma v6 on Vercel Storage: Postgres; Prisma schema is source of truth
-- Auth: Auth.js v5 (Google); Tailwind v4; MUI v7; Recharts for visualization
-- Use PNPM for all scripts; Prisma client singleton; validation via Zod at boundaries
-
-## Fallback Policy
-
-When MCP servers are not available:
-- Work read-only and clearly state limitations
-- Avoid risky multi-file changes without Serena; prefer small, surgical edits
-- Defer migrations and codemods until Prisma or Next DevTools MCP are reachable
-
+- Call out missing servers immediately.
+- Limit refactors when Serena is unavailable; keep edits surgical.
+- Defer migrations or codemods until the matching MCP (Prisma or Next DevTools) is reachable.
