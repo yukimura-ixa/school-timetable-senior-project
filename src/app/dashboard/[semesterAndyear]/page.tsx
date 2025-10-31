@@ -182,6 +182,11 @@ export default async function DashboardPage({
             icon="🔒"
             label="ล็อกคาบเรียน"
           />
+          <QuickActionButton
+            href={`/dashboard/${semesterAndyear}/analytics`}
+            icon="📊"
+            label="วิเคราะห์ข้อมูล"
+          />
         </div>
       </div>
 
