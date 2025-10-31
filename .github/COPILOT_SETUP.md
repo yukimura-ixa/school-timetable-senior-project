@@ -84,6 +84,41 @@ create a new API route for exporting schedules to Excel.
 
 If you're an AI agent working on this codebase:
 
+### 0. Environment Setup (First Time)
+
+**Before starting any work, set up the development environment:**
+
+```bash
+# 1. Install pnpm package manager
+npm install -g pnpm@10.20.0
+
+# 2. Install all project dependencies
+pnpm install --frozen-lockfile
+
+# 3. Set up environment variables
+cp .env.example .env
+# Edit .env with appropriate values
+
+# 4. Generate Prisma client
+pnpm prisma generate
+
+# 5. Run database migrations (if using real DB)
+pnpm db:migrate
+
+# 6. Seed test data (optional)
+pnpm db:seed:clean
+```
+
+**Verify setup:**
+
+```bash
+# Check if tests run
+pnpm test
+
+# Check if build works
+pnpm build
+```
+
 ### 1. Read Instructions First
 
 Always read and follow `AGENTS.md` in the repository root. It contains:
@@ -114,7 +149,104 @@ pnpm test             # Run tests
 pnpm prisma generate  # Generate Prisma client
 ```
 
-### 4. Code Standards
+### 4. Test Environment Setup
+
+When working with tests, ensure proper setup:
+
+#### Installing Dependencies
+
+```bash
+# Install pnpm if not available
+npm install -g pnpm@10.20.0
+
+# Install project dependencies
+pnpm install --frozen-lockfile
+
+# Generate Prisma client (required for tests)
+pnpm prisma generate
+```
+
+#### Database Simulation for Tests
+
+This project uses **different approaches** for different test types:
+
+##### Approach 1: Mock-Based (Unit Tests)
+
+**Best for**: Fast, isolated unit tests
+
+Unit tests use mocks defined in `jest.setup.js`:
+- Prisma client is completely mocked
+- No real database connection needed
+- Test data is defined inline in test files
+- Very fast execution (< 5 seconds for 300+ tests)
+
+**Example**: Lock template tests use mock fixtures:
+
+```typescript
+const mockGrades = [
+  { GradeID: "1-1", GradeName: "ม.1/1", Level: 1 },
+  { GradeID: "1-2", GradeName: "ม.1/2", Level: 1 },
+];
+```
+
+##### Approach 2: Seed-Based (E2E Tests)
+
+**Best for**: Integration and E2E tests
+
+E2E tests require a real database with seed data:
+
+1. **Set up test database**:
+   ```bash
+   # Create .env with test database
+   DATABASE_URL="******localhost:3306/test_db"
+   
+   # Run migrations
+   pnpm db:migrate
+   
+   # Seed with clean test data
+   pnpm db:seed:clean
+   ```
+
+2. **Seed file** (`prisma/seed.ts`):
+   - Creates realistic Thai school data
+   - 60 teachers, 18 grades, 50+ subjects
+   - 8 periods per day, 5 days per week
+   - Department-based structure
+
+3. **Use in E2E tests**:
+   - Playwright tests run against seeded data
+   - Global setup runs before test suite
+   - Data is consistent across test runs
+
+##### Approach 3: In-Memory Database (Optional)
+
+**Best for**: Fast integration tests without external DB
+
+Not currently implemented, but could use:
+- `@prisma/client` with SQLite in-memory
+- Or `jest-prisma` for automatic setup/teardown
+
+#### Environment Variables
+
+Create `.env` file for tests:
+
+```bash
+# For E2E tests (requires real database)
+DATABASE_URL="******localhost:3306/test_db"
+
+# For all tests
+AUTH_SECRET="test-secret-key-for-development-only-32chars"
+AUTH_URL=http://localhost:3000
+ENABLE_DEV_BYPASS=true
+DEV_USER_ID=1
+DEV_USER_EMAIL=admin@test.com
+DEV_USER_NAME=Test Admin
+DEV_USER_ROLE=admin
+```
+
+**Note**: Unit tests don't require `DATABASE_URL` because they use mocks.
+
+### 5. Code Standards
 
 - **TypeScript everywhere** - No `any` types
 - **Prisma schema** as single source of truth
@@ -182,6 +314,39 @@ If context7 or other MCP servers aren't available:
 2. Request access to the required MCP servers
 3. Fall back to explicitly referencing the package versions in package.json
 4. Note in your response that MCP wasn't available
+
+### Tests Failing Due to Missing Dependencies
+
+If tests fail with module not found errors:
+
+```bash
+# Ensure dependencies are installed
+pnpm install --frozen-lockfile
+
+# Regenerate Prisma client
+pnpm prisma generate
+
+# Clear Jest cache
+pnpm test -- --clearCache
+```
+
+### Database Connection Errors in Tests
+
+For **unit tests**: Should not happen (they use mocks)
+- Check `jest.setup.js` is properly configured
+- Ensure no test is importing real Prisma client
+
+For **E2E tests**: Check database connection
+```bash
+# Verify DATABASE_URL is set
+cat .env | grep DATABASE_URL
+
+# Test database connection
+pnpm prisma db pull
+
+# Reseed if needed
+pnpm db:seed:clean
+```
 
 ---
 
