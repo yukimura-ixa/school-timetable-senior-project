@@ -27,18 +27,6 @@ jobs:
     
     steps:
       - uses: actions/checkout@v5
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Install pnpm
-        run: npm install -g pnpm
-      
-      - name: Install dependencies
-        run: pnpm install
-      
       - name: Setup environment
         run: |
           echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_timetable" >> .env.test.local
@@ -48,6 +36,17 @@ jobs:
           echo "SEED_FOR_TESTS=true" >> .env.test.local
           echo "SEED_CLEAN_DATA=true" >> .env.test.local
           echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install pnpm
+        run: npm install -g pnpm
+      
+      - name: Install dependencies
+        run: pnpm install
       
       - name: Apply database migrations
         run: pnpm db:deploy
