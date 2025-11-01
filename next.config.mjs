@@ -3,6 +3,17 @@
 const nextConfig = {
   // Next.js 16 optimizations
   reactCompiler: true,
+  
+  // Exclude problematic packages from server bundling
+  // These packages have broken package.json or version conflicts
+  serverExternalPackages: [
+    'rimraf',           // Used by fstream, tmp - has package.json issues
+    'fstream',          // Old file streaming library
+    'tmp',              // Temporary file library
+    'import-in-the-middle',  // OpenTelemetry instrumentation
+    'require-in-the-middle', // OpenTelemetry instrumentation (version conflict)
+  ],
+  
   images: {
     remotePatterns: [
       {
