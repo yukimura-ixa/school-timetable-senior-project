@@ -36,17 +36,17 @@ jobs:
           echo "SEED_FOR_TESTS=true" >> .env.test.local
           echo "SEED_CLEAN_DATA=true" >> .env.test.local
           echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
-      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
       
-      - name: Install pnpm
-        run: npm install -g pnpm
-      
       - name: Install dependencies
         run: pnpm install
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
       
       - name: Apply database migrations
         run: pnpm db:deploy
