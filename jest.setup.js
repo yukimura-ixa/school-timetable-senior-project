@@ -1,6 +1,40 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 
+// Polyfill Web APIs for Node.js environment
+// Required by Prisma Client and Accelerate extension in Jest tests
+// Reference: Node.js built-in Web APIs (Node 18+)
+// See: https://nodejs.org/docs/latest-v18.x/api/globals.html
+
+const { TextEncoder, TextDecoder } = require('util')
+const { ReadableStream, WritableStream, TransformStream } = require('stream/web')
+const { MessageChannel, MessagePort } = require('worker_threads')
+
+// Text encoding (required by Prisma)
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+
+// Web Streams (required by Prisma Accelerate)
+global.ReadableStream = ReadableStream
+global.WritableStream = WritableStream
+global.TransformStream = TransformStream
+
+// Worker Threads API (required by fetch polyfills)
+global.MessageChannel = MessageChannel
+global.MessagePort = MessagePort
+
+// Node.js 18+ has native fetch - ensure it's available globally
+if (typeof global.fetch === 'undefined') {
+  // Fallback for older Node versions (shouldn't happen with Next.js 16)
+  console.warn('Native fetch not available, using undici polyfill')
+  const { fetch, Headers, Request, Response, FormData } = require('undici')
+  global.fetch = fetch
+  global.Headers = Headers
+  global.Request = Request
+  global.Response = Response
+  global.FormData = FormData
+}
+
 // Mock Auth.js to prevent ESM import errors
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({

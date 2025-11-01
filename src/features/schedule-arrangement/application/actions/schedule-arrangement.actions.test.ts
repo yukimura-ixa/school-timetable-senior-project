@@ -7,31 +7,6 @@
  * @module schedule-arrangement.actions.test
  */
 
-// Mock auth.ts from libs folder
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn().mockResolvedValue({
-    user: { id: 'test-user-123', email: 'test@example.com' },
-  }),
-}));
-
-// Mock the Prisma client
-jest.mock('@/lib/prisma', () => ({
-  __esModule: true,
-  default: {
-    class_schedule: {
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      findUnique: jest.fn(),
-    },
-    teachers_responsibility: {
-      findMany: jest.fn(),
-      update: jest.fn(),
-    },
-  },
-}));
-
 import {
   arrangeScheduleAction,
   deleteScheduleAction,
@@ -39,6 +14,11 @@ import {
   updateScheduleLockAction,
 } from './schedule-arrangement.actions';
 import prisma from '@/lib/prisma';
+
+// Prisma is already mocked globally in jest.setup.js
+// Get typed mock references
+const mockClassSchedule = prisma.class_schedule as jest.Mocked<typeof prisma.class_schedule>;
+const mockTeachersResp = prisma.teachers_responsibility as jest.Mocked<typeof prisma.teachers_responsibility>;
 
 describe('Schedule Arrangement Actions', () => {
   beforeEach(() => {
@@ -59,8 +39,8 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: false,
       };
 
-      (prisma.class_schedule.findMany as jest.Mock).mockResolvedValue([]);
-      (prisma.teachers_responsibility.findMany as jest.Mock).mockResolvedValue([
+      mockClassSchedule.findMany.mockResolvedValue([]);
+      mockTeachersResp.findMany.mockResolvedValue([
         {
           RespID: 1,
           TeacherID: 1,
@@ -71,9 +51,9 @@ describe('Schedule Arrangement Actions', () => {
           TeachHour: 4,
         },
       ]);
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue(null); // No existing schedule
-      (prisma.class_schedule.create as jest.Mock).mockResolvedValue({});
-      (prisma.teachers_responsibility.update as jest.Mock).mockResolvedValue({});
+      mockClassSchedule.findUnique.mockResolvedValue(null); // No existing schedule
+      mockClassSchedule.create.mockResolvedValue({});
+      mockTeachersResp.update.mockResolvedValue({});
 
       const result = await arrangeScheduleAction(input);
 
@@ -95,7 +75,7 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: false,
       };
 
-      (prisma.class_schedule.findMany as jest.Mock).mockResolvedValue([
+      mockClassSchedule.findMany.mockResolvedValue([
         {
           ClassID: 'C_M2-1_T1_ENG101',
           TimeslotID: 'T1',
@@ -123,7 +103,7 @@ describe('Schedule Arrangement Actions', () => {
           ],
         },
       ]);
-      (prisma.teachers_responsibility.findMany as jest.Mock).mockResolvedValue([
+      mockTeachersResp.findMany.mockResolvedValue([
         {
           RespID: 1,
           TeacherID: 1,
@@ -164,11 +144,11 @@ describe('Schedule Arrangement Actions', () => {
     it('should delete schedule when not locked', async () => {
       const input = { classId: 'C_M1-1_T1_MATH101' };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue({
+      mockClassSchedule.findUnique.mockResolvedValue({
         ClassID: input.classId,
         IsLocked: false,
       });
-      (prisma.class_schedule.delete as jest.Mock).mockResolvedValue({});
+      mockClassSchedule.delete.mockResolvedValue({});
 
       const result = await deleteScheduleAction(input);
 
@@ -179,7 +159,7 @@ describe('Schedule Arrangement Actions', () => {
     it('should throw error when schedule is locked', async () => {
       const input = { classId: 'C_M1-1_T1_MATH101' };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue({
+      mockClassSchedule.findUnique.mockResolvedValue({
         ClassID: input.classId,
         IsLocked: true,
       });
@@ -193,7 +173,7 @@ describe('Schedule Arrangement Actions', () => {
     it('should throw error when schedule not found', async () => {
       const input = { classId: 'C_M1-1_T1_MATH101' };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue(null);
+      mockClassSchedule.findUnique.mockResolvedValue(null);
 
       const result = await deleteScheduleAction(input);
 
@@ -209,7 +189,7 @@ describe('Schedule Arrangement Actions', () => {
         semester: 'SEMESTER_1' as const,
       };
 
-      (prisma.class_schedule.findMany as jest.Mock).mockResolvedValue([
+      mockClassSchedule.findMany.mockResolvedValue([
         {
           ClassID: 'C_M1-1_T1_MATH101',
           TimeslotID: 'T1',
@@ -250,7 +230,7 @@ describe('Schedule Arrangement Actions', () => {
         semester: 'SEMESTER_1' as const,
       };
 
-      (prisma.class_schedule.findMany as jest.Mock).mockResolvedValue([]);
+      mockClassSchedule.findMany.mockResolvedValue([]);
 
       const result = await getSchedulesByTermAction(input);
 
@@ -266,11 +246,11 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: true,
       };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue({
+      mockClassSchedule.findUnique.mockResolvedValue({
         ClassID: input.classId,
         IsLocked: false,
       });
-      (prisma.class_schedule.update as jest.Mock).mockResolvedValue({});
+      mockClassSchedule.update.mockResolvedValue({});
 
       const result = await updateScheduleLockAction(input);
 
@@ -284,11 +264,11 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: false,
       };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue({
+      mockClassSchedule.findUnique.mockResolvedValue({
         ClassID: input.classId,
         IsLocked: true,
       });
-      (prisma.class_schedule.update as jest.Mock).mockResolvedValue({});
+      mockClassSchedule.update.mockResolvedValue({});
 
       const result = await updateScheduleLockAction(input);
 
@@ -302,7 +282,7 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: true,
       };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue(null);
+      mockClassSchedule.findUnique.mockResolvedValue(null);
 
       const result = await updateScheduleLockAction(input);
 

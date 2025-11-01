@@ -33,6 +33,7 @@ import {
 } from "@mui/icons-material";
 import type { teacher, subject, gradelevel } from "@/prisma/generated";
 import { enqueueSnackbar } from "notistack";
+import { syncAssignmentsAction, deleteAssignmentAction } from "@/features/assign/application/actions/assign.actions";
 
 interface QuickAssignmentPanelProps {
   teacher: teacher;
@@ -61,7 +62,7 @@ function QuickAssignmentPanel({
   grades,
   currentAssignments,
   onAssignmentAdded,
-  onAssignmentUpdated,
+  onAssignmentUpdated: _onAssignmentUpdated, // Unused - edit feature disabled (see handleSaveEdit)
   onAssignmentDeleted,
 }: QuickAssignmentPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -104,18 +105,31 @@ function QuickAssignmentPanel({
     setIsSubmitting(true);
 
     try {
-      // TODO: Call server action to create assignment
-      // Example: await createTeacherResponsibilityAction({
-      //   TeacherID: _teacher.TeacherID,
-      //   SubjectCode: selectedSubject.SubjectCode,
-      //   GradeIDs: selectedGrades.map(g => g.GradeID),
-      //   TeachHour: weeklyHours,
-      //   AcademicYear: _academicYear,
-      //   Semester: _semester,
-      // });
-      
-      // Temporary: Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Build new assignments to add
+      const newAssignments = selectedGrades.map((grade) => ({
+        SubjectCode: selectedSubject.SubjectCode,
+        GradeID: grade.GradeID.toString(),
+        Credit: selectedSubject.Credit.toString() as '0.5' | '1.0' | '1.5' | '2.0' | '2.5' | '3.0',
+      }));
+
+      // Get existing assignments for this teacher/term
+      const existingAssignments = currentAssignments.map((assignment) => ({
+        RespID: parseInt(assignment.RespID),
+        SubjectCode: assignment.SubjectCode,
+        GradeID: assignment.GradeID.toString(),
+        Credit: selectedSubject.Credit.toString() as '0.5' | '1.0' | '1.5' | '2.0' | '2.5' | '3.0',
+      }));
+
+      // Combine existing + new for sync action
+      const allAssignments = [...existingAssignments, ...newAssignments];
+
+      // Call server action to sync assignments
+      await syncAssignmentsAction({
+        TeacherID: _teacher.TeacherID,
+        AcademicYear: _academicYear,
+        Semester: _semester === 1 ? 'SEMESTER_1' : 'SEMESTER_2',
+        Resp: allAssignments,
+      });
 
       enqueueSnackbar(
         `เพิ่มวิชา ${selectedSubject.SubjectCode} สำเร็จ (${selectedGrades.length} ห้อง)`,
@@ -146,35 +160,27 @@ function QuickAssignmentPanel({
     setEditingHours(assignment.TeachHour);
   };
 
-  const handleSaveEdit = async (_respId: string) => {
-    if (editingHours <= 0 || editingHours > 20) {
-      enqueueSnackbar("กรุณาระบุชั่วโมงต่อสัปดาห์ (1-20 ชั่วโมง)", {
-        variant: "warning",
-      });
-      return;
-    }
-
-    try {
-      // TODO: Call server action to update assignment
-      // await updateTeacherResponsibilityAction(_respId, { TeachHour: editingHours });
-      
-      // Temporary: Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      enqueueSnackbar("อัปเดตชั่วโมงสอนสำเร็จ", { variant: "success" });
-
-      setEditingId(null);
-      setEditingHours(0);
-
-      if (onAssignmentUpdated) {
-        onAssignmentUpdated();
-      }
-    } catch (error) {
-      enqueueSnackbar(
-        `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
-        { variant: "error" }
-      );
-    }
+  const handleSaveEdit = (_respId: string) => {
+    // NOTE: TeachHour editing is not supported in current architecture
+    // TeachHour is automatically calculated from Subject.Credit by calculateTeachHour()
+    // To change TeachHour, the subject's credit value must be modified
+    // For now, this feature is disabled - consider removing edit UI entirely
+    
+    enqueueSnackbar(
+      "ไม่สามารถแก้ไขชั่วโมงสอนได้โดยตรง - ชั่วโมงสอนคำนวณจากหน่วยกิตวิชาโดยอัตโนมัติ",
+      { variant: "info" }
+    );
+    
+    setEditingId(null);
+    setEditingHours(0);
+    
+    // Architecture Note:
+    // The current design calculates TeachHour from Credit automatically in syncAssignmentsAction.
+    // There is no dedicated "update single assignment" server action.
+    // To implement this properly, we would need either:
+    // 1. A new updateResponsibilityAction that directly updates TeachHour (breaks domain rule)
+    // 2. Remove edit functionality and guide users to delete + re-add (current recommendation)
+    // 3. Make TeachHour editable in database but document it overrides credit calculation
   };
 
   const handleCancelEdit = () => {
@@ -192,11 +198,10 @@ function QuickAssignmentPanel({
     }
 
     try {
-      // TODO: Call server action to delete assignment
-      // await deleteTeacherResponsibilityAction(assignment.RespID);
-      
-      // Temporary: Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Call server action to delete assignment
+      await deleteAssignmentAction({
+        RespID: parseInt(assignment.RespID),
+      });
 
       enqueueSnackbar(
         `ลบวิชา ${assignment.SubjectCode} สำเร็จ`,

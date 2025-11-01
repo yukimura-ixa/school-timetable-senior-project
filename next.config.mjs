@@ -1,4 +1,4 @@
-import {withSentryConfig} from '@sentry/nextjs';
+// import {withSentryConfig} from '@sentry/nextjs'; // Temporarily disabled
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Next.js 16 optimizations
@@ -13,6 +13,10 @@ const nextConfig = {
   },
 };
 
+export default nextConfig;
+
+// Sentry configuration temporarily disabled for debugging
+/*
 export default withSentryConfig(nextConfig, {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
@@ -45,3 +49,4 @@ export default withSentryConfig(nextConfig, {
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
 });
+*/

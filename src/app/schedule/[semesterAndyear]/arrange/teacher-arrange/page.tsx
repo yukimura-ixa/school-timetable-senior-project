@@ -44,6 +44,7 @@ import { getConflictsAction } from "@/features/class/application/actions/class.a
 import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 import { getAvailableRespsAction } from "@/features/assign/application/actions/assign.actions";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import type { ActionResult } from "@/shared/lib/action-wrapper";
 
 // Zustand Store
 import { useArrangementUIStore } from "@/features/schedule-arrangement/presentation/stores/arrangement-ui.store";
@@ -53,6 +54,7 @@ import type {
   class_schedule,
   subject,
   room,
+  teacher,
 } from "@/prisma/generated";
 
 // Custom Hooks
@@ -88,6 +90,62 @@ import SelectTeacher from "../component/SelectTeacher";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
+
+// ============================================================================
+// TYPE DEFINITIONS - Properly typed interfaces for schedule arrangement
+// ============================================================================
+
+/**
+ * Class schedule with full relations (subject, room) for display
+ */
+type ClassScheduleWithRelations = class_schedule & {
+  subject: subject;
+  room: room | null;
+};
+
+/**
+ * Enriched class schedule with computed display fields
+ */
+type EnrichedClassSchedule = ClassScheduleWithRelations & {
+  SubjectName: string;
+  RoomName: string;
+};
+
+/**
+ * Locked schedule item that can have multiple grade IDs (array) for same timeslot
+ * Uses Omit to override GradeID from string to string | string[]
+ */
+type LockedScheduleItem = Omit<EnrichedClassSchedule, "GradeID"> & {
+  GradeID: string | string[]; // Can be array when multiple grades share same timeslot
+};
+
+/**
+ * SWR Data Types (Issue #40)
+ * Types for useSWR hooks to replace useSWR<any>
+ */
+type ConflictData = ClassScheduleWithRelations[];
+type TeacherScheduleData = ClassScheduleWithRelations[];
+type TeacherInfo = teacher;
+type ResponsibilityData = SubjectData[];
+type TimeslotData = timeslot[];
+
+/**
+ * Scheduled slot for conflict display
+ */
+type ScheduledSlot = class_schedule & {
+  subject: subject;
+  room: room;
+  Scheduled?: boolean;
+  SubjectName?: string;
+  RoomName?: string;
+};
+
+/**
+ * Enriched timeslot with optional subject data
+ */
+type EnrichedTimeslot = timeslot & {
+  subject: SubjectData | null;
+};
 
 /**
  * Main Teacher Arrange Page Component (Refactored)
@@ -182,27 +240,26 @@ export default function TeacherArrangePageRefactored() {
   // ============================================================================
 
   // Use SWR with Server Actions for client-side data fetching
-  const checkConflictData = useSWR<any>(
-    () =>
-      currentTeacherID
-        ? `conflicts-${academicYear}-${semester}-${currentTeacherID}`
-        : null,
-    async () => {
+  const checkConflictData = useSWR<ConflictData | null>(
+    currentTeacherID
+      ? `conflicts-${academicYear}-${semester}-${currentTeacherID}`
+      : null,
+    async (): Promise<ConflictData | null> => {
       if (!currentTeacherID) return null;
-      const result = await getConflictsAction({
+      const result = (await getConflictsAction({
         AcademicYear: parseInt(academicYear),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
-      });
-      if (!result || typeof result !== "object" || !("success" in result)) {
+      })) as ActionResult<ConflictData>;
+      if (!result.success || !result.data) {
         return null;
       }
-      return result.success && "data" in result ? result.data : null;
+      return result.data;
     },
     { revalidateOnFocus: false },
   );
 
-  const fetchAllClassData = useSWR<any>(
+  const fetchAllClassData = useSWR<TeacherScheduleData | null>(
     () =>
       currentTeacherID
         ? `teacher-schedule-${academicYear}-${semester}-${currentTeacherID}`
@@ -220,7 +277,7 @@ export default function TeacherArrangePageRefactored() {
     { revalidateOnFocus: false, revalidateOnMount: true },
   );
 
-  const fetchTeacher = useSWR<any>(
+  const fetchTeacher = useSWR<TeacherInfo | null>(
     () => (currentTeacherID ? `teacher-${currentTeacherID}` : null),
     async () => {
       if (!currentTeacherID) return null;
@@ -243,7 +300,7 @@ export default function TeacherArrangePageRefactored() {
     { revalidateOnFocus: false },
   );
 
-  const fetchResp = useSWR<any>(
+  const fetchResp = useSWR<ResponsibilityData | null>(
     () =>
       currentTeacherID
         ? `available-resp-${academicYear}-${semester}-${currentTeacherID}`
@@ -263,7 +320,7 @@ export default function TeacherArrangePageRefactored() {
     { revalidateOnFocus: false },
   );
 
-  const fetchTimeSlot = useSWR<any>(
+  const fetchTimeSlot = useSWR<TimeslotData | null>(
     () => (currentTeacherID ? `timeslots-${academicYear}-${semester}` : null),
     async () => {
       if (!currentTeacherID) return null;
@@ -405,13 +462,16 @@ export default function TeacherArrangePageRefactored() {
           arr.indexOf(item) === index,
       )
       .map(
-        (item: string) =>
-          ({
-            day_of_week: item,
-            textColor: dayOfWeekTextColor[item],
-            bgColor: dayOfWeekColor[item],
-          }) as any,
-      ); // TODO: Should return day_of_week enum type
+        (item: string): {
+          day_of_week: "MON" | "TUE" | "WED" | "THU" | "FRI";
+          textColor: string;
+          bgColor: string;
+        } => ({
+          day_of_week: item as "MON" | "TUE" | "WED" | "THU" | "FRI",
+          textColor: dayOfWeekTextColor[item],
+          bgColor: dayOfWeekColor[item],
+        }),
+      );
 
     // Get slot amounts (use Monday as reference since all days have same slots)
     const slotAmount = data
@@ -493,7 +553,7 @@ export default function TeacherArrangePageRefactored() {
         keepId.push(filterLock[i].TimeslotID);
         resFilterLock.push({
           ...filterLock[i],
-          GradeID: [filterLock[i].GradeID] as any, // Array of grade IDs for locked slots
+          GradeID: [filterLock[i].GradeID], // Convert single GradeID to array
         });
       } else {
         const tID = filterLock[i].TimeslotID;
@@ -506,7 +566,7 @@ export default function TeacherArrangePageRefactored() {
                   ? item.GradeID
                   : [item.GradeID]),
                 filterLock[i].GradeID,
-              ] as any,
+              ], // Properly typed as string[]
             };
           }
         });
@@ -514,30 +574,50 @@ export default function TeacherArrangePageRefactored() {
     }
 
     const concatClassData = filterNotLock.concat(resFilterLock);
-    // TODO: Transform Prisma class_schedule to SubjectData - currently casting as any
-    setScheduledSubjects(concatClassData as any);
-    setLockData(resFilterLock as any);
+    
+    // Map enriched class_schedule to SubjectData format for store compatibility
+    // SubjectData has both PascalCase and camelCase fields for backward compatibility
+    const mappedScheduledSubjects: SubjectData[] = concatClassData.map(item => ({
+      itemID: parseInt(item.ClassID),
+      SubjectCode: item.SubjectCode,
+      SubjectName: item.SubjectName,
+      subjectCode: item.SubjectCode, // Duplicate for compatibility
+      subjectName: item.SubjectName, // Duplicate for compatibility
+      RoomName: item.RoomName,
+      RoomID: item.RoomID,
+      GradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID, // Take first grade if array
+      gradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID, // Duplicate for compatibility
+      ClassID: item.ClassID,
+      subject: item.subject,
+      room: item.room,
+      Scheduled: true,
+    }));
+    
+    const mappedLockData: class_schedule[] = resFilterLock.map(item => ({
+      ClassID: item.ClassID,
+      TimeslotID: item.TimeslotID,
+      SubjectCode: item.SubjectCode,
+      RoomID: item.RoomID,
+      GradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID, // Take first grade
+      IsLocked: item.IsLocked,
+    }));
+    
+    setScheduledSubjects(mappedScheduledSubjects);
+    setLockData(mappedLockData);
 
     // Map subjects into timeslots
-    type EnrichedClassSchedule = ClassScheduleWithRelations & {
-      SubjectName: string;
-      RoomName: string;
-    };
     setTimeSlotData({
       ...timeSlotData,
-      AllData: timeSlotData.AllData.map(
-        ((data) => {
-          const matchedSubject = concatClassData.find(
-            (item: EnrichedClassSchedule) =>
-              item.TimeslotID === (data as any).TimeslotID,
-          );
+      AllData: timeSlotData.AllData.map((data): EnrichedTimeslot => {
+        const matchedSubject = concatClassData.find(
+          (item: EnrichedClassSchedule) => item.TimeslotID === data.TimeslotID,
+        );
 
-          // TODO: Transform Prisma timeslot to TimeslotData properly
-          return matchedSubject
-            ? ({ ...data, subject: matchedSubject } as any)
-            : (data as any);
-        }) as any /* TODO: Fix map callback type signature */,
-      ),
+        // Enrich timeslot with subject data if matched, otherwise null
+        return matchedSubject
+          ? { ...data, subject: matchedSubject }
+          : { ...data, subject: null };
+      }),
     });
   }, [
     fetchAllClassData.data,
@@ -722,18 +802,21 @@ export default function TeacherArrangePageRefactored() {
       setTimeSlotData({
         ...timeSlotData,
         AllData: timeSlotData.AllData.map(
-          (item: timeslot & { subject?: SubjectData | ScheduledSlot }) => {
-            if (Object.keys(item.subject || {}).length !== 0)
-              return item as any;
+          (item: EnrichedTimeslot): EnrichedTimeslot => {
+            // If timeslot already has a subject, keep it
+            if (item.subject && Object.keys(item.subject).length !== 0) {
+              return item;
+            }
 
+            // Find scheduled slot for this timeslot (conflict display)
             const matchedSlot = scheduledGradeIDTimeslot.find(
               (slot: ScheduledSlot) => slot.TimeslotID === item.TimeslotID,
             );
 
-            // TODO: Transform Prisma timeslot to TimeslotData properly
+            // Add scheduled slot as subject if found, otherwise keep null
             return matchedSlot
-              ? ({ ...item, subject: matchedSlot } as any)
-              : (item as any);
+              ? { ...item, subject: matchedSlot }
+              : item;
           },
         ),
       });
@@ -1259,31 +1342,67 @@ export default function TeacherArrangePageRefactored() {
             isSelectedToAdd={isSelectedToAdd}
             isSelectedToChange={isSelectedToChange}
             checkRelatedYearDuringDragging={checkRelatedYearDuringDragging}
-            timeSlotCssClassName={
-              timeSlotCssClassName as any /* TODO: Update signature to match refactored TimeSlot */
-            }
+            timeSlotCssClassName={(
+              subject: SubjectData | null,
+              isBreakTime: boolean,
+              _isLocked: boolean,
+            ) => {
+              // Adapter: Convert new signature to old implementation
+              const breakTimeState = isBreakTime ? "BREAK_BOTH" : "NOT_BREAK";
+              const subjectOrEmpty = subject || ({} as SubjectData);
+              return timeSlotCssClassName(breakTimeState, subjectOrEmpty);
+            }}
             storeSelectedSubject={storeSelectedSubject}
-            addRoomModal={
-              addRoomModal as any /* TODO: Update signature to match refactored TimeSlot */
-            }
+            addRoomModal={(payload) => {
+              // Adapter: Extract timeslotID from SubjectPayload
+              addRoomModal(payload.timeslotID);
+            }}
             changeTimeSlotSubject={changeTimeSlotSubject}
-            clickOrDragToChangeTimeSlot={
-              clickOrDragToChangeTimeSlot as any /* TODO: Update signature to match refactored TimeSlot */
-            }
+            clickOrDragToChangeTimeSlot={(sourceID: string, destID: string) => {
+              // Adapter: Map sourceID/destID to subject and call original implementation
+              // Find the subject in the source timeslot
+              const sourceSlot = timeSlotData.AllData.find(
+                (item) => item.TimeslotID === sourceID,
+              );
+              
+              if (sourceSlot?.subject) {
+                // Determine if this is a click (sourceID === destID) or drag operation
+                const isClickToChange = sourceID === destID;
+                clickOrDragToChangeTimeSlot(sourceSlot.subject, sourceID, isClickToChange);
+              } else {
+                console.warn("clickOrDragToChangeTimeSlot: No subject found in source timeslot", sourceID);
+              }
+            }}
             isClickToChangeSubject={isClickToChangeSubject}
             timeslotIDtoChange={timeslotIDtoChange}
             dropOutOfZone={dropOutOfZone}
-            displayErrorChangeSubject={
-              displayErrorChangeSubject as any /* TODO: Update signature to match refactored TimeSlot */
-            }
+            displayErrorChangeSubject={(error: string) => {
+              // Adapter: Display error message using setShowErrorMsg
+              // Set error for the current changeTimeSlotSubject's timeslot
+              if (timeslotIDtoChange.source) {
+                setShowErrorMsg(timeslotIDtoChange.source, true);
+                console.error("Schedule change error:", error);
+                
+                // Auto-hide error after 5 seconds
+                setTimeout(() => {
+                  setShowErrorMsg(timeslotIDtoChange.source, false);
+                }, 5000);
+              }
+            }}
             showErrorMsgByTimeslotID={
               Object.keys(showErrorMsgByTimeslotID).find(
                 (key) => showErrorMsgByTimeslotID[key],
               ) || ""
             }
-            removeSubjectFromSlot={
-              removeSubjectFromSlot as any /* TODO: Update signature to match refactored TimeSlot */
-            }
+            removeSubjectFromSlot={(timeslotID: string) => {
+              // Adapter: Need to find subject by timeslotID
+              const slot = timeSlotData.AllData.find(
+                (item) => item.TimeslotID === timeslotID,
+              );
+              if (slot && slot.subject) {
+                removeSubjectFromSlot(slot.subject, timeslotID);
+              }
+            }}
             showLockDataMsgByTimeslotID={
               Object.keys(showLockDataMsgByTimeslotID).find(
                 (key) => showLockDataMsgByTimeslotID[key],

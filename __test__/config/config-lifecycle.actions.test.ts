@@ -29,12 +29,13 @@ describe("updateConfigStatusAction", () => {
       publishedAt: null,
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-    mockPrisma.table_config.update.mockResolvedValue({
+    // Use mockImplementation instead of mockResolvedValue since the mock is already initialized
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       ...mockConfig,
       status: "PUBLISHED",
       publishedAt: new Date(),
-    } as any);
+    } as any));
 
     const result = await updateConfigStatusAction({
       configId: "1-2024",
@@ -56,7 +57,7 @@ describe("updateConfigStatusAction", () => {
       publishedAt: null,
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
 
     const result = await updateConfigStatusAction({
       configId: "1-2024",
@@ -78,11 +79,11 @@ describe("updateConfigStatusAction", () => {
       publishedAt: new Date(),
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       ...mockConfig,
       status: "LOCKED",
-    } as any);
+    } as any));
 
     const result = await updateConfigStatusAction({
       configId: "1-2024",
@@ -94,7 +95,7 @@ describe("updateConfigStatusAction", () => {
   });
 
   it("should fail when config is not found", async () => {
-    mockPrisma.table_config.findUnique.mockResolvedValue(null);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(null));
 
     const result = await updateConfigStatusAction({
       configId: "NONEXISTENT",
@@ -114,7 +115,7 @@ describe("updateConfigStatusAction", () => {
       publishedAt: null,
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
 
     const result = await updateConfigStatusAction({
       configId: "1-2024",
@@ -148,11 +149,11 @@ describe("updateConfigStatusAction", () => {
       publishedAt: new Date(),
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       ...mockConfig,
       status: "LOCKED",
-    } as any);
+    } as any));
 
     const result = await updateConfigStatusAction({
       configId: "1-2024",
@@ -170,14 +171,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should calculate 0% completeness when no data exists", async () => {
-    mockPrisma.timeslot.count.mockResolvedValue(0);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
-    mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.gradelevel.count.mockResolvedValue(0);
-    mockPrisma.room.count.mockResolvedValue(0);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.gradelevel.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.room.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 0,
-    } as any);
+    } as any));
 
     const result = await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -189,14 +190,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should calculate 100% completeness when all data exists", async () => {
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
-    mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.gradelevel.count.mockResolvedValue(20);
-    mockPrisma.room.count.mockResolvedValue(10);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(15));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(12));
+    (mockPrisma.gradelevel.count as jest.Mock).mockImplementation(() => Promise.resolve(20));
+    (mockPrisma.room.count as jest.Mock).mockImplementation(() => Promise.resolve(10));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 100,
-    } as any);
+    } as any));
 
     const result = await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -208,14 +209,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should calculate 30% completeness when only timeslots exist", async () => {
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
-    mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.gradelevel.count.mockResolvedValue(0);
-    mockPrisma.room.count.mockResolvedValue(0);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.gradelevel.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.room.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 30,
-    } as any);
+    } as any));
 
     const result = await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -227,14 +228,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should use Promise.all for parallel counting", async () => {
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
-    mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.gradelevel.count.mockResolvedValue(20);
-    mockPrisma.room.count.mockResolvedValue(10);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(15));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(12));
+    (mockPrisma.gradelevel.count as jest.Mock).mockImplementation(() => Promise.resolve(20));
+    (mockPrisma.room.count as jest.Mock).mockImplementation(() => Promise.resolve(10));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 100,
-    } as any);
+    } as any));
 
     const result = await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -265,14 +266,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should update config with correct configId format", async () => {
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
-    mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.gradelevel.count.mockResolvedValue(20);
-    mockPrisma.room.count.mockResolvedValue(10);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(15));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(12));
+    (mockPrisma.gradelevel.count as jest.Mock).mockImplementation(() => Promise.resolve(20));
+    (mockPrisma.room.count as jest.Mock).mockImplementation(() => Promise.resolve(10));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 100,
-    } as any);
+    } as any));
 
     await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -294,7 +295,7 @@ describe("getConfigWithCompletenessAction", () => {
   });
 
   it("should return null data when config does not exist", async () => {
-    mockPrisma.table_config.findUnique.mockResolvedValue(null);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(null));
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -318,10 +319,10 @@ describe("getConfigWithCompletenessAction", () => {
       },
     };
 
-  mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-  mockPrisma.timeslot.count.mockResolvedValue(8);
-  mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
-  mockPrisma.class_schedule.count.mockResolvedValue(20);
+  (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
+  (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+  (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(15));
+  (mockPrisma.class_schedule.count as jest.Mock).mockImplementation(() => Promise.resolve(20));
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -352,7 +353,7 @@ describe("getConfigWithCompletenessAction", () => {
   });
 
   it("should construct correct configId", async () => {
-    mockPrisma.table_config.findUnique.mockResolvedValue(null);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(null));
 
     await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -371,10 +372,10 @@ describe("getConfigWithCompletenessAction", () => {
       configCompleteness: 0,
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-    mockPrisma.timeslot.count.mockResolvedValue(0);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
-    mockPrisma.class_schedule.count.mockResolvedValue(0);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.class_schedule.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -395,10 +396,10 @@ describe("getConfigWithCompletenessAction", () => {
       configCompleteness: 0,
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockConfig as any);
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
-    mockPrisma.class_schedule.count.mockResolvedValue(20);
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockConfig as any));
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(15));
+    (mockPrisma.class_schedule.count as jest.Mock).mockImplementation(() => Promise.resolve(20));
 
     await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -436,11 +437,11 @@ describe("Integration scenarios", () => {
     };
 
     // Step 2: Publish
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockDraftConfig as any);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockDraftConfig as any));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       ...mockDraftConfig,
       status: "PUBLISHED",
-      publishedAt: new Date(),
+      publishedAt: new Date()),
     } as any);
 
     const publishResult = await updateConfigStatusAction({
@@ -457,11 +458,11 @@ describe("Integration scenarios", () => {
       publishedAt: new Date(),
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockPublishedConfig as any);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockPublishedConfig as any));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       ...mockPublishedConfig,
       status: "LOCKED",
-    } as any);
+    } as any));
 
     const lockResult = await updateConfigStatusAction({
       configId: "1-2024",
@@ -476,11 +477,11 @@ describe("Integration scenarios", () => {
       status: "LOCKED",
     };
 
-    mockPrisma.table_config.findUnique.mockResolvedValue(mockLockedConfig as any);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.table_config.findUnique as jest.Mock).mockImplementation(() => Promise.resolve(mockLockedConfig as any));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       ...mockLockedConfig,
       status: "ARCHIVED",
-    } as any);
+    } as any));
 
     const archiveResult = await updateConfigStatusAction({
       configId: "1-2024",
@@ -492,14 +493,14 @@ describe("Integration scenarios", () => {
 
   it("should update completeness as data is added", async () => {
     // Initially no data
-    mockPrisma.timeslot.count.mockResolvedValue(0);
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(0);
-    mockPrisma.subject.count.mockResolvedValue(0);
-    mockPrisma.gradelevel.count.mockResolvedValue(0);
-    mockPrisma.room.count.mockResolvedValue(0);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.gradelevel.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.room.count as jest.Mock).mockImplementation(() => Promise.resolve(0));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 0,
-    } as any);
+    } as any));
 
     const result1 = await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -509,10 +510,10 @@ describe("Integration scenarios", () => {
     expect(result1.data?.completeness).toBe(0);
 
     // Add timeslots
-    mockPrisma.timeslot.count.mockResolvedValue(8);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.timeslot.count as jest.Mock).mockImplementation(() => Promise.resolve(8));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 30,
-    } as any);
+    } as any));
 
     const result2 = await updateConfigCompletenessAction({
       academicYear: 2024,
@@ -522,11 +523,11 @@ describe("Integration scenarios", () => {
     expect(result2.data?.completeness).toBe(30);
 
     // Add teachers and subjects
-    mockPrisma.teachers_responsibility.count.mockResolvedValue(15);
-    mockPrisma.subject.count.mockResolvedValue(12);
-    mockPrisma.table_config.update.mockResolvedValue({
+    (mockPrisma.teachers_responsibility.count as jest.Mock).mockImplementation(() => Promise.resolve(15));
+    (mockPrisma.subject.count as jest.Mock).mockImplementation(() => Promise.resolve(12));
+    (mockPrisma.table_config.update as jest.Mock).mockImplementation(() => Promise.resolve({
       configCompleteness: 70,
-    } as any);
+    } as any));
 
     const result3 = await updateConfigCompletenessAction({
       academicYear: 2024,
