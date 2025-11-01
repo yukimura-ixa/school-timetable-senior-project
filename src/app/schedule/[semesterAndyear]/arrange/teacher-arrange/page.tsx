@@ -226,22 +226,20 @@ export default function TeacherArrangePageRefactored() {
     { revalidateOnFocus: false, revalidateOnMount: true },
   );
 
-  const fetchTeacher = useSWR<TeacherInfo | null>(
+  const fetchTeacher = useSWR<teacher | null>(
     currentTeacherID ? `teacher-${currentTeacherID}` : null,
-    async (): Promise<TeacherInfo | null> => {
+    async (): Promise<teacher | null> => {
       if (!currentTeacherID) return null;
-      const result = (await getTeachersAction()) as ActionResult<
-        Array<{
-          TeacherID: number;
-          [key: string]: unknown;
-        }>
-      >;
+      const result = (await getTeachersAction()) as ActionResult<teacher[]>;
+      
       if (!result.success || !result.data) return null;
-      const teachers = result.data;
-      const teacher = teachers.find(
+      
+      const foundTeacher = result.data.find(
         (t) => t.TeacherID === parseInt(currentTeacherID),
       );
-      return teacher || null;
+      
+      // Use nullish coalescing for cleaner null handling
+      return foundTeacher ?? null;
     },
     { revalidateOnFocus: false },
   );

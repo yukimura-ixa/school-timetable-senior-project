@@ -4,14 +4,11 @@ const nextConfig = {
   // Next.js 16 optimizations
   reactCompiler: true,
   
-  // Exclude problematic packages from server bundling
-  // These packages have broken package.json or version conflicts
+  // Only externalize packages that work correctly as externals
+  // Legacy packages (fstream, tmp, rimraf, unzipper) should be bundled instead
   serverExternalPackages: [
-    'rimraf',           // Used by fstream, tmp - has package.json issues
-    'fstream',          // Old file streaming library
-    'tmp',              // Temporary file library
-    'import-in-the-middle',  // OpenTelemetry instrumentation
-    'require-in-the-middle', // OpenTelemetry instrumentation (version conflict)
+    'import-in-the-middle',  // OpenTelemetry instrumentation (works as external)
+    'require-in-the-middle', // OpenTelemetry instrumentation (works as external)
   ],
   
   images: {
