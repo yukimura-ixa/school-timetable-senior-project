@@ -1,4 +1,6 @@
 /**
+ * @jest-environment jsdom
+ * 
  * Unit Tests for Management Client Wrappers
  * 
  * Tests that verify:

@@ -149,6 +149,9 @@ The system uses a relational database with the following main entities:
 - **[OAuth Bypass Summary](docs/OAUTH_BYPASS_SUMMARY.md)** - Complete technical summary of dev bypass
 - **[Quickstart](docs/QUICKSTART.md)** - Quick setup guide
 
+### For AI Agents & Contributors
+- **[AGENTS.md](AGENTS.md)** 🤖 **AI Agent Handbook** - Operating manual for Codex/AI coding agents with MCP-first workflow, coding standards, and future roadmap
+
 ### Core Documentation
 - **[Documentation Index](docs/INDEX.md)** - Complete documentation catalog
 - **[Project Context](docs/PROJECT_CONTEXT.md)** - High-level project goals

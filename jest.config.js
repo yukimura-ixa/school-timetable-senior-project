@@ -10,7 +10,9 @@ const createJestConfig = nextJest({
 const config = {
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jest-environment-jsdom',
+  // Use Node.js environment for server-side tests
+  // This provides native fetch and other Node.js globals
+  testEnvironment: 'jest-environment-node',
   preset: 'ts-jest',
   globals: {
     'ts-jest': {

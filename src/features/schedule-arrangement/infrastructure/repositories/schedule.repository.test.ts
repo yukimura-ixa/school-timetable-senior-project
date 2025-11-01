@@ -9,26 +9,15 @@ import { ScheduleRepository } from './schedule.repository';
 import prisma from '@/lib/prisma';
 import { semester } from '@/prisma/generated';
 
-// Mock Prisma client
-jest.mock('@/lib/prisma', () => ({
-  __esModule: true,
-  default: {
-    class_schedule: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    teachers_responsibility: {
-      findMany: jest.fn(),
-      update: jest.fn(),
-    },
-  },
-}));
+// Prisma is already mocked globally in jest.setup.js
+// We just need to get typed access to the mock
 
 describe('ScheduleRepository', () => {
   let repository: ScheduleRepository;
+  
+  // Get typed mock references
+  const mockClassSchedule = prisma.class_schedule as jest.Mocked<typeof prisma.class_schedule>;
+  const mockTeachersResp = prisma.teachers_responsibility as jest.Mocked<typeof prisma.teachers_responsibility>;
 
   beforeEach(() => {
     repository = new ScheduleRepository();
@@ -62,7 +51,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      (prisma.class_schedule.findMany as jest.Mock).mockResolvedValue(mockPrismaData);
+      mockClassSchedule.findMany.mockResolvedValue(mockPrismaData as any);
 
       const result = await repository.findSchedulesByTerm(2566, 'SEMESTER_1');
 
@@ -108,7 +97,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      (prisma.class_schedule.findMany as jest.Mock).mockResolvedValue(mockPrismaData);
+      mockClassSchedule.findMany.mockResolvedValue(mockPrismaData);
 
       const result = await repository.findSchedulesByTerm(2566, 'SEMESTER_1');
 
@@ -133,7 +122,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      (prisma.teachers_responsibility.findMany as jest.Mock).mockResolvedValue(mockPrismaData);
+      mockTeachersResp.findMany.mockResolvedValue(mockPrismaData);
 
       const result = await repository.findResponsibilitiesByTerm(2566, 'SEMESTER_1');
 
@@ -172,7 +161,7 @@ describe('ScheduleRepository', () => {
         timeslot: {},
       };
 
-      (prisma.class_schedule.create as jest.Mock).mockResolvedValue(mockCreated);
+      mockClassSchedule.create.mockResolvedValue(mockCreated);
 
       const result = await repository.createSchedule({
         ClassID: 'C_NEW',
@@ -200,7 +189,7 @@ describe('ScheduleRepository', () => {
         IsLocked: true,
       };
 
-      (prisma.class_schedule.update as jest.Mock).mockResolvedValue(mockUpdated);
+      mockClassSchedule.update.mockResolvedValue(mockUpdated);
 
       const result = await repository.updateSchedule('C1', {
         RoomID: 102,
@@ -221,7 +210,7 @@ describe('ScheduleRepository', () => {
     it('should delete a schedule', async () => {
       const mockDeleted = { ClassID: 'C1' };
 
-      (prisma.class_schedule.delete as jest.Mock).mockResolvedValue(mockDeleted);
+      mockClassSchedule.delete.mockResolvedValue(mockDeleted);
 
       await repository.deleteSchedule('C1');
 
@@ -243,7 +232,7 @@ describe('ScheduleRepository', () => {
         teachers_responsibility: [],
       };
 
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue(mockSchedule);
+      mockClassSchedule.findUnique.mockResolvedValue(mockSchedule);
 
       const result = await repository.findScheduleById('C1');
 
@@ -256,7 +245,7 @@ describe('ScheduleRepository', () => {
     });
 
     it('should return null if schedule not found', async () => {
-      (prisma.class_schedule.findUnique as jest.Mock).mockResolvedValue(null);
+      mockClassSchedule.findUnique.mockResolvedValue(null);
 
       const result = await repository.findScheduleById('NONEXISTENT');
 
@@ -268,7 +257,7 @@ describe('ScheduleRepository', () => {
     it('should link a teacher to a schedule', async () => {
       const mockLinked = { RespID: 1 };
 
-      (prisma.teachers_responsibility.update as jest.Mock).mockResolvedValue(mockLinked);
+      mockTeachersResp.update.mockResolvedValue(mockLinked);
 
       await repository.linkTeacherToSchedule('C1', 1);
 
@@ -287,7 +276,7 @@ describe('ScheduleRepository', () => {
     it('should unlink a teacher from a schedule', async () => {
       const mockUnlinked = { RespID: 1 };
 
-      (prisma.teachers_responsibility.update as jest.Mock).mockResolvedValue(mockUnlinked);
+      mockTeachersResp.update.mockResolvedValue(mockUnlinked);
 
       await repository.unlinkTeacherFromSchedule('C1', 1);
 

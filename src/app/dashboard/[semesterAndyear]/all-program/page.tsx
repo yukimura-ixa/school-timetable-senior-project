@@ -11,6 +11,7 @@ import useSWR from "swr";
 import ExportAllProgram from "./function/ExportAllProgram";
 import { subjectCreditValues } from "@/models/credit-value";
 import { isUndefined } from "swr/_internal";
+import { SubjectCategory } from "@/prisma/generated";
 
 type Props = Record<string, never>;
 
@@ -21,6 +22,13 @@ type SubjectRow = {
   Credit: keyof typeof subjectCreditValues;
   Category: CategoryType;
   teachers?: Array<{ TeacherFullName: string }>;
+};
+
+// Map Prisma enum to Thai display strings
+const categoryMap: Record<SubjectCategory, CategoryType> = {
+  CORE: "พื้นฐาน",
+  ADDITIONAL: "เพิ่มเติม",
+  ACTIVITY: "กิจกรรมพัฒนาผู้เรียน",
 };
 
 const page = (_props: Props) => {
@@ -47,7 +55,13 @@ const page = (_props: Props) => {
       : `ม.${gradeID[0]}/${parseInt(gradeID.substring(1))}`;
   };
   const subjects: SubjectRow[] = (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data)
-    ? (programOfGrade.data.data.subjects as SubjectRow[])
+    ? programOfGrade.data.data.subjects.map(subject => ({
+        SubjectCode: subject.SubjectCode,
+        SubjectName: subject.SubjectName,
+        Credit: subject.Credit as keyof typeof subjectCreditValues,
+        Category: categoryMap[subject.Category],
+        teachers: [], // TODO: Add teacher data when available from repository
+      }))
     : [];
 
   const primarySubjectData = (): SubjectRow[] =>
@@ -146,13 +160,9 @@ const page = (_props: Props) => {
     </tr>
   )
   const getSumCreditValue = () => {
-    if (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data) {
-      return (programOfGrade.data.data.subjects as SubjectRow[])
-        .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
-        .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
-    } else {
-      return 0;
-    }
+    return subjects
+      .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
+      .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
   }
   const sortSubjectCategory = (data: SubjectRow[]) => {
     //ท ค ว ส พ ศ ก อ

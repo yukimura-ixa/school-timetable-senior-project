@@ -7,17 +7,44 @@
 
 ## 0) MCP Priority & Routing
 
-**Use these MCP servers by default:**
+**CRITICAL: ALWAYS consult context7 BEFORE fixing bugs or implementing features!**
 
-- **Next DevTools MCP** (`next-devtools-mcp`) — upgrades, diagnostics, codemods for **Next.js 16**.  
-- **Prisma MCP** (`@prisma/mcp`) — Prisma schema reasoning, migrations, CLI.
+Use MCP servers in this strict priority order:
+
+1. **context7** (`@upstash/context7-mcp`) — **MANDATORY FIRST STEP** for all bug fixes and features. Fetch version-specific docs for Next.js, React, Prisma, MUI, Tailwind, Auth.js, Valibot, Zustand, SWR, Recharts before writing code. Use `resolve-library-id` then `get-library-docs`.
+
+2. **Serena** (`serena`) — symbol‑aware edits & code navigation. Use for codebase understanding and precise refactoring.
+
+3. **Next DevTools MCP** (`next-devtools-mcp`) — upgrades, diagnostics, codemods for **Next.js 16**.  
+
+4. **Prisma MCP** (`@prisma/mcp`) — Prisma schema reasoning, migrations, CLI.
 
 **Also available:**  
-- **context7** — version‑specific docs lookup (resolve exact package versions).  
-- **Serena** — symbol‑aware edits & code navigation.  
 - **GitHub MCP** — issues/PR context & summaries.  
 - **Files MCP** — read‑only fallback.
 - **Playwright MCP** — for E2E test generation.
+- **MUI MCP** — Material-UI component documentation.
+
+### Context7 Workflow (MANDATORY)
+
+**Before ANY code changes:**
+```
+1. Identify libraries/frameworks involved (e.g., "Next.js", "MUI", "Prisma")
+2. Call resolve-library-id for each library
+3. Call get-library-docs with topic (e.g., "Server Actions", "DataGrid props")
+4. Review official API patterns from docs
+5. Implement using authoritative patterns
+```
+
+**Example:**
+```
+Task: "Fix form validation with Valibot"
+1. resolve-library-id("valibot") → /valibot/valibot
+2. get-library-docs("/valibot/valibot", topic="schema validation")
+3. Review Valibot's official v.object(), v.string() patterns
+4. Implement using correct API
+```
+
 > If a code MCP is unavailable, proceed read‑only and state constraints. No risky text rewrites.
 
 ---
@@ -101,7 +128,173 @@ pnpm prisma migrate deploy
 
 ---
 
-## 6) Quick Reference
+## 6) GitHub Issue & PR Policy (MANDATORY for discovered work)
+
+**CRITICAL: Always create GitHub issues/PRs for discovered bugs, TODOs, and features that follow dev standards.**
+
+### When to Create Issues
+
+Create a GitHub issue when you discover:
+
+1. **Bugs** - Any defect, error, or unintended behavior
+   - Failed tests or test suites
+   - Runtime errors or exceptions
+   - Type errors or compilation issues
+   - Logic errors or incorrect behavior
+
+2. **Technical Debt** - Code quality issues that need improvement
+   - `TODO` or `FIXME` comments in code
+   - Code smells (duplicate code, complex functions, etc.)
+   - Missing type annotations or `any` types
+   - Deprecated API usage
+
+3. **Missing Features** - Functionality gaps identified during work
+   - Features mentioned in comments but not implemented
+   - User-facing improvements
+   - Developer experience enhancements
+
+4. **Performance Issues** - Optimization opportunities
+   - Slow queries or operations
+   - Memory leaks or resource issues
+   - Bundle size problems
+
+### Issue Creation Workflow
+
+```typescript
+// When discovering issues during work:
+1. Document the issue clearly (what, where, why)
+2. Assess severity: critical/high/medium/low
+3. Determine if it follows dev standards (check AGENTS.md)
+4. Create GitHub issue with proper labels
+5. Add to current TODO list if related to active work
+6. Continue with original task unless critical
+```
+
+### Issue Template
+
+Use this structure when creating issues:
+
+```markdown
+## Description
+[Clear description of the bug/feature/debt]
+
+## Location
+- File(s): [path/to/file.ts]
+- Line(s): [specific lines if applicable]
+
+## Current Behavior
+[What currently happens]
+
+## Expected Behavior
+[What should happen]
+
+## Reproduction Steps (for bugs)
+1. [Step 1]
+2. [Step 2]
+...
+
+## Proposed Solution
+[Suggested approach or fix]
+
+## Technical Context
+- Related files: [list]
+- Dependencies: [list]
+- Estimated effort: [S/M/L/XL]
+
+## Related Issues/PRs
+- Relates to #[issue number]
+- Blocked by #[issue number]
+```
+
+### PR Creation Workflow
+
+Create a PR when:
+- Fixing issues discovered during work
+- Implementing features that span multiple commits
+- Making significant refactoring changes
+
+**PR Template:**
+```markdown
+## Changes
+[Summary of what changed]
+
+## Related Issues
+Closes #[issue number]
+
+## Testing
+- [ ] Unit tests added/updated
+- [ ] E2E tests added/updated
+- [ ] Manual testing completed
+
+## Checklist
+- [ ] Follows AGENTS.md guidelines
+- [ ] Context7 consulted for all library usage
+- [ ] Type safety maintained (no new `any`)
+- [ ] Tests passing (pnpm test)
+- [ ] Linting passing (pnpm lint)
+```
+
+### Labels to Use
+
+- `bug` - Something isn't working
+- `enhancement` - New feature or request
+- `technical-debt` - Code quality improvements
+- `performance` - Performance optimization
+- `testing` - Test-related issues
+- `documentation` - Documentation improvements
+- `priority: high` - Needs immediate attention
+- `priority: medium` - Should be addressed soon
+- `priority: low` - Nice to have
+- `good first issue` - Good for newcomers
+
+### When NOT to Create Issues
+
+- One-line fixes that can be done immediately
+- Typos in comments or documentation
+- Personal preferences without technical merit
+- Issues already tracked (check existing issues first)
+
+### Example: Issue Creation During Bug Fix
+
+```typescript
+// Scenario: While fixing store type mismatch, discovered multiple similar issues
+
+// 1. Fix immediate issue (store type mismatch)
+// 2. Create issue for related problems found:
+
+GitHub Issue #32: "Fix store type mismatch in arrangement-ui"
+- Description: Store expects SubjectData[] but receives ClassScheduleWithRelations[]
+- Solution: Create mapper functions
+- Status: In Progress
+
+GitHub Issue #33: "Fix 7 failing Jest test suites"  
+- Description: Mock setup conflicts and data fixture issues
+- Root cause: Duplicate jest.mock() declarations
+- Status: In Progress (5/7 fixed)
+
+// 3. Continue with original task
+```
+
+### Automation Tips
+
+When creating issues via MCP GitHub tools:
+```typescript
+// Use structured approach
+await mcp_github_issue_write({
+  method: 'create',
+  owner: 'yukimura-ixa',
+  repo: 'school-timetable-senior-project',
+  title: '[Bug] Clear, concise title',
+  body: '## Description\n...\n## Location\n...',
+  labels: ['bug', 'priority: high']
+});
+```
+
+**Remember:** Quality over quantity. Create meaningful issues that help the team, not noise.
+
+---
+
+## 7) Quick Reference
 
 ```bash
 pnpm i

@@ -1,16 +1,74 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 
-// Polyfill fetch for Jest/Node environment (required by Prisma Accelerate)
+// Polyfill Web APIs for Node.js environment
+// Required by Prisma Client and Accelerate extension in Jest tests
+// Reference: Node.js built-in Web APIs (Node 18+)
+// See: https://nodejs.org/docs/latest-v18.x/api/globals.html
+
+const { TextEncoder, TextDecoder } = require('util')
+const { ReadableStream, WritableStream, TransformStream } = require('stream/web')
+const { MessageChannel, MessagePort } = require('worker_threads')
+
+// Text encoding (required by Prisma)
+global.TextEncoder = TextEncoder
+global.TextDecoder = TextDecoder
+
+// Web Streams (required by Prisma Accelerate)
+global.ReadableStream = ReadableStream
+global.WritableStream = WritableStream
+global.TransformStream = TransformStream
+
+// Worker Threads API (required by fetch polyfills)
+global.MessageChannel = MessageChannel
+global.MessagePort = MessagePort
+
+// Node.js 18+ has native fetch - ensure it's available globally
 if (typeof global.fetch === 'undefined') {
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: async () => ({}),
-      text: async () => '',
-    })
-  );
+  // Fallback for older Node versions (shouldn't happen with Next.js 16)
+  console.warn('Native fetch not available, using undici polyfill')
+  const { fetch, Headers, Request, Response, FormData } = require('undici')
+  global.fetch = fetch
+  global.Headers = Headers
+  global.Request = Request
+  global.Response = Response
+  global.FormData = FormData
 }
+
+// Mock localStorage for Zustand persist middleware
+// Required by stores that use persist() middleware with localStorage
+class LocalStorageMock {
+  constructor() {
+    this.store = {};
+  }
+
+  clear() {
+    this.store = {};
+  }
+
+  getItem(key) {
+    return this.store[key] || null;
+  }
+
+  setItem(key, value) {
+    this.store[key] = String(value);
+  }
+
+  removeItem(key) {
+    delete this.store[key];
+  }
+
+  key(index) {
+    const keys = Object.keys(this.store);
+    return keys[index] || null;
+  }
+
+  get length() {
+    return Object.keys(this.store).length;
+  }
+}
+
+global.localStorage = new LocalStorageMock();
 
 // Mock Auth.js to prevent ESM import errors
 jest.mock('@/lib/auth', () => ({

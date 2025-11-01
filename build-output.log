@@ -1,0 +1,10 @@
+
+> school-timetable@2.0.0 build B:\Dev\school-timetable-senior-project
+> next build
+
+   โ–ฒ Next.js 16.0.1 (Turbopack)
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     ยท clientTraceMetadata
+
+   Creating an optimized production build ...

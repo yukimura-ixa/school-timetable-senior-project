@@ -13,10 +13,17 @@
         "**/prisma/generated/**": true
     },
     "chat.tools.terminal.autoApprove": {
-        "/.*/": true,
+        // Auto-approve ALL pnpm commands (including pipes and redirects)
+        "/^pnpm\\s+/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     },
     "chat.checkpoints.showFileChanges": true,
     "chat.editing.autoAcceptDelay": 3,
     "chat.edits2.enabled": true,
     "chat.renderRelatedFiles": true,
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.shellIntegration.enabled": true,
+    "terminal.integrated.suggest.enabled": true,
 }
