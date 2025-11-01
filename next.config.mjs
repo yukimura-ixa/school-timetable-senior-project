@@ -11,6 +11,8 @@ const nextConfig = {
       },
     ],
   },
+  // Exclude packages with missing or invalid package.json from bundling
+  serverExternalPackages: ["fstream"],
 };
 
 export default nextConfig;
