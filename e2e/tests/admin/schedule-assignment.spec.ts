@@ -1,5 +1,5 @@
-import { test, expect } from '@/e2e/fixtures/admin.fixture';
-import { testSemester, testTeacher, testSubject } from '@/e2e/fixtures/seed-data.fixture';
+import { test, expect } from '../../fixtures/admin.fixture';
+import { testSemester, testTeacher, testSubject } from '../../fixtures/seed-data.fixture';
 
 /**
  * E2E Tests for Admin Schedule Assignment Flow
@@ -97,118 +97,112 @@ test.describe('Admin: Schedule Assignment - Conflict Detection', () => {
     expect(message).toContain('ครูสอนซ้ำซ้อน'); // Thai: Teacher conflict
   });
 
-  test('should detect room double-booking conflict', async () => {
+  test('should detect room double-booking conflict', async ({ scheduleAssignmentPage }) => {
     // Arrange
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
 
     // Act - Different teacher, same room, same time
-    await schedulePage.selectTeacher('TCH002');
-    await schedulePage.dragSubjectToTimeslot('MA201', 'MON', 1); // Same room
+    await scheduleAssignmentPage.selectTeacher('TCH002');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('MA201', 'MON', 1); // Same room
 
     // Assert
-    const hasRoomConflict = await schedulePage.hasConflict('room');
+    const hasRoomConflict = await scheduleAssignmentPage.hasConflict('room');
     expect(hasRoomConflict).toBe(true);
 
-    const message = await schedulePage.getConflictMessage();
+    const message = await scheduleAssignmentPage.getConflictMessage();
     expect(message).toContain('ห้องเรียนซ้ำซ้อน'); // Thai: Room conflict
   });
 
-  test('should prevent assignment to locked timeslot', async () => {
+  test('should prevent assignment to locked timeslot', async ({ scheduleAssignmentPage }) => {
     // Arrange
-    await schedulePage.lockTimeslot('MON', 1);
+    await scheduleAssignmentPage.lockTimeslot('MON', 1);
 
     // Act
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
 
     // Assert
-    const hasLockedConflict = await schedulePage.hasConflict('locked');
+    const hasLockedConflict = await scheduleAssignmentPage.hasConflict('locked');
     expect(hasLockedConflict).toBe(true);
 
-    const message = await schedulePage.getConflictMessage();
+    const message = await scheduleAssignmentPage.getConflictMessage();
     expect(message).toContain('ช่วงเวลาถูกล็อก'); // Thai: Locked timeslot
   });
 
-  test('should prevent assignment during break time', async ({ page }) => {
+  test('should prevent assignment during break time', async ({ scheduleAssignmentPage }) => {
     // Arrange
-    await schedulePage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.selectTeacher('TCH001');
 
     // Act - Try to assign to period 4 (lunch break)
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 4);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 4);
 
     // Assert
-    const hasBreakConflict = await schedulePage.hasConflict('break');
+    const hasBreakConflict = await scheduleAssignmentPage.hasConflict('break');
     expect(hasBreakConflict).toBe(true);
 
-    const message = await schedulePage.getConflictMessage();
+    const message = await scheduleAssignmentPage.getConflictMessage();
     expect(message).toContain('พัก'); // Thai: Break time
   });
 });
 
 test.describe('Admin: Schedule Assignment - Timeslot Locking', () => {
-  let schedulePage: ScheduleAssignmentPage;
-
-  test.beforeEach(async ({ page }) => {
-    schedulePage = new ScheduleAssignmentPage(page);
-    await schedulePage.goto('1-2567');
-    await schedulePage.waitForPageReady();
+  test.beforeEach(async ({ scheduleAssignmentPage }) => {
+    await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+    await scheduleAssignmentPage.waitForPageReady();
   });
 
-  test('should lock timeslot for school-wide activity', async () => {
+  test('should lock timeslot for school-wide activity', async ({ scheduleAssignmentPage }) => {
     // Act
-    await schedulePage.lockTimeslot('MON', 1);
+    await scheduleAssignmentPage.lockTimeslot('MON', 1);
 
     // Assert
-    const isLocked = await schedulePage.isTimeslotLocked('MON', 1);
+    const isLocked = await scheduleAssignmentPage.isTimeslotLocked('MON', 1);
     expect(isLocked).toBe(true);
   });
 
-  test('should unlock previously locked timeslot', async () => {
+  test('should unlock previously locked timeslot', async ({ scheduleAssignmentPage }) => {
     // Arrange
-    await schedulePage.lockTimeslot('MON', 1);
+    await scheduleAssignmentPage.lockTimeslot('MON', 1);
 
     // Act
-    await schedulePage.unlockTimeslot('MON', 1);
+    await scheduleAssignmentPage.unlockTimeslot('MON', 1);
 
     // Assert
-    const isLocked = await schedulePage.isTimeslotLocked('MON', 1);
+    const isLocked = await scheduleAssignmentPage.isTimeslotLocked('MON', 1);
     expect(isLocked).toBe(false);
   });
 
-  test('should allow assignment after unlocking timeslot', async () => {
+  test('should allow assignment after unlocking timeslot', async ({ scheduleAssignmentPage }) => {
     // Arrange
-    await schedulePage.lockTimeslot('MON', 1);
-    await schedulePage.unlockTimeslot('MON', 1);
+    await scheduleAssignmentPage.lockTimeslot('MON', 1);
+    await scheduleAssignmentPage.unlockTimeslot('MON', 1);
 
     // Act
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
 
     // Assert
-    const conflict = await schedulePage.getConflictMessage();
+    const conflict = await scheduleAssignmentPage.getConflictMessage();
     expect(conflict).toBeNull();
   });
 });
 
 test.describe('Admin: Schedule Assignment - Export Functionality', () => {
-  let schedulePage: ScheduleAssignmentPage;
-
-  test.beforeEach(async ({ page }) => {
-    schedulePage = new ScheduleAssignmentPage(page);
-    await schedulePage.goto('1-2567');
-    await schedulePage.waitForPageReady();
+  test.beforeEach(async ({ scheduleAssignmentPage }) => {
+    await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+    await scheduleAssignmentPage.waitForPageReady();
   });
 
-  test('should export schedule to Excel', async ({ page }) => {
+  test('should export schedule to Excel', async ({ scheduleAssignmentPage, authenticatedAdmin }) => {
     // Arrange
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
 
     // Act
     const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      schedulePage.exportSchedule('excel'),
+      authenticatedAdmin.page.waitForEvent('download'),
+      scheduleAssignmentPage.exportSchedule('excel'),
     ]);
 
     // Assert
@@ -217,15 +211,15 @@ test.describe('Admin: Schedule Assignment - Export Functionality', () => {
     expect(filePath).toBeTruthy();
   });
 
-  test('should export schedule to PDF', async ({ page }) => {
+  test('should export schedule to PDF', async ({ scheduleAssignmentPage, authenticatedAdmin }) => {
     // Arrange
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
 
     // Act
     const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      schedulePage.exportSchedule('pdf'),
+      authenticatedAdmin.page.waitForEvent('download'),
+      scheduleAssignmentPage.exportSchedule('pdf'),
     ]);
 
     // Assert
@@ -234,67 +228,61 @@ test.describe('Admin: Schedule Assignment - Export Functionality', () => {
     expect(filePath).toBeTruthy();
   });
 
-  test('should export schedule with multiple assignments', async ({ page }) => {
+  test('should export schedule with multiple assignments', async ({ scheduleAssignmentPage, authenticatedAdmin }) => {
     // Arrange - Create a complete schedule
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
-    await schedulePage.dragSubjectToTimeslot('TH102', 'TUE', 2);
-    await schedulePage.dragSubjectToTimeslot('TH103', 'WED', 3);
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH102', 'TUE', 2);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH103', 'WED', 3);
 
     // Act
     const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      schedulePage.exportSchedule('excel'),
+      authenticatedAdmin.page.waitForEvent('download'),
+      scheduleAssignmentPage.exportSchedule('excel'),
     ]);
 
     // Assert
     expect(download.suggestedFilename()).toMatch(/.*\.xlsx$/i);
 
     // Optional: Could add file size check or content validation
-    const assignedCount = await schedulePage.getAssignedSubjectCount();
+    const assignedCount = await scheduleAssignmentPage.getAssignedSubjectCount();
     expect(assignedCount).toBe(3);
   });
 });
 
 test.describe('Admin: Schedule Assignment - Cross-Semester Navigation', () => {
-  let schedulePage: ScheduleAssignmentPage;
-
-  test.beforeEach(async ({ page }) => {
-    schedulePage = new ScheduleAssignmentPage(page);
-  });
-
-  test('should navigate between semesters', async () => {
+  test('should navigate between semesters', async ({ scheduleAssignmentPage }) => {
     // Semester 1
-    await schedulePage.goto('1-2567');
-    await schedulePage.waitForPageReady();
+    await scheduleAssignmentPage.goto('1-2567');
+    await scheduleAssignmentPage.waitForPageReady();
 
-    let currentSemester = await schedulePage.getCurrentSemester();
+    let currentSemester = await scheduleAssignmentPage.getCurrentSemester();
     expect(currentSemester).toBe('1-2567');
 
     // Semester 2
-    await schedulePage.goto('2-2567');
-    await schedulePage.waitForPageReady();
+    await scheduleAssignmentPage.goto('2-2567');
+    await scheduleAssignmentPage.waitForPageReady();
 
-    currentSemester = await schedulePage.getCurrentSemester();
+    currentSemester = await scheduleAssignmentPage.getCurrentSemester();
     expect(currentSemester).toBe('2-2567');
   });
 
-  test('should maintain schedule data per semester', async () => {
+  test('should maintain schedule data per semester', async ({ scheduleAssignmentPage }) => {
     // Arrange - Assign subject in semester 1
-    await schedulePage.goto('1-2567');
-    await schedulePage.waitForPageReady();
-    await schedulePage.selectTeacher('TCH001');
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
-    await schedulePage.saveSchedule();
+    await scheduleAssignmentPage.goto('1-2567');
+    await scheduleAssignmentPage.waitForPageReady();
+    await scheduleAssignmentPage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.saveSchedule();
 
-    const sem1Count = await schedulePage.getAssignedSubjectCount();
+    const sem1Count = await scheduleAssignmentPage.getAssignedSubjectCount();
 
     // Act - Switch to semester 2
-    await schedulePage.goto('2-2567');
-    await schedulePage.waitForPageReady();
-    await schedulePage.selectTeacher('TCH001');
+    await scheduleAssignmentPage.goto('2-2567');
+    await scheduleAssignmentPage.waitForPageReady();
+    await scheduleAssignmentPage.selectTeacher('TCH001');
 
-    const sem2Count = await schedulePage.getAssignedSubjectCount();
+    const sem2Count = await scheduleAssignmentPage.getAssignedSubjectCount();
 
     // Assert - Schedules should be independent
     expect(sem2Count).not.toBe(sem1Count);
@@ -308,41 +296,36 @@ test.describe('Admin: Schedule Assignment - Cross-Semester Navigation', () => {
  * complex schedules and multiple assignments.
  */
 test.describe('Admin: Schedule Assignment - Performance', () => {
-  let schedulePage: ScheduleAssignmentPage;
-
-  test.beforeEach(async ({ page }) => {
-    schedulePage = new ScheduleAssignmentPage(page);
-    await schedulePage.goto('1-2567');
-    await schedulePage.waitForPageReady();
+  test.beforeEach(async ({ scheduleAssignmentPage }) => {
+    await scheduleAssignmentPage.goto('1-2567');
+    await scheduleAssignmentPage.waitForPageReady();
   });
 
-  test('should handle multiple rapid assignments efficiently', async () => {
-    await schedulePage.selectTeacher('TCH001');
+  test('should handle multiple rapid assignments efficiently', async ({ scheduleAssignmentPage }) => {
+    await scheduleAssignmentPage.selectTeacher('TCH001');
 
     // Measure time for 5 assignments
     const startTime = Date.now();
 
-    await schedulePage.dragSubjectToTimeslot('TH101', 'MON', 1);
-    await schedulePage.dragSubjectToTimeslot('TH102', 'MON', 2);
-    await schedulePage.dragSubjectToTimeslot('TH103', 'TUE', 1);
-    await schedulePage.dragSubjectToTimeslot('TH104', 'TUE', 2);
-    await schedulePage.dragSubjectToTimeslot('TH105', 'WED', 1);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH101', 'MON', 1);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH102', 'MON', 2);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH103', 'TUE', 1);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH104', 'TUE', 2);
+    await scheduleAssignmentPage.dragSubjectToTimeslot('TH105', 'WED', 1);
 
     const duration = Date.now() - startTime;
 
     // Should complete within 15 seconds (3 seconds per assignment)
     expect(duration).toBeLessThan(15000);
 
-    const assignedCount = await schedulePage.getAssignedSubjectCount();
+    const assignedCount = await scheduleAssignmentPage.getAssignedSubjectCount();
     expect(assignedCount).toBe(5);
   });
 
-  test('should load page within acceptable time', async ({ page }) => {
+  test('should load page within acceptable time', async ({ scheduleAssignmentPage }) => {
     const startTime = Date.now();
-
-    const newSchedulePage = new ScheduleAssignmentPage(page);
-    await newSchedulePage.goto('1-2567');
-    await newSchedulePage.waitForPageReady();
+    await scheduleAssignmentPage.goto('1-2567');
+    await scheduleAssignmentPage.waitForPageReady();
 
     const loadTime = Date.now() - startTime;
 
