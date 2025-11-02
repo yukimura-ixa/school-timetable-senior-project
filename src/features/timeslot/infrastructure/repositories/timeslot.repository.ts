@@ -17,7 +17,6 @@ const toSemesterNum = (sem: semester): string => {
   const match = String(sem).match(/_(\d)$/);
   return match ? match[1] : String(sem);
 };
-
 export const timeslotRepository = {
   /**
    * Find all timeslots for a given academic year and semester
@@ -95,6 +94,13 @@ export const timeslotRepository = {
         Semester: semester,
       },
     });
+  },
+
+  /**
+   * Execute a transaction with a custom function
+   */
+  async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+    return await prisma.$transaction(fn);
   },
 };
 
