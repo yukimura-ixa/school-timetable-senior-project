@@ -350,22 +350,7 @@ This will:
 - ✅ Enable access to routes like `/dashboard/1-2567/all-timeslot`
 - ✅ Prevent redirect loops for valid semesters
 
-### การจัดการข้อมูล | Data Management
-
-**ภาษาไทย:**
-
-1. **เพิ่มข้อมูลพื้นฐาน**:
-   - ครู (ชื่อ กลุ่มสาระ)
-   - วิชา (รหัสวิชา ชื่อ หน่วยกิต หมวดหมู่)
-   - ห้องเรียน (ชื่อ อาคาร ชั้น)
-   - ระดับชั้นและห้องเรียน
-
-2. **ตั้งค่าหลักสูตร**:
-   - กำหนดหลักสูตรสำหรับแต่ละระดับชั้น
-   - กำหนดวิชาให้กับหลักสูตรของแต่ละชั้น
-   - ระบุวิชาบังคับและวิชาเลือก
-
-**English:**
+### Data Management
 
 1. **Add Basic Data**:
    - Teachers (name, department)
