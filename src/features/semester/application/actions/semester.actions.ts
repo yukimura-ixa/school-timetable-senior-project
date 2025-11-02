@@ -198,35 +198,19 @@ export async function createSemesterAction(
       if (source) {
         const sourceYear = source.AcademicYear;
         const sourceSemester = source.Semester;
+        const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2;
+        const targetSemesterNum = input.semester;
+        const targetSemesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
-        // Copy timeslots if requested (default behavior)
-        const timeslots = await prisma.timeslot.findMany({
-          where: {
-            AcademicYear: sourceYear,
-            Semester: sourceSemester,
-          },
-        });
-
-        if (timeslots.length > 0) {
-          const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2;
-          const targetSemesterNum = input.semester;
-          
-          await prisma.timeslot.createMany({
-            data: timeslots.map((ts) => ({
-              TimeslotID: ts.TimeslotID.replace(
-                `${sourceSemesterNum}-${sourceYear}`,
-                `${targetSemesterNum}-${input.academicYear}`
-              ),
-              AcademicYear: input.academicYear,
-              Semester: input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
-              StartTime: ts.StartTime,
-              EndTime: ts.EndTime,
-              Breaktime: ts.Breaktime,
-              DayOfWeek: ts.DayOfWeek,
-            })),
-            skipDuplicates: true,
-          });
-        }
+        // Copy timeslots using repository method
+        await semesterRepository.copyTimeslots(
+          sourceYear,
+          sourceSemester,
+          input.academicYear,
+          targetSemesterEnum as semester,
+          sourceSemesterNum,
+          targetSemesterNum
+        );
       }
     }
 
