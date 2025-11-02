@@ -298,6 +298,21 @@ pnpm admin:create           # Create admin user
 pnpm admin:verify           # Verify admin access
 ```
 
+### ⚠️ Known Issues
+
+#### Next.js 16 + Jest Stack Overflow
+**Status**: Workaround Implemented ✅
+
+Jest tests pass successfully but the process does not exit cleanly due to a known incompatibility between Next.js 16.0.1 and Jest 29.7.0. The `forceExit: true` flag has been added to `jest.config.js` as a workaround.
+
+- **Issue**: [#46](https://github.com/yukimura-ixa/school-timetable-senior-project/issues/46)
+- **Impact**: Tests pass (50/50), but Jest exits with `forceExit` flag
+- **Root Cause**: Next.js unhandled rejection handler causes infinite `setImmediate` recursion
+- **Workaround**: Automatic (configured in `jest.config.js`)
+- **Long-term**: Waiting for Next.js 16.1+ fix
+
+For more details, see the `nextjs_16_jest_stack_overflow_issue` memory file.
+
 ---
 
 ## 📖 Usage Guide

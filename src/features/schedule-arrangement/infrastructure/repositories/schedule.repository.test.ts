@@ -51,7 +51,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      mockClassSchedule.findMany.mockResolvedValue(mockPrismaData as any);
+      mockClassSchedule.findMany = jest.fn(() => Promise.resolve(mockPrismaData as any));
 
       const result = await repository.findSchedulesByTerm(2566, 'SEMESTER_1');
 
@@ -97,7 +97,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      mockClassSchedule.findMany.mockResolvedValue(mockPrismaData);
+      mockClassSchedule.findMany = jest.fn(() => Promise.resolve(mockPrismaData));
 
       const result = await repository.findSchedulesByTerm(2566, 'SEMESTER_1');
 
@@ -122,7 +122,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      mockTeachersResp.findMany.mockResolvedValue(mockPrismaData);
+      mockTeachersResp.findMany = jest.fn(() => Promise.resolve(mockPrismaData));
 
       const result = await repository.findResponsibilitiesByTerm(2566, 'SEMESTER_1');
 
@@ -161,7 +161,7 @@ describe('ScheduleRepository', () => {
         timeslot: {},
       };
 
-      mockClassSchedule.create.mockResolvedValue(mockCreated);
+      mockClassSchedule.create = jest.fn(() => Promise.resolve(mockCreated));
 
       const result = await repository.createSchedule({
         ClassID: 'C_NEW',
@@ -189,7 +189,7 @@ describe('ScheduleRepository', () => {
         IsLocked: true,
       };
 
-      mockClassSchedule.update.mockResolvedValue(mockUpdated);
+      mockClassSchedule.update = jest.fn(() => Promise.resolve(mockUpdated));
 
       const result = await repository.updateSchedule('C1', {
         RoomID: 102,
@@ -210,7 +210,7 @@ describe('ScheduleRepository', () => {
     it('should delete a schedule', async () => {
       const mockDeleted = { ClassID: 'C1' };
 
-      mockClassSchedule.delete.mockResolvedValue(mockDeleted);
+      mockClassSchedule.delete = jest.fn(() => Promise.resolve(mockDeleted));
 
       await repository.deleteSchedule('C1');
 
@@ -232,7 +232,7 @@ describe('ScheduleRepository', () => {
         teachers_responsibility: [],
       };
 
-      mockClassSchedule.findUnique.mockResolvedValue(mockSchedule);
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(mockSchedule));
 
       const result = await repository.findScheduleById('C1');
 
@@ -245,7 +245,7 @@ describe('ScheduleRepository', () => {
     });
 
     it('should return null if schedule not found', async () => {
-      mockClassSchedule.findUnique.mockResolvedValue(null);
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null));
 
       const result = await repository.findScheduleById('NONEXISTENT');
 
@@ -257,7 +257,7 @@ describe('ScheduleRepository', () => {
     it('should link a teacher to a schedule', async () => {
       const mockLinked = { RespID: 1 };
 
-      mockTeachersResp.update.mockResolvedValue(mockLinked);
+      mockTeachersResp.update = jest.fn(() => Promise.resolve(mockLinked));
 
       await repository.linkTeacherToSchedule('C1', 1);
 
@@ -276,7 +276,7 @@ describe('ScheduleRepository', () => {
     it('should unlink a teacher from a schedule', async () => {
       const mockUnlinked = { RespID: 1 };
 
-      mockTeachersResp.update.mockResolvedValue(mockUnlinked);
+      mockTeachersResp.update = jest.fn(() => Promise.resolve(mockUnlinked));
 
       await repository.unlinkTeacherFromSchedule('C1', 1);
 

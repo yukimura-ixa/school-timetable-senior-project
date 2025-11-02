@@ -187,6 +187,27 @@ if (process.env.NODE_ENV !== "production") {
 - Configure in `playwright.config.ts` and `playwright.vercel.config.ts`
 - Run with: `pnpm test:e2e` (local) or `pnpm test:vercel` (production)
 
+### Known Testing Issues
+
+#### Next.js 16 + Jest Stack Overflow (Issue #46)
+**Status**: Workaround Applied ✅
+
+Jest tests pass but process doesn't exit cleanly due to Next.js 16.0.1 unhandled rejection handler causing infinite `setImmediate` recursion.
+
+**Workaround**: `forceExit: true` in `jest.config.js` (lines 34-37)
+- All 50+ tests passing across 4 test files ✅
+- Process exits cleanly with `forceExit` flag ✅
+- May hide legitimate async operation leaks ⚠️
+
+**Details**: See `nextjs_16_jest_stack_overflow_issue` memory file or [Issue #46](https://github.com/yukimura-ixa/school-timetable-senior-project/issues/46)
+
+**What NOT to do**:
+- ❌ Remove `forceExit` flag (will cause stack overflow)
+- ❌ Try to mock Next.js unhandled rejection module (doesn't work)
+- ❌ Wrap `setImmediate` (Next.js wraps it after our setup)
+
+**Long-term**: Waiting for Next.js 16.1+ upstream fix
+
 ### Test Creation Guidelines
 1. **Unit tests first** - Test business logic in isolation
 2. **E2E for flows** - Test complete user journeys

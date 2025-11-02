@@ -33,6 +33,12 @@ const config = {
     '/.next/',
     '/e2e/',
   ],
+  // Force Jest to exit after all tests complete
+  // Workaround for Next.js 16 + Jest incompatibility causing stack overflow
+  // See: nextjs_16_jest_stack_overflow_issue memory for details
+  forceExit: true,
+  // Detect async operations that prevent Jest from exiting cleanly
+  detectOpenHandles: true,
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

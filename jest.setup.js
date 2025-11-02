@@ -182,3 +182,10 @@ jest.mock('next/image', () => ({
   ),
 }))
 
+// Disable Next.js 16's unhandled rejection handler to prevent stack overflow in Jest
+// The handler in node-environment-extensions/unhandled-rejection.tsx causes infinite recursion
+// when combined with Jest's async handling. This is a known issue with Next.js 16 + Jest.
+// Mock the module to prevent it from loading entirely
+jest.mock('next/dist/server/node-environment-extensions/unhandled-rejection', () => ({}), { virtual: true });
+jest.mock('next/src/server/node-environment-extensions/unhandled-rejection', () => ({}), { virtual: true });
+
