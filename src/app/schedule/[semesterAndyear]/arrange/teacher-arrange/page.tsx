@@ -1310,6 +1310,7 @@ export default function TeacherArrangePageRefactored() {
             clickOrDragToSelectSubject={clickOrDragToSelectSubject}
             storeSelectedSubject={storeSelectedSubject}
             teacher={teacherData}
+            data-testid="subject-list"
           />
 
           {/* Phase 2: Action Toolbar */}
@@ -1357,6 +1358,7 @@ export default function TeacherArrangePageRefactored() {
               Icon={<SaveIcon />}
               reverseIcon={false}
               isDisabled={isSaving}
+              data-testid="save-button"
             />
           </div>
 
@@ -1387,6 +1389,7 @@ export default function TeacherArrangePageRefactored() {
                 (key) => showLockDataMsgByTimeslotID[key],
               ) || ""
             }
+            data-testid="timeslot-grid"
             setShowErrorMsgByTimeslotID={actions.setShowErrorMsg}
             setShowLockDataMsgByTimeslotID={actions.setShowLockDataMsg}
           />
