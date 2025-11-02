@@ -66,6 +66,8 @@ import type {
   TimeSlotCssClassNameCallback,
   DisplayErrorChangeSubjectCallback,
   RemoveSubjectCallback,
+  DayOfWeekDisplay,
+  SubjectCategory,
 } from "@/types/schedule.types";
 import type {
   timeslot,
@@ -73,6 +75,7 @@ import type {
   subject,
   room,
   teacher,
+  day_of_week,
 } from "@/prisma/generated";
 
 // @dnd-kit
@@ -315,7 +318,7 @@ export default function TeacherArrangePageRefactored() {
     if (fetchResp.data && !!currentTeacherID && !fetchResp.isValidating) {
       const data = fetchResp.data.map((data: SubjectData) => ({
         ...data,
-        room: {},
+        room: null,
       }));
       actions.setSubjectData(data);
     }
@@ -400,23 +403,17 @@ export default function TeacherArrangePageRefactored() {
     const data = fetchTimeSlot.data;
 
     // Extract unique days of week with their display colors
-    const dayofweek = data
+    const dayofweek: DayOfWeekDisplay[] = data
       .map((day: timeslot) => day.DayOfWeek)
       .filter(
         (item: string, index: number, arr: string[]) =>
           arr.indexOf(item) === index,
       )
-      .map(
-        (item: string): {
-          day_of_week: "MON" | "TUE" | "WED" | "THU" | "FRI";
-          textColor: string;
-          bgColor: string;
-        } => ({
-          day_of_week: item as "MON" | "TUE" | "WED" | "THU" | "FRI",
-          textColor: dayOfWeekTextColor[item],
-          bgColor: dayOfWeekColor[item],
-        }),
-      );
+      .map((item: string) => ({
+        day_of_week: item as day_of_week,
+        textColor: dayOfWeekTextColor[item],
+        bgColor: dayOfWeekColor[item],
+      }));
 
     // Get slot amounts (use Monday as reference since all days have same slots)
     const slotAmount = data
@@ -489,7 +486,7 @@ export default function TeacherArrangePageRefactored() {
     );
 
     // Process locked timeslots (combine multiple grade IDs for same timeslot)
-    type LockedScheduleItem = ClassScheduleWithRelations & {
+    type LockedScheduleItem = Omit<ClassScheduleWithRelations, 'GradeID'> & {
       SubjectName: string;
       RoomName: string;
       GradeID: string | string[]; // Can be array when multiple grades share same timeslot
@@ -500,10 +497,11 @@ export default function TeacherArrangePageRefactored() {
     for (let i = 0; i < filterLock.length; i++) {
       if (keepId.length === 0 || !keepId.includes(filterLock[i].TimeslotID)) {
         keepId.push(filterLock[i].TimeslotID);
+        const gradeID = filterLock[i].GradeID;
         resFilterLock.push({
           ...filterLock[i],
-          GradeID: [filterLock[i].GradeID], // Convert single GradeID to array
-        });
+          GradeID: Array.isArray(gradeID) ? gradeID : [gradeID], // Convert single GradeID to array
+        } as LockedScheduleItem);
       } else {
         const tID = filterLock[i].TimeslotID;
         resFilterLock.forEach((item, index) => {
@@ -522,24 +520,24 @@ export default function TeacherArrangePageRefactored() {
       }
     }
 
-    const concatClassData = filterNotLock.concat(resFilterLock);
+    const concatClassData = [...filterNotLock, ...resFilterLock];
     
     // Map enriched class_schedule to SubjectData format for store compatibility
     // SubjectData has both PascalCase and camelCase fields for backward compatibility
     const mappedScheduledSubjects: SubjectData[] = concatClassData.map(item => ({
       itemID: parseInt(item.ClassID),
-      SubjectCode: item.SubjectCode,
-      SubjectName: item.SubjectName,
-      subjectCode: item.SubjectCode, // Duplicate for compatibility
-      subjectName: item.SubjectName, // Duplicate for compatibility
-      RoomName: item.RoomName,
-      RoomID: item.RoomID,
-      GradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID, // Take first grade if array
-      gradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID, // Duplicate for compatibility
-      ClassID: item.ClassID,
-      subject: item.subject,
+      subjectCode: item.SubjectCode,
+      subjectName: item.SubjectName,
+      gradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID,
+      teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
+      category: item.subject?.Category as SubjectCategory,
+      credit: typeof item.subject?.Credit === 'string' ? 0 : (item.subject?.Credit || 0),
+      teachHour: item.subject?.TeachHour || 0,
+      roomID: item.RoomID,
+      roomName: item.RoomName,
       room: item.room,
-      Scheduled: true,
+      classID: item.ClassID,
+      scheduled: true,
     }));
     
     const mappedLockData: class_schedule[] = resFilterLock.map(item => ({

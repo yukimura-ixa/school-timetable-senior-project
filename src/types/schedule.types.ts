@@ -131,7 +131,8 @@ export interface BreakSlotData {
 /**
  * Day of week with display styling
  */
-export type DayOfWeekDisplay = day_of_week & {
+export type DayOfWeekDisplay = {
+  day_of_week: day_of_week;
   textColor: string;
   bgColor: string;
 }
