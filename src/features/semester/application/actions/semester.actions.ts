@@ -7,6 +7,7 @@
 
 import * as v from "valibot";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
+import type { semester } from "@/prisma/generated";
 import {
   type SemesterFilter,
   SemesterFilterSchema,
@@ -22,7 +23,6 @@ import {
   CopySemesterSchema,
   type SemesterDTO,
 } from "../schemas/semester.schemas";
-import prisma from "@/lib/prisma";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 
@@ -312,7 +312,7 @@ export async function createSemesterWithTimeslotsAction(input: {
     const semesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
     // Use transaction for atomicity
-    const newSemester = await prisma.$transaction(async (tx) => {
+    const newSemester = await semesterRepository.transaction(async (tx) => {
       // 1. Copy config from source if requested
       let configData = {};
       if (input.copyFromConfigId && input.copyConfig) {
@@ -540,27 +540,17 @@ export async function copySemesterAction(
 
     // Copy timeslots if requested
     if (input.copyTimeslots) {
-      const timeslots = await prisma.timeslot.findMany({
-        where: {
-          AcademicYear: source.AcademicYear,
-          Semester: source.Semester,
-        },
-      });
-
-      if (timeslots.length > 0) {
-        await prisma.timeslot.createMany({
-          data: timeslots.map((ts) => ({
-            TimeslotID: `${input.targetSemester}-${input.targetAcademicYear}-${ts.TimeslotID.split("-").pop()}`,
-            AcademicYear: input.targetAcademicYear,
-            Semester: input.targetSemester === 1 ? "SEMESTER_1" : "SEMESTER_2",
-            StartTime: ts.StartTime,
-            EndTime: ts.EndTime,
-            Breaktime: ts.Breaktime,
-            DayOfWeek: ts.DayOfWeek,
-          })),
-          skipDuplicates: true,
-        });
-      }
+      const sourceSemesterEnum = source.Semester;
+      const targetSemesterEnum = input.targetSemester === 1 ? "SEMESTER_1" : "SEMESTER_2";
+      
+      await semesterRepository.copyTimeslots(
+        source.AcademicYear,
+        sourceSemesterEnum,
+        input.targetAcademicYear,
+        targetSemesterEnum as semester,
+        source.Semester === "SEMESTER_1" ? 1 : 2,
+        input.targetSemester
+      );
     }
 
     const stats = await semesterRepository.getStatistics(newSemester.ConfigID);

@@ -5,7 +5,7 @@
  * Server Actions for managing config status and completeness
  */
 
-import prisma from "@/lib/prisma";
+import * as configRepository from "../../infrastructure/repositories/config.repository";
 import {
   UpdateConfigStatusSchema,
   calculateCompleteness,
@@ -29,9 +29,7 @@ export async function updateConfigStatusAction(input: {
     const validated = v.parse(UpdateConfigStatusSchema, input);
 
     // Get current config
-    const config = await prisma.table_config.findUnique({
-      where: { ConfigID: validated.configId },
-    });
+    const config = await configRepository.findByConfigId(validated.configId);
 
     if (!config) {
       return {
@@ -55,14 +53,11 @@ export async function updateConfigStatusAction(input: {
     }
 
     // Update status
-    const updated = await prisma.table_config.update({
-      where: { ConfigID: validated.configId },
-      data: {
-        status: validated.status as ConfigStatus,
-        publishedAt: validated.status === "PUBLISHED" ? new Date() : config.publishedAt,
-        updatedAt: new Date(),
-      },
-    });
+    const updated = await configRepository.updateStatus(
+      validated.configId,
+      validated.status as ConfigStatus,
+      validated.status === "PUBLISHED" ? new Date() : config.publishedAt
+    );
 
     return {
       success: true,
@@ -89,54 +84,34 @@ export async function updateConfigCompletenessAction(input: {
     const semesterNum = input.semester === "SEMESTER_1" ? "1" : input.semester === "SEMESTER_2" ? "2" : "3";
     const configId = generateConfigID(semesterNum, input.academicYear);
 
-    // Count related data
-    const [timeslotCount, teacherCount, subjectCount, classCount, roomCount] =
-      await Promise.all([
-        prisma.timeslot.count({
-          where: {
-            AcademicYear: input.academicYear,
-            Semester: input.semester,
-          },
-        }),
-        prisma.teachers_responsibility.count({
-          where: {
-            AcademicYear: input.academicYear,
-            Semester: input.semester,
-          },
-        }),
-        prisma.subject.count(),
-        prisma.gradelevel.count(),
-        prisma.room.count(),
-      ]);
+    // Count related data using repository
+    const counts = await configRepository.countEntitiesForCompleteness(
+      input.academicYear,
+      input.semester
+    );
 
     // Calculate completeness
     const completeness = calculateCompleteness({
-      timeslotCount,
-      teacherCount,
-      subjectCount,
-      classCount,
-      roomCount,
+      timeslotCount: counts.timeslotCount,
+      teacherCount: counts.teacherCount,
+      subjectCount: counts.subjectCount,
+      classCount: counts.classCount,
+      roomCount: counts.roomCount,
     });
 
-    // Update config
-    await prisma.table_config.update({
-      where: { ConfigID: configId },
-      data: {
-        configCompleteness: completeness,
-        updatedAt: new Date(),
-      },
-    });
+    // Update config using repository
+    await configRepository.updateCompleteness(configId, completeness);
 
     return {
       success: true,
       data: {
         completeness,
         counts: {
-          timeslots: timeslotCount,
-          teachers: teacherCount,
-          subjects: subjectCount,
-          classes: classCount,
-          rooms: roomCount,
+          timeslots: counts.timeslotCount,
+          teachers: counts.teacherCount,
+          subjects: counts.subjectCount,
+          classes: counts.classCount,
+          rooms: counts.roomCount,
         },
       },
     };
@@ -161,51 +136,23 @@ export async function getConfigWithCompletenessAction(input: {
     const semesterNum = input.semester === "SEMESTER_1" ? "1" : input.semester === "SEMESTER_2" ? "2" : "3";
     const configId = generateConfigID(semesterNum, input.academicYear);
 
-    const config = await prisma.table_config.findUnique({
-      where: { ConfigID: configId },
-    });
+    // Use repository method that fetches config with counts
+    const configWithCounts = await configRepository.findByIdWithCounts(
+      configId,
+      input.academicYear,
+      input.semester
+    );
 
-    if (!config) {
+    if (!configWithCounts) {
       return {
         success: true,
         data: null,
       };
     }
 
-    // Get counts for display
-    const [timeslotCount, teacherCount, classScheduleCount] = await Promise.all([
-      prisma.timeslot.count({
-        where: {
-          AcademicYear: input.academicYear,
-          Semester: input.semester,
-        },
-      }),
-      prisma.teachers_responsibility.count({
-        where: {
-          AcademicYear: input.academicYear,
-          Semester: input.semester,
-        },
-      }),
-      prisma.class_schedule.count({
-        where: {
-          timeslot: {
-            AcademicYear: input.academicYear,
-            Semester: input.semester,
-          },
-        },
-      }),
-    ]);
-
     return {
       success: true,
-      data: {
-        ...config,
-        counts: {
-          timeslots: timeslotCount,
-          teachers: teacherCount,
-          schedules: classScheduleCount,
-        },
-      },
+      data: configWithCounts,
     };
   } catch (error) {
     console.error("getConfigWithCompletenessAction error:", error);

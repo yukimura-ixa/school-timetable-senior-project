@@ -9,7 +9,6 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
-import prisma from '@/lib/prisma';
 import { semester } from '@/prisma/generated';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
 import {
@@ -178,7 +177,7 @@ export const copyConfigAction = createAction(
     const toSemester = parseSemesterEnum(toParsed.semester);
 
     // Execute copy operation in transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await configRepository.transaction(async (tx) => {
       // 1. Copy table_config
       const fromConfig = await tx.table_config.findUnique({
         where: { ConfigID: input.from },
@@ -473,7 +472,7 @@ export const updateConfigWithTimeslotsAction = createAction(
     }
 
     // Use transaction to ensure atomicity
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await configRepository.transaction(async (tx) => {
       // Step 1: Delete existing teacher responsibilities
       await tx.teachers_responsibility.deleteMany({
         where: {
