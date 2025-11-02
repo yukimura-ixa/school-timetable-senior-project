@@ -206,7 +206,7 @@ export const applyLockTemplateAction = createAction(
   async (input: { templateId: string; AcademicYear: number; Semester: string; ConfigID: string }) => {
     const { getTemplateById } = await import('../../domain/models/lock-template.model');
     const { resolveTemplate } = await import('../../domain/services/lock-template.service');
-    const prisma = (await import('@/lib/prisma')).default;
+    const lockRepo = await import('../../infrastructure/repositories/lock.repository');
     
     // Get template
     const template = getTemplateById(input.templateId);
@@ -214,49 +214,13 @@ export const applyLockTemplateAction = createAction(
       throw new Error(`ไม่พบเทมเพลต ID: ${input.templateId}`);
     }
     
-    // Fetch available data
+    // Fetch available data using repository methods
     const [grades, timeslots, rooms, subjects, responsibilities] = await Promise.all([
-      prisma.gradelevel.findMany({
-        select: {
-          GradeID: true,
-          Year: true,
-          Number: true,
-        },
-      }),
-      prisma.timeslot.findMany({
-        where: {
-          AcademicYear: input.AcademicYear,
-          Semester: input.Semester as semester,
-        },
-        select: {
-          TimeslotID: true,
-          DayOfWeek: true,
-          StartTime: true,
-        },
-      }),
-      prisma.room.findMany({
-        select: {
-          RoomID: true,
-          RoomName: true,
-        },
-      }),
-      prisma.subject.findMany({
-        select: {
-          SubjectCode: true,
-          SubjectName: true,
-        },
-      }),
-      prisma.teachers_responsibility.findMany({
-        where: {
-          AcademicYear: input.AcademicYear,
-          Semester: input.Semester as semester,
-        },
-        select: {
-          RespID: true,
-          SubjectCode: true,
-          TeacherID: true,
-        },
-      }),
+      lockRepo.findAllGradeLevels(),
+      lockRepo.findTimeslotsByTerm(input.AcademicYear, input.Semester as semester),
+      lockRepo.findAllRooms(),
+      lockRepo.findAllSubjects(),
+      lockRepo.findTeacherResponsibilitiesByTerm(input.AcademicYear, input.Semester as semester),
     ]);
     
     // Transform data to match expected format

@@ -27,7 +27,6 @@ import {
   type DeleteTimeslotsByTermInput,
   type GetTimeslotByIdInput,
 } from '../schemas/timeslot.schemas';
-import prisma from '@/lib/prisma';
 
 /**
  * Get timeslots for a specific academic year and semester
@@ -130,7 +129,7 @@ export const createTimeslotsAction = createAction(
     const timeslots = generateTimeslots(input);
 
     // Use transaction to create table_config and timeslots atomically
-    await prisma.$transaction(async (tx) => {
+    await timeslotRepository.transaction(async (tx) => {
       // Create table config with canonical ConfigID format
       const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
       const configId = `${semesterNum}-${input.AcademicYear}`;
@@ -186,7 +185,7 @@ export const deleteTimeslotsByTermAction = createAction(
     }
 
     // Use transaction for cascade deletion
-    await prisma.$transaction(async (tx) => {
+    await timeslotRepository.transaction(async (tx) => {
       // Delete table config with canonical ConfigID format
       const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
       const configId = `${semesterNum}-${input.AcademicYear}`;

@@ -107,3 +107,129 @@ export async function deleteById(configId: string) {
 export async function count(): Promise<number> {
   return await prisma.table_config.count();
 }
+
+/**
+ * Update config status
+ */
+export async function updateStatus(
+  configId: string,
+  status: 'DRAFT' | 'PUBLISHED' | 'LOCKED' | 'ARCHIVED',
+  publishedAt?: Date
+) {
+  return await prisma.table_config.update({
+    where: { ConfigID: configId },
+    data: {
+      status,
+      ...(publishedAt && { publishedAt }),
+      updatedAt: new Date(),
+    },
+  });
+}
+
+/**
+ * Update config completeness percentage
+ */
+export async function updateCompleteness(
+  configId: string,
+  completeness: number
+) {
+  return await prisma.table_config.update({
+    where: { ConfigID: configId },
+    data: {
+      configCompleteness: completeness,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+/**
+ * Count entities for completeness calculation
+ */
+export async function countEntitiesForCompleteness(
+  academicYear: number,
+  semester: semester
+) {
+  const [timeslotCount, teacherCount, subjectCount, classCount, roomCount] =
+    await Promise.all([
+      prisma.timeslot.count({
+        where: {
+          AcademicYear: academicYear,
+          Semester: semester,
+        },
+      }),
+      prisma.teachers_responsibility.count({
+        where: {
+          AcademicYear: academicYear,
+          Semester: semester,
+        },
+      }),
+      prisma.subject.count(),
+      prisma.gradelevel.count(),
+      prisma.room.count(),
+    ]);
+
+  return {
+    timeslotCount,
+    teacherCount,
+    subjectCount,
+    classCount,
+    roomCount,
+  };
+}
+
+/**
+ * Get config with schedule counts
+ */
+export async function findByIdWithCounts(
+  configId: string,
+  academicYear: number,
+  semester: semester
+) {
+  const config = await prisma.table_config.findUnique({
+    where: { ConfigID: configId },
+  });
+
+  if (!config) {
+    return null;
+  }
+
+  const [timeslotCount, teacherCount, classScheduleCount] = await Promise.all([
+    prisma.timeslot.count({
+      where: {
+        AcademicYear: academicYear,
+        Semester: semester,
+      },
+    }),
+    prisma.teachers_responsibility.count({
+      where: {
+        AcademicYear: academicYear,
+        Semester: semester,
+      },
+    }),
+    prisma.class_schedule.count({
+      where: {
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: semester,
+        },
+      },
+    }),
+  ]);
+
+  return {
+    ...config,
+    counts: {
+      timeslots: timeslotCount,
+      teachers: teacherCount,
+      schedules: classScheduleCount,
+    },
+  };
+}
+
+
+/**
+ * Execute a transaction with a custom function
+ */
+export async function transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+  return await prisma.$transaction(fn);
+}

@@ -9,7 +9,6 @@
 
 import { semester } from '@/prisma/generated';
 import * as v from 'valibot';
-import prisma from '@/lib/prisma';
 
 // Schemas
 import {
@@ -133,7 +132,7 @@ export const syncAssignmentsAction = createAction(
     const sem = semester[input.Semester];
 
     // Execute all operations in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await assignRepository.transaction(async (tx) => {
       // 1. Get existing responsibilities
       const existingResponsibilities = await tx.teachers_responsibility.findMany({
         where: {
@@ -223,15 +222,13 @@ export const deleteAssignmentAction = createAction(
   deleteAssignmentSchema,
   async (input: DeleteAssignmentInput) => {
     // Get the responsibility to find its teacher/term for cascade delete
-    const resp = await prisma.teachers_responsibility.findUnique({
-      where: { RespID: input.RespID },
-    });
+    const resp = await assignRepository.findByRespId(input.RespID);
 
     if (!resp) {
       throw new Error(`Responsibility with RespID ${input.RespID} not found`);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await assignRepository.transaction(async (tx) => {
       // 1. Delete the responsibility
       const deleted = await tx.teachers_responsibility.delete({
         where: { RespID: input.RespID },

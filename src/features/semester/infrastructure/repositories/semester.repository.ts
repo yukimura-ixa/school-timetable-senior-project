@@ -265,6 +265,132 @@ export class SemesterRepository {
       roomCount,
     };
   }
+
+
+  /**
+   * Find timeslots for a given academic year and semester
+   */
+  async findTimeslots(academicYear: number, sem: semester) {
+    return await prisma.timeslot.findMany({
+      where: {
+        AcademicYear: academicYear,
+        Semester: sem,
+      },
+    });
+  }
+
+  /**
+   * Copy timeslots from source to target semester
+   */
+  async copyTimeslots(
+    sourceYear: number,
+    sourceSem: semester,
+    targetYear: number,
+    targetSem: semester,
+    sourceSemesterNum: number,
+    targetSemesterNum: number
+  ) {
+    const timeslots = await this.findTimeslots(sourceYear, sourceSem);
+
+    if (timeslots.length === 0) {
+      return [];
+    }
+
+    await prisma.timeslot.createMany({
+      data: timeslots.map((ts) => ({
+        TimeslotID: ts.TimeslotID.replace(
+          `${sourceSemesterNum}-${sourceYear}`,
+          `${targetSemesterNum}-${targetYear}`
+        ),
+        AcademicYear: targetYear,
+        Semester: targetSem,
+        StartTime: ts.StartTime,
+        EndTime: ts.EndTime,
+        Breaktime: ts.Breaktime,
+        DayOfWeek: ts.DayOfWeek,
+      })),
+      skipDuplicates: true,
+    });
+
+    return timeslots;
+  }
+
+  /**
+   * Create timeslots in bulk
+   */
+  async createTimeslots(
+    timeslots: Array<{
+      TimeslotID: string;
+      AcademicYear: number;
+      Semester: semester;
+      StartTime: string;
+      EndTime: string;
+      Breaktime: number;
+      DayOfWeek: string;
+    }>
+  ) {
+    return await prisma.timeslot.createMany({
+      data: timeslots,
+      skipDuplicates: true,
+    });
+  }
+
+
+  /**
+   * Create semester with timeslots in a transaction
+   */
+  async createWithTimeslots(data: {
+    configId: string;
+    academicYear: number;
+    semester: semester;
+    config: object;
+    timeslots?: Array<{
+      TimeslotID: string;
+      AcademicYear: number;
+      Semester: semester;
+      StartTime: string;
+      EndTime: string;
+      Breaktime: number;
+      DayOfWeek: string;
+    }>;
+  }) {
+    return await prisma.$transaction(async (tx) => {
+      // Create semester
+      const newSemester = await tx.table_config.create({
+        data: {
+          ConfigID: data.configId,
+          AcademicYear: data.academicYear,
+          Semester: data.semester,
+          Config: data.config,
+          status: 'DRAFT',
+          isPinned: false,
+          configCompleteness: 0,
+        },
+      });
+
+      // Create timeslots if provided
+      if (data.timeslots && data.timeslots.length > 0) {
+        await tx.timeslot.createMany({
+          data: data.timeslots,
+        });
+
+        // Update completeness
+        await tx.table_config.update({
+          where: { ConfigID: newSemester.ConfigID },
+          data: { configCompleteness: 25 },
+        });
+      }
+
+      return newSemester;
+    });
+  }
+
+  /**
+   * Execute a transaction with a custom function
+   */
+  async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+    return await prisma.$transaction(fn);
+  }
 }
 
 export const semesterRepository = new SemesterRepository();

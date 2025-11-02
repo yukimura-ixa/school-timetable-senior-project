@@ -161,3 +161,68 @@ export async function count(academicYear: number, semester: semester): Promise<n
     },
   });
 }
+
+
+/**
+ * Find all grade levels
+ */
+export async function findAllGradeLevels() {
+  return await prisma.gradelevel.findMany({
+    orderBy: { GradeID: 'asc' },
+  });
+}
+
+/**
+ * Find timeslots for a given academic year and semester
+ */
+export async function findTimeslotsByTerm(
+  academicYear: number,
+  semester: semester
+) {
+  return await prisma.timeslot.findMany({
+    where: {
+      AcademicYear: academicYear,
+      Semester: semester,
+    },
+    orderBy: [
+      { DayOfWeek: 'asc' },
+      { StartTime: 'asc' },
+    ],
+  });
+}
+
+/**
+ * Find all rooms
+ */
+export async function findAllRooms() {
+  return await prisma.room.findMany({
+    orderBy: { RoomID: 'asc' },
+  });
+}
+
+/**
+ * Find all subjects
+ */
+export async function findAllSubjects() {
+  return await prisma.subject.findMany({
+    orderBy: { SubjectCode: 'asc' },
+  });
+}
+
+/**
+ * Find teacher responsibilities for a given academic year and semester
+ */
+export async function findTeacherResponsibilitiesByTerm(
+  academicYear: number,
+  semester: semester
+) {
+  return await prisma.teachers_responsibility.findMany({
+    where: {
+      AcademicYear: academicYear,
+      Semester: semester,
+    },
+    include: {
+      teacher: true,
+    },
+  });
+}

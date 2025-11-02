@@ -188,3 +188,25 @@ export async function count(
 ): Promise<number> {
   return prisma.teachers_responsibility.count({ where });
 }
+
+
+/**
+ * Find a single teacher responsibility by RespID
+ */
+export async function findByRespId(respId: number) {
+  return await prisma.teachers_responsibility.findUnique({
+    where: { RespID: respId },
+    include: {
+      subject: true,
+      gradelevel: true,
+      teacher: true,
+    },
+  });
+}
+
+/**
+ * Execute a transaction with a custom function
+ */
+export async function transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+  return await prisma.$transaction(fn);
+}
