@@ -18,45 +18,79 @@ The `.github/workflows/copilot-setup-steps.yml` file is a **special GitHub Actio
 3. **Sets up the environment** with all necessary dependencies
 4. **Improves performance** by eliminating slow LLM-based dependency discovery
 
-## Installed MCP Servers
+## MCP Servers Available to Copilot
 
-The workflow installs the following MCP servers:
+The workflow configures access to the following MCP servers (defined in `.vscode/mcp.json`):
 
-### 1. **Context7 MCP** (`@upstash/context7-mcp`)
+### 🌐 HTTP-based MCP Servers (No Installation Required)
+
+These servers are accessed via HTTP endpoints and require no local installation:
+
+#### 1. **Context7 MCP** (`upstash/context7`) ⭐
+- **Type**: HTTP
+- **URL**: `https://mcp.context7.com/mcp`
+- **Auth**: Requires `CONTEXT7_API_KEY` secret (configured in repository)
 - **Purpose**: Fetch official library documentation
 - **Use Cases**: Get up-to-date docs for Next.js, React, Prisma, MUI, Tailwind, etc.
 - **Priority**: **MANDATORY FIRST STEP** per AGENTS.md
-- **Installation**: `npx -y @upstash/context7-mcp install`
+- **Configuration**: Already set in `.vscode/mcp.json` with API key
 
-### 2. **Prisma MCP** (`@prisma/mcp-server-prisma`)
-- **Purpose**: Prisma schema reasoning, migrations, and CLI operations
-- **Use Cases**: Database schema changes, migration planning, Prisma Client generation
-- **Installation**: `npm install -g @prisma/mcp-server-prisma`
-
-### 3. **GitHub MCP** (`@modelcontextprotocol/server-github`)
+#### 2. **GitHub MCP** (`github/github-mcp-server`)
+- **Type**: HTTP
+- **URL**: `https://api.githubcopilot.com/mcp/`
 - **Purpose**: Access GitHub issues, PRs, and repository context
 - **Use Cases**: Reading issue details, creating PRs, commenting on issues
-- **Installation**: `npm install -g @modelcontextprotocol/server-github`
 
-### 4. **Filesystem MCP** (`@modelcontextprotocol/server-filesystem`)
-- **Purpose**: File operations and workspace navigation
-- **Use Cases**: Reading files, searching codebase, file structure analysis
-- **Installation**: `npm install -g @modelcontextprotocol/server-filesystem`
+#### 3. **Prisma MCP** (`prisma-postgres`)
+- **Type**: HTTP
+- **URL**: `https://mcp.prisma.io/mcp`
+- **Purpose**: Prisma schema reasoning, migrations, and CLI operations
+- **Use Cases**: Database schema changes, migration planning, queries
 
-### 5. **Playwright MCP** (`@playwright/mcp-server`)
-- **Purpose**: E2E test generation and browser automation
-- **Use Cases**: Creating Playwright tests, browser inspection, test fixtures
-- **Installation**: `npm install -g @playwright/mcp-server`
+#### 4. **Vercel MCP** (`Vercel`)
+- **Type**: HTTP
+- **URL**: `https://mcp.vercel.com`
+- **Purpose**: Vercel deployment and serverless functions
+- **Use Cases**: Deployment status, environment variables, Edge Functions
 
-### 6. **Next DevTools MCP** (`next-devtools-mcp`) ✅
+### 📦 stdio-based MCP Servers (npx on-demand)
+
+These servers run via `npx` when Copilot needs them:
+
+#### 5. **Playwright MCP** (`microsoft/playwright-mcp`)
+- **Type**: stdio
+- **Command**: `npx @playwright/mcp@latest`
+- **Purpose**: Browser automation and E2E test generation
+- **Use Cases**: Creating Playwright tests, browser inspection, visual testing
+
+#### 6. **MUI MCP** (`mui-mcp`)
+- **Type**: stdio
+- **Command**: `npx -y @mui/mcp@latest`
+- **Purpose**: Material-UI component documentation
+- **Use Cases**: MUI component props, patterns, examples
+
+#### 7. **Next DevTools MCP** (`next-devtools`) ✅
+- **Type**: stdio
+- **Command**: `npx -y next-devtools-mcp@latest`
 - **Purpose**: Next.js 16 diagnostics, codemods, and runtime information
 - **Use Cases**: Upgrades, build diagnostics, Cache Components setup
-- **Installation**: **Already in package.json** (installed via `pnpm install`)
+- **Note**: **Already in package.json** (v0.2.1)
 
-### 7. **Serena MCP** (`serena`)
+#### 8. **MarkItDown MCP** (`microsoft/markitdown`)
+- **Type**: stdio
+- **Command**: `uvx markitdown-mcp==0.0.1a4`
+- **Purpose**: Convert documents to Markdown
+- **Use Cases**: PDF, DOCX, HTML to Markdown conversion
+
+### 🔧 Local MCP Servers (IDE-configured)
+
+#### 9. **Serena MCP** (`oraios/serena`)
+- **Type**: stdio
+- **Command**: `uvx --from git+https://github.com/oraios/serena serena start-mcp-server`
 - **Purpose**: Symbol-aware code navigation and editing
-- **Note**: Serena is configured locally in `.serena/project.yml` - not installed via this workflow
+- **Context**: `ide-assistant` mode for this project
 - **Use Cases**: Code analysis, refactoring, memory management
+- **Note**: Configured locally in `.serena/project.yml` - already running in IDE
 
 ## How It Works
 
@@ -126,6 +160,30 @@ When Copilot starts working:
 3. If setup fails (non-zero exit code), Copilot continues with current environment state
 4. Check logs at: GitHub → Copilot sessions → View session details
 
+### Required Secrets
+
+**CRITICAL**: Add these secrets to your repository for MCP servers to work:
+
+1. Go to: `Settings → Secrets and variables → Actions → New repository secret`
+
+2. Add the following secrets:
+
+#### Context7 MCP (Required) ⭐
+```
+Name: CONTEXT7_API_KEY
+Value: ctx7sk-403958cc-83a5-4c46-9808-0d6685ae2b79
+```
+**Purpose**: Required for Context7 MCP to fetch library documentation
+
+#### Other Environment Secrets (For Copilot Tasks)
+```
+DATABASE_URL - Postgres connection string
+AUTH_SECRET - Auth.js secret key
+AUTH_GOOGLE_ID - Google OAuth client ID
+AUTH_GOOGLE_SECRET - Google OAuth client secret
+SEED_SECRET - Database seed secret
+```
+
 ### Environment Variables
 
 To set environment variables for Copilot:
@@ -136,11 +194,7 @@ To set environment variables for Copilot:
    - **Secrets**: Sensitive data (API keys, passwords)
    - **Variables**: Non-sensitive configuration
 
-Example secrets to add:
-- `DATABASE_URL` - Postgres connection string
-- `AUTH_SECRET` - Auth.js secret key
-- `AUTH_GOOGLE_ID` - Google OAuth client ID
-- `AUTH_GOOGLE_SECRET` - Google OAuth client secret
+**Note**: Secrets added to repository secrets are automatically available to all workflows, including `copilot-setup-steps.yml`.
 
 ## Troubleshooting
 
