@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import type { timeslot } from "@/prisma/generated";
+import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 import TableHead from "./component/TableHead";
 import TableBody from "./component/TableBody";
 import TeacherList from "./component/TeacherList";
@@ -18,17 +19,27 @@ import TableResult from "./component/TableResult";
 import { ExportTeacherTable } from "./functions/ExportTeacherTable";
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
+
+interface TimeSlotData {
+  AllData: (timeslot & { subject: Record<string, never> })[];
+  SlotAmount: number[];
+  DayOfWeek: { Day: string; TextColor: string; BgColor: string }[];
+  StartTime?: { Hours: number; Minutes: number };
+  Duration?: number;
+  BreakSlot?: { TimeslotID: string; Breaktime: string; SlotNumber: number }[];
+}
+
 const AllTimeslot = () => {
   // TODO: คาบล็อกแสดงเป็นตัวอักษรสีแดง
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const allTeacher = useTeachers();
-  const [timeSlotData, setTimeSlotData] = useState({
+  const [timeSlotData, setTimeSlotData] = useState<TimeSlotData>({
     AllData: [], //ใช้กับตารางด้านล่าง
     SlotAmount: [],
     DayOfWeek: [],
   });
-  const [classData, setClassData] = useState([]);
+  const [classData, setClassData] = useState<ClassScheduleWithSummary[]>([]);
   const fetchTimeSlot = useSWR(
     semester && academicYear
       ? ['timeslots-by-term', academicYear, semester]
@@ -67,7 +78,10 @@ const AllTimeslot = () => {
           Day: dayOfWeekThai[item],
           TextColor: dayOfWeekTextColor[item],
           BgColor: dayOfWeekColor[item],
-        })); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
+        }))
+        .filter((item): item is { Day: string; TextColor: string; BgColor: string } => 
+          item.Day !== undefined && item.TextColor !== undefined && item.BgColor !== undefined
+        ); //filter เอาตัวซ้ำออก ['MON', 'MON', 'TUE', 'TUE'] => ['MON', 'TUE'] แล้วก็ map เป็นชุดข้อมูล object
       const slotAmount = data
         .filter((item) => item.DayOfWeek === "MON") //filter ข้อมูลตัวอย่างเป้นวันจันทร์ เพราะข้อมูลเหมือนกันหมด
         .map((item, index) => index + 1); //ใช้สำหรับ map หัวตารางในเว็บ จะ map จาก data เป็น number of array => [1, 2, 3, 4, 5, 6, 7]
@@ -84,34 +98,34 @@ const AllTimeslot = () => {
           Breaktime: item.Breaktime,
           SlotNumber: parseInt(item.TimeslotID.substring(10)),
         })); //เงื่อนไขที่ใส่คือเอาคาบพักออกมา
-      const startTime = {
-        Hours: new Date(data[0].StartTime).getHours() - 7, //พอแปลงมันเอาเวลาของ indo เลย -7 กลับไป
-        Minutes: new Date(data[0].StartTime).getMinutes(),
-      };
-      const duration = getMinutes(
-        new Date(data[0].EndTime).getTime() -
-          new Date(data[0].StartTime).getTime(),
-      ); //เอาเวลาจบลบเริ่มจะได้ duration
-      setTimeSlotData(() => ({
+      const firstSlot = data[0];
+      const startTime = firstSlot ? {
+        Hours: new Date(firstSlot.StartTime).getHours() - 7, //พอแปลงมันเอาเวลาของ indo เลย -7 กลับไป
+        Minutes: new Date(firstSlot.StartTime).getMinutes(),
+      } : { Hours: 8, Minutes: 0 };
+      const duration = firstSlot ? getMinutes(
+        new Date(firstSlot.EndTime).getTime() -
+          new Date(firstSlot.StartTime).getTime(),
+      ) : 50; //เอาเวลาจบลบเริ่มจะได้ duration
+      setTimeSlotData({
         AllData: data.map((data) => ({ ...data, subject: {} })),
         SlotAmount: slotAmount,
         DayOfWeek: dayofweek,
         StartTime: startTime,
         Duration: duration,
         BreakSlot: breakTime,
-      }));
+      });
     }
   }
   const getMinutes = (milliseconds: number) => {
-    let seconds = Math.floor(milliseconds / 1000);
-    let minutes = Math.floor(seconds / 60);
+    const seconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(seconds / 60);
     return minutes;
   };
   function fetchClassData() {
-    const result = fetchAllClassData.data as ActionResult<any[]> | undefined;
+    const result = fetchAllClassData.data as ActionResult<ClassScheduleWithSummary[]> | undefined;
     if (!fetchAllClassData.isValidating && result?.success && result.data) {
-      const data = result.data as any[];
-      setClassData(data);
+      setClassData(result.data);
     }
   }
   useEffect(() => {
@@ -183,7 +197,6 @@ const AllTimeslot = () => {
         </div>
         <div className="w-full flex justify-end items-center gap-3 mt-3 cursor-default">
           <div
-            onClick={() => console.log(timeSlotData)}
             className="w-[75px] h-[35px] border rounded p-2 flex gap-1 items-center justify-start"
           >
             <p className="text-xs text-gray-400">Left Shift</p>
