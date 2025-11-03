@@ -11,6 +11,16 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 // Server Actions
 import { updateProgramAction } from "@/features/program/application/actions/program.actions";
 
+// Extended program type with relations for form data
+type ProgramFormData = {
+  ProgramID: number;
+  ProgramName: string;
+  Semester: semester;
+  AcademicYear: number;
+  gradelevel: Array<{ GradeID: string; [key: string]: unknown }>;
+  subject: subject[];
+};
+
 type Props = {
   closeModal: any;
   mutate: Function;
@@ -24,7 +34,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     ...editData,
     AcademicYear: editData?.AcademicYear || currentThaiYear,
   });
-  const editProgram = async (program) => {
+  const editProgram = async (program: ProgramFormData) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูล", {
       variant: "info",
       persist: true,
@@ -38,8 +48,8 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
         ProgramName: program.ProgramName,
         Semester: program.Semester,
         AcademicYear: program.AcademicYear,
-        gradelevel: program.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
-        subject: program.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
+        gradelevel: program.gradelevel.map((g: { GradeID: string }) => ({ GradeID: g.GradeID })),
+        subject: program.subject.map((s: subject) => ({ SubjectCode: s.SubjectCode })),
       });
       
       if (!result.success) {
@@ -73,15 +83,15 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
       subject: newProgramData.subject.length == 0,
     }));
   };
-  const classRoomHandleChange = (value: any) => {
+  const classRoomHandleChange = (value: { GradeID: string; [key: string]: unknown }) => {
     let removeDulpItem = newProgramData.gradelevel.filter(
-      (item) => item.GradeID != value.GradeID,
+      (item: { GradeID: string; [key: string]: unknown }) => item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
       ...newProgramData,
       gradelevel:
         newProgramData.gradelevel.filter(
-          (item) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+          (item: { GradeID: string; [key: string]: unknown }) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...newProgramData.gradelevel, value]
           : [...removeDulpItem],
@@ -99,7 +109,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     newProgramData.subject,
   ]);
 
-  const handleSelectSemester = (value: any) => {
+  const handleSelectSemester = (value: keyof typeof semester) => {
     setNewProgramData(() => ({
       ...newProgramData,
       Semester: semester[value],
@@ -115,7 +125,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const removeSubjectFromList = (index: number) => {
     setNewProgramData(() => ({
       ...newProgramData,
-      subject: [...newProgramData.subject.filter((item, ind) => ind != index)],
+      subject: [...newProgramData.subject.filter((item: subject, ind: number) => ind != index)],
     }));
   };
   const addItemAndCloseModal = () => {
