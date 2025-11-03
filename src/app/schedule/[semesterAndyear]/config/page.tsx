@@ -99,9 +99,9 @@ function TimetableConfigValue() {
     let value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));
   };
-  const [breakSlotMap, setBreakSlotMap] = useState([]); //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
+  const [breakSlotMap, setBreakSlotMap] = useState<number[]>([]); //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
   useEffect(() => {
-    let breakSlot = []; //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
+    let breakSlot: number[] = []; //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
     for (let i = 0; i < configData.TimeslotPerDay; i++) {
       breakSlot.push(i + 1);
     }
@@ -137,31 +137,31 @@ function TimetableConfigValue() {
   // const handleChangeBreakDuration = (currentValue: number) => {
   //   setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
   // };
-  const handleChangeBreakTimeJ = (currentValue: number) => {
+  const handleChangeBreakTimeJ = (currentValue: unknown) => {
     setConfigData(() => ({
       ...configData,
       BreakTimeslots: {
-        Junior: currentValue,
+        Junior: currentValue as number,
         Senior: configData.BreakTimeslots.Senior,
       },
     }));
   };
 
-  const handleChangeBreakTimeS = (currentValue: number) => {
+    const handleChangeBreakTimeS = (currentValue: unknown) => {
     setConfigData(() => ({
       ...configData,
       BreakTimeslots: {
-        Senior: currentValue,
         Junior: configData.BreakTimeslots.Junior,
+        Senior: currentValue as number,
       },
     }));
   };
-  const handleChangeMiniBreak = (currentValue: number) => {
+  const handleChangeMiniBreak = (currentValue: unknown) => {
     setConfigData(() => ({
       ...configData,
       MiniBreak: {
         Duration: configData.MiniBreak.Duration,
-        SlotNumber: currentValue,
+        SlotNumber: currentValue as number,
       },
     }));
   };
