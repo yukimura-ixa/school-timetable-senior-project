@@ -233,7 +233,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(value: string) => {
+                      handleChange={(value: unknown) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
                             index === ind
@@ -243,7 +243,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                         );
                       }}
                     />
-                    {isEmptyData && subject.Credit.length == 0 ? (
+                    {isEmptyData && !subject.Credit ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -256,13 +256,16 @@ function AddModalForm({ closeModal, mutate }: Props) {
                     </label>
                     <Dropdown
                       data={[SubjectCategory.CORE, SubjectCategory.ADDITIONAL, SubjectCategory.ACTIVITY]}
-                      renderItem={({ data }: { data: SubjectCategory }): JSX.Element => (
-                        <li className="w-full">{
-                          data === SubjectCategory.CORE ? "พื้นฐาน" :
-                          data === SubjectCategory.ADDITIONAL ? "เพิ่มเติม" :
-                          "กิจกรรมพัฒนาผู้เรียน"
-                        }</li>
-                      )}
+                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                        const category = data as SubjectCategory;
+                        return (
+                          <li className="w-full">{
+                            category === SubjectCategory.CORE ? "พื้นฐาน" :
+                            category === SubjectCategory.ADDITIONAL ? "เพิ่มเติม" :
+                            "กิจกรรมพัฒนาผู้เรียน"
+                          }</li>
+                        );
+                      }}
                       width={150}
                       height={40}
                       currentValue={subject.Category}
@@ -272,10 +275,10 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           : ""
                       }
                       placeHolder={"ตัวเลือก"}
-                      handleChange={(value: SubjectCategory) => {
+                      handleChange={(value: unknown) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
-                            index === ind ? { ...item, Category: value } : item,
+                            index === ind ? { ...item, Category: value as SubjectCategory } : item,
                           ),
                         );
                       }}

@@ -11,6 +11,15 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+
+// Form state type allowing null/undefined for new entries
+type RoomFormState = {
+  RoomID: number | null;
+  RoomName: string;
+  Building: string;
+  Floor: number | undefined;
+};
+
 type props = {
   closeModal: any;
   mutate: Function;
@@ -18,7 +27,7 @@ type props = {
 };
 function AddModalForm({ closeModal, mutate }: props) {
 
-  const addData = async (data: room[]) => {
+  const addData = async (data: RoomFormState[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
       variant: "info",
       persist: true,
@@ -57,7 +66,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     }
   };
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [rooms, setRooms] = useState<room[]>([
+  const [rooms, setRooms] = useState<RoomFormState[]>([
     {
       RoomID: null,
       RoomName: "",
@@ -66,7 +75,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     },
   ]);
   const addList = () => {
-    let struct: room = {
+    let struct: RoomFormState = {
       RoomID: null,
       RoomName: "",
       Building: "",
@@ -212,9 +221,10 @@ function AddModalForm({ closeModal, mutate }: props) {
                       disabled={false}
                       handleChange={(e: any) => {
                         let value: string = e.target.value;
+                        const floorValue = value === "" ? undefined : Number(value);
                         setRooms(() =>
                           rooms.map((item, ind) =>
-                            index === ind ? { ...item, Floor: value } : item,
+                            index === ind ? { ...item, Floor: floorValue } : item,
                           ),
                         );
                       }}

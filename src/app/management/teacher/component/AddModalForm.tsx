@@ -15,6 +15,17 @@ import { CircularProgress } from "@mui/material";
 // Server Actions
 import { createTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
+// Form state type allowing null for new entries
+type TeacherFormState = {
+  TeacherID: number | null;
+  Prefix: string;
+  Firstname: string;
+  Lastname: string;
+  Department: string;
+  Email: string;
+  Role: string;
+};
+
 type props = {
   closeModal: any;
   mutate: Function;
@@ -22,7 +33,7 @@ type props = {
 function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [teachers, setTeachers] = useState<teacher[]>([
+  const [teachers, setTeachers] = useState<TeacherFormState[]>([
     {
       TeacherID: null,
       Prefix: "",
@@ -34,7 +45,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     },
   ]);
 
-  const addData = async (data: teacher[]) => {
+  const addData = async (data: TeacherFormState[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลครู", {
       variant: "info",
       persist: true,
@@ -71,7 +82,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     }
   };
   const addList = () => {
-    let newTeacher: teacher = {
+    const newTeacher: TeacherFormState = {
       TeacherID: null,
       Prefix: "",
       Firstname: "",
@@ -166,8 +177,8 @@ function AddModalForm({ closeModal, mutate }: props) {
                     </label>
                     <Dropdown
                       data={["นาย", "นาง", "นางสาว"]}
-                      renderItem={({ data }: { data: any }): JSX.Element => (
-                        <li className="w-full">{data}</li>
+                      renderItem={({ data }: { data: unknown }): JSX.Element => (
+                        <li className="w-full">{data as string}</li>
                       )}
                       width={150}
                       height={40}
@@ -178,10 +189,10 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }
                       currentValue={teacher.Prefix}
                       placeHolder={"ตัวเลือก"}
-                      handleChange={(value: string) => {
+                      handleChange={(value: unknown) => {
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind ? { ...item, Prefix: value } : item,
+                            index === ind ? { ...item, Prefix: value as string } : item,
                           ),
                         );
                       }}
@@ -268,8 +279,8 @@ function AddModalForm({ closeModal, mutate }: props) {
                         "สังคมศึกษา ศาสนา และวัฒนธรรม",
                         "สุขศึกษาและพลศึกษา",
                       ]}
-                      renderItem={({ data }: { data: any }): JSX.Element => (
-                        <li className="w-full">{data}</li>
+                      renderItem={({ data }: { data: unknown }): JSX.Element => (
+                        <li className="w-full">{data as string}</li>
                       )}
                       width={150}
                       height={40}
@@ -281,11 +292,11 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(value: string) => {
+                      handleChange={(value: unknown) => {
                         setTeachers(() =>
                           teachers.map((item, ind) =>
                             index === ind
-                              ? { ...item, Department: value }
+                              ? { ...item, Department: value as string }
                               : item,
                           ),
                         );
