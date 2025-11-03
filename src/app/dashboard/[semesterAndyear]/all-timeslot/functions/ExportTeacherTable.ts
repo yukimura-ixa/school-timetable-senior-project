@@ -1,18 +1,39 @@
-import type { teacher } from "@/prisma/generated";
+import type { teacher, timeslot } from "@/prisma/generated";
+import type { Prisma } from "@/prisma/generated";
 import ExcelJS from "exceljs";
 
+// Type matching ClassScheduleWithSummary from repository
+type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
+  include: {
+    teachers_responsibility: true;
+    gradelevel: true;
+    timeslot: true;
+    room: true;
+  };
+}>;
+
+// Type for timeslot data structure used in dashboard
+interface TimeslotData {
+  AllData: (timeslot & { subject: ClassScheduleWithSummary | Record<string, never> })[];
+  SlotAmount: number[];
+  DayOfWeek: Array<{ Day: string; TextColor: string; BgColor: string }>;
+  StartTime?: { Hours: number; Minutes: number };
+  Duration?: number;
+  BreakSlot?: Array<{ TimeslotID: string; Breaktime: string; SlotNumber: number }>;
+}
+
 export const ExportTeacherTable = (
-  timeSlotData,
+  timeSlotData: TimeslotData,
   allTeacher: teacher[],
-  classData = [],
+  classData: ClassScheduleWithSummary[] = [],
   semester: string,
   academicYear: string,
 ) => {
   const teachers = [...allTeacher];
-  function formatTime(time) {
+  function formatTime(time: Date | string): string {
     const date = new Date(time)
     const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
-    const minutes = date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
+    const minutes = date.getMinutes() === 0 ? `0${date.getMinutes()}` : date.getMinutes();
     return `${hours}:${minutes}`
   }
   const workbook = new ExcelJS.Workbook();
@@ -21,7 +42,7 @@ export const ExportTeacherTable = (
   }); //add worksheet to created workbook
   const generateTableHead = [
     "ชั่วโมงที่",
-    ...timeSlotData.SlotAmount.map((item) => item),
+    ...timeSlotData.SlotAmount.map((item: number) => item),
   ];
   const alignCell = (v: string, h: string): object => {
     return {
@@ -29,38 +50,40 @@ export const ExportTeacherTable = (
       horizontal: h,
     };
   };
-  let slotLength = timeSlotData.SlotAmount.length + 1; //เก็บว่ามีกี่คาบพร้อมบวกหนึ่ง จะได้จำนวนคอลัมน์จริง
-  let tableRow = { start: 1, end: 31 }; //เริ่ม-จบที่ excel แถวเท่าไหร่
+  const slotLength = timeSlotData.SlotAmount.length + 1; //เก็บว่ามีกี่คาบพร้อมบวกหนึ่ง จะได้จำนวนคอลัมน์จริง
+  const tableRow = { start: 1, end: 31 }; //เริ่ม-จบที่ excel แถวเท่าไหร่
   //เก็บแถวที่จะต้องตีเส้นตาราง
-  let keepCellRow = [];
-  let keepCellCol = [];
-  let keepLastRowLine = [];
+  const keepCellRow: number[] = [];
+  const keepCellCol: number[] = [];
+  const keepLastRowLine: number[] = [];
   //เก็บแถวที่จะต้องตีเส้นตาราง
-  let keepTimeLine = []; //เก็บแถวที่ต้องแมพเวลาลงตารางเพื่อปรับ font
+  const keepTimeLine: number[] = []; //เก็บแถวที่ต้องแมพเวลาลงตารางเพื่อปรับ font
   //Brute force แบบ 300%
   for (let i = 0; i < teachers.length; i++) {
-    let tch = teachers[i]; //นำข้อมูลของครูมาใช้ในแต่ละรอบ
-    let filterClassDataByTID = []
-    if (teachers.length == 1){ //ถ้าส่งครูเข้ามาคนเดียว (หมายถึง พิมพ์ตารางรายคน)
+    const tch = teachers[i]; //นำข้อมูลของครูมาใช้ในแต่ละรอบ
+    if (!tch) continue; // Skip if teacher is undefined
+    
+    let filterClassDataByTID: ClassScheduleWithSummary[] = []
+    if (teachers.length === 1){ //ถ้าส่งครูเข้ามาคนเดียว (หมายถึง พิมพ์ตารางรายคน)
       filterClassDataByTID = [...classData] //นำข้อมูลมาใช้ได้เลย
     }
     else{ //ถ้าเป็นตารางรวม ต้อง filter ก่อน
-      filterClassDataByTID = classData.filter((item) =>
+      filterClassDataByTID = classData.filter((item: ClassScheduleWithSummary) =>
       item.teachers_responsibility
-        .map((id) => id.TeacherID)
+        .map((id: { TeacherID: number }) => id.TeacherID)
         .includes(tch.TeacherID),
       );
     }
     timeSlotData = {
       ...timeSlotData,
-      AllData: timeSlotData.AllData.map((item) =>
+      AllData: timeSlotData.AllData.map((item: timeslot & { subject: ClassScheduleWithSummary | Record<string, never> }) =>
         filterClassDataByTID
-          .map((item) => item.TimeslotID)
+          .map((item: ClassScheduleWithSummary) => item.TimeslotID)
           .includes(item.TimeslotID)
           ? {
               ...item,
               subject: filterClassDataByTID.filter(
-                (id) => id.TimeslotID == item.TimeslotID,
+                (id: ClassScheduleWithSummary) => id.TimeslotID === item.TimeslotID,
               )[0],
             }
           : { ...item, subject: {} },

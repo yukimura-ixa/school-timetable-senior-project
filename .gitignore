@@ -42,8 +42,6 @@ next-env.d.ts
 # prisma generated client (custom output path)
 /prisma/generated/
 
-cloud-sql-proxy.exe
-
 /.idea
 .env*.local
 
@@ -53,7 +51,4 @@ cloud-sql-proxy.exe
 /.swc
 
 # VS Code user profiles (not workspace-specific)
-.vscode/profiles/
-
-# MCP server configuration (contains API keys and user-specific settings)
-.vscode/mcp.json
+/.vscode/
