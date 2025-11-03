@@ -10,6 +10,7 @@
 
 import { createAction } from '@/shared/lib/action-wrapper';
 import { semester } from '@/prisma/generated';
+import * as v from 'valibot';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
 import {
   validateConfigExists,
@@ -37,7 +38,7 @@ import {
  * Get all configs ordered by ConfigID
  */
 export const getAllConfigsAction = createAction(
-  undefined,
+  v.object({}),
   async () => {
     const configs = await configRepository.findAll();
     return configs;
@@ -204,7 +205,7 @@ export const copyConfigAction = createAction(
         },
       });
 
-      const toSlots = fromSlots.map((slot) => ({
+      const toSlots = fromSlots.map((slot: { TimeslotID: string; DayOfWeek: string; StartTime: Date; EndTime: Date; Breaktime: string }) => ({
         TimeslotID: replaceConfigIDInString(slot.TimeslotID, input.from, input.to),
         DayOfWeek: slot.DayOfWeek,
         AcademicYear: toParsed.academicYear,
@@ -232,7 +233,7 @@ export const copyConfigAction = createAction(
           },
         });
 
-        const toResp = fromResp.map((resp) => ({
+        const toResp = fromResp.map((resp: { TeacherID: number; GradeID: string; SubjectCode: string; TeachHour: number }) => ({
           TeacherID: resp.TeacherID,
           GradeID: resp.GradeID,
           SubjectCode: resp.SubjectCode,
@@ -285,7 +286,7 @@ export const copyConfigAction = createAction(
           }
 
           // Parallel creates for better performance
-          const lockCreatePromises = fromLock.map(async (lock) => {
+          const lockCreatePromises = fromLock.map(async (lock: { TimeslotID: string; ClassID: string; SubjectCode: string; RoomID: number | null; GradeID: string; IsLocked: boolean }) => {
             const newTimeslotID = replaceConfigIDInString(
               lock.TimeslotID,
               input.from,
@@ -355,7 +356,7 @@ export const copyConfigAction = createAction(
           }
 
           // Parallel creates for better performance
-          const timetableCreatePromises = fromTimetable.map(async (schedule) => {
+          const timetableCreatePromises = fromTimetable.map(async (schedule: { TimeslotID: string; ClassID: string; SubjectCode: string; RoomID: number | null; GradeID: string }) => {
             const newTimeslotID = replaceConfigIDInString(
               schedule.TimeslotID,
               input.from,
@@ -415,7 +416,7 @@ export const copyConfigAction = createAction(
  * Get count of all configs
  */
 export const getConfigCountAction = createAction(
-  undefined,
+  v.object({}),
   async () => {
     const count = await configRepository.count();
     return { count };
