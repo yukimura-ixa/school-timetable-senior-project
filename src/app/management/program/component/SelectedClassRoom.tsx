@@ -43,17 +43,17 @@ function SelectedClassRoom(props: Props) {
                     <Fragment key={`${classroom.GradeID}`}>
                       <MiniButton
                         titleColor={
-                          props.Grade.filter((item) => item.GradeID === classroom.GradeID).length > 0
+                          props.Grade.filter((item: any) => item.GradeID === classroom.GradeID).length > 0
                             ? "#008022"
                             : "#222222"
                         }
                         borderColor={
-                          props.Grade.filter((item) => item.GradeID === classroom.GradeID).length > 0
+                          props.Grade.filter((item: any) => item.GradeID === classroom.GradeID).length > 0
                             ? "#abffc1"
                             : "#888888"
                         }
                         buttonColor={
-                          props.Grade.filter((item) => item.GradeID === classroom.GradeID).length > 0
+                          props.Grade.filter((item: any) => item.GradeID === classroom.GradeID).length > 0
                             ? "#abffc1"
                             : "#ffffff"
                         }

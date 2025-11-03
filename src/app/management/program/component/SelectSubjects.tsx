@@ -40,16 +40,16 @@ function SelectSubjects(props: Props) {
 
   useEffect(() => {
     const propsSubjectCodes = props.subjectSelected.map(
-      (item) => item.SubjectCode,
+      (item: any) => item.SubjectCode,
     );
-    if (!subjectData.isValidating) {
+    if (!subjectData.isValidating && subjectData.data) {
       const notDuplicate = subjectData.data.filter(
-        (item) => !propsSubjectCodes.includes(item.SubjectCode),
+        (item: subject) => !propsSubjectCodes.includes(item.SubjectCode),
       );
 
       setSubjectFilter(() => notDuplicate);
     }
-  }, [props.subjectSelected, subjectData.isValidating]);
+  }, [props.subjectSelected, subjectData.isValidating, subjectData.data]);
 
   const searchHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
     // search คำที่พิมพ์ในช่องค้นหา
@@ -102,7 +102,7 @@ function SelectSubjects(props: Props) {
         </div>
         <div className="max-h-20 overflow-y-scroll">
           <div className="flex flex-wrap gap-3 justify-end">
-            {props.subjectSelected.map((item, index) => (
+            {props.subjectSelected.map((item: any, index: number) => (
               <Fragment key={`subjectSelected${item.SubjectCode}`}>
                 <MiniButton
                   handleClick={() => props.removeSubjectFunction(index)}

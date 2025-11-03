@@ -3,14 +3,15 @@ import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import React, { useEffect, useState } from "react";
+import type { teacher } from "@/prisma/generated";
 
 type Props = {
   setTeacherID: (teacherId: number | null) => void;
-  currentTeacher?: Record<string, any>;
+  currentTeacher?: Partial<teacher> | null;
 };
 
-const formatTeacherName = (teacher?: Record<string, any>) => {
-  if (!teacher || Object.keys(teacher).length === 0) {
+const formatTeacherName = (teacher?: Partial<teacher> | null) => {
+  if (!teacher) {
     return "";
   }
 
@@ -21,7 +22,7 @@ const formatTeacherName = (teacher?: Record<string, any>) => {
   return `${prefix}${firstname}${firstname && lastname ? " " : ""}${lastname}`.trim();
 };
 
-function SelectTeacher({ setTeacherID, currentTeacher = {} }: Props) {
+function SelectTeacher({ setTeacherID, currentTeacher = null }: Props) {
   const allTeacher = useTeachers();
   const [teacher, setTeacher] = useState<string>(formatTeacherName(currentTeacher));
 
@@ -44,15 +45,19 @@ function SelectTeacher({ setTeacherID, currentTeacher = {} }: Props) {
         width={300}
         data={allTeacher.data}
         placeHolder="ตัวเลือก"
-        renderItem={({ data }: { data: Record<string, any> }) => (
-          <li>
-            <p>{`${data.Prefix}${data.Firstname} ${data.Lastname}`}</p>
-          </li>
-        )}
+        renderItem={({ data }: { data: unknown }) => {
+          const t = data as Partial<teacher>;
+          return (
+            <li>
+              <p>{`${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`}</p>
+            </li>
+          );
+        }}
         currentValue={teacher}
-        handleChange={(data: Record<string, any>) => {
-          setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`);
-          setTeacherID(data.TeacherID ?? null);
+        handleChange={(data: unknown) => {
+          const t = data as Partial<teacher>;
+          setTeacher(`${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`);
+          setTeacherID(t.TeacherID ?? null);
         }}
         searchFunction={undefined}
       />

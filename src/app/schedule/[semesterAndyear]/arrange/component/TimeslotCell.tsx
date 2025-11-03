@@ -83,13 +83,12 @@ export function TimeslotCell({
     disabled:
       checkBreakTime(item.Breaktime) ||
       item.subject?.scheduled ||
-      (typeof item.subject?.gradeID !== "string" &&
-        Object.keys(item.subject || {}).length !== 0) ||
-      (isSelectedToAdd() && Object.keys(item.subject || {}).length !== 0),
+      (typeof item.subject?.gradeID !== "string" && item.subject != null) ||
+      (isSelectedToAdd() && item.subject != null),
   });
 
   // Sortable hook for dragging existing subjects
-  const hasSubject = Object.keys(item.subject || {}).length > 0;
+  const hasSubject = item.subject != null;
   const {
     attributes,
     listeners,
@@ -153,7 +152,7 @@ export function TimeslotCell({
             style={{
               color: "#10b981",
               display:
-                Object.keys(storeSelectedSubject).length === 0 ||
+                !storeSelectedSubject ||
                 checkBreakTime(item.Breaktime) ||
                 isOver
                   ? "none"
@@ -166,7 +165,7 @@ export function TimeslotCell({
             style={{
               color: "#345eeb",
               display:
-                Object.keys(changeTimeSlotSubject).length === 0 ||
+                !changeTimeSlotSubject ||
                 checkBreakTime(item.Breaktime)
                   ? "none"
                   : "flex",
@@ -235,10 +234,7 @@ export function TimeslotCell({
                     item.subject.subjectCode
                       ? "#2563eb"
                       : "#9ca3af",
-                  display:
-                    Object.keys(storeSelectedSubject || {}).length !== 0
-                      ? "none"
-                      : "flex",
+                  display: storeSelectedSubject ? "none" : "flex",
                 }}
                 className="cursor-pointer hover:fill-blue-600 duration-300 rotate-90"
                 onClick={() =>

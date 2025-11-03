@@ -49,14 +49,18 @@ function SelectClassRoom({
         width={300}
         data={gradeLevels}
         placeHolder="ตัวเลือก"
-        renderItem={({ data }: { data: gradelevel }) => (
-          <li>
-            <p>{formatGradeLabel(data.GradeID)}</p>
-          </li>
-        )}
+        renderItem={({ data }: { data: unknown }) => {
+          const g = data as gradelevel;
+          return (
+            <li>
+              <p>{formatGradeLabel(g.GradeID)}</p>
+            </li>
+          );
+        }}
         currentValue={classRoom}
-        handleChange={(data: gradelevel) => {
-          const gradeId = data.GradeID;
+        handleChange={(data: unknown) => {
+          const g = data as gradelevel;
+          const gradeId = g.GradeID;
           setClassRoom(formatGradeLabel(gradeId));
           setGradeID(gradeId);
         }}

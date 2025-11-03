@@ -68,6 +68,7 @@ import type {
   RemoveSubjectCallback,
   DayOfWeekDisplay,
   SubjectCategory,
+  TimeslotData,
 } from "@/types/schedule.types";
 import type {
   timeslot,
@@ -131,7 +132,7 @@ type EnrichedClassSchedule = ClassScheduleWithRelations & {
 type ConflictData = ClassScheduleWithRelations[];
 type TeacherInfo = teacher;
 type ResponsibilityData = SubjectData[];
-type TimeslotData = timeslot[];
+// Use shared TimeslotData interface (includes optional subject)
 
 /**
  * Enriched timeslot with optional subject data
@@ -200,7 +201,7 @@ export default function TeacherArrangePageRefactored() {
     async (): Promise<ConflictData | null> => {
       if (!currentTeacherID) return null;
       const result = (await getConflictsAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: parseInt(academicYear ?? "0"),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
       })) as ActionResult<ConflictData>;
@@ -254,7 +255,7 @@ export default function TeacherArrangePageRefactored() {
     async (): Promise<ResponsibilityData | null> => {
       if (!currentTeacherID) return null;
       const result = (await getAvailableRespsAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: parseInt(academicYear ?? "0"),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
       })) as ActionResult<ResponsibilityData>;
@@ -264,18 +265,20 @@ export default function TeacherArrangePageRefactored() {
     { revalidateOnFocus: false },
   );
 
-  const fetchTimeSlot = useSWR<TimeslotData | null>(
-    () => (currentTeacherID ? `timeslots-${academicYear}-${semester}` : null),
-    async () => {
+  const fetchTimeSlot = useSWR<TimeslotData[] | null>(
+    currentTeacherID ? `timeslots-${academicYear}-${semester}` : null,
+    async (): Promise<TimeslotData[] | null> => {
       if (!currentTeacherID) return null;
       const result = await getTimeslotsByTermAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: parseInt(academicYear ?? "0"),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
       if (!result || typeof result !== "object" || !("success" in result)) {
         return null;
       }
-      return result.success && "data" in result ? result.data : null;
+      return result.success && "data" in result
+        ? (result.data as unknown as TimeslotData[])
+        : null;
     },
     { revalidateOnFocus: false },
   );
@@ -411,8 +414,8 @@ export default function TeacherArrangePageRefactored() {
       )
       .map((item: string) => ({
         day_of_week: item as day_of_week,
-        textColor: dayOfWeekTextColor[item],
-        bgColor: dayOfWeekColor[item],
+        textColor: dayOfWeekTextColor[item] ?? "#000000",
+        bgColor: dayOfWeekColor[item] ?? "#FFFFFF",
       }));
 
     // Get slot amounts (use Monday as reference since all days have same slots)
@@ -524,11 +527,11 @@ export default function TeacherArrangePageRefactored() {
     
     // Map enriched class_schedule to SubjectData format for store compatibility
     // SubjectData has both PascalCase and camelCase fields for backward compatibility
-    const mappedScheduledSubjects: SubjectData[] = concatClassData.map(item => ({
+    const mappedScheduledSubjects: SubjectData[] = concatClassData.map((item) => ({
       itemID: parseInt(item.ClassID),
       subjectCode: item.SubjectCode,
       subjectName: item.SubjectName,
-      gradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID,
+      gradeID: Array.isArray(item.GradeID) ? (item.GradeID[0] ?? "") : item.GradeID,
       teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
       category: item.subject?.Category as SubjectCategory,
       credit: typeof item.subject?.Credit === 'string' ? 0 : (item.subject?.Credit || 0),
@@ -540,12 +543,12 @@ export default function TeacherArrangePageRefactored() {
       scheduled: true,
     }));
     
-    const mappedLockData: class_schedule[] = resFilterLock.map(item => ({
+    const mappedLockData: class_schedule[] = resFilterLock.map((item) => ({
       ClassID: item.ClassID,
       TimeslotID: item.TimeslotID,
       SubjectCode: item.SubjectCode,
       RoomID: item.RoomID,
-      GradeID: Array.isArray(item.GradeID) ? item.GradeID[0] : item.GradeID, // Take first grade
+      GradeID: Array.isArray(item.GradeID) ? (item.GradeID[0] ?? "") : item.GradeID, // Take first grade, fallback to empty
       IsLocked: item.IsLocked,
     }));
     
@@ -557,7 +560,7 @@ export default function TeacherArrangePageRefactored() {
       ...timeSlotData,
       AllData: timeSlotData.AllData.map((data): EnrichedTimeslot => {
         const matchedSubject = concatClassData.find(
-          (item: EnrichedClassSchedule) => item.TimeslotID === data.TimeslotID,
+          (item) => item.TimeslotID === data.TimeslotID,
         );
 
         // Enrich timeslot with subject data if matched, otherwise null
@@ -567,7 +570,7 @@ export default function TeacherArrangePageRefactored() {
             itemID: parseInt(matchedSubject.ClassID),
             subjectCode: matchedSubject.SubjectCode,
             subjectName: matchedSubject.SubjectName,
-            gradeID: Array.isArray(matchedSubject.GradeID) ? matchedSubject.GradeID[0] : matchedSubject.GradeID,
+            gradeID: Array.isArray(matchedSubject.GradeID) ? (matchedSubject.GradeID[0] ?? "") : matchedSubject.GradeID,
             teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
             category: matchedSubject.subject?.Category as SubjectCategory,
             credit: typeof matchedSubject.subject?.Credit === 'string' ? 0 : (matchedSubject.subject?.Credit || 0),
@@ -603,7 +606,7 @@ export default function TeacherArrangePageRefactored() {
     try {
       const result = await syncTeacherScheduleAction({
         TeacherID: parseInt(searchTeacherID || "0"),
-        AcademicYear: parseInt(academicYear),
+  AcademicYear: parseInt(academicYear || "0"),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         Schedule: timeSlotData.AllData,
       });
@@ -643,11 +646,10 @@ export default function TeacherArrangePageRefactored() {
     (subject: SubjectData, timeSlotID: string) => {
       const mapTimeSlot = {
         ...timeSlotData,
-        AllData: timeSlotData.AllData.map(
-          (item: timeslot & { subject?: SubjectData }) =>
-            item.TimeslotID === timeSlotID
-              ? { ...item, subject: { ...subject } }
-              : item,
+        AllData: timeSlotData.AllData.map((item) =>
+          item.TimeslotID === timeSlotID
+            ? { ...item, subject: { ...subject } }
+            : item,
         ),
       };
 
@@ -689,9 +691,8 @@ export default function TeacherArrangePageRefactored() {
 
       actions.setTimeSlotData({
         ...timeSlotData,
-        AllData: timeSlotData.AllData.map(
-          (item: timeslot & { subject?: SubjectData }) =>
-            item.TimeslotID === timeSlotID ? { ...item, subject: null } : item,
+        AllData: timeSlotData.AllData.map((item) =>
+          item.TimeslotID === timeSlotID ? { ...item, subject: null } : item,
         ),
       });
     },
@@ -715,17 +716,15 @@ export default function TeacherArrangePageRefactored() {
   const clearScheduledData = useCallback(() => {
     actions.setTimeSlotData({
       ...timeSlotData,
-      AllData: timeSlotData.AllData.map(
-        (
-          item: timeslot & { subject?: SubjectData & { scheduled?: boolean } },
-        ) => (item.subject?.scheduled ? { ...item, subject: null } : item),
+      AllData: timeSlotData.AllData.map((item) =>
+        (item as TimeslotData).subject?.scheduled ? { ...item, subject: null } : item,
       ),
     });
   }, [timeSlotData, actions]);
 
   const onSelectSubject = useCallback(() => {
-    const isSelectedToAdd = Object.keys(storeSelectedSubject).length !== 0;
-    const isSelectedToChange = Object.keys(changeTimeSlotSubject).length !== 0;
+  const isSelectedToAdd = storeSelectedSubject != null;
+  const isSelectedToChange = changeTimeSlotSubject != null;
 
     if (!isSelectedToAdd && !isSelectedToChange) {
       clearScheduledData();
@@ -733,36 +732,35 @@ export default function TeacherArrangePageRefactored() {
     }
 
     const selectedGradeID = !isSelectedToChange
-      ? storeSelectedSubject.gradeID
-      : changeTimeSlotSubject.gradeID;
+      ? storeSelectedSubject!.gradeID
+      : changeTimeSlotSubject!.gradeID;
 
     if (!checkConflictData.data) return;
 
     type ScheduledSlot = class_schedule & {
       subject: subject;
-      room: room;
+      room: room | null;
       Scheduled?: boolean;
       SubjectName?: string;
       RoomName?: string;
     };
 
     const scheduledGradeIDTimeslot: ScheduledSlot[] = checkConflictData.data
-      .filter((item: class_schedule) => item.GradeID === selectedGradeID)
-      .map((slot: class_schedule & { subject: subject; room: room }) => ({
+      .filter((item) => item.GradeID === selectedGradeID)
+      .map((slot) => ({
         ...slot,
         Scheduled: true,
         SubjectName: slot.subject.SubjectName,
-        RoomName: slot.room.RoomName,
+        RoomName: slot.room?.RoomName || "ไม่มีห้องเรียน",
       }));
 
     if (scheduledGradeIDTimeslot.length > 0) {
       clearScheduledData();
       actions.setTimeSlotData({
         ...timeSlotData,
-        AllData: timeSlotData.AllData.map(
-          (item: EnrichedTimeslot): EnrichedTimeslot => {
+        AllData: timeSlotData.AllData.map((item) => {
             // If timeslot already has a subject, keep it
-            if (item.subject && Object.keys(item.subject).length !== 0) {
+            if (item.subject) {
               return item;
             }
 
@@ -784,16 +782,15 @@ export default function TeacherArrangePageRefactored() {
                 credit: typeof matchedSlot.subject.Credit === 'string' ? 0 : (matchedSlot.subject.Credit || 0),
                 teachHour: typeof matchedSlot.subject.Credit === 'string' ? 0 : (matchedSlot.subject.Credit || 0),
                 roomID: matchedSlot.RoomID,
-                roomName: matchedSlot.RoomName || matchedSlot.room.RoomName,
-                room: matchedSlot.room,
+                roomName: matchedSlot.RoomName || matchedSlot.room?.RoomName || "ไม่มีห้องเรียน",
+                room: matchedSlot.room ?? null,
                 classID: matchedSlot.ClassID,
                 scheduled: matchedSlot.Scheduled ?? true,
               };
               return { ...item, subject: subjectData };
             }
             return item;
-          },
-        ),
+          }),
       });
     } else {
       clearScheduledData();
@@ -819,21 +816,18 @@ export default function TeacherArrangePageRefactored() {
       if (dragData?.type === "subject") {
         // Dragging from subject box
         const index = dragData.index;
-        if (Object.keys(storeSelectedSubject).length === 0) {
-          clickOrDragToSelectSubject(subjectData[index]);
+        if (storeSelectedSubject == null) {
+          const sel = subjectData[index];
+          if (sel) clickOrDragToSelectSubject(sel);
         }
       } else if (dragData?.type === "timeslot") {
         // Dragging from timeslot (to swap)
         const timeslotID = dragData.timeslotID;
         const getSubjectFromTimeslot = timeSlotData.AllData.find(
-          (item: timeslot & { subject?: SubjectData }) =>
-            item.TimeslotID === timeslotID,
+          (item) => item.TimeslotID === timeslotID,
         );
 
-        if (
-          getSubjectFromTimeslot &&
-          Object.keys(changeTimeSlotSubject).length === 0
-        ) {
+        if (getSubjectFromTimeslot && changeTimeSlotSubject == null) {
           // Phase 2: Use new signature (sourceID, destID)
           clickOrDragToChangeTimeSlot(timeslotID, timeslotID);
         }
@@ -849,8 +843,10 @@ export default function TeacherArrangePageRefactored() {
       if (!over) {
         // Dropped outside droppable zone - cancel selection after delay
         setTimeout(() => {
-          if (Object.keys(changeTimeSlotSubject).length === 0) {
-            clickOrDragToSelectSubject(storeSelectedSubject);
+          if (changeTimeSlotSubject == null) {
+            if (storeSelectedSubject) {
+              clickOrDragToSelectSubject(storeSelectedSubject);
+            }
           } else {
             // Phase 2: Cancel change by calling with same source (deselect)
             if (timeslotIDtoChange.source) {
@@ -864,24 +860,31 @@ export default function TeacherArrangePageRefactored() {
         return;
       }
 
-      const sourceData = active.data.current;
-      const targetData = over.data.current;
+      type SubjectDragData = { type: "subject"; index: number };
+      type TimeslotDragData = { type: "timeslot"; timeslotID: string };
+      const isSubjectDragData = (x: unknown): x is SubjectDragData =>
+        !!x && (x as any).type === "subject" && typeof (x as any).index === "number";
+      const isTimeslotDragData = (x: unknown): x is TimeslotDragData =>
+        !!x && (x as any).type === "timeslot" && typeof (x as any).timeslotID === "string";
 
-      if (sourceData?.type === "subject" && targetData?.type === "timeslot") {
+      const sourceDataUnknown = active.data.current as unknown;
+      const targetDataUnknown = over.data.current as unknown;
+
+      if (isSubjectDragData(sourceDataUnknown) && isTimeslotDragData(targetDataUnknown)) {
         // Adding subject to timeslot - Phase 2: Pass SubjectPayload
         const payload: SubjectPayload = {
-          timeslotID: targetData.timeslotID,
+          timeslotID: targetDataUnknown.timeslotID,
           selectedSubject: storeSelectedSubject,
         };
         addRoomModal(payload);
-        clickOrDragToSelectSubject(subjectData[sourceData.index]);
-      } else if (
-        sourceData?.type === "timeslot" &&
-        targetData?.type === "timeslot"
-      ) {
+        {
+          const s = subjectData[sourceDataUnknown.index];
+          if (s) clickOrDragToSelectSubject(s);
+        }
+      } else if (isTimeslotDragData(sourceDataUnknown) && isTimeslotDragData(targetDataUnknown)) {
         // Swapping subjects between timeslots - Phase 2: Use new signature
-        const sourceID = sourceData.timeslotID;
-        const destID = targetData.timeslotID;
+        const sourceID = sourceDataUnknown.timeslotID;
+        const destID = targetDataUnknown.timeslotID;
         clickOrDragToChangeTimeSlot(sourceID, destID);
       }
     },
@@ -899,10 +902,7 @@ export default function TeacherArrangePageRefactored() {
       const checkDuplicateSubject =
         subject === storeSelectedSubject ? null : subject;
 
-      if (
-        Object.keys(storeSelectedSubject).length === 0 ||
-        checkDuplicateSubject
-      ) {
+      if (storeSelectedSubject == null || checkDuplicateSubject) {
         const year = subject.gradelevel?.year;
         actions.setYearSelected(subject === storeSelectedSubject ? null : year || null);
       }
@@ -924,7 +924,7 @@ export default function TeacherArrangePageRefactored() {
    */
   const addRoomModal = useCallback(
     (payload: SubjectPayload) => {
-      if (Object.keys(storeSelectedSubject).length === 0) return;
+  if (storeSelectedSubject == null) return;
 
       actions.setSubjectPayload(payload);
       addSubjectToSlot(storeSelectedSubject, payload.timeslotID);
@@ -946,10 +946,7 @@ export default function TeacherArrangePageRefactored() {
   const clickOrDragToChangeTimeSlot = useCallback(
     (sourceID: string, destID: string) => {
       // Find the source subject from the timeslot
-      const sourceSlot = timeSlotData.AllData.find(
-        (item: timeslot & { subject?: SubjectData }) =>
-          item.TimeslotID === sourceID,
-      );
+      const sourceSlot = timeSlotData.AllData.find((item) => item.TimeslotID === sourceID);
 
       if (!sourceSlot?.subject) {
         console.warn("No subject found in source timeslot", sourceID);
@@ -960,10 +957,7 @@ export default function TeacherArrangePageRefactored() {
       const isClickToChange = sourceID === destID; // Click if same slot
       const checkDuplicateSubject = subject === changeTimeSlotSubject;
 
-      if (
-        Object.keys(changeTimeSlotSubject).length === 0 ||
-        checkDuplicateSubject
-      ) {
+      if (changeTimeSlotSubject == null || checkDuplicateSubject) {
         // First selection or deselection
         const year = subject.gradelevel?.year;
         actions.setIsClickToChangeSubject(
@@ -978,10 +972,7 @@ export default function TeacherArrangePageRefactored() {
         actions.setYearSelected(checkDuplicateSubject ? null : year || null);
       } else if (timeslotIDtoChange.source !== "" && destID !== sourceID) {
         // Second selection - swap operation
-        const destSlot = timeSlotData.AllData.find(
-          (item: timeslot & { subject?: SubjectData }) =>
-            item.TimeslotID === destID,
-        );
+        const destSlot = timeSlotData.AllData.find((item) => item.TimeslotID === destID);
         actions.setTimeslotIDtoChange({
           source: timeslotIDtoChange.source,
           destination: destID,
@@ -1001,20 +992,19 @@ export default function TeacherArrangePageRefactored() {
   );
 
   const changeSubjectSlot = useCallback(() => {
-    const sourceSubj = changeTimeSlotSubject;
-    const destinationSubj = destinationSubject;
+  const sourceSubj = changeTimeSlotSubject;
+  const destinationSubj = destinationSubject;
     const sourceTimeslotID = timeslotIDtoChange.source;
     const destinationTimeslotID = timeslotIDtoChange.destination;
 
     actions.setTimeSlotData({
       ...timeSlotData,
-      AllData: timeSlotData.AllData.map(
-        (item: timeslot & { subject?: SubjectData }) =>
-          item.TimeslotID === sourceTimeslotID
-            ? { ...item, subject: destinationSubj }
-            : item.TimeslotID === destinationTimeslotID
-              ? { ...item, subject: sourceSubj }
-              : item,
+      AllData: timeSlotData.AllData.map((item) =>
+        item.TimeslotID === sourceTimeslotID
+          ? { ...item, subject: destinationSubj }
+          : item.TimeslotID === destinationTimeslotID
+            ? { ...item, subject: sourceSubj }
+            : item,
       ),
     });
   }, [
@@ -1030,10 +1020,9 @@ export default function TeacherArrangePageRefactored() {
   // ============================================================================
 
   const checkBreakTime = useCallback(
-    (breakTimeState: string): boolean => {
-      const isSelectedToAdd = Object.keys(storeSelectedSubject).length !== 0;
-      const isSelectedToChange =
-        Object.keys(changeTimeSlotSubject).length !== 0;
+    (breakTimeState: string | null): boolean => {
+      const isSelectedToAdd = storeSelectedSubject != null;
+      const isSelectedToChange = changeTimeSlotSubject != null;
 
       if (!yearSelected) return false;
 
@@ -1052,8 +1041,7 @@ export default function TeacherArrangePageRefactored() {
     (breakTimeState: string, year: number): boolean => {
       if (timeslotIDtoChange.source !== "") {
         const getBreaktime = timeSlotData.AllData.find(
-          (item: timeslot & { subject?: SubjectData }) =>
-            item.TimeslotID === timeslotIDtoChange.source,
+          (item) => item.TimeslotID === timeslotIDtoChange.source,
         )?.Breaktime;
 
         if (getBreaktime === "BREAK_JUNIOR") {
@@ -1073,8 +1061,7 @@ export default function TeacherArrangePageRefactored() {
     (year: number): boolean => {
       if (timeslotIDtoChange.source !== "" && yearSelected) {
         const getBreaktime = timeSlotData.AllData.find(
-          (item: timeslot & { subject?: SubjectData }) =>
-            item.TimeslotID === timeslotIDtoChange.source,
+          (item) => item.TimeslotID === timeslotIDtoChange.source,
         )?.Breaktime;
 
         const findYearRange = [1, 2, 3].includes(yearSelected)
@@ -1092,10 +1079,9 @@ export default function TeacherArrangePageRefactored() {
 
   const timeSlotCssClassName = useCallback(
     (breakTimeState: string, subjectInSlot: SubjectData): string => {
-      const isSubjectInSlot = Object.keys(subjectInSlot).length !== 0;
-      const isSelectedToAdd = Object.keys(storeSelectedSubject).length !== 0;
-      const isSelectedToChange =
-        Object.keys(changeTimeSlotSubject).length !== 0;
+      const isSubjectInSlot = Boolean((subjectInSlot as Partial<SubjectData>).gradeID);
+      const isSelectedToAdd = storeSelectedSubject != null;
+      const isSelectedToChange = changeTimeSlotSubject != null;
 
       const disabledSlot = `grid flex justify-center h-[76px] text-center items-center rounded border relative border-[#ABBAC1] bg-gray-100 duration-200 ${subjectInSlot.scheduled ? "opacity-35" : "opacity-100"}`;
 
@@ -1184,10 +1170,7 @@ export default function TeacherArrangePageRefactored() {
   const removeSubjectFromSlotCallback = useCallback<RemoveSubjectCallback>(
     (timeslotID: string) => {
       // Find subject by timeslotID
-      const slot = timeSlotData.AllData.find(
-        (item: timeslot & { subject?: SubjectData }) =>
-          item.TimeslotID === timeslotID,
-      );
+      const slot = timeSlotData.AllData.find((item) => item.TimeslotID === timeslotID);
       if (slot?.subject) {
         removeSubjectFromSlot(slot.subject, timeslotID);
       }
@@ -1200,11 +1183,11 @@ export default function TeacherArrangePageRefactored() {
   // ============================================================================
 
   const isSelectedToAdd = useCallback((): boolean => {
-    return Object.keys(storeSelectedSubject).length !== 0;
+    return storeSelectedSubject != null;
   }, [storeSelectedSubject]);
 
   const isSelectedToChange = useCallback((): boolean => {
-    return Object.keys(changeTimeSlotSubject).length !== 0;
+    return changeTimeSlotSubject != null;
   }, [changeTimeSlotSubject]);
 
   /**
@@ -1213,7 +1196,7 @@ export default function TeacherArrangePageRefactored() {
   const dropOutOfZone = useCallback(
     (subject: SubjectData) => {
       setTimeout(() => {
-        if (Object.keys(changeTimeSlotSubject).length === 0) {
+        if (changeTimeSlotSubject == null) {
           clickOrDragToSelectSubject(subject);
         } else {
           // Cancel change operation by calling with same source/dest
@@ -1253,11 +1236,11 @@ export default function TeacherArrangePageRefactored() {
   ]);
 
   const hasError = useMemo(() => {
-    return (
+    return Boolean(
       fetchTeacher.error ||
       fetchResp.error ||
       fetchTimeSlot.error ||
-      fetchAllClassData.error
+      fetchAllClassData.error,
     );
   }, [
     fetchTeacher.error,
@@ -1282,10 +1265,10 @@ export default function TeacherArrangePageRefactored() {
     return (
       <NetworkErrorEmptyState
         onRetry={() => {
-          fetchTeacher.mutate();
-          fetchResp.mutate();
-          fetchTimeSlot.mutate();
-          fetchAllClassData.mutate();
+          void fetchTeacher.mutate();
+          void fetchResp.mutate();
+          void fetchTimeSlot.mutate();
+          void fetchAllClassData.mutate();
         }}
       />
     );
@@ -1321,7 +1304,7 @@ export default function TeacherArrangePageRefactored() {
       )}
 
       {/* Page Header */}
-      {!!currentTeacherID && <PageHeader teacherData={teacherData} />}
+  {!!currentTeacherID && teacherData && <PageHeader teacherData={teacherData} />}
 
       {/* Teacher Selection */}
       <SelectTeacher
@@ -1330,7 +1313,7 @@ export default function TeacherArrangePageRefactored() {
       />
 
       {/* Main Content - Drag & Drop Context */}
-      {currentTeacherID && (
+      {currentTeacherID && teacherData && (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -1342,7 +1325,7 @@ export default function TeacherArrangePageRefactored() {
             respData={subjectData}
             dropOutOfZone={dropOutOfZone}
             clickOrDragToSelectSubject={clickOrDragToSelectSubject}
-            storeSelectedSubject={storeSelectedSubject}
+            storeSelectedSubject={storeSelectedSubject ?? {}}
             teacher={teacherData}
             data-testid="subject-list"
           />
@@ -1377,9 +1360,7 @@ export default function TeacherArrangePageRefactored() {
             hasChanges={false}
             totalSlots={timeSlotData?.AllData?.length || 0}
             filledSlots={
-              timeSlotData?.AllData?.filter(
-                (slot: timeslot & { subject?: SubjectData }) => !!slot.subject,
-              ).length || 0
+              timeSlotData?.AllData?.filter((slot) => Boolean(slot.subject)).length || 0
             }
           />
 
@@ -1413,15 +1394,19 @@ export default function TeacherArrangePageRefactored() {
             dropOutOfZone={dropOutOfZone}
             displayErrorChangeSubject={displayErrorChangeSubjectCallback}
             showErrorMsgByTimeslotID={
-              Object.keys(showErrorMsgByTimeslotID).find(
-                (key) => showErrorMsgByTimeslotID[key],
-              ) || ""
+              showErrorMsgByTimeslotID && typeof showErrorMsgByTimeslotID === "object"
+                ? Object.keys(showErrorMsgByTimeslotID).find(
+                    (key) => showErrorMsgByTimeslotID[key],
+                  ) || ""
+                : ""
             }
             removeSubjectFromSlot={removeSubjectFromSlotCallback}
             showLockDataMsgByTimeslotID={
-              Object.keys(showLockDataMsgByTimeslotID).find(
-                (key) => showLockDataMsgByTimeslotID[key],
-              ) || ""
+              showLockDataMsgByTimeslotID && typeof showLockDataMsgByTimeslotID === "object"
+                ? Object.keys(showLockDataMsgByTimeslotID).find(
+                    (key) => showLockDataMsgByTimeslotID[key],
+                  ) || ""
+                : ""
             }
             data-testid="timeslot-grid"
             setShowErrorMsgByTimeslotID={actions.setShowErrorMsg}

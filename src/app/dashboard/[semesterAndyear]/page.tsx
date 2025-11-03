@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+//
 import type { Metadata } from "next";
 import { dashboardRepository } from "@/features/dashboard/infrastructure/repositories/dashboard.repository";
 import {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 // Helper to parse ConfigID
 function parseConfigID(configId: string): { semester: number; year: number } {
-  const [semStr, yearStr] = configId.split("-");
+  const [semStr = "0", yearStr = "0"] = configId.split("-");
   return {
     semester: parseInt(semStr),
     year: parseInt(yearStr),

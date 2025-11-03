@@ -13,7 +13,7 @@ import { getClassSchedulesAction } from "@/features/class/application/actions/cl
 
 import TimeSlot from "./component/Timeslot";
 import SelectClassRoom from "./component/SelectClassroom";
-import { ExportStudentTable } from "./function/ExportStudentTable";
+import { ExportStudentTable, type TimeslotData as ExportTimeslotData, type ClassScheduleWithSummary } from "./function/ExportStudentTable";
 import { createTimeSlotTableData, type TimeSlotTableData } from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
@@ -71,8 +71,12 @@ function StudentTablePage() {
 
   const gradeLevelData = useGradeLevels();
 
-  const hasTimeslotError = !timeslotResponse || ('success' in (timeslotResponse as object) && !(timeslotResponse as ActionResult<unknown>).success);
-  const hasClassError = classDataResponse && 'success' in (classDataResponse as object) && !(classDataResponse as ActionResult<unknown>).success;
+  const hasTimeslotError = Boolean(
+    !timeslotResponse || ('success' in (timeslotResponse as object) && !(timeslotResponse as ActionResult<unknown>).success)
+  );
+  const hasClassError = Boolean(
+    classDataResponse && 'success' in (classDataResponse as object) && !(classDataResponse as ActionResult<unknown>).success
+  );
 
   const classData = useMemo((): ScheduleEntry[] => {
     const response = classDataResponse as ActionResult<ScheduleEntry[]> | undefined;
@@ -157,9 +161,9 @@ function StudentTablePage() {
                 <PrimaryButton
                   handleClick={() =>
                     ExportStudentTable(
-                      timeSlotData,
+                      timeSlotData as unknown as ExportTimeslotData,
                       selectedGradeInfo,
-                      classData,
+                      classData as unknown as ClassScheduleWithSummary[], 
                       semester,
                       academicYear,
                     )

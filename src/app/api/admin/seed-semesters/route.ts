@@ -46,6 +46,7 @@ async function seedTimeslots(academicYear: number, sem: semester): Promise<numbe
   for (const day of days) {
     for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
       const period = periods[periodNum - 1];
+      if (!period) continue;
       timeslots.push({
         TimeslotID: `${semesterNum}-${academicYear}-${day}${periodNum}`,
         AcademicYear: academicYear,

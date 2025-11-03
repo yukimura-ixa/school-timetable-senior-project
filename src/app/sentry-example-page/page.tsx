@@ -1,7 +1,6 @@
 "use client";
 
 import Head from "next/head";
-import * as Sentry from "@sentry/nextjs";
 import { useState, useEffect } from "react";
 
 class SentryExampleFrontendError extends Error {
@@ -16,11 +15,8 @@ export default function Page() {
   const [isConnected, setIsConnected] = useState(true);
   
   useEffect(() => {
-    async function checkConnectivity() {
-      const result = await Sentry.diagnoseSdkConnectivity();
-      setIsConnected(result !== 'sentry-unreachable');
-    }
-    checkConnectivity();
+    // Sentry temporarily disabled: assume connectivity OK
+    setIsConnected(true);
   }, []);
 
   return (
@@ -47,17 +43,13 @@ export default function Page() {
 
         <button
           type="button"
-          onClick={async () => {
-            await Sentry.startSpan({
-              name: 'Example Frontend/Backend Span',
-              op: 'test'
-            }, async () => {
+          onClick={() => {
+            // Sentry temporarily disabled: call API and throw example error
+            void (async () => {
               const res = await fetch("/api/sentry-example-api");
-              if (!res.ok) {
-                setHasSentError(true);
-              }
-            });
-            throw new SentryExampleFrontendError("This error is raised on the frontend of the example page.");
+              if (!res.ok) setHasSentError(true);
+              throw new SentryExampleFrontendError("This error is raised on the frontend of the example page.");
+            })();
           }}
           disabled={!isConnected}
         >

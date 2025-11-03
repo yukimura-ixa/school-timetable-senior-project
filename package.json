@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "typecheck:watch": "tsc --noEmit --watch",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "typecheck:watch": "tsc -w -p tsconfig.typecheck.json",
     "lint": "pnpm run lint:eslint",
     "lint:eslint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings=0",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
@@ -67,7 +67,6 @@
     "@mui/material-nextjs": "^7.3.3",
     "@prisma/client": "^6.18.0",
     "@prisma/extension-accelerate": "^2.0.2",
-    "@sentry/nextjs": "^10.22.0",
     "@vercel/edge-config": "^1.4.3",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.12.2",
@@ -82,8 +81,6 @@
     "react-icons": "^4.12.0",
     "react-to-print": "^3.2.0",
     "recharts": "^3.3.0",
-    "require-in-the-middle": "7.5.2",
-    "rimraf": "^6.0.1",
     "swr": "^2.3.6",
     "valibot": "^1.1.0",
     "zustand": "^5.0.8"
@@ -97,7 +94,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@types/jest": "^30.0.0",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.19.19",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
@@ -126,9 +123,8 @@
     "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
-    "typescript": "latest",
-    "typescript-eslint": "^8.46.2",
-    "undici": "^7.16.0"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.46.2"
   },
   "prettier": {
     "semi": true,

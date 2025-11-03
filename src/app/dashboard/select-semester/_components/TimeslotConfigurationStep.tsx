@@ -138,7 +138,7 @@ export function TimeslotConfigurationStep({
   // Calculate preview schedule
   const calculateEndTime = (startTime: string, durationMinutes: number): string => {
     const [hours, minutes] = startTime.split(":").map(Number);
-    const totalMinutes = hours * 60 + minutes + durationMinutes;
+    const totalMinutes = (hours ?? 0) * 60 + (minutes ?? 0) + durationMinutes;
     const endHours = Math.floor(totalMinutes / 60) % 24;
     const endMinutes = totalMinutes % 60;
     return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
@@ -463,9 +463,9 @@ export function TimeslotConfigurationStep({
         <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
           เวลาเลิก: {calculateEndTime(config.StartTime, previewSchedule.reduce((acc, slot) => {
             const [start, end] = slot.time.split("-");
-            const [startH, startM] = start.split(":").map(Number);
-            const [endH, endM] = end.split(":").map(Number);
-            const duration = (endH * 60 + endM) - (startH * 60 + startM);
+            const [startH, startM] = (start ?? "").split(":").map(Number);
+            const [endH, endM] = (end ?? "").split(":").map(Number);
+            const duration = ((endH ?? 0) * 60 + (endM ?? 0)) - ((startH ?? 0) * 60 + (startM ?? 0));
             return acc + duration;
           }, 0))}
         </Typography>

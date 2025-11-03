@@ -34,14 +34,14 @@ function ConfirmDeleteModal({
     }
     closeModal();
   };
-  const removeMultiData = async (data: room[], checkedList) => {
+  const removeMultiData = async (data: room[], checkedList: number[]) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลสถานที่เรียน", {
       variant: "info",
       persist: true,
     });
     
     const deleteData = data
-      .filter((item, index) => checkedList.includes(item.RoomID))
+      .filter((item, _index) => checkedList.includes(item.RoomID))
       .map((item) => item.RoomID);
 
     try {

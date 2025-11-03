@@ -18,8 +18,8 @@ function EditStudyProgramModal({
   closeModal,
   mutate
 }: Props) {
-  const [subject, setSubject] = useState([]);
-  const [subjectFilter, setSubjectFilter] = useState([]);
+  const [subject, setSubject] = useState<subject[]>([]);
+  const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
   const [programData, setProgramData] = useState(data);
   const [isEmptyData, setIsEmptyData] = useState({
     ProgramName: false,
@@ -54,13 +54,13 @@ function EditStudyProgramModal({
   };
   const classRoomHandleChange = (value: any) => {
     let removeDulpItem = programData.gradelevel.filter(
-      (item) => item.GradeID != value.GradeID
+      (item: any) => item.GradeID != value.GradeID
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setProgramData(() => ({
       ...programData,
       gradelevel:
         programData.gradelevel.filter(
-          (item) => item.GradeID === value.GradeID //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+          (item: any) => item.GradeID === value.GradeID //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...programData.gradelevel, value]
           : [...removeDulpItem],
@@ -114,7 +114,7 @@ function EditStudyProgramModal({
   const removeSubjectFromList = (index: number) => {
     setProgramData(() => ({
       ...programData,
-      subject: [...programData.subject.filter((item, ind) => ind != index)],
+      subject: [...programData.subject.filter((_item: any, ind: number) => ind != index)],
     }));
   };
   const handleAddSubjectList = (subject: subject) => {

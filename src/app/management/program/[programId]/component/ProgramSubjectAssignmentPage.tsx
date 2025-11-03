@@ -29,9 +29,9 @@ type Subject = {
 
 type ProgramSubject = {
   SubjectCode: string;
-  MinCredits?: number;
-  MaxCredits?: number;
-  IsMandatory?: boolean;
+  MinCredits?: number | null;
+  MaxCredits?: number | null;
+  IsMandatory?: boolean | null;
 };
 
 type Program = {
@@ -96,17 +96,25 @@ export default function ProgramSubjectAssignmentPage({ programId }: { programId:
   }, [programId]);
 
   const handleToggle = (code: string) => {
-    setSubjectConfigs((prev) => ({
-      ...prev,
-      [code]: { ...prev[code], selected: !prev[code].selected },
-    }));
+    setSubjectConfigs((prev) => {
+      const existing = prev[code];
+      if (!existing) return prev;
+      return {
+        ...prev,
+        [code]: { ...existing, selected: !existing.selected },
+      };
+    });
   };
 
   const handleConfigChange = (code: string, field: 'minCredits' | 'maxCredits' | 'isMandatory', value: number | boolean) => {
-    setSubjectConfigs((prev) => ({
-      ...prev,
-      [code]: { ...prev[code], [field]: value },
-    }));
+    setSubjectConfigs((prev) => {
+      const existing = prev[code];
+      if (!existing) return prev;
+      return {
+        ...prev,
+        [code]: { ...existing, [field]: value },
+      };
+    });
   };
 
   const handleAssign = (event: React.MouseEvent<HTMLButtonElement>) => {

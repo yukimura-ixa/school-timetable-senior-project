@@ -7,11 +7,20 @@ import { AiOutlineClose } from "react-icons/ai";
 import useSWR from "swr";
 
 import { getAvailableRoomsAction } from "@/features/room/application/actions/room.actions";
+import type { SubjectData } from "@/types/schedule.types";
+
+type SubjectPayload = {
+  timeslotID: string;
+  selectedSubject: SubjectData | null;
+};
 
 type Props = {
-  addSubjectToSlot: any; //ฟังก์ชั่นเพิ่มวิชา
-  cancelAddRoom: any; //เมื่อกดยกเลิก
-  payload: any; //ข้อมูลทั้งหมดที่ส่งมาจากต้นทาง
+  // ฟังก์ชั่นเพิ่มวิชา: ใส่ subject พร้อมข้อมูลห้อง และ TimeslotID
+  addSubjectToSlot: (subject: SubjectData, timeSlotID: string) => void;
+  // เมื่อกดยกเลิก: ส่งค่าที่เลือกไว้ (หรือ null) และ TimeslotID กลับไป
+  cancelAddRoom: (subject: SubjectData | null, timeSlotID: string) => void;
+  // ข้อมูลทั้งหมดที่ส่งมาจากต้นทาง
+  payload: SubjectPayload;
 };
 
 function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
@@ -21,8 +30,8 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const [validateIsPass, setValidateIsPass] = useState(false);
   // const gradeLevelData = useGradeLevelData();
   const roomData = useSWR(
-    payload?.timeslotID ? ['available-rooms', payload.timeslotID] : null,
-    async ([, timeslotID]) => {
+    payload?.timeslotID ? ["available-rooms", payload.timeslotID] as const : null,
+    async ([, timeslotID]: readonly ["available-rooms", string]) => {
       return await getAvailableRoomsAction({ TimeslotID: timeslotID });
     },
     {
@@ -32,15 +41,17 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   );
   const confirm = () => {
     //ถ้ากดยืนยัน
-    if (RoomName === "") {
+    if (RoomName === "" || !payload.selectedSubject) {
       //เช็คว่ามีการเลือกห้องยังถ้ายังก็แจ้งเตือน
       setValidateIsPass(true);
     } else {
       //ถ้าเลือกห้องแล้ว
-      props.addSubjectToSlot(
-        { ...payload.selectedSubject, RoomName: RoomName, room: room },
-        payload.timeslotID,
-      );
+      const newSubject: SubjectData = {
+        ...payload.selectedSubject,
+        roomName: RoomName,
+        room: room ?? null,
+      };
+      props.addSubjectToSlot(newSubject, payload.timeslotID);
     }
   };
   const dataDetails = (type: string) => {
@@ -51,12 +62,10 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
     } ปีการศึกษา ${timeslotID.substring(2, 6)} - วัน${
       dayOfWeekThai[timeslotID.substring(7, 10)]
     } คาบ${timeslotID[timeslotID.length - 1]}`;
-    const subjectDetails = `${subject.SubjectCode} ${subject.SubjectName} 
-      ม.${subject.GradeID[0]}/${
-        parseInt(subject.GradeID.substring(1, 2)) < 10
-          ? subject.GradeID[2]
-          : subject.GradeID.substring(1, 2)
-      }`;
+    const subjectDetails = subject
+      ? `${subject.subjectCode} ${subject.subjectName} 
+      ม.${subject.gradeID?.[0] ?? ""}/${parseInt(subject.gradeID?.substring(1) ?? "0")}`
+      : "";
     return type === "TIMESLOT" ? timeSlotDetails : subjectDetails;
   };
   return (
@@ -103,7 +112,7 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               {roomData.data && 'success' in roomData.data && roomData.data.success && roomData.data.data ? (
                 <Dropdown
                   width={250}
-                  data={(roomData.data.data as { RoomID: number; RoomName: string; Building: string; Floor: string }[]).map((grade) => grade.RoomName)}
+                  data={(roomData.data.data as { RoomID: number; RoomName: string; Building: string; Floor: string }[]).map((rm) => rm.RoomName)}
                   placeHolder="โปรดเลือก"
                   renderItem={({ data }: { data: string }) => (
                     <>
@@ -113,8 +122,8 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                   currentValue={RoomName}
                   handleChange={(data: string) => {
                     setRoomName(data);
-                    const rooms = roomData.data!.data as { RoomID: number; RoomName: string; Building: string; Floor: string }[];
-                    setRoom(rooms.find((room) => room.RoomName === data));
+                    const rooms = roomData.data && 'data' in roomData.data ? (roomData.data.data as { RoomID: number; RoomName: string; Building: string; Floor: string }[]) : [];
+                    setRoom(rooms.find((r) => r.RoomName === data));
                   }}
                   searchFunction={undefined}
                 />

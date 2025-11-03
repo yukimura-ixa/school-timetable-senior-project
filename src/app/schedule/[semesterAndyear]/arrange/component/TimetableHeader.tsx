@@ -1,9 +1,8 @@
-import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { timeslot } from "@/prisma/generated";
 import { Fragment } from "react";
 interface ITimetableHeaderProps {
   timeslot: {
-    SlotAmount: any[];
+    SlotAmount: number[];
     AllData: timeslot[];
   };
 }
@@ -12,11 +11,12 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
   const slotAmount = timeslot.SlotAmount.length;
   const mapSlot = Array.from({ length: slotAmount }, (_, i) => i + 1);
 
-  function formatTime(time) {
-    const date = new Date(time)
-    const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
-    const minutes = date.getMinutes() == 0 ? `0${date.getMinutes()}` : date.getMinutes();
-    return `${hours}:${minutes}`
+  function formatTime(time: string | Date): string {
+    const date = new Date(time);
+    const hoursNum = date.getHours() - 7;
+    const hours = hoursNum < 10 ? `0${hoursNum}` : String(hoursNum);
+    const minutes = date.getMinutes() === 0 ? `0${date.getMinutes()}` : String(date.getMinutes());
+    return `${hours}:${minutes}`;
   }
   return (
     <>
@@ -24,7 +24,7 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
         {/* Column for time labels */}
         <td className="flex items-center bg-gray-100 justify-center p-[10px] h-full rounded">
             <span className="flex w-[50px] justify-center">
-              <p className="text-gray-600" onClick={() => console.log(timeslot)}>คาบที่</p>
+              <p className="text-gray-600">คาบที่</p>
             </span>
         </td>
 
@@ -43,8 +43,8 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
             <p className="text-gray-600">เวลา</p>
           </span>
         </td>
-        {timeslot.AllData.filter(item => item.DayOfWeek == "MON").map((item) => (
-          <Fragment key={`Time${item.StartTime}${item.EndTime}`}>
+        {timeslot.AllData.filter((item) => item.DayOfWeek === "MON").map((item) => (
+          <Fragment key={`Time-${item.TimeslotID}`}>
             <td className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none">
               <p className="flex text-xs w-full items-center justify-center text-gray-600">
                 {formatTime(item.StartTime)}

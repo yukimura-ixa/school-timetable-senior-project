@@ -14,7 +14,11 @@ import { getTeacherByIdAction } from "@/features/teacher/application/actions/tea
 
 import TimeSlot from "./component/Timeslot";
 import SelectTeacher from "./component/SelectTeacher";
-import { ExportTeacherTable } from "../all-timeslot/functions/ExportTeacherTable";
+import { 
+  ExportTeacherTable, 
+  type ExportTimeslotData,
+  type ClassScheduleWithSummary 
+} from "../all-timeslot/functions/ExportTeacherTable";
 import { createTimeSlotTableData, type TimeSlotTableData } from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
@@ -162,7 +166,7 @@ function TeacherTablePage() {
     setSelectedTeacherId(teacherId);
   };
 
-  const disableExport =
+  const disableExport = Boolean(
     isClassLoading ||
     isClassValidating ||
     isTeacherLoading ||
@@ -170,7 +174,8 @@ function TeacherTablePage() {
     !selectedTeacherId ||
     hasClassError ||
     hasTimeslotError ||
-    hasTeacherError;
+    hasTeacherError
+  );
 
   return (
     <div className="flex flex-col gap-3">
@@ -180,7 +185,7 @@ function TeacherTablePage() {
         <>
           <SelectTeacher
             setTeacherID={handleSelectTeacher}
-            currentTeacher={teacherResponse}
+            currentTeacher={teacherResponse && 'success' in teacherResponse && teacherResponse.success ? teacherResponse.data : null}
           />
           {errors.map((message) => (
             <ErrorState key={message} message={message} />
@@ -196,9 +201,9 @@ function TeacherTablePage() {
                     handleClick={() => {
                       if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
                         ExportTeacherTable(
-                          timeSlotData,
+                          timeSlotData as ExportTimeslotData,
                           [teacherResponse.data],
-                          classData,
+                          classData as ClassScheduleWithSummary[],
                           semester,
                           academicYear,
                         );

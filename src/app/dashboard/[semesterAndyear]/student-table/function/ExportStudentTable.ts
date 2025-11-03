@@ -3,7 +3,7 @@ import type { Prisma } from "@/prisma/generated";
 import ExcelJS from "exceljs";
 
 // Type matching ClassScheduleWithSummary from repository
-type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
+export type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
   include: {
     teachers_responsibility: {
       include: {
@@ -17,7 +17,7 @@ type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
 }>;
 
 // Type for timeslot data structure used in dashboard
-interface TimeslotData {
+export interface TimeslotData {
   AllData: (timeslot & { subject: ClassScheduleWithSummary | Record<string, never> })[];
   SlotAmount: number[];
 }
@@ -35,7 +35,8 @@ export const ExportStudentTable = (
     const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
     const minutes = date.getMinutes() === 0 ? `0${date.getMinutes()}` : date.getMinutes();
     return `${hours}:${minutes}`
-  } 
+  }
+  
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("นักเรียน", {
     pageSetup: { paperSize: 9, orientation: "landscape" },

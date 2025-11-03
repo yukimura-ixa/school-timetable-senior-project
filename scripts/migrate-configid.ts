@@ -168,14 +168,15 @@ async function migrateTimeslots(): Promise<MigrationResult> {
       
       // Pattern: "1/2567-MON1" or "SEMESTER_1_2567-MON1"
       if (timeslot.TimeslotID.includes('/')) {
-        const parts = timeslot.TimeslotID.split('-');
-        oldConfigId = parts[0]; // "1/2567"
-        suffix = parts.slice(1).join('-'); // "MON1"
+        const [first = '', ...rest] = timeslot.TimeslotID.split('-');
+        oldConfigId = first; // "1/2567"
+        suffix = rest.join('-'); // "MON1"
       } else if (timeslot.TimeslotID.startsWith('SEMESTER_')) {
         const match = timeslot.TimeslotID.match(/^(SEMESTER_[1-3]_\d{4})-(.+)$/);
         if (match) {
-          oldConfigId = match[1]; // "SEMESTER_1_2567"
-          suffix = match[2]; // "MON1"
+          const [, g1 = '', g2 = ''] = match;
+          oldConfigId = g1; // "SEMESTER_1_2567"
+          suffix = g2; // "MON1"
         }
       }
       

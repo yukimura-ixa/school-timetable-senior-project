@@ -3,7 +3,7 @@ import type { Prisma } from "@/prisma/generated";
 import ExcelJS from "exceljs";
 
 // Type matching ClassScheduleWithSummary from repository
-type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
+export type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
   include: {
     teachers_responsibility: true;
     gradelevel: true;
@@ -13,7 +13,7 @@ type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
 }>;
 
 // Type for timeslot data structure used in dashboard
-interface TimeslotData {
+export interface ExportTimeslotData {
   AllData: (timeslot & { subject: ClassScheduleWithSummary | Record<string, never> })[];
   SlotAmount: number[];
   DayOfWeek: Array<{ Day: string; TextColor: string; BgColor: string }>;
@@ -23,7 +23,7 @@ interface TimeslotData {
 }
 
 export const ExportTeacherTable = (
-  timeSlotData: TimeslotData,
+  timeSlotData: ExportTimeslotData,
   allTeacher: teacher[],
   classData: ClassScheduleWithSummary[] = [],
   semester: string,
@@ -366,14 +366,19 @@ export const ExportTeacherTable = (
     });
   });
 
-  workbook.xlsx.writeBuffer().then((data) => {
-    const blob = new Blob([data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+  workbook.xlsx.writeBuffer()
+    .then((data) => {
+      const blob = new Blob([data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "ตารางครู.xlsx";
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch((error) => {
+      console.error("Failed to export teacher table:", error);
     });
-    const url = window.URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    (anchor.href = url), (anchor.download = "ตารางครู.xlsx");
-    anchor.click();
-    window.URL.revokeObjectURL(url);
-  });
 };

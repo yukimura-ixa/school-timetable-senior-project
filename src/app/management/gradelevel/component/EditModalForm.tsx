@@ -148,17 +148,19 @@ function EditModalForm({
                   </label>
                   <Dropdown
                     data={[1, 2, 3, 4, 5, 6]}
-                    renderItem={({ data }: { data: any }): JSX.Element => (
-                      <li className="w-full">{data}</li>
-                    )}
+                    renderItem={({ data }: { data: unknown }): JSX.Element => {
+                      const year = data as number;
+                      return <li className="w-full">{year}</li>;
+                    }}
                     width={150}
                     height={40}
                     currentValue={item.Year}
                     placeHolder={"ตัวเลือก"}
-                    handleChange={(value: number) => {
+                    handleChange={(value: unknown) => {
+                      const year = value as number;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Year: value } : item,
+                          index === ind ? { ...item, Year: year } : item,
                         ),
                       );
                     }}

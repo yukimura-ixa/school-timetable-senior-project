@@ -45,8 +45,8 @@ async function verifyProgramSeed() {
   console.warn('-'.repeat(80));
 
     const groupedByTrack = yearPrograms.reduce((acc, p) => {
-      if (!acc[p.Track]) acc[p.Track] = [] as typeof yearPrograms;
-      acc[p.Track].push(p);
+      const list = acc[p.Track] ?? (acc[p.Track] = [] as typeof yearPrograms);
+      list.push(p);
       return acc;
     }, {} as Record<string, typeof yearPrograms>);
 

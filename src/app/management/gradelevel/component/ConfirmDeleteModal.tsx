@@ -32,7 +32,7 @@ function ConfirmDeleteModal({
     }
     closeModal();
   };
-  const removeMultiData = async (data: gradelevel[], checkedList) => {
+  const removeMultiData = async (data: gradelevel[], checkedList: string[]) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลชั้นเรียน", {
       variant: "info",
       persist: true,

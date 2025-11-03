@@ -33,7 +33,16 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     gradelevel: [],
     subject: [],
   });
-  const addProgram = async (program) => {
+  
+  type ProgramData = {
+    ProgramName: string;
+    Semester: semester | string;
+    AcademicYear: number;
+    gradelevel: any[];
+    subject: any[];
+  };
+  
+  const addProgram = async (program: ProgramData) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูล", {
       variant: "info",
       persist: true,
@@ -107,10 +116,11 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     newProgramData.subject,
   ]);
 
-  const handleSelectSemester = (value: any) => {
+  const handleSelectSemester = (value: unknown) => {
+    const semesterKey = value as keyof typeof semester;
     setNewProgramData(() => ({
       ...newProgramData,
-      Semester: semester[value],
+      Semester: semester[semesterKey],
     }));
   };
 
