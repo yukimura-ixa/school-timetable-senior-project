@@ -68,19 +68,19 @@ function extractConfigIDFromTimeslot(timeslotId: string): string {
   const parts = timeslotId.split('-');
   
   // Handle canonical format: "1-2567-MON1"
-  if (parts.length >= 3 && /^[1-3]$/.test(parts[0]) && /^\d{4}$/.test(parts[1])) {
+  if (parts.length >= 3 && parts[0] && parts[1] && /^[1-3]$/.test(parts[0]) && /^\d{4}$/.test(parts[1])) {
     return `${parts[0]}-${parts[1]}`;
   }
   
   // Handle slash format: "1/2567-MON1"
   if (timeslotId.includes('/')) {
     const slashParts = timeslotId.split('-');
-    return slashParts[0]; // "1/2567"
+    return slashParts[0] ?? ''; // "1/2567"
   }
   
   // Handle verbose format: "SEMESTER_1_2567-MON1"
   const verboseMatch = timeslotId.match(/^(SEMESTER_[1-3]_\d{4})-/);
-  if (verboseMatch) {
+  if (verboseMatch && verboseMatch[1]) {
     return verboseMatch[1];
   }
   
