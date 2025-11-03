@@ -772,9 +772,26 @@ export default function TeacherArrangePageRefactored() {
             );
 
             // Add scheduled slot as subject if found, otherwise keep null
-            return matchedSlot
-              ? { ...item, subject: matchedSlot }
-              : item;
+            // Transform ScheduledSlot to SubjectData format
+            if (matchedSlot) {
+              const subjectData: SubjectData = {
+                itemID: parseInt(matchedSlot.ClassID),
+                subjectCode: matchedSlot.SubjectCode,
+                subjectName: matchedSlot.SubjectName || matchedSlot.subject.SubjectName,
+                gradeID: matchedSlot.GradeID,
+                teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
+                category: matchedSlot.subject.Category as SubjectCategory,
+                credit: typeof matchedSlot.subject.Credit === 'string' ? 0 : (matchedSlot.subject.Credit || 0),
+                teachHour: typeof matchedSlot.subject.Credit === 'string' ? 0 : (matchedSlot.subject.Credit || 0),
+                roomID: matchedSlot.RoomID,
+                roomName: matchedSlot.RoomName || matchedSlot.room.RoomName,
+                room: matchedSlot.room,
+                classID: matchedSlot.ClassID,
+                scheduled: matchedSlot.Scheduled ?? true,
+              };
+              return { ...item, subject: subjectData };
+            }
+            return item;
           },
         ),
       });
