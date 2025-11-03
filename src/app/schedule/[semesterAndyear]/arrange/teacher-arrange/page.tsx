@@ -532,7 +532,7 @@ export default function TeacherArrangePageRefactored() {
       teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
       category: item.subject?.Category as SubjectCategory,
       credit: typeof item.subject?.Credit === 'string' ? 0 : (item.subject?.Credit || 0),
-      teachHour: item.subject?.TeachHour || 0,
+      teachHour: typeof item.subject?.Credit === 'string' ? 0 : (item.subject?.Credit || 0),
       roomID: item.RoomID,
       roomName: item.RoomName,
       room: item.room,
