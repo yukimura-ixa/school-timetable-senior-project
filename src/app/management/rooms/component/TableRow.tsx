@@ -1,6 +1,17 @@
 import React, { Fragment } from "react";
 import { BiEdit } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
+import type { room } from "@/prisma/generated";
+
+type TableRowProps = {
+  item: room;
+  index: number;
+  clickToSelect: (id: number) => void;
+  checkedList: number[];
+  setEditModalActive: (active: boolean) => void;
+  pageOfData: room[];
+  searchTerm: string;
+};
 
 function TableRow({
   item,
@@ -10,7 +21,7 @@ function TableRow({
   setEditModalActive,
   pageOfData,
   searchTerm,
-}) {
+}: TableRowProps) {
   const matchesSearchTerm =
     item.RoomName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.Building.toLowerCase().includes(searchTerm.toLowerCase());
@@ -30,7 +41,7 @@ function TableRow({
           checked={checkedList.includes(item.RoomID)}
         />
       </th>
-      {["RoomName", "Building", "Floor"].map((key) => (
+      {(["RoomName", "Building", "Floor"] as const).map((key) => (
         <td
           key={key}
           className="px-6 whitespace-nowrap select-none"

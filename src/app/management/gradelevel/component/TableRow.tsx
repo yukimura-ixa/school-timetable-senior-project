@@ -2,6 +2,21 @@
 import React, { Fragment } from "react";
 import { BiEdit } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
+import type { Prisma } from "@/prisma/generated";
+
+type GradeLevelWithProgram = Prisma.gradelevelGetPayload<{
+  include: { program: true };
+}>;
+
+type TableRowProps = {
+  item: GradeLevelWithProgram;
+  index: number;
+  clickToSelect: (id: string) => void;
+  checkedList: string[];
+  setEditModalActive: (active: boolean) => void;
+  pageOfData: GradeLevelWithProgram[];
+  searchTerm: string;
+};
 
 function TableRow({
   item,
@@ -11,7 +26,7 @@ function TableRow({
   setEditModalActive,
   pageOfData,
   searchTerm,
-}) {
+}: TableRowProps) {
   console.log(item);
   const matchesSearchTerm = item.GradeID.toLowerCase().includes(
     searchTerm.toLowerCase(),
@@ -32,7 +47,7 @@ function TableRow({
           checked={checkedList.includes(item.GradeID)}
         />
       </th>
-      {["GradeID", "Year", "Number", "program"].map((key) => (
+      {(["GradeID", "Year", "Number", "program"] as const).map((key) => (
         <td
           key={key}
           className="px-6 whitespace-nowrap select-none"
