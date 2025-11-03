@@ -65,7 +65,9 @@ async function getPeriodDistribution(configId: string): Promise<PeriodDistributi
   const periodCounts = new Map<number, number>();
   schedules.forEach(schedule => {
     const period = extractPeriodFromTimeslotId(schedule.TimeslotID);
-    periodCounts.set(period, (periodCounts.get(period) || 0) + 1);
+    if (period !== null) {
+      periodCounts.set(period, (periodCounts.get(period) || 0) + 1);
+    }
   });
   
   // Find max period
@@ -130,7 +132,9 @@ async function getDayDistribution(configId: string): Promise<DayDistribution[]> 
   const dayCounts = new Map<string, number>();
   schedules.forEach(schedule => {
     const day = extractDayFromTimeslotId(schedule.TimeslotID);
-    dayCounts.set(day, (dayCounts.get(day) || 0) + 1);
+    if (day !== null) {
+      dayCounts.set(day, (dayCounts.get(day) || 0) + 1);
+    }
   });
   
   // Calculate total available slots per day (periods * rooms)

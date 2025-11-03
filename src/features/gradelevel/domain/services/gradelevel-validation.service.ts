@@ -49,7 +49,10 @@ export async function validateBulkGradeLevels(
 
   // Check for internal duplicates
   for (let i = 0; i < gradelevels.length; i++) {
-    const { Year, Number } = gradelevels[i];
+    const gradelevel = gradelevels[i];
+    if (!gradelevel) continue;
+    
+    const { Year, Number } = gradelevel;
     const key = `${Year}-${Number}`;
 
     if (seen.has(key)) {
@@ -63,7 +66,10 @@ export async function validateBulkGradeLevels(
 
   // Check for database duplicates
   for (let i = 0; i < gradelevels.length; i++) {
-    const { Year, Number } = gradelevels[i];
+    const gradelevel = gradelevels[i];
+    if (!gradelevel) continue;
+    
+    const { Year, Number } = gradelevel;
     const dbError = await validateNoDuplicateGradeLevel(Year, Number);
     
     if (dbError) {
