@@ -164,7 +164,15 @@ export function EditableTable<T extends Record<string, any>>({
     }
 
     const tempId = Object.keys(drafts)[0];
+    if (!tempId) {
+      enqueueSnackbar("ไม่พบข้อมูลที่จะเพิ่ม", { variant: "error" });
+      return;
+    }
     const newRow = drafts[tempId];
+    if (!newRow) {
+      enqueueSnackbar("ข้อมูลไม่ถูกต้อง", { variant: "error" });
+      return;
+    }
 
     // Validate
     if (validate) {
@@ -293,7 +301,9 @@ export function EditableTable<T extends Record<string, any>>({
       return;
     }
 
-    const payload = selected.filter((id) => drafts[id]).map((id) => drafts[id]);
+    const payload = selected
+      .filter((id) => drafts[id] !== undefined)
+      .map((id) => drafts[id]!);
 
     const loadbar = enqueueSnackbar(`กำลังบันทึกการแก้ไข${title}`, {
       variant: "info",
@@ -347,11 +357,13 @@ export function EditableTable<T extends Record<string, any>>({
         value: draftValue,
         row,
         hasError,
-        onChange: (newValue: any) =>
-          setDrafts((d) => ({
-            ...d,
-            [id]: { ...d[id], [column.key]: newValue },
-          })),
+        onChange: (newValue: any) => {
+          setDrafts((d) => {
+            const updated = { ...d };
+            updated[id] = { ...(d[id] ?? {}), [column.key]: newValue } as Partial<T>;
+            return updated;
+          });
+        },
       });
     }
 
@@ -360,12 +372,13 @@ export function EditableTable<T extends Record<string, any>>({
         <FormControl fullWidth size="small" error={hasError}>
           <Select
             value={draftValue}
-            onChange={(e) =>
-              setDrafts((d) => ({
-                ...d,
-                [id]: { ...d[id], [column.key]: e.target.value },
-              }))
-            }
+            onChange={(e) => {
+              setDrafts((d) => {
+                const updated = { ...d };
+                updated[id] = { ...(d[id] ?? {}), [column.key]: e.target.value } as Partial<T>;
+                return updated;
+              });
+            }}
           >
             {column.options.map((opt) => (
               <MenuItem key={opt.value} value={opt.value}>
@@ -383,15 +396,16 @@ export function EditableTable<T extends Record<string, any>>({
         fullWidth
         type={column.type === "number" ? "number" : "text"}
         value={draftValue}
-        onChange={(e) =>
-          setDrafts((d) => ({
-            ...d,
-            [id]: {
-              ...d[id],
+        onChange={(e) => {
+          setDrafts((d) => {
+            const updated = { ...d };
+            updated[id] = {
+              ...(d[id] ?? {}),
               [column.key]: column.type === "number" ? Number(e.target.value) : e.target.value,
-            },
-          }))
-        }
+            } as Partial<T>;
+            return updated;
+          });
+        }}
         error={hasError}
         helperText={hasError ? validationErrors[String(id)] : undefined}
         placeholder={column.required ? `${column.label} *` : column.label}
