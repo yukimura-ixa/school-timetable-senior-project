@@ -144,15 +144,19 @@ function CloneTimetableDataModal({
                     <CircularProgress />
                   ) : (
                     <Dropdown
-                      data={tableConfig.data}
-                      renderItem={({ data }: { data: TableConfigItem }): JSX.Element =>
-                        data.ConfigID != currentTime && (
-                          <li className="w-full text-sm">{data.ConfigID}</li>
-                        )
-                      }
+                      data={tableConfig.data ?? []}
+                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                        const item = data as TableConfigItem;
+                        return item.ConfigID !== currentTime ? (
+                          <li className="w-full text-sm">{item.ConfigID}</li>
+                        ) : (
+                          <></>
+                        );
+                      }}
                       currentValue={selectedCloneData}
-                      handleChange={(value: TableConfigItem) => {
-                        setSelectedCloneData(() => value.ConfigID);
+                      handleChange={(value: unknown) => {
+                        const item = value as TableConfigItem;
+                        setSelectedCloneData(() => item.ConfigID);
                       }}
                       searchFunction={undefined}
                     />

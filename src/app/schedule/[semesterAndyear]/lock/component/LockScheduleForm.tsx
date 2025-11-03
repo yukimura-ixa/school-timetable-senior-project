@@ -336,7 +336,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
             />
             <SelectTeacher
               teachers={lockScheduleData.teachers}
-              subject={lockScheduleData.subject}
+              subject={lockScheduleData.subject ?? undefined}
               setTeacherList={setTeacherList}
               required={isEmptyData.teachers}
             />
@@ -346,20 +346,20 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
               required={isEmptyData.DayOfWeek}
             />
             <SelectMultipleTimeSlot
-              subject={lockScheduleData.subject}
+              subject={lockScheduleData.subject ?? undefined}
               timeSlotHandleChange={timeSlotHandleChange}
               checkedCondition={lockScheduleData.timeslots}
               required={isEmptyData.timeslots}
               daySelected={lockScheduleData.DayOfWeek}
             />
             <SelectRoomName
-              roomName={lockScheduleData.room.RoomName}
+              roomName={lockScheduleData.room?.RoomName ?? ""}
               handleRoomChange={handleRoomChange}
               // required={isEmptyData.room}
             />
             <SelectedClassRoom
               teachers={lockScheduleData.teachers}
-              subject={lockScheduleData.subject}
+              subject={lockScheduleData.subject ?? undefined}
               Grade={lockScheduleData.GradeIDs}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.GradeIDs}
