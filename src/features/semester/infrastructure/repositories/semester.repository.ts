@@ -4,7 +4,7 @@
  */
 
 import prisma from "@/lib/prisma";
-import type { Prisma } from "@/prisma/generated";
+import type { Prisma, semester } from "@/prisma/generated";
 import type {
   SemesterFilter,
   SemesterStatus,
@@ -316,18 +316,10 @@ export class SemesterRepository {
   }
 
   /**
-   * Create timeslots in bulk
+   * Create multiple timeslots
    */
   async createTimeslots(
-    timeslots: Array<{
-      TimeslotID: string;
-      AcademicYear: number;
-      Semester: semester;
-      StartTime: string;
-      EndTime: string;
-      Breaktime: number;
-      DayOfWeek: string;
-    }>
+    timeslots: Prisma.timeslotCreateManyInput[]
   ) {
     return await prisma.timeslot.createMany({
       data: timeslots,
@@ -344,15 +336,7 @@ export class SemesterRepository {
     academicYear: number;
     semester: semester;
     config: object;
-    timeslots?: Array<{
-      TimeslotID: string;
-      AcademicYear: number;
-      Semester: semester;
-      StartTime: string;
-      EndTime: string;
-      Breaktime: number;
-      DayOfWeek: string;
-    }>;
+    timeslots?: Prisma.timeslotCreateManyInput[];
   }) {
     return await prisma.$transaction(async (tx) => {
       // Create semester
@@ -388,7 +372,7 @@ export class SemesterRepository {
   /**
    * Execute a transaction with a custom function
    */
-  async transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+  async transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
     return await prisma.$transaction(fn);
   }
 }
