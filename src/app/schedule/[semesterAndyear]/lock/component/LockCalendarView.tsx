@@ -127,7 +127,7 @@ function LockCalendarView({
   // Get lock type (heuristic-based classification)
   // Note: Exam periods should use dedicated "Exam Arrange Mode" feature instead
   const getLockType = (lock: GroupedLockedSchedule): LockType => {
-    if (lock.SubjectName.includes("กิจกรรม")) return "ACTIVITY";
+    if (lock.SubjectName && lock.SubjectName.includes("กิจกรรม")) return "ACTIVITY";
     if (!lock.SubjectCode || lock.SubjectCode === "-") return "BLOCK";
     return "SUBJECT";
   };
@@ -162,7 +162,7 @@ function LockCalendarView({
   const maxPeriods = Math.max(
     ...days.map((day) => Object.keys(timeslotGrid[day]).length)
   );
-  const periods = Array.from({ length: maxPeriods }, (_, i) => i + 1);
+  const periods: number[] = Array.from({ length: maxPeriods }, (_, i) => i + 1);
 
   return (
     <>
@@ -250,9 +250,9 @@ function LockCalendarView({
               {/* Day Cells */}
               {days.map((day) => {
                 const timeslot = timeslotGrid[day][period];
-                const lock = timeslot ? lockMap[timeslot.TimeslotID] : null;
+                const lock = timeslot ? (lockMap[timeslot.TimeslotID] ?? null) : null;
                 const lockType = lock ? getLockType(lock) : null;
-                const config = lockType ? LOCK_TYPE_CONFIG[lockType] : null;
+                const config = lockType !== null ? LOCK_TYPE_CONFIG[lockType] : null;
 
                 return (
                   <Paper
@@ -322,7 +322,7 @@ function LockCalendarView({
                               color: "text.secondary",
                             }}
                           >
-                            {lock.room.RoomName}
+                            {lock.room?.RoomName}
                           </Typography>
                         </Box>
                       </Tooltip>
@@ -397,7 +397,7 @@ function LockCalendarView({
                   >
                     สถานที่
                   </Typography>
-                  <Chip label={selectedLock.room.RoomName} />
+                  <Chip label={selectedLock.room?.RoomName ?? "-"} />
                 </Box>
 
                 {/* Timeslots */}
