@@ -561,9 +561,26 @@ export default function TeacherArrangePageRefactored() {
         );
 
         // Enrich timeslot with subject data if matched, otherwise null
-        return matchedSubject
-          ? { ...data, subject: matchedSubject }
-          : { ...data, subject: null };
+        // Convert matched subject to SubjectData format
+        if (matchedSubject) {
+          const subjectData: SubjectData = {
+            itemID: parseInt(matchedSubject.ClassID),
+            subjectCode: matchedSubject.SubjectCode,
+            subjectName: matchedSubject.SubjectName,
+            gradeID: Array.isArray(matchedSubject.GradeID) ? matchedSubject.GradeID[0] : matchedSubject.GradeID,
+            teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
+            category: matchedSubject.subject?.Category as SubjectCategory,
+            credit: typeof matchedSubject.subject?.Credit === 'string' ? 0 : (matchedSubject.subject?.Credit || 0),
+            teachHour: typeof matchedSubject.subject?.Credit === 'string' ? 0 : (matchedSubject.subject?.Credit || 0),
+            roomID: matchedSubject.RoomID,
+            roomName: matchedSubject.RoomName,
+            room: matchedSubject.room,
+            classID: matchedSubject.ClassID,
+            scheduled: true,
+          };
+          return { ...data, subject: subjectData };
+        }
+        return { ...data, subject: null };
       }),
     });
   }, [
