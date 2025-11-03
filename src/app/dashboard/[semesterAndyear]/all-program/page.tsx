@@ -118,7 +118,7 @@ const page = (_props: Props) => {
           Credit={item.Credit}
           Category={item.Category}
           TeacherFullName={
-            item.teachers?.length === 1 ? item.teachers[0].TeacherFullName : ""
+            item.teachers?.length === 1 ? item.teachers[0]?.TeacherFullName ?? "" : ""
           }
         />
       </Fragment>
@@ -171,10 +171,10 @@ const page = (_props: Props) => {
       const getVal = (sCode: string) => {
         return isUndefined(SubjectCodeVal[sCode]) ? 9 : (SubjectCodeVal[sCode] ?? 9)
       }
-      if(getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])){
+      if(getVal(a.SubjectCode[0] ?? "") < getVal(b.SubjectCode[0] ?? "")){
         return -1;
       }
-      if(getVal(a.SubjectCode[0]) > getVal(b.SubjectCode[0])){
+      if(getVal(a.SubjectCode[0] ?? "") > getVal(b.SubjectCode[0] ?? "")){
         return 1;
       }
       return 0
@@ -194,18 +194,18 @@ const page = (_props: Props) => {
             <Dropdown
               width={300}
               data={gradeLevelData.data.map((item) => item.GradeID)}
-              renderItem={({ data }: { data: string }) => (
+              renderItem={({ data }: { data: unknown }) => (
                 <>
                   <li>
                     <p>
-                      ม.{data[0]}/{parseInt(data.substring(1))}
+                      ม.{String(data)[0]}/{parseInt(String(data).substring(1))}
                     </p>
                   </li>
                 </>
               )}
               placeHolder="เลือกชั้นเรียน"
               currentValue={convertDropdownItem(currentGradeID)}
-              handleChange={(item: string) => setCurrentGradeID(item)}
+              handleChange={(item: unknown) => setCurrentGradeID(String(item))}
               searchFunction={undefined}
             />
           </div>
@@ -232,10 +232,10 @@ const page = (_props: Props) => {
                 <TableHead />
                 <CategoryTablerow categoryName={`สาระการเรียนรู้พิ้นฐาน`} />
                 <SubjectDataRow data={primarySubjectData()} indexStart={1} />
-                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน"} credit={primarySubjectData().reduce((a, b) => a + subjectCreditValues[b.Credit], 0)}/>
+                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน"} credit={primarySubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)}/>
                 <CategoryTablerow categoryName={`สาระการเรียนรู้เพิ่มเติม`} />
                 <SubjectDataRow data={extraSubjectData()} indexStart={primarySubjectData().length + 1} />
-                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม"} credit={extraSubjectData().reduce((a, b) => a + subjectCreditValues[b.Credit], 0)}/>
+                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม"} credit={extraSubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)}/>
                 <CategoryTablerow categoryName={`กิจกรรมพัฒนาผู้เรียน`} />
                 <SubjectDataRow data={activitiesSubjectData()} indexStart={primarySubjectData().length + extraSubjectData().length + 1} />
                 <SumCredit title={"รวมหน่วยกิตทั้งหมด"} credit={getSumCreditValue()}/>
