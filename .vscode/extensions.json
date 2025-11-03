@@ -1,0 +1,34 @@
+{
+  "recommendations": [
+    // Core Development
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "github.copilot",
+    "github.copilot-chat",
+    
+    // TypeScript & Next.js
+    "ms-vscode.vscode-typescript-next",
+    "formulahendry.auto-rename-tag",
+    "bradlc.vscode-tailwindcss",
+    
+    // Prisma
+    "prisma.prisma",
+    "prisma.prisma-insider",
+    
+    // Testing
+    "orta.vscode-jest",
+    "ms-playwright.playwright",
+    
+    // Git & Version Control
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    
+    // Utilities
+    "editorconfig.editorconfig",
+    "gruntfuggly.todo-tree",
+    "usernamehw.errorlens",
+    
+    // Thai Language Support
+    "ms-ceintl.vscode-language-pack-th"
+  ]
+}
