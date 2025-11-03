@@ -184,7 +184,7 @@ function AddSubjectModal(props: Props) {
                       SubjectCode: "",
                       SubjectName: "",
                       Credit: "CREDIT_10" as subject_credit,
-                      TeacherID: parseInt(searchTeacherID),
+                      TeacherID: searchTeacherID ? parseInt(searchTeacherID) : undefined,
                       Category: SubjectCategory.CORE,
                       LearningArea: null,
                       ActivityType: null,
@@ -210,7 +210,7 @@ function AddSubjectModal(props: Props) {
                     </div>
                     <div className="flex gap-3">
                       <p className="text-sm text-gray-500">
-                        จำนวน {subjectCreditValues[subject.Credit] * 2} คาบ
+                        จำนวน {subject.Credit ? (subjectCreditValues[subject.Credit] ?? 0) * 2 : 0} คาบ
                       </p>
                       <TbTrash
                         onClick={() => removeCurrentSubject(subject)}
@@ -227,11 +227,14 @@ function AddSubjectModal(props: Props) {
                   <div className="flex justify-between items-center">
                     <Dropdown
                       data={subject}
-                      renderItem={({ data }: { data: subject }): JSX.Element => (
-                        <li className="text-sm">
-                          {data.SubjectCode} - {data.SubjectName}
-                        </li>
-                      )}
+                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                        const subjectData = data as subject;
+                        return (
+                          <li className="text-sm">
+                            {subjectData.SubjectCode} - {subjectData.SubjectName}
+                          </li>
+                        );
+                      }}
                       width={250}
                       height={"fit-content"}
                       currentValue={`${
@@ -240,16 +243,18 @@ function AddSubjectModal(props: Props) {
                           : `${item.SubjectCode} - ${item.SubjectName}`
                       }`}
                       placeHolder="เลือกวิชา"
-                      handleChange={(item: subject) => {
-                        let data = {
-                          ...subjectList[index],
-                          SubjectCode: item.SubjectCode,
-                          SubjectName: item.SubjectName,
-                          Credit: item.Credit,
-                        };
-                        setSubjectList(() =>
-                          subjectList.map((item, ind) =>
-                            ind === index ? data : item,
+                      handleChange={(item: unknown) => {
+                        const subjectItem = item as subject;
+                        setSubjectList((prevList) =>
+                          prevList.map((listItem, ind) =>
+                            ind === index 
+                              ? {
+                                  ...listItem,
+                                  SubjectCode: subjectItem.SubjectCode,
+                                  SubjectName: subjectItem.SubjectName,
+                                  Credit: subjectItem.Credit,
+                                }
+                              : listItem,
                           ),
                         );
                       }}
@@ -259,7 +264,7 @@ function AddSubjectModal(props: Props) {
                     <div className="flex justify-between gap-5 items-center">
                       <div className="flex gap-3">
                         <p className="text-sm text-gray-500">
-                          จำนวน {subjectCreditValues[item.Credit] * 2 || "0"}{" "}
+                          จำนวน {item.Credit ? (subjectCreditValues[item.Credit] ?? 0) * 2 : "0"}{" "}
                           คาบ
                         </p>
                         <TbTrash
