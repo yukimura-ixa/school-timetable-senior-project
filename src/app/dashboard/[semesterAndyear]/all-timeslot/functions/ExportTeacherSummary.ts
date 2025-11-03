@@ -60,7 +60,7 @@ export const ExportTeacherSummary = (
         }2`,
       );
       sheet.getCell(`${sheet.getColumn(startMerge).letter}2`).value =
-        timeSlotData.DayOfWeek[i].Day;
+        timeSlotData.DayOfWeek[i]?.Day ?? "";
       startMerge += slotLength + 1;
     }
     const slotLength = timeSlotData.SlotAmount.length * 5; //find last column has value
@@ -110,10 +110,10 @@ export const ExportTeacherSummary = (
       const filter2 = filter1.filter((cid: ClassScheduleWithSummary, _index: number) => filter1.findIndex((item: ClassScheduleWithSummary) => item.TimeslotID === cid.TimeslotID) === _index)
       return filter2.length;
     };
-    const jsonData = [
+    const jsonData: any[] = [
       ...allTeacher.data.map((tch: teacher, index: number) => {
         const mapKey = timeSlotData.DayOfWeek.flatMap((day) =>
-          timeSlotData.SlotAmount.flatMap((num: number) => {
+          timeSlotData.SlotAmount.map((num: number) => {
             const filterClass = classData.filter(
               (item: ClassScheduleWithSummary) =>
                 item.teachers_responsibility
