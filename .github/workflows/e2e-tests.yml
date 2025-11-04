@@ -37,11 +37,6 @@ jobs:
           echo "SEED_CLEAN_DATA=true" >> .env.test.local
           echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
           
-      - name: 'notify vercel'
-        uses: 'vercel/repository-dispatch/actions/status@v1'
-        with:
-          name: "Vercel - phrasongsa-timetable: vercel_check"
-          
       - name: Install pnpm
         uses: pnpm/action-setup@v4
       - name: Setup Node.js
