@@ -91,8 +91,8 @@ export function SearchableSubjectPalette({
       filtered = filtered.filter((item) => {
         if (!item.gradeID) return false;
         // Extract year from gradeID format "ม.1/1"
-        const match = item.gradeID.match(/ม\.(\d)/);
-        if (!match) return false;
+        const match = item.gradeID?.match(/ม\.(\d)/);
+        if (!match || !match[1]) return false;
         const year = parseInt(match[1]);
         return yearFilter.includes(year);
       });

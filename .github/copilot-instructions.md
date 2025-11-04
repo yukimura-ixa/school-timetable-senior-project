@@ -433,3 +433,6 @@ logger.fatal("Database connection pool exhausted", {
 ```
 
 **Remember:** follow `AGENTS.md`. Keep edits small, typed, and covered by tests.
+
+
+ADD use serena, use context7 BEFORE EVERY PROMPT

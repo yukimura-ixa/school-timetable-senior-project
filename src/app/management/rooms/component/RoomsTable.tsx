@@ -52,7 +52,7 @@ const validateRoom: ValidationFn<room> = (id, data, allData) => {
   // Check for duplicate room name (excluding current row)
   const duplicate = allData.find(
     (r) =>
-      r.RoomName.toLowerCase() === data.RoomName.toLowerCase().trim() &&
+      r.RoomName?.toLowerCase() === data.RoomName?.toLowerCase().trim() &&
       (typeof id === "string" || r.RoomID !== id)
   );
 

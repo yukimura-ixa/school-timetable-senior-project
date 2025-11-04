@@ -142,10 +142,10 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Prefix.length == 0 ? "#F96161" : ""
                     }
                     placeHolder={"ตัวเลือก"}
-                    handleChange={(value: string) => {
+                    handleChange={(value: unknown) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Prefix: value } : item,
+                          index === ind ? { ...item, Prefix: value as string } : item,
                         ),
                       );
                     }}
@@ -234,10 +234,10 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                         : ""
                     }
                     placeHolder={"ตัวเลือก"}
-                    handleChange={(value: string) => {
+                    handleChange={(value: unknown) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Department: value } : item,
+                          index === ind ? { ...item, Department: value as string } : item,
                         ),
                       );
                     }}

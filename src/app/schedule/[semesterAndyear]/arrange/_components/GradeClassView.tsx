@@ -148,8 +148,8 @@ function ClassCard({ classData }: { classData: ClassScheduleData }) {
               </Typography>
               <Stack spacing={1}>
                 {Object.entries(schedulesBySubject).map(([subjectCode, schedules]) => {
-                  const subject = schedules[0].subject;
-                  const teacher = schedules[0].teachers_responsibility[0]?.teacher;
+                  const subject = schedules[0]?.subject;
+                  const teacher = schedules[0]?.teachers_responsibility[0]?.teacher;
                   const periodsAssigned = schedules.length;
 
                   return (
@@ -160,7 +160,7 @@ function ClassCard({ classData }: { classData: ClassScheduleData }) {
                     >
                       <Stack spacing={0.5}>
                         <Typography variant="body2" fontWeight="medium">
-                          {subject.SubjectName}
+                          {subject?.SubjectName}
                         </Typography>
                         <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
                           <Chip

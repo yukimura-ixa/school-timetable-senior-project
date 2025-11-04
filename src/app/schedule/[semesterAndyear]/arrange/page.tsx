@@ -110,6 +110,17 @@ export default function ArrangementPage() {
   }
   
   const [semester, academicYear] = semesterAndYear.split('-');
+  
+  if (!semester || !academicYear) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Alert severity="error">
+          <AlertTitle>ข้อผิดพลาด</AlertTitle>
+          รูปแบบข้อมูลภาคเรียนและปีการศึกษาไม่ถูกต้อง
+        </Alert>
+      </Container>
+    );
+  }
 
   // ============================================================================
   // TIMETABLE CONFIG

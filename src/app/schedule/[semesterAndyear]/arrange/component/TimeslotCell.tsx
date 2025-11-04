@@ -124,7 +124,7 @@ export function TimeslotCell({
     <td
       ref={hasSubject ? setSortRef : setDropRef}
       style={style}
-      className={timeSlotCssClassName(item.subject, checkBreakTime(item.Breaktime), isLocked)}
+      className={timeSlotCssClassName(item.subject ?? null, checkBreakTime(item.Breaktime), isLocked)}
     >
       {!hasSubject ? (
         // Empty timeslot - show add buttons
@@ -178,6 +178,7 @@ export function TimeslotCell({
         </>
       ) : (
         // Has subject - show subject details
+        item.subject && (
         <div
           className={`text-center select-none flex flex-col ${
             isDragging ? "w-fit h-fit bg-white rounded opacity-50" : ""
@@ -203,7 +204,7 @@ export function TimeslotCell({
           </b>
           <p className="text-xs">
             {(item.subject.roomName ?? "").length > 9
-              ? `${item.subject.roomName.substring(0, 9)}...`
+              ? `${(item.subject.roomName ?? "").substring(0, 9)}...`
               : item.subject.roomName}
           </p>
 
@@ -268,6 +269,7 @@ export function TimeslotCell({
             </div>
           )}
         </div>
+        )
       )}
     </td>
   );

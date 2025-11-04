@@ -41,6 +41,7 @@ If a required MCP is unavailable, state the limitation, work read-only where saf
 **DO NOT write code until you've consulted context7 for relevant library documentation.**
 
 Workflow:
+
 1. Identify affected libraries (e.g., "Need to add MUI DataGrid with filtering")
 2. Resolve library IDs: `resolve-library-id("@mui/x-data-grid")`
 3. Fetch docs: `get-library-docs("/mui/x-data-grid", topic="filtering pagination")`
@@ -48,6 +49,7 @@ Workflow:
 5. Implement using authoritative patterns, not assumptions
 
 This prevents:
+
 - Using deprecated APIs (e.g., Next.js sync cookies())
 - Wrong prop types (e.g., MUI component signatures)
 - Outdated patterns (e.g., Prisma client initialization)
@@ -85,6 +87,7 @@ Example workflows:
 ## 5. Coding Standards
 
 ### Core Principles
+
 - Prisma schema is the source of truth; generate types rather than duplicating models.
 - Prefer pure functions for constraint checks and use table-driven tests.
 - Validate boundaries with Valibot (preferred) or Zod; return actionable errors.
@@ -94,6 +97,7 @@ Example workflows:
 ### Modernized Codebase Conventions (#codebase)
 
 **Clean Architecture Pattern (ADOPTED)**
+
 ```
 src/features/<domain>/
   ├── domain/           # Business logic, entities, types
@@ -112,6 +116,7 @@ src/features/<domain>/
 ```
 
 **Type Safety Standards**
+
 - **NO** `as any` casts without documented TODO and justification
 - Use `Omit<T, K>` utility to override field types properly
 - Create named type aliases for complex intersections
@@ -119,6 +124,7 @@ src/features/<domain>/
 - Prefer type inference over explicit typing where clear
 
 **Component Patterns**
+
 - Server Components by default (Next.js App Router)
 - Client Components only when needed (`"use client"` directive)
 - Separate data fetching (Server Actions) from presentation
@@ -126,18 +132,21 @@ src/features/<domain>/
 - Co-locate component types with components
 
 **State Management**
+
 - Zustand for complex UI state (modals, filters, selections)
 - SWR for server data caching and revalidation
 - URL state for shareable filters (searchParams)
 - Local state (`useState`) for simple ephemeral state
 
 **Error Handling**
+
 - Valibot schemas for input validation
 - Return type patterns: `{ success: true, data } | { success: false, error }`
 - User-facing errors in Thai language
 - Console errors/warnings in English for debugging
 
 **Testing Philosophy**
+
 - Unit test business logic (pure functions, validation)
 - E2E test user journeys (happy paths + critical errors)
 - Mock external dependencies (Prisma, APIs)
@@ -174,6 +183,7 @@ if (process.env.NODE_ENV !== "production") {
 ## 8. Testing Strategy
 
 ### Unit Tests (Jest)
+
 - Located in `__test__/` directory
 - Test pure functions, validation logic, repository methods
 - Use table-driven tests for business rules
@@ -181,6 +191,7 @@ if (process.env.NODE_ENV !== "production") {
 - Run with: `pnpm test` or `pnpm test:watch`
 
 ### E2E Tests (Playwright)
+
 - Located in `e2e/` directory
 - Test critical user flows across all roles (Admin/Teacher/Student)
 - Use seeded test data from `prisma/seed.ts`
@@ -190,11 +201,13 @@ if (process.env.NODE_ENV !== "production") {
 ### Known Testing Issues
 
 #### Next.js 16 + Jest Stack Overflow (Issue #46)
+
 **Status**: Workaround Applied ✅
 
 Jest tests pass but process doesn't exit cleanly due to Next.js 16.0.1 unhandled rejection handler causing infinite `setImmediate` recursion.
 
 **Workaround**: `forceExit: true` in `jest.config.js` (lines 34-37)
+
 - All 50+ tests passing across 4 test files ✅
 - Process exits cleanly with `forceExit` flag ✅
 - May hide legitimate async operation leaks ⚠️
@@ -202,6 +215,7 @@ Jest tests pass but process doesn't exit cleanly due to Next.js 16.0.1 unhandled
 **Details**: See `nextjs_16_jest_stack_overflow_issue` memory file or [Issue #46](https://github.com/yukimura-ixa/school-timetable-senior-project/issues/46)
 
 **What NOT to do**:
+
 - ❌ Remove `forceExit` flag (will cause stack overflow)
 - ❌ Try to mock Next.js unhandled rejection module (doesn't work)
 - ❌ Wrap `setImmediate` (Next.js wraps it after our setup)
@@ -209,6 +223,7 @@ Jest tests pass but process doesn't exit cleanly due to Next.js 16.0.1 unhandled
 **Long-term**: Waiting for Next.js 16.1+ upstream fix
 
 ### Test Creation Guidelines
+
 1. **Unit tests first** - Test business logic in isolation
 2. **E2E for flows** - Test complete user journeys
 3. **Use Serena** - Find existing test patterns with `search_for_pattern`
@@ -218,6 +233,7 @@ Jest tests pass but process doesn't exit cleanly due to Next.js 16.0.1 unhandled
 ### Common Test Patterns
 
 **Unit Test (Jest)**:
+
 ```typescript
 describe('validateTimeslotConflict', () => {
   it('should return conflict when timeslots overlap', () => {
@@ -229,6 +245,7 @@ describe('validateTimeslotConflict', () => {
 ```
 
 **E2E Test (Playwright)**:
+
 ```typescript
 test('should create new schedule assignment', async ({ page }) => {
   await page.goto('/schedule/1-2567/assign');
@@ -329,11 +346,13 @@ Use this structure when creating issues:
 ### PR Creation Workflow
 
 Create a PR when:
+
 - Fixing issues discovered during work
 - Implementing features that span multiple commits
 - Making significant refactoring changes
 
 **PR Template:**
+
 ```markdown
 ## Changes
 [Summary of what changed]
@@ -398,6 +417,7 @@ GitHub Issue #33: "Fix 7 failing Jest test suites"
 ### Automation Tips
 
 When creating issues via MCP GitHub tools:
+
 ```typescript
 // Use structured approach
 await mcp_github_issue_write({
@@ -471,6 +491,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 ## 13. Future Implementation Ideas
 
 ### Architecture Improvements
+
 - [ ] **Repository Pattern Completion** - Migrate remaining raw Prisma queries to repository layer
 - [ ] **Domain Event System** - Add event bus for cross-feature communication (e.g., schedule changes trigger notifications)
 - [ ] **CQRS Pattern** - Separate read models from write models for complex queries
@@ -478,6 +499,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 - [ ] **Background Jobs** - Implement job queue (BullMQ) for async operations (exports, notifications)
 
 ### Feature Enhancements
+
 - [ ] **Real-time Collaboration** - WebSocket support for multi-user schedule editing
 - [ ] **Conflict Resolution UI** - Visual diff viewer for schedule conflicts
 - [ ] **AI Schedule Optimization** - ML-powered room/timeslot allocation
@@ -487,6 +509,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 - [ ] **Notification System** - Email/SMS alerts for schedule changes
 
 ### Developer Experience
+
 - [ ] **Storybook Integration** - Component library documentation
 - [ ] **API Documentation** - OpenAPI/Swagger for external endpoints
 - [ ] **Performance Monitoring** - Sentry + Vercel Analytics integration
@@ -495,6 +518,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 - [ ] **Visual Regression Testing** - Percy/Chromatic for UI snapshots
 
 ### Infrastructure
+
 - [ ] **Multi-tenancy** - Support multiple schools in single deployment
 - [ ] **Backup Strategy** - Automated daily DB backups with point-in-time recovery
 - [ ] **CDN Optimization** - Cloudflare/Vercel Edge for static assets
@@ -502,6 +526,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 - [ ] **Caching Layer** - Redis for frequently accessed data (timeslots, rooms)
 
 ### Security & Compliance
+
 - [ ] **Role-based Access Control** - Granular permissions (view/edit/delete)
 - [ ] **Data Encryption** - Encrypt sensitive PII at rest
 - [ ] **Compliance Logging** - PDPA compliance audit trail
@@ -509,6 +534,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 - [ ] **Security Scanning** - Automated SAST/DAST in CI/CD
 
 ### Observability
+
 - [ ] **Structured Logging** - Pino/Winston with correlation IDs
 - [ ] **Distributed Tracing** - OpenTelemetry for request tracing
 - [ ] **Custom Dashboards** - Grafana for business metrics
@@ -516,6 +542,7 @@ Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE
 - [ ] **Cost Monitoring** - Track Vercel/DB spend with budget alerts
 
 ### Technical Debt Tracking
+
 - [ ] **Store Type Refactoring** - Update Zustand stores to use Prisma types directly
 - [ ] **Legacy Component Migration** - Finish migrating old class components
 - [ ] **SWR Type Annotations** - Remove all `useSWR<any>` in favor of proper types

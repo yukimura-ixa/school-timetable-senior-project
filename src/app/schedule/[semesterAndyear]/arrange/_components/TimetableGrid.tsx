@@ -81,13 +81,13 @@ export function TimetableGrid({
     
     timeslots.forEach(slot => {
       if (organized[slot.DayOfWeek]) {
-        organized[slot.DayOfWeek].push(slot);
+        organized[slot.DayOfWeek]?.push(slot);
       }
     });
     
     // Sort by slot number within each day
     Object.keys(organized).forEach(day => {
-      organized[day].sort((a, b) => {
+      organized[day]?.sort((a, b) => {
         const aNum = parseInt(a.TimeslotID.split('-').pop()?.replace(/[^\d]/g, '') || '0');
         const bNum = parseInt(b.TimeslotID.split('-').pop()?.replace(/[^\d]/g, '') || '0');
         return aNum - bNum;
