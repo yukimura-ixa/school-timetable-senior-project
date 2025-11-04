@@ -83,14 +83,14 @@ function ClassroomResponsibility() {
       Department: "",
     },
     Grade: [
-      { Year: 1, ClassRooms: [] }, //ClassRooms : [{RespID: 1,GradeID:'101', Subjects:[]}]
-      { Year: 2, ClassRooms: [] },
-      { Year: 3, ClassRooms: [] },
-      { Year: 4, ClassRooms: [] },
-      { Year: 5, ClassRooms: [] },
-      { Year: 6, ClassRooms: [] },
+      { Year: 1, ClassRooms: [] as any[] }, //ClassRooms : [{RespID: 1,GradeID:'101', Subjects:[]}]
+      { Year: 2, ClassRooms: [] as any[] },
+      { Year: 3, ClassRooms: [] as any[] },
+      { Year: 4, ClassRooms: [] as any[] },
+      { Year: 5, ClassRooms: [] as any[] },
+      { Year: 6, ClassRooms: [] as any[] },
     ],
-    Subjects: [],
+    Subjects: [] as any[],
   });
   useEffect(() => {
     const ClassRoomClassify = (year: number): String[] => {
@@ -146,10 +146,14 @@ function ClassroomResponsibility() {
       let newData = data;
       if (rooms.length > 0) {
         const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
-        newData.Grade[gradeIndex].ClassRooms = rooms;
+        if (gradeIndex !== -1 && newData.Grade[gradeIndex]) {
+          newData.Grade[gradeIndex].ClassRooms = rooms;
+        }
       } else {
         const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
-        newData.Grade[gradeIndex].ClassRooms = [];
+        if (gradeIndex !== -1 && newData.Grade[gradeIndex]) {
+          newData.Grade[gradeIndex].ClassRooms = [];
+        }
       }
       return newData;
     });
@@ -169,7 +173,7 @@ function ClassroomResponsibility() {
       Subjects: subj,
     }));
   };
-  const addClassRoomtoClass = (Year, Classrooms) => {
+  const addClassRoomtoClass = (Year: number, Classrooms: any) => {
     //func สำหรับเพิ่มห้องเรียนที่เลือกมาใหม่เข้าไปในชั้นเรียนหลังกดตกลงใน SelectClassRoomModal
     setClassRoomModalActive(true);
     setYear(() => Year);
@@ -183,11 +187,11 @@ function ClassroomResponsibility() {
   const [currentSubjectInClassRoom, setCurrentSubjectInClassRoom] = useState(
     [],
   ); //ตัวแปรนี้เก็บข้อมูลวิชาของห้องเรียนที่เราเลือก
-  const setCurrentSubject = (subj) => {
+  const setCurrentSubject = (subj: any) => {
     //จะเป็นตัว set ข้อมูลให้กับตัวแปรด้านบนเฉยๆ (ละจะสร้างให้เปลืองที่ไมฟะ??)
     setCurrentSubjectInClassRoom(subj);
   };
-  const [year, setYear] = useState<number>(null);
+  const [year, setYear] = useState<number | null>(null);
   const sumTeachHour = (year: number): number => {
     const getSubjectsByYear = data.Subjects.filter(
       (subj) => parseInt(subj.GradeID[0]) == year,
@@ -220,9 +224,12 @@ function ClassroomResponsibility() {
 
   const saveData = () => {
     const classRoomMap = data.Grade.map((item) => item.ClassRooms); //map จากตัวแปร data เพื่อเอาข้อมูลของแต่ละชั้นปีมา
-    const spreadClassRoom = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
+    const spreadClassRoom: any[] = []; //สร้าง array เปล่าเพื่อเก็บ object ของทุกๆห้องเรียนในทุกระดับชั้นไว้ใน array เดียว
     for (let i = 0; i < classRoomMap.length; i++) {
-      spreadClassRoom.push(...classRoomMap[i]); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
+      const classRoom = classRoomMap[i];
+      if (classRoom && Array.isArray(classRoom)) {
+        spreadClassRoom.push(...classRoom); //push เข้าไปด้วยการใช้ spread operator ex => จาก [[{...}, {...}], [{...}]] เป็น [{...}, {...}, {...}]
+      }
     }
     //findEmptySubjectInClassRoom คือการหาว่า มีห้องไหนมั้ยที่ยังไม่เพิ่มวิชาเรียน ถ้ามีก็จะฟ้องครับผม
     //return as Array => if true array length > 0, if false array length = 0
