@@ -22,6 +22,12 @@ function ClassroomResponsibility() {
   const [semester, academicYear] = (params.semesterAndyear as string).split(
     "-",
   ); //from "1-2566" to ["1", "2566"]
+  
+  // Guard against undefined semester/year
+  if (!semester || !academicYear) {
+    return <div>Invalid semester or academic year</div>;
+  }
+  
   const searchTeacherID = useSearchParams().get("TeacherID");
   
   // Fetch teacher responsibilities using Server Action
@@ -94,15 +100,15 @@ function ClassroomResponsibility() {
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
       //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
       const filterResData = responsibilityData.data.filter(
-        (data) => data.gradelevel.Year == year,
+        (data: any) => data.gradelevel.Year == year,
       ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
-      const mapGradeIDOnly = filterResData.map((data) => ({
+      const mapGradeIDOnly = filterResData.map((data: any) => ({
         GradeID: data.GradeID,
         // Subjects: [],
       })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
       const removeDulpicateGradeID = mapGradeIDOnly.filter(
-        (obj, index) =>
-          mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
+        (obj: any, index: number) =>
+          mapGradeIDOnly.findIndex((item: any) => item.GradeID == obj.GradeID) ===
           index,
       ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
       return removeDulpicateGradeID;

@@ -145,7 +145,7 @@ function ShowTeacherData() {
                     <InputAdornment position="start">
                       <SearchIcon />
                     </InputAdornment>
-                    {params.InputProps.startAdornment}
+                    {params.InputProps.startAdornment as React.ReactNode}
                   </>
                 ),
               }}
