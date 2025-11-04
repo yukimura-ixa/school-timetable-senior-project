@@ -45,6 +45,9 @@ export function TimeslotPreview({ config }: Props) {
 
     // Parse start time
     const [hours, minutes] = config.StartTime.split(":").map(Number);
+    if (hours === undefined || minutes === undefined) {
+      return [];
+    }
     let currentTime = hours * 60 + minutes; // Convert to minutes
 
     for (let i = 1; i <= config.TimeslotPerDay; i++) {

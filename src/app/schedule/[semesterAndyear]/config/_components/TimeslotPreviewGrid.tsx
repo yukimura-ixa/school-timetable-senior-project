@@ -45,6 +45,9 @@ interface PreviewSlot {
 function generatePreviewSlots(config: ConfigData): PreviewSlot[] {
   const slots: PreviewSlot[] = [];
   const [startHour, startMinute] = config.StartTime.split(':').map(Number);
+  if (startHour === undefined || startMinute === undefined) {
+    return [];
+  }
   let currentMinute = startHour * 60 + startMinute; // Convert to minutes from midnight
 
   for (let period = 1; period <= config.TimeslotPerDay; period++) {
@@ -141,7 +144,9 @@ function getSlotStyle(type: PreviewSlot['type']) {
  */
 function calculateEndTime(slots: PreviewSlot[]): string {
   if (slots.length === 0) return '--:--';
-  return slots[slots.length - 1].endTime;
+  const lastSlot = slots[slots.length - 1];
+  if (!lastSlot) return '--:--';
+  return lastSlot.endTime;
 }
 
 /**
