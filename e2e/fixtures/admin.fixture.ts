@@ -7,7 +7,7 @@
  * - Reusable test data
  * 
  * Usage:
- *   import { test } from '@/e2e/fixtures/admin.fixture';
+ *   import { test } from './fixtures/admin.fixture';
  *   
  *   test('should manage teachers', async ({ authenticatedAdmin, teacherPage }) => {
  *     await teacherPage.goto();
@@ -172,8 +172,8 @@ export async function createAdminAuthState(outputPath: string): Promise<void> {
  * Example usage in tests:
  * 
  * ```typescript
- * import { test, expect } from '@/e2e/fixtures/admin.fixture';
- * import { testSemester, testTeacher } from '@/e2e/fixtures/seed-data.fixture';
+ * import { test, expect } from './fixtures/admin.fixture';
+ * import { testSemester, testTeacher } from './fixtures/seed-data.fixture';
  * 
  * test.describe('Schedule Assignment', () => {
  *   test('should assign subject to timeslot', async ({ scheduleAssignmentPage }) => {

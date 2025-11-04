@@ -25,8 +25,8 @@
  *   import { ScheduleAssignmentPage } from '../../pages/admin/ScheduleAssignmentPage';
  * 
  * AFTER:
- *   import { test, expect } from '@/e2e/fixtures/admin.fixture';
- *   import { testSemester, testTeacher, testSubject } from '@/e2e/fixtures/seed-data.fixture';
+ *   import { test, expect } from '../../fixtures/admin.fixture';
+ *   import { testSemester, testTeacher, testSubject } from '../../fixtures/seed-data.fixture';
  */
 
 /**

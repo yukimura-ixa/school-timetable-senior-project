@@ -5,7 +5,7 @@
  * All data comes from prisma/seed.ts to ensure consistency.
  * 
  * Usage:
- *   import { testSemester, testTeacher, testSubject } from '@/e2e/fixtures/seed-data.fixture';
+ *   import { testSemester, testTeacher, testSubject } from './fixtures/seed-data.fixture';
  */
 
 import { semester, day_of_week } from '@/prisma/generated';
