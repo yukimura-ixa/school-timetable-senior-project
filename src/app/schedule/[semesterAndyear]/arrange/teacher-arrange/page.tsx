@@ -498,15 +498,18 @@ export default function TeacherArrangePageRefactored() {
     const keepId: string[] = [];
 
     for (let i = 0; i < filterLock.length; i++) {
-      if (keepId.length === 0 || !keepId.includes(filterLock[i].TimeslotID)) {
-        keepId.push(filterLock[i].TimeslotID);
-        const gradeID = filterLock[i].GradeID;
+      const currentItem = filterLock[i];
+      if (!currentItem) continue; // Guard against undefined
+      
+      if (keepId.length === 0 || !keepId.includes(currentItem.TimeslotID)) {
+        keepId.push(currentItem.TimeslotID);
+        const gradeID = currentItem.GradeID;
         resFilterLock.push({
-          ...filterLock[i],
+          ...currentItem,
           GradeID: Array.isArray(gradeID) ? gradeID : [gradeID], // Convert single GradeID to array
         } as LockedScheduleItem);
       } else {
-        const tID = filterLock[i].TimeslotID;
+        const tID = currentItem.TimeslotID;
         resFilterLock.forEach((item, index) => {
           if (item.TimeslotID === tID) {
             resFilterLock[index] = {
@@ -515,7 +518,7 @@ export default function TeacherArrangePageRefactored() {
                 ...(Array.isArray(item.GradeID)
                   ? item.GradeID
                   : [item.GradeID]),
-                filterLock[i].GradeID,
+                currentItem.GradeID,
               ], // Properly typed as string[]
             };
           }
@@ -643,7 +646,9 @@ export default function TeacherArrangePageRefactored() {
   // ============================================================================
 
   const addSubjectToSlot = useCallback(
-    (subject: SubjectData, timeSlotID: string) => {
+    (subject: SubjectData | null, timeSlotID: string) => {
+      if (!subject) return; // Guard against null
+      
       const mapTimeSlot = {
         ...timeSlotData,
         AllData: timeSlotData.AllData.map((item) =>
@@ -879,7 +884,7 @@ export default function TeacherArrangePageRefactored() {
         addRoomModal(payload);
         {
           const s = subjectData[sourceDataUnknown.index];
-          if (s) clickOrDragToSelectSubject(s);
+          if (s && s !== null) clickOrDragToSelectSubject(s);
         }
       } else if (isTimeslotDragData(sourceDataUnknown) && isTimeslotDragData(targetDataUnknown)) {
         // Swapping subjects between timeslots - Phase 2: Use new signature

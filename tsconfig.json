@@ -58,13 +58,13 @@
     "playwright.config.ts",
     "prisma.config.ts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "e2e/**/*"
   ],
   "exclude": [
     "node_modules",
     "legacy/**/*",
     "prisma/**/*",
-    "e2e/**/*",
     "__test__/**/*",
     "src/**/*.old.tsx"
   ]

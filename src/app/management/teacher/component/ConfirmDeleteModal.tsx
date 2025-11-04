@@ -36,7 +36,7 @@ function ConfirmDeleteModal({
     closeModal();
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = async (data: teacher[], checkedList: string[]) => {
+  const removeMultiData = async (data: teacher[], checkedList: (string | number)[]) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลครู", {
       variant: "info",
       persist: true,
