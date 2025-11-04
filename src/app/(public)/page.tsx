@@ -16,8 +16,9 @@ export const metadata: Metadata = {
   description: "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
 };
 
-// Homepage data changes infrequently (per semester), revalidate every 30 days
-export const revalidate = 60 * 60 * 24 * 30; // 30 days
+// NOTE: Cannot export revalidate in Next.js 16 when using async searchParams.
+// The page uses dynamic data (searchParams) so static revalidation doesn't apply.
+// For actual static revalidation, use fetch() with next: { revalidate: ... }
 
 type PageProps = {
   searchParams: Promise<{

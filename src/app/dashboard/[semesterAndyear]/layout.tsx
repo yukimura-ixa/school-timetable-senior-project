@@ -2,7 +2,8 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 
-export const dynamic = "force-dynamic"; // ensure fresh validation
+// NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
+// when using async params. The layout is already dynamic due to async params.
 
 function parseParam(param: string): { semester: 1 | 2 | null; year: number | null; label: string } {
   const [semStr, yearStr] = (param || "").split("-");
