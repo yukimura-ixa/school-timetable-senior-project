@@ -75,7 +75,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     },
   ]);
   const addList = () => {
-    let struct: RoomFormState = {
+    const struct: RoomFormState = {
       RoomID: null,
       RoomName: "",
       Building: "",
@@ -84,7 +84,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     setRooms(() => [...rooms, struct]);
   };
   const removeList = (index: number): void => {
-    let copyArray = [...rooms];
+    const copyArray = [...rooms];
     copyArray.splice(index, 1);
     setRooms(() => copyArray);
   };
@@ -163,7 +163,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       disabled={false} handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
                             index === ind ? { ...item, RoomName: value } : item,
@@ -191,7 +191,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       disabled={false} handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
                             index === ind ? { ...item, Building: value } : item,
@@ -220,7 +220,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }
                       disabled={false}
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         const floorValue = value === "" ? undefined : Number(value);
                         setRooms(() =>
                           rooms.map((item, ind) =>

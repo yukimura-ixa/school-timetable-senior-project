@@ -29,31 +29,31 @@ function EditStudyProgramModal({
   const [searchText, setSearchText] = useState("");
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
+    const res = subjectFilter.filter((item) =>
       `${item.SubjectCode} ${item.SubjectName}`.match(name)
     );
     setSubject(res);
   };
   const searchHandle = (event: any) => {
-    let text = event.target.value;
+    const text = event.target.value;
     setSearchText(text);
     searchName(text);
   };
   const [searchTextSubject, setSearchTextSubject] = useState("");
   const searchSubject = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
+    const res = subjectFilter.filter((item) =>
       `${item.SubjectCode} - ${item.SubjectName}`.match(name)
     );
     setSubject(res);
   };
   const searchHandleSubject = (event: any) => {
-    let text = event.target.value;
+    const text = event.target.value;
     setSearchTextSubject(text);
     searchSubject(text);
   };
   const classRoomHandleChange = (value: any) => {
-    let removeDulpItem = programData.gradelevel.filter(
+    const removeDulpItem = programData.gradelevel.filter(
       (item: any) => item.GradeID != value.GradeID
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setProgramData(() => ({
@@ -101,7 +101,7 @@ function EditStudyProgramModal({
     }
   };
   const editItemAndCloseModal = () => {
-    let cond = isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
+    const cond = isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
     if (cond) {
       validateData();
     } else {
@@ -143,7 +143,7 @@ function EditStudyProgramModal({
                 required={false}
                 title={programData.ProgramName}
                 handleChange={(e: any) => {
-                  let value: string = e.target.value;
+                  const value: string = e.target.value;
                   setProgramData(() => ({
                     ...programData,
                     ProgramName : value

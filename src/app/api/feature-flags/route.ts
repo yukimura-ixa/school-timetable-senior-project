@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     // Check if feature is enabled
     const enabled = await isFeatureEnabled(
-      flag as FeatureFlag,
+      flag,
       userId,
       userRole,
       userEmail

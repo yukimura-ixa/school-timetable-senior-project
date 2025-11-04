@@ -84,7 +84,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     }));
   };
   const classRoomHandleChange = (value: { GradeID: string; [key: string]: unknown }) => {
-    let removeDulpItem = newProgramData.gradelevel.filter(
+    const removeDulpItem = newProgramData.gradelevel.filter(
       (item: { GradeID: string; [key: string]: unknown }) => item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
@@ -129,7 +129,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     }));
   };
   const addItemAndCloseModal = () => {
-    let cond =
+    const cond =
       isEmptyData.ProgramName ||
       isEmptyData.gradelevel ||
       isEmptyData.subject ||
@@ -160,7 +160,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
               required={isEmptyData.ProgramName}
               title={newProgramData.ProgramName}
               handleChange={(e: any) => {
-                let value: string = e.target.value;
+                const value: string = e.target.value;
                 setNewProgramData(() => ({
                   ...newProgramData,
                   ProgramName: value,

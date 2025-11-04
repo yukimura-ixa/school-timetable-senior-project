@@ -168,7 +168,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setSubjects(() =>
                           subjects.map((item, ind) =>
                             index === ind
@@ -198,7 +198,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setSubjects(() =>
                           subjects.map((item, ind) =>
                             index === ind

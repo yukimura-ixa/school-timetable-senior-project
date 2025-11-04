@@ -84,7 +84,7 @@ function TimeSlot({ timeSlotData }: Props) {
               {timeSlotData.AllData.filter((item) => dayOfWeekThai[item.DayOfWeek] === day.Day).map(
                 (data) => {
                   const breakSlot = isBreakSlot(data.Breaktime);
-                  const subject = data.subject as Record<string, any>;
+                  const subject = data.subject;
                   const subjectCode = subject?.SubjectCode ?? "";
                   const isLocked = Boolean(subject?.IsLocked);
                   const grade = formatGrade(subject?.GradeID);

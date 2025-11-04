@@ -96,9 +96,9 @@ export default function ExportAllProgram (
       }
       const sortSubjectCategory = (data: any[]) => {
         //ท ค ว ส พ ศ ก อ
-        let SubjectCodeVal: Record<string, number> = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
-        let sortedData = data.sort((a: any, b: any) => {
-          let getVal = (sCode: string) => {
+        const SubjectCodeVal: Record<string, number> = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
+        const sortedData = data.sort((a: any, b: any) => {
+          const getVal = (sCode: string) => {
             return isUndefined(SubjectCodeVal[sCode]) ? 9 : SubjectCodeVal[sCode]
           }
           if(getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])){

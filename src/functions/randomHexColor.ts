@@ -1,7 +1,7 @@
 export const randomHex = () => {
     // Storing all letter and digit combinations
     // for html color code
-    let letters = "0123456789ABCDEF";
+    const letters = "0123456789ABCDEF";
     
     // HTML color code starts with #
     let color = '#';

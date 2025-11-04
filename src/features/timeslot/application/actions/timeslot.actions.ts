@@ -235,7 +235,7 @@ export async function getTimeslotCountAction() {
   try {
     const count = await timeslotRepository.count();
     return { success: true as const, data: { count } };
-  } catch (error) {
+  } catch {
     return {
       success: false as const,
       error: 'ไม่สามารถนับจำนวนช่วงเวลาได้',

@@ -35,7 +35,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     try {
       const result = await updateTeachersAction({
         teachers: data.map((t: teacher) => ({
-          TeacherID: t.TeacherID!,
+          TeacherID: t.TeacherID,
           Prefix: t.Prefix,
           Firstname: t.Firstname,
           Lastname: t.Lastname,
@@ -167,7 +167,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Firstname.length == 0 ? "#F96161" : ""
                     }
                     handleChange={(e: any) => {
-                      let value = e.target.value;
+                      const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Firstname: value } : item,
@@ -192,7 +192,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Lastname.length == 0 ? "#F96161" : ""
                     }
                     handleChange={(e: any) => {
-                      let value = e.target.value;
+                      const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Lastname: value } : item,
@@ -260,7 +260,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Email.length == 0 ? "#F96161" : ""
                     }
                     handleChange={(e: any) => {
-                      let value: string = e.target.value;
+                      const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Email: value } : item,

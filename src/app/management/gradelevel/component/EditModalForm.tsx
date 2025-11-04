@@ -180,7 +180,7 @@ function EditModalForm({
                     }
                     disabled={false}
                     handleChange={(e: any) => {
-                      let value: string = e.target.value;
+                      const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind

@@ -722,7 +722,7 @@ export default function TeacherArrangePageRefactored() {
     actions.setTimeSlotData({
       ...timeSlotData,
       AllData: timeSlotData.AllData.map((item) =>
-        (item as TimeslotData).subject?.scheduled ? { ...item, subject: null } : item,
+        (item).subject?.scheduled ? { ...item, subject: null } : item,
       ),
     });
   }, [timeSlotData, actions]);
@@ -738,7 +738,7 @@ export default function TeacherArrangePageRefactored() {
 
     const selectedGradeID = !isSelectedToChange
       ? storeSelectedSubject!.gradeID
-      : changeTimeSlotSubject!.gradeID;
+      : changeTimeSlotSubject.gradeID;
 
     if (!checkConflictData.data) return;
 

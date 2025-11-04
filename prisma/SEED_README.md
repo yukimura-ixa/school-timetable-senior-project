@@ -444,7 +444,6 @@ npx prisma generate
 
 - **Database Schema**: See `prisma/schema.prisma`
 - **ER Diagram**: See `database/er-diagram.mwb`
-- **SQL Backup**: See `database/school-timetable-db-dev_backup.sql`
 - **Project Documentation**: See `README.md`
 
 ## Contributing

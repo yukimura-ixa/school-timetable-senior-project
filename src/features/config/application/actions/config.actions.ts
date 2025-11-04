@@ -9,7 +9,7 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
-import { semester } from '@/prisma/generated';
+import type { table_config, timeslot, teachers_responsibility } from '@/prisma/generated';
 import * as v from 'valibot';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
 import {
@@ -18,9 +18,9 @@ import {
   validateCopyInput,
   parseConfigID,
   replaceConfigIDInString,
-  getSemesterNumber,
   parseSemesterEnum,
 } from '../../domain/services/config-validation.service';
+import type { ConfigData } from '../../domain/types/config-data.types';
 import {
   getConfigByTermSchema,
   createConfigSchema,
@@ -84,7 +84,7 @@ export const createConfigAction = createAction(
       ConfigID: input.ConfigID,
       AcademicYear: input.AcademicYear,
       Semester: input.Semester,
-      Config: input.Config as any,
+      Config: input.Config as ConfigData,
     });
 
     return config;
@@ -125,7 +125,7 @@ export const updateConfigAction = createAction(
     const config = await configRepository.update(input.ConfigID, {
       AcademicYear: input.AcademicYear,
       Semester: input.Semester,
-      Config: input.Config as any,
+      Config: input.Config as ConfigData,
     });
 
     return config;
@@ -180,7 +180,7 @@ export const copyConfigAction = createAction(
     // Execute copy operation in transaction
     const result = await configRepository.transaction(async (tx) => {
       // 1. Copy table_config
-      const fromConfig = await tx.table_config.findUnique({
+      const fromConfig: table_config | null = await tx.table_config.findUnique({
         where: { ConfigID: input.from },
       });
 
@@ -188,7 +188,7 @@ export const copyConfigAction = createAction(
         throw new Error(`ไม่พบการตั้งค่าต้นทาง (${input.from})`);
       }
 
-      const newConfig = await tx.table_config.create({
+      const newConfig: table_config = await tx.table_config.create({
         data: {
           ConfigID: input.to,
           Semester: toSemester,
@@ -198,14 +198,14 @@ export const copyConfigAction = createAction(
       });
 
       // 2. Copy timeslots
-      const fromSlots = await tx.timeslot.findMany({
+      const fromSlots: timeslot[] = await tx.timeslot.findMany({
         where: {
           AcademicYear: fromParsed.academicYear,
           Semester: fromSemester,
         },
       });
 
-      const toSlots = fromSlots.map((slot: { TimeslotID: string; DayOfWeek: string; StartTime: Date; EndTime: Date; Breaktime: string }) => ({
+      const toSlots = fromSlots.map((slot) => ({
         TimeslotID: replaceConfigIDInString(slot.TimeslotID, input.from, input.to),
         DayOfWeek: slot.DayOfWeek,
         AcademicYear: toParsed.academicYear,
@@ -226,14 +226,14 @@ export const copyConfigAction = createAction(
 
       // 3. Copy teachers_responsibility (if assign flag is true)
       if (input.assign) {
-        const fromResp = await tx.teachers_responsibility.findMany({
+        const fromResp: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
           where: {
             AcademicYear: fromParsed.academicYear,
             Semester: fromSemester,
           },
         });
 
-        const toResp = fromResp.map((resp: { TeacherID: number; GradeID: string; SubjectCode: string; TeachHour: number }) => ({
+        const toResp = fromResp.map((resp) => ({
           TeacherID: resp.TeacherID,
           GradeID: resp.GradeID,
           SubjectCode: resp.SubjectCode,
@@ -251,7 +251,7 @@ export const copyConfigAction = createAction(
         copiedAssignments = created.count;
 
         // Get new responsibilities for class_schedule connections
-        const newResp = await tx.teachers_responsibility.findMany({
+        const newResp: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
           where: {
             AcademicYear: toParsed.academicYear,
             Semester: toSemester,
@@ -260,7 +260,15 @@ export const copyConfigAction = createAction(
 
         // 4. Copy locked class_schedule (if lock flag is true)
         if (input.lock) {
-          const fromLock = await tx.class_schedule.findMany({
+          const fromLock: Array<{
+            ClassID: string;
+            TimeslotID: string;
+            SubjectCode: string;
+            RoomID: number | null;
+            GradeID: string;
+            IsLocked: boolean;
+            teachers_responsibility: teachers_responsibility[];
+          }> = await tx.class_schedule.findMany({
             where: {
               IsLocked: true,
               timeslot: {
@@ -286,7 +294,7 @@ export const copyConfigAction = createAction(
           }
 
           // Parallel creates for better performance
-          const lockCreatePromises = fromLock.map(async (lock: { TimeslotID: string; ClassID: string; SubjectCode: string; RoomID: number | null; GradeID: string; IsLocked: boolean }) => {
+          const lockCreatePromises = fromLock.map(async (lock) => {
             const newTimeslotID = replaceConfigIDInString(
               lock.TimeslotID,
               input.from,
@@ -330,7 +338,15 @@ export const copyConfigAction = createAction(
 
         // 5. Copy non-locked class_schedule (if timetable flag is true)
         if (input.timetable) {
-          const fromTimetable = await tx.class_schedule.findMany({
+          const fromTimetable: Array<{
+            ClassID: string;
+            TimeslotID: string;
+            SubjectCode: string;
+            RoomID: number | null;
+            GradeID: string;
+            IsLocked: boolean;
+            teachers_responsibility: teachers_responsibility[];
+          }> = await tx.class_schedule.findMany({
             where: {
               IsLocked: false,
               timeslot: {
@@ -356,7 +372,7 @@ export const copyConfigAction = createAction(
           }
 
           // Parallel creates for better performance
-          const timetableCreatePromises = fromTimetable.map(async (schedule: { TimeslotID: string; ClassID: string; SubjectCode: string; RoomID: number | null; GradeID: string }) => {
+          const timetableCreatePromises = fromTimetable.map(async (schedule) => {
             const newTimeslotID = replaceConfigIDInString(
               schedule.TimeslotID,
               input.from,
@@ -491,18 +507,26 @@ export const updateConfigWithTimeslotsAction = createAction(
       });
 
       // Step 3: Update config
-      const updatedConfig = await tx.table_config.update({
+      const updatedConfig: table_config = await tx.table_config.update({
         where: { ConfigID: input.ConfigID },
         data: {
-          Config: input.Config as any,
+          Config: input.Config as ConfigData,
         },
       });
 
       // Step 4: Generate new timeslots
+      const configData = input.Config as ConfigData;
       const newTimeslots = generateTimeslots({
         AcademicYear: existingConfig.AcademicYear,
         Semester: existingConfig.Semester,
-        ...(input.Config as any),
+        Days: configData.Days,
+        StartTime: configData.StartTime,
+        Duration: configData.Duration,
+        BreakDuration: configData.BreakDuration,
+        TimeslotPerDay: configData.TimeslotPerDay,
+        HasMinibreak: configData.HasMinibreak,
+        MiniBreak: configData.MiniBreak ?? { SlotNumber: 0, Duration: 0 },
+        BreakTimeslots: configData.BreakTimeslots,
       });
 
       // Step 5: Create new timeslots

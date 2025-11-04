@@ -127,7 +127,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.RoomName.length == 0 ? "#F96161" : ""
                     }
                     disabled={false} handleChange={(e: any) => {
-                      let value: string = e.target.value;
+                      const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, RoomName: value } : item,
@@ -153,7 +153,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Building.length == 0 ? "#F96161" : ""
                     }
                     disabled={false} handleChange={(e: any) => {
-                      let value: string = e.target.value;
+                      const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Building: value } : item,
@@ -182,7 +182,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     }
                     disabled={false}
                     handleChange={(e: any) => {
-                      let value: string = e.target.value;
+                      const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Floor: value } : item,

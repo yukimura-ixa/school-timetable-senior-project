@@ -94,7 +94,7 @@ function AddModalForm({ closeModal, mutate }: props) {
     setTeachers(() => [...teachers, newTeacher]);
   };
   const removeList = (index: number): void => {
-    let copyArray = [...teachers];
+    const copyArray = [...teachers];
     copyArray.splice(index, 1);
     setTeachers(() => copyArray);
   };
@@ -217,7 +217,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
                             index === ind
@@ -248,7 +248,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
                             index === ind ? { ...item, Lastname: value } : item,
@@ -322,7 +322,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       handleChange={(e: any) => {
-                        let value: string = e.target.value;
+                        const value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
                             index === ind ? { ...item, Email: value } : item,

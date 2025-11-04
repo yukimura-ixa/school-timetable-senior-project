@@ -8,6 +8,7 @@
 'use server';
 
 import { semester } from '@/prisma/generated';
+import type { teachers_responsibility } from '@/prisma/generated';
 import * as v from 'valibot';
 
 // Schemas
@@ -134,7 +135,7 @@ export const syncAssignmentsAction = createAction(
     // Execute all operations in a transaction
     const result = await assignRepository.transaction(async (tx) => {
       // 1. Get existing responsibilities
-      const existingResponsibilities = await tx.teachers_responsibility.findMany({
+      const existingResponsibilities: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
         where: {
           TeacherID: input.TeacherID,
           AcademicYear: input.AcademicYear,

@@ -27,7 +27,7 @@ const TableBody = (props: Props) => {
     Day: string,
     SlotNumber: number,
   ) {
-    let filterClass = props.classData.filter(
+    const filterClass = props.classData.filter(
       (item) =>
         item.teachers_responsibility
           .map((tid) => tid.TeacherID)
@@ -35,7 +35,7 @@ const TableBody = (props: Props) => {
         dayOfWeekThai[item.timeslot.DayOfWeek] == Day &&
         parseInt(item.timeslot.TimeslotID.substring(10)) == SlotNumber,
     );
-    let convertClass = filterClass
+    const convertClass = filterClass
       .map((item) => `${item.GradeID[0]}/${item.GradeID[2]}`)
       .join(",");
     // let convertClass = ["101", "102", "301", "302", "303", "304", "305", "306", "307", "308", "309", "310"].map(item => `${item[0]}/${item[2]}`).join(",")
@@ -49,7 +49,7 @@ const TableBody = (props: Props) => {
         return null;
       }
     
-      let res = firstClass.IsLocked
+      const res = firstClass.IsLocked
         ? `${firstClass.SubjectCode}`
         : `${convertClass}\n${firstClass.SubjectCode}`;
       

@@ -150,10 +150,10 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   const { lockScheduleData, isEmptyData } = state;
 
   const timeSlotHandleChange: InputChangeHandler = (e) => {
-    let valueStr = e.target.value;
-    let value = parseInt(valueStr, 10);
+    const valueStr = e.target.value;
+    const value = parseInt(valueStr, 10);
     console.log(value);
-    let timeSlot = [...lockScheduleData.timeslots];
+    const timeSlot = [...lockScheduleData.timeslots];
     dispatch({
       type: "SET_TIME_SLOT",
       payload: timeSlot.includes(value)
@@ -163,7 +163,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const classRoomHandleChange = (value: string) => {
-    let grade = [...lockScheduleData.GradeIDs];
+    const grade = [...lockScheduleData.GradeIDs];
     if (!lockScheduleData.GradeIDs.includes(value)) {
       grade.push(value);
     } else {
@@ -218,7 +218,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     });
   }, [lockScheduleData.subject]);
   const handleConfirm = () => {
-    let cond =
+    const cond =
       isEmptyData.Subject ||
       isEmptyData.DayOfWeek ||
       isEmptyData.timeslots ||
@@ -244,14 +244,14 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const handleAddTeacherList = (value: teacher) => {
-    let teacherList = [...lockScheduleData.teachers];
+    const teacherList = [...lockScheduleData.teachers];
     teacherList.push(value);
     dispatch({ type: "SET_TEACHERS", payload: teacherList });
   };
 
   const removeTeacherFromList = (value: teacher) => {
-    let teacherList = [...lockScheduleData.teachers];
-    let index = teacherList.indexOf(value);
+    const teacherList = [...lockScheduleData.teachers];
+    const index = teacherList.indexOf(value);
     teacherList.splice(index, 1);
     dispatch({ type: "SET_TEACHERS", payload: teacherList });
   };

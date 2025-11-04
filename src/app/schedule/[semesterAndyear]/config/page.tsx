@@ -96,22 +96,22 @@ function TimetableConfigValue() {
     }
   }, [tableConfig.isValidating, academicYear, semester]);
   const handleChangeStartTime = (e: any) => {
-    let value = e.target.value;
+    const value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));
   };
   const [breakSlotMap, setBreakSlotMap] = useState<number[]>([]); //เอาไว้แมพเพื่อใช้กับ กำหนดคาบพักเที่ยง ข้อมูลตัวอย่าง => [1, 2, 3, 4, 5]
   useEffect(() => {
-    let breakSlot: number[] = []; //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
+    const breakSlot: number[] = []; //ก่อน render เสร็จจะให้ set ค่า default หรือค่าที่ได้มาก่อน
     for (let i = 0; i < configData.TimeslotPerDay; i++) {
       breakSlot.push(i + 1);
     }
     setBreakSlotMap(breakSlot);
-    let currentValue = configData.TimeslotPerDay;
-    let breakJVal = configData.BreakTimeslots.Junior;
-    let breakSVal = configData.BreakTimeslots.Senior;
+    const currentValue = configData.TimeslotPerDay;
+    const breakJVal = configData.BreakTimeslots.Junior;
+    const breakSVal = configData.BreakTimeslots.Senior;
     if (breakJVal > currentValue || breakSVal > currentValue) {
-      let jVal = breakJVal > currentValue ? currentValue : breakJVal; //ถ้า range เกินจะเซ็ทเป็นค่าสูงสุดของ TimeSlotPerDay
-      let sVal = breakSVal > currentValue ? currentValue : breakSVal;
+      const jVal = breakJVal > currentValue ? currentValue : breakJVal; //ถ้า range เกินจะเซ็ทเป็นค่าสูงสุดของ TimeSlotPerDay
+      const sVal = breakSVal > currentValue ? currentValue : breakSVal;
       setConfigData(() => ({
         ...configData,
         BreakTimeslots: { Junior: jVal, Senior: sVal },

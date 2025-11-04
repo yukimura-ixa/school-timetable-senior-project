@@ -12,7 +12,7 @@ type Props = {
 function SelectedClassRoom(props: Props) {
   const { data, isLoading, error, mutate } = useGradeLevels();
   const asdas = () => {
-    let a = data.filter((item) => item.Year == 1).map((item) => item)
+    const a = data.filter((item) => item.Year == 1).map((item) => item)
     console.log(props.Grade)
   }
   return (

@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `timeslot` MODIFY `Breaktime` ENUM('BREAK_JUNIOR', 'BREAK_SENIOR', 'BREAK_BOTH', 'NOT_BREAK') NOT NULL;

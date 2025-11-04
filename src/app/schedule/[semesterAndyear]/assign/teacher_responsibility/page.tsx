@@ -93,7 +93,7 @@ function ClassroomResponsibility() {
     Subjects: [] as any[],
   });
   useEffect(() => {
-    const ClassRoomClassify = (year: number): String[] => {
+    const ClassRoomClassify = (year: number): string[] => {
       //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
       //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
@@ -143,7 +143,7 @@ function ClassroomResponsibility() {
     //ข้อจำกัดคือ ถ้าลบห้องเรียนแล้วเพิ่มใหม่ ก็ต้องเพิ่มวิชาใหม่
     setClassRoomList(rooms);
     setData(() => {
-      let newData = data;
+      const newData = data;
       if (rooms.length > 0) {
         const gradeIndex = data.Grade.findIndex((item) => item.Year == year);
         if (gradeIndex !== -1 && newData.Grade[gradeIndex]) {

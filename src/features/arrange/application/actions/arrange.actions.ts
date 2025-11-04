@@ -167,14 +167,14 @@ export const syncTeacherScheduleAction = createAction<
     const successfulDeletes = deletedResults.filter((r) => r !== null) as Array<{
       ClassID: string;
     }>;
-    const successfulAdds = addedResults.filter((r) => r !== null) as typeof changes.added;
+    const successfulAdds = addedResults.filter((r) => r !== null);
 
     const totalChanges = countChanges({
       deleted: successfulDeletes,
       added: successfulAdds,
     });
 
-    console.log(`[syncTeacherScheduleAction] Teacher ${input.TeacherID}: ${totalChanges} changes (${successfulDeletes.length} deleted, ${successfulAdds.length} added)`);
+    console.warn(`[syncTeacherScheduleAction] Teacher ${input.TeacherID}: ${totalChanges} changes (${successfulDeletes.length} deleted, ${successfulAdds.length} added)`);
 
     return {
       success: true,

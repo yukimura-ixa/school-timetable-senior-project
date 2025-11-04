@@ -13,12 +13,12 @@ type Props = {
 
 const TableResult = (props: Props) => {
   const findResult = (tID: number) => {
-    let filter1 = props.classData.filter((item) =>
+    const filter1 = props.classData.filter((item) =>
       item.teachers_responsibility
         .map((tid) => tid.TeacherID)
         .includes(tID),
     );
-    let filter2 = filter1.filter((cid, index) => filter1.findIndex(item => item.TimeslotID == cid.TimeslotID) == index)
+    const filter2 = filter1.filter((cid, index) => filter1.findIndex(item => item.TimeslotID == cid.TimeslotID) == index)
     return filter2.length;
   };
   return (

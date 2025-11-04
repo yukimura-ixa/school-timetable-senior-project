@@ -58,7 +58,7 @@ function AddSubjectModal(props: Props) {
   const searchTeacherID = useSearchParams().get("TeacherID");
   useEffect(() => {
     if (!isValidating && data && 'success' in data && data.success && data.data) {
-      const subjects = data.data as subject[];
+      const subjects = data.data;
       setSubject(subjects);
       const filterData = subjects.filter(
         (item) =>
@@ -76,7 +76,7 @@ function AddSubjectModal(props: Props) {
   useEffect(() => {
     //กรองวิชาที่เคยมีอยู่แล้วออกไปจาก dropdown โดยเช็คจากชื่อวิชาและรหัสวิชา
     if (!data || !('success' in data) || !data.success || !data.data) return;
-    const subjects = data.data as subject[];
+    const subjects = data.data;
     const filterDataR1 = subjects.filter(
       (item) =>
         !subjectByGradeID
@@ -108,8 +108,8 @@ function AddSubjectModal(props: Props) {
     // subjectByGradeID จะเก็บวิชาของมอนั้นๆ
     // เราจะแยกให้ byGradeID เป็นตัวนำมาแสดงในหน้าเว็บและ current จะเป็นตัวหลักเพื่อไปอัปเดตข้อมูลกับหน้ามอบหมาย
     // พอกดลบวิชาปัจจุบัน เราจะทำการหา index เพื่อใช้ลบข้อมูลโดยที่จะให้ทั้งสองอาร์เรย์นั้นลบข้อมูลพร้อมกันและสัมพันธ์กันเพื่อลบข้อมูลออกไป
-    let indexMain = currentSubject.indexOf(subject);
-    let indexSub = subjectByGradeID.indexOf(subject);
+    const indexMain = currentSubject.indexOf(subject);
+    const indexSub = subjectByGradeID.indexOf(subject);
     setCurrentSubject(() =>
       currentSubject.filter((item, ind) => ind != indexMain),
     );
@@ -126,18 +126,18 @@ function AddSubjectModal(props: Props) {
     }
   };
   const findNullData = (): boolean => {
-    let findNull = subjectList.map((item) => item.SubjectCode);
+    const findNull = subjectList.map((item) => item.SubjectCode);
     return findNull.includes("");
   };
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    let res = subjectFilter.filter((item) =>
+    const res = subjectFilter.filter((item) =>
       `${item.SubjectCode} - ${item.SubjectName}`.match(name),
     );
     setSubject(res);
   };
   const searchHandle: InputChangeHandler = (event) => {
-    let text = event.target.value;
+    const text = event.target.value;
     setSearchText(text);
     searchName(text);
   };
