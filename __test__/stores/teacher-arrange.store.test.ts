@@ -1,4 +1,8 @@
 /**
+ * @jest-environment jsdom
+ */
+
+/**
  * Teacher Arrange Store Unit Tests
  * 
  * Comprehensive test suite for the Context7-powered Zustand store.

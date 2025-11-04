@@ -70,6 +70,13 @@ class LocalStorageMock {
 
 global.localStorage = new LocalStorageMock();
 
+// Mock Prisma Accelerate extension to prevent network timeouts in tests
+// Prevents unpkg.com fetch and schema upload during test initialization
+// See: GitHub Issue #54 - Prisma Accelerate Network Timeout
+jest.mock('@prisma/extension-accelerate', () => ({
+  withAccelerate: () => (client) => client, // Pass-through mock
+}));
+
 // Mock Auth.js to prevent ESM import errors
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({
