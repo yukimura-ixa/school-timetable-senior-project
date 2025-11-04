@@ -1,85 +1,32 @@
 /**
  * Public data access for system statistics and visualizations
+ * 
+ * MIGRATED: Now uses publicDataRepository instead of direct Prisma queries
+ * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
-import prisma from "@/lib/prisma";
-import { day_of_week } from "@/prisma/generated";
+import { semester } from "@/prisma/generated";
+import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
+import type {
+  QuickStats,
+  PeriodLoad,
+  RoomOccupancy,
+} from "@/lib/infrastructure/repositories/public-data.repository";
 
-export type QuickStats = {
-  totalTeachers: number;
-  totalClasses: number;
-  totalRooms: number;
-  totalSubjects: number;
-  totalPrograms: number;
-  periodsPerDay: number;
-  currentTerm: string;
-  lastUpdated: string;
-};
-
-export type PeriodLoad = {
-  day: string;
-  periods: number;
-};
-
-export type RoomOccupancy = {
-  day: string;
-  period: number;
-  occupancyPercent: number;
-};
+// Re-export types for backward compatibility
+export type { QuickStats, PeriodLoad, RoomOccupancy };
 
 /**
  * Get quick stats for homepage
  * Uses Next.js fetch cache with 60s revalidation
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getQuickStats(): Promise<QuickStats> {
   try {
-    const [teacherCount, classCount, roomCount, subjectCount, programCount, config] = await Promise.all([
-      prisma.teacher.count(),
-      prisma.gradelevel.count(),
-      prisma.room.count(),
-      prisma.subject.count(),
-      prisma.program.count(),
-      prisma.table_config.findFirst({
-        orderBy: { AcademicYear: "desc" },
-        select: { AcademicYear: true, Semester: true, Config: true, updatedAt: true },
-      }),
-    ]);
-
-    // Get periods per day from timeslots
-    const periodsPerDay = await prisma.timeslot.count({
-      where: {
-        DayOfWeek: "MON",
-        AcademicYear: config?.AcademicYear,
-        Semester: config?.Semester,
-      },
-    });
-
-    const semesterLabel =
-      config?.Semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2";
-
-    // Format last updated date in Thai
-    const lastUpdated = config?.updatedAt 
-      ? new Intl.DateTimeFormat('th-TH', { 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }).format(config.updatedAt)
-      : "ไม่ทราบ";
-
-    return {
-      totalTeachers: teacherCount,
-      totalClasses: classCount,
-      totalRooms: roomCount,
-      totalSubjects: subjectCount,
-      totalPrograms: programCount,
-      periodsPerDay,
-      currentTerm: `${config?.AcademicYear} ${semesterLabel}`,
-      lastUpdated,
-    };
+    return await publicDataRepository.getQuickStats();
   } catch (err) {
-    console.warn("[PublicStats] getQuickStats fallback to defaults:", (err as Error).message);
+    console.warn("[PublicStats] getQuickStats error:", (err as Error).message);
     return {
       totalTeachers: 0,
       totalClasses: 0,
@@ -87,8 +34,8 @@ export async function getQuickStats(): Promise<QuickStats> {
       totalSubjects: 0,
       totalPrograms: 0,
       periodsPerDay: 0,
-      currentTerm: "ไม่มีข้อมูล",
-      lastUpdated: "ไม่ทราบ",
+      currentTerm: "N/A",
+      lastUpdated: new Date().toISOString(),
     };
   }
 }
@@ -96,40 +43,32 @@ export async function getQuickStats(): Promise<QuickStats> {
 /**
  * Get period load per day for sparkline visualization
  * Uses Next.js fetch cache with 60s revalidation
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
   try {
-    const config = await prisma.table_config.findFirst({
-      orderBy: { AcademicYear: "desc" },
-      select: { AcademicYear: true, Semester: true },
-    });
+    // Get current term info from quick stats
+    const stats = await publicDataRepository.getQuickStats();
+    
+    if (stats.currentTerm === 'N/A') {
+      return [];
+    }
 
-    if (!config) return [];
+    // Extract academic year and semester from current term
+    const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
+    const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
+    
+    if (!termMatch?.[1] || !semesterMatch?.[1]) {
+      return [];
+    }
 
-    const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
+    const academicYear = parseInt(termMatch[1], 10);
+    const semesterValue = semesterMatch[1] === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
 
-    const loadData = await Promise.all(
-      days.map(async (day) => {
-        const count = await prisma.class_schedule.count({
-          where: {
-            timeslot: {
-              DayOfWeek: day,
-              AcademicYear: config.AcademicYear,
-              Semester: config.Semester,
-            },
-          },
-        });
-
-        return {
-          day: day.slice(0, 3), // MON, TUE, etc.
-          periods: count,
-        };
-      }),
-    );
-
-    return loadData;
+    return await publicDataRepository.getPeriodLoad(academicYear, semesterValue);
   } catch (err) {
-    console.warn("[PublicStats] getPeriodLoadPerDay fallback to empty:", (err as Error).message);
+    console.warn("[PublicStats] getPeriodLoadPerDay error:", (err as Error).message);
     return [];
   }
 }
@@ -137,65 +76,32 @@ export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
 /**
  * Get room occupancy data for heatmap
  * Uses Next.js fetch cache with 60s revalidation
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getRoomOccupancy(): Promise<RoomOccupancy[]> {
   try {
-    const config = await prisma.table_config.findFirst({
-      orderBy: { AcademicYear: "desc" },
-      select: { AcademicYear: true, Semester: true },
-    });
-
-    if (!config) return [];
-
-    const [totalRooms, timeslots] = await Promise.all([
-      prisma.room.count(),
-      prisma.timeslot.findMany({
-        where: {
-          AcademicYear: config.AcademicYear,
-          Semester: config.Semester,
-        },
-        select: {
-          TimeslotID: true,
-          DayOfWeek: true,
-        },
-        orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
-      }),
-    ]);
-
-    // Group by day and calculate occupancy percentage
-    const occupancyData: RoomOccupancy[] = [];
-    const periodCounter: Record<string, number> = {};
-
-    for (const slot of timeslots) {
-      const dayKey = slot.DayOfWeek;
-      if (!periodCounter[dayKey]) {
-        periodCounter[dayKey] = 1;
-      }
-
-      // Count schedules for this timeslot
-      const scheduleCount = await prisma.class_schedule.count({
-        where: {
-          TimeslotID: slot.TimeslotID,
-        },
-      });
-
-      const occupancyPercent =
-        totalRooms > 0
-          ? Math.round((scheduleCount / totalRooms) * 100)
-          : 0;
-
-      occupancyData.push({
-        day: dayKey.slice(0, 3),
-        period: periodCounter[dayKey],
-        occupancyPercent,
-      });
-
-      periodCounter[dayKey]++;
+    // Get current term info from quick stats
+    const stats = await publicDataRepository.getQuickStats();
+    
+    if (stats.currentTerm === 'N/A') {
+      return [];
     }
 
-    return occupancyData;
+    // Extract academic year and semester from current term
+    const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
+    const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
+    
+    if (!termMatch?.[1] || !semesterMatch?.[1]) {
+      return [];
+    }
+
+    const academicYear = parseInt(termMatch[1], 10);
+    const semesterValue = semesterMatch[1] === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
+
+    return await publicDataRepository.getRoomOccupancy(academicYear, semesterValue);
   } catch (err) {
-    console.warn("[PublicStats] getRoomOccupancy fallback to empty:", (err as Error).message);
+    console.warn("[PublicStats] getRoomOccupancy error:", (err as Error).message);
     return [];
   }
 }

@@ -15,15 +15,17 @@ import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock
  * const { data, isLoading, error, mutate } = useLockedSchedules(2567, 1)
  */
 export const useLockedSchedules = (academicYear: number, semester: number) => {
+  const fetcher: any = async () => {
+    const result = await getLockedSchedulesAction({
+      AcademicYear: academicYear,
+      Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
+    })
+    return result.success ? result.data : []
+  }
+  
   const { data, error, mutate } = useSWR<GroupedLockedSchedule[]>(
     `locked-schedules-${academicYear}-${semester}`,
-    async () => {
-      const result = await getLockedSchedulesAction({
-        AcademicYear: academicYear,
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
-      })
-      return result.success ? result.data : []
-    }
+    fetcher
   )
 
   return {

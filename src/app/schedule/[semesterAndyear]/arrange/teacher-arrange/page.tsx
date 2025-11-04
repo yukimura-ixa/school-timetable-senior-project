@@ -646,9 +646,7 @@ export default function TeacherArrangePageRefactored() {
   // ============================================================================
 
   const addSubjectToSlot = useCallback(
-    (subject: SubjectData | null, timeSlotID: string) => {
-      if (!subject) return; // Guard against null
-      
+    (subject: SubjectData, timeSlotID: string) => {
       const mapTimeSlot = {
         ...timeSlotData,
         AllData: timeSlotData.AllData.map((item) =>
@@ -705,8 +703,10 @@ export default function TeacherArrangePageRefactored() {
   );
 
   const cancelAddRoom = useCallback(
-    (subject: SubjectData, timeSlotID: string) => {
-      removeSubjectFromSlot(subject, timeSlotID);
+    (subject: SubjectData | null, timeSlotID: string) => {
+      if (subject) {
+        removeSubjectFromSlot(subject, timeSlotID);
+      }
       actions.clearSelectedSubject();
       actions.setYearSelected(null);
       actions.closeModal();
@@ -879,7 +879,7 @@ export default function TeacherArrangePageRefactored() {
         // Adding subject to timeslot - Phase 2: Pass SubjectPayload
         const payload: SubjectPayload = {
           timeslotID: targetDataUnknown.timeslotID,
-          selectedSubject: storeSelectedSubject,
+          selectedSubject: storeSelectedSubject!,
         };
         addRoomModal(payload);
         {
@@ -1304,7 +1304,7 @@ export default function TeacherArrangePageRefactored() {
         <SelectSubjectToTimeslotModal
           addSubjectToSlot={addSubjectToSlot}
           cancelAddRoom={cancelAddRoom}
-          payload={subjectPayload}
+          payload={subjectPayload!}
         />
       )}
 

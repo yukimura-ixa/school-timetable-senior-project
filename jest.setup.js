@@ -137,9 +137,20 @@ jest.mock('@/lib/prisma', () => {
       delete: jest.fn().mockResolvedValue({}),
       count: jest.fn().mockResolvedValue(15),
     },
+    student: {
+      findMany: jest.fn().mockResolvedValue([]),
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({}),
+      delete: jest.fn().mockResolvedValue({}),
+      count: jest.fn().mockResolvedValue(0),
+    },
     teachers_responsibility: {
       findMany: jest.fn().mockResolvedValue([]),
+      findUnique: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockResolvedValue({}),
       update: jest.fn().mockResolvedValue({}),
+      delete: jest.fn().mockResolvedValue({}),
       count: jest.fn().mockResolvedValue(0),
     },
     timeslot: {

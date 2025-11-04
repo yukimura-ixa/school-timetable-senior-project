@@ -171,7 +171,14 @@ describe("Config Repository - Lifecycle Methods", () => {
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { success: true };
-      mockPrisma.$transaction = jest.fn((callback) => callback(mockPrisma));
+      mockPrisma.$transaction = jest.fn((callback) => {
+        const mockTx = {
+          table_config: {
+            create: jest.fn().mockResolvedValue({ ConfigID: '1-2567' }),
+          },
+        };
+        return callback(mockTx);
+      });
 
       const result = await configRepository.transaction(async (tx) => {
         await tx.table_config.create({ data: {} as any });

@@ -25,15 +25,15 @@ function SelectDayOfWeek(props: Props) {
           ) : null}
         </div>
         <Dropdown
-          data={["MON", "TUE", "WED", "THU", "FRI"]}
-          renderItem={({ data }: { data: string }): JSX.Element => (
-            <li className="w-full text-sm">{dayOfWeekThai[data]}</li>
+          data={["MON", "TUE", "WED", "THU", "FRI"] as unknown[]}
+          renderItem={({ data }: { data: unknown }): JSX.Element => (
+            <li className="w-full text-sm">{dayOfWeekThai[data as string]}</li>
           )}
           width={200}
           height={40}
           currentValue={dayOfWeekThai[props.dayOfWeek]}
           placeHolder={"ตัวเลือก"}
-          handleChange={props.handleDayChange}
+          handleChange={(value: unknown) => props.handleDayChange(value as string)}
         />
       </div>
     </>

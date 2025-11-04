@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+// @ts-ignore - JS module without types
 import { showTimetableMenu } from "@/raw-data/menubar-data";
 import { usePathname } from "next/navigation";
 function DashboardMenubar() {
@@ -59,7 +60,7 @@ function DashboardMenubar() {
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">
               แสดงข้อมูล
             </p>
-            {showTimetableMenu.map((item, index) => {
+            {showTimetableMenu.map((item: any, index: number) => {
               return (
                 <React.Fragment key={item.id}>
                   {makePath(item.link) === linkSelected ? (

@@ -15,7 +15,7 @@ import type { CreateTimeslotsInput } from '../../application/schemas/timeslot.sc
 // Helper: convert Prisma semester enum to number string
 const toSemesterNum = (sem: semester): string => {
   const match = String(sem).match(/_(\d)$/);
-  return match ? match[1] : String(sem);
+  return match?.[1] || '1';
 };
 
 /**
@@ -117,8 +117,8 @@ export function sortTimeslots(timeslots: timeslot[]): timeslot[] {
     const dayB = dayOrder.indexOf(b.DayOfWeek);
 
     // Extract slot number from TimeslotID (format: "1-2567-MON1")
-    const slotA = parseInt(a.TimeslotID.split('-')[2].substring(3));
-    const slotB = parseInt(b.TimeslotID.split('-')[2].substring(3));
+    const slotA = parseInt(a.TimeslotID.split('-')[2]?.substring(3) || '0');
+    const slotB = parseInt(b.TimeslotID.split('-')[2]?.substring(3) || '0');
 
     // Sort by day first, then by slot number
     if (dayA === dayB) {

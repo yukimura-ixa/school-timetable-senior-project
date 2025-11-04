@@ -349,7 +349,7 @@ export const programRepository = {
       if (!grouped[program.Year]) {
         grouped[program.Year] = [];
       }
-      grouped[program.Year].push(program);
+      grouped[program.Year]?.push(program);
     }
 
     return grouped;

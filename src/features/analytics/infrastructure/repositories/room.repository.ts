@@ -72,6 +72,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     
     // Track day-by-day occupancy
     const day = extractDayFromTimeslotId(schedule.TimeslotID);
+    if (!day) return; // Skip invalid timeslots
     if (!roomDayOccupancy.has(schedule.RoomID)) {
       roomDayOccupancy.set(schedule.RoomID, new Map());
     }
@@ -111,6 +112,8 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     const day = extractDayFromTimeslotId(schedule.TimeslotID);
     const period = extractPeriodFromTimeslotId(schedule.TimeslotID);
     
+    if (!day || period === null) return; // Skip invalid timeslots
+    
     if (!dayOccupancyDetails.has(schedule.RoomID)) {
       dayOccupancyDetails.set(schedule.RoomID, new Map());
     }
@@ -125,7 +128,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     dayMap.set(period, {
       classId: schedule.ClassID,
       subjectCode: schedule.subject?.SubjectCode,
-      gradeId: schedule.GradeID,
+      gradeId: schedule.GradeID || undefined,
     });
   });
   

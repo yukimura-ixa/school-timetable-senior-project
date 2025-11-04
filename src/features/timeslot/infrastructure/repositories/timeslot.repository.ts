@@ -15,7 +15,7 @@ import { generateConfigID } from '@/features/config/domain/services/config-valid
 // Helper: convert Prisma semester enum (e.g., 'SEMESTER_1') to canonical number string ('1')
 const toSemesterNum = (sem: semester): string => {
   const match = String(sem).match(/_(\d)$/);
-  return match ? match[1] : String(sem);
+  return match?.[1] || '1';
 };
 export const timeslotRepository = {
   /**

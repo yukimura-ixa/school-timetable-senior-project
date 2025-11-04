@@ -1,0 +1,17 @@
+
+> school-timetable@2.0.0 typecheck B:\Dev\school-timetable-senior-project
+> tsc -p tsconfig.typecheck.json
+
+src/app/schedule/[semesterAndyear]/assign/component/ShowTeacherData.tsx(122,7): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & BoxOwnProps<Theme> & Omit<any, keyof BoxOwnProps<Theme>>): Element | null', gave the following error.
+    Type 'unknown' is not assignable to type 'ReactNode'.
+  Overload 2 of 2, '(props: DefaultComponentProps<BoxTypeMap<{}, "div", Theme>>): Element | null', gave the following error.
+    Type 'unknown' is not assignable to type 'ReactNode'.
+src/features/schedule-arrangement/presentation/stores/teacher-arrange.store.ts(383,29): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(target: {}, source: any): any', gave the following error.
+    Argument of type 'WritableDraft<SubjectData> | undefined' is not assignable to parameter of type '{}'.
+      Type 'undefined' is not assignable to type '{}'.
+  Overload 2 of 4, '(target: object, ...sources: any[]): any', gave the following error.
+    Argument of type 'WritableDraft<SubjectData> | undefined' is not assignable to parameter of type 'object'.
+      Type 'undefined' is not assignable to type 'object'.
+โ€ELIFECYCLEโ€ Command failed with exit code 1.

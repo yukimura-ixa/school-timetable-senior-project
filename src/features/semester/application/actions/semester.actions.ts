@@ -177,7 +177,7 @@ export async function createSemesterAction(
     }
 
     // Copy config from source if requested
-    let configData = {};
+    let configData: any = {};
     if (input.copyFromConfigId && input.copyConfig) {
       const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
@@ -298,7 +298,7 @@ export async function createSemesterWithTimeslotsAction(input: {
     // Use transaction for atomicity
     const newSemester = await semesterRepository.transaction(async (tx) => {
       // 1. Copy config from source if requested
-      let configData = {};
+      let configData: any = {};
       if (input.copyFromConfigId && input.copyConfig) {
         const source = await tx.table_config.findUnique({
           where: { ConfigID: input.copyFromConfigId },
@@ -519,7 +519,7 @@ export async function copySemesterAction(
     const newSemester = await semesterRepository.create({
       academicYear: input.targetAcademicYear,
       semester: input.targetSemester,
-      config: input.copyConfig ? source.Config : {},
+      config: (input.copyConfig ? source.Config : {}) as any,
     });
 
     // Copy timeslots if requested

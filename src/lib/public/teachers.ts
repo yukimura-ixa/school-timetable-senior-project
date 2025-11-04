@@ -1,131 +1,94 @@
 /**
  * Public data access layer for teachers
  * Security: Strict field whitelisting, NO PII (email)
+ * 
+ * MIGRATED: Now uses publicDataRepository instead of direct Prisma queries
+ * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
-import prisma from "@/lib/prisma";
-import type { Prisma } from "../../../prisma/generated";
+import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
+import type { PublicTeacher } from "@/lib/infrastructure/repositories/public-data.repository";
 
-export type PublicTeacher = {
-  teacherId: number;
-  name: string;
-  department: string;
-  subjectCount: number;
-  weeklyHours: number;
-  utilization: number; // percentage based on max hours (e.g., 40)
-};
+// Re-export type for backward compatibility
+export type { PublicTeacher };
 
-// Typed shape for teachers + responsibilities using Prisma payload
-type TeacherWithResponsibilities = Prisma.teacherGetPayload<{
-  include: {
-    teachers_responsibility: {
-      select: {
-        SubjectCode: true;
-        TeachHour: true;
-      };
-    };
-  };
-}>;
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
-const MAX_WEEKLY_HOURS = 40;
+/**
+ * Extract academic year and semester from term string
+ * Format: "ภาคเรียนที่ 1 ปีการศึกษา 2567"
+ */
+async function getCurrentTermInfo(): Promise<{
+  academicYear: number;
+  semester: string;
+} | null> {
+  try {
+    const config = await publicDataRepository.getQuickStats();
+    
+    if (!config || config.currentTerm === 'N/A') {
+      return null;
+    }
+
+    // Extract academic year and semester from current term
+    const termMatch = config.currentTerm.match(/ปีการศึกษา (\d+)/);
+    const semesterMatch = config.currentTerm.match(/ภาคเรียนที่ (\d+)/);
+    
+    if (!termMatch?.[1] || !semesterMatch?.[1]) {
+      return null;
+    }
+
+    const academicYear = parseInt(termMatch[1], 10);
+    const semester = semesterMatch[1] === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+
+    return { academicYear, semester };
+  } catch (err) {
+    console.warn("[PublicTeachers] getCurrentTermInfo error:", (err as Error).message);
+    return null;
+  }
+}
+
+// ============================================================================
+// Public API Functions
+// ============================================================================
 
 /**
  * Get teachers with public-safe data and teaching statistics
  * Uses Next.js fetch cache with 60s revalidation
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getPublicTeachers(
   searchQuery?: string,
   sortBy?: "name" | "hours" | "utilization",
   sortOrder?: "asc" | "desc",
-) : Promise<PublicTeacher[]> {
+): Promise<PublicTeacher[]> {
     try {
-      // Get current academic term from latest table_config
-      const config = await prisma.table_config.findFirst({
-        orderBy: { AcademicYear: "desc" },
-        select: { AcademicYear: true, Semester: true },
-      });
-
-      if (!config) {
+      const termInfo = await getCurrentTermInfo();
+      
+      if (!termInfo) {
         return [];
       }
 
-      // Query teachers with their teaching responsibilities
-      const teachers = (await prisma.teacher.findMany({
-        where: searchQuery
-          ? {
-              OR: [
-                {
-                  Firstname: { contains: searchQuery, mode: "insensitive" },
-                },
-                {
-                  Lastname: { contains: searchQuery, mode: "insensitive" },
-                },
-                {
-                  Department: { contains: searchQuery, mode: "insensitive" },
-                },
-              ],
-            }
-          : undefined,
-        include: {
-          teachers_responsibility: {
-            where: {
-              AcademicYear: config.AcademicYear,
-              Semester: config.Semester,
-            },
-            select: {
-              SubjectCode: true,
-              TeachHour: true,
-            },
-          },
-        },
-      })) as TeacherWithResponsibilities[];
-
-    // Map to public view model (excluding Email for PII protection)
-    const publicTeachers: PublicTeacher[] = teachers.map((teacher) => {
-      const uniqueSubjects = new Set(
-        teacher.teachers_responsibility.map((r) => r.SubjectCode),
-      );
-      const totalHours = teacher.teachers_responsibility.reduce(
-        (sum, r) => sum + r.TeachHour,
-        0,
-      );
-
-      const prefix = teacher.Prefix ?? "";
-
-      return {
-        teacherId: teacher.TeacherID,
-        name: `${prefix}${teacher.Firstname} ${teacher.Lastname}`,
-        department: teacher.Department ?? "",
-        subjectCount: uniqueSubjects.size,
-        weeklyHours: totalHours,
-        utilization: Math.round((totalHours / MAX_WEEKLY_HOURS) * 100),
-      };
-    });
-
-    // Apply sorting
-    const sortedTeachers = publicTeachers.sort((a, b) => {
-      const direction = sortOrder === "desc" ? -1 : 1;
-      switch (sortBy) {
-        case "hours":
-          return (a.weeklyHours - b.weeklyHours) * direction;
-        case "utilization":
-          return (a.utilization - b.utilization) * direction;
-        case "name":
-        default:
-          return a.name.localeCompare(b.name, "th") * direction;
-      }
-    });
-
-      return sortedTeachers;
+      // Use repository to fetch teachers
+      return await publicDataRepository.findPublicTeachers({
+        academicYear: termInfo.academicYear,
+        semester: termInfo.semester,
+        searchQuery,
+        sortBy,
+        sortOrder,
+      });
     } catch (err) {
-      // Graceful degradation for E2E environments without DB
-      console.warn("[PublicTeachers] Falling back to empty dataset due to error:", (err as Error).message);
+      console.warn("[PublicTeachers] getPublicTeachers error:", (err as Error).message);
       return [];
     }
 }
 
 /**
  * Get paginated teachers with search and sorting
+ * 
+ * MIGRATED: Uses getPublicTeachers which now uses repository
  */
 export async function getPaginatedTeachers(params: {
   page?: number;
@@ -164,10 +127,12 @@ export async function getPaginatedTeachers(params: {
 
 /**
  * Get total teacher count
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getTeacherCount(): Promise<number> {
   try {
-    return await prisma.teacher.count();
+    return await publicDataRepository.countTeachers();
   } catch (err) {
     console.warn("[PublicTeachers] getTeacherCount fallback to 0:", (err as Error).message);
     return 0;
@@ -176,6 +141,8 @@ export async function getTeacherCount(): Promise<number> {
 
 /**
  * Get top teachers by utilization for visualization
+ * 
+ * MIGRATED: Uses getPublicTeachers which now uses repository
  */
 export async function getTopTeachersByUtilization(limit = 5): Promise<PublicTeacher[]> {
   try {
@@ -188,6 +155,8 @@ export async function getTopTeachersByUtilization(limit = 5): Promise<PublicTeac
 
 /**
  * Get a single teacher by ID with public-safe data
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getPublicTeacherById(teacherId: number): Promise<{
   teacherId: number;
@@ -195,23 +164,25 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
   department: string | null;
 } | null> {
   try {
-    const teacher = await prisma.teacher.findUnique({
-      where: { TeacherID: teacherId },
-      select: {
-        TeacherID: true,
-        Prefix: true,
-        Firstname: true,
-        Lastname: true,
-        Department: true,
-      },
-    });
+    const termInfo = await getCurrentTermInfo();
+    
+    if (!termInfo) {
+      return null;
+    }
+
+    const teacher = await publicDataRepository.findPublicTeacherById(
+      teacherId,
+      termInfo.academicYear,
+      termInfo.semester
+    );
 
     if (!teacher) return null;
 
+    // Return simplified format for backward compatibility
     return {
-      teacherId: teacher.TeacherID,
-      name: `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`,
-      department: teacher.Department,
+      teacherId: teacher.teacherId,
+      name: teacher.name,
+      department: teacher.department || null,
     };
   } catch (err) {
     console.warn("[PublicTeachers] getPublicTeacherById error:", (err as Error).message);
@@ -221,55 +192,26 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
 
 /**
  * Get teacher's schedule for current semester
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getTeacherSchedule(teacherId: number) {
   try {
-    // Get current academic term
-    const config = await prisma.table_config.findFirst({
-      orderBy: { AcademicYear: "desc" },
-      select: { AcademicYear: true, Semester: true },
-    });
-
-    if (!config) return [];
+    const termInfo = await getCurrentTermInfo();
+    
+    if (!termInfo) {
+      return [];
+    }
 
     // Get teacher's responsibilities for this term
-    const responsibilities = await prisma.teachers_responsibility.findMany({
-      where: {
-        TeacherID: teacherId,
-        AcademicYear: config.AcademicYear,
-        Semester: config.Semester,
-      },
-      include: {
-        class_schedule: {
-          include: {
-            timeslot: true,
-            subject: {
-              select: {
-                SubjectCode: true,
-                SubjectName: true,
-              },
-            },
-            gradelevel: {
-              select: {
-                GradeID: true,
-                Year: true,
-                Number: true,
-              },
-            },
-            room: {
-              select: {
-                RoomID: true,
-                RoomName: true,
-                Building: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const responsibilities = await publicDataRepository.findTeacherResponsibilities(
+      teacherId,
+      termInfo.academicYear,
+      termInfo.semester
+    );
 
     // Flatten to class schedules
-    const schedules = responsibilities.flatMap((resp) => resp.class_schedule);
+    const schedules = responsibilities.flatMap((resp: any) => resp.class_schedule || []);
 
     // Sort by day and time
     return schedules.sort((a, b) => {

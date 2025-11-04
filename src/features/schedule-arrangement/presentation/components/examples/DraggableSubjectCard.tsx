@@ -267,9 +267,9 @@ export function DraggableSubjectCard({
             variant="outlined"
           />
           <Chip
-            label={`เหลือ ${subject.remainingHours} ชม.`}
+            label={`เหลือ ${subject.remainingHours || 0} ชม.`}
             size="small"
-            color={subject.remainingHours > 0 ? 'success' : 'error'}
+            color={(subject.remainingHours || 0) > 0 ? 'success' : 'error'}
             variant="outlined"
           />
         </Box>

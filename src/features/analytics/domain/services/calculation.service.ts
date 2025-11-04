@@ -34,7 +34,7 @@ export function parseConfigId(configId: string): ParsedConfig {
   }
   
   const [semesterStr, yearStr] = parts;
-  const academicYear = parseInt(yearStr, 10);
+  const academicYear = parseInt(yearStr || '0', 10);
   
   if (isNaN(academicYear)) {
     throw new Error(`Invalid academic year: ${yearStr}`);
@@ -226,7 +226,7 @@ export function extractPeriodFromTimeslotId(timeslotId: string): number | null {
   const parts = timeslotId.split("-");
   if (parts.length < 4) return null;
   
-  const period = parseInt(parts[3], 10);
+  const period = parseInt(parts[3] || '0', 10);
   return isNaN(period) ? null : period;
 }
 
@@ -239,7 +239,7 @@ export function extractPeriodFromTimeslotId(timeslotId: string): number | null {
 export function extractDayFromTimeslotId(timeslotId: string): string | null {
   const parts = timeslotId.split("-");
   if (parts.length < 4) return null;
-  return parts[2];
+  return parts[2] || null;
 }
 
 /**

@@ -36,8 +36,8 @@ export const hexToRGB = (hex: string): RGBColor => {
       ];
 
   return {
-    r: parseInt(rHex, 16),
-    g: parseInt(gHex, 16),
-    b: parseInt(bHex, 16),
+    r: parseInt(rHex || '0', 16),
+    g: parseInt(gHex || '0', 16),
+    b: parseInt(bHex || '0', 16),
   };
 };

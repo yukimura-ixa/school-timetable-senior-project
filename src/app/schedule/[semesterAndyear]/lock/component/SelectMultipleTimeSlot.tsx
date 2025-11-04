@@ -10,7 +10,7 @@ import type { subject, teacher } from "@/prisma/generated";
 type Props = {
   subject?: subject;
   timeSlotHandleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  checkedCondition: number[];
+  checkedCondition: string[];
   required: boolean;
   daySelected?: string;
 };
@@ -22,10 +22,10 @@ function SelectMultipleTimeSlot(props: Props) {
     "-",
   ); //from "1-2566" to ["1", "2566"]
   const timeSlotData = useTimeslots(
-    parseInt(academicYear),
-    parseInt(semester),
+    parseInt(academicYear || '0'),
+    parseInt(semester || '0'),
   );
-  const [timeSlot, setTimeSlot] = useState([]);
+  const [timeSlot, setTimeSlot] = useState<string[]>([]);
   useEffect(() => {
     if (!timeSlotData.isLoading) {
       setTimeSlot(() =>
@@ -37,8 +37,11 @@ function SelectMultipleTimeSlot(props: Props) {
   }, [timeSlotData.isLoading, props.daySelected]);
 
 
-  const checkTimeslotCond = (index) => {
-    const timeslotCredit = subjectCreditValues[props.subject.Credit] * 2;
+  const checkTimeslotCond = (index: number) => {
+    if (!props.subject?.Credit) return false;
+    const creditValue = subjectCreditValues[props.subject.Credit as subject_credit];
+    if (!creditValue) return false;
+    const timeslotCredit = creditValue * 2;
     const checkedIndex = props.checkedCondition.map((item) =>
       timeSlot.indexOf(item),
     );

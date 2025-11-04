@@ -378,9 +378,9 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
         updateSubjectInData: (subjectCode, updates) =>
           set((state) => {
             const index = state.subjectData.findIndex((s) => s.subjectCode === subjectCode);
-            if (index !== -1) {
-              // Immer allows direct mutation
-              Object.assign(state.subjectData[index], updates);
+            if (index !== -1 && state.subjectData[index]) {
+              // Immer allows direct mutation - cast to any to bypass WritableDraft type
+              Object.assign(state.subjectData[index]!, updates as any);
             }
           }, undefined, 'data/updateSubjectInData'),
 
@@ -717,8 +717,4 @@ export type {
   TeacherArrangeState,
   TeacherArrangeActions,
   TeacherArrangeStore,
-  TimeSlotContainer,
-  HistoryStack,
-  FilterPreferences,
-  ErrorState,
 };

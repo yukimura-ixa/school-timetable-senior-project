@@ -21,7 +21,7 @@ type Props = {
 function SelectedClassRoom(props: Props) {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  const teacherIDs = props.teachers.map((teacher) => teacher.TeacherID);
+  const teacherIDs = props.teachers?.map((teacher) => teacher.TeacherID) || [];
 
   const { data, isValidating } = useSWR(
     props.subject && semester && academicYear && teacherIDs.length > 0
@@ -100,7 +100,7 @@ function SelectedClassRoom(props: Props) {
                 ) : (
                   allClassRoom
                     .filter((item) => item.Year === grade)[0]
-                    .rooms.map((classroom: string) => (
+                    ?.rooms.map((classroom: string) => (
                       <Fragment key={`ม.${classroom}`}>
                         <MiniButton
                           titleColor={

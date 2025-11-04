@@ -66,7 +66,7 @@ export async function create(data: ConfigData) {
       ConfigID: data.ConfigID,
       AcademicYear: data.AcademicYear,
       Semester: data.Semester,
-      Config: data.Config,
+      Config: data.Config as any,
     },
   });
 }
@@ -85,8 +85,8 @@ export async function update(
     data: {
       ...(data.AcademicYear !== undefined && { AcademicYear: data.AcademicYear }),
       ...(data.Semester !== undefined && { Semester: data.Semester }),
-      ...(data.Config !== undefined && { Config: data.Config }),
-    },
+      ...(data.Config !== undefined && { Config: data.Config as any }),
+    } as any,
   });
 }
 
@@ -226,6 +226,27 @@ export async function findByIdWithCounts(
   };
 }
 
+
+/**
+ * Get timetable configuration for a specific semester
+ * Returns only the Config JSON field
+ */
+export async function getTimetableConfig(
+  academicYear: number,
+  semester: semester
+) {
+  const config = await prisma.table_config.findFirst({
+    where: {
+      AcademicYear: academicYear,
+      Semester: semester,
+    },
+    select: {
+      Config: true,
+    },
+  });
+
+  return config?.Config ?? null;
+}
 
 /**
  * Execute a transaction with a custom function

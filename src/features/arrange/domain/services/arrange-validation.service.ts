@@ -104,7 +104,7 @@ export function getRespID(subject: SubjectData): number | undefined {
   
   // RespID from teachers_responsibility array
   if (subject.teachers_responsibility && subject.teachers_responsibility.length > 0) {
-    return subject.teachers_responsibility[0].RespID;
+    return subject.teachers_responsibility[0]?.RespID;
   }
   
   return undefined;

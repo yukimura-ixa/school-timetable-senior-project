@@ -46,8 +46,8 @@ export interface LockScheduleFormData {
   Subject: subject;
   /** Day of week for the lock */
   DayOfWeek: string;
-  /** Selected timeslot IDs (array of numbers) */
-  timeSlotID: number[];
+  /** Selected timeslot IDs (array of strings like "1-2567-MON1") */
+  timeSlotID: string[];
   /** Selected teacher list */
   Teachers: teacher[];
   /** Selected grade IDs */

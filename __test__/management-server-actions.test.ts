@@ -163,7 +163,8 @@ describe("Subject Management Server Actions", () => {
     const result = await getSubjectsAction();
     
     if (result.success) {
-      const validCategories = ["พื้นฐาน", "เพิ่มเติม", "กิจกรรมพัฒนาผู้เรียน"];
+      // Category field contains enum values, not Thai display names
+      const validCategories = ["CORE", "ADDITIONAL", "ACTIVITY"];
       
       result.data.forEach((subject) => {
         expect(validCategories).toContain(subject.Category);

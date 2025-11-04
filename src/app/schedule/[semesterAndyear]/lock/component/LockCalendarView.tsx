@@ -160,7 +160,7 @@ function LockCalendarView({
 
   const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
   const maxPeriods = Math.max(
-    ...days.map((day) => Object.keys(timeslotGrid[day]).length)
+    ...days.map((day) => Object.keys(timeslotGrid[day] || {}).length)
   );
   const periods: number[] = Array.from({ length: maxPeriods }, (_, i) => i + 1);
 
@@ -249,7 +249,7 @@ function LockCalendarView({
 
               {/* Day Cells */}
               {days.map((day) => {
-                const timeslot = timeslotGrid[day][period];
+                const timeslot = timeslotGrid[day]?.[period];
                 const lock = timeslot ? (lockMap[timeslot.TimeslotID] ?? null) : null;
                 const lockType = lock ? getLockType(lock) : null;
                 const config = lockType !== null ? LOCK_TYPE_CONFIG[lockType] : null;

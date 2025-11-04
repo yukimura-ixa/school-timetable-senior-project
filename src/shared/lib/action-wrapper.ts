@@ -103,7 +103,7 @@ export function createAction<TInput, TOutput>(
       }
 
       // 3. Execute business logic
-      const data = await handler(validationResult.output, session.user.id);
+      const data = await handler(validationResult.output, session.user.id || '');
 
       // 4. Return success
       return {

@@ -171,7 +171,7 @@ function ShowTeacherData() {
                   {option.Firstname[0]}
                   {option.Lastname[0]}
                 </Avatar>
-                <Box sx={{ flexGrow: 1 }}>
+                <Box sx={{ flexGrow: 1 } as const}>
                   <Typography variant="body1">
                     {option.Prefix} {option.Firstname} {option.Lastname}
                   </Typography>
@@ -202,7 +202,7 @@ function ShowTeacherData() {
         <>
           {/* Teacher Info Card */}
           <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 } as const}>
               <Avatar
                 sx={{
                   bgcolor: "primary.main",
@@ -214,7 +214,7 @@ function ShowTeacherData() {
                 {teacher.Firstname[0]}
                 {teacher.Lastname[0]}
               </Avatar>
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={{ flexGrow: 1 } as const}>
                 <Typography variant="h6">
                   {teacher.Prefix} {teacher.Firstname} {teacher.Lastname}
                 </Typography>

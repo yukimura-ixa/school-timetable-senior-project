@@ -68,7 +68,7 @@ export function parseThaiYear(thaiYearStr: string): number {
   if (!match) {
     throw new Error(`Invalid Thai year format: ${thaiYearStr}. Expected format: "ม.1" to "ม.6"`);
   }
-  const year = parseInt(match[1], 10);
+  const year = parseInt(match[1] || '0', 10);
   if (year < THAI_YEAR_MIN || year > THAI_YEAR_MAX) {
     throw new Error(`Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);
   }
@@ -109,8 +109,8 @@ export function parseThaiGradeID(gradeID: string): { year: number; section: numb
   if (!match) {
     throw new Error(`Invalid Thai GradeID format: ${gradeID}. Expected format: "ม.1/1", "ม.2/2", etc.`);
   }
-  const year = parseInt(match[1], 10);
-  const section = parseInt(match[2], 10);
+  const year = parseInt(match[1] || '0', 10);
+  const section = parseInt(match[2] || '0', 10);
   
   if (year < THAI_YEAR_MIN || year > THAI_YEAR_MAX) {
     throw new Error(`Invalid Thai year in GradeID: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);

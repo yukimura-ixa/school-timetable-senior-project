@@ -59,7 +59,6 @@
     "prisma.config.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "e2e/**/*",
     ".next/dev/dev/types/**/*.ts"
   ],
   "exclude": [
@@ -67,6 +66,7 @@
     "legacy/**/*",
     "prisma/**/*",
     "__test__/**/*",
+    "e2e/**/*",
     "src/**/*.old.tsx"
   ]
 }

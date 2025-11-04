@@ -73,7 +73,15 @@ describe("Assign Repository - New Methods", () => {
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { deleted: 1, created: 2 };
-      mockPrisma.$transaction = jest.fn((callback) => callback(mockPrisma));
+      mockPrisma.$transaction = jest.fn((callback) => {
+        const mockTx = {
+          teachers_responsibility: {
+            delete: jest.fn().mockResolvedValue({ RespID: 1 }),
+            create: jest.fn().mockResolvedValue({ RespID: 2 }),
+          },
+        };
+        return callback(mockTx);
+      });
 
       const result = await assignRepository.transaction(async (tx) => {
         await tx.teachers_responsibility.delete({ where: { RespID: 1 } });

@@ -271,8 +271,8 @@ export const conflictRepository = {
 
       // Add teacher conflicts (more than 1 class for same teacher)
       for (const [teacherId, teacherSchedules] of schedulesByTeacher) {
-        if (teacherSchedules.length > 1) {
-          const firstTeacher = teacherSchedules[0].teachers_responsibility.find(
+        if (teacherSchedules.length > 1 && teacherSchedules[0]) {
+          const firstTeacher = teacherSchedules[0]?.teachers_responsibility?.find(
             r => r.TeacherID === teacherId
           )?.teacher;
           
@@ -286,14 +286,14 @@ export const conflictRepository = {
               teacherId,
               teacherName: `${firstTeacher.Prefix}${firstTeacher.Firstname} ${firstTeacher.Lastname}`,
               timeslotId,
-              day: teacherSchedules[0].timeslot.DayOfWeek,
+              day: teacherSchedules[0]?.timeslot?.DayOfWeek || 'MON',
               periodStart,
               conflicts: teacherSchedules.map(s => ({
                 scheduleId: s.ClassID,
                 gradeId: s.GradeID,
-                gradeName: `${s.gradelevel.Year}/${s.gradelevel.Number}`,
+                gradeName: `${s.gradelevel?.Year || ''}/${s.gradelevel?.Number || ''}`,
                 subjectCode: s.SubjectCode,
-                subjectName: s.subject.SubjectName,
+                subjectName: s.subject?.SubjectName || 'ไม่ระบุ',
                 roomId: s.RoomID || 0,
                 roomName: s.room?.RoomName || "ไม่ระบุ",
               })),
@@ -315,8 +315,8 @@ export const conflictRepository = {
 
       // Add room conflicts (more than 1 class in same room)
       for (const [roomId, roomSchedules] of schedulesByRoom) {
-        if (roomSchedules.length > 1) {
-          const room = roomSchedules[0].room;
+        if (roomSchedules.length > 1 && roomSchedules[0]) {
+          const room = roomSchedules[0]?.room;
           if (room) {
             // Extract period from TimeslotID
             const periodMatch = timeslotId.match(/\d+$/);
@@ -327,19 +327,19 @@ export const conflictRepository = {
               roomId,
               roomName: room.RoomName,
               timeslotId,
-              day: roomSchedules[0].timeslot.DayOfWeek,
+              day: roomSchedules[0]?.timeslot?.DayOfWeek || 'MON',
               periodStart,
               conflicts: roomSchedules.map(s => {
                 const firstTeacher = s.teachers_responsibility[0];
                 return {
                   scheduleId: s.ClassID,
                   gradeId: s.GradeID,
-                  gradeName: `${s.gradelevel.Year}/${s.gradelevel.Number}`,
+                  gradeName: `${s.gradelevel?.Year || ''}/${s.gradelevel?.Number || ''}`,
                   subjectCode: s.SubjectCode,
-                  subjectName: s.subject.SubjectName,
+                  subjectName: s.subject?.SubjectName || 'ไม่ระบุ',
                   teacherId: firstTeacher?.TeacherID || 0,
                   teacherName: firstTeacher 
-                    ? `${firstTeacher.teacher.Prefix}${firstTeacher.teacher.Firstname} ${firstTeacher.teacher.Lastname}`
+                    ? `${firstTeacher.teacher?.Prefix || ''}${firstTeacher.teacher?.Firstname || ''} ${firstTeacher.teacher?.Lastname || ''}`
                     : "ไม่ระบุ",
                 };
               }),
@@ -368,9 +368,9 @@ export const conflictRepository = {
           classConflicts.push({
             type: 'CLASS_CONFLICT',
             gradeId,
-            gradeName: `${gradeSchedules[0].gradelevel.Year}/${gradeSchedules[0].gradelevel.Number}`,
+            gradeName: `${gradeSchedules[0]?.gradelevel?.Year || ''}/${gradeSchedules[0]?.gradelevel?.Number || ''}`,
             timeslotId,
-            day: gradeSchedules[0].timeslot.DayOfWeek,
+            day: gradeSchedules[0]?.timeslot?.DayOfWeek || 'MON',
             periodStart,
             conflicts: gradeSchedules.map(s => {
               const firstTeacher = s.teachers_responsibility[0];

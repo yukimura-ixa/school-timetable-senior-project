@@ -143,7 +143,7 @@ export async function getAllFeatureFlags(): Promise<Record<string, FlagConfig> |
   try {
     // Get all items from Edge Config
     const allConfig = await get<Record<string, FlagConfig>>('__all__');
-    return allConfig;
+    return allConfig || null;
   } catch (error) {
     console.error('[FeatureFlags] Error fetching all flags:', error);
     return null;

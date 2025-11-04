@@ -174,7 +174,7 @@ export function checkRoomConflict(
         subjectCode: conflict.subjectCode,
         subjectName: conflict.subjectName,
         gradeId: conflict.gradeId,
-        roomId: conflict.roomId,
+        roomId: conflict.roomId || undefined,
         roomName: conflict.roomName,
         timeslotId: conflict.timeslotId,
       },

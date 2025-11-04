@@ -127,7 +127,7 @@ interface ArrangementUIActions {
 
   // === Timeslot Actions ===
   setTimeSlotData: (data: Partial<ArrangementUIState['timeSlotData']>) => void;
-  updateTimeslotSubject: (timeslotID: string, subject: SubjectData) => void;
+  updateTimeslotSubject: (timeslotID: string, subject: SubjectData | null) => void;
   setLockData: (data: class_schedule[]) => void;
 
   // === Modal Actions ===
@@ -433,7 +433,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
         set(
           (state) => {
             const { past, present, future } = state.history;
-            if (past.length === 0) return state;
+            if (past.length === 0) return state as any;
 
             const previous = past[past.length - 1];
             const newPast = past.slice(0, past.length - 1);
@@ -455,7 +455,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
         set(
           (state) => {
             const { past, present, future } = state.history;
-            if (future.length === 0) return state;
+            if (future.length === 0) return state as any;
 
             const next = future[0];
             const newFuture = future.slice(1);

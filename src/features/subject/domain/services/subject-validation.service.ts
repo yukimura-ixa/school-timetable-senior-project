@@ -77,6 +77,8 @@ export async function validateBulkCreateSubjects(
   // Process each subject
   for (let i = 0; i < subjects.length; i++) {
     const subject = subjects[i];
+    if (!subject) continue;
+    
     const trimmedCode = trimSubjectCode(subject.SubjectCode);
 
     // Check internal SubjectCode duplicates
@@ -124,6 +126,8 @@ export async function validateBulkUpdateSubjects(
 
   for (let i = 0; i < subjects.length; i++) {
     const subject = subjects[i];
+    if (!subject) continue;
+    
     const existsError = await validateSubjectExists(subject.SubjectCode);
 
     if (existsError) {

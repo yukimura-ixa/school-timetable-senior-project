@@ -56,7 +56,7 @@ export async function updateConfigStatusAction(input: {
     const updated = await configRepository.updateStatus(
       validated.configId,
       validated.status as ConfigStatus,
-      validated.status === "PUBLISHED" ? new Date() : config.publishedAt
+      validated.status === "PUBLISHED" ? new Date() : (config.publishedAt || undefined)
     );
 
     return {

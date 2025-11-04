@@ -108,9 +108,9 @@ export function resolveTemplate(input: ApplyTemplateInput): {
       roomId = room.RoomID;
     } else {
       // Use first available room as fallback
-      if (availableRooms.length > 0) {
+      if (availableRooms.length > 0 && availableRooms[0]) {
         roomId = availableRooms[0].RoomID;
-        warnings.push(`ไม่พบห้อง "${config.roomName}" ใช้ห้อง "${availableRooms[0].Name}" แทน`);
+        warnings.push(`ไม่พบห้อง "${config.roomName}" ใช้ห้อง "${availableRooms[0]?.Name}" แทน`);
       } else {
         errors.push('ไม่พบห้องเรียนในระบบ');
         return { locks, warnings, errors };
@@ -133,7 +133,7 @@ export function resolveTemplate(input: ApplyTemplateInput): {
     respId = resp.RespID;
   } else {
     // Use first available responsibility as fallback
-    if (availableResponsibilities.length > 0) {
+    if (availableResponsibilities.length > 0 && availableResponsibilities[0]) {
       respId = availableResponsibilities[0].RespID;
       warnings.push(`ไม่พบครูที่สอนวิชา "${config.subjectCode}" ใช้ครูคนแรกแทน`);
     } else {

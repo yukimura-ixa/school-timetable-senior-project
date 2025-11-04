@@ -19,7 +19,17 @@ describe("Timeslot Repository - Transaction Method", () => {
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { created: 5 };
-      mockPrisma.$transaction = jest.fn((callback) => callback(mockPrisma));
+      mockPrisma.$transaction = jest.fn((callback) => {
+        const mockTx = {
+          table_config: {
+            create: jest.fn().mockResolvedValue({ ConfigID: '1-2567' }),
+          },
+          timeslot: {
+            createMany: jest.fn().mockResolvedValue({ count: 5 }),
+          },
+        };
+        return callback(mockTx);
+      });
 
       const result = await timeslotRepository.transaction(async (tx) => {
         await tx.table_config.create({ data: {} as any });

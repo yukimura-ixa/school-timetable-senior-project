@@ -52,7 +52,7 @@ function LockSchedule() {
 
   const { confirm, dialog } = useConfirmDialog();
 
-  const [showMoreteachherData, setShowMoreteacherData] = useState(null); //index
+  const [showMoreteachherData, setShowMoreteacherData] = useState<number | null>(null); //index
   const params = useParams();
   
   // Sync URL params with global store
@@ -200,7 +200,7 @@ function LockSchedule() {
             const index = lockData.data.findIndex(
               (item) => item.SubjectCode === lock.SubjectCode
             );
-            if (index !== -1) {
+            if (index !== -1 && lockData.data[index]) {
               setSelectedLock(lockData.data[index]);
               setLockScheduleFormActive(true);
             }
@@ -235,7 +235,7 @@ function LockSchedule() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-500">
-                  สถานที่ : {item.room.RoomName}
+                  สถานที่ : {item.room?.RoomName || 'ไม่ระบุ'}
                 </p>
                 <p className="text-sm text-gray-500">
                   คาบที่ :{" "}
@@ -250,7 +250,7 @@ function LockSchedule() {
                     .join(",")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  วัน : {dayOfWeekThai[item.timeslots[0].DayOfWeek]}
+                  วัน : {item.timeslots[0]?.DayOfWeek ? dayOfWeekThai[item.timeslots[0].DayOfWeek] : 'ไม่ระบุ'}
                 </p>
                 {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
                 <div className="flex flex-row justify-between items-center">
@@ -311,9 +311,9 @@ function LockSchedule() {
                             titleColor="#4F515E"
                             buttonColor="#ffffff"
                             title={`${teacher.Firstname} - ${
-                              teacher.Department.length > 10
+                              teacher.Department && teacher.Department.length > 10
                                 ? `${teacher.Department.substring(0, 10)}...`
-                                : teacher.Department
+                                : (teacher.Department || 'ไม่ระบุ')
                             }`}
                             handleClick={() => {}}
                             isSelected={false}
@@ -349,12 +349,12 @@ function LockSchedule() {
                                         {item.Firstname}
                                       </p>
                                       <p className="text-sm">
-                                        {item.Department.length > 10
+                                        {item.Department && item.Department.length > 10
                                           ? `${item.Department.substring(
                                               0,
                                               10,
                                             )}...`
-                                          : item.Department}
+                                          : (item.Department || 'ไม่ระบุ')}
                                       </p>
                                     </div>
                                   </Fragment>
@@ -384,7 +384,7 @@ function LockSchedule() {
       <BulkLockModal
         open={bulkLockModalOpen}
         onClose={() => setBulkLockModalOpen(false)}
-        configId={configId}
+        _configId={configId}
         onSuccess={() => {
           void lockData.mutate();
           setBulkLockModalOpen(false);

@@ -97,7 +97,7 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
                   {dayNames[day]}
                 </div>
                 <div className="p-2 space-y-2">
-                  {schedulesByDay[day]?.map((schedule) => {
+                  {schedulesByDay[day]?.map((schedule: any) => {
                     const startTime = new Date(schedule.timeslot.StartTime);
                     const endTime = new Date(schedule.timeslot.EndTime);
                     

@@ -38,7 +38,7 @@ function SelectTeacher(props: Props) {
             </div>
           ) : (
             <div className="flex flex-wrap gap-3 justify-end">
-              {props.teachers.map((item, index) => (
+              {props.teachers?.map((item, index) => (
                 <Fragment key={`teacherSelected${item.TeacherID}`}>
                   <MiniButton
                     handleClick={() => {}}

@@ -66,9 +66,9 @@ describe("Public Teachers Data Layer", () => {
       // Utilization should be between 0 and 100 (or slightly above for overtime)
       expect(teacher.utilization).toBeGreaterThanOrEqual(0);
       
-      // Utilization = (weeklyHours / 40) * 100
-      const expectedUtilization = (teacher.weeklyHours / 40) * 100;
-      expect(teacher.utilization).toBeCloseTo(expectedUtilization, 1);
+      // Utilization is rounded: Math.round((weeklyHours / 40) * 100)
+      const expectedUtilization = Math.round((teacher.weeklyHours / 40) * 100);
+      expect(teacher.utilization).toBe(expectedUtilization);
     });
   });
 

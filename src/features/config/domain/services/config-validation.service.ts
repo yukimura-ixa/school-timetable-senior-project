@@ -38,8 +38,8 @@ export function parseConfigID(configId: string): ParsedConfigID {
     throw new Error('รูปแบบ ConfigID ไม่ถูกต้อง ต้องเป็น "SEMESTER-YEAR"');
   }
 
-  const semester = parts[0];
-  const academicYear = parseInt(parts[1], 10);
+  const semester = parts[0] || '';
+  const academicYear = parseInt(parts[1] || '0', 10);
 
   if (isNaN(academicYear)) {
     throw new Error('ปีการศึกษาต้องเป็นตัวเลข');

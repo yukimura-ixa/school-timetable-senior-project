@@ -5,6 +5,7 @@ import {
   managementMenu,
   scheduleMenu,
   othersMenu,
+// @ts-ignore - JS module without types
 } from "@/raw-data/menubar-data";
 import { IoIosArrowDown } from "react-icons/io";
 import { usePathname } from "next/navigation";
@@ -23,7 +24,7 @@ function Menubar() {
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">
               การจัดการข้อมูล
             </p>
-            {managementMenu.map((item, index) => {
+            {managementMenu.map((item: any, index: number) => {
               return (
                 <React.Fragment key={item.id}>
                   {item.link === linkSelected ? (
@@ -62,7 +63,7 @@ function Menubar() {
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">
               ตารางสอน
             </p>
-            {scheduleMenu.map((item, index) => (
+            {scheduleMenu.map((item: any, index: number) => (
               <React.Fragment key={item.id}>
                 <>
                   {item.link === linkSelected ? (

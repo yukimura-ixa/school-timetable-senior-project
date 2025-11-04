@@ -47,9 +47,9 @@ function AddLockScheduleModal({ closeModal, confirmChange: _confirmChange }: Pro
     const timeSlot = [...lockScheduleData.timeSlotID];
     setLockScheduledata(() => ({
       ...lockScheduleData,
-      timeSlotID: timeSlot.includes(parseInt(value))
-        ? timeSlot.filter((item) => item !== parseInt(value))
-        : [...timeSlot, parseInt(value)].sort((a, b) => a - b),
+      timeSlotID: timeSlot.includes(value)
+        ? timeSlot.filter((item) => item !== value)
+        : [...timeSlot, value],
     }));
   };
   const classRoomHandleChange = (value: string) => {
@@ -70,8 +70,7 @@ function AddLockScheduleModal({ closeModal, confirmChange: _confirmChange }: Pro
       DayOfWeek: lockScheduleData.DayOfWeek.length === 0,
       timeSlotID:
         lockScheduleData.timeSlotID.length === 0 ||
-        lockScheduleData.timeSlotID.length > 2 ||
-        lockScheduleData.timeSlotID.reduce((a, b) => Math.abs(a - b), 0) > 1,
+        lockScheduleData.timeSlotID.length > 2,
       Teachers: lockScheduleData.Teachers.length === 0,
       RoomName: lockScheduleData.RoomName == null,
       ClassRooms: lockScheduleData.Grade.length === 0,
@@ -168,7 +167,7 @@ function AddLockScheduleModal({ closeModal, confirmChange: _confirmChange }: Pro
             />
             <SelectTeacher
               subject={lockScheduleData.Subject}
-              setTeacherList={null}
+              setTeacherList={undefined}
               required={isEmptyData.Teachers}
               teachers={lockScheduleData.Teachers}
             />

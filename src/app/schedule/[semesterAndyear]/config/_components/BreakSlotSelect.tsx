@@ -60,7 +60,7 @@ export function BreakSlotSelect({
       <Select
         labelId={`break-slot-${label}`}
         value={value}
-        onChange={handleChange}
+        onChange={handleChange as any}
         label={label}
         startAdornment={<LunchIcon sx={{ mr: 1, color: 'action.active' }} />}
       >

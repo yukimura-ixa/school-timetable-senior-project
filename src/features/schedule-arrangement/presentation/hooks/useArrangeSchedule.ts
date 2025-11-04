@@ -82,8 +82,8 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
   /**
    * Add subject to a timeslot and open room selection modal
    */
-  const handleAddSubject = useCallback((subject: SubjectData, timeslotID: string) => {
-    if (Object.keys(subject).length === 0) return;
+  const handleAddSubject = useCallback((subject: SubjectData | null, timeslotID: string) => {
+    if (!subject || Object.keys(subject).length === 0) return;
     
     const payload: SubjectPayload = {
       timeslotID,
@@ -105,8 +105,8 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
   /**
    * Remove subject from timeslot and return to subject list
    */
-  const handleRemoveSubject = useCallback((subject: SubjectData, timeslotID: string) => {
-    if (Object.keys(subject).length === 0) return;
+  const handleRemoveSubject = useCallback((subject: SubjectData | null, timeslotID: string) => {
+    if (!subject || Object.keys(subject).length === 0) return;
     
     // Clear timeslot
     updateTimeslotSubject(timeslotID, null);
@@ -135,7 +135,7 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
     const sourceSubject = sourceSlot.subject;
     const destSubject = destSlot?.subject || null;
     
-    updateTimeslotSubject(destinationID, sourceSubject);
+    if (sourceSubject) updateTimeslotSubject(destinationID, sourceSubject);
     updateTimeslotSubject(sourceID, destSubject);
     
     // Clear change state
@@ -148,7 +148,8 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
   /**
    * Return subject to subject list (mark as unscheduled)
    */
-  const handleReturnSubject = useCallback((subject: SubjectData) => {
+  const handleReturnSubject = useCallback((subject: SubjectData | null) => {
+    if (!subject) return;
     const updatedSubject = { ...subject, scheduled: false };
     addSubjectToData(updatedSubject);
   }, [addSubjectToData]);
@@ -175,9 +176,11 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
       // Clear timeslot
       updateTimeslotSubject(subjectPayload.timeslotID, null);
       
-      // Return subject to list
-      const updatedSubject = { ...subjectPayload.selectedSubject, scheduled: false };
-      addSubjectToData(updatedSubject);
+      // Return subject to list if it exists
+      if (subjectPayload.selectedSubject) {
+        const updatedSubject = { ...subjectPayload.selectedSubject, scheduled: false };
+        addSubjectToData(updatedSubject);
+      }
     }
     closeModal();
   }, [subjectPayload, updateTimeslotSubject, addSubjectToData, closeModal]);

@@ -51,7 +51,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      mockClassSchedule.findMany = jest.fn(() => Promise.resolve(mockPrismaData as any));
+      mockClassSchedule.findMany = jest.fn(() => Promise.resolve(mockPrismaData as any)) as any;
 
       const result = await repository.findSchedulesByTerm(2566, 'SEMESTER_1');
 
@@ -97,14 +97,15 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      mockClassSchedule.findMany = jest.fn(() => Promise.resolve(mockPrismaData));
+      mockClassSchedule.findMany = jest.fn(() => Promise.resolve(mockPrismaData)) as any;
 
       const result = await repository.findSchedulesByTerm(2566, 'SEMESTER_1');
 
-      expect(result[0].teacherId).toBeUndefined();
-      expect(result[0].teacherName).toBeUndefined();
-      expect(result[0].roomId).toBeNull();
-      expect(result[0].roomName).toBeUndefined();
+      expect(result).toHaveLength(1);
+      expect(result[0]!.teacherId).toBeUndefined();
+      expect(result[0]!.teacherName).toBeUndefined();
+      expect(result[0]!.roomId).toBeNull();
+      expect(result[0]!.roomName).toBeUndefined();
     });
   });
 
@@ -122,7 +123,7 @@ describe('ScheduleRepository', () => {
         },
       ];
 
-      mockTeachersResp.findMany = jest.fn(() => Promise.resolve(mockPrismaData));
+      mockTeachersResp.findMany = jest.fn(() => Promise.resolve(mockPrismaData)) as any;
 
       const result = await repository.findResponsibilitiesByTerm(2566, 'SEMESTER_1');
 
@@ -161,7 +162,7 @@ describe('ScheduleRepository', () => {
         timeslot: {},
       };
 
-      mockClassSchedule.create = jest.fn(() => Promise.resolve(mockCreated));
+      mockClassSchedule.create = jest.fn(() => Promise.resolve(mockCreated)) as any;
 
       const result = await repository.createSchedule({
         ClassID: 'C_NEW',
@@ -189,7 +190,7 @@ describe('ScheduleRepository', () => {
         IsLocked: true,
       };
 
-      mockClassSchedule.update = jest.fn(() => Promise.resolve(mockUpdated));
+      mockClassSchedule.update = jest.fn(() => Promise.resolve(mockUpdated)) as any;
 
       const result = await repository.updateSchedule('C1', {
         RoomID: 102,
@@ -210,7 +211,7 @@ describe('ScheduleRepository', () => {
     it('should delete a schedule', async () => {
       const mockDeleted = { ClassID: 'C1' };
 
-      mockClassSchedule.delete = jest.fn(() => Promise.resolve(mockDeleted));
+      mockClassSchedule.delete = jest.fn(() => Promise.resolve(mockDeleted)) as any;
 
       await repository.deleteSchedule('C1');
 
@@ -232,7 +233,7 @@ describe('ScheduleRepository', () => {
         teachers_responsibility: [],
       };
 
-      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(mockSchedule));
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(mockSchedule)) as any;
 
       const result = await repository.findScheduleById('C1');
 
@@ -245,7 +246,7 @@ describe('ScheduleRepository', () => {
     });
 
     it('should return null if schedule not found', async () => {
-      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null));
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null)) as any;
 
       const result = await repository.findScheduleById('NONEXISTENT');
 
@@ -257,7 +258,7 @@ describe('ScheduleRepository', () => {
     it('should link a teacher to a schedule', async () => {
       const mockLinked = { RespID: 1 };
 
-      mockTeachersResp.update = jest.fn(() => Promise.resolve(mockLinked));
+      mockTeachersResp.update = jest.fn(() => Promise.resolve(mockLinked)) as any;
 
       await repository.linkTeacherToSchedule('C1', 1);
 
@@ -276,7 +277,7 @@ describe('ScheduleRepository', () => {
     it('should unlink a teacher from a schedule', async () => {
       const mockUnlinked = { RespID: 1 };
 
-      mockTeachersResp.update = jest.fn(() => Promise.resolve(mockUnlinked));
+      mockTeachersResp.update = jest.fn(() => Promise.resolve(mockUnlinked)) as any;
 
       await repository.unlinkTeacherFromSchedule('C1', 1);
 

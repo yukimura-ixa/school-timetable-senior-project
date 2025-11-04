@@ -25,7 +25,7 @@ type LockScheduleData = {
   SubjectCode: string;
   SubjectName: string;
   DayOfWeek: string;
-  timeslots: number[];
+  timeslots: string[];
   teachers: teacher[];
   GradeIDs: string[];
   room: room | null;
@@ -44,7 +44,7 @@ type IsEmptyData = {
 type Action =
   | { type: "SET_SUBJECT"; payload: SubjectWithResponsibilities }
   | { type: "SET_DAY_OF_WEEK"; payload: string }
-  | { type: "SET_TIME_SLOT"; payload: number[] }
+  | { type: "SET_TIME_SLOT"; payload: string[] }
   | { type: "SET_TEACHERS"; payload: teacher[] }
   | { type: "SET_GRADE"; payload: string[] }
   | { type: "SET_ROOM_NAME"; payload: room | null }
@@ -150,8 +150,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   const { lockScheduleData, isEmptyData } = state;
 
   const timeSlotHandleChange: InputChangeHandler = (e) => {
-    const valueStr = e.target.value;
-    const value = parseInt(valueStr, 10);
+    const value = e.target.value;
     console.log(value);
     const timeSlot = [...lockScheduleData.timeslots];
     dispatch({

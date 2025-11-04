@@ -15,15 +15,17 @@ import { getTimeslotsByTermAction } from "@/features/timeslot/application/action
  * const { data, isLoading, error, mutate } = useTimeslots(2567, 1)
  */
 export const useTimeslots = (academicYear: number, semester: number) => {
+  const fetcher: any = async () => {
+    const result = await getTimeslotsByTermAction({
+      AcademicYear: academicYear,
+      Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
+    })
+    return result.success ? result.data : []
+  }
+  
   const { data, error, mutate } = useSWR<timeslot[]>(
     `timeslots-${academicYear}-${semester}`,
-    async () => {
-      const result = await getTimeslotsByTermAction({
-        AcademicYear: academicYear,
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
-      })
-      return result.success ? result.data : []
-    }
+    fetcher
   )
 
   return {

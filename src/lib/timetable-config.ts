@@ -3,9 +3,12 @@
  * 
  * Provides typed access to timetable configuration stored in table_config.
  * Replaces hardcoded values throughout the application.
+ * 
+ * MIGRATED: Now uses configRepository instead of direct Prisma queries
+ * @see src/features/config/infrastructure/repositories/config.repository.ts
  */
 
-import prisma from "@/lib/prisma";
+import * as configRepository from "@/features/config/infrastructure/repositories/config.repository";
 import type { semester } from "@/prisma/generated";
 
 /**
@@ -39,6 +42,8 @@ export const DEFAULT_TIMETABLE_CONFIG: TimetableConfig = {
 /**
  * Get timetable configuration for a specific semester
  * 
+ * MIGRATED: Now uses repository pattern
+ * 
  * @param academicYear - Academic year (e.g., 2567)
  * @param semester - Semester (FIRST or SECOND)
  * @returns Timetable configuration with defaults if not found
@@ -48,17 +53,12 @@ export async function getTimetableConfig(
   semester: semester
 ): Promise<TimetableConfig> {
   try {
-    const config = await prisma.table_config.findFirst({
-      where: {
-        AcademicYear: academicYear,
-        Semester: semester,
-      },
-      select: {
-        Config: true,
-      },
-    });
+    const configJson = await configRepository.getTimetableConfig(
+      academicYear,
+      semester
+    );
 
-    if (!config || !config.Config) {
+    if (!configJson) {
       console.warn(
         `No timetable config found for ${academicYear}/${semester}, using defaults`
       );
@@ -66,7 +66,7 @@ export async function getTimetableConfig(
     }
 
     // Parse and validate the JSON config
-    const jsonConfig = config.Config as Partial<TimetableConfig> & {
+    const jsonConfig = configJson as Partial<TimetableConfig> & {
       breakSlots?: Partial<TimetableConfig['breakSlots']>;
     };
     

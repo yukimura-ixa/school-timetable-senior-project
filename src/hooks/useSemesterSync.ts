@@ -38,8 +38,8 @@ export function useSemesterSync(semesterAndYear: string): SemesterSyncResult {
   }, [semester, academicYear, configId, setSemester]);
 
   return {
-    semester,
-    academicYear,
+    semester: semester || '',
+    academicYear: academicYear || '',
     configId,
   };
 }

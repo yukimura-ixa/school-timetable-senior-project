@@ -1,10 +1,16 @@
 /**
  * Public data access layer for classes (grade levels)
  * Security: Class-level data only, no individual student PII
+ * 
+ * MIGRATED: Now uses publicDataRepository instead of direct Prisma queries
+ * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
-import prisma from "@/lib/prisma";
+import { semester } from "@/prisma/generated";
+import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
+import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
 
+// Legacy type for backward compatibility
 export type PublicClass = {
   gradeId: string; // e.g., "M.1/1"
   year: number; // e.g., 1 (M.1)
@@ -15,130 +21,119 @@ export type PublicClass = {
   primaryRoom?: string;
 };
 
+// Re-export repository type
+export type { PublicGradeLevel };
+
+/**
+ * Helper to get current term info from stats
+ */
+async function getCurrentTermInfo(): Promise<{
+  academicYear: number;
+  semester: semester;
+} | null> {
+  try {
+    const stats = await publicDataRepository.getQuickStats();
+    
+    if (stats.currentTerm === 'N/A') {
+      return null;
+    }
+
+    // Extract academic year and semester from current term
+    const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
+    const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
+    
+    if (!termMatch?.[1] || !semesterMatch?.[1]) {
+      return null;
+    }
+
+    const academicYear = parseInt(termMatch[1], 10);
+    const semesterValue = semesterMatch[1] === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
+
+    return { academicYear, semester: semesterValue };
+  } catch (err) {
+    console.warn("[PublicClasses] getCurrentTermInfo error:", (err as Error).message);
+    return null;
+  }
+}
+
+/**
+ * Map PublicGradeLevel to legacy PublicClass format for backward compatibility
+ */
+function mapToPublicClass(gradeLevel: PublicGradeLevel): PublicClass & PublicGradeLevel {
+  return {
+    ...gradeLevel,
+    section: gradeLevel.number, // Alias for backward compatibility
+    weeklyHours: 0, // Not available in new format, would need separate query
+  };
+}
+
+/**
+ * Map legacy sortBy to repository sortBy
+ */
+function mapSortBy(sortBy?: "grade" | "hours" | "subjects"): "year" | "number" | "students" | undefined {
+  switch (sortBy) {
+    case "grade":
+      return "year";
+    case "subjects":
+      return undefined; // Not supported in repository yet
+    case "hours":
+      return undefined; // Not supported in repository yet
+    default:
+      return undefined;
+  }
+}
+
 /**
  * Get classes with public-safe data and schedule statistics
  * Uses Next.js fetch cache with 60s revalidation
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getPublicClasses(
   searchQuery?: string,
   sortBy?: "grade" | "hours" | "subjects",
   sortOrder?: "asc" | "desc",
-) {
-    try {
-      // Get current academic term from latest table_config
-      const config = await prisma.table_config.findFirst({
-        orderBy: { AcademicYear: "desc" },
-        select: { AcademicYear: true, Semester: true },
-      });
-
-      if (!config) {
-        return [];
-      }
-
-      // Query grade levels with their schedules
-      const gradeLevels = await prisma.gradelevel.findMany({
-        where: searchQuery
-          ? {
-              GradeID: { contains: searchQuery, mode: "insensitive" },
-            }
-          : undefined,
-        select: {
-          GradeID: true,
-          Year: true,
-          Number: true,
-          class_schedule: {
-            where: {
-              timeslot: {
-                AcademicYear: config.AcademicYear,
-                Semester: config.Semester,
-              },
-            },
-            select: {
-              SubjectCode: true,
-              RoomID: true,
-              timeslot: {
-                select: {
-                  TimeslotID: true,
-                },
-              },
-            },
-          },
-          teachers_responsibility: {
-            where: {
-              AcademicYear: config.AcademicYear,
-              Semester: config.Semester,
-            },
-            select: {
-              teacher: {
-                select: {
-                  Prefix: true,
-                  Firstname: true,
-                  Lastname: true,
-                },
-              },
-            },
-            take: 1, // Get one representative teacher (homeroom concept)
-          },
-        },
-      });
-
-    // Map to public view model
-    const publicClasses: PublicClass[] = gradeLevels.map((grade) => {
-      const uniqueSubjects = new Set(
-        grade.class_schedule.map((s) => s.SubjectCode),
-      );
-      const weeklyHours = grade.class_schedule.length; // Each schedule entry is one period
-
-      // Find most common room (primary classroom)
-      const roomCounts = grade.class_schedule.reduce(
-        (acc, s) => {
-          acc[s.RoomID] = (acc[s.RoomID] || 0) + 1;
-          return acc;
-        },
-        {} as Record<number, number>,
-      );
-      const primaryRoomId =
-        Object.entries(roomCounts).sort(([, a], [, b]) => b - a)[0]?.[0];
-
-      // Get homeroom teacher (first from responsibilities)
-      const homeroomTeacher = grade.teachers_responsibility[0]?.teacher;
-
-      return {
-        gradeId: grade.GradeID,
-        year: grade.Year,
-        section: grade.Number,
-        subjectCount: uniqueSubjects.size,
-        weeklyHours,
-        homeroomTeacher: homeroomTeacher
-          ? `${homeroomTeacher.Prefix}${homeroomTeacher.Firstname} ${homeroomTeacher.Lastname}`
-          : undefined,
-        primaryRoom: primaryRoomId ? `Room ${primaryRoomId}` : undefined,
-      };
-    });
-
-    // Apply sorting
-    const sortedClasses = publicClasses.sort((a, b) => {
-      const direction = sortOrder === "desc" ? -1 : 1;
-      switch (sortBy) {
-        case "hours":
-          return (a.weeklyHours - b.weeklyHours) * direction;
-        case "subjects":
-          return (a.subjectCount - b.subjectCount) * direction;
-        case "grade":
-        default:
-          return a.gradeId.localeCompare(b.gradeId, "th") * direction;
-      }
-    });
-
-      return sortedClasses;
-    } catch (err) {
-      console.warn("[PublicClasses] Falling back to empty dataset due to error:", (err as Error).message);
+): Promise<(PublicClass & PublicGradeLevel)[]> {
+  try {
+    const termInfo = await getCurrentTermInfo();
+    
+    if (!termInfo) {
       return [];
     }
+
+    const gradeLevels = await publicDataRepository.findPublicGradeLevels({
+      academicYear: termInfo.academicYear,
+      semester: termInfo.semester,
+      searchQuery,
+      sortBy: mapSortBy(sortBy),
+      sortOrder,
+    });
+
+    // Apply client-side sorting for unsupported sort options
+    let results = gradeLevels.map(mapToPublicClass);
+    
+    if (sortBy && (sortBy === "hours" || sortBy === "subjects")) {
+      results.sort((a, b) => {
+        const direction = sortOrder === "desc" ? -1 : 1;
+        if (sortBy === "hours") {
+          return (a.weeklyHours - b.weeklyHours) * direction;
+        } else {
+          return (a.subjectCount - b.subjectCount) * direction;
+        }
+      });
+    }
+
+    return results;
+  } catch (err) {
+    console.warn("[PublicClasses] getPublicClasses error:", (err as Error).message);
+    return [];
+  }
 }
 
 /**
  * Get paginated classes
+ * 
+ * MIGRATED: Uses getPublicClasses which now uses repository
  */
 export async function getPaginatedClasses(params: {
   page?: number;
@@ -171,10 +166,12 @@ export async function getPaginatedClasses(params: {
 
 /**
  * Get total class count
+ * 
+ * MIGRATED: Now uses repository pattern
  */
 export async function getClassCount() {
   try {
-    return await prisma.gradelevel.count();
+    return await publicDataRepository.countGradeLevels();
   } catch (err) {
     console.warn("[PublicClasses] getClassCount fallback to 0:", (err as Error).message);
     return 0;

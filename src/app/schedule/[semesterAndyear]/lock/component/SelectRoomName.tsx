@@ -37,15 +37,15 @@ function SelectRoomName(props: Props) {
           <p className="text-red-500">*</p>
         </div>
         <Dropdown
-          data={rooms}
-          renderItem={({ data }: { data: room }): JSX.Element => (
-            <li className="w-full text-sm">{data.RoomName}</li>
+          data={rooms as unknown[]}
+          renderItem={({ data }: { data: unknown }): JSX.Element => (
+            <li className="w-full text-sm">{(data as room).RoomName}</li>
           )}
           width={300}
           height={40}
-          currentValue={props.roomName}
+          currentValue={props.roomName || undefined}
           placeHolder={"ตัวเลือก"}
-          handleChange={props.handleRoomChange}
+          handleChange={(value: unknown) => props.handleRoomChange(value as room)}
           useSearchBar={true}
           searchFunction={searchHandle}
         />

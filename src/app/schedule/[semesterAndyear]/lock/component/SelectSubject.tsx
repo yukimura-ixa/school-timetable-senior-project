@@ -73,17 +73,17 @@ function SelectSubject(props: Props) {
         </div>
         {!respData.isValidating ? (
           <Dropdown
-            data={subject}
-            renderItem={({ data }: { data: SubjectWithResponsibilities }): JSX.Element => (
+            data={subject as unknown[]}
+            renderItem={({ data }: { data: unknown }): JSX.Element => (
               <li className="w-full text-sm">
-                {data.SubjectCode} {data.SubjectName}
+                {(data as SubjectWithResponsibilities).SubjectCode} {(data as SubjectWithResponsibilities).SubjectName}
               </li>
             )}
             width={300}
             height={40}
             currentValue={props.currentValue}
             placeHolder={"ตัวเลือก"}
-            handleChange={props.handleSubjectChange}
+            handleChange={(value: unknown) => props.handleSubjectChange(value as SubjectWithResponsibilities)}
             useSearchBar={true}
             searchFunction={searchHandle}
           />

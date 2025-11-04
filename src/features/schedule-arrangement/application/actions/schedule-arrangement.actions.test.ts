@@ -39,7 +39,7 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: false,
       };
 
-      mockClassSchedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockClassSchedule.findMany = jest.fn(() => Promise.resolve([])) as any;
       mockTeachersResp.findMany = jest.fn(() => Promise.resolve([
         {
           RespID: 1,
@@ -50,10 +50,10 @@ describe('Schedule Arrangement Actions', () => {
           Semester: 'SEMESTER_1',
           TeachHour: 4,
         },
-      ]));
-      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null)); // No existing schedule
-      mockClassSchedule.create = jest.fn(() => Promise.resolve({} as any));
-      mockTeachersResp.update = jest.fn(() => Promise.resolve({} as any));
+      ])) as any;
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null)) as any; // No existing schedule
+      mockClassSchedule.create = jest.fn(() => Promise.resolve({} as any)) as any;
+      mockTeachersResp.update = jest.fn(() => Promise.resolve({} as any)) as any;
 
       const result = await arrangeScheduleAction(input);
 
@@ -102,7 +102,7 @@ describe('Schedule Arrangement Actions', () => {
             },
           ],
         },
-      ] as any));
+      ] as any)) as any;
       mockTeachersResp.findMany = jest.fn(() => Promise.resolve([
         {
           RespID: 1,
@@ -113,7 +113,7 @@ describe('Schedule Arrangement Actions', () => {
           Semester: 'SEMESTER_1',
           TeachHour: 4,
         },
-      ] as any));
+      ] as any)) as any;
 
       const result = await arrangeScheduleAction(input);
 
@@ -147,8 +147,8 @@ describe('Schedule Arrangement Actions', () => {
       mockClassSchedule.findUnique = jest.fn(() => Promise.resolve({
         ClassID: input.classId,
         IsLocked: false,
-      } as any));
-      mockClassSchedule.delete = jest.fn(() => Promise.resolve({} as any));
+      } as any)) as any;
+      mockClassSchedule.delete = jest.fn(() => Promise.resolve({} as any)) as any;
 
       const result = await deleteScheduleAction(input);
 
@@ -162,7 +162,7 @@ describe('Schedule Arrangement Actions', () => {
       mockClassSchedule.findUnique = jest.fn(() => Promise.resolve({
         ClassID: input.classId,
         IsLocked: true,
-      } as any));
+      } as any)) as any;
 
       const result = await deleteScheduleAction(input);
 
@@ -173,7 +173,7 @@ describe('Schedule Arrangement Actions', () => {
     it('should throw error when schedule not found', async () => {
       const input = { classId: 'C_M1-1_T1_MATH101' };
 
-      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null));
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null)) as any;
 
       const result = await deleteScheduleAction(input);
 
@@ -216,7 +216,7 @@ describe('Schedule Arrangement Actions', () => {
             },
           ],
         },
-      ] as any));
+      ] as any)) as any;
 
       const result = await getSchedulesByTermAction(input);
 
@@ -230,7 +230,7 @@ describe('Schedule Arrangement Actions', () => {
         semester: 'SEMESTER_1' as const,
       };
 
-      mockClassSchedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockClassSchedule.findMany = jest.fn(() => Promise.resolve([])) as any;
 
       const result = await getSchedulesByTermAction(input);
 
@@ -249,8 +249,8 @@ describe('Schedule Arrangement Actions', () => {
       mockClassSchedule.findUnique = jest.fn(() => Promise.resolve({
         ClassID: input.classId,
         IsLocked: false,
-      } as any));
-      mockClassSchedule.update = jest.fn(() => Promise.resolve({} as any));
+      } as any)) as any;
+      mockClassSchedule.update = jest.fn(() => Promise.resolve({} as any)) as any;
 
       const result = await updateScheduleLockAction(input);
 
@@ -267,8 +267,8 @@ describe('Schedule Arrangement Actions', () => {
       mockClassSchedule.findUnique = jest.fn(() => Promise.resolve({
         ClassID: input.classId,
         IsLocked: true,
-      } as any));
-      mockClassSchedule.update = jest.fn(() => Promise.resolve({} as any));
+      } as any)) as any;
+      mockClassSchedule.update = jest.fn(() => Promise.resolve({} as any)) as any;
 
       const result = await updateScheduleLockAction(input);
 
@@ -282,7 +282,7 @@ describe('Schedule Arrangement Actions', () => {
         isLocked: true,
       };
 
-      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null));
+      mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null)) as any;
 
       const result = await updateScheduleLockAction(input);
 
@@ -291,3 +291,4 @@ describe('Schedule Arrangement Actions', () => {
     });
   });
 });
+

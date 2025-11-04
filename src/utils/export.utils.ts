@@ -12,7 +12,7 @@ export function arrayToCSV<T extends Record<string, any>>(
 ): string {
   if (data.length === 0) return "";
 
-  const keys = Object.keys(data[0]) as Array<keyof T>;
+  const keys = Object.keys(data[0] || {}) as Array<keyof T>;
   const headerRow = headers
     ? keys.map((key) => headers[key] || String(key))
     : keys.map(String);
@@ -136,7 +136,7 @@ export function arrayToExcelHTML<T extends Record<string, any>>(
 ): string {
   if (data.length === 0) return "";
 
-  const keys = Object.keys(data[0]) as Array<keyof T>;
+  const keys = Object.keys(data[0] || {}) as Array<keyof T>;
   const headerRow = headers
     ? keys.map((key) => headers[key] || String(key))
     : keys.map(String);

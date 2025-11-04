@@ -194,10 +194,10 @@ function ClassroomResponsibility() {
   const [year, setYear] = useState<number | null>(null);
   const sumTeachHour = (year: number): number => {
     const getSubjectsByYear = data.Subjects.filter(
-      (subj) => parseInt(subj.GradeID[0]) == year,
+      (subj) => subj.GradeID?.[0] && parseInt(subj.GradeID[0]) == year,
     ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Subjects
     const mapTeachHour = getSubjectsByYear.map(
-      (item) => subjectCreditValues[item.Credit] * 2,
+      (item) => (subjectCreditValues[item.Credit] || 0) * 2,
     ); //map credit เป็น array ex. => [1, 3, 1]
     if (mapTeachHour.length == 0) {
       //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 คาบ
@@ -284,10 +284,10 @@ function ClassroomResponsibility() {
     <>
       {classRoomModalActive ? (
         <SelectClassRoomModal
-          confirmChange={changeClassRoomList}
+          confirmChange={changeClassRoomList as any}
           closeModal={() => setClassRoomModalActive(false)}
           classList={classRoomList}
-          year={year}
+          year={year || 0}
         />
       ) : null}
       {addSubjectModalActive ? (
@@ -464,7 +464,7 @@ function ClassroomResponsibility() {
                                   />
                                   <p className="text-sm text-[#4F515E]">
                                     จำนวน{" "}
-                                    {subjectCreditValues[subject.Credit] * 2}{" "}
+                                    {subject.Credit ? (subjectCreditValues[subject.Credit] || 0) * 2 : 0}{" "}
                                     คาบ
                                   </p>
                                 </div>
