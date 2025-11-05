@@ -75,7 +75,7 @@ export const createLockAction = createAction(
         const classId = generateClassID(timeslotId, input.SubjectCode, gradeId);
 
         // Create single locked schedule
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   const schedule: class_schedule = await lockRepository.createLock({
           ClassID: classId,
           IsLocked: true,
@@ -101,7 +101,7 @@ export const createLockAction = createAction(
 export const deleteLocksAction = createAction(
   deleteLocksSchema,
   async (classIds: DeleteLocksInput) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   const result: Prisma.BatchPayload = await lockRepository.deleteMany(classIds);
 
     return {
@@ -152,7 +152,7 @@ export const createBulkLocksAction = createAction(
     for (const lock of input.locks) {
       const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
       
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   const schedule: class_schedule = await lockRepository.createLock({
         ClassID: classId,
         IsLocked: true,
@@ -268,7 +268,7 @@ export const applyLockTemplateAction = createAction(
     for (const lock of locks) {
       const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
       
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+   
   const schedule: class_schedule = await lockRepository.createLock({
         ClassID: classId,
         IsLocked: true,

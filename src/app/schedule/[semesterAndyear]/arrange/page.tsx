@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+ 
 /**
  * Arrangement Page - Modern MUI v7 Implementation
  * 
@@ -19,6 +19,7 @@ import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import { enqueueSnackbar } from 'notistack';
+import { useSemesterSync } from '@/hooks';
 import {
   Box,
   Container,
@@ -96,20 +97,8 @@ export default function ArrangementPage() {
   const router = useRouter();
   const searchTeacherID = searchParams.get('TeacherID');
   
-  // Safely extract semester and year from params
-  const semesterAndYear = params.semesterAndyear as string | undefined;
-  if (!semesterAndYear) {
-    return (
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Alert severity="error">
-          <AlertTitle>ข้อผิดพลาด</AlertTitle>
-          ไม่พบข้อมูลภาคเรียนและปีการศึกษา
-        </Alert>
-      </Container>
-    );
-  }
-  
-  const [semester, academicYear] = semesterAndYear.split('-');
+  // Use useSemesterSync to extract and sync semester with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   
   if (!semester || !academicYear) {
     return (

@@ -2,13 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { QuickStatsCards, QuickStatsCardsSkeleton } from "./_components/QuickStats";
 import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
-import { TabNavigation } from "./_components/TabNavigation";
-import { TableSearch } from "./_components/TableSearch";
-import { PublicTeachersTable, PublicTeachersTableSkeleton } from "./_components/PublicTeachersTable";
-import { PublicClassesTable, PublicClassesTableSkeleton } from "./_components/PublicClassesTable";
-import { TablePagination } from "./_components/TablePagination";
-import { getTeacherCount } from "@/lib/public/teachers";
-import { getClassCount } from "@/lib/public/classes";
+import { DataTableSection } from "./_components/DataTableSection";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -16,31 +10,34 @@ export const metadata: Metadata = {
   description: "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
 };
 
-// NOTE: Cannot export revalidate in Next.js 16 when using async searchParams.
-// The page uses dynamic data (searchParams) so static revalidation doesn't apply.
-// For actual static revalidation, use fetch() with next: { revalidate: ... }
+// NOTE: Static page - all interactivity handled client-side
+// No search params needed, all state managed in DataTableSection
 
-type PageProps = {
-  searchParams: Promise<{
-    tab?: "teachers" | "classes";
-    page?: string;
-    search?: string;
-    sortBy?: string;
-    sortOrder?: "asc" | "desc";
-  }>;
-};
-
-export default async function HomePage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const activeTab = params.tab || "teachers";
-  const currentPage = parseInt(params.page || "1");
-  const search = params.search || "";
-
+export default async function HomePage() {
+  // Import data fetching functions
+  const { getTeacherCount, getPaginatedTeachers } = await import("@/lib/public/teachers");
+  const { getClassCount, getPaginatedClasses } = await import("@/lib/public/classes");
+  
+  // Fetch counts for pagination
   const totalTeachers = await getTeacherCount();
   const totalClasses = await getClassCount();
-  
-  const totalItems = activeTab === "teachers" ? totalTeachers : totalClasses;
-  const totalPages = Math.ceil(totalItems / 25);
+
+  // Fetch ALL data for client-side filtering and pagination
+  const teachersData = await getPaginatedTeachers({
+    page: 1,
+    search: "",
+    sortBy: "name",
+    sortOrder: "asc",
+    perPage: totalTeachers, // Fetch all teachers
+  });
+
+  const classesData = await getPaginatedClasses({
+    page: 1,
+    search: "",
+    sortBy: "grade",
+    sortOrder: "asc",
+    perPage: totalClasses, // Fetch all classes
+  });
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -71,58 +68,12 @@ export default async function HomePage({ searchParams }: PageProps) {
       </section>
 
       <section className="container mx-auto px-4 mb-12">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="border-b border-gray-200 bg-white px-6 py-4">
-            <TabNavigation />
-          </div>
-
-          <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-            <TableSearch
-              initialValue={search}
-              placeholder={
-                activeTab === "teachers"
-                  ? "ค้นหาครู (ชื่อ, ภาควิชา)..."
-                  : "ค้นหาชั้นเรียน (เช่น M.1)..."
-              }
-            />
-          </div>
-
-          <div className="px-6 py-4">
-            {activeTab === "teachers" ? (
-              <Suspense fallback={<PublicTeachersTableSkeleton />}>
-                <PublicTeachersTable 
-                  searchParams={{
-                    page: params.page,
-                    search: params.search,
-                    sortBy: params.sortBy as "name" | "hours" | "utilization" | undefined,
-                    sortOrder: params.sortOrder,
-                  }}
-                />
-              </Suspense>
-            ) : (
-              <Suspense fallback={<PublicClassesTableSkeleton />}>
-                <PublicClassesTable 
-                  searchParams={{
-                    page: params.page,
-                    search: params.search,
-                    sortBy: params.sortBy as "grade" | "hours" | "subjects" | undefined,
-                    sortOrder: params.sortOrder,
-                  }}
-                />
-              </Suspense>
-            )}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200">
-              <TablePagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalItems={totalItems}
-              />
-            </div>
-          )}
-        </div>
+        <DataTableSection
+          totalTeachers={totalTeachers}
+          totalClasses={totalClasses}
+          teachersData={teachersData}
+          classesData={classesData}
+        />
       </section>
 
       <section className="container mx-auto px-4 mb-12">

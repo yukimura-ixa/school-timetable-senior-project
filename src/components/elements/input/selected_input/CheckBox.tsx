@@ -1,5 +1,5 @@
 import type { JSX } from "react";
-/* eslint-disable no-undef */
+ 
 interface ICheckBoxProps {
   label: string;
   value: string | number;

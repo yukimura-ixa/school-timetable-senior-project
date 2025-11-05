@@ -110,7 +110,7 @@ export async function getPublicClasses(
     });
 
     // Apply client-side sorting for unsupported sort options
-    let results = gradeLevels.map(mapToPublicClass);
+    const results = gradeLevels.map(mapToPublicClass);
     
     if (sortBy && (sortBy === "hours" || sortBy === "subjects")) {
       results.sort((a, b) => {

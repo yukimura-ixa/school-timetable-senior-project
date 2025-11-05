@@ -4,6 +4,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 const eslintConfig = [
   // Ignore non-source folders (matches .gitignore patterns)
@@ -110,6 +111,8 @@ const eslintConfig = [
       eqeqeq: ["error", "smart"],
     },
   },
+  // Prettier must be last to override formatting rules
+  eslintConfigPrettier,
 ];
 
 export default eslintConfig;

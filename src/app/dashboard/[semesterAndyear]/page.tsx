@@ -17,27 +17,28 @@ export const metadata: Metadata = {
   description: "ภาพรวมข้อมูลตารางเรียนและสถิติของภาคเรียน",
 };
 
-// Helper to parse ConfigID
-function parseConfigID(configId: string): { semester: number; year: number } {
-  const [semStr = "0", yearStr = "0"] = configId.split("-");
-  return {
-    semester: parseInt(semStr),
-    year: parseInt(yearStr),
-  };
-}
-
-// Helper to format semester name
-function getSemesterName(semester: number, year: number): string {
-  return `ภาคเรียนที่ ${semester}/${year}`;
-}
-
 export default async function DashboardPage({
   params,
 }: {
   params: Promise<{ semesterAndyear: string }>;
 }) {
   const { semesterAndyear } = await params;
-  const { semester, year } = parseConfigID(semesterAndyear);
+  
+  // Validate and parse semester and year
+  const [semester, academicYear] = semesterAndyear.split("-");
+  
+  if (!semester || !academicYear) {
+    return (
+      <div className="p-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
+          <p className="text-red-600">รูปแบบข้อมูลภาคเรียนและปีการศึกษาไม่ถูกต้อง</p>
+        </div>
+      </div>
+    );
+  }
+  
+  const year = parseInt(academicYear);
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
   // Fetch all dashboard data in parallel
@@ -91,7 +92,7 @@ export default async function DashboardPage({
             Dashboard - ภาพรวมภาคเรียน
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            {getSemesterName(semester, year)}
+            ภาคเรียนที่ {semester}/{year}
           </p>
         </div>
         {config && (

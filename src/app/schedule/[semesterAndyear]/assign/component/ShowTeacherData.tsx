@@ -119,13 +119,14 @@ function ShowTeacherData() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {/* Modern Teacher Selection */}
+      {/* Known Issue #59: MUI 7 Box/Paper TypeScript inference limitation - non-blocking, runtime works correctly */}
       <Paper sx={{ p: 3 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
           <PersonSearchIcon color="primary" />
           <Typography variant="h6">เลือกครูผู้สอน</Typography>
         </Box>
-        <Autocomplete
-          options={teacherData.data || []}
+        <Autocomplete<teacher, false, false, false>
+          options={teacherData.data}
           value={teacher}
           onChange={(_event, newValue) => {
             setTeacher(newValue);
@@ -138,29 +139,12 @@ function ShowTeacherData() {
               {...params}
               label="ค้นหาครูผู้สอน"
               placeholder="พิมพ์ชื่อ นามสกุล หรือภาควิชา"
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <>
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                    {params.InputProps.startAdornment}
-                  </>
-                ),
-              }}
             />
           )}
-          renderOption={(props, option) => {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { key, ...otherProps } = props as React.HTMLAttributes<HTMLLIElement> & { key: string };
+          renderOption={(props, option): React.ReactElement => {
+            const { key, ...restProps } = props;
             return (
-              <Box
-                component="li"
-                key={option.TeacherID}
-                {...otherProps}
-                sx={{ gap: 2, display: "flex", alignItems: "center" }}
-              >
+              <li key={key} {...restProps} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                 <Avatar
                   sx={{
                     bgcolor: "primary.main",
@@ -168,10 +152,10 @@ function ShowTeacherData() {
                     height: 40,
                   }}
                 >
-                  {option.Firstname[0]}
-                  {option.Lastname[0]}
+                  {option.Firstname?.[0] || ''}
+                  {option.Lastname?.[0] || ''}
                 </Avatar>
-                <Box sx={{ flexGrow: 1 } as const}>
+                <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="body1">
                     {option.Prefix} {option.Firstname} {option.Lastname}
                   </Typography>
@@ -179,7 +163,7 @@ function ShowTeacherData() {
                     {option.Department}
                   </Typography>
                 </Box>
-              </Box>
+              </li>
             );
           }}
           filterOptions={(options, { inputValue }) => {
@@ -211,8 +195,8 @@ function ShowTeacherData() {
                   fontSize: "1.5rem",
                 }}
               >
-                {teacher.Firstname[0]}
-                {teacher.Lastname[0]}
+                {teacher.Firstname?.[0] || ''}
+                {teacher.Lastname?.[0] || ''}
               </Avatar>
               <Box sx={{ flexGrow: 1 } as const}>
                 <Typography variant="h6">

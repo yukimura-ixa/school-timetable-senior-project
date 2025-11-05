@@ -11,10 +11,10 @@ dotenv.config({ path: path.resolve(__dirname, '.env.test') });
  */
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: false,
+  fullyParallel: true, // ✅ Run tests in parallel
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : 1,
+  workers: process.env.CI ? 4 : undefined, // ✅ 4 parallel workers in CI, all cores locally
   
   /* Global setup - seeds database before tests */
   globalSetup: require.resolve('./playwright.global-setup.ts'),
@@ -30,8 +30,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 10000,  // Reduced from 15s → 10s (actions should be faster)
+    navigationTimeout: 20000, // Reduced from 30s → 20s (pages should load faster)
   },
 
   projects: [
@@ -43,24 +43,22 @@ export default defineConfig({
         // This will work after running: npx playwright install chromium
       },
     },
-    {
-      name: 'brave',
-      use: {
-        ...devices['Desktop Chrome'],
-        // Use installed Brave browser
-        // Note: Do NOT set `channel` when using a custom `executablePath`.
-        // Setting both will cause Playwright to ignore the executablePath and try to launch the channel instead.
-        // Launch options for better automation
-          launchOptions: {
-            executablePath: 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe',
-          args: [
-            '--disable-blink-features=AutomationControlled', // Hide automation
-            '--disable-dev-shm-usage', // Overcome limited resource problems
-            '--no-sandbox', // Required for some environments
-          ],
-        },
-      },
-    },
+    // Brave browser disabled for CI performance (2x faster)
+    // Uncomment for local cross-browser testing if needed
+    // {
+    //   name: 'brave',
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //     launchOptions: {
+    //       executablePath: 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe',
+    //       args: [
+    //         '--disable-blink-features=AutomationControlled',
+    //         '--disable-dev-shm-usage',
+    //         '--no-sandbox',
+    //       ],
+    //     },
+    //   },
+    // },
   ],
 
   /* Run your local dev server before starting the tests */

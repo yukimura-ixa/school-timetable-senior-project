@@ -11,6 +11,7 @@ import useSWR from "swr";
 import Loading from "@/app/loading";
 import { subjectCreditValues } from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
+import { useSemesterSync } from "@/hooks";
 
 // Server Actions (Clean Architecture)
 import { getAssignmentsAction, syncAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
@@ -19,14 +20,9 @@ import { getTeachersAction } from "@/features/teacher/application/actions/teache
 function ClassroomResponsibility() {
   const params = useParams();
   const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
   
-  // Guard against undefined semester/year
-  if (!semester || !academicYear) {
-    return <div>Invalid semester or academic year</div>;
-  }
+  // Use useSemesterSync to extract and sync semester with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   
   const searchTeacherID = useSearchParams().get("TeacherID");
   

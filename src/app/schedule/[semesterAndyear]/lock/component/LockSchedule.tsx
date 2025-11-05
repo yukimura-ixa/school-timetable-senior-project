@@ -145,7 +145,7 @@ function LockSchedule() {
       {lockScheduleFormActive ? (
         <LockScheduleForm
           closeModal={() => setLockScheduleFormActive(false)}
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data={selectedLock as any}
           mutate={() => void lockData.mutate()}
         />

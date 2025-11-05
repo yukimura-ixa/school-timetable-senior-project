@@ -245,7 +245,7 @@ export const publicDataRepository = {
     });
 
     // Transform to public format
-    let publicTeachers = teachers.map(transformTeacherToPublic);
+    const publicTeachers = teachers.map(transformTeacherToPublic);
 
     // Apply sorting if specified
     if (sortBy && sortOrder) {
@@ -572,7 +572,7 @@ export const publicDataRepository = {
     });
 
     // Transform to public format
-    let publicGradeLevels = (gradeLevels as GradeLevelWithSchedules[]).map(transformGradeLevelToPublic);
+    const publicGradeLevels = (gradeLevels as GradeLevelWithSchedules[]).map(transformGradeLevelToPublic);
 
     // Apply sorting if specified
     if (sortBy && sortOrder) {

@@ -2,6 +2,7 @@
 
 /**
  * Table Search - Client Component with debouncing
+ * Can work with either URL-based routing or callback-based updates
  */
 
 import { useEffect, useState } from "react";
@@ -11,11 +12,13 @@ import { Search, Close } from "./Icons";
 type Props = {
   initialValue?: string;
   placeholder?: string;
+  onSearch?: (value: string) => void; // Optional callback for client-side filtering
 };
 
 export function TableSearch({ 
   initialValue = "", 
-  placeholder = "ค้นหา..." 
+  placeholder = "ค้นหา...",
+  onSearch 
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -25,28 +28,34 @@ export function TableSearch({
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
-      const current = (searchParams.get("search") || "").trim();
-      const next = (searchValue || "").trim();
-
-      // Avoid redundant navigation that can cause scroll reset loops
-      if (current === next) return;
-
-      const params = new URLSearchParams(searchParams.toString());
-      if (next) {
-        params.set("search", next);
-        params.delete("page"); // Reset to page 1 on search
+      if (onSearch) {
+        // Client-side callback mode (no URL updates)
+        onSearch(searchValue.trim());
       } else {
-        params.delete("search");
-      }
+        // URL-based routing mode
+        const current = (searchParams.get("search") || "").trim();
+        const next = (searchValue || "").trim();
 
-      // Use replace to avoid stacking history and reduce scroll jank
-      router.replace(`${pathname}?${params.toString()}`);
+        // Avoid redundant navigation that can cause scroll reset loops
+        if (current === next) return;
+
+        const params = new URLSearchParams(searchParams.toString());
+        if (next) {
+          params.set("search", next);
+          params.delete("page"); // Reset to page 1 on search
+        } else {
+          params.delete("search");
+        }
+
+        // Use replace to avoid stacking history and reduce scroll jank
+        router.replace(`${pathname}?${params.toString()}`);
+      }
     }, 500); // 500ms delay
 
     return () => clearTimeout(timer);
     // Intentionally exclude router/searchParams identity to prevent infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, pathname]);
+  }, [searchValue, pathname, onSearch]);
 
   const handleClear = () => {
     setSearchValue("");

@@ -1,4 +1,4 @@
-import { useTimeslots } from "@/hooks";
+import { useTimeslots, useSemesterSync } from "@/hooks";
 import { subjectCreditValues } from "@/models/credit-value";
 import type { subject_credit } from "@/prisma/generated";
 import { useParams } from "next/navigation";
@@ -18,9 +18,10 @@ type Props = {
 function SelectMultipleTimeSlot(props: Props) {
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const params = useParams();
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  ); //from "1-2566" to ["1", "2566"]
+  
+  // Use useSemesterSync to extract and sync semester with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  
   const timeSlotData = useTimeslots(
     parseInt(academicYear || '0'),
     parseInt(semester || '0'),
@@ -39,7 +40,7 @@ function SelectMultipleTimeSlot(props: Props) {
 
   const checkTimeslotCond = (index: number) => {
     if (!props.subject?.Credit) return false;
-    const creditValue = subjectCreditValues[props.subject.Credit as subject_credit];
+    const creditValue = subjectCreditValues[props.subject.Credit];
     if (!creditValue) return false;
     const timeslotCredit = creditValue * 2;
     const checkedIndex = props.checkedCondition.map((item) =>

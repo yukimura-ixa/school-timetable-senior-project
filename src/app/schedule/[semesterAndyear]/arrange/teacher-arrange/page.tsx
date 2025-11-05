@@ -24,6 +24,7 @@ import { useEffect, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { enqueueSnackbar, closeSnackbar } from "notistack";
 import SaveIcon from "@mui/icons-material/Save";
+import { useSemesterSync } from "@/hooks";
 
 // MUI Components
 import PrimaryButton from "@/components/mui/PrimaryButton";
@@ -152,9 +153,8 @@ export default function TeacherArrangePageRefactored() {
   const searchParams = useSearchParams();
   const searchTeacherID = searchParams.get("TeacherID");
 
-  const [semester, academicYear] = (params.semesterAndyear as string).split(
-    "-",
-  );
+  // Use useSemesterSync to extract and sync semester with global store
+  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
 
   // ============================================================================
   // ZUSTAND STORE - Context7-Powered (Phase 4 Migration)
