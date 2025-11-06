@@ -1,12 +1,5 @@
 {
   "servers": {
-    "upstash/context7": {
-      "type": "http",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-403958cc-83a5-4c46-9808-0d6685ae2b79"
-      }
-    },
     "microsoft/playwright-mcp": {
       "type": "stdio",
       "command": "npx",
