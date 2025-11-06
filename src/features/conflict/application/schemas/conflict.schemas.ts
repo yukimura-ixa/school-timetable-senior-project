@@ -16,3 +16,29 @@ export const getConflictsSchema = v.object({
 });
 
 export type GetConflictsInput = v.InferInput<typeof getConflictsSchema>;
+
+export const checkTeacherConflictSchema = v.object({
+  teacherId: v.pipe(
+    v.number(),
+    v.minValue(1, 'รหัสครูต้องมากกว่า 0')
+  ),
+  timeslotId: v.pipe(
+    v.string(),
+    v.minLength(1, 'รหัสช่วงเวลาต้องไม่ว่าง')
+  ),
+});
+
+export type CheckTeacherConflictInput = v.InferInput<typeof checkTeacherConflictSchema>;
+
+export const checkRoomConflictSchema = v.object({
+  roomId: v.pipe(
+    v.number(),
+    v.minValue(1, 'รหัสห้องต้องมากกว่า 0')
+  ),
+  timeslotId: v.pipe(
+    v.string(),
+    v.minLength(1, 'รหัสช่วงเวลาต้องไม่ว่าง')
+  ),
+});
+
+export type CheckRoomConflictInput = v.InferInput<typeof checkRoomConflictSchema>;

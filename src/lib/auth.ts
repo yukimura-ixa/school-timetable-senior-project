@@ -122,6 +122,36 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return null
       },
     }),
+    // E2E Testing provider using Credentials
+    // SECURITY: Only enabled in development/test environments
+    // Follows Auth.js testing best practices: https://authjs.dev/guides/testing
+    ...(process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+      ? [
+          Credentials({
+            id: "test-credentials",
+            name: "Test Login",
+            credentials: {
+              password: { label: "Password", type: "password" },
+            },
+            authorize(credentials) {
+              // Check if password matches TEST_PASSWORD env var
+              if (credentials.password === process.env.TEST_PASSWORD) {
+                // eslint-disable-next-line no-console
+                console.log("[AUTH] Test credentials authenticated");
+                return {
+                  id: process.env.DEV_USER_ID || "1",
+                  email: process.env.DEV_USER_EMAIL || "admin@test.local",
+                  name: process.env.DEV_USER_NAME || "E2E Admin",
+                  role: process.env.DEV_USER_ROLE || "admin",
+                };
+              }
+              // eslint-disable-next-line no-console
+              console.log("[AUTH] Test credentials rejected - invalid password");
+              return null;
+            },
+          }),
+        ]
+      : []),
   ],
   theme: {
     colorScheme: "light",

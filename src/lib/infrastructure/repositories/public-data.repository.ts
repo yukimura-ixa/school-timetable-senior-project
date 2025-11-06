@@ -216,20 +216,26 @@ export const publicDataRepository = {
     const { academicYear, semester, searchQuery, sortBy, sortOrder } = filters;
 
     // Build where clause
-    const where: Prisma.teacherWhereInput = searchQuery
+    const where = searchQuery
       ? {
           OR: [
-            { Firstname: { contains: searchQuery, mode: 'insensitive' } },
-            { Lastname: { contains: searchQuery, mode: 'insensitive' } },
-            { Department: { contains: searchQuery, mode: 'insensitive' } },
+            { Firstname: { contains: searchQuery } },
+            { Lastname: { contains: searchQuery } },
+            { Department: { contains: searchQuery } },
           ],
         }
-      : {};
+      : undefined;
 
     // Query teachers with their teaching responsibilities
     const teachers = await prisma.teacher.findMany({
       where,
-      include: {
+      select: {
+        TeacherID: true,
+        Prefix: true,
+        Firstname: true,
+        Lastname: true,
+        Department: true,
+        // Explicitly exclude Email field for security
         teachers_responsibility: {
           where: {
             AcademicYear: academicYear,
@@ -286,7 +292,13 @@ export const publicDataRepository = {
   ): Promise<PublicTeacher | null> {
     const teacher = await prisma.teacher.findUnique({
       where: { TeacherID: teacherId },
-      include: {
+      select: {
+        TeacherID: true,
+        Prefix: true,
+        Firstname: true,
+        Lastname: true,
+        Department: true,
+        // Explicitly exclude Email field for security
         teachers_responsibility: {
           where: {
             AcademicYear: academicYear,

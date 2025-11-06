@@ -453,4 +453,280 @@ describe("Conflict Detection Repository", () => {
       );
     });
   });
+
+  /**
+   * ==================== NEW: Issue #84 - Pre-Placement Conflict Checks ====================
+   */
+  
+  describe('checkTeacherConflict', () => {
+    const teacherId = 1;
+    const timeslotId = 'MON-1';
+
+    it('should return conflict when teacher is already scheduled', async () => {
+      // Arrange - Mock a conflicting schedule
+      const mockConflictingSchedule = createMockSchedule({
+        ClassID: 'MON-1-TH101-M11',
+        TimeslotID: 'MON-1',
+        GradeID: 'M11',
+        gradeYear: 1,
+        gradeNumber: 1,
+        SubjectCode: 'TH101',
+        SubjectName: 'ภาษาไทย',
+        RoomID: 101,
+        RoomName: 'A101',
+        teachers: [{
+          TeacherID: 1,
+          Prefix: 'อ.',
+          Firstname: 'สมชาย',
+          Lastname: 'ใจดี',
+        }],
+        DayOfWeek: 'MON',
+      });
+
+      mockPrisma.class_schedule.findMany = jest.fn(() => 
+        Promise.resolve([mockConflictingSchedule] as any)
+      );
+
+      // Act
+      const result = await conflictRepository.checkTeacherConflict(teacherId, timeslotId);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result?.hasConflict).toBe(true);
+      expect(result?.conflictingSchedule).toEqual(mockConflictingSchedule);
+      
+      // Verify Prisma query was called with correct parameters
+      expect(mockPrisma.class_schedule.findMany).toHaveBeenCalledWith({
+        where: {
+          TimeslotID: timeslotId,
+          teachers_responsibility: {
+            some: {
+              TeacherID: teacherId,
+            },
+          },
+        },
+        include: {
+          gradelevel: true,
+          subject: true,
+          teachers_responsibility: {
+            include: {
+              teacher: true,
+            },
+          },
+          room: true,
+          timeslot: true,
+        },
+      });
+    });
+
+    it('should return no conflict when teacher is free', async () => {
+      // Arrange - No conflicting schedule
+      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+
+      // Act
+      const result = await conflictRepository.checkTeacherConflict(teacherId, timeslotId);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result?.hasConflict).toBe(false);
+      expect(result?.conflictingSchedule).toBeUndefined();
+    });
+
+    it('should return no conflict when teacher is scheduled at different timeslot', async () => {
+      // Arrange - Teacher busy at different time
+      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+
+      // Act
+      const result = await conflictRepository.checkTeacherConflict(teacherId, 'TUE-1');
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result?.hasConflict).toBe(false);
+      expect(result?.conflictingSchedule).toBeUndefined();
+    });
+
+    // Table-driven tests for edge cases
+    describe('edge cases', () => {
+      const testCases = [
+        {
+          description: 'invalid teacher ID',
+          teacherId: -1,
+          timeslotId: 'MON-1',
+          mockResult: [],
+          expectedConflict: false,
+        },
+        {
+          description: 'empty timeslot ID',
+          teacherId: 1,
+          timeslotId: '',
+          mockResult: [],
+          expectedConflict: false,
+        },
+        {
+          description: 'non-existent timeslot',
+          teacherId: 1,
+          timeslotId: 'INVALID-TIMESLOT',
+          mockResult: [],
+          expectedConflict: false,
+        },
+      ];
+
+      testCases.forEach(({ description, teacherId, timeslotId, mockResult, expectedConflict }) => {
+        it(`should handle ${description}`, async () => {
+          mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve(mockResult));
+
+          const result = await conflictRepository.checkTeacherConflict(teacherId, timeslotId);
+
+          expect(result?.hasConflict).toBe(expectedConflict);
+        });
+      });
+    });
+  });
+
+  describe('checkRoomConflict', () => {
+    const roomId = 101;
+    const timeslotId = 'MON-1';
+
+    it('should return conflict when room is already occupied', async () => {
+      // Arrange - Mock an occupying schedule
+      const mockConflictingSchedule = createMockSchedule({
+        ClassID: 'MON-1-TH101-M11',
+        TimeslotID: 'MON-1',
+        GradeID: 'M11',
+        gradeYear: 1,
+        gradeNumber: 1,
+        SubjectCode: 'TH101',
+        SubjectName: 'ภาษาไทย',
+        RoomID: 101,
+        RoomName: 'A101',
+        teachers: [{
+          TeacherID: 1,
+          Prefix: 'อ.',
+          Firstname: 'สมชาย',
+          Lastname: 'ใจดี',
+        }],
+        DayOfWeek: 'MON',
+      });
+
+      mockPrisma.class_schedule.findMany = jest.fn(() => 
+        Promise.resolve([mockConflictingSchedule] as any)
+      );
+
+      // Act
+      const result = await conflictRepository.checkRoomConflict(roomId, timeslotId);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result?.hasConflict).toBe(true);
+      expect(result?.conflictingSchedule).toEqual(mockConflictingSchedule);
+      
+      // Verify Prisma query was called with correct parameters
+      expect(mockPrisma.class_schedule.findMany).toHaveBeenCalledWith({
+        where: {
+          TimeslotID: timeslotId,
+          RoomID: roomId,
+        },
+        include: {
+          gradelevel: true,
+          subject: true,
+          teachers_responsibility: {
+            include: {
+              teacher: true,
+            },
+          },
+          room: true,
+          timeslot: true,
+        },
+      });
+    });
+
+    it('should return no conflict when room is available', async () => {
+      // Arrange - No occupying schedule
+      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+
+      // Act
+      const result = await conflictRepository.checkRoomConflict(roomId, timeslotId);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result?.hasConflict).toBe(false);
+      expect(result?.conflictingSchedule).toBeUndefined();
+    });
+
+    it('should return no conflict when room is occupied at different timeslot', async () => {
+      // Arrange - Room occupied at different time
+      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+
+      // Act
+      const result = await conflictRepository.checkRoomConflict(roomId, 'TUE-1');
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result?.hasConflict).toBe(false);
+      expect(result?.conflictingSchedule).toBeUndefined();
+    });
+
+    // Table-driven tests for multiple rooms
+    describe('multiple rooms scenario', () => {
+      const testCases = [
+        {
+          description: 'room A101 occupied, A102 available',
+          roomId: 102,
+          timeslotId: 'MON-1',
+          mockResult: [],
+          expectedConflict: false,
+        },
+        {
+          description: 'room B201 occupied',
+          roomId: 201,
+          timeslotId: 'MON-1',
+          mockResult: [{ RoomID: 201, TimeslotID: 'MON-1' }],
+          expectedConflict: true,
+        },
+        {
+          description: 'same room different period',
+          roomId: 101,
+          timeslotId: 'MON-2',
+          mockResult: [],
+          expectedConflict: false,
+        },
+      ];
+
+      testCases.forEach(({ description, roomId, timeslotId, mockResult, expectedConflict }) => {
+        it(`should handle ${description}`, async () => {
+          mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve(mockResult));
+
+          const result = await conflictRepository.checkRoomConflict(roomId, timeslotId);
+
+          expect(result?.hasConflict).toBe(expectedConflict);
+        });
+      });
+    });
+  });
+
+  describe('error handling for pre-placement checks', () => {
+    it('should handle database errors in checkTeacherConflict', async () => {
+      // Arrange
+      const dbError = new Error('Database connection failed');
+      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.reject(dbError));
+
+      // Act
+      const result = await conflictRepository.checkTeacherConflict(1, 'MON-1');
+
+      // Assert - Should return null on error (graceful degradation)
+      expect(result).toBeNull();
+    });
+
+    it('should handle database errors in checkRoomConflict', async () => {
+      // Arrange
+      const dbError = new Error('Database connection failed');
+      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.reject(dbError));
+
+      // Act
+      const result = await conflictRepository.checkRoomConflict(101, 'MON-1');
+
+      // Assert - Should return null on error (graceful degradation)
+      expect(result).toBeNull();
+    });
+  });
 });

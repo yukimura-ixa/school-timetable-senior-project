@@ -486,6 +486,49 @@ async function main() {
   }
   console.log(`✅ Created ${createdSubjects.length} subjects`);
 
+  // ===== PROGRAM_SUBJECT RELATIONSHIPS =====
+  console.log('🔗 Linking subjects to programs...');
+  
+  // Helper function to convert credit enum to numeric value
+  const creditToNumber = (credit: string): number => {
+    switch (credit) {
+      case 'CREDIT_05': return 0.5;
+      case 'CREDIT_10': return 1.0;
+      case 'CREDIT_15': return 1.5;
+      case 'CREDIT_20': return 2.0;
+      default: return 1.0;
+    }
+  };
+
+  // Create program_subject entries for subjects with programId
+  const programSubjects = subjects
+    .filter(s => s.programId !== null)
+    .map((s, index) => {
+      // Map Thai category to SubjectCategory enum
+      let category: 'CORE' | 'ADDITIONAL' | 'ACTIVITY' = 'CORE';
+      if (s.category === 'กิจกรรมพัฒนาผู้เรียน') {
+        category = 'ACTIVITY';
+      } else if (s.code.startsWith('ง') || s.code.startsWith('ศ20') || s.code.startsWith('อ312')) {
+        category = 'ADDITIONAL';
+      }
+
+      return {
+        ProgramID: s.programId!,
+        SubjectCode: s.code,
+        Category: category,
+        IsMandatory: true,
+        MinCredits: creditToNumber(s.credit),
+        MaxCredits: null,
+        SortOrder: index,
+      };
+    });
+
+  await prisma.program_subject.createMany({
+    data: programSubjects,
+    skipDuplicates: true,
+  });
+  console.log(`✅ Linked ${programSubjects.length} subjects to programs`);
+
   // ===== TIMESLOTS =====
   console.log('⏰ Creating timeslots...');
   const academicYear = 2567;

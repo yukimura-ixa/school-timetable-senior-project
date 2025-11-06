@@ -65,6 +65,7 @@ import {
 // Server Actions
 import { getTeacherScheduleAction, syncTeacherScheduleAction } from '@/features/arrange/application/actions/arrange.actions';
 import { getConflictsAction, getClassSchedulesAction, createClassScheduleAction } from '@/features/class/application/actions/class.actions';
+import { checkTeacherConflictAction, checkRoomConflictAction } from '@/features/conflict/application/actions/conflict.actions';
 import { getTeachersAction } from '@/features/teacher/application/actions/teacher.actions';
 import { getAvailableRespsAction } from '@/features/assign/application/actions/assign.actions';
 import { getTimeslotsByTermAction } from '@/features/timeslot/application/actions/timeslot.actions';
@@ -533,17 +534,49 @@ export default function ArrangementPage() {
       return;
     }
 
-    // Step 2: Check for conflicts using validation hook
+    // Step 2: Check for general conflicts using validation hook
     const conflictInfo = conflictValidation.conflictsByTimeslot.get(timeslotID);
     if (conflictInfo && conflictInfo.type !== 'none' && conflictInfo.severity === 'error') {
       enqueueSnackbar(`⚠️ ตรวจพบข้อขัดแย้ง: ${conflictInfo.message}`, { variant: 'error' });
       return;
     }
 
-    // Step 3: Open room selection dialog
-    setSelectedTimeslotForRoom(timeslotID);
-    setRoomDialogOpen(true);
-  }, [activeSubject, conflictValidation.lockedTimeslots, conflictValidation.conflictsByTimeslot]);
+    // Step 3: Check for specific teacher conflict (NEW - Issue #84)
+    // Wrapped in async IIFE to avoid breaking useCallback
+    void (async () => {
+      if (currentTeacherID) {
+        try {
+          const teacherConflictResult = await checkTeacherConflictAction({
+            teacherId: parseInt(currentTeacherID),
+            timeslotId: timeslotID,
+          });
+
+          if (teacherConflictResult.success && teacherConflictResult.data?.hasConflict) {
+            const conflict = teacherConflictResult.data;
+            enqueueSnackbar(
+              `⚠️ ${conflict.teacherName} สอนวิชา "${conflict.subjectName}" ชั้น ${conflict.gradeName} ในช่วงเวลานี้แล้ว`,
+              { variant: 'error' }
+            );
+            return;
+          }
+          
+          // Step 4: If no conflict, open room selection dialog
+          setSelectedTimeslotForRoom(timeslotID);
+          setRoomDialogOpen(true);
+        } catch (error) {
+          console.error('Teacher conflict check error:', error);
+          enqueueSnackbar('⚠️ ไม่สามารถตรวจสอบข้อขัดแย้งของครูได้', { variant: 'warning' });
+          // Continue to allow placement despite check failure
+          setSelectedTimeslotForRoom(timeslotID);
+          setRoomDialogOpen(true);
+        }
+      } else {
+        // No teacher selected, proceed to room selection
+        setSelectedTimeslotForRoom(timeslotID);
+        setRoomDialogOpen(true);
+      }
+    })();
+  }, [activeSubject, conflictValidation.lockedTimeslots, conflictValidation.conflictsByTimeslot, currentTeacherID]);
 
   // ============================================================================
   // HANDLERS - Room Selection
@@ -567,6 +600,20 @@ export default function ArrangementPage() {
         enqueueSnackbar('⚠️ ข้อมูลรายวิชาไม่ครบถ้วน', { variant: 'warning' });
         setRoomDialogOpen(false);
         return;
+      }
+
+      // Step 1: Check for room conflicts before creating schedule
+      const roomConflictResult = await checkRoomConflictAction({
+        roomId: room.RoomID,
+        timeslotId: selectedTimeslotForRoom,
+      });
+
+      if (roomConflictResult.data?.hasConflict) {
+        // Room is occupied - show error and keep dialog open for re-selection
+        const conflictData = roomConflictResult.data;
+        const message = `⚠️ ห้อง${conflictData.roomName} มี${conflictData.teacherName} สอนวิชา${conflictData.subjectName} ชั้น${conflictData.gradeName} ในช่วงเวลานี้แล้ว`;
+        enqueueSnackbar(message, { variant: 'error' });
+        return; // Don't close dialog - allow user to select different room
       }
 
       // Generate ClassID using helper function

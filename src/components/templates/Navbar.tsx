@@ -29,7 +29,7 @@ function Navbar() {
               <ul className="flex w-fit justify-between gap-6">
                 {session.data?.user?.role === "admin" ? (
                   <li className="relative py-2 px-3 group">
-                    <Link href={"/management/teacher"}>
+                    <Link href={"/management"}>
                       <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
                         จัดการ
                       </p>

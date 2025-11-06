@@ -4,7 +4,7 @@ import { QuickStatsCards, QuickStatsCardsSkeleton } from "./_components/QuickSta
 import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
 import { DataTableSection } from "./_components/DataTableSection";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
+import { authWithDevBypass as auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
@@ -55,7 +55,7 @@ export default async function HomePage() {
               <div className="flex items-center gap-3 mt-1">
                 <div className="text-right">
                   <div className="text-sm font-medium text-white">
-                    {session.user.name || session.user.email}
+                    {session.user.name || "ผู้ใช้งาน"}
                   </div>
                   <div className="text-xs text-blue-100">
                     {session.user.role === "admin" ? "ผู้ดูแลระบบ" : 

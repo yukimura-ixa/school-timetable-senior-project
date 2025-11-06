@@ -36,13 +36,24 @@ export default defineConfig({
   },
 
   projects: [
+    // Setup project - runs authentication once and saves state
+    // This runs before all other tests
+    {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/,
+    },
+
+    // Main test project - uses saved authentication state
     {
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        // Use Playwright's bundled Chromium (headless by default)
-        // This will work after running: npx playwright install chromium
+        // Use saved authentication state from setup project
+        // This eliminates repeated login steps in every test
+        storageState: 'playwright/.auth/admin.json',
       },
+      // Depend on setup project - ensures auth runs first
+      dependencies: ['setup'],
     },
     // Brave browser disabled for CI performance (2x faster)
     // Uncomment for local cross-browser testing if needed

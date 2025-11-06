@@ -439,4 +439,100 @@ export const conflictRepository = {
       totalConflicts,
     };
   },
+
+  /**
+   * Check if a teacher has a conflict at a specific timeslot
+   * 
+   * @param teacherId - Teacher ID to check
+   * @param timeslotId - Timeslot ID to check
+   * @returns Teacher conflict details if conflict exists, null otherwise
+   */
+  async checkTeacherConflict(
+    teacherId: number,
+    timeslotId: string
+  ): Promise<{ hasConflict: boolean; conflictingSchedule?: ScheduleWithRelations } | null> {
+    try {
+      // Find all schedules for this teacher at this timeslot
+      const existingSchedules = await prisma.class_schedule.findMany({
+        where: {
+          TimeslotID: timeslotId,
+          teachers_responsibility: {
+            some: {
+              TeacherID: teacherId,
+            },
+          },
+        },
+        include: {
+          gradelevel: true,
+          subject: true,
+          teachers_responsibility: {
+            include: {
+              teacher: true,
+            },
+          },
+          room: true,
+          timeslot: true,
+        },
+      });
+
+      if (existingSchedules.length === 0) {
+        return { hasConflict: false };
+      }
+
+      // Return first conflicting schedule
+      return {
+        hasConflict: true,
+        conflictingSchedule: existingSchedules[0] as unknown as ScheduleWithRelations,
+      };
+    } catch (error) {
+      console.error('Error checking teacher conflict:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Check if a room has a conflict at a specific timeslot
+   * 
+   * @param roomId - Room ID to check
+   * @param timeslotId - Timeslot ID to check
+   * @returns Room conflict details if conflict exists, null otherwise
+   */
+  async checkRoomConflict(
+    roomId: number,
+    timeslotId: string
+  ): Promise<{ hasConflict: boolean; conflictingSchedule?: ScheduleWithRelations } | null> {
+    try {
+      // Find all schedules for this room at this timeslot
+      const existingSchedules = await prisma.class_schedule.findMany({
+        where: {
+          TimeslotID: timeslotId,
+          RoomID: roomId,
+        },
+        include: {
+          gradelevel: true,
+          subject: true,
+          teachers_responsibility: {
+            include: {
+              teacher: true,
+            },
+          },
+          room: true,
+          timeslot: true,
+        },
+      });
+
+      if (existingSchedules.length === 0) {
+        return { hasConflict: false };
+      }
+
+      // Return first conflicting schedule
+      return {
+        hasConflict: true,
+        conflictingSchedule: existingSchedules[0] as unknown as ScheduleWithRelations,
+      };
+    } catch (error) {
+      console.error('Error checking room conflict:', error);
+      return null;
+    }
+  },
 };

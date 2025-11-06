@@ -51,7 +51,7 @@ interface RoomSelectionDialogProps {
   timeslotLabel?: string;
   
   /** Handler for room selection */
-  onSelect: (room: room) => void;
+  onSelect: (room: room) => void | Promise<void>;
   
   /** Handler for cancel */
   onCancel: () => void;
@@ -103,7 +103,7 @@ export function RoomSelectionDialog({
 
   const handleConfirm = () => {
     if (selectedRoom) {
-      onSelect(selectedRoom);
+      void onSelect(selectedRoom); // Explicitly mark as fire-and-forget
       setSelectedRoom(null);
       setSearchQuery('');
     }
