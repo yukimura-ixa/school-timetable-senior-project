@@ -35,7 +35,11 @@ export async function getQuickStats(): Promise<QuickStats> {
       totalPrograms: 0,
       periodsPerDay: 0,
       currentTerm: "N/A",
-      lastUpdated: new Date().toLocaleDateString(),
+      lastUpdated: new Date().toLocaleDateString('th-TH', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }),
     };
   }
 }

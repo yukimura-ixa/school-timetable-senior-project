@@ -4,7 +4,7 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 const eslintConfig = [
   // Ignore non-source folders (matches .gitignore patterns)
@@ -109,6 +109,16 @@ const eslintConfig = [
       // General code quality
       "no-console": ["warn", { allow: ["warn", "error"] }],
       eqeqeq: ["error", "smart"],
+      
+      // TODO tracking - enforce issue references
+      // Requires format: // TODO: [Issue #XX] Description
+      "no-warning-comments": [
+        "warn",
+        {
+          terms: ["todo", "fixme", "@todo"],
+          location: "start",
+        },
+      ],
     },
   },
   // Prettier must be last to override formatting rules

@@ -89,6 +89,8 @@ export type GetProgramByIdInput = v.InferOutput<typeof getProgramByIdSchema>;
  */
 export const getProgramByGradeSchema = v.object({
   GradeID: v.pipe(v.string(), v.minLength(1, 'รหัสชั้นเรียนห้ามว่าง')),
+  Semester: v.optional(v.pipe(v.string(), v.minLength(1, 'ภาคเรียนห้ามว่าง'))),
+  AcademicYear: v.optional(v.pipe(v.number('ปีการศึกษาต้องเป็นตัวเลข'), v.minValue(2500, 'ปีการศึกษาต้องไม่น้อยกว่า 2500'))),
 });
 
 export type GetProgramByGradeInput = v.InferOutput<typeof getProgramByGradeSchema>;

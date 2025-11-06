@@ -11,33 +11,12 @@
 import * as configRepository from "@/features/config/infrastructure/repositories/config.repository";
 import type { semester } from "@/prisma/generated";
 
-/**
- * Timetable configuration structure
- */
-export interface TimetableConfig {
-  periodsPerDay: number;
-  totalPeriodsPerWeek: number;
-  breakSlots: {
-    junior: number;     // e.g., period 4 (lunch for junior high)
-    senior: number;     // e.g., period 4 (lunch for senior high)
-  };
-  schoolDays: number;   // typically 5 (Mon-Fri)
-  periodDuration: number; // minutes per period
-}
-
-/**
- * Default configuration (fallback if DB config not found)
- */
-export const DEFAULT_TIMETABLE_CONFIG: TimetableConfig = {
-  periodsPerDay: 8,
-  totalPeriodsPerWeek: 40, // 8 periods × 5 days
-  breakSlots: {
-    junior: 4,
-    senior: 4,
-  },
-  schoolDays: 5,
-  periodDuration: 50,
-};
+// Import and re-export types and constants from the constants file (safe for client components)
+// This allows backward compatibility while preventing Prisma from being bundled in browser
+import type { TimetableConfig } from "./timetable-config.constants";
+import { DEFAULT_TIMETABLE_CONFIG } from "./timetable-config.constants";
+export type { TimetableConfig } from "./timetable-config.constants";
+export { DEFAULT_TIMETABLE_CONFIG } from "./timetable-config.constants";
 
 /**
  * Get timetable configuration for a specific semester

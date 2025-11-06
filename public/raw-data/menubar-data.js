@@ -66,8 +66,9 @@ export const scheduleMenu = [
       Icon: BsTable,
     },
     title: "จัดตารางสอน",
-    // Modernized: now points to dashboard/select-semester with card-based UI
-    link: "/dashboard/select-semester",
+    // Dynamic link - will be constructed by the component using current semester
+    link: null, // Set to null to trigger dynamic behavior
+    dynamicLink: true, // Flag to indicate this needs semester context
     roles: ["admin"],
   },
   // {

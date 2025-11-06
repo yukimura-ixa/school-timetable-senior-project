@@ -116,12 +116,12 @@ function ShowTeacherData() {
     return <Loading />;
   }
 
+  // Modern Teacher Selection - MUI 7 TypeScript inference limitation with nested Autocomplete (Known Issue #59)
+  // @ts-ignore - MUI 7 Box/Paper type inference with Autocomplete renderOption (Known Issue #59)
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Modern Teacher Selection */}
-      {/* Known Issue #59: MUI 7 Box/Paper TypeScript inference limitation - non-blocking, runtime works correctly */}
+    <Box component="div" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+        <Box component="div" sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
           <PersonSearchIcon color="primary" />
           <Typography variant="h6">เลือกครูผู้สอน</Typography>
         </Box>
@@ -155,7 +155,7 @@ function ShowTeacherData() {
                   {option.Firstname?.[0] || ''}
                   {option.Lastname?.[0] || ''}
                 </Avatar>
-                <Box sx={{ flexGrow: 1 }}>
+                <Box component="div" sx={{ flexGrow: 1 }}>
                   <Typography variant="body1">
                     {option.Prefix} {option.Firstname} {option.Lastname}
                   </Typography>
@@ -181,12 +181,10 @@ function ShowTeacherData() {
         />
       </Paper>
 
-      {/* Teacher Workload Dashboard */}
-      {teacher && responsibilityData.data && (
+      {(teacher && responsibilityData.data && (
         <>
-          {/* Teacher Info Card */}
           <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 } as const}>
+            <Box component="div" sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
               <Avatar
                 sx={{
                   bgcolor: "primary.main",
@@ -198,7 +196,7 @@ function ShowTeacherData() {
                 {teacher.Firstname?.[0] || ''}
                 {teacher.Lastname?.[0] || ''}
               </Avatar>
-              <Box sx={{ flexGrow: 1 } as const}>
+              <Box component="div" sx={{ flexGrow: 1 }}>
                 <Typography variant="h6">
                   {teacher.Prefix} {teacher.Firstname} {teacher.Lastname}
                 </Typography>
@@ -432,7 +430,7 @@ function ShowTeacherData() {
             ดูรายละเอียดวิชาที่รับผิดชอบทั้งหมด
           </Button>
         </>
-      )}
+      )) as React.ReactNode}
 
       {/* Empty State */}
       {!teacher && (

@@ -43,25 +43,36 @@ const page = (_props: Props) => {
   const gradeLevelData = useGradeLevels();
   const [currentGradeID, setCurrentGradeID] = useState("");
   const programOfGrade = useSWR(
-    currentGradeID !== "" ? ['program-by-grade', currentGradeID] : null,
+    currentGradeID !== "" ? ['program-by-grade', currentGradeID, semester, academicYear] : null,
     async ([, gradeId]) => {
-      return await getProgramByGradeAction({ GradeID: gradeId });
+      return await getProgramByGradeAction({ 
+        GradeID: gradeId,
+        Semester: semester,
+        AcademicYear: academicYear,
+      });
     },
     { revalidateOnFocus: false },
   );
   const convertDropdownItem = (gradeID: string) => {
-    return gradeID === ""
-      ? ""
-      : `ม.${gradeID[0]}/${parseInt(gradeID.substring(1))}`;
+    // GradeID format is already "ม.X/Y" from database, return as-is
+    return gradeID;
   };
   const subjects: SubjectRow[] = (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data)
-    ? programOfGrade.data.data.subjects.map(subject => ({
-        SubjectCode: subject.SubjectCode,
-        SubjectName: subject.SubjectName,
-        Credit: subject.Credit as keyof typeof subjectCreditValues,
-        Category: categoryMap[subject.Category],
-        teachers: [], // TODO: Add teacher data when available from repository
-      }))
+    ? programOfGrade.data.data.subjects.map((subject: any) => {
+        const teachers = Array.isArray(subject.teachers_responsibility)
+          ? subject.teachers_responsibility.map((tr: any) => ({
+              TeacherFullName: `${tr.teacher.Prefix} ${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
+            }))
+          : [];
+        
+        return {
+          SubjectCode: subject.SubjectCode,
+          SubjectName: subject.SubjectName,
+          Credit: subject.Credit as keyof typeof subjectCreditValues,
+          Category: categoryMap[subject.Category as SubjectCategory],
+          teachers,
+        };
+      })
     : [];
 
   const primarySubjectData = (): SubjectRow[] =>
@@ -75,7 +86,7 @@ const page = (_props: Props) => {
   const TableHead = (): JSX.Element => (
     <>
     <tr className="bg-emerald-300 h-10 text-center font-bold">
-      <td colSpan={5}>โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID[0]}/{parseInt(currentGradeID.substring(1))} ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}</td>
+      <td colSpan={5}>โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}</td>
     </tr>
     <tr className="bg-emerald-200 h-10">
       <th className="">
@@ -198,7 +209,7 @@ const page = (_props: Props) => {
                 <>
                   <li>
                     <p>
-                      ม.{String(data)[0]}/{parseInt(String(data).substring(1))}
+                      {String(data)}
                     </p>
                   </li>
                 </>

@@ -9,6 +9,7 @@
 
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { createAction } from '@/shared/lib/action-wrapper';
 import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
 import {
@@ -129,16 +130,25 @@ export const createTimeslotsAction = createAction(
     const timeslots = generateTimeslots(input);
 
     // Use transaction to create table_config and timeslots atomically
+    const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
+    const configId = `${semesterNum}-${input.AcademicYear}`;
+    
     await timeslotRepository.transaction(async (tx) => {
-      // Create table config with canonical ConfigID format
-      const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
-      const configId = `${semesterNum}-${input.AcademicYear}`;
-      await tx.table_config.create({
-        data: {
+      // Create or update table config with canonical ConfigID format
+      await tx.table_config.upsert({
+        where: {
+          ConfigID: configId,
+        },
+        create: {
           ConfigID: configId,
           AcademicYear: input.AcademicYear,
           Semester: input.Semester,
           Config: input,
+          configCompleteness: 25, // 25% complete after timeslots configured
+        },
+        update: {
+          Config: input,
+          configCompleteness: 25, // Update to 25% when reconfiguring timeslots
         },
       });
 
@@ -147,6 +157,10 @@ export const createTimeslotsAction = createAction(
         data: timeslots,
       });
     });
+
+    // Revalidate paths to ensure UI sees fresh data (Next.js 16 cache invalidation)
+    revalidatePath('/dashboard/select-semester');
+    revalidatePath(`/schedule/${configId}`);
 
     return {
       message: 'สร้างตารางเวลาสำเร็จ',

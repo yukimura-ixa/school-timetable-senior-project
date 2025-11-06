@@ -45,6 +45,10 @@
       "args": ["-y", "next-devtools-mcp@latest"],
       "type": "stdio"
     },
+    "Prisma-Local": {
+      "command": "npx",
+      "args": ["-y", "prisma", "mcp"]
+    },
     "prisma-postgres": {
       "url": "https://mcp.prisma.io/mcp",
       "type": "http"

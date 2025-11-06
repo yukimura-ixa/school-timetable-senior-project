@@ -73,7 +73,8 @@ export function DataTableSection({
     if (!searchQuery) return classesState.data;
     const query = searchQuery.toLowerCase();
     return classesState.data.filter(cls => 
-      cls.className.toLowerCase().includes(query)
+      cls.gradeId.toLowerCase().includes(query) ||
+      cls.homeroomTeacher?.toLowerCase().includes(query)
     );
   }, [classesState.data, searchQuery]);
 
@@ -121,6 +122,7 @@ export function DataTableSection({
         <nav className="-mb-px flex space-x-8" role="tablist">
           <button
             onClick={() => handleTabChange("teachers")}
+            data-testid="teachers-tab"
             className={`
               whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
               transition-colors
@@ -138,6 +140,7 @@ export function DataTableSection({
           </button>
           <button
             onClick={() => handleTabChange("classes")}
+            data-testid="classes-tab"
             className={`
               whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
               transition-colors
@@ -176,11 +179,13 @@ export function DataTableSection({
           <TeachersTableClient
             data={currentTeachers}
             search={searchQuery}
+            data-testid="teacher-list"
           />
         ) : (
           <ClassesTableClient
             data={currentClasses}
             search={searchQuery}
+            data-testid="class-list"
           />
         )}
       </div>

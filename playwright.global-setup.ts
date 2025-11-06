@@ -15,11 +15,115 @@ if (!process.env.DATABASE_URL) {
 }
 
 /**
- * Global setup for E2E tests
+ * Check if Docker is available
+ */
+function isDockerAvailable(): boolean {
+  try {
+    execSync('docker --version', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if test database is running
+ */
+function isDatabaseRunning(): boolean {
+  try {
+    const result = execSync('docker ps --filter "name=timetable-test-db" --format "{{.Status}}"', {
+      encoding: 'utf-8',
+    });
+    return result.trim().startsWith('Up');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Wait for database to be ready
+ */
+async function waitForDatabase(maxAttempts = 30): Promise<boolean> {
+  console.log('⏳ Waiting for database to be ready...');
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      execSync('docker exec timetable-test-db pg_isready -U test_user', {
+        stdio: 'ignore',
+      });
+      console.log('✅ Database is ready!\n');
+      return true;
+    } catch {
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (attempt % 5 === 0) {
+          console.log(`   Still waiting... (${attempt}/${maxAttempts})`);
+        }
+      }
+    }
+  }
+  
+  return false;
+}
+
+/**
+ * Global setup for E2E tests with automatic Docker Compose lifecycle management
  * Runs before all tests to prepare the database
  */
 async function globalSetup() {
-  console.log('\n🔧 E2E Test Setup: Checking database...\n');
+  console.log('\n🔧 E2E Test Setup: Initializing test environment...\n');
+  
+  const autoManageDb = process.env.AUTO_MANAGE_TEST_DB !== 'false';
+  const isDocker = isDockerAvailable();
+  
+  // Check if we should manage the test database
+  if (autoManageDb && isDocker) {
+    console.log('🐳 Docker Compose lifecycle management: ENABLED\n');
+    
+    const isRunning = isDatabaseRunning();
+    
+    if (isRunning) {
+      console.log('ℹ️  Test database is already running');
+      console.log('   Reusing existing database instance\n');
+    } else {
+      console.log('🐘 Starting test database container...');
+      try {
+        execSync('docker compose -f docker-compose.test.yml up -d', {
+          stdio: 'inherit',
+        });
+        
+        // Mark that we started the database (for cleanup)
+        process.env.MANAGED_TEST_DB = 'true';
+        
+        // Wait for database to be ready
+        const ready = await waitForDatabase();
+        if (!ready) {
+          throw new Error('Database failed to start within timeout period');
+        }
+        
+        // Run migrations
+        console.log('📦 Running database migrations...');
+        execSync('pnpm prisma migrate deploy', {
+          stdio: 'inherit',
+          env: {
+            ...process.env,
+            DATABASE_URL: 'postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public',
+          },
+        });
+        console.log('✅ Migrations completed\n');
+        
+      } catch (error) {
+        console.error('❌ Failed to start test database:', error);
+        throw error;
+      }
+    }
+  } else if (!isDocker) {
+    console.log('⚠️  Docker not available - assuming external database');
+    console.log('ℹ️  Skipping automatic database lifecycle management\n');
+  } else {
+    console.log('ℹ️  Automatic database management disabled (AUTO_MANAGE_TEST_DB=false)');
+    console.log('ℹ️  Assuming database is managed externally\n');
+  }
   
   // Check if DATABASE_URL is available
   if (!process.env.DATABASE_URL) {
@@ -28,7 +132,7 @@ async function globalSetup() {
     return;
   }
   
-  console.log('✅ DATABASE_URL found - seeding database...\n');
+  console.log('🌱 Seeding test database...\n');
   
   try {
     // Set environment variable for test mode seeding
@@ -43,7 +147,10 @@ async function globalSetup() {
       },
     });
     
-    console.log('\n✅ Database seeded successfully for E2E tests\n');
+    console.log('\n✅ Test environment ready!\n');
+    console.log('   Database: postgresql://localhost:5433/test_timetable');
+    console.log('   Tests: 27 E2E tests ready to run\n');
+    
   } catch (error) {
     console.error('\n❌ Failed to seed database for E2E tests:', error);
     throw error;

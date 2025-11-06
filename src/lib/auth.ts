@@ -215,6 +215,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async session(params) {
       const { session, token } = params
       console.log("[AUTH] Session callback")
+      
+      // DEVELOPMENT: Inject dev bypass session
+      if (process.env.ENABLE_DEV_BYPASS === "true") {
+        console.log("[AUTH] Dev bypass - injecting admin session")
+        return {
+          user: {
+            id: process.env.DEV_USER_ID || "1",
+            email: process.env.DEV_USER_EMAIL || "admin@test.local",
+            name: process.env.DEV_USER_NAME || "E2E Admin",
+            role: process.env.DEV_USER_ROLE || "admin",
+            image: null,
+          },
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+        }
+      }
+      
       if (session.user) {
         session.user.role = token.role as string
         session.user.id = token.id as string
@@ -243,4 +259,27 @@ declare module "next-auth/jwt" {
     role?: string
     id?: string | number
   }
+}
+
+// Wrap auth() to inject dev bypass session
+const originalAuth = auth
+export const authWithDevBypass = async () => {
+  // Check if dev bypass is enabled
+  if (process.env.ENABLE_DEV_BYPASS === "true") {
+    // eslint-disable-next-line no-console
+    console.log("[AUTH] Dev bypass - returning mock admin session")
+    return {
+      user: {
+        id: process.env.DEV_USER_ID || "1",
+        email: process.env.DEV_USER_EMAIL || "admin@test.local",
+        name: process.env.DEV_USER_NAME || "E2E Admin",
+        role: process.env.DEV_USER_ROLE || "admin",
+        image: null,
+      },
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    }
+  }
+  
+  // Use original auth
+  return originalAuth()
 }

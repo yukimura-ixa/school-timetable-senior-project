@@ -16,8 +16,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 4 : undefined, // ✅ 4 parallel workers in CI, all cores locally
   
-  /* Global setup - seeds database before tests */
+  /* Global setup/teardown - manages test database lifecycle */
   globalSetup: require.resolve('./playwright.global-setup.ts'),
+  globalTeardown: require.resolve('./playwright.global-teardown.ts'),
   
   reporter: [
     ['html'],

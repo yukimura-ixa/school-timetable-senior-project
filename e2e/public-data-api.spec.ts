@@ -24,27 +24,23 @@ test.describe('Public Teachers Data API', () => {
   test('should load homepage with teachers data', async ({ page }) => {
     // Navigate to homepage
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
     
-    // Check if teachers tab exists
-    const teachersTab = page.locator('text=/teachers|ครู/i').first();
-    await expect(teachersTab).toBeVisible({ timeout: 10000 });
+    // Check if teachers tab exists and click it
+    await expect(page.getByTestId('teachers-tab')).toBeVisible();
+    await page.getByTestId('teachers-tab').click();
     
-    // Click teachers tab if not already selected
-    await teachersTab.click();
+    // Verify teacher table is visible
+    await expect(page.getByTestId('teacher-list')).toBeVisible();
     
-    // Wait for teacher data to load
-    await page.waitForTimeout(1000);
-    
-    // Verify teacher table or cards are visible
-    const hasTeacherContent = await page.locator('table, [data-testid*="teacher"], text=/teacher|ครู/i').count();
-    expect(hasTeacherContent).toBeGreaterThan(0);
+    // Verify table has content
+    const rowCount = await page.getByTestId('teacher-list').locator('tbody tr').count();
+    expect(rowCount).toBeGreaterThan(0);
   });
 
   test('should not expose email addresses (PII protection)', async ({ page }) => {
-    // Navigate to homepage teachers tab
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    // Navigate to homepage and switch to teachers tab
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     // Get page content
     const content = await page.content();
@@ -62,41 +58,41 @@ test.describe('Public Teachers Data API', () => {
   });
 
   test('should display teacher name and department', async ({ page }) => {
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
-    // Check for table headers or column names
-    const hasNameColumn = await page.locator('th:has-text("Name"), th:has-text("ชื่อ")').count();
-    const hasDeptColumn = await page.locator('th:has-text("Department"), th:has-text("แผนก")').count();
-    
-    // At least one should be visible
-    expect(hasNameColumn + hasDeptColumn).toBeGreaterThan(0);
+    // Verify table headers exist
+    await expect(page.getByTestId('teacher-list').locator('th:has-text("ชื่อ"), th:has-text("Name")')).toBeVisible();
+    await expect(page.getByTestId('teacher-list').locator('th:has-text("แผนก"), th:has-text("Department")')).toBeVisible();
   });
 
   test('should support pagination for teachers', async ({ page }) => {
-    await page.goto('/?tab=teachers&page=1');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     // Check if pagination controls exist
     const paginationExists = await page.locator('[role="navigation"], .pagination, button:has-text("Next"), button:has-text("ถัดไป")').count();
     
     if (paginationExists > 0) {
+      // Get first page data
+      const firstPageData = await page.getByTestId('teacher-list').textContent();
+      
       // Try clicking next page button if available
       const nextButton = page.locator('button:has-text("Next"), button:has-text("ถัดไป"), [aria-label*="next"]').first();
       
       if (await nextButton.isVisible()) {
         await nextButton.click();
-        await page.waitForLoadState('networkidle');
         
-        // Verify URL changed to page 2
-        expect(page.url()).toContain('page=2');
+        // Verify data changed (client-side pagination, no URL change)
+        const secondPageData = await page.getByTestId('teacher-list').textContent();
+        expect(secondPageData).not.toBe(firstPageData);
       }
     }
   });
 
   test('should support search functionality for teachers', async ({ page }) => {
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     // Look for search input
     const searchInput = page.locator('input[type="search"], input[type="text"][placeholder*="Search"], input[placeholder*="ค้นหา"]').first();
@@ -105,24 +101,23 @@ test.describe('Public Teachers Data API', () => {
       // Type a search term
       await searchInput.fill('Math');
       await page.waitForTimeout(600); // Wait for debounce
-      await page.waitForLoadState('networkidle');
       
-      // Verify search term is in URL or content updated
-      const content = await page.content();
-      const hasSearchResults = content.toLowerCase().includes('math') || page.url().includes('search=Math');
-      
-      expect(hasSearchResults).toBe(true);
+      // Verify search results updated (client-side filtering)
+      await expect(async () => {
+        const content = await page.getByTestId('teacher-list').textContent();
+        expect(content?.toLowerCase()).toContain('math');
+      }).toPass({ timeout: 3000 });
     }
   });
 
   test('should load individual teacher detail page', async ({ page }) => {
     // This test assumes teachers have detail pages at /teachers/{id}
-    // Navigate to homepage first to get a teacher ID
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    // Navigate to homepage and switch to teachers tab
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     // Find a teacher link (adjust selector based on actual implementation)
-    const teacherLink = page.locator('a[href*="/teachers/"]').first();
+    const teacherLink = page.getByTestId('teacher-list').locator('a[href*="/teachers/"]').first();
     
     if (await teacherLink.isVisible()) {
       await teacherLink.click();
@@ -141,24 +136,22 @@ test.describe('Public Teachers Data API', () => {
 test.describe('Public Classes Data API', () => {
   test('should load homepage with classes data', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
     
-    // Check if classes/students tab exists
-    const classesTab = page.locator('text=/classes|students|ห้องเรียน|นักเรียน/i').first();
-    await expect(classesTab).toBeVisible({ timeout: 10000 });
+    // Check if classes tab exists and click it
+    await expect(page.getByTestId('classes-tab')).toBeVisible();
+    await page.getByTestId('classes-tab').click();
     
-    // Click classes tab
-    await classesTab.click();
-    await page.waitForTimeout(1000);
+    // Verify classes table is visible
+    await expect(page.getByTestId('class-list')).toBeVisible();
     
-    // Verify class data is visible
-    const hasClassContent = await page.locator('table, [data-testid*="class"], text=/class|grade|ห้อง|ชั้น/i').count();
-    expect(hasClassContent).toBeGreaterThan(0);
+    // Verify table has content
+    const rowCount = await page.getByTestId('class-list').locator('tbody tr').count();
+    expect(rowCount).toBeGreaterThan(0);
   });
 
   test('should not expose individual student data', async ({ page }) => {
-    await page.goto('/?tab=students');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('classes-tab').click();
     
     // Get page content
     const content = await page.content();
@@ -173,30 +166,32 @@ test.describe('Public Classes Data API', () => {
   });
 
   test('should display grade level information', async ({ page }) => {
-    await page.goto('/?tab=students');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('classes-tab').click();
     
     // Check for grade level indicators (M.1, M.2, etc.)
-    const hasGradeInfo = await page.locator('text=/M\\.[1-6]|ม\\.[1-6]/').count();
-    expect(hasGradeInfo).toBeGreaterThan(0);
+    await expect(page.getByTestId('class-list').locator('text=/M\\.[1-6]|ม\\.[1-6]/')).toBeVisible();
   });
 
   test('should support pagination for classes', async ({ page }) => {
-    await page.goto('/?tab=students&page=1');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('classes-tab').click();
     
     // Check if pagination controls exist
     const paginationExists = await page.locator('[role="navigation"], .pagination, button:has-text("Next"), button:has-text("ถัดไป")').count();
     
     if (paginationExists > 0) {
+      // Get first page data
+      const firstPageData = await page.getByTestId('class-list').textContent();
+      
       const nextButton = page.locator('button:has-text("Next"), button:has-text("ถัดไป"), [aria-label*="next"]').first();
       
       if (await nextButton.isVisible()) {
         await nextButton.click();
-        await page.waitForLoadState('networkidle');
         
-        // Verify URL changed
-        expect(page.url()).toContain('page=2');
+        // Verify data changed (client-side pagination, no URL change)
+        const secondPageData = await page.getByTestId('class-list').textContent();
+        expect(secondPageData).not.toBe(firstPageData);
       }
     }
   });
@@ -285,8 +280,8 @@ test.describe('Public Statistics API', () => {
 
 test.describe('Security & Privacy Checks', () => {
   test('no PII (email) in homepage teachers section', async ({ page }) => {
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     const content = await page.content();
     
@@ -306,8 +301,8 @@ test.describe('Security & Privacy Checks', () => {
   });
 
   test('no PII (email) in classes section', async ({ page }) => {
-    await page.goto('/?tab=students');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('classes-tab').click();
     
     const content = await page.content();
     
@@ -349,7 +344,7 @@ test.describe('Security & Privacy Checks', () => {
       /postgres:\/\//i,
       /mysql:\/\//i,
       /mongodb:\/\//i,
-      /prisma/i && /connect/i
+      /prisma.*connect/i // Combined pattern for Prisma connection strings
     ];
     
     const hasDbString = dbPatterns.some(pattern => pattern.test(content));
@@ -381,8 +376,8 @@ test.describe('Security & Privacy Checks', () => {
 
 test.describe('Data Validation & Integrity', () => {
   test('teacher utilization should be between 0-150%', async ({ page }) => {
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     const content = await page.textContent('body');
     
@@ -399,8 +394,8 @@ test.describe('Data Validation & Integrity', () => {
   });
 
   test('grade levels should follow Thai education system (M.1-M.6)', async ({ page }) => {
-    await page.goto('/?tab=students');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('classes-tab').click();
     
     const content = await page.textContent('body');
     
@@ -449,27 +444,26 @@ test.describe('Performance & Caching', () => {
   });
 
   test('switching tabs should not require full page reload', async ({ page }) => {
-    await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
-    // Record initial URL
-    const initialUrl = page.url();
+    // Verify teachers tab is active
+    await expect(page.getByTestId('teachers-tab')).toHaveAttribute('aria-selected', 'true');
     
-    // Click classes/students tab
-    const classesTab = page.locator('text=/classes|students|ห้องเรียน|นักเรียน/i').first();
-    await classesTab.click();
+    // Switch to classes tab
+    await page.getByTestId('classes-tab').click();
     
-    await page.waitForTimeout(500);
+    // Verify tab state changed (client-side, no URL change)
+    await expect(page.getByTestId('classes-tab')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByTestId('teachers-tab')).toHaveAttribute('aria-selected', 'false');
     
-    // URL should change but page should not reload (client-side navigation)
-    const newUrl = page.url();
-    expect(newUrl).not.toBe(initialUrl);
-    expect(newUrl).toContain('tab=');
+    // Verify URL did NOT change (client-side state only)
+    expect(page.url()).toBe(new URL('/', page.url()).href);
   });
 
   test('pagination should be fast (client-side)', async ({ page }) => {
-    await page.goto('/?tab=teachers&page=1');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await page.getByTestId('teachers-tab').click();
     
     const nextButton = page.locator('button:has-text("Next"), button:has-text("ถัดไป"), [aria-label*="next"]').first();
     
@@ -477,7 +471,6 @@ test.describe('Performance & Caching', () => {
       const startTime = Date.now();
       
       await nextButton.click();
-      await page.waitForLoadState('networkidle');
       
       const paginationTime = Date.now() - startTime;
       

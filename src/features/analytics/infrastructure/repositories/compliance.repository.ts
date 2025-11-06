@@ -55,12 +55,12 @@ async function getProgramCompliance(configId: string): Promise<ProgramCompliance
         },
       },
       program_subject: {
-        select: {
-          SubjectCode: true,
-          Category: true,
-          IsMandatory: true,
-          MinCredits: true,
-          MaxCredits: true,
+        include: {
+          subject: {
+            select: {
+              SubjectName: true,
+            },
+          },
         },
       },
     },
@@ -168,7 +168,7 @@ async function getProgramCompliance(configId: string): Promise<ProgramCompliance
       .filter(ps => ps.IsMandatory && !scheduledSubjectCodes.has(ps.SubjectCode))
       .map(ps => ({
         subjectCode: ps.SubjectCode,
-        subjectName: ps.SubjectCode, // TODO: Get actual subject name
+        subjectName: ps.subject?.SubjectName || ps.SubjectCode,
         category: ps.Category,
         minCredits: ps.MinCredits,
         maxCredits: ps.MaxCredits,

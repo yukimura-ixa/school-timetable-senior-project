@@ -136,7 +136,7 @@ export const programRepository = {
    * Find program by grade ID with subjects
    * Returns program associated with a specific grade level including subjects
    */
-  async findByGrade(gradeId: string) {
+  async findByGrade(gradeId: string, semester?: string, academicYear?: number) {
     const gradelevel = await prisma.gradelevel.findUnique({
       where: { GradeID: gradeId },
       include: {
@@ -144,7 +144,28 @@ export const programRepository = {
           include: {
             program_subject: {
               include: {
-                subject: true,
+                subject: semester && academicYear
+                  ? {
+                      include: {
+                        teachers_responsibility: {
+                          where: {
+                            GradeID: gradeId,
+                            Semester: semester as 'SEMESTER_1' | 'SEMESTER_2',
+                            AcademicYear: academicYear,
+                          },
+                          include: {
+                            teacher: {
+                              select: {
+                                Prefix: true,
+                                Firstname: true,
+                                Lastname: true,
+                              },
+                            },
+                          },
+                        },
+                      },
+                    }
+                  : true,
               },
               orderBy: {
                 SortOrder: 'asc',
@@ -169,6 +190,9 @@ export const programRepository = {
         Category: ps.Category,
         IsMandatory: ps.IsMandatory,
         SortOrder: ps.SortOrder,
+        teachers_responsibility: 'teachers_responsibility' in ps.subject 
+          ? ps.subject.teachers_responsibility 
+          : [],
       })),
     };
 

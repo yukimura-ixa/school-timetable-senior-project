@@ -20,6 +20,7 @@ import {
   deleteRoomsSchema,
   getRoomByIdSchema,
   getAvailableRoomsSchema,
+  getOccupiedRoomsSchema,
   type CreateRoomInput,
   type CreateRoomsInput,
   type UpdateRoomInput,
@@ -27,6 +28,7 @@ import {
   type DeleteRoomsInput,
   type GetRoomByIdInput,
   type GetAvailableRoomsInput,
+  type GetOccupiedRoomsInput,
 } from '../schemas/room.schemas';
 
 /**
@@ -99,6 +101,31 @@ export const getAvailableRoomsAction = createAction(
   async (input: GetAvailableRoomsInput) => {
     const availableRooms = await roomRepository.findAvailableForTimeslot(input.TimeslotID);
     return availableRooms;
+  }
+);
+
+/**
+ * Get occupied room IDs for a specific timeslot
+ * 
+ * Returns array of RoomIDs that are already scheduled for the given timeslot.
+ * Useful for displaying unavailable/occupied rooms in UI.
+ * 
+ * @param input - Timeslot ID
+ * @returns Array of occupied room IDs
+ * 
+ * @example
+ * ```tsx
+ * const result = await getOccupiedRoomsAction({ TimeslotID: 'T1' });
+ * if (result.success) {
+ *   console.log(result.data); // number[]
+ * }
+ * ```
+ */
+export const getOccupiedRoomsAction = createAction(
+  getOccupiedRoomsSchema,
+  async (input: GetOccupiedRoomsInput) => {
+    const occupiedRoomIDs = await roomRepository.findOccupiedForTimeslot(input.TimeslotID);
+    return occupiedRoomIDs;
   }
 );
 

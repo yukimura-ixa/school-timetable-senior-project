@@ -14,6 +14,7 @@ type Props = {
   search?: string;
   sortBy?: "name" | "hours" | "utilization";
   sortOrder?: "asc" | "desc";
+  "data-testid"?: string;
 };
 
 export function TeachersTableClient({
@@ -21,6 +22,7 @@ export function TeachersTableClient({
   search,
   sortBy = "name",
   sortOrder = "asc",
+  "data-testid": testId,
 }: Props) {
   // Map sortOrder to aria-sort values
   const getAriaSort = (column: string): "ascending" | "descending" | "none" => {
@@ -39,7 +41,10 @@ export function TeachersTableClient({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div 
+      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+      data-testid={testId}
+    >
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

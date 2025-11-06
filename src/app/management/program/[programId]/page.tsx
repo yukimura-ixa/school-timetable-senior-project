@@ -1,5 +1,6 @@
 import ProgramSubjectAssignmentPage from "./component/ProgramSubjectAssignmentPage";
 
-export default function Page({ params }: { params: { programId: string } }) {
-  return <ProgramSubjectAssignmentPage programId={Number(params.programId)} />;
+export default async function Page({ params }: { params: Promise<{ programId: string }> }) {
+  const { programId } = await params;
+  return <ProgramSubjectAssignmentPage programId={Number(programId)} />;
 }

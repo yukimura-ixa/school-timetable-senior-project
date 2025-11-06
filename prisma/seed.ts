@@ -770,9 +770,10 @@ async function main() {
 
   // ===== SAMPLE TIMETABLE CONFIGURATION =====
   console.log('⚙️  Creating timetable configuration...');
+  const semesterNumber = sem === 'SEMESTER_1' ? 1 : sem === 'SEMESTER_2' ? 2 : 3;
   const tableConfig = await prisma.table_config.create({
     data: {
-      ConfigID: `${academicYear}-${sem}`,
+      ConfigID: `${semesterNumber}-${academicYear}`,
       AcademicYear: academicYear,
       Semester: sem,
       Config: {

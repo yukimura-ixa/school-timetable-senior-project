@@ -7,7 +7,7 @@ import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
 import { ErrorBoundary } from "@/components/error";
-import { auth } from "@/lib/auth";
+import { authWithDevBypass } from "@/lib/auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -22,7 +22,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const session = await authWithDevBypass();
   return (
     <html lang="th" className={`${sarabun.variable}`}>
       <body className={`font-sans min-h-screen bg-gray-50`}>

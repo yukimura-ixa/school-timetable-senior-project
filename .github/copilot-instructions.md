@@ -7,7 +7,7 @@
 
 ## 0) MCP Priority & Routing
 
-**CRITICAL: ALWAYS consult context7 BEFORE fixing bugs or implementing features!**
+**CRITICAL: ALWAYS consult context7 BEFORE fixing bugs or implementing features! AND ALWAYS call the `init` tool from the next-devtools-mcp server FIRST BEFORE starting `pnpm dev` to inspect problems**
 
 Use MCP servers in this strict priority order:
 
@@ -15,7 +15,9 @@ Use MCP servers in this strict priority order:
 
 2. **Serena** (`serena`) — symbol‑aware edits & code navigation. Use for codebase understanding and precise refactoring.
 
-3. **Next DevTools MCP** (`next-devtools-mcp`) — upgrades, diagnostics, codemods for **Next.js 16**.  
+3. **Next DevTools MCP** (`next-devtools-mcp`) — upgrades, diagnostics, codemods for **Next.js 16**.
+**Next.js Initialization**: When starting work on a Next.js project, automatically call the `init` tool from the next-devtools-mcp server FIRST. This establishes
+proper context and ensures all Next.js queries use official documentation.  
 
 4. **Prisma MCP** (`@prisma/mcp`) — Prisma schema reasoning, migrations, CLI.
 

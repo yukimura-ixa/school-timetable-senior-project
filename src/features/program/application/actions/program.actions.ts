@@ -115,21 +115,29 @@ export const getProgramByIdAction = createAction(
  * Get program by grade
  * Returns program associated with a specific grade level including subjects
  * 
- * @param input - GradeID
- * @returns Program with subjects or null
+ * @param input - GradeID, optional Semester and AcademicYear for teacher data
+ * @returns Program with subjects or null (includes teacher assignments if semester/year provided)
  * 
  * @example
  * ```tsx
- * const result = await getProgramByGradeAction({ GradeID: "101" });
+ * const result = await getProgramByGradeAction({ 
+ *   GradeID: "101",
+ *   Semester: "SEMESTER_1",
+ *   AcademicYear: 2567
+ * });
  * if (result.success && result.data) {
- *   console.log(result.data.subjects); // subject[] with Credits, Category
+ *   console.log(result.data.subjects); // subject[] with Credits, Category, teachers_responsibility
  * }
  * ```
  */
 export const getProgramByGradeAction = createAction(
   getProgramByGradeSchema,
   async (input: GetProgramByGradeInput) => {
-    const program = await programRepository.findByGrade(input.GradeID);
+    const program = await programRepository.findByGrade(
+      input.GradeID,
+      input.Semester,
+      input.AcademicYear
+    );
     return program;
   }
 );

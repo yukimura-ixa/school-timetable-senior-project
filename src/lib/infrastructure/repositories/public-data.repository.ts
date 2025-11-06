@@ -385,7 +385,11 @@ export const publicDataRepository = {
         totalPrograms: 0,
         periodsPerDay: 0,
         currentTerm: 'N/A',
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: new Date().toLocaleDateString('th-TH', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        }),
       };
     }
 
@@ -415,6 +419,13 @@ export const publicDataRepository = {
     const semesterLabel =
       config.Semester === 'SEMESTER_1' ? 'ภาคเรียนที่ 1' : 'ภาคเรียนที่ 2';
 
+    // Format date in Thai locale (short format: 14 พ.ย. 2568)
+    const formattedDate = config.updatedAt.toLocaleDateString('th-TH', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+
     return {
       totalTeachers: teacherCount,
       totalClasses: classCount,
@@ -423,7 +434,7 @@ export const publicDataRepository = {
       totalPrograms: programCount,
       periodsPerDay,
       currentTerm: `${semesterLabel} ปีการศึกษา ${config.AcademicYear}`,
-      lastUpdated: config.updatedAt.toISOString(),
+      lastUpdated: formattedDate,
     };
   },
 

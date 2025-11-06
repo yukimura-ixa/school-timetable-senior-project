@@ -88,6 +88,29 @@ export const roomRepository = {
   },
 
   /**
+   * Find occupied room IDs for a specific timeslot
+   * Returns array of RoomIDs that are already scheduled
+   */
+  async findOccupiedForTimeslot(timeslotId: string) {
+    const occupiedRooms = await prisma.class_schedule.findMany({
+      where: {
+        TimeslotID: timeslotId,
+        RoomID: {
+          not: null,
+        },
+      },
+      select: {
+        RoomID: true,
+      },
+      distinct: ['RoomID'],
+    });
+
+    return occupiedRooms
+      .map(schedule => schedule.RoomID)
+      .filter((id): id is number => id !== null);
+  },
+
+  /**
    * Create a single room
    */
   async create(data: CreateRoomInput) {

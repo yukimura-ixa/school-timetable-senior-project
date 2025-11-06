@@ -32,18 +32,22 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Box, Card, CardContent, Typography, Chip, IconButton } from '@mui/material';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CloseIcon from '@mui/icons-material/Close';
+import { enqueueSnackbar } from 'notistack';
 
 // Import Zustand store hooks
 import {
   useArrangementUIStore,
   useSelectedSubject,
 } from '../../stores/arrangement-ui.store';
+
+// Import Server Action
+import { deleteClassScheduleAction } from '@/features/class/application/actions/class.actions';
 
 /**
  * Props interface for DraggableSubjectCard
@@ -74,6 +78,9 @@ interface DraggableSubjectCardProps {
   
   /** Optional: Disable dragging */
   disabled?: boolean;
+  
+  /** Optional: Callback to revalidate data after deletion */
+  onDelete?: () => void;
 }
 
 /**
@@ -100,6 +107,7 @@ export function DraggableSubjectCard({
   subject,
   teacherId,
   disabled = false,
+  onDelete,
 }: DraggableSubjectCardProps) {
   /**
    * ZUSTAND STORE INTEGRATION
@@ -194,11 +202,57 @@ export function DraggableSubjectCard({
     }
   };
 
-  const handleRemove = (e: React.MouseEvent) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card selection
-    clearSelectedSubject();
-    // TODO: Call Server Action for actual deletion
-    // await deleteScheduleAction({ ... });
+    
+    if (isDeleting) return; // Prevent duplicate clicks
+    
+    // Generate ClassID from subject data
+    // ClassID format: TimeslotID-SubjectCode-GradeID (as per generateClassID helper)
+    // For placed schedules, we need to construct this from available data
+    // Note: This component needs a way to know the timeslotID if it's a placed schedule
+    // For now, we'll use the id prop which should be the ClassID for placed schedules
+    const classId = id;
+    
+    try {
+      setIsDeleting(true);
+      
+      // Call Server Action for actual deletion
+      const result = await deleteClassScheduleAction({ 
+        ClassID: classId
+      });
+      
+      // Type guard for result
+      if (result && typeof result === 'object' && 'success' in result) {
+        if (result.success) {
+          // Clear selected subject from UI state
+          clearSelectedSubject();
+          
+          // Trigger parent revalidation if callback provided
+          onDelete?.();
+          
+          // Show success notification
+          enqueueSnackbar('ลบตารางสอนสำเร็จ', { variant: 'success' });
+        } else {
+          // Show error notification
+          const errorMsg = 'error' in result && typeof result.error === 'string' 
+            ? result.error 
+            : 'เกิดข้อผิดพลาด';
+          enqueueSnackbar('ไม่สามารถลบตารางสอนได้: ' + errorMsg, { 
+            variant: 'error' 
+          });
+        }
+      } else {
+        enqueueSnackbar('เกิดข้อผิดพลาดในการลบตารางสอน', { variant: 'error' });
+      }
+    } catch (error) {
+      console.error('Failed to delete schedule:', error);
+      enqueueSnackbar('เกิดข้อผิดพลาดในการลบตารางสอน', { variant: 'error' });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -277,8 +331,8 @@ export function DraggableSubjectCard({
         {/* Remove Button */}
         <IconButton
           size="small"
-          onClick={handleRemove}
-          disabled={disabled}
+          onClick={(e) => void handleRemove(e)}
+          disabled={disabled || isDeleting}
           sx={{ ml: 0.5 }}
         >
           <CloseIcon fontSize="small" />

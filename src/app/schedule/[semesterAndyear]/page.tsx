@@ -60,13 +60,50 @@ function Schedule() {
         </Link>
       </Box>
 
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+      <Box sx={{ mb: 3 }}>
         <Tabs
           value={tabSelect}
           onChange={handleTabChange}
           variant="scrollable"
           scrollButtons="auto"
           aria-label="schedule tabs"
+          sx={{
+            '& .MuiTabs-indicator': {
+              height: 4,
+              borderRadius: '4px 4px 0 0',
+              background: 'linear-gradient(90deg, #06b6d4, #3b82f6)',
+              boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+            },
+            '& .MuiTab-root': {
+              fontSize: '0.95rem',
+              fontWeight: 500,
+              textTransform: 'none',
+              minHeight: 64,
+              px: 3,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              color: '#6b7280',
+              '&:hover': {
+                backgroundColor: 'rgba(6, 182, 212, 0.08)',
+                color: '#0891b2',
+                transform: 'translateY(-2px)',
+              },
+              '&.Mui-selected': {
+                color: '#0891b2',
+                fontWeight: 600,
+                background: 'linear-gradient(to bottom, rgba(6, 182, 212, 0.05), transparent)',
+              },
+              '& .MuiSvgIcon-root': {
+                fontSize: '1.3rem',
+                transition: 'transform 0.3s ease',
+              },
+              '&.Mui-selected .MuiSvgIcon-root': {
+                transform: 'scale(1.1)',
+              },
+            },
+            borderBottom: '2px solid',
+            borderColor: 'rgba(229, 231, 235, 1)',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+          }}
         >
           <Tab
             icon={<AssignmentIcon />}

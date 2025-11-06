@@ -64,23 +64,29 @@ import {
 
 // Server Actions
 import { getTeacherScheduleAction, syncTeacherScheduleAction } from '@/features/arrange/application/actions/arrange.actions';
-import { getConflictsAction, getClassSchedulesAction } from '@/features/class/application/actions/class.actions';
+import { getConflictsAction, getClassSchedulesAction, createClassScheduleAction } from '@/features/class/application/actions/class.actions';
 import { getTeachersAction } from '@/features/teacher/application/actions/teacher.actions';
 import { getAvailableRespsAction } from '@/features/assign/application/actions/assign.actions';
 import { getTimeslotsByTermAction } from '@/features/timeslot/application/actions/timeslot.actions';
 import { getGradeLevelsAction } from '@/features/gradelevel/application/actions/gradelevel.actions';
 import { getTimetableConfigAction } from '@/lib/actions/timetable-config.actions';
+import { getRawLockedSchedulesAction } from '@/features/lock/application/actions/lock.actions';
+import { generateClassID } from '@/features/arrange/domain/services/arrange-validation.service';
+import { getAvailableRoomsAction, getOccupiedRoomsAction } from '@/features/room/application/actions/room.actions';
 
 // Zustand Store
 import { useArrangementUIStore } from '@/features/schedule-arrangement/presentation/stores/arrangement-ui.store';
 
-// Config
-import type { TimetableConfig } from '@/lib/timetable-config';
-import { DEFAULT_TIMETABLE_CONFIG } from '@/lib/timetable-config';
+// Conflict Validation Hook
+import { useConflictValidation } from '@/features/schedule-arrangement/presentation/hooks';
+
+// Config (import from constants to avoid bundling Prisma in browser)
+import type { TimetableConfig } from '@/lib/timetable-config.constants';
+import { DEFAULT_TIMETABLE_CONFIG } from '@/lib/timetable-config.constants';
 
 // Types
 import type { SubjectData, TeacherData } from '@/types/schedule.types';
-import type { gradelevel, teacher } from '@/prisma/generated';
+import type { gradelevel, teacher, room } from '@/prisma/generated';
 
 // Feedback Components
 import { TimetableGridSkeleton, NetworkErrorEmptyState } from '@/components/feedback';
@@ -148,6 +154,7 @@ export default function ArrangementPage() {
     
     // Data state
     scheduledSubjects,
+    setLockData,
     
     // Save state
     isSaving,
@@ -166,6 +173,11 @@ export default function ArrangementPage() {
   
   // Local dirty state (store doesn't have isDirty yet)
   const [isDirty, setIsDirty] = useState(false);
+
+  // ============================================================================
+  // CONFLICT VALIDATION
+  // ============================================================================
+  const conflictValidation = useConflictValidation();
 
   // ============================================================================
   // @DND-KIT SENSORS
@@ -272,6 +284,46 @@ export default function ArrangementPage() {
   );
 
   // ============================================================================
+  // DATA FETCHING - Locked Schedules
+  // ============================================================================
+  const { data: lockedSchedules } = useSWR(
+    `locked-schedules-${academicYear}-${semester}`,
+    async () => {
+      const result = await getRawLockedSchedulesAction({
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+      });
+      if (!result || !result.success) return [];
+      return result.data || [];
+    }
+  );
+
+  // ============================================================================
+  // DATA FETCHING - Room Availability (for Room Dialog)
+  // ============================================================================
+  const { data: availableRooms } = useSWR(
+    selectedTimeslotForRoom ? `available-rooms-${selectedTimeslotForRoom}` : null,
+    async () => {
+      if (!selectedTimeslotForRoom) return [];
+      const result = await getAvailableRoomsAction({ TimeslotID: selectedTimeslotForRoom });
+      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
+      if (!('data' in result)) return [];
+      return (result.data as unknown[]) || [];
+    }
+  );
+
+  const { data: occupiedRoomIDs } = useSWR(
+    selectedTimeslotForRoom ? `occupied-rooms-${selectedTimeslotForRoom}` : null,
+    async () => {
+      if (!selectedTimeslotForRoom) return [];
+      const result = await getOccupiedRoomsAction({ TimeslotID: selectedTimeslotForRoom });
+      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
+      if (!('data' in result)) return [];
+      return (result.data as number[]) || [];
+    }
+  );
+
+  // ============================================================================
   // DATA FETCHING - Grade Level Schedules (for Grade Tabs)
   // ============================================================================
   const selectedGradeLevel = useMemo(() => {
@@ -359,6 +411,15 @@ export default function ArrangementPage() {
       setCurrentTeacherID(searchTeacherID);
     }
   }, [searchTeacherID, setCurrentTeacherID]);
+
+  // ============================================================================
+  // EFFECTS - Update Lock Data in Store
+  // ============================================================================
+  useEffect(() => {
+    if (lockedSchedules) {
+      setLockData(lockedSchedules);
+    }
+  }, [lockedSchedules, setLockData]);
 
   useEffect(() => {
     if (currentTeacherID && allTeachers) {
@@ -458,36 +519,99 @@ export default function ArrangementPage() {
   }, [availableSubjects]);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { over } = event;
+    const { active, over } = event;
     setActiveSubject(null);
 
-    if (!over) return;
+    if (!over || !activeSubject) return;
 
-    // const subjectCode = active.id as string;
+    const subjectCode = active.id as string;
     const timeslotID = over.id as string;
 
-    // TODO: Implement subject placement logic
-    // This would involve:
-    // 1. Validate timeslot is not locked
-    // 2. Check for conflicts
-    // 3. Open room selection dialog
-    // 4. Update teacher schedule
-    // 5. Mark as dirty
+    // Step 1: Validate timeslot is not locked
+    if (conflictValidation.lockedTimeslots.has(timeslotID)) {
+      enqueueSnackbar('🔒 ช่วงเวลานี้ถูกล็อคแล้ว ไม่สามารถจัดตารางได้', { variant: 'warning' });
+      return;
+    }
 
+    // Step 2: Check for conflicts using validation hook
+    const conflictInfo = conflictValidation.conflictsByTimeslot.get(timeslotID);
+    if (conflictInfo && conflictInfo.type !== 'none' && conflictInfo.severity === 'error') {
+      enqueueSnackbar(`⚠️ ตรวจพบข้อขัดแย้ง: ${conflictInfo.message}`, { variant: 'error' });
+      return;
+    }
+
+    // Step 3: Open room selection dialog
     setSelectedTimeslotForRoom(timeslotID);
     setRoomDialogOpen(true);
-  }, []);
+  }, [activeSubject, conflictValidation.lockedTimeslots, conflictValidation.conflictsByTimeslot]);
 
   // ============================================================================
   // HANDLERS - Room Selection
   // ============================================================================
-  const handleRoomSelect = useCallback((_room: { RoomID: number; RoomName: string; Building: string; Floor: string }) => {
-    // TODO: Implement room selection logic
-    // Would update teacher schedule with selected room
-    setRoomDialogOpen(false);
-    setSelectedTimeslotForRoom(null);
-    setIsDirty(true);
-  }, []);
+  const handleRoomSelect = useCallback(async (room: { RoomID: number; RoomName: string; Building: string; Floor: string }) => {
+    if (!activeSubject || !selectedTimeslotForRoom) {
+      enqueueSnackbar('⚠️ ข้อมูลไม่ครบถ้วน', { variant: 'warning' });
+      setRoomDialogOpen(false);
+      return;
+    }
+
+    try {
+      // Extract required fields from activeSubject (from teachers_responsibility via getAvailableRespsAction)
+      const subjectData = activeSubject as unknown as { 
+        SubjectCode?: string;
+        GradeID?: string;
+        RespID?: number;
+      };
+
+      if (!subjectData.SubjectCode || !subjectData.GradeID || !subjectData.RespID) {
+        enqueueSnackbar('⚠️ ข้อมูลรายวิชาไม่ครบถ้วน', { variant: 'warning' });
+        setRoomDialogOpen(false);
+        return;
+      }
+
+      // Generate ClassID using helper function
+      const classID = generateClassID(
+        selectedTimeslotForRoom,
+        subjectData.SubjectCode,
+        subjectData.GradeID
+      );
+
+      // Create schedule entry via Server Action
+      const result = await createClassScheduleAction({
+        ClassID: classID,
+        TimeslotID: selectedTimeslotForRoom,
+        SubjectCode: subjectData.SubjectCode,
+        GradeID: subjectData.GradeID,
+        RoomID: room.RoomID,
+        IsLocked: false,
+        ResponsibilityIDs: [subjectData.RespID],
+      });
+
+      if (result) {
+        // Revalidate caches to reflect new schedule
+        await Promise.all([
+          mutateTeacherSchedule(),
+          mutateConflicts(),
+        ]);
+
+        // Push to history for undo/redo
+        pushHistory(scheduledSubjects);
+
+        // Mark as dirty for unsaved changes warning
+        setIsDirty(true);
+
+        enqueueSnackbar('✅ จัดตารางสอนสำเร็จ', { variant: 'success' });
+      }
+    } catch (error) {
+      console.error('Schedule creation error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'ไม่ทราบสาเหตุ';
+      enqueueSnackbar(`❌ เกิดข้อผิดพลาด: ${errorMsg}`, { variant: 'error' });
+    } finally {
+      // Always cleanup dialog state
+      setRoomDialogOpen(false);
+      setSelectedTimeslotForRoom(null);
+    }
+  }, [activeSubject, selectedTimeslotForRoom, mutateTeacherSchedule, mutateConflicts, pushHistory, scheduledSubjects]);
 
   // ============================================================================
   // HANDLERS - Clear All
@@ -796,14 +920,6 @@ export default function ArrangementPage() {
   // ============================================================================
 
   // ============================================================================
-  // COMPUTED - Locked Timeslots
-  // ============================================================================
-  const lockedTimeslots = useMemo(() => {
-    // TODO: Get from lock data
-    return new Set<string>();
-  }, []);
-
-  // ============================================================================
   // COMPUTED - Progress Data (Phase 2)
   // ============================================================================
   const overallProgress = useMemo(() => {
@@ -1073,17 +1189,29 @@ export default function ArrangementPage() {
                           periodsPerDay={timetableConfig.periodsPerDay}
                           breakSlots={timetableConfig.breakSlots}
                           getConflicts={(timeslotID) => {
-                            const conflict = conflicts?.find((c: unknown) => {
+                            // Use conflict validation hook for real-time checks
+                            const conflictInfo = conflictValidation.conflictsByTimeslot.get(timeslotID);
+                            if (conflictInfo && conflictInfo.type !== 'none') {
+                              return {
+                                hasConflict: true,
+                                message: conflictInfo.message,
+                                severity: conflictInfo.severity,
+                              };
+                            }
+                            
+                            // Fallback to API conflicts if hook doesn't have info
+                            const apiConflict = conflicts?.find((c: unknown) => {
                               const conflictData = c as { TimeslotID?: string; message?: string };
                               return conflictData.TimeslotID === timeslotID;
                             });
-                            const conflictData = conflict as { message?: string } | undefined;
+                            const conflictData = apiConflict as { message?: string } | undefined;
                             return {
-                              hasConflict: !!conflict,
+                              hasConflict: !!apiConflict,
                               message: conflictData?.message,
+                              severity: apiConflict ? 'error' as const : undefined,
                             };
                           }}
-                          lockedTimeslots={lockedTimeslots}
+                          lockedTimeslots={conflictValidation.lockedTimeslots}
                           selectedTimeslotID={selectedTimeslotForRoom}
                         />
                       )}
@@ -1108,7 +1236,7 @@ export default function ArrangementPage() {
         {/* Room Selection Dialog */}
         <RoomSelectionDialog
           open={roomDialogOpen}
-          rooms={[]} // TODO: Fetch available rooms
+          rooms={(availableRooms as unknown as room[]) || []}
           subjectName={activeSubject?.subjectName || ''}
           timeslotLabel={selectedTimeslotForRoom || ''}
           onSelect={handleRoomSelect}
@@ -1116,7 +1244,7 @@ export default function ArrangementPage() {
             setRoomDialogOpen(false);
             setSelectedTimeslotForRoom(null);
           }}
-          occupiedRoomIDs={[]}
+          occupiedRoomIDs={occupiedRoomIDs || []}
         />
 
         {/* Drag Overlay */}

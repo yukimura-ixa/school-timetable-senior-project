@@ -43,6 +43,7 @@ interface TimetableGridProps {
   getConflicts?: (timeslotID: string) => {
     hasConflict: boolean;
     message?: string;
+    severity?: 'error' | 'warning' | 'info';
   };
   
   /** Locked timeslots */
@@ -216,6 +217,15 @@ export function TimetableGrid({
                     };
                     const isLocked = lockedTimeslots?.has(timeslot.TimeslotID) || false;
                     const isSelected = selectedTimeslotID === timeslot.TimeslotID;
+                    
+                    // Determine validation state from conflict severity
+                    const validationState = conflicts.hasConflict
+                      ? conflicts.severity === 'warning'
+                        ? 'warning'
+                        : conflicts.severity === 'error'
+                          ? 'error'
+                          : null
+                      : null;
 
                     return (
                       <Grid size="grow" key={timeslot.TimeslotID}>
@@ -226,6 +236,7 @@ export function TimetableGrid({
                           conflictMessage={conflicts.message}
                           isLocked={isLocked}
                           isSelected={isSelected}
+                          validationState={validationState}
                           onRemove={onRemoveSubject}
                           onClick={() => onTimeslotClick?.(timeslot)}
                         />

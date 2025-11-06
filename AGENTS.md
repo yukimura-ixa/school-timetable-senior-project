@@ -1,4 +1,4 @@
-# SubSentinel - AI Agent Handbook (Next.js 16 + Vercel Postgres)
+# Phrasongsa Timetable - AI Agent Handbook (Next.js 16 + Vercel Postgres)
 
 > Operating manual and system prompt for Codex/AI coding agents.
 > MCP-first. PNPM-only. Serena-first for code analysis.

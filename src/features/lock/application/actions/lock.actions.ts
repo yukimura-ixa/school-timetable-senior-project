@@ -10,7 +10,8 @@
 import { createAction } from '@/shared/lib/action-wrapper';
 import * as v from 'valibot';
 import * as lockRepository from '../../infrastructure/repositories/lock.repository';
-import type { Prisma, semester, class_schedule } from '@/prisma/generated';
+import { semester } from '@/prisma/generated';
+import type { Prisma, class_schedule } from '@/prisma/generated';
 import {
   generateClassID,
   groupSchedulesBySubject,
@@ -288,5 +289,51 @@ export const applyLockTemplateAction = createAction(
       warnings,
       created,
     };
+  }
+);
+
+/**
+ * Get locked timeslot IDs for a given grade and semester
+ * Used for preventing schedule modifications in locked slots
+ * 
+ * @returns Array of TimeslotIDs that are locked
+ */
+export const getLockedTimeslotIDsAction = createAction(
+  v.object({
+    GradeID: v.string(),
+    AcademicYear: v.number(),
+    Semester: v.enum(semester),
+  }),
+  async (input) => {
+    const rawSchedules = await lockRepository.findLockedSchedules(
+      input.AcademicYear,
+      input.Semester
+    );
+
+    // Filter by grade and extract unique timeslot IDs
+    const timeslotIDs = Array.from(
+      new Set(
+        rawSchedules
+          .filter((schedule) => schedule.GradeID === input.GradeID)
+          .map((schedule) => schedule.TimeslotID)
+      )
+    );
+
+    return timeslotIDs;
+  }
+);
+/**
+ * Get raw locked schedules for a given academic year and semester  
+ * Returns array of class_schedule objects for use in Zustand store
+ */
+export const getRawLockedSchedulesAction = createAction(
+  getLockedSchedulesSchema,
+  async (input: GetLockedSchedulesInput) => {
+    const rawSchedules = await lockRepository.findLockedSchedules(
+      input.AcademicYear,
+      input.Semester
+    );
+    
+    return rawSchedules as class_schedule[];
   }
 );

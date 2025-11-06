@@ -31,6 +31,7 @@ export default async function DashboardSemesterLayout({
 
   // Validate existence in DB (table_config)
   const exists = await semesterRepository.findByYearAndSemester(year, semester);
+  
   if (!exists) {
     return redirect("/dashboard/select-semester");
   }

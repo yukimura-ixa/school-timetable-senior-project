@@ -73,3 +73,12 @@ export const getAvailableRoomsSchema = v.object({
 });
 
 export type GetAvailableRoomsInput = v.InferOutput<typeof getAvailableRoomsSchema>;
+
+/**
+ * Schema for getting occupied room IDs for a specific timeslot
+ */
+export const getOccupiedRoomsSchema = v.object({
+  TimeslotID: v.pipe(v.string(), v.minLength(1, 'รหัสช่วงเวลาห้ามว่าง')),
+});
+
+export type GetOccupiedRoomsInput = v.InferOutput<typeof getOccupiedRoomsSchema>;

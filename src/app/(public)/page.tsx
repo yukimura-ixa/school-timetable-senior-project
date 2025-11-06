@@ -4,6 +4,7 @@ import { QuickStatsCards, QuickStatsCardsSkeleton } from "./_components/QuickSta
 import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
 import { DataTableSection } from "./_components/DataTableSection";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
@@ -14,6 +15,9 @@ export const metadata: Metadata = {
 // No search params needed, all state managed in DataTableSection
 
 export default async function HomePage() {
+  // Check if user is authenticated
+  const session = await auth();
+  
   // Import data fetching functions
   const { getTeacherCount, getPaginatedTeachers } = await import("@/lib/public/teachers");
   const { getClassCount, getPaginatedClasses } = await import("@/lib/public/classes");
@@ -47,13 +51,40 @@ export default async function HomePage() {
             <h1 className="text-4xl font-bold mb-4">
             ระบบตารางเรียนตารางสอน
             </h1>
-            <Link
-              href="/signin"
-              prefetch={false}
-              className="mt-1 inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-white/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
-            >
-              Admin Login
-            </Link>
+            {session?.user ? (
+              <div className="flex items-center gap-3 mt-1">
+                <div className="text-right">
+                  <div className="text-sm font-medium text-white">
+                    {session.user.name || session.user.email}
+                  </div>
+                  <div className="text-xs text-blue-100">
+                    {session.user.role === "admin" ? "ผู้ดูแลระบบ" : 
+                     session.user.role === "teacher" ? "ครูผู้สอน" : 
+                     "นักเรียน"}
+                  </div>
+                </div>
+                <Link
+                  href="/dashboard/select-semester"
+                  prefetch={false}
+                  data-testid="admin-dashboard-button"
+                  className="inline-flex items-center gap-2 rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-white/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700 transition-all"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  กลับสู่หน้าจัดการ
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href="/signin"
+                prefetch={false}
+                data-testid="sign-in-button"
+                className="mt-1 inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-white/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
+              >
+                Admin Login
+              </Link>
+            )}
           </div>
           <p className="text-xl text-blue-100">
             ค้นหาและดูตารางเรียนของครูผู้สอนและชั้นเรียนได้ทันที
