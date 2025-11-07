@@ -15,8 +15,17 @@ export const metadata: Metadata = {
 // No search params needed, all state managed in DataTableSection
 
 export default async function HomePage() {
-  // Check if user is authenticated
-  const session = await auth();
+  // SECURITY: Extract only non-sensitive user data for client serialization
+  // Use IIFE to avoid keeping full session object in scope (RSC serialization issue)
+  const userInfo = await (async () => {
+    const sessionData = await auth();
+    if (!sessionData?.user) return null;
+    return {
+      name: sessionData.user.name,
+      role: sessionData.user.role,
+      // email explicitly excluded - PII must not be serialized to client
+    };
+  })();
   
   // Import data fetching functions
   const { getTeacherCount, getPaginatedTeachers } = await import("@/lib/public/teachers");
@@ -51,15 +60,15 @@ export default async function HomePage() {
             <h1 className="text-4xl font-bold mb-4">
             ระบบตารางเรียนตารางสอน
             </h1>
-            {session?.user ? (
+            {userInfo ? (
               <div className="flex items-center gap-3 mt-1">
                 <div className="text-right">
                   <div className="text-sm font-medium text-white">
-                    {session.user.name || "ผู้ใช้งาน"}
+                    {userInfo.name || "ผู้ใช้งาน"}
                   </div>
                   <div className="text-xs text-blue-100">
-                    {session.user.role === "admin" ? "ผู้ดูแลระบบ" : 
-                     session.user.role === "teacher" ? "ครูผู้สอน" : 
+                    {userInfo.role === "admin" ? "ผู้ดูแลระบบ" : 
+                     userInfo.role === "teacher" ? "ครูผู้สอน" : 
                      "นักเรียน"}
                   </div>
                 </div>

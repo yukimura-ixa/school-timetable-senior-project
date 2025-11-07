@@ -1,17 +1,35 @@
 "use client";
 import { useGradeLevels, useSemesterSync } from "@/hooks";
-import Loading from "@/app/loading";
-import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import PrimaryButton from "@/components/mui/PrimaryButton";
 import { getProgramByGradeAction } from "@/features/program/application/actions/program.actions";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { useParams } from "next/navigation";
-import React, { Fragment, useState, type JSX } from "react";
+import React, { useState } from "react";
 import useSWR from "swr";
 import ExportAllProgram from "./function/ExportAllProgram";
 import { subjectCreditValues } from "@/models/credit-value";
 import { isUndefined } from "swr/_internal";
 import { SubjectCategory } from "@/prisma/generated";
+import {
+  Container,
+  Paper,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Chip,
+  Skeleton,
+  Stack,
+} from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+import SchoolIcon from "@mui/icons-material/School";
 
 type Props = Record<string, never>;
 
@@ -31,20 +49,16 @@ const categoryMap: Record<SubjectCategory, CategoryType> = {
   ACTIVITY: "กิจกรรมพัฒนาผู้เรียน",
 };
 
-const page = (_props: Props) => {
+const Page = (_props: Props) => {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
-  // Ensure semester and academicYear are defined
-  if (!semester || !academicYear) {
-    return <Loading />;
-  }
-  
   const gradeLevelData = useGradeLevels();
   const [currentGradeID, setCurrentGradeID] = useState("");
+  
   const programOfGrade = useSWR(
-    currentGradeID !== "" ? ['program-by-grade', currentGradeID, semester, academicYear] : null,
+    currentGradeID !== "" && semester && academicYear ? ['program-by-grade', currentGradeID, semester, academicYear] : null,
     async ([, gradeId]) => {
+      if (!semester || !academicYear) return null;
       return await getProgramByGradeAction({ 
         GradeID: gradeId,
         Semester: semester,
@@ -53,10 +67,19 @@ const page = (_props: Props) => {
     },
     { revalidateOnFocus: false },
   );
-  const convertDropdownItem = (gradeID: string) => {
-    // GradeID format is already "ม.X/Y" from database, return as-is
-    return gradeID;
-  };
+
+  // Ensure semester and academicYear are defined
+  if (!semester || !academicYear) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Stack spacing={2}>
+          <Skeleton variant="rectangular" height={56} />
+          <Skeleton variant="rectangular" height={400} />
+        </Stack>
+      </Container>
+    );
+  }
+
   const subjects: SubjectRow[] = (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data)
     ? programOfGrade.data.data.subjects.map((subject: any) => {
         const teachers = Array.isArray(subject.teachers_responsibility)
@@ -83,92 +106,86 @@ const page = (_props: Props) => {
 
   const activitiesSubjectData = (): SubjectRow[] =>
     sortSubjectCategory(subjects.filter((item) => item.Category === "กิจกรรมพัฒนาผู้เรียน"));
-  const TableHead = (): JSX.Element => (
-    <>
-    <tr className="bg-emerald-300 h-10 text-center font-bold">
-      <td colSpan={5}>โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}</td>
-    </tr>
-    <tr className="bg-emerald-200 h-10">
-      <th className="">
-        <p>ลำดับ</p>
-      </th>
-      <th className="">
-        <p>รหัสวิชา</p>
-      </th>
-      <th className="">
-        <p>ชื่อวิชา</p>
-      </th>
-      <th className="">
-        <p>หน่วยกิต</p>
-      </th>
-      <th className="">
-        <p>ครูผู้สอน</p>
-      </th>
-    </tr>
-    </>
+  // Render helper functions (not components to avoid re-creation during render)
+  const renderTableHead = () => (
+    <TableHead>
+      <TableRow>
+        <TableCell
+          colSpan={5}
+          align="center"
+          sx={{ bgcolor: "success.light", fontWeight: "bold", py: 1.5 }}
+        >
+          โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell align="center" sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+          ลำดับ
+        </TableCell>
+        <TableCell align="center" sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+          รหัสวิชา
+        </TableCell>
+        <TableCell sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+          ชื่อวิชา
+        </TableCell>
+        <TableCell align="center" sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+          หน่วยกิต
+        </TableCell>
+        <TableCell sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+          ครูผู้สอน
+        </TableCell>
+      </TableRow>
+    </TableHead>
   );
-  const CategoryTablerow = (props: { categoryName: string }): JSX.Element => (
-    <tr className="h-10 bg-blue-100">
-      <td></td>
-      <td></td>
-      <td>
-        <p className="font-bold">{props.categoryName}</p>
-      </td>
-      <td></td>
-      <td></td>
-    </tr>
+
+  const renderCategoryRow = (categoryName: string) => (
+    <TableBody key={`category-${categoryName}`}>
+      <TableRow>
+        <TableCell />
+        <TableCell />
+        <TableCell sx={{ fontWeight: "bold", bgcolor: "primary.lighter" }}>
+          <Chip label={categoryName} color="primary" variant="outlined" />
+        </TableCell>
+        <TableCell sx={{ bgcolor: "primary.lighter" }} />
+        <TableCell sx={{ bgcolor: "primary.lighter" }} />
+      </TableRow>
+    </TableBody>
   );
-  const SubjectDataRow = (props: { data: SubjectRow[]; indexStart: number }): JSX.Element =>
-    (<>
-    {props.data.map((item, index) => (
-      <Fragment key={`${currentGradeID || 'unknown'}-${item.SubjectCode}`}>
-        <DataList
-          index={props.indexStart + index}
-          SubjectCode={item.SubjectCode}
-          SubjectName={item.SubjectName}
-          Credit={item.Credit}
-          Category={item.Category}
-          TeacherFullName={
-            item.teachers?.length === 1 ? item.teachers[0]?.TeacherFullName ?? "" : ""
-          }
-        />
-      </Fragment>
-    ))}
-    </>);
-  const DataList = (props: {
-    index: number;
-    SubjectCode: string;
-    SubjectName: string;
-    Credit: keyof typeof subjectCreditValues;
-    Category: SubjectRow["Category"];
-    TeacherFullName: string;
-  }): JSX.Element => (
-    <tr className="h-10" style={{backgroundColor : props.index % 2 === 0 ? "#f0f0f0" : "white" }}>
-      <td className="text-center">
-        <p>{props.index}</p>
-      </td>
-      <td className="text-center">
-        <p>{props.SubjectCode}</p>
-      </td>
-      <td className="">
-        <p>{props.SubjectName}</p>
-      </td>
-      <td className="text-center">
-        <p>{props.Category === "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[props.Credit]}</p>
-      </td>
-      <td className="">
-        <p>{props.TeacherFullName}</p>
-      </td>
-    </tr>
+
+  const renderSubjectRows = (data: SubjectRow[], indexStart: number) => (
+    <TableBody key={`subjects-${indexStart}`}>
+      {data.map((item, index) => (
+        <TableRow
+          key={`${currentGradeID || 'unknown'}-${item.SubjectCode}`}
+          hover
+          sx={{ '&:nth-of-type(even)': { bgcolor: 'action.hover' } }}
+        >
+          <TableCell align="center">{indexStart + index}</TableCell>
+          <TableCell align="center">{item.SubjectCode}</TableCell>
+          <TableCell>{item.SubjectName}</TableCell>
+          <TableCell align="center">
+            {item.Category === "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[item.Credit]}
+          </TableCell>
+          <TableCell>
+            {item.teachers?.length === 1 ? item.teachers[0]?.TeacherFullName ?? "" : ""}
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
   );
-  const SumCredit = (props: { title: string; credit: number }): JSX.Element => (
-    <tr className="h-10 bg-cyan-100">
-      <td></td>
-      <td></td>
-      <td className="font-bold">{props.title}</td>
-      <td className="text-center font-bold">{props.credit.toFixed(1)}</td>
-      <td className="text-left font-bold">หน่วยกิต</td>
-    </tr>
+
+  const renderSumRow = (title: string, credit: number) => (
+    <TableBody key={`sum-${title}`}>
+      <TableRow sx={{ bgcolor: "info.lighter" }}>
+        <TableCell />
+        <TableCell />
+        <TableCell sx={{ fontWeight: "bold" }}>{title}</TableCell>
+        <TableCell align="center" sx={{ fontWeight: "bold" }}>
+          {credit.toFixed(1)}
+        </TableCell>
+        <TableCell sx={{ fontWeight: "bold" }}>หน่วยกิต</TableCell>
+      </TableRow>
+    </TableBody>
   )
   const getSumCreditValue = () => {
     return subjects
@@ -193,70 +210,82 @@ const page = (_props: Props) => {
     return sortedData;
   }
   return (
-    <>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       {programOfGrade.isLoading || gradeLevelData.isLoading ? (
-        <Loading />
+        <Stack spacing={2}>
+          <Skeleton variant="rectangular" height={56} />
+          <Skeleton variant="rectangular" height={400} />
+        </Stack>
       ) : (
-        <div className="flex flex-col gap-3">
-          <div className="w-full flex justify-between items-center">
-            <div>
-              เลือกชั้นเรียน
-            </div>
-            <Dropdown
-              width={300}
-              data={gradeLevelData.data.map((item) => item.GradeID)}
-              renderItem={({ data }: { data: unknown }) => (
-                <>
-                  <li>
-                    <p>
-                      {String(data)}
-                    </p>
-                  </li>
-                </>
-              )}
-              placeHolder="เลือกชั้นเรียน"
-              currentValue={convertDropdownItem(currentGradeID)}
-              handleChange={(item: unknown) => setCurrentGradeID(String(item))}
-              searchFunction={undefined}
-            />
-          </div>
-          <div style={{display : currentGradeID === "" ? "none" : 'flex'}} className="w-full items-center flex justify-end">
-            <PrimaryButton
-              handleClick={() =>
-                ExportAllProgram(
-                  programOfGrade.data,
-                  currentGradeID,
-                  semester,
-                  academicYear,
-                )
-              }
-              title={"นำออกเป็น Excel"}
-              color={"info"}
-              Icon={undefined}
-              reverseIcon={false}
-              isDisabled={programOfGrade.isLoading}
-            />
-          </div>
-          {currentGradeID !== "" && (
-            <>
-              <table>
-                <TableHead />
-                <CategoryTablerow categoryName={`สาระการเรียนรู้พิ้นฐาน`} />
-                <SubjectDataRow data={primarySubjectData()} indexStart={1} />
-                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน"} credit={primarySubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)}/>
-                <CategoryTablerow categoryName={`สาระการเรียนรู้เพิ่มเติม`} />
-                <SubjectDataRow data={extraSubjectData()} indexStart={primarySubjectData().length + 1} />
-                <SumCredit title={"รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม"} credit={extraSubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)}/>
-                <CategoryTablerow categoryName={`กิจกรรมพัฒนาผู้เรียน`} />
-                <SubjectDataRow data={activitiesSubjectData()} indexStart={primarySubjectData().length + extraSubjectData().length + 1} />
-                <SumCredit title={"รวมหน่วยกิตทั้งหมด"} credit={getSumCreditValue()}/>
-              </table>
-            </>
+        <Stack spacing={3}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <FormControl sx={{ minWidth: 300 }}>
+              <InputLabel id="grade-select-label">เลือกชั้นเรียน</InputLabel>
+              <Select
+                labelId="grade-select-label"
+                value={currentGradeID}
+                label="เลือกชั้นเรียน"
+                onChange={(e) => setCurrentGradeID(e.target.value)}
+              >
+                <MenuItem value="">
+                  <em>เลือกชั้นเรียน</em>
+                </MenuItem>
+                {gradeLevelData.data.map((item) => (
+                  <MenuItem key={item.GradeID} value={item.GradeID}>
+                    {item.GradeID}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {currentGradeID !== "" && (
+              <Button
+                variant="contained"
+                color="info"
+                startIcon={<DownloadIcon />}
+                onClick={() =>
+                  ExportAllProgram(
+                    programOfGrade.data,
+                    currentGradeID,
+                    semester,
+                    academicYear,
+                  )
+                }
+                disabled={programOfGrade.isLoading}
+              >
+                นำออกเป็น Excel
+              </Button>
+            )}
+          </Stack>
+          {currentGradeID === "" ? (
+            <Paper sx={{ p: 8, textAlign: "center" }}>
+              <SchoolIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                กรุณาเลือกชั้นเรียน
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                เลือกชั้นเรียนจากเมนูด้านบนเพื่อดูหลักสูตรและรายวิชา
+              </Typography>
+            </Paper>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                {renderTableHead()}
+                {renderCategoryRow("สาระการเรียนรู้พิ้นฐาน")}
+                {renderSubjectRows(primarySubjectData(), 1)}
+                {renderSumRow("รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน", primarySubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0))}
+                {renderCategoryRow("สาระการเรียนรู้เพิ่มเติม")}
+                {renderSubjectRows(extraSubjectData(), primarySubjectData().length + 1)}
+                {renderSumRow("รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม", extraSubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0))}
+                {renderCategoryRow("กิจกรรมพัฒนาผู้เรียน")}
+                {renderSubjectRows(activitiesSubjectData(), primarySubjectData().length + extraSubjectData().length + 1)}
+                {renderSumRow("รวมหน่วยกิตทั้งหมด", getSumCreditValue())}
+              </Table>
+            </TableContainer>
           )}
-        </div>
+        </Stack>
       )}
-    </>
+    </Container>
   );
 };
 
-export default page;
+export default Page;

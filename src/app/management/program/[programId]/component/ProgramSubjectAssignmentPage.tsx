@@ -1,211 +1,167 @@
+/**
+ * Program Subject Assignment Page - Modernized
+ * 
+ * Features:
+ * - Clean Architecture with custom hooks
+ * - SWR data fetching with caching
+ * - Skeleton loading states
+ * - Better UX with MUI components
+ * - Memoized calculations
+ * - Type-safe implementation
+ */
+
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { assignSubjectsToProgramAction, getProgramByIdAction } from "@/features/program/application/actions/program.actions";
-import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
-import { SubjectCategory } from "@/prisma/generated";
-import { 
-  Checkbox, 
-  Button, 
-  CircularProgress, 
-  Typography,
+import React from "react";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  Paper,
+  Skeleton,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TextField,
-  Switch
+  Typography,
 } from "@mui/material";
+import { useProgramSubjects } from "@/features/program/presentation/hooks/useProgramSubjects";
+import { useSubjectAssignment } from "@/features/program/presentation/hooks/useSubjectAssignment";
+import { MOEValidationAlert } from "@/features/program/presentation/components/MOEValidationAlert";
+import { AssignmentSummary } from "@/features/program/presentation/components/AssignmentSummary";
 
-type Subject = {
-  SubjectCode: string;
-  SubjectName: string;
-  Category: SubjectCategory;
-  Credit: string;
-};
+interface ProgramSubjectAssignmentPageProps {
+  programId: number;
+}
 
-type ProgramSubject = {
-  SubjectCode: string;
-  MinCredits?: number | null;
-  MaxCredits?: number | null;
-  IsMandatory?: boolean | null;
-};
+/**
+ * Main component for assigning subjects to a program
+ * Follows Clean Architecture with presentation-layer hooks
+ */
+export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubjectAssignmentPageProps) {
+  // Data fetching with SWR
+  const { program, subjects, isLoading, mutateProgram } = useProgramSubjects(programId);
 
-type Program = {
-  ProgramID: number;
-  ProgramName: string;
-  program_subject: ProgramSubject[];
-};
+  // Assignment logic with optimistic updates
+  const {
+    subjectConfigs,
+    assigning,
+    validation,
+    selectedCount,
+    handleToggle,
+    handleConfigChange,
+    handleAssign,
+  } = useSubjectAssignment(programId, subjects, program, (_updatedProgram) => {
+    // Revalidate program data after successful assignment
+    void mutateProgram();
+  });
 
-type MoeValidation = {
-  isValid: boolean;
-  errors?: string[];
-  warnings?: string[];
-};
+  // Loading skeleton state
+  if (isLoading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Skeleton variant="text" width={400} height={40} sx={{ mb: 2 }} />
+        <Skeleton variant="text" width={200} height={24} sx={{ mb: 3 }} />
+        <Skeleton variant="rectangular" width="100%" height={400} />
+      </Container>
+    );
+  }
 
-type SubjectConfig = {
-  SubjectCode: string;
-  selected: boolean;
-  minCredits: number;
-  maxCredits: number;
-  isMandatory: boolean;
-};
-
-export default function ProgramSubjectAssignmentPage({ programId }: { programId: number }) {
-  const [program, setProgram] = useState<Program | null>(null);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [subjectConfigs, setSubjectConfigs] = useState<Record<string, SubjectConfig>>({});
-  const [loading, setLoading] = useState(true);
-  const [assigning, setAssigning] = useState(false);
-  const [validation, setValidation] = useState<MoeValidation | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const progRes = await getProgramByIdAction({ ProgramID: programId });
-      const subjRes = await getSubjectsAction();
-      
-      if (subjRes.success && subjRes.data) {
-        setSubjects(subjRes.data as Subject[]);
-        
-        // Initialize configs
-        const configs: Record<string, SubjectConfig> = {};
-        (subjRes.data as Subject[]).forEach((s) => {
-          const existing = progRes.data?.program_subject?.find((ps: ProgramSubject) => ps.SubjectCode === s.SubjectCode);
-          configs[s.SubjectCode] = {
-            SubjectCode: s.SubjectCode,
-            selected: !!existing,
-            minCredits: existing?.MinCredits ?? 1,
-            maxCredits: existing?.MaxCredits ?? 1,
-            isMandatory: existing?.IsMandatory ?? (s.Category === SubjectCategory.CORE),
-          };
-        });
-        setSubjectConfigs(configs);
-      }
-      
-      if (progRes.success && progRes.data) {
-        setProgram(progRes.data as Program);
-      }
-      
-      setLoading(false);
-    };
-    void fetchData();
-  }, [programId]);
-
-  const handleToggle = (code: string) => {
-    setSubjectConfigs((prev) => {
-      const existing = prev[code];
-      if (!existing) return prev;
-      return {
-        ...prev,
-        [code]: { ...existing, selected: !existing.selected },
-      };
-    });
-  };
-
-  const handleConfigChange = (code: string, field: 'minCredits' | 'maxCredits' | 'isMandatory', value: number | boolean) => {
-    setSubjectConfigs((prev) => {
-      const existing = prev[code];
-      if (!existing) return prev;
-      return {
-        ...prev,
-        [code]: { ...existing, [field]: value },
-      };
-    });
-  };
-
-  const handleAssign = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setAssigning(true);
-    
-    const selectedSubjects = Object.values(subjectConfigs)
-      .filter((config) => config.selected)
-      .map((config, i) => ({
-        SubjectCode: config.SubjectCode,
-        Category: subjects.find((s) => s.SubjectCode === config.SubjectCode)?.Category ?? SubjectCategory.CORE,
-        IsMandatory: config.isMandatory,
-        MinCredits: config.minCredits,
-        MaxCredits: config.maxCredits,
-        SortOrder: i + 1,
-      }));
-    
-    const payload = {
-      ProgramID: programId,
-      subjects: selectedSubjects,
-    };
-    
-    assignSubjectsToProgramAction(payload)
-      .then((result) => {
-        if (result.success && result.data) {
-          setValidation(result.data.moeValidation as MoeValidation);
-          setProgram(result.data.program as Program);
-        }
-        setAssigning(false);
-      })
-      .catch(() => {
-        setAssigning(false);
-      });
-  };
-
-  const selectedCount = Object.values(subjectConfigs).filter((c) => c.selected).length;
-
-  if (loading) return <CircularProgress />;
+  // Empty state - no subjects available
+  if (subjects.length === 0) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          จัดการรายวิชาในหลักสูตร
+        </Typography>
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="body1" color="text.secondary">
+            ไม่พบรายวิชาในระบบ กรุณาเพิ่มรายวิชาก่อนจัดการหลักสูตร
+          </Typography>
+        </Paper>
+      </Container>
+    );
+  }
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 32 }}>
-      <Typography variant="h5" gutterBottom>
-        Assign Subjects to Program: {program?.ProgramName ?? ""}
-      </Typography>
-      <Typography variant="body2" color="textSecondary" gutterBottom>
-        Selected: {selectedCount} subjects
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
+        จัดการรายวิชาในหลักสูตร: {program?.ProgramName ?? "กำลังโหลด..."}
       </Typography>
 
-      <TableContainer component={Paper} style={{ marginTop: 16 }}>
+      {/* Summary Statistics */}
+      <AssignmentSummary subjectConfigs={subjectConfigs} subjects={subjects} />
+
+      {/* Subject Selection Table */}
+      <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox">Select</TableCell>
-              <TableCell>Subject Code</TableCell>
-              <TableCell>Subject Name</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell align="center">Min Credits</TableCell>
-              <TableCell align="center">Max Credits</TableCell>
-              <TableCell align="center">Mandatory</TableCell>
+              <TableCell padding="checkbox">เลือก</TableCell>
+              <TableCell>รหัสวิชา</TableCell>
+              <TableCell>ชื่อวิชา</TableCell>
+              <TableCell>ประเภท</TableCell>
+              <TableCell align="center">หน่วยกิตต่ำสุด</TableCell>
+              <TableCell align="center">หน่วยกิตสูงสุด</TableCell>
+              <TableCell align="center">บังคับ</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {subjects.map((subject) => {
               const config = subjectConfigs[subject.SubjectCode];
               if (!config) return null;
-              
+
               return (
-                <TableRow 
+                <TableRow
                   key={subject.SubjectCode}
-                  sx={{ 
+                  sx={{
                     backgroundColor: config.selected ? 'action.selected' : 'inherit',
-                    '&:hover': { backgroundColor: 'action.hover' }
+                    '&:hover': { backgroundColor: 'action.hover' },
+                    transition: 'background-color 0.2s',
                   }}
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={config.selected}
                       onChange={() => handleToggle(subject.SubjectCode)}
+                      color="primary"
                     />
                   </TableCell>
                   <TableCell>{subject.SubjectCode}</TableCell>
-                  <TableCell>{subject.SubjectName}</TableCell>
-                  <TableCell>{subject.Category}</TableCell>
+                  <TableCell sx={{ fontWeight: config.selected ? 600 : 400 }}>
+                    {subject.SubjectName}
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color={config.selected ? 'primary' : 'text.secondary'}>
+                      {subject.Category}
+                    </Typography>
+                  </TableCell>
                   <TableCell align="center">
                     <TextField
                       type="number"
                       size="small"
                       value={config.minCredits}
-                      onChange={(e) => handleConfigChange(subject.SubjectCode, 'minCredits', parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleConfigChange(subject.SubjectCode, 'minCredits', parseFloat(e.target.value) || 0)
+                      }
                       disabled={!config.selected}
-                      inputProps={{ min: 0, max: 10, step: 0.5, style: { width: 60, textAlign: 'center' } }}
+                      inputProps={{
+                        min: 0,
+                        max: 10,
+                        step: 0.5,
+                        style: { width: 60, textAlign: 'center' },
+                      }}
+                      sx={{
+                        '& .MuiInputBase-input.Mui-disabled': {
+                          WebkitTextFillColor: 'rgba(0, 0, 0, 0.38)',
+                        },
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center">
@@ -213,9 +169,21 @@ export default function ProgramSubjectAssignmentPage({ programId }: { programId:
                       type="number"
                       size="small"
                       value={config.maxCredits}
-                      onChange={(e) => handleConfigChange(subject.SubjectCode, 'maxCredits', parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleConfigChange(subject.SubjectCode, 'maxCredits', parseFloat(e.target.value) || 0)
+                      }
                       disabled={!config.selected}
-                      inputProps={{ min: 0, max: 10, step: 0.5, style: { width: 60, textAlign: 'center' } }}
+                      inputProps={{
+                        min: 0,
+                        max: 10,
+                        step: 0.5,
+                        style: { width: 60, textAlign: 'center' },
+                      }}
+                      sx={{
+                        '& .MuiInputBase-input.Mui-disabled': {
+                          WebkitTextFillColor: 'rgba(0, 0, 0, 0.38)',
+                        },
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center">
@@ -224,6 +192,7 @@ export default function ProgramSubjectAssignmentPage({ programId }: { programId:
                       onChange={(e) => handleConfigChange(subject.SubjectCode, 'isMandatory', e.target.checked)}
                       disabled={!config.selected}
                       size="small"
+                      color="primary"
                     />
                   </TableCell>
                 </TableRow>
@@ -233,40 +202,28 @@ export default function ProgramSubjectAssignmentPage({ programId }: { programId:
         </Table>
       </TableContainer>
 
-      <Button 
-        variant="contained" 
-        color="primary" 
-        onClick={handleAssign} 
-        disabled={assigning || selectedCount === 0}
-        style={{ marginTop: 24 }}
-      >
-        {assigning ? 'Assigning...' : `Assign ${selectedCount} Selected Subjects`}
-      </Button>
+      {/* Action Button */}
+      <Box sx={{ mt: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => void handleAssign()}
+          disabled={assigning || selectedCount === 0}
+          size="large"
+          sx={{ minWidth: 200 }}
+        >
+          {assigning ? 'กำลังบันทึก...' : `บันทึก ${selectedCount} รายวิชา`}
+        </Button>
 
-      {validation && (
-        <div style={{ marginTop: 24 }}>
-          <Typography variant="h6">MOE Validation</Typography>
-          {validation.isValid ? (
-            <Typography color="success.main">✓ Compliant with MOE requirements.</Typography>
-          ) : (
-            <Typography color="error.main">✗ Not compliant:</Typography>
-          )}
-          {validation.errors && validation.errors.length > 0 && (
-            <ul style={{ color: 'red' }}>
-              {validation.errors.map((err, idx) => (
-                <li key={idx}>{err}</li>
-              ))}
-            </ul>
-          )}
-          {validation.warnings && validation.warnings.length > 0 && (
-            <ul style={{ color: 'orange' }}>
-              {validation.warnings.map((warn, idx) => (
-                <li key={idx}>{warn}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-    </div>
+        {selectedCount === 0 && (
+          <Typography variant="body2" color="text.secondary">
+            กรุณาเลือกรายวิชาอย่างน้อย 1 รายวิชา
+          </Typography>
+        )}
+      </Box>
+
+      {/* MOE Validation Results */}
+      <MOEValidationAlert validation={validation} programName={program?.ProgramName} />
+    </Container>
   );
 }

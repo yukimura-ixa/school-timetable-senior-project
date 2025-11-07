@@ -96,11 +96,19 @@ export interface PublicGradeLevelFilters {
 }
 
 // ============================================================================
-// Typed Prisma Payloads (for internal use)
+// Type Definitions
 // ============================================================================
 
-type TeacherWithResponsibilities = Prisma.teacherGetPayload<{
-  include: {
+/**
+ * Type for public teacher data (excludes sensitive fields like Email and Role)
+ */
+type PublicTeacherData = Prisma.teacherGetPayload<{
+  select: {
+    TeacherID: true;
+    Prefix: true;
+    Firstname: true;
+    Lastname: true;
+    Department: true;
     teachers_responsibility: {
       select: {
         SubjectCode: true;
@@ -157,7 +165,7 @@ const getCurrentTerm = cache(async () => {
  * Transform teacher database record to public-safe format
  */
 function transformTeacherToPublic(
-  teacher: TeacherWithResponsibilities
+  teacher: PublicTeacherData
 ): PublicTeacher {
   const weeklyHours = teacher.teachers_responsibility.reduce(
     (sum, resp) => sum + (resp.TeachHour || 0),

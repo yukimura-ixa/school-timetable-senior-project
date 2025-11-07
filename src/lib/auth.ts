@@ -10,6 +10,9 @@
  * @see https://authjs.dev/getting-started/adapters/prisma
  */
 
+// SECURITY: Ensure this file is never included in client bundles
+import "server-only";
+
 import NextAuth, { type DefaultSession } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import Google from "next-auth/providers/google"

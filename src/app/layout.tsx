@@ -22,7 +22,22 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await authWithDevBypass();
+  // Get session but exclude PII before serializing to client
+  const rawSession = await authWithDevBypass();
+  
+  // SECURITY: Strip email before passing session to client-side provider
+  // SessionProvider serializes session data into HTML payload
+  const session = rawSession && rawSession.user ? {
+    ...rawSession,
+    user: {
+      id: rawSession.user.id,
+      name: rawSession.user.name,
+      role: rawSession.user.role,
+      image: rawSession.user.image,
+      // email explicitly excluded - PII must not be serialized to client
+    }
+  } : rawSession;
+  
   return (
     <html lang="th" className={`${sarabun.variable}`}>
       <body className={`font-sans min-h-screen bg-gray-50`}>

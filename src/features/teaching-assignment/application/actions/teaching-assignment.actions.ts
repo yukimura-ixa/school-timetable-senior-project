@@ -370,9 +370,9 @@ export async function getTeachersWithWorkload(
 
       // Calculate total hours and determine status
       const totalHours = assignments.reduce((sum, a) => sum + a.TeachHour, 0);
-      let status: "ok" | "warning" | "critical";
+      let status: "ok" | "warning" | "overload";
       if (totalHours >= 25) {
-        status = "critical";
+        status = "overload";
       } else if (totalHours >= 20) {
         status = "warning";
       } else {
