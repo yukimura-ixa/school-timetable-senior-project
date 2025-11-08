@@ -20,6 +20,10 @@ export class BasePage {
   readonly loadingSpinner: Locator;
   readonly snackbar: Locator;
   readonly snackbarMessage: Locator;
+  
+  // Semester selector elements
+  readonly semesterButtonWithText: Locator;
+  readonly semesterSelectButton: Locator;
 
   constructor(page: Page, baseUrl: string = 'http://localhost:3000') {
     this.page = page;
@@ -29,6 +33,10 @@ export class BasePage {
     this.loadingSpinner = page.locator('[role="progressbar"]');
     this.snackbar = page.locator('.notistack-Snackbar, [role="alert"]');
     this.snackbarMessage = this.snackbar.locator('.notistack-MuiContent-default, .MuiAlert-message');
+    
+    // Semester selector - button that shows semester info (not the "Select Semester" button)
+    this.semesterButtonWithText = page.locator('button').filter({ has: page.locator('text=ภาคเรียน') }).first();
+    this.semesterSelectButton = page.getByRole('button', { name: 'เลือกภาคเรียน' });
   }
 
   /**
@@ -48,6 +56,21 @@ export class BasePage {
     await expect(this.loadingSpinner).toBeHidden({ timeout: 10000 }).catch(() => {
       // Spinner might not exist, that's ok
     });
+  }
+
+  /**
+   * Wait for semester to be synced from URL params to global store
+   * This is critical for pages that use useSemesterSync hook
+   * 
+   * @param expectedSemester - Expected semester text like "1/2567"
+   */
+  async waitForSemesterSync(expectedSemester: string) {
+    // Wait for the "Select Semester" button to be hidden (replaced by semester info button)
+    await expect(this.semesterSelectButton).toBeHidden({ timeout: 10000 });
+    
+    // Wait for semester button with text to be visible and contain the expected semester
+    await expect(this.semesterButtonWithText).toBeVisible({ timeout: 10000 });
+    await expect(this.semesterButtonWithText).toContainText(expectedSemester, { timeout: 5000 });
   }
 
   /**

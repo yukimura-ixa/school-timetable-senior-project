@@ -21,7 +21,8 @@ proper context and ensures all Next.js queries use official documentation.
 
 4. **Prisma MCP** (`@prisma/mcp`) — Prisma schema reasoning, migrations, CLI.
 
-**Also available:**  
+**Also available:**
+
 - **GitHub MCP** — issues/PR context & summaries.  
 - **Files MCP** — read‑only fallback.
 - **Playwright MCP** — for E2E test generation.
@@ -30,6 +31,7 @@ proper context and ensures all Next.js queries use official documentation.
 ### Context7 Workflow (MANDATORY)
 
 **Before ANY code changes:**
+
 ```
 1. Identify libraries/frameworks involved (e.g., "Next.js", "MUI", "Prisma")
 2. Call resolve-library-id for each library

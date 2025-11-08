@@ -39,6 +39,7 @@ jobs:
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env.test.local
           echo "AUTH_GOOGLE_ID=${{ secrets.AUTH_GOOGLE_ID }}" >> .env.test.local
           echo "AUTH_GOOGLE_SECRET=${{ secrets.AUTH_GOOGLE_SECRET }}" >> .env.test.local
+          echo "ENABLE_DEV_BYPASS=true" >> .env.test.local
           echo "SEED_FOR_TESTS=true" >> .env.test.local
           echo "SEED_CLEAN_DATA=true" >> .env.test.local
           echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
@@ -77,6 +78,7 @@ jobs:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
           AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
+          ENABLE_DEV_BYPASS: "true"
           NEXT_TELEMETRY_DISABLED: 1
       
       - name: Upload test results

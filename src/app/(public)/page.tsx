@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { QuickStatsCards, QuickStatsCardsSkeleton } from "./_components/QuickStats";
 import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
 import { DataTableSection } from "./_components/DataTableSection";
+import { CurrentSemesterBadge } from "./_components/CurrentSemesterBadge";
 import Link from "next/link";
 import { authWithDevBypass as auth } from "@/lib/auth";
 
@@ -57,9 +58,13 @@ export default async function HomePage() {
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="flex items-start justify-between">
-            <h1 className="text-4xl font-bold mb-4">
-            ระบบตารางเรียนตารางสอน
-            </h1>
+            <div>
+              <h1 className="text-4xl font-bold mb-4">
+              ระบบตารางเรียนตารางสอน
+              </h1>
+              {/* Show current semester badge if one is selected */}
+              <CurrentSemesterBadge />
+            </div>
             {userInfo ? (
               <div className="flex items-center gap-3 mt-1">
                 <div className="text-right">

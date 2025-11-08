@@ -1,5 +1,6 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { teacher } from "@/prisma/generated";
+import LockIcon from "@mui/icons-material/Lock";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
@@ -54,12 +55,16 @@ const TableBody = (props: Props) => {
         : `${convertClass}\n${firstClass.SubjectCode}`;
       
       return (
-        <p
-          style={{ color: firstClass.IsLocked ? "red" : "black" }}
-          className="text-xs text-center"
+        <div
+          style={{ 
+            color: firstClass.IsLocked ? "red" : "black",
+            fontWeight: firstClass.IsLocked ? 600 : 400,
+          }}
+          className="text-xs text-center flex flex-col items-center gap-1"
         >
-          {res}
-        </p>
+          {firstClass.IsLocked && <LockIcon sx={{ fontSize: 14 }} />}
+          <p className="whitespace-pre-line">{res}</p>
+        </div>
       );
   }
   return (
@@ -76,7 +81,6 @@ const TableBody = (props: Props) => {
                   {props.slotAmount.map((item, index) => (
                     <div
                       key={`slot-${index}`}
-                      onClick={() => console.log(props.classData)}
                       style={{ borderColor: day.BgColor }}
                       className={`relative w-14 h-[60px] border-2 flex items-center justify-center rounded overflow-hidden`}
                     >

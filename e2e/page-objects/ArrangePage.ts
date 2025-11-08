@@ -74,6 +74,9 @@ export class ArrangePage extends BasePage {
   async navigateTo(semester: string, year: string) {
     await this.goto(`/schedule/${semester}-${year}/arrange`);
     await this.waitForPageLoad();
+    
+    // Wait for semester to sync with global state
+    await this.waitForSemesterSync(`${semester}/${year}`);
   }
 
   /**

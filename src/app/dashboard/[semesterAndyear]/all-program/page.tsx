@@ -167,7 +167,9 @@ const Page = (_props: Props) => {
             {item.Category === "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[item.Credit]}
           </TableCell>
           <TableCell>
-            {item.teachers?.length === 1 ? item.teachers[0]?.TeacherFullName ?? "" : ""}
+            {item.teachers && item.teachers.length > 0 
+              ? item.teachers.map((t) => t.TeacherFullName).join(", ")
+              : "-"}
           </TableCell>
         </TableRow>
       ))}

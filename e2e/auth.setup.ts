@@ -54,7 +54,19 @@ setup('authenticate as admin', async ({ page }) => {
   await expect(adminIndicator).toBeVisible({ timeout: 5000 });
   console.log('[AUTH SETUP] Authentication verified');
 
-  // Save authenticated state to file
+  // Pre-select semester by navigating to a semester-specific dashboard URL
+  // The useSemesterSync hook will parse the URL and save to localStorage
+  console.log('[AUTH SETUP] Pre-selecting semester (1-2567) via URL navigation...');
+  await page.goto('http://localhost:3000/dashboard/1-2567');
+  
+  // Wait for page to finish loading and semester to sync
+  await page.waitForLoadState('networkidle', { timeout: 20000 });
+  
+  // Give a moment for useSemesterSync hook to execute and save to localStorage
+  await page.waitForTimeout(1000);
+  console.log('[AUTH SETUP] Semester 1-2567 should now be synced to localStorage');
+
+  // Save authenticated state (including localStorage with semester selection) to file
   await page.context().storageState({ path: authFile });
-  console.log(`[AUTH SETUP] Saved auth state to ${authFile}`);
+  console.log(`[AUTH SETUP] Saved auth + semester state to ${authFile}`);
 });

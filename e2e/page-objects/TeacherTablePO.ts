@@ -55,6 +55,11 @@ export class TeacherTablePO extends BasePage {
   async goto(semesterAndYear: string) {
     await super.goto(`/dashboard/${semesterAndYear}/teacher-table`);
     await this.waitForPageLoad();
+    
+    // Wait for semester to sync with global store
+    // Convert "1-2567" to "1/2567" for display format
+    const [semester, year] = semesterAndYear.split('-');
+    await this.waitForSemesterSync(`${semester}/${year}`);
   }
 
   /**

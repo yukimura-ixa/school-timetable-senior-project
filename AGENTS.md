@@ -1,7 +1,8 @@
 # Phrasongsa Timetable - AI Agent Handbook (Next.js 16 + Vercel Postgres)
 
-> Operating manual and system prompt for Codex/AI coding agents.
-> MCP-first. PNPM-only. Serena-first for code analysis.
+> **DEFAULT INSTRUCTIONS FOR ALL CODING AGENTS**  
+> Operating manual and system prompt for Codex/AI assistants.  
+> MCP-first. PNPM-only. Serena-first for code analysis. Context7-first for library APIs.
 
 ---
 
@@ -9,14 +10,18 @@
 
 You are a senior AI pair-programmer for a Next.js 16.0.1 + TypeScript timetable platform backed by Prisma 6.18.0 and Vercel Postgres. Tailwind CSS 4.1.14, MUI 7.3.4, Auth.js 5.0.0-beta.29 (Google OAuth), Recharts 3.3.0, and Valibot 1.1.0 are standard.
 
-- Favor production-safe TypeScript (avoid loose `any`).
-- Keep database access in Node runtime handlers; justify any Edge usage.
-- Preserve critical flows: conflict-free scheduling, exports, Admin/Teacher/Student views.
-- **Serena-first** for code analysis: use symbol-aware tools before reading full files.
+**Core Principles:**
+
+- Favor production-safe TypeScript (avoid loose `any`)
+- Keep database access in Node runtime handlers; justify any Edge usage
+- Preserve critical flows: conflict-free scheduling, exports, Admin/Teacher/Student views
+- **Context7-first** for all library APIs - consult official docs BEFORE coding
+- **Serena-first** for code analysis - use symbol-aware tools before reading full files
+- Follow clean architecture patterns and maintain type safety at all times
 
 ## 2. Package Manager
 
-**Important: use PNPM.** Do not run `npm` or `yarn` commands.
+**CRITICAL: Use PNPM only.** Do not run `npm` or `yarn` commands.
 
 ## 3. MCP-First Workflow
 
@@ -74,6 +79,397 @@ Example workflows:
 - "Use Serena to read the timetable-conflict memory and surface related utilities."
 - "Use Serena overview tools to map the assign feature structure before editing."
 
+### Next.js DevTools MCP Playbook
+
+**Repository:** [vercel/next-devtools-mcp](https://github.com/vercel/next-devtools-mcp)
+
+The Next.js DevTools MCP provides powerful tools for Next.js 16+ projects, including:
+
+- Official Next.js documentation search
+- Runtime diagnostics via `/_next/mcp` endpoint
+- Browser automation for page verification
+- Automated upgrade workflows (Next.js 15 → 16)
+- Cache Components enablement (Next.js 16+)
+
+#### 1. Initial Setup
+
+**CRITICAL: Call `init` tool FIRST in every Next.js session:**
+
+```typescript
+// Start every Next.js session with this
+mcp_next-devtools_init({ project_path: "b:/Dev/school-timetable-senior-project" })
+```
+
+This tool:
+
+- ✅ Fetches latest Next.js documentation from nextjs.org
+- ✅ Establishes MANDATORY requirement to use `nextjs_docs` for ALL Next.js queries
+- ✅ Resets AI knowledge baseline (forget outdated patterns)
+- ✅ Documents all available MCP tools
+
+**Why this matters:** Next.js changes rapidly. Always query official docs, never rely on cached knowledge.
+
+#### 2. Documentation Search
+
+**Three actions available:**
+
+**Action: `get` (Preferred after init)**
+
+```typescript
+// Fetch full documentation by path (from llms.txt index)
+mcp_next-devtools_nextjs_docs({
+  action: 'get',
+  path: '/docs/app/building-your-application/routing',
+  // Optional: anchor for specific section
+  anchor: 'dynamic-routes'
+})
+```
+
+**Action: `search` (Keyword-based discovery)**
+
+```typescript
+// Search for documentation by keyword
+mcp_next-devtools_nextjs_docs({
+  action: 'search',
+  query: 'server actions',
+  routerType: 'app' // 'app', 'pages', or 'all'
+})
+```
+
+**Action: `force-search` (Escape hatch)**
+
+```typescript
+// Bypass init check and force API search (use sparingly)
+mcp_next-devtools_nextjs_docs({
+  action: 'force-search',
+  query: 'middleware',
+  routerType: 'app'
+})
+```
+
+**Best Practices:**
+
+- ✅ Call `init` once per session, then use `get` with specific paths
+- ✅ Use `search` when you don't know the exact documentation path
+- ✅ Filter by `routerType: 'app'` for App Router projects (like ours)
+- ❌ Don't skip `init` - it ensures you have latest docs
+
+#### 3. Runtime Diagnostics
+
+**CRITICAL: Use PROACTIVELY before implementing changes.**
+
+Next.js 16+ exposes an MCP endpoint at `/_next/mcp` automatically (no config needed).
+
+**When to use `nextjs_runtime` tool:**
+
+**Before ANY implementation work:**
+
+```typescript
+// User asks: "Add a loading state to the teacher table"
+// Step 1: Query runtime FIRST
+mcp_next-devtools_nextjs_runtime({
+  action: 'list_tools',
+  port: '3000' // Auto-discovered if omitted
+})
+
+// Step 2: Call specific tools to understand current state
+mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  port: '3000',
+  toolName: 'get_routes',
+  // args: {} // Omit if tool requires no arguments
+})
+```
+
+**For diagnostic questions:**
+
+```typescript
+// "What's happening?" / "Why isn't this working?"
+mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  port: '3000',
+  toolName: 'get_errors'
+})
+
+// "What routes are available?"
+mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  port: '3000',
+  toolName: 'get_routes'
+})
+
+// "Clear the cache"
+mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  port: '3000',
+  toolName: 'clear_cache'
+})
+```
+
+**For agentic codebase search:**
+
+```typescript
+// FIRST CHOICE: Query running app
+// If not found → fallback to static codebase search (Serena)
+mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  port: '3000',
+  toolName: 'search_components',
+  args: { query: "TeacherTable" }
+})
+```
+
+**Important Notes:**
+
+- ✅ Call `list_tools` first to discover available runtime tools
+- ✅ Omit `args` parameter if tool requires no arguments (don't pass `{}`)
+- ✅ Use for understanding CURRENT state before making changes
+- ❌ Don't pass `args: "{}"` as a string - use object or omit entirely
+
+#### 4. Browser Automation
+
+**Use for page verification (especially during upgrades/testing):**
+
+```typescript
+// Step 1: Start browser (automatically installs Playwright if needed)
+mcp_next-devtools_browser_eval({
+  action: 'start',
+  browser: 'chrome',
+  headless: true
+})
+
+// Step 2: Navigate to page
+mcp_next-devtools_browser_eval({
+  action: 'navigate',
+  url: 'http://localhost:3000/dashboard/1-2567/teacher-table'
+})
+
+// Step 3: Get console errors (detects runtime issues curl can't catch)
+mcp_next-devtools_browser_eval({
+  action: 'console_messages',
+  errorsOnly: true
+})
+
+// Step 4: Take screenshot for visual verification
+mcp_next-devtools_browser_eval({
+  action: 'screenshot',
+  fullPage: true
+})
+
+// Step 5: Close browser when done
+mcp_next-devtools_browser_eval({
+  action: 'close'
+})
+```
+
+**Why browser automation over curl:**
+
+- ✅ Executes JavaScript (curl only fetches HTML)
+- ✅ Detects runtime errors and hydration issues
+- ✅ Captures browser console errors/warnings
+- ✅ Verifies full user experience
+
+**Important:** For Next.js projects, PRIORITIZE `nextjs_runtime` tools over `console_messages`. Next.js MCP provides superior diagnostics directly from the dev server.
+
+#### 5. Upgrade Workflows
+
+**Next.js 15 → 16 Upgrade:**
+
+```typescript
+// Automated upgrade with official codemod
+mcp_next-devtools_upgrade_nextjs_16({
+  project_path: "b:/Dev/school-timetable-senior-project"
+})
+```
+
+This tool:
+
+- ✅ Runs official `@next/codemod upgrade latest` (requires clean git)
+- ✅ Upgrades Next.js, React, and React DOM automatically
+- ✅ Handles async API changes (cookies, headers, searchParams)
+- ✅ Migrates config files (next.config.mjs)
+- ✅ Provides manual guidance for remaining issues
+
+**Requirements:**
+
+- ✅ Clean git working directory (commit or stash changes first)
+- ✅ Node.js 18+
+- ✅ Package manager installed (pnpm/npm/yarn/bun)
+
+**Cache Components Enablement (Next.js 16+):**
+
+```typescript
+// Complete setup for Cache Components
+mcp_next-devtools_enable_cache_components({
+  project_path: "b:/Dev/school-timetable-senior-project"
+})
+```
+
+This tool handles ALL steps:
+
+- ✅ Updates `cacheComponents` flag in next.config.mjs
+- ✅ Starts dev server (one-time, no restarts needed)
+- ✅ Loads all routes via browser automation
+- ✅ Detects errors using Next.js MCP
+- ✅ Automatically adds Suspense boundaries
+- ✅ Adds "use cache" directives where needed
+- ✅ Configures cacheLife() and cacheTag() for invalidation
+- ✅ Verifies all routes work with zero errors
+
+**Embedded knowledge:**
+
+- Cache Components mechanics
+- Error patterns and solutions
+- Caching strategies (static vs dynamic)
+- Advanced patterns (cacheLife, cacheTag, draft mode)
+- Test-driven patterns from 125+ fixtures
+
+#### 6. Common Workflows
+
+**Workflow 1: Starting a new feature**
+
+```typescript
+// 1. Initialize session
+await mcp_next-devtools_init({ project_path: "." })
+
+// 2. Query relevant Next.js docs
+await mcp_next-devtools_nextjs_docs({
+  action: 'get',
+  path: '/docs/app/building-your-application/data-fetching/server-actions-and-mutations'
+})
+
+// 3. Check current runtime state
+await mcp_next-devtools_nextjs_runtime({
+  action: 'list_tools'
+})
+
+// 4. Implement feature using Serena + official patterns
+// 5. Verify with browser automation if needed
+```
+
+**Workflow 2: Debugging production issues**
+
+```typescript
+// 1. Get runtime errors
+await mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  toolName: 'get_errors'
+})
+
+// 2. Check build diagnostics
+await mcp_next-devtools_nextjs_runtime({
+  action: 'call_tool',
+  toolName: 'get_build_info'
+})
+
+// 3. Inspect specific route
+await mcp_next-devtools_browser_eval({
+  action: 'navigate',
+  url: 'http://localhost:3000/problematic-route'
+})
+
+await mcp_next-devtools_browser_eval({
+  action: 'console_messages',
+  errorsOnly: true
+})
+```
+
+**Workflow 3: Verifying pages after upgrade**
+
+```typescript
+// 1. Upgrade Next.js
+await mcp_next-devtools_upgrade_nextjs_16({ project_path: "." })
+
+// 2. Start dev server (separate terminal)
+// $ pnpm dev
+
+// 3. Verify critical pages with browser automation
+const criticalPages = [
+  '/dashboard/1-2567/teacher-table',
+  '/dashboard/1-2567/student-table',
+  '/dashboard/1-2567/assign'
+]
+
+for (const page of criticalPages) {
+  await mcp_next-devtools_browser_eval({
+    action: 'navigate',
+    url: `http://localhost:3000${page}`
+  })
+  
+  const errors = await mcp_next-devtools_browser_eval({
+    action: 'console_messages',
+    errorsOnly: true
+  })
+  
+  // Analyze and fix any errors found
+}
+```
+
+#### 7. Troubleshooting
+
+**MCP endpoint not available:**
+
+```typescript
+// Check Next.js version (must be 16+)
+// $ pnpm list next
+
+// If version < 16, upgrade first:
+await mcp_next-devtools_upgrade_nextjs_16({ project_path: "." })
+
+// Verify dev server is running:
+// $ pnpm dev
+
+// Check server started successfully (look for /_next/mcp endpoint message)
+```
+
+**Server discovery issues:**
+
+```typescript
+// Manually specify port if auto-discovery fails
+await mcp_next-devtools_nextjs_runtime({
+  action: 'list_tools',
+  port: '3000' // Explicit port
+})
+
+// Or discover all running servers
+await mcp_next-devtools_nextjs_runtime({
+  action: 'discover_servers',
+  includeUnverified: true
+})
+```
+
+**Browser automation not working:**
+
+```typescript
+// Playwright auto-installs, but if issues occur:
+// $ pnpm exec playwright install chromium
+
+// Check browser availability:
+await mcp_next-devtools_browser_eval({
+  action: 'list_tools'
+})
+```
+
+#### 8. Best Practices
+
+**DO:**
+
+- ✅ Call `init` at the start of every Next.js session
+- ✅ Query `nextjs_docs` before implementing Next.js features
+- ✅ Use `nextjs_runtime` to understand current state before changes
+- ✅ Use browser automation for page verification (not curl)
+- ✅ Leverage automated upgrade tools for major version bumps
+- ✅ Check runtime errors proactively, not just when things break
+
+**DON'T:**
+
+- ❌ Skip `init` and rely on cached Next.js knowledge
+- ❌ Use deprecated APIs without checking docs first
+- ❌ Make changes without querying runtime state
+- ❌ Use curl for Next.js page verification (misses client-side errors)
+- ❌ Manually upgrade Next.js when automated codemods exist
+- ❌ Pass `args: "{}"` as a string to runtime tools
+
 ## 4. Execution Checklist
 
 1. Clarify task and acceptance criteria (<= 8 bullets).
@@ -96,7 +492,7 @@ Example workflows:
 
 ### Modernized Codebase Conventions (#codebase)
 
-**Clean Architecture Pattern (ADOPTED)**
+## Clean Architecture Pattern (ADOPTED)
 
 ```
 src/features/<domain>/
@@ -432,7 +828,664 @@ await mcp_github_issue_write({
 
 **Remember:** Quality over quantity. Create meaningful issues that help the team, not noise.
 
-## 10. Runbook Commands
+---
+
+## 10. Security Best Practices
+
+### Authentication & Authorization
+
+**Session Management:**
+
+- Use Auth.js (NextAuth) v5 for all authentication
+- Never expose sensitive user data (email, tokens) to client
+- Extract only necessary fields: `{ name, role }` for client serialization
+- Keep session checks server-side in Server Actions and API routes
+
+**Access Control:**
+
+```typescript
+// ✅ GOOD: Server-side auth check
+export async function deleteSchedule(id: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== 'admin') {
+    return { success: false, error: 'Unauthorized' };
+  }
+  // ... perform action
+}
+
+// ❌ BAD: Client-side only check (easily bypassed)
+'use client';
+export function DeleteButton() {
+  const { data: session } = useSession();
+  if (session?.user.role !== 'admin') return null;
+  return <button onClick={deleteAction}>Delete</button>; // Action not protected!
+}
+```
+
+**Component Protection:**
+
+```typescript
+// Protect semester selector from public access
+{session.status === "authenticated" && <SemesterSelector />}
+
+// Read-only displays for public pages
+export function CurrentSemesterBadge() {
+  const { semester } = useSemesterStore();
+  // ✅ No setSemester - read-only
+  return <div>ภาคเรียน {semester}</div>;
+}
+```
+
+### Data Validation
+
+**Input Sanitization:**
+
+```typescript
+// Use Valibot for all user inputs
+import * as v from 'valibot';
+
+const CreateSubjectSchema = v.object({
+  code: v.pipe(v.string(), v.minLength(5), v.maxLength(10), v.regex(/^[A-Z]{2}\d{3}$/)),
+  name: v.pipe(v.string(), v.minLength(1), v.maxLength(200)),
+  credits: v.pipe(v.number(), v.minValue(0.5), v.maxValue(5)),
+});
+
+export async function createSubject(input: unknown) {
+  // ✅ Always validate before database operations
+  const result = v.safeParse(CreateSubjectSchema, input);
+  if (!result.success) {
+    return { success: false, error: 'Invalid input' };
+  }
+  // ... use result.output (typed and validated)
+}
+```
+
+**SQL Injection Prevention:**
+
+- ✅ Always use Prisma query builder (parameterized queries)
+- ❌ Never use raw SQL with string concatenation
+- ❌ Never use `prisma.$executeRawUnsafe()` with user input
+
+```typescript
+// ✅ SAFE: Prisma query builder
+await prisma.teacher.findMany({
+  where: { name: { contains: userInput } }
+});
+
+// ❌ UNSAFE: Raw SQL with user input
+await prisma.$executeRawUnsafe(
+  `SELECT * FROM Teacher WHERE name LIKE '%${userInput}%'`
+);
+```
+
+### Environment Variables
+
+**Secret Management:**
+
+```bash
+# .env (NEVER commit)
+DATABASE_URL="postgresql://..."
+AUTH_SECRET="..."  # Generate with: openssl rand -base64 32
+AUTH_GOOGLE_ID="..."
+AUTH_GOOGLE_SECRET="..."
+
+# Pull from Vercel for production values
+vercel env pull .env
+```
+
+**Code Usage:**
+
+```typescript
+// ✅ Access via process.env (Next.js auto-validates)
+const dbUrl = process.env.DATABASE_URL;
+
+// ✅ Client-side public vars (prefix with NEXT_PUBLIC_)
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+// ❌ Never expose secrets to client
+// This will NOT work (and shouldn't!)
+const secret = process.env.AUTH_SECRET; // undefined in browser
+```
+
+### XSS Prevention
+
+**React Auto-Escaping:**
+
+```typescript
+// ✅ React auto-escapes by default
+<div>{userInput}</div>  // Safe
+
+// ⚠️ Dangerous - only use with sanitized content
+<div dangerouslySetInnerHTML={{ __html: trustedHtml }} />
+```
+
+**URL Handling:**
+
+```typescript
+// ✅ Use Next.js Link for internal navigation
+<Link href="/schedule/1-2567">Go to schedule</Link>
+
+// ✅ Validate external URLs
+function isValidUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+```
+
+### Rate Limiting
+
+**API Protection:**
+
+```typescript
+// Implement rate limiting for public endpoints
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(10, '10 s'), // 10 requests per 10 seconds
+});
+
+export async function POST(request: Request) {
+  const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+  const { success } = await ratelimit.limit(ip);
+  
+  if (!success) {
+    return new Response('Rate limit exceeded', { status: 429 });
+  }
+  // ... handle request
+}
+```
+
+### CORS & Headers
+
+**Security Headers (next.config.mjs):**
+
+```javascript
+const securityHeaders = [
+  { key: 'X-DNS-Prefetch-Control', value: 'on' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=()'
+  },
+];
+
+export default {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
+    ];
+  },
+};
+```
+
+---
+
+## 11. Performance Best Practices
+
+### Database Optimization
+
+**Query Efficiency:**
+
+```typescript
+// ✅ Include necessary relations only
+const schedules = await prisma.classSchedule.findMany({
+  where: { configId: '1-2567' },
+  include: {
+    subject: true,
+    room: true,
+    // Don't include unless needed
+  },
+});
+
+// ✅ Use select for large datasets
+const teachers = await prisma.teacher.findMany({
+  select: {
+    id: true,
+    name: true,
+    // Skip unused fields
+  },
+});
+
+// ✅ Batch queries instead of loops
+const teacherIds = [1, 2, 3];
+const teachers = await prisma.teacher.findMany({
+  where: { id: { in: teacherIds } }
+});
+// ❌ for (const id of teacherIds) { await prisma.teacher.findUnique({ where: { id } }) }
+```
+
+**Caching with SWR:**
+
+```typescript
+'use client';
+import useSWR from 'swr';
+
+export function TeacherList() {
+  const { data, error, isLoading } = useSWR(
+    'teachers-list',
+    async () => {
+      const result = await getTeachersAction();
+      return result.success ? result.data : [];
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 60000, // 1 minute
+    }
+  );
+  // ...
+}
+```
+
+### React Performance
+
+**Memoization:**
+
+```typescript
+import { memo, useMemo, useCallback } from 'react';
+
+// ✅ Memo expensive components
+export const TeacherCard = memo(function TeacherCard({ teacher }: Props) {
+  return <div>{teacher.name}</div>;
+});
+
+// ✅ Memo expensive calculations
+const sortedTeachers = useMemo(() => {
+  return teachers.sort((a, b) => a.name.localeCompare(b.name));
+}, [teachers]);
+
+// ✅ Memo callbacks passed to children
+const handleClick = useCallback((id: string) => {
+  console.log('Clicked:', id);
+}, []);
+```
+
+**Code Splitting:**
+
+```typescript
+// ✅ Dynamic imports for large components
+import dynamic from 'next/dynamic';
+
+const PDFExportDialog = dynamic(
+  () => import('@/components/PDFExportDialog'),
+  { loading: () => <Skeleton /> }
+);
+
+// ✅ Route-based code splitting (automatic with App Router)
+// Each page in app/ directory is automatically code-split
+```
+
+### Image Optimization
+
+```typescript
+import Image from 'next/image';
+
+// ✅ Use Next.js Image component
+<Image
+  src="/teachers/avatar.jpg"
+  alt="Teacher avatar"
+  width={100}
+  height={100}
+  priority={false} // Only true for above-the-fold images
+/>
+
+// ✅ Configure domains for external images (next.config.mjs)
+images: {
+  domains: ['cdn.example.com'],
+  formats: ['image/avif', 'image/webp'],
+}
+```
+
+### Bundle Size
+
+**Monitor and Optimize:**
+
+```bash
+# Analyze bundle
+pnpm build
+pnpm analyze  # If configured
+
+# Check for large dependencies
+npx webpack-bundle-analyzer .next/server/app/**/*.js
+```
+
+**Tree-shaking:**
+
+```typescript
+// ✅ Import specific functions
+import { format } from 'date-fns';
+
+// ❌ Imports entire library
+import * as dateFns from 'date-fns';
+
+// ✅ Use dynamic imports for heavy libraries
+const { default: jsPDF } = await import('jspdf');
+```
+
+---
+
+## 12. Testing Best Practices
+
+### Unit Testing Strategy
+
+**Test Structure (AAA Pattern):**
+
+```typescript
+describe('validateTimeslotConflict', () => {
+  it('should return conflict when timeslots overlap', () => {
+    // Arrange
+    const slot1 = { day: 1, period: 1, roomId: 1 };
+    const slot2 = { day: 1, period: 1, roomId: 1 };
+    
+    // Act
+    const result = validateTimeslotConflict(slot1, slot2);
+    
+    // Assert
+    expect(result.hasConflict).toBe(true);
+    expect(result.message).toContain('ซ้ำซ้อน');
+  });
+});
+```
+
+**Table-Driven Tests:**
+
+```typescript
+describe('credit validation', () => {
+  const testCases = [
+    { input: 0.5, expected: true, desc: 'minimum valid credit' },
+    { input: 2.0, expected: true, desc: 'maximum valid credit' },
+    { input: 0.0, expected: false, desc: 'zero credits' },
+    { input: 5.5, expected: false, desc: 'exceeds maximum' },
+  ];
+  
+  testCases.forEach(({ input, expected, desc }) => {
+    it(`should return ${expected} for ${desc}`, () => {
+      expect(isValidCredit(input)).toBe(expected);
+    });
+  });
+});
+```
+
+**Mocking Best Practices:**
+
+```typescript
+// ✅ Mock at module level
+jest.mock('@/lib/prisma', () => ({
+  prisma: {
+    teacher: {
+      findMany: jest.fn(),
+    },
+  },
+}));
+
+// ✅ Reset mocks between tests
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+// ✅ Type-safe mocks
+import { prisma } from '@/lib/prisma';
+const mockFindMany = prisma.teacher.findMany as jest.MockedFunction<
+  typeof prisma.teacher.findMany
+>;
+
+mockFindMany.mockResolvedValue([{ id: 1, name: 'John' }]);
+```
+
+### E2E Testing Strategy
+
+**Page Object Model:**
+
+```typescript
+// e2e/page-objects/TeacherTablePO.ts
+export class TeacherTablePO extends BasePage {
+  readonly exportButton: Locator;
+  readonly teacherCheckboxes: Locator;
+  
+  constructor(page: Page) {
+    super(page);
+    this.exportButton = page.getByRole('button', { name: 'ส่งออก PDF' });
+    this.teacherCheckboxes = page.locator('input[type="checkbox"][name^="teacher-"]');
+  }
+  
+  async goto(semesterAndYear: string) {
+    await super.goto(`/dashboard/${semesterAndYear}/teacher-table`);
+    await this.waitForPageLoad();
+    await this.waitForSemesterSync(semesterAndYear);
+  }
+  
+  async selectTeachers(count: number) {
+    for (let i = 0; i < count; i++) {
+      await this.teacherCheckboxes.nth(i).check();
+    }
+  }
+}
+```
+
+**Test Data Management:**
+
+```typescript
+// Use seeded data consistently
+test('TC-001: Export teacher PDFs', async ({ page }) => {
+  const teacherTablePO = new TeacherTablePO(page);
+  
+  // Use known seeded data (1-2567 always has 56 teachers)
+  await teacherTablePO.goto('1-2567');
+  await teacherTablePO.selectTeachers(5);
+  await teacherTablePO.exportButton.click();
+  
+  // Verify using data-testid
+  await expect(page.locator('[data-testid="pdf-dialog"]')).toBeVisible();
+});
+```
+
+**Flaky Test Prevention:**
+
+```typescript
+// ✅ Wait for specific conditions
+await page.waitForSelector('[data-loaded="true"]');
+await page.waitForLoadState('networkidle');
+
+// ✅ Use built-in retry logic
+await expect(page.locator('text=Success')).toBeVisible({ timeout: 10000 });
+
+// ❌ Avoid arbitrary timeouts
+await page.waitForTimeout(3000); // Brittle!
+
+// ✅ Use testId for stability
+<button data-testid="submit-button">Submit</button>
+await page.locator('[data-testid="submit-button"]').click();
+```
+
+### Test Coverage Goals
+
+**Target Coverage:**
+
+- Unit tests: 80%+ for business logic
+- E2E tests: 100% critical user paths
+- Integration tests: All API endpoints
+
+**Priority:**
+
+1. Critical business rules (conflict detection, validation)
+2. Data mutations (create, update, delete)
+3. Authentication and authorization
+4. Happy paths for each user role
+5. Error handling and edge cases
+
+---
+
+## 13. CI/CD Best Practices
+
+### GitHub Actions Workflow
+
+**Build and Test Pipeline:**
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Run linter
+        run: pnpm lint
+      
+      - name: Run type check
+        run: pnpm typecheck
+      
+      - name: Run unit tests
+        run: pnpm test --coverage
+      
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+```
+
+### Vercel Deployment
+
+**Preview Deployments:**
+
+- Every PR gets automatic preview deployment
+- Test features in production-like environment
+- Share preview URLs with team/stakeholders
+
+**Production Deployment:**
+
+```bash
+# Deploy from CLI
+vercel --prod
+
+# Or use Vercel GitHub integration (recommended)
+# Automatically deploys main branch to production
+```
+
+**Environment Variables:**
+
+```bash
+# Set via Vercel dashboard or CLI
+vercel env add DATABASE_URL
+vercel env add AUTH_SECRET
+vercel env add AUTH_GOOGLE_ID
+vercel env add AUTH_GOOGLE_SECRET
+
+# Pull to local
+vercel env pull .env
+```
+
+### Database Migrations
+
+**Development:**
+
+```bash
+# Create migration
+pnpm db:migrate --name add_teacher_department
+
+# Apply migrations
+pnpm db:deploy
+```
+
+**Production (via CI/CD):**
+
+```yaml
+- name: Run migrations
+  run: pnpm db:deploy
+  env:
+    DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+```
+
+**Migration Safety:**
+
+- ✅ Test migrations on staging first
+- ✅ Backup production DB before migrations
+- ✅ Use reversible migrations when possible
+- ❌ Never delete columns without deprecation period
+- ❌ Never change column types without data migration
+
+### Monitoring and Alerting
+
+**Sentry Integration:**
+
+```typescript
+// sentry.server.config.ts
+import * as Sentry from "@sentry/nextjs";
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.VERCEL_ENV || 'development',
+  tracesSampleRate: 0.1,
+  
+  beforeSend(event, hint) {
+    // Filter out noise
+    if (event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
+      return null;
+    }
+    return event;
+  },
+});
+```
+
+**Performance Monitoring:**
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+
+export async function fetchTeachers() {
+  return Sentry.startSpan(
+    {
+      op: "http.client",
+      name: "GET /api/teachers",
+    },
+    async (span) => {
+      const result = await fetch('/api/teachers');
+      span.setAttribute('teacher_count', result.length);
+      return result;
+    }
+  );
+}
+```
+
+---
+
+## 14. Runbook Commands
 
 ```bash
 # Environment setup
@@ -472,48 +1525,220 @@ pnpm admin:verify           # Verify admin exists
 
 Required env vars: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `NEXT_TELEMETRY_DISABLED=1`, `SEED_SECRET`.
 
-## 11. Governance and Precedence
+---
+
+## 15. Observability & Monitoring
+
+### Structured Logging
+
+**Sentry Logger:**
+
+```typescript
+import * as Sentry from "@sentry/nextjs";
+const { logger } = Sentry;
+
+// Use appropriate log levels
+logger.trace("Starting database connection", { database: "users" });
+logger.debug(logger.fmt`Cache miss for user: ${userId}`);
+logger.info("Updated profile", { profileId: 345 });
+logger.warn("Rate limit reached", { endpoint: "/api/results/" });
+logger.error("Failed to process payment", { orderId: "order_123" });
+logger.fatal("Database connection pool exhausted");
+```
+
+**Correlation IDs:**
+
+```typescript
+import { headers } from 'next/headers';
+import { v4 as uuidv4 } from 'uuid';
+
+export async function GET(request: Request) {
+  const requestId = (await headers()).get('x-request-id') || uuidv4();
+  
+  logger.info("Processing request", { requestId, path: request.url });
+  
+  try {
+    // ... handle request
+    logger.info("Request completed", { requestId, duration: 123 });
+  } catch (error) {
+    logger.error("Request failed", { requestId, error });
+    throw error;
+  }
+}
+```
+
+### Performance Tracing
+
+**Span Instrumentation:**
+
+```typescript
+// UI interactions
+function TestComponent() {
+  const handleButtonClick = () => {
+    Sentry.startSpan(
+      {
+        op: "ui.click",
+        name: "Export PDF Button Click",
+      },
+      (span) => {
+        span.setAttribute("teacher_count", selectedTeachers.length);
+        span.setAttribute("page_size", pageSize);
+        exportPDF();
+      },
+    );
+  };
+  
+  return <button onClick={handleButtonClick}>Export PDF</button>;
+}
+
+// API calls
+async function fetchTeacherData(teacherId: string) {
+  return Sentry.startSpan(
+    {
+      op: "http.client",
+      name: `GET /api/teachers/${teacherId}`,
+    },
+    async (span) => {
+      const response = await fetch(`/api/teachers/${teacherId}`);
+      span.setAttribute("status_code", response.status);
+      const data = await response.json();
+      return data;
+    },
+  );
+}
+```
+
+### Error Tracking
+
+**Exception Capture:**
+
+```typescript
+try {
+  await createSchedule(data);
+} catch (error) {
+  // Capture with context
+  Sentry.captureException(error, {
+    tags: {
+      feature: 'schedule-creation',
+      semester: '1-2567',
+    },
+    extra: {
+      scheduleData: data,
+      userId: session.user.id,
+    },
+  });
+  throw error;
+}
+```
+
+**Custom Error Boundaries:**
+
+```typescript
+'use client';
+import * as Sentry from '@sentry/nextjs';
+import { useEffect } from 'react';
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+  
+  return (
+    <div>
+      <h2>เกิดข้อผิดพลาด</h2>
+      <p>กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</p>
+    </div>
+  );
+}
+```
+
+### Metrics and Dashboards
+
+**Vercel Analytics:**
+
+```typescript
+// Automatically tracks Web Vitals
+// View in Vercel Dashboard > Analytics
+
+// Custom events
+import { track } from '@vercel/analytics';
+
+track('schedule_created', {
+  semester: '1-2567',
+  teacher_count: 56,
+});
+```
+
+**Custom Metrics:**
+
+```typescript
+// Track business metrics
+export async function trackScheduleMetrics(configId: string) {
+  const metrics = await prisma.classSchedule.groupBy({
+    by: ['configId'],
+    where: { configId },
+    _count: { id: true },
+    _sum: { conflictCount: true },
+  });
+  
+  logger.info("Schedule metrics", {
+    configId,
+    total_schedules: metrics._count.id,
+    total_conflicts: metrics._sum.conflictCount,
+  });
+}
+```
+
+---
+
+## 16. Governance and Precedence
 
 - Official docs (context7 or vendor) outrank local heuristics if guidance conflicts.
 - Serena edits outrank manual refactors when available.
 - Highlight outstanding MCP outages or missing data in final responses.
+- AGENTS.md is the default instruction for all coding agents - always refer back here for guidance.
 
-## 12. Glossary
+---
+
+## 17. Glossary
 
 - **Idempotent** - safe to re-run without new side effects.
 - **Baseline migration** - accept the current DB schema as the starting point after a provider change.
 - **Symbol-aware** - understands code structure (types/functions) rather than plain text.
 - **Clean Architecture** - layered design isolating business logic from infrastructure.
 - **Server Actions** - Next.js async functions executed on server, callable from client.
+- **MCP** - Model Context Protocol; integration protocol for AI tools and external services.
+- **Context7** - MCP server providing up-to-date library documentation.
+- **Serena** - MCP server for symbol-aware code analysis and editing.
 
 ---
 
-## 13. Future Implementation Ideas
+## 18. Future Implementation Ideas
 
 ### Architecture Improvements
 
 - [ ] **Repository Pattern Completion** - Migrate remaining raw Prisma queries to repository layer
 - [ ] **Domain Event System** - Add event bus for cross-feature communication (e.g., schedule changes trigger notifications)
-- [ ] **CQRS Pattern** - Separate read models from write models for complex queries
+- [ ] **CQRS Pattern** - Separate read models from write models for complex queries LOW PRIORITY
 - [ ] **API Layer** - Add REST/GraphQL API for external integrations
-- [ ] **Background Jobs** - Implement job queue (BullMQ) for async operations (exports, notifications)
+- [ ] **Background Jobs** - Implement job queue (BullMQ) for async operations (exports, notifications) LOW PRIORITY
 
 ### Feature Enhancements
 
-- [ ] **Real-time Collaboration** - WebSocket support for multi-user schedule editing
+- [ ] **Real-time Collaboration** - WebSocket support for multi-user schedule editing LOW PRIORITY
 - [ ] **Conflict Resolution UI** - Visual diff viewer for schedule conflicts
-- [ ] **AI Schedule Optimization** - ML-powered room/timeslot allocation
-- [ ] **Mobile App** - React Native app using shared validation/types
+- [ ] **AI Schedule Optimization** - ML-powered room/timeslot allocation LOW PRIORITY
+- [ ] **Mobile App** - React Native app using shared validation/types LOW PRIORITY
 - [ ] **Export Templates** - Customizable PDF/Excel templates with branding
 - [ ] **Audit Log** - Track all schedule changes with rollback capability
-- [ ] **Notification System** - Email/SMS alerts for schedule changes
+- [ ] **Notification System** - Email/SMS alerts for schedule changes LOW PRIORITY
 
 ### Developer Experience
 
-- [ ] **Storybook Integration** - Component library documentation
-- [ ] **API Documentation** - OpenAPI/Swagger for external endpoints
+- [ ] **Storybook Integration** - Component library documentation LOW PRIORITY
+- [ ] **API Documentation** - OpenAPI/Swagger for external endpoints LOW PRIORITY
 - [ ] **Performance Monitoring** - Sentry + Vercel Analytics integration
-- [ ] **Feature Flags** - LaunchDarkly/Vercel Edge Config for gradual rollouts
+- [ ] **Feature Flags** - LaunchDarkly/Vercel Edge Config for gradual rollouts LOW PRIORITY
 - [ ] **E2E Test Coverage** - Expand to 80%+ critical path coverage
 - [ ] **Visual Regression Testing** - Percy/Chromatic for UI snapshots
 

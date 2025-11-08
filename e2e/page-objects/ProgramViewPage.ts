@@ -41,6 +41,9 @@ export class ProgramViewPage extends BasePage {
   async navigateTo(semester: string, year: string) {
     await this.goto(`/dashboard/${semester}-${year}/all-program`);
     await this.waitForPageLoad();
+    
+    // Wait for semester to sync with global state
+    await this.waitForSemesterSync(`${semester}/${year}`);
   }
 
   /**
