@@ -31,6 +31,10 @@ export class ArrangePage extends BasePage {
   readonly deleteButton: Locator;
   readonly confirmDeleteButton: Locator;
   readonly lockedIndicator: Locator;
+  readonly conflictIndicator: Locator;
+  readonly saveButton: Locator;
+  readonly exportButton: Locator;
+  readonly lockButton: (row: number, col: number) => Locator;
 
   constructor(page: Page) {
     super(page);
@@ -66,6 +70,21 @@ export class ArrangePage extends BasePage {
     this.lockedIndicator = page.locator('[data-locked="true"]').or(
       page.locator('[aria-label*="ล็อก"]')
     );
+    
+    this.conflictIndicator = page.locator('[data-testid="conflict-indicator"]').or(
+      page.locator('[role="alert"]')
+    );
+    
+    this.saveButton = page.locator('[data-testid="save-button"]').or(
+      page.locator('button', { hasText: 'บันทึก' })
+    );
+    
+    this.exportButton = page.locator('button', { hasText: 'ส่งออก' }).or(
+      page.locator('button[aria-label*="ส่งออก"]')
+    );
+    
+    this.lockButton = (row: number, col: number) => 
+      this.timeslotCell(row, col).locator('button[aria-label*="ล็อก"]');
   }
 
   /**
@@ -209,5 +228,170 @@ export class ArrangePage extends BasePage {
   async isSubjectInPalette(subjectCode: string): Promise<boolean> {
     const card = this.subjectCard(subjectCode);
     return await card.isVisible({ timeout: 2000 }).catch(() => false);
+  }
+
+  /**
+   * Check if a conflict of specific type is present
+   * @param type Type of conflict to check for
+   */
+  async hasConflict(type: 'teacher' | 'room' | 'locked' | 'break'): Promise<boolean> {
+    const message = await this.getConflictMessage();
+    if (!message) return false;
+
+    const conflictKeywords = {
+      teacher: ['ครูสอนซ้ำซ้อน', 'teacher conflict', 'ครูซ้อน'],
+      room: ['ห้องเรียนซ้ำซ้อน', 'room conflict', 'ห้องซ้อน'],
+      locked: ['ช่วงเวลาถูกล็อก', 'locked timeslot', 'ล็อก'],
+      break: ['พักเที่ยง', 'break time', 'พัก'],
+    };
+
+    return conflictKeywords[type].some(keyword =>
+      message.toLowerCase().includes(keyword.toLowerCase())
+    );
+  }
+
+  /**
+   * Get conflict message if visible
+   * @returns Conflict message or null if not visible
+   */
+  async getConflictMessage(): Promise<string | null> {
+    try {
+      if (await this.conflictIndicator.isVisible({ timeout: 3000 })) {
+        return await this.conflictIndicator.textContent();
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  /**
+   * Lock a timeslot for school-wide activities
+   */
+  async lockTimeslot(row: number, col: number) {
+    const cell = this.timeslotCell(row, col);
+    
+    // Right-click to open context menu
+    await cell.click({ button: 'right' });
+    await this.page.waitForTimeout(300);
+    
+    // Click lock option
+    const lockOption = this.page.locator('text=Lock').or(
+      this.page.locator('text=ล็อก')
+    );
+    await lockOption.first().click();
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Unlock a previously locked timeslot
+   */
+  async unlockTimeslot(row: number, col: number) {
+    const cell = this.timeslotCell(row, col);
+    
+    // Right-click to open context menu
+    await cell.click({ button: 'right' });
+    await this.page.waitForTimeout(300);
+    
+    // Click unlock option
+    const unlockOption = this.page.locator('text=Unlock').or(
+      this.page.locator('text=ปลดล็อก')
+    );
+    await unlockOption.first().click();
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Check if a timeslot is locked
+   */
+  async isTimeslotLocked(row: number, col: number): Promise<boolean> {
+    const cell = this.timeslotCell(row, col);
+    const lockedChild = cell.locator('[data-locked="true"]');
+    return await lockedChild.isVisible({ timeout: 2000 }).catch(() => false);
+  }
+
+  /**
+   * Export schedule to specified format
+   */
+  async exportSchedule(format: 'excel' | 'pdf') {
+    await this.exportButton.click();
+    await this.page.waitForTimeout(300);
+    
+    // Click the format option
+    const formatOption = this.page.locator(`text=${format.toUpperCase()}`).or(
+      this.page.locator(`button`, { hasText: format === 'excel' ? 'Excel' : 'PDF' })
+    );
+    await formatOption.first().click();
+  }
+
+  /**
+   * Get all available subjects in the palette
+   * @returns Array of subject codes
+   */
+  async getAvailableSubjects(): Promise<string[]> {
+    const subjects = await this.subjectPalette.locator('[data-testid^="subject-card"]').or(
+      this.subjectPalette.locator('[data-subject-code]')
+    ).all();
+    
+    const codes: string[] = [];
+    for (const subject of subjects) {
+      const code = await subject.getAttribute('data-subject-code');
+      if (code) {
+        codes.push(code);
+      } else {
+        // Fallback: extract from text content
+        const text = await subject.textContent();
+        if (text) {
+          // Subject code is typically at the start (e.g., "TH21101 - คณิตศาสตร์")
+          const match = text.match(/^([A-Z]{2}\d{5})/);
+          if (match) codes.push(match[1]);
+        }
+      }
+    }
+    
+    return codes;
+  }
+
+  /**
+   * Remove a subject from a timeslot
+   */
+  async removeSubjectFromTimeslot(row: number, col: number) {
+    const cell = this.timeslotCell(row, col);
+    
+    // Click the remove/delete button within the timeslot
+    const removeButton = cell.locator('button[aria-label*="ลบ"]').or(
+      cell.locator('button[aria-label*="remove"]')
+    );
+    await removeButton.click();
+    await this.page.waitForTimeout(500);
+  }
+
+  /**
+   * Get count of assigned subjects in the timetable
+   */
+  async getAssignedSubjectCount(): Promise<number> {
+    const assignedCells = this.timetableGrid.locator('tbody td').filter({
+      has: this.page.locator('[data-testid^="subject-card"], .subject-chip')
+    });
+    return await assignedCells.count();
+  }
+
+  /**
+   * Save schedule changes
+   */
+  async saveSchedule() {
+    await this.saveButton.click();
+    await this.waitForPageLoad();
+  }
+
+  /**
+   * Wait for page to be ready with all data loaded
+   */
+  async waitForPageReady() {
+    await this.waitForPageLoad();
+    
+    // Wait for key elements to be visible
+    await expect(this.subjectPalette).toBeVisible({ timeout: 10000 });
+    await expect(this.timetableGrid).toBeVisible({ timeout: 10000 });
   }
 }
