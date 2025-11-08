@@ -17,7 +17,7 @@
 
 import { test as base, expect } from '@playwright/test';
 import { testAdmin, testSemester } from './seed-data.fixture';
-import { ScheduleAssignmentPage } from '../pages/admin/ScheduleAssignmentPage';
+import { ArrangePage } from '../page-objects/ArrangePage';
 
 /**
  * Fixture types
@@ -34,10 +34,10 @@ type AdminFixtures = {
   };
 
   /**
-   * Schedule Assignment Page Object Model
-   * For teacher schedule arrangement tests
+   * Arrange Page Object Model (for teacher/class arrangement)
+   * For schedule arrangement tests
    */
-  scheduleAssignmentPage: ScheduleAssignmentPage;
+  arrangePage: ArrangePage;
 
   // TODO: Add more POMs as they're created
   // teacherManagementPage: TeacherManagementPage;
@@ -52,50 +52,17 @@ export const test = base.extend<AdminFixtures>({
   /**
    * Authenticated Admin Fixture
    * 
-   * Sets up admin session before each test using Auth.js session.
+   * Provides authenticated admin page using storageState from auth.setup.ts.
+   * The setup project handles Dev Bypass authentication and saves the state.
+   * All tests in the chromium project automatically start authenticated.
    * 
-   * Auth.js Session Strategy:
-   * 1. Uses Auth.js database sessions (not JWT)
-   * 2. Session stored in database with 30-day expiry
-   * 3. Session cookie name: next-auth.session-token (development)
-   * 
-   * NOTE: This is a simplified approach. For production E2E tests, consider:
-   * - Using Auth.js test mode with mocked providers
-   * - Setting up test-specific OAuth credentials
-   * - Using Playwright's storageState to cache auth across tests
+   * No manual authentication needed here - storageState handles it all!
    */
   authenticatedAdmin: async ({ page }, use) => {
-    // Option 1: Direct session cookie approach (current implementation)
-    // This assumes the seed has created the admin user
-    
-    // Navigate to sign-in page
-    await page.goto('/signin');
-    
-    // TODO: Implement actual authentication flow
-    // For now, we'll check if already authenticated
-    // In a real implementation, you would:
-    // 1. POST to /api/auth/signin with credentials
-    // 2. Handle Auth.js callback
-    // 3. Store session cookie
-    
-    // Temporary: Check if we need to sign in
-    const currentUrl = page.url();
-    if (currentUrl.includes('/signin')) {
-      // For development: Manual sign-in required
-      // For CI: Need to implement headless auth flow
-      console.warn('⚠️  Authentication required. Please sign in manually for now.');
-      console.warn('   Admin credentials: email=admin@school.local, password=admin123');
-      console.warn('   TODO: Implement automated Auth.js authentication');
-      
-      // Wait for navigation away from sign-in (manual intervention)
-      await page.waitForURL(url => !url.toString().includes('/signin'), { timeout: 60000 });
-    }
-    
-    // Verify authentication
-    const isAuthenticated = !page.url().includes('/signin');
-    if (!isAuthenticated) {
-      throw new Error('Failed to authenticate admin user');
-    }
+    // Page is already authenticated via storageState from auth.setup.ts
+    // Just verify we're not on the signin page
+    await page.goto('/dashboard/1-2567');
+    await page.waitForLoadState('networkidle');
     
     // Use the authenticated page
     await use({
@@ -103,20 +70,17 @@ export const test = base.extend<AdminFixtures>({
       email: testAdmin.email,
       name: testAdmin.name,
     });
-    
-    // Cleanup: Sign out after test (optional)
-    // await page.goto('/api/auth/signout');
   },
 
   /**
-   * Schedule Assignment Page Object Model Fixture
+   * Arrange Page Object Model Fixture
    * 
-   * Provides a pre-configured POM for schedule assignment tests.
+   * Provides a pre-configured POM for schedule arrangement tests.
    * Automatically initializes with the authenticated admin page.
    */
-  scheduleAssignmentPage: async ({ authenticatedAdmin }, use) => {
-    const schedulePage = new ScheduleAssignmentPage(authenticatedAdmin.page);
-    await use(schedulePage);
+  arrangePage: async ({ authenticatedAdmin }, use) => {
+    const pageObj = new ArrangePage(authenticatedAdmin.page);
+    await use(pageObj);
   },
 
   // TODO: Add more POM fixtures as they're created

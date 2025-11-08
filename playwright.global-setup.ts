@@ -3,8 +3,18 @@ import path from 'path';
 import dotenv from 'dotenv';
 import fs from 'fs';
 
-// Load test environment variables
-dotenv.config({ path: path.resolve(__dirname, '.env.test') });
+// Load test environment variables (ensure AUTH_SECRET precedence for stable JWT decryption)
+const testEnvPath = path.resolve(__dirname, '.env.test');
+if (fs.existsSync(testEnvPath)) {
+  dotenv.config({ path: testEnvPath });
+}
+
+// Force AUTH_SECRET explicitly into process.env (Issue #62)
+if (process.env.AUTH_SECRET) {
+  process.stdout.write(`🔐 Using AUTH_SECRET from .env.test (length=${process.env.AUTH_SECRET.length})\n`);
+} else {
+  process.stdout.write('⚠️  AUTH_SECRET not found in .env.test; tests may log JWT warnings.\n');
+}
 
 // Load .env.local for DATABASE_URL if not already set
 if (!process.env.DATABASE_URL) {
@@ -72,6 +82,10 @@ async function waitForDatabase(maxAttempts = 30): Promise<boolean> {
  */
 async function globalSetup() {
   console.log('\n🔧 E2E Test Setup: Initializing test environment...\n');
+  // Surface key auth-related env for debugging (masked)
+  if (process.env.AUTH_SECRET) {
+    console.log('   AUTH_SECRET checksum:', Buffer.from(process.env.AUTH_SECRET).toString('base64').slice(0, 8) + '…');
+  }
   
   const autoManageDb = process.env.AUTO_MANAGE_TEST_DB !== 'false';
   const isDocker = isDockerAvailable();
@@ -133,6 +147,18 @@ async function globalSetup() {
   }
   
   console.log('🌱 Seeding test database...\n');
+
+  // Clear any residual auth/session cookies between prior runs to avoid mismatched JWT secrets.
+  // (Playwright per-test isolation will also help; this is proactive.)
+  try {
+    const storageStatePath = path.resolve(__dirname, 'playwright/.auth');
+    if (fs.existsSync(storageStatePath)) {
+      fs.rmSync(storageStatePath, { recursive: true, force: true });
+      console.log('🧹 Cleared cached Playwright auth storage state');
+    }
+  } catch (err) {
+    console.warn('⚠️  Failed to clear cached auth storage state:', err);
+  }
   
   try {
     // Set environment variable for test mode seeding

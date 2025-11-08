@@ -44,15 +44,15 @@ export default defineConfig({
     },
 
     // Main test project - uses saved authentication state
+    // Main test project - uses saved authentication state
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         // Use saved authentication state from setup project
         // This eliminates repeated login steps in every test
         storageState: 'playwright/.auth/admin.json',
       },
-      // Depend on setup project - ensures auth runs first
       dependencies: ['setup'],
     },
     // Brave browser disabled for CI performance (2x faster)
@@ -74,12 +74,12 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
+  webServer: process.env.SKIP_WEBSERVER ? undefined : {
     command: 'pnpm dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
-    stdout: 'ignore',
+    stdout: 'pipe',  // Changed from 'ignore' to see startup logs
     stderr: 'pipe',
   },
 
