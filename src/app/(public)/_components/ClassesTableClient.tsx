@@ -15,12 +15,14 @@ type Props = {
   sortBy?: "grade" | "hours" | "subjects";
   sortOrder?: "asc" | "desc";
   "data-testid"?: string;
+  configId?: string; // e.g. "1-2567" for building term-specific public schedule links
 };
 
 export function ClassesTableClient({
   data,
   search,
   "data-testid": testId,
+  configId,
 }: Props) {
   if (!data || data.length === 0) {
     return (
@@ -83,7 +85,7 @@ export function ClassesTableClient({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
-                    href={`/dashboard/select-semester`}
+                    href={configId ? `/classes/${cls.gradeId}/${configId}` : `/dashboard/select-semester`}
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                   >
                     ดูตารางเรียน

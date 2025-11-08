@@ -533,6 +533,7 @@ async function main() {
   console.log('⏰ Creating timeslots...');
   const academicYear = 2567;
   const sem: semester = 'SEMESTER_1';
+  const semesterNumber = sem === 'SEMESTER_1' ? 1 : sem === 'SEMESTER_2' ? 2 : 3;
   const days: day_of_week[] = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
   const periods = [
     { start: '08:30', end: '09:20', break: 'NOT_BREAK' },
@@ -551,7 +552,7 @@ async function main() {
       const period = periods[periodNum - 1];
       const timeslot = await prisma.timeslot.create({
         data: {
-          TimeslotID: `1/${academicYear}-${day}${periodNum}`,
+          TimeslotID: `${semesterNumber}-${academicYear}-${day}-${periodNum}`,
           AcademicYear: academicYear,
           Semester: sem,
           StartTime: new Date(`2024-01-01T${period.start}:00`),
@@ -813,7 +814,6 @@ async function main() {
 
   // ===== SAMPLE TIMETABLE CONFIGURATION =====
   console.log('⚙️  Creating timetable configuration...');
-  const semesterNumber = sem === 'SEMESTER_1' ? 1 : sem === 'SEMESTER_2' ? 2 : 3;
   const tableConfig = await prisma.table_config.create({
     data: {
       ConfigID: `${semesterNumber}-${academicYear}`,
@@ -843,7 +843,7 @@ async function main() {
   // Reuse chumNumSubject declared earlier in the function
   if (chumNumSubject) {
     for (const gradeLevel of gradeLevels) {
-      const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-MON8`);
+      const timeslot = timeslots.find(t => t.TimeslotID === `${semesterNumber}-${academicYear}-MON-8`);
       if (timeslot) {
         // Find the existing responsibility for this grade and subject
         const activityResp = responsibilities.find(r => 
@@ -874,7 +874,7 @@ async function main() {
   // Reuse scoutSubject declared earlier in the function
   if (scoutSubject) {
     for (const gradeLevel of gradeLevels) {
-      const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-WED8`);
+      const timeslot = timeslots.find(t => t.TimeslotID === `${semesterNumber}-${academicYear}-WED-8`);
       if (timeslot) {
         // Find the existing responsibility for this grade and subject
         const activityResp = responsibilities.find(r => 
@@ -911,7 +911,7 @@ async function main() {
       s.SubjectCode === r.SubjectCode && s.Category === 'ภาษาไทย'
     ));
     if (thaiResp) {
-      const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-MON1`);
+      const timeslot = timeslots.find(t => t.TimeslotID === `${semesterNumber}-${academicYear}-MON-1`);
       if (timeslot) {
         const schedule = await prisma.class_schedule.create({
           data: {
@@ -935,7 +935,7 @@ async function main() {
       s.SubjectCode === r.SubjectCode && s.Category === 'คณิตศาสตร์'
     ));
     if (mathResp) {
-      const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-MON2`);
+      const timeslot = timeslots.find(t => t.TimeslotID === `${semesterNumber}-${academicYear}-MON-2`);
       if (timeslot) {
         const schedule = await prisma.class_schedule.create({
           data: {
@@ -959,7 +959,7 @@ async function main() {
       s.SubjectCode === r.SubjectCode && s.Category === 'ภาษาต่างประเทศ'
     ));
     if (engResp) {
-      const timeslot = timeslots.find(t => t.TimeslotID === `1/${academicYear}-TUE1`);
+      const timeslot = timeslots.find(t => t.TimeslotID === `${semesterNumber}-${academicYear}-TUE-1`);
       if (timeslot) {
         const schedule = await prisma.class_schedule.create({
           data: {

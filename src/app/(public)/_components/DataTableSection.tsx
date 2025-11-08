@@ -38,14 +38,17 @@ type Props = {
   totalClasses: number;
   teachersData: TeachersResult;
   classesData: ClassesResult;
+  currentConfigId?: string; // e.g. "1-2567" for building public schedule links
 };
 
 export function DataTableSection({
   initialTab = "teachers",
-  totalTeachers,
-  totalClasses,
+  // totalTeachers & totalClasses retained for future stats expansions (unused currently)
+  totalTeachers: _totalTeachers,
+  totalClasses: _totalClasses,
   teachersData,
   classesData,
+  currentConfigId,
 }: Props) {
   // All state is local - no URL manipulation
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab);
@@ -56,14 +59,13 @@ export function DataTableSection({
   const [teachersState] = useState(teachersData);
   const [classesState] = useState(classesData);
 
-  const totalItems = activeTab === "teachers" ? totalTeachers : totalClasses;
-  const totalPages = Math.ceil(totalItems / 25);
+  // totalItems/totalPages removed; pagination is derived from filtered lists below
   
   // Filter data based on search query
   const filteredTeachers = useMemo(() => {
     if (!searchQuery) return teachersState.data;
     const query = searchQuery.toLowerCase();
-    return teachersState.data.filter(teacher => 
+    return teachersState.data.filter((teacher) =>
       teacher.name.toLowerCase().includes(query) ||
       (teacher.department && teacher.department.toLowerCase().includes(query))
     );
@@ -180,12 +182,14 @@ export function DataTableSection({
             data={currentTeachers}
             search={searchQuery}
             data-testid="teacher-list"
+            configId={currentConfigId}
           />
         ) : (
           <ClassesTableClient
             data={currentClasses}
             search={searchQuery}
             data-testid="class-list"
+            configId={currentConfigId}
           />
         )}
       </div>
@@ -208,24 +212,24 @@ export function DataTableSection({
 /**
  * Client-side pagination component that doesn't use URL params
  */
-function ClientPagination({ 
-  currentPage, 
-  totalPages, 
+function ClientPagination({
+  currentPage,
+  totalPages,
   totalItems,
-  onPageChange 
-}: { 
-  currentPage: number; 
-  totalPages: number; 
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
   totalItems: number;
   onPageChange: (page: number) => void;
 }) {
-  const ChevronLeft = () => (
+  // Inline SVG elements instead of creating components during render
+  const chevronLeftIcon = (
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
     </svg>
   );
-  
-  const ChevronRight = () => (
+  const chevronRightIcon = (
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
     </svg>
@@ -272,7 +276,7 @@ function ClientPagination({
               className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Previous page"
             >
-              <ChevronLeft />
+              {chevronLeftIcon}
             </button>
             {[...Array(Math.min(totalPages, 5))].map((_, idx) => {
               const page = idx + 1;
@@ -298,7 +302,7 @@ function ClientPagination({
               className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
-              <ChevronRight />
+              {chevronRightIcon}
             </button>
           </nav>
         </div>

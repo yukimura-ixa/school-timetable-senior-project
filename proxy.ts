@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   let token = req.auth
   
   // SECURITY: Use server-only env variable to prevent bypass in production

@@ -6,6 +6,7 @@ import { DataTableSection } from "./_components/DataTableSection";
 import { CurrentSemesterBadge } from "./_components/CurrentSemesterBadge";
 import Link from "next/link";
 import { authWithDevBypass as auth } from "@/lib/auth";
+import { getQuickStats } from "@/lib/public/stats";
 
 export const metadata: Metadata = {
   title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
@@ -53,10 +54,24 @@ export default async function HomePage() {
     perPage: totalClasses, // Fetch all classes
   });
 
+  // Derive current configId (semester-year) for public navigation
+  const stats = await getQuickStats();
+  let currentConfigId: string | null = null;
+  if (stats.currentTerm && stats.currentTerm !== "N/A") {
+    const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
+    const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
+    if (termMatch?.[1] && semesterMatch?.[1]) {
+      const academicYear = termMatch[1];
+      const semesterNumeric = semesterMatch[1];
+      currentConfigId = `${semesterNumeric}-${academicYear}`; // e.g. 1-2567
+    }
+  }
+
   return (
+    // Responsive width layout: container with max-width, centered
     <main className="min-h-screen bg-gray-50">
       <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-4">
@@ -106,22 +121,25 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container mx-auto px-4 -mt-8 mb-8">
-        <Suspense fallback={<QuickStatsCardsSkeleton />}>
-          <QuickStatsCards />
-        </Suspense>
+      <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl -mt-8 mb-8">
+        <div>
+          <Suspense fallback={<QuickStatsCardsSkeleton />}>
+            <QuickStatsCards />
+          </Suspense>
+        </div>
       </section>
 
-      <section className="container mx-auto px-4 mb-12">
+      <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl mb-12">
         <DataTableSection
           totalTeachers={totalTeachers}
           totalClasses={totalClasses}
           teachersData={teachersData}
           classesData={classesData}
+          currentConfigId={currentConfigId || undefined}
         />
       </section>
 
-      <section className="container mx-auto px-4 mb-12">
+      <section className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           ภาพรวมการใช้งาน
         </h2>
@@ -131,7 +149,7 @@ export default async function HomePage() {
       </section>
 
       <footer className="bg-white border-t border-gray-200 py-8 mt-12">
-        <div className="container mx-auto px-4 text-center text-gray-600">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl text-center text-gray-600">
           <p>
             © 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma
           </p>

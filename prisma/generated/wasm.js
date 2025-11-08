@@ -353,7 +353,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "B:\\Dev\\school-timetable-senior-project\\prisma\\generated",
+      "value": "/mnt/b/Dev/school-timetable-senior-project/prisma/generated",
       "fromEnvVar": null
     },
     "config": {
@@ -362,12 +362,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "debian-openssl-3.0.x",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "B:\\Dev\\school-timetable-senior-project\\prisma\\schema.prisma",
+    "sourceFilePath": "/mnt/b/Dev/school-timetable-senior-project/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
