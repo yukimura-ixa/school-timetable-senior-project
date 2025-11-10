@@ -100,8 +100,10 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
     
-    // Wait for subject box to appear
-    await page.waitForTimeout(2000);
+    // Wait for subject items to appear
+    await expect(
+      page.locator('[data-testid="subject-item"], .subject-card, [draggable="true"]').first()
+    ).toBeVisible({ timeout: 5000 });
     
     // Look for subject items (adjust selector based on your implementation)
     const subjectItems = page.locator('[data-testid="subject-item"], .subject-card, [draggable="true"]');
