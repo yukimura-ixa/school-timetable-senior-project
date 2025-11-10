@@ -164,7 +164,9 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       <div className="bg-white rounded-lg shadow p-6 space-y-2">
         <h1 className="text-2xl font-bold text-gray-900">ตารางสอน</h1>
         <div className="text-gray-700">
-          <p className="font-medium">{teacher.name}</p>
+          <p className="font-medium" data-testid="teacher-name">
+            {teacher.name}
+          </p>
           <p className="text-sm text-gray-600">
             ภาควิชา: {teacher.department || "-"}
           </p>

@@ -137,7 +137,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         {/* Class Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            ตารางเรียน ม.{gradeLevel.Year}/{gradeLevel.Number}
+            ตารางเรียน <span data-testid="class-name">ม.{gradeLevel.Year}/{gradeLevel.Number}</span>
           </h1>
           <p className="text-xs md:text-sm text-gray-500 mt-2">
             ภาคเรียนที่ {semesterAndyear.split('-')[0]} ปีการศึกษา {semesterAndyear.split('-')[1]}

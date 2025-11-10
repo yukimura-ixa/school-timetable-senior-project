@@ -155,11 +155,17 @@ export default function SignInPage() {
                 startIcon={<GoogleIcon />}
                 onClick={handleGoogleLogin}
                 fullWidth
+                data-testid="google-signin-button"
               >
                 เข้าสู่ระบบด้วย Google
               </Button>
               {bypassEnabled && (
-                <Button variant="outlined" onClick={handleDevBypass} fullWidth>
+                <Button
+                  variant="outlined"
+                  onClick={handleDevBypass}
+                  fullWidth
+                  data-testid="dev-bypass-button"
+                >
                   Dev Bypass (Testing)
                 </Button>
               )}

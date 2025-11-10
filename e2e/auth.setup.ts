@@ -31,9 +31,9 @@ setup('authenticate as admin', async ({ page }) => {
   // Wait for the page to load
   await page.waitForLoadState('networkidle');
 
-  // Click the "Dev Bypass (Testing)" button
+  // Click the "Dev Bypass (Testing)" button using data-testid
   // This button is only visible when ENABLE_DEV_BYPASS=true
-  const devBypassButton = page.getByRole('button', { name: /Dev Bypass \(Testing\)/i });
+  const devBypassButton = page.getByTestId('dev-bypass-button');
   await expect(devBypassButton).toBeVisible({ timeout: 10000 });
   console.log('[AUTH SETUP] Found Dev Bypass button');
 
