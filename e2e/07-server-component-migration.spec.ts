@@ -89,9 +89,10 @@ test.describe('Server Component Migration - Teacher Management', () => {
       // Click the add button
       await addButton.click();
       
-      // Should open a modal or navigate to a form
-      // Wait for modal/form to appear
-      await page.waitForTimeout(500);
+      // Wait for modal or form to appear
+      await expect(
+        page.locator('[role="dialog"], form, .modal').first()
+      ).toBeVisible({ timeout: 3000 });
       
       // Take screenshot of the interaction
       await page.screenshot({ 
@@ -295,9 +296,21 @@ test.describe('Server Component Migration - Regression Tests', () => {
       // Get initial row count
       const initialRows = await page.locator('tr, [role="row"]').count();
       
-      // Type in search
+      // Type in search and wait for results to update
       await searchInput.fill('test');
-      await page.waitForTimeout(500); // Wait for filtering
+      
+      // Wait for table to re-render (row count may change)
+      await page.waitForFunction(
+        (initial) => {
+          const current = document.querySelectorAll('tr, [role="row"]').length;
+          return current !== initial;
+        },
+        initialRows,
+        { timeout: 3000 }
+      ).catch(() => {
+        // If no change detected, that's okay - search might have no effect
+        console.log('ℹ Search completed (no row count change detected)');
+      });
       
       // Take screenshot
       await page.screenshot({ 
