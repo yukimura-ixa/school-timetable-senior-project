@@ -164,11 +164,15 @@ async function globalSetup() {
     // Set environment variable for test mode seeding
     process.env.SEED_FOR_TESTS = 'true';
     
-    // Run database seed
+    // Set DATABASE_URL to test database (override production URL from .env.local)
+    const testDatabaseUrl = 'postgresql://timetable:timetable@localhost:5433/timetable_test?schema=public&connection_limit=5&pool_timeout=20';
+    
+    // Run database seed with test DATABASE_URL
     execSync('pnpm db:seed', {
       stdio: 'inherit',
       env: {
         ...process.env,
+        DATABASE_URL: testDatabaseUrl,
         SEED_FOR_TESTS: 'true',
       },
     });
