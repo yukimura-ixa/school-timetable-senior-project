@@ -39,8 +39,22 @@ async function waitForDndReady(page: Page) {
     return draggables.length > 0;
   }, { timeout: 10000 });
   
-  // Small delay to ensure event listeners are attached
-  await page.waitForTimeout(500);
+  // Wait for event listeners to be attached by checking element readiness
+  await page.waitForFunction(() => {
+    const draggables = document.querySelectorAll('[data-sortable-id], [draggable="true"]');
+    if (draggables.length === 0) return false;
+    
+    // Check if draggables have necessary data attributes (indicates dnd-kit is ready)
+    for (const el of Array.from(draggables)) {
+      if (el.hasAttribute('data-sortable-id') || el.hasAttribute('data-dnd-kit-sortable')) {
+        return true;
+      }
+    }
+    return false;
+  }, { timeout: 3000 }).catch(() => {
+    // Fallback: if specific attributes not found, assume ready after first check passed
+    console.log('⚠️ DnD attributes check failed, proceeding with basic draggable detection');
+  });
 }
 
 /**
@@ -58,7 +72,7 @@ async function getCenter(locator: any) {
 }
 
 /**
- * Helper: Perform drag and drop operation
+ * Helper: Perform drag and drop operation with visual feedback checks
  */
 async function dragAndDrop(page: Page, sourceSelector: string, targetSelector: string) {
   const source = page.locator(sourceSelector).first();
@@ -76,16 +90,32 @@ async function dragAndDrop(page: Page, sourceSelector: string, targetSelector: s
   await page.mouse.move(sourceCenter.x, sourceCenter.y);
   await page.mouse.down();
   
-  // Hover briefly to trigger drag start
-  await page.waitForTimeout(100);
+  // Wait for drag state to activate (check for visual feedback like cursor change or overlay)
+  await page.waitForFunction(() => {
+    // Check if drag is active by looking for common drag indicators
+    return document.body.style.cursor === 'grabbing' || 
+           document.body.classList.contains('dragging') ||
+           document.querySelector('[data-dragging="true"]') !== null ||
+           document.querySelector('.drag-overlay, .dragging') !== null;
+  }, { timeout: 1000 }).catch(() => {
+    // Fallback: if no visual indicator found, just proceed
+    console.log('⚠️ No drag visual feedback detected, proceeding anyway');
+  });
   
-  // Move to target
+  // Move to target with smooth steps
   await page.mouse.move(targetCenter.x, targetCenter.y, { steps: 10 });
-  await page.waitForTimeout(100);
   
-  // Drop
+  // Drop and wait for drop animation/feedback
   await page.mouse.up();
-  await page.waitForTimeout(300);
+  
+  // Wait for drop to complete - check for UI updates instead of fixed timeout
+  await page.waitForFunction(() => {
+    // Drag should be completed (no more drag indicators)
+    return document.body.style.cursor !== 'grabbing' && 
+           !document.body.classList.contains('dragging');
+  }, { timeout: 1000 }).catch(() => {
+    // Fallback if no drag indicators were present
+  });
 }
 
 test.describe('Drag and Drop - Subject List to Timeslot', () => {
@@ -194,7 +224,14 @@ test.describe('Drag and Drop - Subject List to Timeslot', () => {
           // Start drag
           await page.mouse.move(sourceX, sourceY);
           await page.mouse.down();
-          await page.waitForTimeout(200);
+          
+          // Wait for drag to initiate (check for visual feedback)
+          await page.waitForFunction(() => {
+            return document.body.style.cursor === 'grabbing' || 
+                   document.querySelector('[data-dragging="true"], .dragging') !== null;
+          }, { timeout: 1000 }).catch(() => {
+            // No visual drag feedback found, continue anyway
+          });
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/04-dragging.png`,
@@ -203,7 +240,6 @@ test.describe('Drag and Drop - Subject List to Timeslot', () => {
           
           // Move to target
           await page.mouse.move(targetX, targetY, { steps: 15 });
-          await page.waitForTimeout(200);
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/05-over-target.png`,
@@ -212,7 +248,11 @@ test.describe('Drag and Drop - Subject List to Timeslot', () => {
           
           // Drop
           await page.mouse.up();
-          await page.waitForTimeout(500);
+          
+          // Wait for drop operation to complete (check for UI updates)
+          await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {
+            // Fallback: network might already be idle
+          });
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/06-after-drop.png`,
