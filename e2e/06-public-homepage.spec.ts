@@ -89,9 +89,8 @@ test.describe("Search Functionality", () => {
     // Type search term (common Thai name prefix)
     await page.fill('input[placeholder*="ค้นหา"]', "นาย");
     
-    // Wait for debounce and URL update
-    await page.waitForTimeout(600);
-    await expect(page).toHaveURL(/search=นาย/);
+    // Wait for URL update (debounced search)
+    await page.waitForURL(/search=นาย/, { timeout: 3000 });
     
     // Should show filtered results
     const rows = await page.locator("tbody tr").count();
@@ -104,8 +103,8 @@ test.describe("Search Functionality", () => {
     // Search for M.1 (Mathayom 1)
     await page.fill('input[placeholder*="ค้นหา"]', "M.1");
     
-    await page.waitForTimeout(600);
-    await expect(page).toHaveURL(/search=M\.1/);
+    // Wait for URL update (debounced search)
+    await page.waitForURL(/search=M\.1/, { timeout: 3000 });
     
     // Should show M.1 classes only
     const table = await page.locator("table");
@@ -133,10 +132,8 @@ test.describe("Search Functionality", () => {
     // Search for something that won't exist
     await page.fill('input[placeholder*="ค้นหา"]', "XYZNONEXISTENT123");
     
-    await page.waitForTimeout(600);
-    
-    // Should show empty message
-    await expect(page.locator("text=/ไม่พบ|No results/i")).toBeVisible();
+    // Wait for empty message to appear
+    await expect(page.locator("text=/ไม่พบ|No results/i")).toBeVisible({ timeout: 3000 });
   });
 });
 

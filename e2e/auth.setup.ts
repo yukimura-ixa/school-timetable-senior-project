@@ -62,9 +62,12 @@ setup('authenticate as admin', async ({ page }) => {
   // Wait for page to finish loading and semester to sync
   await page.waitForLoadState('networkidle', { timeout: 20000 });
   
-  // Give a moment for useSemesterSync hook to execute and save to localStorage
-  await page.waitForTimeout(1000);
-  console.log('[AUTH SETUP] Semester 1-2567 should now be synced to localStorage');
+  // Wait for useSemesterSync hook to execute by checking localStorage
+  await page.waitForFunction(
+    () => window.localStorage.getItem('semester-storage') !== null,
+    { timeout: 5000 }
+  );
+  console.log('[AUTH SETUP] Semester 1-2567 synced to localStorage');
 
   // Save authenticated state (including localStorage with semester selection) to file
   await page.context().storageState({ path: authFile });
