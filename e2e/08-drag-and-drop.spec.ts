@@ -29,7 +29,6 @@ const SCREENSHOT_DIR = 'test-results/screenshots/drag-drop';
  * Helper: Wait for page hydration and dnd-kit initialization
  */
 async function waitForDndReady(page: Page) {
-  await page.waitForLoadState('networkidle');
   await page.waitForLoadState('domcontentloaded');
   
   // Wait for DndContext to be ready
@@ -170,7 +169,11 @@ test.describe('Drag and Drop - Subject List to Timeslot', () => {
       
       // Click to select
       await firstItem.click();
-      await page.waitForTimeout(300);
+      // Wait for selection state to update
+      await page.waitForFunction(() => {
+        const item = document.querySelector('[data-sortable-id*="SubjectCode"], .subject-item');
+        return item?.classList.length > 0;
+      }, { timeout: 1000 }).catch(() => {});
       
       await page.screenshot({ 
         path: `${SCREENSHOT_DIR}/02-subject-selected.png`,
@@ -250,9 +253,9 @@ test.describe('Drag and Drop - Subject List to Timeslot', () => {
           await page.mouse.up();
           
           // Wait for drop operation to complete (check for UI updates)
-          await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {
-            // Fallback: network might already be idle
-          });
+          await page.waitForFunction(() => {
+            return !document.body.classList.contains('dragging');
+          }, { timeout: 2000 }).catch(() => {});
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/06-after-drop.png`,
@@ -289,7 +292,11 @@ test.describe('Drag and Drop - Subject List to Timeslot', () => {
         // Start dragging
         await page.mouse.move(x, y);
         await page.mouse.down();
-        await page.waitForTimeout(100);
+        // Wait for drag to initiate
+        await page.waitForFunction(() => {
+          return document.body.style.cursor === 'grabbing' || 
+                 document.querySelector('[data-dragging="true"], .dragging') !== null;
+        }, { timeout: 500 }).catch(() => {});
         
         // Move slightly to trigger drag
         await page.mouse.move(x + 50, y + 50, { steps: 5 });
@@ -378,7 +385,11 @@ test.describe('Drag and Drop - Between Timeslots', () => {
           // Drag from source to target
           await page.mouse.move(sourceX, sourceY);
           await page.mouse.down();
-          await page.waitForTimeout(200);
+          // Wait for drag state
+          await page.waitForFunction(() => {
+            return document.body.style.cursor === 'grabbing' ||
+                   document.querySelector('[data-dragging]') !== null;
+          }, { timeout: 500 }).catch(() => {});
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/13-dragging-slot.png`,
@@ -386,7 +397,11 @@ test.describe('Drag and Drop - Between Timeslots', () => {
           });
           
           await page.mouse.move(targetX, targetY, { steps: 15 });
-          await page.waitForTimeout(200);
+          // Wait for drop target to be ready
+          await page.waitForFunction(() => {
+            const dropTarget = document.querySelector('[data-droppable-id], .drop-target');
+            return dropTarget !== null;
+          }, { timeout: 500 }).catch(() => {});
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/14-over-target-slot.png`,
@@ -394,7 +409,9 @@ test.describe('Drag and Drop - Between Timeslots', () => {
           });
           
           await page.mouse.up();
-          await page.waitForTimeout(500);
+          await page.waitForFunction(() => {
+            return document.body.style.cursor !== 'grabbing' && !document.body.classList.contains('dragging');
+          }, { timeout: 1000 }).catch(() => {});
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/15-after-slot-swap.png`,
@@ -425,7 +442,11 @@ test.describe('Drag and Drop - Between Timeslots', () => {
       });
       
       await firstIcon.click();
-      await page.waitForTimeout(300);
+      // Wait for change mode to activate
+      await page.waitForFunction(() => {
+        return document.body.classList.contains('change-mode') ||
+               document.querySelector('[data-mode="change"]') !== null;
+      }, { timeout: 1000 }).catch(() => {});
       
       await page.screenshot({ 
         path: `${SCREENSHOT_DIR}/17-change-mode-active.png`,
@@ -464,7 +485,10 @@ test.describe('Drag and Drop - Conflict Detection', () => {
       const firstError = errorIndicators.first();
       await firstError.scrollIntoViewIfNeeded();
       await firstError.hover();
-      await page.waitForTimeout(300);
+      // Wait for tooltip or error details to appear
+      await page.waitForFunction(() => {
+        return document.querySelector('[role="tooltip"], .tooltip, .error-message') !== null;
+      }, { timeout: 1000 }).catch(() => {});
       
       await page.screenshot({ 
         path: `${SCREENSHOT_DIR}/21-error-details.png`,
@@ -491,7 +515,9 @@ test.describe('Drag and Drop - Conflict Detection', () => {
         // Try to drag and drop on itself
         await page.mouse.move(x, y);
         await page.mouse.down();
-        await page.waitForTimeout(200);
+        await page.waitForFunction(() => {
+          return document.body.style.cursor === 'grabbing';
+        }, { timeout: 500 }).catch(() => {});
         
         // Move in circle and return to same position
         await page.mouse.move(x + 30, y + 30, { steps: 5 });
@@ -503,7 +529,9 @@ test.describe('Drag and Drop - Conflict Detection', () => {
         });
         
         await page.mouse.up();
-        await page.waitForTimeout(300);
+        await page.waitForFunction(() => {
+          return document.body.style.cursor !== 'grabbing' && !document.body.classList.contains('dragging');
+        }, { timeout: 1000 }).catch(() => {});
         
         console.log('Attempted self-drop operation');
       }
@@ -535,7 +563,10 @@ test.describe('Drag and Drop - Conflict Detection', () => {
             subjectBox.y + subjectBox.height / 2
           );
           await page.mouse.down();
-          await page.waitForTimeout(200);
+          await page.waitForFunction(() => {
+            return document.querySelector('[data-dragging]') !== null ||
+                   document.body.style.cursor === 'grabbing';
+          }, { timeout: 500 }).catch(() => {});
           
           await page.mouse.move(
             slotBox.x + slotBox.width / 2,
@@ -549,7 +580,10 @@ test.describe('Drag and Drop - Conflict Detection', () => {
           });
           
           await page.mouse.up();
-          await page.waitForTimeout(500);
+          // Wait for error state to appear
+          await page.waitForFunction(() => {
+            return document.querySelector('[data-testid*="Error"], .error, .conflict') !== null;
+          }, { timeout: 2000 }).catch(() => {});
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/25-after-conflict-attempt.png`,
@@ -624,7 +658,10 @@ test.describe('Drag and Drop - Lock State Behavior', () => {
             subjectBox.y + subjectBox.height / 2
           );
           await page.mouse.down();
-          await page.waitForTimeout(200);
+          await page.waitForFunction(() => {
+            return document.body.style.cursor === 'grabbing' ||
+                   document.querySelector('[data-dragging]') !== null;
+          }, { timeout: 500 }).catch(() => {});
           
           await page.mouse.move(
             lockedBox.x + lockedBox.width / 2,
@@ -638,7 +675,9 @@ test.describe('Drag and Drop - Lock State Behavior', () => {
           });
           
           await page.mouse.up();
-          await page.waitForTimeout(500);
+          await page.waitForFunction(() => {
+            return document.body.style.cursor !== 'grabbing' && !document.body.classList.contains('dragging');
+          }, { timeout: 1000 }).catch(() => {});
           
           await page.screenshot({ 
             path: `${SCREENSHOT_DIR}/34-after-locked-drop-reject.png`,
@@ -676,7 +715,10 @@ test.describe('Drag and Drop - Lock State Behavior', () => {
         // Try to drag locked slot
         await page.mouse.move(x, y);
         await page.mouse.down();
-        await page.waitForTimeout(200);
+        await page.waitForFunction(() => {
+          return document.body.style.cursor === 'grabbing' ||
+                 document.querySelector('[data-dragging]') !== null;
+        }, { timeout: 500 }).catch(() => {});
         
         await page.mouse.move(x + 50, y + 50, { steps: 5 });
         
@@ -739,7 +781,9 @@ test.describe('Drag and Drop - Student Arrange Page', () => {
       
       // Select a class
       await classSelector.click();
-      await page.waitForTimeout(300);
+      await page.waitForFunction(() => {
+        return document.activeElement !== document.body;
+      }, { timeout: 1000 }).catch(() => {});
       
       await page.screenshot({ 
         path: `${SCREENSHOT_DIR}/53-class-dropdown.png`,
@@ -749,7 +793,11 @@ test.describe('Drag and Drop - Student Arrange Page', () => {
       // Select first option if available
       await page.keyboard.press('ArrowDown');
       await page.keyboard.press('Enter');
-      await page.waitForTimeout(500);
+      
+      // Wait for class data to load
+      await page.waitForFunction(() => {
+        return document.querySelectorAll('[data-sortable-id], .subject-item').length > 0;
+      }, { timeout: 3000 }).catch(() => {});
       
       await page.screenshot({ 
         path: `${SCREENSHOT_DIR}/54-after-class-select.png`,
@@ -793,7 +841,9 @@ test.describe('Drag and Drop - Performance & Edge Cases', () => {
           await page.mouse.down();
           await page.mouse.move(x + 50, y + 50, { steps: 3 });
           await page.mouse.up();
-          await page.waitForTimeout(100);
+          await page.waitForFunction(() => {
+            return document.body.style.cursor !== 'grabbing';
+          }, { timeout: 300 }).catch(() => {});
         }
       }
       
@@ -819,7 +869,9 @@ test.describe('Drag and Drop - Performance & Edge Cases', () => {
         
         await page.mouse.move(x, y);
         await page.mouse.down();
-        await page.waitForTimeout(200);
+        await page.waitForFunction(() => {
+          return document.body.style.cursor === 'grabbing';
+        }, { timeout: 500 }).catch(() => {});
         
         // Drag far outside viewport
         await page.mouse.move(10, 10, { steps: 10 });
@@ -830,9 +882,15 @@ test.describe('Drag and Drop - Performance & Edge Cases', () => {
         });
         
         await page.mouse.up();
-        await page.waitForTimeout(300);
+        await page.waitForFunction(() => {
+          return !document.body.classList.contains('dragging');
+        }, { timeout: 1000 }).catch(() => {});
         
-        await page.screenshot({ 
+        await page.waitForFunction(() => {
+          return document.querySelector('[data-testid*="Error"], .error, .conflict') !== null;
+        }, { timeout: 2000 }).catch(() => {});
+        
+        await page.screenshot({
           path: `${SCREENSHOT_DIR}/63-after-outside-drop.png`,
           fullPage: true 
         });

@@ -101,9 +101,11 @@ export function TimetableGrid({
   // Generate period numbers (1, 2, 3, ...)
   const periods = Array.from({ length: periodsPerDay }, (_, i) => i + 1);
 
-  // Check if period is a break
-  const isBreakPeriod = (periodNum: number): boolean => {
-    return periodNum === breakSlots?.junior || periodNum === breakSlots?.senior;
+  // Check if timeslot is a break period based on Breaktime field
+  const isBreakSlot = (timeslot: TimeslotData): boolean => {
+    // Check if timeslot has Breaktime field that is not NOT_BREAK
+    const breaktime = (timeslot as unknown as { Breaktime?: string }).Breaktime;
+    return breaktime !== undefined && breaktime !== 'NOT_BREAK';
   };
 
   return (
@@ -158,8 +160,6 @@ export function TimetableGrid({
         <Box sx={{ p: 2 }}>
           <Stack spacing={2}>
             {periods.map(periodNum => {
-              const isBreak = isBreakPeriod(periodNum);
-              
               return (
                 <Grid container spacing={1} key={periodNum}>
                   {/* Period Number */}
@@ -175,7 +175,7 @@ export function TimetableGrid({
                     >
                       <Chip
                         label={periodNum}
-                        color={isBreak ? 'warning' : 'default'}
+                        color="default"
                         variant="outlined"
                         sx={{
                           fontWeight: 'bold',
@@ -217,6 +217,7 @@ export function TimetableGrid({
                     };
                     const isLocked = lockedTimeslots?.has(timeslot.TimeslotID) || false;
                     const isSelected = selectedTimeslotID === timeslot.TimeslotID;
+                    const isBreak = isBreakSlot(timeslot);
                     
                     // Determine validation state from conflict severity
                     const validationState = conflicts.hasConflict

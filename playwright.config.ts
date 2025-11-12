@@ -75,9 +75,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: process.env.SKIP_WEBSERVER ? undefined : {
-    command: 'pnpm dev',
+    command: 'pnpm dev:e2e',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true, // ✅ Always reuse - prevents port conflicts
     timeout: 120 * 1000,
     stdout: 'pipe',  // Changed from 'ignore' to see startup logs
     stderr: 'pipe',

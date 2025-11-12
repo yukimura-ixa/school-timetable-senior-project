@@ -65,7 +65,7 @@ test.describe('Admin: Schedule Assignment - Basic Operations', () => {
   test.beforeEach(async ({ arrangePage }) => {
     // Navigate to arrange page for semester 1/2567
     await arrangePage.navigateTo('1', '2567');
-    await arrangePage.waitForPageReady();
+    // Don't wait for page ready yet - tests will select teacher first
   });
 
   test('should successfully assign subject to empty timeslot', async ({ arrangePage }) => {
@@ -134,10 +134,10 @@ test.describe('Admin: Schedule Assignment - Basic Operations', () => {
   });
 });
 
-test.describe('Admin: Schedule Assignment - Conflict Detection', () => {
+test.describe('Admin: Schedule Assignment - Cross-Semester Navigation', () => {
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo('1', '2567');
-    await arrangePage.waitForPageReady();
+    // Don't wait for page ready yet - tests will select teacher first
   });
 
   test('should detect teacher double-booking conflict', async ({ arrangePage }) => {
@@ -223,7 +223,7 @@ test.describe('Admin: Schedule Assignment - Conflict Detection', () => {
 test.describe('Admin: Schedule Assignment - Timeslot Locking', () => {
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo('1', '2567');
-    await arrangePage.waitForPageReady();
+    // Don't wait for page ready yet - tests will select teacher first
   });
 
   test('should lock timeslot for school-wide activity', async ({ arrangePage }) => {
@@ -270,7 +270,7 @@ test.describe('Admin: Schedule Assignment - Timeslot Locking', () => {
 test.describe('Admin: Schedule Assignment - Export Functionality', () => {
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo('1', '2567');
-    await arrangePage.waitForPageReady();
+    // Don't wait for page ready yet - tests will select teacher first
   });
 
   test('should export schedule to Excel', async ({ arrangePage, page }) => {
@@ -400,7 +400,7 @@ test.describe('Admin: Schedule Assignment - Cross-Semester Navigation', () => {
 test.describe('Admin: Schedule Assignment - Performance', () => {
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo('1', '2567');
-    await arrangePage.waitForPageReady();
+    // Don't wait for page ready yet - tests will select teacher first
   });
 
   test('should handle multiple rapid assignments efficiently', async ({ arrangePage }) => {

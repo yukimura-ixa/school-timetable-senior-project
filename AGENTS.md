@@ -1175,6 +1175,18 @@ const { default: jsPDF } = await import('jspdf');
 ---
 
 ## 12. Testing Best Practices
+### 12.0 Rules of Engagement (agents)
+1) Choose the lowest test level that proves the behavior:
+   - Unit for pure logic, schemas, selectors.
+   - Integration for UI ↔ data boundaries (React component + server action, repo + DB).
+   - E2E only for critical journeys (auth, timetable CRUD, conflict resolution, export).
+   Rationale: test pyramid/trophy = lots of unit/integration, few E2E. (Higher layers are slower and flakier.)
+2) No `waitForTimeout()` in E2E except in `visual-inspection.spec.ts`.
+3) Before adding a new E2E spec, ask: can a contract test (Pact) or an integration test prove this?
+4) Every E2E action must use locator assertions (`expect(...).toBeVisible()/toBeEnabled()`) before click/press.
+5) Keep E2E specs short, outcome-based, and tagged in the title: `[journey]`, `[smoke]`, `[a11y]`, `[visual]`, `[contract]`.
+6) CI quality gates: E2E wall time ≤ 15 min, flake rate < 2%. If exceeded, downshift tests or fix root causes.
+7) Prefer realistic DB in tests using Testcontainers (integration) over adding more E2E permutations.
 
 ### Unit Testing Strategy
 
@@ -1307,6 +1319,81 @@ await page.waitForTimeout(3000); // Brittle!
 await page.locator('[data-testid="submit-button"]').click();
 ```
 
+### E2E Reliability Patterns (November 2025)
+
+Use these standardized patterns to reduce flakiness. Prefer them over time-based waits or broad `networkidle` waits.
+
+- Safe interaction: assert visibility/enabled before click
+  ```ts
+  const submit = page.getByRole('button', { name: /บันทึก|save/i });
+  await expect(submit).toBeVisible({ timeout: 5000 });
+  await expect(submit).toBeEnabled();
+  await submit.click();
+  ```
+
+- Navigation readiness: target key selectors instead of `networkidle`
+  ```ts
+  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('table, main, [role="main"]', { timeout: 10000 });
+  ```
+
+- Debounced search/filter: rely on retries with `expect().toPass()`
+  ```ts
+  await page.fill('input[placeholder*="ค้นหา"]', 'นาย');
+  await expect(async () => {
+    expect(page.url()).toContain('search=นาย');
+  }).toPass({ timeout: 3000 });
+  ```
+
+- Table/data update: wait for meaningful DOM change
+  ```ts
+  const initial = await page.locator('table tbody tr').count();
+  await page.waitForFunction((prev) => {
+    const rows = document.querySelectorAll('table tbody tr').length;
+    return rows !== prev || rows === 0;
+  }, initial, { timeout: 3000 }).catch(() => {});
+  ```
+
+- Modal flow: assert dialog appears and closes deterministically
+  ```ts
+  await openButton.click();
+  const modal = page.locator('[role="dialog"], .modal');
+  await expect(modal).toBeVisible({ timeout: 5000 });
+  await cancelButton.click();
+  await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length === 0, { timeout: 2000 }).catch(() => {});
+  await expect(modal).not.toBeVisible();
+  ```
+
+- MUI selects: wait for enabled state before opening
+  ```ts
+  await page.waitForSelector('#grade-select:not(.Mui-disabled)', { timeout: 10000 });
+  await page.locator('#grade-select').click();
+  await page.waitForSelector('[role="listbox"]', { timeout: 5000 });
+  ```
+
+- DnD stability (@dnd-kit): verify drag/finish state, not time
+  ```ts
+  await expect(source).toBeVisible();
+  await expect(target).toBeVisible();
+  await page.mouse.down();
+  await page.waitForFunction(() => document.body.style.cursor === 'grabbing' || document.querySelector('[data-dragging]'), { timeout: 1000 }).catch(() => {});
+  await page.mouse.up();
+  await page.waitForFunction(() => document.body.style.cursor !== 'grabbing' && !document.body.classList.contains('dragging'), { timeout: 1000 }).catch(() => {});
+  ```
+
+Anti-patterns to avoid:
+- `waitForTimeout()` (except manual `visual-inspection.spec.ts`)
+- Blind `page.click()` without visibility/enabled checks
+- Blanket `waitForLoadState('networkidle')` for UI readiness
+- Assertions that assume immediate DOM updates after actions
+
+E2E Reliability Metrics (Nov 2025):
+- Phase A: 210/210 functional `waitForTimeout` calls removed (100%)
+- Phase B Session 1: Public + Arrange flows stabilized; DnD `networkidle` reduced
+- Phase B Session 2: Management CRUD replacing 12+ `networkidle` calls
+  - Estimated reliability improvement: +40–50% pass rate
+  - Expected runtime reduction: 30–40%
+
 ### Test Coverage Goals
 
 **Target Coverage:**
@@ -1322,6 +1409,100 @@ await page.locator('[data-testid="submit-button"]').click();
 3. Authentication and authorization
 4. Happy paths for each user role
 5. Error handling and edge cases
+
+### 12.1 Playwright “paved road” config (drop-in)
+```
+// playwright.config.ts
+import { defineConfig, devices } from '@playwright/test';
+export default defineConfig({
+  testDir: './e2e',
+  reporter: [['html'], ['list']],
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  fullyParallel: true,
+  workers: process.env.CI ? undefined : '50%',
+  use: {
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+    trace: 'on-first-retry',        // capture traces only when needed
+    video: 'on-first-retry',
+    screenshot: 'only-on-failure',
+  },
+  webServer: {
+    command: 'pnpm run start',      // or 'next start'
+    url: 'http://localhost:3000',
+    timeout: 120_000,
+    reuseExistingServer: !process.env.CI,
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+});
+// Why: official guidance recommends retries  trace on first retry; webServer  reuseExistingServer stabilizes runs locally and in CI.
+```
+
+### 12.2 Test taxonomy & naming
+Place files under:
+```
+e2e/
+  01-auth/…               // [journey] login/logout/password reset
+  02-setup/…              // [journey] year/term, import teachers/rooms/subjects
+  03-timetable-core/…     // [journey] create class, DnD place block, resolve conflict
+  04-bulk-ops/…           // [journey] copy week, auto-generate → tweak
+  05-permissions/…        // [journey] role boundaries
+  06-export/…             // [journey] PDF/Excel
+  a11y/…                  // [a11y] axe scans (smoke-level)
+  visual/…                // [visual] targeted screenshots for critical pages
+```
+Add tags in test titles, e.g. `test('[journey] create class and save', …)` so agents can run subsets via `--grep`.
+
+### 12.3 a11y smoke with axe
+```
+// e2e/a11y/dashboard-a11y.spec.ts
+import { test, expect } from '@playwright/test';
+import { AxeBuilder } from '@axe-core/playwright';
+test('[a11y] dashboard has no critical violations', async ({ page }) => {
+  await page.goto('/dashboard/1-2567/teacher-table');
+  const results = await new AxeBuilder({ page }).analyze();
+  const critical = results.violations.filter(v => v.impact === 'critical');
+  expect.soft(critical, JSON.stringify(critical, null, 2)).toHaveLength(0);
+});
+// Why: official Playwright  axe-core flow for automatically detectable issues.
+```
+### 12.4 Visual checks for critical chrome
+```
+// e.g., header, timetable grid, export dialog
+import { test, expect } from '@playwright/test';
+test('[visual] timetable grid renders baseline', async ({ page }) => {
+  await page.goto('/dashboard/1-2567/assign');
+  await expect(page).toHaveScreenshot(); // baseline once, review diffs in PRs
+});
+// Optional: use Percy when baselines need to live in the cloud at scale.
+```
+
+### 12.5 Contract tests instead of brittle E2E
+```
+// pact tests live in __contracts__/ and run in CI before E2E
+// Replace matrixed “client↔API” E2E with Pact contracts for stable boundaries.
+// Agents: write Pact tests when adding/changing API endpoints; keep 1 happy-path E2E per endpoint.
+```
+### 12.6 DB integration via Testcontainers (Node)
+```
+// For repository/service tests, spin up Postgres with Testcontainers.
+// Agents: prefer this to mocking Prisma for behavior that depends on SQL semantics or constraints.
+// See runbook: `pnpm test:integration` starts containers locally and in CI (GitHub Actions supports Docker).
+```
+### 12.7 Agent checklists (per PR)
+**Plan**
+- Which level(s)? Why the lowest possible?
+- Data: seeded IDs or containerized DB?
+- For E2E: which `[journey]` is covered and why only 1–2 permutations?
+**Implementation**
+- Locator-based waits only; no `waitForTimeout`.
+- Traces/videos/screenshots only on failure.
+- a11y smoke added for new pages; visual baselines for critical chrome.
+**Validation**
+- CI green under 15 min E2E wall time; re-run flaky spec locally with `--debug` and trace viewer.
+- If flake recurs, file an issue and downshift the test.
 
 ---
 

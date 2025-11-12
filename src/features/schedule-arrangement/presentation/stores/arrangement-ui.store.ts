@@ -21,6 +21,7 @@ import type {
   TimeslotChange,
   BreakSlotData,
   DayOfWeekDisplay,
+  TimeslotErrorStateMap,
 } from '@/types/schedule.types';
 
 // ============================================================================
@@ -30,13 +31,8 @@ import type {
 // Phase 1: All main types imported from @/types/schedule.types
 // Local definitions removed to avoid conflicts
 
-/**
- * Error display state by timeslot
- * Legacy type - TODO: migrate to TimeslotErrorState from schedule.types.ts
- */
-export interface ErrorState {
-  [timeslotID: string]: boolean;
-}
+// Issue #108: Migrated ErrorState → TimeslotErrorStateMap (from schedule.types.ts)
+// Future optimization: Consider migrating to Set-based TimeslotErrorState for O(1) lookups
 
 // ============================================================================
 // Store State Interface
@@ -76,8 +72,8 @@ interface ArrangementUIState {
   subjectPayload: SubjectPayload | null; // Changed to nullable
 
   // === Error & Lock Display ===
-  showErrorMsgByTimeslotID: ErrorState;
-  showLockDataMsgByTimeslotID: ErrorState;
+  showErrorMsgByTimeslotID: TimeslotErrorStateMap;
+  showLockDataMsgByTimeslotID: TimeslotErrorStateMap;
 
   // === Save State ===
   isSaving: boolean;

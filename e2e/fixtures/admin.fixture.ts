@@ -39,10 +39,10 @@ type AdminFixtures = {
    */
   arrangePage: ArrangePage;
 
-  // TODO: Add more POMs as they're created
-  // teacherManagementPage: TeacherManagementPage;
-  // subjectManagementPage: SubjectManagementPage;
-  // classroomManagementPage: ClassroomManagementPage;
+  // Pattern for adding new POMs:
+  // 1. Create POM class in e2e/page-objects/ extending BasePage
+  // 2. Add type to AdminFixtures interface
+  // 3. Add fixture factory below using authenticatedAdmin.page
 };
 
 /**
@@ -83,12 +83,20 @@ export const test = base.extend<AdminFixtures>({
     await use(pageObj);
   },
 
-  // TODO: Add more POM fixtures as they're created
-  // Example:
-  // teacherManagementPage: async ({ authenticatedAdmin }, use) => {
-  //   const teacherPage = new TeacherManagementPage(authenticatedAdmin.page);
-  //   await use(teacherPage);
-  // },
+  /**
+   * Pattern for adding new POM fixtures (Issue #110):
+   * 
+   * Example - Teacher Management Page:
+   * ```typescript
+   * teacherManagementPage: async ({ authenticatedAdmin }, use) => {
+   *   const page = new TeacherManagementPage(authenticatedAdmin.page);
+   *   await use(page);
+   * },
+   * ```
+   * 
+   * All POMs automatically inherit authenticated session from authenticatedAdmin fixture.
+   * No manual auth needed - handled by auth.setup.ts + storageState.
+   */
 });
 
 /**
@@ -97,40 +105,60 @@ export const test = base.extend<AdminFixtures>({
 export { expect };
 
 /**
- * Helper: Create session storage state for reuse
+ * ============================================================================
+ * AUTHENTICATION ARCHITECTURE (Issue #110 - CONSOLIDATED)
+ * ============================================================================
  * 
- * This can be used to save authentication state and reuse it across tests,
- * avoiding repeated sign-in operations.
+ * ## How Authentication Works in E2E Tests
  * 
- * Usage:
- *   // In global setup (playwright.global-setup.ts):
- *   await createAdminAuthState('./e2e/.auth/admin.json');
- *   
- *   // In test:
- *   test.use({ storageState: './e2e/.auth/admin.json' });
+ * ### 1. Setup Phase (Automatic)
+ * File: `e2e/auth.setup.ts`
+ * - Runs ONCE before all tests (configured in playwright.config.ts)
+ * - Navigates to /signin and clicks Dev Bypass button (data-testid="dev-bypass-button")
+ * - Pre-selects semester 1-2567 via URL navigation (/dashboard/1-2567)
+ * - Saves authenticated state + localStorage to `playwright/.auth/admin.json`
+ * - Total runtime: ~3-5 seconds
+ * 
+ * ### 2. Test Execution (Automatic)
+ * All tests in the 'chromium' project automatically:
+ * - Load saved auth state from playwright/.auth/admin.json
+ * - Start with valid admin session (email: admin@test.local, role: admin)
+ * - Have semester 1-2567 pre-selected in localStorage
+ * - NO MANUAL AUTH NEEDED in individual tests
+ * 
+ * ### 3. When to Use Manual Auth
+ * ONLY use manual auth flows (page.goto('/signin')) in these cases:
+ * - Testing the signin page itself (e.g., admin-auth-flow.spec.ts)
+ * - Testing signout functionality
+ * - Testing auth error states (invalid credentials, session expiry)
+ * - Testing role-based access control (need different user roles)
+ * 
+ * For ALL other tests, authentication is handled automatically via storageState.
+ * 
+ * ### 4. Environment Configuration
+ * Required in .env.test:
+ * ```
+ * ENABLE_DEV_BYPASS=true
+ * DEV_USER_ID=1
+ * DEV_USER_EMAIL=admin@test.local
+ * DEV_USER_NAME=E2E Admin
+ * DEV_USER_ROLE=admin
+ * ```
+ * 
+ * ### 5. Troubleshooting
+ * If tests fail with auth errors:
+ * 1. Check that auth.setup.ts ran successfully (see test output)
+ * 2. Verify playwright/.auth/admin.json exists
+ * 3. Check .env.test has ENABLE_DEV_BYPASS=true
+ * 4. Delete playwright/.auth/admin.json and re-run tests (will regenerate)
+ * 
+ * ## References
+ * - Playwright Auth Guide: https://playwright.dev/docs/auth
+ * - Auth.js Testing: https://authjs.dev/guides/testing
+ * - Issue #110: E2E fixture consolidation
+ * - Phase B: E2E Test Reliability Foundation (Issue #112)
+ * ============================================================================
  */
-export async function createAdminAuthState(outputPath: string): Promise<void> {
-  const { chromium } = await import('@playwright/test');
-  const browser = await chromium.launch();
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  
-  // Navigate and authenticate
-  await page.goto('/signin');
-  
-  // TODO: Implement actual auth flow
-  console.warn('⚠️  Manual authentication required for state creation');
-  console.warn('   Sign in with: admin@school.local / admin123');
-  
-  // Wait for successful auth
-  await page.waitForURL(url => !url.toString().includes('/signin'), { timeout: 60000 });
-  
-  // Save storage state
-  await context.storageState({ path: outputPath });
-  
-  await browser.close();
-  console.log(`✅ Admin auth state saved to ${outputPath}`);
-}
 
 /**
  * Example usage in tests:

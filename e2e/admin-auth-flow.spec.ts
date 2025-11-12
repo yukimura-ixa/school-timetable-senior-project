@@ -2,7 +2,17 @@ import { test, expect } from '@playwright/test';
 
 /**
  * E2E Test: Admin Authentication Flow
- * Tests the complete admin login flow and dashboard access
+ * 
+ * ⚠️ IMPORTANT: This test file intentionally uses MANUAL authentication flows
+ * (page.goto('/signin'), manual form fill, etc.) because it's specifically
+ * testing the authentication functionality itself.
+ * 
+ * Most other E2E tests should NOT use manual auth - they automatically receive
+ * an authenticated session via auth.setup.ts and storageState.
+ * 
+ * See e2e/fixtures/admin.fixture.ts for authentication architecture details.
+ * 
+ * Related: Issue #110 (E2E fixture consolidation), Issue #112 (Phase B)
  */
 
 test.describe('Admin Authentication Flow', () => {
@@ -47,9 +57,6 @@ test.describe('Admin Authentication Flow', () => {
 
     // Click sign-in button
     await page.getByRole('button', { name: /^เข้าสู่ระบบ$/i }).click();
-
-    // Wait a bit for error to appear
-    await page.waitForTimeout(1000);
 
     // Check for error message (Thai: "อีเมลหรือรหัสผ่านไม่ถูกต้อง")
     await expect(page.getByText(/อีเมลหรือรหัสผ่านไม่ถูกต้อง/)).toBeVisible();
@@ -169,7 +176,8 @@ test.describe('Visual UI Checks', () => {
     for (const pagePath of pages) {
       await page.goto(pagePath);
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(1000); // Allow React hydration
+      // Wait for React hydration by checking for interactive content
+      await page.waitForLoadState('domcontentloaded');
     }
 
     // Report any console errors found
@@ -199,7 +207,6 @@ test.describe('Visual UI Checks', () => {
     for (const { path, name } of pages) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
       
       // Take screenshot
       await page.screenshot({ 

@@ -100,9 +100,8 @@ test.describe('Public Teachers Data API', () => {
     if (await searchInput.isVisible()) {
       // Type a search term
       await searchInput.fill('Math');
-      await page.waitForTimeout(600); // Wait for debounce
       
-      // Verify search results updated (client-side filtering)
+      // Wait for debounced search results to update
       await expect(async () => {
         const content = await page.getByTestId('teacher-list').textContent();
         expect(content?.toLowerCase()).toContain('math');

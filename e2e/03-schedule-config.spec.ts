@@ -19,7 +19,8 @@ test.describe('Timetable Configuration', () => {
 
   test('TC-007-01: Schedule semester selector loads', async ({ page }) => {
     await nav.goToScheduleSelector();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForSelector('main, [role="main"], nav, header', { timeout: 10000 });
     
     // Take screenshot
     await page.screenshot({ 
@@ -38,7 +39,8 @@ test.describe('Timetable Configuration', () => {
     
     try {
       await nav.goToConfig(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForSelector('main, [role="main"], table, form', { timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -72,7 +74,8 @@ test.describe('Timetable Configuration', () => {
     
     try {
       await nav.goToConfig(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForSelector('form, [role="form"], input, select, textarea', { timeout: 10000 });
       
       // Look for input fields and controls
       const inputs = await page.locator('input, select, textarea').count();
@@ -104,7 +107,8 @@ test.describe('Schedule Assignment', () => {
     
     try {
       await nav.goToAssign(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForSelector('main, [role="main"], table, [data-testid="teacher-select"]', { timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -129,7 +133,8 @@ test.describe('Schedule Assignment', () => {
     
     try {
       await nav.goToAssign(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
+      await page.waitForSelector('select, [role="combobox"], [data-testid="teacher-select"]', { timeout: 10000 });
       
       // Look for teacher selection dropdown or list
       const teacherSelector = page.locator('select, [role="combobox"], [data-testid="teacher-select"]').first();

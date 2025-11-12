@@ -82,6 +82,13 @@ async function waitForDatabase(maxAttempts = 30): Promise<boolean> {
  */
 async function globalSetup() {
   console.log('\n🔧 E2E Test Setup: Initializing test environment...\n');
+  
+  // Verify .env.local was created by prepare-e2e-env script
+  const envLocalPath = path.resolve(__dirname, '.env.local');
+  if (!fs.existsSync(envLocalPath)) {
+    console.warn('⚠️  .env.local not found - run `node scripts/prepare-e2e-env.js` first\n');
+  }
+  
   // Surface key auth-related env for debugging (masked)
   if (process.env.AUTH_SECRET) {
     console.log('   AUTH_SECRET checksum:', Buffer.from(process.env.AUTH_SECRET).toString('base64').slice(0, 8) + '…');

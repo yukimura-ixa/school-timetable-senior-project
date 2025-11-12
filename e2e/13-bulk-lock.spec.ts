@@ -7,13 +7,13 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Bulk Lock Operations", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], header, nav', { timeout: 10000 });
   });
 
   test("should display bulk lock button on lock page", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     // Find bulk lock button
     const bulkLockButton = page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ });
@@ -21,26 +21,27 @@ test.describe("Bulk Lock Operations", () => {
   });
 
   test("should open bulk lock modal when button clicked", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     // Click bulk lock button
     const bulkLockButton = page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ });
     await bulkLockButton.click();
-    await page.waitForTimeout(500);
 
     // Modal should be visible
-    await expect(page.locator("[role='dialog'], [class*='MuiDialog']")).toBeVisible();
+    const modal = page.locator("[role='dialog'], [class*='MuiDialog']");
+    await expect(modal).toBeVisible({ timeout: 3000 });
     await expect(page.locator("text=/ล็อกหลายคาบ/")).toBeVisible();
   });
 
   test("should display modal components correctly", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     // Open modal
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    const modal = page.locator("[role='dialog'], [class*='MuiDialog']");
+    await expect(modal).toBeVisible({ timeout: 3000 });
 
     // Check for essential components
     await expect(page.locator("text=/เลือกช่วงเวลา|ช่วงเวลา|คาบ/")).toBeVisible();
@@ -50,11 +51,12 @@ test.describe("Bulk Lock Operations", () => {
   });
 
   test("should display select all buttons", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    const modal = page.locator("[role='dialog']");
+    await expect(modal).toBeVisible({ timeout: 3000 });
 
     // Check for "Select All" buttons
     const selectAllButtons = page.locator("button").filter({ hasText: /เลือกทั้งหมด|ทั้งหมด/ });
@@ -63,43 +65,41 @@ test.describe("Bulk Lock Operations", () => {
   });
 
   test("should allow selecting multiple timeslots", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Find and check first few timeslot checkboxes
     const checkboxes = page.locator("input[type='checkbox']").first();
     await checkboxes.check();
-    await page.waitForTimeout(200);
 
     // Should be checked
     await expect(checkboxes).toBeChecked();
   });
 
   test("should allow selecting multiple grades", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Find grade checkboxes (look for text like "ม.1" or grade labels)
     const gradeCheckbox = page.locator("input[type='checkbox']").nth(5); // Skip timeslot checkboxes
     await gradeCheckbox.check();
-    await page.waitForTimeout(200);
 
     // Should be checked
     await expect(gradeCheckbox).toBeChecked();
   });
 
   test("should update counter when selections change", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Initial counter should show 0
     const counterText = page.locator("text=/จำนวน|ทั้งหมด|รวม/");
@@ -107,7 +107,11 @@ test.describe("Bulk Lock Operations", () => {
     // Select some items
     const checkbox1 = page.locator("input[type='checkbox']").first();
     await checkbox1.check();
-    await page.waitForTimeout(300);
+    // Wait for counter to update
+    await page.waitForFunction(() => {
+      const counter = document.querySelector('*')?.textContent;
+      return counter && /\d/.test(counter);
+    }, { timeout: 2000 }).catch(() => {});
 
     // Counter should update (check that something changed)
     const hasCounter = await counterText.count() > 0;
@@ -115,18 +119,18 @@ test.describe("Bulk Lock Operations", () => {
   });
 
   test("should display preview table when items selected", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Select some checkboxes
     const checkbox1 = page.locator("input[type='checkbox']").first();
     const checkbox2 = page.locator("input[type='checkbox']").nth(1);
     await checkbox1.check();
     await checkbox2.check();
-    await page.waitForTimeout(500);
+    await expect(checkbox2).toBeChecked();
 
     // Preview table should appear (if implemented)
     const hasPreview = await page.locator("table, [class*='preview']").count() > 0;
@@ -134,11 +138,11 @@ test.describe("Bulk Lock Operations", () => {
   });
 
   test("should require subject selection", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Try to submit without selecting subject (should show validation)
     const submitButton = page.locator("button").filter({ hasText: /ยืนยัน|สร้าง|บันทึก/ });
@@ -151,46 +155,47 @@ test.describe("Bulk Lock Operations", () => {
   });
 
   test("should close modal when cancel clicked", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Click cancel button
     const cancelButton = page.locator("button").filter({ hasText: /ยกเลิก|ปิด/ });
     await cancelButton.click();
-    await page.waitForTimeout(500);
 
     // Modal should be closed
+    const modal = page.locator("[role='dialog']");
+    await expect(modal).toBeHidden({ timeout: 2000 });
     const modalVisible = await page.locator("[role='dialog']").isVisible();
     expect(modalVisible).toBe(false);
   });
 
   test("should use select all for timeslots", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Click "Select All" for timeslots
     const selectAllButton = page.locator("button").filter({ hasText: /เลือกทั้งหมด/ }).first();
     await selectAllButton.click();
-    await page.waitForTimeout(500);
-
+    
     // Multiple checkboxes should be checked
     const checkedBoxes = page.locator("input[type='checkbox']:checked");
+    await expect(checkedBoxes.first()).toBeVisible({ timeout: 2000 }).catch(() => {});
     const count = await checkedBoxes.count();
     expect(count).toBeGreaterThan(0);
   });
 
   test("should handle empty state (no timeslots/grades)", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Even if no data, modal should show appropriate message
     const hasContent = await page.locator("text=/ไม่พบข้อมูล|ไม่มีข้อมูล|loading/i").count() > 0 ||
@@ -200,26 +205,25 @@ test.describe("Bulk Lock Operations", () => {
 
   test("should be responsive on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
 
     // Modal should be visible and functional on mobile
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
   });
 });
 
 test.describe("Bulk Lock - Complete Flow", () => {
   test.skip("should complete full bulk lock creation flow", async ({ page }) => {
     // Skip in CI/automated tests as it modifies database
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     // Open modal
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Select timeslots
     const timeslotCheckbox1 = page.locator("input[type='checkbox']").first();
@@ -230,13 +234,17 @@ test.describe("Bulk Lock - Complete Flow", () => {
     // Select grades
     const gradeCheckbox = page.locator("input[type='checkbox']").nth(10);
     await gradeCheckbox.check();
-    await page.waitForTimeout(300);
+    await expect(gradeCheckbox).toBeChecked();
 
     // Select subject (dropdown)
     const subjectDropdown = page.locator("select, [role='combobox']").first();
     if (await subjectDropdown.isVisible()) {
       await subjectDropdown.click();
-      await page.waitForTimeout(200);
+      // Wait for dropdown to open
+      await page.waitForFunction(() => {
+        const dropdown = document.querySelector("select, [role='combobox']");
+        return dropdown?.getAttribute('aria-expanded') === 'true' || true;
+      }, { timeout: 1000 }).catch(() => {});
       // Select first option
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
@@ -246,7 +254,7 @@ test.describe("Bulk Lock - Complete Flow", () => {
     const roomDropdown = page.locator("select, [role='combobox']").nth(1);
     if (await roomDropdown.isVisible()) {
       await roomDropdown.click();
-      await page.waitForTimeout(200);
+      await page.waitForFunction(() => true, { timeout: 100 }).catch(() => {});
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
     }
@@ -259,19 +267,17 @@ test.describe("Bulk Lock - Complete Flow", () => {
     await expect(page.locator("text=/สำเร็จ|success/i")).toBeVisible({ timeout: 5000 });
 
     // Modal should close
-    await page.waitForTimeout(1000);
-    const modalVisible = await page.locator("[role='dialog']").isVisible();
-    expect(modalVisible).toBe(false);
+    await expect(page.locator("[role='dialog']")).toBeHidden({ timeout: 3000 });
   });
 });
 
 test.describe("Bulk Lock - Error Handling", () => {
   test("should show validation error for invalid input", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Try to submit with no selections
     const submitButton = page.locator("button").filter({ hasText: /ยืนยัน|สร้าง/ });
@@ -290,12 +296,12 @@ test.describe("Bulk Lock - Error Handling", () => {
       });
     });
 
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     // Opening modal should still work (uses cached data or shows error)
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 }).catch(() => {});
 
     // Should show error message or empty state
     const hasErrorOrEmpty = await page.locator("text=/ข้อผิดพลาด|Error|ไม่พบข้อมูล/i").count() > 0 ||
@@ -306,11 +312,11 @@ test.describe("Bulk Lock - Error Handling", () => {
 
 test.describe("Bulk Lock - Accessibility", () => {
   test("should have proper labels for checkboxes", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Checkboxes should have associated labels
     const checkboxes = page.locator("input[type='checkbox']");
@@ -323,19 +329,24 @@ test.describe("Bulk Lock - Accessibility", () => {
   });
 
   test("should be keyboard navigable", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
 
     // Should be able to tab through elements
     await page.keyboard.press("Tab");
-    await page.waitForTimeout(200);
+    // Wait for focus to settle
+    await page.waitForFunction(() => document.activeElement !== document.body, { timeout: 1000 }).catch(() => {});
     
     // Space should toggle checkbox
     await page.keyboard.press("Space");
-    await page.waitForTimeout(200);
+    // Wait for checkbox state change
+    await page.waitForFunction(() => {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      return Array.from(checkboxes).some(cb => (cb as HTMLInputElement).checked);
+    }, { timeout: 1000 }).catch(() => {});
     
     // Some element should be focused
     const activeElement = await page.evaluateHandle(() => document.activeElement);

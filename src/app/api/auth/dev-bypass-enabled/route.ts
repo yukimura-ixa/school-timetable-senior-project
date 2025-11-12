@@ -9,7 +9,16 @@ import { NextResponse } from "next/server";
  * enable it - the actual bypass logic is server-side only
  */
 export async function GET() {
-  const enabled = process.env.ENABLE_DEV_BYPASS === "true";
+  // Check both prefixed and non-prefixed versions for compatibility
+  const nextPublic = process.env.NEXT_PUBLIC_ENABLE_DEV_BYPASS;
+  const regular = process.env.ENABLE_DEV_BYPASS;
+  const enabled = nextPublic === "true" || regular === "true";
+  
+  console.log('[DEV-BYPASS-API] Environment check:', {
+    NEXT_PUBLIC_ENABLE_DEV_BYPASS: nextPublic,
+    ENABLE_DEV_BYPASS: regular,
+    enabled
+  });
   
   return NextResponse.json({ enabled });
 }

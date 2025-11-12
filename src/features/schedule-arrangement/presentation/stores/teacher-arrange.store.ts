@@ -34,6 +34,7 @@ import type {
   TimeslotChange,
   BreakSlotData,
   DayOfWeekDisplay,
+  TimeslotErrorStateMap,
 } from '@/types/schedule.types';
 
 // ============================================================================
@@ -43,10 +44,9 @@ import type {
 /**
  * Error display state by timeslot
  * Maps timeslot IDs to boolean flags for error/lock visibility
+ * Issue #108: Migrated to TimeslotErrorStateMap from schedule.types.ts
  */
-export interface ErrorState {
-  [timeslotID: string]: boolean;
-}
+// export interface ErrorState removed - using TimeslotErrorStateMap from schedule.types.ts
 
 /**
  * Timeslot container structure
@@ -112,8 +112,8 @@ interface TeacherArrangeState {
   subjectPayload: SubjectPayload | null;
 
   // === Error & Lock Display ===
-  showErrorMsgByTimeslotID: ErrorState;
-  showLockDataMsgByTimeslotID: ErrorState;
+  showErrorMsgByTimeslotID: TimeslotErrorStateMap;
+  showLockDataMsgByTimeslotID: TimeslotErrorStateMap;
 
   // === Save State ===
   isSaving: boolean;

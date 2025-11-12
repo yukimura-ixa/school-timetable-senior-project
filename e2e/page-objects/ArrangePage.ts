@@ -390,7 +390,20 @@ export class ArrangePage extends BasePage {
   async waitForPageReady() {
     await this.waitForPageLoad();
     
-    // Wait for key elements to be visible
+    // Check if teacher selection is required
+    const selectionAlert = this.page.locator('text=กรุณาเลือกครูผู้สอน');
+    const isAlertVisible = await selectionAlert.isVisible({ timeout: 2000 }).catch(() => false);
+    
+    if (isAlertVisible) {
+      // If selection alert is shown, teacher needs to be selected first
+      // Tests should call selectTeacher() before waitForPageReady()
+      console.warn('[ArrangePage] Teacher selection required - please select a teacher before waiting for page ready');
+      // Wait for teacher dropdown to be available
+      await expect(this.teacherDropdown).toBeVisible({ timeout: 5000 });
+      return;
+    }
+    
+    // Wait for key elements to be visible (when teacher is already selected)
     await expect(this.subjectPalette).toBeVisible({ timeout: 10000 });
     await expect(this.timetableGrid).toBeVisible({ timeout: 10000 });
   }

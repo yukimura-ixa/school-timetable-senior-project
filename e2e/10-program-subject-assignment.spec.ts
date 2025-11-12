@@ -13,14 +13,17 @@ import { test, expect } from '@playwright/test';
 test.describe('Program Management Workflow', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the program management page
-    await page.goto('/management/program');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/management/program', { waitUntil: 'domcontentloaded' });
+    
+    // Wait for page content to load
+    await page.waitForSelector('table, button, main', { timeout: 10000 });
   });
 
   test('should create a new program and assign subjects', async ({ page }) => {
     // Step 1: Create a new program
     await test.step('Create new program', async () => {
       const addButton = page.getByRole('button', { name: /add/i });
+      await expect(addButton).toBeVisible({ timeout: 5000 });
       await addButton.click();
 
       // Fill in program details
@@ -106,8 +109,10 @@ test.describe('Program Management Workflow', () => {
 
   test('should assign program to gradelevel', async ({ page }) => {
     await test.step('Navigate to gradelevel management', async () => {
-      await page.goto('/management/gradelevel');
-      await page.waitForLoadState('networkidle');
+      await page.goto('/management/gradelevel', { waitUntil: 'domcontentloaded' });
+      
+      // Wait for gradelevel table to load
+      await page.waitForSelector('table, main', { timeout: 10000 });
     });
 
     await test.step('Assign program to a gradelevel', async () => {
@@ -116,6 +121,7 @@ test.describe('Program Management Workflow', () => {
       
       // Click the program dropdown
       const programSelect = gradelevelRow.getByRole('combobox', { name: /program/i });
+      await expect(programSelect).toBeVisible({ timeout: 5000 });
       await programSelect.click();
 
       // Select the test program

@@ -4,10 +4,16 @@ services:
   postgres-test:
     image: postgres:16
     container_name: timetable-test-db
+    # Bridge network mode for Windows Docker Desktop compatibility
+    # Access via 127.0.0.1:5433 from host
+    network_mode: bridge
     environment:
       POSTGRES_USER: test_user
       POSTGRES_PASSWORD: test_password
       POSTGRES_DB: test_timetable
+      # Optimize for test database usage
+      POSTGRES_MAX_CONNECTIONS: 100
+      POSTGRES_SHARED_BUFFERS: 256MB
     ports:
       - "5433:5432"  # Use 5433 to avoid conflicts with existing PostgreSQL
     volumes:
@@ -17,6 +23,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    # Ensure container restarts on failure
+    restart: unless-stopped
 
 volumes:
   test_db_data:

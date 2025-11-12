@@ -75,21 +75,17 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
       // Select a teacher
       await teacherSelect.selectOption({ index: 1 });
       
-      // Wait for data to load
-      await page.waitForTimeout(1000);
-      
-      // Check that teacher name appears in header
+      // Wait for teacher data to load by checking header update
       const header = page.locator('text=/.*ครู.*/i, text=/.*Teacher.*/i').first();
-      const headerVisible = await header.isVisible().catch(() => false);
+      await expect(header).toBeVisible({ timeout: 5000 });
       
-      console.log(`Teacher selected. Header visible: ${headerVisible}`);
+      // Header is now guaranteed visible
+      console.log('Teacher selected. Header visible: true');
       
       await page.screenshot({
         path: 'test-results/screenshots/refactored-02-teacher-selected.png',
         fullPage: true
       });
-      
-      expect(headerVisible).toBeTruthy();
     } else {
       console.log('Teacher selection not available - skipping test');
       test.skip();
@@ -124,39 +120,34 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
     
-    await page.waitForTimeout(2000);
-    
-    // Check for table/grid structure
+    // Wait for table to be visible
     const table = page.locator('table').first();
-    const tableExists = await table.isVisible().catch(() => false);
+    await expect(table).toBeVisible({ timeout: 5000 });
     
-    if (tableExists) {
-      // Count rows (days)
-      const rows = await page.locator('tbody tr').count();
-      console.log(`Timetable rows (days): ${rows}`);
-      
-      // Count timeslot cells
-      const cells = await page.locator('td').count();
-      console.log(`Timeslot cells: ${cells}`);
-      
-      await page.screenshot({
-        path: 'test-results/screenshots/refactored-04-timetable-grid.png',
-        fullPage: true
-      });
-      
-      expect(rows).toBeGreaterThan(0);
-    } else {
-      console.log('Timetable grid not visible');
-    }
+    // Table is now guaranteed to be visible
+    // Count rows (days)
+    const rows = await page.locator('tbody tr').count();
+    console.log(`Timetable rows (days): ${rows}`);
+    
+    // Count timeslot cells
+    const cells = await page.locator('td').count();
+    console.log(`Timeslot cells: ${cells}`);
+    
+    await page.screenshot({
+      path: 'test-results/screenshots/refactored-04-timetable-grid.png',
+      fullPage: true
+    });
+    
+    expect(rows).toBeGreaterThan(0);
   });
 
   test('E2E-005: Drag and drop interaction (visual check)', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
-    // Find first draggable subject
+    
+    // Wait for draggable subjects to load
     const draggableSubject = page.locator('[draggable="true"]').first();
+    await expect(draggableSubject).toBeVisible({ timeout: 5000 });
     
     if (await draggableSubject.isVisible()) {
       // Get subject position
@@ -173,7 +164,8 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
           // Perform drag and drop using @dnd-kit pattern
           await page.mouse.move(subjectBox.x + subjectBox.width / 2, subjectBox.y + subjectBox.height / 2);
           await page.mouse.down();
-          await page.waitForTimeout(500); // Wait for drag to initiate
+          // Wait for @dnd-kit drag overlay to appear
+          await page.locator('[data-dnd-kit-overlay], [style*="cursor: grabbing"]').waitFor({ state: 'attached', timeout: 2000 }).catch(() => {});
           
           await page.screenshot({
             path: 'test-results/screenshots/refactored-05a-drag-start.png',
@@ -181,7 +173,8 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
           });
           
           await page.mouse.move(dropBox.x + dropBox.width / 2, dropBox.y + dropBox.height / 2, { steps: 10 });
-          await page.waitForTimeout(500);
+          // Wait for drop indicator or hover state
+          await page.locator('td.drop-target, td[data-drop-active], td:hover').first().waitFor({ state: 'attached', timeout: 2000 }).catch(() => {});
           
           await page.screenshot({
             path: 'test-results/screenshots/refactored-05b-drag-over.png',
@@ -189,7 +182,10 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
           });
           
           await page.mouse.up();
-          await page.waitForTimeout(1000);
+          // Wait for drop animation to complete by checking for dropped item or state update
+          await page.waitForFunction(() => {
+            return !document.querySelector('[data-dnd-kit-overlay]');
+          }, { timeout: 2000 }).catch(() => {});
           
           await page.screenshot({
             path: 'test-results/screenshots/refactored-05c-drag-complete.png',
@@ -208,14 +204,15 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
   test('E2E-006: Room selection modal appears', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
-    // Click a subject to select it
+    
+    // Wait for subjects to load
     const subject = page.locator('[draggable="true"]').first();
+    await expect(subject).toBeVisible({ timeout: 5000 });
     
     if (await subject.isVisible()) {
       await subject.click();
-      await page.waitForTimeout(500);
+      // Wait for subject to show selected state (highlighted border, checkmark, etc.)
+      await expect(subject).toHaveClass(/selected|active|highlighted/, { timeout: 2000 }).catch(() => {});
       
       console.log('Subject selected');
       
@@ -224,10 +221,10 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
       
       if (await emptySlot.isVisible()) {
         await emptySlot.click();
-        await page.waitForTimeout(1000);
         
-        // Check if modal appears
+        // Wait for modal to appear
         const modal = page.locator('[role="dialog"], .modal, text=/เลือกห้องเรียน/i, text=/Select Room/i').first();
+        await expect(modal).toBeVisible({ timeout: 3000 }).catch(() => {});
         const modalVisible = await modal.isVisible().catch(() => false);
         
         await page.screenshot({
@@ -247,10 +244,10 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
   test('E2E-007: Save button is present', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
-    // Look for save button (บันทึกข้อมูล)
+    
+    // Wait for save button to appear
     const saveButton = page.locator('button:has-text("บันทึก"), button:has-text("Save")').first();
+    await expect(saveButton).toBeVisible({ timeout: 5000 });
     const buttonExists = await saveButton.isVisible().catch(() => false);
     
     console.log(`Save button visible: ${buttonExists}`);
@@ -279,13 +276,14 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
-    // Interact with the page to trigger store updates
+    
+    // Wait for subjects to load before interaction
     const subject = page.locator('[draggable="true"]').first();
+    await expect(subject).toBeVisible({ timeout: 5000 }).catch(() => {});
     if (await subject.isVisible()) {
       await subject.click();
-      await page.waitForTimeout(500);
+      // Wait for click to be processed by checking for visual feedback
+      await expect(subject).toHaveClass(/selected|active/, { timeout: 2000 }).catch(() => {});
     }
 
     console.log(`Zustand store errors: ${storeErrors.length}`);
@@ -355,8 +353,10 @@ test.describe('Refactored TeacherArrangePage - Conflict Detection', () => {
   test('E2E-011: Locked timeslot indicators', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
+    
+    // Wait for timetable to render before checking for lock icons
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
+    
     // Look for lock icons (locked timeslots)
     const lockIcons = page.locator('[data-testid="lock-icon"]');
     const count = await lockIcons.count();
@@ -372,8 +372,10 @@ test.describe('Refactored TeacherArrangePage - Conflict Detection', () => {
   test('E2E-012: Break time slots styled correctly', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
+    
+    // Wait for timetable to render before checking break slots
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
+    
     // Look for break time indicators
     const breakSlots = page.locator('td').filter({ hasText: /พัก|Break|Lunch/i });
     const count = await breakSlots.count();
@@ -399,8 +401,10 @@ test.describe('Refactored TeacherArrangePage - Conflict Detection', () => {
   test('E2E-013: Conflict indicators appear', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
+    
+    // Wait for timetable to render before checking conflict indicators
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
+    
     // Look for conflict indicators (error icons, red borders, etc.)
     const conflictIndicators = page.locator('[data-testid="conflict"], .conflict, .error, svg[color="error"]');
     const count = await conflictIndicators.count();
@@ -422,7 +426,9 @@ test.describe('Refactored TeacherArrangePage - Comparison with Original', () => 
     // Test refactored version
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    
+    // Wait for main content to be fully rendered
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
 
     await page.screenshot({
       path: 'test-results/screenshots/refactored-14-visual-comparison.png',
@@ -444,8 +450,10 @@ test.describe('Refactored TeacherArrangePage - Comparison with Original', () => 
   test('E2E-015: Interaction parity check', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
-
+    
+    // Wait for page to be interactive
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+    
     // Test multiple interactions in sequence
     const interactions: string[] = [];
 
@@ -453,16 +461,18 @@ test.describe('Refactored TeacherArrangePage - Comparison with Original', () => 
     const teacherSelect = page.locator('select').first();
     if (await teacherSelect.isVisible()) {
       await teacherSelect.selectOption({ index: 1 });
+      // Wait for teacher data to load
+      await expect(page.locator('text=/.*ครู.*/i, text=/.*Teacher.*/i').first()).toBeVisible({ timeout: 3000 }).catch(() => {});
       interactions.push('✓ Teacher selection');
-      await page.waitForTimeout(1000);
     }
 
     // 2. Click subject
     const subject = page.locator('[draggable="true"]').first();
     if (await subject.isVisible()) {
       await subject.click();
+      // Wait for selection feedback
+      await expect(subject).toHaveClass(/selected|active/, { timeout: 2000 }).catch(() => {});
       interactions.push('✓ Subject selection');
-      await page.waitForTimeout(500);
     }
 
     // 3. Check timetable

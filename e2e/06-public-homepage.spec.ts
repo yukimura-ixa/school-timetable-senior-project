@@ -25,8 +25,13 @@ test.describe("Public Homepage - Unauthenticated Access", () => {
   test("should display quick stats cards", async ({ page }) => {
     await page.goto("/");
     
-    // Wait for stats to load
-    await page.waitForSelector("text=ครูผู้สอนทั้งหมด", { timeout: 10000 });
+    // Wait for stats to load with web-first assertion
+    await expect(page.locator("text=ครูผู้สอนทั้งหมด")).toBeVisible({ timeout: 10000 });
+    
+    // Wait for cards to render
+    await page.waitForFunction(() => {
+      return document.querySelectorAll('[role="region"]').length >= 4;
+    }, { timeout: 5000 }).catch(() => {});
     
     // Should show 4 stat cards
     const statCards = await page.locator('[role="region"]').count();
@@ -50,21 +55,26 @@ test.describe("Tab Navigation", () => {
     await page.goto("/");
     
     // Default should be teachers tab
-    await expect(page).toHaveURL(/tab=teachers|^\/$|^\/$/);
+    await expect(page).toHaveURL(/tab=teachers|^\/$|^\/$/); 
     
     // Click classes tab
-    await page.click("text=ชั้นเรียน");
+    const classesTab = page.locator("text=ชั้นเรียน");
+    await expect(classesTab).toBeVisible();
+    await classesTab.click();
     await expect(page).toHaveURL("/?tab=classes");
     
     // Should show classes table
-    await expect(page.locator("table")).toBeVisible();
+    await expect(page.locator("table")).toBeVisible({ timeout: 5000 });
     await expect(page.locator("th")).toContainText("ชั้นเรียน");
     
     // Switch back to teachers
-    await page.click("text=ครูผู้สอน");
+    const teachersTab = page.locator("text=ครูผู้สอน");
+    await expect(teachersTab).toBeVisible();
+    await teachersTab.click();
     await expect(page).toHaveURL("/?tab=teachers");
     
     // Should show teachers table
+    await expect(page.locator("table")).toBeVisible({ timeout: 5000 });
     await expect(page.locator("th")).toContainText("ชื่อ-นามสกุล");
   });
 
@@ -75,7 +85,9 @@ test.describe("Tab Navigation", () => {
     expect(page.url()).toContain("page=2");
     
     // Switch to classes tab
-    await page.click("text=ชั้นเรียน");
+    const classesTab = page.locator("text=ชั้นเรียน");
+    await expect(classesTab).toBeVisible();
+    await classesTab.click();
     
     // Should reset to page 1 (no page param or page=1)
     await expect(page).toHaveURL(/tab=classes(?!.*page=2)/);
@@ -89,8 +101,16 @@ test.describe("Search Functionality", () => {
     // Type search term (common Thai name prefix)
     await page.fill('input[placeholder*="ค้นหา"]', "นาย");
     
-    // Wait for URL update (debounced search)
-    await page.waitForURL(/search=นาย/, { timeout: 3000 });
+    // Wait for URL update (debounced search) with retry
+    await expect(async () => {
+      expect(page.url()).toContain("search=นาย");
+    }).toPass({ timeout: 3000 });
+    
+    // Wait for table to update
+    await page.waitForFunction(() => {
+      const rows = document.querySelectorAll("tbody tr");
+      return rows.length > 0;
+    }, { timeout: 2000 }).catch(() => {});
     
     // Should show filtered results
     const rows = await page.locator("tbody tr").count();
@@ -103,8 +123,16 @@ test.describe("Search Functionality", () => {
     // Search for M.1 (Mathayom 1)
     await page.fill('input[placeholder*="ค้นหา"]', "M.1");
     
-    // Wait for URL update (debounced search)
-    await page.waitForURL(/search=M\.1/, { timeout: 3000 });
+    // Wait for URL update (debounced search) with retry
+    await expect(async () => {
+      expect(page.url()).toMatch(/search=M\.1/);
+    }).toPass({ timeout: 3000 });
+    
+    // Wait for table to update
+    await page.waitForFunction(() => {
+      const table = document.querySelector("table");
+      return table && table.textContent.includes("M.1");
+    }, { timeout: 2000 }).catch(() => {});
     
     // Should show M.1 classes only
     const table = await page.locator("table");
@@ -119,7 +147,9 @@ test.describe("Search Functionality", () => {
     await expect(input).toHaveValue("test");
     
     // Click clear button
-    await page.click('button[aria-label="Clear search"]');
+    const clearButton = page.locator('button[aria-label="Clear search"]');
+    await expect(clearButton).toBeVisible();
+    await clearButton.click();
     
     // Should clear input and URL
     await expect(input).toHaveValue("");
@@ -145,6 +175,9 @@ test.describe("Pagination", () => {
     const nextButton = page.locator('button:has-text("Next"), button[aria-label="Next page"]');
     
     if (await nextButton.isVisible()) {
+      // Ensure button is enabled before clicking
+      await expect(nextButton).toBeEnabled({ timeout: 2000 });
+      
       // Click next page
       await nextButton.click();
       await expect(page).toHaveURL("/?tab=teachers&page=2");
@@ -154,6 +187,7 @@ test.describe("Pagination", () => {
       
       // Click previous
       const prevButton = page.locator('button:has-text("Previous"), button[aria-label="Previous page"]');
+      await expect(prevButton).toBeEnabled({ timeout: 2000 });
       await prevButton.click();
       await expect(page).toHaveURL(/page=1|^\/?tab=teachers$/);
     }

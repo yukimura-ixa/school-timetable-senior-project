@@ -17,7 +17,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
     console.log('📍 Currently at:', page.url());
     console.log('👀 Inspect: Home page layout, sign-in button, navigation');
     
-    // Wait for user to inspect
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(2000);
     
     // Check for sign-in elements
@@ -44,6 +44,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
     }
     
     console.log('👀 Inspect: Dashboard layout, semester selector, navigation menu');
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(3000);
   });
 
@@ -68,6 +69,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
       console.log('✅ Semester selector found');
     }
     
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(3000);
   });
 
@@ -89,6 +91,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
       fullPage: true 
     });
     
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(3000);
   });
 
@@ -109,6 +112,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
       fullPage: true 
     });
     
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(3000);
   });
 
@@ -130,6 +134,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
       fullPage: true 
     });
     
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(3000);
   });
 
@@ -168,7 +173,8 @@ test.describe('Visual Inspection - Admin User Journey', () => {
       });
     });
     
-    await page.waitForTimeout(5000); // More time to inspect
+    // INTENTIONAL: Extended manual inspection delay for complex UI (keep for visual testing)
+    await page.waitForTimeout(5000);
   });
 
   test('08. Analytics Dashboard', async ({ page }) => {
@@ -188,6 +194,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
       fullPage: true 
     });
     
+    // INTENTIONAL: Manual inspection delay (keep for visual testing)
     await page.waitForTimeout(3000);
   });
 
@@ -219,6 +226,7 @@ test.describe('Visual Inspection - Admin User Journey', () => {
     console.log('  - Check React DevTools (if installed)');
     console.log('  - Check Next.js panel (if available)');
     
+    // INTENTIONAL: Extended manual inspection delay (keep for visual testing)
     await page.waitForTimeout(5000);
   });
 });
@@ -265,6 +273,7 @@ test.describe('Visual Inspection - Component Test IDs', () => {
     }
     
     console.log('\n👀 Green outlines show elements with test IDs');
-    await page.waitForTimeout(10000); // 10 seconds to inspect
+    // INTENTIONAL: Extended manual inspection delay for test ID verification (keep for visual testing)
+    await page.waitForTimeout(10000);
   });
 });

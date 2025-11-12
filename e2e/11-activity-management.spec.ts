@@ -25,11 +25,9 @@ test.describe('Activity Management - CRUD Operations', () => {
 
   test.beforeEach(async ({ page }) => {
     // Navigate to subject management page
-    await page.goto('/management/subject');
-    await page.waitForLoadState('networkidle');
-    
-    // Wait for page to fully render
-    await page.waitForTimeout(1000);
+    await page.goto('/management/subject', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('table, main, [role="main"], [data-loaded="true"]', { timeout: 10000 });
+    await expect(page.locator('body')).toBeVisible();
   });
 
   test('TC-ACT-001: Create new activity subject', async ({ page }) => {
@@ -303,9 +301,6 @@ test.describe('Activity Management - CRUD Operations', () => {
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 5000 });
 
       // Wait for table to refresh
-      await page.waitForTimeout(500);
-
-      // Verify new activity is in the table
       await expect(page.getByText('ACT-REFRESH')).toBeVisible();
     });
 
@@ -318,9 +313,6 @@ test.describe('Activity Management - CRUD Operations', () => {
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({ timeout: 5000 });
 
       // Wait for table to refresh
-      await page.waitForTimeout(500);
-
-      // Verify activity is removed
       await expect(page.getByText('ACT-REFRESH')).not.toBeVisible();
     });
   });
@@ -329,8 +321,8 @@ test.describe('Activity Management - CRUD Operations', () => {
 test.describe('Activity Management - Empty State', () => {
   test('TC-ACT-008: Display empty state message', async ({ page }) => {
     // This test assumes there's a way to filter or view empty state
-    await page.goto('/management/subject');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/management/subject', { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('table, main, [role="main"], [data-loaded="true"]', { timeout: 10000 });
 
     // If there are no activities, should show empty state
     const emptyMessage = page.getByText(/no activities|ไม่มีกิจกรรม|empty/i);

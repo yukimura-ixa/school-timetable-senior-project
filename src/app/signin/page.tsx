@@ -26,10 +26,17 @@ export default function SignInPage() {
   }, [status, session, router]);
 
   useEffect(() => {
+    console.log('[SIGNIN PAGE] Fetching dev-bypass-enabled status...');
     fetch("/api/auth/dev-bypass-enabled")
       .then((res) => res.json())
-      .then((data) => setBypassEnabled(Boolean(data?.enabled)))
-      .catch(() => setBypassEnabled(false));
+      .then((data) => {
+        console.log('[SIGNIN PAGE] Dev bypass enabled response:', data);
+        setBypassEnabled(Boolean(data?.enabled));
+      })
+      .catch((err) => {
+        console.error('[SIGNIN PAGE] Failed to fetch dev-bypass status:', err);
+        setBypassEnabled(false);
+      });
   }, []);
 
   const validate = () => {

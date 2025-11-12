@@ -1,4 +1,6 @@
 import { execSync } from 'child_process';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Global teardown for E2E tests
@@ -6,6 +8,17 @@ import { execSync } from 'child_process';
  */
 async function globalTeardown() {
   console.log('\n🧹 E2E Test Teardown: Cleaning up...\n');
+
+  // Remove .env.local created during global setup
+  try {
+    const envLocalPath = path.resolve(__dirname, '.env.local');
+    if (fs.existsSync(envLocalPath)) {
+      fs.unlinkSync(envLocalPath);
+      console.log('✅ Removed .env.local\n');
+    }
+  } catch (error) {
+    console.warn('⚠️  Failed to remove .env.local:', error);
+  }
 
   // Only cleanup if we're managing the test database
   if (process.env.MANAGED_TEST_DB === 'true') {

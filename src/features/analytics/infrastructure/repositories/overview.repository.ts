@@ -87,9 +87,13 @@ export const overviewRepository = {
       ? (totalScheduled / totalRequiredSlots) * 100 
       : 0;
     
-    // TODO: Implement conflict detection
-    // For now, return 0 conflicts
-    const scheduleConflicts = 0;
+    // Issue #107: Implement conflict detection using conflictRepository
+    const { conflictRepository } = await import('@/features/conflict/infrastructure/repositories/conflict.repository');
+    const conflictData = await conflictRepository.findAllConflicts(
+      config.academicYear,
+      config.semester
+    );
+    const scheduleConflicts = conflictData.totalConflicts;
     
     return {
       totalScheduledHours: totalScheduled,

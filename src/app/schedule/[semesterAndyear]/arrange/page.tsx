@@ -455,6 +455,30 @@ export default function ArrangementPage() {
   }, [currentTeacherID, resetOnTeacherChange]);
 
   // ============================================================================
+  // COMPUTED - Break Slots
+  // Extracts timeslot IDs where Breaktime is not NOT_BREAK
+  // These slots are blocked from subject placement during drag-and-drop
+  // ============================================================================
+  const breakSlotIDs = useMemo(() => {
+    if (!timeslots || !Array.isArray(timeslots)) {
+      return new Set<string>();
+    }
+
+    const breakIDs = new Set<string>();
+    for (const slot of timeslots) {
+      const ts = slot as { TimeslotID?: string; Breaktime?: string };
+      // Block any slot that has a break designation (BREAK_JUNIOR, BREAK_SENIOR, BREAK_BOTH)
+      if (ts.Breaktime && ts.Breaktime !== 'NOT_BREAK') {
+        if (ts.TimeslotID) {
+          breakIDs.add(ts.TimeslotID);
+        }
+      }
+    }
+
+    return breakIDs;
+  }, [timeslots]);
+
+  // ============================================================================
   // HANDLERS - Tab Change
   // ============================================================================
   const handleTabChange = useCallback((tab: ArrangeTab) => {
@@ -528,20 +552,26 @@ export default function ArrangementPage() {
     const subjectCode = active.id as string;
     const timeslotID = over.id as string;
 
-    // Step 1: Validate timeslot is not locked
+    // Step 1: Validate timeslot is not a break slot
+    if (breakSlotIDs.has(timeslotID)) {
+      enqueueSnackbar('⏸️ ไม่สามารถจัดวิชาเรียนในคาบพักได้', { variant: 'warning' });
+      return;
+    }
+
+    // Step 2: Validate timeslot is not locked
     if (conflictValidation.lockedTimeslots.has(timeslotID)) {
       enqueueSnackbar('🔒 ช่วงเวลานี้ถูกล็อคแล้ว ไม่สามารถจัดตารางได้', { variant: 'warning' });
       return;
     }
 
-    // Step 2: Check for general conflicts using validation hook
+    // Step 3: Check for general conflicts using validation hook
     const conflictInfo = conflictValidation.conflictsByTimeslot.get(timeslotID);
     if (conflictInfo && conflictInfo.type !== 'none' && conflictInfo.severity === 'error') {
       enqueueSnackbar(`⚠️ ตรวจพบข้อขัดแย้ง: ${conflictInfo.message}`, { variant: 'error' });
       return;
     }
 
-    // Step 3: Check for specific teacher conflict (NEW - Issue #84)
+    // Step 4: Check for specific teacher conflict (NEW - Issue #84)
     // Wrapped in async IIFE to avoid breaking useCallback
     void (async () => {
       if (currentTeacherID) {
@@ -560,7 +590,7 @@ export default function ArrangementPage() {
             return;
           }
           
-          // Step 4: If no conflict, open room selection dialog
+          // Step 5: If no conflict, open room selection dialog
           setSelectedTimeslotForRoom(timeslotID);
           setRoomDialogOpen(true);
         } catch (error) {
@@ -576,7 +606,7 @@ export default function ArrangementPage() {
         setRoomDialogOpen(true);
       }
     })();
-  }, [activeSubject, conflictValidation.lockedTimeslots, conflictValidation.conflictsByTimeslot, currentTeacherID]);
+  }, [activeSubject, breakSlotIDs, conflictValidation.lockedTimeslots, conflictValidation.conflictsByTimeslot, currentTeacherID]);
 
   // ============================================================================
   // HANDLERS - Room Selection
@@ -961,10 +991,6 @@ export default function ArrangementPage() {
     // This would require complex constraint satisfaction logic
     enqueueSnackbar('🚧 ฟีเจอร์จัดตารางอัตโนมัติกำลังพัฒนา', { variant: 'info' });
   }, []);
-
-  // ============================================================================
-  // COMPUTED - Break Slots (TODO: Get from config)
-  // ============================================================================
 
   // ============================================================================
   // COMPUTED - Progress Data (Phase 2)

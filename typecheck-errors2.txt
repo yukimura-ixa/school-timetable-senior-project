@@ -1,0 +1,215 @@
+
+> school-timetable@2.0.0 typecheck B:\Dev\school-timetable-senior-project
+> tsc -p tsconfig.typecheck.json
+
+src/app/(public)/teachers/[id]/page.tsx(102,46): error TS7006: Parameter 'schedule' implicitly has an 'any' type.
+src/app/dashboard/[semesterAndyear]/all-program/function/ExportAllProgram.ts(172,32): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-program/page.tsx(249,21): error TS2345: Argument of type 'ActionResult<{ subjects: { MinCredits: number; MaxCredits: number | null; Category: SubjectCategory; IsMandatory: boolean; SortOrder: number; teachers_responsibility: unknown; SubjectCode: string; ... 5 more ...; Description: string | null; }[]; ... 8 more ...; IsActive: boolean; } | null> | null | undefined' is not assignable to parameter of type 'ProgramData'.
+  Type 'undefined' is not assignable to type 'ProgramData'.
+src/app/dashboard/[semesterAndyear]/all-timeslot/component/TableResult.tsx(34,35): error TS6133: 'index' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/functions/ExportTeacherTable.ts(295,56): error TS6133: 'item' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/functions/ExportTeacherTable.ts(310,30): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/functions/ExportTeacherTable.ts(326,30): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/functions/ExportTeacherTable.ts(340,30): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/functions/ExportTeacherTable.ts(362,28): error TS6133: 'col' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx(65,9): error TS6133: 'isTablet' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx(162,15): error TS6133: 'item' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/conflicts/component/ConflictDetector.tsx(27,14): error TS6133: 'WarningIcon' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/conflicts/component/ConflictDetector.tsx(28,11): error TS6133: 'InfoIcon' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/conflicts/component/ConflictDetector.tsx(71,35): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/dashboard/[semesterAndyear]/conflicts/component/ConflictDetector.tsx(96,28): error TS6133: 'event' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/student-table/function/ExportStudentTable.ts(309,30): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/student-table/function/ExportStudentTable.ts(325,30): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/student-table/function/ExportStudentTable.ts(339,30): error TS6133: 'cell' is declared but its value is never read.
+src/app/dashboard/[semesterAndyear]/student-table/function/ExportStudentTable.ts(361,28): error TS6133: 'col' is declared but its value is never read.
+src/app/dashboard/select-semester/_components/SelectSemesterPageSkeleton.tsx(8,36): error TS6133: 'Stack' is declared but its value is never read.
+src/app/dashboard/select-semester/_components/SemesterAnalyticsDashboard.tsx(17,3): error TS6133: 'Divider' is declared but its value is never read.
+src/app/dashboard/select-semester/_components/SemesterExportButton.tsx(40,51): error TS6133: 'title' is declared but its value is never read.
+src/app/dashboard/select-semester/_components/SemesterExportButton.tsx(138,13): error TS6133: 'timestamp' is declared but its value is never read.
+src/app/dashboard/select-semester/_components/SemesterFilters.tsx(22,11): error TS6133: 'SortIcon' is declared but its value is never read.
+src/app/dashboard/select-semester/page.tsx(8,31): error TS6133: 'Suspense' is declared but its value is never read.
+src/app/dashboard/select-semester/page.tsx(32,1): error TS6133: 'SelectSemesterPageSkeleton' is declared but its value is never read.
+src/app/management/gradelevel/component/ConfirmDeleteModal.tsx(42,22): error TS6133: 'index' is declared but its value is never read.
+src/app/management/gradelevel/component/EditModalForm.tsx(106,14): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/gradelevel/component/EditModalForm.tsx(231,15): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/gradelevel/component/TableRow.tsx(2,1): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/gradelevel/component/TableRow.tsx(4,1): error TS6133: 'TbTrash' is declared but its value is never read.
+src/app/management/gradelevel/component/TableRow.tsx(23,3): error TS6133: 'index' is declared but its value is never read.
+src/app/management/gradelevel/component/TableRow.tsx(27,3): error TS6133: 'pageOfData' is declared but its value is never read.
+src/app/management/program/component/AddStudyProgramModal.tsx(1,10): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/program/component/AddStudyProgramModal.tsx(1,20): error TS6133: 'use' is declared but its value is never read.
+src/app/management/program/component/AddStudyProgramModal.tsx(6,15): error TS6196: 'program' is declared but never used.
+src/app/management/program/component/AddStudyProgramModal.tsx(136,51): error TS6133: 'item' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModal.tsx(1,10): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModal.tsx(1,20): error TS6133: 'use' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModal.tsx(6,15): error TS6196: 'program' is declared but never used.
+src/app/management/program/component/EditStudyProgramModal.tsx(128,51): error TS6133: 'item' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(1,10): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(21,10): error TS6133: 'subject' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(22,25): error TS6133: 'setSubjectFilter' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(29,10): error TS6133: 'searchText' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(37,9): error TS6133: 'searchHandle' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(42,10): error TS6133: 'searchTextSubject' is declared but its value is never read.
+src/app/management/program/component/EditStudyProgramModalLegacy.tsx(50,9): error TS6133: 'searchHandleSubject' is declared but its value is never read.
+src/app/management/program/component/SelectedClassRoom.tsx(13,17): error TS6133: 'isLoading' is declared but its value is never read.
+src/app/management/program/component/SelectedClassRoom.tsx(13,28): error TS6133: 'error' is declared but its value is never read.
+src/app/management/program/component/SelectedClassRoom.tsx(13,35): error TS6133: 'mutate' is declared but its value is never read.
+src/app/management/program/component/SelectedClassRoom.tsx(15,11): error TS6133: 'a' is declared but its value is never read.
+src/app/management/program/page.tsx(9,23): error TS6133: 'props' is declared but its value is never read.
+src/app/management/rooms/component/AddModalForm.tsx(9,1): error TS6133: 'room' is declared but its value is never read.
+src/app/management/rooms/component/AddModalForm.tsx(143,16): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/rooms/component/AddModalForm.tsx(247,17): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/rooms/component/ConfirmDeleteModal.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/app/management/rooms/component/EditModalForm.tsx(109,14): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/rooms/component/EditModalForm.tsx(201,15): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/rooms/component/TableRow.tsx(1,1): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/rooms/component/TableRow.tsx(3,1): error TS6133: 'TbTrash' is declared but its value is never read.
+src/app/management/rooms/component/TableRow.tsx(18,3): error TS6133: 'index' is declared but its value is never read.
+src/app/management/rooms/component/TableRow.tsx(22,3): error TS6133: 'pageOfData' is declared but its value is never read.
+src/app/management/subject/component/ActivityTable.tsx(28,39): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/subject/component/ActivityTable.tsx(36,33): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/subject/component/ActivityTable.tsx(63,3): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/subject/component/AddModalForm.tsx(148,16): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/subject/component/AddModalForm.tsx(302,17): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/subject/component/ConfirmDeleteModal.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/app/management/subject/component/ConfirmDeleteModal.tsx(21,3): error TS6133: 'deleteData' is declared but its value is never read.
+src/app/management/subject/component/ConfirmDeleteModal.tsx(45,22): error TS6133: 'index' is declared but its value is never read.
+src/app/management/subject/component/TableRow.tsx(1,1): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/subject/component/TableRow.tsx(3,1): error TS6133: 'TbTrash' is declared but its value is never read.
+src/app/management/subject/component/TableRow.tsx(19,3): error TS6133: 'index' is declared but its value is never read.
+src/app/management/subject/component/TableRow.tsx(23,3): error TS6133: 'pageOfData' is declared but its value is never read.
+src/app/management/teacher/component/AddModalForm.tsx(8,1): error TS6133: 'teacher' is declared but its value is never read.
+src/app/management/teacher/component/ConfirmDeleteModal.tsx(45,22): error TS6133: 'index' is declared but its value is never read.
+src/app/management/teacher/component/EditModalForm.tsx(119,14): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/teacher/component/EditModalForm.tsx(280,15): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/management/teacher/component/TableRow.tsx(2,1): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/management/teacher/component/TableRow.tsx(4,1): error TS6133: 'TbTrash' is declared but its value is never read.
+src/app/management/teacher/component/TableRow.tsx(19,3): error TS6133: 'index' is declared but its value is never read.
+src/app/management/teacher/component/TableRow.tsx(23,3): error TS6133: 'pageOfData' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/_components/ActionToolbar.tsx(76,43): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/_components/ConflictAlert.tsx(34,3): error TS6133: 'CONFLICT_MESSAGES' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/_components/ConflictAlert.tsx(70,35): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/_components/ConflictSummaryPanel.tsx(46,35): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/_components/GradeClassView.tsx(74,30): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/_components/GradeClassView.tsx(199,3): error TS6133: '_expectedPeriodsPerWeek' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/_components/RoomSelectionDialog.tsx(79,25): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/_components/RoomSelectionDialog.tsx(92,27): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/_components/TimetableGrid.tsx(75,26): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/arrange/component/SubjectItem.tsx(35,3): error TS6133: 'dropOutOfZone' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/component/TimeSlot.tsx(61,3): error TS6133: 'checkRelatedYearDuringDragging' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/component/TimeSlot.tsx(70,3): error TS6133: 'dropOutOfZone' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/component/TimetableRow.tsx(1,1): error TS6133: 'dayOfWeekTextColor' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/component/TimetableRow.tsx(2,1): error TS6133: 'dayOfWeekColor' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/component/TimetableRow.tsx(3,1): error TS6133: 'dayOfWeekThai' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/component/TimetableRow.tsx(4,1): error TS6133: 'Fragment' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/page.tsx(89,28): error TS6196: 'TeacherData' is declared but never used.
+src/app/schedule/[semesterAndyear]/arrange/page.tsx(528,11): error TS6133: 'subjectCode' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/student-arrange/page.tsx(4,25): error TS6133: 'props' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx(124,6): error TS6196: 'EnrichedClassSchedule' is declared but never used.
+src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx(134,6): error TS6196: 'TeacherInfo' is declared but never used.
+src/app/schedule/[semesterAndyear]/assign/component/AddSubjectModal.tsx(35,10): error TS6133: 'searchText' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/AddSubjectModal.tsx(103,46): error TS6133: 'item' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/AddSubjectModal.tsx(114,30): error TS6133: 'item' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/AddSubjectModal.tsx(117,32): error TS6133: 'item' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/AddSubjectModal.tsx(201,47): error TS6133: 'index' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/SelectClassRoomModal.tsx(1,1): error TS6133: 'useTeachers' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/SelectClassRoomModal.tsx(4,1): error TS6133: 'gradelevel' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/SelectClassRoomModal.tsx(32,28): error TS6133: 'error' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/SelectClassRoomModal.tsx(32,35): error TS6133: 'mutate' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/SelectClassRoomModal.tsx(44,14): error TS6133: 'index' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/ShowTeacherData.tsx(25,3): error TS6133: 'InputAdornment' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/component/ShowTeacherData.tsx(33,1): error TS6133: 'SearchIcon' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/page.tsx(5,27): error TS6133: 'props' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/teacher_responsibility/page.tsx(7,26): error TS6133: 'IoMdAdd' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/teacher_responsibility/page.tsx(212,10): error TS6133: 'validateStatus' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/assign/teacher_responsibility/page.tsx(260,13): error TS6133: 'result' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/components/SelectClassModal.tsx(78,18): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/components/SelectClassModal.tsx(91,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/components/SelectClassModal.tsx(104,18): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/components/SelectClassModal.tsx(117,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/config/component/CloneTimetableDataModal.tsx(55,23): error TS6133: 'setCurrentTime' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/config/component/Counter.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/config/component/SelectedValue.tsx(10,27): error TS6133: 'setSelectedValue' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/config/page.tsx(9,10): error TS6133: 'MdSchool' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/config/page.tsx(35,19): error TS6133: 'setIsSaved' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/BulkLockModal.tsx(50,3): error TS6133: '_configId' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/LockCalendarView.tsx(230,14): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/lock/component/LockCalendarView.tsx(346,15): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/app/schedule/[semesterAndyear]/lock/component/LockScheduleForm.tsx(9,21): error TS6196: 'subject' is declared but never used.
+src/app/schedule/[semesterAndyear]/lock/component/LockScheduleForm.tsx(9,39): error TS6196: 'timeslot' is declared but never used.
+src/app/schedule/[semesterAndyear]/lock/component/LockScheduleForm.tsx(10,1): error TS6133: 'dayOfWeekThai' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/LockScheduleForm.tsx(245,9): error TS6133: 'handleAddTeacherList' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/LockScheduleForm.tsx(251,9): error TS6133: 'removeTeacherFromList' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/SelectMultipleTimeSlot.tsx(3,1): error TS6133: 'subject_credit' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/SelectMultipleTimeSlot.tsx(5,20): error TS6133: 'use' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/SelectMultipleTimeSlot.tsx(8,24): error TS6196: 'teacher' is declared but never used.
+src/app/schedule/[semesterAndyear]/lock/component/SelectTeacher.tsx(1,1): error TS6133: 'SearchBar' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/SelectTeacher.tsx(3,20): error TS6133: 'useEffect' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/SelectTeacher.tsx(3,31): error TS6133: 'useState' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/component/SelectTeacher.tsx(41,43): error TS6133: 'index' is declared but its value is never read.
+src/app/schedule/[semesterAndyear]/lock/page.tsx(6,28): error TS6133: 'props' is declared but its value is never read.
+src/app/theme.ts(2,23): error TS6133: 'alpha' is declared but its value is never read.
+src/components/dialogs/ConfirmDialog.tsx(183,41): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/dialogs/ConfirmDialog.tsx(196,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/dialogs/ConfirmDialog.tsx(211,25): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/dialogs/ConfirmDialog.tsx(218,24): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/elements/input/field/SearchBar.tsx(22,3): error TS6133: 'value' is declared but its value is never read.
+src/components/elements/static/Button.tsx(44,16): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/error/ErrorBoundary.tsx(48,35): error TS6133: 'error' is declared but its value is never read.
+src/components/mui/CheckBox.tsx(62,18): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/mui/CheckBox.tsx(83,11): error TS6133: 'useLegacyAPI' is declared but its value is never read.
+src/components/mui/PrimaryButton.tsx(56,23): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/mui/PrimaryButton.tsx(81,11): error TS6133: 'useLegacyAPI' is declared but its value is never read.
+src/components/mui/SearchBar.tsx(64,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/mui/SearchBar.tsx(85,47): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/mui/SearchBar.tsx(88,11): error TS6133: 'useLegacyAPI' is declared but its value is never read.
+src/components/mui/TextField.tsx(57,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/mui/TextField.tsx(81,11): error TS6133: 'useLegacyAPI' is declared but its value is never read.
+src/components/templates/DashboardMenubar.tsx(65,18): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/templates/DashboardMenubar.tsx(93,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/templates/Menubar.tsx(7,3): error TS6133: 'othersMenu' is declared but its value is never read.
+src/components/templates/Menubar.tsx(10,1): error TS6133: 'IoIosArrowDown' is declared but its value is never read.
+src/components/templates/Menubar.tsx(15,10): error TS6133: 'indexPoint' is declared but its value is never read.
+src/components/templates/Menubar.tsx(15,22): error TS6133: 'setIndexPoint' is declared but its value is never read.
+src/components/templates/Menubar.tsx(16,10): error TS6133: 'isOpen' is declared but its value is never read.
+src/components/templates/Menubar.tsx(16,18): error TS6133: 'setIsOpen' is declared but its value is never read.
+src/components/templates/Menubar.tsx(37,18): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/templates/Menubar.tsx(65,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/templates/Menubar.tsx(83,18): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/components/templates/Menubar.tsx(113,19): error TS2686: 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+src/features/analytics/domain/types/analytics.types.ts(9,3): error TS6196: 'teacher' is declared but never used.
+src/features/analytics/domain/types/analytics.types.ts(10,3): error TS6196: 'class_schedule' is declared but never used.
+src/features/analytics/domain/types/analytics.types.ts(11,3): error TS6196: 'subject' is declared but never used.
+src/features/analytics/domain/types/analytics.types.ts(12,3): error TS6196: 'timeslot' is declared but never used.
+src/features/analytics/domain/types/analytics.types.ts(13,3): error TS6196: 'room' is declared but never used.
+src/features/analytics/domain/types/analytics.types.ts(14,3): error TS6196: 'gradelevel' is declared but never used.
+src/features/analytics/domain/types/analytics.types.ts(15,3): error TS6196: 'program' is declared but never used.
+src/features/conflict/infrastructure/repositories/conflict.repository.ts(101,18): error TS6133: 'semester' is declared but its value is never read.
+src/features/dashboard/domain/services/dashboard-stats.service.ts(8,52): error TS6196: 'timeslot' is declared but never used.
+src/features/dashboard/domain/services/dashboard-stats.service.ts(8,62): error TS6196: 'subject' is declared but never used.
+src/features/dashboard/infrastructure/repositories/dashboard.repository.ts(166,3): error TS6133: 'configId' is declared but its value is never read.
+src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.ts(64,39): error TS6133: 'userId' is declared but its value is never read.
+src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.ts(110,9): error TS6133: 'schedule' is declared but its value is never read.
+src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.ts(170,38): error TS6133: 'userId' is declared but its value is never read.
+src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.ts(210,42): error TS6133: 'userId' is declared but its value is never read.
+src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.ts(234,42): error TS6133: 'userId' is declared but its value is never read.
+src/features/schedule-arrangement/application/schemas/schedule-arrangement.schemas.ts(15,3): error TS6133: 'positiveNumberSchema' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/components/examples/DroppableTimeslot.tsx(135,9): error TS6133: 'timeSlotData' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/components/examples/DroppableTimeslot.tsx(137,9): error TS6133: 'setShowErrorMsg' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/components/examples/DroppableTimeslot.tsx(138,9): error TS6133: 'setIsSaving' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useArrangeSchedule.ts(60,5): error TS6133: 'changeTimeSlotSubject' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useArrangeSchedule.ts(65,5): error TS6133: 'setSelectedSubject' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useArrangeSchedule.ts(66,5): error TS6133: 'setSubjectData' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useArrangeSchedule.ts(71,5): error TS6133: 'removeSubjectFromData' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useConflictValidation.ts(67,5): error TS6133: 'showErrorMsgByTimeslotID' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useConflictValidation.ts(68,5): error TS6133: 'showLockDataMsgByTimeslotID' is declared but its value is never read.
+src/features/schedule-arrangement/presentation/hooks/useScheduleFilters.ts(55,5): error TS6133: 'scheduledSubjects' is declared but its value is never read.
+src/features/teacher/application/actions/teacher.actions.ts(12,1): error TS6133: 'revalidateTag' is declared but its value is never read.
+src/features/teacher/domain/services/teacher-validation.service.ts(60,3): error TS6133: 'email' is declared but its value is never read.
+src/features/timeslot/application/schemas/timeslot.schemas.ts(11,33): error TS6133: 'breaktime' is declared but its value is never read.
+src/lib/auth.ts(164,33): error TS6133: 'user' is declared but its value is never read.
+src/lib/auth.ts(211,28): error TS6133: 'account' is declared but its value is never read.
+src/lib/timetable-config.constants.ts(8,1): error TS6133: 'semester' is declared but its value is never read.
+src/shared/lib/action-wrapper.ts(24,74): error TS6133: 'ServerActionError' is declared but its value is never read.
+src/utils/moe-validation.ts(14,3): error TS6133: 'getMaxCoreLessons' is declared but its value is never read.
+โ€ELIFECYCLEโ€ Command failed with exit code 1.

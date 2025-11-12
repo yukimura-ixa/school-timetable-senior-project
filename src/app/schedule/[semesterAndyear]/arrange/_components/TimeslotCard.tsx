@@ -101,6 +101,7 @@ export function TimeslotCard({
       timeslotID: timeslot.TimeslotID,
       accepts: ['subject'],
     },
+    disabled: isBreak, // Disable dropping on break slots
   });
 
   const {

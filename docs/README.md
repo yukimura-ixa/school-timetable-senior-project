@@ -1,240 +1,152 @@
-# E2E Tests for School Timetable System
+# Documentation Index
 
-## Overview
-This directory contains end-to-end (E2E) tests for the School Timetable Management System using Playwright.
+> **Last Updated:** November 12, 2025  
+> **Total Active Docs:** 24 files  
+> **Archived:** See `ARCHIVE_2025_COMPREHENSIVE.md` for 91 historical docs
 
-## Test Structure
+---
 
-```
-e2e/
-├── TEST_PLAN.md              # Comprehensive test plan with all 29 test cases
-├── helpers/                  # Helper utilities
-│   ├── auth.ts              # Authentication helpers
-│   └── navigation.ts        # Navigation helpers
-├── 01-home-page.spec.ts     # Home page and auth tests (TC-001, TC-002)
-├── 02-data-management.spec.ts   # Data management tests (TC-003 to TC-006)
-├── 03-schedule-config.spec.ts   # Configuration tests (TC-007 to TC-009)
-├── 04-timetable-arrangement.spec.ts  # Arrangement tests (TC-010 to TC-016)
-└── 05-viewing-exports.spec.ts       # Viewing and export tests (TC-017 to TC-024)
-```
+## 📚 Quick Navigation
 
-## Prerequisites
+### 🎯 Start Here
+- **Project Overview** - `../README.md` (root)
+- **AI Agent Instructions** - `../AGENTS.md` (root)
+- **Deployment Guide** - `../DEPLOYMENT.md` (root)
 
-1. **Install Dependencies**
-   ```bash
-   pnpm install
-   ```
+### 🧪 Testing & E2E
+- **E2E Reliability Guide** - `E2E_RELIABILITY_GUIDE.md` ⭐ Current best practices
+- **E2E Coverage Matrix** - `E2E_COVERAGE_MATRIX.md` ⭐ Test coverage tracking
+- **E2E Phase 1 Progress** - `E2E_PHASE1_PROGRESS.md` ⭐ Current status
+- **E2E Local PostgreSQL Setup** - `E2E_LOCAL_POSTGRESQL_SETUP.md` ⭐ Database setup
+- **E2E Database Lifecycle** - `E2E_DATABASE_LIFECYCLE_MANAGEMENT.md` ⭐ DB management
+- **WaitForTimeout Refactor Research** - `PHASE_A_WAITFORTIMEOUT_REFACTOR_RESEARCH.md`
+- **Schedule Assignment Test Strategy** - `SCHEDULE_ASSIGNMENT_TEST_STRATEGY_COMPARISON.md`
 
-2. **Install Playwright Browsers**
-   ```bash
-   pnpm playwright:install
-   ```
+### 🗄️ Database & Seeding
+- **Seed README** - `SEED_README.md` ⭐ Complete seeding guide
+- **MOE Standards Implementation** - `MOE_STANDARDS_IMPLEMENTATION.md` ⭐ Thai MOE compliance
+- **Thai MOE 8 Learning Areas** - `THAI_MOE_PROGRAM_MODEL.md`
+- **ConfigId Quick Reference** - `CONFIGID_QUICK_REF.md`
 
-3. **Set Up Test Environment**
-   - Ensure database is running
-   - Configure `.env` file with test credentials
-   - Seed database with test data (optional but recommended)
+### 🎨 UI/UX
+- **Loading States Implementation** - `LOADING_STATES_IMPLEMENTATION.md`
+- **Loading States Visual Comparison** - `LOADING_STATES_VISUAL_COMPARISON.md`
+- **User Flows Visual Summary** - `USER_FLOWS_VISUAL_SUMMARY.md`
 
-## Running Tests
+### 🚀 Features & Improvements
+- **Feature Flags** - `FEATURE_FLAGS.md` ⭐ Feature flag management
+- **Advanced Improvements** - `ADVANCED_IMPROVEMENTS.md` ⭐ Future roadmap
+- **Arrange/Assign Analysis** - `ARRANGE_ASSIGN_ANALYSIS_IMPROVEMENT_PLAN.md`
+- **AllData Structure Analysis** - `ALLDATA_STRUCTURE_ANALYSIS.md`
+- **Repository Conflict Roadmap** - `REPOSITORY_CONFLICT_ROADMAP.md`
+- **Program Page UX Plan** - `PROGRAM_PAGE_UX_PLAN.md`
+- **Scheduling Rebuild Plan** - `SCHEDULING_REBUILD_PLAN.md`
 
-### Run All Tests
-```bash
-pnpm test:e2e
-```
+### 📋 Project Management
+- **GitHub Issues (High Priority)** - `GITHUB_ISSUES_HIGH_PRIORITY.md` ⭐ Current issues
+- **Archive 2025** - `ARCHIVE_2025_COMPREHENSIVE.md` 📦 Historical docs (91 files)
 
-### Run Tests in UI Mode (Interactive)
-```bash
-pnpm test:e2e:ui
-```
+---
 
-### Run Specific Test File
-```bash
-pnpm playwright test e2e/01-home-page.spec.ts
-```
+## 🎯 Document Categories
 
-### Run Tests with Video Recording
-```bash
-pnpm test:e2e --video=on
-```
+| Category | Count | Files |
+|----------|-------|-------|
+| **Testing & E2E** | 7 | E2E guides, coverage, progress tracking |
+| **Database & Seeding** | 4 | Seed guide, MOE standards, ConfigId |
+| **UI/UX** | 3 | Loading states, user flows |
+| **Features & Roadmap** | 7 | Feature flags, improvements, analysis |
+| **Project Management** | 2 | Issues, archive |
+| **Index** | 1 | This file |
 
-### Run Tests with Screenshots
-```bash
-pnpm playwright test --screenshot=on
-```
+---
 
-### Generate HTML Report
-```bash
-pnpm playwright show-report
-```
+## ⭐ Essential Files (Use These First)
 
-## Test Configuration
+### For Development
+1. `../AGENTS.md` - AI agent instructions and coding standards
+2. `E2E_RELIABILITY_GUIDE.md` - E2E testing best practices
+3. `SEED_README.md` - Database seeding guide
+4. `FEATURE_FLAGS.md` - Feature flag configuration
 
-The tests are configured via `playwright.config.ts` in the project root:
+### For Testing
+1. `E2E_COVERAGE_MATRIX.md` - Test coverage status
+2. `E2E_LOCAL_POSTGRESQL_SETUP.md` - Local database setup
+3. `E2E_RELIABILITY_GUIDE.md` - Test reliability patterns
 
-- **Base URL**: `http://localhost:3000`
-- **Browser**: Chromium (Desktop Chrome)
-- **Retries**: 2 (in CI), 0 (locally)
-- **Video**: Recorded on failure
-- **Screenshots**: Captured on failure
-- **Timeout**: 30 seconds for navigation, 15 seconds for actions
+### For Planning
+1. `GITHUB_ISSUES_HIGH_PRIORITY.md` - Current high-priority issues
+2. `ADVANCED_IMPROVEMENTS.md` - Future enhancement roadmap
+3. `E2E_PHASE1_PROGRESS.md` - Current E2E test progress
 
-## Test Data Requirements
+---
 
-For comprehensive testing, ensure your test database contains:
+## 📦 Archived Documentation
 
-- **Teachers**: At least 5 teachers with various departments
-- **Subjects**: At least 10 subjects with different credits
-- **Rooms**: At least 5 rooms in different buildings
-- **Grade Levels**: 3 grade levels with 2-3 classes each
-- **Semester**: At least 1 configured semester with timeslots
-- **Sample Data**: Some assigned subjects and arranged timetable data
+**Location:** `ARCHIVE_2025_COMPREHENSIVE.md`
 
-## Test Coverage
+**What's Archived (91 files):**
+- ✅ Completed migrations (MUI, Tailwind, Next.js, Prisma, Auth.js)
+- ✅ Feature migrations (10 features - all complete)
+- ✅ Weekly progress reports (Weeks 5-9)
+- ✅ Implementation summaries (redundant with current docs)
+- ✅ Outdated guides (superseded by active guides)
+- ✅ Resolved issues and fixes
+- ✅ Phase completion documents
 
-### Phase 1: Critical Path (8 tests)
-✅ Authentication and authorization  
-✅ Core data management (teachers, subjects, rooms)  
-✅ Timetable configuration  
-✅ Subject assignment  
-✅ Timetable arrangement  
-✅ Conflict detection  
-✅ View schedules  
-✅ Export to Excel  
+**Why Archived:**
+- Work completed (migrations done, features shipped)
+- Information now in codebase or `AGENTS.md`
+- Superseded by newer documentation
+- Historical snapshots no longer needed for daily work
 
-### Phase 2: Core Features (10 tests)
-✅ Additional data management  
-✅ Copy from previous semester  
-✅ Student timetable arrangement  
-✅ Lock timeslots  
-✅ View student schedules  
-✅ Additional export formats (PDF)  
+**How to Access:**
+- All key decisions preserved in comprehensive archive
+- Original files deleted to reduce repository size (~1.5MB saved)
+- Search archive for historical context when needed
 
-### Phase 3: Extended Features (11 tests)
-✅ Unlock timeslots  
-✅ Summary views  
-✅ Edge cases and error handling  
-✅ Mobile responsiveness  
+---
 
-## Screenshots and Videos
+## 📊 Documentation Statistics
 
-Test artifacts are stored in:
-- **Screenshots**: `test-results/screenshots/`
-- **Videos**: `test-results/artifacts/` (on failure)
-- **HTML Report**: `playwright-report/`
+| Metric | Value |
+|--------|-------|
+| **Active Docs** | 24 files |
+| **Archived Docs** | 91 files |
+| **Serena Memories (Active)** | 18 files |
+| **Serena Memories (Archived)** | 25 files |
+| **Repository Size Saved** | ~2.1MB |
+| **Cleanup Date** | November 12, 2025 |
 
-## Authentication Notes
+---
 
-⚠️ **Google OAuth Testing**
+## 🔄 Maintenance
 
-The current tests do not fully implement Google OAuth authentication due to complexity. For complete E2E testing:
+**Review Schedule:** Quarterly (next review: March 2026)
 
-1. **Option A: Mock Authentication**
-   - Set up a mock auth provider for testing
-   - Use session tokens directly
+**Archive Policy:**
+- Archive completed work after 3 months of no updates
+- Archive redundant documentation immediately
+- Keep only current, actionable documentation active
+- Preserve all key decisions in comprehensive archive
 
-2. **Option B: Test Accounts**
-   - Create dedicated Google test accounts
-   - Store credentials securely (never in code)
-   - Implement proper OAuth flow in `helpers/auth.ts`
+**How to Add to Archive:**
+1. Identify completed/outdated documentation
+2. Extract key decisions and add to `ARCHIVE_2025_COMPREHENSIVE.md`
+3. Add file to archived file list in archive
+4. Update statistics in this README
+5. Delete original file from `docs/`
 
-3. **Option C: Bypass Authentication**
-   - Configure Next-Auth for test environment
-   - Allow test-mode bypass with special credentials
+---
 
-## Interpreting Test Results
+## 📞 Need Help?
 
-### Success ✅
-- Test passed with all assertions met
-- Screenshots show expected UI state
-- No errors in console logs
+- **Project context?** → See `../README.md`
+- **Coding standards?** → See `../AGENTS.md`
+- **Testing help?** → See `E2E_RELIABILITY_GUIDE.md`
+- **Database setup?** → See `SEED_README.md`
+- **Can't find a doc?** → Check `ARCHIVE_2025_COMPREHENSIVE.md`
 
-### Failure ❌
-- Review screenshot to see actual state
-- Check video recording for interaction flow
-- Review console logs for errors
-- Verify test data exists
+---
 
-### Skipped ⏭️
-- Test requires authentication or data not present
-- May need manual setup or configuration
-
-## Manual Testing Checklist
-
-Some scenarios require manual verification:
-
-- [ ] Google OAuth login flow with real credentials
-- [ ] File download and content verification (Excel/PDF)
-- [ ] Drag-and-drop interactions (complex gestures)
-- [ ] Real-time conflict detection during arrangement
-- [ ] Concurrent user editing scenarios
-- [ ] Mobile device testing on actual devices
-
-## Continuous Integration
-
-For CI/CD pipelines:
-
-```yaml
-# Example GitHub Actions workflow
-- name: Install dependencies
-  run: pnpm install
-
-- name: Install Playwright
-  run: pnpm playwright install --with-deps
-
-- name: Run E2E tests
-  run: pnpm test:e2e
-  
-- name: Upload test results
-  if: always()
-  uses: actions/upload-artifact@v3
-  with:
-    name: playwright-report
-    path: playwright-report/
-```
-
-## Troubleshooting
-
-### Tests Timing Out
-- Increase timeout in `playwright.config.ts`
-- Check if dev server started successfully
-- Verify network connectivity
-
-### Authentication Failures
-- Ensure `.env` file is configured
-- Check NextAuth configuration
-- Review middleware redirects
-
-### Database Errors
-- Verify database is running
-- Check Prisma migrations are applied
-- Ensure test data is seeded
-
-### Screenshots Not Captured
-- Check `test-results/` directory permissions
-- Verify screenshot configuration in playwright.config.ts
-- Ensure tests reach screenshot commands
-
-## Contributing
-
-When adding new tests:
-
-1. Follow existing naming conventions (TC-XXX-YY)
-2. Add descriptive test names
-3. Include screenshots for visual verification
-4. Document prerequisites and expected outcomes
-5. Update TEST_PLAN.md with new test cases
-6. Ensure tests can run independently
-
-## Resources
-
-- [Playwright Documentation](https://playwright.dev)
-- [Test Plan](./TEST_PLAN.md) - Complete list of test cases
-- [Project Documentation](../README.md)
-- [API Documentation](../src/app/api/)
-
-## Contact
-
-For questions about E2E tests:
-- Review TEST_PLAN.md for test case details
-- Check existing issues in the repository
-- Refer to project README for team contacts
+*End of Documentation Index*

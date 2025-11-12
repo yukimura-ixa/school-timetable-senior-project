@@ -7,13 +7,13 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Lock Templates", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], header, nav', { timeout: 10000 });
   });
 
   test("should display templates button on lock page", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
 
     // Find templates button
     const templatesButton = page.locator("button").filter({ hasText: /ใช้เทมเพลต|เทมเพลต/ });
@@ -21,13 +21,15 @@ test.describe("Lock Templates", () => {
   });
 
   test("should open templates modal when button clicked", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('main, [role="main"], button', { timeout: 10000 });
 
     // Click templates button
     const templatesButton = page.locator("button").filter({ hasText: /ใช้เทมเพลต|เทมเพลต/ });
     await templatesButton.click();
-    await page.waitForTimeout(500);
+    
+    // Wait for modal to appear
+    await expect(page.locator("[role='dialog'], [class*='MuiDialog']")).toBeVisible();
 
     // Modal should be visible
     await expect(page.locator("[role='dialog'], [class*='MuiDialog']")).toBeVisible();
@@ -36,10 +38,10 @@ test.describe("Lock Templates", () => {
 
   test("should display template categories", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Check for category headers
     const hasLunchCategory = await page.locator("text=/พักกลางวัน|Lunch/i").count() > 0;
@@ -52,10 +54,10 @@ test.describe("Lock Templates", () => {
 
   test("should display template cards", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Check for template cards (buttons or clickable elements)
     const templateCards = page.locator("button, [role='button'], [class*='template']").filter({ hasText: /พักกลางวัน|กิจกรรม|เข้าแถว/i });
@@ -65,10 +67,10 @@ test.describe("Lock Templates", () => {
 
   test("should show lunch templates", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Look for lunch-related templates
     const juniorLunch = page.locator("text=/พักกลางวัน.*ม\.ปลาย|junior.*lunch/i");
@@ -80,10 +82,10 @@ test.describe("Lock Templates", () => {
 
   test("should show activity templates", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Look for activity-related templates
     const activityTemplates = page.locator("text=/กิจกรรม|Activity/i");
@@ -93,10 +95,10 @@ test.describe("Lock Templates", () => {
 
   test("should show template descriptions", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Templates should have descriptions
     const descriptions = page.locator("text=/จันทร์-ศุกร์|วันจันทร์|คาบที่|ห้อง/i");
@@ -106,15 +108,15 @@ test.describe("Lock Templates", () => {
 
   test("should allow clicking template card", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click first template card
     const firstTemplate = page.locator("button, [role='button']").filter({ hasText: /พักกลางวัน|กิจกรรม/i }).first();
     await firstTemplate.click();
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
     // Should open preview/confirmation dialog
     const hasPreviewDialog = await page.locator("[role='dialog']").count() > 1 || 
@@ -124,16 +126,16 @@ test.describe("Lock Templates", () => {
 
   test("should display template preview details", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click first template
     const firstTemplate = page.locator("button, [role='button']").filter({ hasText: /พักกลางวัน/i }).first();
     if (await firstTemplate.count() > 0) {
       await firstTemplate.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Should show template details
       const hasDetails = await page.locator("text=/ชั้นเรียน|วิชา|ห้อง|คาบ/i").count() > 0;
@@ -143,16 +145,16 @@ test.describe("Lock Templates", () => {
 
   test("should show total lock count in preview", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click template
     const template = page.locator("button").filter({ hasText: /พักกลางวัน|กิจกรรม/i }).first();
     if (await template.count() > 0) {
       await template.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Should show count (e.g., "จำนวน: 20")
       const hasCount = await page.locator("text=/จำนวน|รวม|ทั้งหมด/i").count() > 0;
@@ -162,16 +164,16 @@ test.describe("Lock Templates", () => {
 
   test("should display warning messages if any", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click template
     const template = page.locator("button").filter({ hasText: /พักกลางวัน/i }).first();
     if (await template.count() > 0) {
       await template.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Warnings may or may not exist (optional check)
       const warningCount = await page.locator("text=/คำเตือน|Warning/i, [class*='warning']").count();
@@ -182,16 +184,16 @@ test.describe("Lock Templates", () => {
 
   test("should have cancel button in template preview", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click template
     const template = page.locator("button").filter({ hasText: /พักกลางวัน/i }).first();
     if (await template.count() > 0) {
       await template.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Should have cancel button
       const cancelButton = page.locator("button").filter({ hasText: /ยกเลิก|ปิด|Cancel/i });
@@ -201,16 +203,16 @@ test.describe("Lock Templates", () => {
 
   test("should have apply/confirm button in template preview", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click template
     const template = page.locator("button").filter({ hasText: /พักกลางวัน/i }).first();
     if (await template.count() > 0) {
       await template.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Should have confirm button
       const confirmButton = page.locator("button").filter({ hasText: /ยืนยัน|ใช้งาน|Apply/i });
@@ -220,21 +222,21 @@ test.describe("Lock Templates", () => {
 
   test("should close preview when cancel clicked", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click template
     const template = page.locator("button").filter({ hasText: /พักกลางวัน/i }).first();
     if (await template.count() > 0) {
       await template.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Click cancel
       const cancelButton = page.locator("button").filter({ hasText: /ยกเลิก|ปิด/i });
       await cancelButton.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length === 1, { timeout: 1000 }).catch(() => {});
 
       // Preview should be closed, but main modal still open
       const dialogCount = await page.locator("[role='dialog']").count();
@@ -244,15 +246,17 @@ test.describe("Lock Templates", () => {
 
   test("should close templates modal when close button clicked", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click close button (X or cancel)
     const closeButton = page.locator("button").filter({ hasText: /ปิด|ยกเลิก/ }).first();
     await closeButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => {
+      return document.querySelectorAll('[role="dialog"]').length === 0;
+    }, { timeout: 2000 }).catch(() => {});
 
     // All modals should be closed
     const modalVisible = await page.locator("[role='dialog']").isVisible();
@@ -262,10 +266,10 @@ test.describe("Lock Templates", () => {
   test("should be responsive on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Modal should be visible and functional on mobile
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -275,10 +279,10 @@ test.describe("Lock Templates", () => {
 test.describe("Lock Templates - Template Coverage", () => {
   test("should have all 8 templates available", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Count template cards
     const templates = page.locator("button, [role='button']").filter({ 
@@ -292,10 +296,10 @@ test.describe("Lock Templates - Template Coverage", () => {
 
   test("should display lunch-junior template", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     const juniorLunch = page.locator("text=/พักกลางวัน.*ม\.ต้น|lunch.*junior/i");
     const hasTemplate = await juniorLunch.count() > 0;
@@ -304,10 +308,10 @@ test.describe("Lock Templates - Template Coverage", () => {
 
   test("should display lunch-senior template", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     const seniorLunch = page.locator("text=/พักกลางวัน.*ม\.ปลาย|lunch.*senior/i");
     const hasTemplate = await seniorLunch.count() > 0;
@@ -316,10 +320,10 @@ test.describe("Lock Templates - Template Coverage", () => {
 
   test("should display activity templates", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Activity templates: morning, club, homeroom
     const activityTemplates = page.locator("text=/กิจกรรม|Activity/i");
@@ -329,10 +333,10 @@ test.describe("Lock Templates - Template Coverage", () => {
 
   test("should display assembly templates", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     const assemblyTemplates = page.locator("text=/เข้าแถว|ชุมนุม|Assembly/i");
     const count = await assemblyTemplates.count();
@@ -344,16 +348,16 @@ test.describe("Lock Templates - Complete Flow", () => {
   test.skip("should complete full template application flow", async ({ page }) => {
     // Skip in CI/automated tests as it modifies database
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     // Open templates modal
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Click a template
     const template = page.locator("button").filter({ hasText: /พักกลางวัน/i }).first();
     await template.click();
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
     // Confirm application
     const confirmButton = page.locator("button").filter({ hasText: /ยืนยัน|ใช้งาน/i });
@@ -363,24 +367,26 @@ test.describe("Lock Templates - Complete Flow", () => {
     await expect(page.locator("text=/สำเร็จ|success/i")).toBeVisible({ timeout: 5000 });
 
     // Modals should close
-    await page.waitForTimeout(1000);
+    await page.waitForFunction(() => {
+      return document.querySelectorAll('[role="dialog"]').length === 0;
+    }, { timeout: 3000 }).catch(() => {});
     const modalVisible = await page.locator("[role='dialog']").isVisible();
     expect(modalVisible).toBe(false);
   });
 
   test.skip("should handle template with warnings", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     // Open templates modal
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Find template that might have warnings (e.g., exam period)
     const examTemplate = page.locator("button").filter({ hasText: /สอบ|Exam/i });
     if (await examTemplate.count() > 0) {
       await examTemplate.first().click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // Check if warnings displayed
       const hasWarnings = await page.locator("text=/คำเตือน|Warning/i").count() > 0;
@@ -407,10 +413,10 @@ test.describe("Lock Templates - Error Handling", () => {
     });
 
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Should show error or empty state
     const hasErrorOrEmpty = await page.locator("text=/ข้อผิดพลาด|Error|ไม่พบ/i").count() > 0 ||
@@ -420,11 +426,11 @@ test.describe("Lock Templates - Error Handling", () => {
 
   test("should handle template application failure", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     // Intercept API calls after opening modal
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Setup error response for apply action
     await page.route("**/api/**", (route) => {
@@ -442,7 +448,7 @@ test.describe("Lock Templates - Error Handling", () => {
     const template = page.locator("button").filter({ hasText: /พักกลางวัน/i }).first();
     if (await template.count() > 0) {
       await template.click();
-      await page.waitForTimeout(500);
+      await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
 
       // If confirmation possible, error should show after confirm
       const confirmButton = page.locator("button").filter({ hasText: /ยืนยัน/i });
@@ -457,10 +463,10 @@ test.describe("Lock Templates - Error Handling", () => {
 test.describe("Lock Templates - Accessibility", () => {
   test("should have proper ARIA labels", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Dialog should have role
     const dialog = page.locator("[role='dialog']");
@@ -469,18 +475,20 @@ test.describe("Lock Templates - Accessibility", () => {
 
   test("should be keyboard navigable", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Should be able to tab through templates
     await page.keyboard.press("Tab");
-    await page.waitForTimeout(200);
+    await page.waitForFunction(() => {
+      return document.activeElement !== document.body;
+    }, { timeout: 500 }).catch(() => {});
     
     // Enter should activate focused template
     await page.keyboard.press("Enter");
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length > 1, { timeout: 2000 }).catch(() => {});
     
     // Some content should change or preview should open
     const hasChange = await page.locator("[role='dialog']").count() > 0;
@@ -489,14 +497,16 @@ test.describe("Lock Templates - Accessibility", () => {
 
   test("should support escape key to close modal", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForLoadState("networkidle");
+    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
-    await page.waitForTimeout(500);
+    await expect(page.locator("[role='dialog']")).toBeVisible();
 
     // Press Escape
     await page.keyboard.press("Escape");
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => {
+      return document.querySelectorAll('[role="dialog"]').length === 0;
+    }, { timeout: 2000 }).catch(() => {});
 
     // Modal should close
     const modalVisible = await page.locator("[role='dialog']").isVisible();
