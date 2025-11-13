@@ -13,37 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-      
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      
-      - name: Generate Prisma Client
-        run: pnpm prisma generate
-        env:
-          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-      
-      - name: Run ESLint
-        run: pnpm lint
-      
-      - name: Run TypeScript type check
-        run: pnpm typecheck
-
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
     
     steps:
       - name: Checkout repository
@@ -63,8 +34,39 @@ jobs:
       
       - name: Generate Prisma Client
         run: pnpm prisma generate
-        env:
-          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+      
+      - name: Run ESLint
+        run: pnpm lint
+      
+      - name: Run TypeScript type check
+        run: pnpm typecheck
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
       
       - name: Run Jest unit tests
         run: pnpm test
@@ -84,6 +86,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+      AUTH_SECRET: build-time-secret
+      AUTH_GOOGLE_ID: dummy-client-id
+      AUTH_GOOGLE_SECRET: dummy-client-secret
+      NEXT_TELEMETRY_DISABLED: 1
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -102,17 +111,9 @@ jobs:
       
       - name: Generate Prisma Client
         run: pnpm prisma generate
-        env:
-          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
       
       - name: Build Next.js application
         run: pnpm build
-        env:
-          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-          AUTH_SECRET: build-time-secret
-          AUTH_GOOGLE_ID: dummy-client-id
-          AUTH_GOOGLE_SECRET: dummy-client-secret
-          NEXT_TELEMETRY_DISABLED: 1
 
   # Trigger E2E tests only if all other checks pass
   trigger-e2e:

@@ -28,6 +28,9 @@ jobs:
       pull-requests: write
       checks: write
     
+    env:
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+    
     # Test sharding: Split tests across parallel jobs
     strategy:
       fail-fast: false
@@ -86,18 +89,12 @@ jobs:
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
       
       - name: Generate Prisma Client
         run: pnpm prisma generate
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
       
       - name: Apply database migrations
         run: pnpm prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
       
       # Seed test database with MOE-compliant data
       # SEED_FOR_TESTS=true triggers:
@@ -144,6 +141,10 @@ jobs:
     if: always()
     needs: [test]
     runs-on: ubuntu-latest
+    
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
