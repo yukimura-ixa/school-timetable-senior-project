@@ -45,37 +45,35 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
   test.describe('Navigation and Access Control', () => {
     test('should show management menu for admin users', async ({ page }) => {
       // Admin should see "จัดการ" menu
-      await page.goto('/', {
-        timeout: 30000,
-        waitUntil: 'domcontentloaded'
-      });
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      
       const managementLink = page.locator('a:has-text("จัดการ")');
-      await expect(managementLink).toBeVisible();
+      await expect(managementLink).toBeVisible({ timeout: 5000 });
     });
 
     test('should display teacher assignment card in management page', async ({ page }) => {
-      await page.goto('/management', {
-        timeout: 30000,
-        waitUntil: 'domcontentloaded'
-      });
+      await page.goto('/management', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
       
       // Should see "มอบหมายครูผู้สอน" card
       const assignmentCard = page.locator('text=มอบหมายครูผู้สอน');
-      await expect(assignmentCard).toBeVisible();
+      await expect(assignmentCard).toBeVisible({ timeout: 5000 });
       
       // Card should have description
       const description = page.locator('text=กำหนดครูผู้สอนแต่ละวิชาตามระดับชั้น');
-      await expect(description).toBeVisible();
+      await expect(description).toBeVisible({ timeout: 5000 });
     });
 
     test('should navigate to teacher assignment page', async ({ page }) => {
-      await page.goto('/management', {
-        timeout: 30000,
-        waitUntil: 'domcontentloaded'
-      });
+      await page.goto('/management', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
       
-      // Click on teacher assignment card
-      await page.click('text=มอบหมายครูผู้สอน');
+      // Click on teacher assignment card - wait for visibility first
+      const assignmentCard = page.locator('text=มอบหมายครูผู้สอน');
+      await expect(assignmentCard).toBeVisible({ timeout: 5000 });
+      await expect(assignmentCard).toBeEnabled();
+      await assignmentCard.click();
       
       // Should navigate to assignment page
       await expect(page).toHaveURL(/\/management\/teacher-assignment/);
@@ -128,26 +126,39 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
 
     test('should load subjects when filters are selected', async ({ page }) => {
       // Select grade - display text is "ม.1" (value is "ม.1/1" internally)
-      await page.locator('#grade-select').click({ force: true });
+      const gradeSelect = page.locator('#grade-select');
+      await expect(gradeSelect).toBeVisible({ timeout: 5000 });
+      await expect(gradeSelect).toBeEnabled();
+      await gradeSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
-      await page.locator('li[data-value="ม.1/1"]').click({ force: true });
       
-      // Wait for selection to register
+      const gradeOption = page.locator('li[data-value="ม.1/1"]');
+      await expect(gradeOption).toBeVisible({ timeout: 3000 });
+      await gradeOption.click({ force: true });
+      
+      // Wait for selection to register (listbox closes)
       await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
-      await page.waitForTimeout(500);
       
       // Select semester
-      await page.locator('#semester-select').click({ force: true });
+      const semesterSelect = page.locator('#semester-select');
+      await expect(semesterSelect).toBeEnabled({ timeout: 3000 });
+      await semesterSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
-      await page.locator('li:has-text("ภาคเรียนที่ 1")').click({ force: true });
+      
+      const semesterOption = page.locator('li:has-text("ภาคเรียนที่ 1")');
+      await expect(semesterOption).toBeVisible({ timeout: 3000 });
+      await semesterOption.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
-      await page.waitForTimeout(500);
-      
       // Select year
-      await page.locator('#year-select').click({ force: true });
+      const yearSelect = page.locator('#year-select');
+      await expect(yearSelect).toBeEnabled({ timeout: 3000 });
+      await yearSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
-      await page.locator('li:has-text("2567")').click({ force: true });
+      
+      const yearOption = page.locator('li:has-text("2567")');
+      await expect(yearOption).toBeVisible({ timeout: 3000 });
+      await yearOption.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
       // Wait for table to load
@@ -183,41 +194,41 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
 
   test.describe('Teacher Assignment Operations', () => {
     test.beforeEach(async ({ page }) => {
-      // Increase timeout and use domcontentloaded
-      await page.goto('/management/teacher-assignment', {
-        timeout: 30000,
-        waitUntil: 'domcontentloaded'
-      });
+      // Navigate with targeted wait
+      await page.goto('/management/teacher-assignment', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
       
-      // Wait for page to be ready
-      await page.waitForSelector('h1:has-text("จัดการมอบหมายครูผู้สอน")', { timeout: 10000 });
+      // Wait for page title
+      await expect(page.locator('h1:has-text("จัดการมอบหมายครูผู้สอน")')).toBeVisible({ timeout: 10000 });
       
       // ✅ FIXED: Wait for filters to be ENABLED (not just exist)
       // AssignmentFilters starts with isLoading=true, making selects disabled
       // We must wait for the async fetch to complete before interacting
-      // Note: MUI Select uses 'Mui-disabled' class on the input element
-      await page.waitForSelector('#grade-select:not(.Mui-disabled)', { 
-        timeout: 10000,
-        state: 'attached'
-      });
+      await page.waitForSelector('#grade-select:not(.Mui-disabled)', { timeout: 10000 });
       
-      // Set up filters using proper MUI Select IDs with stability waits
-      await page.locator('#grade-select').click({ force: true });
+      // Set up filters using proper MUI Select IDs with assertion-based waits
+      const gradeSelect = page.locator('#grade-select');
+      await expect(gradeSelect).toBeEnabled();
+      await gradeSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
       await page.locator('li[data-value="ม.1/1"]').click({ force: true });
-      await page.waitForTimeout(500); // Wait for selection to complete
+      await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
       // Semester select
-      await page.locator('#semester-select').click({ force: true });
+      const semesterSelect = page.locator('#semester-select');
+      await expect(semesterSelect).toBeEnabled({ timeout: 3000 });
+      await semesterSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
       await page.locator('li:has-text("ภาคเรียนที่ 1")').click({ force: true });
-      await page.waitForTimeout(500); // Wait for selection to complete
+      await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
       // Year select
-      await page.locator('#year-select').click({ force: true });
+      const yearSelect = page.locator('#year-select');
+      await expect(yearSelect).toBeEnabled({ timeout: 3000 });
+      await yearSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
       await page.locator('li:has-text("2567")').click({ force: true });
-      await page.waitForTimeout(500); // Wait for selection to complete
+      await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
       // Wait for table to load
       await page.waitForSelector('table', { timeout: 10000 });
@@ -299,10 +310,18 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
       await hoursInput.fill('4');
       
       // Click assign button
-      await targetRow.locator('button:has-text("มอบหมาย")').click();
+      const assignButton = targetRow.locator('button:has-text("มอบหมาย")');
+      await expect(assignButton).toBeVisible({ timeout: 3000 });
+      await expect(assignButton).toBeEnabled();
+      await assignButton.click();
       
-      // Wait for success message or page reload
-      await page.waitForTimeout(2000); // Give time for the action
+      // Wait for assignment to complete (table update or success feedback)
+      await expect(async () => {
+        const teacherCell = targetRow.locator('td').nth(3);
+        const teacherName = await teacherCell.textContent();
+        expect(teacherName).not.toBe('-');
+        expect(teacherName?.length).toBeGreaterThan(0);
+      }).toPass({ timeout: 5000 });
       
       // Verify assignment (teacher name should appear)
       const updatedRow = page.locator(`tbody tr:has-text("${subjectCode}")`);
@@ -389,61 +408,60 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
       
       // Click unassign button (IconButton with DeleteIcon, color="error")
       const unassignButton = targetRow.locator('button[color="error"]');
+      await expect(unassignButton).toBeVisible({ timeout: 3000 });
+      await expect(unassignButton).toBeEnabled();
       await unassignButton.click();
       
       // Confirm dialog
       const confirmButton = page.locator('button:has-text("ยืนยัน")');
       if (await confirmButton.isVisible({ timeout: 2000 })) {
+        await expect(confirmButton).toBeEnabled();
         await confirmButton.click();
       }
       
-      // Wait for action to complete (don't wait for networkidle, it may timeout)
-      await page.waitForTimeout(2000);
-      
-      // Verify unassignment
+      // Wait for unassignment to complete - check teacher cell reverts to '-'
       const updatedRow = page.locator(`tbody tr:has-text("${subjectCode}")`);
       const teacherCell = updatedRow.locator('td').nth(3);
-      await expect(teacherCell).toHaveText('-');
+      await expect(teacherCell).toHaveText('-', { timeout: 5000 });
     });
   });
 
   test.describe('Bulk Operations', () => {
     test.beforeEach(async ({ page }) => {
-      // Increase timeout and use domcontentloaded
-      await page.goto('/management/teacher-assignment', {
-        timeout: 30000,
-        waitUntil: 'domcontentloaded'
-      });
+      // Navigate with targeted wait
+      await page.goto('/management/teacher-assignment', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
       
-      // Wait for page to be ready
-      await page.waitForSelector('h1:has-text("จัดการมอบหมายครูผู้สอน")', { timeout: 10000 });
+      // Wait for page title
+      await expect(page.locator('h1:has-text("จัดการมอบหมายครูผู้สอน")')).toBeVisible({ timeout: 10000 });
       
-      // ✅ FIXED: Wait for filters to be ENABLED (not just exist)
-      // AssignmentFilters starts with isLoading=true, making selects disabled
-      // We must wait for the async fetch to complete before interacting
-      // Note: MUI Select uses 'Mui-disabled' class on the input element
-      await page.waitForSelector('#grade-select:not(.Mui-disabled)', { 
-        timeout: 10000,
-        state: 'attached'
-      });
+      // ✅ FIXED: Wait for filters to be ENABLED
+      await page.waitForSelector('#grade-select:not(.Mui-disabled)', { timeout: 10000 });
       
-      // Set up filters using MUI Select - click input directly with force
-      await page.locator('#grade-select').click({ force: true });
+      // Set up filters with assertion-based waits
+      const gradeSelect = page.locator('#grade-select');
+      await expect(gradeSelect).toBeEnabled();
+      await gradeSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
       await page.locator('li[data-value="ม.1/1"]').click({ force: true });
-      await page.waitForTimeout(500); // Wait for selection to complete
+      await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
-      await page.locator('#semester-select').click({ force: true });
+      const semesterSelect = page.locator('#semester-select');
+      await expect(semesterSelect).toBeEnabled({ timeout: 3000 });
+      await semesterSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
       await page.locator('li:has-text("ภาคเรียนที่ 1")').click({ force: true });
-      await page.waitForTimeout(500); // Wait for selection to complete
+      await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
-      await page.locator('#year-select').click({ force: true });
+      const yearSelect = page.locator('#year-select');
+      await expect(yearSelect).toBeEnabled({ timeout: 3000 });
+      await yearSelect.click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'visible', timeout: 5000 });
       await page.locator('li:has-text("2567")').click({ force: true });
       await page.waitForSelector('[role="listbox"]', { state: 'hidden', timeout: 5000 });
       
-      await page.waitForSelector('table', { timeout: 10000 });
+      // Wait for table to load
+      await expect(page.locator('table')).toBeVisible({ timeout: 10000 });
     });
 
     test('should display bulk action buttons', async ({ page }) => {
@@ -459,13 +477,22 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
     test('should show confirmation dialog for clear all', async ({ page }) => {
       // Wait for button to be available
       const clearButton = page.locator('button:has-text("ลบการมอบหมายทั้งหมด")');
-      await clearButton.waitFor({ timeout: 5000 });
+      await expect(clearButton).toBeVisible({ timeout: 5000 });
+      await expect(clearButton).toBeEnabled();
       
-      // Click clear all button (actual text from component)
+      // Click clear all button
       await clearButton.click();
       
-      // Wait a moment for any dialog/modal to appear
-      await page.waitForTimeout(1000);
+      // Wait for dialog/modal to appear
+      await expect(async () => {
+        const dialog = page.locator('[role="dialog"], .MuiDialog-root');
+        const confirmButton = page.locator('button:has-text("ยืนยัน")');
+        const cancelButton = page.locator('button:has-text("ยกเลิก")');
+        
+        const hasDialog = await dialog.isVisible();
+        const hasButtons = (await confirmButton.isVisible()) || (await cancelButton.isVisible());
+        expect(hasDialog || hasButtons).toBe(true);
+      }).toPass({ timeout: 3000 });
       
       // Check if any modal/dialog appeared (MUI may use different structure)
       const hasDialog = await page.locator('[role="dialog"]').count() > 0 
@@ -492,23 +519,30 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
       
       // Wait for button to be available
       const copyButton = page.locator('button:has-text("คัดลอกจากภาคเรียนก่อนหน้า")');
-      await copyButton.waitFor({ timeout: 5000 });
+      await expect(copyButton).toBeVisible({ timeout: 5000 });
+      await expect(copyButton).toBeEnabled();
       
-      // Click copy button (actual text from component)
+      // Click copy button
       await copyButton.click();
       
       // Confirm dialog (if appears)
       const confirmButton = page.locator('button:has-text("ยืนยัน")');
       if (await confirmButton.isVisible({ timeout: 2000 })) {
+        await expect(confirmButton).toBeEnabled();
         await confirmButton.click();
       }
       
-      // Wait for operation to complete (don't use networkidle, use timeout)
-      await page.waitForTimeout(3000);
+      // Wait for operation to complete - check for success feedback or table update
+      await expect(async () => {
+        // Either success message appears or table is visible
+        const title = page.locator('h1:has-text("จัดการมอบหมายครูผู้สอน")');
+        const table = page.locator('table');
+        const titleVisible = await title.isVisible();
+        const tableVisible = await table.isVisible();
+        expect(titleVisible || tableVisible).toBe(true);
+      }).toPass({ timeout: 5000 });
       
-      // Should show success message or updated data
-      // (Exact assertion depends on whether previous semester has data)
-      // Just verify page is still responsive
+      // Verify page is still responsive
       const title = page.locator('h1:has-text("จัดการมอบหมายครูผู้สอน")');
       await expect(title).toBeVisible();
     });
@@ -516,11 +550,9 @@ test.describe('Issue #94 - Teacher Assignment Management', () => {
 
   test.describe('Error Handling', () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto('/management/teacher-assignment', {
-        timeout: 30000,
-        waitUntil: 'domcontentloaded'
-      });
-      await page.waitForSelector('h1:has-text("จัดการมอบหมายครูผู้สอน")', { timeout: 10000 });
+      await page.goto('/management/teacher-assignment', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      await expect(page.locator('h1:has-text("จัดการมอบหมายครูผู้สอน")')).toBeVisible({ timeout: 10000 });
     });
 
     test('should show error when filters not selected', async ({ page }) => {
