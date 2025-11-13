@@ -95,10 +95,14 @@ async function globalSetup() {
   }
   
   const autoManageDb = process.env.AUTO_MANAGE_TEST_DB !== 'false';
+  // Quick fallback: if Docker is unavailable and we only need UI smoke (e.g. teacher dropdown #118), allow skip via FAST_UI_ONLY
+  const fastUiOnly = process.env.FAST_UI_ONLY === 'true';
   const isDocker = isDockerAvailable();
   
   // Check if we should manage the test database
-  if (autoManageDb && isDocker) {
+  if (fastUiOnly) {
+    console.log('🚀 FAST_UI_ONLY enabled - skipping database startup for UI selector validation\n');
+  } else if (autoManageDb && isDocker) {
     console.log('🐳 Docker Compose lifecycle management: ENABLED\n');
     
     const isRunning = isDatabaseRunning();
@@ -153,6 +157,10 @@ async function globalSetup() {
     return;
   }
   
+  if (fastUiOnly) {
+    console.log('⚡ FAST_UI_ONLY: Skipping database seed and proceeding with UI-only tests.\n');
+    return; // Exit early; tests rely on dev bypass/mock session
+  }
   console.log('🌱 Seeding test database...\n');
 
   // Clear any residual auth/session cookies between prior runs to avoid mismatched JWT secrets.

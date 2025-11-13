@@ -17,6 +17,8 @@ interface DropdownProps {
   useSearchBar?: boolean;
   searchFunction?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   borderColor?: string;
+  /** Optional: Extract unique ID from data item for stable E2E selectors */
+  getItemId?: (item: unknown) => string | number;
 }
 
 function Dropdown({
@@ -30,6 +32,7 @@ function Dropdown({
   useSearchBar = false,
   searchFunction,
   borderColor = "",
+  getItemId, // Extract ID for stable selectors
 }: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
@@ -58,6 +61,9 @@ function Dropdown({
           height: height,
           borderColor: `${borderColor}`,
         }}
+        role="combobox" // ARIA role for accessibility and E2E stability
+        aria-expanded={isHidden}
+        aria-haspopup="listbox"
       >
         <div
           className="flex justify-left text-sm"
@@ -114,6 +120,8 @@ function Dropdown({
           width: width === null ? "fit-content" : width,
           height: data.length < 3 ? "auto" : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
         }}
+        role="listbox" // ARIA role for options container
+        aria-hidden={!isHidden}
       >
         {useSearchBar && searchFunction ? (
           <SearchBar height="auto" fill="#FFFFFF" handleChange={searchFunction} />
@@ -135,6 +143,7 @@ function Dropdown({
         ) : (
           <div className="bg-white">
             {data.map((item, index: number) => {
+              const itemId = getItemId ? getItemId(item) : undefined;
               return (
                 <ul
                   className={`
@@ -155,6 +164,9 @@ function Dropdown({
                   }}
                   //เมื่อกดเลือกข้อมูลใน List Dropdown จะพับกลับขึ้นไปแล้วเรียก handleChange
                   //ที่ส่งผ่าน props มาตอนแรก เพื่อส่งชุดข้อมูลที่เลือกกลับไป setState ที่ต้องการ
+                  role="option" // ARIA role for individual option
+                  data-item-id={itemId} // Stable selector for E2E tests
+                  aria-selected={false}
                 >
                   {/* Component ที่ส่งมาให้ใช้งาน รับ props เป็น data */}
                   <ItemElement data={item} />

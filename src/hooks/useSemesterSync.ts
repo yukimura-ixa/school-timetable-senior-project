@@ -24,18 +24,18 @@ interface SemesterSyncResult {
 }
 
 export function useSemesterSync(semesterAndYear: string): SemesterSyncResult {
-  const { setSemester } = useSemesterStore();
+  const { setSemester, selectedSemester } = useSemesterStore();
 
   // Parse URL param
   const [semester, academicYear] = semesterAndYear.split("-");
   const configId = semesterAndYear;
 
   useEffect(() => {
-    // Sync URL params with global store on mount and when params change
-    if (semester && academicYear) {
+    // Only sync if semester changed (prevent unnecessary localStorage writes)
+    if (semester && academicYear && selectedSemester !== configId) {
       setSemester(configId, parseInt(academicYear), parseInt(semester));
     }
-  }, [semester, academicYear, configId, setSemester]);
+  }, [semester, academicYear, configId, selectedSemester, setSemester]);
 
   return {
     semester: semester || '',

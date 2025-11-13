@@ -24,6 +24,7 @@
 import { create } from 'zustand';
 import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
+import { useShallow } from 'zustand/react/shallow';
 import type { class_schedule, teacher } from '@/prisma/generated';
 
 // Import strict types from schedule.types.ts
@@ -588,10 +589,12 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
  */
 
 export const useCurrentTeacher = () =>
-  useTeacherArrangeStore((state) => ({
-    id: state.currentTeacherID,
-    data: state.teacherData,
-  }));
+  useTeacherArrangeStore(
+    useShallow((state) => ({
+      id: state.currentTeacherID,
+      data: state.teacherData,
+    }))
+  );
 
 export const useSelectedSubject = () =>
   useTeacherArrangeStore((state) => state.selectedSubject);
@@ -615,16 +618,20 @@ export const useLockData = () =>
   useTeacherArrangeStore((state) => state.lockData);
 
 export const useModalState = () =>
-  useTeacherArrangeStore((state) => ({
-    isOpen: state.isActiveModal,
-    payload: state.subjectPayload,
-  }));
+  useTeacherArrangeStore(
+    useShallow((state) => ({
+      isOpen: state.isActiveModal,
+      payload: state.subjectPayload,
+    }))
+  );
 
 export const useErrorState = () =>
-  useTeacherArrangeStore((state) => ({
-    errorMessages: state.showErrorMsgByTimeslotID,
-    lockMessages: state.showLockDataMsgByTimeslotID,
-  }));
+  useTeacherArrangeStore(
+    useShallow((state) => ({
+      errorMessages: state.showErrorMsgByTimeslotID,
+      lockMessages: state.showLockDataMsgByTimeslotID,
+    }))
+  );
 
 export const useSaveState = () =>
   useTeacherArrangeStore((state) => state.isSaving);
@@ -633,12 +640,14 @@ export const useFilters = () =>
   useTeacherArrangeStore((state) => state.filters);
 
 export const useHistoryControls = () =>
-  useTeacherArrangeStore((state) => ({
-    canUndo: state.canUndo(),
-    canRedo: state.canRedo(),
-    undo: state.undo,
-    redo: state.redo,
-  }));
+  useTeacherArrangeStore(
+    useShallow((state) => ({
+      canUndo: state.canUndo(),
+      canRedo: state.canRedo(),
+      undo: state.undo,
+      redo: state.redo,
+    }))
+  );
 
 // ============================================================================
 // Store Actions Hook (for components needing only actions)
@@ -646,10 +655,12 @@ export const useHistoryControls = () =>
 
 /**
  * Actions-only hook for components that only trigger updates
- * Prevents re-renders when state changes since actions are stable
+ * Uses useShallow to prevent re-renders from new object references
+ * Context7: /pmndrs/zustand/docs/hooks/use-shallow.md
  */
 export const useTeacherArrangeActions = () =>
-  useTeacherArrangeStore((state) => ({
+  useTeacherArrangeStore(
+    useShallow((state) => ({
     // Teacher
     setCurrentTeacherID: state.setCurrentTeacherID,
     setTeacherData: state.setTeacherData,
@@ -707,7 +718,8 @@ export const useTeacherArrangeActions = () =>
     // Reset
     resetAllState: state.resetAllState,
     resetOnTeacherChange: state.resetOnTeacherChange,
-  }));
+  })),
+  );
 
 // ============================================================================
 // Type Exports

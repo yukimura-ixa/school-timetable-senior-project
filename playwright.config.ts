@@ -21,7 +21,6 @@ export default defineConfig({
   globalTeardown: require.resolve('./playwright.global-teardown.ts'),
   
   reporter: [
-    ['html'],
     ['list'],
     ['json', { outputFile: 'test-results/results.json' }],
   ],
@@ -44,7 +43,6 @@ export default defineConfig({
     },
 
     // Main test project - uses saved authentication state
-    // Main test project - uses saved authentication state
     {
       name: 'chromium',
       use: {
@@ -55,22 +53,6 @@ export default defineConfig({
       },
       dependencies: ['setup'],
     },
-    // Brave browser disabled for CI performance (2x faster)
-    // Uncomment for local cross-browser testing if needed
-    // {
-    //   name: 'brave',
-    //   use: {
-    //     ...devices['Desktop Chrome'],
-    //     launchOptions: {
-    //       executablePath: 'C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe',
-    //       args: [
-    //         '--disable-blink-features=AutomationControlled',
-    //         '--disable-dev-shm-usage',
-    //         '--no-sandbox',
-    //       ],
-    //     },
-    //   },
-    // },
   ],
 
   /* Run your local dev server before starting the tests */

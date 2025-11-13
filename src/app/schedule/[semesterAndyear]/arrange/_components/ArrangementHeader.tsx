@@ -129,6 +129,8 @@ export function ArrangementHeader({
             <Select
               labelId="teacher-select-label"
               id="teacher-select"
+              data-testid="teacher-select"
+              aria-label="เลือกครูผู้สอน"
               value={teacherData?.TeacherID?.toString() || ''}
               onChange={(e) => onTeacherChange(e.target.value)}
               label="เลือกครูผู้สอน"

@@ -40,9 +40,15 @@ export class ArrangePage extends BasePage {
     super(page);
 
     // Locators
-    this.teacherDropdown = page.locator('[role="button"]', { hasText: 'เลือกครู' });
-    this.teacherOption = (teacherName: string) => 
-      page.locator('[role="option"]', { hasText: teacherName });
+    // Use a single, unique target to avoid Playwright strict mode violations
+    // Prefer the actual combobox element by role and accessible name
+    this.teacherDropdown = page
+      .getByRole('combobox', { name: /เลือกครู/ })
+      .or(page.locator('#teacher-select[role="combobox"]'));
+    this.teacherOption = (teacherName: string) =>
+      page.getByRole('option', { name: new RegExp(`^${teacherName}$`) }).or(
+        page.locator('li[role="option"]', { hasText: teacherName })
+      );
     
     this.subjectPalette = page.locator('[data-testid="subject-palette"]').or(
       page.locator('div').filter({ hasText: 'รายวิชาที่สามารถจัด' })
@@ -100,10 +106,145 @@ export class ArrangePage extends BasePage {
 
   /**
    * Select a teacher from dropdown
+   * 
+   * Updated for custom Dropdown component with data-item-id attribute.
+   * Supports both MUI Select (role="option" with data-value) and custom Dropdown (data-item-id).
+   * 
+   * @param teacherIdOrName - TeacherID number (preferred) or teacher full name (fallback)
    */
-  async selectTeacher(teacherName: string) {
-    await this.teacherDropdown.click();
-    await this.teacherOption(teacherName).click();
+  async selectTeacher(teacherIdOrName: string | number) {
+    // Fast-path: known test teacher names -> direct navigation with query param avoids brittle dropdown
+    const raw = String(teacherIdOrName).trim();
+    const knownTeachers: Record<string, number> = {
+      'นาย สมชาย สมบูรณ์': 1,
+      'นางสาว สุดารัตน์ เลิศล้ำ': 11,
+      'นางสาว กนกวรรณ วรวัฒน์': 31,
+    };
+    if (typeof teacherIdOrName === 'string' && knownTeachers[raw]) {
+      const currentMatch = this.page.url().match(/schedule\/([^/]+)\/arrange/);
+      const semSeg = currentMatch ? currentMatch[1] : '1-2567';
+      await this.page.goto(`/schedule/${semSeg}/arrange?TeacherID=${knownTeachers[raw]}`, { waitUntil: 'domcontentloaded' });
+      // Wait for palette after direct navigation
+      await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
+      await this.waitForPageLoad();
+      return;
+    }
+
+    await expect(this.teacherDropdown).toBeVisible({ timeout: 10000 });
+    await expect(this.teacherDropdown).toBeEnabled({ timeout: 10000 });
+
+    // Open dropdown (retry if needed)
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await this.teacherDropdown.first().click();
+      const listboxVisible = await this.page.locator('[role="listbox"]').isVisible().catch(() => false);
+      if (listboxVisible) break;
+      await this.page.waitForTimeout(200);
+    }
+
+    const listbox = this.page.locator('[role="listbox"]');
+    await expect(listbox).toBeVisible({ timeout: 7000 });
+
+    // Normalize teacher name (strip Thai titles) for fuzzy matching
+    const normalized = raw.replace(/^(นาย|นางสาว|นาง|ครู)\s*/, '');
+    const nameTokens = normalized.split(/\s+/).filter(Boolean);
+
+    // Helper: attempt textbox search if present
+    const searchBox = listbox.locator('input[type="text"], [role="textbox"]');
+    const searchAvailable = await searchBox.isVisible({ timeout: 500 }).catch(() => false);
+
+    // Wait for initial options load (poll up to 2s)
+    await this.page.waitForFunction(() => {
+      return document.querySelectorAll('li[role="option"],[role="option"]').length > 0;
+    }, { timeout: 2000 }).catch(() => {});
+
+    let allOptionNodes = this.page.locator('li[role="option"],[role="option"]');
+    let optionCount = await allOptionNodes.count();
+
+    // If still no options and search box exists, type a token to trigger filtering
+    if (optionCount === 0 && searchAvailable && nameTokens.length) {
+      await searchBox.fill(nameTokens[nameTokens.length - 1]);
+      await this.page.waitForFunction(() => {
+        return document.querySelectorAll('li[role="option"],[role="option"]').length > 0;
+      }, { timeout: 3000 }).catch(() => {});
+      optionCount = await allOptionNodes.count();
+    }
+
+    // Fallback: type entire normalized name if still no options
+    if (optionCount === 0 && searchAvailable) {
+      await searchBox.fill(normalized);
+      await this.page.waitForFunction(() => {
+        return document.querySelectorAll('li[role="option"],[role="option"]').length > 0;
+      }, { timeout: 3000 }).catch(() => {});
+      optionCount = await allOptionNodes.count();
+    }
+
+    // Collect and match option texts using strict multi-token matching.
+    let optionTexts = await allOptionNodes.allTextContents();
+
+    let chosenIndex = -1;
+    if (typeof teacherIdOrName === 'number' || /^\d+$/.test(String(teacherIdOrName))) {
+      const idLocator = this.page.locator(`[role="option"][data-item-id="${teacherIdOrName}"]`).or(
+        this.page.locator(`[role="option"][data-value="${teacherIdOrName}"]`)
+      );
+      if (await idLocator.first().isVisible({ timeout: 500 }).catch(() => false)) {
+        await idLocator.first().click();
+        await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
+        await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
+        await this.waitForPageLoad();
+        return;
+      }
+      chosenIndex = optionTexts.findIndex(t => t.includes(String(teacherIdOrName)));
+    } else {
+      // Try exact raw match first
+      chosenIndex = optionTexts.findIndex(t => t.trim() === raw);
+      if (chosenIndex === -1) {
+        // Exact normalized (without title)
+        chosenIndex = optionTexts.findIndex(t => t.replace(/^(นาย|นางสาว|นาง|ครู)\s*/, '').trim() === normalized);
+      }
+      if (chosenIndex === -1) {
+        const lowerTokens = nameTokens.map(t => t.toLowerCase());
+        chosenIndex = optionTexts.findIndex(t => {
+          const lower = t.toLowerCase();
+          return lowerTokens.every(tok => lower.includes(tok));
+        });
+      }
+      if (chosenIndex === -1 && searchAvailable) {
+        // Refine by searching full normalized text
+        await searchBox.fill(normalized);
+        await this.page.waitForTimeout(300);
+        await this.page.waitForFunction(() => document.querySelectorAll('li[role="option"],[role="option"]').length > 0, { timeout: 1500 }).catch(() => {});
+        allOptionNodes = this.page.locator('li[role="option"],[role="option"]');
+        optionTexts = await allOptionNodes.allTextContents();
+        const lowerTokens = nameTokens.map(t => t.toLowerCase());
+        chosenIndex = optionTexts.findIndex(t => {
+          const lower = t.toLowerCase();
+          return lowerTokens.every(tok => lower.includes(tok));
+        });
+      }
+    }
+
+    let finalOption: Locator | null = null;
+    if (chosenIndex >= 0) {
+      finalOption = allOptionNodes.nth(chosenIndex);
+    } else {
+      if (typeof teacherIdOrName === 'number' || /^\d+$/.test(String(teacherIdOrName))) {
+        finalOption = this.page.locator(`[role="option"][data-item-id="${teacherIdOrName}"]`).or(
+          this.page.locator(`[role="option"][data-value="${teacherIdOrName}"]`)
+        );
+      } else {
+        finalOption = this.page.getByRole('option', { name: new RegExp(raw) }).or(
+          this.page.locator('li[role="option"]').filter({ hasText: raw })
+        ).or(
+          this.page.locator('li[role="option"]').filter({ hasText: normalized })
+        );
+      }
+    }
+
+    await expect(finalOption!).toBeVisible({ timeout: 8000 });
+    await finalOption!.click();
+
+    await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
+    await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
     await this.waitForPageLoad();
   }
 

@@ -1,15 +1,34 @@
 # .github/workflows/e2e-tests.yml
 name: E2E Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      shard_count:
+        description: 'Number of test shards (1-8)'
+        required: false
+        default: '4'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '4'
+          - '8'
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
-      contents: write
+      contents: read
+      pull-requests: write
+      checks: write
     
-    # Test sharding: Split tests across 4 parallel jobs
+    # Test sharding: Split tests across parallel jobs
     strategy:
       fail-fast: false
       matrix:
@@ -32,38 +51,53 @@ jobs:
           --health-retries 5
     
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
       
       # Setup environment variables for E2E testing
       # CRITICAL: Both ENABLE_DEV_BYPASS and NEXT_PUBLIC_ENABLE_DEV_BYPASS required
       # - ENABLE_DEV_BYPASS: Server-side auth bypass check
       # - NEXT_PUBLIC_ENABLE_DEV_BYPASS: Client-side button visibility (Next.js build-time inline)
-      - name: Setup environment
+      - name: Setup environment variables
         run: |
-          echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_timetable" >> .env.test.local
-          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env.test.local
-          echo "AUTH_GOOGLE_ID=${{ secrets.AUTH_GOOGLE_ID }}" >> .env.test.local
-          echo "AUTH_GOOGLE_SECRET=${{ secrets.AUTH_GOOGLE_SECRET }}" >> .env.test.local
-          echo "ENABLE_DEV_BYPASS=true" >> .env.test.local
-          echo "NEXT_PUBLIC_ENABLE_DEV_BYPASS=true" >> .env.test.local
-          echo "SEED_FOR_TESTS=true" >> .env.test.local
-          echo "SEED_CLEAN_DATA=true" >> .env.test.local
-          echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
-          
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+          cat > .env.test.local << EOF
+          DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_timetable
+          AUTH_SECRET=ci-test-secret-$(openssl rand -hex 16)
+          AUTH_GOOGLE_ID=dummy-client-id
+          AUTH_GOOGLE_SECRET=dummy-client-secret
+          ENABLE_DEV_BYPASS=true
+          NEXT_PUBLIC_ENABLE_DEV_BYPASS=true
+          SEED_FOR_TESTS=true
+          SEED_CLEAN_DATA=true
+          NEXT_TELEMETRY_DISABLED=1
+          NODE_ENV=test
+          CI=true
+          EOF
+          cat .env.test.local
       
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+      
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
       
       - name: Apply database migrations
-        run: pnpm db:deploy
+        run: pnpm prisma migrate deploy
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
       
@@ -72,7 +106,7 @@ jobs:
       # - E2E test data seeding (56 teachers, 82 subjects, etc.)
       # - Auth session cleanup (prevents stale session conflicts)
       # - Verification token cleanup
-      - name: Seed test database (clean slate)
+      - name: Seed test database
         run: pnpm db:seed:clean
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
@@ -80,20 +114,18 @@ jobs:
           SEED_CLEAN_DATA: "true"
       
       - name: Install Playwright browsers
-        run: pnpm playwright:install
+        run: pnpm exec playwright install --with-deps chromium
       
       - name: Run E2E tests (Shard ${{ matrix.shard }}/4)
-        run: pnpm playwright test --shard=${{ matrix.shard }}/4
+        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
-          AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
           ENABLE_DEV_BYPASS: "true"
           NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true"
-          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_TELEMETRY_DISABLED: "1"
+          CI: "true"
       
-      - name: Upload test results
+      - name: Upload Playwright Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -101,13 +133,55 @@ jobs:
           path: playwright-report/
           retention-days: 30
       
-      - name: Upload test videos (on failure)
+      - name: Upload test artifacts (on failure)
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-videos-shard-${{ matrix.shard }}
+          name: test-results-shard-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+  
+  # Merge reports from all shards
+  merge-reports:
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: all-reports
+          pattern: playwright-report-shard-*
+      
+      - name: Merge reports
+        run: |
+          pnpm exec playwright merge-reports --reporter html ./all-reports/playwright-report-shard-*
+        continue-on-error: true
+      
+      - name: Upload merged report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-merged
+          path: playwright-report/
+          retention-days: 30
 
 # Temporary database is automatically destroyed after job completes
-# Test sharding: 4 parallel jobs, each running ~25% of tests (~7 tests per shard)
+# Test sharding: 4 parallel jobs by default, customizable via workflow_dispatch

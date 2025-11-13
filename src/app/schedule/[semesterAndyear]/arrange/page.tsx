@@ -1205,7 +1205,7 @@ export default function ArrangementPage() {
               ) : (
                 <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3}>
                   {/* Subject Palette - Phase 2 Enhanced */}
-                  <Box sx={{ width: { xs: '100%', lg: 300 }, flexShrink: 0 }}>
+                  <Box sx={{ width: { xs: '100%', lg: 300 }, flexShrink: 0 }} data-testid="subject-palette">
                     <SearchableSubjectPalette
                       respData={availableSubjects || []}
                       dropOutOfZone={() => {

@@ -21,6 +21,9 @@ import path from 'path';
 
 const authFile = path.join(__dirname, '../playwright/.auth/admin.json');
 
+// Increase setup timeout to accommodate initial compile/HMR and seeding
+setup.setTimeout(60_000);
+
 setup('authenticate as admin', async ({ page }) => {
   console.log('[AUTH SETUP] Starting authentication flow...');
 
@@ -53,19 +56,23 @@ setup('authenticate as admin', async ({ page }) => {
       console.log('[AUTH SETUP] Semester synced to localStorage:', storageValue);
     } catch (error) {
       console.warn('[AUTH SETUP] Timeout waiting for semester-storage');
-      const storageValue = await page.evaluate(() => window.localStorage.getItem('semester-storage'));
-      console.log('[AUTH SETUP] Current storage value:', storageValue);
-      
-      if (!storageValue) {
-        console.log('[AUTH SETUP] Manually setting semester-storage as fallback');
-        await page.evaluate(() => {
-          window.localStorage.setItem('semester-storage', JSON.stringify({
-            state: { semester: '1-2567' },
-            version: 0
-          }));
-        });
-        const verifyStorage = await page.evaluate(() => window.localStorage.getItem('semester-storage'));
-        console.log('[AUTH SETUP] Verified semester storage:', verifyStorage);
+      if (!page.isClosed()) {
+        const storageValue = await page.evaluate(() => window.localStorage.getItem('semester-storage'));
+        console.log('[AUTH SETUP] Current storage value:', storageValue);
+        
+        if (!storageValue) {
+          console.log('[AUTH SETUP] Manually setting semester-storage as fallback');
+          await page.evaluate(() => {
+            window.localStorage.setItem('semester-storage', JSON.stringify({
+              state: { semester: '1-2567' },
+              version: 0
+            }));
+          });
+          const verifyStorage = await page.evaluate(() => window.localStorage.getItem('semester-storage'));
+          console.log('[AUTH SETUP] Verified semester storage:', verifyStorage);
+        }
+      } else {
+        console.warn('[AUTH SETUP] Page already closed; skipping semester-storage inspection');
       }
     }
     

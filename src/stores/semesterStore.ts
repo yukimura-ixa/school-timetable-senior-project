@@ -20,27 +20,20 @@ type SemesterState = {
 
 export const useSemesterStore = create<SemesterState>()(
   persist(
-    (set) => ({
+    (setState) => ({
       selectedSemester: null,
       academicYear: null,
       semester: null,
-      
       setSemester: (configId, academicYear, semester) =>
-        set({
-          selectedSemester: configId,
-          academicYear,
-          semester,
-        }),
-      
+        setState({ selectedSemester: configId, academicYear, semester }),
       clearSemester: () =>
-        set({
-          selectedSemester: null,
-          academicYear: null,
-          semester: null,
-        }),
+        setState({ selectedSemester: null, academicYear: null, semester: null }),
     }),
-    {
-      name: "semester-selection", // localStorage key
-    }
+    { name: "semester-selection" }
   )
 );
+
+// Expose for E2E (non-production) without global type augmentation to avoid build issues
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  (window as unknown as { __semesterStore?: typeof useSemesterStore }).__semesterStore = useSemesterStore;
+}

@@ -37,6 +37,7 @@ function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
           }}
           searchFunction={undefined}
           data-testid="teacher-selector"
+          getItemId={(item: any) => item.TeacherID} // Extract TeacherID for stable E2E selectors
         />
       </div>
     </>
