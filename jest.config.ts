@@ -20,6 +20,12 @@ const config: Config = {
   // Per-file override available via @jest-environment docblock
   testEnvironment: 'jest-environment-node',
   
+  // Parallel execution optimization
+  // Use 50% of available CPU cores for better CI performance
+  // In CI: typically 2 cores available, so uses 1 worker
+  // Locally: e.g., 8 cores = 4 workers for faster test execution
+  maxWorkers: '50%',
+  
   // Module name mapper for path aliases
   // Match tsconfig.json paths configuration
   moduleNameMapper: {

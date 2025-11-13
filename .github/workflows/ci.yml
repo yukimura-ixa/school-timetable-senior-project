@@ -4,8 +4,20 @@ name: CI
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'screenshots/**'
+      - 'LICENSE'
+      - '.gitignore'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'screenshots/**'
+      - 'LICENSE'
+      - '.gitignore'
 
 jobs:
   lint:
@@ -28,6 +40,25 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+      
+      - name: Cache Prisma Client
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('prisma/schema.prisma') }}
+          restore-keys: |
+            ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-prisma-
+      
+      - name: Cache TypeScript Build Info
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/.tsbuildinfo
+            **/*.tsbuildinfo
+          key: ${{ runner.os }}-tsbuildinfo-${{ hashFiles('**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-tsbuildinfo-
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -61,6 +92,26 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+      
+      - name: Cache Prisma Client
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('prisma/schema.prisma') }}
+          restore-keys: |
+            ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-prisma-
+      
+      - name: Cache Jest
+        uses: actions/cache@v4
+        with:
+          path: |
+            .jest-cache
+            coverage
+          key: ${{ runner.os }}-jest-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.test.ts', '**/*.test.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-jest-
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -105,6 +156,25 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+      
+      - name: Cache Prisma Client
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('prisma/schema.prisma') }}
+          restore-keys: |
+            ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-prisma-
+      
+      - name: Cache Next.js Build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

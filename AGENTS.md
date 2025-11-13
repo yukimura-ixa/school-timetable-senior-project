@@ -480,6 +480,142 @@ await mcp_next-devtools_browser_eval({
 6. Provide a runbook (commands, env vars, rollback/testing notes).
 7. Call out risks and TODOs, including missing MCP access.
 
+## 4.1. CI-First Development Policy
+
+> **Trust CI, not local validation. Speed over pre-flight checks.**
+
+This project follows a **CI-first development workflow** where all tests, linting, and type-checking are delegated to GitHub Actions CI. Local development prioritizes **speed and iteration** over validation.
+
+### Core Philosophy
+
+**✅ DO:**
+- **Trust CI as the quality gatekeeper** - All validation happens in GitHub Actions
+- **Commit and push frequently** - Small commits get faster feedback
+- **Continue working while CI runs** - Parallel work while awaiting CI results
+- **Read CI logs when failures occur** - Understand issues before retrying
+- **Use draft PRs for WIP** - CI still runs, but reviewers know it's not ready
+
+**❌ DON'T:**
+- **Don't add pre-commit hooks** - Violates CI-first philosophy (slows commits)
+- **Don't add pre-push hooks** - Blocks rapid iteration
+- **Don't run full test suite locally** - Slow and redundant (trust CI instead)
+- **Don't wait for "perfect" commits** - CI will catch issues
+- **Don't suggest `npm`/`yarn`** - This project uses PNPM only
+
+### When to Run Tests/Lint Locally
+
+**Optional local validation** is available for specific scenarios:
+
+**✅ USE local validation when:**
+- Debugging a failing CI check (reproduce the exact failure)
+- Pre-release validation (major version bumps)
+- Offline development (no GitHub access)
+- Quick sanity check (optional convenience, not required)
+
+**Commands for optional local validation:**
+```bash
+pnpm test:affected       # Run affected tests (faster than full suite)
+pnpm lint:files src/**   # Lint specific files (when debugging CI lint failures)
+pnpm typecheck           # Type-check (rare - IDE usually catches these)
+pnpm test                # Full test suite (avoid unless necessary - very slow)
+pnpm test:e2e            # E2E tests locally (requires local DB setup)
+```
+
+**❌ DON'T use local validation for:**
+- Normal feature development (trust CI instead)
+- Every commit (too slow, defeats CI-first purpose)
+- Checking "if it works" (push to CI for validation)
+- Pre-commit verification (no hooks by design)
+
+### Agent Implementation Guidance
+
+When implementing features or fixes:
+
+1. **Skip local test runs** - Don't suggest `pnpm test` unless debugging CI failure
+2. **Recommend pushing to CI** - Instead of "run tests locally", say "push to GitHub to trigger CI"
+3. **Use Context7 + Serena** - Research libraries and analyze code BEFORE implementing
+4. **Write quality code first** - Focus on correctness, let CI catch issues
+5. **Explain CI process** - When user asks "how to test", explain CI-first workflow
+
+**Example responses:**
+
+```
+User: "How do I test this change?"
+Agent: "Push your changes to GitHub. CI will automatically run:
+        - Lint & Type Check (~5 min)
+        - Unit Tests (~8 min)
+        - Build (~8 min)
+        - E2E Tests (~15 min)
+        
+        You'll see results in the PR checks. Continue working on other tasks 
+        while CI runs in parallel."
+
+User: "Should I run tests before committing?"
+Agent: "No need! This project uses CI-first workflow. Commit and push frequently.
+        CI will validate everything. If issues arise, CI logs will show exactly
+        what to fix."
+
+User: "Tests are failing in CI"
+Agent: "Let's check the CI logs. [Analyze failure logs from GitHub Actions]
+        The issue is [specific error]. Here's the fix: [implementation].
+        Optionally, you can reproduce locally with: pnpm test [specific-test-file]"
+```
+
+### CI Workflow Overview
+
+Our CI runs **4 parallel jobs** for fast feedback:
+
+| Job              | Duration  | Caching | Parallelized |
+|------------------|-----------|---------|--------------|
+| Lint & Type Check| ~3-5 min  | Yes ✅  | No           |
+| Unit Tests       | ~8-10 min | Yes ✅  | Yes (50%)    |
+| Build            | ~8-10 min | Yes ✅  | No           |
+| E2E Tests        | ~15 min   | Yes ✅  | Yes (4x)     |
+
+**Caching optimizations:**
+- PNPM dependencies (setup-node built-in)
+- Prisma Client (`.prisma` cache)
+- Next.js build (`.next/cache`)
+- TypeScript build info (`.tsbuildinfo`)
+- Jest cache (`.jest-cache`)
+
+**Result:** ~2-3 minute reduction per job compared to non-cached CI
+
+### Documentation References
+
+- **[CI_FIRST_WORKFLOW.md](docs/CI_FIRST_WORKFLOW.md)** - Complete developer workflow guide
+- **[CI_TROUBLESHOOTING.md](docs/CI_TROUBLESHOOTING.md)** - Debugging CI failures
+- **[E2E_RELIABILITY_GUIDE.md](docs/E2E_RELIABILITY_GUIDE.md)** - E2E testing patterns
+
+### CI Triggers & Optimizations
+
+**Automatic triggers:**
+- ✅ Push to `main` or `develop` branches
+- ✅ Pull request creation/updates
+- ❌ Skipped for docs-only changes (`**.md`, `docs/**`, `screenshots/**`)
+
+**Manual triggers:**
+- E2E tests via GitHub Actions UI (workflow_dispatch)
+
+**Quality gates:**
+- Branch protection rules require all CI checks to pass
+- Cannot merge failing PRs
+- Draft PRs still run CI (for iterative development)
+
+### Migration Context
+
+This project **transitioned to CI-first** to improve developer velocity:
+
+- **Before:** Pre-commit hooks ran lint/typecheck/tests → slow `git commit` (10-30s)
+- **After:** No hooks, instant commits, CI validates everything
+- **Result:** 10x faster local development, same quality guarantees
+
+**Historical notes:**
+- Jest setup migration (Issue #9e1459d) - Migrated to TypeScript for proper linting
+- Jest stack overflow (Issue #46) - Workaround with `forceExit: true` for Next.js 16 compatibility
+
+---
+
 ## 5. Coding Standards
 
 ### Core Principles
