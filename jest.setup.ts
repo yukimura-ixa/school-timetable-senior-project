@@ -1,4 +1,3 @@
-/* eslint-env jest */
 import '@testing-library/jest-dom'
 import React from 'react'
 
@@ -7,82 +6,83 @@ import React from 'react'
 // Reference: Node.js built-in Web APIs (Node 18+)
 // See: https://nodejs.org/docs/latest-v18.x/api/globals.html
 
-const { TextEncoder, TextDecoder } = require('util')
-const { ReadableStream, WritableStream, TransformStream } = require('stream/web')
-const { MessageChannel, MessagePort } = require('worker_threads')
+import { TextEncoder, TextDecoder } from 'util'
+import { ReadableStream, WritableStream, TransformStream } from 'stream/web'
+import { MessageChannel, MessagePort } from 'worker_threads'
 
 // Text encoding (required by Prisma)
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
+global.TextEncoder = TextEncoder as typeof global.TextEncoder
+global.TextDecoder = TextDecoder as typeof global.TextDecoder
 
 // Web Streams (required by Prisma Accelerate)
-global.ReadableStream = ReadableStream
-global.WritableStream = WritableStream
-global.TransformStream = TransformStream
+global.ReadableStream = ReadableStream as typeof global.ReadableStream
+global.WritableStream = WritableStream as typeof global.WritableStream
+global.TransformStream = TransformStream as typeof global.TransformStream
 
 // Worker Threads API (required by fetch polyfills)
+// @ts-expect-error - Node.js MessageChannel type is incompatible with DOM MessageChannel
 global.MessageChannel = MessageChannel
+// @ts-expect-error - Node.js MessagePort type is incompatible with DOM MessagePort
 global.MessagePort = MessagePort
 
 // Node.js 18+ has native fetch - ensure it's available globally
 if (typeof global.fetch === 'undefined') {
   // Fallback for older Node versions (shouldn't happen with Next.js 16)
   console.warn('Native fetch not available, using undici polyfill')
-  const { fetch, Headers, Request, Response, FormData } = require('undici')
-  global.fetch = fetch
-  global.Headers = Headers
-  global.Request = Request
-  global.Response = Response
-  global.FormData = FormData
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const undici = require('undici')
+  global.fetch = undici.fetch
+  global.Headers = undici.Headers
+  global.Request = undici.Request
+  global.Response = undici.Response
+  global.FormData = undici.FormData
 }
 
 // Mock localStorage for Zustand persist middleware
 // Required by stores that use persist() middleware with localStorage
-class LocalStorageMock {
-  constructor() {
-    this.store = {};
+class LocalStorageMock implements Storage {
+  private store: Record<string, string> = {}
+
+  clear(): void {
+    this.store = {}
   }
 
-  clear() {
-    this.store = {};
+  getItem(key: string): string | null {
+    return this.store[key] || null
   }
 
-  getItem(key) {
-    return this.store[key] || null;
+  setItem(key: string, value: string): void {
+    this.store[key] = String(value)
   }
 
-  setItem(key, value) {
-    this.store[key] = String(value);
+  removeItem(key: string): void {
+    delete this.store[key]
   }
 
-  removeItem(key) {
-    delete this.store[key];
+  key(index: number): string | null {
+    const keys = Object.keys(this.store)
+    return keys[index] || null
   }
 
-  key(index) {
-    const keys = Object.keys(this.store);
-    return keys[index] || null;
-  }
-
-  get length() {
-    return Object.keys(this.store).length;
+  get length(): number {
+    return Object.keys(this.store).length
   }
 }
 
-global.localStorage = new LocalStorageMock();
+global.localStorage = new LocalStorageMock()
 
 // Mock Prisma Accelerate extension to prevent network timeouts in tests
 // Prevents unpkg.com fetch and schema upload during test initialization
 // See: GitHub Issue #54 - Prisma Accelerate Network Timeout
 jest.mock('@prisma/extension-accelerate', () => ({
-  withAccelerate: () => (client) => client, // Pass-through mock
-}));
+  withAccelerate: () => (client: unknown) => client, // Pass-through mock
+}))
 
 // Mock Auth.js to prevent ESM import errors
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({
-    user: { 
-      id: 'test-user-123', 
+    user: {
+      id: 'test-user-123',
       email: 'test@example.com',
       role: 'admin',
     },
@@ -93,11 +93,12 @@ jest.mock('@/lib/auth', () => ({
     GET: jest.fn(),
     POST: jest.fn(),
   },
-}));
+}))
 
 // Mock Prisma Client to prevent browser environment errors
 jest.mock('@/lib/prisma', () => {
-  const mockPrismaClient = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockPrismaClient: any = {
     teacher: {
       findMany: jest.fn().mockResolvedValue([]),
       findUnique: jest.fn().mockResolvedValue(null),
@@ -223,7 +224,9 @@ jest.mock('@/lib/prisma', () => {
       upsert: jest.fn().mockResolvedValue({}),
     },
     table_config: {
-      findFirst: jest.fn().mockResolvedValue({ AcademicYear: 2566, Semester: 'SEMESTER_1', Config: {} }),
+      findFirst: jest
+        .fn()
+        .mockResolvedValue({ AcademicYear: 2566, Semester: 'SEMESTER_1', Config: {} }),
       findUnique: jest.fn().mockResolvedValue(null),
       findMany: jest.fn().mockResolvedValue([]),
       create: jest.fn().mockResolvedValue({}),
@@ -248,27 +251,39 @@ jest.mock('@/lib/prisma', () => {
       count: jest.fn().mockResolvedValue(0),
       upsert: jest.fn().mockResolvedValue({}),
     },
-    $transaction: jest.fn((callback) => callback(mockPrismaClient)),
-  };
-  
+    $transaction: jest.fn((callback: (client: typeof mockPrismaClient) => unknown) =>
+      callback(mockPrismaClient)
+    ),
+  }
+
   return {
     __esModule: true,
     default: mockPrismaClient,
-  };
-});
+  }
+})
 
 // Mock Next.js Image component
+const MockImage = React.forwardRef<HTMLImageElement>((props, ref) =>
+  React.createElement('img', { ...props, ref })
+)
+MockImage.displayName = 'NextImageMock'
+
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: React.forwardRef((props, ref) =>
-    React.createElement('img', { ...props, ref }),
-  ),
+  default: MockImage,
 }))
 
 // Disable Next.js 16's unhandled rejection handler to prevent stack overflow in Jest
 // The handler in node-environment-extensions/unhandled-rejection.tsx causes infinite recursion
 // when combined with Jest's async handling. This is a known issue with Next.js 16 + Jest.
 // Mock the module to prevent it from loading entirely
-jest.mock('next/dist/server/node-environment-extensions/unhandled-rejection', () => ({}), { virtual: true });
-jest.mock('next/src/server/node-environment-extensions/unhandled-rejection', () => ({}), { virtual: true });
-
+jest.mock(
+  'next/dist/server/node-environment-extensions/unhandled-rejection',
+  () => ({}),
+  { virtual: true }
+)
+jest.mock(
+  'next/src/server/node-environment-extensions/unhandled-rejection',
+  () => ({}),
+  { virtual: true }
+)

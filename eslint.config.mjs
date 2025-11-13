@@ -5,6 +5,8 @@ import tseslint from "typescript-eslint";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
+import globals from 'globals';
+import jestPlugin from 'eslint-plugin-jest';
 
 const eslintConfig = [
   // Ignore non-source folders (matches .gitignore patterns)
@@ -97,6 +99,27 @@ const eslintConfig = [
   {
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     ...tseslint.configs.disableTypeChecked,
+  },
+
+  // Jest test files - add Jest globals and recommended rules
+  {
+    files: ["**/__test__/**/*.{ts,tsx,js,jsx}", "**/*.{test,spec}.{ts,tsx,js,jsx}"],
+    plugins: {
+      jest: jestPlugin,
+    },
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+    rules: {
+      ...jestPlugin.configs.recommended.rules,
+      // Override or customize Jest rules as needed
+      'jest/expect-expect': 'warn',
+      'jest/no-disabled-tests': 'warn',
+      'jest/no-focused-tests': 'error',
+      'jest/valid-expect': 'error',
+    },
   },
 
   // All files - general rules

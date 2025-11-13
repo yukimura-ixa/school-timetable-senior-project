@@ -10,7 +10,7 @@ const createJestConfig = nextJest({
 /** @type {import('jest').Config} */
 const config: Config = {
   // Add more setup options before each test is run
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   
   // Coverage provider (v8 is faster than babel)
   coverageProvider: 'v8',
