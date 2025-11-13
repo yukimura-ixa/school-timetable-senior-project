@@ -135,9 +135,7 @@ function LockSchedule() {
     return <NetworkErrorEmptyState onRetry={() => void lockData.mutate()} />;
   }
 
-  if (!lockData.data || lockData.data.length === 0) {
-    return <NoLockedSchedulesEmptyState />;
-  }
+  const hasData = !!lockData.data && lockData.data.length > 0;
 
   return (
     <>
@@ -151,7 +149,7 @@ function LockSchedule() {
         />
       ) : null}
 
-      {/* Action Buttons and View Toggle */}
+      {/* Action Buttons and View Toggle (always visible to allow creating first lock) */}
       <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <Stack direction="row" spacing={2}>
           <Button
@@ -159,6 +157,7 @@ function LockSchedule() {
             color="primary"
             startIcon={<BulkIcon />}
             onClick={() => setBulkLockModalOpen(true)}
+            data-testid="bulk-lock-btn"
           >
             ล็อกหลายคาบ
           </Button>
@@ -167,11 +166,11 @@ function LockSchedule() {
             color="secondary"
             startIcon={<TemplateIcon />}
             onClick={() => setTemplatesModalOpen(true)}
+            data-testid="template-lock-btn"
           >
             ใช้เทมเพลต
           </Button>
         </Stack>
-        
         <ToggleButtonGroup
           value={viewMode}
           exclusive
@@ -190,8 +189,15 @@ function LockSchedule() {
         </ToggleButtonGroup>
       </Box>
 
+      {/* Empty state when no data */}
+      {!hasData && (
+        <Box sx={{ mb: 4 }}>
+          <NoLockedSchedulesEmptyState />
+        </Box>
+      )}
+
       {/* Calendar View */}
-      {viewMode === "calendar" && (
+      {hasData && viewMode === "calendar" && (
         <LockCalendarView
           lockData={lockData.data}
           academicYear={parseInt(academicYear)}
@@ -212,7 +218,7 @@ function LockSchedule() {
       )}
 
       {/* List View */}
-      {viewMode === "list" && (
+      {hasData && viewMode === "list" && (
         <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
           {lockData.data.map((item, lockIndex) => (
           <Fragment key={`${item.SubjectCode}-${lockIndex}`}>

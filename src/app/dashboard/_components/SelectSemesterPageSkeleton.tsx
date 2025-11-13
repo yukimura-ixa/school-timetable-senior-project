@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { Container, Box, Skeleton, Stack } from "@mui/material";
+import { Container, Box, Skeleton } from "@mui/material";
 import { SemesterSectionSkeleton } from "./SemesterSectionSkeleton";
 import { SemesterFiltersSkeleton } from "./SemesterFiltersSkeleton";
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useMemo } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectDayOfWeek from "./SelectDayOfWeek";
 import SelectSubject from "./SelectSubject";
@@ -6,6 +6,8 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
+import { useParams } from 'next/navigation';
+import { useRoomAvailability } from '@/hooks/useRoomAvailability';
 import type { room, subject, teacher, timeslot } from "@/prisma/generated";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
@@ -138,6 +140,8 @@ const reducer = (state: typeof initialState, action: Action) => {
 
 function LockScheduleForm({ closeModal, data, mutate }: Props) {
   const teacherData = useTeachers();
+  const params = useParams();
+  const semesterAndyear = params.semesterAndyear as string | undefined; // pattern e.g. 1-2567
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     lockScheduleData: {
@@ -148,6 +152,26 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   });
 
   const { lockScheduleData, isEmptyData } = state;
+
+  // Derive academic year / semester from route param for fetching locked schedules
+  const derivedTerm = useMemo(() => {
+    if (!semesterAndyear) return null;
+    const parts = semesterAndyear.split('-');
+    if (parts.length !== 2) return null;
+    const semPart = parts[0];
+    const yearNum = Number(parts[1]);
+    if (!yearNum || (semPart !== '1' && semPart !== '2')) return null;
+    const semEnum = semPart === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+    return { academicYear: yearNum, semester: semEnum };
+  }, [semesterAndyear]);
+
+  // Shared availability hook (centralized logic)
+  const { availabilityMap } = useRoomAvailability({
+    academicYear: derivedTerm?.academicYear,
+    semester: derivedTerm?.semester,
+    selectedTimeslots: lockScheduleData.timeslots,
+    enabled: !!derivedTerm,
+  });
 
   const timeSlotHandleChange: InputChangeHandler = (e) => {
     const value = e.target.value;
@@ -354,7 +378,8 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
             <SelectRoomName
               roomName={lockScheduleData.room?.RoomName ?? ""}
               handleRoomChange={handleRoomChange}
-              // required={isEmptyData.room}
+              availabilityMap={availabilityMap}
+              showAvailability
             />
             <SelectedClassRoom
               teachers={lockScheduleData.teachers}

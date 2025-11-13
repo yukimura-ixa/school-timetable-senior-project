@@ -36,6 +36,7 @@ function Dropdown({
 }: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
+  const listboxId = React.useId(); // Generate unique ID for aria-controls
   return (
     <div className="relative">
       <div
@@ -63,6 +64,7 @@ function Dropdown({
         }}
         role="combobox" // ARIA role for accessibility and E2E stability
         aria-expanded={isHidden}
+        aria-controls={listboxId}
         aria-haspopup="listbox"
       >
         <div
@@ -120,6 +122,7 @@ function Dropdown({
           width: width === null ? "fit-content" : width,
           height: data.length < 3 ? "auto" : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
         }}
+        id={listboxId}
         role="listbox" // ARIA role for options container
         aria-hidden={!isHidden}
       >

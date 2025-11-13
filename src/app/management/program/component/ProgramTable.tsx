@@ -1,8 +1,7 @@
-// @ts-nocheck
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { semester, type program } from "@/prisma/generated";
+import { ProgramTrack, type program } from "@/prisma/generated";
 
 // Program rows include related gradelevel and subject arrays
 export type ProgramRow = program & {
@@ -34,7 +33,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { useConfirmDialog } from "@/components/dialogs";
-import { semesterThai } from "@/models/semester-thai";
 import {
   updateProgramAction,
   deleteProgramAction,
@@ -42,7 +40,15 @@ import {
 import AddStudyProgramModal from "./AddStudyProgramModal";
 import EditStudyProgramModal from "./EditStudyProgramModal";
 
-export type ProgramTableProps = {
+// Thai translations for ProgramTrack enum
+const programTrackThai: Record<ProgramTrack, string> = {
+  SCIENCE_MATH: "วิทย์-คณิต",
+  LANGUAGE_MATH: "ศิลป์-คำนวณ",
+  LANGUAGE_ARTS: "ศิลป์-ภาษา",
+  GENERAL: "ทั่วไป",
+};
+
+interface ProgramTableProps {
   year: number;
   rows: ProgramRow[];
   mutate: () => Promise<any> | void;
@@ -51,10 +57,9 @@ export type ProgramTableProps = {
 export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) {
   const [selected, setSelected] = useState<number[]>([]);
   const [editMode, setEditMode] = useState(false);
-  const [drafts, setDrafts] = useState<Record<number, { ProgramName: string; Semester: semester }>>({});
+  const [drafts, setDrafts] = useState<Record<number, { ProgramName: string; Track: ProgramTrack }>>({});
   const [search, setSearch] = useState("");
-  const [semesterFilter, setSemesterFilter] = useState<semester | "ALL">("ALL");
-  const [academicYearFilter, setAcademicYearFilter] = useState<string>("ALL");
+  const [trackFilter, setTrackFilter] = useState<ProgramTrack | "ALL">("ALL");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [addOpen, setAddOpen] = useState(false);
@@ -79,14 +84,9 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
   const filtered = useMemo(() => {
     let result = rows;
 
-    // Semester filter
-    if (semesterFilter !== "ALL") {
-      result = result.filter((r) => r.Semester === semesterFilter);
-    }
-
-    // Academic year filter
-    if (academicYearFilter !== "ALL") {
-      result = result.filter((r) => (r as any).AcademicYear === parseInt(academicYearFilter));
+    // Track filter
+    if (trackFilter !== "ALL") {
+      result = result.filter((r) => r.Track === trackFilter);
     }
 
     // Search filter
@@ -94,12 +94,13 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
     if (q) {
       result = result.filter((r) =>
         r.ProgramName.toLowerCase().includes(q)
-        || String(r.Semester).toLowerCase().includes(q)
+        || r.ProgramCode.toLowerCase().includes(q)
+        || String(r.Track).toLowerCase().includes(q)
       );
     }
 
     return result;
-  }, [rows, search, semesterFilter, academicYearFilter]);
+  }, [rows, search, trackFilter]);
 
   const paged = filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   const allIds = filtered.map((r) => r.ProgramID).filter((x): x is number => typeof x === "number");
@@ -110,10 +111,10 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
 
   const handleEnterEdit = () => {
     if (selected.length === 0) return;
-    const next: Record<number, { ProgramName: string; Semester: semester }> = {};
+    const next: Record<number, { ProgramName: string; Track: ProgramTrack }> = {};
     for (const r of rows) {
       if (r.ProgramID != null && selected.includes(r.ProgramID)) {
-        next[r.ProgramID] = { ProgramName: r.ProgramName, Semester: r.Semester } as any;
+        next[r.ProgramID] = { ProgramName: r.ProgramName, Track: r.Track };
       }
     }
     setDrafts(next);
@@ -134,15 +135,17 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
         const orig = rows.find((r) => r.ProgramID === id);
         const draft = drafts[id];
         if (!orig || !draft) continue;
-        // Reuse existing gradelevel/subject connections and AcademicYear on update
+        // Update program with new name and track
         await updateProgramAction({
           ProgramID: id,
           ProgramName: draft.ProgramName,
-          Semester: draft.Semester,
-          AcademicYear: (orig as any).AcademicYear || new Date().getFullYear() + 543,
-          gradelevel: orig.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
-          subject: orig.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
-        } as any);
+          Track: draft.Track,
+          Year: orig.Year,
+          ProgramCode: orig.ProgramCode,
+          Description: orig.Description,
+          MinTotalCredits: orig.MinTotalCredits,
+          IsActive: orig.IsActive,
+        });
       }
       closeSnackbar(loadbar);
       enqueueSnackbar("บันทึกการแก้ไขสำเร็จ", { variant: "success" });
@@ -170,7 +173,7 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
     const loadbar = enqueueSnackbar("กำลังลบหลักสูตร", { variant: "info", persist: true });
     try {
       for (const id of selected) {
-        await deleteProgramAction({ ProgramID: id } as any);
+        await deleteProgramAction({ ProgramID: id });
       }
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบหลักสูตรสำเร็จ", { variant: "success" });
@@ -203,33 +206,20 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
           </Typography>
 
           <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* Semester Filter */}
+            {/* Program Track Filter */}
             <TextField
               select
               size="small"
-              label="ภาคเรียน"
-              value={semesterFilter}
-              onChange={(e) => { setSemesterFilter(e.target.value as semester | "ALL"); setPage(0); }}
-              sx={{ minWidth: 120 }}
+              label="แผนการเรียน"
+              value={trackFilter}
+              onChange={(e) => { setTrackFilter(e.target.value as ProgramTrack | "ALL"); setPage(0); }}
+              sx={{ minWidth: 140 }}
             >
               <MenuItem value="ALL">ทั้งหมด</MenuItem>
-              <MenuItem value={semester.SEMESTER_1}>{semesterThai[semester.SEMESTER_1]}</MenuItem>
-              <MenuItem value={semester.SEMESTER_2}>{semesterThai[semester.SEMESTER_2]}</MenuItem>
-            </TextField>
-
-            {/* Academic Year Filter */}
-            <TextField
-              select
-              size="small"
-              label="ปีการศึกษา"
-              value={academicYearFilter}
-              onChange={(e) => { setAcademicYearFilter(e.target.value); setPage(0); }}
-              sx={{ minWidth: 130 }}
-            >
-              <MenuItem value="ALL">ทั้งหมด</MenuItem>
-              {availableAcademicYears.map((year) => (
-                <MenuItem key={year} value={String(year)}>{year}</MenuItem>
-              ))}
+              <MenuItem value={ProgramTrack.SCIENCE_MATH}>{programTrackThai[ProgramTrack.SCIENCE_MATH]}</MenuItem>
+              <MenuItem value={ProgramTrack.LANGUAGE_MATH}>{programTrackThai[ProgramTrack.LANGUAGE_MATH]}</MenuItem>
+              <MenuItem value={ProgramTrack.LANGUAGE_ARTS}>{programTrackThai[ProgramTrack.LANGUAGE_ARTS]}</MenuItem>
+              <MenuItem value={ProgramTrack.GENERAL}>{programTrackThai[ProgramTrack.GENERAL]}</MenuItem>
             </TextField>
 
             {/* Search */}
@@ -277,7 +267,7 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
                   />
                 </TableCell>
                 <TableCell>ชื่อหลักสูตร</TableCell>
-                <TableCell>ภาคเรียน</TableCell>
+                <TableCell>แผนการเรียน</TableCell>
                 <TableCell align="right">ชั้นเรียน (จำนวน)</TableCell>
                 <TableCell align="right">รายวิชา (จำนวน)</TableCell>
               </MuiTableRow>
@@ -297,7 +287,10 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
                         <TextField
                           size="small"
                           value={drafts[id]?.ProgramName ?? ""}
-                          onChange={(e) => setDrafts((d) => ({ ...d, [id]: { ...d[id], ProgramName: e.target.value } }))}
+                          onChange={(e) => setDrafts((d) => ({
+                            ...d,
+                            [id]: { ProgramName: e.target.value, Track: d[id]?.Track ?? row.Track }
+                          }))}
                         />
                       ) : (
                         row.ProgramName
@@ -308,16 +301,19 @@ export default function ProgramTable({ year, rows, mutate }: ProgramTableProps) 
                         <TextField
                           select
                           size="small"
-                          value={drafts[id]?.Semester ?? row.Semester}
-                          onChange={(e) => setDrafts((d) => ({ ...d, [id]: { ...d[id], Semester: e.target.value as semester } }))}
+                          value={drafts[id]?.Track ?? row.Track}
+                          onChange={(e) => setDrafts((d) => ({
+                            ...d,
+                            [id]: { ProgramName: d[id]?.ProgramName ?? row.ProgramName, Track: e.target.value as ProgramTrack }
+                          }))}
                           sx={{ minWidth: 140 }}
                         >
-                          {Object.entries(semesterThai).map(([key, label]) => (
-                            <MenuItem key={key} value={key as any}>{label}</MenuItem>
+                          {Object.entries(programTrackThai).map(([key, label]) => (
+                            <MenuItem key={key} value={key}>{label}</MenuItem>
                           ))}
                         </TextField>
                       ) : (
-                        semesterThai[row.Semester]
+                        programTrackThai[row.Track]
                       )}
                     </TableCell>
                     <TableCell align="right">{row.gradelevel.length}</TableCell>

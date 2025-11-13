@@ -6,6 +6,8 @@ import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { isAdminRole } from "@/lib/authz";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import type { timeslot } from "@/prisma/generated";
@@ -60,6 +62,8 @@ interface TimeSlotData {
 const AllTimeslot = () => {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { data: session } = useSession();
+  const isAdmin = isAdminRole(session?.user?.role);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
@@ -386,6 +390,7 @@ const AllTimeslot = () => {
         </Paper>
 
         <Stack direction="row" justifyContent="space-between" alignItems="center" className="no-print">
+          {isAdmin && (
           <Stack direction="row" spacing={2} flexWrap="wrap">
             <Button
               variant="contained"
@@ -442,6 +447,7 @@ const AllTimeslot = () => {
               </MenuItem>
             </Menu>
           </Stack>
+          )}
 
           {!isMobile && (
             <Tooltip title="กด Left Shift + เลื่อน Scroll เพื่อเลื่อนดูแนวนอน (สำหรับคอม)">

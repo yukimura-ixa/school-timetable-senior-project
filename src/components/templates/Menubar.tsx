@@ -5,7 +5,7 @@ import {
   managementMenu,
   scheduleMenu,
   othersMenu,
-// @ts-ignore - JS module without types
+// @ts-expect-error - JS module without types
 } from "@/raw-data/menubar-data";
 import { IoIosArrowDown } from "react-icons/io";
 import { usePathname } from "next/navigation";
@@ -25,7 +25,7 @@ function Menubar() {
   }, [pathName]);
   return (
     <>
-      {pathName == "/signin" ? null : (
+      {pathName === "/signin" ? null : (
         <aside className="flex flex-col gap-8 w-[270px] flex-shrink-0 min-h-screen px-5 py-8 bg-gradient-to-b from-gray-50 to-gray-100 border-r border-gray-200 shadow-lg">
           {/* management */}
           <div className="flex flex-col w-full gap-1 h-fit border-b border-gray-200 pb-4">
@@ -42,7 +42,7 @@ function Menubar() {
                       className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
                       style={{
                         marginBottom:
-                          index == managementMenu.length - 1 ? "10px" : 0,
+                          index === managementMenu.length - 1 ? "10px" : 0,
                       }}
                     >
                       <item.IconStyle.Icon className={`w-5 h-5 fill-white`} />
@@ -55,7 +55,7 @@ function Menubar() {
                       className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
                       style={{
                         marginBottom:
-                          index == managementMenu.length - 1 ? "10px" : 0,
+                          index === managementMenu.length - 1 ? "10px" : 0,
                       }}
                     >
                       <item.IconStyle.Icon className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`} />
@@ -89,7 +89,7 @@ function Menubar() {
                         className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
                         style={{
                           marginBottom:
-                            index == scheduleMenu.length - 1 ? "10px" : 0,
+                            index === scheduleMenu.length - 1 ? "10px" : 0,
                         }}
                       >
                         <item.IconStyle.Icon className={`w-5 h-5 fill-white`} />
@@ -102,7 +102,7 @@ function Menubar() {
                         className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
                         style={{
                           marginBottom:
-                            index == scheduleMenu.length - 1 ? "10px" : 0,
+                            index === scheduleMenu.length - 1 ? "10px" : 0,
                         }}
                       >
                         <item.IconStyle.Icon className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`} />

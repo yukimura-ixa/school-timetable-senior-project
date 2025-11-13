@@ -1,6 +1,8 @@
 /**
  * Unit tests for Batch PDF Generator
  * Tests PDF generation with various customization options
+ * 
+ * @jest-environment jsdom
  */
 
 import {

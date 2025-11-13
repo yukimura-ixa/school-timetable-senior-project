@@ -1,56 +1,52 @@
 import { useRooms } from "@/hooks";
-import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import { RoomAutocomplete } from "@/components/room";
 import type { room } from "@/prisma/generated";
-import React, { useEffect, useState, type JSX } from "react";
-
-import type { InputChangeHandler } from "@/types/events";
+import React from "react";
+import { Box, Typography } from "@mui/material";
 
 type Props = {
   roomName: string | null;
   handleRoomChange: (value: room) => void;
   required?: boolean;
+  availabilityMap?: Record<number, 'available' | 'occupied' | 'partial'>;
+  showAvailability?: boolean;
 };
 
-function SelectRoomName(props: Props) {
-  const { data } = useRooms();
-  const [rooms, setRooms] = useState<room[]>([]);
-  const [roomsFilter, setRoomsFilter] = useState<room[]>([]);
-  
-  useEffect(() => {
-    setRooms(() => data);
-    setRoomsFilter(() => data);
-  }, [data]);
-  const searchHandle: InputChangeHandler = (event) => {
-    const text = event.target.value;
-    searchName(text);
-  };
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    const res = roomsFilter.filter((item) => `${item.RoomName}`.match(name));
-    setRooms(res);
-  };
+/**
+ * Enhanced room selection component with MUI Autocomplete
+ * Features:
+ * - Building/floor grouping
+ * - Case-insensitive search
+ * - Visual icons and metadata
+ * - Accessible keyboard navigation
+ */
+function SelectRoomName({ roomName, handleRoomChange, required = false, availabilityMap, showAvailability }: Props) {
+  const { data: rooms } = useRooms();
+
+  // Find the currently selected room by name
+  const selectedRoom = roomName 
+    ? rooms.find((r) => r.RoomName === roomName) || null
+    : null;
+
   return (
-    <>
-      <div className="flex justify-between w-full items-center">
-        <div className="text-sm flex gap-1 items-center">
-          <p>สถานที่เรียน</p>
-          <p className="text-red-500">*</p>
-        </div>
-        <Dropdown
-          data={rooms as unknown[]}
-          renderItem={({ data }: { data: unknown }): JSX.Element => (
-            <li className="w-full text-sm">{(data as room).RoomName}</li>
-          )}
-          width={300}
-          height={40}
-          currentValue={props.roomName || undefined}
-          placeHolder={"ตัวเลือก"}
-          handleChange={(value: unknown) => props.handleRoomChange(value as room)}
-          useSearchBar={true}
-          searchFunction={searchHandle}
-        />
-      </div>
-    </>
+    <Box sx={{ width: "100%" }}>
+      <RoomAutocomplete
+        rooms={rooms}
+        value={selectedRoom}
+        onChange={(room) => {
+          if (room) {
+            handleRoomChange(room);
+          }
+        }}
+        label="สถานที่เรียน"
+        placeholder="เลือกห้องเรียน"
+        required={required}
+        fullWidth
+        size="small"
+        availabilityMap={availabilityMap}
+        showAvailability={showAvailability}
+      />
+    </Box>
   );
 }
 

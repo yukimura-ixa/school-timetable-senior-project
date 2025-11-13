@@ -24,8 +24,6 @@ import {
 } from '@mui/material';
 import {
   Error as ErrorIcon,
-  Warning as WarningIcon,
-  Info as InfoIcon,
   CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import { useParams } from 'next/navigation';

@@ -29,8 +29,12 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Lock as LockIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
+import { RoomAutocomplete } from '@/components/room';
+import type { room } from '@/prisma/generated';
 import { enqueueSnackbar } from 'notistack';
 import { createBulkLocksAction } from '@/features/lock/application/actions/lock.actions';
+import type { semester } from '@/prisma/generated';
+import { useRoomAvailability } from '@/hooks/useRoomAvailability';
 
 interface BulkLockModalProps {
   open: boolean;
@@ -40,7 +44,7 @@ interface BulkLockModalProps {
   timeslots?: Array<{ TimeslotID: string; Day: string; PeriodStart: number }>;
   grades?: Array<{ GradeID: string; GradeName: string }>;
   subjects?: Array<{ SubjectCode: string; SubjectName: string; RespID: number }>;
-  rooms?: Array<{ RoomID: number; RoomName: string }>;
+  rooms?: Array<{ RoomID: number; RoomName: string; Building?: string; Floor?: string }>;
   onSuccess: () => void;
 }
 
@@ -62,7 +66,36 @@ export default function BulkLockModal({
   const [selectedTimeslots, setSelectedTimeslots] = useState<Set<string>>(new Set());
   const [selectedGrades, setSelectedGrades] = useState<Set<string>>(new Set());
   const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<{ RoomID: number; RoomName: string; Building?: string; Floor?: string } | null>(null);
+  const normalizedRooms: room[] = useMemo(
+    () => rooms.map(r => ({
+      RoomID: r.RoomID,
+      RoomName: r.RoomName,
+      Building: r.Building ?? '-',
+      Floor: r.Floor ?? '-',
+      class_schedule: [],
+    })),
+    [rooms]
+  );
+  // Derive academic year & semester from first timeslot ID (pattern: "1-2567-MON1")
+  const derivedTerm = useMemo(() => {
+    if (!propTimeslots || propTimeslots.length === 0) return null;
+    const firstId = propTimeslots[0].TimeslotID; // e.g. 1-2567-MON1
+    const parts = firstId.split('-');
+    if (parts.length < 3) return null;
+    const semNum = parts[0];
+    const yearNum = Number(parts[1]);
+    if (!yearNum || (semNum !== '1' && semNum !== '2')) return null;
+    const semEnum: semester = semNum === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+    return { academicYear: yearNum, semester: semEnum };
+  }, [propTimeslots]);
+
+  const { availabilityMap } = useRoomAvailability({
+    academicYear: derivedTerm?.academicYear,
+    semester: derivedTerm?.semester,
+    selectedTimeslots: selectedTimeslots,
+    enabled: !!derivedTerm,
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const DAY_NAMES: Record<string, string> = {
@@ -128,7 +161,7 @@ export default function BulkLockModal({
       selectedGrades.forEach((gradeId) => {
         const grade = grades.find((g) => g.GradeID === gradeId);
         const subject = subjects.find((s) => s.SubjectCode === selectedSubject);
-        const room = rooms.find((r) => r.RoomID === selectedRoom);
+        const room = rooms.find((r) => r.RoomID === selectedRoom?.RoomID);
 
         if (timeslot && grade && subject && room) {
           preview.push({
@@ -145,7 +178,7 @@ export default function BulkLockModal({
   }, [selectedTimeslots, selectedGrades, selectedSubject, selectedRoom, timeslots, grades, subjects, rooms, DAY_NAMES]);
 
   const handleSubmit = async () => {
-    if (!selectedSubject || selectedRoom == null || selectedTimeslots.size === 0 || selectedGrades.size === 0) {
+    if (!selectedSubject || !selectedRoom?.RoomID || selectedTimeslots.size === 0 || selectedGrades.size === 0) {
       enqueueSnackbar('กรุณาเลือกข้อมูลให้ครบถ้วน', { variant: 'warning' });
       return;
     }
@@ -161,7 +194,7 @@ export default function BulkLockModal({
       const locks = Array.from(selectedTimeslots).flatMap((timeslotId) =>
         Array.from(selectedGrades).map((gradeId) => ({
           SubjectCode: selectedSubject,
-          RoomID: selectedRoom,
+          RoomID: selectedRoom.RoomID,
           TimeslotID: timeslotId,
           GradeID: gradeId,
           RespID: subject.RespID,
@@ -197,7 +230,7 @@ export default function BulkLockModal({
     onClose();
   };
 
-  const canPreview = selectedSubject && selectedRoom && selectedTimeslots.size > 0 && selectedGrades.size > 0;
+  const canPreview = selectedSubject && selectedRoom?.RoomID && selectedTimeslots.size > 0 && selectedGrades.size > 0;
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
@@ -229,24 +262,23 @@ export default function BulkLockModal({
             </FormControl>
           </Grid>
 
-          {/* Room Selection */}
+          {/* Room Selection (Enhanced) */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <FormControl fullWidth>
-              <TextField
-                select
-                label="ห้องเรียน"
-                value={selectedRoom || ''}
-                onChange={(e) => setSelectedRoom(Number(e.target.value))}
-                SelectProps={{ native: true }}
-              >
-                <option value="">เลือกห้อง</option>
-                {rooms.map((room) => (
-                  <option key={room.RoomID} value={room.RoomID}>
-                    {room.RoomName}
-                  </option>
-                ))}
-              </TextField>
-            </FormControl>
+            <RoomAutocomplete
+              rooms={normalizedRooms}
+              value={selectedRoom ? {
+                RoomID: selectedRoom.RoomID,
+                RoomName: selectedRoom.RoomName,
+                Building: selectedRoom.Building ?? '-',
+                Floor: selectedRoom.Floor ?? '-',
+                class_schedule: [],
+              } as room : null}
+              onChange={(room) => setSelectedRoom(room ? { RoomID: room.RoomID, RoomName: room.RoomName, Building: room.Building, Floor: room.Floor } : null)}
+              label="ห้องเรียน"
+              placeholder="เลือกห้อง"
+              availabilityMap={availabilityMap}
+              showAvailability
+            />
           </Grid>
 
           {/* Timeslot Selection */}

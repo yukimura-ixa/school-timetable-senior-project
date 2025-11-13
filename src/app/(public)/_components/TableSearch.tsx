@@ -16,7 +16,6 @@ type Props = {
   onSearch?: (value: string) => void;
 };
 
-// @ts-ignore Next.js false positive - this is a client component with client-side callbacks
 export function TableSearch({ 
   initialValue = "", 
   placeholder = "ค้นหา...",

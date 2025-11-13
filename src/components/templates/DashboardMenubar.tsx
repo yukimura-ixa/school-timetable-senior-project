@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-// @ts-ignore - JS module without types
+// @ts-expect-error - JS module without types
 import { showTimetableMenu } from "@/raw-data/menubar-data";
 import { usePathname } from "next/navigation";
 function DashboardMenubar() {

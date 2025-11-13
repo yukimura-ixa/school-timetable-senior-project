@@ -117,7 +117,6 @@ function ShowTeacherData() {
   }
 
   // Modern Teacher Selection - MUI 7 TypeScript inference limitation with nested Autocomplete (Known Issue #59)
-  // @ts-ignore - MUI 7 Box/Paper type inference with Autocomplete renderOption (Known Issue #59)
   return (
     <Box component="div" sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Paper sx={{ p: 3 }}>

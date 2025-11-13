@@ -31,7 +31,7 @@ function SelectMultipleTimeSlot(props: Props) {
     if (!timeSlotData.isLoading) {
       setTimeSlot(() =>
         timeSlotData.data
-          .filter((item) => item.DayOfWeek == props.daySelected)
+          .filter((item) => item.DayOfWeek === props.daySelected)
           .map((item) => item.TimeslotID),
       );
     }
@@ -48,12 +48,12 @@ function SelectMultipleTimeSlot(props: Props) {
     );
 
     // ถ้าไม่มีการเลือก
-    if (checkedIndex.length == 0 || checkedIndex.includes(index)) return true;
+    if (checkedIndex.length === 0 || checkedIndex.includes(index)) return true;
     // ถ้าเลือกมากกว่า 1 ตัว
     if (checkedIndex.length >= timeslotCredit) return false;
     const min = Math.min(...checkedIndex);
     const max = Math.max(...checkedIndex);
-    return index == min - 1 || index == max + 1;
+    return index === min - 1 || index === max + 1;
   };
 
   return (

@@ -10,7 +10,7 @@ type Props = {
 function PrimaryButton(props: Props): React.JSX.Element {
   return (
     <>
-      {props.color == "info" ? (
+      {props.color === "info" ? (
         <button
           className={`flex w-fit ${
             props.reverseIcon ? "flex-row-reverse" : ""
@@ -25,7 +25,7 @@ function PrimaryButton(props: Props): React.JSX.Element {
           {props.Icon}
           {props.title}
         </button>
-      ) : props.color == "secondary" ? (
+      ) : props.color === "secondary" ? (
         <button
           className={`flex w-fit ${
             props.reverseIcon ? "flex-row-reverse" : ""
@@ -40,7 +40,7 @@ function PrimaryButton(props: Props): React.JSX.Element {
           {props.Icon}
           {props.title}
         </button>
-      ) : props.color == "warning" ? (
+      ) : props.color === "warning" ? (
         <button
           className={`flex w-fit ${
             props.reverseIcon ? "flex-row-reverse" : ""
@@ -55,7 +55,7 @@ function PrimaryButton(props: Props): React.JSX.Element {
           {props.Icon}
           {props.title}
         </button>
-      ) : props.color == "success" ? (
+      ) : props.color === "success" ? (
         <button
           className={`flex w-fit ${
             props.reverseIcon ? "flex-row-reverse" : ""
@@ -70,7 +70,7 @@ function PrimaryButton(props: Props): React.JSX.Element {
           {props.Icon}
           {props.title}
         </button>
-      ) : props.color == "danger" ? (
+      ) : props.color === "danger" ? (
         <button
           className={`flex w-fit ${
             props.reverseIcon ? "flex-row-reverse" : ""

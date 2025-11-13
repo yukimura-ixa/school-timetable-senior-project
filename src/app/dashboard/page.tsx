@@ -5,7 +5,9 @@
  * Modern card-based layout with filters and quick actions
  */
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { isAdminRole } from "@/lib/authz";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -29,7 +31,6 @@ import { CopySemesterModal } from "./_components/CopySemesterModal";
 import { SemesterExportButton } from "./_components/SemesterExportButton";
 import { SemesterSectionSkeleton } from "./_components/SemesterSectionSkeleton";
 import { SemesterFiltersSkeleton } from "./_components/SemesterFiltersSkeleton";
-import { SelectSemesterPageSkeleton } from "./_components/SelectSemesterPageSkeleton";
 import { SemesterAnalyticsDashboard } from "./_components/SemesterAnalyticsDashboard";
 import { SemesterAnalyticsDashboardSkeleton } from "./_components/SemesterAnalyticsDashboardSkeleton";
 import {
@@ -46,6 +47,8 @@ import type { InferOutput } from "valibot";
 
 export default function SelectSemesterPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const isAdmin = isAdminRole(session?.user?.role);
 
   // State
   const [recentSemesters, setRecentSemesters] = useState<SemesterDTO[]>([]);
@@ -59,12 +62,7 @@ export default function SelectSemesterPage() {
   const [copyModalOpen, setCopyModalOpen] = useState(false);
   const [selectedForCopy, setSelectedForCopy] = useState<SemesterDTO | null>(null);
 
-  // Load initial data
-  useEffect(() => {
-    loadData();
-  }, [filters]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -86,12 +84,18 @@ export default function SelectSemesterPage() {
       if (allResult.success && allResult.data) {
         setAllSemesters(allResult.data);
       }
-    } catch (err: any) {
-      setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, router]);
+
+  // Load initial data
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   const handleSelectSemester = async (semester: SemesterDTO) => {
     // Track access
@@ -114,14 +118,16 @@ export default function SelectSemesterPage() {
           เลือกปีการศึกษาและภาคเรียน
         </Typography>
         <Box sx={{ display: "flex", gap: 2 }}>
-          <SemesterExportButton semesters={allSemesters} />
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setCreateModalOpen(true)}
-          >
-            สร้างภาคเรียนใหม่
-          </Button>
+          {isAdmin && <SemesterExportButton semesters={allSemesters} />}
+          {isAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateModalOpen(true)}
+            >
+              สร้างภาคเรียนใหม่
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -173,9 +179,9 @@ export default function SelectSemesterPage() {
               <Box key={semester.configId} sx={{ flex: '1 1 300px', maxWidth: 400 }}>
                 <SemesterCard
                   semester={semester}
-                  onSelect={handleSelectSemester}
+                  onSelect={(s) => { void handleSelectSemester(s); }}
                   onCopy={handleCopyClick}
-                  onUpdate={loadData}
+                  onUpdate={() => { void loadData(); }}
                 />
               </Box>
             ))}
@@ -196,9 +202,9 @@ export default function SelectSemesterPage() {
               <Box key={semester.configId} sx={{ flex: '1 1 300px', maxWidth: 400 }}>
                 <SemesterCard
                   semester={semester}
-                  onSelect={handleSelectSemester}
+                  onSelect={(s) => { void handleSelectSemester(s); }}
                   onCopy={handleCopyClick}
-                  onUpdate={loadData}
+                  onUpdate={() => { void loadData(); }}
                 />
               </Box>
             ))}
@@ -238,9 +244,9 @@ export default function SelectSemesterPage() {
             <Box key={semester.configId} sx={{ flex: '1 1 300px', maxWidth: 400 }}>
               <SemesterCard
                 semester={semester}
-                onSelect={handleSelectSemester}
+                onSelect={(s) => { void handleSelectSemester(s); }}
                 onCopy={handleCopyClick}
-                onUpdate={loadData}
+                onUpdate={() => { void loadData(); }}
               />
             </Box>
           ))}
@@ -252,8 +258,8 @@ export default function SelectSemesterPage() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSuccess={(newSemester) => {
-          loadData();
-          handleSelectSemester(newSemester);
+          void loadData();
+          void handleSelectSemester(newSemester);
         }}
       />
 
@@ -265,8 +271,8 @@ export default function SelectSemesterPage() {
         }}
         sourceSemester={selectedForCopy}
         onSuccess={(newSemester) => {
-          loadData();
-          handleSelectSemester(newSemester);
+          void loadData();
+          void handleSelectSemester(newSemester);
         }}
       />
     </Container>

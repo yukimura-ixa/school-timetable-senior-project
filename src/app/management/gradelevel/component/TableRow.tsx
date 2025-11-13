@@ -1,7 +1,6 @@
 // TableRow.jsx
-import React, { Fragment } from "react";
+import React from "react";
 import { BiEdit } from "react-icons/bi";
-import { TbTrash } from "react-icons/tb";
 import type { Prisma } from "@/prisma/generated";
 
 type GradeLevelWithProgram = Prisma.gradelevelGetPayload<{

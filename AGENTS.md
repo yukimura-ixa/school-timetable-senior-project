@@ -1010,6 +1010,30 @@ export function CurrentSemesterBadge() {
   // ✅ No setSemester - read-only
   return <div>ภาคเรียน {semester}</div>;
 }
+
+// Role-based UI restrictions (implemented in student-table)
+function StudentTablePage() {
+  const { data: session } = useSession();
+  const isStudent = session?.user?.role === "student";
+  
+  return (
+    <>
+      {/* Bulk export hidden for students */}
+      {!isStudent && <BulkExportSection />}
+      
+      {/* Individual export hidden for students */}
+      {!isStudent && (
+        <Stack direction="row" spacing={1}>
+          <Button onClick={handleExport}>Export Excel</Button>
+          <Button onClick={handlePDF}>Export PDF</Button>
+        </Stack>
+      )}
+      
+      {/* Students see read-only timetable only */}
+      <TimetableDisplay />
+    </>
+  );
+}
 ```
 
 ### Data Validation

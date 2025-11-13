@@ -2,6 +2,8 @@
 import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import useSWR from "swr";
+import { useSession } from "next-auth/react";
+import { isAdminRole } from "@/lib/authz";
 import { useReactToPrint } from "react-to-print";
 import {
   Container,
@@ -62,6 +64,9 @@ const getGradeLabel = (gradeId: string | null) => {
 function StudentTablePage() {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+  const isAdmin = isAdminRole(userRole);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
   
   // Bulk operation state
@@ -316,7 +321,8 @@ function StudentTablePage() {
           />
         )}
 
-        {/* Bulk Export Filter Section */}
+        {/* Bulk Export Filter Section - Admin only (guests hidden) */}
+        {isAdmin && (
         <Paper elevation={1} sx={{ p: 2 }} className="no-print">
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: showBulkFilters ? 2 : 0 }}>
             <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -445,6 +451,7 @@ function StudentTablePage() {
             )}
           </Collapse>
         </Paper>
+        )}
 
         {/* Error Display */}
         {errors.length > 0 && (
@@ -501,6 +508,7 @@ function StudentTablePage() {
                     ภาคเรียนที่ {semester}/{academicYear}
                   </Typography>
                 </Box>
+                {isAdmin && (
                 <Stack direction="row" spacing={1}>
                   <Button
                     variant="contained"
@@ -529,6 +537,7 @@ function StudentTablePage() {
                     นำออก PDF
                   </Button>
                 </Stack>
+                )}
               </Box>
             </Paper>
 

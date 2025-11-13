@@ -20,7 +20,8 @@
  */
 
 import * as v from 'valibot';
-import { auth } from '@/lib/auth';
+// Use authWithDevBypass to honor ENABLE_DEV_BYPASS in development
+import { authWithDevBypass } from '@/lib/auth';
 import { isConflictError, isValidationError, isLockedScheduleError, type ServerActionError } from '@/types';
 
 /**
@@ -76,7 +77,7 @@ export function createAction<TInput, TOutput>(
   return async (input: unknown): Promise<ActionResult<TOutput>> => {
     try {
       // 1. Authentication check
-      const session = await auth();
+      const session = await authWithDevBypass();
       
       if (!session || !session.user) {
         return {

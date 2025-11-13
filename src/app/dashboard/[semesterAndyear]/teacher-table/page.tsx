@@ -1,6 +1,8 @@
 "use client";
 import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { isAdminRole } from "@/lib/authz";
 import useSWR from "swr";
 import { useReactToPrint } from "react-to-print";
 import {
@@ -77,6 +79,8 @@ const formatTeacherName = (teacher?: Teacher) => {
 function TeacherTablePage() {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { data: session } = useSession();
+  const isAdmin = isAdminRole(session?.user?.role);
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
   
   // Bulk operation state
@@ -356,7 +360,8 @@ function TeacherTablePage() {
           />
         )}
 
-        {/* Bulk Export Filter Section */}
+        {/* Bulk Export Filter Section - Admin only */}
+        {isAdmin && (
         <Paper elevation={1} sx={{ p: 2 }} className="no-print">
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: showBulkFilters ? 2 : 0 }}>
             <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -487,6 +492,7 @@ function TeacherTablePage() {
             )}
           </Collapse>
         </Paper>
+        )}
 
         {/* Error Display */}
         {errors.length > 0 && (
@@ -547,36 +553,38 @@ function TeacherTablePage() {
                       ภาคเรียนที่ {semester}/{academicYear}
                     </Typography>
                   </Box>
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      variant="contained"
-                      color="success"
-                      startIcon={<DownloadIcon />}
-                      disabled={disableExport}
-                      onClick={() => {
-                        if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
-                          ExportTeacherTable(
-                            timeSlotData as ExportTimeslotData,
-                            [teacherResponse.data],
-                            classData as ClassScheduleWithSummary[],
-                            semester,
-                            academicYear,
-                          );
-                        }
-                      }}
-                    >
-                      นำออก Excel
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      startIcon={<PictureAsPdfIcon />}
-                      disabled={disableExport}
-                      onClick={handleExportPDF}
-                    >
-                      นำออก PDF
-                    </Button>
-                  </Stack>
+                  {isAdmin && (
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<DownloadIcon />}
+                        disabled={disableExport}
+                        onClick={() => {
+                          if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
+                            ExportTeacherTable(
+                              timeSlotData as ExportTimeslotData,
+                              [teacherResponse.data],
+                              classData as ClassScheduleWithSummary[],
+                              semester,
+                              academicYear,
+                            );
+                          }
+                        }}
+                      >
+                        นำออก Excel
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        startIcon={<PictureAsPdfIcon />}
+                        disabled={disableExport}
+                        onClick={handleExportPDF}
+                      >
+                        นำออก PDF
+                      </Button>
+                    </Stack>
+                  )}
                 </Box>
               </Paper>
 

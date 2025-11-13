@@ -1,6 +1,8 @@
 /**
  * Unit tests for PDFCustomizationDialog component
  * Tests all PDF export customization options and user interactions
+ * 
+ * @jest-environment jsdom
  */
 
 import React from 'react';

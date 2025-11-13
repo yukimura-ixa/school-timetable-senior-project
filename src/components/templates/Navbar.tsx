@@ -16,7 +16,7 @@ function Navbar() {
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
   return (
     <>
-      {pathName == "/signin" || pathName == "/" ? null : (
+      {pathName === "/signin" || pathName === "/" ? null : (
         <nav className="flex w-[1280px] xl:w-full justify-center border-b border-gray-200 shadow-sm bg-white">
           <div className="flex w-full xl:w-[1440px] h-full justify-between bg-white px-6 py-3">
             {/* Leftside */}
