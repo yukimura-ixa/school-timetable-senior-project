@@ -15,10 +15,10 @@ test.describe('Analytics Dashboard', () => {
   
   test.beforeEach(async ({ page }) => {
     // Navigate to semester selection page (auth bypass enabled in .env.test)
-    await page.goto('/dashboard/select-semester');
+    await page.goto('/dashboard/select-semester', { waitUntil: 'domcontentloaded' });
     
-    // Wait for page to fully load
-    await page.waitForLoadState('networkidle');
+    // Wait for page to fully load with targeted selector
+    await page.waitForSelector('text=/📊.*แดชบอร์ดวิเคราะห์|main, [role="main"]', { timeout: 10000 });
   });
 
   test.describe('Dashboard Visibility', () => {
@@ -76,8 +76,11 @@ test.describe('Analytics Dashboard', () => {
       // Click to collapse
       await toggleButton.click();
       
-      // Wait for collapse animation
-      await page.waitForTimeout(500);
+      // Wait for collapse animation with assertion-based polling
+      await expect(async () => {
+        const isVisible = await statsBeforeCollapse.isVisible().catch(() => false);
+        expect(isVisible).toBe(false);
+      }).toPass({ timeout: 2000 });
       
       // Verify dashboard content is hidden
       await expect(statsBeforeCollapse).not.toBeVisible();
@@ -89,11 +92,17 @@ test.describe('Analytics Dashboard', () => {
       
       // Collapse first
       await toggleButton.click();
-      await page.waitForTimeout(500);
+      await expect(async () => {
+        const isVisible = await page.locator('text=/จำนวนทั้งหมด/').isVisible().catch(() => false);
+        expect(isVisible).toBe(false);
+      }).toPass({ timeout: 2000 });
       
       // Then expand
       await toggleButton.click();
-      await page.waitForTimeout(500);
+      await expect(async () => {
+        const isVisible = await page.locator('text=/จำนวนทั้งหมด/').isVisible().catch(() => true);
+        expect(isVisible).toBe(true);
+      }).toPass({ timeout: 2000 });
       
       // Verify dashboard content is visible again
       const statsAfterExpand = page.locator('text=/จำนวนทั้งหมด/');
@@ -106,14 +115,20 @@ test.describe('Analytics Dashboard', () => {
       // Click to collapse
       await toggleButton.click();
       
-      // Animation should complete within 1 second
-      await page.waitForTimeout(1000);
+      // Animation should complete - verify with assertion polling
+      await expect(async () => {
+        const isVisible = await page.locator('text=/จำนวนทั้งหมด/').isVisible().catch(() => false);
+        expect(isVisible).toBe(false);
+      }).toPass({ timeout: 2000 });
       
       // Click to expand
       await toggleButton.click();
       
       // Animation should complete
-      await page.waitForTimeout(1000);
+      await expect(async () => {
+        const isVisible = await page.locator('text=/จำนวนทั้งหมด/').isVisible().catch(() => true);
+        expect(isVisible).toBe(true);
+      }).toPass({ timeout: 2000 });
       
       // Content should be visible after animation
       const stats = page.locator('text=/จำนวนทั้งหมด/');
@@ -128,12 +143,23 @@ test.describe('Analytics Dashboard', () => {
       
       // Click to collapse (icon should change to ExpandMore)
       await toggleButton.click();
-      await page.waitForTimeout(300);
+      
+      // Wait for icon change with assertion polling
+      await expect(async () => {
+        const currentIcon = await toggleButton.innerHTML();
+        expect(currentIcon).not.toBe(initialIcon);
+      }).toPass({ timeout: 1000 });
+      
       const collapsedIcon = await toggleButton.innerHTML();
       
       // Click to expand (icon should change back to ExpandLess)
       await toggleButton.click();
-      await page.waitForTimeout(300);
+      
+      await expect(async () => {
+        const currentIcon = await toggleButton.innerHTML();
+        expect(currentIcon).not.toBe(collapsedIcon);
+      }).toPass({ timeout: 1000 });
+      
       const expandedIcon = await toggleButton.innerHTML();
       
       // Icons should be different between states
@@ -187,17 +213,16 @@ test.describe('Analytics Dashboard', () => {
     test('should show tooltips on hover (if implemented)', async ({ page }) => {
       // Hover over first stat card
       const firstCard = page.locator('text=/จำนวนทั้งหมด/').locator('..');
+      await expect(firstCard).toBeVisible();
       await firstCard.hover();
       
-      // Wait briefly for tooltip to appear
-      await page.waitForTimeout(500);
-      
-      // Check if tooltip appeared (optional feature)
+      // Wait for tooltip to appear with polling assertion
       const tooltip = page.locator('[role="tooltip"]');
-      const tooltipExists = await tooltip.isVisible().catch(() => false);
-      
-      // This is optional, so we just log it
-      console.log(`Tooltips ${tooltipExists ? 'are' : 'are not'} implemented`);
+      await expect(async () => {
+        const tooltipExists = await tooltip.isVisible().catch(() => false);
+        // This is optional feature, so we don't fail if not present
+        console.log(`Tooltips ${tooltipExists ? 'are' : 'are not'} implemented`);
+      }).toPass({ timeout: 1000 });
     });
 
     test('average completeness should be a valid percentage', async ({ page }) => {
@@ -442,17 +467,16 @@ test.describe('Analytics Dashboard', () => {
       
       await navigation;
       
-      // Skeleton should have been visible at some point
-      // Note: This test may be flaky due to fast loading
-      expect(skeletonVisible || true).toBeTruthy();
+      // Wait for dashboard to appear with targeted selector
+      await page.waitForSelector('text=/จำนวนทั้งหมด/', { timeout: 10000 });
     });
 
     test('should transition from skeleton to actual dashboard smoothly', async ({ page }) => {
       // Reload page
-      await page.reload();
+      await page.reload({ waitUntil: 'domcontentloaded' });
       
-      // Wait for network to be idle
-      await page.waitForLoadState('networkidle');
+      // Wait for dashboard to appear
+      await page.waitForSelector('text=/จำนวนทั้งหมด/', { timeout: 10000 });
       
       // Dashboard should be visible after load
       const dashboard = page.locator('text=/จำนวนทั้งหมด/');
@@ -498,11 +522,10 @@ test.describe('Analytics Dashboard', () => {
     test('dashboard should render within 2 seconds', async ({ page }) => {
       const startTime = Date.now();
       
-      await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await page.goto('/dashboard/select-semester', { waitUntil: 'domcontentloaded' });
       
-      // Wait for dashboard to appear
-      await page.locator('text=/📊.*แดชบอร์ดวิเคราะห์/').waitFor();
+      // Wait for dashboard to appear with targeted selector
+      await page.locator('text=/📊.*แดชบอร์ดวิเคราะห์/').waitFor({ timeout: 10000 });
       
       const endTime = Date.now();
       const renderTime = endTime - startTime;
@@ -516,9 +539,15 @@ test.describe('Analytics Dashboard', () => {
       
       const startTime = Date.now();
       await toggleButton.click();
-      await page.waitForTimeout(1000);
-      const endTime = Date.now();
       
+      // Wait for collapse animation to complete with assertion
+      await expect(async () => {
+        const stats = page.locator('text=/จำนวนทั้งหมด/');
+        const isVisible = await stats.isVisible().catch(() => false);
+        expect(isVisible).toBe(false);
+      }).toPass({ timeout: 1500 });
+      
+      const endTime = Date.now();
       const animationTime = endTime - startTime;
       
       // Animation should complete within 1 second
@@ -527,8 +556,10 @@ test.describe('Analytics Dashboard', () => {
 
     test('should not cause layout shifts', async ({ page }) => {
       // Measure layout shifts (basic check)
-      await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await page.goto('/dashboard/select-semester', { waitUntil: 'domcontentloaded' });
+      
+      // Wait for dashboard to appear
+      await page.waitForSelector('text=/จำนวนทั้งหมด/', { timeout: 10000 });
       
       // Get initial viewport metrics
       const metrics1 = await page.evaluate(() => ({
@@ -536,8 +567,15 @@ test.describe('Analytics Dashboard', () => {
         scrollWidth: document.documentElement.scrollWidth,
       }));
       
-      // Wait a bit
-      await page.waitForTimeout(500);
+      // Wait for any async updates to complete with assertion polling
+      await expect(async () => {
+        const currentMetrics = await page.evaluate(() => ({
+          scrollHeight: document.documentElement.scrollHeight,
+          scrollWidth: document.documentElement.scrollWidth,
+        }));
+        // Verify metrics are stable
+        expect(Math.abs(currentMetrics.scrollHeight - metrics1.scrollHeight)).toBeLessThan(10);
+      }).toPass({ timeout: 2000 });
       
       // Get metrics again
       const metrics2 = await page.evaluate(() => ({

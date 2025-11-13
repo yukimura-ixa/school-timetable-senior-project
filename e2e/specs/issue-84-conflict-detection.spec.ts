@@ -21,11 +21,11 @@ async function setupArrangePage(page: Page) {
   // TODO: Add login steps if needed (or use auth fixtures)
   
   // Navigate to arrange page
-  await page.goto(ARRANGE_PAGE);
-  await expect(page.locator('h1')).toContainText('จัดตารางสอน');
+  await page.goto(ARRANGE_PAGE, { waitUntil: 'domcontentloaded' });
   
-  // Wait for data to load
-  await page.waitForLoadState('networkidle');
+  // Wait for page to load with targeted selector
+  await page.waitForSelector('h1', { timeout: 10000 });
+  await expect(page.locator('h1')).toContainText('จัดตารางสอน');
 }
 
 /**
@@ -39,13 +39,14 @@ async function dragSubjectToTimeslot(
 ) {
   // Find the draggable subject
   const subject = page.locator(`[data-subject-code="${subjectCode}"]`).first();
-  await expect(subject).toBeVisible();
+  await expect(subject).toBeVisible({ timeout: 5000 });
+  await expect(subject).toBeEnabled();
   
   // Find the target timeslot cell
   const timeslotCell = page.locator(
     `[data-day="${dayIndex}"][data-period="${periodIndex}"]`
   ).first();
-  await expect(timeslotCell).toBeVisible();
+  await expect(timeslotCell).toBeVisible({ timeout: 5000 });
   
   // Perform drag and drop
   await subject.dragTo(timeslotCell);
@@ -56,15 +57,19 @@ async function dragSubjectToTimeslot(
  */
 async function selectRoomFromDialog(page: Page, roomName: string) {
   // Wait for room dialog to open
-  await expect(page.locator('text=เลือกห้องเรียน')).toBeVisible();
+  await expect(page.locator('text=เลือกห้องเรียน')).toBeVisible({ timeout: 5000 });
   
   // Find and click the room
   const roomButton = page.locator(`button:has-text("${roomName}")`);
-  await expect(roomButton).toBeVisible();
+  await expect(roomButton).toBeVisible({ timeout: 5000 });
+  await expect(roomButton).toBeEnabled();
   await roomButton.click();
   
   // Click confirm button
-  await page.locator('button:has-text("ยืนยัน")').click();
+  const confirmButton = page.locator('button:has-text("ยืนยัน")');
+  await expect(confirmButton).toBeVisible({ timeout: 3000 });
+  await expect(confirmButton).toBeEnabled();
+  await confirmButton.click();
 }
 
 test.describe('Issue #84 - Conflict Detection', () => {
@@ -260,8 +265,8 @@ test.describe('Issue #84 - Conflict Detection', () => {
       await expect(errorSnackbar).toBeVisible();
       
       // THEN: Error should auto-dismiss after 6 seconds (MUI default)
-      await page.waitForTimeout(7000);
-      await expect(errorSnackbar).not.toBeVisible();
+      // Use polling assertion instead of arbitrary timeout
+      await expect(errorSnackbar).not.toBeVisible({ timeout: 8000 });
     });
 
     test('should allow manual dismissal of error', async ({ page }) => {
