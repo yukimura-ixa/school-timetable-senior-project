@@ -30,7 +30,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
   test('E2E-001: Page loads without errors', async ({ page }) => {
     // Navigate to teacher arrange page with teacher ID
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
 
     // Check for no console errors (except expected warnings)
     const errors: string[] = [];
@@ -66,7 +65,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-002: Teacher selection works', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
-    await page.waitForLoadState('networkidle');
 
     // Look for teacher selection dropdown
     const teacherSelect = page.locator('select').first();
@@ -94,7 +92,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-003: Subject list renders', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for subject items to appear
     await expect(
@@ -118,7 +115,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-004: Timetable grid renders', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for table to be visible
     const table = page.locator('table').first();
@@ -143,7 +139,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-005: Drag and drop interaction (visual check)', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for draggable subjects to load
     const draggableSubject = page.locator('[draggable="true"]').first();
@@ -203,7 +198,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-006: Room selection modal appears', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for subjects to load
     const subject = page.locator('[draggable="true"]').first();
@@ -243,7 +237,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-007: Save button is present', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for save button to appear
     const saveButton = page.locator('button:has-text("บันทึก"), button:has-text("Save")').first();
@@ -275,7 +268,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
     });
 
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for subjects to load before interaction
     const subject = page.locator('[draggable="true"]').first();
@@ -299,7 +291,6 @@ test.describe('Refactored TeacherArrangePage - Core Functionality', () => {
 
   test('E2E-009: Redux DevTools integration', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
 
     // Check if Redux DevTools extension is available
     const hasDevTools = await page.evaluate(() => {
@@ -352,7 +343,6 @@ test.describe('Refactored TeacherArrangePage - Conflict Detection', () => {
 
   test('E2E-011: Locked timeslot indicators', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for timetable to render before checking for lock icons
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
@@ -371,7 +361,6 @@ test.describe('Refactored TeacherArrangePage - Conflict Detection', () => {
 
   test('E2E-012: Break time slots styled correctly', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for timetable to render before checking break slots
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
@@ -400,7 +389,6 @@ test.describe('Refactored TeacherArrangePage - Conflict Detection', () => {
 
   test('E2E-013: Conflict indicators appear', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for timetable to render before checking conflict indicators
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
@@ -425,7 +413,6 @@ test.describe('Refactored TeacherArrangePage - Comparison with Original', () => 
   test('E2E-014: Visual regression check', async ({ page }) => {
     // Test refactored version
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for main content to be fully rendered
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 });
@@ -449,7 +436,6 @@ test.describe('Refactored TeacherArrangePage - Comparison with Original', () => 
 
   test('E2E-015: Interaction parity check', async ({ page }) => {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`);
-    await page.waitForLoadState('networkidle');
     
     // Wait for page to be interactive
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});

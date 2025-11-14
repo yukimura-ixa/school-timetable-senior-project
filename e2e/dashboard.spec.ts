@@ -9,8 +9,6 @@ test.describe("Dashboard Page", () => {
   test.beforeEach(async ({ page }) => {
     // Mock authentication
     await page.goto("/");
-    // Wait for auth to be ready
-    await page.waitForLoadState("networkidle");
   });
 
   test("should redirect to semester selection when no semester provided", async ({ page }) => {
@@ -23,9 +21,6 @@ test.describe("Dashboard Page", () => {
     // Navigate to a valid semester (use current academic year)
     await page.goto("/dashboard/1-2567");
     
-    // Wait for page to load
-    await page.waitForLoadState("networkidle");
-    
     // Check page title/header
     await expect(page.locator("h1, h2").filter({ hasText: /ภาคเรียนที่/ })).toBeVisible();
     
@@ -36,7 +31,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display all 4 stat cards", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check for stat card labels
     await expect(page.locator("text=จำนวนครู")).toBeVisible();
@@ -47,7 +41,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display stat card values as numbers", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Find all stat values (they should be numbers)
     const statValues = page.locator("[class*='text-2xl'], [class*='text-3xl']").filter({ hasText: /^\d+/ });
@@ -57,7 +50,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display all 4 quick action buttons", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check for quick action buttons
     await expect(page.locator("a").filter({ hasText: "ตารางครู" })).toBeVisible();
@@ -68,7 +60,6 @@ test.describe("Dashboard Page", () => {
 
   test("should navigate to teacher table when clicking quick action", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Click teacher table button
     const teacherButton = page.locator("a").filter({ hasText: "ตารางครู" });
@@ -80,7 +71,6 @@ test.describe("Dashboard Page", () => {
 
   test("should navigate to student table when clicking quick action", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Click student table button
     const studentButton = page.locator("a").filter({ hasText: "ตารางนักเรียน" });
@@ -92,7 +82,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display teacher workload chart", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check for teacher workload section
     const workloadSection = page.locator("text=ภาระงานสอนของครู");
@@ -105,7 +94,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display subject distribution chart", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check for subject distribution section
     const subjectSection = page.locator("text=การกระจายวิชา");
@@ -118,7 +106,6 @@ test.describe("Dashboard Page", () => {
 
   test("should show health indicators when there are issues", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check if health indicators section exists
     // It may or may not be visible depending on data
@@ -136,7 +123,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display summary info section", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check for summary section
     const summarySection = page.locator("text=สรุปข้อมูล");
@@ -151,7 +137,6 @@ test.describe("Dashboard Page", () => {
   test("should handle empty semester gracefully", async ({ page }) => {
     // Navigate to a semester that likely has no data
     await page.goto("/dashboard/2-2599");
-    await page.waitForLoadState("networkidle");
     
     // Page should load without errors
     await expect(page.locator("h1, h2")).toBeVisible();
@@ -167,7 +152,6 @@ test.describe("Dashboard Page", () => {
     await page.setViewportSize({ width: 375, height: 667 });
     
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check that main elements are still visible
     await expect(page.locator("h1, h2").first()).toBeVisible();
@@ -182,7 +166,6 @@ test.describe("Dashboard Page", () => {
     await page.setViewportSize({ width: 768, height: 1024 });
     
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check that main elements are visible
     await expect(page.locator("h1, h2").first()).toBeVisible();
@@ -191,7 +174,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display semester badge", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check for semester badge/indicator
     const badgeText = await page.locator("[class*='bg-blue'], [class*='bg-green']").filter({ hasText: /ภาคเรียนที่/ }).textContent();
@@ -203,8 +185,6 @@ test.describe("Dashboard Page", () => {
     await page.goto("/dashboard/invalid-format");
     
     // Should either redirect or show error
-    // Wait for navigation/error
-    await page.waitForLoadState("networkidle");
     
     // Check if redirected or error shown
     const url = page.url();
@@ -217,7 +197,7 @@ test.describe("Dashboard Page", () => {
     const startTime = Date.now();
     
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     const loadTime = Date.now() - startTime;
     
@@ -235,7 +215,7 @@ test.describe("Dashboard Page", () => {
     });
     
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     // Filter out expected errors (e.g., network errors in test environment)
     const criticalErrors = consoleErrors.filter(
@@ -247,7 +227,6 @@ test.describe("Dashboard Page", () => {
 
   test("should have proper heading hierarchy", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Should have h1 or h2 for main title
     const mainHeading = page.locator("h1, h2").first();
@@ -261,7 +240,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display utilization bars in teacher workload", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check if teacher workload section has data
     const workloadSection = page.locator("text=ภาระงานสอนของครู");
@@ -280,7 +258,6 @@ test.describe("Dashboard Page", () => {
 
   test("should display percentage bars in subject distribution", async ({ page }) => {
     await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
     
     // Check if subject distribution section has data
     const subjectSection = page.locator("text=การกระจายวิชา");
