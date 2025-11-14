@@ -42,6 +42,8 @@ jobs:
     
     env:
       DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+      # Disable Playwright global-setup Docker compose in CI; we use GitHub service container
+      AUTO_MANAGE_TEST_DB: 'false'
     
     # Test sharding: Split tests across parallel jobs
     strategy:
@@ -84,6 +86,20 @@ jobs:
       # - NEXT_PUBLIC_ENABLE_DEV_BYPASS: Client-side button visibility (Next.js build-time inline)
       - name: Setup environment variables
         run: |
+          # Write both .env.test and .env.test.local so all tools pick them up
+          cat > .env.test << EOF
+          DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
+          AUTH_SECRET=ci-test-secret-$(openssl rand -hex 16)
+          AUTH_GOOGLE_ID=dummy-client-id
+          AUTH_GOOGLE_SECRET=dummy-client-secret
+          ENABLE_DEV_BYPASS=true
+          NEXT_PUBLIC_ENABLE_DEV_BYPASS=true
+          SEED_FOR_TESTS=true
+          SEED_CLEAN_DATA=true
+          NEXT_TELEMETRY_DISABLED=1
+          NODE_ENV=test
+          CI=true
+          EOF
           cat > .env.test.local << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           AUTH_SECRET=ci-test-secret-$(openssl rand -hex 16)
@@ -97,7 +113,8 @@ jobs:
           NODE_ENV=test
           CI=true
           EOF
-          cat .env.test.local
+          echo ".env.test contents:" && sed -e 's/=.*/=[REDACTED]/' .env.test
+          echo ".env.test.local contents:" && sed -e 's/=.*/=[REDACTED]/' .env.test.local
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -131,6 +148,8 @@ jobs:
           NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true"
           NEXT_TELEMETRY_DISABLED: "1"
           CI: "true"
+          # Ensure global-setup respects CI-provided Postgres service
+          AUTO_MANAGE_TEST_DB: "false"
       
       - name: Upload Playwright Report
         if: always()

@@ -94,10 +94,15 @@ async function globalSetup() {
     console.log('   AUTH_SECRET checksum:', Buffer.from(process.env.AUTH_SECRET).toString('base64').slice(0, 8) + '…');
   }
   
-  const autoManageDb = process.env.AUTO_MANAGE_TEST_DB !== 'false';
+  // Auto-disable Docker management in CI; GitHub Actions provides a Postgres service
+  const isCI = process.env.CI === 'true';
+  const autoManageDb = !isCI && process.env.AUTO_MANAGE_TEST_DB !== 'false';
   // Quick fallback: if Docker is unavailable and we only need UI smoke (e.g. teacher dropdown #118), allow skip via FAST_UI_ONLY
   const fastUiOnly = process.env.FAST_UI_ONLY === 'true';
   const isDocker = isDockerAvailable();
+  if (isCI) {
+    console.log('🏁 CI detected - disabling Docker DB management (using service container)');
+  }
   
   // Check if we should manage the test database
   if (fastUiOnly) {
