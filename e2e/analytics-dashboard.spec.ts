@@ -32,7 +32,6 @@ test.describe('Analytics Dashboard - Access & Navigation', () => {
     
     // Select first semester card
     await page.locator('[data-testid="semester-card"], .semester-card').first().click();
-    await page.waitForLoadState('networkidle');
     
     // Should be on dashboard
     expect(page.url()).toMatch(/\/dashboard\/\d+-\d{4}/);
@@ -42,7 +41,6 @@ test.describe('Analytics Dashboard - Access & Navigation', () => {
     
     if (await analyticsButton.isVisible({ timeout: 3000 })) {
       await analyticsButton.click();
-      await page.waitForLoadState('networkidle');
       
       // Should navigate to analytics page
       expect(page.url()).toContain('/analytics');
@@ -65,7 +63,6 @@ test.describe('Analytics Dashboard - Access & Navigation', () => {
 
   test('should show analytics page header', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Should have page title
     await expect(page.locator('h1, h2, [data-testid="page-title"]')).toContainText(/Analytics|วิเคราะห์|Dashboard|แดชบอร์ด/);
@@ -75,7 +72,6 @@ test.describe('Analytics Dashboard - Access & Navigation', () => {
 test.describe('Analytics Dashboard - Overview Stats Cards', () => {
   test('should display 4 overview stat cards', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Wait for stat cards to load
     await page.waitForSelector('[data-testid*="stat-card"], .stat-card, [role="region"]', { timeout: 10000 });
@@ -88,7 +84,6 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
 
   test('should show total scheduled hours', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for scheduled hours stat
     const scheduledHoursStat = page.locator('text=/Total.*Hours|ชั่วโมง.*ทั้งหมด|Scheduled/i');
@@ -101,7 +96,6 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
 
   test('should show completion rate percentage', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for completion rate (percentage)
     const completionRate = page.locator('text=/Completion|ความสมบูรณ์|เสร็จสิ้น/i');
@@ -114,7 +108,6 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
 
   test('should show active teachers count', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for active teachers stat
     const activeTeachers = page.locator('text=/Active.*Teachers|ครูที่ใช้งาน|ครูที่สอน/i');
@@ -123,7 +116,6 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
 
   test('should show conflicts count with color coding', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for conflicts stat
     const conflicts = page.locator('text=/Conflicts|ข้อขัดแย้ง|ความซ้ำซ้อน/i');
@@ -144,7 +136,6 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
 test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
   test('should display teacher workload section', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Should have teacher workload section header
     await expect(page.locator('h2, h3, [data-testid="section-title"]').filter({ hasText: /Teacher.*Workload|ภาระงาน.*ครู/i })).toBeVisible({ timeout: 10000 });
@@ -152,7 +143,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should list all teachers with workload data', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Wait for teacher workload list to load
     await page.waitForSelector('[data-testid="teacher-workload-list"], .teacher-workload', { timeout: 10000 });
@@ -167,7 +157,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should show teacher names and workload hours', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Find first teacher entry
     const firstTeacher = page.locator('[data-testid="teacher-entry"], .teacher-entry').first();
@@ -182,7 +171,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should display workload status indicators', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for status chips/badges
     const statusChips = page.locator('[data-testid="workload-status"], .status-chip, .badge, .chip');
@@ -202,7 +190,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should display visual progress bars for workload', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for progress bars
     const progressBars = page.locator('[role="progressbar"], .progress-bar, .progress, [data-testid="progress"]');
@@ -219,7 +206,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should sort teachers by workload descending', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Get all teacher hours values
     const teacherEntries = page.locator('[data-testid="teacher-entry"], .teacher-entry');
@@ -247,7 +233,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should handle teachers with zero workload', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for teachers with 0 hours or "ไม่ได้ใช้งาน" status
     const zeroWorkload = page.locator('text=/0.*ชม\.|0.*hours?|ไม่ได้ใช้งาน|Not.*active/i');
@@ -261,7 +246,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 
   test('should show MaxHours limit for each teacher', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for max hours indicator (e.g., "12/18" where 18 is max)
     const maxHoursIndicator = page.locator('text=/\/\d+|Max:?\s*\d+/i').first();
@@ -275,7 +259,6 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
   test('should display room utilization section', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Should have room utilization section header
     await expect(page.locator('h2, h3, [data-testid="section-title"]').filter({ hasText: /Room.*Utilization|การใช้.*ห้อง|ห้องเรียน/i })).toBeVisible({ timeout: 10000 });
@@ -283,7 +266,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should list all rooms with utilization data', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Wait for room list to load
     await page.waitForSelector('[data-testid="room-utilization-list"], .room-utilization', { timeout: 10000 });
@@ -298,7 +280,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should show room names and IDs', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Find first room entry
     const firstRoom = page.locator('[data-testid="room-entry"], .room-entry').first();
@@ -310,7 +291,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should display occupancy rates as percentages', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Find first room entry
     const firstRoom = page.locator('[data-testid="room-entry"], .room-entry').first();
@@ -321,7 +301,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should display occupancy status chips', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for status chips with different colors
     const statusChips = page.locator('[data-testid="occupancy-status"], .status-chip, .badge').filter({ hasText: /Overutilized|Optimal|Moderate|Underutilized|ใช้.*มาก|เหมาะสม|ปานกลาง|ใช้.*น้อย/i });
@@ -338,7 +317,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should sort rooms by occupancy rate descending', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Get all room occupancy values
     const roomEntries = page.locator('[data-testid="room-entry"], .room-entry');
@@ -366,7 +344,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should show scheduled periods vs total periods', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Look for fraction format like "30/40" (30 scheduled out of 40 total)
     const fractionIndicator = page.locator('text=/\\d+\\/\\d+/').first();
@@ -378,7 +355,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 
   test('should display visual progress bars for occupancy', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Scroll to room utilization section
     await page.locator('h2, h3').filter({ hasText: /Room/i }).scrollIntoViewIfNeeded();
@@ -397,7 +373,6 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 test.describe('Analytics Dashboard - Data Accuracy', () => {
   test('should show realistic workload percentages (0-150%)', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Extract all percentage values
     const percentages = await page.locator('text=/\d+%/').allTextContents();
@@ -415,7 +390,6 @@ test.describe('Analytics Dashboard - Data Accuracy', () => {
 
   test('should show non-negative counts', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Extract all numeric counts
     const numbers = await page.locator('[data-testid*="count"], .stat-card text').allTextContents();
@@ -432,7 +406,6 @@ test.describe('Analytics Dashboard - Data Accuracy', () => {
 
   test('should calculate completion rate correctly', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Find completion rate value
     const completionText = await page.locator('[data-testid="completion-rate"], text=/Completion.*\d+%/i').first().textContent();
@@ -452,7 +425,6 @@ test.describe('Analytics Dashboard - Data Accuracy', () => {
 test.describe('Analytics Dashboard - UI/UX', () => {
   test('should be scrollable for long lists', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Teacher/room lists should have max-height with scroll
     const scrollContainers = page.locator('.overflow-y-auto, .overflow-auto, [style*="overflow"]');
@@ -466,7 +438,6 @@ test.describe('Analytics Dashboard - UI/UX', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Stat cards should stack vertically
     const statCards = page.locator('[data-testid*="stat-card"], .stat-card');
@@ -483,7 +454,7 @@ test.describe('Analytics Dashboard - UI/UX', () => {
     page.on('pageerror', error => errors.push(error.message));
     
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     // Should have no console errors
     expect(errors).toHaveLength(0);
@@ -498,7 +469,7 @@ test.describe('Analytics Dashboard - UI/UX', () => {
     
     // If loading states exist, they should disappear after load
     if (hasLoading) {
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
       await expect(loadingIndicators).not.toBeVisible({ timeout: 5000 });
     }
   });
@@ -509,7 +480,7 @@ test.describe('Analytics Dashboard - Performance', () => {
     const startTime = Date.now();
     
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     const loadTime = Date.now() - startTime;
     
@@ -519,7 +490,6 @@ test.describe('Analytics Dashboard - Performance', () => {
 
   test('should handle large datasets (50+ teachers)', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
     
     // Should still render even with many teachers
     const teacherEntries = page.locator('[data-testid="teacher-entry"], .teacher-entry');
