@@ -10,8 +10,10 @@
 
 import { createAction } from '@/shared/lib/action-wrapper';
 import type { table_config, timeslot, teachers_responsibility } from '@/prisma/generated';
+import { Prisma } from '@/prisma/generated';
 import * as v from 'valibot';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
+import { withPrismaTransaction } from '@/lib/prisma-transaction';
 import {
   validateConfigExists,
   validateNoDuplicateConfig,
@@ -178,7 +180,7 @@ export const copyConfigAction = createAction(
     const toSemester = parseSemesterEnum(toParsed.semester);
 
     // Execute copy operation in transaction
-    const result = await configRepository.transaction(async (tx) => {
+    const result = await withPrismaTransaction(async (tx) => {
       // 1. Copy table_config
       const fromConfig: table_config | null = await tx.table_config.findUnique({
         where: { ConfigID: input.from },
@@ -193,7 +195,7 @@ export const copyConfigAction = createAction(
           ConfigID: input.to,
           Semester: toSemester,
           AcademicYear: toParsed.academicYear,
-          Config: fromConfig.Config,
+          Config: (fromConfig.Config ?? Prisma.JsonNull) as Prisma.InputJsonValue,
         },
       });
 
@@ -489,7 +491,7 @@ export const updateConfigWithTimeslotsAction = createAction(
     }
 
     // Use transaction to ensure atomicity
-    const result = await configRepository.transaction(async (tx) => {
+    const result = await withPrismaTransaction(async (tx) => {
       // Step 1: Delete existing teacher responsibilities
       await tx.teachers_responsibility.deleteMany({
         where: {

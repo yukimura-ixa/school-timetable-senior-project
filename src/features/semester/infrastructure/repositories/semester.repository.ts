@@ -369,12 +369,6 @@ export class SemesterRepository {
     });
   }
 
-  /**
-   * Execute a transaction with a custom function
-   */
-  async transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
-    return await prisma.$transaction(fn);
-  }
 }
 
 export const semesterRepository = new SemesterRepository();

@@ -10,6 +10,7 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
+import type { GenericSchema } from 'valibot';
 import { scheduleRepository } from '../../infrastructure/repositories/schedule.repository';
 import { checkAllConflicts } from '../../domain/services/conflict-detector.service';
 import {
@@ -60,7 +61,7 @@ import type { class_schedule } from '@/prisma/generated';
  * ```
  */
 export const arrangeScheduleAction = createAction(
-  arrangeScheduleSchema,
+  arrangeScheduleSchema as GenericSchema<ArrangeScheduleInput>,
   async (input: ArrangeScheduleInput, userId: string) => {
     // 1. Fetch existing schedules and teacher responsibilities for conflict checking
     const [existingSchedules, responsibilities] = await Promise.all([
@@ -206,7 +207,7 @@ export const deleteScheduleAction = createAction(
  * ```
  */
 export const getSchedulesByTermAction = createAction(
-  getSchedulesByTermSchema,
+  getSchedulesByTermSchema as GenericSchema<GetSchedulesByTermInput>,
   async (input: GetSchedulesByTermInput, userId: string) => {
     const schedules = await scheduleRepository.findSchedulesByTerm(
       input.academicYear,

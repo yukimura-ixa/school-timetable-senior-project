@@ -210,8 +210,13 @@ export async function getTeacherSchedule(teacherId: number) {
       termInfo.semester
     );
 
+    type ResponsibilityWithSchedules = Awaited<
+      ReturnType<typeof publicDataRepository.findTeacherResponsibilities>
+    >[number];
     // Flatten to class schedules
-    const schedules = responsibilities.flatMap((resp) => resp.class_schedule || []);
+    const schedules = responsibilities.flatMap(
+      (resp: ResponsibilityWithSchedules) => resp.class_schedule ?? []
+    );
 
     // Sort by day and time
     return schedules.sort((a, b) => {

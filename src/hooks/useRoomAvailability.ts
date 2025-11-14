@@ -35,7 +35,7 @@ export function computeAvailability(
   }
   for (const roomIdStr of Object.keys(byRoom)) {
     const roomId = Number(roomIdStr);
-    const lockedSet = byRoom[roomId];
+    const lockedSet = byRoom[roomId]!;
     if (selectionSize === 0) {
       map[roomId] = lockedSet.size === 0 ? 'available' : 'partial';
       continue;

@@ -8,11 +8,11 @@
  */
 
 import * as v from 'valibot';
+import { Prisma } from '@/prisma/generated';
 import {
   academicYearSchema,
   semesterSchema,
   nonEmptyStringSchema,
-  positiveNumberSchema,
 } from '@/shared/schemas/common.schemas';
 
 /**
@@ -76,6 +76,24 @@ export const arrangeScheduleSchema = v.object({
  * Inferred TypeScript type from arrangeScheduleSchema
  */
 export type ArrangeScheduleInput = v.InferOutput<typeof arrangeScheduleSchema>;
+
+type ClassScheduleFields = Prisma.class_scheduleUncheckedCreateInput;
+type ResponsibilityFields = Prisma.teachers_responsibilityUncheckedCreateInput;
+
+type PrismaScheduleInsert = {
+  classId: ClassScheduleFields['ClassID'];
+  timeslotId: ClassScheduleFields['TimeslotID'];
+  subjectCode: ClassScheduleFields['SubjectCode'];
+  roomId: ClassScheduleFields['RoomID'];
+  gradeId: ClassScheduleFields['GradeID'];
+  isLocked: NonNullable<ClassScheduleFields['IsLocked']>;
+  teacherId?: ResponsibilityFields['TeacherID'];
+  academicYear: ResponsibilityFields['AcademicYear'];
+  semester: ResponsibilityFields['Semester'];
+};
+
+type _ArrangeMatchesPrisma = ArrangeScheduleInput extends PrismaScheduleInsert ? true : never;
+type _PrismaMatchesArrange = PrismaScheduleInsert extends ArrangeScheduleInput ? true : never;
 
 /**
  * Schema for deleting a schedule

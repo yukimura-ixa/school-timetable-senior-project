@@ -67,7 +67,7 @@ export function PDFCustomizationDialog({
   onExport,
   defaultValues = {},
   maxTablesPerPage = 4,
-  title = 'กำหนดค่าการส่งออก PDF',
+  title = 'ตั้งค่าการส่งออก PDF',
 }: PDFCustomizationDialogProps) {
   // Form state
   const [paperSize, setPaperSize] = useState<PaperSize>(
@@ -91,8 +91,7 @@ export function PDFCustomizationDialog({
   const [showSignatures, setShowSignatures] = useState<boolean>(
     defaultValues.showSignatures ?? DEFAULT_PDF_OPTIONS.showSignatures
   );
-
-  // Handle form submission
+  const orientationLabel = orientation === 'portrait' ? 'แนวตั้ง' : 'แนวนอน';
   const handleExport = () => {
     const options: Partial<BatchPDFOptions> = {
       format: paperSize,
@@ -158,11 +157,11 @@ export function PDFCustomizationDialog({
 
           {/* Orientation */}
           <FormControl fullWidth>
-            <InputLabel id="orientation-label">การวางหน้ากระดาษ</InputLabel>
+            <InputLabel id="orientation-label">การวางแนว</InputLabel>
             <Select
               labelId="orientation-label"
               value={orientation}
-              label="การวางหน้ากระดาษ"
+              label="การวางแนว"
               onChange={(e: SelectChangeEvent) => setOrientation(e.target.value as PageOrientation)}
               data-testid="orientation-select"
             >
@@ -192,14 +191,14 @@ export function PDFCustomizationDialog({
               data-testid="tables-per-page-slider"
             />
             <Typography variant="caption" color="text.secondary">
-              จำนวนตารางที่จะแสดงในหนึ่งหน้า (1-{maxTablesPerPage})
+              กำหนดจำนวนตารางต่อหน้า (1-{maxTablesPerPage})
             </Typography>
           </Box>
 
           {/* Margin */}
           <Box>
             <Typography gutterBottom>
-              ขอบกระดาษ: {margin} mm
+              ระยะขอบ: {margin} mm
             </Typography>
             <Slider
               value={margin}
@@ -226,7 +225,7 @@ export function PDFCustomizationDialog({
           {/* Quality */}
           <Box>
             <Typography gutterBottom>
-              คุณภาพภาพ: {quality === 1 ? 'ปกติ' : quality === 2 ? 'สูง' : 'สูงมาก'}
+              คุณภาพ: {quality === 1 ? 'ต่ำ' : quality === 2 ? 'กลาง' : 'สูง'}
             </Typography>
             <Slider
               value={quality}
@@ -240,9 +239,9 @@ export function PDFCustomizationDialog({
               max={3}
               step={1}
               marks={[
-                { value: 1, label: 'ปกติ' },
-                { value: 2, label: 'สูง' },
-                { value: 3, label: 'สูงมาก' },
+                { value: 1, label: 'ต่ำ' },
+                { value: 2, label: 'กลาง' },
+                { value: 3, label: 'สูง' },
               ]}
               valueLabelDisplay="auto"
               data-testid="quality-slider"
@@ -272,11 +271,9 @@ export function PDFCustomizationDialog({
                   data-testid="signatures-switch"
                 />
               }
-              label="แสดงช่องลายเซ็น"
+              label="แสดงลายเซ็น"
             />
           </Box>
-
-          {/* Preview Info */}
           <Box
             sx={{
               p: 2,
@@ -287,9 +284,8 @@ export function PDFCustomizationDialog({
             }}
           >
             <Typography variant="body2" color="text.secondary">
-              <strong>สรุป:</strong> กระดาษ {PAPER_SIZE_LABELS[paperSize]} แนว
-              {orientation === 'portrait' ? 'ตั้ง' : 'นอน'}, 
-              {tablesPerPage} ตารางต่อหน้า, ขอบ {margin}mm
+              <strong>สรุปการตั้งค่าปัจจุบัน:</strong> กระดาษ {PAPER_SIZE_LABELS[paperSize]} {orientationLabel},{' '}
+              {tablesPerPage} ตารางต่อหน้า, ระยะขอบ {margin}mm
             </Typography>
           </Box>
         </Box>
@@ -302,14 +298,12 @@ export function PDFCustomizationDialog({
         <Button onClick={onClose} color="inherit">
           ยกเลิก
         </Button>
-        <Button
-          onClick={handleExport}
-          variant="contained"
-          startIcon={<PdfIcon />}
-        >
+        <Button onClick={handleExport} variant="contained" startIcon={<PdfIcon />}>
           ส่งออก PDF
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
+
+

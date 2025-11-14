@@ -332,7 +332,51 @@ export const publicDataRepository = {
     teacherId: number,
     academicYear: number,
     semester: string
-  ) {
+  ): Promise<
+    Prisma.teachers_responsibilityGetPayload<{
+      include: {
+        subject: {
+          select: {
+            SubjectName: true;
+            SubjectCode: true;
+            Category: true;
+          };
+        };
+        gradelevel: {
+          select: {
+            GradeID: true;
+            Year: true;
+            Number: true;
+          };
+        };
+        class_schedule: {
+          include: {
+            timeslot: true;
+            subject: {
+              select: {
+                SubjectCode: true;
+                SubjectName: true;
+              };
+            };
+            gradelevel: {
+              select: {
+                GradeID: true;
+                Year: true;
+                Number: true;
+              };
+            };
+            room: {
+              select: {
+                RoomID: true;
+                RoomName: true;
+                Building: true;
+              };
+            };
+          };
+        };
+      };
+    }>[]
+  > {
     return await prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: teacherId,

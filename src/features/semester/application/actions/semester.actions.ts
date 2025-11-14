@@ -7,7 +7,9 @@
 
 import * as v from "valibot";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
-import type { Prisma, semester } from "@/prisma/generated";
+import { Prisma } from "@/prisma/generated";
+import type { semester } from "@/prisma/generated";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   type SemesterFilter,
   SemesterFilterSchema,
@@ -177,11 +179,11 @@ export async function createSemesterAction(
     }
 
     // Copy config from source if requested
-    let configData: Prisma.InputJsonValue = {};
+    let configData: Prisma.InputJsonValue = Prisma.JsonNull as Prisma.InputJsonValue;
     if (input.copyFromConfigId && input.copyConfig) {
       const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
-        configData = source.Config;
+        configData = (source.Config ?? Prisma.JsonNull) as Prisma.InputJsonValue;
       }
     }
 
@@ -296,15 +298,15 @@ export async function createSemesterWithTimeslotsAction(input: {
     const semesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
     // Use transaction for atomicity
-    const newSemester = await semesterRepository.transaction(async (tx) => {
+    const newSemester = await withPrismaTransaction(async (tx) => {
       // 1. Copy config from source if requested
-      let configData: Prisma.InputJsonValue = {} as Prisma.InputJsonValue;
+      let configData: Prisma.InputJsonValue = Prisma.JsonNull as Prisma.InputJsonValue;
       if (input.copyFromConfigId && input.copyConfig) {
         const source = await tx.table_config.findUnique({
           where: { ConfigID: input.copyFromConfigId },
         });
         if (source) {
-          configData = source.Config;
+          configData = (source.Config ?? Prisma.JsonNull) as Prisma.InputJsonValue;
         }
       }
 

@@ -12,6 +12,7 @@
 import { revalidatePath } from 'next/cache';
 import { createAction } from '@/shared/lib/action-wrapper';
 import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
+import { withPrismaTransaction } from '@/lib/prisma-transaction';
 import {
   generateTimeslots,
   sortTimeslots,
@@ -133,7 +134,7 @@ export const createTimeslotsAction = createAction(
     const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
     const configId = `${semesterNum}-${input.AcademicYear}`;
     
-    await timeslotRepository.transaction(async (tx) => {
+    await withPrismaTransaction(async (tx) => {
       // Create or update table config with canonical ConfigID format
       await tx.table_config.upsert({
         where: {
@@ -199,7 +200,7 @@ export const deleteTimeslotsByTermAction = createAction(
     }
 
     // Use transaction for cascade deletion
-    await timeslotRepository.transaction(async (tx) => {
+    await withPrismaTransaction(async (tx) => {
       // Delete table config with canonical ConfigID format
       const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
       const configId = `${semesterNum}-${input.AcademicYear}`;

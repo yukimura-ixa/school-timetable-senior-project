@@ -27,6 +27,7 @@ import {
 
 // Repository
 import * as assignRepository from '../../infrastructure/repositories/assign.repository';
+import { withPrismaTransaction } from '@/lib/prisma-transaction';
 
 // Services
 import {
@@ -133,7 +134,7 @@ export const syncAssignmentsAction = createAction(
     const sem = semester[input.Semester];
 
     // Execute all operations in a transaction
-    const result = await assignRepository.transaction(async (tx) => {
+    const result = await withPrismaTransaction(async (tx) => {
       // 1. Get existing responsibilities
       const existingResponsibilities: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
         where: {
@@ -229,7 +230,7 @@ export const deleteAssignmentAction = createAction(
       throw new Error(`Responsibility with RespID ${input.RespID} not found`);
     }
 
-    const result = await assignRepository.transaction(async (tx) => {
+    const result = await withPrismaTransaction(async (tx) => {
       // 1. Delete the responsibility
       const deleted = await tx.teachers_responsibility.delete({
         where: { RespID: input.RespID },

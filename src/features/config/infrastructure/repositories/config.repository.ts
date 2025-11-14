@@ -66,7 +66,7 @@ export async function create(data: ConfigData) {
       ConfigID: data.ConfigID,
       AcademicYear: data.AcademicYear,
       Semester: data.Semester,
-      Config: data.Config,
+      Config: data.Config as Prisma.InputJsonValue,
     },
   });
 }
@@ -81,7 +81,7 @@ export async function update(
   const updateData: Prisma.table_configUpdateInput = {
     ...(data.AcademicYear !== undefined && { AcademicYear: data.AcademicYear }),
     ...(data.Semester !== undefined && { Semester: data.Semester }),
-    ...(data.Config !== undefined && { Config: data.Config }),
+    ...(data.Config !== undefined && { Config: data.Config as Prisma.InputJsonValue }),
   };
   return await prisma.table_config.update({
     where: { ConfigID: configId },
@@ -247,9 +247,3 @@ export async function getTimetableConfig(
   return config?.Config ?? null;
 }
 
-/**
- * Execute a transaction with a custom function
- */
-export async function transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
-  return await prisma.$transaction(fn);
-}
