@@ -8,6 +8,8 @@
 import prisma from '@/lib/prisma';
 import { semester, Prisma } from '@/prisma/generated';
 
+type SubjectCodeGroup = Pick<Prisma.teachers_responsibilityGroupByOutputType, 'SubjectCode'>;
+
 /**
  * Type: Teacher responsibility with full relations
  */
@@ -93,7 +95,7 @@ export async function findLockedSubjectsByTerm(
   sem: semester
 ): Promise<SubjectWithResponsibilities[]> {
   // First, group by SubjectCode to get distinct subjects
-  const groupedSubjects = await prisma.teachers_responsibility.groupBy({
+  const groupedSubjects: SubjectCodeGroup[] = await prisma.teachers_responsibility.groupBy({
     by: ['SubjectCode'],
     where: {
       AcademicYear: academicYear,
@@ -105,7 +107,7 @@ export async function findLockedSubjectsByTerm(
   const subjects = await prisma.subject.findMany({
     where: {
       SubjectCode: {
-        in: groupedSubjects.map((item: { SubjectCode: string }) => item.SubjectCode),
+        in: groupedSubjects.map((item) => item.SubjectCode),
       },
     },
     include: {
@@ -207,6 +209,8 @@ export async function findByRespId(respId: number) {
 /**
  * Execute a transaction with a custom function
  */
-export async function transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
-  return await prisma.$transaction(fn);
+export async function transaction<T>(
+  fn: (tx: Prisma.TransactionClient) => Prisma.PrismaPromise<T>
+): Promise<T> {
+  return prisma.$transaction(fn);
 }

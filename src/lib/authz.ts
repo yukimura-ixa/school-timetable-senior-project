@@ -5,6 +5,13 @@
 
 export type AppRole = 'admin' | 'teacher' | 'student' | undefined;
 
+export function toAppRole(rawRole: string | undefined): AppRole {
+  if (rawRole === 'admin' || rawRole === 'teacher' || rawRole === 'student') {
+    return rawRole;
+  }
+  return undefined;
+}
+
 export function isAdminRole(role: AppRole): boolean {
   return role === 'admin';
 }

@@ -42,9 +42,9 @@ export async function getTimetableConfigAction(
 /**
  * Get default configuration (doesn't require DB access)
  */
-export function getDefaultTimetableConfigAction(): Promise<ActionResult<TimetableConfig>> {
-  return Promise.resolve({
+export async function getDefaultTimetableConfigAction(): Promise<ActionResult<TimetableConfig>> {
+  return {
     success: true,
     data: getDefaultTimetableConfig(),
-  });
+  };
 }

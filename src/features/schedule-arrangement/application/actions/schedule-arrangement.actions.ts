@@ -23,7 +23,7 @@ import {
   type UpdateScheduleLockInput,
 } from '../schemas/schedule-arrangement.schemas';
 import type { ConflictResult } from '../../domain/models/conflict.model';
-import { createConflictError } from '@/types';
+import { createConflictError, createNotFoundError } from '@/types';
 import type { class_schedule } from '@/prisma/generated';
 
 /**
@@ -171,7 +171,7 @@ export const deleteScheduleAction = createAction(
     // Check if schedule exists
     const schedule = await scheduleRepository.findScheduleById(input.classId);
     if (!schedule) {
-      throw new Error('Schedule not found');
+      throw createNotFoundError('schedule', input.classId);
     }
 
     // Check if schedule is locked

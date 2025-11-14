@@ -120,13 +120,9 @@ jobs:
         run: pnpm prisma generate
       
       - name: Run Jest unit tests
-        run: |
-          pnpm exec jest \
-            --testPathIgnorePatterns="/e2e/" \
-            --testPathIgnorePatterns="__test__/stores/" \
-            --testPathIgnorePatterns="__test__/integration/" \
-            --testPathIgnorePatterns="__test__/features/teaching-assignment/teaching-assignment\\.repository\\.test\\.ts" \
-            --testPathIgnorePatterns="__test__/features/teaching-assignment/teacher-validation\\.service\\.test\\.ts"
+        # Lightweight unit/regression suites only.
+        # Heavy teaching-assignment + Playwright flows run in .github/workflows/e2e-tests.yml.
+        run: pnpm exec jest
         env:
           NODE_ENV: test
       

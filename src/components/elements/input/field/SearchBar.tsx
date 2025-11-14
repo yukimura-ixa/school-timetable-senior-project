@@ -1,8 +1,5 @@
 
-//SVG
-import searchicon from "@/svg/crud/searchicon.svg";
-
-import Image from "next/image";
+import SearchIcon from "@/svg/crud/searchicon.svg";
 
 interface SearchBarProps {
   width?: string | number | null;
@@ -34,8 +31,8 @@ function SearchBar({
         }}
         onChange={handleChange}
       />
-      <div className="flex gap-3 absolute left-3">
-        <Image src={searchicon} alt="searchicon" />
+      <div className="flex gap-3 absolute left-3 text-gray-500">
+        <SearchIcon aria-hidden="true" />
       </div>
     </div>
   );

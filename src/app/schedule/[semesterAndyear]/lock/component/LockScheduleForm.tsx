@@ -8,7 +8,7 @@ import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
 import { useParams } from 'next/navigation';
 import { useRoomAvailability } from '@/hooks/useRoomAvailability';
-import type { room, subject, teacher, timeslot } from "@/prisma/generated";
+import type { room, semester, subject, teacher, timeslot } from "@/prisma/generated";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -161,7 +161,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
     const semPart = parts[0];
     const yearNum = Number(parts[1]);
     if (!yearNum || (semPart !== '1' && semPart !== '2')) return null;
-    const semEnum = semPart === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+    const semEnum: semester = semPart === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
     return { academicYear: yearNum, semester: semEnum };
   }, [semesterAndyear]);
 

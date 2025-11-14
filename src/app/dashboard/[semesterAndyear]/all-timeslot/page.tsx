@@ -7,7 +7,7 @@ import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { isAdminRole } from "@/lib/authz";
+import { isAdminRole, toAppRole } from "@/lib/authz";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import type { timeslot } from "@/prisma/generated";
@@ -63,7 +63,7 @@ const AllTimeslot = () => {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const { data: session } = useSession();
-  const isAdmin = isAdminRole(session?.user?.role);
+  const isAdmin = isAdminRole(toAppRole(session?.user?.role));
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));

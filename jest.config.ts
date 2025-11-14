@@ -51,6 +51,8 @@ const config: Config = {
     '/e2e/',
     '/__test__/stores/', // Skip until React 19 + Testing Library compatible (Issue #53)
     '/__test__/integration/', // Skip until converted to E2E tests (Issue #55)
+    '/__test__/features/teaching-assignment/teaching-assignment\\.repository\\.test\\.ts', // Covered by heavy Playwright regression workflow
+    '/__test__/features/teaching-assignment/teacher-validation\\.service\\.test\\.ts', // Duplicated by dedicated heavysuite run
   ],
   
   // Transform patterns (next/jest handles this automatically)

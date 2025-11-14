@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { signOut, useSession } from "next-auth/react";
 
-import userIcon from "../../../public/svg/user/usericon.svg";
+const FALLBACK_USER_ICON = "/svg/user/usericon.svg";
 import { SemesterSelector } from "./SemesterSelector";
 
 function Navbar() {
@@ -65,11 +65,7 @@ function Navbar() {
                     } rounded-full transition-opacity`}
                     width={44}
                     height={44}
-                    src={
-                      session.data?.user?.image
-                        ? session.data?.user?.image
-                        : userIcon
-                    }
+                    src={session.data?.user?.image ?? FALLBACK_USER_ICON}
                     alt="profile_pic"
                     priority
                   />

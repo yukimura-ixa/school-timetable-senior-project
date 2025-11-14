@@ -1,9 +1,6 @@
 import React, { useState, type JSX } from "react";
 
-//SVG Icon
-import arrowdownIcon from "@/svg/arrow/arrowdown.svg";
-//Image Next
-import Image from "next/image";
+import ArrowDownIcon from "@/svg/arrow/arrowdown.svg";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 
 interface DropdownProps {
@@ -88,13 +85,12 @@ function Dropdown({
                 : currentValue
               : currentValue}
         </div>
-        <Image
+        <ArrowDownIcon
           className={`
             duration-300
             ${isHidden ? "rotate-180" : ""}
         `}
-          src={arrowdownIcon}
-          alt="arrowicon"
+          aria-hidden="true"
         />
       </div>
       {/* ถ้าข้อมูลที่ส่งมามี Array.length เท่ากับ 0 จะไม่แสดง Dropdown List เมื่อกด Dropdown */}
