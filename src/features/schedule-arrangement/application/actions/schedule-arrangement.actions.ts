@@ -60,7 +60,7 @@ import type { class_schedule } from '@/prisma/generated';
  * ```
  */
 export const arrangeScheduleAction = createAction(
-  arrangeScheduleSchema as any,
+  arrangeScheduleSchema,
   async (input: ArrangeScheduleInput, userId: string) => {
     // 1. Fetch existing schedules and teacher responsibilities for conflict checking
     const [existingSchedules, responsibilities] = await Promise.all([
@@ -206,7 +206,7 @@ export const deleteScheduleAction = createAction(
  * ```
  */
 export const getSchedulesByTermAction = createAction(
-  getSchedulesByTermSchema as any,
+  getSchedulesByTermSchema,
   async (input: GetSchedulesByTermInput, userId: string) => {
     const schedules = await scheduleRepository.findSchedulesByTerm(
       input.academicYear,

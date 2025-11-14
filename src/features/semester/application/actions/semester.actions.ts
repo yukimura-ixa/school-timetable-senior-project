@@ -7,7 +7,7 @@
 
 import * as v from "valibot";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
-import type { semester } from "@/prisma/generated";
+import type { Prisma, semester } from "@/prisma/generated";
 import {
   type SemesterFilter,
   SemesterFilterSchema,
@@ -177,7 +177,7 @@ export async function createSemesterAction(
     }
 
     // Copy config from source if requested
-    let configData: any = {};
+    let configData: Prisma.InputJsonValue = {};
     if (input.copyFromConfigId && input.copyConfig) {
       const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
@@ -298,7 +298,7 @@ export async function createSemesterWithTimeslotsAction(input: {
     // Use transaction for atomicity
     const newSemester = await semesterRepository.transaction(async (tx) => {
       // 1. Copy config from source if requested
-      let configData: any = {};
+      let configData: Prisma.InputJsonValue = {} as Prisma.InputJsonValue;
       if (input.copyFromConfigId && input.copyConfig) {
         const source = await tx.table_config.findUnique({
           where: { ConfigID: input.copyFromConfigId },
@@ -519,7 +519,7 @@ export async function copySemesterAction(
     const newSemester = await semesterRepository.create({
       academicYear: input.targetAcademicYear,
       semester: input.targetSemester,
-      config: (input.copyConfig ? source.Config : {}) as any,
+      config: (input.copyConfig ? (source.Config as Prisma.InputJsonValue) : ({} as Prisma.InputJsonValue)),
     });
 
     // Copy timeslots if requested

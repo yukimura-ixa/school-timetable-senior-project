@@ -6,7 +6,7 @@
 /**
  * Convert array of objects to CSV string
  */
-export function arrayToCSV<T extends Record<string, any>>(
+export function arrayToCSV<T extends Record<string, unknown>>(
   data: T[],
   headers?: Record<keyof T, string>
 ): string {
@@ -66,7 +66,7 @@ export function downloadCSV(
  * Download JSON file
  */
 export function downloadJSON(
-  data: any,
+  data: unknown,
   filename: string = "export.json"
 ): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -129,7 +129,7 @@ export function formatStatusThai(
  * Convert array of objects to Excel-compatible format
  * Uses HTML table that Excel can parse
  */
-export function arrayToExcelHTML<T extends Record<string, any>>(
+export function arrayToExcelHTML<T extends Record<string, unknown>>(
   data: T[],
   headers?: Record<keyof T, string>,
   title?: string
@@ -173,7 +173,7 @@ export function arrayToExcelHTML<T extends Record<string, any>>(
     html += `      <tr>\n`;
     keys.forEach((key) => {
       const value = row[key];
-      html += `        <td>${value !== null && value !== undefined ? value : ""}</td>\n`;
+      html += `        <td>${value !== null && value !== undefined ? String(value) : ""}</td>\n`;
     });
     html += `      </tr>\n`;
   });

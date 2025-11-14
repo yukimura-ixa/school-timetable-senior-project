@@ -90,7 +90,7 @@ export function calculateCompletionRate(
  * Schedules relate to teachers through teachers_responsibility
  */
 export function countTeachersWithSchedules(
-  schedules: any[], // Schedules with teachers_responsibility included
+  schedules: ScheduleWithTeachers[], // Schedules with teachers_responsibility included
   allTeachers: teacher[]
 ): { withSchedules: number; withoutSchedules: number } {
   const teacherIds = new Set<number>();
@@ -98,7 +98,7 @@ export function countTeachersWithSchedules(
   // Extract teacher IDs from teachers_responsibility relation
   schedules.forEach(schedule => {
     if (schedule.teachers_responsibility && Array.isArray(schedule.teachers_responsibility)) {
-      schedule.teachers_responsibility.forEach((resp: any) => {
+      schedule.teachers_responsibility.forEach((resp: { TeacherID: number }) => {
         if (resp.TeacherID) {
           teacherIds.add(resp.TeacherID);
         }
@@ -154,7 +154,7 @@ export function countClassCompletion(
  * Schedules relate to teachers through teachers_responsibility
  */
 export function calculateTeacherWorkload(
-  schedules: any[], // Schedules with teachers_responsibility included
+  schedules: ScheduleWithTeachers[], // Schedules with teachers_responsibility included
   teachers: teacher[]
 ): TeacherWorkload[] {
   const workloadMap = new Map<number, { hours: number; classes: Set<string> }>();
@@ -162,7 +162,7 @@ export function calculateTeacherWorkload(
   // Count hours and unique classes per teacher through teachers_responsibility
   schedules.forEach(schedule => {
     if (schedule.teachers_responsibility && Array.isArray(schedule.teachers_responsibility)) {
-      schedule.teachers_responsibility.forEach((resp: any) => {
+      schedule.teachers_responsibility.forEach((resp: { TeacherID: number }) => {
         const teacherId = resp.TeacherID;
         
         if (!workloadMap.has(teacherId)) {

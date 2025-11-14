@@ -129,7 +129,7 @@ export interface ArrangementUIState {
 
   // Modal States
   isModalOpen: boolean;
-  modalData: unknown | null;
+  modalData: unknown;
 
   // Actions
   setSubjectData: (data: SubjectData[]) => void;
@@ -142,7 +142,7 @@ export interface ArrangementUIState {
   setIsLoading: (loading: boolean) => void;
   setIsSaving: (saving: boolean) => void;
   setModalOpen: (open: boolean) => void;
-  setModalData: (data: unknown | null) => void;
+  setModalData: (data: unknown) => void;
   resetState: () => void;
 }
 

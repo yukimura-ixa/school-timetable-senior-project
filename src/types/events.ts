@@ -341,6 +341,6 @@ export type OptionalEventHandler<T> = T | undefined;
 /**
  * Handler that can be sync or async
  */
-export type MaybeAsyncHandler<T extends (...args: any[]) => any> = (
+export type MaybeAsyncHandler<T extends (...args: unknown[]) => unknown> = (
   ...args: Parameters<T>
 ) => ReturnType<T> | Promise<Awaited<ReturnType<T>>>;

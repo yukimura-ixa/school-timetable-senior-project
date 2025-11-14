@@ -211,7 +211,7 @@ export async function getTeacherSchedule(teacherId: number) {
     );
 
     // Flatten to class schedules
-    const schedules = responsibilities.flatMap((resp: any) => resp.class_schedule || []);
+    const schedules = responsibilities.flatMap((resp) => resp.class_schedule || []);
 
     // Sort by day and time
     return schedules.sort((a, b) => {

@@ -3,7 +3,7 @@
  * Project policy: only "admin" is privileged; "teacher" and "student" are guests.
  */
 
-export type AppRole = 'admin' | 'teacher' | 'student' | string | undefined;
+export type AppRole = 'admin' | 'teacher' | 'student' | undefined;
 
 export function isAdminRole(role: AppRole): boolean {
   return role === 'admin';

@@ -109,7 +109,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       id: "dev-bypass",
       name: "Development Bypass",
       credentials: {},
-      async authorize() {
+      authorize() {
         // SECURITY: Check server-only env variable (not embedded in client bundle)
         // Defaults to disabled for security
         if (process.env.ENABLE_DEV_BYPASS === "true") {
@@ -245,7 +245,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       
       return token
     },
-    async session(params) {
+    session(params) {
       const { session, token } = params
       console.log("[AUTH] Session callback")
       

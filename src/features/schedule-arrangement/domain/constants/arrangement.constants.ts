@@ -332,7 +332,7 @@ export interface ConflictResult {
     type: ConflictType;
     severity: ConflictSeverity;
     message: string;
-    details?: any;
+    details?: unknown;
   }>;
 }
 

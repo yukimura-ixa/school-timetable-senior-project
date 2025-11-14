@@ -105,7 +105,7 @@ export async function findLockedSubjectsByTerm(
   const subjects = await prisma.subject.findMany({
     where: {
       SubjectCode: {
-        in: groupedSubjects.map((item: any) => item.SubjectCode),
+        in: groupedSubjects.map((item: { SubjectCode: string }) => item.SubjectCode),
       },
     },
     include: {
@@ -207,6 +207,6 @@ export async function findByRespId(respId: number) {
 /**
  * Execute a transaction with a custom function
  */
-export async function transaction<T>(fn: (tx: any) => Promise<T>): Promise<T> {
+export async function transaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
   return await prisma.$transaction(fn);
 }
