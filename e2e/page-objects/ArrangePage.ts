@@ -130,19 +130,41 @@ export class ArrangePage extends BasePage {
       return;
     }
 
-    await expect(this.teacherDropdown).toBeVisible({ timeout: 10000 });
-    await expect(this.teacherDropdown).toBeEnabled({ timeout: 10000 });
+    // ✅ Playwright best practice: Use expect().toBeVisible() for auto-retry
+    // Increased timeout to 15s (was 10s) for slower page loads
+    await expect(this.teacherDropdown).toBeVisible({ timeout: 15000 });
+    
+    // ✅ Playwright best practice: Check enabled state before click
+    await expect(this.teacherDropdown).toBeEnabled({ timeout: 5000 });
 
-    // Open dropdown (retry if needed)
+    // ✅ MUI Autocomplete: Click and wait for listbox to appear (async load state)
+    // Retry mechanism for flaky dropdown opens
+    const dropdownButton = this.teacherDropdown.first();
+    await expect(dropdownButton).toBeVisible({ timeout: 5000 });
+    await expect(dropdownButton).toBeEnabled({ timeout: 3000 });
+    
     for (let attempt = 0; attempt < 3; attempt++) {
-      await this.teacherDropdown.first().click();
-      const listboxVisible = await this.page.locator('[role="listbox"]').isVisible().catch(() => false);
-      if (listboxVisible) break;
-      await this.page.waitForTimeout(200);
+      await dropdownButton.click({ timeout: 10000 });
+      
+      // ✅ Wait for MUI Autocomplete listbox to appear (not just isVisible check)
+      try {
+        const listbox = this.page.locator('[role="listbox"]');
+        await expect(listbox).toBeVisible({ timeout: 5000 });
+        // Listbox appeared - break retry loop
+        break;
+      } catch (error) {
+        if (attempt === 2) {
+          // Final attempt failed - throw error
+          throw new Error(`Teacher dropdown listbox did not appear after 3 attempts. Check if dropdown is functioning correctly.`);
+        }
+        // Retry after brief delay
+        await this.page.waitForTimeout(500);
+      }
     }
 
     const listbox = this.page.locator('[role="listbox"]');
-    await expect(listbox).toBeVisible({ timeout: 7000 });
+    // Listbox should be visible from the loop above - this is defensive
+    await expect(listbox).toBeVisible({ timeout: 3000 });
 
     // Normalize teacher name (strip Thai titles) for fuzzy matching
     const normalized = raw.replace(/^(นาย|นางสาว|นาง|ครู)\s*/, '');
@@ -186,12 +208,20 @@ export class ArrangePage extends BasePage {
       const idLocator = this.page.locator(`[role="option"][data-item-id="${teacherIdOrName}"]`).or(
         this.page.locator(`[role="option"][data-value="${teacherIdOrName}"]`)
       );
-      if (await idLocator.first().isVisible({ timeout: 500 }).catch(() => false)) {
-        await idLocator.first().click();
-        await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
-        await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
-        await this.waitForPageLoad();
-        return;
+      // ✅ Playwright best practice: Check visibility AND enabled state
+      const firstIdOption = idLocator.first();
+      const isIdVisible = await firstIdOption.isVisible({ timeout: 500 }).catch(() => false);
+      if (isIdVisible) {
+        await expect(firstIdOption).toBeVisible({ timeout: 3000 });
+        // MUI options don't typically have disabled state in DOM, but check for aria-disabled
+        const isDisabled = await firstIdOption.getAttribute('aria-disabled');
+        if (isDisabled !== 'true') {
+          await firstIdOption.click({ timeout: 5000 });
+          await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
+          await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
+          await this.waitForPageLoad();
+          return;
+        }
       }
       chosenIndex = optionTexts.findIndex(t => t.includes(String(teacherIdOrName)));
     } else {
@@ -240,10 +270,22 @@ export class ArrangePage extends BasePage {
       }
     }
 
-    await expect(finalOption!).toBeVisible({ timeout: 8000 });
-    await finalOption!.click();
+    // ✅ Playwright best practice: Use expect().toBeVisible() with increased timeout (was 8000ms -> now 10000ms)
+    await expect(finalOption!).toBeVisible({ timeout: 10000 });
+    
+    // ✅ MUI Autocomplete: Check aria-disabled before click (options don't use :disabled)
+    const isDisabled = await finalOption!.getAttribute('aria-disabled');
+    if (isDisabled === 'true') {
+      throw new Error(`Teacher option is disabled and cannot be selected: ${teacherIdOrName}`);
+    }
+    
+    // ✅ Click with explicit timeout for MUI async state updates
+    await finalOption!.click({ timeout: 5000 });
 
+    // ✅ Wait for listbox to close (indicates selection complete)
     await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
+    
+    // ✅ Verify subject palette loads after teacher selection (critical assertion)
     await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
     await this.waitForPageLoad();
   }

@@ -41,7 +41,7 @@ jobs:
       checks: write
     
     env:
-      DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
     
     # Test sharding: Split tests across parallel jobs
     strategy:
@@ -58,7 +58,7 @@ jobs:
           POSTGRES_PASSWORD: test_password
           POSTGRES_DB: test_timetable
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -85,7 +85,7 @@ jobs:
       - name: Setup environment variables
         run: |
           cat > .env.test.local << EOF
-          DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_timetable
+          DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           AUTH_SECRET=ci-test-secret-$(openssl rand -hex 16)
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
@@ -116,7 +116,7 @@ jobs:
       - name: Seed test database
         run: pnpm db:seed:clean
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
       
@@ -126,7 +126,7 @@ jobs:
       - name: Run E2E tests (Shard ${{ matrix.shard }}/4)
         run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           ENABLE_DEV_BYPASS: "true"
           NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true"
           NEXT_TELEMETRY_DISABLED: "1"
