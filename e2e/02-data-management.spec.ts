@@ -23,8 +23,8 @@ test.describe('Data Management - Navigation and UI', () => {
   test('TC-003-01: Teacher Management page loads', async ({ page }) => {
     await nav.goToTeacherManagement();
     
-    // Wait for page to load
-    await page.waitForLoadState('networkidle');
+    // Wait for page to load (Context7 best practice: avoid networkidle)
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     // Take screenshot
     await page.screenshot({ 
@@ -45,7 +45,6 @@ test.describe('Data Management - Navigation and UI', () => {
 
   test('TC-003-02: Teacher Management - Add button exists', async ({ page }) => {
     await nav.goToTeacherManagement();
-    await page.waitForLoadState('networkidle');
     
     // Look for add/create button
     const addButton = page.locator('button:has-text("เพิ่ม"), button:has-text("Add"), button:has-text("สร้าง"), button:has-text("Create")').first();
@@ -63,7 +62,9 @@ test.describe('Data Management - Navigation and UI', () => {
 
   test('TC-004-01: Subject Management page loads', async ({ page }) => {
     await nav.goToSubjectManagement();
-    await page.waitForLoadState('networkidle');
+    
+    // Wait for page to load
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     // Take screenshot
     await page.screenshot({ 
@@ -77,7 +78,9 @@ test.describe('Data Management - Navigation and UI', () => {
 
   test('TC-005-01: Room Management page loads', async ({ page }) => {
     await nav.goToRoomManagement();
-    await page.waitForLoadState('networkidle');
+    
+    // Wait for page to load
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     // Take screenshot
     await page.screenshot({ 
@@ -91,7 +94,9 @@ test.describe('Data Management - Navigation and UI', () => {
 
   test('TC-006-01: Grade Level Management page loads', async ({ page }) => {
     await nav.goToGradeLevelManagement();
-    await page.waitForLoadState('networkidle');
+    
+    // Wait for page to load
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     
     // Take screenshot
     await page.screenshot({ 
@@ -113,7 +118,6 @@ test.describe('Data Management - List Views', () => {
 
   test('TC-003-03: Teacher list displays data', async ({ page }) => {
     await nav.goToTeacherManagement();
-    await page.waitForLoadState('networkidle');
     
     // Look for table or list elements
     const table = page.locator('table, [role="table"], .table, [data-testid="teacher-list"]').first();
@@ -131,7 +135,6 @@ test.describe('Data Management - List Views', () => {
 
   test('TC-004-02: Subject list displays data', async ({ page }) => {
     await nav.goToSubjectManagement();
-    await page.waitForLoadState('networkidle');
     
     await page.screenshot({ 
       path: 'test-results/screenshots/16-subject-list-data.png',

@@ -23,7 +23,9 @@ test.describe('Timetable Arrangement - Teacher View', () => {
     
     try {
       await nav.goToTeacherArrange(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Wait for page content (Context7 best practice: avoid networkidle)
+      await expect(page.locator('main, table, [role="grid"]')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -48,7 +50,6 @@ test.describe('Timetable Arrangement - Teacher View', () => {
     
     try {
       await nav.goToTeacherArrange(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
       // Look for timetable grid elements
       const grid = page.locator('table, [role="grid"], .timetable-grid').first();
@@ -72,7 +73,6 @@ test.describe('Timetable Arrangement - Teacher View', () => {
     
     try {
       await nav.goToTeacherArrange(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
       // Look for draggable subject items
       const draggableItems = page.locator('[draggable="true"], .draggable, [data-draggable]');
@@ -104,7 +104,9 @@ test.describe('Timetable Arrangement - Student View', () => {
     
     try {
       await nav.goToStudentArrange(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Wait for page content
+      await expect(page.locator('main, table, body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -129,7 +131,6 @@ test.describe('Timetable Arrangement - Student View', () => {
     
     try {
       await nav.goToStudentArrange(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
       // Look for class/grade selection
       const classSelector = page.locator('select, [role="combobox"]').first();
@@ -161,7 +162,9 @@ test.describe('Lock Timeslots', () => {
     
     try {
       await nav.goToLockTimeslots(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Wait for page content
+      await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -186,7 +189,6 @@ test.describe('Lock Timeslots', () => {
     
     try {
       await nav.goToLockTimeslots(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
       // Look for lock controls
       const lockButtons = page.locator('button:has-text("lock"), button:has-text("ล็อก")');
