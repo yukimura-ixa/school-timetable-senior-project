@@ -33,8 +33,8 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should display timetable grid with days and periods', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    // Wait for timetable to load
-    await page.waitForLoadState('networkidle');
+    // Wait for main content to be visible (Next.js streams; no networkidle)
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should have table element (grid layout, not cards)
     const table = page.locator('table').first();
@@ -51,7 +51,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should display period numbers and time ranges', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Period column should show "คาบ 1", "คาบ 2", etc.
     const periodCells = page.locator('td').filter({ hasText: /^คาบ \d+$/ });
@@ -68,7 +68,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should display subject details in schedule cells', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Find cells with schedule data (not empty)
     const scheduledCells = page.locator('td .font-medium');
@@ -90,7 +90,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should display room information when available', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Look for room labels (e.g., "ห้อง: A101")
     const roomLabels = page.locator('td').filter({ hasText: /ห้อง:/ });
@@ -105,7 +105,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should show empty cells for unscheduled periods', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Empty cells should show "-" or similar placeholder
     const emptyCells = page.locator('td').filter({ hasText: /^-$|^$/ });
@@ -135,7 +135,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should have print-friendly layout', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Look for print instructions or print button
     const printHints = page.locator('text=/print|พิมพ์|Print/i');
@@ -148,7 +148,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should navigate back to homepage', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should have back button
     const backButton = page.locator('a[href="/"], a:has-text("กลับหน้าแรก"), a:has-text("Back")');
@@ -156,7 +156,7 @@ test.describe('Public Teacher Schedule Page', () => {
     
     // Click back button
     await backButton.first().click();
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should be on homepage
     expect(page.url()).toMatch(/\/$|\/\?/);
@@ -165,7 +165,7 @@ test.describe('Public Teacher Schedule Page', () => {
   test('should display semester information', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should show semester and year (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2567")
     await expect(page.locator('text=/ภาคเรียนที่\s*\d+\s*ปีการศึกษา\s*\d{4}/i')).toBeVisible();
@@ -196,7 +196,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should display class information', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should show grade level (e.g., "ม.1/1")
     await expect(page.locator('p.font-medium, [data-testid="class-name"]')).toContainText(/ม\.\d+\/\d+/);
@@ -205,7 +205,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should display timetable grid with correct structure', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should have table element
     const table = page.locator('table').first();
@@ -222,7 +222,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should display teacher names in schedule cells', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Schedule cells should show teacher names with Thai honorifics
     const teacherNames = page.locator('td').filter({ hasText: /นาย|นาง|นางสาว|Mr\.|Mrs\.|Ms\./ });
@@ -240,7 +240,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should display subject information', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should show subject names
     const subjectCells = page.locator('td .font-medium');
@@ -258,7 +258,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should navigate between teacher and class schedules', async ({ page }) => {
     // Start on class schedule
     await page.goto('/classes/101/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Find a teacher link in the schedule (if clickable)
     const teacherLink = page.locator('a[href*="/teachers/"]').first();
@@ -267,7 +267,7 @@ test.describe('Public Class Schedule Page', () => {
     if (hasTeacherLinks) {
       // Click teacher link
       await teacherLink.click();
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       
       // Should navigate to teacher schedule
       expect(page.url()).toContain('/teachers/');
@@ -280,7 +280,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should handle multiple periods per day correctly', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Count total period rows (should be 8-10 typically)
     const periodRows = page.locator('tbody tr');
@@ -293,7 +293,7 @@ test.describe('Public Class Schedule Page', () => {
   test('should show program information if available', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
     
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Look for program/curriculum information
     const programInfo = page.locator('text=/วิทย์|ศิลป์|Program|Curriculum/i');
@@ -308,7 +308,7 @@ test.describe('Public Class Schedule Page', () => {
 test.describe('Public Schedule Pages - Common Features', () => {
   test('should not expose PII (email, phone) in teacher schedules', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const content = await page.content();
     
@@ -323,7 +323,7 @@ test.describe('Public Schedule Pages - Common Features', () => {
 
   test('should not expose PII in class schedules', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const content = await page.content();
     
@@ -340,7 +340,7 @@ test.describe('Public Schedule Pages - Common Features', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     
     await page.goto('/teachers/1/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Table should be scrollable horizontally
     const table = page.locator('table').first();
@@ -356,7 +356,7 @@ test.describe('Public Schedule Pages - Common Features', () => {
     await page.setViewportSize({ width: 768, height: 1024 });
     
     await page.goto('/classes/101/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Should display table properly
     const table = page.locator('table').first();
@@ -367,7 +367,7 @@ test.describe('Public Schedule Pages - Common Features', () => {
     const startTime = Date.now();
     
     await page.goto('/teachers/1/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const loadTime = Date.now() - startTime;
     
@@ -377,7 +377,7 @@ test.describe('Public Schedule Pages - Common Features', () => {
 
   test('should handle long subject names gracefully', async ({ page }) => {
     await page.goto('/classes/101/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Subject cells should wrap text or truncate
     const subjectCells = page.locator('td .font-medium');
@@ -392,7 +392,7 @@ test.describe('Public Schedule Pages - Common Features', () => {
 
   test('should maintain accessibility standards', async ({ page }) => {
     await page.goto('/teachers/1/1-2567');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Table should have proper semantic structure
     const table = page.locator('table').first();

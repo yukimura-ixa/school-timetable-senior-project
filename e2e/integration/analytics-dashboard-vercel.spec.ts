@@ -29,7 +29,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
     
     test('should display analytics dashboard when semesters exist', async ({ page }) => {
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Check if there are any semesters
       const semesterCount = await page.locator('[data-testid="semester-card"], [class*="semester"]').count();
@@ -57,7 +57,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
       });
       
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Should have no critical errors
       expect(errors.filter(e => !e.includes('Warning')).length).toBe(0);
@@ -68,7 +68,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
     
     test('statistics should be valid numbers', async ({ page }) => {
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Check if dashboard is visible
       const dashboardVisible = await page.locator('text=/📊.*แดชบอร์ด/i').isVisible().catch(() => false);
@@ -88,7 +88,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
 
     test('percentages should be in valid range', async ({ page }) => {
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       const dashboardVisible = await page.locator('text=/📊.*แดชบอร์ด/i').isVisible().catch(() => false);
       test.skip(!dashboardVisible, 'Dashboard not visible');
@@ -123,7 +123,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
     test('should use Vercel edge caching effectively', async ({ page }) => {
       // First visit
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Second visit (should hit edge cache)
       const startTime = Date.now();
@@ -206,7 +206,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
       });
       
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // API calls should complete reasonably fast (edge functions)
       apiCalls.forEach(call => {
@@ -219,7 +219,7 @@ test.describe('Analytics Dashboard - Vercel Integration', () => {
     
     test('semester data should be valid if present', async ({ page }) => {
       await page.goto('/dashboard/select-semester');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Get semester cards
       const semesterCards = await page.locator('[data-testid="semester-card"], [class*="semester"]').all();

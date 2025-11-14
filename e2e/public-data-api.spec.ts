@@ -120,7 +120,7 @@ test.describe('Public Teachers Data API', () => {
     
     if (await teacherLink.isVisible()) {
       await teacherLink.click();
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       
       // Verify we're on a teacher detail page
       expect(page.url()).toContain('/teachers/');
@@ -199,7 +199,7 @@ test.describe('Public Classes Data API', () => {
 test.describe('Public Statistics API', () => {
   test('should display quick stats on homepage', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Check for statistics cards or metrics
     // Common stats: total teachers, total classes, total rooms, etc.
@@ -216,7 +216,7 @@ test.describe('Public Statistics API', () => {
 
   test('should show valid current term information', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Check for current term display (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2567")
     const hasSemesterInfo = await page.locator('text=/semester|term|ภาคเรียน|ปีการศึกษา/i').count();
@@ -228,7 +228,7 @@ test.describe('Public Statistics API', () => {
   test('should display analytics dashboard with charts', async ({ page }) => {
     // Navigate to analytics dashboard (adjust path if needed)
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Check for chart elements or canvas elements
     const hasCharts = await page.locator('canvas, svg[class*="recharts"], [class*="chart"]').count();
@@ -245,7 +245,7 @@ test.describe('Public Statistics API', () => {
 
   test('should show period load data (weekly schedule intensity)', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Look for weekday indicators (MON, TUE, WED, etc.)
     const weekdayPattern = /mon|tue|wed|thu|fri|จันทร์|อังคาร|พุธ|พฤหัส|ศุกร์/i;
@@ -261,7 +261,7 @@ test.describe('Public Statistics API', () => {
 
   test('should show room occupancy data', async ({ page }) => {
     await page.goto('/dashboard/1-2567/analytics');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Look for room-related statistics
     const hasRoomData = await page.locator('text=/room|occupancy|ห้องเรียน|ห้อง/i').count();
@@ -314,7 +314,7 @@ test.describe('Security & Privacy Checks', () => {
 
   test('no PII (phone numbers) in public pages', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const content = await page.content();
     
@@ -333,7 +333,7 @@ test.describe('Security & Privacy Checks', () => {
 
   test('no database connection strings in HTML', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const content = await page.content();
     
@@ -354,7 +354,7 @@ test.describe('Security & Privacy Checks', () => {
 
   test('no API keys or secrets in HTML', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const content = await page.content();
     
@@ -414,7 +414,7 @@ test.describe('Data Validation & Integrity', () => {
 
   test('statistics should be non-negative', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const content = await page.textContent('body');
     
@@ -434,7 +434,7 @@ test.describe('Performance & Caching', () => {
     const startTime = Date.now();
     
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const loadTime = Date.now() - startTime;
     

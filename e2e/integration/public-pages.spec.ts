@@ -26,8 +26,8 @@ test.describe('Public Pages - Vercel Integration', () => {
     test('should display public data on home page', async ({ page }) => {
       await page.goto('/');
       
-      // Wait for page to be fully loaded
-      await page.waitForLoadState('networkidle');
+      // Wait for main content to be visible (no networkidle in streaming)
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Should show some content (teachers, statistics, etc.)
       const hasContent = await page.locator('body').textContent();
@@ -51,7 +51,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       });
       
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Should have no critical errors
       expect(errors).toHaveLength(0);
@@ -89,7 +89,7 @@ test.describe('Public Pages - Vercel Integration', () => {
     test('should have working caching', async ({ page }) => {
       // First visit
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Second visit (should use cache)
       const startTime = Date.now();
@@ -121,7 +121,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       await page.goto('/');
       
       // Page should load
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Should not have layout issues
       const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
@@ -132,7 +132,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.goto('/');
       
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Content should be visible
       const content = page.locator('main, [role="main"]').first();
@@ -169,7 +169,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       });
       
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       // Should make a reasonable number of API calls (< 10 for home page)
       expect(apiCalls.length).toBeLessThan(10);
@@ -182,7 +182,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       test.skip(browserName !== 'chromium', 'Chromium only');
       
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       const title = await page.title();
       expect(title.length).toBeGreaterThan(0);
@@ -192,7 +192,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       test.skip(browserName !== 'firefox', 'Firefox only');
       
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       const title = await page.title();
       expect(title.length).toBeGreaterThan(0);
@@ -202,7 +202,7 @@ test.describe('Public Pages - Vercel Integration', () => {
       test.skip(browserName !== 'webkit', 'WebKit only');
       
       await page.goto('/');
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
       
       const title = await page.title();
       expect(title.length).toBeGreaterThan(0);

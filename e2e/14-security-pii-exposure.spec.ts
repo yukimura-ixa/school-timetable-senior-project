@@ -41,7 +41,7 @@ test.describe('Security: PII Exposure Prevention', () => {
 
   test('TC-SEC-002: Teacher list page should not expose email addresses', async ({ page }) => {
     await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     const htmlContent = await page.content();
     
@@ -61,7 +61,7 @@ test.describe('Security: PII Exposure Prevention', () => {
   test('TC-SEC-003: Teacher detail page should not expose email addresses', async ({ page }) => {
     // Navigate to homepage to get a teacher ID
     await page.goto('/?tab=teachers');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Try to find a teacher link
     const teacherLink = page.locator('a[href*="/teachers/"]').first();
@@ -69,7 +69,7 @@ test.describe('Security: PII Exposure Prevention', () => {
     
     if (teacherLinkCount > 0) {
       await teacherLink.click();
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       
       const htmlContent = await page.content();
       
@@ -122,13 +122,13 @@ test.describe('Security: PII Exposure Prevention', () => {
     
     // Navigate through public pages
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
     // Check teachers tab if it exists
     const teachersTab = page.locator('[data-testid="tab-teachers"], button:has-text("ครู"), a:has-text("ครู")').first();
     if (await teachersTab.count() > 0) {
       await teachersTab.click();
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     }
     
     // Assert no sensitive data was found

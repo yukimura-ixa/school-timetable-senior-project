@@ -175,7 +175,7 @@ test.describe('Visual UI Checks', () => {
 
     for (const pagePath of pages) {
       await page.goto(pagePath);
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       // Wait for React hydration by checking for interactive content
       await page.waitForLoadState('domcontentloaded');
     }
@@ -206,7 +206,7 @@ test.describe('Visual UI Checks', () => {
 
     for (const { path, name } of pages) {
       await page.goto(path);
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 

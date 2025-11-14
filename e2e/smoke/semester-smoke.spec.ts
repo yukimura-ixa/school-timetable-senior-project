@@ -56,7 +56,7 @@ test.describe('Semester Smoke Tests - Schedule Config', () => {
       });
 
       await page.goto(`/schedule/${term.label}/config`);
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
 
       // Allow some expected warnings (like missing cache config)
       const criticalErrors = consoleErrors.filter(
@@ -103,7 +103,7 @@ test.describe('Semester Smoke Tests - Dashboard All-Timeslot', () => {
       });
 
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
-      await page.waitForLoadState('networkidle');
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 15000 });
 
       const criticalErrors = consoleErrors.filter(
         (err) => !err.includes('cache') && !err.includes('warning')

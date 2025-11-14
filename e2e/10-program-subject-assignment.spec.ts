@@ -220,7 +220,7 @@ test.describe('Program Management Workflow', () => {
 test.describe('Activity Management Workflow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/management/subject');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
   });
 
   test('should create and manage activity subjects', async ({ page }) => {

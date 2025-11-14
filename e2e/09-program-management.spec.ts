@@ -434,7 +434,7 @@ test.describe('Program Management - CRUD Operations', () => {
             });
 
             await saveButton.click();
-            await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
+            await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
           }
         } else if (await modal.count() > 0) {
           // Modal editing mode
@@ -482,7 +482,7 @@ test.describe('Program Management - CRUD Operations', () => {
       const submitButton = page.locator('button[type="submit"]').first();
       if (await submitButton.count() > 0) {
         await submitButton.click();
-        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       }
 
       // Now find and delete the created program
@@ -513,7 +513,7 @@ test.describe('Program Management - CRUD Operations', () => {
             });
 
             await confirmButton.click();
-            await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
+            await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
 
             await page.screenshot({
               path: 'test-results/screenshots/program-deleted.png',
@@ -529,7 +529,7 @@ test.describe('Program Management - CRUD Operations', () => {
 test.describe('Program Management - Data Validation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/management/program/1');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
   });
 
@@ -542,19 +542,19 @@ test.describe('Program Management - Data Validation', () => {
     if (await yearSelect.count() > 0) {
       // Test Year 2567
       await yearSelect.selectOption({ label: /2567/ });
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       const rows2567 = await page.locator('table tbody tr').count();
       console.log('Programs in 2567:', rows2567);
 
       // Test Year 2568
       await yearSelect.selectOption({ label: /2568/ });
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       const rows2568 = await page.locator('table tbody tr').count();
       console.log('Programs in 2568:', rows2568);
 
       // Test Year 2569
       await yearSelect.selectOption({ label: /2569/ });
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       const rows2569 = await page.locator('table tbody tr').count();
       console.log('Programs in 2569:', rows2569);
 
@@ -576,17 +576,17 @@ test.describe('Program Management - Data Validation', () => {
     if (await semesterSelect.count() > 0) {
       // All semesters
       await semesterSelect.selectOption({ index: 0 });
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       const allRows = await page.locator('table tbody tr').count();
 
       // Semester 1 only
       await semesterSelect.selectOption({ label: /ภาคเรียนที่ 1|SEMESTER_1/ });
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       const sem1Rows = await page.locator('table tbody tr').count();
 
       // Semester 2 only
       await semesterSelect.selectOption({ label: /ภาคเรียนที่ 2|SEMESTER_2/ });
-      await page.waitForLoadState('networkidle', { timeout: 2000 }).catch(() => {});
+      await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
       const sem2Rows = await page.locator('table tbody tr').count();
 
       console.log('All rows:', allRows);
@@ -626,7 +626,7 @@ test.describe('Program Management - Data Validation', () => {
 test.describe('Program Management - Pagination', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/management/program/1');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
   });
 
@@ -664,7 +664,7 @@ test.describe('Program Management - Pagination', () => {
         
         // Click next
         await nextButton.click();
-        await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
+        await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
 
         // Get new page data
         const newRows = await page.locator('table tbody tr').allTextContents();
@@ -687,7 +687,7 @@ test.describe('Program Management - Pagination', () => {
 test.describe('Program Management - Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/management/program/1');
-    await page.waitForLoadState('networkidle');
+    await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
   });
 
   test('TC-PROG-050: Page has proper heading structure', async ({ page }) => {
