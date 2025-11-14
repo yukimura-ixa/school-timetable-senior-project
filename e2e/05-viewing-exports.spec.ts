@@ -23,7 +23,10 @@ test.describe('Dashboard and Viewing', () => {
     
     try {
       await nav.goToTeacherTable(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Verify URL and wait for main content - Context7: web-first assertion
+      expect(page.url()).toContain('/teacher-table');
+      await expect(page.locator('main, table, body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -31,7 +34,6 @@ test.describe('Dashboard and Viewing', () => {
         fullPage: true 
       });
       
-      expect(page.url()).toContain('/teacher-table');
       console.log('Teacher table view loaded');
       
     } catch (error) {
@@ -48,10 +50,10 @@ test.describe('Dashboard and Viewing', () => {
     
     try {
       await nav.goToTeacherTable(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
-      // Look for timetable structure
+      // Look for timetable structure - Context7: auto-wait with locator
       const timetableElements = page.locator('table, .schedule, .timetable');
+      await expect(timetableElements.first()).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -72,7 +74,10 @@ test.describe('Dashboard and Viewing', () => {
     
     try {
       await nav.goToStudentTable(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Verify URL and wait for content - Context7: web-first assertion
+      expect(page.url()).toContain('/student-table');
+      await expect(page.locator('main, table, body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -80,7 +85,6 @@ test.describe('Dashboard and Viewing', () => {
         fullPage: true 
       });
       
-      expect(page.url()).toContain('/student-table');
       console.log('Student table view loaded');
       
     } catch (error) {
@@ -97,7 +101,10 @@ test.describe('Dashboard and Viewing', () => {
     
     try {
       await nav.goToAllPrograms(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Verify URL and wait for content - Context7: web-first assertion
+      expect(page.url()).toContain('/all-program');
+      await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -105,7 +112,6 @@ test.describe('Dashboard and Viewing', () => {
         fullPage: true 
       });
       
-      expect(page.url()).toContain('/all-program');
       console.log('All programs view loaded');
       
     } catch (error) {
@@ -122,7 +128,10 @@ test.describe('Dashboard and Viewing', () => {
     
     try {
       await nav.goToAllTimeslots(sampleSemester);
-      await page.waitForLoadState('networkidle');
+      
+      // Verify URL and wait for content - Context7: web-first assertion
+      expect(page.url()).toContain('/all-timeslot');
+      await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -130,7 +139,6 @@ test.describe('Dashboard and Viewing', () => {
         fullPage: true 
       });
       
-      expect(page.url()).toContain('/all-timeslot');
       console.log('All timeslots view loaded');
       
     } catch (error) {
@@ -155,10 +163,10 @@ test.describe('Export Functionality', () => {
     
     try {
       await nav.goToTeacherTable(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
-      // Look for export buttons
+      // Look for export buttons - Context7: locator auto-waits
       const exportButtons = page.locator('button:has-text("export"), button:has-text("Excel"), button:has-text("PDF"), button:has-text("ส่งออก")');
+      await expect(exportButtons.first()).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -185,10 +193,10 @@ test.describe('Export Functionality', () => {
     
     try {
       await nav.goToStudentTable(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
-      // Look for export buttons
+      // Look for export buttons - Context7: locator auto-waits
       const exportButtons = page.locator('button:has-text("export"), button:has-text("Excel"), button:has-text("PDF"), button:has-text("ส่งออก")');
+      await expect(exportButtons.first()).toBeVisible({ timeout: 10000 });
       
       // Take screenshot
       await page.screenshot({ 
@@ -209,9 +217,8 @@ test.describe('Export Functionality', () => {
     
     try {
       await nav.goToTeacherTable(sampleSemester);
-      await page.waitForLoadState('networkidle');
       
-      // Look for print button or print-related functionality
+      // Look for print button - Context7: locator auto-waits
       const printButton = page.locator('button:has-text("print"), button:has-text("พิมพ์")');
       
       // Take screenshot

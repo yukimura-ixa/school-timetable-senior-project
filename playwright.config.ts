@@ -28,8 +28,9 @@ export default defineConfig({
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Optimize CI artifacts: disable videos in CI, keep screenshots only on failure
+    screenshot: process.env.CI ? 'only-on-failure' : 'only-on-failure',
+    video: process.env.CI ? 'off' : 'retain-on-failure',
     actionTimeout: 10000,  // Reduced from 15s → 10s (actions should be faster)
     navigationTimeout: 20000, // Reduced from 30s → 20s (pages should load faster)
   },

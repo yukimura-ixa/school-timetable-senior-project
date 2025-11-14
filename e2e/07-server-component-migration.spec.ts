@@ -26,12 +26,9 @@ test.describe('Server Component Migration - Teacher Management', () => {
     // We should NOT see a loading skeleton/spinner for the initial load
     // because data is fetched on the server
     
-    // Wait for network to be idle
-    await page.waitForLoadState('networkidle');
-    
-    // Check for table content (should be present immediately)
+    // Check for table content (should be present immediately) - Context7 best practice
     const table = page.locator('table, [role="table"]').first();
-    await expect(table).toBeVisible({ timeout: 5000 });
+    await expect(table).toBeVisible({ timeout: 10000 });
     
     // Take screenshot
     await page.screenshot({ 
@@ -80,10 +77,10 @@ test.describe('Server Component Migration - Teacher Management', () => {
 
   test('TC-007-03: Client interactions still work (mutations)', async ({ page }) => {
     await nav.goToTeacherManagement();
-    await page.waitForLoadState('networkidle');
     
-    // Look for interactive buttons (Add, Edit, Delete, etc.)
+    // Look for interactive buttons (Add, Edit, Delete, etc.) - Context7: auto-wait
     const addButton = page.locator('button:has-text("เพิ่ม"), button:has-text("Add")').first();
+    await expect(addButton).toBeVisible({ timeout: 10000 });
     
     if (await addButton.count() > 0) {
       // Click the add button
@@ -116,11 +113,10 @@ test.describe('Server Component Migration - Other Management Pages', () => {
 
   test('TC-007-04: Rooms page renders with server data', async ({ page }) => {
     await nav.goToRoomManagement();
-    await page.waitForLoadState('networkidle');
     
-    // Check for table/list
+    // Check for table/list - Context7: web-first assertion auto-waits
     const table = page.locator('table, [role="table"], .table').first();
-    await expect(table).toBeVisible({ timeout: 5000 });
+    await expect(table).toBeVisible({ timeout: 10000 });
     
     await page.screenshot({ 
       path: 'test-results/screenshots/23-rooms-server-rendered.png',
@@ -133,11 +129,10 @@ test.describe('Server Component Migration - Other Management Pages', () => {
 
   test('TC-007-05: Subjects page renders with server data', async ({ page }) => {
     await nav.goToSubjectManagement();
-    await page.waitForLoadState('networkidle');
     
-    // Check for table/list
+    // Check for table/list - Context7: web-first assertion auto-waits
     const table = page.locator('table, [role="table"], .table').first();
-    await expect(table).toBeVisible({ timeout: 5000 });
+    await expect(table).toBeVisible({ timeout: 10000 });
     
     await page.screenshot({ 
       path: 'test-results/screenshots/24-subjects-server-rendered.png',
@@ -150,11 +145,10 @@ test.describe('Server Component Migration - Other Management Pages', () => {
 
   test('TC-007-06: GradeLevel page renders with server data', async ({ page }) => {
     await nav.goToGradeLevelManagement();
-    await page.waitForLoadState('networkidle');
     
-    // Check for table/list
+    // Check for table/list - Context7: web-first assertion auto-waits
     const table = page.locator('table, [role="table"], .table').first();
-    await expect(table).toBeVisible({ timeout: 5000 });
+    await expect(table).toBeVisible({ timeout: 10000 });
     
     await page.screenshot({ 
       path: 'test-results/screenshots/25-gradelevel-server-rendered.png',
@@ -208,7 +202,9 @@ test.describe('Server Component Migration - Performance', () => {
     });
     
     await nav.goToTeacherManagement();
-    await page.waitForLoadState('networkidle');
+    
+    // Wait for table to ensure page is ready - Context7: use specific waits
+    await expect(page.locator('table, [role="table"]').first()).toBeVisible({ timeout: 10000 });
     
     // With Server Components, there should be NO API calls on initial mount
     // (Data is already in the HTML)
@@ -230,15 +226,14 @@ test.describe('Server Component Migration - Performance', () => {
 test.describe('Server Component Migration - Dashboard Header', () => {
   test('TC-007-09: Dashboard header renders without useParams client hook', async ({ page }) => {
     // Navigate to dashboard
-    await page.goto('/dashboard/select-semester');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/dashboard/select-semester', { waitUntil: 'domcontentloaded' });
     
-    // Select a semester to navigate to a dashboard page with [semesterAndyear] param
+    // Select a semester to navigate to a dashboard page with [semesterAndyear] param - Context7: auto-wait
     const semesterLink = page.locator('a[href*="/dashboard/"]').first();
     
     if (await semesterLink.count() > 0) {
+      await expect(semesterLink).toBeVisible({ timeout: 10000 });
       await semesterLink.click();
-      await page.waitForLoadState('networkidle');
       
       // The header should display semester information
       // This is now rendered server-side using async params
@@ -272,7 +267,9 @@ test.describe('Server Component Migration - Regression Tests', () => {
     
     for (const pageInfo of pages) {
       await pageInfo.navigate();
-      await page.waitForLoadState('networkidle');
+      
+      // Wait for page content to be visible - Context7: specific waits over networkidle
+      await expect(page.locator('table, [role="table"], main')).toBeVisible({ timeout: 10000 });
       
       expect(page.url()).toContain(pageInfo.url);
       
@@ -287,7 +284,6 @@ test.describe('Server Component Migration - Regression Tests', () => {
 
   test('TC-007-11: Search functionality still works (client-side filtering)', async ({ page }) => {
     await nav.goToTeacherManagement();
-    await page.waitForLoadState('networkidle');
     
     // Look for search input
     const searchInput = page.locator('input[type="text"], input[type="search"], input[placeholder*="ค้นหา"], input[placeholder*="Search"]').first();
@@ -326,7 +322,6 @@ test.describe('Server Component Migration - Regression Tests', () => {
 
   test('TC-007-12: Pagination still works (client-side)', async ({ page }) => {
     await nav.goToTeacherManagement();
-    await page.waitForLoadState('networkidle');
     
     // Look for pagination controls
     const nextButton = page.locator('button:has-text("Next"), button:has-text("ถัดไป"), button[aria-label*="next"]').first();

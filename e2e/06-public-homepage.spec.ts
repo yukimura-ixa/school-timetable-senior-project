@@ -279,7 +279,9 @@ test.describe("Data Privacy & Security", () => {
     });
     
     await page.goto("/?tab=teachers");
-    await page.waitForLoadState("networkidle");
+    
+    // Wait for table to be visible (indicates data loaded) - Context7 best practice
+    await expect(page.locator("table")).toBeVisible({ timeout: 10000 });
     
     // Check all responses for email patterns
     const allResponses = responseBodies.join(" ");
@@ -325,8 +327,11 @@ test.describe("Responsive Design", () => {
 test.describe("Performance", () => {
   test("should load within acceptable time", async ({ page }) => {
     const startTime = Date.now();
-    await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
+    await page.goto("/", { waitUntil: 'domcontentloaded' });
+    
+    // Wait for critical content - Context7: don't rely on timing alone
+    await expect(page.locator("h1")).toBeVisible({ timeout: 3000 });
+    
     const loadTime = Date.now() - startTime;
     
     // Should load in less than 3 seconds
@@ -343,7 +348,10 @@ test.describe("Performance", () => {
     });
     
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    
+    // Wait for main content visibility instead of networkidle - Context7 best practice
+    await expect(page.locator("h1")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("table")).toBeVisible({ timeout: 10000 });
     
     // Filter out known false positives if any
     const criticalErrors = errors.filter(

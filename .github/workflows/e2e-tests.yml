@@ -151,21 +151,15 @@ jobs:
           # Ensure global-setup respects CI-provided Postgres service
           AUTO_MANAGE_TEST_DB: "false"
       
-      - name: Upload Playwright Report
+      - name: Upload Playwright JSON results and artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
-          path: playwright-report/
-          retention-days: 30
-      
-      - name: Upload test artifacts (on failure)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
           name: test-results-shard-${{ matrix.shard }}
-          path: test-results/
-          retention-days: 7
+          path: |
+            test-results/
+            artifacts/
+          retention-days: 14
   
   # Merge reports from all shards
   merge-reports:
@@ -192,23 +186,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
-      - name: Download all reports
+      - name: Download shard artifacts
         uses: actions/download-artifact@v4
         with:
-          path: all-reports
-          pattern: playwright-report-shard-*
+          path: merged-results
+          pattern: test-results-shard-*
       
-      - name: Merge reports
+      - name: Combine JSON results (simple concat)
         run: |
-          pnpm exec playwright merge-reports --reporter html ./all-reports/playwright-report-shard-*
-        continue-on-error: true
+          mkdir -p playwright-report
+          node -e "const fs=require('fs');const path='merged-results';const files=fs.readdirSync(path).flatMap(d=>{const p=path+'/'+d+'/test-results/results.json';return fs.existsSync(p)?[p]:[]});const all=files.map(f=>JSON.parse(fs.readFileSync(f,'utf8')));fs.writeFileSync('playwright-report/merged-results.json', JSON.stringify(all,null,2));"
       
-      - name: Upload merged report
+      - name: Upload merged JSON results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-merged
-          path: playwright-report/
+          name: playwright-merged-json
+          path: playwright-report/merged-results.json
           retention-days: 30
 
 # Temporary database is automatically destroyed after job completes

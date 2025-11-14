@@ -112,9 +112,9 @@ test.describe('Visual UI Checks', () => {
     ];
 
     for (const pagePath of pages) {
-      await page.goto(pagePath);
-      await page.waitForLoadState('networkidle');
-      await page.waitForLoadState('domcontentloaded');
+      await page.goto(pagePath, { waitUntil: 'domcontentloaded' });
+      // Wait for main content to be visible instead of networkidle - Context7 best practice
+      await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
     }
 
     const criticalErrors = consoleErrors.filter(err =>
@@ -131,8 +131,9 @@ test.describe('Visual UI Checks', () => {
     ];
 
     for (const { path, name } of pages) {
-      await page.goto(path);
-      await page.waitForLoadState('networkidle');
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      // Wait for main content visibility - Context7: specific waits over networkidle
+      await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
       await page.screenshot({ path: `test-results/screenshots/${name}.png`, fullPage: true });
     }
   });
