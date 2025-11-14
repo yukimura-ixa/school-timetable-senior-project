@@ -80,7 +80,8 @@ export default function BulkLockModal({
   // Derive academic year & semester from first timeslot ID (pattern: "1-2567-MON1")
   const derivedTerm = useMemo(() => {
     if (!propTimeslots || propTimeslots.length === 0) return null;
-    const firstId = propTimeslots[0].TimeslotID; // e.g. 1-2567-MON1
+    const firstId = propTimeslots[0]?.TimeslotID; // e.g. 1-2567-MON1
+    if (!firstId) return null;
     const parts = firstId.split('-');
     if (parts.length < 3) return null;
     const semNum = parts[0];
