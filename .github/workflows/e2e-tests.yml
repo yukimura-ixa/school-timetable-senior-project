@@ -86,7 +86,7 @@ jobs:
       # - NEXT_PUBLIC_ENABLE_DEV_BYPASS: Client-side button visibility (Next.js build-time inline)
       - name: Setup environment variables
         run: |
-          # Write both .env.test and .env.test.local so all tools pick them up
+          # Write all required env files so dev server + build share the same config
           cat > .env.test << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           AUTH_SECRET=ci-test-secret-$(openssl rand -hex 16)
@@ -115,6 +115,9 @@ jobs:
           EOF
           echo ".env.test contents:" && sed -e 's/=.*/=[REDACTED]/' .env.test
           echo ".env.test.local contents:" && sed -e 's/=.*/=[REDACTED]/' .env.test.local
+          cp .env.test .env.local
+          cp .env.test .env.production
+          echo "Synced .env.test -> .env.local & .env.production"
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -136,6 +139,19 @@ jobs:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
+      - name: Project build flow (Next.js production build)
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+          AUTH_SECRET: ci-test-build-secret
+          AUTH_GOOGLE_ID: dummy-client-id
+          AUTH_GOOGLE_SECRET: dummy-client-secret
+          ENABLE_DEV_BYPASS: "true"
+          NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true"
+          SEED_FOR_TESTS: "true"
+          SEED_CLEAN_DATA: "true"
+          NEXT_TELEMETRY_DISABLED: "1"
+          NODE_ENV: production
       
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
