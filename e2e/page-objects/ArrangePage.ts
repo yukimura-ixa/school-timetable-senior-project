@@ -19,7 +19,6 @@ import { BasePage } from './BasePage';
 export class ArrangePage extends BasePage {
   // Page elements
   readonly teacherDropdown: Locator;
-  readonly teacherOption: (teacherName: string) => Locator;
   readonly subjectPalette: Locator;
   readonly subjectCard: (subjectCode: string) => Locator;
   readonly timetableGrid: Locator;
@@ -43,12 +42,9 @@ export class ArrangePage extends BasePage {
     // Use a single, unique target to avoid Playwright strict mode violations
     // Prefer the actual combobox element by role and accessible name
     this.teacherDropdown = page
-      .getByRole('combobox', { name: /เลือกครู/ })
-      .or(page.locator('#teacher-select[role="combobox"]'));
-    this.teacherOption = (teacherName: string) =>
-      page.getByRole('option', { name: new RegExp(`^${teacherName}$`) }).or(
-        page.locator('li[role="option"]', { hasText: teacherName })
-      );
+      .locator('#teacher-select')
+      .or(page.getByTestId('teacher-select'))
+      .or(page.getByRole('combobox', { name: /เลือกครู/ }));
     
     this.subjectPalette = page.locator('[data-testid="subject-palette"]').or(
       page.locator('div').filter({ hasText: 'รายวิชาที่สามารถจัด' })
@@ -105,187 +101,67 @@ export class ArrangePage extends BasePage {
   }
 
   /**
-   * Select a teacher from dropdown
-   * 
-   * Updated for custom Dropdown component with data-item-id attribute.
-   * Supports both MUI Select (role="option" with data-value) and custom Dropdown (data-item-id).
-   * 
-   * @param teacherIdOrName - TeacherID number (preferred) or teacher full name (fallback)
+   * Select a teacher from dropdown using the stable #teacher-select element.
+   * Retries the open/select flow and waits for the listbox visibility state
+   * before and after selection to reduce flaky clicks.
    */
   async selectTeacher(teacherIdOrName: string | number) {
-    // Fast-path: known test teacher names -> direct navigation with query param avoids brittle dropdown
-    const raw = String(teacherIdOrName).trim();
-    const knownTeachers: Record<string, number> = {
-      'นาย สมชาย สมบูรณ์': 1,
-      'นางสาว สุดารัตน์ เลิศล้ำ': 11,
-      'นางสาว กนกวรรณ วรวัฒน์': 31,
+    const dropdown = this.teacherDropdown.first();
+    await expect(dropdown).toBeVisible({ timeout: 15000 });
+    await expect(dropdown).toBeEnabled({ timeout: 5000 });
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
+
+    const listbox = this.page.locator('[role="listbox"]').first();
+    const clickDropdown = async () => {
+      await dropdown.click({ force: true, timeout: 5000 });
+      await expect(listbox).toBeVisible({ timeout: 5000 });
     };
-    if (typeof teacherIdOrName === 'string' && knownTeachers[raw]) {
-      const currentMatch = this.page.url().match(/schedule\/([^/]+)\/arrange/);
-      const semSeg = currentMatch ? currentMatch[1] : '1-2567';
-      await this.page.goto(`/schedule/${semSeg}/arrange?TeacherID=${knownTeachers[raw]}`, { waitUntil: 'domcontentloaded' });
-      // Wait for palette after direct navigation
-      await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
-      await this.waitForPageLoad();
-      return;
-    }
 
-    // ✅ Playwright best practice: Use expect().toBeVisible() for auto-retry
-    // Increased timeout to 15s (was 10s) for slower page loads
-    await expect(this.teacherDropdown).toBeVisible({ timeout: 15000 });
-    
-    // ✅ Playwright best practice: Check enabled state before click
-    await expect(this.teacherDropdown).toBeEnabled({ timeout: 5000 });
-
-    // ✅ MUI Autocomplete: Click and wait for listbox to appear (async load state)
-    // Retry mechanism for flaky dropdown opens
-    const dropdownButton = this.teacherDropdown.first();
-    await expect(dropdownButton).toBeVisible({ timeout: 5000 });
-    await expect(dropdownButton).toBeEnabled({ timeout: 3000 });
-    
-    for (let attempt = 0; attempt < 3; attempt++) {
-      await dropdownButton.click({ timeout: 10000 });
-      
-      // ✅ Wait for MUI Autocomplete listbox to appear (not just isVisible check)
+    let opened = false;
+    for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const listbox = this.page.locator('[role="listbox"]');
-        await expect(listbox).toBeVisible({ timeout: 5000 });
-        // Listbox appeared - break retry loop
+        await clickDropdown();
+        opened = true;
         break;
-      } catch (error) {
-        if (attempt === 2) {
-          // Final attempt failed - throw error
-          throw new Error(`Teacher dropdown listbox did not appear after 3 attempts. Check if dropdown is functioning correctly.`);
-        }
-        // Retry after brief delay
-        await this.page.waitForTimeout(500);
-      }
-    }
-
-    const listbox = this.page.locator('[role="listbox"]');
-    // Listbox should be visible from the loop above - this is defensive
-    await expect(listbox).toBeVisible({ timeout: 3000 });
-
-    // Normalize teacher name (strip Thai titles) for fuzzy matching
-    const normalized = raw.replace(/^(นาย|นางสาว|นาง|ครู)\s*/, '');
-    const nameTokens = normalized.split(/\s+/).filter(Boolean);
-
-    // Helper: attempt textbox search if present
-    const searchBox = listbox.locator('input[type="text"], [role="textbox"]');
-    const searchAvailable = await searchBox.isVisible({ timeout: 500 }).catch(() => false);
-
-    // Wait for initial options load (poll up to 2s)
-    await this.page.waitForFunction(() => {
-      return document.querySelectorAll('li[role="option"],[role="option"]').length > 0;
-    }, { timeout: 2000 }).catch(() => {});
-
-    let allOptionNodes = this.page.locator('li[role="option"],[role="option"]');
-    let optionCount = await allOptionNodes.count();
-
-    // If still no options and search box exists, type a token to trigger filtering
-    if (optionCount === 0 && searchAvailable && nameTokens.length) {
-      await searchBox.fill(nameTokens[nameTokens.length - 1]);
-      await this.page.waitForFunction(() => {
-        return document.querySelectorAll('li[role="option"],[role="option"]').length > 0;
-      }, { timeout: 3000 }).catch(() => {});
-      optionCount = await allOptionNodes.count();
-    }
-
-    // Fallback: type entire normalized name if still no options
-    if (optionCount === 0 && searchAvailable) {
-      await searchBox.fill(normalized);
-      await this.page.waitForFunction(() => {
-        return document.querySelectorAll('li[role="option"],[role="option"]').length > 0;
-      }, { timeout: 3000 }).catch(() => {});
-      optionCount = await allOptionNodes.count();
-    }
-
-    // Collect and match option texts using strict multi-token matching.
-    let optionTexts = await allOptionNodes.allTextContents();
-
-    let chosenIndex = -1;
-    if (typeof teacherIdOrName === 'number' || /^\d+$/.test(String(teacherIdOrName))) {
-      const idLocator = this.page.locator(`[role="option"][data-item-id="${teacherIdOrName}"]`).or(
-        this.page.locator(`[role="option"][data-value="${teacherIdOrName}"]`)
-      );
-      // ✅ Playwright best practice: Check visibility AND enabled state
-      const firstIdOption = idLocator.first();
-      const isIdVisible = await firstIdOption.isVisible({ timeout: 500 }).catch(() => false);
-      if (isIdVisible) {
-        await expect(firstIdOption).toBeVisible({ timeout: 3000 });
-        // MUI options don't typically have disabled state in DOM, but check for aria-disabled
-        const isDisabled = await firstIdOption.getAttribute('aria-disabled');
-        if (isDisabled !== 'true') {
-          await firstIdOption.click({ timeout: 5000 });
-          await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
-          await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
-          await this.waitForPageLoad();
-          return;
-        }
-      }
-      chosenIndex = optionTexts.findIndex(t => t.includes(String(teacherIdOrName)));
-    } else {
-      // Try exact raw match first
-      chosenIndex = optionTexts.findIndex(t => t.trim() === raw);
-      if (chosenIndex === -1) {
-        // Exact normalized (without title)
-        chosenIndex = optionTexts.findIndex(t => t.replace(/^(นาย|นางสาว|นาง|ครู)\s*/, '').trim() === normalized);
-      }
-      if (chosenIndex === -1) {
-        const lowerTokens = nameTokens.map(t => t.toLowerCase());
-        chosenIndex = optionTexts.findIndex(t => {
-          const lower = t.toLowerCase();
-          return lowerTokens.every(tok => lower.includes(tok));
-        });
-      }
-      if (chosenIndex === -1 && searchAvailable) {
-        // Refine by searching full normalized text
-        await searchBox.fill(normalized);
+      } catch {
         await this.page.waitForTimeout(300);
-        await this.page.waitForFunction(() => document.querySelectorAll('li[role="option"],[role="option"]').length > 0, { timeout: 1500 }).catch(() => {});
-        allOptionNodes = this.page.locator('li[role="option"],[role="option"]');
-        optionTexts = await allOptionNodes.allTextContents();
-        const lowerTokens = nameTokens.map(t => t.toLowerCase());
-        chosenIndex = optionTexts.findIndex(t => {
-          const lower = t.toLowerCase();
-          return lowerTokens.every(tok => lower.includes(tok));
-        });
       }
     }
-
-    let finalOption: Locator | null = null;
-    if (chosenIndex >= 0) {
-      finalOption = allOptionNodes.nth(chosenIndex);
-    } else {
-      if (typeof teacherIdOrName === 'number' || /^\d+$/.test(String(teacherIdOrName))) {
-        finalOption = this.page.locator(`[role="option"][data-item-id="${teacherIdOrName}"]`).or(
-          this.page.locator(`[role="option"][data-value="${teacherIdOrName}"]`)
-        );
-      } else {
-        finalOption = this.page.getByRole('option', { name: new RegExp(raw) }).or(
-          this.page.locator('li[role="option"]').filter({ hasText: raw })
-        ).or(
-          this.page.locator('li[role="option"]').filter({ hasText: normalized })
-        );
-      }
+    if (!opened) {
+      throw new Error('Teacher dropdown listbox did not appear');
     }
 
-    // ✅ Playwright best practice: Use expect().toBeVisible() with increased timeout (was 8000ms -> now 10000ms)
-    await expect(finalOption!).toBeVisible({ timeout: 10000 });
-    
-    // ✅ MUI Autocomplete: Check aria-disabled before click (options don't use :disabled)
-    const isDisabled = await finalOption!.getAttribute('aria-disabled');
-    if (isDisabled === 'true') {
-      throw new Error(`Teacher option is disabled and cannot be selected: ${teacherIdOrName}`);
-    }
-    
-    // ✅ Click with explicit timeout for MUI async state updates
-    await finalOption!.click({ timeout: 5000 });
+    const raw = String(teacherIdOrName).trim();
+    const normalized = raw.replace(/^(นาย|นางสาว|นาง|ครู)\s*/, '');
+    const teacherIdRegex = /^\d+$/;
 
-    // ✅ Wait for listbox to close (indicates selection complete)
-    await expect(listbox).toBeHidden({ timeout: 5000 }).catch(() => {});
-    
-    // ✅ Verify subject palette loads after teacher selection (critical assertion)
+    const locateById = () =>
+      listbox
+        .locator(`[data-item-id="${raw}"], [data-value="${raw}"]`)
+        .first();
+
+    const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const locateByName = () =>
+      this.page
+        .getByRole('option', { name: new RegExp(escapeRegex(normalized), 'i') })
+        .first()
+        .or(
+          this.page.locator('li[role="option"]').filter({
+            hasText: normalized,
+          })
+        );
+
+    let option: Locator | null = null;
+    if (teacherIdRegex.test(raw)) {
+      option = locateById();
+    }
+    if (!option || !(await option.isVisible().catch(() => false))) {
+      option = locateByName();
+    }
+
+    await expect(option!).toBeVisible({ timeout: 5000 });
+    await option!.click({ force: true, timeout: 5000 });
+    await expect(listbox).toBeHidden({ timeout: 5000 });
     await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
     await this.waitForPageLoad();
   }

@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
-import { isAdminRole, toAppRole } from "@/lib/authz";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { useReactToPrint } from "react-to-print";
 import {
   Container,
@@ -65,7 +65,7 @@ function StudentTablePage() {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const { data: session } = useSession();
-  const userRole = toAppRole(session?.user?.role);
+  const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
   

@@ -8,6 +8,11 @@
 import prisma from '@/lib/prisma';
 import { semester, Prisma } from '@/prisma/generated';
 
+type SubjectCodeGroup = Pick<
+  Prisma.Teachers_responsibilityGroupByOutputType,
+  'SubjectCode'
+>;
+
 /**
  * Type: Teacher responsibility with full relations
  */
@@ -93,13 +98,13 @@ export async function findLockedSubjectsByTerm(
   sem: semester
 ): Promise<SubjectWithResponsibilities[]> {
   // First, group by SubjectCode to get distinct subjects
-  const groupedSubjects = (await prisma.teachers_responsibility.groupBy({
+  const groupedSubjects: SubjectCodeGroup[] = await prisma.teachers_responsibility.groupBy({
     by: ['SubjectCode'],
     where: {
       AcademicYear: academicYear,
       Semester: sem,
     },
-  })) as Array<{ SubjectCode: string | null }>;
+  });
 
   const subjectCodes = groupedSubjects
     .map((item) => item.SubjectCode)

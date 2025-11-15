@@ -76,6 +76,7 @@ export function PDFCustomizationDialog({
   const [orientation, setOrientation] = useState<PageOrientation>(
     defaultValues.orientation || DEFAULT_PDF_OPTIONS.orientation
   );
+  const orientationLabel = orientation === 'portrait' ? 'แนวตั้ง (Portrait)' : 'แนวนอน (Landscape)';
   const [tablesPerPage, setTablesPerPage] = useState<number>(
     defaultValues.tablesPerPage || DEFAULT_PDF_OPTIONS.tablesPerPage
   );
@@ -91,7 +92,6 @@ export function PDFCustomizationDialog({
   const [showSignatures, setShowSignatures] = useState<boolean>(
     defaultValues.showSignatures ?? DEFAULT_PDF_OPTIONS.showSignatures
   );
-  const orientationLabel = orientation === 'portrait' ? 'แนวตั้ง' : 'แนวนอน';
   const handleExport = () => {
     const options: Partial<BatchPDFOptions> = {
       format: paperSize,
@@ -139,9 +139,12 @@ export function PDFCustomizationDialog({
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, py: 1 }}>
           {/* Paper Size */}
           <FormControl fullWidth>
-            <InputLabel id="paper-size-label">ขนาดกระดาษ</InputLabel>
+            <InputLabel id="paper-size-label" htmlFor="paper-size-select">
+              ขนาดกระดาษ
+            </InputLabel>
             <Select
               labelId="paper-size-label"
+              id="paper-size-select"
               value={paperSize}
               label="ขนาดกระดาษ"
               onChange={(e: SelectChangeEvent) => setPaperSize(e.target.value as PaperSize)}
@@ -157,9 +160,12 @@ export function PDFCustomizationDialog({
 
           {/* Orientation */}
           <FormControl fullWidth>
-            <InputLabel id="orientation-label">การวางแนว</InputLabel>
+            <InputLabel id="orientation-label" htmlFor="orientation-select">
+              การวางแนว
+            </InputLabel>
             <Select
               labelId="orientation-label"
+              id="orientation-select"
               value={orientation}
               label="การวางแนว"
               onChange={(e: SelectChangeEvent) => setOrientation(e.target.value as PageOrientation)}
@@ -198,7 +204,7 @@ export function PDFCustomizationDialog({
           {/* Margin */}
           <Box>
             <Typography gutterBottom>
-              ระยะขอบ: {margin} mm
+              ขอบกระดาษ: {margin} mm
             </Typography>
             <Slider
               value={margin}

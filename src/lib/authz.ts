@@ -5,12 +5,14 @@
 
 export type AppRole = 'admin' | 'teacher' | 'student' | undefined;
 
-export function toAppRole(rawRole: string | undefined): AppRole {
+export function normalizeAppRole(rawRole: string | null | undefined): AppRole {
   if (rawRole === 'admin' || rawRole === 'teacher' || rawRole === 'student') {
     return rawRole;
   }
   return undefined;
 }
+
+export const toAppRole = normalizeAppRole;
 
 export function isAdminRole(role: AppRole): boolean {
   return role === 'admin';

@@ -6,6 +6,16 @@ const createJestConfig = nextJest({
   dir: './',
 })
 
+export const TEST_PATH_IGNORE_PATTERNS = [
+  '/node_modules/',
+  '/.next/',
+  '/e2e/',
+  '/__test__/stores/', // Skip until React 19 + Testing Library compatible (Issue #53)
+  '/__test__/integration/', // Skip until converted to E2E tests (Issue #55)
+  '/__test__/features/teaching-assignment/teaching-assignment\\.repository\\.test\\.ts', // Covered by heavy Playwright regression workflow
+  '/__test__/features/teaching-assignment/teacher-validation\\.service\\.test\\.ts', // Duplicated by dedicated heavysuite run
+];
+
 // Add any custom config to be passed to Jest
 /** @type {import('jest').Config} */
 const config: Config = {
@@ -45,15 +55,7 @@ const config: Config = {
   },
   
   // Exclude E2E tests - these should be run with Playwright test runner
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/.next/',
-    '/e2e/',
-    '/__test__/stores/', // Skip until React 19 + Testing Library compatible (Issue #53)
-    '/__test__/integration/', // Skip until converted to E2E tests (Issue #55)
-    '/__test__/features/teaching-assignment/teaching-assignment\\.repository\\.test\\.ts', // Covered by heavy Playwright regression workflow
-    '/__test__/features/teaching-assignment/teacher-validation\\.service\\.test\\.ts', // Duplicated by dedicated heavysuite run
-  ],
+  testPathIgnorePatterns: TEST_PATH_IGNORE_PATTERNS,
   
   // Transform patterns (next/jest handles this automatically)
   transformIgnorePatterns: [

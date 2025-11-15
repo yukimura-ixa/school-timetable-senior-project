@@ -1,5 +1,4 @@
-
-import SearchIcon from "@/svg/crud/searchicon.svg";
+import SearchIcon from "@mui/icons-material/Search";
 
 interface SearchBarProps {
   width?: string | number | null;
@@ -32,7 +31,7 @@ function SearchBar({
         onChange={handleChange}
       />
       <div className="flex gap-3 absolute left-3 text-gray-500">
-        <SearchIcon aria-hidden="true" />
+        <SearchIcon fontSize="small" aria-hidden="true" />
       </div>
     </div>
   );

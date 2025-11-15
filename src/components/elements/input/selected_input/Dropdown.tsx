@@ -1,6 +1,6 @@
 import React, { useState, type JSX } from "react";
 
-import ArrowDownIcon from "@/svg/arrow/arrowdown.svg";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 
 interface DropdownProps {
@@ -85,7 +85,7 @@ function Dropdown({
                 : currentValue
               : currentValue}
         </div>
-        <ArrowDownIcon
+        <KeyboardArrowDownIcon
           className={`
             duration-300
             ${isHidden ? "rotate-180" : ""}

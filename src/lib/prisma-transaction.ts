@@ -7,12 +7,12 @@ export type TransactionFn<T> =
   | ((tx: Prisma.TransactionClient) => Promise<T>)
   | ((tx: Prisma.TransactionClient) => Prisma.PrismaPromise<T>);
 
-export async function withPrismaTransaction<T>(
+export function withPrismaTransaction<T>(
   fn: TransactionFn<T>,
   options?: Parameters<typeof prisma.$transaction>[1]
-): Promise<T> {
+): Prisma.PrismaPromise<T> {
   return prisma.$transaction(
     (tx) => fn(tx as unknown as Prisma.TransactionClient),
     options
-  );
+  ) as Prisma.PrismaPromise<T>;
 }

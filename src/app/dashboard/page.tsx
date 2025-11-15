@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { isAdminRole, toAppRole } from "@/lib/authz";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -48,7 +48,7 @@ import type { InferOutput } from "valibot";
 export default function SelectSemesterPage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const isAdmin = isAdminRole(toAppRole(session?.user?.role));
+  const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
 
   // State
   const [recentSemesters, setRecentSemesters] = useState<SemesterDTO[]>([]);

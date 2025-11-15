@@ -2,7 +2,7 @@
 import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { isAdminRole, toAppRole } from "@/lib/authz";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import useSWR from "swr";
 import { useReactToPrint } from "react-to-print";
 import {
@@ -80,7 +80,7 @@ function TeacherTablePage() {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const { data: session } = useSession();
-  const isAdmin = isAdminRole(toAppRole(session?.user?.role));
+  const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
   
   // Bulk operation state

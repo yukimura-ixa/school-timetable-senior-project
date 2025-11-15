@@ -6,6 +6,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { signOut, useSession } from "next-auth/react";
+import { normalizeAppRole } from "@/lib/authz";
 
 const FALLBACK_USER_ICON = "/svg/user/usericon.svg";
 import { SemesterSelector } from "./SemesterSelector";
@@ -14,6 +15,7 @@ function Navbar() {
   const session = useSession();
   const pathName = usePathname();
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
+  const appRole = normalizeAppRole(session.data?.user?.role);
   return (
     <>
       {pathName === "/signin" || pathName === "/" ? null : (
@@ -27,7 +29,7 @@ function Navbar() {
                 </h1>
               </Link>
               <ul className="flex w-fit justify-between gap-6">
-                {session.data?.user?.role === "admin" ? (
+                {appRole === "admin" ? (
                   <li className="relative py-2 px-3 group">
                     <Link href={"/management"}>
                       <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
@@ -79,20 +81,20 @@ function Navbar() {
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`inline-block w-2 h-2 rounded-full ${
-                        session.data?.user?.role === "admin"
+                        appRole === "admin"
                           ? "bg-purple-500"
-                          : session.data?.user?.role === "teacher"
-                          ? "bg-blue-500"
-                          : "bg-green-500"
+                          : appRole === "teacher"
+                            ? "bg-blue-500"
+                            : "bg-green-500"
                       }`}
                     />
                     <p className="text-xs font-medium text-slate-600">
-                      {session.status === "authenticated" && session.data?.user?.role
-                        ? session.data.user.role === "admin"
+                      {session.status === "authenticated" && appRole
+                        ? appRole === "admin"
                           ? "ผู้ดูแลระบบ"
-                          : session.data.user.role === "teacher"
-                          ? "คุณครู"
-                          : "นักเรียน"
+                          : appRole === "teacher"
+                            ? "คุณครู"
+                            : "นักเรียน"
                         : "ไม่ระบุบทบาท"}
                     </p>
                   </div>
