@@ -5,7 +5,7 @@
  * @module dashboard-stats.service
  */
 
-import type { class_schedule, teacher, gradelevel, timeslot, subject } from "@/prisma/generated";
+import type { class_schedule, teacher, gradelevel } from "@/prisma/generated";
 
 /**
  * Dashboard statistics data structure

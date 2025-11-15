@@ -62,7 +62,7 @@ import type { class_schedule } from '@/prisma/generated';
  */
 export const arrangeScheduleAction = createAction(
   arrangeScheduleSchema as GenericSchema<ArrangeScheduleInput>,
-  async (input: ArrangeScheduleInput, userId: string) => {
+  async (input: ArrangeScheduleInput, _userId: string) => {
     // 1. Fetch existing schedules and teacher responsibilities for conflict checking
     const [existingSchedules, responsibilities] = await Promise.all([
       scheduleRepository.findSchedulesByTerm(input.academicYear, input.semester),
@@ -108,10 +108,9 @@ export const arrangeScheduleAction = createAction(
     // 4. Check if schedule already exists (update) or create new
     const existingSchedule = await scheduleRepository.findScheduleById(input.classId);
 
-    let schedule;
     if (existingSchedule) {
       // Update existing schedule
-      schedule = await scheduleRepository.updateSchedule(input.classId, {
+      await scheduleRepository.updateSchedule(input.classId, {
         TimeslotID: input.timeslotId,
         SubjectCode: input.subjectCode,
         RoomID: input.roomId,
@@ -120,7 +119,7 @@ export const arrangeScheduleAction = createAction(
       });
     } else {
       // Create new schedule
-      schedule = await scheduleRepository.createSchedule({
+      await scheduleRepository.createSchedule({
         ClassID: input.classId,
         TimeslotID: input.timeslotId,
         SubjectCode: input.subjectCode,
@@ -168,7 +167,7 @@ export const arrangeScheduleAction = createAction(
  */
 export const deleteScheduleAction = createAction(
   deleteScheduleSchema,
-  async (input: DeleteScheduleInput, userId: string) => {
+  async (input: DeleteScheduleInput, _userId: string) => {
     // Check if schedule exists
     const schedule = await scheduleRepository.findScheduleById(input.classId);
     if (!schedule) {
@@ -208,7 +207,7 @@ export const deleteScheduleAction = createAction(
  */
 export const getSchedulesByTermAction = createAction(
   getSchedulesByTermSchema as GenericSchema<GetSchedulesByTermInput>,
-  async (input: GetSchedulesByTermInput, userId: string) => {
+  async (input: GetSchedulesByTermInput, _userId: string) => {
     const schedules = await scheduleRepository.findSchedulesByTerm(
       input.academicYear,
       input.semester
@@ -232,7 +231,7 @@ export const getSchedulesByTermAction = createAction(
  */
 export const updateScheduleLockAction = createAction(
   updateScheduleLockSchema,
-  async (input: UpdateScheduleLockInput, userId: string) => {
+  async (input: UpdateScheduleLockInput, _userId: string) => {
     // Check if schedule exists
     const schedule = await scheduleRepository.findScheduleById(input.classId);
     if (!schedule) {

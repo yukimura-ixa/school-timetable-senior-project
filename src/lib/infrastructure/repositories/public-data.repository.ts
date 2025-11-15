@@ -41,6 +41,52 @@ export interface PublicTeacherFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+const teacherResponsibilityInclude = {
+  subject: {
+    select: {
+      SubjectName: true,
+      SubjectCode: true,
+      Category: true,
+    },
+  },
+  gradelevel: {
+    select: {
+      GradeID: true,
+      Year: true,
+      Number: true,
+    },
+  },
+  class_schedule: {
+    include: {
+      timeslot: true,
+      subject: {
+        select: {
+          SubjectCode: true,
+          SubjectName: true,
+        },
+      },
+      gradelevel: {
+        select: {
+          GradeID: true,
+          Year: true,
+          Number: true,
+        },
+      },
+      room: {
+        select: {
+          RoomID: true,
+          RoomName: true,
+          Building: true,
+        },
+      },
+    },
+  },
+} as const;
+
+type ResponsibilityWithSchedules = Prisma.teachers_responsibilityGetPayload<{
+  include: typeof teacherResponsibilityInclude;
+}>;
+
 /**
  * Quick statistics for dashboard
  */
@@ -325,107 +371,22 @@ export const publicDataRepository = {
     return transformTeacherToPublic(teacher);
   },
 
-  /**
-   * Get teacher responsibilities for a specific teacher and term
-   */
   async findTeacherResponsibilities(
     teacherId: number,
     academicYear: number,
     semester: string
-  ): Promise<
-    Prisma.teachers_responsibilityGetPayload<{
-      include: {
-        subject: {
-          select: {
-            SubjectName: true;
-            SubjectCode: true;
-            Category: true;
-          };
-        };
-        gradelevel: {
-          select: {
-            GradeID: true;
-            Year: true;
-            Number: true;
-          };
-        };
-        class_schedule: {
-          include: {
-            timeslot: true;
-            subject: {
-              select: {
-                SubjectCode: true;
-                SubjectName: true;
-              };
-            };
-            gradelevel: {
-              select: {
-                GradeID: true;
-                Year: true;
-                Number: true;
-              };
-            };
-            room: {
-              select: {
-                RoomID: true;
-                RoomName: true;
-                Building: true;
-              };
-            };
-          };
-        };
-      };
-    }>[]
-  > {
-    return await prisma.teachers_responsibility.findMany({
+  ): Promise<ResponsibilityWithSchedules[]> {
+    const responsibilities = await prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: teacherId,
         AcademicYear: academicYear,
         Semester: toSemesterEnum(semester),
       },
-      include: {
-        subject: {
-          select: {
-            SubjectName: true,
-            SubjectCode: true,
-            Category: true,
-          },
-        },
-        gradelevel: {
-          select: {
-            GradeID: true,
-            Year: true,
-            Number: true,
-          },
-        },
-        class_schedule: {
-          include: {
-            timeslot: true,
-            subject: {
-              select: {
-                SubjectCode: true,
-                SubjectName: true,
-              },
-            },
-            gradelevel: {
-              select: {
-                GradeID: true,
-                Year: true,
-                Number: true,
-              },
-            },
-            room: {
-              select: {
-                RoomID: true,
-                RoomName: true,
-                Building: true,
-              },
-            },
-          },
-        },
-      },
+      include: teacherResponsibilityInclude,
       orderBy: [{ gradelevel: { Year: 'asc' } }, { SubjectCode: 'asc' }],
     });
+
+    return responsibilities as ResponsibilityWithSchedules[];
   },
 
   // ==========================================================================

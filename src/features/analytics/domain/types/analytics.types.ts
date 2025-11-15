@@ -5,17 +5,7 @@
  * Type definitions for all analytics data structures
  */
 
-import type { 
-  teacher, 
-  class_schedule, 
-  subject, 
-  timeslot, 
-  room,
-  gradelevel,
-  program,
-  semester,
-  day_of_week
-} from "@/prisma/generated";
+import type { semester, day_of_week } from "@/prisma/generated";
 
 import type {
   SubjectCategory,

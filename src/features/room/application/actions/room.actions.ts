@@ -51,6 +51,7 @@ export async function getRoomsAction() {
     const rooms = await roomRepository.findAll();
     return { success: true as const, data: rooms };
   } catch (error) {
+    console.error("[RoomActions] getRoomsAction failed:", error);
     return {
       success: false as const,
       error: 'ไม่สามารถดึงข้อมูลห้องได้',

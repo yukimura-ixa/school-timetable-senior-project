@@ -98,7 +98,7 @@
  */
 
 import prisma from "@/lib/prisma";
-import { Prisma, semester } from "@/prisma/generated";
+import { Prisma } from "@/prisma/generated";
 
 // Type for schedule with all relations
 type ScheduleWithRelations = Prisma.class_scheduleGetPayload<{

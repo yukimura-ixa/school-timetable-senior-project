@@ -9,7 +9,6 @@
 
 'use server';
 
-import { revalidateTag } from 'next/cache';
 import { createAction } from '@/shared/lib/action-wrapper';
 import { teacherRepository } from '../../infrastructure/repositories/teacher.repository';
 import {
@@ -51,6 +50,7 @@ export async function getTeachersAction() {
     const teachers = await teacherRepository.findAll();
     return { success: true as const, data: teachers };
   } catch (error) {
+    console.error("[TeacherActions] getTeachersAction failed:", error);
     return {
       success: false as const,
       error: 'ไม่สามารถดึงข้อมูลครูได้',

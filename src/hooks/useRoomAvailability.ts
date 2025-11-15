@@ -30,12 +30,16 @@ export function computeAvailability(
   const byRoom: Record<number, Set<string>> = {};
   for (const sched of lockedSchedules) {
     if (sched.RoomID == null) continue;
-    if (!byRoom[sched.RoomID]) byRoom[sched.RoomID] = new Set();
-    byRoom[sched.RoomID].add(sched.TimeslotID);
+    const roomSet = byRoom[sched.RoomID] ?? (byRoom[sched.RoomID] = new Set());
+    roomSet.add(sched.TimeslotID);
   }
   for (const roomIdStr of Object.keys(byRoom)) {
     const roomId = Number(roomIdStr);
-    const lockedSet = byRoom[roomId]!;
+    const lockedSet = byRoom[roomId];
+    if (!lockedSet) {
+      map[roomId] = 'available';
+      continue;
+    }
     if (selectionSize === 0) {
       map[roomId] = lockedSet.size === 0 ? 'available' : 'partial';
       continue;

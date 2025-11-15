@@ -179,11 +179,11 @@ export async function createSemesterAction(
     }
 
     // Copy config from source if requested
-    let configData: Prisma.InputJsonValue = Prisma.JsonNull as Prisma.InputJsonValue;
+    let configData: Prisma.InputJsonValue | undefined;
     if (input.copyFromConfigId && input.copyConfig) {
       const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
-        configData = (source.Config ?? Prisma.JsonNull) as Prisma.InputJsonValue;
+        configData = (source.Config ?? undefined) as Prisma.InputJsonValue | undefined;
       }
     }
 
@@ -300,13 +300,13 @@ export async function createSemesterWithTimeslotsAction(input: {
     // Use transaction for atomicity
     const newSemester = await withPrismaTransaction(async (tx) => {
       // 1. Copy config from source if requested
-      let configData: Prisma.InputJsonValue = Prisma.JsonNull as Prisma.InputJsonValue;
+      let configData: Prisma.InputJsonValue | undefined;
       if (input.copyFromConfigId && input.copyConfig) {
         const source = await tx.table_config.findUnique({
           where: { ConfigID: input.copyFromConfigId },
         });
         if (source) {
-          configData = (source.Config ?? Prisma.JsonNull) as Prisma.InputJsonValue;
+          configData = (source.Config ?? undefined) as Prisma.InputJsonValue | undefined;
         }
       }
 
@@ -316,7 +316,7 @@ export async function createSemesterWithTimeslotsAction(input: {
           ConfigID: `${input.semester}-${input.academicYear}`,
           AcademicYear: input.academicYear,
           Semester: semesterEnum,
-          Config: configData,
+          Config: ((configData ?? {}) as Prisma.InputJsonValue),
           status: "DRAFT",
           isPinned: false,
           configCompleteness: 0,

@@ -56,6 +56,7 @@ export async function getSubjectsAction() {
     const subjects = await subjectRepository.findAll();
     return { success: true as const, data: subjects };
   } catch (error) {
+    console.error("[SubjectActions] getSubjectsAction failed:", error);
     return {
       success: false as const,
       error: 'ไม่สามารถดึงข้อมูลวิชาได้',

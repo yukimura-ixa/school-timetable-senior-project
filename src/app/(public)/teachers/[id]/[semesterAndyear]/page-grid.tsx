@@ -37,22 +37,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Type definitions for schedule data
-interface PublicScheduleEntry {
-  ClassID: string;
-  timeslot: { 
-    TimeslotID: string;
-    DayOfWeek: string; 
-    StartTime: string; 
-    EndTime: string;
-    SlotNumber?: number;
-  };
-  subject: { SubjectName: string; SubjectCode: string };
-  gradelevel: { Year: number; Number: number; GradeID: string };
-  room?: { RoomName: string } | null;
-}
+type ResponsibilityWithSchedules = Awaited<
+  ReturnType<typeof publicDataRepository.findTeacherResponsibilities>
+>[number];
 
-type Responsibility = { class_schedule?: PublicScheduleEntry[] };
+type PublicScheduleEntry = NonNullable<ResponsibilityWithSchedules["class_schedule"]>[number];
 
 const dayNames: Record<string, string> = {
   MON: "จันทร์",
@@ -86,7 +75,9 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
     academicYear,
     semesterEnum
   );
-  const schedules = (responsibilities as Responsibility[]).flatMap((resp) => resp.class_schedule || []);
+  const schedules: PublicScheduleEntry[] = responsibilities.flatMap(
+    (resp) => resp.class_schedule ?? []
+  );
 
   // Get all timeslots for this term to build grid structure
   const semesterValue = semesterEnum === 'SEMESTER_1' ? SemesterEnum.SEMESTER_1 : SemesterEnum.SEMESTER_2;
