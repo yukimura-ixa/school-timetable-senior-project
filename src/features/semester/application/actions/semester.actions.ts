@@ -306,9 +306,12 @@ export async function createSemesterWithTimeslotsAction(input: {
           where: { ConfigID: input.copyFromConfigId },
         });
         if (source) {
-          configData = (source.Config ?? undefined) as Prisma.InputJsonValue | undefined;
+          configData = source.Config ?? undefined;
         }
       }
+
+      const normalizedConfig: Prisma.InputJsonValue =
+        configData ?? {};
 
       // 2. Create new semester
       const semester = await tx.table_config.create({
@@ -316,7 +319,7 @@ export async function createSemesterWithTimeslotsAction(input: {
           ConfigID: `${input.semester}-${input.academicYear}`,
           AcademicYear: input.academicYear,
           Semester: semesterEnum,
-          Config: ((configData ?? {}) as Prisma.InputJsonValue),
+          Config: normalizedConfig,
           status: "DRAFT",
           isPinned: false,
           configCompleteness: 0,

@@ -109,6 +109,14 @@ export async function generateBatchPDF(
     quality = DEFAULT_PDF_OPTIONS.quality,
   } = options;
 
+  if (elements.length === 0) {
+    throw new Error('No elements provided for PDF generation');
+  }
+
+  if (elements.length !== titles.length) {
+    throw new Error('Number of labels must match number of elements');
+  }
+
   // Create new PDF document
   const pdf = new jsPDF({
     orientation,
@@ -219,6 +227,7 @@ export async function generateBatchPDF(
 
   // Save the PDF
   pdf.save(filename);
+  return true;
 }
 
 /**
@@ -236,7 +245,7 @@ export async function generateTeacherBatchPDF(
   semester: string,
   academicYear: string,
   customOptions?: Partial<BatchPDFOptions>
-): Promise<void> {
+): Promise<boolean> {
   const titles = teacherNames.map(
     (name) => `ตารางสอน${name ? `: ${name}` : ''} - ภาคเรียนที่ ${semester}/${academicYear}`
   );
@@ -247,6 +256,8 @@ export async function generateTeacherBatchPDF(
     headerText: `ตารางสอนครู - ภาคเรียนที่ ${semester}/${academicYear}`,
     ...customOptions,
   });
+
+  return true;
 }
 
 /**
@@ -264,7 +275,7 @@ export async function generateStudentBatchPDF(
   semester: string,
   academicYear: string,
   customOptions?: Partial<BatchPDFOptions>
-): Promise<void> {
+): Promise<boolean> {
   const titles = gradeLabels.map(
     (label) => `ตารางเรียน: ${label} - ภาคเรียนที่ ${semester}/${academicYear}`
   );
@@ -275,4 +286,6 @@ export async function generateStudentBatchPDF(
     headerText: `ตารางเรียนนักเรียน - ภาคเรียนที่ ${semester}/${academicYear}`,
     ...customOptions,
   });
+
+  return true;
 }

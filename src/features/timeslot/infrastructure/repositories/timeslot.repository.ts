@@ -96,6 +96,9 @@ export const timeslotRepository = {
     });
   },
 
+  async transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
+    return prisma.$transaction(callback);
+  },
 };
 
 /**
@@ -144,6 +147,9 @@ export const tableConfigRepository = {
         ConfigID: configId,
       },
     });
+  },
+  async transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
+    return prisma.$transaction(callback);
   },
 };
 

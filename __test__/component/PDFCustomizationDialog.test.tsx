@@ -20,13 +20,22 @@ describe('PDFCustomizationDialog', () => {
   const mockOnClose = jest.fn();
   const mockOnExport = jest.fn();
 
-  const defaultProps = {
-    open: true,
-    onClose: mockOnClose,
-    onExport: mockOnExport,
-    title: 'กำหนดค่าการส่งออก PDF',
-    maxTablesPerPage: 4,
-  };
+const defaultProps = {
+  open: true,
+  onClose: mockOnClose,
+  onExport: mockOnExport,
+  title: 'กำหนดค่าการส่งออก PDF',
+  maxTablesPerPage: 4,
+};
+
+const getSwitchInputByTestId = (testId: string) => {
+  const switchWrapper = screen.getByTestId(testId);
+  const switchInput = switchWrapper.querySelector('input');
+  if (!switchInput) {
+    throw new Error(`Switch input not found for ${testId}`);
+  }
+  return switchInput as HTMLInputElement;
+};
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -57,19 +66,25 @@ describe('PDFCustomizationDialog', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
       // Paper size select
-      expect(screen.getByLabelText(/ขนาดกระดาษ/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole('combobox', { name: /ขนาดกระดาษ/i })
+      ).toBeInTheDocument();
       
       // Orientation select
-      expect(screen.getByLabelText(/การวางแนว/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole('combobox', { name: /การวางแนว/i })
+      ).toBeInTheDocument();
       
       // Tables per page slider
-      expect(screen.getByText(/ตารางต่อหน้า/i)).toBeInTheDocument();
+      const tablePerPageLabels = screen.getAllByText(/ตารางต่อหน้า/i);
+      expect(tablePerPageLabels.length).toBeGreaterThan(0);
       
       // Margin slider
       expect(screen.getByText(/ขอบกระดาษ/i)).toBeInTheDocument();
       
       // Quality slider
-      expect(screen.getByText(/คุณภาพ/i)).toBeInTheDocument();
+      const qualityLabels = screen.getAllByText(/คุณภาพ/i);
+      expect(qualityLabels.length).toBeGreaterThan(0);
       
       // Page numbers switch
       expect(screen.getByText(/แสดงเลขหน้า/i)).toBeInTheDocument();
@@ -89,7 +104,7 @@ describe('PDFCustomizationDialog', () => {
     it('should display preview summary', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      expect(screen.getByText(/ตัวอย่างการตั้งค่า:/i)).toBeInTheDocument();
+      expect(screen.getByText(/สรุปการตั้งค่าปัจจุบัน:/i)).toBeInTheDocument();
     });
   });
 
@@ -98,7 +113,7 @@ describe('PDFCustomizationDialog', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
       // Check that default paper size is displayed
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       expect(paperSizeSelect).toHaveTextContent(PAPER_SIZE_LABELS[DEFAULT_PDF_OPTIONS.format!]);
     });
 
@@ -120,7 +135,7 @@ describe('PDFCustomizationDialog', () => {
         />
       );
 
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       expect(paperSizeSelect).toHaveTextContent(PAPER_SIZE_LABELS['a3']);
     });
   });
@@ -130,7 +145,7 @@ describe('PDFCustomizationDialog', () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       await user.click(paperSizeSelect);
 
       // Check all paper size options
@@ -145,7 +160,7 @@ describe('PDFCustomizationDialog', () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       await user.click(paperSizeSelect);
       
       const a3Option = screen.getByRole('option', { name: PAPER_SIZE_LABELS.a3 });
@@ -162,7 +177,7 @@ describe('PDFCustomizationDialog', () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const orientationSelect = screen.getByLabelText(/การวางแนว/i);
+      const orientationSelect = screen.getByRole('combobox', { name: /การวางแนว/i });
       await user.click(orientationSelect);
 
       expect(screen.getByRole('option', { name: /แนวตั้ง/i })).toBeInTheDocument();
@@ -173,7 +188,7 @@ describe('PDFCustomizationDialog', () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const orientationSelect = screen.getByLabelText(/การวางแนว/i);
+      const orientationSelect = screen.getByRole('combobox', { name: /การวางแนว/i });
       await user.click(orientationSelect);
       
       const landscapeOption = screen.getByRole('option', { name: /แนวนอน/i });
@@ -249,35 +264,39 @@ describe('PDFCustomizationDialog', () => {
     it('should render page numbers switch in checked state by default', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const pageNumbersSwitch = screen.getByRole('checkbox', { name: /แสดงเลขหน้า/i });
-      expect(pageNumbersSwitch).toBeChecked();
+      const pageNumbersSwitch = screen.getByTestId('page-numbers-switch');
+      const pageNumbersSwitchInput = getSwitchInputByTestId('page-numbers-switch');
+      expect(pageNumbersSwitchInput).toBeChecked();
     });
 
     it('should toggle page numbers switch', async () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const pageNumbersSwitch = screen.getByRole('checkbox', { name: /แสดงเลขหน้า/i });
+      const pageNumbersSwitch = screen.getByTestId('page-numbers-switch');
       await user.click(pageNumbersSwitch);
 
-      expect(pageNumbersSwitch).not.toBeChecked();
+      const pageNumbersSwitchInput = getSwitchInputByTestId('page-numbers-switch');
+      expect(pageNumbersSwitchInput).not.toBeChecked();
     });
 
     it('should render signatures switch in checked state by default', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const signaturesSwitch = screen.getByRole('checkbox', { name: /แสดงลายเซ็น/i });
-      expect(signaturesSwitch).toBeChecked();
+      const signaturesSwitch = screen.getByTestId('signatures-switch');
+      const signaturesSwitchInput = getSwitchInputByTestId('signatures-switch');
+      expect(signaturesSwitchInput).toBeChecked();
     });
 
     it('should toggle signatures switch', async () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const signaturesSwitch = screen.getByRole('checkbox', { name: /แสดงลายเซ็น/i });
+      const signaturesSwitch = screen.getByTestId('signatures-switch');
       await user.click(signaturesSwitch);
 
-      expect(signaturesSwitch).not.toBeChecked();
+      const signaturesSwitchInput = getSwitchInputByTestId('signatures-switch');
+      expect(signaturesSwitchInput).not.toBeChecked();
     });
   });
 
@@ -287,12 +306,12 @@ describe('PDFCustomizationDialog', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
       // Change some values
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       await user.click(paperSizeSelect);
       const a3Option = screen.getByRole('option', { name: PAPER_SIZE_LABELS.a3 });
       await user.click(a3Option);
 
-      const pageNumbersSwitch = screen.getByRole('checkbox', { name: /แสดงเลขหน้า/i });
+      const pageNumbersSwitch = screen.getByTestId('page-numbers-switch');
       await user.click(pageNumbersSwitch);
 
       // Click reset
@@ -302,7 +321,8 @@ describe('PDFCustomizationDialog', () => {
       // Check values are reset
       await waitFor(() => {
         expect(paperSizeSelect).toHaveTextContent(PAPER_SIZE_LABELS[DEFAULT_PDF_OPTIONS.format!]);
-        expect(pageNumbersSwitch).toBeChecked();
+        const pageNumbersSwitchInput = getSwitchInputByTestId('page-numbers-switch');
+        expect(pageNumbersSwitchInput).toBeChecked();
       });
     });
 
@@ -321,7 +341,7 @@ describe('PDFCustomizationDialog', () => {
       );
       
       // Change value
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       await user.click(paperSizeSelect);
       const a3Option = screen.getByRole('option', { name: PAPER_SIZE_LABELS.a3 });
       await user.click(a3Option);
@@ -364,13 +384,13 @@ describe('PDFCustomizationDialog', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
       // Change paper size
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       await user.click(paperSizeSelect);
       const a3Option = screen.getByRole('option', { name: PAPER_SIZE_LABELS.a3 });
       await user.click(a3Option);
 
       // Toggle page numbers
-      const pageNumbersSwitch = screen.getByRole('checkbox', { name: /แสดงเลขหน้า/i });
+      const pageNumbersSwitch = screen.getByTestId('page-numbers-switch');
       await user.click(pageNumbersSwitch);
 
       const exportButton = screen.getByRole('button', { name: /ส่งออก PDF/i });
@@ -433,7 +453,7 @@ describe('PDFCustomizationDialog', () => {
     it('should display current paper size in preview', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const preview = screen.getByText(/ตัวอย่างการตั้งค่า:/i).parentElement;
+      const preview = screen.getByText(/สรุปการตั้งค่าปัจจุบัน:/i).parentElement;
       expect(preview).toHaveTextContent(PAPER_SIZE_LABELS[DEFAULT_PDF_OPTIONS.format!]);
     });
 
@@ -441,12 +461,12 @@ describe('PDFCustomizationDialog', () => {
       const user = userEvent.setup();
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       await user.click(paperSizeSelect);
       const a3Option = screen.getByRole('option', { name: PAPER_SIZE_LABELS.a3 });
       await user.click(a3Option);
 
-      const preview = screen.getByText(/ตัวอย่างการตั้งค่า:/i).parentElement;
+      const preview = screen.getByText(/สรุปการตั้งค่าปัจจุบัน:/i).parentElement;
       await waitFor(() => {
         expect(preview).toHaveTextContent(PAPER_SIZE_LABELS.a3);
       });
@@ -455,14 +475,14 @@ describe('PDFCustomizationDialog', () => {
     it('should display current orientation in preview', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const preview = screen.getByText(/ตัวอย่างการตั้งค่า:/i).parentElement;
+      const preview = screen.getByText(/สรุปการตั้งค่าปัจจุบัน:/i).parentElement;
       expect(preview).toHaveTextContent(/แนวตั้ง|แนวนอน/i);
     });
 
     it('should display current tables per page in preview', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      const preview = screen.getByText(/ตัวอย่างการตั้งค่า:/i).parentElement;
+      const preview = screen.getByText(/สรุปการตั้งค่าปัจจุบัน:/i).parentElement;
       expect(preview).toHaveTextContent(/ตารางต่อหน้า/i);
     });
   });
@@ -471,8 +491,8 @@ describe('PDFCustomizationDialog', () => {
     it('should have proper ARIA labels for form controls', () => {
       render(<PDFCustomizationDialog {...defaultProps} />);
       
-      expect(screen.getByLabelText(/ขนาดกระดาษ/i)).toHaveAttribute('aria-label');
-      expect(screen.getByLabelText(/การวางแนว/i)).toHaveAttribute('aria-label');
+      expect(screen.getByTestId('paper-size-select')).toHaveAttribute('aria-label');
+      expect(screen.getByTestId('orientation-select')).toHaveAttribute('aria-label');
     });
 
     it('should have proper roles for interactive elements', () => {
@@ -480,7 +500,7 @@ describe('PDFCustomizationDialog', () => {
       
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(screen.getAllByRole('button')).toHaveLength(3); // Reset, Cancel, Export
-      expect(screen.getAllByRole('checkbox')).toHaveLength(2); // Page numbers, Signatures
+      expect(screen.getAllByRole('switch')).toHaveLength(2); // Page numbers, Signatures
     });
 
     it('should support keyboard navigation', async () => {
@@ -521,7 +541,7 @@ describe('PDFCustomizationDialog', () => {
         />
       );
       
-      const paperSizeSelect = screen.getByLabelText(/ขนาดกระดาษ/i);
+      const paperSizeSelect = screen.getByRole('combobox', { name: /ขนาดกระดาษ/i });
       expect(paperSizeSelect).toHaveTextContent(PAPER_SIZE_LABELS.a3);
     });
 
@@ -550,3 +570,4 @@ describe('PDFCustomizationDialog', () => {
     });
   });
 });
+

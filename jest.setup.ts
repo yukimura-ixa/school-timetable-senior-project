@@ -87,6 +87,13 @@ jest.mock('@/lib/auth', () => ({
       role: 'admin',
     },
   }),
+  authWithDevBypass: jest.fn().mockResolvedValue({
+    user: {
+      id: 'test-user-123',
+      email: 'test@example.com',
+      role: 'admin',
+    },
+  }),
   signIn: jest.fn(),
   signOut: jest.fn(),
   handlers: {

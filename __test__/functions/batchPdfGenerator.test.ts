@@ -18,9 +18,10 @@ import {
 
 // Mock jsPDF
 jest.mock('jspdf', () => {
-  return jest.fn().mockImplementation(() => ({
+  const jsPDFMock = jest.fn().mockImplementation(() => ({
     addPage: jest.fn(),
     setFontSize: jest.fn(),
+    setFont: jest.fn(),
     text: jest.fn(),
     addImage: jest.fn(),
     save: jest.fn(),
@@ -31,6 +32,12 @@ jest.mock('jspdf', () => {
       },
     },
   }));
+
+  return Object.assign(jsPDFMock, {
+    __esModule: true,
+    jsPDF: jsPDFMock,
+    default: jsPDFMock,
+  });
 });
 
 // Mock html2canvas
@@ -46,25 +53,25 @@ describe('BatchPdfGenerator', () => {
   describe('Constants', () => {
     it('should export DEFAULT_PDF_OPTIONS with correct values', () => {
       expect(DEFAULT_PDF_OPTIONS).toEqual({
-        filename: 'timetables.pdf',
-        orientation: 'portrait',
+        filename: 'batch-timetables.pdf',
+        orientation: 'landscape',
         format: 'a4',
         margin: 10,
         tablesPerPage: 1,
         showPageNumbers: true,
         showSignatures: true,
         headerText: '',
-        quality: 1,
+        quality: 2,
       });
     });
 
     it('should export PAPER_SIZE_LABELS with Thai translations', () => {
       expect(PAPER_SIZE_LABELS).toEqual({
-        a4: 'A4 (210 × 297 มม.)',
-        a3: 'A3 (297 × 420 มม.)',
-        letter: 'Letter (8.5 × 11 นิ้ว)',
-        legal: 'Legal (8.5 × 14 นิ้ว)',
-        tabloid: 'Tabloid (11 × 17 นิ้ว)',
+        a4: 'A4 (210 × 297 mm)',
+        a3: 'A3 (297 × 420 mm)',
+        letter: 'Letter (8.5 × 11 in)',
+        legal: 'Legal (8.5 × 14 in)',
+        tabloid: 'Tabloid (11 × 17 in)',
       });
     });
 

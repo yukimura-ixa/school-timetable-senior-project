@@ -69,28 +69,38 @@ export function PDFCustomizationDialog({
   maxTablesPerPage = 4,
   title = 'ตั้งค่าการส่งออก PDF',
 }: PDFCustomizationDialogProps) {
+  const initialOptions = {
+    format: defaultValues.format ?? DEFAULT_PDF_OPTIONS.format,
+    orientation: defaultValues.orientation ?? DEFAULT_PDF_OPTIONS.orientation,
+    tablesPerPage: defaultValues.tablesPerPage ?? DEFAULT_PDF_OPTIONS.tablesPerPage,
+    margin: defaultValues.margin ?? DEFAULT_PDF_OPTIONS.margin,
+    quality: defaultValues.quality ?? DEFAULT_PDF_OPTIONS.quality,
+    showPageNumbers: defaultValues.showPageNumbers ?? DEFAULT_PDF_OPTIONS.showPageNumbers,
+    showSignatures: defaultValues.showSignatures ?? DEFAULT_PDF_OPTIONS.showSignatures,
+  };
+
   // Form state
   const [paperSize, setPaperSize] = useState<PaperSize>(
-    defaultValues.format || DEFAULT_PDF_OPTIONS.format
+    initialOptions.format
   );
   const [orientation, setOrientation] = useState<PageOrientation>(
-    defaultValues.orientation || DEFAULT_PDF_OPTIONS.orientation
+    initialOptions.orientation
   );
   const orientationLabel = orientation === 'portrait' ? 'แนวตั้ง (Portrait)' : 'แนวนอน (Landscape)';
   const [tablesPerPage, setTablesPerPage] = useState<number>(
-    defaultValues.tablesPerPage || DEFAULT_PDF_OPTIONS.tablesPerPage
+    initialOptions.tablesPerPage
   );
   const [margin, setMargin] = useState<number>(
-    defaultValues.margin || DEFAULT_PDF_OPTIONS.margin
+    initialOptions.margin
   );
   const [quality, setQuality] = useState<number>(
-    defaultValues.quality || DEFAULT_PDF_OPTIONS.quality
+    initialOptions.quality
   );
   const [showPageNumbers, setShowPageNumbers] = useState<boolean>(
-    defaultValues.showPageNumbers ?? DEFAULT_PDF_OPTIONS.showPageNumbers
+    initialOptions.showPageNumbers
   );
   const [showSignatures, setShowSignatures] = useState<boolean>(
-    defaultValues.showSignatures ?? DEFAULT_PDF_OPTIONS.showSignatures
+    initialOptions.showSignatures
   );
   const handleExport = () => {
     const options: Partial<BatchPDFOptions> = {
@@ -109,13 +119,13 @@ export function PDFCustomizationDialog({
 
   // Handle reset to defaults
   const handleReset = () => {
-    setPaperSize(DEFAULT_PDF_OPTIONS.format);
-    setOrientation(DEFAULT_PDF_OPTIONS.orientation);
-    setTablesPerPage(DEFAULT_PDF_OPTIONS.tablesPerPage);
-    setMargin(DEFAULT_PDF_OPTIONS.margin);
-    setQuality(DEFAULT_PDF_OPTIONS.quality);
-    setShowPageNumbers(DEFAULT_PDF_OPTIONS.showPageNumbers);
-    setShowSignatures(DEFAULT_PDF_OPTIONS.showSignatures);
+    setPaperSize(initialOptions.format);
+    setOrientation(initialOptions.orientation);
+    setTablesPerPage(initialOptions.tablesPerPage);
+    setMargin(initialOptions.margin);
+    setQuality(initialOptions.quality);
+    setShowPageNumbers(initialOptions.showPageNumbers);
+    setShowSignatures(initialOptions.showSignatures);
   };
 
   return (
@@ -147,6 +157,7 @@ export function PDFCustomizationDialog({
               id="paper-size-select"
               value={paperSize}
               label="ขนาดกระดาษ"
+              aria-label="ขนาดกระดาษ"
               onChange={(e: SelectChangeEvent) => setPaperSize(e.target.value as PaperSize)}
               data-testid="paper-size-select"
             >
@@ -168,6 +179,7 @@ export function PDFCustomizationDialog({
               id="orientation-select"
               value={orientation}
               label="การวางแนว"
+              aria-label="การวางแนว"
               onChange={(e: SelectChangeEvent) => setOrientation(e.target.value as PageOrientation)}
               data-testid="orientation-select"
             >
@@ -194,6 +206,7 @@ export function PDFCustomizationDialog({
               step={1}
               marks
               valueLabelDisplay="auto"
+              aria-label="จำนวนตารางต่อหน้า"
               data-testid="tables-per-page-slider"
             />
             <Typography variant="caption" color="text.secondary">
@@ -224,6 +237,7 @@ export function PDFCustomizationDialog({
                 { value: 20, label: '20mm' },
               ]}
               valueLabelDisplay="auto"
+              aria-label="ขอบกระดาษ"
               data-testid="margin-slider"
             />
           </Box>
@@ -250,6 +264,7 @@ export function PDFCustomizationDialog({
                 { value: 3, label: 'สูง' },
               ]}
               valueLabelDisplay="auto"
+              aria-label="คุณภาพ"
               data-testid="quality-slider"
             />
             <Typography variant="caption" color="text.secondary">
@@ -265,6 +280,7 @@ export function PDFCustomizationDialog({
                   checked={showPageNumbers}
                   onChange={(e) => setShowPageNumbers(e.target.checked)}
                   data-testid="page-numbers-switch"
+                  aria-label="แสดงเลขหน้า"
                 />
               }
               label="แสดงเลขหน้า"
@@ -275,6 +291,7 @@ export function PDFCustomizationDialog({
                   checked={showSignatures}
                   onChange={(e) => setShowSignatures(e.target.checked)}
                   data-testid="signatures-switch"
+                  aria-label="แสดงลายเซ็น"
                 />
               }
               label="แสดงลายเซ็น"

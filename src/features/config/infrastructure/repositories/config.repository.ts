@@ -247,3 +247,7 @@ export async function getTimetableConfig(
   return config?.Config ?? null;
 }
 
+export async function transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
+  return prisma.$transaction(callback);
+}
+

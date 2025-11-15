@@ -214,3 +214,7 @@ export async function findByRespId(respId: number) {
   });
 }
 
+export async function transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
+  return prisma.$transaction(callback);
+}
+

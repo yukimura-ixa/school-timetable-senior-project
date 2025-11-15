@@ -369,6 +369,12 @@ export class SemesterRepository {
     });
   }
 
+  /**
+   * Run a generic Prisma transaction
+   */
+  async transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
+    return prisma.$transaction(callback);
+  }
 }
 
 export const semesterRepository = new SemesterRepository();
