@@ -20,9 +20,11 @@ export default defineConfig({
   globalSetup: require.resolve('./playwright.global-setup.ts'),
   globalTeardown: require.resolve('./playwright.global-teardown.ts'),
   
+  const junitOutput = process.env.PLAYWRIGHT_JUNIT_OUTPUT_FILE ?? 'test-results/results.xml';
   reporter: [
     ['list'],
     ['json', { outputFile: 'test-results/results.json' }],
+    ['junit', { outputFile: junitOutput }],
   ],
   
   use: {

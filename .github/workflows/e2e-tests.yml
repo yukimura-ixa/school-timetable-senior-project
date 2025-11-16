@@ -164,6 +164,7 @@ jobs:
           NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true"
           NEXT_TELEMETRY_DISABLED: "1"
           CI: "true"
+          PLAYWRIGHT_JUNIT_OUTPUT_FILE: test-results/results-${{ matrix.shard }}.xml
           # Ensure global-setup respects CI-provided Postgres service
           AUTO_MANAGE_TEST_DB: "false"
       
@@ -212,13 +213,34 @@ jobs:
         run: |
           mkdir -p playwright-report
           node -e "const fs=require('fs');const path='merged-results';const files=fs.readdirSync(path).flatMap(d=>{const p=path+'/'+d+'/test-results/results.json';return fs.existsSync(p)?[p]:[]});const all=files.map(f=>JSON.parse(fs.readFileSync(f,'utf8')));fs.writeFileSync('playwright-report/merged-results.json', JSON.stringify(all,null,2));"
-      
+
+      - name: Collect Playwright JUnit XML results
+        run: |
+          mkdir -p playwright-report/junit
+          shopt -s globstar nullglob
+          files=(merged-results/**/results-*.xml)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No Playwright JUnit XML files found"
+          else
+            for file in "${files[@]}"; do
+              cp "$file" "playwright-report/junit/$(basename "$file")"
+            done
+          fi
+
       - name: Upload merged JSON results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-merged-json
           path: playwright-report/merged-results.json
+          retention-days: 30
+
+      - name: Upload merged Playwright JUnit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-junit
+          path: playwright-report/junit
           retention-days: 30
 
 # Temporary database is automatically destroyed after job completes

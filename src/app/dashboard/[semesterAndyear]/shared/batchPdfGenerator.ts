@@ -96,7 +96,7 @@ export async function generateBatchPDF(
   elements: HTMLElement[],
   titles: string[],
   options: BatchPDFOptions = {}
-): Promise<void> {
+): Promise<boolean> {
   const {
     filename = DEFAULT_PDF_OPTIONS.filename,
     orientation = DEFAULT_PDF_OPTIONS.orientation,

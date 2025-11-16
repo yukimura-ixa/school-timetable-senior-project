@@ -8,6 +8,7 @@
  */
 
 import prisma from '@/lib/prisma';
+import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
 import type { Prisma, timeslot, semester } from '@/prisma/generated';
 import type { TimetableConfig } from '@/lib/timetable-config';
 import { generateConfigID } from '@/features/config/domain/services/config-validation.service';
@@ -96,8 +97,8 @@ export const timeslotRepository = {
     });
   },
 
-  async transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
-    return prisma.$transaction(callback);
+  async transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
+    return withPrismaTransaction(callback);
   },
 };
 
@@ -148,8 +149,8 @@ export const tableConfigRepository = {
       },
     });
   },
-  async transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
-    return prisma.$transaction(callback);
+  async transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
+    return withPrismaTransaction(callback);
   },
 };
 

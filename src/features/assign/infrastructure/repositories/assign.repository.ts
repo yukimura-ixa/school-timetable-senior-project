@@ -6,6 +6,7 @@
  */
 
 import prisma from '@/lib/prisma';
+import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
 import { semester, Prisma } from '@/prisma/generated';
 
 type SubjectCodeRecord = { SubjectCode: string | null };
@@ -214,7 +215,7 @@ export async function findByRespId(respId: number) {
   });
 }
 
-export async function transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
-  return prisma.$transaction(callback);
+export async function transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
+  return withPrismaTransaction(callback);
 }
 

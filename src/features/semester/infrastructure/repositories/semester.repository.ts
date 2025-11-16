@@ -4,6 +4,7 @@
  */
 
 import prisma from "@/lib/prisma";
+import { withPrismaTransaction, type TransactionClient } from "@/lib/prisma-transaction";
 import type { Prisma, semester } from "@/prisma/generated";
 import type {
   SemesterFilter,
@@ -372,8 +373,8 @@ export class SemesterRepository {
   /**
    * Run a generic Prisma transaction
    */
-  async transaction<T>(callback: (tx: Prisma.TransactionClient) => Promise<T>) {
-    return prisma.$transaction(callback);
+  async transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
+    return withPrismaTransaction(callback);
   }
 }
 

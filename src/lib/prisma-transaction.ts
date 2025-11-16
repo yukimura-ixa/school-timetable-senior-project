@@ -1,18 +1,15 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { Prisma } from '@/prisma/generated';
 
-export type TransactionFn<T> =
-  | ((tx: Prisma.TransactionClient) => Promise<T>)
-  | ((tx: Prisma.TransactionClient) => Prisma.PrismaPromise<T>);
+// Derive the interactive transaction client type directly from prisma.$transaction
+export type TransactionClient = Parameters<
+  Parameters<typeof prisma.$transaction>[0]
+>[0];
 
 export async function withPrismaTransaction<T>(
-  fn: TransactionFn<T>,
+  fn: (tx: TransactionClient) => Promise<T>,
   options?: Parameters<typeof prisma.$transaction>[1]
 ): Promise<T> {
-  return await prisma.$transaction(
-    (tx) => fn(tx as unknown as Prisma.TransactionClient),
-    options
-  );
+  return prisma.$transaction((tx) => fn(tx), options);
 }

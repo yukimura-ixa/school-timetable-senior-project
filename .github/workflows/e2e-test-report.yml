@@ -1,0 +1,29 @@
+name: E2E Test Report
+
+on:
+  workflow_run:
+    workflows: ['E2E Tests']
+    types: [completed]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  publish-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Playwright JUnit artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-junit
+          path: test-results
+
+      - name: Publish Playwright E2E test check
+        uses: dorny/test-reporter@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Playwright E2E
+          reporter: java-junit
+          path: test-results/playwright-report/junit/*.xml
