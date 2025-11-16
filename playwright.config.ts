@@ -5,6 +5,9 @@ import path from 'path';
 // Load test environment variables
 dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
+const junitOutput =
+  process.env.PLAYWRIGHT_JUNIT_OUTPUT_FILE ?? 'test-results/results.xml';
+
 /**
  * E2E Test Configuration for School Timetable System
  * See https://playwright.dev/docs/test-configuration
@@ -19,8 +22,7 @@ export default defineConfig({
   /* Global setup/teardown - manages test database lifecycle */
   globalSetup: require.resolve('./playwright.global-setup.ts'),
   globalTeardown: require.resolve('./playwright.global-teardown.ts'),
-  
-  const junitOutput = process.env.PLAYWRIGHT_JUNIT_OUTPUT_FILE ?? 'test-results/results.xml';
+
   reporter: [
     ['list'],
     ['json', { outputFile: 'test-results/results.json' }],
