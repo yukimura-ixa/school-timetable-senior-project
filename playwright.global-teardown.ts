@@ -6,7 +6,7 @@ import fs from 'fs';
  * Global teardown for E2E tests
  * Runs after all tests to clean up the database
  */
-async function globalTeardown() {
+function globalTeardown() {
   console.log('\n🧹 E2E Test Teardown: Cleaning up...\n');
 
   // Remove .env.local created during global setup
