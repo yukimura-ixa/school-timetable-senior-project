@@ -18,6 +18,32 @@ type Props = {
   configId?: string; // e.g. "1-2567" for building term-specific public schedule links
 };
 
+// Normalize grade identifier for URL usage.
+// - If already numeric (e.g. "303"), return as-is.
+// - If formatted label (e.g. "ม.3/3"), derive numeric code (e.g. "303").
+const toNumericGradeId = (gradeId: string): string => {
+  if (!gradeId) return gradeId;
+
+  // Already numeric (e.g. "101", "303")
+  if (/^\d+$/.test(gradeId)) {
+    return gradeId;
+  }
+
+  // Extract year and section from patterns like "ม.3/3"
+  const match = gradeId.match(/(\d+)[^\d]+(\d+)/);
+  if (!match) {
+    return gradeId;
+  }
+
+  const year = Number.parseInt(match[1], 10);
+  const section = Number.parseInt(match[2], 10);
+  if (Number.isNaN(year) || Number.isNaN(section)) {
+    return gradeId;
+  }
+
+  return `${year}${section.toString().padStart(2, "0")}`;
+};
+
 export function ClassesTableClient({
   data,
   search,
@@ -85,7 +111,11 @@ export function ClassesTableClient({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
-                    href={configId ? `/classes/${cls.gradeId}/${configId}` : `/dashboard/select-semester`}
+                    href={
+                      configId
+                        ? `/classes/${toNumericGradeId(cls.gradeId)}/${configId}`
+                        : `/dashboard/select-semester`
+                    }
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                   >
                     ดูตารางเรียน
