@@ -1,13 +1,15 @@
 /**
  * Overview Analytics Repository
  * Section 1: Schedule Overview Dashboard
- * 
+ *
  * Handles data fetching for high-level statistics and health checks
  */
+'use cache';
 
 import prisma from "@/lib/prisma";
 import type { OverviewStats } from "../../domain/types/analytics.types";
 import { parseConfigId } from "../../domain/services/calculation.service";
+import { cacheTag } from "next/cache";
 
 export const overviewRepository = {
   /**
@@ -16,6 +18,7 @@ export const overviewRepository = {
    * @returns Overview stats including completion rate, active teachers, conflicts
    */
   async getOverviewStats(configId: string): Promise<OverviewStats> {
+    cacheTag(`stats:${configId}`);
     const config = parseConfigId(configId);
     
     // Step 1: Get all timeslot IDs for this semester
@@ -112,6 +115,7 @@ export const overviewRepository = {
    * @returns Stats specific to the grade
    */
   async getGradeStats(configId: string, gradeId: string) {
+    cacheTag(`stats:${configId}`, `stats:${configId}:grade:${gradeId}`);
     const config = parseConfigId(configId);
     
     // Get timeslot IDs for this semester
@@ -170,6 +174,7 @@ export const overviewRepository = {
    * @returns Count of locked and unlocked schedules
    */
   async getLockStatusSummary(configId: string) {
+    cacheTag(`stats:${configId}`, `stats:${configId}:locks`);
     const config = parseConfigId(configId);
     
     // Get timeslot IDs for this semester
@@ -222,6 +227,7 @@ export const overviewRepository = {
    * @returns Detailed completion metrics
    */
   async getCompletionMetrics(configId: string) {
+    cacheTag(`stats:${configId}`, `stats:${configId}:completion`);
     const config = parseConfigId(configId);
     
     // Get timeslot IDs for this semester

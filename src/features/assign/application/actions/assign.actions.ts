@@ -5,8 +5,9 @@
  * Uses 'use server' directive for Next.js 16+ Server Actions.
  */
 
-'use server';
+"use server";
 
+import { revalidateTag } from 'next/cache';
 import { semester } from '@/prisma/generated';
 import type { teachers_responsibility } from '@/prisma/generated';
 import * as v from 'valibot';
@@ -28,6 +29,7 @@ import {
 // Repository
 import * as assignRepository from '../../infrastructure/repositories/assign.repository';
 import { withPrismaTransaction } from '@/lib/prisma-transaction';
+import { generateConfigID } from '@/features/config/domain/services/config-validation.service';
 
 // Services
 import {
@@ -132,6 +134,9 @@ export const syncAssignmentsAction = createAction(
   syncAssignmentsSchema,
   async (input: SyncAssignmentsInput) => {
     const sem = semester[input.Semester];
+    const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : '2';
+    const configId = generateConfigID(semesterNum, input.AcademicYear);
+    const conflictsKey = `${input.AcademicYear}-${semesterNum}`;
 
     // Execute all operations in a transaction
     const result = await withPrismaTransaction(async (tx) => {
@@ -212,6 +217,11 @@ export const syncAssignmentsAction = createAction(
       };
     });
 
+    await Promise.all([
+      revalidateTag(`stats:${configId}`, 'max'),
+      revalidateTag(`conflicts:${conflictsKey}`, 'max'),
+    ]);
+
     return result;
   }
 );
@@ -229,6 +239,10 @@ export const deleteAssignmentAction = createAction(
     if (!resp) {
       throw new Error(`Responsibility with RespID ${input.RespID} not found`);
     }
+
+    const semesterNum = resp.Semester === 'SEMESTER_1' ? '1' : '2';
+    const configId = generateConfigID(semesterNum, resp.AcademicYear);
+    const conflictsKey = `${resp.AcademicYear}-${semesterNum}`;
 
     const result = await withPrismaTransaction(async (tx) => {
       // 1. Delete the responsibility
@@ -255,6 +269,11 @@ export const deleteAssignmentAction = createAction(
 
       return deleted;
     });
+
+    await Promise.all([
+      revalidateTag(`stats:${configId}`, 'max'),
+      revalidateTag(`conflicts:${conflictsKey}`, 'max'),
+    ]);
 
     return result;
   }

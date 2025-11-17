@@ -3,7 +3,8 @@
 const nextConfig = {
   // Next.js 16 optimizations
   reactCompiler: true,
-  
+  cacheComponents: true,
+
   images: {
     remotePatterns: [
       {

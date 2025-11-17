@@ -12,9 +12,74 @@ import {
   canTransitionStatus,
 } from "../schemas/config-lifecycle.schemas";
 import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
+import { dashboardRepository } from "@/features/dashboard/infrastructure/repositories/dashboard.repository";
+import {
+  validateProgramMOECredits,
+  type ProgramValidationResult,
+} from "@/features/program/domain/services/moe-validation.service";
+import type { program_subject, semester, subject } from "@/prisma/generated";
 import * as v from "valibot";
 
 type ConfigStatus = "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
+
+type PublishReadinessStatus = "ready" | "moe-failed";
+
+interface PublishReadinessResult {
+  status: PublishReadinessStatus;
+  issues: string[];
+}
+
+async function getMoEReadinessForConfig(
+  configId: string,
+  academicYear: number,
+  sem: semester
+): Promise<PublishReadinessResult> {
+  const data = await dashboardRepository.getDashboardData(
+    configId,
+    academicYear,
+    sem
+  );
+
+  const grades = data.grades ?? [];
+  if (grades.length === 0) {
+    return { status: "ready", issues: [] };
+  }
+
+  const issues: string[] = [];
+
+  for (const rawGrade of grades) {
+    const grade = rawGrade as {
+      GradeID: string;
+      Year: number;
+      Number: number;
+      program?: {
+        Year: number;
+        program_subject?: Array<program_subject & { subject: subject }>;
+      } | null;
+    };
+
+    const program = grade.program;
+    if (!program || !program.program_subject || program.program_subject.length === 0) {
+      continue;
+    }
+
+    const validation: ProgramValidationResult = validateProgramMOECredits(
+      grade.Year,
+      program.program_subject
+    );
+
+    if (!validation.isValid) {
+      for (const error of validation.errors) {
+        issues.push(`ระดับ ${grade.Year}/${grade.Number}: ${error}`);
+      }
+    }
+  }
+
+  return {
+    status: issues.length === 0 ? "ready" : "moe-failed",
+    issues,
+  };
+}
 
 /**
  * Update config status with validation
@@ -36,6 +101,36 @@ export async function updateConfigStatusAction(input: {
         success: false,
         error: "ไม่พบการตั้งค่านี้",
       };
+    }
+
+    // Additional publish gate: require full timetable completeness
+    // before allowing transition to PUBLISHED.
+    const isPublishing =
+      (config.status as ConfigStatus) !== "PUBLISHED" &&
+      (input.status as ConfigStatus) === "PUBLISHED";
+
+    if (isPublishing && config.configCompleteness < 100) {
+      return {
+        success: false,
+        error: `ไม่สามารถเผยแพร่ได้ เนื่องจากตารางสอนยังไม่ครบถ้วน (ความสมบูรณ์ปัจจุบัน ${config.configCompleteness}%)`,
+      };
+    }
+
+    if (isPublishing) {
+      const readiness = await getMoEReadinessForConfig(
+        config.ConfigID,
+        config.AcademicYear,
+        config.Semester as semester
+      );
+
+      if (readiness.status !== "ready") {
+        return {
+          success: false,
+          error:
+            readiness.issues.join("\n") ||
+            "ไม่สามารถเผยแพร่ได้ เนื่องจากหลักสูตรยังไม่ผ่านเกณฑ์ สพฐ.",
+        };
+      }
     }
 
     // Check if transition is allowed

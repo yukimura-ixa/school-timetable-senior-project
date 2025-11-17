@@ -19,14 +19,9 @@ interface TimeslotData {
   DayOfWeek: Array<{ Day: string; TextColor: string; BgColor: string }>;
 }
 
-// SWR response type for teacher data
-interface TeacherDataResponse {
-  data: teacher[];
-}
-
 export const ExportTeacherSummary = (
   timeSlotData: TimeslotData,
-  allTeacher: TeacherDataResponse,
+  teachers: teacher[],
   classData: ClassScheduleWithSummary[],
   semester: string,
   academicYear: string,
@@ -110,8 +105,8 @@ export const ExportTeacherSummary = (
       const filter2 = filter1.filter((cid: ClassScheduleWithSummary, _index: number) => filter1.findIndex((item: ClassScheduleWithSummary) => item.TimeslotID === cid.TimeslotID) === _index)
       return filter2.length;
     };
-    const jsonData: any[] = [
-      ...allTeacher.data.map((tch: teacher, index: number) => {
+  const jsonData: any[] = [
+      ...teachers.map((tch: teacher, index: number) => {
         const mapKey = timeSlotData.DayOfWeek.flatMap((day) =>
           timeSlotData.SlotAmount.map((num: number) => {
             const filterClass = classData.filter(

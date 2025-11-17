@@ -116,7 +116,10 @@ export function ConfigStatusBadge({
 
   return (
     <>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Box
+        data-testid="config-status-badge"
+        sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}
+      >
         <Chip
           icon={<StatusIcon />}
           label={config.label}

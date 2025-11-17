@@ -2116,3 +2116,48 @@ export async function trackScheduleMetrics(configId: string) {
 - [ ] **Test Flakiness** - Fix remaining 7 unstable Jest test suites
 
 **Note:** Prioritize based on user feedback and business impact. Always consult context7 for implementation patterns before starting any feature.
+
+# Internal Analysis of School Timetable Management System
+
+This document consolidates internal analysis of the `school-timetable-senior-project` repository. It evaluates how well the current implementation aligns with the original concept document and educational regulations for Thai secondary schools. This is not a public overview but an internal assessment intended to guide future development.
+
+## High-Level Overview
+
+The project is a full-stack web application built with Next.js and TypeScript, backed by a PostgreSQL database via Prisma. It provides administrative tools for managing school timetables, teacher assignments, and curriculum compliance. The architecture follows a feature-first organization: each domain (semester, timeslot, assign, config) contains application actions, domain services and infrastructure repositories.
+
+## Comparison with the Original Concept
+
+### Completed Features
+
+- **Master data management**: CRUD interfaces for teachers, grade levels, subjects and rooms allow administrators to manage core data.
+- **Timetable configuration**: Administrators configure days of the week, number and length of periods, break times and starting times.
+- **Data carry over**: The system supports copying configurations and timeslots from a previous semester.
+- **Locked timeslots**: Common periods (e.g. assemblies, scout meetings) can be locked across all classes and teachers.
+- **Manual arrangement**: An interactive interface allows dragging classes into a teacher’s timetable with real-time conflict checks.
+- **Conflict detection**: The conflict detector ensures no teacher, room or class is double-booked.
+- **Curriculum compliance**: A program management module validates that each grade’s subjects and credits satisfy Ministry of Education rules.
+- **Role-based timetable views**: Admins, teachers and students can view appropriate schedules via the web app.
+
+### Partially Implemented or In Progress
+
+- **Teacher–subject assignment workflow**: The underlying model exists, but a refined UI for assigning teachers per grade is still under development.
+- **Teaching statistics and reports**: Some totals (teacher load, credit summaries) are displayed, but comprehensive statistical dashboards are limited.
+- **Export/print**: Curriculum exports to Excel exist. PDF exports of timetables are being built; a configurable PDF generator and customization dialog exist but are not fully integrated.
+- **Automated scheduling** (Optional): The original concept assumed manual arrangement; an automatic scheduler would be a value-added feature.
+
+## Compliance with Thai Secondary School Standards
+
+The application encodes many requirements of the Thai secondary curriculum. Administrators can only schedule classes within defined days and periods. Teacher assignment warnings discourage overloading teachers beyond 16–18 periods per week. Program validation enforces that each grade’s subject list and credit totals meet national curriculum standards. Locked timeslots and room conflict checks ensure institutional activities and limited resources are respected. The system therefore aligns strongly with Thai regulations.
+
+## Recommendations
+
+1. **Finish teacher assignment UI**: Deliver the planned assignment management page to simplify linking teachers to classes and maintain load and qualification warnings.
+2. **Add a final validation report**: Provide a completeness check before publishing a timetable to ensure all required subjects are scheduled the correct number of times and highlight any unassigned lessons.
+3. **Implement automatic scheduling**: Introduce an optional algorithm to generate initial timetables that satisfy all constraints, then allow manual adjustments.
+4. **Enhance statistics**: Build dashboards summarizing teacher loads, free periods and subject distribution to aid planning and highlight compliance issues.
+5. **Maintain standards updates**: Externalize Ministry of Education rules so they can be updated without code changes, ensuring ongoing compliance.
+
+## Conclusion
+
+Overall, the current implementation largely fulfills the original plan and offers a modern, compliant timetable management system. Remaining gaps mainly concern UI polish, reporting and automation. Addressing these will make the system more user-friendly and fully aligned with Thai secondary school standards.
+

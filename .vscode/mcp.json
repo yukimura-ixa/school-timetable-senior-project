@@ -1,86 +1,94 @@
 {
-  "servers": {
-    "microsoft/playwright-mcp": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    },
-    "microsoft/markitdown": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": ["markitdown-mcp==0.0.1a4"]
-    },
-    "oraios/serena": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server",
-        "--project",
-        "school-timetable-senior-project",
-        "--context",
-        "ide-assistant"
-      ]
-    },
-    "mui-mcp": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@mui/mcp@latest"]
-    },
-    "github/github-mcp-server": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/"
-    },
-    "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"],
-      "type": "stdio"
-    },
-    "Prisma-Local": {
-      "command": "npx",
-      "args": ["-y", "prisma", "mcp"]
-    },
-    "prisma-postgres": {
-      "url": "https://mcp.prisma.io/mcp",
-      "type": "http"
-    },
-    "Vercel": {
-      "url": "https://mcp.vercel.com",
-      "type": "http"
-    }
-  },
-  "inputs": [
-    {
-      "id": "browser_url",
-      "type": "promptString",
-      "description": "Optional: connect to an already-running Chrome (remote debugging / port-forward). Example: http://127.0.0.1:9222",
-      "password": false
-    },
-    {
-      "id": "headless",
-      "type": "promptString",
-      "description": "Run Chrome headless (true/false). Default: false",
-      "password": false
-    },
-    {
-      "id": "chrome_executable_path",
-      "type": "promptString",
-      "description": "Path to a specific Chrome/Chromium binary.",
-      "password": false
-    },
-    {
-      "id": "isolated",
-      "type": "promptString",
-      "description": "Use a temporary user-data-dir (true/false). Default: false",
-      "password": false
-    },
-    {
-      "id": "chrome_channel",
-      "type": "promptString",
-      "description": "Chrome channel: stable | canary | beta | dev (default: stable).",
-      "password": false
-    }
-  ]
+	"inputs": [
+		{
+			"id": "browser_url",
+			"type": "promptString",
+			"description": "Optional: connect to an already-running Chrome (remote debugging / port-forward). Example: http://127.0.0.1:9222",
+			"password": false
+		},
+		{
+			"id": "headless",
+			"type": "promptString",
+			"description": "Run Chrome headless (true/false). Default: false",
+			"password": false
+		},
+		{
+			"id": "chrome_executable_path",
+			"type": "promptString",
+			"description": "Path to a specific Chrome/Chromium binary.",
+			"password": false
+		},
+		{
+			"id": "isolated",
+			"type": "promptString",
+			"description": "Use a temporary user-data-dir (true/false). Default: false",
+			"password": false
+		},
+		{
+			"id": "chrome_channel",
+			"type": "promptString",
+			"description": "Chrome channel: stable | canary | beta | dev (default: stable).",
+			"password": false
+		}
+	],
+	"servers": {
+		"microsoft/playwright-mcp": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"@playwright/mcp@latest"
+			]
+		},
+		"oraios/serena": {
+			"type": "stdio",
+			"command": "uvx",
+			"args": [
+				"--from",
+				"git+https://github.com/oraios/serena",
+				"serena",
+				"start-mcp-server",
+				"--project",
+				"school-timetable-senior-project",
+				"--context",
+				"ide-assistant"
+			]
+		},
+		"mui-mcp": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@mui/mcp@latest"
+			]
+		},
+		"github/github-mcp-server": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/"
+		},
+		"next-devtools": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"next-devtools-mcp@latest"
+			],
+			"type": "stdio"
+		},
+		"Prisma-Local": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"prisma",
+				"mcp"
+			],
+			"type": "stdio"
+		},
+		"prisma-postgres": {
+			"url": "https://mcp.prisma.io/mcp",
+			"type": "http"
+		},
+		"Vercel": {
+			"url": "https://mcp.vercel.com",
+			"type": "http"
+		}
+	}
 }

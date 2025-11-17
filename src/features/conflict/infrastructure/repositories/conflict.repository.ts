@@ -99,6 +99,7 @@
 
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/prisma/generated";
+import { cacheLife, cacheTag } from "next/cache";
 
 // Type for schedule with all relations
 type ScheduleWithRelations = Prisma.class_scheduleGetPayload<{
@@ -215,6 +216,11 @@ export const conflictRepository = {
     academicYear: number,
     semester: string
   ): Promise<ConflictSummary> {
+    'use cache';
+    const termKey = `${academicYear}-${semester}`;
+    cacheTag(`conflicts:${termKey}`);
+    cacheLife({ stale: 30 });
+
     // Convert string semester to enum value
     const semesterEnum = semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
     
