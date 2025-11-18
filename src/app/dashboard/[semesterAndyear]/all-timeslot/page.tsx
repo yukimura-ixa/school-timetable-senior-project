@@ -7,8 +7,6 @@ import { teacherRepository } from "@/features/teacher/infrastructure/repositorie
 import type { semester } from "@/prisma/generated";
 import AllTimeslotClient from "./AllTimeslotClient";
 
-export const revalidate = 300;
-
 type PageParams = Promise<{ semesterAndyear: string }>;
 
 const parseSemesterParam = (

@@ -3,8 +3,6 @@ import { semesterRepository } from "@/features/semester/infrastructure/repositor
 import prisma from "@/lib/prisma";
 import { day_of_week, semester, breaktime } from "@/prisma/generated";
 
-export const runtime = "nodejs";
-
 function parseYearsParam(param?: string): number[] {
   if (!param) return [];
   return param

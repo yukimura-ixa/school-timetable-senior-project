@@ -12,8 +12,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isFeatureEnabled, isValidFeatureFlag, type FeatureFlag } from '@/lib/feature-flags';
 
-export const runtime = 'edge'; // Use Edge runtime for ultra-fast responses
-
 /**
  * GET /api/feature-flags
  * 
