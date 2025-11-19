@@ -10,6 +10,7 @@ import { ErrorBoundary } from "@/components/error";
 import { authWithDevBypass } from "@/lib/auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Suspense } from "react";
 
 const sarabun = Sarabun({
   subsets: ["thai", "latin"],
@@ -17,46 +18,65 @@ const sarabun = Sarabun({
   variable: "--font-sarabun",
 });
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Get session but exclude PII before serializing to client
-  const rawSession = await authWithDevBypass();
-  
-  // SECURITY: Strip email before passing session to client-side provider
-  // SessionProvider serializes session data into HTML payload
-  const session = rawSession && rawSession.user ? {
-    ...rawSession,
-    user: {
-      id: rawSession.user.id,
-      name: rawSession.user.name,
-      role: rawSession.user.role,
-      image: rawSession.user.image,
-      // email explicitly excluded - PII must not be serialized to client
-    }
-  } : rawSession;
-  
   return (
     <html lang="th" className={`${sarabun.variable}`}>
       <body className={`font-sans min-h-screen bg-gray-50`}>
-        <SessionProvider session={session}>
-          <AppRouterCacheProvider>
-            <ThemeProvider theme={theme}>
-              <SnackbarProvider autoHideDuration={4000} maxSnack={1}>
-                <ErrorBoundary>
-                  <Navbar />
-                  <div className="flex justify-center w-full h-auto">
-                    <Content>{children}</Content>
-                    <SpeedInsights />
-                  </div>
-                </ErrorBoundary>
-              </SnackbarProvider>
-            </ThemeProvider>
-          </AppRouterCacheProvider>
-        </SessionProvider>
+        <Suspense fallback={<RootLayoutFallback />}>
+          <LayoutContent>{children}</LayoutContent>
+        </Suspense>
       </body>
     </html>
+  );
+}
+
+async function LayoutContent({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const rawSession = await authWithDevBypass();
+
+  const session =
+    rawSession && rawSession.user
+      ? {
+          ...rawSession,
+          user: {
+            id: rawSession.user.id,
+            name: rawSession.user.name,
+            role: rawSession.user.role,
+            image: rawSession.user.image,
+          },
+        }
+      : rawSession;
+
+  return (
+    <SessionProvider session={session}>
+      <AppRouterCacheProvider>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider autoHideDuration={4000} maxSnack={1}>
+            <ErrorBoundary>
+              <Navbar />
+              <div className="flex justify-center w-full h-auto">
+                <Content>{children}</Content>
+                <SpeedInsights />
+              </div>
+            </ErrorBoundary>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </AppRouterCacheProvider>
+    </SessionProvider>
+  );
+}
+
+function RootLayoutFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <p className="text-gray-500">กำลังโหลด…</p>
+    </div>
   );
 }
