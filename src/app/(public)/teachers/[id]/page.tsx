@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
+import { Suspense } from "react";
 import { getPublicTeacherById, getTeacherSchedule } from "@/lib/public/teachers";
 
 type PageProps = {
@@ -36,6 +37,18 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
     notFound();
   }
 
+  return (
+    <Suspense fallback={<TeacherScheduleFallback />}>
+      <TeacherScheduleContent teacherId={teacherId} />
+    </Suspense>
+  );
+}
+
+type TeacherScheduleContentProps = {
+  teacherId: number;
+};
+
+async function TeacherScheduleContent({ teacherId }: TeacherScheduleContentProps) {
   const [teacher, schedules] = await Promise.all([
     getPublicTeacherById(teacherId),
     getTeacherSchedule(teacherId),
@@ -45,7 +58,6 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
     notFound();
   }
 
-  // Group schedules by day
   const dayNames: Record<string, string> = {
     MON: "จันทร์",
     TUE: "อังคาร",
@@ -150,6 +162,37 @@ export default async function TeacherSchedulePage({ params }: PageProps) {
           >
             พิมพ์ตารางสอน
           </button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function TeacherScheduleFallback() {
+  return (
+    <main className="min-h-screen bg-gray-50 py-8 print:p-0 print:bg-white">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="h-6 w-48 rounded bg-gray-200 animate-pulse" />
+          <div className="mt-3 h-4 w-64 rounded bg-gray-200 animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 print:break-inside-avoid">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:shadow-none"
+            >
+              <div className="h-8 bg-gray-200 animate-pulse" />
+              <div className="p-2 space-y-3">
+                {Array.from({ length: 3 }).map((__, slotIndex) => (
+                  <div
+                    key={slotIndex}
+                    className="h-12 rounded border border-dashed border-gray-200 bg-gray-50"
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </main>

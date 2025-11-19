@@ -30,13 +30,13 @@ const toNumericGradeId = (gradeId: string): string => {
   }
 
   // Extract year and section from patterns like "ม.3/3"
-  const match = gradeId.match(/(\d+)[^\d]+(\d+)/);
+  const match = gradeId.match(/(\d+)[^\d]+(\d+)/) ?? [];
   if (!match) {
     return gradeId;
   }
 
-  const year = Number.parseInt(match[1], 10);
-  const section = Number.parseInt(match[2], 10);
+  const year = Number.parseInt(match[1] ?? "", 10);
+  const section = Number.parseInt(match[2] ?? "", 10);
   if (Number.isNaN(year) || Number.isNaN(section)) {
     return gradeId;
   }
