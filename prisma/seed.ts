@@ -108,16 +108,17 @@ const THAI_LASTNAMES = [
   "วัฒนพันธุ์", "สิริวัฒน์", "มงคล", "ศรีประพันธ์", "สมานมิตร", "ประดับศิริ"
 ];
 
-// Thai department names aligned with MOE 8 Learning Areas
+// Thai department names aligned with MOE 8 Learning Areas (updated per latest MOE standard)
+// Note: "วิทยาศาสตร์" renamed to "วิทยาศาสตร์และเทคโนโลยี"; "การงานอาชีพและเทคโนโลยี" standardized as "การงานอาชีพ"
 const DEPARTMENTS = [
-  "ภาษาไทย",           // Thai Language
-  "คณิตศาสตร์",        // Mathematics
-  "วิทยาศาสตร์",       // Science & Technology
-  "สังคมศึกษา",        // Social Studies
-  "ภาษาต่างประเทศ",    // Foreign Languages
-  "สุขศึกษา-พลศึกษา",  // Health & PE
-  "ศิลปะ",            // Arts
-  "การงานอาชีพ"        // Career & Technology
+  "ภาษาไทย",                // Thai Language
+  "คณิตศาสตร์",             // Mathematics
+  "วิทยาศาสตร์และเทคโนโลยี", // Science & Technology (MOE phrasing)
+  "สังคมศึกษา",             // Social Studies
+  "ภาษาต่างประเทศ",         // Foreign Languages
+  "สุขศึกษาและพลศึกษา",       // Health & PE
+  "ศิลปะ",                 // Arts
+  "การงานอาชีพ"             // Career & Technology
 ];
 
 // Building names
@@ -474,12 +475,13 @@ async function main() {
   console.log(`✅ Created ${rooms.length} rooms across ${BUILDINGS.length} buildings`);
 
   // ===== TEACHERS =====
-  console.log("👨‍🏫 Creating teachers...");
+  console.log("👨‍🏫 Creating teachers (target: 40)...");
   const teachers: any[] = [];
   let teacherEmailCount = 1;
+  const TOTAL_TEACHERS = 40;
+  const teachersPerDept = Math.floor(TOTAL_TEACHERS / DEPARTMENTS.length); // 5 each for 8 departments
 
   for (const dept of DEPARTMENTS) {
-    const teachersPerDept = Math.floor(60 / DEPARTMENTS.length);
     for (let i = 0; i < teachersPerDept; i++) {
       const prefix = THAI_PREFIXES[Math.floor(Math.random() * THAI_PREFIXES.length)];
       const firstname = THAI_FIRSTNAMES[Math.floor(Math.random() * THAI_FIRSTNAMES.length)];
@@ -542,7 +544,33 @@ async function main() {
     }
   }
 
-  console.log(`✅ Created ${timeslots.length} timeslots (5 days × 8 periods)`);
+  console.log(`✅ Created ${timeslots.length} timeslots for Semester 1 (5 days × 8 periods)`);
+
+  // ===== TIMESLOTS (SEMESTER 2) =====
+  console.log("⏰ Creating timeslots for Semester 2...");
+  const sem2: semester = "SEMESTER_2";
+  const semesterNumber2 = 2;
+  const timeslotsSem2: any[] = [];
+  for (const day of days) {
+    for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
+      const period = periods[periodNum - 1];
+      timeslotsSem2.push(await withRetry(
+        () => prisma.timeslot.create({
+          data: {
+            TimeslotID: `${semesterNumber2}-${academicYear}-${day}-${periodNum}`,
+            AcademicYear: academicYear,
+            Semester: sem2,
+            StartTime: new Date(`2024-01-01T${period.start}:00`),
+            EndTime: new Date(`2024-01-01T${period.end}:00`),
+            Breaktime: period.break as breaktime,
+            DayOfWeek: day,
+          }
+        }),
+        `Create timeslot S2 ${day}-${periodNum}`
+      ));
+    }
+  }
+  console.log(`✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × 8 periods)`);
 
   // ===== TABLE CONFIG =====
   console.log("⚙️  Creating timetable configuration...");
@@ -669,7 +697,7 @@ async function main() {
   // Assign core subjects to all grades
   const thaiTeachers = getTeachersByDept("ภาษาไทย");
   const mathTeachers = getTeachersByDept("คณิตศาสตร์");
-  const scienceTeachers = getTeachersByDept("วิทยาศาสตร์");
+  const scienceTeachers = getTeachersByDept("วิทยาศาสตร์และเทคโนโลยี");
   const englishTeachers = getTeachersByDept("ภาษาต่างประเทศ");
   const socialTeachers = getTeachersByDept("สังคมศึกษา");
   const peTeachers = getTeachersByDept("สุขศึกษา-พลศึกษา");
@@ -764,12 +792,13 @@ async function main() {
   console.log(`   • Programs: ${programs.length} (3 tracks × 6 years)`);
   console.log(`   • Grade Levels: ${gradeLevels.length} (M.1-M.6, 3 sections each)`);
   console.log(`   • Rooms: ${rooms.length} (${BUILDINGS.length} buildings)`);
-  console.log(`   • Teachers: ${teachers.length} (${DEPARTMENTS.length} departments)`);
+  console.log(`   • Teachers: ${teachers.length} (${DEPARTMENTS.length} departments; target 40 met)`);
   console.log(`   • Subjects: ${totalSubjects} subjects`);
   console.log(`     - Core (8 learning areas): ${coreSubjects.length}`);
   console.log(`     - Additional (track-specific): ${additionalSubjects.length}`);
   console.log(`     - Activities (MOE-compliant): ${activitySubjects.length}`);
-  console.log(`   • Timeslots: ${timeslots.length} (5 days × 8 periods)`);
+  const totalTimeslots = timeslots.length + (typeof timeslotsSem2 !== 'undefined' ? timeslotsSem2.length : 0);
+  console.log(`   • Timeslots: ${totalTimeslots} (Semester 1: ${timeslots.length}, Semester 2: ${typeof timeslotsSem2 !== 'undefined' ? timeslotsSem2.length : 0})`);
   console.log(`   • Teacher Responsibilities: ${responsibilities.length}`);
   console.log(`   • Sample Locked Schedules: ${classSchedules.length}`);
   console.log(`   • Table Configurations: 1`);
