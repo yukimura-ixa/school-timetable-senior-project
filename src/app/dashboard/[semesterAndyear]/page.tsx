@@ -10,7 +10,9 @@ import {
   calculateSubjectDistribution,
   detectConflicts,
 } from "@/features/dashboard/domain/services/dashboard-stats.service";
+import { getPublishReadiness } from "@/features/config/application/services/publish-readiness-query.service";
 import type { semester } from "@/prisma/generated";
+import { PublishReadinessCard, ReadinessIssues } from "../../_components/PublishReadiness";
 
 export const metadata: Metadata = {
   title: "Dashboard - ภาพรวมภาคเรียน",
@@ -42,11 +44,14 @@ export default async function DashboardPage({
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
   // Fetch all dashboard data in parallel
-  const dashboardData = await dashboardRepository.getDashboardData(
-    semesterAndyear,
-    year,
-    semesterEnum
-  );
+  const [dashboardData, readiness] = await Promise.all([
+    dashboardRepository.getDashboardData(
+      semesterAndyear,
+      year,
+      semesterEnum
+    ),
+    getPublishReadiness(semesterAndyear)
+  ]);
 
   const {
     config,
@@ -111,6 +116,10 @@ export default async function DashboardPage({
         )}
       </div>
 
+      {readiness && readiness.status !== 'ready' && (
+        <ReadinessIssues issues={readiness.issues} />
+      )}
+
       {/* Quick Stats Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -134,17 +143,7 @@ export default async function DashboardPage({
           icon="📅"
           color="purple"
         />
-        <StatCard
-          title="ความสมบูรณ์"
-          value={`${completionRate}%`}
-          subtitle={
-            totalConflicts > 0
-              ? `⚠️ ขัดแย้ง: ${totalConflicts} รายการ`
-              : "✅ ไม่มีข้อขัดแย้ง"
-          }
-          icon="📊"
-          color={totalConflicts > 0 ? "red" : "green"}
-        />
+        {readiness && <PublishReadinessCard readiness={readiness} />}
       </div>
 
       {/* Quick Actions */}

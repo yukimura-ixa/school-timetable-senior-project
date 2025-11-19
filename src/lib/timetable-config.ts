@@ -65,6 +65,39 @@ export async function getTimetableConfig(
   }
 }
 
+export interface TimetableConfigMetadata {
+  academicYear: number;
+  semester: semester;
+  totalTimeslots: number;
+}
+
+/**
+ * Resolve term metadata for a config by its ID.
+ * Returns the academic year, semester, and total timeslots to keep the client code
+ * decoupled from Prisma.
+ */
+export async function getTimetableConfigMetadata(
+  configId: string
+): Promise<TimetableConfigMetadata | null> {
+  const config = await configRepository.findByConfigId(configId);
+
+  if (!config) {
+    console.warn(`Config ${configId} not found, unable to derive metadata`);
+    return null;
+  }
+
+  const totalTimeslots = await configRepository.countTimeslotsForTerm(
+    config.AcademicYear,
+    config.Semester
+  );
+
+  return {
+    academicYear: config.AcademicYear,
+    semester: config.Semester,
+    totalTimeslots,
+  };
+}
+
 /**
  * Get default configuration (synchronous, no DB call)
  * Use this for client components or when DB access is not available

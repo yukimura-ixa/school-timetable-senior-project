@@ -18,6 +18,7 @@ export const UpdateConfigStatusSchema = v.object({
   configId: v.string(),
   status: ConfigStatusSchema,
   reason: v.optional(v.string()),
+  force: v.optional(v.boolean()),
 });
 
 // Calculate config completeness
