@@ -3,9 +3,9 @@
  * Data access layer for teacher-subject assignments (teachers_responsibility table)
  */
 
-import prisma from "@/lib/prisma";
-import { semester } from '@/prisma/generated/client';;
-import { cache } from "react";
+import prisma from "@/lib/prisma"
+import { semester } from '@/prisma/generated/client'
+import { cache } from "react"
 
 // ============================================================================
 // Query Methods
@@ -50,9 +50,9 @@ export const findAssignmentsByContext = cache(
         },
       },
       orderBy: [{ subject: { SubjectName: "asc" } }],
-    });
+    })
   }
-);
+)
 
 /**
  * Get teacher's full workload across all grades for semester + year
@@ -92,9 +92,9 @@ export const findTeacherWorkload = cache(
         },
       },
       orderBy: [{ gradelevel: { GradeID: "asc" } }, { subject: { SubjectName: "asc" } }],
-    });
+    })
   }
-);
+)
 
 /**
  * Get all subjects for a grade's program
@@ -105,10 +105,10 @@ export const findSubjectsByGrade = cache(async (gradeId: string) => {
   const grade = await prisma.gradelevel.findUnique({
     where: { GradeID: gradeId },
     select: { ProgramID: true },
-  });
+  })
 
   if (!grade?.ProgramID) {
-    return [];
+    return []
   }
 
   // Then get all subjects in that program
@@ -125,8 +125,8 @@ export const findSubjectsByGrade = cache(async (gradeId: string) => {
       },
     },
     orderBy: { subject: { SubjectName: "asc" } },
-  });
-});
+  })
+})
 
 /**
  * Get all active teachers
@@ -142,8 +142,8 @@ export const findAllTeachers = cache(async () => {
       Department: true,
     },
     orderBy: [{ Firstname: "asc" }, { Lastname: "asc" }],
-  });
-});
+  })
+})
 
 // ============================================================================
 // Mutation Methods
@@ -154,12 +154,12 @@ export const findAllTeachers = cache(async () => {
  * Creates new assignment or updates if already exists
  */
 export async function assignTeacherToSubject(data: {
-  SubjectCode: string;
-  GradeID: string;
-  Semester: semester;
-  AcademicYear: number;
-  TeacherID: number;
-  TeachHour: number;
+  SubjectCode: string
+  GradeID: string
+  Semester: semester
+  AcademicYear: number
+  TeacherID: number
+  TeachHour: number
 }) {
   // Check if assignment already exists
   const existing = await prisma.teachers_responsibility.findFirst({
@@ -170,29 +170,29 @@ export async function assignTeacherToSubject(data: {
       AcademicYear: data.AcademicYear,
       TeacherID: data.TeacherID,
     },
-  });
+  })
 
   if (existing) {
     // Update existing
     return prisma.teachers_responsibility.update({
       where: { RespID: existing.RespID },
       data: { TeachHour: data.TeachHour },
-    });
+    })
   }
 
   // Create new
-  return prisma.teachers_responsibility.create({ data });
+  return prisma.teachers_responsibility.create({ data })
 }
 
 /**
  * Remove teacher assignment from subject
  */
 export async function unassignTeacherFromSubject(data: {
-  SubjectCode: string;
-  GradeID: string;
-  Semester: semester;
-  AcademicYear: number;
-  TeacherID: number;
+  SubjectCode: string
+  GradeID: string
+  Semester: semester
+  AcademicYear: number
+  TeacherID: number
 }) {
   // Find the assignment
   const assignment = await prisma.teachers_responsibility.findFirst({
@@ -203,15 +203,15 @@ export async function unassignTeacherFromSubject(data: {
       AcademicYear: data.AcademicYear,
       TeacherID: data.TeacherID,
     },
-  });
+  })
 
   if (!assignment) {
-    throw new Error("Assignment not found");
+    throw new Error("Assignment not found")
   }
 
   return prisma.teachers_responsibility.delete({
     where: { RespID: assignment.RespID },
-  });
+  })
 }
 
 /**
@@ -220,12 +220,12 @@ export async function unassignTeacherFromSubject(data: {
  */
 export async function bulkAssignTeachers(
   assignments: Array<{
-    SubjectCode: string;
-    GradeID: string;
-    Semester: semester;
-    AcademicYear: number;
-    TeacherID: number;
-    TeachHour: number;
+    SubjectCode: string
+    GradeID: string
+    Semester: semester
+    AcademicYear: number
+    TeacherID: number
+    TeachHour: number
   }>
 ) {
   // For each assignment, check if it exists and update or create
@@ -239,20 +239,20 @@ export async function bulkAssignTeachers(
           AcademicYear: data.AcademicYear,
           TeacherID: data.TeacherID,
         },
-      });
+      })
 
       if (existing) {
         return prisma.teachers_responsibility.update({
           where: { RespID: existing.RespID },
           data: { TeachHour: data.TeachHour },
-        });
+        })
       }
 
-      return prisma.teachers_responsibility.create({ data });
+      return prisma.teachers_responsibility.create({ data })
     })
-  );
+  )
 
-  return operations;
+  return operations
 }
 
 /**
@@ -270,7 +270,7 @@ export async function clearAllAssignments(
       Semester: semester,
       AcademicYear: academicYear,
     },
-  });
+  })
 }
 
 /**
@@ -292,17 +292,17 @@ export async function copyAssignmentsFromPreviousSemester(
       Semester: sourceSemester,
       AcademicYear: sourceYear,
     },
-  });
+  })
 
   // Create target assignments
   const targetAssignments = sourceAssignments.map(
-    (assignment): {
-      SubjectCode: string;
-      GradeID: string;
-      Semester: semester;
-      AcademicYear: number;
-      TeacherID: number;
-      TeachHour: number;
+    (assignment: any): {
+      SubjectCode: string
+      GradeID: string
+      Semester: semester
+      AcademicYear: number
+      TeacherID: number
+      TeachHour: number
     } => ({
       SubjectCode: assignment.SubjectCode,
       GradeID: targetGradeId,
@@ -311,10 +311,10 @@ export async function copyAssignmentsFromPreviousSemester(
       TeacherID: assignment.TeacherID,
       TeachHour: assignment.TeachHour,
     })
-  );
+  )
 
   // Bulk insert
-  return bulkAssignTeachers(targetAssignments);
+  return bulkAssignTeachers(targetAssignments)
 }
 
 // ============================================================================
@@ -325,11 +325,11 @@ export async function copyAssignmentsFromPreviousSemester(
  * Check if assignment already exists
  */
 export async function assignmentExists(data: {
-  SubjectCode: string;
-  GradeID: string;
-  Semester: semester;
-  AcademicYear: number;
-  TeacherID: number;
+  SubjectCode: string
+  GradeID: string
+  Semester: semester
+  AcademicYear: number
+  TeacherID: number
 }): Promise<boolean> {
   const count = await prisma.teachers_responsibility.count({
     where: {
@@ -339,8 +339,8 @@ export async function assignmentExists(data: {
       AcademicYear: data.AcademicYear,
       TeacherID: data.TeacherID,
     },
-  });
-  return count > 0;
+  })
+  return count > 0
 }
 
 /**
@@ -354,15 +354,15 @@ export async function getAssignmentStats(
   const [totalSubjects, assignments] = await Promise.all([
     findSubjectsByGrade(gradeId),
     findAssignmentsByContext(gradeId, semester, academicYear),
-  ]);
+  ])
 
-  const uniqueSubjects = new Set(assignments.map((a: { SubjectCode: string }) => a.SubjectCode));
-  const assignedCount = uniqueSubjects.size;
+  const uniqueSubjects = new Set(assignments.map((a: any) => a.SubjectCode))
+  const assignedCount = uniqueSubjects.size
 
   return {
     totalSubjects: totalSubjects.length,
     assignedSubjects: assignedCount,
     unassignedSubjects: totalSubjects.length - assignedCount,
     totalAssignments: assignments.length, // Can be > subjects if multiple teachers per subject
-  };
+  }
 }

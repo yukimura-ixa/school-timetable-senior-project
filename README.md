@@ -147,6 +147,7 @@ The system uses a relational database with the following main entities:
 
 ### Getting Started
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** ⭐ **START HERE** - Setup with OAuth bypass for local testing
+- **[Environment Setup](docs/ENVIRONMENT_SETUP.md)** 🔧 **CONFIGURATION** - Local, CI, and production environment setup
 - **[OAuth Bypass Summary](docs/OAUTH_BYPASS_SUMMARY.md)** - Complete technical summary of dev bypass
 - **[Quickstart](docs/QUICKSTART.md)** - Quick setup guide
 

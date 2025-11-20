@@ -7,9 +7,9 @@
  * @module subject.repository
  */
 
-import prisma from '@/lib/prisma';
-import type { subject } from '@/prisma/generated/client';
-import type { CreateSubjectInput, UpdateSubjectInput } from '../../application/schemas/subject.schemas';
+import prisma from '@/lib/prisma'
+import type { subject } from '@/prisma/generated/client'
+import type { CreateSubjectInput, UpdateSubjectInput } from '../../application/schemas/subject.schemas'
 
 export const subjectRepository = {
   /**
@@ -20,7 +20,7 @@ export const subjectRepository = {
       orderBy: {
         SubjectCode: 'asc',
       },
-    });
+    })
   },
 
   /**
@@ -31,7 +31,7 @@ export const subjectRepository = {
       where: {
         SubjectCode: subjectCode,
       },
-    });
+    })
   },
 
   /**
@@ -42,7 +42,7 @@ export const subjectRepository = {
       where: {
         SubjectName: subjectName,
       },
-    });
+    })
   },
 
   /**
@@ -65,16 +65,16 @@ export const subjectRepository = {
           },
         },
       },
-    });
+    })
 
     if (!gradelevel?.program) {
-      return [];
+      return []
     }
 
     // Extract subjects from program_subject relation
-    const subjects = gradelevel.program.program_subject.map(ps => ps.subject);
+    const subjects = gradelevel.program.program_subject.map((ps: any) => ps.subject)
 
-    return subjects;
+    return subjects
   },
 
   /**
@@ -93,7 +93,7 @@ export const subjectRepository = {
         IsGraded: data.IsGraded,
         Description: data.Description,
       },
-    });
+    })
   },
 
   /**
@@ -115,7 +115,7 @@ export const subjectRepository = {
         IsGraded: data.IsGraded,
         Description: data.Description,
       },
-    });
+    })
   },
 
   /**
@@ -128,13 +128,13 @@ export const subjectRepository = {
           in: subjectCodes,
         },
       },
-    });
+    })
   },
 
   /**
    * Get subject count
    */
   async count() {
-    return prisma.subject.count();
+    return prisma.subject.count()
   },
-};
+}

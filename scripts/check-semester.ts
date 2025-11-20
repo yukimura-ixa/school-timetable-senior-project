@@ -3,9 +3,7 @@
  * Usage: pnpm tsx scripts/check-semester.ts 1-2567
  */
 
-import { PrismaClient } from '../prisma/generated/client';
-
-const prisma = new PrismaClient();
+import prisma from "../src/lib/prisma";
 
 async function checkSemester(configId: string) {
   try {

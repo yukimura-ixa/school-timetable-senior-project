@@ -10,9 +10,9 @@
  * @module public-data.repository
  */
 
-import { cache } from 'react';
-import prisma from '@/lib/prisma';
-import type { Prisma, semester } from '@/prisma/generated/client';
+import { cache } from 'react'
+import prisma from '@/lib/prisma'
+import type { Prisma, semester } from '@/prisma/generated/client'
 
 // ============================================================================
 // Type Definitions
@@ -22,23 +22,23 @@ import type { Prisma, semester } from '@/prisma/generated/client';
  * Public-safe teacher data (no PII)
  */
 export interface PublicTeacher {
-  teacherId: number;
-  name: string;
-  department: string;
-  subjectCount: number;
-  weeklyHours: number;
-  utilization: number;
+  teacherId: number
+  name: string
+  department: string
+  subjectCount: number
+  weeklyHours: number
+  utilization: number
 }
 
 /**
  * Filters for public teacher queries
  */
 export interface PublicTeacherFilters {
-  academicYear: number;
-  semester: string;
-  searchQuery?: string;
-  sortBy?: 'name' | 'hours' | 'utilization';
-  sortOrder?: 'asc' | 'desc';
+  academicYear: number
+  semester: string
+  searchQuery?: string
+  sortBy?: 'name' | 'hours' | 'utilization'
+  sortOrder?: 'asc' | 'desc'
 }
 
 const teacherResponsibilityInclude = {
@@ -81,64 +81,64 @@ const teacherResponsibilityInclude = {
       },
     },
   },
-} as const;
+} as const
 
 type ResponsibilityWithSchedules = Prisma.teachers_responsibilityGetPayload<{
-  include: typeof teacherResponsibilityInclude;
-}>;
+  include: typeof teacherResponsibilityInclude
+}>
 
 /**
  * Quick statistics for dashboard
  */
 export interface QuickStats {
-  totalTeachers: number;
-  totalClasses: number;
-  totalRooms: number;
-  totalSubjects: number;
-  totalPrograms: number;
-  periodsPerDay: number;
-  currentTerm: string;
-  lastUpdated: string;
+  totalTeachers: number
+  totalClasses: number
+  totalRooms: number
+  totalSubjects: number
+  totalPrograms: number
+  periodsPerDay: number
+  currentTerm: string
+  lastUpdated: string
 }
 
 /**
  * Period load by day
  */
 export interface PeriodLoad {
-  day: string;
-  periods: number;
+  day: string
+  periods: number
 }
 
 /**
  * Room occupancy statistics
  */
 export interface RoomOccupancy {
-  day: string;
-  period: number;
-  occupancyPercent: number;
+  day: string
+  period: number
+  occupancyPercent: number
 }
 
 /**
  * Public-safe grade level data
  */
 export interface PublicGradeLevel {
-  gradeId: string;
-  year: number;
-  number: number;
-  name: string;
-  studentCount: number;
-  subjectCount: number;
+  gradeId: string
+  year: number
+  number: number
+  name: string
+  studentCount: number
+  subjectCount: number
 }
 
 /**
  * Filters for public grade level queries
  */
 export interface PublicGradeLevelFilters {
-  academicYear: number;
-  semester: semester;
-  searchQuery?: string;
-  sortBy?: 'year' | 'number' | 'students';
-  sortOrder?: 'asc' | 'desc';
+  academicYear: number
+  semester: semester
+  searchQuery?: string
+  sortBy?: 'year' | 'number' | 'students'
+  sortOrder?: 'asc' | 'desc'
 }
 
 // ============================================================================
@@ -150,35 +150,35 @@ export interface PublicGradeLevelFilters {
  */
 type PublicTeacherData = Prisma.teacherGetPayload<{
   select: {
-    TeacherID: true;
-    Prefix: true;
-    Firstname: true;
-    Lastname: true;
-    Department: true;
+    TeacherID: true
+    Prefix: true
+    Firstname: true
+    Lastname: true
+    Department: true
     teachers_responsibility: {
       select: {
-        SubjectCode: true;
-        TeachHour: true;
-      };
-    };
-  };
-}>;
+        SubjectCode: true
+        TeachHour: true
+      }
+    }
+  }
+}>
 
 type GradeLevelWithSchedules = Prisma.gradelevelGetPayload<{
   include: {
     class_schedule: {
       select: {
-        SubjectCode: true;
-      };
-    };
-  };
-}>;
+        SubjectCode: true
+      }
+    }
+  }
+}>
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const MAX_WEEKLY_HOURS = 40;
+const MAX_WEEKLY_HOURS = 40
 
 // ============================================================================
 // Helper Functions (Private)
@@ -188,7 +188,7 @@ const MAX_WEEKLY_HOURS = 40;
  * Convert string semester ("1", "2") to Prisma enum
  */
 function toSemesterEnum(semesterString: string): semester {
-  return semesterString === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+  return semesterString === '1' ? 'SEMESTER_1' : 'SEMESTER_2'
 }
 
 /**
@@ -204,8 +204,8 @@ const getCurrentTerm = cache(async () => {
       Config: true,
       updatedAt: true,
     },
-  });
-});
+  })
+})
 
 /**
  * Transform teacher database record to public-safe format
@@ -216,9 +216,9 @@ function transformTeacherToPublic(
   const weeklyHours = teacher.teachers_responsibility.reduce(
     (sum, resp) => sum + (resp.TeachHour || 0),
     0
-  );
+  )
 
-  const utilization = Math.round((weeklyHours / MAX_WEEKLY_HOURS) * 100);
+  const utilization = Math.round((weeklyHours / MAX_WEEKLY_HOURS) * 100)
 
   return {
     teacherId: teacher.TeacherID,
@@ -227,7 +227,7 @@ function transformTeacherToPublic(
     subjectCount: teacher.teachers_responsibility.length,
     weeklyHours,
     utilization,
-  };
+  }
 }
 
 /**
@@ -239,7 +239,7 @@ function transformGradeLevelToPublic(
   // Count unique subjects for this grade
   const uniqueSubjects = new Set(
     gradeLevel.class_schedule.map((schedule) => schedule.SubjectCode)
-  );
+  )
 
   return {
     gradeId: gradeLevel.GradeID,
@@ -248,7 +248,7 @@ function transformGradeLevelToPublic(
     name: `${gradeLevel.Year}/${gradeLevel.Number}`,
     studentCount: gradeLevel.StudentCount || 0,
     subjectCount: uniqueSubjects.size,
-  };
+  }
 }
 
 // ============================================================================
@@ -267,18 +267,18 @@ export const publicDataRepository = {
   async findPublicTeachers(
     filters: PublicTeacherFilters
   ): Promise<PublicTeacher[]> {
-    const { academicYear, semester, searchQuery, sortBy, sortOrder } = filters;
+    const { academicYear, semester, searchQuery, sortBy, sortOrder } = filters
 
     // Build where clause
     const where = searchQuery
       ? {
-          OR: [
-            { Firstname: { contains: searchQuery } },
-            { Lastname: { contains: searchQuery } },
-            { Department: { contains: searchQuery } },
-          ],
-        }
-      : undefined;
+        OR: [
+          { Firstname: { contains: searchQuery } },
+          { Lastname: { contains: searchQuery } },
+          { Department: { contains: searchQuery } },
+        ],
+      }
+      : undefined
 
     // Query teachers with their teaching responsibilities
     const teachers = await prisma.teacher.findMany({
@@ -302,29 +302,29 @@ export const publicDataRepository = {
         },
       },
       orderBy: { Firstname: 'asc' },
-    });
+    })
 
     // Transform to public format
-    const publicTeachers = teachers.map(transformTeacherToPublic);
+    const publicTeachers = teachers.map(transformTeacherToPublic)
 
     // Apply sorting if specified
     if (sortBy && sortOrder) {
-      publicTeachers.sort((a, b) => {
-        const order = sortOrder === 'asc' ? 1 : -1;
+      publicTeachers.sort((a: any, b: any) => {
+        const order = sortOrder === 'asc' ? 1 : -1
         switch (sortBy) {
           case 'name':
-            return order * a.name.localeCompare(b.name, 'th');
+            return order * a.name.localeCompare(b.name, 'th')
           case 'hours':
-            return order * (a.weeklyHours - b.weeklyHours);
+            return order * (a.weeklyHours - b.weeklyHours)
           case 'utilization':
-            return order * (a.utilization - b.utilization);
+            return order * (a.utilization - b.utilization)
           default:
-            return 0;
+            return 0
         }
-      });
+      })
     }
 
-    return publicTeachers;
+    return publicTeachers
   },
 
   /**
@@ -332,7 +332,7 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async countTeachers(): Promise<number> {
-    return await prisma.teacher.count();
+    return await prisma.teacher.count()
   },
 
   /**
@@ -364,11 +364,11 @@ export const publicDataRepository = {
           },
         },
       },
-    });
+    })
 
-    if (!teacher) return null;
+    if (!teacher) return null
 
-    return transformTeacherToPublic(teacher);
+    return transformTeacherToPublic(teacher)
   },
 
   async findTeacherResponsibilities(
@@ -384,9 +384,9 @@ export const publicDataRepository = {
       },
       include: teacherResponsibilityInclude,
       orderBy: [{ gradelevel: { Year: 'asc' } }, { SubjectCode: 'asc' }],
-    });
+    })
 
-    return responsibilities as ResponsibilityWithSchedules[];
+    return responsibilities as ResponsibilityWithSchedules[]
   },
 
   // ==========================================================================
@@ -398,7 +398,7 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async getQuickStats(): Promise<QuickStats> {
-    const config = await getCurrentTerm();
+    const config = await getCurrentTerm()
 
     if (!config) {
       // Return empty stats if no config found
@@ -415,7 +415,7 @@ export const publicDataRepository = {
           month: 'short',
           year: 'numeric',
         }),
-      };
+      }
     }
 
     // Run all count queries in parallel
@@ -439,17 +439,17 @@ export const publicDataRepository = {
           Semester: config.Semester,
         },
       }),
-    ]);
+    ])
 
     const semesterLabel =
-      config.Semester === 'SEMESTER_1' ? 'ภาคเรียนที่ 1' : 'ภาคเรียนที่ 2';
+      config.Semester === 'SEMESTER_1' ? 'ภาคเรียนที่ 1' : 'ภาคเรียนที่ 2'
 
     // Format date in Thai locale (short format: 14 พ.ย. 2568)
     const formattedDate = config.updatedAt.toLocaleDateString('th-TH', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
-    });
+    })
 
     return {
       totalTeachers: teacherCount,
@@ -460,7 +460,7 @@ export const publicDataRepository = {
       periodsPerDay,
       currentTerm: `${semesterLabel} ปีการศึกษา ${config.AcademicYear}`,
       lastUpdated: formattedDate,
-    };
+    }
   },
 
   /**
@@ -476,12 +476,12 @@ export const publicDataRepository = {
         Semester: semester,
       },
       select: { AcademicYear: true, Semester: true },
-    });
+    })
 
-    if (!config) return [];
+    if (!config) return []
 
-    const days = ['MON', 'TUE', 'WED', 'THU', 'FRI'] as const;
-    const periodLoads: PeriodLoad[] = [];
+    const days = ['MON', 'TUE', 'WED', 'THU', 'FRI'] as const
+    const periodLoads: PeriodLoad[] = []
 
     for (const day of days) {
       const count = await prisma.class_schedule.count({
@@ -492,12 +492,12 @@ export const publicDataRepository = {
             Semester: semester,
           },
         },
-      });
+      })
 
-      periodLoads.push({ day, periods: count });
+      periodLoads.push({ day, periods: count })
     }
 
-    return periodLoads;
+    return periodLoads
   },
 
   /**
@@ -512,9 +512,9 @@ export const publicDataRepository = {
         AcademicYear: academicYear,
         Semester: semester,
       },
-    });
+    })
 
-    if (!config) return [];
+    if (!config) return []
 
     const [totalRooms, timeslots] = await Promise.all([
       prisma.room.count(),
@@ -529,18 +529,18 @@ export const publicDataRepository = {
         },
         orderBy: [{ DayOfWeek: 'asc' }, { StartTime: 'asc' }],
       }),
-    ]);
+    ])
 
-    if (totalRooms === 0 || timeslots.length === 0) return [];
+    if (totalRooms === 0 || timeslots.length === 0) return []
 
     // Group by day and calculate occupancy percentage
-    const occupancyData: RoomOccupancy[] = [];
-    const periodCounter: Record<string, number> = {};
+    const occupancyData: RoomOccupancy[] = []
+    const periodCounter: Record<string, number> = {}
 
     for (const slot of timeslots) {
-      const dayKey = slot.DayOfWeek;
+      const dayKey = slot.DayOfWeek
       if (!periodCounter[dayKey]) {
-        periodCounter[dayKey] = 1;
+        periodCounter[dayKey] = 1
       }
 
       // Count schedules for this timeslot
@@ -548,21 +548,21 @@ export const publicDataRepository = {
         where: {
           TimeslotID: slot.TimeslotID,
         },
-      });
+      })
 
       const occupancyPercent =
-        totalRooms > 0 ? Math.round((scheduleCount / totalRooms) * 100) : 0;
+        totalRooms > 0 ? Math.round((scheduleCount / totalRooms) * 100) : 0
 
       occupancyData.push({
         day: dayKey.slice(0, 3),
         period: periodCounter[dayKey],
         occupancyPercent,
-      });
+      })
 
-      periodCounter[dayKey]++;
+      periodCounter[dayKey]++
     }
 
-    return occupancyData;
+    return occupancyData
   },
 
   // ==========================================================================
@@ -576,17 +576,17 @@ export const publicDataRepository = {
   async findPublicGradeLevels(
     filters: PublicGradeLevelFilters
   ): Promise<PublicGradeLevel[]> {
-    const { academicYear, semester, searchQuery, sortBy, sortOrder } = filters;
+    const { academicYear, semester, searchQuery, sortBy, sortOrder } = filters
 
     // Build where clause
     const where: Prisma.gradelevelWhereInput = searchQuery
       ? {
-          OR: [
-            { Year: { equals: parseInt(searchQuery, 10) || undefined } },
-            { Number: { equals: parseInt(searchQuery, 10) || undefined } },
-          ],
-        }
-      : {};
+        OR: [
+          { Year: { equals: parseInt(searchQuery, 10) || undefined } },
+          { Number: { equals: parseInt(searchQuery, 10) || undefined } },
+        ],
+      }
+      : {}
 
     // Query grade levels with their schedules
     const gradeLevels = await prisma.gradelevel.findMany({
@@ -605,29 +605,29 @@ export const publicDataRepository = {
         },
       },
       orderBy: [{ Year: 'asc' }, { Number: 'asc' }],
-    });
+    })
 
     // Transform to public format
-    const publicGradeLevels = (gradeLevels as GradeLevelWithSchedules[]).map(transformGradeLevelToPublic);
+    const publicGradeLevels = (gradeLevels as GradeLevelWithSchedules[]).map(transformGradeLevelToPublic)
 
     // Apply sorting if specified
     if (sortBy && sortOrder) {
       publicGradeLevels.sort((a, b) => {
-        const order = sortOrder === 'asc' ? 1 : -1;
+        const order = sortOrder === 'asc' ? 1 : -1
         switch (sortBy) {
           case 'year':
-            return order * (a.year - b.year);
+            return order * (a.year - b.year)
           case 'number':
-            return order * (a.number - b.number);
+            return order * (a.number - b.number)
           case 'students':
-            return order * (a.studentCount - b.studentCount);
+            return order * (a.studentCount - b.studentCount)
           default:
-            return 0;
+            return 0
         }
-      });
+      })
     }
 
-    return publicGradeLevels;
+    return publicGradeLevels
   },
 
   /**
@@ -635,6 +635,6 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async countGradeLevels(): Promise<number> {
-    return await prisma.gradelevel.count();
+    return await prisma.gradelevel.count()
   },
-};
+}

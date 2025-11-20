@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import { semester as SemesterEnum } from '@/prisma/generated/client';;
+import { semester as SemesterEnum, type timeslot } from '@/prisma/generated/client';;
 import prisma from "@/lib/prisma";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
@@ -99,8 +99,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   };
 
   const slotNumbers = Array.from(
-    new Set(timeslots.map((t) => parseSlotNumber(t.TimeslotID)))
-  ).sort((a, b) => a - b);
+    new Set<number>(timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)))
+  ).sort((a: number, b: number) => a - b);
 
   // Build schedule lookup by timeslot ID
   const scheduleLookup = new Map<string, PublicScheduleEntry>();
@@ -110,7 +110,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
 
   // Build time range for each slot number
   const slotTimeRanges = new Map<number, { start: string; end: string }>();
-  timeslots.forEach((t) => {
+  timeslots.forEach((t: timeslot) => {
     const slotNum = parseSlotNumber(t.TimeslotID);
     if (!slotTimeRanges.has(slotNum)) {
       const startTime = new Date(t.StartTime);
@@ -126,9 +126,9 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const gridData: Record<string, Map<number, PublicScheduleEntry | null>> = {};
   dayOrder.forEach((day) => {
     gridData[day] = new Map();
-    slotNumbers.forEach((slotNum) => {
+    slotNumbers.forEach((slotNum: number) => {
       const timeslotForDaySlot = timeslots.find(
-        (t) => t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum
+        (t: timeslot) => t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum
       );
       if (timeslotForDaySlot) {
         gridData[day]!.set(slotNum, scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null);
@@ -182,7 +182,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
                 </tr>
               </thead>
               <tbody>
-                {slotNumbers.map((slotNum) => {
+                {slotNumbers.map((slotNum: number) => {
                   const timeRange = slotTimeRanges.get(slotNum);
                   return (
                     <tr key={slotNum} className="hover:bg-gray-50">

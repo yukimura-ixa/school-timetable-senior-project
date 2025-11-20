@@ -5,18 +5,18 @@
  * Uses React 19 Server Actions with 'use server' directive.
  */
 
-'use server';
+'use server'
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import * as v from 'valibot';
-import * as lockRepository from '../../infrastructure/repositories/lock.repository';
-import { semester } from '@/prisma/generated/client';
-import type { Prisma, class_schedule } from '@/prisma/generated/client';
+import { createAction } from '@/shared/lib/action-wrapper'
+import * as v from 'valibot'
+import * as lockRepository from '../../infrastructure/repositories/lock.repository'
+import { semester } from '@/prisma/generated/client'
+import type { Prisma, class_schedule } from '@/prisma/generated/client'
 import {
   generateClassID,
   groupSchedulesBySubject,
   validateLockInput,
-} from '../../domain/services/lock-validation.service';
+} from '../../domain/services/lock-validation.service'
 import {
   getLockedSchedulesSchema,
   createLockSchema,
@@ -24,7 +24,7 @@ import {
   type GetLockedSchedulesInput,
   type CreateLockInput,
   type DeleteLocksInput,
-} from '../schemas/lock.schemas';
+} from '../schemas/lock.schemas'
 
 /**
  * Get all locked schedules for a given academic year and semester
@@ -37,14 +37,14 @@ export const getLockedSchedulesAction = createAction(
     const rawSchedules = await lockRepository.findLockedSchedules(
       input.AcademicYear,
       input.Semester
-    );
+    )
 
     // Group schedules by SubjectCode using domain service
-    const groupedSchedules = groupSchedulesBySubject(rawSchedules);
+    const groupedSchedules = groupSchedulesBySubject(rawSchedules)
 
-    return groupedSchedules;
+    return groupedSchedules
   }
-);
+)
 
 /**
  * Create locked schedules for multiple timeslots and grades
@@ -60,24 +60,24 @@ export const createLockAction = createAction(
       timeslots: input.timeslots,
       GradeIDs: input.GradeIDs,
       RespIDs: input.RespIDs,
-    });
+    })
 
     if (validationError) {
-      throw new Error(validationError);
+      throw new Error(validationError)
     }
 
-  const created: class_schedule[] = [];
-    const respIds = input.RespIDs.map((respId) => ({ RespID: respId }));
+    const created: class_schedule[] = []
+    const respIds = input.RespIDs.map((respId) => ({ RespID: respId }))
 
     // Nested loops: for each timeslot, for each grade
     for (const timeslotId of input.timeslots) {
       for (const gradeId of input.GradeIDs) {
         // Generate ClassID using domain service
-        const classId = generateClassID(timeslotId, input.SubjectCode, gradeId);
+        const classId = generateClassID(timeslotId, input.SubjectCode, gradeId)
 
         // Create single locked schedule
-   
-  const schedule: class_schedule = await lockRepository.createLock({
+
+        const schedule: class_schedule = await lockRepository.createLock({
           ClassID: classId,
           IsLocked: true,
           SubjectCode: input.SubjectCode,
@@ -85,15 +85,15 @@ export const createLockAction = createAction(
           RoomID: input.RoomID,
           GradeID: gradeId,
           RespIDs: respIds,
-        });
+        })
 
-        created.push(schedule);
+        created.push(schedule)
       }
     }
 
-    return created;
+    return created
   }
-);
+)
 
 /**
  * Delete multiple locked schedules by ClassIDs
@@ -102,15 +102,15 @@ export const createLockAction = createAction(
 export const deleteLocksAction = createAction(
   deleteLocksSchema,
   async (classIds: DeleteLocksInput) => {
-   
-  const result: Prisma.BatchPayload = await lockRepository.deleteMany(classIds);
+
+    const result: Prisma.BatchPayload = await lockRepository.deleteMany(classIds)
 
     return {
       count: result.count,
       deletedClassIds: classIds,
-    };
+    }
   }
-);
+)
 
 /**
  * Get count of locked schedules for a given academic year and semester
@@ -122,11 +122,11 @@ export const getLockedScheduleCountAction = createAction(
     const count = await lockRepository.count(
       input.AcademicYear,
       input.Semester
-    );
+    )
 
-    return { count };
+    return { count }
   }
-);
+)
 
 /**
  * Create multiple locked schedules in a single transaction
@@ -147,14 +147,14 @@ export const createBulkLocksAction = createAction(
     ),
   }),
   async (input: { locks: Array<{ SubjectCode: string; RoomID: number; TimeslotID: string; GradeID: string; RespID: number }> }) => {
-  const created: class_schedule[] = [];
+    const created: class_schedule[] = []
 
     // Use transaction for atomicity
     for (const lock of input.locks) {
-      const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
-      
-   
-  const schedule: class_schedule = await lockRepository.createLock({
+      const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID)
+
+
+      const schedule: class_schedule = await lockRepository.createLock({
         ClassID: classId,
         IsLocked: true,
         SubjectCode: lock.SubjectCode,
@@ -162,17 +162,17 @@ export const createBulkLocksAction = createAction(
         RoomID: lock.RoomID,
         GradeID: lock.GradeID,
         RespIDs: [{ RespID: lock.RespID }],
-      });
+      })
 
-      created.push(schedule);
+      created.push(schedule)
     }
 
     return {
       count: created.length,
       created,
-    };
+    }
   }
-);
+)
 
 /**
  * Get all available lock templates
@@ -183,15 +183,15 @@ export const getLockTemplatesAction = createAction(
     category: v.optional(v.picklist(['lunch', 'activity', 'assembly', 'exam', 'other'])),
   })),
   async (input?: { category?: 'lunch' | 'activity' | 'assembly' | 'exam' | 'other' }) => {
-    const { LOCK_TEMPLATES, getTemplatesByCategory } = await import('../../domain/models/lock-template.model');
-    
+    const { LOCK_TEMPLATES, getTemplatesByCategory } = await import('../../domain/models/lock-template.model')
+
     if (input?.category) {
-      return getTemplatesByCategory(input.category);
+      return getTemplatesByCategory(input.category)
     }
-    
-    return LOCK_TEMPLATES;
+
+    return LOCK_TEMPLATES
   }
-);
+)
 
 /**
  * Apply a lock template to create multiple locks
@@ -205,16 +205,16 @@ export const applyLockTemplateAction = createAction(
     ConfigID: v.string(),
   }),
   async (input: { templateId: string; AcademicYear: number; Semester: string; ConfigID: string }) => {
-    const { getTemplateById } = await import('../../domain/models/lock-template.model');
-    const { resolveTemplate } = await import('../../domain/services/lock-template.service');
-    const lockRepo = await import('../../infrastructure/repositories/lock.repository');
-    
+    const { getTemplateById } = await import('../../domain/models/lock-template.model')
+    const { resolveTemplate } = await import('../../domain/services/lock-template.service')
+    const lockRepo = await import('../../infrastructure/repositories/lock.repository')
+
     // Get template
-    const template = getTemplateById(input.templateId);
+    const template = getTemplateById(input.templateId)
     if (!template) {
-      throw new Error(`ไม่พบเทมเพลต ID: ${input.templateId}`);
+      throw new Error(`ไม่พบเทมเพลต ID: ${input.templateId}`)
     }
-    
+
     // Fetch available data using repository methods
     const [grades, timeslots, rooms, subjects, responsibilities] = await Promise.all([
       lockRepo.findAllGradeLevels(),
@@ -222,31 +222,31 @@ export const applyLockTemplateAction = createAction(
       lockRepo.findAllRooms(),
       lockRepo.findAllSubjects(),
       lockRepo.findTeacherResponsibilitiesByTerm(input.AcademicYear, input.Semester as semester),
-    ]);
-    
+    ])
+
     // Transform data to match expected format
-    const transformedGrades = grades.map(g => ({
+    const transformedGrades = grades.map((g: any) => ({
       GradeID: g.GradeID,
       GradeName: `ม.${g.Year}/${g.Number}`,
       Level: g.Number,
-    }));
-    
-    const transformedTimeslots = timeslots.map(t => ({
+    }))
+
+    const transformedTimeslots = timeslots.map((t: any) => ({
       TimeslotID: t.TimeslotID,
       Day: t.DayOfWeek,
       PeriodStart: t.StartTime.getHours() * 60 + t.StartTime.getMinutes(),
-    }));
-    
-    const transformedRooms = rooms.map(r => ({
+    }))
+
+    const transformedRooms = rooms.map((r: any) => ({
       RoomID: r.RoomID,
       Name: r.RoomName,
-    }));
-    
-    const transformedSubjects = subjects.map(s => ({
+    }))
+
+    const transformedSubjects = subjects.map((s: any) => ({
       SubjectID: s.SubjectCode,
       Name_TH: s.SubjectName,
-    }));
-    
+    }))
+
     // Resolve template to locks
     const { locks, warnings, errors } = resolveTemplate({
       template,
@@ -258,19 +258,19 @@ export const applyLockTemplateAction = createAction(
       availableRooms: transformedRooms,
       availableSubjects: transformedSubjects,
       availableResponsibilities: responsibilities,
-    });
-    
+    })
+
     if (errors.length > 0) {
-      throw new Error(`ไม่สามารถนำเทมเพลตไปใช้ได้: ${errors.join(', ')}`);
+      throw new Error(`ไม่สามารถนำเทมเพลตไปใช้ได้: ${errors.join(', ')}`)
     }
-    
+
     // Create locks using bulk action
-  const created: class_schedule[] = [];
+    const created: class_schedule[] = []
     for (const lock of locks) {
-      const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID);
-      
-   
-  const schedule: class_schedule = await lockRepository.createLock({
+      const classId = generateClassID(lock.TimeslotID, lock.SubjectCode, lock.GradeID)
+
+
+      const schedule: class_schedule = await lockRepository.createLock({
         ClassID: classId,
         IsLocked: true,
         SubjectCode: lock.SubjectCode,
@@ -278,19 +278,19 @@ export const applyLockTemplateAction = createAction(
         RoomID: lock.RoomID,
         GradeID: lock.GradeID,
         RespIDs: [{ RespID: lock.RespID }],
-      });
-      
-      created.push(schedule);
+      })
+
+      created.push(schedule)
     }
-    
+
     return {
       templateName: template.name,
       count: created.length,
       warnings,
       created,
-    };
+    }
   }
-);
+)
 
 /**
  * Get locked timeslot IDs for a given grade and semester
@@ -308,7 +308,7 @@ export const getLockedTimeslotIDsAction = createAction(
     const rawSchedules = await lockRepository.findLockedSchedules(
       input.AcademicYear,
       input.Semester
-    );
+    )
 
     // Filter by grade and extract unique timeslot IDs
     const timeslotIDs = Array.from(
@@ -317,11 +317,11 @@ export const getLockedTimeslotIDsAction = createAction(
           .filter((schedule) => schedule.GradeID === input.GradeID)
           .map((schedule) => schedule.TimeslotID)
       )
-    );
+    )
 
-    return timeslotIDs;
+    return timeslotIDs
   }
-);
+)
 /**
  * Get raw locked schedules for a given academic year and semester  
  * Returns array of class_schedule objects for use in Zustand store
@@ -332,8 +332,8 @@ export const getRawLockedSchedulesAction = createAction(
     const rawSchedules = await lockRepository.findLockedSchedules(
       input.AcademicYear,
       input.Semester
-    );
-    
-    return rawSchedules as class_schedule[];
+    )
+
+    return rawSchedules as class_schedule[]
   }
-);
+)

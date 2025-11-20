@@ -61,7 +61,7 @@ export function TeacherSelector({
         const teachersData = await getTeachersWithWorkload(semester, academicYear);
 
         // Map server action response to component state
-        const teachersWithWorkload: TeacherOption[] = teachersData.map((teacher) => ({
+        const teachersWithWorkload: TeacherOption[] = teachersData.map((teacher: any) => ({
           id: teacher.TeacherID,
           name: teacher.TeacherName,
           currentHours: teacher.currentWorkload.totalHours,

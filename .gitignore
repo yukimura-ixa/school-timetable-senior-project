@@ -30,8 +30,17 @@ yarn-error.log*
 
 # local env files
 .env
-.env.*
+.env.local
+.env.production
+.env.development
+.env*.local
+
+# Allow example/template files
 !.env.example
+!.env.local.example
+!.env.production.example
+!.env.ci
+!.env.test
 
 # vercel
 .vercel
@@ -45,7 +54,6 @@ next-env.d.ts
 /app/generated/prisma/
 
 /.idea
-.env*.local
 
 # Sentry Config File
 .env.sentry-build-plugin
@@ -59,3 +67,13 @@ prompt.md
 .gemini/
 gha-creds-*.json
 .py
+
+# Build artifacts and logs
+build.log
+*.log
+typecheck*.txt
+typecheck*.log
+
+# Screenshots and temporary test files
+/screenshots/
+

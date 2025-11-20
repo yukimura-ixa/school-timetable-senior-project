@@ -5,9 +5,9 @@
  * @module dashboard.repository
  */
 
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma"
 import type { semester } from '@/prisma/generated/client';;
-import { cache } from "react";
+import { cache } from "react"
 
 /**
  * Fetch all data needed for dashboard in a single query
@@ -31,7 +31,7 @@ export const getDashboardData = cache(async function getDashboardData(
     prisma.table_config.findUnique({
       where: { ConfigID: configId },
     }),
-    
+
     // Get all schedules for this semester
     prisma.class_schedule.findMany({
       where: {
@@ -84,12 +84,12 @@ export const getDashboardData = cache(async function getDashboardData(
         },
       },
     }),
-    
+
     // Get all teachers
     prisma.teacher.findMany({
       orderBy: { Firstname: "asc" },
     }),
-    
+
     // Get all grades
     prisma.gradelevel.findMany({
       orderBy: { GradeID: "asc" },
@@ -97,7 +97,7 @@ export const getDashboardData = cache(async function getDashboardData(
         program: true,
       },
     }),
-    
+
     // Get all timeslots for this semester
     prisma.timeslot.findMany({
       where: {
@@ -109,12 +109,12 @@ export const getDashboardData = cache(async function getDashboardData(
         { StartTime: "asc" },
       ],
     }),
-    
+
     // Get all subjects
     prisma.subject.findMany({
       orderBy: { SubjectCode: "asc" },
     }),
-    
+
     // Get teacher responsibilities for this semester
     prisma.teachers_responsibility.findMany({
       where: {
@@ -145,8 +145,8 @@ export const getDashboardData = cache(async function getDashboardData(
         },
       },
     }),
-  ]);
-  
+  ])
+
   return {
     config,
     schedules,
@@ -155,8 +155,8 @@ export const getDashboardData = cache(async function getDashboardData(
     timeslots,
     subjects,
     responsibilities,
-  };
-});
+  }
+})
 
 /**
  * Get quick stats counts
@@ -200,8 +200,8 @@ export const getQuickStats = cache(async function getQuickStats(
         Semester: sem,
       },
     }),
-  ]);
-  
+  ])
+
   return {
     teacherCount,
     gradeCount,
@@ -209,8 +209,8 @@ export const getQuickStats = cache(async function getQuickStats(
     timeslotCount,
     subjectCount,
     responsibilityCount,
-  };
-});
+  }
+})
 
 /**
  * Get teachers with their schedule counts for the semester
@@ -233,9 +233,9 @@ export const getTeachersWithScheduleCounts = cache(
         },
       },
       orderBy: { Firstname: "asc" },
-    });
+    })
   }
-);
+)
 
 /**
  * Get grades with their schedule counts for the semester
@@ -261,9 +261,9 @@ export const getGradesWithScheduleCounts = cache(
         program: true,
       },
       orderBy: { GradeID: "asc" },
-    });
+    })
   }
-);
+)
 
 /**
  * Get subject distribution with counts
@@ -272,12 +272,12 @@ export const getGradesWithScheduleCounts = cache(
 export const getSubjectDistribution = cache(
   async function getSubjectDistribution(academicYear: number, sem: semester) {
     type ScheduleGroup = {
-      SubjectCode: string;
+      SubjectCode: string
       _count: {
-        ClassID: number;
-      };
-    };
-    
+        ClassID: number
+      }
+    }
+
     const schedules = await prisma.class_schedule.groupBy({
       by: ["SubjectCode"],
       where: {
@@ -294,28 +294,28 @@ export const getSubjectDistribution = cache(
           ClassID: "desc",
         },
       },
-    }) as ScheduleGroup[];
-    
+    }) as ScheduleGroup[]
+
     // Enrich with subject details
-    const subjectCodes = schedules.map(s => s.SubjectCode);
+    const subjectCodes = schedules.map(s => s.SubjectCode)
     const subjects = await prisma.subject.findMany({
       where: {
         SubjectCode: {
           in: subjectCodes,
         },
       },
-    });
-    
+    })
+
     return schedules.map(schedule => {
-      const subject = subjects.find(s => s.SubjectCode === schedule.SubjectCode);
+      const subject = subjects.find((s: any) => s.SubjectCode === schedule.SubjectCode)
       return {
         subjectCode: schedule.SubjectCode,
         subjectName: subject?.SubjectName || schedule.SubjectCode,
         count: schedule._count.ClassID,
-      };
-    });
+      }
+    })
   }
-);
+)
 
 /**
  * Dashboard repository export
@@ -326,4 +326,4 @@ export const dashboardRepository = {
   getTeachersWithScheduleCounts,
   getGradesWithScheduleCounts,
   getSubjectDistribution,
-};
+}

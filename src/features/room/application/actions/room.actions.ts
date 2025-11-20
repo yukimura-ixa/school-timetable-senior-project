@@ -7,11 +7,11 @@
  * @module room.actions
  */
 
-'use server';
+'use server'
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import { roomRepository } from '../../infrastructure/repositories/room.repository';
-import { checkDuplicateRoom } from '../../domain/services/room-validation.service';
+import { createAction } from '@/shared/lib/action-wrapper'
+import { roomRepository } from '../../infrastructure/repositories/room.repository'
+import { checkDuplicateRoom } from '../../domain/services/room-validation.service'
 import {
   createRoomSchema,
   createRoomsSchema,
@@ -29,7 +29,7 @@ import {
   type GetRoomByIdInput,
   type GetAvailableRoomsInput,
   type GetOccupiedRoomsInput,
-} from '../schemas/room.schemas';
+} from '../schemas/room.schemas'
 
 /**
  * Get all rooms ordered by RoomID
@@ -48,14 +48,14 @@ import {
  */
 export async function getRoomsAction() {
   try {
-    const rooms = await roomRepository.findAll();
-    return { success: true as const, data: rooms };
+    const rooms = await roomRepository.findAll()
+    return { success: true as const, data: rooms }
   } catch (error) {
-    console.error("[RoomActions] getRoomsAction failed:", error);
+    console.error("[RoomActions] getRoomsAction failed:", error)
     return {
       success: false as const,
       error: 'ไม่สามารถดึงข้อมูลห้องได้',
-    };
+    }
   }
 }
 
@@ -76,10 +76,10 @@ export async function getRoomsAction() {
 export const getRoomByIdAction = createAction(
   getRoomByIdSchema,
   async (input: GetRoomByIdInput) => {
-    const room = await roomRepository.findById(input.RoomID);
-    return room;
+    const room = await roomRepository.findById(input.RoomID)
+    return room
   }
-);
+)
 
 /**
  * Get available rooms for a specific timeslot
@@ -100,10 +100,10 @@ export const getRoomByIdAction = createAction(
 export const getAvailableRoomsAction = createAction(
   getAvailableRoomsSchema,
   async (input: GetAvailableRoomsInput) => {
-    const availableRooms = await roomRepository.findAvailableForTimeslot(input.TimeslotID);
-    return availableRooms;
+    const availableRooms = await roomRepository.findAvailableForTimeslot(input.TimeslotID)
+    return availableRooms
   }
-);
+)
 
 /**
  * Get occupied room IDs for a specific timeslot
@@ -125,10 +125,10 @@ export const getAvailableRoomsAction = createAction(
 export const getOccupiedRoomsAction = createAction(
   getOccupiedRoomsSchema,
   async (input: GetOccupiedRoomsInput) => {
-    const occupiedRoomIDs = await roomRepository.findOccupiedForTimeslot(input.TimeslotID);
-    return occupiedRoomIDs;
+    const occupiedRoomIDs = await roomRepository.findOccupiedForTimeslot(input.TimeslotID)
+    return occupiedRoomIDs
   }
-);
+)
 
 /**
  * Create a single room
@@ -158,22 +158,22 @@ export const createRoomAction = createAction(
   createRoomSchema,
   async (input: CreateRoomInput) => {
     // 1. Check for duplicate room
-    const existingRoom = await roomRepository.findDuplicate(input);
-    const duplicateCheck = checkDuplicateRoom(input, existingRoom);
-    
+    const existingRoom = await roomRepository.findDuplicate(input)
+    const duplicateCheck = checkDuplicateRoom(input, existingRoom)
+
     if (duplicateCheck.isDuplicate) {
-      throw new Error(duplicateCheck.reason);
+      throw new Error(duplicateCheck.reason)
     }
 
     // 2. Create room
-    const newRoom = await roomRepository.create(input);
+    const newRoom = await roomRepository.create(input)
 
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
-    return newRoom;
+    return newRoom
   }
-);
+)
 
 /**
  * Create multiple rooms (bulk operation)
@@ -202,25 +202,25 @@ export const createRoomsAction = createAction(
     const createdRooms = await Promise.all(
       input.map(async (roomData) => {
         // 1. Check for duplicate room
-        const existingRoom = await roomRepository.findDuplicate(roomData);
-        const duplicateCheck = checkDuplicateRoom(roomData, existingRoom);
-        
+        const existingRoom = await roomRepository.findDuplicate(roomData)
+        const duplicateCheck = checkDuplicateRoom(roomData, existingRoom)
+
         if (duplicateCheck.isDuplicate) {
-          throw new Error(duplicateCheck.reason);
+          throw new Error(duplicateCheck.reason)
         }
 
         // 2. Create room
-        return await roomRepository.create(roomData);
+        return await roomRepository.create(roomData)
       })
-    );
+    )
 
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
     // Return array of IDs
-    return createdRooms.map((r) => r.RoomID);
+    return createdRooms.map((r: any) => r.RoomID)
   }
-);
+)
 
 /**
  * Update a single room
@@ -249,10 +249,10 @@ export const updateRoomAction = createAction(
   updateRoomSchema,
   async (input: UpdateRoomInput) => {
     // 1. Check if room exists
-    const existingRoom = await roomRepository.findById(input.RoomID);
-    
+    const existingRoom = await roomRepository.findById(input.RoomID)
+
     if (!existingRoom) {
-      throw new Error('ไม่พบข้อมูลห้อง กรุณาตรวจสอบอีกครั้ง');
+      throw new Error('ไม่พบข้อมูลห้อง กรุณาตรวจสอบอีกครั้ง')
     }
 
     // 2. Update room
@@ -260,14 +260,14 @@ export const updateRoomAction = createAction(
       RoomName: input.RoomName,
       Building: input.Building,
       Floor: input.Floor,
-    });
+    })
 
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
-    return updatedRoom;
+    return updatedRoom
   }
-);
+)
 
 /**
  * Update multiple rooms (bulk operation)
@@ -289,10 +289,10 @@ export const updateRoomsAction = createAction(
     const updatedRooms = await Promise.all(
       input.map(async (roomData) => {
         // 1. Check if room exists
-        const existingRoom = await roomRepository.findById(roomData.RoomID);
-        
+        const existingRoom = await roomRepository.findById(roomData.RoomID)
+
         if (!existingRoom) {
-          throw new Error('ไม่พบข้อมูลห้อง กรุณาตรวจสอบอีกครั้ง');
+          throw new Error('ไม่พบข้อมูลห้อง กรุณาตรวจสอบอีกครั้ง')
         }
 
         // 2. Update room
@@ -300,17 +300,17 @@ export const updateRoomsAction = createAction(
           RoomName: roomData.RoomName,
           Building: roomData.Building,
           Floor: roomData.Floor,
-        });
+        })
       })
-    );
+    )
 
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
     // Return array of IDs
-    return updatedRooms.map((r) => r.RoomID);
+    return updatedRooms.map((r: any) => r.RoomID)
   }
-);
+)
 
 /**
  * Delete multiple rooms
@@ -329,11 +329,11 @@ export const updateRoomsAction = createAction(
 export const deleteRoomsAction = createAction(
   deleteRoomsSchema,
   async (input: DeleteRoomsInput) => {
-    const result = await roomRepository.deleteMany(input);
+    const result = await roomRepository.deleteMany(input)
 
     // Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
-    return result;
+    return result
   }
-);
+)

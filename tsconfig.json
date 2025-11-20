@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2023",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": false,
     "skipLibCheck": true,
     "strict": true,
@@ -19,12 +23,24 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*", "./public/*"],
-      "@/features/*": ["./src/features/*"],
-      "@/shared/*": ["./src/shared/*"],
-      "@/app/*": ["./src/app/*"],
-      "@/prisma/generated/client": ["prisma/generated/client"],
+      "@/*": [
+        "./src/*",
+        "./public/*"
+      ],
+      "@/features/*": [
+        "./src/features/*"
+      ],
+      "@/shared/*": [
+        "./src/shared/*"
+      ],
+      "@/app/*": [
+        "./src/app/*"
+      ],
+      "@/prisma/generated/client": [
+        "prisma/generated/client"
+      ],
     },
     "forceConsistentCasingInFileNames": true,
     // TypeScript strict mode enabled - incrementally enable additional checks

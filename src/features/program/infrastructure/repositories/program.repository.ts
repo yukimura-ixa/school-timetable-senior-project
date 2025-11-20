@@ -7,13 +7,13 @@
  * @module program.repository
  */
 
-import prisma from '@/lib/prisma';
-import type { 
-  CreateProgramInput, 
+import prisma from '@/lib/prisma'
+import type {
+  CreateProgramInput,
   UpdateProgramInput,
-  AssignSubjectsToProgramInput 
-} from '../../application/schemas/program.schemas';
-import type { ProgramTrack } from '@/prisma/generated/client';
+  AssignSubjectsToProgramInput
+} from '../../application/schemas/program.schemas'
+import type { ProgramTrack } from '@/prisma/generated/client'
 
 export const programRepository = {
   /**
@@ -44,16 +44,16 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
   },
 
   /**
    * Find programs by Year (optional), Track (optional), and IsActive
    */
   async findByFilters(filters: {
-    Year?: number;
-    Track?: ProgramTrack;
-    IsActive?: boolean;
+    Year?: number
+    Track?: ProgramTrack
+    IsActive?: boolean
   }) {
     return prisma.program.findMany({
       where: {
@@ -80,7 +80,7 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
   },
 
   /**
@@ -106,7 +106,7 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
   },
 
   /**
@@ -117,7 +117,7 @@ export const programRepository = {
       where: {
         ProgramCode: programCode,
       },
-    });
+    })
   },
 
   /**
@@ -129,7 +129,7 @@ export const programRepository = {
         Year: year,
         Track: track,
       },
-    });
+    })
   },
 
   /**
@@ -146,25 +146,25 @@ export const programRepository = {
               include: {
                 subject: semester && academicYear
                   ? {
-                      include: {
-                        teachers_responsibility: {
-                          where: {
-                            GradeID: gradeId,
-                            Semester: semester as 'SEMESTER_1' | 'SEMESTER_2',
-                            AcademicYear: academicYear,
-                          },
-                          include: {
-                            teacher: {
-                              select: {
-                                Prefix: true,
-                                Firstname: true,
-                                Lastname: true,
-                              },
+                    include: {
+                      teachers_responsibility: {
+                        where: {
+                          GradeID: gradeId,
+                          Semester: semester as 'SEMESTER_1' | 'SEMESTER_2',
+                          AcademicYear: academicYear,
+                        },
+                        include: {
+                          teacher: {
+                            select: {
+                              Prefix: true,
+                              Firstname: true,
+                              Lastname: true,
                             },
                           },
                         },
                       },
-                    }
+                    },
+                  }
                   : true,
               },
               orderBy: {
@@ -174,29 +174,29 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
 
     if (!gradelevel?.program) {
-      return null;
+      return null
     }
 
     // Transform program_subject to subjects array for easier consumption
     const program = {
       ...gradelevel.program,
-      subjects: gradelevel.program.program_subject.map(ps => ({
+      subjects: gradelevel.program.program_subject.map((ps: any) => ({
         ...ps.subject,
         MinCredits: ps.MinCredits,
         MaxCredits: ps.MaxCredits,
         Category: ps.Category,
         IsMandatory: ps.IsMandatory,
         SortOrder: ps.SortOrder,
-        teachers_responsibility: 'teachers_responsibility' in ps.subject 
-          ? ps.subject.teachers_responsibility 
+        teachers_responsibility: 'teachers_responsibility' in ps.subject
+          ? ps.subject.teachers_responsibility
           : [],
       })),
-    };
+    }
 
-    return program;
+    return program
   },
 
   /**
@@ -221,7 +221,7 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
   },
 
   /**
@@ -248,7 +248,7 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
   },
 
   /**
@@ -256,12 +256,12 @@ export const programRepository = {
    * Uses transaction to ensure atomicity
    */
   async assignSubjects(data: AssignSubjectsToProgramInput) {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
       await tx.program_subject.deleteMany({
         where: {
           ProgramID: data.ProgramID,
         },
-      });
+      })
 
       await tx.program_subject.createMany({
         data: data.subjects.map((subject, index) => ({
@@ -273,7 +273,7 @@ export const programRepository = {
           MaxCredits: subject.MaxCredits,
           SortOrder: subject.SortOrder ?? index + 1,
         })),
-      });
+      })
 
       return tx.program.findUnique({
         where: {
@@ -290,8 +290,8 @@ export const programRepository = {
             },
           },
         },
-      });
-    });
+      })
+    })
   },
 
   /**
@@ -308,7 +308,7 @@ export const programRepository = {
       orderBy: {
         SortOrder: 'asc',
       },
-    });
+    })
   },
 
   /**
@@ -321,16 +321,16 @@ export const programRepository = {
       where: {
         ProgramID: programId,
       },
-    });
+    })
   },
 
   /**
    * Count programs by filters (for pagination)
    */
   async count(filters: {
-    Year?: number;
-    Track?: ProgramTrack;
-    IsActive?: boolean;
+    Year?: number
+    Track?: ProgramTrack
+    IsActive?: boolean
   }) {
     return prisma.program.count({
       where: {
@@ -338,7 +338,7 @@ export const programRepository = {
         ...(filters.Track && { Track: filters.Track }),
         ...(filters.IsActive !== undefined && { IsActive: filters.IsActive }),
       },
-    });
+    })
   },
 
   /**
@@ -366,16 +366,16 @@ export const programRepository = {
           },
         },
       },
-    });
+    })
 
-    const grouped: Record<number, typeof programs> = {};
+    const grouped: Record<number, typeof programs> = {}
     for (const program of programs) {
       if (!grouped[program.Year]) {
-        grouped[program.Year] = [];
+        grouped[program.Year] = []
       }
-      grouped[program.Year]?.push(program);
+      grouped[program.Year]?.push(program)
     }
 
-    return grouped;
+    return grouped
   },
-};
+}

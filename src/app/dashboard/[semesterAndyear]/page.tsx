@@ -12,7 +12,7 @@ import {
 } from "@/features/dashboard/domain/services/dashboard-stats.service";
 import { getPublishReadiness } from "@/features/config/application/services/publish-readiness-query.service";
 import type { semester } from '@/prisma/generated/client';;
-import { PublishReadinessCard, ReadinessIssues } from "../../_components/PublishReadiness";
+import { PublishReadinessCard, ReadinessIssues } from "../_components/PublishReadiness";
 
 export const metadata: Metadata = {
   title: "Dashboard - ภาพรวมภาคเรียน",

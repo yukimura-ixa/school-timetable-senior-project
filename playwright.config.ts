@@ -1,12 +1,16 @@
-import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
+import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+// ES module equivalent of __dirname
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Load test environment variables
-dotenv.config({ path: path.resolve(__dirname, '.env.test') });
+dotenv.config({ path: path.resolve(__dirname, '.env.test') })
 
 const junitOutput =
-  process.env.PLAYWRIGHT_JUNIT_OUTPUT_FILE ?? 'test-results/results.xml';
+  process.env.PLAYWRIGHT_JUNIT_OUTPUT_FILE ?? 'test-results/results.xml'
 
 /**
  * E2E Test Configuration for School Timetable System
@@ -18,17 +22,17 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 4 : undefined, // ✅ 4 parallel workers in CI, all cores locally
-  
+
   /* Global setup/teardown - manages test database lifecycle */
-  globalSetup: require.resolve('./playwright.global-setup.ts'),
-  globalTeardown: require.resolve('./playwright.global-teardown.ts'),
+  globalSetup: path.resolve(__dirname, 'playwright.global-setup.ts'),
+  globalTeardown: path.resolve(__dirname, 'playwright.global-teardown.ts'),
 
   reporter: [
     ['list'],
     ['json', { outputFile: 'test-results/results.json' }],
     ['junit', { outputFile: junitOutput }],
   ],
-  
+
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
@@ -72,4 +76,4 @@ export default defineConfig({
 
   /* Test output directories */
   outputDir: 'test-results/artifacts',
-});
+})

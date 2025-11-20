@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { SubjectCategory } from '@/prisma/generated/client';;
+import { useState, useEffect } from "react"
+import { SubjectCategory, type subject } from '@/prisma/generated/client'
 import { getSubjectsAction, deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 import {
   Button,
@@ -25,7 +25,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ActivityModal from "./ActivityModal";
 
 export default function ActivityTable() {
-  const [activities, setActivities] = React.useState<
+  const [activities, setActivities] = useState<
     Array<{
       SubjectCode: string;
       SubjectName: string;
@@ -33,7 +33,7 @@ export default function ActivityTable() {
       IsGraded: boolean;
     }>
   >([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editActivity, setEditActivity] = useState<{
     SubjectCode?: string;
@@ -49,8 +49,8 @@ export default function ActivityTable() {
     const res = await getSubjectsAction();
     setActivities(
       (res.data ?? [])
-        .filter((s) => s.Category === SubjectCategory.ACTIVITY)
-        .map((s) => ({
+        .filter((s: subject) => s.Category === SubjectCategory.ACTIVITY)
+        .map((s: subject) => ({
           SubjectCode: s.SubjectCode,
           SubjectName: s.SubjectName,
           ActivityType: s.ActivityType ?? null,
@@ -60,7 +60,7 @@ export default function ActivityTable() {
     setLoading(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     void fetchActivities();
   }, []);
 

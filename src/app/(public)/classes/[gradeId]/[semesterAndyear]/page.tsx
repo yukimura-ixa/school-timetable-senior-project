@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { semester as SemesterEnum } from '@/prisma/generated/client';;
+import { semester as SemesterEnum, type timeslot } from '@/prisma/generated/client';;
 import prisma from "@/lib/prisma";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 
@@ -84,8 +84,8 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   };
 
   const slotNumbers = Array.from(
-    new Set(timeslots.map((t) => parseSlotNumber(t.TimeslotID)))
-  ).sort((a, b) => a - b);
+    new Set<number>(timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)))
+  ).sort((a: number, b: number) => a - b);
 
   // Build schedule lookup by timeslot ID
   const scheduleLookup = new Map<string, typeof schedules[0]>();
@@ -95,7 +95,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
 
   // Build time range for each slot number
   const slotTimeRanges = new Map<number, { start: string; end: string }>();
-  timeslots.forEach((t) => {
+  timeslots.forEach((t: timeslot) => {
     const slotNum = parseSlotNumber(t.TimeslotID);
     if (!slotTimeRanges.has(slotNum)) {
       const startTime = new Date(t.StartTime);
@@ -111,9 +111,9 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   const gridData: Record<string, Map<number, typeof schedules[0] | null>> = {};
   dayOrder.forEach((day) => {
     gridData[day] = new Map();
-    slotNumbers.forEach((slotNum) => {
+    slotNumbers.forEach((slotNum: number) => {
       const timeslotForDaySlot = timeslots.find(
-        (t) => t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum
+        (t: timeslot) => t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum
       );
       if (timeslotForDaySlot) {
         gridData[day]!.set(slotNum, scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null);
@@ -168,7 +168,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
                 </tr>
               </thead>
               <tbody>
-                {slotNumbers.map((slotNum) => {
+                {slotNumbers.map((slotNum: number) => {
                   const timeRange = slotTimeRanges.get(slotNum);
                   return (
                     <tr key={slotNum} className="hover:bg-gray-50">

@@ -159,10 +159,13 @@ async function main() {
         // Start database
         const started = await startDatabase();
         if (!started) {
-          log('❌ Cannot proceed without database\n', 'red');
-          process.exit(1);
+          log('⚠️  Failed to start Docker database', 'yellow');
+          log('ℹ️  Attempting to use local PostgreSQL instead...', 'gray');
+          log('   Make sure local PostgreSQL is running with test_timetable database\n', 'gray');
+          // Don't exit - allow tests to try local database
+        } else {
+          dbWasStarted = true;
         }
-        dbWasStarted = true;
       }
     } else {
       log('ℹ️  Automatic database management disabled', 'gray');

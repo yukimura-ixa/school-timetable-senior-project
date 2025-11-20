@@ -7,14 +7,14 @@
  * @module teacher.actions
  */
 
-'use server';
+'use server'
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import { teacherRepository } from '../../infrastructure/repositories/teacher.repository';
+import { createAction } from '@/shared/lib/action-wrapper'
+import { teacherRepository } from '../../infrastructure/repositories/teacher.repository'
 import {
   checkDuplicateTeacher,
   checkEmailConflict,
-} from '../../domain/services/teacher-validation.service';
+} from '../../domain/services/teacher-validation.service'
 import {
   createTeacherSchema,
   createTeachersSchema,
@@ -28,7 +28,7 @@ import {
   type UpdateTeachersInput,
   type DeleteTeachersInput,
   type GetTeacherByIdInput,
-} from '../schemas/teacher.schemas';
+} from '../schemas/teacher.schemas'
 
 /**
  * Get all teachers ordered by firstname
@@ -47,14 +47,14 @@ import {
  */
 export async function getTeachersAction() {
   try {
-    const teachers = await teacherRepository.findAll();
-    return { success: true as const, data: teachers };
+    const teachers = await teacherRepository.findAll()
+    return { success: true as const, data: teachers }
   } catch (error) {
-    console.error("[TeacherActions] getTeachersAction failed:", error);
+    console.error("[TeacherActions] getTeachersAction failed:", error)
     return {
       success: false as const,
       error: 'ไม่สามารถดึงข้อมูลครูได้',
-    };
+    }
   }
 }
 
@@ -75,10 +75,10 @@ export async function getTeachersAction() {
 export const getTeacherByIdAction = createAction(
   getTeacherByIdSchema,
   async (input: GetTeacherByIdInput) => {
-    const teacher = await teacherRepository.findById(input.TeacherID);
-    return teacher;
+    const teacher = await teacherRepository.findById(input.TeacherID)
+    return teacher
   }
-);
+)
 
 /**
  * Create a single teacher
@@ -111,30 +111,30 @@ export const createTeacherAction = createAction(
   createTeacherSchema,
   async (input: CreateTeacherInput) => {
     // 1. Check for duplicate teacher
-    const existingTeacher = await teacherRepository.findDuplicate(input);
-    const duplicateCheck = checkDuplicateTeacher(input, existingTeacher);
-    
+    const existingTeacher = await teacherRepository.findDuplicate(input)
+    const duplicateCheck = checkDuplicateTeacher(input, existingTeacher)
+
     if (duplicateCheck.isDuplicate) {
-      throw new Error(duplicateCheck.reason);
+      throw new Error(duplicateCheck.reason)
     }
 
     // 2. Check for email conflict
-    const teacherWithEmail = await teacherRepository.findByEmail(input.Email);
-    const emailCheck = checkEmailConflict(input.Email, teacherWithEmail);
-    
+    const teacherWithEmail = await teacherRepository.findByEmail(input.Email)
+    const emailCheck = checkEmailConflict(input.Email, teacherWithEmail)
+
     if (emailCheck.isDuplicate) {
-      throw new Error(emailCheck.reason);
+      throw new Error(emailCheck.reason)
     }
 
     // 3. Create teacher
-    const newTeacher = await teacherRepository.create(input);
+    const newTeacher = await teacherRepository.create(input)
 
     // 4. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('teachers');
 
-    return newTeacher;
+    return newTeacher
   }
-);
+)
 
 /**
  * Create multiple teachers (bulk operation)
@@ -164,33 +164,33 @@ export const createTeachersAction = createAction(
     const createdTeachers = await Promise.all(
       input.map(async (teacherData) => {
         // 1. Check for duplicate teacher
-        const existingTeacher = await teacherRepository.findDuplicate(teacherData);
-        const duplicateCheck = checkDuplicateTeacher(teacherData, existingTeacher);
-        
+        const existingTeacher = await teacherRepository.findDuplicate(teacherData)
+        const duplicateCheck = checkDuplicateTeacher(teacherData, existingTeacher)
+
         if (duplicateCheck.isDuplicate) {
-          throw new Error(duplicateCheck.reason);
+          throw new Error(duplicateCheck.reason)
         }
 
         // 2. Check for email conflict
-        const teacherWithEmail = await teacherRepository.findByEmail(teacherData.Email);
-        const emailCheck = checkEmailConflict(teacherData.Email, teacherWithEmail);
-        
+        const teacherWithEmail = await teacherRepository.findByEmail(teacherData.Email)
+        const emailCheck = checkEmailConflict(teacherData.Email, teacherWithEmail)
+
         if (emailCheck.isDuplicate) {
-          throw new Error(emailCheck.reason);
+          throw new Error(emailCheck.reason)
         }
 
         // 3. Create teacher
-        return await teacherRepository.create(teacherData);
+        return await teacherRepository.create(teacherData)
       })
-    );
+    )
 
     // 4. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('teachers');
 
     // Return array of IDs
-    return createdTeachers.map((t) => t.TeacherID);
+    return createdTeachers.map((t: any) => t.TeacherID)
   }
-);
+)
 
 /**
  * Update a single teacher
@@ -222,22 +222,22 @@ export const updateTeacherAction = createAction(
   updateTeacherSchema,
   async (input: UpdateTeacherInput) => {
     // 1. Check if teacher exists
-    const existingTeacher = await teacherRepository.findById(input.TeacherID);
-    
+    const existingTeacher = await teacherRepository.findById(input.TeacherID)
+
     if (!existingTeacher) {
-      throw new Error('ไม่พบข้อมูลของครูท่านนี้');
+      throw new Error('ไม่พบข้อมูลของครูท่านนี้')
     }
 
     // 2. Check for email conflict (excluding current teacher)
-    const teacherWithEmail = await teacherRepository.findByEmail(input.Email);
+    const teacherWithEmail = await teacherRepository.findByEmail(input.Email)
     const emailCheck = checkEmailConflict(
       input.Email,
       teacherWithEmail,
       input.TeacherID
-    );
-    
+    )
+
     if (emailCheck.isDuplicate) {
-      throw new Error(emailCheck.reason);
+      throw new Error(emailCheck.reason)
     }
 
     // 3. Update teacher
@@ -247,14 +247,14 @@ export const updateTeacherAction = createAction(
       Lastname: input.Lastname,
       Email: input.Email,
       Department: input.Department,
-    });
+    })
 
     // 4. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('teachers');
 
-    return updatedTeacher;
+    return updatedTeacher
   }
-);
+)
 
 /**
  * Update multiple teachers (bulk operation)
@@ -276,22 +276,22 @@ export const updateTeachersAction = createAction(
     const updatedTeachers = await Promise.all(
       input.map(async (teacherData) => {
         // 1. Check if teacher exists
-        const existingTeacher = await teacherRepository.findById(teacherData.TeacherID);
-        
+        const existingTeacher = await teacherRepository.findById(teacherData.TeacherID)
+
         if (!existingTeacher) {
-          throw new Error('ไม่พบข้อมูลของครูท่านนี้');
+          throw new Error('ไม่พบข้อมูลของครูท่านนี้')
         }
 
         // 2. Check for email conflict
-        const teacherWithEmail = await teacherRepository.findByEmail(teacherData.Email);
+        const teacherWithEmail = await teacherRepository.findByEmail(teacherData.Email)
         const emailCheck = checkEmailConflict(
           teacherData.Email,
           teacherWithEmail,
           teacherData.TeacherID
-        );
-        
+        )
+
         if (emailCheck.isDuplicate) {
-          throw new Error(emailCheck.reason);
+          throw new Error(emailCheck.reason)
         }
 
         // 3. Update teacher
@@ -301,17 +301,17 @@ export const updateTeachersAction = createAction(
           Lastname: teacherData.Lastname,
           Email: teacherData.Email,
           Department: teacherData.Department,
-        });
+        })
       })
-    );
+    )
 
     // 4. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('teachers');
 
     // Return array of IDs
-    return updatedTeachers.map((t) => t.TeacherID);
+    return updatedTeachers.map((t: any) => t.TeacherID)
   }
-);
+)
 
 /**
  * Delete multiple teachers
@@ -330,11 +330,11 @@ export const updateTeachersAction = createAction(
 export const deleteTeachersAction = createAction(
   deleteTeachersSchema,
   async (input: DeleteTeachersInput) => {
-    const result = await teacherRepository.deleteMany(input);
+    const result = await teacherRepository.deleteMany(input)
 
     // Revalidate cache (optional - for future cache optimization)
     // revalidateTag('teachers');
 
-    return result;
+    return result
   }
-);
+)

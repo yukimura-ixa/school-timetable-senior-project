@@ -7,8 +7,8 @@
  * @module gradelevel-validation.service
  */
 
-import { gradeLevelRepository } from '../../infrastructure/repositories/gradelevel.repository';
-import type { CreateGradeLevelInput } from '../../application/schemas/gradelevel.schemas';
+import { gradeLevelRepository } from '../../infrastructure/repositories/gradelevel.repository'
+import type { CreateGradeLevelInput } from '../../application/schemas/gradelevel.schemas'
 
 /**
  * Generate GradeID from Year and Number
@@ -16,7 +16,7 @@ import type { CreateGradeLevelInput } from '../../application/schemas/gradelevel
  * Example: Year=1, Number=1 => "101"
  */
 export function generateGradeId(year: number, number: number): string {
-  return `${year}0${number}`;
+  return `${year}0${number}`
 }
 
 /**
@@ -27,13 +27,13 @@ export async function validateNoDuplicateGradeLevel(
   year: number,
   number: number
 ): Promise<string | null> {
-  const existing = await gradeLevelRepository.findDuplicate(year, number);
-  
+  const existing = await gradeLevelRepository.findDuplicate(year, number)
+
   if (existing) {
-    return 'มีข้อมูลชั้นปีนี้อยู่แล้ว กรุณาตรวจสอบอีกครั้ง';
+    return 'มีข้อมูลชั้นปีนี้อยู่แล้ว กรุณาตรวจสอบอีกครั้ง'
   }
-  
-  return null;
+
+  return null
 }
 
 /**
@@ -44,40 +44,40 @@ export async function validateNoDuplicateGradeLevel(
 export async function validateBulkGradeLevels(
   gradelevels: CreateGradeLevelInput[]
 ): Promise<string[]> {
-  const errors: string[] = [];
-  const seen = new Map<string, number>();
+  const errors: string[] = []
+  const seen = new Map<string, number>()
 
   // Check for internal duplicates
   for (let i = 0; i < gradelevels.length; i++) {
-    const gradelevel = gradelevels[i];
-    if (!gradelevel) continue;
-    
-    const { Year, Number } = gradelevel;
-    const key = `${Year}-${Number}`;
+    const gradelevel = gradelevels[i]
+    if (!gradelevel) continue
+
+    const { Year, Number } = gradelevel
+    const key = `${Year}-${Number}`
 
     if (seen.has(key)) {
       errors.push(
         `รายการที่ ${i + 1}: ข้อมูลซ้ำกับรายการที่ ${seen.get(key)! + 1} (ปี ${Year} ระดับ ${Number})`
-      );
+      )
     } else {
-      seen.set(key, i);
+      seen.set(key, i)
     }
   }
 
   // Check for database duplicates
   for (let i = 0; i < gradelevels.length; i++) {
-    const gradelevel = gradelevels[i];
-    if (!gradelevel) continue;
-    
-    const { Year, Number } = gradelevel;
-    const dbError = await validateNoDuplicateGradeLevel(Year, Number);
-    
+    const gradelevel = gradelevels[i]
+    if (!gradelevel) continue
+
+    const { Year, Number } = gradelevel
+    const dbError = await validateNoDuplicateGradeLevel(Year, Number)
+
     if (dbError) {
-      errors.push(`รายการที่ ${i + 1}: ${dbError}`);
+      errors.push(`รายการที่ ${i + 1}: ${dbError}`)
     }
   }
 
-  return errors;
+  return errors
 }
 
 /**
@@ -101,33 +101,33 @@ export async function findGradeLevelsForLock(
     academicYear,
     semester,
     teacherIds
-  );
+  )
 
   // Group by GradeID and count unique teachers
-  const gradeTeacherMap = new Map<string, Set<number>>();
+  const gradeTeacherMap = new Map<string, Set<number>>()
 
   for (const resp of responsibilities) {
     if (!gradeTeacherMap.has(resp.GradeID)) {
-      gradeTeacherMap.set(resp.GradeID, new Set());
+      gradeTeacherMap.set(resp.GradeID, new Set())
     }
-    gradeTeacherMap.get(resp.GradeID)!.add(resp.TeacherID);
+    gradeTeacherMap.get(resp.GradeID)!.add(resp.TeacherID)
   }
 
   // Filter gradelevels with at least 2 teachers
   const gradeIdsWithMultipleTeachers = Array.from(gradeTeacherMap.entries())
     .filter(([, teachers]) => teachers.size >= 2)
-    .map(([gradeId]) => gradeId);
+    .map(([gradeId]) => gradeId)
 
   if (gradeIdsWithMultipleTeachers.length === 0) {
-    return [];
+    return []
   }
 
   // Fetch the actual gradelevel records
-  const gradelevels = await gradeLevelRepository.findByIds(gradeIdsWithMultipleTeachers);
+  const gradelevels = await gradeLevelRepository.findByIds(gradeIdsWithMultipleTeachers)
 
-  return gradelevels.map(g => ({
+  return gradelevels.map((g: any) => ({
     GradeID: g.GradeID,
     Year: g.Year,
     Number: g.Number,
-  }));
+  }))
 }

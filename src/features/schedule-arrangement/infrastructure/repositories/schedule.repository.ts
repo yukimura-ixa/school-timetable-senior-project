@@ -12,9 +12,9 @@
  * @module schedule.repository
  */
 
-import prisma from '@/lib/prisma';
-import { semester } from '@/prisma/generated/client';
-import type { ExistingSchedule, TeacherResponsibility } from '../../domain/models/conflict.model';
+import prisma from '@/lib/prisma'
+import { semester } from '@/prisma/generated/client'
+import type { ExistingSchedule, TeacherResponsibility } from '../../domain/models/conflict.model'
 
 /**
  * Repository for schedule-related database operations
@@ -57,13 +57,13 @@ export class ScheduleRepository {
           },
         },
       },
-    });
+    })
 
     // Transform Prisma types to domain model
-    return schedules.map((schedule) => {
+    return schedules.map((schedule: any) => {
       // Get the first teacher from teachers_responsibility (if any)
-      const firstTeacher = schedule.teachers_responsibility[0];
-      const teacher = firstTeacher?.teacher;
+      const firstTeacher = schedule.teachers_responsibility[0]
+      const teacher = firstTeacher?.teacher
 
       return {
         classId: schedule.ClassID,
@@ -78,8 +78,8 @@ export class ScheduleRepository {
         teacherName: teacher
           ? `${teacher.Prefix} ${teacher.Firstname} ${teacher.Lastname}`
           : undefined,
-      };
-    });
+      }
+    })
   }
 
   /**
@@ -105,9 +105,9 @@ export class ScheduleRepository {
         AcademicYear: academicYear,
         Semester: semesterValue as semester,
       },
-    });
+    })
 
-    return responsibilities.map((resp) => ({
+    return responsibilities.map((resp: any) => ({
       respId: resp.RespID,
       teacherId: resp.TeacherID,
       gradeId: resp.GradeID,
@@ -115,7 +115,7 @@ export class ScheduleRepository {
       academicYear: resp.AcademicYear,
       semester: resp.Semester,
       teachHour: resp.TeachHour,
-    }));
+    }))
   }
 
   /**
@@ -137,12 +137,12 @@ export class ScheduleRepository {
    * ```
    */
   async createSchedule(data: {
-    ClassID: string;
-    TimeslotID: string;
-    SubjectCode: string;
-    RoomID?: number | null;
-    GradeID: string;
-    IsLocked?: boolean;
+    ClassID: string
+    TimeslotID: string
+    SubjectCode: string
+    RoomID?: number | null
+    GradeID: string
+    IsLocked?: boolean
   }) {
     return await prisma.class_schedule.create({
       data,
@@ -152,7 +152,7 @@ export class ScheduleRepository {
         gradelevel: true,
         timeslot: true,
       },
-    });
+    })
   }
 
   /**
@@ -173,11 +173,11 @@ export class ScheduleRepository {
   async updateSchedule(
     classId: string,
     data: {
-      TimeslotID?: string;
-      SubjectCode?: string;
-      RoomID?: number | null;
-      GradeID?: string;
-      IsLocked?: boolean;
+      TimeslotID?: string
+      SubjectCode?: string
+      RoomID?: number | null
+      GradeID?: string
+      IsLocked?: boolean
     }
   ) {
     return await prisma.class_schedule.update({
@@ -189,7 +189,7 @@ export class ScheduleRepository {
         gradelevel: true,
         timeslot: true,
       },
-    });
+    })
   }
 
   /**
@@ -206,7 +206,7 @@ export class ScheduleRepository {
   async deleteSchedule(classId: string) {
     return await prisma.class_schedule.delete({
       where: { ClassID: classId },
-    });
+    })
   }
 
   /**
@@ -229,7 +229,7 @@ export class ScheduleRepository {
           },
         },
       },
-    });
+    })
   }
 
   /**
@@ -248,7 +248,7 @@ export class ScheduleRepository {
           connect: { ClassID: classId },
         },
       },
-    });
+    })
   }
 
   /**
@@ -265,11 +265,11 @@ export class ScheduleRepository {
           disconnect: { ClassID: classId },
         },
       },
-    });
+    })
   }
 }
 
 /**
  * Singleton instance for use across the application
  */
-export const scheduleRepository = new ScheduleRepository();
+export const scheduleRepository = new ScheduleRepository()

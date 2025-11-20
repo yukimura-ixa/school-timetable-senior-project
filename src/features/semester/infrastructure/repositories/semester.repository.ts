@@ -3,28 +3,28 @@
  * Data access layer for semester/table_config operations
  */
 
-import prisma from "@/lib/prisma";
-import { withPrismaTransaction, type TransactionClient } from "@/lib/prisma-transaction";
+import prisma from "@/lib/prisma"
+import { withPrismaTransaction, type TransactionClient } from "@/lib/prisma-transaction"
 import type { Prisma, semester } from '@/prisma/generated/client';;
 import type {
   SemesterFilter,
   SemesterStatus,
-} from "../../application/schemas/semester.schemas";
+} from "../../application/schemas/semester.schemas"
 
 export class SemesterRepository {
   /**
    * Get all semesters with optional filtering
    */
   async findMany(filter?: SemesterFilter) {
-    const where: Prisma.table_configWhereInput = {};
+    const where: Prisma.table_configWhereInput = {}
 
     // Apply filters
     if (filter?.status) {
-      where.status = filter.status;
+      where.status = filter.status
     }
 
     if (filter?.year) {
-      where.AcademicYear = filter.year;
+      where.AcademicYear = filter.year
     }
 
     if (filter?.search) {
@@ -32,36 +32,36 @@ export class SemesterRepository {
       where.OR = [
         { ConfigID: { contains: filter.search, mode: "insensitive" } },
         { AcademicYear: { equals: Number.parseInt(filter.search) || 0 } },
-      ];
+      ]
     }
 
     if (!filter?.showArchived) {
-      where.status = { not: "ARCHIVED" };
+      where.status = { not: "ARCHIVED" }
     }
 
     // Build orderBy
-    const orderBy: Prisma.table_configOrderByWithRelationInput = {};
+    const orderBy: Prisma.table_configOrderByWithRelationInput = {}
     if (filter?.sortBy === "recent") {
-      orderBy.lastAccessedAt = filter.sortOrder || "desc";
+      orderBy.lastAccessedAt = filter.sortOrder || "desc"
     } else if (filter?.sortBy === "name") {
-      orderBy.ConfigID = filter.sortOrder || "asc";
+      orderBy.ConfigID = filter.sortOrder || "asc"
     } else if (filter?.sortBy === "status") {
-      orderBy.status = filter.sortOrder || "asc";
+      orderBy.status = filter.sortOrder || "asc"
     } else if (filter?.sortBy === "year") {
-      orderBy.AcademicYear = filter.sortOrder || "desc";
+      orderBy.AcademicYear = filter.sortOrder || "desc"
     } else if (filter?.sortBy === "completeness") {
-      orderBy.configCompleteness = filter.sortOrder || "desc";
+      orderBy.configCompleteness = filter.sortOrder || "desc"
     } else {
       // Default: most recent first
-      orderBy.updatedAt = "desc";
+      orderBy.updatedAt = "desc"
     }
 
     const semesters = await prisma.table_config.findMany({
       where,
       orderBy,
-    });
+    })
 
-    return semesters;
+    return semesters
   }
 
   /**
@@ -76,7 +76,7 @@ export class SemesterRepository {
       },
       orderBy: { lastAccessedAt: "desc" },
       take: limit,
-    });
+    })
   }
 
   /**
@@ -89,7 +89,7 @@ export class SemesterRepository {
         status: { not: "ARCHIVED" },
       },
       orderBy: { updatedAt: "desc" },
-    });
+    })
   }
 
   /**
@@ -98,32 +98,32 @@ export class SemesterRepository {
   async findById(configId: string) {
     return prisma.table_config.findUnique({
       where: { ConfigID: configId },
-    });
+    })
   }
 
   /**
    * Find semester by year and semester number
    */
   async findByYearAndSemester(academicYear: number, semester: number) {
-    const semesterEnum = semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
+    const semesterEnum = semester === 1 ? "SEMESTER_1" : "SEMESTER_2"
     return prisma.table_config.findFirst({
       where: {
         AcademicYear: academicYear,
         Semester: semesterEnum,
       },
-    });
+    })
   }
 
   /**
    * Create new semester
    */
   async create(data: {
-    academicYear: number;
-    semester: number;
-    config?: Prisma.InputJsonValue;
+    academicYear: number
+    semester: number
+    config?: Prisma.InputJsonValue
   }) {
-    const semesterEnum = data.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
-    const configId = `${data.semester}-${data.academicYear}`;
+    const semesterEnum = data.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"
+    const configId = `${data.semester}-${data.academicYear}`
 
     return prisma.table_config.create({
       data: {
@@ -135,24 +135,24 @@ export class SemesterRepository {
         configCompleteness: 0,
         isPinned: false,
       },
-    });
+    })
   }
 
   /**
    * Update semester status
    */
   async updateStatus(configId: string, status: SemesterStatus) {
-    const updates: Prisma.table_configUpdateInput = { status };
+    const updates: Prisma.table_configUpdateInput = { status }
 
     // Set publishedAt when publishing
     if (status === "PUBLISHED") {
-      updates.publishedAt = new Date();
+      updates.publishedAt = new Date()
     }
 
     return prisma.table_config.update({
       where: { ConfigID: configId },
       data: updates,
-    });
+    })
   }
 
   /**
@@ -162,7 +162,7 @@ export class SemesterRepository {
     return prisma.table_config.update({
       where: { ConfigID: configId },
       data: { isPinned },
-    });
+    })
   }
 
   /**
@@ -172,7 +172,7 @@ export class SemesterRepository {
     return prisma.table_config.update({
       where: { ConfigID: configId },
       data: { lastAccessedAt: new Date() },
-    });
+    })
   }
 
   /**
@@ -182,7 +182,7 @@ export class SemesterRepository {
     return prisma.table_config.update({
       where: { ConfigID: configId },
       data: { configCompleteness: Math.min(100, Math.max(0, completeness)) },
-    });
+    })
   }
 
   /**
@@ -192,7 +192,7 @@ export class SemesterRepository {
     return prisma.table_config.update({
       where: { ConfigID: configId },
       data: { status: "ARCHIVED" },
-    });
+    })
   }
 
   /**
@@ -201,14 +201,14 @@ export class SemesterRepository {
   async getStatistics(configId: string) {
     const config = await prisma.table_config.findUnique({
       where: { ConfigID: configId },
-    });
+    })
 
     if (!config) {
-      return null;
+      return null
     }
 
-    const [academicYear, semesterNum] = configId.split("-").map(Number);
-    const semesterEnum = semesterNum === 1 ? "SEMESTER_1" : "SEMESTER_2";
+    const [academicYear, semesterNum] = configId.split("-").map(Number)
+    const semesterEnum = semesterNum === 1 ? "SEMESTER_1" : "SEMESTER_2"
 
     // Get counts for this semester
     const [timeslotCount, responsibilityCount] = await Promise.all([
@@ -224,7 +224,7 @@ export class SemesterRepository {
           Semester: semesterEnum,
         },
       }),
-    ]);
+    ])
 
     // Get unique teachers and classes
     const uniqueTeachers = await prisma.teachers_responsibility.findMany({
@@ -234,7 +234,7 @@ export class SemesterRepository {
       },
       select: { TeacherID: true },
       distinct: ["TeacherID"],
-    });
+    })
 
     const uniqueClasses = await prisma.teachers_responsibility.findMany({
       where: {
@@ -243,7 +243,7 @@ export class SemesterRepository {
       },
       select: { GradeID: true },
       distinct: ["GradeID"],
-    });
+    })
 
     const uniqueSubjects = await prisma.teachers_responsibility.findMany({
       where: {
@@ -252,10 +252,10 @@ export class SemesterRepository {
       },
       select: { SubjectCode: true },
       distinct: ["SubjectCode"],
-    });
+    })
 
     // Get total room count (rooms are not semester-specific)
-    const roomCount = await prisma.room.count();
+    const roomCount = await prisma.room.count()
 
     return {
       timeslotCount,
@@ -264,7 +264,7 @@ export class SemesterRepository {
       subjectCount: uniqueSubjects.length,
       responsibilityCount,
       roomCount,
-    };
+    }
   }
 
 
@@ -277,7 +277,7 @@ export class SemesterRepository {
         AcademicYear: academicYear,
         Semester: sem,
       },
-    });
+    })
   }
 
   /**
@@ -291,14 +291,14 @@ export class SemesterRepository {
     sourceSemesterNum: number,
     targetSemesterNum: number
   ) {
-    const timeslots = await this.findTimeslots(sourceYear, sourceSem);
+    const timeslots = await this.findTimeslots(sourceYear, sourceSem)
 
     if (timeslots.length === 0) {
-      return [];
+      return []
     }
 
     await prisma.timeslot.createMany({
-      data: timeslots.map((ts) => ({
+      data: timeslots.map((ts: any) => ({
         TimeslotID: ts.TimeslotID.replace(
           `${sourceSemesterNum}-${sourceYear}`,
           `${targetSemesterNum}-${targetYear}`
@@ -311,9 +311,9 @@ export class SemesterRepository {
         DayOfWeek: ts.DayOfWeek,
       })),
       skipDuplicates: true,
-    });
+    })
 
-    return timeslots;
+    return timeslots
   }
 
   /**
@@ -325,7 +325,7 @@ export class SemesterRepository {
     return await prisma.timeslot.createMany({
       data: timeslots,
       skipDuplicates: true,
-    });
+    })
   }
 
 
@@ -333,13 +333,13 @@ export class SemesterRepository {
    * Create semester with timeslots in a transaction
    */
   async createWithTimeslots(data: {
-    configId: string;
-    academicYear: number;
-    semester: semester;
-    config: object;
-    timeslots?: Prisma.timeslotCreateManyInput[];
+    configId: string
+    academicYear: number
+    semester: semester
+    config: object
+    timeslots?: Prisma.timeslotCreateManyInput[]
   }) {
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx: any) => {
       // Create semester
       const newSemester = await tx.table_config.create({
         data: {
@@ -351,31 +351,31 @@ export class SemesterRepository {
           isPinned: false,
           configCompleteness: 0,
         },
-      });
+      })
 
       // Create timeslots if provided
       if (data.timeslots && data.timeslots.length > 0) {
         await tx.timeslot.createMany({
           data: data.timeslots,
-        });
+        })
 
         // Update completeness
         await tx.table_config.update({
           where: { ConfigID: newSemester.ConfigID },
           data: { configCompleteness: 25 },
-        });
+        })
       }
 
-      return newSemester;
-    });
+      return newSemester
+    })
   }
 
   /**
    * Run a generic Prisma transaction
    */
   async transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
-    return withPrismaTransaction(callback);
+    return withPrismaTransaction(callback)
   }
 }
 
-export const semesterRepository = new SemesterRepository();
+export const semesterRepository = new SemesterRepository()

@@ -8,9 +8,9 @@
  * @module room.repository
  */
 
-import { cache } from 'react';
-import prisma from '@/lib/prisma';
-import type { CreateRoomInput, UpdateRoomInput } from '../../application/schemas/room.schemas';
+import { cache } from 'react'
+import prisma from '@/lib/prisma'
+import type { CreateRoomInput, UpdateRoomInput } from '../../application/schemas/room.schemas'
 
 /**
  * Find all rooms ordered by RoomID
@@ -21,8 +21,8 @@ const findAllRooms = cache(async () => {
     orderBy: {
       RoomID: 'asc',
     },
-  });
-});
+  })
+})
 
 /**
  * Find a single room by ID
@@ -33,8 +33,8 @@ const findRoomById = cache(async (roomId: number) => {
     where: {
       RoomID: roomId,
     },
-  });
-});
+  })
+})
 
 export const roomRepository = {
   /**
@@ -42,7 +42,7 @@ export const roomRepository = {
    * Cached per request using React cache()
    */
   async findAll() {
-    return findAllRooms();
+    return findAllRooms()
   },
 
   /**
@@ -50,7 +50,7 @@ export const roomRepository = {
    * Cached per request using React cache()
    */
   async findById(roomId: number) {
-    return findRoomById(roomId);
+    return findRoomById(roomId)
   },
 
   /**
@@ -63,7 +63,7 @@ export const roomRepository = {
         Building: data.Building,
         Floor: data.Floor,
       },
-    });
+    })
   },
 
   /**
@@ -84,7 +84,7 @@ export const roomRepository = {
       orderBy: {
         RoomName: 'asc',
       },
-    });
+    })
   },
 
   /**
@@ -103,11 +103,11 @@ export const roomRepository = {
         RoomID: true,
       },
       distinct: ['RoomID'],
-    });
+    })
 
     return occupiedRooms
-      .map(schedule => schedule.RoomID)
-      .filter((id): id is number => id !== null);
+      .map((schedule: any) => schedule.RoomID)
+      .filter((id: any): id is number => id !== null)
   },
 
   /**
@@ -120,7 +120,7 @@ export const roomRepository = {
         Building: data.Building,
         Floor: data.Floor,
       },
-    });
+    })
   },
 
   /**
@@ -136,7 +136,7 @@ export const roomRepository = {
         Building: data.Building,
         Floor: data.Floor,
       },
-    });
+    })
   },
 
   /**
@@ -149,13 +149,13 @@ export const roomRepository = {
           in: roomIds,
         },
       },
-    });
+    })
   },
 
   /**
    * Get room count (useful for statistics)
    */
   async count() {
-    return prisma.room.count();
+    return prisma.room.count()
   },
-};
+}
