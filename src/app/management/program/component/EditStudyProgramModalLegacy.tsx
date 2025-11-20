@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { program, subject } from @/prisma/generated/client";
+import type { program, subject } from '@/prisma/generated/client';;
 import { updateProgramAction } from "@/features/program/application/actions/program.actions";
 
 

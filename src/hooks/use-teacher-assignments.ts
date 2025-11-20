@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { teachers_responsibility } from @/prisma/generated/client"
+import type { teachers_responsibility } from '@/prisma/generated/client';
 import { getAssignmentsByTeacherAction } from "@/features/assign/application/actions/assign.actions"
 import type { ActionResult } from "@/shared/lib/action-wrapper"
 

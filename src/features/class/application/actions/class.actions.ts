@@ -7,7 +7,7 @@
 
 'use server';
 
-import { semester } from @/prisma/generated/client';
+import { semester } from '@/prisma/generated/client';
 import * as v from 'valibot';
 
 // Schemas

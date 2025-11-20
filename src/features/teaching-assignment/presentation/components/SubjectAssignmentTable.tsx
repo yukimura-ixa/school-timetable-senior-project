@@ -16,7 +16,7 @@ import {
   Chip,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
-import type { semester } from @/prisma/generated/client";
+import type { semester } from '@/prisma/generated/client';;
 import { TeacherSelector } from "./TeacherSelector";
 import {
   assignTeacherAction,

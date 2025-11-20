@@ -1,4 +1,4 @@
-import type { teacher } from @/prisma/generated/client'
+import type { teacher } from '@/prisma/generated/client';'
 import React from 'react'
 
 type Props = {

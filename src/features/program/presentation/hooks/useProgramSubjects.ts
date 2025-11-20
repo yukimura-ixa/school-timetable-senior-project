@@ -11,7 +11,7 @@
 import useSWR from 'swr';
 import { getProgramByIdAction } from '../../application/actions/program.actions';
 import { getSubjectsAction } from '@/features/subject/application/actions/subject.actions';
-import type { SubjectCategory } from @/prisma/generated/client';
+import type { SubjectCategory } from '@/prisma/generated/client';
 
 export type Subject = {
   SubjectCode: string;

@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { Box, Stack, Typography, Paper } from "@mui/material";
 import { RoomAutocomplete, RoomMultiSelect } from "@/components/room";
 import { useRooms } from "@/hooks";
-import type { room } from @/prisma/generated/client";
+import type { room } from '@/prisma/generated/client';;
 
 /**
  * Example 1: Single Room Selection

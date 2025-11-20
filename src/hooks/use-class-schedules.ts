@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { class_schedule } from @/prisma/generated/client"
+import type { class_schedule } from '@/prisma/generated/client';
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions"
 import type { ActionResult } from "@/shared/lib/action-wrapper"
 

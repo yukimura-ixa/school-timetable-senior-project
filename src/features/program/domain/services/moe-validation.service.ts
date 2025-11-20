@@ -7,8 +7,8 @@
  * @module moe-validation.service
  */
 
-import { LearningArea, SubjectCategory } from @/prisma/generated/client';
-import type { program_subject, subject } from @/prisma/generated/client';
+import { LearningArea, SubjectCategory } from '@/prisma/generated/client';
+import type { program_subject, subject } from '@/prisma/generated/client';
 
 /**
  * MOE minimum credit requirements per learning area (hours per week)

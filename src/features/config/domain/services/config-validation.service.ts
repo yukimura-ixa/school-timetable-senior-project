@@ -6,7 +6,7 @@
  */
 
 import * as configRepository from '../../infrastructure/repositories/config.repository';
-import { semester } from @/prisma/generated/client';
+import { semester } from '@/prisma/generated/client';
 
 /**
  * Type for parsed ConfigID

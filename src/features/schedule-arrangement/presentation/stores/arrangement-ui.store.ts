@@ -11,7 +11,7 @@
 
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { class_schedule, teacher } from @/prisma/generated/client';
+import type { class_schedule, teacher } from '@/prisma/generated/client';
 
 // Phase 1: Import strict types from schedule.types.ts
 import type {

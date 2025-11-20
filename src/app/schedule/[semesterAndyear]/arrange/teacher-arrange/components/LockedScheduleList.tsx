@@ -14,7 +14,7 @@
  */
 
 import React from 'react';
-import type { class_schedule, subject, room, day_of_week } from @/prisma/generated/client';
+import type { class_schedule, subject, room, day_of_week } from '@/prisma/generated/client';
 
 export type LockedScheduleItem = class_schedule & {
   subject: subject;

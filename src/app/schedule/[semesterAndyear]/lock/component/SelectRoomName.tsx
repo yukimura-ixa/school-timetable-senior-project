@@ -1,6 +1,6 @@
 import { useRooms } from "@/hooks";
 import { RoomAutocomplete } from "@/components/room";
-import type { room } from @/prisma/generated/client";
+import type { room } from '@/prisma/generated/client';;
 import React from "react";
 import { Box, Typography } from "@mui/material";
 

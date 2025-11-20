@@ -1,7 +1,7 @@
 // TableRow.jsx
 import React from "react";
 import { BiEdit } from "react-icons/bi";
-import type { Prisma } from @/prisma/generated/client";
+import type { Prisma } from '@/prisma/generated/client';;
 
 type GradeLevelWithProgram = Prisma.gradelevelGetPayload<{
   include: { program: true };

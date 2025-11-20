@@ -16,14 +16,15 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   '/__test__/features/teaching-assignment/teacher-validation\\.service\\.test\\.ts', // Duplicated by dedicated heavysuite run
 ];
 
-// Add any custom config to be passed to Jest
-/** @type {import('jest').Config} */
-const config: Config = {
-  // Add more setup options before each test is run
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // Add any custom config to be passed to Jest
+  /** @type {import('jest').Config} */
+  const config: Config = {
+  // Add more setup options before each test is run  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   
   // Coverage provider (v8 is faster than babel)
   coverageProvider: 'v8',
+  setupFiles: ['<rootDir>/jest.polyfills.ts'],
   
   // Test environment
   // Use 'jsdom' for client components, 'node' for server components
@@ -39,6 +40,8 @@ const config: Config = {
   // Module name mapper for path aliases
   // Match tsconfig.json paths configuration
   moduleNameMapper: {
+    '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
+    '^@auth/core$': '<rootDir>/__mocks__/@auth/core.js',
     // Handle CSS imports (with CSS modules)
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
     
@@ -50,7 +53,7 @@ const config: Config = {
     
     // Handle module aliases from tsconfig.json paths
     '^@/public/(.*)$': '<rootDir>/public/$1',
-    '^@/prisma/generated/client$': '<rootDir>/app/generated/prisma/client',
+    '^@/prisma/generated/client$': '<rootDir>/prisma/generated/client',
     '^@/prisma/generated$': '<rootDir>/app/generated/prisma',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
@@ -60,7 +63,7 @@ const config: Config = {
   
   // Transform patterns (next/jest handles this automatically)
   transformIgnorePatterns: [
-    '/node_modules/',
+    '/node_modules/(?!next-auth|@auth)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   

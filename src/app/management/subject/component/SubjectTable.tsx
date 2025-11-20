@@ -3,7 +3,7 @@ import type {
   subject, 
   subject_credit, 
   $Enums 
-} from @/prisma/generated/client";
+} from '@/prisma/generated/client';;
 import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
 import { deleteSubjectsAction, updateSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 

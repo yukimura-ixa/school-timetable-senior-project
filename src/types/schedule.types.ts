@@ -17,7 +17,7 @@ import type {
   day_of_week,
   teachers_responsibility,
   teacher,
-} from @/prisma/generated/client';
+} from '@/prisma/generated/client';
 
 // ============================================================================
 // Subject Category Enum

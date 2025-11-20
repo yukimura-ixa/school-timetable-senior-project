@@ -4,7 +4,7 @@ import React from "react";
 import { Autocomplete, TextField, Box, Typography, Chip } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-import type { room } from @/prisma/generated/client";
+import type { room } from '@/prisma/generated/client';;
 import type { RoomSelectOption } from "@/types/ui-state";
 
 interface RoomAutocompleteProps {

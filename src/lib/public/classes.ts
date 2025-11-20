@@ -6,7 +6,7 @@
  * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
-import { semester } from @/prisma/generated/client";
+import { semester } from '@/prisma/generated/client';;
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
 

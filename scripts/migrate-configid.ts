@@ -16,7 +16,7 @@
  */
 
 import prisma from '../src/lib/prisma';
-import { Prisma } from @/prisma/generated/client';
+import { Prisma } from '@/prisma/generated/client';
 
 interface MigrationResult {
   success: boolean;

@@ -8,7 +8,7 @@ import useSWR from "swr";
 import ExportAllProgram from "./function/ExportAllProgram";
 import { subjectCreditValues } from "@/models/credit-value";
 import { isUndefined } from "swr/_internal";
-import { SubjectCategory } from @/prisma/generated/client";
+import { SubjectCategory } from '@/prisma/generated/client';;
 import {
   Container,
   Paper,

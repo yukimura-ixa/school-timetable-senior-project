@@ -8,7 +8,7 @@
  */
 
 import { programRepository } from '../../infrastructure/repositories/program.repository';
-import type { ProgramTrack } from @/prisma/generated/client';
+import type { ProgramTrack } from '@/prisma/generated/client';
 
 /**
  * Validate that a program with the same Year + Track combination doesn't exist

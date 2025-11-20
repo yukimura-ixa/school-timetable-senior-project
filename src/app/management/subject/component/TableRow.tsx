@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { BiEdit } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
 import { subjectCreditTitles } from "@/models/credit-titles";
-import type { subject } from @/prisma/generated/client";
+import type { subject } from '@/prisma/generated/client';;
 
 type TableRowProps = {
   item: subject;

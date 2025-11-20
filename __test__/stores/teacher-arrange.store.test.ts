@@ -36,7 +36,7 @@ import type {
   DayOfWeekDisplay,
   BreakSlotData,
 } from '@/types/schedule.types';
-import type { teacher } from @/prisma/generated/client';
+import type { teacher } from '@/prisma/generated/client';
 
 // ============================================================================
 // Mock Data

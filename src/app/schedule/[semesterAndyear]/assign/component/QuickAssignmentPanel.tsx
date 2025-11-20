@@ -31,7 +31,7 @@ import {
   Assignment as AssignmentIcon,
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
-import type { teacher, subject, gradelevel } from @/prisma/generated/client";
+import type { teacher, subject, gradelevel } from '@/prisma/generated/client';;
 import { enqueueSnackbar } from "notistack";
 import { syncAssignmentsAction, deleteAssignmentAction } from "@/features/assign/application/actions/assign.actions";
 

@@ -1,9 +1,9 @@
 "use client";
-import type { gradelevel } from @/prisma/generated/client";
+import type { gradelevel } from '@/prisma/generated/client';;
 import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
 import { deleteGradeLevelsAction, updateGradeLevelsAction, createGradeLevelAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { FormControl, MenuItem, Select } from "@mui/material";
-import type { program } from @/prisma/generated/client";
+import type { program } from '@/prisma/generated/client';;
 
 type GradeLevelTableProps = {
   tableData: gradelevel[];

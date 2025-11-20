@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import type { teacher } from @/prisma/generated/client";
+import type { teacher } from '@/prisma/generated/client';;
 
 // Server Actions
 import { deleteTeachersAction } from "@/features/teacher/application/actions/teacher.actions";

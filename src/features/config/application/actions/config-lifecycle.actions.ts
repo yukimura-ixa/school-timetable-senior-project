@@ -13,7 +13,7 @@ import {
 } from "../schemas/config-lifecycle.schemas";
 import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 import { getPublishReadiness } from "../services/publish-readiness-query.service";
-import type { semester } from @/prisma/generated/client";
+import type { semester } from '@/prisma/generated/client';;
 import * as v from "valibot";
 
 type ConfigStatus = "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";

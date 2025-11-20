@@ -8,7 +8,7 @@
  */
 
 import * as v from 'valibot';
-import { ProgramTrack, SubjectCategory } from @/prisma/generated/client';
+import { ProgramTrack, SubjectCategory } from '@/prisma/generated/client';
 
 /**
  * Schema for creating a program

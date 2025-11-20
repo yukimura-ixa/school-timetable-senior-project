@@ -9,7 +9,7 @@
  */
 
 import * as configRepository from "@/features/config/infrastructure/repositories/config.repository";
-import type { semester } from @/prisma/generated/client";
+import type { semester } from '@/prisma/generated/client';;
 
 // Import and re-export types and constants from the constants file (safe for client components)
 // This allows backward compatibility while preventing Prisma from being bundled in browser

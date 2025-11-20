@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { timeslot } from @/prisma/generated/client"
+import type { timeslot } from '@/prisma/generated/client';
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions"
 
 /**

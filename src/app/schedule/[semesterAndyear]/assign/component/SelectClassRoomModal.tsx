@@ -1,7 +1,7 @@
 import { useTeachers } from "@/hooks";
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
-import type { gradelevel } from @/prisma/generated/client";
+import type { gradelevel } from '@/prisma/generated/client';;
 
 import { AiOutlineClose } from "react-icons/ai";
 import { useGradeLevels } from "@/hooks";

@@ -7,7 +7,7 @@
 
 import * as lockRepository from "@/features/lock/infrastructure/repositories/lock.repository";
 import prisma from "@/lib/prisma";
-import { semester } from @/prisma/generated/client";
+import { semester } from '@/prisma/generated/client';;
 
 // Get reference to the mocked Prisma client
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;

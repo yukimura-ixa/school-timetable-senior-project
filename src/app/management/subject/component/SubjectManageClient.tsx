@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { subject } from @/prisma/generated/client";
+import type { subject } from '@/prisma/generated/client';;
 import SubjectTable from "@/app/management/subject/component/SubjectTable";
 import { SubjectListSkeleton, NoSubjectsEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";

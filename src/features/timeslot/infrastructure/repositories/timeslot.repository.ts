@@ -9,7 +9,7 @@
 
 import prisma from '@/lib/prisma';
 import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
-import type { Prisma, timeslot, semester } from @/prisma/generated/client';
+import type { Prisma, timeslot, semester } from '@/prisma/generated/client';
 import type { TimetableConfig } from '@/lib/timetable-config';
 import { generateConfigID } from '@/features/config/domain/services/config-validation.service';
 

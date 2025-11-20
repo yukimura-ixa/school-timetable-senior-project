@@ -18,7 +18,7 @@ import type {
   semester,
   teachers_responsibility,
   teacher,
-} from @/prisma/generated/client';
+} from '@/prisma/generated/client';
 
 // Import strict types from schedule.types to avoid duplicates
 import type {

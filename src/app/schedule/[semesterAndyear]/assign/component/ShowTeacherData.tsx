@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useTeachers, useSubjects, useGradeLevels } from "@/hooks";
-import type { teacher, teachers_responsibility } from @/prisma/generated/client";
+import type { teacher, teachers_responsibility } from '@/prisma/generated/client';;
 import useSWR from "swr";
 import { getAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
 import QuickAssignmentPanel from "./QuickAssignmentPanel";

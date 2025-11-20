@@ -3,7 +3,7 @@
  * Checks if admin user exists and password is correctly hashed
  */
 
-import { PrismaClient } from @/prisma/generated/client';
+import { PrismaClient } from '@/prisma/generated/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

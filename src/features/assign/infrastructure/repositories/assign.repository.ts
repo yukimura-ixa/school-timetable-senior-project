@@ -7,7 +7,7 @@
 
 import prisma from '@/lib/prisma';
 import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
-import { semester, Prisma } from @/prisma/generated/client';
+import { semester, Prisma } from '@/prisma/generated/client';
 
 type SubjectCodeRecord = { SubjectCode: string | null };
 

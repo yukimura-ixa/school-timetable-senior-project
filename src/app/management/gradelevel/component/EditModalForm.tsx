@@ -8,7 +8,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { updateGradeLevelAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
-import type { gradelevel } from @/prisma/generated/client";
+import type { gradelevel } from '@/prisma/generated/client';;
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;

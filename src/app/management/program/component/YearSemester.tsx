@@ -1,5 +1,5 @@
 import { MenuItem, Select } from "@mui/material";
-import { semester } from @/prisma/generated/client";
+import { semester } from '@/prisma/generated/client';;
 import { BsInfo } from "react-icons/bs";
 
 type Props = {

@@ -3,7 +3,7 @@ import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import React, { useEffect, useState } from "react";
-import type { teacher } from @/prisma/generated/client";
+import type { teacher } from '@/prisma/generated/client';;
 
 type Props = {
   setTeacherID: (teacherId: number | null) => void;

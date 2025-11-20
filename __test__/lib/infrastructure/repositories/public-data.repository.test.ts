@@ -11,7 +11,7 @@ import type {
   PublicTeacherFilters,
   PublicGradeLevelFilters,
 } from '@/lib/infrastructure/repositories/public-data.repository';
-import { semester } from @/prisma/generated/client';
+import { semester } from '@/prisma/generated/client';
 import prisma from '@/lib/prisma';
 
 // Use the globally mocked Prisma Client (from jest.setup.js)

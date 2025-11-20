@@ -33,7 +33,7 @@ import {
 } from '@mui/icons-material';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import SubjectItem from '../component/SubjectItem';
-import type { teacher } from @/prisma/generated/client';
+import type { teacher } from '@/prisma/generated/client';
 import type { SubjectData as SubjectDataType } from '@/types/schedule.types';
 
 interface SearchableSubjectPaletteProps {

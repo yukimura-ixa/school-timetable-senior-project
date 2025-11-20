@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import { updateRoomsAction } from "@/features/room/application/actions/room.actions";
-import type { room } from @/prisma/generated/client";
+import type { room } from '@/prisma/generated/client';;
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {

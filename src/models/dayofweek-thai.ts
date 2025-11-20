@@ -1,4 +1,4 @@
-import { day_of_week } from @/prisma/generated/client"
+import { day_of_week } from '@/prisma/generated/client';
 
 type DayOfWeekThai = {
   [day_of_week: string]: string

@@ -13,7 +13,7 @@ import type {
   UpdateProgramInput,
   AssignSubjectsToProgramInput 
 } from '../../application/schemas/program.schemas';
-import type { ProgramTrack } from @/prisma/generated/client';
+import type { ProgramTrack } from '@/prisma/generated/client';
 
 export const programRepository = {
   /**

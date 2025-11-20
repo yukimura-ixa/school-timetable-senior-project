@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import type { semester } from @/prisma/generated/client";
+import type { semester } from '@/prisma/generated/client';;
 import { getTeachersWithWorkload } from "../../application/actions/teaching-assignment.actions";
 import {
   getWorkloadColor,

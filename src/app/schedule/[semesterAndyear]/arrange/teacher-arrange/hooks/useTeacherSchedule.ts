@@ -40,7 +40,7 @@ import type {
   room, 
   teacher,
   teachers_responsibility 
-} from @/prisma/generated/client';
+} from '@/prisma/generated/client';
 
 // Server Actions
 import { getTeacherScheduleAction } from '@/features/arrange/application/actions/arrange.actions';

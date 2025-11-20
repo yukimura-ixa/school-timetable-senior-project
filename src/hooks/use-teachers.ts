@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { teacher } from @/prisma/generated/client"
+import type { teacher } from '@/prisma/generated/client';
 import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions"
 
 /**

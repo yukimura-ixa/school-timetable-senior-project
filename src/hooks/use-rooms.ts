@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { room } from @/prisma/generated/client"
+import type { room } from '@/prisma/generated/client';
 import { getRoomsAction } from "@/features/room/application/actions/room.actions"
 
 /**

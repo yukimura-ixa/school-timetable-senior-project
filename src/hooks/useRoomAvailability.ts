@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import type { class_schedule, semester } from @/prisma/generated/client';
+import type { class_schedule, semester } from '@/prisma/generated/client';
 import { getRawLockedSchedulesAction } from '@/features/lock/application/actions/lock.actions';
 
 export type RoomAvailabilityStatus = 'available' | 'occupied' | 'partial';
