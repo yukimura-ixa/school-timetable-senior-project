@@ -49,13 +49,12 @@ import "dotenv/config";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
-})
+});
 
 const prisma = new PrismaClient({
   log: ["error", "warn"],
   errorFormat: "minimal",
-  adapter: adapter,
-  },
+  adapter,
   // Connection pooling settings for Docker Desktop on Windows
   // Helps with connection stability when Docker network isn't in host mode
 });
