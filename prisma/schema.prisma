@@ -1,17 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../prisma/generated"
 }
 
-// generator dbml {
-//   provider              = "prisma-dbml-generator"
-//   includeRelationFields = "false"
-// }
-
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_DATABASE_URL")
 }
 
 model class_schedule {

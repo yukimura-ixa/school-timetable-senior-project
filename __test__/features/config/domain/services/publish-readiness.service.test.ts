@@ -7,6 +7,14 @@ import { checkPublishReadiness } from '@/features/config/domain/services/publish
 import type { FullConfigData } from '@/features/config/types/config-types';
 import * as moeValidationService from '@/features/program/domain/services/moe-validation.service';
 
+jest.mock('@/features/program/domain/services/moe-validation.service', () => ({
+  validateProgramMOECredits: jest.fn(),
+}));
+
+const mockedValidateProgramMOECredits = jest.mocked(
+  moeValidationService.validateProgramMOECredits
+);
+
 describe('checkPublishReadiness', () => {
     const mockBaseConfigData: FullConfigData = {
         configId: '1-2567',
@@ -26,16 +34,16 @@ describe('checkPublishReadiness', () => {
         requiredSubjects: new Map([['M1-1', ['TH101']]]),
     };
 
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
+afterEach(() => {
+    jest.resetAllMocks();
+});
 
   it('should return "ready" status when all checks pass', () => {
     const readyData: FullConfigData = {
       ...mockBaseConfigData,
       schedules: Array(35).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }),
     };
-    jest.spyOn(moeValidationService, 'validateProgramMOECredits').mockReturnValue({ isValid: true, errors: [], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue({ isValid: true, errors: [], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
 
     const result = checkPublishReadiness(readyData);
     expect(result.status).toBe('ready');
@@ -47,7 +55,7 @@ describe('checkPublishReadiness', () => {
       ...mockBaseConfigData,
       schedules: Array(30).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }), // 30 out of 35
     };
-    jest.spyOn(moeValidationService, 'validateProgramMOECredits').mockReturnValue({ isValid: true, errors: [], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue({ isValid: true, errors: [], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
 
     const result = checkPublishReadiness(incompleteData);
     expect(result.status).toBe('incomplete');
@@ -61,7 +69,7 @@ describe('checkPublishReadiness', () => {
         ...mockBaseConfigData,
         schedules: Array(35).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }),
     };
-    jest.spyOn(moeValidationService, 'validateProgramMOECredits').mockReturnValue({ isValid: false, errors: ['Credit requirement not met'], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue({ isValid: false, errors: ['Credit requirement not met'], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
 
     const result = checkPublishReadiness(moeFailedData);
     expect(result.status).toBe('moe-failed');
@@ -76,7 +84,7 @@ describe('checkPublishReadiness', () => {
         schedules: Array(20).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }),
     };
 
-    jest.spyOn(moeValidationService, 'validateProgramMOECredits').mockReturnValue({ isValid: false, errors: ['Credit requirement not met'], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue({ isValid: false, errors: ['Credit requirement not met'], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
 
     const result = checkPublishReadiness(bothFailedData);
     expect(result.status).toBe('incomplete');

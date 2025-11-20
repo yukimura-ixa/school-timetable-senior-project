@@ -114,12 +114,14 @@ export async function count(): Promise<number> {
  */
 export async function updateStatus(
   configId: string,
-  status: string
+  status: string,
+  publishedAt?: Date | null
 ) {
   return await prisma.table_config.update({
     where: { ConfigID: configId },
     data: {
       status,
+      ...(publishedAt !== undefined ? { publishedAt } : {}),
       updatedAt: new Date(),
     },
   });

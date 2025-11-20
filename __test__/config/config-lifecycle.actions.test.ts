@@ -12,9 +12,25 @@ import {
   getConfigWithCompletenessAction,
 } from "@/features/config/application/actions/config-lifecycle.actions";
 import prisma from "@/lib/prisma";
+import { getPublishReadiness } from "@/features/config/application/services/publish-readiness-query.service";
+import type { PublishReadinessResult } from "@/features/config/domain/types/publish-readiness-types";
+
+jest.mock("@/features/config/application/services/publish-readiness-query.service", () => ({
+  getPublishReadiness: jest.fn(),
+}));
 
 // Cast to mocked type for access to mock methods
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockedGetPublishReadiness = jest.mocked(getPublishReadiness);
+
+const defaultPublishReadinessResult: PublishReadinessResult = {
+  status: "ready",
+  issues: [],
+  details: {
+    incompleteGrades: [],
+    moeValidationResults: [],
+  },
+};
 
 // Global cleanup to prevent Jest from hanging
 afterAll(async () => {
@@ -28,6 +44,7 @@ afterAll(async () => {
 describe("updateConfigStatusAction", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedGetPublishReadiness.mockResolvedValue(defaultPublishReadinessResult);
   });
 
   it("should successfully update status from DRAFT to PUBLISHED with sufficient completeness", async () => {
@@ -434,6 +451,7 @@ describe("getConfigWithCompletenessAction", () => {
 describe("Integration scenarios", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedGetPublishReadiness.mockResolvedValue(defaultPublishReadinessResult);
   });
 
   it("should allow complete workflow: create, publish, lock, archive", async () => {

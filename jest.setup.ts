@@ -8,7 +8,6 @@ import React from 'react'
 
 import { TextEncoder, TextDecoder } from 'util'
 import { ReadableStream, WritableStream, TransformStream } from 'stream/web'
-import { MessageChannel, MessagePort } from 'worker_threads'
 
 // Text encoding (required by Prisma)
 global.TextEncoder = TextEncoder as typeof global.TextEncoder
@@ -19,11 +18,32 @@ global.ReadableStream = ReadableStream as typeof global.ReadableStream
 global.WritableStream = WritableStream as typeof global.WritableStream
 global.TransformStream = TransformStream as typeof global.TransformStream
 
-// Worker Threads API (required by fetch polyfills)
-// @ts-expect-error - Node.js MessageChannel type is incompatible with DOM MessageChannel
-global.MessageChannel = MessageChannel
-// @ts-expect-error - Node.js MessagePort type is incompatible with DOM MessagePort
-global.MessagePort = MessagePort
+class FakeMessagePort {
+  onmessage: ((event: { data: unknown }) => void) | null = null
+  onmessageerror: ((event: unknown) => void) | null = null
+  addEventListener() {}
+  removeEventListener() {}
+  start() {}
+  close() {}
+  postMessage(message: unknown) {
+    queueMicrotask(() => {
+      if (this.onmessage) {
+        this.onmessage({ data: message })
+      }
+    })
+  }
+  dispatchEvent() {
+    return true
+  }
+}
+
+class FakeMessageChannel {
+  port1 = new FakeMessagePort()
+  port2 = new FakeMessagePort()
+}
+
+globalThis.MessageChannel = FakeMessageChannel as unknown as typeof MessageChannel
+globalThis.MessagePort = FakeMessagePort as unknown as typeof MessagePort
 
 // Node.js 18+ has native fetch - ensure it's available globally
 if (typeof global.fetch === 'undefined') {
@@ -101,6 +121,11 @@ jest.mock('@/lib/auth', () => ({
     POST: jest.fn(),
   },
 }))
+
+jest.mock('next/cache', () => ({
+  cacheTag: jest.fn(),
+  cacheLife: jest.fn(),
+}));
 
 // Mock Prisma Client to prevent browser environment errors
 jest.mock('@/lib/prisma', () => {
