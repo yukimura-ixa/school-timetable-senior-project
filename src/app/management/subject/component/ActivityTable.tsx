@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { SubjectCategory } from "@/prisma/generated";
+import { SubjectCategory } from @/prisma/generated/client";
 import { getSubjectsAction, deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 import {
   Button,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { SubjectCategory, ActivityType } from "@/prisma/generated";
+import { SubjectCategory, ActivityType } from @/prisma/generated/client";
 import { createSubjectAction, updateSubjectAction } from "@/features/subject/application/actions/subject.actions";
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Checkbox, FormControlLabel } from "@mui/material";
 

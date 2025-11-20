@@ -87,7 +87,7 @@ import { DEFAULT_TIMETABLE_CONFIG } from '@/lib/timetable-config.constants';
 
 // Types
 import type { SubjectData, TeacherData } from '@/types/schedule.types';
-import type { gradelevel, teacher, room } from '@/prisma/generated';
+import type { gradelevel, teacher, room } from @/prisma/generated/client';
 
 // Feedback Components
 import { TimetableGridSkeleton, NetworkErrorEmptyState } from '@/components/feedback';

@@ -13,7 +13,7 @@
  */
 
 import prisma from '@/lib/prisma';
-import { semester } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
 import type { ExistingSchedule, TeacherResponsibility } from '../../domain/models/conflict.model';
 
 /**

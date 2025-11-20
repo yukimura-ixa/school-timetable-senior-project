@@ -6,7 +6,7 @@
  */
 
 import prisma from "@/lib/prisma";
-import type { semester } from "@/prisma/generated";
+import type { semester } from @/prisma/generated/client";
 import { cache } from "react";
 
 /**

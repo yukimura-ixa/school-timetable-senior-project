@@ -19,7 +19,7 @@ import {
   LearningArea, 
   ActivityType,
   subject_credit 
-} from '../prisma/generated';
+} from '../prisma/generated/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

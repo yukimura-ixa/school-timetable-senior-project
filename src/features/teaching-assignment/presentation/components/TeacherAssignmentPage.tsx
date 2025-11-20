@@ -14,7 +14,7 @@ import {
   ContentCopy as CopyIcon,
   DeleteSweep as ClearIcon,
 } from "@mui/icons-material";
-import type { semester } from "@/prisma/generated";
+import type { semester } from @/prisma/generated/client";
 import { AssignmentFilters } from "./AssignmentFilters";
 import { SubjectAssignmentTable } from "./SubjectAssignmentTable";
 import {

@@ -1,5 +1,5 @@
-import type { teacher, timeslot } from "@/prisma/generated";
-import type { Prisma } from "@/prisma/generated";
+import type { teacher, timeslot } from @/prisma/generated/client";
+import type { Prisma } from @/prisma/generated/client";
 import ExcelJS from "exceljs";
 
 // Type matching ClassScheduleWithSummary from repository

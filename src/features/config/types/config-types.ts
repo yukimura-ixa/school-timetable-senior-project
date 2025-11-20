@@ -4,7 +4,7 @@
  * @module features/config/types/config-types
  */
 
-import type { class_schedule, gradelevel, program, program_subject, subject } from "@/prisma/generated";
+import type { class_schedule, gradelevel, program, program_subject, subject } from @/prisma/generated/client";
 
 /**
  * Represents the full data set required for a readiness check.

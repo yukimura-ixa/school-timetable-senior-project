@@ -79,7 +79,7 @@ import type {
   room,
   teacher,
   day_of_week,
-} from "@/prisma/generated";
+} from @/prisma/generated/client";
 
 // @dnd-kit
 import {

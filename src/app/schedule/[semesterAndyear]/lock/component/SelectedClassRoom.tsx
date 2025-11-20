@@ -1,6 +1,6 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import { Skeleton } from "@mui/material";
-import type { subject } from "@/prisma/generated";
+import type { subject } from @/prisma/generated/client";
 import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
@@ -8,7 +8,7 @@ import useSWR from "swr";
 
 import { useSemesterSync } from "@/hooks";
 import { getGradeLevelsForLockAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
-import type { teacher } from "@/prisma/generated";
+import type { teacher } from @/prisma/generated/client";
 
 type Props = {
   teachers?: teacher[];

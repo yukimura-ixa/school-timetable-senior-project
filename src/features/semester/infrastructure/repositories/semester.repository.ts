@@ -5,7 +5,7 @@
 
 import prisma from "@/lib/prisma";
 import { withPrismaTransaction, type TransactionClient } from "@/lib/prisma-transaction";
-import type { Prisma, semester } from "@/prisma/generated";
+import type { Prisma, semester } from @/prisma/generated/client";
 import type {
   SemesterFilter,
   SemesterStatus,

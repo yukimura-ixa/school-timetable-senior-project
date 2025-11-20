@@ -30,10 +30,10 @@ import {
 } from '@mui/material';
 import { Lock as LockIcon, CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 import { RoomAutocomplete } from '@/components/room';
-import type { room } from '@/prisma/generated';
+import type { room } from @/prisma/generated/client';
 import { enqueueSnackbar } from 'notistack';
 import { createBulkLocksAction } from '@/features/lock/application/actions/lock.actions';
-import type { semester } from '@/prisma/generated';
+import type { semester } from @/prisma/generated/client';
 import { useRoomAvailability } from '@/hooks/useRoomAvailability';
 
 interface BulkLockModalProps {

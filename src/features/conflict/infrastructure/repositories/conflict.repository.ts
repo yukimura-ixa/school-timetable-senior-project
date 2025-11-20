@@ -98,7 +98,7 @@
  */
 
 import prisma from "@/lib/prisma";
-import { Prisma } from "@/prisma/generated";
+import { Prisma } from @/prisma/generated/client";
 import { cacheLife, cacheTag } from "next/cache";
 
 // Type for schedule with all relations

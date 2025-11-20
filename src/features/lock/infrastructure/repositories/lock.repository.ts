@@ -6,7 +6,7 @@
  */
 
 import prisma from '@/lib/prisma';
-import { semester } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
 
 /**
  * Type for raw locked schedule data from database

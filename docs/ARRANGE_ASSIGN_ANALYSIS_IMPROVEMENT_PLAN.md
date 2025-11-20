@@ -592,7 +592,7 @@ features/assign/
 
 ```typescript
 // ✅ Proper imports from generated Prisma types
-import type { subject, gradelevel } from "@/prisma/generated";
+import type { subject, gradelevel } from "@/prisma/generated/client";
 
 // ✅ ActionResult pattern
 const result = await getSubjectsByGradeAction({...});

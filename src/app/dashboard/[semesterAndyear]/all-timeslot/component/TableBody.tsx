@@ -1,5 +1,5 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import type { teacher } from "@/prisma/generated";
+import type { teacher } from @/prisma/generated/client";
 import LockIcon from "@mui/icons-material/Lock";
 
 type ClassData = {

@@ -1,5 +1,5 @@
 "use client";
-import type { room } from "@/prisma/generated";
+import type { room } from @/prisma/generated/client";
 import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
 import { deleteRoomsAction, updateRoomsAction } from "@/features/room/application/actions/room.actions";
 

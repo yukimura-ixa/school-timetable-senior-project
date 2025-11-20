@@ -28,7 +28,7 @@ import {
   Person as PersonIcon,
   School as SchoolIcon,
 } from '@mui/icons-material';
-import type { teacher } from '@/prisma/generated';
+import type { teacher } from @/prisma/generated/client';
 
 interface ArrangementHeaderProps {
   /** Current selected teacher data */

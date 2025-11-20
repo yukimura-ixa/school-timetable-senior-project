@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import type { program } from "@/prisma/generated";
+import type { program } from @/prisma/generated/client";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";

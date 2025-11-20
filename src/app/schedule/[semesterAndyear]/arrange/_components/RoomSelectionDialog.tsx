@@ -35,7 +35,7 @@ import {
   MeetingRoom as RoomIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
-import type { room } from '@/prisma/generated';
+import type { room } from @/prisma/generated/client';
 
 interface RoomSelectionDialogProps {
   /** Dialog open state */

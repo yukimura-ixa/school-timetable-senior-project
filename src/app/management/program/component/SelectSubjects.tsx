@@ -1,7 +1,7 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
-import type { subject } from "@/prisma/generated";
+import type { subject } from @/prisma/generated/client";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { CircularProgress } from "@mui/material";
 import useSWR from "swr";

@@ -3,7 +3,7 @@
  * Simple script to create admin user without running full seed
  */
 
-import { PrismaClient } from '@/prisma/generated';
+import { PrismaClient } from @/prisma/generated/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();

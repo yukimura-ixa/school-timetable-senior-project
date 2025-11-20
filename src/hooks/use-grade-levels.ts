@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { gradelevel } from "@/prisma/generated"
+import type { gradelevel } from @/prisma/generated/client"
 import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions"
 
 /**

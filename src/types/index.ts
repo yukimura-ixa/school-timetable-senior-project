@@ -175,4 +175,4 @@ export type {
   breaktime,
   subject_credit,
   table_config,
-} from '@/prisma/generated';
+} from @/prisma/generated/client';

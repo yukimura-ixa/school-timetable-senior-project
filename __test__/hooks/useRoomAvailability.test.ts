@@ -6,7 +6,7 @@
  */
 
 import { computeAvailability } from '@/hooks/useRoomAvailability';
-import type { class_schedule } from '@/prisma/generated';
+import type { class_schedule } from @/prisma/generated/client';
 
 describe('computeAvailability', () => {
   describe('with empty selections', () => {

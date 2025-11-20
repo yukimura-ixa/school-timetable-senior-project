@@ -1,7 +1,7 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
-import type { timeslot } from "@/prisma/generated";
+import type { timeslot } from @/prisma/generated/client";
 
 const BREAK_TYPES = new Set(["BREAK_BOTH", "BREAK_JUNIOR", "BREAK_SENIOR"]);
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;

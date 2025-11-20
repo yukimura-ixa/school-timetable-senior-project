@@ -8,7 +8,7 @@
  */
 
 import prisma from '@/lib/prisma';
-import type { subject } from '@/prisma/generated';
+import type { subject } from @/prisma/generated/client';
 import type { CreateSubjectInput, UpdateSubjectInput } from '../../application/schemas/subject.schemas';
 
 export const subjectRepository = {

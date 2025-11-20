@@ -15,7 +15,7 @@
  * Run: pnpm exec tsx prisma/migrate-thai-year-format.ts
  */
 
-import { PrismaClient } from '../prisma/generated';
+import { PrismaClient } from '../prisma/generated/client';
 
 const prisma = new PrismaClient();
 

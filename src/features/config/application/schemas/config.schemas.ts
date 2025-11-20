@@ -6,7 +6,7 @@
  */
 
 import * as v from 'valibot';
-import { semester } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
 
 /**
  * Schema for querying config by academic year and semester

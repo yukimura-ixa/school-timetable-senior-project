@@ -8,8 +8,8 @@
 "use server";
 
 import { revalidateTag } from 'next/cache';
-import { semester } from '@/prisma/generated';
-import type { teachers_responsibility } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
+import type { teachers_responsibility } from @/prisma/generated/client';
 import * as v from 'valibot';
 
 // Schemas

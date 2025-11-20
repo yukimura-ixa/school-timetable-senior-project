@@ -8,7 +8,7 @@ import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
 import { useParams } from 'next/navigation';
 import { useRoomAvailability } from '@/hooks/useRoomAvailability';
-import type { room, semester, subject, teacher, timeslot } from "@/prisma/generated";
+import type { room, semester, subject, teacher, timeslot } from @/prisma/generated/client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";

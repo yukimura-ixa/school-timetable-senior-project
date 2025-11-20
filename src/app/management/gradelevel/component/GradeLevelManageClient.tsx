@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { gradelevel, program } from "@/prisma/generated";
+import type { gradelevel, program } from @/prisma/generated/client";
 import GradeLevelTable from "@/app/management/gradelevel/component/GradeLevelTable";
 import { TableSkeleton, NoDataEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";

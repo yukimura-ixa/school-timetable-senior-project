@@ -50,7 +50,8 @@ const config: Config = {
     
     // Handle module aliases from tsconfig.json paths
     '^@/public/(.*)$': '<rootDir>/public/$1',
-    '^@/prisma/generated$': '<rootDir>/prisma/generated',
+    '^@/prisma/generated/client$': '<rootDir>/app/generated/prisma/client',
+    '^@/prisma/generated$': '<rootDir>/app/generated/prisma',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   

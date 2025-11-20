@@ -4,7 +4,7 @@
  * Run with: pnpm tsx scripts/check-admin-user.ts
  */
 
-import { PrismaClient } from "../prisma/generated";
+import { PrismaClient } from "../prisma/generated/client";
 
 const prisma = new PrismaClient();
 

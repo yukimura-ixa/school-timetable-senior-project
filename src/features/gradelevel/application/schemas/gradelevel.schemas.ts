@@ -8,7 +8,7 @@
  */
 
 import * as v from 'valibot';
-import { semester } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
 
 /**
  * Schema for creating a single gradelevel

@@ -8,7 +8,7 @@
 import prisma from '@/lib/prisma';
 import { parseConfigId, extractDayFromTimeslotId, extractPeriodFromTimeslotId, getThaiDayLabel, formatPeriodTime } from '../../domain/services/calculation.service';
 import { DAYS_OF_WEEK } from '../../domain/types/analytics.types';
-import type { day_of_week } from '@/prisma/generated';
+import type { day_of_week } from @/prisma/generated/client';
 
 /**
  * Period distribution type

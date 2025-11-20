@@ -126,7 +126,7 @@ The schema is defined in `prisma/schema.prisma`. Use the following singleton pat
 
 ```ts
 // src/libs/prisma.ts
-import { PrismaClient } from "@/prisma/generated";
+import { PrismaClient } from "@/prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 const globalForPrisma = globalThis as { prisma?: PrismaClient };

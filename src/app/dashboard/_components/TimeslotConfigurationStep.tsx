@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import { AccessTime, CalendarMonth, Schedule } from "@mui/icons-material";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
-import type { day_of_week } from "@/prisma/generated";
+import type { day_of_week } from @/prisma/generated/client";
 
 type Props = {
   academicYear: number;

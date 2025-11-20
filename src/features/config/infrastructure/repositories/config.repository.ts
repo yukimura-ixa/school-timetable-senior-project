@@ -7,7 +7,7 @@
 
 import prisma from '@/lib/prisma';
 import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
-import { semester, Prisma } from '@/prisma/generated';
+import { semester, Prisma } from @/prisma/generated/client';
 import type { FullConfigData } from '../../types/config-types';
 
 /**

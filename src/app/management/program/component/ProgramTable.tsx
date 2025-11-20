@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { ProgramTrack, type program } from "@/prisma/generated";
+import { ProgramTrack, type program } from @/prisma/generated/client";
 
 // Program rows include related gradelevel and subject arrays
 export type ProgramRow = program & {

@@ -3,7 +3,7 @@
  * Usage: pnpm tsx scripts/check-semester.ts 1-2567
  */
 
-import { PrismaClient } from '../prisma/generated';
+import { PrismaClient } from '../prisma/generated/client';
 
 const prisma = new PrismaClient();
 

@@ -12,7 +12,7 @@
 
 import { cache } from 'react';
 import prisma from '@/lib/prisma';
-import type { Prisma, semester } from '@/prisma/generated';
+import type { Prisma, semester } from @/prisma/generated/client';
 
 // ============================================================================
 // Type Definitions

@@ -25,7 +25,7 @@ import { create } from 'zustand';
 import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { useShallow } from 'zustand/react/shallow';
-import type { class_schedule, teacher } from '@/prisma/generated';
+import type { class_schedule, teacher } from @/prisma/generated/client';
 
 // Import strict types from schedule.types.ts
 import type {

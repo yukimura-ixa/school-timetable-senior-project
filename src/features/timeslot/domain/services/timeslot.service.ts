@@ -7,8 +7,8 @@
  * @module timeslot.service
  */
 
-import type { timeslot, day_of_week, breaktime, semester } from '@/prisma/generated';
-import { breaktime as breaktimeEnum } from '@/prisma/generated';
+import type { timeslot, day_of_week, breaktime, semester } from @/prisma/generated/client';
+import { breaktime as breaktimeEnum } from @/prisma/generated/client';
 import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
 import type { CreateTimeslotsInput } from '../../application/schemas/timeslot.schemas';
 

@@ -699,7 +699,7 @@ src/features/<domain>/
 - Maintain a Prisma client singleton with `withAccelerate` to avoid HMR churn.
 
 ```ts
-import { PrismaClient } from "@/prisma/generated";
+import { PrismaClient } from "@/prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 const globalForPrisma = globalThis as { prisma?: PrismaClient };

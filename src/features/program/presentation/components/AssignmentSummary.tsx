@@ -9,7 +9,7 @@
 
 import React, { useMemo } from 'react';
 import { Box, Typography, Chip, Stack } from '@mui/material';
-import { SubjectCategory } from '@/prisma/generated';
+import { SubjectCategory } from @/prisma/generated/client';
 import type { SubjectConfig } from '../hooks/useSubjectAssignment';
 import type { Subject } from '../hooks/useProgramSubjects';
 

@@ -10,7 +10,7 @@ import {
   Grid,
   SelectChangeEvent,
 } from "@mui/material";
-import type { semester, gradelevel } from "@/prisma/generated";
+import type { semester, gradelevel } from @/prisma/generated/client";
 
 interface AssignmentFiltersProps {
   gradeId: string;

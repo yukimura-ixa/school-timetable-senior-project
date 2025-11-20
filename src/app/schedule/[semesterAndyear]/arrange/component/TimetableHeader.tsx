@@ -1,4 +1,4 @@
-import type { timeslot } from "@/prisma/generated";
+import type { timeslot } from @/prisma/generated/client";
 import { Fragment } from "react";
 interface ITimetableHeaderProps {
   timeslot: {

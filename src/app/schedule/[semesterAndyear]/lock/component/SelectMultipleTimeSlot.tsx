@@ -1,11 +1,11 @@
 import { useTimeslots, useSemesterSync } from "@/hooks";
 import { subjectCreditValues } from "@/models/credit-value";
-import type { subject_credit } from "@/prisma/generated";
+import type { subject_credit } from @/prisma/generated/client";
 import { useParams } from "next/navigation";
 import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
-import type { subject, teacher } from "@/prisma/generated";
+import type { subject, teacher } from @/prisma/generated/client";
 
 type Props = {
   subject?: subject;

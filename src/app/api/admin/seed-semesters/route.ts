@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 import prisma from "@/lib/prisma";
-import { day_of_week, semester, breaktime } from "@/prisma/generated";
+import { day_of_week, semester, breaktime } from @/prisma/generated/client";
 
 function parseYearsParam(param?: string): number[] {
   if (!param) return [];

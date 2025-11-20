@@ -5,13 +5,13 @@
  * Type definitions for all analytics data structures
  */
 
-import type { semester, day_of_week } from "@/prisma/generated";
+import type { semester, day_of_week } from @/prisma/generated/client";
 
 import type {
   SubjectCategory,
   LearningArea,
   ProgramTrack
-} from "@/prisma/generated";
+} from @/prisma/generated/client";
 
 // ==================== Section 1: Overview Dashboard ====================
 

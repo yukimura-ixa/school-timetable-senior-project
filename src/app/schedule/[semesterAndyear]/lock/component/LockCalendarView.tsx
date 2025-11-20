@@ -28,7 +28,7 @@ import {
 import { useTimeslots } from "@/hooks";
 import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import type { timeslot } from "@/prisma/generated";
+import type { timeslot } from @/prisma/generated/client";
 
 interface LockCalendarViewProps {
   lockData: GroupedLockedSchedule[];

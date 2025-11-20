@@ -30,7 +30,7 @@ import {
   Warning as WarningIcon,
   Person as PersonIcon,
 } from '@mui/icons-material';
-import type { class_schedule, gradelevel, subject, teacher, room, timeslot } from '@/prisma/generated';
+import type { class_schedule, gradelevel, subject, teacher, room, timeslot } from @/prisma/generated/client';
 
 interface ClassScheduleData {
   class: gradelevel;

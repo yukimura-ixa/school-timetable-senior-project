@@ -10,7 +10,7 @@ import type {
   ValidationResult,
 } from "../types/teaching-assignment.types";
 import { WORKLOAD_LIMITS, getWorkloadStatus } from "../types/teaching-assignment.types";
-import { semester } from "@/prisma/generated";
+import { semester } from @/prisma/generated/client";
 
 // ============================================================================
 // Workload Calculation

@@ -45,7 +45,7 @@ git push
 **Symptom:** `pnpm prisma generate` fails
 
 ```
-Error: Cannot find module '@/prisma/generated'
+Error: Cannot find module '@/prisma/generated/client'
 ```
 
 **Solution:**

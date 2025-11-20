@@ -8,7 +8,7 @@
  */
 
 import * as v from 'valibot';
-import { semester, day_of_week } from '@/prisma/generated';
+import { semester, day_of_week } from @/prisma/generated/client';
 
 /**
  * Schema for creating timeslots (bulk operation with configuration)

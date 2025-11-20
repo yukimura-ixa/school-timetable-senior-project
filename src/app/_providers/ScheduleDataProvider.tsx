@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import type { teacher, room } from "@/prisma/generated";
+import type { teacher, room } from @/prisma/generated/client";
 
 /**
  * Context to provide schedule-related data (teachers, rooms) to client components

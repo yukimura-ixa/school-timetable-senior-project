@@ -375,7 +375,7 @@ Both components are fully typed with:
 
 **Type Safety:**
 ```typescript
-import type { room } from "@/prisma/generated";
+import type { room } from "@/prisma/generated/client";
 import type { RoomSelectOption } from "@/types/ui-state";
 
 // RoomSelectOption extends SelectOption with building/floor

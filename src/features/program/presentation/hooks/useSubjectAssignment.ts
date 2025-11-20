@@ -10,7 +10,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useSnackbar } from 'notistack';
-import { SubjectCategory } from '@/prisma/generated';
+import { SubjectCategory } from @/prisma/generated/client';
 import { assignSubjectsToProgramAction } from '../../application/actions/program.actions';
 import type { Subject, Program } from './useProgramSubjects';
 

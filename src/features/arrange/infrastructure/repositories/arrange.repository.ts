@@ -6,7 +6,7 @@
  */
 
 import prisma from '@/lib/prisma';
-import { semester, type Prisma } from '@/prisma/generated';
+import { semester, type Prisma } from @/prisma/generated/client';
 
 // ============================================================================
 // Types

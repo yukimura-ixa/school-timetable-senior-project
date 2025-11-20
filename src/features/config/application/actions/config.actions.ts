@@ -9,8 +9,8 @@
 'use server';
 
 import { createAction } from '@/shared/lib/action-wrapper';
-import type { table_config, timeslot, teachers_responsibility } from '@/prisma/generated';
-import { Prisma } from '@/prisma/generated';
+import type { table_config, timeslot, teachers_responsibility } from @/prisma/generated/client';
+import { Prisma } from @/prisma/generated/client';
 import * as v from 'valibot';
 import * as configRepository from '../../infrastructure/repositories/config.repository';
 import { withPrismaTransaction } from '@/lib/prisma-transaction';

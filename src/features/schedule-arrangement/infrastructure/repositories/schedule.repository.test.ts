@@ -7,7 +7,7 @@
 
 import { ScheduleRepository } from './schedule.repository';
 import prisma from '@/lib/prisma';
-import { semester } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
 
 // Prisma is already mocked globally in jest.setup.js
 // We just need to get typed access to the mock

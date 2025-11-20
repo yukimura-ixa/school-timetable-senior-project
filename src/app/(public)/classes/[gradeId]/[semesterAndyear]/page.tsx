@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { semester as SemesterEnum } from "@/prisma/generated";
+import { semester as SemesterEnum } from @/prisma/generated/client";
 import prisma from "@/lib/prisma";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 

@@ -1,7 +1,7 @@
 "use client"
 
 import useSWR from "swr"
-import type { subject } from "@/prisma/generated"
+import type { subject } from @/prisma/generated/client"
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions"
 
 /**

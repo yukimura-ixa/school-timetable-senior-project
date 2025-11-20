@@ -5,7 +5,7 @@
  * This file contains only constants and types, no database logic.
  */
 
-import type { semester } from "@/prisma/generated";
+import type { semester } from @/prisma/generated/client";
 
 /**
  * Timetable configuration structure

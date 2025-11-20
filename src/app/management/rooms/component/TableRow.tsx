@@ -1,6 +1,6 @@
 import React from "react";
 import { BiEdit } from "react-icons/bi";
-import type { room } from "@/prisma/generated";
+import type { room } from @/prisma/generated/client";
 
 type TableRowProps = {
   item: room;

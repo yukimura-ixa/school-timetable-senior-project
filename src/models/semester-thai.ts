@@ -1,4 +1,4 @@
-import { semester } from "@/prisma/generated"
+import { semester } from @/prisma/generated/client"
 
 export type SemesterThai = {
     [semester: string]: string

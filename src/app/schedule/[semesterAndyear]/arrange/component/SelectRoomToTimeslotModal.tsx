@@ -1,7 +1,7 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { CircularProgress } from "@mui/material";
-import type { room } from "@/prisma/generated";
+import type { room } from @/prisma/generated/client";
 import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import useSWR from "swr";

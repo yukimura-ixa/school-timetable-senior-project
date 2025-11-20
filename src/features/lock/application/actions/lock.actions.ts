@@ -10,8 +10,8 @@
 import { createAction } from '@/shared/lib/action-wrapper';
 import * as v from 'valibot';
 import * as lockRepository from '../../infrastructure/repositories/lock.repository';
-import { semester } from '@/prisma/generated';
-import type { Prisma, class_schedule } from '@/prisma/generated';
+import { semester } from @/prisma/generated/client';
+import type { Prisma, class_schedule } from @/prisma/generated/client';
 import {
   generateClassID,
   groupSchedulesBySubject,

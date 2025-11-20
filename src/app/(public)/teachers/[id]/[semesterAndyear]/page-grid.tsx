@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import { semester as SemesterEnum } from "@/prisma/generated";
+import { semester as SemesterEnum } from @/prisma/generated/client";
 import prisma from "@/lib/prisma";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum

@@ -3,8 +3,8 @@ import {
   validateProgramMOECredits,
   calculateLearningAreaCredits,
 } from '@/features/program/domain/services/moe-validation.service';
-import { SubjectCategory, LearningArea } from '@/prisma/generated';
-import type { program_subject, subject } from '@/prisma/generated';
+import { SubjectCategory, LearningArea } from '@/prisma/generated/client';
+import type { program_subject, subject } from '@/prisma/generated/client';
 
 describe('MOE Validation Service', () => {
   describe('validateProgramMOECredits', () => {
@@ -24,7 +24,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ภาษาไทย',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'THAI',
+            LearningArea: LearningArea.THAI,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -44,7 +44,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'คณิตศาสตร์',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'MATHEMATICS',
+            LearningArea: LearningArea.MATHEMATICS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -64,7 +64,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'วิทยาศาสตร์',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'SCIENCE',
+            LearningArea: LearningArea.SCIENCE,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -84,7 +84,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'สังคมศึกษา',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'SOCIAL',
+            LearningArea: LearningArea.SOCIAL,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -104,7 +104,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'สุขศึกษาและพลศึกษา',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'HEALTH_PE',
+            LearningArea: LearningArea.HEALTH_PE,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -124,7 +124,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ศิลปะ',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'ARTS',
+            LearningArea: LearningArea.ARTS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -144,7 +144,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'การงานอาชีพ',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'CAREER',
+            LearningArea: LearningArea.CAREER,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -164,7 +164,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ภาษาอังกฤษ',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'FOREIGN_LANGUAGE',
+            LearningArea: LearningArea.FOREIGN_LANGUAGE,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -217,7 +217,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ภาษาไทย',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: LearningArea.THAI_LANGUAGE,
+            LearningArea: LearningArea.THAI,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -251,7 +251,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ภาษาไทย ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'THAI',
+            LearningArea: LearningArea.THAI,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -271,7 +271,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'คณิตศาสตร์ ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'MATHEMATICS',
+            LearningArea: LearningArea.MATHEMATICS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -291,7 +291,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'วิทยาศาสตร์ ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'SCIENCE',
+            LearningArea: LearningArea.SCIENCE,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -311,7 +311,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'สังคมศึกษา ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'SOCIAL',
+            LearningArea: LearningArea.SOCIAL,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -331,7 +331,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'สุขศึกษาและพลศึกษา ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'HEALTH_PE',
+            LearningArea: LearningArea.HEALTH_PE,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -351,7 +351,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ศิลปะ ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'ARTS',
+            LearningArea: LearningArea.ARTS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -371,7 +371,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'การงานอาชีพ ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'CAREER',
+            LearningArea: LearningArea.CAREER,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -391,7 +391,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ภาษาอังกฤษ ม.4',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: 'FOREIGN_LANGUAGE',
+            LearningArea: LearningArea.FOREIGN_LANGUAGE,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -423,7 +423,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'ภาษาไทย',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: LearningArea.THAI_LANGUAGE,
+            LearningArea: LearningArea.THAI,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -449,7 +449,7 @@ describe('MOE Validation Service', () => {
             SubjectName: `Subject ${i}`,
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: LearningArea.MATH,
+            LearningArea: LearningArea.MATHEMATICS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -500,7 +500,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'คณิตศาสตร์ 1',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: LearningArea.MATH,
+            LearningArea: LearningArea.MATHEMATICS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -520,7 +520,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'คณิตศาสตร์ 2',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: LearningArea.MATH,
+            LearningArea: LearningArea.MATHEMATICS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -548,7 +548,7 @@ describe('MOE Validation Service', () => {
         },
       ];
 
-      const mathCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.MATH);
+      const mathCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.MATHEMATICS);
       const scienceCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.SCIENCE);
 
       expect(mathCredits).toBe(4.5); // 2 + 2.5
@@ -558,7 +558,7 @@ describe('MOE Validation Service', () => {
     it('should return 0 for learning area with no subjects', () => {
       const mockProgramSubjects: Array<program_subject & { subject: subject }> = [];
 
-      const artCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.ART);
+      const artCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.ARTS);
 
       expect(artCredits).toBe(0);
     });
@@ -579,7 +579,7 @@ describe('MOE Validation Service', () => {
             SubjectName: 'คณิตศาสตร์',
             Credit: 'CREDIT_10',
             Category: SubjectCategory.CORE,
-            LearningArea: LearningArea.MATH,
+            LearningArea: LearningArea.MATHEMATICS,
             ActivityType: null,
             IsGraded: true,
             Description: '',
@@ -607,7 +607,7 @@ describe('MOE Validation Service', () => {
         },
       ];
 
-      const mathCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.MATH);
+      const mathCredits = calculateLearningAreaCredits(mockProgramSubjects, LearningArea.MATHEMATICS);
 
       expect(mathCredits).toBe(2); // Only MATH01, ACT01 excluded
     });

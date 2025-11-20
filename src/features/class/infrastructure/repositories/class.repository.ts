@@ -6,7 +6,7 @@
  */
 
 import prisma from '@/lib/prisma';
-import { semester, Prisma } from '@/prisma/generated';
+import { semester, Prisma } from @/prisma/generated/client';
 
 /**
  * Type: Class schedule with full relations

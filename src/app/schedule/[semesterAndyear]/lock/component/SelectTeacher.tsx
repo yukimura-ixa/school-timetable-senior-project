@@ -3,7 +3,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
-import type { subject, teacher } from "@/prisma/generated";
+import type { subject, teacher } from @/prisma/generated/client";
 
 type Props = {
   subject?: subject;

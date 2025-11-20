@@ -1,5 +1,5 @@
 "use client";
-import type { teacher } from "@/prisma/generated";
+import type { teacher } from @/prisma/generated/client";
 import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
 import { deleteTeachersAction, updateTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 

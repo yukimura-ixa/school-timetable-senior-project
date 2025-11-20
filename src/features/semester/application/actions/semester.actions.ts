@@ -7,8 +7,8 @@
 
 import * as v from "valibot";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
-import { Prisma } from "@/prisma/generated";
-import type { semester } from "@/prisma/generated";
+import { Prisma } from @/prisma/generated/client";
+import type { semester } from @/prisma/generated/client";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   type SemesterFilter,

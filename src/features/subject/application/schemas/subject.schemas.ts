@@ -9,7 +9,7 @@
  */
 
 import * as v from 'valibot';
-import { subject_credit, SubjectCategory, LearningArea, ActivityType } from '@/prisma/generated';
+import { subject_credit, SubjectCategory, LearningArea, ActivityType } from @/prisma/generated/client';
 
 /**
  * Schema for creating a single subject

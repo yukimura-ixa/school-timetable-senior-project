@@ -7,7 +7,7 @@ import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import type { teacher } from "@/prisma/generated";
+import type { teacher } from @/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
 

@@ -3,7 +3,7 @@
  * Manages teacher-to-subject assignments for specific grades, semesters, and academic years
  */
 
-import { semester } from "@/prisma/generated";
+import { semester } from @/prisma/generated/client";
 
 // ============================================================================
 // Core Domain Types

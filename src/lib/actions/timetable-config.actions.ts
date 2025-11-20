@@ -7,7 +7,7 @@
 'use server';
 
 import { getTimetableConfig, getDefaultTimetableConfig, type TimetableConfig } from '@/lib/timetable-config';
-import type { semester } from '@/prisma/generated';
+import type { semester } from @/prisma/generated/client';
 import { ActionResult } from '@/shared/lib/action-wrapper';
 
 /**

@@ -12,7 +12,7 @@ import SelectRoomName from "./SelectRoomName";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { ModalCloseHandler, ModalConfirmHandler, InputChangeHandler } from "@/types/events";
 import type { LockScheduleFormData, LockSchedule } from "@/types/lock-schedule";
-import type { room, teacher, subject } from "@/prisma/generated";
+import type { room, teacher, subject } from "@/prisma/generated/client";
 
 type Props = {
   lockSchedule: LockSchedule;

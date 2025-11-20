@@ -1,4 +1,4 @@
-import { day_of_week } from "@/prisma/generated"
+import { day_of_week } from @/prisma/generated/client"
 
 type DayOfWeekTextColor = {
   [day_of_week: string]: string

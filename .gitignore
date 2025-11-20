@@ -42,6 +42,7 @@ next-env.d.ts
 
 # prisma generated client (custom output path)
 /prisma/generated/
+/app/generated/prisma/
 
 /.idea
 .env*.local
@@ -57,3 +58,4 @@ next-env.d.ts
 prompt.md
 .gemini/
 gha-creds-*.json
+.py

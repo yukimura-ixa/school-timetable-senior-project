@@ -42,7 +42,7 @@ import {
   SubjectCategory,
   LearningArea,
   ActivityType,
-} from "../prisma/generated";
+} from "../prisma/generated/client";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";

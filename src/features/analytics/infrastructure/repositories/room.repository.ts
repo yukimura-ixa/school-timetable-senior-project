@@ -9,7 +9,7 @@ import prisma from '@/lib/prisma';
 import type { RoomOccupancy, DayOccupancy, PeriodOccupancy } from '../../domain/types/analytics.types';
 import { parseConfigId, getRoomUtilizationStatus, extractDayFromTimeslotId, extractPeriodFromTimeslotId, getThaiDayLabel, formatPeriodTime } from '../../domain/services/calculation.service';
 import { DAYS_OF_WEEK } from '../../domain/types/analytics.types';
-import type { day_of_week } from '@/prisma/generated';
+import type { day_of_week } from @/prisma/generated/client';
 
 /**
  * Get room occupancy data for all rooms

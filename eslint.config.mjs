@@ -35,7 +35,7 @@ const eslintConfig = [
       "next-env.d.ts",
       
       // Prisma generated client
-      "prisma/generated/**",
+      "app/generated/prisma/**",
       
       // Test directories (excluded from linting)
       "e2e/**",

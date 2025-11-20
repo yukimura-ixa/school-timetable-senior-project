@@ -9,7 +9,7 @@ import prisma from '@/lib/prisma';
 import type { SubjectDistribution } from '../../domain/types/analytics.types';
 import { parseConfigId } from '../../domain/services/calculation.service';
 import { SUBJECT_CATEGORIES } from '../../domain/types/analytics.types';
-import type { SubjectCategory, LearningArea } from '@/prisma/generated';
+import type { SubjectCategory, LearningArea } from @/prisma/generated/client';
 
 /**
  * Get subject distribution by category and learning area

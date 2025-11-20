@@ -3,7 +3,7 @@
  * Creates minimal data: semester, teachers, subjects, rooms, grades, timeslots
  */
 
-import { PrismaClient } from '../prisma/generated';
+import { PrismaClient } from '../prisma/generated/client';
 
 const prisma = new PrismaClient();
 

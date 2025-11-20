@@ -18,7 +18,7 @@ import type {
   teacher,
   day_of_week,
   semester,
-} from '@/prisma/generated';
+} from @/prisma/generated/client';
 
 // ============================================================================
 // Extended Types (with relations)

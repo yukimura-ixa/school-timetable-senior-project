@@ -40,7 +40,7 @@ import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import type { teacher, timeslot } from "@/prisma/generated";
+import type { teacher, timeslot } from @/prisma/generated/client";
 import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 
 type AllTimeslotClientProps = {

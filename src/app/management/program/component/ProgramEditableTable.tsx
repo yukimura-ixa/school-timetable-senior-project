@@ -1,6 +1,6 @@
 "use client";
 import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
-import type { program, $Enums } from "@/prisma/generated";
+import type { program, $Enums } from @/prisma/generated/client";
 import { createProgramAction, updateProgramAction, deleteProgramAction } from "@/features/program/application/actions/program.actions";
 import { enqueueSnackbar } from "notistack";
 
