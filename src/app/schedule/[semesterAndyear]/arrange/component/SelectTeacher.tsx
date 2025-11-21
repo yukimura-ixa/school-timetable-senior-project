@@ -7,9 +7,10 @@ import React, { useState } from "react";
 type Props = {
   setTeacherID: Function;
   currentTeacher : any;
+  disabled?: boolean;
 };
 
-function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
+function SelectTeacher({setTeacherID, currentTeacher = {}, disabled = false}: Props) {
   const pathName = usePathname();
   const allTeacher = useTeachers();
   const router = useRouter();
@@ -22,7 +23,10 @@ function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
   }
   return (
     <>
-      <div className="flex w-full items-center justify-between h-fit p-4 border border-[#EDEEF3]">
+      <div 
+        className="flex w-full items-center justify-between h-fit p-4 border border-[#EDEEF3]"
+        style={{ opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+      >
         <p>เลือกคุณครู</p>
         <Dropdown
           width={300}
@@ -31,6 +35,7 @@ function SelectTeacher({setTeacherID, currentTeacher = {}}: Props) {
           renderItem={({data}: { data: any }) => (<li><p>{`${data.Prefix}${data.Firstname} ${data.Lastname}`}</p></li>)}
           currentValue={teacher}
           handleChange={(data: any) => {
+            if (disabled) return; // Prevent changes when disabled
             setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`)
             setTeacherID(data.TeacherID)
             pushLink(data.TeacherID)

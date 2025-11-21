@@ -8,6 +8,7 @@ import type { teacher } from '@/prisma/generated/client';;
 type Props = {
   setTeacherID: (teacherId: number | null) => void;
   currentTeacher?: Partial<teacher> | null;
+  disabled?: boolean;
 };
 
 const formatTeacherName = (teacher?: Partial<teacher> | null) => {
@@ -22,7 +23,7 @@ const formatTeacherName = (teacher?: Partial<teacher> | null) => {
   return `${prefix}${firstname}${firstname && lastname ? " " : ""}${lastname}`.trim();
 };
 
-function SelectTeacher({ setTeacherID, currentTeacher = null }: Props) {
+function SelectTeacher({ setTeacherID, currentTeacher = null, disabled = false }: Props) {
   const allTeacher = useTeachers();
   const [teacher, setTeacher] = useState<string>(formatTeacherName(currentTeacher));
 
@@ -39,7 +40,10 @@ function SelectTeacher({ setTeacherID, currentTeacher = null }: Props) {
   }
 
   return (
-    <div className="flex h-fit w-full items-center justify-between border border-[#EDEEF3] p-4">
+    <div 
+      className="flex h-fit w-full items-center justify-between border border-[#EDEEF3] p-4"
+      style={{ opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+    >
       <p>เลือกครู</p>
       <Dropdown
         width={300}
@@ -55,6 +59,7 @@ function SelectTeacher({ setTeacherID, currentTeacher = null }: Props) {
         }}
         currentValue={teacher}
         handleChange={(data: unknown) => {
+          if (disabled) return;
           const t = data as Partial<teacher>;
           setTeacher(`${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`);
           setTeacherID(t.TeacherID ?? null);
