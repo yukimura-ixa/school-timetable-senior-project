@@ -49,6 +49,23 @@ export type ProgramValidationResult = {
 };
 
 /**
+ * Test helper / factory for ProgramValidationResult
+ * Provides sane defaults and allows targeted overrides in mocks.
+ */
+export function createMOEValidationResult(
+  overrides: Partial<ProgramValidationResult> = {}
+): ProgramValidationResult {
+  return {
+    isValid: overrides.isValid ?? true,
+    totalCredits: overrides.totalCredits ?? 0,
+    requiredCredits: overrides.requiredCredits ?? 0,
+    learningAreas: overrides.learningAreas ?? [],
+    errors: overrides.errors ?? [],
+    warnings: overrides.warnings ?? [],
+  };
+}
+
+/**
  * Calculate total credits for a learning area from program subjects
  */
 export function calculateLearningAreaCredits(
