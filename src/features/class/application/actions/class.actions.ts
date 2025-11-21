@@ -5,10 +5,10 @@
  * Uses 'use server' directive for Next.js 16+ Server Actions.
  */
 
-'use server';
+'use server'
 
-import { semester } from '@/prisma/generated/client';
-import * as v from 'valibot';
+import { semester } from '@/prisma/generated/client'
+import * as v from 'valibot'
 
 // Schemas
 import {
@@ -24,13 +24,15 @@ import {
   type CreateClassScheduleInput,
   type UpdateClassScheduleInput,
   type DeleteClassScheduleInput,
-} from '../schemas/class.schemas';
+} from '../schemas/class.schemas'
 
 // Repository
-import * as classRepository from '../../infrastructure/repositories/class.repository';
+import * as classRepository from '../../infrastructure/repositories/class.repository'
 
 // Services
-import { addTeachersToSchedules } from '../../domain/services/class-validation.service';
+import { addTeachersToSchedules } from '../../domain/services/class-validation.service'
+import { auth } from '@/lib/auth'
+import { isAdminRole, normalizeAppRole } from '@/lib/authz'
 
 /**
  * Helper: Create server action with validation
@@ -41,16 +43,16 @@ function createAction<TInput, TOutput>(
 ) {
   return async (input: TInput) => {
     try {
-      const validated = schema ? v.parse(schema, input) : (input as unknown as TOutput);
-      return await handler(validated);
+      const validated = schema ? v.parse(schema, input) : (input as unknown as TOutput)
+      return await handler(validated)
     } catch (error) {
       if (error instanceof v.ValiError) {
-        const errorMessages = error.issues.map((issue) => issue.message).join(', ');
-        throw new Error(`Validation failed: ${errorMessages}`);
+        const errorMessages = error.issues.map((issue) => issue.message).join(', ')
+        throw new Error(`Validation failed: ${errorMessages}`)
       }
-      throw error;
+      throw error
     }
-  };
+  }
 }
 
 /**
@@ -60,38 +62,51 @@ function createAction<TInput, TOutput>(
 export const getClassSchedulesAction = createAction(
   getClassSchedulesSchema,
   async (input: GetClassSchedulesInput) => {
-    const sem = semester[input.Semester];
+    const session = await auth()
+    const userRole = normalizeAppRole(session?.user?.role)
+    const userId = session?.user?.id
 
-    let schedules;
+    const sem = semester[input.Semester]
+
+    let schedules
 
     if (input.TeacherID) {
+      // SECURITY: Enforce role-based access for Teacher Schedules
+      // Only Admin or the Teacher themselves can view their schedule
+      if (!isAdminRole(userRole)) {
+        const isOwner = userRole === 'teacher' && userId === input.TeacherID.toString()
+        if (!isOwner) {
+          throw new Error("Unauthorized: You can only view your own schedule.")
+        }
+      }
+
       // Filter by teacher
       schedules = await classRepository.findByTeacher(
         input.TeacherID,
         input.AcademicYear,
         sem
-      );
+      )
     } else if (input.GradeID) {
       // Filter by grade
       schedules = await classRepository.findByGrade(
         input.GradeID,
         input.AcademicYear,
         sem
-      );
+      )
 
       // Add teachers list for grade view
-      return addTeachersToSchedules(schedules);
+      return addTeachersToSchedules(schedules)
     } else {
       // Get all schedules for term
       schedules = await classRepository.findByTerm(
         input.AcademicYear,
         sem
-      );
+      )
     }
 
-    return schedules;
+    return schedules
   }
-);
+)
 
 /**
  * Get schedule conflicts for a teacher
@@ -100,17 +115,17 @@ export const getClassSchedulesAction = createAction(
 export const getConflictsAction = createAction(
   getConflictsSchema,
   async (input: GetConflictsInput) => {
-    const sem = semester[input.Semester];
+    const sem = semester[input.Semester]
 
     const conflicts = await classRepository.findConflicts(
       input.TeacherID,
       input.AcademicYear,
       sem
-    );
+    )
 
-    return conflicts;
+    return conflicts
   }
-);
+)
 
 /**
  * Get class schedule summary
@@ -119,16 +134,16 @@ export const getConflictsAction = createAction(
 export const getSummaryAction = createAction(
   getSummarySchema,
   async (input: GetSummaryInput) => {
-    const sem = semester[input.Semester];
+    const sem = semester[input.Semester]
 
     const summary = await classRepository.findSummary(
       input.AcademicYear,
       sem
-    );
+    )
 
-    return summary;
+    return summary
   }
-);
+)
 
 /**
  * Create a new class schedule
@@ -150,19 +165,19 @@ export const createClassScheduleAction = createAction(
       },
       room: input.RoomID
         ? {
-            connect: { RoomID: input.RoomID },
-          }
+          connect: { RoomID: input.RoomID },
+        }
         : undefined,
       teachers_responsibility: input.ResponsibilityIDs
         ? {
-            connect: input.ResponsibilityIDs.map((id) => ({ RespID: id })),
-          }
+          connect: input.ResponsibilityIDs.map((id) => ({ RespID: id })),
+        }
         : undefined,
-    });
+    })
 
-    return schedule;
+    return schedule
   }
-);
+)
 
 /**
  * Update an existing class schedule
@@ -170,44 +185,44 @@ export const createClassScheduleAction = createAction(
 export const updateClassScheduleAction = createAction(
   updateClassScheduleSchema,
   async (input: UpdateClassScheduleInput) => {
-    const updateData: Record<string, unknown> = {};
+    const updateData: Record<string, unknown> = {}
 
     if (input.TimeslotID !== undefined) {
-      updateData.TimeslotID = input.TimeslotID;
+      updateData.TimeslotID = input.TimeslotID
     }
 
     if (input.SubjectCode !== undefined) {
-      updateData.SubjectCode = input.SubjectCode;
+      updateData.SubjectCode = input.SubjectCode
     }
 
     if (input.GradeID !== undefined) {
-      updateData.GradeID = input.GradeID;
+      updateData.GradeID = input.GradeID
     }
 
     if (input.IsLocked !== undefined) {
-      updateData.IsLocked = input.IsLocked;
+      updateData.IsLocked = input.IsLocked
     }
 
     if (input.RoomID !== undefined) {
       updateData.room = {
         connect: { RoomID: input.RoomID },
-      };
+      }
     }
 
     if (input.ResponsibilityIDs !== undefined) {
       updateData.teachers_responsibility = {
         set: input.ResponsibilityIDs.map((id) => ({ RespID: id })),
-      };
+      }
     }
 
     const schedule = await classRepository.update(
       input.ClassID,
       updateData
-    );
+    )
 
-    return schedule;
+    return schedule
   }
-);
+)
 
 /**
  * Delete a class schedule
@@ -215,10 +230,10 @@ export const updateClassScheduleAction = createAction(
 export const deleteClassScheduleAction = createAction(
   deleteClassScheduleSchema,
   async (input: DeleteClassScheduleInput) => {
-    const schedule = await classRepository.deleteById(input.ClassID);
-    return schedule;
+    const schedule = await classRepository.deleteById(input.ClassID)
+    return schedule
   }
-);
+)
 
 /**
  * Get count of all class schedules
@@ -226,10 +241,10 @@ export const deleteClassScheduleAction = createAction(
 export const getClassScheduleCountAction = createAction(
   undefined,
   async () => {
-    const count = await classRepository.count();
-    return { count };
+    const count = await classRepository.count()
+    return { count }
   }
-);
+)
 
 /**
  * Get a single class schedule by ClassID
@@ -239,15 +254,15 @@ export const getClassScheduleByIdAction = createAction(
     ClassID: v.pipe(v.string(), v.minLength(1)),
   }),
   async (input: { ClassID: string }) => {
-    const schedule = await classRepository.findByClassId(input.ClassID);
+    const schedule = await classRepository.findByClassId(input.ClassID)
 
     if (!schedule) {
-      throw new Error(`Class schedule with ClassID ${input.ClassID} not found`);
+      throw new Error(`Class schedule with ClassID ${input.ClassID} not found`)
     }
 
-    return schedule;
+    return schedule
   }
-);
+)
 
 /**
  * Get schedules by timeslot
@@ -258,9 +273,9 @@ export const getSchedulesByTimeslotAction = createAction(
     TimeslotID: v.pipe(v.string(), v.minLength(1)),
   }),
   async (input: { TimeslotID: string }) => {
-    const schedules = await classRepository.findByTerm(0, semester.SEMESTER_1);
-    
+    const schedules = await classRepository.findByTerm(0, semester.SEMESTER_1)
+
     // Filter by timeslot (simple filter since no direct repository method)
-    return schedules.filter((schedule) => schedule.TimeslotID === input.TimeslotID);
+    return schedules.filter((schedule) => schedule.TimeslotID === input.TimeslotID)
   }
-);
+)

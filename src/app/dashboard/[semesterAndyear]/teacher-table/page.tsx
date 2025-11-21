@@ -80,8 +80,19 @@ function TeacherTablePage() {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
   const { data: session } = useSession();
-  const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
-  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
+  const userRole = normalizeAppRole(session?.user?.role);
+  const isAdmin = isAdminRole(userRole);
+  const isTeacher = userRole === 'teacher';
+  const currentTeacherId = isTeacher && session?.user?.id ? parseInt(session.user.id) : null;
+
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(currentTeacherId);
+
+  // Effect to enforce teacher selection for non-admins
+  useEffect(() => {
+    if (isTeacher && currentTeacherId) {
+      setSelectedTeacherId(currentTeacherId);
+    }
+  }, [isTeacher, currentTeacherId]);
   
   // Bulk operation state
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
@@ -357,6 +368,7 @@ function TeacherTablePage() {
           <SelectTeacher
             setTeacherID={handleSelectTeacher}
             currentTeacher={teacherResponse && 'success' in teacherResponse && teacherResponse.success ? teacherResponse.data : null}
+            disabled={!isAdmin}
           />
         )}
 

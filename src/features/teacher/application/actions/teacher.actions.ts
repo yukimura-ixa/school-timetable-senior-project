@@ -10,6 +10,8 @@
 'use server'
 
 import { createAction } from '@/shared/lib/action-wrapper'
+import { auth } from '@/lib/auth'
+import { isAdminRole, normalizeAppRole } from '@/lib/authz'
 import { teacherRepository } from '../../infrastructure/repositories/teacher.repository'
 import {
   checkDuplicateTeacher,
@@ -75,6 +77,19 @@ export async function getTeachersAction() {
 export const getTeacherByIdAction = createAction(
   getTeacherByIdSchema,
   async (input: GetTeacherByIdInput) => {
+    const session = await auth()
+    const userRole = normalizeAppRole(session?.user?.role)
+    const userId = session?.user?.id
+
+    // SECURITY: Enforce role-based access
+    // Only Admin or the Teacher themselves can view their profile details
+    if (!isAdminRole(userRole)) {
+      const isOwner = userRole === 'teacher' && userId === input.TeacherID.toString()
+      if (!isOwner) {
+        throw new Error("Unauthorized: You can only view your own profile.")
+      }
+    }
+
     const teacher = await teacherRepository.findById(input.TeacherID)
     return teacher
   }
