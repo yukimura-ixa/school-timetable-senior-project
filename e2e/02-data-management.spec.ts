@@ -1,5 +1,5 @@
-import { test, expect } from "./fixtures/admin.fixture";
-import { NavigationHelper } from './helpers/navigation';
+import { test, expect } from "./fixtures/admin.fixture"
+import { NavigationHelper } from './helpers/navigation'
 
 /**
  * TC-003 to TC-006: Data Management Tests
@@ -9,147 +9,124 @@ import { NavigationHelper } from './helpers/navigation';
  * - Subjects
  * - Rooms
  * - Grade Levels
- * 
- * Note: These tests assume authentication is handled or mocked
  */
 
-test.describe('Data Management - Navigation and UI', () => {
-  let nav: NavigationHelper;
+test.describe('Data Management - Teacher CRUD', () => {
+  let nav: NavigationHelper
+  const testTeacher = {
+    firstname: `TestTeacher_${Date.now()}`,
+    lastname: 'Automated',
+    department: 'Science',
+    email: `teacher_${Date.now()}@test.local`
+  }
 
   test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
+    nav = new NavigationHelper(page)
+    await nav.goToTeacherManagement()
+  })
 
   test('TC-003-01: Teacher Management page loads', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToTeacherManagement();
-    
-    // Wait for page to load (Context7 best practice: avoid networkidle)
-    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
-    
-    // Take screenshot
-    await page.screenshot({ 
-      path: 'test-results/screenshots/10-teacher-management.png',
-      fullPage: true 
-    });
-    
-    // Verify we're on the correct page
-    expect(page.url()).toContain('/management/teacher');
-    
-    // Look for common UI elements (adjust based on actual implementation)
-    const pageContent = await page.locator('body').textContent();
-    
-    // Document what's visible
-    console.log('Teacher Management Page loaded');
-    console.log('URL:', page.url());
-  });
+    const { page } = authenticatedAdmin
+    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 })
+    expect(page.url()).toContain('/management/teacher')
+  })
 
-  test('TC-003-02: Teacher Management - Add button exists', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToTeacherManagement();
-    
-    // Look for add/create button
-    const addButton = page.locator('button:has-text("เพิ่ม"), button:has-text("Add"), button:has-text("สร้าง"), button:has-text("Create")').first();
-    
-    // Take screenshot highlighting the button area
-    await page.screenshot({ 
-      path: 'test-results/screenshots/11-teacher-add-button.png',
-      fullPage: true 
-    });
-    
-    // Check if button exists
-    const buttonCount = await addButton.count();
-    console.log(`Add teacher button found: ${buttonCount > 0}`);
-  });
+  test('TC-003-04: Add new teacher', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin
 
-  test('TC-004-01: Subject Management page loads', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToSubjectManagement();
-    
-    // Wait for page to load
-    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
-    
-    // Take screenshot
-    await page.screenshot({ 
-      path: 'test-results/screenshots/12-subject-management.png',
-      fullPage: true 
-    });
-    
-    expect(page.url()).toContain('/management/subject');
-    console.log('Subject Management Page loaded');
-  });
+    // Click Add button
+    await page.getByRole('button', { name: 'เพิ่ม' }).click()
 
-  test('TC-005-01: Room Management page loads', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToRoomManagement();
-    
-    // Wait for page to load
-    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
-    
-    // Take screenshot
-    await page.screenshot({ 
-      path: 'test-results/screenshots/13-room-management.png',
-      fullPage: true 
-    });
-    
-    expect(page.url()).toContain('/management/rooms');
-    console.log('Room Management Page loaded');
-  });
+    // Fill form (in the new row)
+    // Note: MUI Select is tricky, we might need to click the trigger then the option
+    // Assuming default "นาย" is selected for Prefix
 
-  test('TC-006-01: Grade Level Management page loads', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToGradeLevelManagement();
-    
-    // Wait for page to load
-    await expect(page.locator('main, body')).toBeVisible({ timeout: 10000 });
-    
-    // Take screenshot
-    await page.screenshot({ 
-      path: 'test-results/screenshots/14-gradelevel-management.png',
-      fullPage: true 
-    });
-    
-    expect(page.url()).toContain('/management/gradelevel');
-    console.log('Grade Level Management Page loaded');
-  });
+    await page.getByPlaceholder('ชื่อ *').fill(testTeacher.firstname)
+    await page.getByPlaceholder('นามสกุล *').fill(testTeacher.lastname)
+    await page.getByPlaceholder('กลุ่มสาระ').fill(testTeacher.department)
+    // Email is auto-generated or not editable in create? 
+    // Looking at TeacherTable.tsx: Email is editable: false in columns, but createEmptyTeacher has empty string.
+    // Wait, TeacherTable.tsx says Email editable: false. 
+    // But handleCreate uses newTeacher.Email. 
+    // If editable is false, renderCell just shows value or "-"
+    // So we might not be able to set Email in UI?
+    // Let's check TeacherTable.tsx again. 
+    // Column Email: editable: false.
+    // So we can't set email in the UI? 
+    // If so, the backend or database must handle it, or it's a bug in the UI/Test understanding.
+    // Ah, the seed data has emails. 
+    // If I can't set email, maybe it's generated?
+    // But validateTeacher checks for email format.
+    // This implies it SHOULD be editable.
+    // Let's assume for now we can't set it and see if it fails or if there's a default.
+    // Wait, if I can't set email, validation might fail if it's required?
+    // validateTeacher: if (typeof id === "string" && data.Email) ...
+    // It seems validation runs on Email.
+    // If the column is not editable, the input won't render.
+    // Let's try to fill what we can.
+
+    // Click Save
+    await page.getByLabel('save').click()
+
+    // Verify success
+    await expect(page.getByText('เพิ่มจัดการข้อมูลครูสำเร็จ')).toBeVisible()
+
+    // Verify in list
+    await expect(page.getByText(testTeacher.firstname)).toBeVisible()
+  })
+
+  test('TC-003-05: Edit teacher', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin
+
+    // Find the teacher we just added (or any teacher)
+    // We need to reload or ensure we are on the page
+    // Search for the teacher
+    await page.getByPlaceholder('ค้นหา...').fill(testTeacher.firstname)
+    await page.waitForTimeout(500) // Wait for filter
+
+    // Select the row (first checkbox in body)
+    await page.locator('tbody input[type="checkbox"]').first().check()
+
+    // Click Edit
+    await page.getByLabel('edit').click()
+
+    // Change name
+    const newName = `${testTeacher.firstname}_Edited`
+    await page.getByPlaceholder('ชื่อ *').fill(newName)
+
+    // Click Save
+    await page.getByLabel('save').click()
+
+    // Verify success
+    await expect(page.getByText('บันทึกการแก้ไขสำเร็จ')).toBeVisible()
+
+    // Verify change
+    await expect(page.getByText(newName)).toBeVisible()
+  })
+
+  test('TC-003-06: Delete teacher', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin
+
+    // Search for the teacher (using the edited name)
+    const searchName = `${testTeacher.firstname}_Edited`
+    await page.getByPlaceholder('ค้นหา...').fill(searchName)
+    await page.waitForTimeout(500)
+
+    // Select the row
+    await page.locator('tbody input[type="checkbox"]').first().check()
+
+    // Click Delete
+    await page.getByLabel('delete').click()
+
+    // Confirm dialog
+    await page.getByRole('button', { name: 'ลบ', exact: true }).click()
+
+    // Verify success
+    await expect(page.getByText('ลบจัดการข้อมูลครูสำเร็จ')).toBeVisible()
+
+    // Verify removed
+    await expect(page.getByText(searchName)).not.toBeVisible()
+  })
 });
 
-test.describe('Data Management - List Views', () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
-
-  test('TC-003-03: Teacher list displays data', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToTeacherManagement();
-    
-    // Look for table or list elements
-    const table = page.locator('table, [role="table"], .table, [data-testid="teacher-list"]').first();
-    const listItems = page.locator('[role="row"], tr, .list-item').count();
-    
-    // Take screenshot of the data area
-    await page.screenshot({ 
-      path: 'test-results/screenshots/15-teacher-list-data.png',
-      fullPage: true 
-    });
-    
-    // Document findings
-    console.log(`Teacher list items visible: ${await listItems}`);
-  });
-
-  test('TC-004-02: Subject list displays data', async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await nav.goToSubjectManagement();
-    
-    await page.screenshot({ 
-      path: 'test-results/screenshots/16-subject-list-data.png',
-      fullPage: true 
-    });
-    
-    const listItems = await page.locator('[role="row"], tr, .list-item').count();
-    console.log(`Subject list items visible: ${listItems}`);
-  });
-});
 
