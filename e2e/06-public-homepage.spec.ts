@@ -9,10 +9,11 @@
  * - Data privacy (no PII)
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe("Public Homepage - Unauthenticated Access", () => {
-  test("should load homepage without authentication", async ({ page }) => {
+  test("should load homepage without authentication", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/");
     
     // Should not redirect to login
@@ -22,7 +23,8 @@ test.describe("Public Homepage - Unauthenticated Access", () => {
     await expect(page.locator("h1")).toContainText("ระบบตารางเรียนตารางสอน");
   });
 
-  test("should display quick stats cards", async ({ page }) => {
+  test("should display quick stats cards", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/");
     
     // Wait for stats to load with web-first assertion
@@ -38,7 +40,8 @@ test.describe("Public Homepage - Unauthenticated Access", () => {
     expect(statCards).toBeGreaterThanOrEqual(4);
   });
 
-  test("should display mini charts section", async ({ page }) => {
+  test("should display mini charts section", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/");
     
     // Should show charts section
@@ -51,7 +54,8 @@ test.describe("Public Homepage - Unauthenticated Access", () => {
 });
 
 test.describe("Tab Navigation", () => {
-  test("should switch between teachers and classes tabs", async ({ page }) => {
+  test("should switch between teachers and classes tabs", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/");
     
     // Default should be teachers tab
@@ -78,7 +82,8 @@ test.describe("Tab Navigation", () => {
     await expect(page.locator("th")).toContainText("ชื่อ-นามสกุล");
   });
 
-  test("should reset to page 1 when switching tabs", async ({ page }) => {
+  test("should reset to page 1 when switching tabs", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers&page=2");
     
     // Should be on page 2
@@ -95,7 +100,8 @@ test.describe("Tab Navigation", () => {
 });
 
 test.describe("Search Functionality", () => {
-  test("should search teachers by name", async ({ page }) => {
+  test("should search teachers by name", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Type search term (common Thai name prefix)
@@ -117,7 +123,8 @@ test.describe("Search Functionality", () => {
     expect(rows).toBeGreaterThan(0);
   });
 
-  test("should search classes by grade", async ({ page }) => {
+  test("should search classes by grade", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=classes");
     
     // Search for M.1 (Mathayom 1)
@@ -139,7 +146,8 @@ test.describe("Search Functionality", () => {
     await expect(table).toContainText("M.1");
   });
 
-  test("should clear search with X button", async ({ page }) => {
+  test("should clear search with X button", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers&search=test");
     
     // Should have search value
@@ -156,7 +164,8 @@ test.describe("Search Functionality", () => {
     await expect(page).toHaveURL(/^\/\?tab=teachers(?!.*search)/);
   });
 
-  test("should show empty state for no results", async ({ page }) => {
+  test("should show empty state for no results", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Search for something that won't exist
@@ -168,7 +177,8 @@ test.describe("Search Functionality", () => {
 });
 
 test.describe("Pagination", () => {
-  test("should paginate through teachers", async ({ page }) => {
+  test("should paginate through teachers", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Check if pagination exists (only if more than 25 teachers)
@@ -193,7 +203,8 @@ test.describe("Pagination", () => {
     }
   });
 
-  test("should show correct pagination info", async ({ page }) => {
+  test("should show correct pagination info", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Should show "แสดง X ถึง Y จาก Z รายการ"
@@ -201,7 +212,8 @@ test.describe("Pagination", () => {
     await expect(paginationInfo).toBeVisible();
   });
 
-  test("should disable previous button on first page", async ({ page }) => {
+  test("should disable previous button on first page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers&page=1");
     
     const prevButton = page.locator('button:has-text("Previous"), button[aria-label="Previous page"]').first();
@@ -210,7 +222,8 @@ test.describe("Pagination", () => {
 });
 
 test.describe("Table Interactions", () => {
-  test("should have clickable view schedule links", async ({ page }) => {
+  test("should have clickable view schedule links", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Should have at least one "View schedule" link
@@ -222,7 +235,8 @@ test.describe("Table Interactions", () => {
     expect(href).toContain("/dashboard");
   });
 
-  test("should have clickable view timetable links for classes", async ({ page }) => {
+  test("should have clickable view timetable links for classes", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=classes");
     
     const viewLinks = page.locator('a:has-text("View timetable"), a:has-text("ดูตารางเรียน")');
@@ -232,7 +246,8 @@ test.describe("Table Interactions", () => {
     expect(href).toContain("/dashboard");
   });
 
-  test("should display teacher utilization badges", async ({ page }) => {
+  test("should display teacher utilization badges", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Should show utilization badges (color-coded)
@@ -240,7 +255,8 @@ test.describe("Table Interactions", () => {
     await expect(badges.first()).toBeVisible();
   });
 
-  test("should display subject count badges", async ({ page }) => {
+  test("should display subject count badges", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=classes");
     
     // Should show subject count badges
@@ -250,7 +266,8 @@ test.describe("Table Interactions", () => {
 });
 
 test.describe("Data Privacy & Security", () => {
-  test("should not expose email addresses in HTML", async ({ page }) => {
+  test("should not expose email addresses in HTML", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     
     // Get full page HTML
@@ -263,7 +280,8 @@ test.describe("Data Privacy & Security", () => {
     expect(matches).toBeNull();
   });
 
-  test("should not expose email addresses in network responses", async ({ page }) => {
+  test("should not expose email addresses in network responses", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const responseBodies: string[] = [];
     
     // Capture all API responses
@@ -293,7 +311,8 @@ test.describe("Data Privacy & Security", () => {
 });
 
 test.describe("Responsive Design", () => {
-  test("should display correctly on mobile", async ({ page }) => {
+  test("should display correctly on mobile", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
     
@@ -305,7 +324,8 @@ test.describe("Responsive Design", () => {
     expect(await cards.count()).toBeGreaterThan(0);
   });
 
-  test("should display correctly on tablet", async ({ page }) => {
+  test("should display correctly on tablet", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto("/");
     
@@ -314,7 +334,8 @@ test.describe("Responsive Design", () => {
     await expect(page.locator("text=ภาพรวมการใช้งาน")).toBeVisible();
   });
 
-  test("should display correctly on desktop", async ({ page }) => {
+  test("should display correctly on desktop", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/");
     
@@ -325,9 +346,10 @@ test.describe("Responsive Design", () => {
 });
 
 test.describe("Performance", () => {
-  test("should load within acceptable time", async ({ page }) => {
+  test("should load within acceptable time", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const startTime = Date.now();
-    await page.goto("/", { waitUntil: 'domcontentloaded' });
+    await page.goto("/");
     
     // Wait for critical content - Context7: don't rely on timing alone
     await expect(page.locator("h1")).toBeVisible({ timeout: 3000 });
@@ -338,7 +360,8 @@ test.describe("Performance", () => {
     expect(loadTime).toBeLessThan(3000);
   });
 
-  test("should have no console errors", async ({ page }) => {
+  test("should have no console errors", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const errors: string[] = [];
     
     page.on("console", (msg) => {
@@ -361,3 +384,4 @@ test.describe("Performance", () => {
     expect(criticalErrors).toHaveLength(0);
   });
 });
+

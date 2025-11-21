@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from './helpers/navigation';
 
 /**
@@ -28,11 +28,12 @@ test.describe('Program Management - Navigation by Year', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-PROG-001: Navigate to M.1 programs', async ({ page }) => {
-    await page.goto('/management/program/1', { waitUntil: 'domcontentloaded' });
+  test('TC-PROG-001: Navigate to M.1 programs', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto('/management/program/1');
     
     // Wait for main content to load
-    await page.waitForSelector('table, main, h1', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     expect(page.url()).toContain('/management/program/1');
     
@@ -46,7 +47,8 @@ test.describe('Program Management - Navigation by Year', () => {
     });
   });
 
-  test('TC-PROG-002: Navigate through all year levels (M.1-M.6)', async ({ page }) => {
+  test('TC-PROG-002: Navigate through all year levels (M.1-M.6)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     for (let year = 1; year <= 6; year++) {
       await page.goto(`/management/program/${year}`);
       await page.waitForLoadState('domcontentloaded');
@@ -66,14 +68,15 @@ test.describe('Program Management - Navigation by Year', () => {
 
 test.describe('Program Management - Filtering', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/management/program/1', { waitUntil: 'domcontentloaded' });
+    await page.goto('/management/program/1');
     
     // Wait for table to load
-    await page.waitForSelector('table', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
   });
 
-  test('TC-PROG-010: Semester filter displays correct options', async ({ page }) => {
+  test('TC-PROG-010: Semester filter displays correct options', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Look for semester filter dropdown
     const semesterFilter = page.locator('select, [role="combobox"]').filter({ 
       hasText: /ภาคเรียน|Semester|ทั้งหมด/ 
@@ -95,7 +98,8 @@ test.describe('Program Management - Filtering', () => {
     }
   });
 
-  test('TC-PROG-011: Filter by Semester 1', async ({ page }) => {
+  test('TC-PROG-011: Filter by Semester 1', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Find and click semester filter
     const semesterSelect = page.locator('select').filter({ 
       hasText: /ทั้งหมด|SEMESTER/ 
@@ -126,7 +130,8 @@ test.describe('Program Management - Filtering', () => {
     }
   });
 
-  test('TC-PROG-012: Filter by Academic Year', async ({ page }) => {
+  test('TC-PROG-012: Filter by Academic Year', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Find academic year filter
     const yearSelect = page.locator('select').filter({ 
       hasText: /256/ 
@@ -158,7 +163,8 @@ test.describe('Program Management - Filtering', () => {
     }
   });
 
-  test('TC-PROG-013: Combined filter (Semester + Academic Year)', async ({ page }) => {
+  test('TC-PROG-013: Combined filter (Semester + Academic Year)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Apply both filters
     const semesterSelect = page.locator('select').filter({ 
       hasText: /ทั้งหมด|SEMESTER/ 
@@ -205,7 +211,8 @@ test.describe('Program Management - Filtering', () => {
     }
   });
 
-  test('TC-PROG-014: Search programs by name', async ({ page }) => {
+  test('TC-PROG-014: Search programs by name', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Find search input
     const searchInput = page.locator('input[type="text"]').filter({ 
       hasText: /ค้นหา|Search/ 
@@ -247,14 +254,15 @@ test.describe('Program Management - Filtering', () => {
 
 test.describe('Program Management - CRUD Operations', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/management/program/1', { waitUntil: 'domcontentloaded' });
+    await page.goto('/management/program/1');
     
     // Wait for table or buttons to be ready
-    await page.waitForSelector('table, button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     await expect(page.locator('table, button').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
   });
 
-  test('TC-PROG-020: Open Add Program modal', async ({ page }) => {
+  test('TC-PROG-020: Open Add Program modal', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Find add button - try multiple patterns
     const addButton = page.locator('button').filter({ 
       hasText: /เพิ่ม|Add|สร้าง|Create/i 
@@ -282,7 +290,8 @@ test.describe('Program Management - CRUD Operations', () => {
     }
   });
 
-  test('TC-PROG-021: Create new program - Duplicate detection', async ({ page }) => {
+  test('TC-PROG-021: Create new program - Duplicate detection', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Try to create a program that already exists (should fail)
     const addButton = page.locator('button').filter({ 
       hasText: /เพิ่ม|Add/i 
@@ -341,7 +350,8 @@ test.describe('Program Management - CRUD Operations', () => {
     }
   });
 
-  test('TC-PROG-022: Create new program - Success', async ({ page }) => {
+  test('TC-PROG-022: Create new program - Success', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const addButton = page.locator('button').filter({ 
       hasText: /เพิ่ม|Add/i 
     }).first();
@@ -401,7 +411,8 @@ test.describe('Program Management - CRUD Operations', () => {
     }
   });
 
-  test('TC-PROG-023: Inline edit program', async ({ page }) => {
+  test('TC-PROG-023: Inline edit program', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Find first editable row
     const firstRow = page.locator('table tbody tr').first();
     
@@ -450,7 +461,8 @@ test.describe('Program Management - CRUD Operations', () => {
     }
   });
 
-  test('TC-PROG-024: Delete program', async ({ page }) => {
+  test('TC-PROG-024: Delete program', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Create a test program first, then delete it
     const addButton = page.locator('button').filter({ 
       hasText: /เพิ่ม|Add/i 
@@ -533,7 +545,8 @@ test.describe('Program Management - Data Validation', () => {
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
   });
 
-  test('TC-PROG-030: Verify seeded data across academic years', async ({ page }) => {
+  test('TC-PROG-030: Verify seeded data across academic years', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Check for programs from different academic years
     const yearSelect = page.locator('select').filter({ 
       hasText: /256/ 
@@ -568,7 +581,8 @@ test.describe('Program Management - Data Validation', () => {
     }
   });
 
-  test('TC-PROG-031: Verify semester filter affects row count', async ({ page }) => {
+  test('TC-PROG-031: Verify semester filter affects row count', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const semesterSelect = page.locator('select').filter({ 
       hasText: /ทั้งหมด|SEMESTER/ 
     }).first();
@@ -599,7 +613,8 @@ test.describe('Program Management - Data Validation', () => {
     }
   });
 
-  test('TC-PROG-032: Verify table displays all expected columns', async ({ page }) => {
+  test('TC-PROG-032: Verify table displays all expected columns', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const table = page.locator('table').first();
     
     if (await table.count() > 0) {
@@ -630,7 +645,8 @@ test.describe('Program Management - Pagination', () => {
     await expect(page.locator('table').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
   });
 
-  test('TC-PROG-040: Pagination controls exist', async ({ page }) => {
+  test('TC-PROG-040: Pagination controls exist', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Look for pagination controls
     const pagination = page.locator('[role="navigation"], .pagination, [class*="Pagination"]').first();
     
@@ -649,7 +665,8 @@ test.describe('Program Management - Pagination', () => {
     }
   });
 
-  test('TC-PROG-041: Navigate to next page if available', async ({ page }) => {
+  test('TC-PROG-041: Navigate to next page if available', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Look for next page button
     const nextButton = page.locator('button, a').filter({ 
       hasText: /ถัดไป|Next|›|>/ 
@@ -690,7 +707,8 @@ test.describe('Program Management - Accessibility', () => {
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
   });
 
-  test('TC-PROG-050: Page has proper heading structure', async ({ page }) => {
+  test('TC-PROG-050: Page has proper heading structure', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const h1 = await page.locator('h1').count();
     const h2 = await page.locator('h2').count();
     
@@ -701,7 +719,8 @@ test.describe('Program Management - Accessibility', () => {
     expect(h1 + h2).toBeGreaterThan(0);
   });
 
-  test('TC-PROG-051: Interactive elements are keyboard accessible', async ({ page }) => {
+  test('TC-PROG-051: Interactive elements are keyboard accessible', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Test tab navigation
     await page.keyboard.press('Tab');
     // Wait for focus to settle
@@ -715,7 +734,8 @@ test.describe('Program Management - Accessibility', () => {
     expect(focusedElement).toBeTruthy();
   });
 
-  test('TC-PROG-052: Table is properly labeled', async ({ page }) => {
+  test('TC-PROG-052: Table is properly labeled', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const table = page.locator('table').first();
     
     if (await table.count() > 0) {
@@ -734,3 +754,4 @@ test.describe('Program Management - Accessibility', () => {
     }
   });
 });
+

@@ -1,0 +1,109 @@
+[dotenv@17.2.3] injecting env (11) from .env.test -- tip: ๐” add secrets lifecycle management: https://dotenvx.com/ops
+SKIP_WEBSERVER: true
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ๐” encrypt with Dotenvx: https://dotenvx.com
+๐” Using AUTH_SECRET from .env.test (length=27)
+
+๐”ง E2E Test Setup: Initializing test environment...
+
+   AUTH_SECRET checksum: dGVzdGluโ€ฆ
+๐ณ Docker Compose lifecycle management: ENABLED
+
+โน๏ธ  Test database is already running
+   Reusing existing database instance
+
+๐ฑ Seeding test database...
+
+๐งน Cleared cached Playwright auth storage state
+๐ฑ Running test database seed with .env.test configuration...
+
+> school-timetable@2.0.0 test:db:seed B:\Dev\school-timetable-senior-project
+> dotenv -e .env.test -- tsx prisma/seed.ts
+
+๐ฑ Starting MOE-compliant seed with retry logic...
+๐”ง Connection: postgresql://test_user:test_password@127.0.0.1:543...
+๐‘ค Creating admin user...
+โน๏ธ  Admin user already exists
+๐งช Test mode enabled - Seeding E2E test data...
+๐งน Cleaning existing data...
+๐” Cleaning auth sessions for test mode...
+โ… Auth sessions cleaned
+โ… Timetable data cleaned (Auth.js tables preserved)
+๐“ Creating subjects with MOE 8 Learning Areas...
+โ… Created 82 subjects (48 core + 25 additional + 9 activities)
+๐“ Creating programs...
+โ… Created 18 programs (3 tracks ร— 6 years)
+๐ซ Creating grade levels with program assignments...
+โ… Created 18 grade levels with program assignments
+๐ช Creating rooms...
+โ… Created 40 rooms across 3 buildings
+๐‘จโ€๐ซ Creating teachers (target: 40)...
+โ… Created 40 teachers across 8 departments
+โฐ Creating timeslots...
+โ… Created 40 timeslots for Semester 1 (5 days ร— 8 periods)
+โฐ Creating timeslots for Semester 2...
+โ… Created 40 timeslots for Semester 2 (5 days ร— 8 periods)
+โ๏ธ  Creating timetable configuration...
+โ… Created timetable configuration
+๐”— Assigning subjects to M.1 programs...
+โ… Assigned 14 subjects to M.1 Science-Math program
+โน๏ธ  Other programs can be populated similarly via the UI or additional seed logic
+๐“ Creating sample teacher responsibilities...
+โ… Created 21 sample teacher responsibilities
+๐“… Creating sample locked schedules for activities...
+โ… Created 0 sample locked schedules
+
+======================================================================
+๐ MOE-Compliant Seed Completed Successfully!
+======================================================================
+๐“ Database Summary:
+   โ€ข Programs: 18 (3 tracks ร— 6 years)
+   โ€ข Grade Levels: 18 (M.1-M.6, 3 sections each)
+   โ€ข Rooms: 40 (3 buildings)
+   โ€ข Teachers: 40 (8 departments; target 40 met)
+   โ€ข Subjects: 82 subjects
+     - Core (8 learning areas): 48
+     - Additional (track-specific): 25
+     - Activities (MOE-compliant): 9
+   โ€ข Timeslots: 80 (Semester 1: 40, Semester 2: 40)
+   โ€ข Teacher Responsibilities: 21
+   โ€ข Sample Locked Schedules: 0
+   โ€ข Table Configurations: 1
+======================================================================
+
+โจ Your MOE-compliant database is ready!
+๐’ก Features included:
+   - โ… Retry logic for Docker Desktop connection stability
+   - โ… MOE 8 Learning Areas structure
+   - โ… Proper ActivityType (เธเธธเธกเธเธธเธก, เธฅเธนเธเน€เธชเธทเธญ, เนเธเธฐเนเธเธง, เธเธดเธเธเธฃเธฃเธกเน€เธเธทเนเธญเธชเธฑเธเธเธก)
+   - โ… Three program tracks (เธงเธดเธ—เธขเน-เธเธ“เธดเธ•, เธจเธดเธฅเธเน-เธเธณเธเธงเธ“, เธจเธดเธฅเธเน-เธ เธฒเธฉเธฒ)
+   - โ… Realistic teacher workload (1-3 subjects per Ministry standard)
+   - โ… Locked timeslots for school-wide activities
+   - โ… Grade-program assignments
+======================================================================
+
+โ… Test environment ready!
+
+   Database: postgresql://localhost:5433/test_timetable
+   Tests: 27 E2E tests ready to run
+
+ReferenceError: __dirname is not defined in ES module scope
+
+   at auth.setup.ts:22
+
+  20 | import path from 'path';
+  21 |
+> 22 | const authFile = path.join(__dirname, '../playwright/.auth/admin.json');
+     |                            ^
+  23 |
+  24 | // Increase setup timeout to accommodate initial compile/HMR and seeding
+  25 | setup.setTimeout(60_000);
+    at B:\Dev\school-timetable-senior-project\e2e\auth.setup.ts:22:28
+Error: No tests found
+
+๐งน E2E Test Teardown: Cleaning up...
+
+โ… Removed .env.local
+
+โน๏ธ  Test database managed externally - skipping cleanup
+
+

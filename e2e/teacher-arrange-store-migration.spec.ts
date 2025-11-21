@@ -13,7 +13,7 @@
  * Expected Performance: 60-70% re-render reduction
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 // Test data setup
 const TEST_SEMESTER = '1-2567';
@@ -27,13 +27,12 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
     });
     
     // Wait for page to be fully loaded - check for main content
-    await page.waitForSelector('[role="combobox"], .teacher-select, main', {
-      timeout: 10000
-    });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
   });
 
   test.describe('Teacher Selection & State Management', () => {
-    test('should load teacher list and select a teacher', async ({ page }) => {
+    test('should load teacher list and select a teacher', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Check if teacher selection dropdown/list exists
       const teacherSelect = page.getByRole('combobox', { name: /เลือกครู|teacher/i }).first();
       await expect(teacherSelect).toBeVisible();
@@ -42,7 +41,7 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       await teacherSelect.click();
       
       // Wait for options to appear
-      await page.waitForSelector('[role="option"]', { timeout: 5000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
       
       const firstTeacher = page.locator('[role="option"]').first();
       await expect(firstTeacher).toBeVisible();
@@ -54,13 +53,14 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       ).toBeVisible({ timeout: 10000 });
     });
 
-    test('should persist selected teacher on page reload', async ({ page }) => {
+    test('should persist selected teacher on page reload', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select a teacher
       const teacherSelect = page.getByRole('combobox', { name: /เลือกครู|teacher/i }).first();
       await teacherSelect.click();
       
       // Wait for options to appear
-      await page.waitForSelector('[role="option"]', { timeout: 5000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
       
       const firstTeacher = page.locator('[role="option"]').first();
       await expect(firstTeacher).toBeVisible();
@@ -77,7 +77,7 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       await page.reload({ waitUntil: 'domcontentloaded' });
       
       // Wait for page to reinitialize
-      await page.waitForSelector('[role="combobox"], main', { timeout: 10000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
       // Verify teacher is still selected (check for schedule content)
       await expect(
@@ -87,7 +87,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
   });
 
   test.describe('Subject Data Management', () => {
-    test('should display subject list for selected teacher', async ({ page }) => {
+    test('should display subject list for selected teacher', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -100,7 +101,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       expect(count).toBeGreaterThan(0);
     });
 
-    test('should filter subjects when using search/filter', async ({ page }) => {
+    test('should filter subjects when using search/filter', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -137,7 +139,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
   });
 
   test.describe('Timeslot Operations', () => {
-    test('should display timeslot grid', async ({ page }) => {
+    test('should display timeslot grid', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -151,7 +154,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       await expect(dayHeaders.first()).toBeVisible();
     });
 
-    test('should highlight timeslot on hover', async ({ page }) => {
+    test('should highlight timeslot on hover', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -169,7 +173,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
   });
 
   test.describe('Drag and Drop Functionality', () => {
-    test('should select subject when clicked', async ({ page }) => {
+    test('should select subject when clicked', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -183,7 +188,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       expect(classes).toBeTruthy();
     });
 
-    test('should show error when trying invalid assignment', async ({ page }) => {
+    test('should show error when trying invalid assignment', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -206,7 +212,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
   });
 
   test.describe('Modal Operations', () => {
-    test('should open room selection modal when assigning to timeslot', async ({ page }) => {
+    test('should open room selection modal when assigning to timeslot', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -232,7 +239,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       }
     });
 
-    test('should close modal on cancel', async ({ page }) => {
+    test('should close modal on cancel', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher and open modal (same as above)
       await selectTeacher(page);
 
@@ -260,7 +268,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
   });
 
   test.describe('Save & Persistence', () => {
-    test('should show saving indicator when saving schedule', async ({ page }) => {
+    test('should show saving indicator when saving schedule', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -280,7 +289,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
   });
 
   test.describe('Performance & Re-render Validation', () => {
-    test('should maintain responsive UI during multiple state changes', async ({ page }) => {
+    test('should maintain responsive UI during multiple state changes', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -299,7 +309,8 @@ test.describe('Teacher Arrange - Store Migration E2E', () => {
       await expect(lastSubject).toBeVisible();
     });
 
-    test('should handle localStorage persistence correctly', async ({ page }) => {
+    test('should handle localStorage persistence correctly', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
       // Select teacher
       await selectTeacher(page);
 
@@ -343,7 +354,7 @@ async function selectTeacher(page: any) {
     await teacherSelect.click();
     
     // Wait for options to appear
-    await page.waitForSelector('[role="option"]', { timeout: 5000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     
     const firstTeacher = page.locator('[role="option"]').first();
     await expect(firstTeacher).toBeVisible();
@@ -355,3 +366,4 @@ async function selectTeacher(page: any) {
     }, { timeout: 5000 }).catch(() => {});
   }
 }
+

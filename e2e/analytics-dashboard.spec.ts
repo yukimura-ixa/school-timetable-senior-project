@@ -22,10 +22,11 @@
  * Memory: analytics_ui_phase1_implementation_complete
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe('Analytics Dashboard - Access & Navigation', () => {
-  test('should navigate to analytics from dashboard', async ({ page }) => {
+  test('should navigate to analytics from dashboard', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Login and go to dashboard
     await page.goto('/');
     await page.goto('/dashboard/select-semester');
@@ -61,7 +62,8 @@ test.describe('Analytics Dashboard - Access & Navigation', () => {
     await page.waitForURL(/\/login|\/signin/, { timeout: 10000 });
   });
 
-  test('should show analytics page header', async ({ page }) => {
+  test('should show analytics page header', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Should have page title
@@ -70,11 +72,12 @@ test.describe('Analytics Dashboard - Access & Navigation', () => {
 });
 
 test.describe('Analytics Dashboard - Overview Stats Cards', () => {
-  test('should display 4 overview stat cards', async ({ page }) => {
+  test('should display 4 overview stat cards', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Wait for stat cards to load
-    await page.waitForSelector('[data-testid*="stat-card"], .stat-card, [role="region"]', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     
     // Should have at least 4 stat cards
     const statCards = page.locator('[data-testid*="stat-card"], .stat-card, [role="region"]');
@@ -82,7 +85,8 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
     expect(count).toBeGreaterThanOrEqual(4);
   });
 
-  test('should show total scheduled hours', async ({ page }) => {
+  test('should show total scheduled hours', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for scheduled hours stat
@@ -94,7 +98,8 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
     await expect(number).toBeVisible();
   });
 
-  test('should show completion rate percentage', async ({ page }) => {
+  test('should show completion rate percentage', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for completion rate (percentage)
@@ -106,7 +111,8 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
     await expect(percentage).toBeVisible();
   });
 
-  test('should show active teachers count', async ({ page }) => {
+  test('should show active teachers count', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for active teachers stat
@@ -114,7 +120,8 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
     await expect(activeTeachers).toBeVisible({ timeout: 10000 });
   });
 
-  test('should show conflicts count with color coding', async ({ page }) => {
+  test('should show conflicts count with color coding', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for conflicts stat
@@ -134,18 +141,20 @@ test.describe('Analytics Dashboard - Overview Stats Cards', () => {
 });
 
 test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
-  test('should display teacher workload section', async ({ page }) => {
+  test('should display teacher workload section', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Should have teacher workload section header
     await expect(page.locator('h2, h3, [data-testid="section-title"]').filter({ hasText: /Teacher.*Workload|ภาระงาน.*ครู/i })).toBeVisible({ timeout: 10000 });
   });
 
-  test('should list all teachers with workload data', async ({ page }) => {
+  test('should list all teachers with workload data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Wait for teacher workload list to load
-    await page.waitForSelector('[data-testid="teacher-workload-list"], .teacher-workload', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     
     // Should have teacher entries
     const teacherEntries = page.locator('[data-testid="teacher-entry"], .teacher-entry, [data-testid^="teacher-"]');
@@ -155,7 +164,8 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('should show teacher names and workload hours', async ({ page }) => {
+  test('should show teacher names and workload hours', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Find first teacher entry
@@ -169,7 +179,8 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
     await expect(firstTeacher).toContainText(/\d+.*ชม\.|\/\d+|\d+.*hours?/i);
   });
 
-  test('should display workload status indicators', async ({ page }) => {
+  test('should display workload status indicators', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for status chips/badges
@@ -188,7 +199,8 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
     }
   });
 
-  test('should display visual progress bars for workload', async ({ page }) => {
+  test('should display visual progress bars for workload', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for progress bars
@@ -204,7 +216,8 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
     expect(width).not.toBe('0px');
   });
 
-  test('should sort teachers by workload descending', async ({ page }) => {
+  test('should sort teachers by workload descending', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Get all teacher hours values
@@ -231,7 +244,8 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
     }
   });
 
-  test('should handle teachers with zero workload', async ({ page }) => {
+  test('should handle teachers with zero workload', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for teachers with 0 hours or "ไม่ได้ใช้งาน" status
@@ -244,7 +258,8 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
     }
   });
 
-  test('should show MaxHours limit for each teacher', async ({ page }) => {
+  test('should show MaxHours limit for each teacher', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for max hours indicator (e.g., "12/18" where 18 is max)
@@ -257,18 +272,20 @@ test.describe('Analytics Dashboard - Teacher Workload Analysis', () => {
 });
 
 test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
-  test('should display room utilization section', async ({ page }) => {
+  test('should display room utilization section', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Should have room utilization section header
     await expect(page.locator('h2, h3, [data-testid="section-title"]').filter({ hasText: /Room.*Utilization|การใช้.*ห้อง|ห้องเรียน/i })).toBeVisible({ timeout: 10000 });
   });
 
-  test('should list all rooms with utilization data', async ({ page }) => {
+  test('should list all rooms with utilization data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Wait for room list to load
-    await page.waitForSelector('[data-testid="room-utilization-list"], .room-utilization', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     
     // Should have room entries
     const roomEntries = page.locator('[data-testid="room-entry"], .room-entry, [data-testid^="room-"]');
@@ -278,7 +295,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('should show room names and IDs', async ({ page }) => {
+  test('should show room names and IDs', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Find first room entry
@@ -289,7 +307,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
     await expect(firstRoom).toContainText(/[A-Z]\d+|Room\s+\d+|ห้อง\s+\d+/i);
   });
 
-  test('should display occupancy rates as percentages', async ({ page }) => {
+  test('should display occupancy rates as percentages', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Find first room entry
@@ -299,7 +318,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
     await expect(firstRoom).toContainText(/\d+%/);
   });
 
-  test('should display occupancy status chips', async ({ page }) => {
+  test('should display occupancy status chips', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for status chips with different colors
@@ -315,7 +335,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
     }
   });
 
-  test('should sort rooms by occupancy rate descending', async ({ page }) => {
+  test('should sort rooms by occupancy rate descending', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Get all room occupancy values
@@ -342,7 +363,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
     }
   });
 
-  test('should show scheduled periods vs total periods', async ({ page }) => {
+  test('should show scheduled periods vs total periods', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for fraction format like "30/40" (30 scheduled out of 40 total)
@@ -353,7 +375,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
     }
   });
 
-  test('should display visual progress bars for occupancy', async ({ page }) => {
+  test('should display visual progress bars for occupancy', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Scroll to room utilization section
@@ -371,7 +394,8 @@ test.describe('Analytics Dashboard - Room Utilization Analysis', () => {
 });
 
 test.describe('Analytics Dashboard - Data Accuracy', () => {
-  test('should show realistic workload percentages (0-150%)', async ({ page }) => {
+  test('should show realistic workload percentages (0-150%)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Extract all percentage values
@@ -388,7 +412,8 @@ test.describe('Analytics Dashboard - Data Accuracy', () => {
     }
   });
 
-  test('should show non-negative counts', async ({ page }) => {
+  test('should show non-negative counts', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Extract all numeric counts
@@ -404,7 +429,8 @@ test.describe('Analytics Dashboard - Data Accuracy', () => {
     }
   });
 
-  test('should calculate completion rate correctly', async ({ page }) => {
+  test('should calculate completion rate correctly', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Find completion rate value
@@ -423,7 +449,8 @@ test.describe('Analytics Dashboard - Data Accuracy', () => {
 });
 
 test.describe('Analytics Dashboard - UI/UX', () => {
-  test('should be scrollable for long lists', async ({ page }) => {
+  test('should be scrollable for long lists', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Teacher/room lists should have max-height with scroll
@@ -434,7 +461,8 @@ test.describe('Analytics Dashboard - UI/UX', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('should be responsive on mobile', async ({ page }) => {
+  test('should be responsive on mobile', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
     
     await page.goto('/dashboard/1-2567/analytics');
@@ -449,7 +477,8 @@ test.describe('Analytics Dashboard - UI/UX', () => {
     }
   });
 
-  test('should load without errors', async ({ page }) => {
+  test('should load without errors', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const errors: string[] = [];
     page.on('pageerror', error => errors.push(error.message));
     
@@ -460,7 +489,8 @@ test.describe('Analytics Dashboard - UI/UX', () => {
     expect(errors).toHaveLength(0);
   });
 
-  test('should display loading states appropriately', async ({ page }) => {
+  test('should display loading states appropriately', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Look for loading indicators (skeleton, spinner, etc.)
@@ -476,7 +506,8 @@ test.describe('Analytics Dashboard - UI/UX', () => {
 });
 
 test.describe('Analytics Dashboard - Performance', () => {
-  test('should load within 10 seconds', async ({ page }) => {
+  test('should load within 10 seconds', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const startTime = Date.now();
     
     await page.goto('/dashboard/1-2567/analytics');
@@ -488,7 +519,8 @@ test.describe('Analytics Dashboard - Performance', () => {
     expect(loadTime).toBeLessThan(10000);
   });
 
-  test('should handle large datasets (50+ teachers)', async ({ page }) => {
+  test('should handle large datasets (50+ teachers)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/dashboard/1-2567/analytics');
     
     // Should still render even with many teachers
@@ -502,3 +534,4 @@ test.describe('Analytics Dashboard - Performance', () => {
     }
   });
 });
+

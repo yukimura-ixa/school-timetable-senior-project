@@ -1,0 +1,30 @@
+[dotenv@17.2.3] injecting env (11) from .env.test -- tip: ๐“ก add observability to secrets: https://dotenvx.com/ops
+SKIP_WEBSERVER: true
+ReferenceError: __dirname is not defined in ES module scope
+
+   at ..\playwright.global-setup.ts:7
+
+   5 |
+   6 | // Load test environment variables (ensure AUTH_SECRET precedence for stable JWT decryption)
+>  7 | const testEnvPath = path.resolve(__dirname, '.env.test');
+     |                                  ^
+   8 | if (fs.existsSync(testEnvPath)) {
+   9 |   dotenv.config({ path: testEnvPath });
+  10 | }
+    at B:\Dev\school-timetable-senior-project\playwright.global-setup.ts:7:34
+
+๐งน E2E Test Teardown: Cleaning up...
+
+โ ๏ธ  Failed to remove .env.local: ReferenceError: __dirname is not defined
+    at globalTeardown (file:///B:/Dev/school-timetable-senior-project/playwright.global-teardown.ts:14:39)
+    at Object.teardown [as setup] (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\runner\tasks.js:190:13)
+    at taskLoop (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\runner\taskRunner.js:62:11)
+    at TaskRunner.runDeferCleanup (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\runner\taskRunner.js:78:5)
+    at TaskRunner.run (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\runner\taskRunner.js:43:28)
+    at runTasks (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\runner\tasks.js:80:18)
+    at runAllTestsWithConfig (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\runner\testRunner.js:380:18)
+    at runTests (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\program.js:251:18)
+    at i.<anonymous> (B:\Dev\school-timetable-senior-project\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\program.js:71:7)
+โน๏ธ  Test database managed externally - skipping cleanup
+
+

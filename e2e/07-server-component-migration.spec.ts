@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from './helpers/navigation';
 
 /**
@@ -18,7 +18,8 @@ test.describe('Server Component Migration - Teacher Management', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-007-01: Teacher page renders with server data (no loading spinner)', async ({ page }) => {
+  test('TC-007-01: Teacher page renders with server data (no loading spinner)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to teacher management
     await nav.goToTeacherManagement();
     
@@ -42,7 +43,8 @@ test.describe('Server Component Migration - Teacher Management', () => {
     console.log('✓ Teacher management page rendered with server data');
   });
 
-  test('TC-007-02: Teacher data appears in initial HTML (SSR verification)', async ({ page }) => {
+  test('TC-007-02: Teacher data appears in initial HTML (SSR verification)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // This test verifies that teacher data is in the initial HTML response
     // (Server-Side Rendered), not fetched client-side
     
@@ -75,7 +77,8 @@ test.describe('Server Component Migration - Teacher Management', () => {
     });
   });
 
-  test('TC-007-03: Client interactions still work (mutations)', async ({ page }) => {
+  test('TC-007-03: Client interactions still work (mutations)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToTeacherManagement();
     
     // Look for interactive buttons (Add, Edit, Delete, etc.) - Context7: auto-wait
@@ -111,7 +114,8 @@ test.describe('Server Component Migration - Other Management Pages', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-007-04: Rooms page renders with server data', async ({ page }) => {
+  test('TC-007-04: Rooms page renders with server data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToRoomManagement();
     
     // Check for table/list - Context7: web-first assertion auto-waits
@@ -127,7 +131,8 @@ test.describe('Server Component Migration - Other Management Pages', () => {
     console.log('✓ Rooms management page rendered with server data');
   });
 
-  test('TC-007-05: Subjects page renders with server data', async ({ page }) => {
+  test('TC-007-05: Subjects page renders with server data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToSubjectManagement();
     
     // Check for table/list - Context7: web-first assertion auto-waits
@@ -143,7 +148,8 @@ test.describe('Server Component Migration - Other Management Pages', () => {
     console.log('✓ Subjects management page rendered with server data');
   });
 
-  test('TC-007-06: GradeLevel page renders with server data', async ({ page }) => {
+  test('TC-007-06: GradeLevel page renders with server data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToGradeLevelManagement();
     
     // Check for table/list - Context7: web-first assertion auto-waits
@@ -167,7 +173,8 @@ test.describe('Server Component Migration - Performance', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-007-07: Teacher page loads faster (no client-side data fetch delay)', async ({ page }) => {
+  test('TC-007-07: Teacher page loads faster (no client-side data fetch delay)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Measure time to first meaningful content
     const startTime = Date.now();
     
@@ -190,7 +197,8 @@ test.describe('Server Component Migration - Performance', () => {
     });
   });
 
-  test('TC-007-08: No SWR revalidation requests on mount', async ({ page }) => {
+  test('TC-007-08: No SWR revalidation requests on mount', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Track network requests
     const apiRequests: string[] = [];
     
@@ -224,9 +232,10 @@ test.describe('Server Component Migration - Performance', () => {
 });
 
 test.describe('Server Component Migration - Dashboard Header', () => {
-  test('TC-007-09: Dashboard header renders without useParams client hook', async ({ page }) => {
+  test('TC-007-09: Dashboard header renders without useParams client hook', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to dashboard
-    await page.goto('/dashboard/select-semester', { waitUntil: 'domcontentloaded' });
+    await page.goto('/dashboard/select-semester');
     
     // Select a semester to navigate to a dashboard page with [semesterAndyear] param - Context7: auto-wait
     const semesterLink = page.locator('a[href*="/dashboard/"]').first();
@@ -257,7 +266,8 @@ test.describe('Server Component Migration - Regression Tests', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-007-10: All management pages still accessible', async ({ page }) => {
+  test('TC-007-10: All management pages still accessible', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const pages = [
       { name: 'Teacher', navigate: () => nav.goToTeacherManagement(), url: '/management/teacher' },
       { name: 'Rooms', navigate: () => nav.goToRoomManagement(), url: '/management/rooms' },
@@ -282,7 +292,8 @@ test.describe('Server Component Migration - Regression Tests', () => {
     }
   });
 
-  test('TC-007-11: Search functionality still works (client-side filtering)', async ({ page }) => {
+  test('TC-007-11: Search functionality still works (client-side filtering)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToTeacherManagement();
     
     // Look for search input
@@ -320,7 +331,8 @@ test.describe('Server Component Migration - Regression Tests', () => {
     }
   });
 
-  test('TC-007-12: Pagination still works (client-side)', async ({ page }) => {
+  test('TC-007-12: Pagination still works (client-side)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToTeacherManagement();
     
     // Look for pagination controls
@@ -337,3 +349,4 @@ test.describe('Server Component Migration - Regression Tests', () => {
     }
   });
 });
+

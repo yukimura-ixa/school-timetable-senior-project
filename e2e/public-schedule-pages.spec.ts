@@ -12,10 +12,11 @@
  * - src/app/(public)/classes/[gradeId]/[semesterAndyear]/page.tsx
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe('Public Teacher Schedule Page', () => {
-  test('should load teacher schedule without authentication', async ({ page }) => {
+  test('should load teacher schedule without authentication', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to public teacher schedule (using seeded data)
     await page.goto('/teachers/1/1-2567');
     
@@ -30,7 +31,8 @@ test.describe('Public Teacher Schedule Page', () => {
     await expect(teacherName).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display timetable grid with days and periods', async ({ page }) => {
+  test('should display timetable grid with days and periods', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     // Wait for main content to be visible (Next.js streams; no networkidle)
@@ -48,7 +50,8 @@ test.describe('Public Teacher Schedule Page', () => {
     await expect(headers).toContainText(['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์']);
   });
 
-  test('should display period numbers and time ranges', async ({ page }) => {
+  test('should display period numbers and time ranges', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -65,7 +68,8 @@ test.describe('Public Teacher Schedule Page', () => {
     await expect(firstPeriodCell).toContainText(/\d{2}:\d{2}/); // Time format
   });
 
-  test('should display subject details in schedule cells', async ({ page }) => {
+  test('should display subject details in schedule cells', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -87,7 +91,8 @@ test.describe('Public Teacher Schedule Page', () => {
     }
   });
 
-  test('should display room information when available', async ({ page }) => {
+  test('should display room information when available', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -102,7 +107,8 @@ test.describe('Public Teacher Schedule Page', () => {
     }
   });
 
-  test('should show empty cells for unscheduled periods', async ({ page }) => {
+  test('should show empty cells for unscheduled periods', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -115,7 +121,8 @@ test.describe('Public Teacher Schedule Page', () => {
     expect(emptyCount).toBeGreaterThan(0);
   });
 
-  test('should handle no schedule data gracefully', async ({ page }) => {
+  test('should handle no schedule data gracefully', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Try accessing a teacher with no schedules (using high ID unlikely to exist)
     await page.goto('/teachers/99999/1-2567');
     
@@ -132,7 +139,8 @@ test.describe('Public Teacher Schedule Page', () => {
     }
   });
 
-  test('should have print-friendly layout', async ({ page }) => {
+  test('should have print-friendly layout', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -145,7 +153,8 @@ test.describe('Public Teacher Schedule Page', () => {
     await expect(page.locator('text=/landscape|แนวนอน/i')).toBeVisible();
   });
 
-  test('should navigate back to homepage', async ({ page }) => {
+  test('should navigate back to homepage', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -162,7 +171,8 @@ test.describe('Public Teacher Schedule Page', () => {
     expect(page.url()).toMatch(/\/$|\/\?/);
   });
 
-  test('should display semester information', async ({ page }) => {
+  test('should display semester information', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -171,7 +181,8 @@ test.describe('Public Teacher Schedule Page', () => {
     await expect(page.locator('text=/ภาคเรียนที่\s*\d+\s*ปีการศึกษา\s*\d{4}/i')).toBeVisible();
   });
 
-  test('should handle invalid semester format', async ({ page }) => {
+  test('should handle invalid semester format', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Invalid semester format (should be "1-2567")
     await page.goto('/teachers/1/invalid-semester');
     
@@ -182,7 +193,8 @@ test.describe('Public Teacher Schedule Page', () => {
 });
 
 test.describe('Public Class Schedule Page', () => {
-  test('should load class schedule without authentication', async ({ page }) => {
+  test('should load class schedule without authentication', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to public class schedule (using seeded data: grade "101" = ม.1/1)
     await page.goto('/classes/101/1-2567');
     
@@ -193,7 +205,8 @@ test.describe('Public Class Schedule Page', () => {
     await expect(page.locator('h1')).toContainText('ตารางเรียน');
   });
 
-  test('should display class information', async ({ page }) => {
+  test('should display class information', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -202,7 +215,8 @@ test.describe('Public Class Schedule Page', () => {
     await expect(page.locator('p.font-medium, [data-testid="class-name"]')).toContainText(/ม\.\d+\/\d+/);
   });
 
-  test('should display timetable grid with correct structure', async ({ page }) => {
+  test('should display timetable grid with correct structure', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -219,7 +233,8 @@ test.describe('Public Class Schedule Page', () => {
     await expect(headers.first()).toContainText(/คาบ|Period/i);
   });
 
-  test('should display teacher names in schedule cells', async ({ page }) => {
+  test('should display teacher names in schedule cells', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -237,7 +252,8 @@ test.describe('Public Class Schedule Page', () => {
     }
   });
 
-  test('should display subject information', async ({ page }) => {
+  test('should display subject information', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -255,7 +271,8 @@ test.describe('Public Class Schedule Page', () => {
     }
   });
 
-  test('should navigate between teacher and class schedules', async ({ page }) => {
+  test('should navigate between teacher and class schedules', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Start on class schedule
     await page.goto('/classes/101/1-2567');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -277,7 +294,8 @@ test.describe('Public Class Schedule Page', () => {
     }
   });
 
-  test('should handle multiple periods per day correctly', async ({ page }) => {
+  test('should handle multiple periods per day correctly', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -290,7 +308,8 @@ test.describe('Public Class Schedule Page', () => {
     expect(rowCount).toBeLessThanOrEqual(12); // Sanity check
   });
 
-  test('should show program information if available', async ({ page }) => {
+  test('should show program information if available', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -306,7 +325,8 @@ test.describe('Public Class Schedule Page', () => {
 });
 
 test.describe('Public Schedule Pages - Common Features', () => {
-  test('should not expose PII (email, phone) in teacher schedules', async ({ page }) => {
+  test('should not expose PII (email, phone) in teacher schedules', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
@@ -321,7 +341,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
     expect(phonePattern.test(content)).toBe(false);
   });
 
-  test('should not expose PII in class schedules', async ({ page }) => {
+  test('should not expose PII in class schedules', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
@@ -335,7 +356,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
     expect(content.toLowerCase()).not.toContain('postgresql://');
   });
 
-  test('should be responsive on mobile viewport', async ({ page }) => {
+  test('should be responsive on mobile viewport', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     
@@ -351,7 +373,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
     await expect(scrollContainer).toBeVisible({ timeout: 5000 });
   });
 
-  test('should be responsive on tablet viewport', async ({ page }) => {
+  test('should be responsive on tablet viewport', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
     
@@ -363,7 +386,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
     await expect(table).toBeVisible();
   });
 
-  test('should load within acceptable time (performance)', async ({ page }) => {
+  test('should load within acceptable time (performance)', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const startTime = Date.now();
     
     await page.goto('/teachers/1/1-2567');
@@ -375,7 +399,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
     expect(loadTime).toBeLessThan(5000);
   });
 
-  test('should handle long subject names gracefully', async ({ page }) => {
+  test('should handle long subject names gracefully', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/101/1-2567');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
@@ -390,7 +415,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
     }
   });
 
-  test('should maintain accessibility standards', async ({ page }) => {
+  test('should maintain accessibility standards', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/1/1-2567');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
@@ -409,7 +435,8 @@ test.describe('Public Schedule Pages - Common Features', () => {
 });
 
 test.describe('Public Schedule Pages - Error Handling', () => {
-  test('should handle invalid teacher ID', async ({ page }) => {
+  test('should handle invalid teacher ID', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/teachers/invalid-id/1-2567');
     
     // Should show not found or error message
@@ -417,7 +444,8 @@ test.describe('Public Schedule Pages - Error Handling', () => {
     await expect(error).toBeVisible({ timeout: 5000 });
   });
 
-  test('should handle invalid class ID', async ({ page }) => {
+  test('should handle invalid class ID', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/classes/999999/1-2567');
     
     // Should show not found or error message
@@ -425,7 +453,8 @@ test.describe('Public Schedule Pages - Error Handling', () => {
     await expect(error).toBeVisible({ timeout: 5000 });
   });
 
-  test('should handle missing semester parameter', async ({ page }) => {
+  test('should handle missing semester parameter', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Try accessing without semester parameter (if route allows)
     const response = await page.goto('/teachers/1/', { waitUntil: 'networkidle' }).catch(() => null);
     
@@ -438,7 +467,8 @@ test.describe('Public Schedule Pages - Error Handling', () => {
     }
   });
 
-  test('should show meaningful error for non-existent semester', async ({ page }) => {
+  test('should show meaningful error for non-existent semester', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Try accessing semester that doesn't exist (e.g., semester 5)
     await page.goto('/teachers/1/5-2567');
     
@@ -447,3 +477,4 @@ test.describe('Public Schedule Pages - Error Handling', () => {
     await expect(notFound).toBeVisible({ timeout: 5000 });
   });
 });
+

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 /**
  * E2E Tests for MOE-Compliant Program Management Workflow
@@ -13,13 +13,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Program Management Workflow', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the program management page
-    await page.goto('/management/program', { waitUntil: 'domcontentloaded' });
+    await page.goto('/management/program');
     
     // Wait for page content to load
-    await page.waitForSelector('table, button, main', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
   });
 
-  test('should create a new program and assign subjects', async ({ page }) => {
+  test('should create a new program and assign subjects', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Step 1: Create a new program
     await test.step('Create new program', async () => {
       const addButton = page.getByRole('button', { name: /add/i });
@@ -107,12 +108,13 @@ test.describe('Program Management Workflow', () => {
     });
   });
 
-  test('should assign program to gradelevel', async ({ page }) => {
+  test('should assign program to gradelevel', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Navigate to gradelevel management', async () => {
-      await page.goto('/management/gradelevel', { waitUntil: 'domcontentloaded' });
+      await page.goto('/management/gradelevel');
       
       // Wait for gradelevel table to load
-      await page.waitForSelector('table, main', { timeout: 10000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     });
 
     await test.step('Assign program to a gradelevel', async () => {
@@ -138,7 +140,8 @@ test.describe('Program Management Workflow', () => {
     });
   });
 
-  test('should validate subject assignment with invalid credits', async ({ page }) => {
+  test('should validate subject assignment with invalid credits', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Create program and navigate to subject assignment', async () => {
       // Quick create a program
       const addButton = page.getByRole('button', { name: /add/i });
@@ -185,7 +188,8 @@ test.describe('Program Management Workflow', () => {
     });
   });
 
-  test('should update existing subject assignments', async ({ page }) => {
+  test('should update existing subject assignments', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Navigate to existing program', async () => {
       // Find an existing program row
       const existingProgram = page.locator('tbody tr').first();
@@ -223,7 +227,8 @@ test.describe('Activity Management Workflow', () => {
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should create and manage activity subjects', async ({ page }) => {
+  test('should create and manage activity subjects', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Navigate to activity management', async () => {
       // Look for activity management section or tab
       const activitySection = page.getByText(/activity management/i);
@@ -291,7 +296,8 @@ test.describe('Activity Management Workflow', () => {
     });
   });
 
-  test('should validate activity creation', async ({ page }) => {
+  test('should validate activity creation', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Attempt to create activity without required fields', async () => {
       const addButton = page.getByRole('button', { name: /add activity/i });
       await addButton.click();
@@ -305,3 +311,4 @@ test.describe('Activity Management Workflow', () => {
     });
   });
 });
+

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { PDFCustomizationDialogPO } from './page-objects/PDFCustomizationDialogPO';
 import { TeacherTablePO } from './page-objects/TeacherTablePO';
 import { StudentTablePO } from './page-objects/StudentTablePO';
@@ -349,7 +349,8 @@ test.describe('PDF Customization - Student Table', () => {
 test.describe('PDF Customization - Cross-functionality', () => {
   const SEMESTER = '1-2567';
 
-  test('TC-099-15: Dialog state persists between teacher and student pages', async ({ page }) => {
+  test('TC-099-15: Dialog state persists between teacher and student pages', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const teacherTablePO = new TeacherTablePO(page);
     const studentTablePO = new StudentTablePO(page);
     const pdfDialogPO = new PDFCustomizationDialogPO(page);
@@ -376,7 +377,8 @@ test.describe('PDF Customization - Cross-functionality', () => {
     await pdfDialogPO.assertDefaultValues();
   });
 
-  test('TC-099-16: Export with all options enabled', async ({ page }) => {
+  test('TC-099-16: Export with all options enabled', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const teacherTablePO = new TeacherTablePO(page);
     const pdfDialogPO = new PDFCustomizationDialogPO(page);
     
@@ -401,7 +403,8 @@ test.describe('PDF Customization - Cross-functionality', () => {
     await pdfDialogPO.assertDialogClosed();
   });
 
-  test('TC-099-17: Export with all options disabled/minimum', async ({ page }) => {
+  test('TC-099-17: Export with all options disabled/minimum', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const studentTablePO = new StudentTablePO(page);
     const pdfDialogPO = new PDFCustomizationDialogPO(page);
     
@@ -426,3 +429,4 @@ test.describe('PDF Customization - Cross-functionality', () => {
     await pdfDialogPO.assertDialogClosed();
   });
 });
+

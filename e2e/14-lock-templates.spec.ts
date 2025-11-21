@@ -3,26 +3,28 @@
  * Tests complete user flows for applying pre-defined lock templates
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe("Lock Templates", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], header, nav', { timeout: 10000 });
+    await page.goto("/");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
   });
 
-  test("should display templates button on lock page", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should display templates button on lock page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Find templates button
     const templatesButton = page.locator("button").filter({ hasText: /ใช้เทมเพลต|เทมเพลต/ });
     await expect(templatesButton).toBeVisible();
   });
 
-  test("should open templates modal when button clicked", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], button', { timeout: 10000 });
+  test("should open templates modal when button clicked", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Click templates button
     const templatesButton = page.locator("button").filter({ hasText: /ใช้เทมเพลต|เทมเพลต/ });
@@ -36,9 +38,10 @@ test.describe("Lock Templates", () => {
     await expect(page.locator("text=/เทมเพลต|Templates/i")).toBeVisible();
   });
 
-  test("should display template categories", async ({ page }) => {
+  test("should display template categories", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -52,9 +55,10 @@ test.describe("Lock Templates", () => {
     expect(hasLunchCategory || hasActivityCategory || hasAssemblyCategory).toBe(true);
   });
 
-  test("should display template cards", async ({ page }) => {
+  test("should display template cards", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -65,9 +69,10 @@ test.describe("Lock Templates", () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test("should show lunch templates", async ({ page }) => {
+  test("should show lunch templates", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -80,9 +85,10 @@ test.describe("Lock Templates", () => {
     expect(hasLunchTemplates).toBe(true);
   });
 
-  test("should show activity templates", async ({ page }) => {
+  test("should show activity templates", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -93,9 +99,10 @@ test.describe("Lock Templates", () => {
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test("should show template descriptions", async ({ page }) => {
+  test("should show template descriptions", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -106,9 +113,10 @@ test.describe("Lock Templates", () => {
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test("should allow clicking template card", async ({ page }) => {
+  test("should allow clicking template card", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -124,9 +132,10 @@ test.describe("Lock Templates", () => {
     expect(hasPreviewDialog).toBe(true);
   });
 
-  test("should display template preview details", async ({ page }) => {
+  test("should display template preview details", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -143,9 +152,10 @@ test.describe("Lock Templates", () => {
     }
   });
 
-  test("should show total lock count in preview", async ({ page }) => {
+  test("should show total lock count in preview", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -162,9 +172,10 @@ test.describe("Lock Templates", () => {
     }
   });
 
-  test("should display warning messages if any", async ({ page }) => {
+  test("should display warning messages if any", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -182,9 +193,10 @@ test.describe("Lock Templates", () => {
     }
   });
 
-  test("should have cancel button in template preview", async ({ page }) => {
+  test("should have cancel button in template preview", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -201,9 +213,10 @@ test.describe("Lock Templates", () => {
     }
   });
 
-  test("should have apply/confirm button in template preview", async ({ page }) => {
+  test("should have apply/confirm button in template preview", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -220,9 +233,10 @@ test.describe("Lock Templates", () => {
     }
   });
 
-  test("should close preview when cancel clicked", async ({ page }) => {
+  test("should close preview when cancel clicked", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -244,9 +258,10 @@ test.describe("Lock Templates", () => {
     }
   });
 
-  test("should close templates modal when close button clicked", async ({ page }) => {
+  test("should close templates modal when close button clicked", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -263,10 +278,11 @@ test.describe("Lock Templates", () => {
     expect(modalVisible).toBe(false);
   });
 
-  test("should be responsive on mobile", async ({ page }) => {
+  test("should be responsive on mobile", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -277,9 +293,10 @@ test.describe("Lock Templates", () => {
 });
 
 test.describe("Lock Templates - Template Coverage", () => {
-  test("should have all 8 templates available", async ({ page }) => {
+  test("should have all 8 templates available", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -294,9 +311,10 @@ test.describe("Lock Templates - Template Coverage", () => {
     expect(count).toBeGreaterThanOrEqual(6);
   });
 
-  test("should display lunch-junior template", async ({ page }) => {
+  test("should display lunch-junior template", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -306,9 +324,10 @@ test.describe("Lock Templates - Template Coverage", () => {
     expect(hasTemplate).toBe(true);
   });
 
-  test("should display lunch-senior template", async ({ page }) => {
+  test("should display lunch-senior template", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -318,9 +337,10 @@ test.describe("Lock Templates - Template Coverage", () => {
     expect(hasTemplate).toBe(true);
   });
 
-  test("should display activity templates", async ({ page }) => {
+  test("should display activity templates", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -331,9 +351,10 @@ test.describe("Lock Templates - Template Coverage", () => {
     expect(count).toBeGreaterThanOrEqual(3);
   });
 
-  test("should display assembly templates", async ({ page }) => {
+  test("should display assembly templates", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -348,7 +369,7 @@ test.describe("Lock Templates - Complete Flow", () => {
   test.skip("should complete full template application flow", async ({ page }) => {
     // Skip in CI/automated tests as it modifies database
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open templates modal
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
@@ -376,7 +397,7 @@ test.describe("Lock Templates - Complete Flow", () => {
 
   test.skip("should handle template with warnings", async ({ page }) => {
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open templates modal
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
@@ -399,7 +420,8 @@ test.describe("Lock Templates - Complete Flow", () => {
 });
 
 test.describe("Lock Templates - Error Handling", () => {
-  test("should handle template resolution errors", async ({ page }) => {
+  test("should handle template resolution errors", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Intercept API and return error
     await page.route("**/api/**", (route) => {
       if (route.request().url().includes("template")) {
@@ -413,7 +435,7 @@ test.describe("Lock Templates - Error Handling", () => {
     });
 
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -424,9 +446,10 @@ test.describe("Lock Templates - Error Handling", () => {
     expect(hasErrorOrEmpty).toBe(true);
   });
 
-  test("should handle template application failure", async ({ page }) => {
+  test("should handle template application failure", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Intercept API calls after opening modal
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
@@ -461,9 +484,10 @@ test.describe("Lock Templates - Error Handling", () => {
 });
 
 test.describe("Lock Templates - Accessibility", () => {
-  test("should have proper ARIA labels", async ({ page }) => {
+  test("should have proper ARIA labels", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -473,9 +497,10 @@ test.describe("Lock Templates - Accessibility", () => {
     await expect(dialog).toBeVisible();
   });
 
-  test("should be keyboard navigable", async ({ page }) => {
+  test("should be keyboard navigable", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -495,9 +520,10 @@ test.describe("Lock Templates - Accessibility", () => {
     expect(hasChange).toBe(true);
   });
 
-  test("should support escape key to close modal", async ({ page }) => {
+  test("should support escape key to close modal", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");
-    await page.waitForSelector('[role="dialog"], button', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ใช้เทมเพลต/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible();
@@ -513,3 +539,4 @@ test.describe("Lock Templates - Accessibility", () => {
     expect(modalVisible).toBe(false);
   });
 });
+

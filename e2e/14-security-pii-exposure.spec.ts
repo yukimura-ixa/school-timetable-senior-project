@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 /**
  * Security Test Suite: PII (Personally Identifiable Information) Exposure
@@ -8,7 +8,8 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Security: PII Exposure Prevention', () => {
-  test('TC-SEC-001: Public homepage should not expose email addresses', async ({ page }) => {
+  test('TC-SEC-001: Public homepage should not expose email addresses', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/');
     
     const htmlContent = await page.content();
@@ -39,7 +40,8 @@ test.describe('Security: PII Exposure Prevention', () => {
     expect(htmlContent).not.toContain('@school.ac.th');
   });
 
-  test('TC-SEC-002: Teacher list page should not expose email addresses', async ({ page }) => {
+  test('TC-SEC-002: Teacher list page should not expose email addresses', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto('/?tab=teachers');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
     
@@ -58,7 +60,8 @@ test.describe('Security: PII Exposure Prevention', () => {
     }
   });
 
-  test('TC-SEC-003: Teacher detail page should not expose email addresses', async ({ page }) => {
+  test('TC-SEC-003: Teacher detail page should not expose email addresses', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to homepage to get a teacher ID
     await page.goto('/?tab=teachers');
     await expect(page.locator('main, [role="main"], body')).toBeVisible({ timeout: 10000 });
@@ -97,7 +100,8 @@ test.describe('Security: PII Exposure Prevention', () => {
     }
   });
 
-  test('TC-SEC-005: Network requests should not leak sensitive data', async ({ page }) => {
+  test('TC-SEC-005: Network requests should not leak sensitive data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sensitiveDataFound: string[] = [];
     
     // Monitor network responses for sensitive data
@@ -139,3 +143,4 @@ test.describe('Security: PII Exposure Prevention', () => {
     }
   });
 });
+

@@ -3,7 +3,7 @@
  * Tests complete user flows and page functionality
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe("Dashboard Page", () => {
   test.beforeEach(async ({ page }) => {
@@ -11,13 +11,15 @@ test.describe("Dashboard Page", () => {
     await page.goto("/");
   });
 
-  test("should redirect to semester selection when no semester provided", async ({ page }) => {
+  test("should redirect to semester selection when no semester provided", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard");
     // Should redirect to select-semester or show error
     await expect(page).toHaveURL(/\/(dashboard\/select-semester|dashboard\/\d-\d{4})/);
   });
 
-  test("should load dashboard with valid semester", async ({ page }) => {
+  test("should load dashboard with valid semester", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to a valid semester (use current academic year)
     await page.goto("/dashboard/1-2567");
     
@@ -29,7 +31,8 @@ test.describe("Dashboard Page", () => {
     await expect(page.locator("text=เมนูลัด")).toBeVisible(); // Quick actions
   });
 
-  test("should display all 4 stat cards", async ({ page }) => {
+  test("should display all 4 stat cards", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check for stat card labels
@@ -39,7 +42,8 @@ test.describe("Dashboard Page", () => {
     await expect(page.locator("text=ความสำเร็จ")).toBeVisible();
   });
 
-  test("should display stat card values as numbers", async ({ page }) => {
+  test("should display stat card values as numbers", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Find all stat values (they should be numbers)
@@ -48,7 +52,8 @@ test.describe("Dashboard Page", () => {
     expect(count).toBeGreaterThanOrEqual(4); // At least 4 stat values
   });
 
-  test("should display all 4 quick action buttons", async ({ page }) => {
+  test("should display all 4 quick action buttons", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check for quick action buttons
@@ -58,7 +63,8 @@ test.describe("Dashboard Page", () => {
     await expect(page.locator("a").filter({ hasText: "หลักสูตร" })).toBeVisible();
   });
 
-  test("should navigate to teacher table when clicking quick action", async ({ page }) => {
+  test("should navigate to teacher table when clicking quick action", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Click teacher table button
@@ -69,7 +75,8 @@ test.describe("Dashboard Page", () => {
     await expect(page).toHaveURL(/\/schedule\/1-2567\/teacher/);
   });
 
-  test("should navigate to student table when clicking quick action", async ({ page }) => {
+  test("should navigate to student table when clicking quick action", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Click student table button
@@ -80,7 +87,8 @@ test.describe("Dashboard Page", () => {
     await expect(page).toHaveURL(/\/schedule\/1-2567\/student/);
   });
 
-  test("should display teacher workload chart", async ({ page }) => {
+  test("should display teacher workload chart", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check for teacher workload section
@@ -92,7 +100,8 @@ test.describe("Dashboard Page", () => {
     expect(hasTeacherRows).toBeTruthy();
   });
 
-  test("should display subject distribution chart", async ({ page }) => {
+  test("should display subject distribution chart", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check for subject distribution section
@@ -104,7 +113,8 @@ test.describe("Dashboard Page", () => {
     expect(hasSubjectRows).toBeTruthy();
   });
 
-  test("should show health indicators when there are issues", async ({ page }) => {
+  test("should show health indicators when there are issues", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check if health indicators section exists
@@ -121,7 +131,8 @@ test.describe("Dashboard Page", () => {
     // If not visible, that's also valid (no issues found)
   });
 
-  test("should display summary info section", async ({ page }) => {
+  test("should display summary info section", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check for summary section
@@ -134,7 +145,8 @@ test.describe("Dashboard Page", () => {
     await expect(page.locator("text=วิชาทั้งหมด")).toBeVisible();
   });
 
-  test("should handle empty semester gracefully", async ({ page }) => {
+  test("should handle empty semester gracefully", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to a semester that likely has no data
     await page.goto("/dashboard/2-2599");
     
@@ -147,7 +159,8 @@ test.describe("Dashboard Page", () => {
     expect(hasZeros).toBeGreaterThanOrEqual(1);
   });
 
-  test("should be responsive on mobile", async ({ page }) => {
+  test("should be responsive on mobile", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     
@@ -161,7 +174,8 @@ test.describe("Dashboard Page", () => {
     await expect(statCards).toBeVisible();
   });
 
-  test("should be responsive on tablet", async ({ page }) => {
+  test("should be responsive on tablet", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
     
@@ -172,7 +186,8 @@ test.describe("Dashboard Page", () => {
     await expect(page.locator("text=สถิติรวม")).toBeVisible();
   });
 
-  test("should display semester badge", async ({ page }) => {
+  test("should display semester badge", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check for semester badge/indicator
@@ -180,7 +195,8 @@ test.describe("Dashboard Page", () => {
     expect(badgeText).toBeTruthy();
   });
 
-  test("should handle invalid semester format", async ({ page }) => {
+  test("should handle invalid semester format", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate with invalid format
     await page.goto("/dashboard/invalid-format");
     
@@ -193,7 +209,8 @@ test.describe("Dashboard Page", () => {
     expect(url.includes("select-semester") || hasError).toBeTruthy();
   });
 
-  test("should load within reasonable time", async ({ page }) => {
+  test("should load within reasonable time", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const startTime = Date.now();
     
     await page.goto("/dashboard/1-2567");
@@ -205,7 +222,8 @@ test.describe("Dashboard Page", () => {
     expect(loadTime).toBeLessThan(5000);
   });
 
-  test("should not have console errors", async ({ page }) => {
+  test("should not have console errors", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const consoleErrors: string[] = [];
     
     page.on("console", (msg) => {
@@ -225,7 +243,8 @@ test.describe("Dashboard Page", () => {
     expect(criticalErrors).toHaveLength(0);
   });
 
-  test("should have proper heading hierarchy", async ({ page }) => {
+  test("should have proper heading hierarchy", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Should have h1 or h2 for main title
@@ -238,7 +257,8 @@ test.describe("Dashboard Page", () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test("should display utilization bars in teacher workload", async ({ page }) => {
+  test("should display utilization bars in teacher workload", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check if teacher workload section has data
@@ -256,7 +276,8 @@ test.describe("Dashboard Page", () => {
     }
   });
 
-  test("should display percentage bars in subject distribution", async ({ page }) => {
+  test("should display percentage bars in subject distribution", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567");
     
     // Check if subject distribution section has data
@@ -274,3 +295,4 @@ test.describe("Dashboard Page", () => {
     }
   });
 });
+

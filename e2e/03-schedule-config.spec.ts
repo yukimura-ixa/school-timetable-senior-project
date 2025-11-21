@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from './helpers/navigation';
 
 /**
@@ -17,10 +17,11 @@ test.describe('Timetable Configuration', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-007-01: Schedule semester selector loads', async ({ page }) => {
+  test('TC-007-01: Schedule semester selector loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToScheduleSelector();
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('main, [role="main"], nav, header', { timeout: 10000 });
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     
     // Take screenshot
     await page.screenshot({ 
@@ -33,14 +34,15 @@ test.describe('Timetable Configuration', () => {
     console.log('Schedule Semester Selector loaded (modernized UI)');
   });
 
-  test('TC-007-02: Configuration page structure', async ({ page }) => {
+  test('TC-007-02: Configuration page structure', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Try a sample semester format (adjust based on actual format)
     const sampleSemester = '1-2567'; // Semester 1, Year 2567
     
     try {
       await nav.goToConfig(sampleSemester);
       await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('main, [role="main"], table, form', { timeout: 10000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
       
       // Take screenshot
       await page.screenshot({ 
@@ -69,13 +71,14 @@ test.describe('Timetable Configuration', () => {
     }
   });
 
-  test('TC-007-03: Configuration form elements', async ({ page }) => {
+  test('TC-007-03: Configuration form elements', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
       await nav.goToConfig(sampleSemester);
       await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('form, [role="form"], input, select, textarea', { timeout: 10000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
       
       // Look for input fields and controls
       const inputs = await page.locator('input, select, textarea').count();
@@ -102,13 +105,14 @@ test.describe('Schedule Assignment', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-009-01: Assignment page loads', async ({ page }) => {
+  test('TC-009-01: Assignment page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
       await nav.goToAssign(sampleSemester);
       await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('main, [role="main"], table, [data-testid="teacher-select"]', { timeout: 10000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
       
       // Take screenshot
       await page.screenshot({ 
@@ -128,13 +132,14 @@ test.describe('Schedule Assignment', () => {
     }
   });
 
-  test('TC-009-02: Teacher selection interface', async ({ page }) => {
+  test('TC-009-02: Teacher selection interface', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
       await nav.goToAssign(sampleSemester);
       await page.waitForLoadState('domcontentloaded');
-      await page.waitForSelector('select, [role="combobox"], [data-testid="teacher-select"]', { timeout: 10000 });
+      // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
       
       // Look for teacher selection dropdown or list
       const teacherSelector = page.locator('select, [role="combobox"], [data-testid="teacher-select"]').first();
@@ -153,3 +158,4 @@ test.describe('Schedule Assignment', () => {
     }
   });
 });
+

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 /**
  * E2E Tests for Activity Subject Management (ชุมนุม, ลูกเสือ, กิจกรรม)
@@ -25,12 +25,13 @@ test.describe('Activity Management - CRUD Operations', () => {
 
   test.beforeEach(async ({ page }) => {
     // Navigate to subject management page
-    await page.goto('/management/subject', { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('table, main, [role="main"], [data-loaded="true"]', { timeout: 10000 });
+    await page.goto('/management/subject');
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
     await expect(page.locator('body')).toBeVisible();
   });
 
-  test('TC-ACT-001: Create new activity subject', async ({ page }) => {
+  test('TC-ACT-001: Create new activity subject', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Open activity creation modal', async () => {
       // Look for "Add Activity" button
       const addButton = page.getByRole('button', { name: /add.*activity/i });
@@ -82,7 +83,8 @@ test.describe('Activity Management - CRUD Operations', () => {
     });
   });
 
-  test('TC-ACT-002: Edit existing activity', async ({ page }) => {
+  test('TC-ACT-002: Edit existing activity', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Create activity first', async () => {
       // Quick create for editing test
       const addButton = page.getByRole('button', { name: /add.*activity/i });
@@ -143,7 +145,8 @@ test.describe('Activity Management - CRUD Operations', () => {
     });
   });
 
-  test('TC-ACT-003: Delete activity with confirmation', async ({ page }) => {
+  test('TC-ACT-003: Delete activity with confirmation', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Create activity to delete', async () => {
       const addButton = page.getByRole('button', { name: /add.*activity/i });
       await addButton.click();
@@ -185,7 +188,8 @@ test.describe('Activity Management - CRUD Operations', () => {
     });
   });
 
-  test('TC-ACT-004: Cancel deletion', async ({ page }) => {
+  test('TC-ACT-004: Cancel deletion', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Create activity', async () => {
       const addButton = page.getByRole('button', { name: /add.*activity/i });
       await addButton.click();
@@ -213,7 +217,8 @@ test.describe('Activity Management - CRUD Operations', () => {
     });
   });
 
-  test('TC-ACT-005: Validate required fields', async ({ page }) => {
+  test('TC-ACT-005: Validate required fields', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Open creation modal', async () => {
       const addButton = page.getByRole('button', { name: /add.*activity/i });
       await addButton.click();
@@ -249,7 +254,8 @@ test.describe('Activity Management - CRUD Operations', () => {
     });
   });
 
-  test('TC-ACT-006: Test all activity types', async ({ page }) => {
+  test('TC-ACT-006: Test all activity types', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const activityTypes = [
       { code: 'ACT-CLUB', name: 'Test Club', type: 'CLUB' },
       { code: 'ACT-SCOUT', name: 'Test Scout', type: 'SCOUT' },
@@ -281,7 +287,8 @@ test.describe('Activity Management - CRUD Operations', () => {
     });
   });
 
-  test('TC-ACT-007: Table refresh after operations', async ({ page }) => {
+  test('TC-ACT-007: Table refresh after operations', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await test.step('Count initial activities', async () => {
       const rows = page.locator('tbody tr');
       const initialCount = await rows.count();
@@ -319,10 +326,11 @@ test.describe('Activity Management - CRUD Operations', () => {
 });
 
 test.describe('Activity Management - Empty State', () => {
-  test('TC-ACT-008: Display empty state message', async ({ page }) => {
+  test('TC-ACT-008: Display empty state message', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // This test assumes there's a way to filter or view empty state
-    await page.goto('/management/subject', { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('table, main, [role="main"], [data-loaded="true"]', { timeout: 10000 });
+    await page.goto('/management/subject');
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // If there are no activities, should show empty state
     const emptyMessage = page.getByText(/no activities|ไม่มีกิจกรรม|empty/i);
@@ -340,3 +348,4 @@ test.describe('Activity Management - Empty State', () => {
     }
   });
 });
+

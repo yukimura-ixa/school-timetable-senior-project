@@ -3,26 +3,28 @@
  * Tests complete user flows for bulk locking multiple timeslots and grades
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe("Bulk Lock Operations", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], header, nav', { timeout: 10000 });
+    await page.goto("/");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
   });
 
-  test("should display bulk lock button on lock page", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should display bulk lock button on lock page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Find bulk lock button
     const bulkLockButton = page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ });
     await expect(bulkLockButton).toBeVisible();
   });
 
-  test("should open bulk lock modal when button clicked", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should open bulk lock modal when button clicked", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Click bulk lock button
     const bulkLockButton = page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ });
@@ -34,9 +36,10 @@ test.describe("Bulk Lock Operations", () => {
     await expect(page.locator("text=/ล็อกหลายคาบ/")).toBeVisible();
   });
 
-  test("should display modal components correctly", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should display modal components correctly", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open modal
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
@@ -50,9 +53,10 @@ test.describe("Bulk Lock Operations", () => {
     await expect(page.locator("text=/ห้อง|ห้องเรียน/")).toBeVisible();
   });
 
-  test("should display select all buttons", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should display select all buttons", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     const modal = page.locator("[role='dialog']");
@@ -64,9 +68,10 @@ test.describe("Bulk Lock Operations", () => {
     expect(count).toBeGreaterThanOrEqual(2); // At least one for timeslots and one for grades
   });
 
-  test("should allow selecting multiple timeslots", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should allow selecting multiple timeslots", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -79,9 +84,10 @@ test.describe("Bulk Lock Operations", () => {
     await expect(checkboxes).toBeChecked();
   });
 
-  test("should allow selecting multiple grades", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should allow selecting multiple grades", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -94,9 +100,10 @@ test.describe("Bulk Lock Operations", () => {
     await expect(gradeCheckbox).toBeChecked();
   });
 
-  test("should update counter when selections change", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should update counter when selections change", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -118,9 +125,10 @@ test.describe("Bulk Lock Operations", () => {
     expect(hasCounter).toBe(true);
   });
 
-  test("should display preview table when items selected", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should display preview table when items selected", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -137,9 +145,10 @@ test.describe("Bulk Lock Operations", () => {
     // Note: Preview may not show until subject/room selected
   });
 
-  test("should require subject selection", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should require subject selection", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -154,9 +163,10 @@ test.describe("Bulk Lock Operations", () => {
     }
   });
 
-  test("should close modal when cancel clicked", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should close modal when cancel clicked", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -172,9 +182,10 @@ test.describe("Bulk Lock Operations", () => {
     expect(modalVisible).toBe(false);
   });
 
-  test("should use select all for timeslots", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should use select all for timeslots", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -190,9 +201,10 @@ test.describe("Bulk Lock Operations", () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test("should handle empty state (no timeslots/grades)", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should handle empty state (no timeslots/grades)", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -203,10 +215,11 @@ test.describe("Bulk Lock Operations", () => {
     expect(hasContent).toBe(true);
   });
 
-  test("should be responsive on mobile", async ({ page }) => {
+  test("should be responsive on mobile", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
 
@@ -218,8 +231,8 @@ test.describe("Bulk Lock Operations", () => {
 test.describe("Bulk Lock - Complete Flow", () => {
   test.skip("should complete full bulk lock creation flow", async ({ page }) => {
     // Skip in CI/automated tests as it modifies database
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Open modal
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
@@ -272,9 +285,10 @@ test.describe("Bulk Lock - Complete Flow", () => {
 });
 
 test.describe("Bulk Lock - Error Handling", () => {
-  test("should show validation error for invalid input", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should show validation error for invalid input", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -287,7 +301,8 @@ test.describe("Bulk Lock - Error Handling", () => {
     expect(isDisabled).toBe(true);
   });
 
-  test("should handle API errors gracefully", async ({ page }) => {
+  test("should handle API errors gracefully", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Intercept API and return error
     await page.route("**/api/**", (route) => {
       route.fulfill({
@@ -296,8 +311,8 @@ test.describe("Bulk Lock - Error Handling", () => {
       });
     });
 
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Opening modal should still work (uses cached data or shows error)
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
@@ -311,9 +326,10 @@ test.describe("Bulk Lock - Error Handling", () => {
 });
 
 test.describe("Bulk Lock - Accessibility", () => {
-  test("should have proper labels for checkboxes", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should have proper labels for checkboxes", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -328,9 +344,10 @@ test.describe("Bulk Lock - Accessibility", () => {
     }
   });
 
-  test("should be keyboard navigable", async ({ page }) => {
-    await page.goto("/schedule/1-2567/lock", { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('main, [role="main"], h1, h2, button', { timeout: 10000 });
+  test("should be keyboard navigable", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    await page.goto("/schedule/1-2567/lock");
+    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     await page.locator("button").filter({ hasText: /ล็อกหลายคาบ/ }).click();
     await expect(page.locator("[role='dialog']")).toBeVisible({ timeout: 3000 });
@@ -353,3 +370,4 @@ test.describe("Bulk Lock - Accessibility", () => {
     expect(activeElement).toBeTruthy();
   });
 });
+

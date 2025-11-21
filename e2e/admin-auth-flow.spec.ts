@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 
 /**
  * E2E Test: Admin Authentication Flow
@@ -21,7 +21,8 @@ test.describe('Admin Authentication Flow', () => {
     await page.goto('/signin');
   });
 
-  test('should display sign-in page with all authentication options', async ({ page }) => {
+  test('should display sign-in page with all authentication options', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Check email/password form
     await expect(page.getByLabel('อีเมล')).toBeVisible();
     await expect(page.getByLabel('รหัสผ่าน')).toBeVisible();
@@ -32,7 +33,8 @@ test.describe('Admin Authentication Flow', () => {
     await expect(page.getByRole('button', { name: /เข้าสู่ระบบด้วย Google/i })).toBeVisible();
   });
 
-  test('should successfully sign in with admin credentials', async ({ page }) => {
+  test('should successfully sign in with admin credentials', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Fill in credentials
     await page.getByLabel('อีเมล').fill('admin@school.local');
     await page.getByLabel('รหัสผ่าน').fill('admin123');
@@ -50,7 +52,8 @@ test.describe('Admin Authentication Flow', () => {
     expect(page.url()).toContain('/dashboard');
   });
 
-  test('should show error for invalid credentials', async ({ page }) => {
+  test('should show error for invalid credentials', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Fill in invalid credentials
     await page.getByLabel('อีเมล').fill('invalid@school.local');
     await page.getByLabel('รหัสผ่าน').fill('wrongpassword');
@@ -62,7 +65,8 @@ test.describe('Admin Authentication Flow', () => {
     await expect(page.getByText(/อีเมลหรือรหัสผ่านไม่ถูกต้อง/)).toBeVisible();
   });
 
-  test('should validate required fields', async ({ page }) => {
+  test('should validate required fields', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Click sign-in without filling fields
     await page.getByRole('button', { name: /^เข้าสู่ระบบ$/i }).click();
 
@@ -84,7 +88,8 @@ test.describe('Admin Dashboard Pages', () => {
     await page.waitForURL('**/dashboard/**', { timeout: 10000 });
   });
 
-  test('should access semester selection page', async ({ page }) => {
+  test('should access semester selection page', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Should be on select-semester page after login
     expect(page.url()).toContain('/dashboard/select-semester');
     
@@ -92,7 +97,8 @@ test.describe('Admin Dashboard Pages', () => {
     await page.waitForSelector('body', { state: 'visible' });
   });
 
-  test('should navigate to timetable management', async ({ page }) => {
+  test('should navigate to timetable management', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to timetable page
     await page.goto('/dashboard/timetable');
 
@@ -103,7 +109,8 @@ test.describe('Admin Dashboard Pages', () => {
     await page.waitForSelector('body', { state: 'visible' });
   });
 
-  test('should navigate to teacher management', async ({ page }) => {
+  test('should navigate to teacher management', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to teachers page
     await page.goto('/dashboard/teachers');
 
@@ -114,7 +121,8 @@ test.describe('Admin Dashboard Pages', () => {
     await page.waitForSelector('body', { state: 'visible' });
   });
 
-  test('should navigate to class management', async ({ page }) => {
+  test('should navigate to class management', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Navigate to classes page
     await page.goto('/dashboard/classes');
 
@@ -125,7 +133,8 @@ test.describe('Admin Dashboard Pages', () => {
     await page.waitForSelector('body', { state: 'visible' });
   });
 
-  test('should sign out successfully', async ({ page }) => {
+  test('should sign out successfully', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     // Find and click sign-out button (may be in a menu or header)
     // Adjust selector based on your actual UI
     await page.goto('/dashboard/select-semester');
@@ -156,7 +165,8 @@ test.describe('Visual UI Checks', () => {
     await page.waitForURL('**/dashboard/**', { timeout: 10000 });
   });
 
-  test('should not have console errors on dashboard pages', async ({ page }) => {
+  test('should not have console errors on dashboard pages', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const consoleErrors: string[] = [];
     
     page.on('console', (msg) => {
@@ -196,7 +206,8 @@ test.describe('Visual UI Checks', () => {
     expect(criticalErrors.length).toBe(0);
   });
 
-  test('should take screenshots of main dashboard pages', async ({ page }) => {
+  test('should take screenshots of main dashboard pages', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const pages = [
       { path: '/dashboard/select-semester', name: 'semester-selection' },
       { path: '/dashboard/timetable', name: 'timetable-management' },
@@ -216,3 +227,4 @@ test.describe('Visual UI Checks', () => {
     }
   });
 });
+

@@ -1,0 +1,341 @@
+[dotenv@17.2.3] injecting env (11) from .env.test -- tip: ๐ ๏ธ  run anywhere with `dotenvx run -- yourcommand`
+SKIP_WEBSERVER: true
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: โ๏ธ  override existing env vars with { override: true }
+๐” Using AUTH_SECRET from .env.test (length=27)
+
+๐”ง E2E Test Setup: Initializing test environment...
+
+โ ๏ธ  .env.local not found - run `node scripts/prepare-e2e-env.js` first
+
+   AUTH_SECRET checksum: dGVzdGluโ€ฆ
+๐ณ Docker Compose lifecycle management: ENABLED
+
+โน๏ธ  Test database is already running
+   Reusing existing database instance
+
+๐ฑ Seeding test database...
+
+๐ฑ Running test database seed with .env.test configuration...
+
+> school-timetable@2.0.0 test:db:seed B:\Dev\school-timetable-senior-project
+> dotenv -e .env.test -- tsx prisma/seed.ts
+
+๐ฑ Starting MOE-compliant seed with retry logic...
+๐”ง Connection: postgresql://test_user:test_password@127.0.0.1:543...
+๐‘ค Creating admin user...
+โน๏ธ  Admin user already exists
+๐งช Test mode enabled - Seeding E2E test data...
+๐งน Cleaning existing data...
+๐” Cleaning auth sessions for test mode...
+โ… Auth sessions cleaned
+โ… Timetable data cleaned (Auth.js tables preserved)
+๐“ Creating subjects with MOE 8 Learning Areas...
+โ… Created 82 subjects (48 core + 25 additional + 9 activities)
+๐“ Creating programs...
+โ… Created 18 programs (3 tracks ร— 6 years)
+๐ซ Creating grade levels with program assignments...
+โ… Created 18 grade levels with program assignments
+๐ช Creating rooms...
+โ… Created 40 rooms across 3 buildings
+๐‘จโ€๐ซ Creating teachers (target: 40)...
+โ… Created 40 teachers across 8 departments
+โฐ Creating timeslots...
+โ… Created 40 timeslots for Semester 1 (5 days ร— 8 periods)
+โฐ Creating timeslots for Semester 2...
+โ… Created 40 timeslots for Semester 2 (5 days ร— 8 periods)
+โ๏ธ  Creating timetable configuration...
+โ… Created timetable configuration
+๐”— Assigning subjects to M.1 programs...
+โ… Assigned 14 subjects to M.1 Science-Math program
+โน๏ธ  Other programs can be populated similarly via the UI or additional seed logic
+๐“ Creating sample teacher responsibilities...
+โ… Created 21 sample teacher responsibilities
+๐“… Creating sample locked schedules for activities...
+โ… Created 0 sample locked schedules
+
+======================================================================
+๐ MOE-Compliant Seed Completed Successfully!
+======================================================================
+๐“ Database Summary:
+   โ€ข Programs: 18 (3 tracks ร— 6 years)
+   โ€ข Grade Levels: 18 (M.1-M.6, 3 sections each)
+   โ€ข Rooms: 40 (3 buildings)
+   โ€ข Teachers: 40 (8 departments; target 40 met)
+   โ€ข Subjects: 82 subjects
+     - Core (8 learning areas): 48
+     - Additional (track-specific): 25
+     - Activities (MOE-compliant): 9
+   โ€ข Timeslots: 80 (Semester 1: 40, Semester 2: 40)
+   โ€ข Teacher Responsibilities: 21
+   โ€ข Sample Locked Schedules: 0
+   โ€ข Table Configurations: 1
+======================================================================
+
+โจ Your MOE-compliant database is ready!
+๐’ก Features included:
+   - โ… Retry logic for Docker Desktop connection stability
+   - โ… MOE 8 Learning Areas structure
+   - โ… Proper ActivityType (เธเธธเธกเธเธธเธก, เธฅเธนเธเน€เธชเธทเธญ, เนเธเธฐเนเธเธง, เธเธดเธเธเธฃเธฃเธกเน€เธเธทเนเธญเธชเธฑเธเธเธก)
+   - โ… Three program tracks (เธงเธดเธ—เธขเน-เธเธ“เธดเธ•, เธจเธดเธฅเธเน-เธเธณเธเธงเธ“, เธจเธดเธฅเธเน-เธ เธฒเธฉเธฒ)
+   - โ… Realistic teacher workload (1-3 subjects per Ministry standard)
+   - โ… Locked timeslots for school-wide activities
+   - โ… Grade-program assignments
+======================================================================
+
+โ… Test environment ready!
+
+   Database: postgresql://localhost:5433/test_timetable
+   Tests: 27 E2E tests ready to run
+
+SyntaxError: B:\Dev\school-timetable-senior-project\e2e\01-home-page.spec.ts: Missing semicolon. (80:15)
+
+[0m [90m 78 |[39m [32m      // Take screenshot[39m
+ [90m 79 |[39m [32m      await page.screenshot({[39m
+[31m[1m>[22m[39m[90m 80 |[39m [32m        path: `[39mtest[33m-[39mresults[33m/[39mscreenshots[33m/[39m[35m03[39m[33m-[39m[36mprotected[39m[33m-[39m${route[33m.[39mreplace([35m/\//g[39m[33m,[39m [32m'-'[39m)}[33m.[39mpng[32m`,[39m
+ [90m    |[39m                [31m[1m^[22m[39m
+ [90m 81 |[39m [32m        fullPage: true[39m
+ [90m 82 |[39m [32m      })[39m
+ [90m 83 |[39m [32m[39m[0m
+
+   at 01-home-page.spec.ts:80
+
+  78 |       // Take screenshot
+  79 |       await page.screenshot({
+> 80 |         path: `test-results/screenshots/03-protected-${route.replace(/\//g, '-')}.png`,
+     |               ^
+  81 |         fullPage: true
+  82 |       })
+  83 | 
+
+SyntaxError: B:\Dev\school-timetable-senior-project\e2e\06-refactored-teacher-arrange.spec.ts: Unexpected reserved word 'await'. (49:4)
+
+[0m [90m 47 |[39m
+ [90m 48 |[39m     [90m// Take screenshot[39m
+[31m[1m>[22m[39m[90m 49 |[39m     [36mawait[39m page[33m.[39mscreenshot({
+ [90m    |[39m     [31m[1m^[22m[39m
+ [90m 50 |[39m       path[33m:[39m [32m'test-results/screenshots/refactored-01-page-load.png'[39m[33m,[39m
+ [90m 51 |[39m       fullPage[33m:[39m [36mtrue[39m
+ [90m 52 |[39m     })[33m;[39m[0m
+
+   at 06-refactored-teacher-arrange.spec.ts:49
+
+  47 |
+  48 |     // Take screenshot
+> 49 |     await page.screenshot({
+     |    ^
+  50 |       path: 'test-results/screenshots/refactored-01-page-load.png',
+  51 |       fullPage: true
+  52 |     });
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:131
+
+  129 |   });
+  130 |
+> 131 |   test('TC-DND-001-01: Subject items are draggable', async ({ authenticatedAdmin }) => {
+      |   ^
+  132 |     const { page } = authenticatedAdmin;
+  133 |     // Look for draggable subject items
+  134 |     const subjectItems = page.locator('[data-sortable-id*="SubjectCode"]').or(
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:161
+
+  159 |   });
+  160 |
+> 161 |   test('TC-DND-001-02: Subject selection via click', async ({ authenticatedAdmin }) => {
+      |   ^
+  162 |     const { page } = authenticatedAdmin;
+  163 |     const subjectItems = page.locator('[data-sortable-id*="SubjectCode"]').or(
+  164 |       page.locator('.subject-item, [class*="subject"]').filter({ has: page.locator('b') })
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:193
+
+  191 |   });
+  192 |
+> 193 |   test('TC-DND-001-03: Drag subject to empty timeslot', async ({ authenticatedAdmin }) => {
+      |   ^
+  194 |     const { page } = authenticatedAdmin;
+  195 |     // Find a subject to drag
+  196 |     const subjectItems = page.locator('[data-sortable-id*="SubjectCode"]').or(
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:280
+
+  278 |   });
+  279 |
+> 280 |   test('TC-DND-001-04: Visual feedback during drag', async ({ authenticatedAdmin }) => {
+      |   ^
+  281 |     const { page } = authenticatedAdmin;
+  282 |     const subjectItems = page.locator('[data-sortable-id*="SubjectCode"]').or(
+  283 |       page.locator('.subject-item').first()
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:331
+
+  329 |   });
+  330 |
+> 331 |   test('TC-DND-002-01: Identify filled timeslots', async ({ authenticatedAdmin }) => {
+      |   ^
+  332 |     const { page } = authenticatedAdmin;
+  333 |     // Find timeslots that have subjects
+  334 |     const filledSlots = page.locator('td, .timeslot-cell').filter({
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:360
+
+  358 |   });
+  359 |
+> 360 |   test('TC-DND-002-02: Drag subject between timeslots', async ({ authenticatedAdmin }) => {
+      |   ^
+  361 |     const { page } = authenticatedAdmin;
+  362 |     // Find filled slots that can be dragged
+  363 |     const draggableSlots = page.locator('[data-sortable-id*="Slot"]').or(
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:435
+
+  433 |   });
+  434 |
+> 435 |   test('TC-DND-002-03: Click to change timeslot mode', async ({ authenticatedAdmin }) => {
+      |   ^
+  436 |     const { page } = authenticatedAdmin;
+  437 |     // Look for change/swap buttons or icons
+  438 |     const changeIcons = page.locator('svg[data-testid*="Change"], button:has-text("เน€เธเธฅเธตเนเธขเธ"), [title*="change"]');
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:477
+
+  475 |   });
+  476 |
+> 477 |   test('TC-DND-003-01: Detect error indicators', async ({ authenticatedAdmin }) => {
+      |   ^
+  478 |     const { page } = authenticatedAdmin;
+  479 |     // Look for error icons, messages, or red borders
+  480 |     const errorIndicators = page.locator('[data-testid*="Error"], svg.text-red, .error, .conflict, .border-red');
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:508
+
+  506 |   });
+  507 |
+> 508 |   test('TC-DND-003-02: Attempt invalid drop (same slot)', async ({ authenticatedAdmin }) => {
+      |   ^
+  509 |     const { page } = authenticatedAdmin;
+  510 |     const filledSlots = page.locator('[data-sortable-id*="Slot"]').filter({
+  511 |       has: page.locator('text=/เธ|เธ/')
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:550
+
+  548 |   });
+  549 |
+> 550 |   test('TC-DND-003-03: Drop on occupied slot (conflict)', async ({ authenticatedAdmin }) => {
+      |   ^
+  551 |     const { page } = authenticatedAdmin;
+  552 |     const subjects = page.locator('[data-sortable-id*="SubjectCode"]').first();
+  553 |     const occupiedSlots = page.locator('td, .timeslot-cell').filter({
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:621
+
+  619 |   });
+  620 |
+> 621 |   test('TC-DND-004-01: Identify locked timeslots', async ({ authenticatedAdmin }) => {
+      |   ^
+  622 |     const { page } = authenticatedAdmin;
+  623 |     // Look for lock icons or locked indicators
+  624 |     const lockIcons = page.locator('svg[data-testid*="Lock"], svg[data-testid*="Https"], .locked, [title*="lock"]');
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:647
+
+  645 |   });
+  646 |
+> 647 |   test('TC-DND-004-02: Attempt drop on locked slot', async ({ authenticatedAdmin }) => {
+      |   ^
+  648 |     const { page } = authenticatedAdmin;
+  649 |     const subjects = page.locator('[data-sortable-id*="SubjectCode"]').first();
+  650 |     const lockedSlots = page.locator('td, .timeslot-cell').filter({
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:707
+
+  705 |   });
+  706 |
+> 707 |   test('TC-DND-004-03: Locked slots are not draggable', async ({ authenticatedAdmin }) => {
+      |   ^
+  708 |     const { page } = authenticatedAdmin;
+  709 |     const lockedSlots = page.locator('td, .timeslot-cell').filter({
+  710 |       has: page.locator('svg[data-testid*="Lock"]')
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:760
+
+  758 |   });
+  759 |
+> 760 |   test('TC-DND-006-01: Student page drag functionality', async ({ authenticatedAdmin }) => {
+      |   ^
+  761 |     const { page } = authenticatedAdmin;
+  762 |     await page.screenshot({ 
+  763 |       path: `${SCREENSHOT_DIR}/50-student-arrange.png`,
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:784
+
+  782 |   });
+  783 |
+> 784 |   test('TC-DND-006-02: Class selection affects drag behavior', async ({ authenticatedAdmin }) => {
+      |   ^
+  785 |     const { page } = authenticatedAdmin;
+  786 |     // Look for class selector
+  787 |     const classSelector = page.locator('select, [role="combobox"]').first();
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:836
+
+  834 |   });
+  835 |
+> 836 |   test('TC-DND-007-01: Multiple rapid drags', async ({ authenticatedAdmin }) => {
+      |   ^
+  837 |     const { page } = authenticatedAdmin;
+  838 |     const subjects = page.locator('[data-sortable-id*="SubjectCode"]');
+  839 |     const count = await subjects.count();
+
+Test has unknown parameter "authenticatedAdmin".
+
+   at 08-drag-and-drop.spec.ts:875
+
+  873 |   });
+  874 |
+> 875 |   test('TC-DND-007-02: Drag outside boundaries', async ({ authenticatedAdmin }) => {
+      |   ^
+  876 |     const { page } = authenticatedAdmin;
+  877 |     const subjects = page.locator('[data-sortable-id*="SubjectCode"]').first();
+  878 |     const count = await subjects.count();
+
+Error: Cannot find module 'B:\Dev\school-timetable-senior-project\page-objects\ArrangePage' imported from B:\Dev\school-timetable-senior-project\e2e\16-publish-gate.spec.ts
+
+
+๐งน E2E Test Teardown: Cleaning up...
+
+โน๏ธ  Test database managed externally - skipping cleanup
+
+[1A[2K

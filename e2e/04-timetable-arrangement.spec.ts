@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from './helpers/navigation';
 
 /**
@@ -18,7 +18,8 @@ test.describe('Timetable Arrangement - Teacher View', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-010-01: Teacher arrangement page loads', async ({ page }) => {
+  test('TC-010-01: Teacher arrangement page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -45,7 +46,8 @@ test.describe('Timetable Arrangement - Teacher View', () => {
     }
   });
 
-  test('TC-010-02: Timetable grid structure', async ({ page }) => {
+  test('TC-010-02: Timetable grid structure', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -68,7 +70,8 @@ test.describe('Timetable Arrangement - Teacher View', () => {
     }
   });
 
-  test('TC-010-03: Subject drag items visible', async ({ page }) => {
+  test('TC-010-03: Subject drag items visible', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -99,7 +102,8 @@ test.describe('Timetable Arrangement - Student View', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-014-01: Student arrangement page loads', async ({ page }) => {
+  test('TC-014-01: Student arrangement page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -126,7 +130,8 @@ test.describe('Timetable Arrangement - Student View', () => {
     }
   });
 
-  test('TC-014-02: Class selection interface', async ({ page }) => {
+  test('TC-014-02: Class selection interface', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -157,7 +162,8 @@ test.describe('Lock Timeslots', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-015-01: Lock timeslots page loads', async ({ page }) => {
+  test('TC-015-01: Lock timeslots page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -184,7 +190,8 @@ test.describe('Lock Timeslots', () => {
     }
   });
 
-  test('TC-015-02: Lock interface elements', async ({ page }) => {
+  test('TC-015-02: Lock interface elements', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -207,3 +214,4 @@ test.describe('Lock Timeslots', () => {
     }
   });
 });
+

@@ -1,0 +1,488 @@
+[dotenv@17.2.3] injecting env (11) from .env.test -- tip: ๐ ๏ธ  run anywhere with `dotenvx run -- yourcommand`
+SKIP_WEBSERVER: true
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: โ๏ธ  write to custom object with { processEnv: myObject }
+๐” Using AUTH_SECRET from .env.test (length=27)
+
+๐”ง E2E Test Setup: Initializing test environment...
+
+โ ๏ธ  .env.local not found - run `node scripts/prepare-e2e-env.js` first
+
+   AUTH_SECRET checksum: dGVzdGluโ€ฆ
+๐ณ Docker Compose lifecycle management: ENABLED
+
+โน๏ธ  Test database is already running
+   Reusing existing database instance
+
+๐ฑ Seeding test database...
+
+๐ฑ Running test database seed with .env.test configuration...
+
+> school-timetable@2.0.0 test:db:seed B:\Dev\school-timetable-senior-project
+> dotenv -e .env.test -- tsx prisma/seed.ts
+
+๐ฑ Starting MOE-compliant seed with retry logic...
+๐”ง Connection: postgresql://test_user:test_password@127.0.0.1:543...
+๐‘ค Creating admin user...
+โน๏ธ  Admin user already exists
+๐งช Test mode enabled - Seeding E2E test data...
+๐งน Cleaning existing data...
+๐” Cleaning auth sessions for test mode...
+โ… Auth sessions cleaned
+โ… Timetable data cleaned (Auth.js tables preserved)
+๐“ Creating subjects with MOE 8 Learning Areas...
+โ… Created 82 subjects (48 core + 25 additional + 9 activities)
+๐“ Creating programs...
+โ… Created 18 programs (3 tracks ร— 6 years)
+๐ซ Creating grade levels with program assignments...
+โ… Created 18 grade levels with program assignments
+๐ช Creating rooms...
+โ… Created 40 rooms across 3 buildings
+๐‘จโ€๐ซ Creating teachers (target: 40)...
+โ… Created 40 teachers across 8 departments
+โฐ Creating timeslots...
+โ… Created 40 timeslots for Semester 1 (5 days ร— 8 periods)
+โฐ Creating timeslots for Semester 2...
+โ… Created 40 timeslots for Semester 2 (5 days ร— 8 periods)
+โ๏ธ  Creating timetable configuration...
+โ… Created timetable configuration
+๐”— Assigning subjects to M.1 programs...
+โ… Assigned 14 subjects to M.1 Science-Math program
+โน๏ธ  Other programs can be populated similarly via the UI or additional seed logic
+๐“ Creating sample teacher responsibilities...
+โ… Created 21 sample teacher responsibilities
+๐“… Creating sample locked schedules for activities...
+โ… Created 0 sample locked schedules
+
+======================================================================
+๐ MOE-Compliant Seed Completed Successfully!
+======================================================================
+๐“ Database Summary:
+   โ€ข Programs: 18 (3 tracks ร— 6 years)
+   โ€ข Grade Levels: 18 (M.1-M.6, 3 sections each)
+   โ€ข Rooms: 40 (3 buildings)
+   โ€ข Teachers: 40 (8 departments; target 40 met)
+   โ€ข Subjects: 82 subjects
+     - Core (8 learning areas): 48
+     - Additional (track-specific): 25
+     - Activities (MOE-compliant): 9
+   โ€ข Timeslots: 80 (Semester 1: 40, Semester 2: 40)
+   โ€ข Teacher Responsibilities: 21
+   โ€ข Sample Locked Schedules: 0
+   โ€ข Table Configurations: 1
+======================================================================
+
+โจ Your MOE-compliant database is ready!
+๐’ก Features included:
+   - โ… Retry logic for Docker Desktop connection stability
+   - โ… MOE 8 Learning Areas structure
+   - โ… Proper ActivityType (เธเธธเธกเธเธธเธก, เธฅเธนเธเน€เธชเธทเธญ, เนเธเธฐเนเธเธง, เธเธดเธเธเธฃเธฃเธกเน€เธเธทเนเธญเธชเธฑเธเธเธก)
+   - โ… Three program tracks (เธงเธดเธ—เธขเน-เธเธ“เธดเธ•, เธจเธดเธฅเธเน-เธเธณเธเธงเธ“, เธจเธดเธฅเธเน-เธ เธฒเธฉเธฒ)
+   - โ… Realistic teacher workload (1-3 subjects per Ministry standard)
+   - โ… Locked timeslots for school-wide activities
+   - โ… Grade-program assignments
+======================================================================
+
+โ… Test environment ready!
+
+   Database: postgresql://localhost:5433/test_timetable
+   Tests: 27 E2E tests ready to run
+
+
+Running 1 test using 1 worker
+
+[dotenv@17.2.3] injecting env (0) from .env.test -- tip: ๐“ก add observability to secrets: https://dotenvx.com/ops
+SKIP_WEBSERVER: true
+[AUTH SETUP] Starting authentication flow...
+[BROWSER] info: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[BROWSER] log: %c%s%c [AUTH] Dev bypass - returning mock admin session background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Prerender  
+[BROWSER] error: %c%s%c background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   Error: Route "/signin" used `Date.now()` before accessing either uncached data (e.g. `fetch()`) or Request data (e.g. `cookies()`, `headers()`, `connection()`, and `searchParams`). Accessing the current time in a Server Component requires reading one of these data sources first. Alternatively, consider moving this expression into a Client Component or Cache Component. See more info here: https://nextjs.org/docs/messages/next-prerender-current-time
+    at authWithDevBypass (about://React/Server/B:%5CDev%5Cschool-timetable-senior-project%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__318778bf._.js?9:1088:36)
+    at LayoutContent (about://React/Server/B:%5CDev%5Cschool-timetable-senior-project%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__318778bf._.js?10:1201:170)
+    at RootLayout (about://React/Server/B:%5CDev%5Cschool-timetable-senior-project%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__318778bf._.js?11:1177:389)
+    at resolveErrorDev (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1862:106)
+    at getOutlinedModel (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1412:28)
+    at parseModelString (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1526:50)
+    at Object.<anonymous> (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2455:51)
+    at JSON.parse (<anonymous>)
+    at initializeModelChunk (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1045:30)
+    at getOutlinedModel (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1350:17)
+    at parseModelString (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1580:50)
+    at Array.<anonymous> (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2455:51)
+    at JSON.parse (<anonymous>)
+    at initializeModelChunk (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1045:30)
+    at resolveConsoleEntry (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1988:96)
+    at processFullStringRow (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2389:17)
+    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2329:9)
+    at processBinaryChunk (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2439:98)
+    at progress (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2608:13)
+[BROWSER] error: %c%s%c B:\Dev\school-timetable-senior-project\node_modules\.pnpm\next@16.0.3_@babel+core@7.2_198cb25b0b53285f24f63a9efea46924\node_modules\next\dist\server\node-environment-extensions\utils.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[BROWSER] error: %c%s%c B:\Dev\school-timetable-senior-project\node_modules\.pnpm\next@16.0.3_@babel+core@7.2_198cb25b0b53285f24f63a9efea46924\node_modules\next\dist\server\node-environment-extensions\date.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[BROWSER] error: %c%s%c B:\Dev\school-timetable-senior-project\.next\dev\server\chunks\ssr\[root-of-the-server]__318778bf._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[BROWSER] log: [HMR] connected
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] log: [Fast Refresh] done in 822ms
+[AUTH SETUP] Navigated to signin page
+[BROWSER] log: [SIGNIN PAGE] Fetching dev-bypass-enabled status...
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] log: %c[Vercel Speed Insights]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[BROWSER] log: [SIGNIN PAGE] Dev bypass enabled response: {enabled: true}
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[BROWSER] log: %c[Vercel Speed Insights]%c [vitals] color: rgb(120, 120, 120) color: inherit {speed: 4g, metrics: Array(3), scriptVersion: 0.1.3, sdkName: @vercel/speed-insights/next, sdkVersion: 1.2.0}
+[BROWSER] log: %c[Vercel Speed Insights]%c [vitals] color: rgb(120, 120, 120) color: inherit {speed: 4g, metrics: Array(1), scriptVersion: 0.1.3, sdkName: @vercel/speed-insights/next, sdkVersion: 1.2.0}
+[BROWSER] error: Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[BROWSER] info: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[BROWSER] log: [HMR] connected
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] clear: console.clear
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] log: [Fast Refresh] rebuilding
+[AUTH SETUP] Already authenticated, skipping login
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] clear: console.clear
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] clear: console.clear
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] info: %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[BROWSER] log: %c%s%c [AUTH] Dev bypass - returning mock admin session background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Prerender  
+[BROWSER] error: %c%s%c background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   Error: Route "/dashboard/[semesterAndyear]" used `Date.now()` before accessing either uncached data (e.g. `fetch()`) or Request data (e.g. `cookies()`, `headers()`, `connection()`, and `searchParams`). Accessing the current time in a Server Component requires reading one of these data sources first. Alternatively, consider moving this expression into a Client Component or Cache Component. See more info here: https://nextjs.org/docs/messages/next-prerender-current-time
+    at authWithDevBypass (about://React/Server/B:%5CDev%5Cschool-timetable-senior-project%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__318778bf._.js?9:1088:36)
+    at LayoutContent (about://React/Server/B:%5CDev%5Cschool-timetable-senior-project%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__318778bf._.js?10:1201:170)
+    at RootLayout (about://React/Server/B:%5CDev%5Cschool-timetable-senior-project%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__318778bf._.js?11:1177:389)
+    at resolveErrorDev (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1862:106)
+    at getOutlinedModel (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1412:28)
+    at parseModelString (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1526:50)
+    at Object.<anonymous> (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2455:51)
+    at JSON.parse (<anonymous>)
+    at initializeModelChunk (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1045:30)
+    at getOutlinedModel (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1350:17)
+    at parseModelString (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1580:50)
+    at Array.<anonymous> (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2455:51)
+    at JSON.parse (<anonymous>)
+    at initializeModelChunk (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1045:30)
+    at resolveConsoleEntry (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:1988:96)
+    at processFullStringRow (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2389:17)
+    at processFullBinaryRow (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2329:9)
+    at processBinaryChunk (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2439:98)
+    at progress (http://localhost:3000/_next/static/chunks/c7a4c_next_dist_compiled_react-server-dom-turbopack_aaf79824._.js:2608:13)
+[BROWSER] error: %c%s%c B:\Dev\school-timetable-senior-project\node_modules\.pnpm\next@16.0.3_@babel+core@7.2_198cb25b0b53285f24f63a9efea46924\node_modules\next\dist\server\node-environment-extensions\utils.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[BROWSER] error: %c%s%c B:\Dev\school-timetable-senior-project\node_modules\.pnpm\next@16.0.3_@babel+core@7.2_198cb25b0b53285f24f63a9efea46924\node_modules\next\dist\server\node-environment-extensions\date.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[BROWSER] error: %c%s%c B:\Dev\school-timetable-senior-project\.next\dev\server\chunks\ssr\[root-of-the-server]__318778bf._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server  
+[BROWSER] log: [HMR] connected
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/dashboard..." notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="th" className="sarabun_48...">
+                          <body
+                            className="font-sans min-h-screen bg-gray-50"
+-                           style={{overflow-x:"hidden",overflow-y:"hidden"}}
+                          >
+                  ...
+
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] error: ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [app-client] (ecmascript) <locals>
+- Execution of <EcmascriptModuleLocalsChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: node:module)
+
+Import trace:
+  Client Component Browser:
+    ./node_modules/.pnpm/@prisma+client@7.0.0_prisma_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/client.mjs [Client Component Browser]
+    ./prisma/generated/internal/prismaNamespace.ts [Client Component Browser]
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/semester-thai.ts [Client Component Browser]
+    ./src/app/dashboard/_components/SemesterCard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+[BROWSER] log: [Fast Refresh] rebuilding
+[BROWSER] log: %c[Vercel Speed Insights]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[AUTH SETUP] Waiting for semester sync (already authenticated path)...
+[AUTH SETUP] Timeout waiting for semester-storage
+[AUTH SETUP] Current storage value: [1mnull[22m
+[AUTH SETUP] Manually setting semester-storage as fallback
+[AUTH SETUP] Verified semester storage: {"state":{"semester":"1-2567"},"version":0}
+[AUTH SETUP] Saved existing auth + semester state to B:\Dev\school-timetable-senior-project\playwright\.auth\admin.json
+[BROWSER] log: [Fast Refresh] rebuilding
+  โ“  1 [setup] โ€บ e2e\auth.setup.ts:32:1 โ€บ authenticate as admin (49.6s)
+
+๐งน E2E Test Teardown: Cleaning up...
+
+โน๏ธ  Test database managed externally - skipping cleanup
+
+
+  1 passed (56.7s)

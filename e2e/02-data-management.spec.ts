@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from './helpers/navigation';
 
 /**
@@ -20,7 +20,8 @@ test.describe('Data Management - Navigation and UI', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-003-01: Teacher Management page loads', async ({ page }) => {
+  test('TC-003-01: Teacher Management page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToTeacherManagement();
     
     // Wait for page to load (Context7 best practice: avoid networkidle)
@@ -43,7 +44,8 @@ test.describe('Data Management - Navigation and UI', () => {
     console.log('URL:', page.url());
   });
 
-  test('TC-003-02: Teacher Management - Add button exists', async ({ page }) => {
+  test('TC-003-02: Teacher Management - Add button exists', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToTeacherManagement();
     
     // Look for add/create button
@@ -60,7 +62,8 @@ test.describe('Data Management - Navigation and UI', () => {
     console.log(`Add teacher button found: ${buttonCount > 0}`);
   });
 
-  test('TC-004-01: Subject Management page loads', async ({ page }) => {
+  test('TC-004-01: Subject Management page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToSubjectManagement();
     
     // Wait for page to load
@@ -76,7 +79,8 @@ test.describe('Data Management - Navigation and UI', () => {
     console.log('Subject Management Page loaded');
   });
 
-  test('TC-005-01: Room Management page loads', async ({ page }) => {
+  test('TC-005-01: Room Management page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToRoomManagement();
     
     // Wait for page to load
@@ -92,7 +96,8 @@ test.describe('Data Management - Navigation and UI', () => {
     console.log('Room Management Page loaded');
   });
 
-  test('TC-006-01: Grade Level Management page loads', async ({ page }) => {
+  test('TC-006-01: Grade Level Management page loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToGradeLevelManagement();
     
     // Wait for page to load
@@ -116,7 +121,8 @@ test.describe('Data Management - List Views', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-003-03: Teacher list displays data', async ({ page }) => {
+  test('TC-003-03: Teacher list displays data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToTeacherManagement();
     
     // Look for table or list elements
@@ -133,7 +139,8 @@ test.describe('Data Management - List Views', () => {
     console.log(`Teacher list items visible: ${await listItems}`);
   });
 
-  test('TC-004-02: Subject list displays data', async ({ page }) => {
+  test('TC-004-02: Subject list displays data', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     await nav.goToSubjectManagement();
     
     await page.screenshot({ 
@@ -145,3 +152,4 @@ test.describe('Data Management - List Views', () => {
     console.log(`Subject list items visible: ${listItems}`);
   });
 });
+

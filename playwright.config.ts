@@ -16,6 +16,8 @@ const junitOutput =
  * E2E Test Configuration for School Timetable System
  * See https://playwright.dev/docs/test-configuration
  */
+console.log('SKIP_WEBSERVER:', process.env.SKIP_WEBSERVER)
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true, // ✅ Run tests in parallel

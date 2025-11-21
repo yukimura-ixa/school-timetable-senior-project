@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from './helpers/navigation';
 
 /**
@@ -18,7 +18,8 @@ test.describe('Dashboard and Viewing', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-017-01: Teacher table view loads', async ({ page }) => {
+  test('TC-017-01: Teacher table view loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -45,7 +46,8 @@ test.describe('Dashboard and Viewing', () => {
     }
   });
 
-  test('TC-017-02: Teacher schedule displays timetable', async ({ page }) => {
+  test('TC-017-02: Teacher schedule displays timetable', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -69,7 +71,8 @@ test.describe('Dashboard and Viewing', () => {
     }
   });
 
-  test('TC-018-01: Student table view loads', async ({ page }) => {
+  test('TC-018-01: Student table view loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -96,7 +99,8 @@ test.describe('Dashboard and Viewing', () => {
     }
   });
 
-  test('TC-019-01: All programs view loads', async ({ page }) => {
+  test('TC-019-01: All programs view loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -123,7 +127,8 @@ test.describe('Dashboard and Viewing', () => {
     }
   });
 
-  test('TC-020-01: All timeslots view loads', async ({ page }) => {
+  test('TC-020-01: All timeslots view loads', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -158,7 +163,8 @@ test.describe('Export Functionality', () => {
     nav = new NavigationHelper(page);
   });
 
-  test('TC-021-01: Export buttons visible on teacher table', async ({ page }) => {
+  test('TC-021-01: Export buttons visible on teacher table', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -188,7 +194,8 @@ test.describe('Export Functionality', () => {
     }
   });
 
-  test('TC-023-01: Export buttons visible on student table', async ({ page }) => {
+  test('TC-023-01: Export buttons visible on student table', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -212,7 +219,8 @@ test.describe('Export Functionality', () => {
     }
   });
 
-  test('TC-022-01: Print functionality available', async ({ page }) => {
+  test('TC-022-01: Print functionality available', async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     const sampleSemester = '1-2567';
     
     try {
@@ -235,3 +243,4 @@ test.describe('Export Functionality', () => {
     }
   });
 });
+
