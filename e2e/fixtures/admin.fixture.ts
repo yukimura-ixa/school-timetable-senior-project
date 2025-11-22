@@ -15,9 +15,9 @@
  *   });
  */
 
-import { test as base, expect } from '@playwright/test';
-import { testAdmin, testSemester } from './seed-data.fixture';
-import { ArrangePage } from '../page-objects/ArrangePage';
+import { test as base, expect } from '@playwright/test'
+import { testAdmin, testSemester } from './seed-data.fixture'
+import { ArrangePage } from '../page-objects/ArrangePage'
 
 /**
  * Fixture types
@@ -28,22 +28,22 @@ type AdminFixtures = {
    * Automatically signs in before each test
    */
   authenticatedAdmin: {
-    page: typeof base.prototype.page;
-    email: string;
-    name: string;
-  };
+    page: typeof base.prototype.page
+    email: string
+    name: string
+  }
 
   /**
    * Arrange Page Object Model (for teacher/class arrangement)
    * For schedule arrangement tests
    */
-  arrangePage: ArrangePage;
+  arrangePage: ArrangePage
 
   // Pattern for adding new POMs:
   // 1. Create POM class in e2e/page-objects/ extending BasePage
   // 2. Add type to AdminFixtures interface
   // 3. Add fixture factory below using authenticatedAdmin.page
-};
+}
 
 /**
  * Extend Playwright test with admin fixtures
@@ -61,15 +61,15 @@ export const test = base.extend<AdminFixtures>({
   authenticatedAdmin: async ({ page }, use) => {
     // Page is already authenticated via storageState from auth.setup.ts
     // Just verify we're not on the signin page
-    await page.goto('/dashboard/1-2567');
-    await page.waitForLoadState('networkidle');
-    
+    await page.goto('/dashboard/1-2567')
+    await page.waitForLoadState('networkidle')
+
     // Use the authenticated page
     await use({
       page,
       email: testAdmin.email,
       name: testAdmin.name,
-    });
+    })
   },
 
   /**
@@ -79,8 +79,8 @@ export const test = base.extend<AdminFixtures>({
    * Automatically initializes with the authenticated admin page.
    */
   arrangePage: async ({ authenticatedAdmin }, use) => {
-    const pageObj = new ArrangePage(authenticatedAdmin.page);
-    await use(pageObj);
+    const pageObj = new ArrangePage(authenticatedAdmin.page)
+    await use(pageObj)
   },
 
   /**
@@ -97,7 +97,7 @@ export const test = base.extend<AdminFixtures>({
    * All POMs automatically inherit authenticated session from authenticatedAdmin fixture.
    * No manual auth needed - handled by auth.setup.ts + storageState.
    */
-});
+})
 
 /**
  * Re-export expect for convenience
@@ -114,7 +114,7 @@ export { expect };
  * ### 1. Setup Phase (Automatic)
  * File: `e2e/auth.setup.ts`
  * - Runs ONCE before all tests (configured in playwright.config.ts)
- * - Navigates to /signin and clicks Dev Bypass button (data-testid="dev-bypass-button")
+ * - Navigates to /signin and logs in with credentials (admin@school.local / admin123)
  * - Pre-selects semester 1-2567 via URL navigation (/dashboard/1-2567)
  * - Saves authenticated state + localStorage to `playwright/.auth/admin.json`
  * - Total runtime: ~3-5 seconds
@@ -122,7 +122,7 @@ export { expect };
  * ### 2. Test Execution (Automatic)
  * All tests in the 'chromium' project automatically:
  * - Load saved auth state from playwright/.auth/admin.json
- * - Start with valid admin session (email: admin@test.local, role: admin)
+ * - Start with valid admin session (email: admin@school.local, role: admin)
  * - Have semester 1-2567 pre-selected in localStorage
  * - NO MANUAL AUTH NEEDED in individual tests
  * 
@@ -136,20 +136,18 @@ export { expect };
  * For ALL other tests, authentication is handled automatically via storageState.
  * 
  * ### 4. Environment Configuration
- * Required in .env.test:
+ * Required in database seed (prisma/seed.ts):
  * ```
- * ENABLE_DEV_BYPASS=true
- * DEV_USER_ID=1
- * DEV_USER_EMAIL=admin@test.local
- * DEV_USER_NAME=E2E Admin
- * DEV_USER_ROLE=admin
+ * Admin user: admin@school.local
+ * Password: admin123
+ * Role: admin
  * ```
  * 
  * ### 5. Troubleshooting
  * If tests fail with auth errors:
  * 1. Check that auth.setup.ts ran successfully (see test output)
  * 2. Verify playwright/.auth/admin.json exists
- * 3. Check .env.test has ENABLE_DEV_BYPASS=true
+ * 3. Ensure database is seeded with admin user
  * 4. Delete playwright/.auth/admin.json and re-run tests (will regenerate)
  * 
  * ## References
