@@ -1,4 +1,4 @@
-import { authWithDevBypass } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { sortTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 import { timeslotRepository } from "@/features/timeslot/infrastructure/repositories/timeslot.repository";
@@ -34,7 +34,7 @@ export default async function AllTimeslotPage({ params }: { params: PageParams }
     timeslotRepository.findByTerm(year, semesterEnum),
     findSummary(year, semesterEnum),
     teacherRepository.findAll(),
-    authWithDevBypass(),
+    auth(),
   ]);
 
   const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));

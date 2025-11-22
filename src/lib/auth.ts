@@ -117,28 +117,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
       },
     }),
-    // Development/Testing bypass provider
-    // SECURITY: Only enabled when server-only ENABLE_DEV_BYPASS is explicitly set
-    Credentials({
-      id: "dev-bypass",
-      name: "Development Bypass",
-      credentials: {},
-      authorize() {
-        // SECURITY: Check server-only env variable (not embedded in client bundle)
-        // Defaults to disabled for security
-        if (process.env.ENABLE_DEV_BYPASS === "true") {
-          console.log("[AUTH] Dev bypass provider authenticated user")
-          return {
-            id: process.env.DEV_USER_ID || "1",
-            email: process.env.DEV_USER_EMAIL || "admin@test.com",
-            name: process.env.DEV_USER_NAME || "Test Admin",
-            role: process.env.DEV_USER_ROLE || "admin",
-          }
-        }
-        console.log("[AUTH] Dev bypass provider rejected - not enabled")
-        return null
-      },
-    }),
     // E2E Testing provider using Credentials
     // SECURITY: Only enabled in development/test environments
     // Follows Auth.js testing best practices: https://authjs.dev/guides/testing
@@ -180,12 +158,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async signIn(params) {
       const { account, profile, user } = params
       console.log("[AUTH] Sign in callback - provider:", account?.provider)
-
-      // Allow dev bypass provider
-      if (account?.provider === "dev-bypass") {
-        console.log("[AUTH] Dev bypass authentication")
-        return true
-      }
 
       // Allow credential provider
       if (account?.provider === "credentials") {
@@ -268,21 +240,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const { session, token } = params
       console.log("[AUTH] Session callback")
 
-      // DEVELOPMENT: Inject dev bypass session
-      if (process.env.ENABLE_DEV_BYPASS === "true") {
-        console.log("[AUTH] Dev bypass - injecting admin session")
-        return {
-          user: {
-            id: process.env.DEV_USER_ID || "1",
-            email: process.env.DEV_USER_EMAIL || "admin@test.local",
-            name: process.env.DEV_USER_NAME || "E2E Admin",
-            role: process.env.DEV_USER_ROLE || "admin",
-            image: null,
-          },
-          expires: "2099-12-31T23:59:59.999Z", // 30 days
-        }
-      }
-
       if (session.user) {
         session.user.role = token.role as string
         session.user.id = token.id as string
@@ -316,26 +273,6 @@ declare module "next-auth/jwt" {
 // Wrap auth() to inject dev bypass session
 const originalAuth = auth
 export const authWithDevBypass = async () => {
-  const isDevBypassEnabled =
-    process.env.NODE_ENV !== "production" &&
-    process.env.ENABLE_DEV_BYPASS === "true"
-
-  // Check if dev bypass is enabled
-  if (isDevBypassEnabled) {
-    // eslint-disable-next-line no-console
-    console.log("[AUTH] Dev bypass - returning mock admin session")
-    return {
-      user: {
-        id: process.env.DEV_USER_ID || "1",
-        email: process.env.DEV_USER_EMAIL || "admin@test.local",
-        name: process.env.DEV_USER_NAME || "E2E Admin",
-        role: process.env.DEV_USER_ROLE || "admin",
-        image: null,
-      },
-      expires: "2099-12-31T23:59:59.999Z",
-    }
-  }
-
   // Use original auth
   return originalAuth()
 }

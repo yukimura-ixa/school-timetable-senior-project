@@ -33,7 +33,7 @@ test.describe('All Timeslot Page UX', () => {
         await expect(menuBtn).toBeEnabled()
     })
 
-    test.skip('TC-018-02: Guest/Non-admin sees restricted view', async ({ browser }) => {
+    test('TC-018-02: Guest/Non-admin sees restricted view', async ({ browser }) => {
         // Create a fresh context without storage state (Guest)
         const context = await browser.newContext({ storageState: { cookies: [], origins: [] } })
         const page = await context.newPage()
