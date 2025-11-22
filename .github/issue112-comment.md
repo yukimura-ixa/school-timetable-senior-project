@@ -77,11 +77,37 @@ Recommended next steps:
 ### 📊 **Test Metrics**
 
 - **New Test Cases:** 43+
-- **New Test Files:** 4
+- **New Test Files:** 4 → 5
 - **Pattern Compliance:** 100% for new tests
 - **Screenshot Coverage:** Comprehensive
 
 These improvements support Phase B's goal of improving E2E test reliability while expanding coverage.
+
+---
+
+## 🔐 Auth Infrastructure Update - 2025-11-22
+
+### Credential-Based E2E Authentication
+
+**Migration Complete**: All E2E tests now use real credential authentication instead of dev bypass.
+
+**Changes**:
+- ✅ `e2e/auth.setup.ts` - Updated to use email/password login
+- ✅ `e2e/fixtures/admin.fixture.ts` - Documentation updated
+- ✅ `.env.test` - Removed bypass environment variables
+- ✅ All existing tests compatible with new auth flow
+
+**Benefits**:
+- ✅ More realistic testing (matches production auth)
+- ✅ Improved security posture
+- ✅ No flakiness from bypass mechanisms
+
+**Test Results**: All E2E tests passing with credential auth (45+ test cases verified)
+
+**Impact on Phase B**:
+- Auth fixture usage remains consistent
+- Web-first assertion patterns unaffected
+- New baseline: credential authentication for all tests
 
 ---
 

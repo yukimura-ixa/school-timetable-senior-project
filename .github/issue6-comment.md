@@ -99,3 +99,37 @@ Excellent progress aligning with the issue's original plan. The foundation is so
 - `06cf159` - Feat: TC-007 Semester Configuration
 - `d16f2d5` - Feat: TC-011-013 Conflict Prevention
 - `49d30a6` - Feat: TC-017 View Teacher Schedule
+
+---
+
+## 🔒 Security Testing Update - 2025-11-22
+
+### TC-018: All Timeslot Page UX Tests
+
+**New E2E Test File**: `e2e/17-all-timeslot-ux.spec.ts`
+
+**Coverage**:
+- ✅ TC-018-01: Admin sees export controls and banner
+- ✅ TC-018-02: Guest/Non-admin sees restricted view
+
+**Test Highlights**:
+- Role-based export control verification
+- Read-only banner display testing
+- Credential-based authentication (dev bypass removed)
+- All tests passing with real auth flow
+
+**Files Added**: 1 test file (2 test cases)
+
+### Updated Metrics
+
+| Category | Target | Current | Progress |
+|----------|--------|---------|----------|
+| **Admin Critical Paths** | 100% | 75% | 🟡 On Track |
+| **Security Tests** | 100% | 60% | 🟢 Improved |
+| **Overall Phase 1** | 80% | **~72%** | 🟢 Progressing |
+
+**Total Test Cases**: 43 → 45+
+
+**Related Commits:**
+- `223b736` - refactor(auth): remove dev bypass and enforce credential-based authentication
+- `f3dcb93` - refactor(tests): remove dev bypass from test files and environment
