@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { authWithDevBypass } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { sortTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 import { timeslotRepository } from "@/features/timeslot/infrastructure/repositories/timeslot.repository";
@@ -6,6 +6,8 @@ import { findSummary } from "@/features/class/infrastructure/repositories/class.
 import { teacherRepository } from "@/features/teacher/infrastructure/repositories/teacher.repository";
 import type { semester } from '@/prisma/generated/client';;
 import AllTimeslotClient from "./AllTimeslotClient";
+
+
 
 type PageParams = Promise<{ semesterAndyear: string }>;
 
@@ -32,7 +34,7 @@ export default async function AllTimeslotPage({ params }: { params: PageParams }
     timeslotRepository.findByTerm(year, semesterEnum),
     findSummary(year, semesterEnum),
     teacherRepository.findAll(),
-    auth(),
+    authWithDevBypass(),
   ]);
 
   const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
@@ -45,6 +47,7 @@ export default async function AllTimeslotPage({ params }: { params: PageParams }
       semester={semester}
       academicYear={year}
       isAdmin={isAdmin}
+      configManageHref={`/schedule/${semesterAndyear}/config`}
     />
   );
 }
