@@ -5,7 +5,7 @@ import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
 import { DataTableSection } from "./_components/DataTableSection";
 import { CurrentSemesterBadge } from "./_components/CurrentSemesterBadge";
 import Link from "next/link";
-import { authWithDevBypass as auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { getQuickStats } from "@/lib/public/stats";
 
 export const metadata: Metadata = {

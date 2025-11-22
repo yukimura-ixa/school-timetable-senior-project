@@ -19,23 +19,23 @@
  * ```
  */
 
-import * as v from 'valibot';
-// Use authWithDevBypass to honor ENABLE_DEV_BYPASS in development
-import { authWithDevBypass } from '@/lib/auth';
-import { isConflictError, isValidationError, isLockedScheduleError, type ServerActionError } from '@/types';
+import * as v from 'valibot'
+// Use auth for session retrieval
+import { auth } from '@/lib/auth'
+import { isConflictError, isValidationError, isLockedScheduleError, type ServerActionError } from '@/types'
 
 /**
  * Standard result shape for all Server Actions
  */
 export interface ActionResult<T> {
-  success: boolean;
-  data?: T;
+  success: boolean
+  data?: T
   error?: {
-    message: string;
-    code: string;
-    details?: unknown;
-    field?: string; // For validation errors
-  };
+    message: string
+    code: string
+    details?: unknown
+    field?: string // For validation errors
+  }
 }
 
 /**
@@ -48,9 +48,9 @@ export const ActionErrorCode = {
   CONFLICT: 'CONFLICT',
   FORBIDDEN: 'FORBIDDEN',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
-} as const;
+} as const
 
-export type ActionErrorCodeType = typeof ActionErrorCode[keyof typeof ActionErrorCode];
+export type ActionErrorCodeType = typeof ActionErrorCode[keyof typeof ActionErrorCode]
 
 /**
  * Create a type-safe Server Action with automatic error handling
@@ -77,8 +77,8 @@ export function createAction<TInput, TOutput>(
   return async (input: unknown): Promise<ActionResult<TOutput>> => {
     try {
       // 1. Authentication check
-      const session = await authWithDevBypass();
-      
+      const session = await auth()
+
       if (!session || !session.user) {
         return {
           success: false,
@@ -86,12 +86,12 @@ export function createAction<TInput, TOutput>(
             message: 'You must be logged in to perform this action',
             code: ActionErrorCode.UNAUTHORIZED,
           },
-        };
+        }
       }
 
       // 2. Input validation with Valibot
-      const validationResult = v.safeParse(schema, input);
-      
+      const validationResult = v.safeParse(schema, input)
+
       if (!validationResult.success) {
         return {
           success: false,
@@ -100,20 +100,20 @@ export function createAction<TInput, TOutput>(
             code: ActionErrorCode.VALIDATION_ERROR,
             details: validationResult.issues,
           },
-        };
+        }
       }
 
       // 3. Execute business logic
-      const data = await handler(validationResult.output, session.user.id || '');
+      const data = await handler(validationResult.output, session.user.id || '')
 
       // 4. Return success
       return {
         success: true,
         data,
-      };
+      }
     } catch (error) {
       // 5. Error handling
-      console.error('[Server Action Error]:', error);
+      console.error('[Server Action Error]:', error)
 
       // Handle known error types with type guards
       if (isConflictError(error)) {
@@ -124,7 +124,7 @@ export function createAction<TInput, TOutput>(
             code: ActionErrorCode.CONFLICT,
             details: error.conflictDetails,
           },
-        };
+        }
       }
 
       // Handle validation errors
@@ -136,7 +136,7 @@ export function createAction<TInput, TOutput>(
             code: ActionErrorCode.VALIDATION_ERROR,
             field: error.field,
           },
-        };
+        }
       }
 
       // Handle locked schedule errors
@@ -147,7 +147,7 @@ export function createAction<TInput, TOutput>(
             message: error.message,
             code: ActionErrorCode.FORBIDDEN,
           },
-        };
+        }
       }
 
       // Handle generic Error instances
@@ -159,7 +159,7 @@ export function createAction<TInput, TOutput>(
               message: error.message,
               code: ActionErrorCode.NOT_FOUND,
             },
-          };
+          }
         }
 
         if (error.message.includes('conflict') || error.message.includes('already exists')) {
@@ -169,7 +169,7 @@ export function createAction<TInput, TOutput>(
               message: error.message,
               code: ActionErrorCode.CONFLICT,
             },
-          };
+          }
         }
 
         if (error.message.includes('forbidden') || error.message.includes('permission')) {
@@ -179,7 +179,7 @@ export function createAction<TInput, TOutput>(
               message: error.message,
               code: ActionErrorCode.FORBIDDEN,
             },
-          };
+          }
         }
 
         // Generic error
@@ -189,7 +189,7 @@ export function createAction<TInput, TOutput>(
             message: error.message,
             code: ActionErrorCode.INTERNAL_ERROR,
           },
-        };
+        }
       }
 
       // Unknown error type
@@ -200,9 +200,9 @@ export function createAction<TInput, TOutput>(
           code: ActionErrorCode.INTERNAL_ERROR,
           details: error,
         },
-      };
+      }
     }
-  };
+  }
 }
 
 /**
@@ -216,8 +216,8 @@ export function createPublicAction<TInput, TOutput>(
   return async (input: unknown): Promise<ActionResult<TOutput>> => {
     try {
       // 1. Input validation only (no auth check)
-      const validationResult = v.safeParse(schema, input);
-      
+      const validationResult = v.safeParse(schema, input)
+
       if (!validationResult.success) {
         return {
           success: false,
@@ -226,20 +226,20 @@ export function createPublicAction<TInput, TOutput>(
             code: ActionErrorCode.VALIDATION_ERROR,
             details: validationResult.issues,
           },
-        };
+        }
       }
 
       // 2. Execute business logic
-      const data = await handler(validationResult.output);
+      const data = await handler(validationResult.output)
 
       // 3. Return success
       return {
         success: true,
         data,
-      };
+      }
     } catch (error) {
       // 4. Error handling (same as createAction)
-      console.error('[Public Action Error]:', error);
+      console.error('[Public Action Error]:', error)
 
       if (error instanceof Error) {
         return {
@@ -248,7 +248,7 @@ export function createPublicAction<TInput, TOutput>(
             message: error.message,
             code: ActionErrorCode.INTERNAL_ERROR,
           },
-        };
+        }
       }
 
       return {
@@ -257,7 +257,7 @@ export function createPublicAction<TInput, TOutput>(
           message: 'An unexpected error occurred',
           code: ActionErrorCode.INTERNAL_ERROR,
         },
-      };
+      }
     }
-  };
+  }
 }

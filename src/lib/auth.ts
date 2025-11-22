@@ -204,7 +204,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
       // On sign in, add role to token
       if (user) {
-        // For credential/dev-bypass, user.role is already set
+        // For credential providers, user.role is already set
         if (user.role) {
           token.role = user.role
           token.id = user.id
