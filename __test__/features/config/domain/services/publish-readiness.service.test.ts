@@ -65,7 +65,7 @@ afterEach(() => {
     const result = checkPublishReadiness(incompleteData);
     expect(result.status).toBe('incomplete');
     expect(result.issues).toEqual(expect.arrayContaining([
-      expect.stringContaining('ชั้น 1/1: ยังไม่ครบ'),
+      expect.stringContaining('?? 1/1: ??????????'),
     ]));
   });
 
@@ -84,7 +84,7 @@ afterEach(() => {
     const result = checkPublishReadiness(moeFailedData);
     expect(result.status).toBe('moe-failed');
     expect(result.issues).toEqual(expect.arrayContaining([
-        expect.stringContaining('หลักสูตร ม.1 (Science-Math): Credit requirement not met'),
+        expect.stringContaining('???????? ?.1 (Science-Math): Credit requirement not met'),
     ]));
   });
 
