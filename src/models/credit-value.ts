@@ -1,7 +1,15 @@
-import { subject_credit } from '@/prisma/generated/client';
+// Define subject_credit locally to avoid importing Prisma Client in client-side code
+export const subject_credit = {
+  CREDIT_05: 'CREDIT_05',
+  CREDIT_10: 'CREDIT_10',
+  CREDIT_15: 'CREDIT_15',
+  CREDIT_20: 'CREDIT_20',
+} as const
 
-type SubjectCreditValues = {
-  [subject_credit: string]: number
+export type subject_credit = typeof subject_credit[keyof typeof subject_credit]
+
+export type SubjectCreditValues = {
+  [key in subject_credit]: number
 }
 
 export const subjectCreditValues: SubjectCreditValues = {

@@ -9,7 +9,7 @@ import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
 import Loading from "@/app/loading";
-import { subjectCreditValues } from "@/models/credit-value";
+import { subjectCreditValues, subject_credit, type SubjectCreditValues } from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
 import { useSemesterSync } from "@/hooks";
 
@@ -188,13 +188,20 @@ function ClassroomResponsibility() {
     setCurrentSubjectInClassRoom(subj);
   };
   const [year, setYear] = useState<number | null>(null);
+  
+  // Helper function to check if a value is a valid subject_credit
+  const isValidCredit = (value: any): value is subject_credit => {
+    return typeof value === 'string' && value in subjectCreditValues;
+  };
+  
   const sumTeachHour = (year: number): number => {
     const getSubjectsByYear = data.Subjects.filter(
       (subj) => subj.GradeID?.[0] && parseInt(subj.GradeID[0]) == year,
     ); //นำข้อมูลวิชาของแต่ละชั้นปีออกมาจาก property Subjects
-    const mapTeachHour = getSubjectsByYear.map(
-      (item) => (subjectCreditValues[item.Credit] || 0) * 2,
-    ); //map credit เป็น array ex. => [1, 3, 1]
+    const mapTeachHour = getSubjectsByYear.map((item) => {
+      const credit = item.Credit;
+      return (isValidCredit(credit) ? subjectCreditValues[credit] : 0) * 2;
+    }); //map credit เป็น array ex. => [1, 3, 1]
     if (mapTeachHour.length == 0) {
       //ถ้าไม่เคยมีการเพิ่มวิชาในห้องเรียนมาก่อน ระบบจะนับเป็น 0 คาบ
       return 0;
@@ -441,31 +448,35 @@ function ClassroomResponsibility() {
                                 } วิชา`}
                           </p>
                           {getSubjectDataByGradeID(room.GradeID).map(
-                            (subject: any, index: number) => (
-                              <Fragment
-                                key={`${subject.SubjectCode}(${room.GradeID})${index}`}
-                              >
-                                <div className="flex justify-between items-center pr-3">
-                                  <MiniButton
-                                    width={200}
-                                    height={30}
-                                    buttonColor="#fff"
-                                    titleColor="#4F515E"
-                                    border={true}
-                                    borderColor="#EDEEF3"
-                                    isSelected={false}
-                                    hoverable={false}
-                                    handleClick={() => {}}
-                                    title={`${subject.SubjectCode} ${subject.SubjectName}`}
-                                  />
-                                  <p className="text-sm text-[#4F515E]">
-                                    จำนวน{" "}
-                                    {subject.Credit ? (subjectCreditValues[subject.Credit] || 0) * 2 : 0}{" "}
-                                    คาบ
-                                  </p>
-                                </div>
-                              </Fragment>
-                            ),
+                            (subject: any, index: number) => {
+                              const credit = subject.Credit;
+                              const hoursPerWeek = (isValidCredit(credit) ? subjectCreditValues[credit] : 0) * 2;
+                              return (
+                                <Fragment
+                                  key={`${subject.SubjectCode}(${room.GradeID})${index}`}
+                                >
+                                  <div className="flex justify-between items-center pr-3">
+                                    <MiniButton
+                                      width={200}
+                                      height={30}
+                                      buttonColor="#fff"
+                                      titleColor="#4F515E"
+                                      border={true}
+                                      borderColor="#EDEEF3"
+                                      isSelected={false}
+                                      hoverable={false}
+                                      handleClick={() => {}}
+                                      title={`${subject.SubjectCode} ${subject.SubjectName}`}
+                                    />
+                                    <p className="text-sm text-[#4F515E]">
+                                      จำนวน{" "}
+                                      {hoursPerWeek}{" "}
+                                      คาบ
+                                    </p>
+                                  </div>
+                                </Fragment>
+                              );
+                            },
                           )}
                         </div>
                       </div>
