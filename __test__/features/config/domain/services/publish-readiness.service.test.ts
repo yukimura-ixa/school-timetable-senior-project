@@ -9,6 +9,7 @@ import * as moeValidationService from '@/features/program/domain/services/moe-va
 
 jest.mock('@/features/program/domain/services/moe-validation.service', () => ({
   validateProgramMOECredits: jest.fn(),
+  createMOEValidationResult: jest.requireActual('@/features/program/domain/services/moe-validation.service').createMOEValidationResult,
 }));
 
 const mockedValidateProgramMOECredits = jest.mocked(
@@ -43,7 +44,9 @@ afterEach(() => {
       ...mockBaseConfigData,
       schedules: Array(35).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }),
     };
-    mockedValidateProgramMOECredits.mockReturnValue({ isValid: true, errors: [], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue(
+      moeValidationService.createMOEValidationResult({ isValid: true })
+    );
 
     const result = checkPublishReadiness(readyData);
     expect(result.status).toBe('ready');
@@ -55,7 +58,9 @@ afterEach(() => {
       ...mockBaseConfigData,
       schedules: Array(30).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }), // 30 out of 35
     };
-    mockedValidateProgramMOECredits.mockReturnValue({ isValid: true, errors: [], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue(
+      moeValidationService.createMOEValidationResult({ isValid: true })
+    );
 
     const result = checkPublishReadiness(incompleteData);
     expect(result.status).toBe('incomplete');
@@ -69,7 +74,12 @@ afterEach(() => {
         ...mockBaseConfigData,
         schedules: Array(35).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }),
     };
-    mockedValidateProgramMOECredits.mockReturnValue({ isValid: false, errors: ['Credit requirement not met'], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue(
+      moeValidationService.createMOEValidationResult({
+        isValid: false,
+        errors: ['Credit requirement not met'],
+      })
+    );
 
     const result = checkPublishReadiness(moeFailedData);
     expect(result.status).toBe('moe-failed');
@@ -84,7 +94,12 @@ afterEach(() => {
         schedules: Array(20).fill({ GradeID: 'M1-1', SubjectCode: 'TH101' }),
     };
 
-    mockedValidateProgramMOECredits.mockReturnValue({ isValid: false, errors: ['Credit requirement not met'], warnings:[], learningAreas: [], requiredCredits: 0, totalCredits: 0 });
+    mockedValidateProgramMOECredits.mockReturnValue(
+      moeValidationService.createMOEValidationResult({
+        isValid: false,
+        errors: ['Credit requirement not met'],
+      })
+    );
 
     const result = checkPublishReadiness(bothFailedData);
     expect(result.status).toBe('incomplete');

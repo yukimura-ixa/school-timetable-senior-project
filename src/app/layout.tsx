@@ -7,7 +7,7 @@ import theme from "./theme";
 import SnackbarProvider from "@/components/elements/snackbar/SnackbarProvider";
 import SessionProvider from "@/components/elements/nextauth/SessionProvider";
 import { ErrorBoundary } from "@/components/error";
-import { authWithDevBypass } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { Sarabun } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Suspense } from "react";
@@ -39,7 +39,7 @@ async function LayoutContent({
 }: {
   children: React.ReactNode;
 }) {
-  const rawSession = await authWithDevBypass();
+  const rawSession = await auth();
 
   const session =
     rawSession && rawSession.user

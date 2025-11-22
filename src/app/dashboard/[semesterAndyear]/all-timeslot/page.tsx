@@ -7,6 +7,8 @@ import { teacherRepository } from "@/features/teacher/infrastructure/repositorie
 import type { semester } from '@/prisma/generated/client';;
 import AllTimeslotClient from "./AllTimeslotClient";
 
+
+
 type PageParams = Promise<{ semesterAndyear: string }>;
 
 const parseSemesterParam = (
@@ -45,6 +47,7 @@ export default async function AllTimeslotPage({ params }: { params: PageParams }
       semester={semester}
       academicYear={year}
       isAdmin={isAdmin}
+      configManageHref={`/schedule/${semesterAndyear}/config`}
     />
   );
 }

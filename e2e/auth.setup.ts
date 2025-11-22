@@ -5,9 +5,8 @@
  * session. It saves the authentication state to a JSON file that can be reused
  * by all subsequent tests, eliminating the need for repeated logins.
  * 
- * Uses the Dev Bypass authentication provider which is available on the custom
- * signin page when ENABLE_DEV_BYPASS=true in the environment. This provides
- * instant authentication as a mock admin user without requiring credentials.
+ * Uses credential-based authentication (email/password) to log in as the admin
+ * user created during database seeding.
  * 
  * Based on:
  * - Playwright best practices: https://playwright.dev/docs/auth
@@ -88,31 +87,30 @@ setup('authenticate as admin', async ({ page }) => {
     return
   }
 
-  // Debug: Check what's on the page
-  const pageContent = await page.content()
-  console.log('[AUTH SETUP] Page title:', await page.title())
-  console.log('[AUTH SETUP] Dev bypass button exists:', pageContent.includes('dev-bypass-button'))
+  // Fill in the email and password fields
+  console.log('[AUTH SETUP] Filling in credentials...')
+  await page.fill('input[type="email"]', 'admin@school.local')
+  await page.fill('input[type="password"]', 'admin123')
 
-  // Click the "Dev Bypass (Testing)" button using data-testid
-  // This button is only visible when ENABLE_DEV_BYPASS=true
-  const devBypassButton = page.getByTestId('dev-bypass-button')
-  await expect(devBypassButton).toBeVisible({ timeout: 10000 })
-  console.log('[AUTH SETUP] Found Dev Bypass button')
+  // Click the login button
+  const loginButton = page.getByRole('button', { name: /เข้าสู่ระบบ/i }).first()
+  await expect(loginButton).toBeVisible({ timeout: 10000 })
+  console.log('[AUTH SETUP] Found login button')
 
-  // Click and wait for navigation (use domcontentloaded instead of load)
-  const [response] = await Promise.all([
+  // Click and wait for navigation
+  await Promise.all([
     page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }),
-    devBypassButton.click(),
+    loginButton.click(),
   ])
-  console.log('[AUTH SETUP] Clicked Dev Bypass button and navigated')
+  console.log('[AUTH SETUP] Clicked login button and navigated')
 
   // Wait for page to be stable
   await page.waitForLoadState('domcontentloaded', { timeout: 10000 })
   console.log('[AUTH SETUP] Page loaded')
 
   // Verify authentication was successful by checking for authenticated user indicator
-  // Look for admin name or role display (E2E Admin, ผู้ดูแลระบบ, etc.)
-  const adminIndicator = page.locator('text=/E2E Admin|ทดสอบ Admin|ผู้ดูแลระบบ|Admin/i').first()
+  // Look for admin name or role display (System Administrator, ผู้ดูแลระบบ, etc.)
+  const adminIndicator = page.locator('text=/System Administrator|ผู้ดูแลระบบ|Admin/i').first()
   await expect(adminIndicator).toBeVisible({ timeout: 5000 })
   console.log('[AUTH SETUP] Authentication verified')
 

@@ -16,7 +16,6 @@ export default function SignInPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [bypassEnabled, setBypassEnabled] = useState(false);
 
   // Redirect logged-in users to dashboard
   useEffect(() => {
@@ -24,20 +23,6 @@ export default function SignInPage() {
       router.push("/dashboard");
     }
   }, [status, session, router]);
-
-  useEffect(() => {
-    console.log('[SIGNIN PAGE] Fetching dev-bypass-enabled status...');
-    fetch("/api/auth/dev-bypass-enabled")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('[SIGNIN PAGE] Dev bypass enabled response:', data);
-        setBypassEnabled(Boolean(data?.enabled));
-      })
-      .catch((err) => {
-        console.error('[SIGNIN PAGE] Failed to fetch dev-bypass status:', err);
-        setBypassEnabled(false);
-      });
-  }, []);
 
   const validate = () => {
     let ok = true;
@@ -86,7 +71,6 @@ export default function SignInPage() {
   };
 
   const handleGoogleLogin = () => signIn("google", { callbackUrl: "/dashboard/select-semester" });
-  const handleDevBypass = () => signIn("dev-bypass", { callbackUrl: "/dashboard/select-semester" });
 
   return (
     <Container maxWidth="lg" sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
@@ -156,27 +140,15 @@ export default function SignInPage() {
 
             <Divider>หรือ</Divider>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <Button
-                variant="outlined"
-                startIcon={<GoogleIcon />}
-                onClick={handleGoogleLogin}
-                fullWidth
-                data-testid="google-signin-button"
-              >
-                เข้าสู่ระบบด้วย Google
-              </Button>
-              {bypassEnabled && (
-                <Button
-                  variant="outlined"
-                  onClick={handleDevBypass}
-                  fullWidth
-                  data-testid="dev-bypass-button"
-                >
-                  Dev Bypass (Testing)
-                </Button>
-              )}
-            </Stack>
+            <Button
+              variant="outlined"
+              startIcon={<GoogleIcon />}
+              onClick={handleGoogleLogin}
+              fullWidth
+              data-testid="google-signin-button"
+            >
+              เข้าสู่ระบบด้วย Google
+            </Button>
           </Stack>
         </Paper>
       </Stack>

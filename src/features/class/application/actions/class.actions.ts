@@ -65,22 +65,36 @@ export const getClassSchedulesAction = createAction(
     const session = await auth()
     const userRole = normalizeAppRole(session?.user?.role)
     const userId = session?.user?.id
+    const teacherIdFromSession = userId ? Number(userId) : undefined
 
     const sem = semester[input.Semester]
 
     let schedules
 
-    if (input.TeacherID) {
-      // SECURITY: Enforce role-based access for Teacher Schedules
-      // Only Admin or the Teacher themselves can view their schedule
-      if (!isAdminRole(userRole)) {
-        const isOwner = userRole === 'teacher' && userId === input.TeacherID.toString()
-        if (!isOwner) {
-          throw new Error("Unauthorized: You can only view your own schedule.")
+    // Non-admins must be scoped
+    if (!isAdminRole(userRole)) {
+      if (userRole === 'teacher') {
+        const targetTeacherId = input.TeacherID ?? teacherIdFromSession
+        if (!targetTeacherId) {
+          throw new Error("Unauthorized: missing teacher id for scoped view.")
         }
+        if (input.TeacherID && Number(input.TeacherID) !== targetTeacherId) {
+          throw new Error("Unauthorized: you can only view your own schedule.")
+        }
+
+        schedules = await classRepository.findByTeacher(
+          targetTeacherId,
+          input.AcademicYear,
+          sem
+        )
+        return schedules
       }
 
-      // Filter by teacher
+      // Students/guests cannot fetch full timetable
+      throw new Error("Unauthorized: insufficient role for timetable access.")
+    }
+
+    if (input.TeacherID) {
       schedules = await classRepository.findByTeacher(
         input.TeacherID,
         input.AcademicYear,
