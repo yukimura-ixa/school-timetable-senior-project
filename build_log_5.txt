@@ -16,24 +16,54 @@ The package.json of the package has no name or version.
 
 > Build error occurred
 Error: Turbopack build failed with 1 errors:
-./src/app/management/program/[programId]/component/ProgramSubjectAssignmentPage.tsx
+./prisma/generated/client.ts
 Code generation for chunk item errored
-An error occurred while generating the chunk item [project]/src/app/management/program/[programId]/component/ProgramSubjectAssignmentPage.tsx [app-client] (ecmascript)
+An error occurred while generating the chunk item [project]/prisma/generated/client.ts [app-client] (ecmascript) <locals>
 
 Caused by:
 - the chunking context (unknown) does not support external modules (request: node:module)
 
 Debug info:
-- An error occurred while generating the chunk item [project]/src/app/management/program/[programId]/component/ProgramSubjectAssignmentPage.tsx [app-client] (ecmascript)
+- An error occurred while generating the chunk item [project]/prisma/generated/client.ts [app-client] (ecmascript) <locals>
 - Execution of <MergedEcmascriptModuleChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
 - Execution of *EcmascriptChunkItemContent::new failed
 - Execution of EcmascriptModuleContent::new_merged failed
 - the chunking context (unknown) does not support external modules (request: node:module)
 
-Import trace:
-  Server Component:
-    ./src/app/management/program/[programId]/component/ProgramSubjectAssignmentPage.tsx
-    ./src/app/management/program/[programId]/page.tsx
+Import traces:
+  #1 [Server Component]:
+    ./prisma/generated/client.ts
+    ./src/features/lock/application/actions/lock.actions.ts
+
+  #2 [App Route]:
+    ./prisma/generated/client.ts
+    ./src/lib/prisma.ts
+    ./src/app/api/admin/seed-semesters/route.ts
+
+  #3 [Client Component Browser]:
+    ./prisma/generated/client.ts [Client Component Browser]
+    ./src/models/credit-titles.ts [Client Component Browser]
+    ./src/app/dashboard/[semesterAndyear]/all-program/page.tsx [Client Component Browser]
+    ./src/app/dashboard/[semesterAndyear]/all-program/page.tsx [Server Component]
+
+  #4 [Client Component SSR]:
+    ./prisma/generated/client.ts [Client Component SSR]
+    ./src/models/credit-titles.ts [Client Component SSR]
+    ./src/app/dashboard/[semesterAndyear]/all-program/page.tsx [Client Component SSR]
+    ./src/app/dashboard/[semesterAndyear]/all-program/page.tsx [Server Component]
+
+  #5 [Middleware]:
+    ./prisma/generated/client.ts
+    ./src/lib/prisma.ts
+    ./src/lib/auth.ts
+    ./proxy.ts
+
+  #6 [Server Component]:
+    ./prisma/generated/client.ts
+    ./src/lib/prisma.ts
+    ./src/features/analytics/infrastructure/repositories/time.repository.ts
+    ./src/features/analytics/application/actions/analytics.actions.ts
+    ./src/app/dashboard/[semesterAndyear]/analytics/page.tsx
 
 
     at ignore-listed frames
