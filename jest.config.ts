@@ -62,9 +62,9 @@ const config: Config = {
   // Exclude E2E tests - these should be run with Playwright test runner
   testPathIgnorePatterns: TEST_PATH_IGNORE_PATTERNS,
 
-  // Transform patterns (next/jest handles this automatically)
+  // Transform patterns - allow ESM modules from @auth and @prisma to be transformed
   transformIgnorePatterns: [
-    '/node_modules/(?!next-auth|@auth)',
+    '/node_modules/(?!next-auth|@auth|@prisma)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
