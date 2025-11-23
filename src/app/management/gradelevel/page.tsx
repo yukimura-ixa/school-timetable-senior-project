@@ -3,12 +3,16 @@ import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/
 import { getProgramsGroupedByYearAction } from "@/features/program/application/actions/program.actions";
 import { GradeLevelManageClient } from "./component/GradeLevelManageClient";
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 
 /**
  * GradeLevel Management Page - Server Component
  * Fetches gradelevel data on the server, passes to client component
  */
 export default async function GradeLevelManagePage() {
+  // Force dynamic rendering for Next.js 16
+  await cookies();
+  
   const result = await getGradeLevelsAction();
   const programsByYear = await getProgramsGroupedByYearAction();
 

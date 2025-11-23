@@ -12,7 +12,7 @@ test.describe('Publish Gate', () => {
   test('should prevent publishing of an incomplete semester', async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin
     const arrangePage = new ArrangePage(page)
-    await arrangePage.goto('1-2567')
+    await arrangePage.navigateTo('1', '2567')
 
     // 1. Navigate to dashboard
     await page.goto('/dashboard/1-2567')

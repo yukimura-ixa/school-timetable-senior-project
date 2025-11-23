@@ -28,4 +28,9 @@
     "terminal.integrated.suggest.enabled": true,
     "typescript.tsdk": "node_modules/typescript/lib",
     "chatgpt.runCodexInWindowsSubsystemForLinux": false,
+    "chat.mcp.serverSampling": {
+        "school-timetable-senior-project/.vscode/mcp.json: oraios/serena": {
+            "allowedModels": []
+        }
+    },
 }

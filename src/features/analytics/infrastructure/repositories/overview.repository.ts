@@ -18,6 +18,7 @@ export const overviewRepository = {
    * @returns Overview stats including completion rate, active teachers, conflicts
    */
   async getOverviewStats(configId: string): Promise<OverviewStats> {
+    'use cache'
     cacheTag(`stats:${configId}`)
     const config = parseConfigId(configId)
 
@@ -115,6 +116,7 @@ export const overviewRepository = {
    * @returns Stats specific to the grade
    */
   async getGradeStats(configId: string, gradeId: string) {
+    'use cache'
     cacheTag(`stats:${configId}`, `stats:${configId}:grade:${gradeId}`)
     const config = parseConfigId(configId)
 
@@ -174,6 +176,7 @@ export const overviewRepository = {
    * @returns Count of locked and unlocked schedules
    */
   async getLockStatusSummary(configId: string) {
+    'use cache'
     cacheTag(`stats:${configId}`, `stats:${configId}:locks`)
     const config = parseConfigId(configId)
 
@@ -227,6 +230,7 @@ export const overviewRepository = {
    * @returns Detailed completion metrics
    */
   async getCompletionMetrics(configId: string) {
+    'use cache'
     cacheTag(`stats:${configId}`, `stats:${configId}:completion`)
     const config = parseConfigId(configId)
 

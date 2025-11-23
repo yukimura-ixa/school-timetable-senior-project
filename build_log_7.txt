@@ -1,0 +1,31 @@
+
+> school-timetable@2.0.0 build B:\Dev\school-timetable-senior-project
+> next build
+
+   โ–ฒ Next.js 16.0.3 (Turbopack, Cache Components)
+   - Environments: .env
+
+   Creating an optimized production build ...
+Turbopack build encountered 1 warnings:
+./node_modules/.pnpm/fstream@1.0.12/node_modules/fstream/lib
+Package rimraf can't be external
+The request rimraf matches serverExternalPackages (or the default list).
+The package.json of the package has no name or version.
+
+
+ โ“ Compiled successfully in 57s
+   Running TypeScript ...
+Failed to compile.
+
+./src/app/management/subject/component/AddModalForm.tsx:225:49
+Type error: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'SubjectCreditWithTitles'.
+
+  223 |                       data={Object.values(subject_credit)}
+  224 |                       renderItem={({ data }: { data: any }): JSX.Element => (
+> 225 |                         <li className="w-full">{subjectCreditTitles[data]}</li>
+      |                                                 ^
+  226 |                       )}
+  227 |                       width={150}
+  228 |                       height={40}
+Next.js build worker exited with code: 1 and signal: null
+โ€ELIFECYCLEโ€ Command failed with exit code 1.

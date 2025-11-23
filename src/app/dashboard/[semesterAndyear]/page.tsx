@@ -40,7 +40,21 @@ export default async function DashboardPage({
     );
   }
   
-  const year = parseInt(academicYear);
+  const year = parseInt(academicYear, 10);
+  
+  // Validate that year is a valid number
+  if (isNaN(year) || year < 2500 || year > 2600) {
+    return (
+      <div className="p-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
+          <p className="text-red-600">ปีการศึกษาไม่ถูกต้อง ({academicYear})</p>
+          <p className="mt-2 text-sm text-red-500">กรุณาเลือกภาคเรียนจากหน้าหลัก</p>
+        </div>
+      </div>
+    );
+  }
+  
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
   // Fetch all dashboard data in parallel

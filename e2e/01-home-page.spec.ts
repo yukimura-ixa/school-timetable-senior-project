@@ -34,10 +34,9 @@ test.describe('Home Page Tests', () => {
   test('TC-HOME-003: Protected routes redirect to signin', async ({ page }) => {
     // Test without authentication
     const protectedRoutes = [
-      '/schedule',
-      '/teachers',
-      '/subjects',
-      '/classrooms'
+      '/dashboard',
+      '/management/teacher',
+      '/schedule'
     ]
 
     for (const route of protectedRoutes) {
@@ -45,11 +44,12 @@ test.describe('Home Page Tests', () => {
       await page.goto(route)
 
       // ✅ IMPROVED: Use web-first assertion instead of waitForTimeout
-      // Wait for either redirect to signin or auth error message
+      // Middleware redirects unauthenticated users to home page ("/")
       await expect(async () => {
         const url = page.url()
-        const isOnSignIn = url.includes('/signin') || url.includes('/api/auth')
-        expect(isOnSignIn).toBe(true)
+        // Check if redirected to home page (base URL with optional trailing slash)
+        const isHome = url === 'http://localhost:3000/' || url === 'http://localhost:3000'
+        expect(isHome).toBe(true)
       }).toPass({ timeout: 5000 })
 
       // Take screenshot
