@@ -65,7 +65,7 @@ export async function calculateTeacherWorkload(
       subject: a.subject?.SubjectName || "Unknown",
       subjectCode: a.subject?.SubjectCode || a.SubjectCode,
       grade: a.gradelevel?.GradeID || a.GradeID,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
       credits: a.subject?.Credit ? parseFloat(a.subject.Credit) : 0,
       hours: a.TeachHour,
     })),

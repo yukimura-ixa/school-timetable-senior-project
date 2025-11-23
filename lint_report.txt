@@ -1,0 +1,394 @@
+
+> school-timetable@2.0.0 lint B:\Dev\school-timetable-senior-project
+> pnpm run lint:eslint
+
+
+> school-timetable@2.0.0 lint:eslint B:\Dev\school-timetable-senior-project
+> eslint "src/features/**" "src/lib/**" "src/types/**" "src/utils/**" --ext .ts,.tsx --report-unused-disable-directives
+
+
+B:\Dev\school-timetable-senior-project\src\features\analytics\infrastructure\repositories\compliance.repository.ts
+   29:41  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   70:33  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   74:40  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   75:47  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   77:38  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+   82:54  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+   85:35  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  129:42  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  168:20  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  168:73  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  169:17  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\analytics\infrastructure\repositories\overview.repository.ts
+   36:43  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   71:27  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   74:38  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   75:59  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   76:28  error  Unsafe argument of type `any` assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  134:43  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  194:43  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  248:43  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\analytics\infrastructure\repositories\quality.repository.ts
+   72:41  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  101:31  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  102:49  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  104:21  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\analytics\infrastructure\repositories\room.repository.ts
+   32:41  error  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+   64:32  error  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+   68:31  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+   69:28  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+   71:26  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+   71:48  error  Unsafe argument of type `any` assigned to a parameter of type `string`       @typescript-eslint/no-unsafe-argument
+   74:42  error  Unsafe argument of type `any` assigned to a parameter of type `string`       @typescript-eslint/no-unsafe-argument
+   76:31  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+   77:28  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+   79:41  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+  109:40  error  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  112:42  error  Unsafe argument of type `any` assigned to a parameter of type `string`       @typescript-eslint/no-unsafe-argument
+  113:48  error  Unsafe argument of type `any` assigned to a parameter of type `string`       @typescript-eslint/no-unsafe-argument
+  117:34  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+  118:31  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+  120:45  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+  137:26  error  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  138:26  error  Unsafe argument of type `any` assigned to a parameter of type `day_of_week`  @typescript-eslint/no-unsafe-argument
+  138:62  error  Unsafe argument of type `any` assigned to a parameter of type `day_of_week`  @typescript-eslint/no-unsafe-argument
+  143:27  error  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  144:48  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+  152:48  error  Unsafe argument of type `any` assigned to a parameter of type `number`       @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\analytics\infrastructure\repositories\teacher.repository.ts
+  29:41  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  58:32  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  59:53  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  60:27  error  Unsafe argument of type `any` assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  61:24  error  Unsafe argument of type `any` assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  67:35  error  Unsafe argument of type `any` assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  69:24  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  70:25  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\analytics\infrastructure\repositories\time.repository.ts
+   50:41  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   66:32  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+   67:48  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  117:41  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  133:32  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  134:42  error  Unsafe argument of type `any` assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\arrange\infrastructure\repositories\arrange.repository.ts
+   49:3  error  Async method 'findByTeacher' has no 'await' expression         @typescript-eslint/require-await
+   77:3  error  Async method 'findExistingUnlocked' has no 'await' expression  @typescript-eslint/require-await
+  108:3  error  Async method 'create' has no 'await' expression                @typescript-eslint/require-await
+  139:3  error  Async method 'deleteById' has no 'await' expression            @typescript-eslint/require-await
+  153:3  error  Async method 'countByTeacher' has no 'await' expression        @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\assign\application\actions\assign.actions.ts
+  221:7   error  Unexpected iterable of non-Promise (non-"Thenable") values passed to promise aggregator  @typescript-eslint/await-thenable
+  222:7   error  Unexpected iterable of non-Promise (non-"Thenable") values passed to promise aggregator  @typescript-eslint/await-thenable
+  244:52  error  Unsafe argument of type error typed assigned to a parameter of type `number`             @typescript-eslint/no-unsafe-argument
+  274:7   error  Unexpected iterable of non-Promise (non-"Thenable") values passed to promise aggregator  @typescript-eslint/await-thenable
+  275:7   error  Unexpected iterable of non-Promise (non-"Thenable") values passed to promise aggregator  @typescript-eslint/await-thenable
+
+B:\Dev\school-timetable-senior-project\src\features\assign\infrastructure\repositories\assign.repository.ts
+   49:8  error  Async function 'findByTeacherAndTerm' has no 'await' expression             @typescript-eslint/require-await
+   71:8  error  Async function 'findAvailableByTeacherAndTerm' has no 'await' expression    @typescript-eslint/require-await
+  138:8  error  Async function 'findMany' has no 'await' expression                         @typescript-eslint/require-await
+  149:8  error  Async function 'create' has no 'await' expression                           @typescript-eslint/require-await
+  160:8  error  Async function 'deleteById' has no 'await' expression                       @typescript-eslint/require-await
+  172:8  error  Async function 'deleteSchedulesByTeacherAndTerm' has no 'await' expression  @typescript-eslint/require-await
+  197:8  error  Async function 'count' has no 'await' expression                            @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\class\infrastructure\repositories\class.repository.ts
+   59:8  error  Async function 'findByTerm' has no 'await' expression     @typescript-eslint/require-await
+   87:8  error  Async function 'findByTeacher' has no 'await' expression  @typescript-eslint/require-await
+  121:8  error  Async function 'findByGrade' has no 'await' expression    @typescript-eslint/require-await
+  152:8  error  Async function 'findConflicts' has no 'await' expression  @typescript-eslint/require-await
+  190:8  error  Async function 'findSummary' has no 'await' expression    @typescript-eslint/require-await
+  218:8  error  Async function 'findByClassId' has no 'await' expression  @typescript-eslint/require-await
+  240:8  error  Async function 'create' has no 'await' expression         @typescript-eslint/require-await
+  251:8  error  Async function 'update' has no 'await' expression         @typescript-eslint/require-await
+  266:8  error  Async function 'deleteById' has no 'await' expression     @typescript-eslint/require-await
+  277:8  error  Async function 'count' has no 'await' expression          @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\config\application\actions\config-lifecycle.actions.ts
+  16:15  warning  'semester' is defined but never used                                                           @typescript-eslint/no-unused-vars
+  68:7   error    Unsafe argument of type error typed assigned to a parameter of type `number`                   @typescript-eslint/no-unsafe-argument
+  82:7   error    Unsafe argument of type error typed assigned to a parameter of type `Date | null | undefined`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\config\application\actions\config.actions.ts
+  116:11  error  Unsafe argument of type error typed assigned to a parameter of type `number`    @typescript-eslint/no-unsafe-argument
+  117:11  error  Unsafe argument of type error typed assigned to a parameter of type `semester`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\config\domain\services\publish-readiness.service.ts
+  12:36  warning  'GradeCompletion' is defined but never used  @typescript-eslint/no-unused-vars
+
+B:\Dev\school-timetable-senior-project\src\features\config\infrastructure\repositories\config.repository.ts
+  279:27  error  Unsafe argument of type error typed assigned to a parameter of type `number`    @typescript-eslint/no-unsafe-argument
+  279:41  error  Unsafe argument of type error typed assigned to a parameter of type `semester`  @typescript-eslint/no-unsafe-argument
+  304:26  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  310:17  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  318:20  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  319:17  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  321:26  error  Unsafe argument of type `any` assigned to a parameter of type `string`          @typescript-eslint/no-unsafe-argument
+  321:41  error  Unsafe argument of type error typed assigned to a parameter of type `string[]`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\dashboard\infrastructure\repositories\dashboard.repository.ts
+  220:3   error  Async function 'getTeachersWithScheduleCounts' has no 'await' expression  @typescript-eslint/require-await
+  245:3   error  Async function 'getGradesWithScheduleCounts' has no 'await' expression    @typescript-eslint/require-await
+  310:41  error  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\gradelevel\domain\services\gradelevel-validation.service.ts
+  110:30  error  Unsafe argument of type error typed assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  111:27  error  Unsafe argument of type error typed assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  113:25  error  Unsafe argument of type error typed assigned to a parameter of type `string`  @typescript-eslint/no-unsafe-argument
+  113:44  error  Unsafe argument of type error typed assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  128:30  error  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\gradelevel\infrastructure\repositories\gradelevel.repository.ts
+   18:3  error  Async method 'findAll' has no 'await' expression                      @typescript-eslint/require-await
+   32:3  error  Async method 'findById' has no 'await' expression                     @typescript-eslint/require-await
+   46:3  error  Async method 'findDuplicate' has no 'await' expression                @typescript-eslint/require-await
+   59:3  error  Async method 'findTeacherResponsibilities' has no 'await' expression  @typescript-eslint/require-await
+   80:3  error  Async method 'findByIds' has no 'await' expression                    @typescript-eslint/require-await
+   94:3  error  Async method 'create' has no 'await' expression                       @typescript-eslint/require-await
+  112:3  error  Async method 'update' has no 'await' expression                       @typescript-eslint/require-await
+  129:3  error  Async method 'deleteMany' has no 'await' expression                   @typescript-eslint/require-await
+  142:3  error  Async method 'count' has no 'await' expression                        @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\lock\application\actions\lock.actions.ts
+  228:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  234:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  240:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  245:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\program\application\actions\program.actions.ts
+  238:7  error  Unsafe argument of type error typed assigned to a parameter of type `number`        @typescript-eslint/no-unsafe-argument
+  239:7  error  Unsafe argument of type error typed assigned to a parameter of type `ProgramTrack`  @typescript-eslint/no-unsafe-argument
+  296:7  error  Unsafe argument of type error typed assigned to a parameter of type `number`        @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\program\infrastructure\repositories\program.repository.ts
+   23:3   error  Async method 'findAll' has no 'await' expression                        @typescript-eslint/require-await
+   53:3   error  Async method 'findByFilters' has no 'await' expression                  @typescript-eslint/require-await
+   89:3   error  Async method 'findById' has no 'await' expression                       @typescript-eslint/require-await
+  115:3   error  Async method 'findByCode' has no 'await' expression                     @typescript-eslint/require-await
+  126:3   error  Async method 'findByYearAndTrack' has no 'await' expression             @typescript-eslint/require-await
+  186:61  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  205:3   error  Async method 'create' has no 'await' expression                         @typescript-eslint/require-await
+  230:3   error  Async method 'update' has no 'await' expression                         @typescript-eslint/require-await
+  258:3   error  Async method 'assignSubjects' has no 'await' expression                 @typescript-eslint/require-await
+  259:43  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  300:3   error  Async method 'getProgramSubjectsWithDetails' has no 'await' expression  @typescript-eslint/require-await
+  319:3   error  Async method 'delete' has no 'await' expression                         @typescript-eslint/require-await
+  330:3   error  Async method 'count' has no 'await' expression                          @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\room\application\actions\room.actions.ts
+  162:54  error  Unsafe argument of type error typed assigned to a parameter of type `{ RoomID: number; RoomName: string; Building: string; Floor: string; } | null`  @typescript-eslint/no-unsafe-argument
+  206:61  error  Unsafe argument of type error typed assigned to a parameter of type `{ RoomID: number; RoomName: string; Building: string; Floor: string; } | null`  @typescript-eslint/no-unsafe-argument
+  221:33  error  Unexpected any. Specify a different type                                                                                                             @typescript-eslint/no-explicit-any
+  311:33  error  Unexpected any. Specify a different type                                                                                                             @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\room\infrastructure\repositories\room.repository.ts
+   19:37  error  Async arrow function has no 'await' expression                     @typescript-eslint/require-await
+   31:51  error  Async arrow function has no 'await' expression                     @typescript-eslint/require-await
+   59:3   error  Async method 'findDuplicate' has no 'await' expression             @typescript-eslint/require-await
+   73:3   error  Async method 'findAvailableForTimeslot' has no 'await' expression  @typescript-eslint/require-await
+  109:23  error  Unexpected any. Specify a different type                           @typescript-eslint/no-explicit-any
+  110:20  error  Unexpected any. Specify a different type                           @typescript-eslint/no-explicit-any
+  116:3   error  Async method 'create' has no 'await' expression                    @typescript-eslint/require-await
+  129:3   error  Async method 'update' has no 'await' expression                    @typescript-eslint/require-await
+  145:3   error  Async method 'deleteMany' has no 'await' expression                @typescript-eslint/require-await
+  158:3   error  Async method 'count' has no 'await' expression                     @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\application\actions\schedule-arrangement.actions.test.ts
+  20:27  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  21:26  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\infrastructure\repositories\schedule.repository.test.ts
+  19:29  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+  20:28  error  This assertion is unnecessary since it does not change the type of the expression  @typescript-eslint/no-unnecessary-type-assertion
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\infrastructure\repositories\schedule.repository.ts
+   63:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\presentation\components\examples\DroppableTimeslot.tsx
+  135:9  warning  'timeSlotData' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  137:9  warning  'setShowErrorMsg' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  138:9  warning  'setIsSaving' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\presentation\hooks\useArrangeSchedule.ts
+  60:5  warning  'changeTimeSlotSubject' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  65:5  warning  'setSelectedSubject' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  66:5  warning  'setSubjectData' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  71:5  warning  'removeSubjectFromData' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\presentation\hooks\useConflictValidation.ts
+  67:5  warning  'showErrorMsgByTimeslotID' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  68:5  warning  'showLockDataMsgByTimeslotID' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\presentation\hooks\useScheduleFilters.ts
+  55:5  warning  'scheduledSubjects' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\presentation\stores\arrangement-ui.store.ts
+  432:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  454:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\schedule-arrangement\presentation\stores\teacher-arrange.store.ts
+  384:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\semester\application\actions\semester.actions.ts
+   53:38  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+   54:62  error  Unsafe argument of type `any` assigned to a parameter of type `string`          @typescript-eslint/no-unsafe-argument
+   92:38  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+   93:62  error  Unsafe argument of type `any` assigned to a parameter of type `string`          @typescript-eslint/no-unsafe-argument
+  129:38  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  130:62  error  Unsafe argument of type `any` assigned to a parameter of type `string`          @typescript-eslint/no-unsafe-argument
+  209:11  error  Unsafe argument of type error typed assigned to a parameter of type `number`    @typescript-eslint/no-unsafe-argument
+  210:11  error  Unsafe argument of type error typed assigned to a parameter of type `semester`  @typescript-eslint/no-unsafe-argument
+  219:58  error  Unsafe argument of type error typed assigned to a parameter of type `string`    @typescript-eslint/no-unsafe-argument
+  383:40  error  Unexpected any. Specify a different type                                        @typescript-eslint/no-explicit-any
+  411:58  error  Unsafe argument of type error typed assigned to a parameter of type `string`    @typescript-eslint/no-unsafe-argument
+  536:9   error  Unsafe argument of type error typed assigned to a parameter of type `number`    @typescript-eslint/no-unsafe-argument
+  537:9   error  Unsafe argument of type error typed assigned to a parameter of type `semester`  @typescript-eslint/no-unsafe-argument
+  545:58  error  Unsafe argument of type error typed assigned to a parameter of type `string`    @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\semester\infrastructure\repositories\semester.repository.ts
+   70:3   error  Async method 'findRecent' has no 'await' expression             @typescript-eslint/require-await
+   85:3   error  Async method 'findPinned' has no 'await' expression             @typescript-eslint/require-await
+   98:3   error  Async method 'findById' has no 'await' expression               @typescript-eslint/require-await
+  107:3   error  Async method 'findByYearAndSemester' has no 'await' expression  @typescript-eslint/require-await
+  120:3   error  Async method 'create' has no 'await' expression                 @typescript-eslint/require-await
+  144:3   error  Async method 'updateStatus' has no 'await' expression           @typescript-eslint/require-await
+  161:3   error  Async method 'togglePin' has no 'await' expression              @typescript-eslint/require-await
+  171:3   error  Async method 'trackAccess' has no 'await' expression            @typescript-eslint/require-await
+  181:3   error  Async method 'updateCompleteness' has no 'await' expression     @typescript-eslint/require-await
+  191:3   error  Async method 'archive' has no 'await' expression                @typescript-eslint/require-await
+  301:32  error  Unexpected any. Specify a different type                        @typescript-eslint/no-explicit-any
+  342:49  error  Unexpected any. Specify a different type                        @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\subject\infrastructure\repositories\subject.repository.ts
+   18:3   error  Async method 'findAll' has no 'await' expression     @typescript-eslint/require-await
+   29:3   error  Async method 'findByCode' has no 'await' expression  @typescript-eslint/require-await
+   40:3   error  Async method 'findByName' has no 'await' expression  @typescript-eslint/require-await
+   75:66  error  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+   84:3   error  Async method 'create' has no 'await' expression      @typescript-eslint/require-await
+  103:3   error  Async method 'update' has no 'await' expression      @typescript-eslint/require-await
+  124:3   error  Async method 'deleteMany' has no 'await' expression  @typescript-eslint/require-await
+  137:3   error  Async method 'count' has no 'await' expression       @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\teacher\application\actions\teacher.actions.ts
+  130:57  error  Unsafe argument of type error typed assigned to a parameter of type `{ TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; Email: string; Role: string; } | null`  @typescript-eslint/no-unsafe-argument
+  138:56  error  Unsafe argument of type error typed assigned to a parameter of type `{ TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; Email: string; Role: string; } | null`  @typescript-eslint/no-unsafe-argument
+  183:67  error  Unsafe argument of type error typed assigned to a parameter of type `{ TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; Email: string; Role: string; } | null`  @typescript-eslint/no-unsafe-argument
+  191:66  error  Unsafe argument of type error typed assigned to a parameter of type `{ TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; Email: string; Role: string; } | null`  @typescript-eslint/no-unsafe-argument
+  206:36  error  Unexpected any. Specify a different type                                                                                                                                                                   @typescript-eslint/no-explicit-any
+  250:7   error  Unsafe argument of type error typed assigned to a parameter of type `{ TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; Email: string; Role: string; } | null`  @typescript-eslint/no-unsafe-argument
+  304:11  error  Unsafe argument of type error typed assigned to a parameter of type `{ TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; Email: string; Role: string; } | null`  @typescript-eslint/no-unsafe-argument
+  327:36  error  Unexpected any. Specify a different type                                                                                                                                                                   @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\teacher\infrastructure\repositories\teacher.repository.ts
+   19:40  error  Async arrow function has no 'await' expression          @typescript-eslint/require-await
+   31:57  error  Async arrow function has no 'await' expression          @typescript-eslint/require-await
+   59:3   error  Async method 'findDuplicate' has no 'await' expression  @typescript-eslint/require-await
+   74:3   error  Async method 'findByEmail' has no 'await' expression    @typescript-eslint/require-await
+   85:3   error  Async method 'create' has no 'await' expression         @typescript-eslint/require-await
+  100:3   error  Async method 'update' has no 'await' expression         @typescript-eslint/require-await
+  118:3   error  Async method 'deleteMany' has no 'await' expression     @typescript-eslint/require-await
+  131:3   error  Async method 'count' has no 'await' expression          @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\features\teaching-assignment\application\actions\teaching-assignment.actions.ts
+  312:41  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  314:11  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  361:34  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  364:9   error  Unsafe argument of type `any` assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  370:51  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+  370:59  error  Unexpected any. Specify a different type                                @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\teaching-assignment\domain\services\teacher-validation.service.ts
+   45:47  error  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+   45:64  error  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+   50:36  error  Unsafe argument of type error typed assigned to a parameter of type `number`  @typescript-eslint/no-unsafe-argument
+  182:70  error  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+  182:78  error  Unexpected any. Specify a different type                                      @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\teaching-assignment\infrastructure\repositories\teaching-assignment.repository.ts
+   19:69  error  Async arrow function has no 'await' expression                                                                                                                                                     @typescript-eslint/require-await
+   62:71  error  Async arrow function has no 'await' expression                                                                                                                                                     @typescript-eslint/require-await
+  135:47  error  Async arrow function has no 'await' expression                                                                                                                                                     @typescript-eslint/require-await
+  262:8   error  Async function 'clearAllAssignments' has no 'await' expression                                                                                                                                     @typescript-eslint/require-await
+  299:18  error  Unexpected any. Specify a different type                                                                                                                                                           @typescript-eslint/no-explicit-any
+  317:29  error  Unsafe argument of type error typed assigned to a parameter of type `{ SubjectCode: string; GradeID: string; Semester: semester; AcademicYear: number; TeacherID: number; TeachHour: number; }[]`  @typescript-eslint/no-unsafe-argument
+  359:34  error  Unsafe argument of type error typed assigned to a parameter of type `Iterable<unknown> | null | undefined`                                                                                         @typescript-eslint/no-unsafe-argument
+  359:54  error  Unexpected any. Specify a different type                                                                                                                                                           @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\teaching-assignment\presentation\components\SubjectAssignmentTable.tsx
+  80:21  error  Unsafe argument of type error typed assigned to a parameter of type `SetStateAction<SubjectData[]>`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\teaching-assignment\presentation\components\TeacherSelector.tsx
+  64:82  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\features\timeslot\application\actions\timeslot.actions.ts
+  60:34  error  Unsafe argument of type error typed assigned to a parameter of type `{ TimeslotID: string; DayOfWeek: day_of_week; AcademicYear: number; Semester: semester; StartTime: Date; EndTime: Date; Breaktime: breaktime; }[]`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\features\timeslot\infrastructure\repositories\timeslot.repository.ts
+   26:3  error  Async method 'findByTerm' has no 'await' expression    @typescript-eslint/require-await
+   38:3  error  Async method 'findById' has no 'await' expression      @typescript-eslint/require-await
+   49:3  error  Async method 'findFirst' has no 'await' expression     @typescript-eslint/require-await
+   61:3  error  Async method 'createMany' has no 'await' expression    @typescript-eslint/require-await
+   72:3  error  Async method 'deleteByTerm' has no 'await' expression  @typescript-eslint/require-await
+   84:3  error  Async method 'count' has no 'await' expression         @typescript-eslint/require-await
+   91:3  error  Async method 'countByTerm' has no 'await' expression   @typescript-eslint/require-await
+  113:3  error  Async method 'findByTerm' has no 'await' expression    @typescript-eslint/require-await
+  126:3  error  Async method 'create' has no 'await' expression        @typescript-eslint/require-await
+  143:3  error  Async method 'deleteByTerm' has no 'await' expression  @typescript-eslint/require-await
+  165:3  error  Async method 'deleteByTerm' has no 'await' expression  @typescript-eslint/require-await
+
+B:\Dev\school-timetable-senior-project\src\lib\auth.ts
+   61:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   68:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   81:13  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   86:13  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+   96:13  error    Unsafe argument of type error typed assigned to a parameter of type `string`       @typescript-eslint/no-unsafe-argument
+  100:13  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  104:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  159:33  warning  'user' is assigned a value but never used                                          @typescript-eslint/no-unused-vars
+  160:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  164:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  170:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  178:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  188:11  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  195:9   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  202:28  warning  'account' is assigned a value but never used                                       @typescript-eslint/no-unused-vars
+  203:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+  241:7   warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+B:\Dev\school-timetable-senior-project\src\lib\infrastructure\repositories\public-data.repository.ts
+  312:31  error  Unexpected any. Specify a different type                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
+  312:39  error  Unexpected any. Specify a different type                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
+  371:37  error  Unsafe argument of type error typed assigned to a parameter of type `{ teachers_responsibility: { SubjectCode: string; TeachHour: number; }[]; TeacherID: number; Prefix: string; Firstname: string; Lastname: string; Department: string; }`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\lib\prisma-transaction.ts
+  10:8   error  Async function 'withPrismaTransaction' has no 'await' expression  @typescript-eslint/require-await
+  14:35  error  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+
+B:\Dev\school-timetable-senior-project\src\lib\prisma.ts
+  11:3  warning  Unexpected console statement. Only these console methods are allowed: warn, error  no-console
+
+B:\Dev\school-timetable-senior-project\src\lib\timetable-config.constants.ts
+  8:15  warning  'semester' is defined but never used  @typescript-eslint/no-unused-vars
+
+B:\Dev\school-timetable-senior-project\src\lib\timetable-config.ts
+  90:5  error  Unsafe argument of type error typed assigned to a parameter of type `number`    @typescript-eslint/no-unsafe-argument
+  91:5  error  Unsafe argument of type error typed assigned to a parameter of type `semester`  @typescript-eslint/no-unsafe-argument
+
+B:\Dev\school-timetable-senior-project\src\utils\moe-validation.ts
+  14:3  warning  'getMaxCoreLessons' is defined but never used  @typescript-eslint/no-unused-vars
+
+โ– 280 problems (246 errors, 34 warnings)
+  4 errors and 0 warnings potentially fixable with the `--fix` option.
+
+โ€ELIFECYCLEโ€ Command failed with exit code 1.
+โ€ELIFECYCLEโ€ Command failed with exit code 1.
