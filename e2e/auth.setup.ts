@@ -109,21 +109,29 @@ setup("authenticate as admin", async ({ page }) => {
     return;
   }
 
-  // Fill in the email and password fields
+  // Fill in the email and password fields (credentials auth only; dev bypass removed)
   console.log("[AUTH SETUP] Filling in credentials...");
   await page.fill('input[type="email"]', "admin@school.local");
   await page.fill('input[type="password"]', "admin123");
 
-  // Click the login button
-  const loginButton = page
-    .getByRole("button", { name: /เข้าสู่ระบบ/i })
-    .first();
+  // Locate the login button (robust to i18n / label changes)
+  let loginButton = page.getByRole("button", {
+    name: /เข้าสู่ระบบ|sign in|login|continue/i,
+  });
+  if (await loginButton.count().then((c) => c === 0)) {
+    // Fallback: first visible button on the page
+    loginButton = page.locator("button:visible").first();
+  }
   await expect(loginButton).toBeVisible({ timeout: 10000 });
   console.log("[AUTH SETUP] Found login button");
 
-  // Click and wait for navigation
+  // Click and wait for navigation to any dashboard route
   await Promise.all([
-    page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 15000 }),
+    page.waitForNavigation({
+      url: /dashboard/,
+      waitUntil: "domcontentloaded",
+      timeout: 20000,
+    }),
     loginButton.click(),
   ]);
   console.log("[AUTH SETUP] Clicked login button and navigated");

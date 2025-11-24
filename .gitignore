@@ -76,5 +76,3 @@ typecheck*.log
 
 # Screenshots and temporary test files
 /screenshots/
-
-merged-results.json
