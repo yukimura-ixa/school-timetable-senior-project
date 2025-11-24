@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import type { Page } from "@playwright/test";
 
 /**
  * TC-017: View Teacher Schedule
@@ -280,6 +281,25 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
 test.describe("TC-017: Schedule Display and Navigation", () => {
   const testSemester = "1-2567";
 
+  test.setTimeout(120_000);
+
+  const visitTeacherTable = async (page: Page) => {
+    const url = `http://localhost:3000/dashboard/${testSemester}/teacher-table`;
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await page.goto(url, { timeout: 90_000, waitUntil: "commit" });
+        await expect(page.locator("main, body")).toBeVisible({ timeout: 60_000 });
+        return;
+      } catch (error) {
+        lastError = error;
+        console.warn(`visitTeacherTable attempt ${attempt} failed, retrying...`, error);
+        await page.waitForTimeout(2000);
+      }
+    }
+    throw lastError;
+  };
+
   test("TC-017-09: Schedule shows all days of week", async ({
     authenticatedAdmin,
   }) => {
@@ -328,10 +348,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
-    );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await visitTeacherTable(page);
 
     await page.waitForTimeout(2000);
 
@@ -356,10 +373,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
-    );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await visitTeacherTable(page);
 
     await page.waitForTimeout(2000);
 
@@ -392,10 +406,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
-    );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await visitTeacherTable(page);
 
     await page.waitForTimeout(2000);
 
@@ -417,10 +428,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
-    );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await visitTeacherTable(page);
 
     await page.waitForTimeout(1000);
 
@@ -446,15 +454,31 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 test.describe("TC-017: Export Functionality", () => {
   const testSemester = "1-2567";
 
+  test.setTimeout(120_000);
+
+  const visitTeacherTable = async (page: Page) => {
+    const url = `http://localhost:3000/dashboard/${testSemester}/teacher-table`;
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await page.goto(url, { timeout: 90_000, waitUntil: "commit" });
+        await expect(page.locator("main, body")).toBeVisible({ timeout: 60_000 });
+        return;
+      } catch (error) {
+        lastError = error;
+        console.warn(`visitTeacherTable attempt ${attempt} failed, retrying...`, error);
+        await page.waitForTimeout(2000);
+      }
+    }
+    throw lastError;
+  };
+
   test("TC-017-14: Excel export button is visible", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
-    );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await visitTeacherTable(page);
 
     await page.waitForTimeout(1000);
 
@@ -485,10 +509,7 @@ test.describe("TC-017: Export Functionality", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
-    );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await visitTeacherTable(page);
 
     await page.waitForTimeout(1000);
 

@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 
+// Override global storageState so these tests start unauthenticated
+test.use({ storageState: { cookies: [], origins: [] } });
+
 /**
  * [journey] E2E: Admin Authentication Flow
  *
@@ -10,6 +13,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Admin Authentication Flow", () => {
   test.beforeEach(async ({ page }) => {
+    await page.context().clearCookies();
+    await page.addInitScript(() => window.localStorage.clear());
     await page.goto("/signin");
   });
 

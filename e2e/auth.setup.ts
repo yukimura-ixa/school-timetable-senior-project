@@ -135,15 +135,9 @@ setup("authenticate as admin", async ({ page }) => {
   await expect(loginButton).toBeVisible({ timeout: 10000 });
   console.log("[AUTH SETUP] Found login button");
 
-  // Click and wait for navigation to any dashboard route
-  await Promise.all([
-    page.waitForNavigation({
-      url: /dashboard/,
-      waitUntil: "domcontentloaded",
-      timeout: 20000,
-    }),
-    loginButton.click(),
-  ]);
+  // Click and wait for client-side route change (Next.js uses SPA navigation)
+  await loginButton.click();
+  await expect(page).toHaveURL(/\/dashboard\//, { timeout: 60000 });
   console.log("[AUTH SETUP] Clicked login button and navigated");
 
   // Wait for page to be stable
