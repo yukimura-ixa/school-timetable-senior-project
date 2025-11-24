@@ -17,10 +17,27 @@ jobs:
       - name: Download Playwright JUnit artifacts
         uses: actions/download-artifact@v4
         with:
-          name: playwright-junit
+          # Download merged JUnit artifact from E2E workflow (may be absent if merge job skipped)
+          pattern: playwright-junit
+          merge-multiple: true
+          if-no-artifact-found: ignore
           path: test-results
 
+      - name: Detect JUnit files
+        id: junit
+        run: |
+          shopt -s nullglob
+          files=(test-results/playwright-report/junit/*.xml)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No JUnit files downloaded; skipping report"
+          else
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "JUnit files:" "${files[@]}"
+          fi
+
       - name: Publish Playwright E2E test check
+        if: steps.junit.outputs.found == 'true'
         uses: dorny/test-reporter@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

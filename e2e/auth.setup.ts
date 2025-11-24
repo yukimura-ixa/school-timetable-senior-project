@@ -109,18 +109,28 @@ setup("authenticate as admin", async ({ page }) => {
     return;
   }
 
-  // Fill in the email and password fields (credentials auth only; dev bypass removed)
+  // Wait for form to be ready and fill credentials (dev bypass removed)
+  await expect(page.locator('input[type="email"]')).toBeVisible({
+    timeout: 10000,
+  });
+  await expect(page.locator('input[type="password"]')).toBeVisible({
+    timeout: 10000,
+  });
   console.log("[AUTH SETUP] Filling in credentials...");
   await page.fill('input[type="email"]', "admin@school.local");
   await page.fill('input[type="password"]', "admin123");
 
-  // Locate the login button (robust to i18n / label changes)
-  let loginButton = page.getByRole("button", {
-    name: /เข้าสู่ระบบ|sign in|login|continue/i,
-  });
+  // Locate the credentials submit button (exclude Google button)
+  let loginButton = page
+    .locator('button:not([data-testid="google-signin-button"])', {
+      hasText: /เข้าสู่ระบบ|sign in|login|continue/i,
+    })
+    .first();
   if (await loginButton.count().then((c) => c === 0)) {
-    // Fallback: first visible button on the page
-    loginButton = page.locator("button:visible").first();
+    // Fallback: first visible non-Google button
+    loginButton = page
+      .locator('button:not([data-testid="google-signin-button"]):visible')
+      .first();
   }
   await expect(loginButton).toBeVisible({ timeout: 10000 });
   console.log("[AUTH SETUP] Found login button");
