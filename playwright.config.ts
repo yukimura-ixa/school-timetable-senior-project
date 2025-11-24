@@ -70,14 +70,26 @@ export default defineConfig({
   webServer: process.env.SKIP_WEBSERVER
     ? undefined
     : {
-        command: "pnpm dev:e2e",
+        // In CI, reuse the production build to avoid dev compile latency
+        // and HMR stalls that were causing widespread selector timeouts.
+        command:
+          process.env.CI === "true"
+            ? "pnpm start -- -p 3000"
+            : "pnpm dev:e2e",
         url: "http://localhost:3000",
         reuseExistingServer: true, // ✅ Always reuse - prevents port conflicts
         timeout: 120 * 1000,
         stdout: "pipe", // Changed from 'ignore' to see startup logs
         stderr: "pipe",
+        env: {
+          ...process.env,
+          NODE_ENV:
+            process.env.CI === "true"
+              ? "production"
+              : process.env.NODE_ENV ?? "development",
+        },
       },
 
-  /* Test output directories */
+/* Test output directories */
   outputDir: "test-results/artifacts",
 });
