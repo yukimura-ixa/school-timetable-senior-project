@@ -74,7 +74,7 @@ export default defineConfig({
         // and HMR stalls that were causing widespread selector timeouts.
         command:
           process.env.CI === "true"
-            ? "pnpm start -- -p 3000"
+            ? "pnpm exec next start -p 3000"
             : "pnpm dev:e2e",
         url: "http://localhost:3000",
         reuseExistingServer: true, // ✅ Always reuse - prevents port conflicts
