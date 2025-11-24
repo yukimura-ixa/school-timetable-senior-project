@@ -75,7 +75,7 @@ export const getClassSchedulesAction = createAction(
 
     let schedules;
 
-    // Non-admins must be scoped
+    // Non-admins must be scoped by identity or grade
     if (!isAdminRole(userRole)) {
       if (userRole === "teacher") {
         const targetTeacherId = input.TeacherID ?? teacherIdFromSession;
@@ -94,7 +94,21 @@ export const getClassSchedulesAction = createAction(
         return schedules;
       }
 
-      // Students/guests cannot fetch full timetable
+      // Students/guests may view grade-level timetables only
+      if (userRole === "student" || userRole === undefined) {
+        if (!input.GradeID) {
+          throw new Error(
+            "Unauthorized: grade-scoped timetable required for this role.",
+          );
+        }
+        schedules = await classRepository.findByGrade(
+          input.GradeID,
+          input.AcademicYear,
+          sem,
+        );
+        return addTeachersToSchedules(schedules);
+      }
+
       throw new Error("Unauthorized: insufficient role for timetable access.");
     }
 
@@ -105,7 +119,7 @@ export const getClassSchedulesAction = createAction(
         sem,
       );
     } else if (input.GradeID) {
-      // Filter by grade
+      // Admin grade view
       schedules = await classRepository.findByGrade(
         input.GradeID,
         input.AcademicYear,

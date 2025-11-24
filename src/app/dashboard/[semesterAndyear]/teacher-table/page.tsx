@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -45,7 +46,6 @@ import { getTimeslotsByTermAction } from "@/features/timeslot/application/action
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
 
-import TimeSlot from "./component/Timeslot";
 import SelectTeacher from "./component/SelectTeacher";
 import {
   generateTeacherBatchPDF,
@@ -55,8 +55,8 @@ import { PDFCustomizationDialog } from "../shared/PDFCustomizationDialog";
 import {
   ExportTeacherTable,
   type ExportTimeslotData,
-  type ClassScheduleWithSummary,
-} from "../all-timeslot/functions/ExportTeacherTable";
+} from "@/features/export/teacher-timetable-excel";
+import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 import {
   createTimeSlotTableData,
   type TimeSlotTableData,
@@ -82,12 +82,20 @@ const formatTeacherName = (teacher?: Teacher) => {
   return `${prefix}${firstname}${firstname && lastname ? " " : ""}${lastname}`.trim();
 };
 
+const TimeSlot = dynamic(() => import("./component/Timeslot"), {
+  ssr: false,
+  loading: () => (
+    <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+  ),
+});
+
 function TeacherTablePage() {
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(
     params.semesterAndyear as string,
   );
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
+  const isSessionLoading = sessionStatus === "loading";
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const isTeacher = userRole === "teacher";
@@ -121,6 +129,8 @@ function TeacherTablePage() {
 
   // Get all teachers for bulk operations
   const allTeachers = useTeachers();
+  const isTeacherListLoading =
+    allTeachers.isLoading || allTeachers.isValidating;
 
   const {
     data: timeslotResponse,
@@ -426,186 +436,215 @@ function TeacherTablePage() {
         )}
 
         {/* Bulk Export Filter Section - Admin only */}
-        {isAdmin && (
-          <Paper elevation={1} sx={{ p: 2 }} className="no-print">
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: showBulkFilters ? 2 : 0,
-              }}
+        {isAdmin &&
+          (isSessionLoading || isTeacherListLoading ? (
+            <Paper
+              elevation={1}
+              sx={{ p: 2 }}
+              className="no-print"
+              data-testid="bulk-export-skeleton"
             >
-              <Typography
-                variant="h6"
-                sx={{ display: "flex", alignItems: "center", gap: 1 }}
-              >
-                <FilterListIcon />
-                การส่งออกแบบกลุ่ม
-              </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                endIcon={
-                  showBulkFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />
-                }
-                onClick={() => setShowBulkFilters(!showBulkFilters)}
-              >
-                {showBulkFilters ? "ซ่อน" : "แสดง"}ตัวกรอง
-              </Button>
-            </Box>
-
-            <Collapse in={showBulkFilters}>
-              <Stack
-                spacing={2}
-                direction={isMobile ? "column" : "row"}
-                sx={{ mt: 2 }}
-              >
-                {/* Teacher Multi-Select */}
-                <FormControl sx={{ flex: 1 }}>
-                  <InputLabel>เลือกครู</InputLabel>
-                  <Select
-                    multiple
-                    value={selectedTeacherIds}
-                    onChange={(e) =>
-                      setSelectedTeacherIds(e.target.value as number[])
-                    }
-                    input={<OutlinedInput label="เลือกครู" />}
-                    data-testid="teacher-multi-select"
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((id) => {
-                          const teacher = allTeachers.data?.find(
-                            (t) => t.TeacherID === id,
-                          );
-                          const name = teacher
-                            ? formatTeacherName(teacher)
-                            : `ครู ${id}`;
-                          return <Chip key={id} label={name} size="small" />;
-                        })}
-                      </Box>
-                    )}
-                    disabled={allTeachers.isLoading || !allTeachers.data}
-                  >
-                    {allTeachers.data?.map((teacher) => (
-                      <MenuItem
-                        key={teacher.TeacherID}
-                        value={teacher.TeacherID}
-                      >
-                        <Checkbox
-                          checked={selectedTeacherIds.includes(
-                            teacher.TeacherID,
-                          )}
-                        />
-                        <ListItemText primary={formatTeacherName(teacher)} />
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                {/* Action Buttons */}
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ alignItems: "flex-start" }}
-                >
-                  {selectedTeacherIds.length > 0 && (
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => setSelectedTeacherIds([])}
-                    >
-                      ล้างตัวกรอง
-                    </Button>
-                  )}
-                  <Tooltip title="ส่งออกครูที่เลือก">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      disabled={
-                        selectedTeacherIds.length === 0 || hasTimeslotError
-                      }
-                      onClick={handleBulkExportExcel}
-                      startIcon={<GridOnIcon />}
-                    >
-                      {isMobile ? "Excel" : "ส่งออก Excel"}
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="พิมพ์ครูที่เลือก">
-                    <IconButton
-                      color="primary"
-                      disabled={
-                        selectedTeacherIds.length === 0 || hasTimeslotError
-                      }
-                      onClick={handleBulkPrint}
-                    >
-                      <PrintIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="ตัวเลือกเพิ่มเติม">
-                    <IconButton
-                      onClick={handleExportMenuOpen}
-                      disabled={selectedTeacherIds.length === 0}
-                      data-testid="teacher-export-menu-button"
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Stack>
-              </Stack>
-
-              {/* Export Options Menu */}
-              <Menu
-                anchorEl={exportMenuAnchor}
-                open={Boolean(exportMenuAnchor)}
-                onClose={handleExportMenuClose}
-                data-testid="teacher-export-menu"
-              >
-                <MenuItem
-                  onClick={handleBulkExportExcel}
-                  data-testid="export-excel-option"
-                >
-                  <GridOnIcon sx={{ mr: 1 }} />
-                  ส่งออก Excel
-                </MenuItem>
-                <MenuItem
-                  onClick={handleBulkPrint}
-                  data-testid="export-print-option"
-                >
-                  <PrintIcon sx={{ mr: 1 }} />
-                  พิมพ์ทั้งหมด
-                </MenuItem>
-                <MenuItem
-                  onClick={handleOpenPdfCustomization}
-                  data-testid="export-custom-pdf-option"
-                >
-                  <PictureAsPdfIcon sx={{ mr: 1 }} />
-                  สร้าง PDF (กำหนดค่าเอง)
-                </MenuItem>
-              </Menu>
-
-              {/* PDF Customization Dialog */}
-              <PDFCustomizationDialog
-                open={showPdfCustomization}
-                onClose={() => setShowPdfCustomization(false)}
-                onExport={(options) => void handleBulkPDFGeneration(options)}
-                title="กำหนดค่าการส่งออก PDF ตารางสอนครู"
-                maxTablesPerPage={4}
+              <Skeleton variant="text" width={200} height={32} />
+              <Skeleton
+                variant="rectangular"
+                height={48}
+                sx={{ mt: 1, borderRadius: 1 }}
               />
-
-              {/* Selection Summary */}
-              {selectedTeacherIds.length > 0 && (
-                <Box
-                  sx={{ mt: 2, p: 1, bgcolor: "action.hover", borderRadius: 1 }}
+              <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                <Skeleton variant="rectangular" width={120} height={36} />
+                <Skeleton variant="circular" width={36} height={36} />
+                <Skeleton variant="circular" width={36} height={36} />
+              </Stack>
+            </Paper>
+          ) : (
+            <Paper
+              elevation={1}
+              sx={{ p: 2 }}
+              className="no-print"
+              data-testid="bulk-export-section"
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: showBulkFilters ? 2 : 0,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
                 >
-                  <Typography variant="body2" color="text.secondary">
-                    เลือกแล้ว {selectedTeacherIds.length} ครู
-                  </Typography>
-                </Box>
-              )}
-            </Collapse>
-          </Paper>
-        )}
+                  <FilterListIcon />
+                  การส่งออกแบบกลุ่ม
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  endIcon={
+                    showBulkFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />
+                  }
+                  onClick={() => setShowBulkFilters(!showBulkFilters)}
+                >
+                  {showBulkFilters ? "ซ่อน" : "แสดง"}ตัวกรอง
+                </Button>
+              </Box>
+
+              <Collapse in={showBulkFilters}>
+                <Stack
+                  spacing={2}
+                  direction={isMobile ? "column" : "row"}
+                  sx={{ mt: 2 }}
+                >
+                  {/* Teacher Multi-Select */}
+                  <FormControl sx={{ flex: 1 }}>
+                    <InputLabel>เลือกครู</InputLabel>
+                    <Select
+                      multiple
+                      value={selectedTeacherIds}
+                      onChange={(e) =>
+                        setSelectedTeacherIds(e.target.value as number[])
+                      }
+                      input={<OutlinedInput label="เลือกครู" />}
+                      data-testid="teacher-multi-select"
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
+                        >
+                          {selected.map((id) => {
+                            const teacher = allTeachers.data?.find(
+                              (t) => t.TeacherID === id,
+                            );
+                            const name = teacher
+                              ? formatTeacherName(teacher)
+                              : `ครู ${id}`;
+                            return <Chip key={id} label={name} size="small" />;
+                          })}
+                        </Box>
+                      )}
+                      disabled={allTeachers.isLoading || !allTeachers.data}
+                    >
+                      {allTeachers.data?.map((teacher) => (
+                        <MenuItem
+                          key={teacher.TeacherID}
+                          value={teacher.TeacherID}
+                        >
+                          <Checkbox
+                            checked={selectedTeacherIds.includes(
+                              teacher.TeacherID,
+                            )}
+                          />
+                          <ListItemText primary={formatTeacherName(teacher)} />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Action Buttons */}
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ alignItems: "flex-start" }}
+                  >
+                    {selectedTeacherIds.length > 0 && (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => setSelectedTeacherIds([])}
+                      >
+                        ล้างตัวกรอง
+                      </Button>
+                    )}
+                    <Tooltip title="ส่งออกครูที่เลือก">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={
+                          selectedTeacherIds.length === 0 || hasTimeslotError
+                        }
+                        onClick={handleBulkExportExcel}
+                        startIcon={<GridOnIcon />}
+                        data-testid="bulk-export-excel-button"
+                      >
+                        {isMobile ? "Excel" : "ส่งออก Excel"}
+                      </Button>
+                    </Tooltip>
+                    <Tooltip title="พิมพ์ครูที่เลือก">
+                      <IconButton
+                        color="primary"
+                        disabled={
+                          selectedTeacherIds.length === 0 || hasTimeslotError
+                        }
+                        onClick={handleBulkPrint}
+                        data-testid="bulk-export-print-button"
+                      >
+                        <PrintIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="ตัวเลือกเพิ่มเติม">
+                      <IconButton
+                        onClick={handleExportMenuOpen}
+                        disabled={selectedTeacherIds.length === 0}
+                        data-testid="teacher-export-menu-button"
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Stack>
+
+                {/* Export Options Menu */}
+                <Menu
+                  anchorEl={exportMenuAnchor}
+                  open={Boolean(exportMenuAnchor)}
+                  onClose={handleExportMenuClose}
+                  data-testid="teacher-export-menu"
+                >
+                  <MenuItem
+                    onClick={handleBulkExportExcel}
+                    data-testid="export-excel-option"
+                  >
+                    <GridOnIcon sx={{ mr: 1 }} />
+                    ส่งออก Excel
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleBulkPrint}
+                    data-testid="export-print-option"
+                  >
+                    <PrintIcon sx={{ mr: 1 }} />
+                    พิมพ์ทั้งหมด
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleOpenPdfCustomization}
+                    data-testid="export-custom-pdf-option"
+                  >
+                    <PictureAsPdfIcon sx={{ mr: 1 }} />
+                    สร้าง PDF (กำหนดค่าเอง)
+                  </MenuItem>
+                </Menu>
+
+                {/* PDF Customization Dialog */}
+                <PDFCustomizationDialog
+                  open={showPdfCustomization}
+                  onClose={() => setShowPdfCustomization(false)}
+                  onExport={(options) => void handleBulkPDFGeneration(options)}
+                  title="กำหนดค่าการส่งออก PDF ตารางสอนครู"
+                  maxTablesPerPage={4}
+                />
+
+                {/* Selection Summary */}
+                {selectedTeacherIds.length > 0 && (
+                  <Box
+                    sx={{ mt: 2, p: 1, bgcolor: "action.hover", borderRadius: 1 }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      เลือกแล้ว {selectedTeacherIds.length} ครู
+                    </Typography>
+                  </Box>
+                )}
+              </Collapse>
+            </Paper>
+          ))}
 
         {/* Error Display */}
         {errors.length > 0 && (
@@ -673,6 +712,7 @@ function TeacherTablePage() {
                         color="success"
                         startIcon={<DownloadIcon />}
                         disabled={disableExport}
+                        data-testid="teacher-export-excel-button"
                         onClick={() => {
                           if (
                             teacherResponse &&
@@ -697,6 +737,7 @@ function TeacherTablePage() {
                         color="success"
                         startIcon={<PictureAsPdfIcon />}
                         disabled={disableExport}
+                        data-testid="teacher-export-pdf-button"
                         onClick={handleExportPDF}
                       >
                         นำออก PDF

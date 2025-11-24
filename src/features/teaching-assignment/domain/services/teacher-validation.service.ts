@@ -5,6 +5,7 @@
 
 import { findTeacherWorkload } from "../../infrastructure/repositories/teaching-assignment.repository";
 import { teacherRepository } from "@/features/teacher/infrastructure/repositories/teacher.repository";
+import { subjectRepository } from "@/features/subject/infrastructure/repositories/subject.repository";
 import type {
   TeacherWorkload,
   ValidationResult,
@@ -13,7 +14,7 @@ import {
   WORKLOAD_LIMITS,
   getWorkloadStatus,
 } from "../types/teaching-assignment.types";
-import { semester } from "@/prisma/generated/client";
+import { LearningArea, semester } from "@/prisma/generated/client";
 
 // ============================================================================
 // Workload Calculation
@@ -120,6 +121,21 @@ export async function validateAssignment(input: {
     return { valid: false, errors, warnings };
   }
 
+  // Specialization check: teacher Department vs subject LearningArea
+  const subject = await subjectRepository.findByCode(input.subjectCode);
+  const subjectLearningArea = subject?.LearningArea ?? null;
+  const teacherLearningArea = mapDepartmentToLearningArea(teacher.Department);
+
+  if (subjectLearningArea && teacherLearningArea) {
+    if (subjectLearningArea !== teacherLearningArea) {
+      warnings.push(
+        `กลุ่มสาระไม่ตรงกัน: วิชาอยู่ใน ${toThaiLearningArea(
+          subjectLearningArea,
+        )} แต่ครูสังกัด ${teacher.Department || "-"}`,
+      );
+    }
+  }
+
   // Check workload
   const currentWorkload = await calculateTeacherWorkload(
     input.teacherId,
@@ -149,6 +165,77 @@ export async function validateAssignment(input: {
     errors,
     warnings,
   };
+}
+
+// -----------------------------------------------------------------------------
+// Helpers
+// -----------------------------------------------------------------------------
+
+const learningAreaMap: Record<string, LearningArea> = {
+  // Thai labels
+  ภาษาไทย: "THAI",
+  คณิตศาสตร์: "MATHEMATICS",
+  วิทยาศาสตร์: "SCIENCE",
+  "สังคมศึกษา ศาสนา และวัฒนธรรม": "SOCIAL",
+  สุขศึกษา: "HEALTH_PE",
+  "สุขศึกษาและพลศึกษา": "HEALTH_PE",
+  พลศึกษา: "HEALTH_PE",
+  ศิลปะ: "ARTS",
+  การงานอาชีพ: "CAREER",
+  "การงานอาชีพและเทคโนโลยี": "CAREER",
+  ภาษาต่างประเทศ: "FOREIGN_LANGUAGE",
+
+  // English labels
+  thai: "THAI",
+  mathematics: "MATHEMATICS",
+  math: "MATHEMATICS",
+  science: "SCIENCE",
+  "science & technology": "SCIENCE",
+  social: "SOCIAL",
+  "social studies": "SOCIAL",
+  health: "HEALTH_PE",
+  pe: "HEALTH_PE",
+  arts: "ARTS",
+  art: "ARTS",
+  career: "CAREER",
+  "career & technology": "CAREER",
+  "career and technology": "CAREER",
+  "foreign language": "FOREIGN_LANGUAGE",
+  language: "FOREIGN_LANGUAGE",
+};
+
+function mapDepartmentToLearningArea(
+  department: string | null | undefined,
+): LearningArea | null {
+  if (!department) return null;
+  const normalized = department.trim().toLowerCase();
+  // Exact match first
+  const exact = learningAreaMap[department as keyof typeof learningAreaMap];
+  if (exact) return exact ?? null;
+  // Lower-case match
+  const lower = learningAreaMap[normalized as keyof typeof learningAreaMap];
+  return lower ?? null;
+}
+
+function toThaiLearningArea(area: LearningArea): string {
+  switch (area) {
+    case "THAI":
+      return "ภาษาไทย";
+    case "MATHEMATICS":
+      return "คณิตศาสตร์";
+    case "SCIENCE":
+      return "วิทยาศาสตร์และเทคโนโลยี";
+    case "SOCIAL":
+      return "สังคมศึกษา ศาสนา และวัฒนธรรม";
+    case "HEALTH_PE":
+      return "สุขศึกษาและพลศึกษา";
+    case "ARTS":
+      return "ศิลปะ";
+    case "CAREER":
+      return "การงานอาชีพและเทคโนโลยี";
+    case "FOREIGN_LANGUAGE":
+      return "ภาษาต่างประเทศ";
+  }
 }
 
 /**

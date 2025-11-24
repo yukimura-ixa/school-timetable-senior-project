@@ -54,9 +54,8 @@ import TeacherList from "./component/TeacherList";
 
 import TableResult from "./component/TableResult";
 
-import { ExportTeacherTable } from "./functions/ExportTeacherTable";
-
 import { ExportTeacherSummary } from "./functions/ExportTeacherSummary";
+import { ExportTeacherTable } from "@/features/export/teacher-timetable-excel";
 
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 
