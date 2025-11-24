@@ -57,7 +57,9 @@ pnpm exec playwright show-report
 ## Test Coverage
 
 ### Issue #87 - Teacher Data Display
+
 **File:** `issue-87-teacher-data.spec.ts`
+
 - ✅ Display teacher names in program table
 - ✅ Validate Thai name format (prefix + first + last)
 - ✅ Maintain data across grade changes
@@ -65,7 +67,9 @@ pnpm exec playwright show-report
 - ✅ Subject count matches teacher count
 
 ### Issue #86 - Subject Name Display
+
 **File:** `issue-86-subject-names.spec.ts`
+
 - ✅ Display Thai subject names (not codes)
 - ✅ Compliance section with subject data
 - ✅ Missing subjects section visible
@@ -73,7 +77,9 @@ pnpm exec playwright show-report
 - ✅ No subject codes as names
 
 ### Issues #83-85 - Drag-Drop Flow
+
 **File:** `issue-83-85-drag-drop-flow.spec.ts`
+
 - ✅ Room dialog after valid drag (Issue #83)
 - ✅ Subject placement after room selection (Issue #83)
 - ✅ Cancel room selection (Issue #83)
@@ -83,7 +89,9 @@ pnpm exec playwright show-report
 - ✅ Error for invalid timeslots
 
 ### Issue #89 - Schedule Deletion
+
 **File:** `issue-89-schedule-deletion.spec.ts`
+
 - ✅ Delete schedule successfully
 - ✅ Empty schedule after deletion
 - ✅ SWR cache revalidation
@@ -94,14 +102,18 @@ pnpm exec playwright show-report
 ## Page Object Model (POM)
 
 ### BasePage
+
 Common utilities for all page objects:
+
 - Navigation helpers (`goto()`, `getCurrentUrl()`)
 - Wait utilities (`waitForPageLoad()`, `waitForElement()`)
 - Notification assertions (`assertSuccessNotification()`, `assertErrorNotification()`)
 - Screenshot capture (`takeScreenshot()`)
 
 ### ProgramViewPage
+
 Page object for `/dashboard/[semester-year]/all-program`:
+
 - `navigateTo(semester, year)` - Navigate to program view
 - `selectGrade(gradeText)` - Select grade from dropdown
 - `getTeacherNames()` - Get all teacher names from table
@@ -109,14 +121,18 @@ Page object for `/dashboard/[semester-year]/all-program`:
 - `assertTeacherNameFormat()` - Validate Thai name format
 
 ### ComplianceAnalyticsPage
+
 Page object for `/dashboard/[semester-year]/analytics`:
+
 - `navigateTo(semester, year)` - Navigate to analytics
 - `getSubjectNames()` - Get all subject names
 - `assertSubjectNamesInThai()` - Validate Thai subject names
 - `isSubjectNameDisplayed(name)` - Check if specific name exists
 
 ### ArrangePage
+
 Page object for `/schedule/[semester-year]/arrange`:
+
 - `navigateTo(semester, year)` - Navigate to arrange page
 - `selectTeacher(name)` - Select teacher from dropdown
 - `dragSubjectToTimeslot(code, row, col)` - Drag subject to timeslot
@@ -131,15 +147,16 @@ Page object for `/schedule/[semester-year]/arrange`:
 Extended Playwright test with POM fixtures:
 
 ```typescript
-import { test, expect } from '../fixtures/test';
+import { test, expect } from "../fixtures/test";
 
-test('my test', async ({ programViewPage }) => {
-  await programViewPage.navigateTo('1', '2567');
+test("my test", async ({ programViewPage }) => {
+  await programViewPage.navigateTo("1", "2567");
   await programViewPage.assertTeacherDataVisible();
 });
 ```
 
 Available fixtures:
+
 - `programViewPage` - ProgramViewPage instance
 - `complianceAnalyticsPage` - ComplianceAnalyticsPage instance
 - `arrangePage` - ArrangePage instance
@@ -150,8 +167,8 @@ Available fixtures:
 
 ```typescript
 // e2e/page-objects/MyPage.ts
-import { Page, Locator } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { Page, Locator } from "@playwright/test";
+import { BasePage } from "./BasePage";
 
 export class MyPage extends BasePage {
   readonly myElement: Locator;
@@ -162,7 +179,7 @@ export class MyPage extends BasePage {
   }
 
   async navigateTo() {
-    await this.goto('/my-path');
+    await this.goto("/my-path");
     await this.waitForPageLoad();
   }
 }
@@ -172,7 +189,7 @@ export class MyPage extends BasePage {
 
 ```typescript
 // e2e/fixtures/test.ts
-import { MyPage } from '../page-objects/MyPage';
+import { MyPage } from "../page-objects/MyPage";
 
 type CustomFixtures = {
   // ... existing fixtures
@@ -192,14 +209,14 @@ export const test = base.extend<CustomFixtures>({
 
 ```typescript
 // e2e/specs/my-feature.spec.ts
-import { test, expect } from '../fixtures/test';
+import { test, expect } from "../fixtures/test";
 
-test.describe('My Feature', () => {
+test.describe("My Feature", () => {
   test.beforeEach(async ({ myPage }) => {
     await myPage.navigateTo();
   });
 
-  test('should do something', async ({ myPage }) => {
+  test("should do something", async ({ myPage }) => {
     // Test implementation
   });
 });
@@ -218,6 +235,7 @@ test.describe('My Feature', () => {
 ## Configuration
 
 See `playwright.config.ts` for Playwright configuration including:
+
 - Base URL: http://localhost:3000
 - Timeout: 30s per test
 - Retries: 2 on CI, 0 locally
@@ -228,6 +246,7 @@ See `playwright.config.ts` for Playwright configuration including:
 ## CI/CD Integration
 
 Tests run automatically on:
+
 - Pull requests
 - Push to main branch
 
@@ -236,21 +255,25 @@ Environment: Vercel production deployment (see `playwright.vercel.config.ts`)
 ## Troubleshooting
 
 ### Test Timeouts
+
 - Increase timeout in `playwright.config.ts`
 - Use `{ timeout: 60000 }` for slow operations
 - Check network conditions
 
 ### Element Not Found
+
 - Verify selector with Playwright Inspector: `pnpm exec playwright test --debug`
 - Use `page.locator()` with flexible selectors
 - Add explicit waits: `await expect(element).toBeVisible()`
 
 ### Flaky Tests
+
 - Add proper waits before assertions
 - Use `waitForPageLoad()` after navigation
 - Avoid hard-coded waits (`page.waitForTimeout()`)
 
 ### Data Issues
+
 - Verify seed data exists: `pnpm db:seed`
 - Use correct semester/year values
 - Check test data in database with Prisma Studio: `pnpm db:studio`

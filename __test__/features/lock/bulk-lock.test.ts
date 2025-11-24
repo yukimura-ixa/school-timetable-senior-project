@@ -95,7 +95,7 @@ describe("Bulk Lock Operations", () => {
     it("should calculate correct number of locks from Cartesian product", () => {
       const timeslots = ["1-MON-4", "1-TUE-4", "1-WED-4", "1-THU-4", "1-FRI-4"];
       const grades = ["1-1", "1-2", "1-3"];
-      
+
       const expectedLockCount = timeslots.length * grades.length;
       expect(expectedLockCount).toBe(15);
     });
@@ -112,9 +112,27 @@ describe("Bulk Lock Operations", () => {
 
     it("should validate all locks before creating any", () => {
       const locks = [
-        { SubjectCode: "LUNCH-JR", RoomID: 1, TimeslotID: "1-MON-4", GradeID: "1-1", RespID: 100 },
-        { SubjectCode: "LUNCH-JR", RoomID: 1, TimeslotID: "1-TUE-4", GradeID: "1-1", RespID: 100 },
-        { SubjectCode: "LUNCH-JR", RoomID: 1, TimeslotID: "1-WED-4", GradeID: "1-1", RespID: 100 },
+        {
+          SubjectCode: "LUNCH-JR",
+          RoomID: 1,
+          TimeslotID: "1-MON-4",
+          GradeID: "1-1",
+          RespID: 100,
+        },
+        {
+          SubjectCode: "LUNCH-JR",
+          RoomID: 1,
+          TimeslotID: "1-TUE-4",
+          GradeID: "1-1",
+          RespID: 100,
+        },
+        {
+          SubjectCode: "LUNCH-JR",
+          RoomID: 1,
+          TimeslotID: "1-WED-4",
+          GradeID: "1-1",
+          RespID: 100,
+        },
       ];
 
       // All locks should be validated successfully
@@ -137,8 +155,20 @@ describe("Bulk Lock Operations", () => {
 
     it("should support batch operations with rollback capability", () => {
       const locks = [
-        { SubjectCode: "LUNCH-JR", RoomID: 1, TimeslotID: "1-MON-4", GradeID: "1-1", RespID: 100 },
-        { SubjectCode: "LUNCH-JR", RoomID: 1, TimeslotID: "1-TUE-4", GradeID: "1-1", RespID: 100 },
+        {
+          SubjectCode: "LUNCH-JR",
+          RoomID: 1,
+          TimeslotID: "1-MON-4",
+          GradeID: "1-1",
+          RespID: 100,
+        },
+        {
+          SubjectCode: "LUNCH-JR",
+          RoomID: 1,
+          TimeslotID: "1-TUE-4",
+          GradeID: "1-1",
+          RespID: 100,
+        },
       ];
 
       // Simulate transaction: if any lock fails, all should be rolled back
@@ -170,7 +200,7 @@ describe("Bulk Lock Operations", () => {
       const maxPreview = 5;
 
       const preview: Array<{ timeslot: string; grade: string }> = [];
-      
+
       for (const timeslot of timeslots) {
         for (const grade of grades) {
           if (preview.length < maxPreview) {
@@ -184,7 +214,13 @@ describe("Bulk Lock Operations", () => {
     });
 
     it("should calculate correct total count for preview", () => {
-      const selectedTimeslots = new Set(["1-MON-4", "1-TUE-4", "1-WED-4", "1-THU-4", "1-FRI-4"]);
+      const selectedTimeslots = new Set([
+        "1-MON-4",
+        "1-TUE-4",
+        "1-WED-4",
+        "1-THU-4",
+        "1-FRI-4",
+      ]);
       const selectedGrades = new Set(["1-1", "1-2", "1-3"]);
 
       const totalCount = selectedTimeslots.size * selectedGrades.size;
@@ -200,7 +236,11 @@ describe("Bulk Lock Operations", () => {
     });
 
     it("should format preview data correctly", () => {
-      const formatPreview = (timeslotId: string, gradeId: string, subject: string) => {
+      const formatPreview = (
+        timeslotId: string,
+        gradeId: string,
+        subject: string,
+      ) => {
         return {
           timeslot: timeslotId,
           grade: gradeId,

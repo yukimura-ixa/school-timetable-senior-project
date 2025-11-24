@@ -1,12 +1,12 @@
 /**
  * Public data access layer for classes (grade levels)
  * Security: Class-level data only, no individual student PII
- * 
+ *
  * MIGRATED: Now uses publicDataRepository instead of direct Prisma queries
  * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
-import { semester } from '@/prisma/generated/client';;
+import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
 
@@ -33,25 +33,29 @@ async function getCurrentTermInfo(): Promise<{
 } | null> {
   try {
     const stats = await publicDataRepository.getQuickStats();
-    
-    if (stats.currentTerm === 'N/A') {
+
+    if (stats.currentTerm === "N/A") {
       return null;
     }
 
     // Extract academic year and semester from current term
     const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
-    
+
     if (!termMatch?.[1] || !semesterMatch?.[1]) {
       return null;
     }
 
     const academicYear = parseInt(termMatch[1], 10);
-    const semesterValue = semesterMatch[1] === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
+    const semesterValue =
+      semesterMatch[1] === "1" ? semester.SEMESTER_1 : semester.SEMESTER_2;
 
     return { academicYear, semester: semesterValue };
   } catch (err) {
-    console.warn("[PublicClasses] getCurrentTermInfo error:", (err as Error).message);
+    console.warn(
+      "[PublicClasses] getCurrentTermInfo error:",
+      (err as Error).message,
+    );
     return null;
   }
 }
@@ -59,7 +63,9 @@ async function getCurrentTermInfo(): Promise<{
 /**
  * Map PublicGradeLevel to legacy PublicClass format for backward compatibility
  */
-function mapToPublicClass(gradeLevel: PublicGradeLevel): PublicClass & PublicGradeLevel {
+function mapToPublicClass(
+  gradeLevel: PublicGradeLevel,
+): PublicClass & PublicGradeLevel {
   return {
     ...gradeLevel,
     section: gradeLevel.number, // Alias for backward compatibility
@@ -70,7 +76,9 @@ function mapToPublicClass(gradeLevel: PublicGradeLevel): PublicClass & PublicGra
 /**
  * Map legacy sortBy to repository sortBy
  */
-function mapSortBy(sortBy?: "grade" | "hours" | "subjects"): "year" | "number" | "students" | undefined {
+function mapSortBy(
+  sortBy?: "grade" | "hours" | "subjects",
+): "year" | "number" | "students" | undefined {
   switch (sortBy) {
     case "grade":
       return "year";
@@ -86,7 +94,7 @@ function mapSortBy(sortBy?: "grade" | "hours" | "subjects"): "year" | "number" |
 /**
  * Get classes with public-safe data and schedule statistics
  * Uses Next.js fetch cache with 60s revalidation
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getPublicClasses(
@@ -96,7 +104,7 @@ export async function getPublicClasses(
 ): Promise<(PublicClass & PublicGradeLevel)[]> {
   try {
     const termInfo = await getCurrentTermInfo();
-    
+
     if (!termInfo) {
       return [];
     }
@@ -111,7 +119,7 @@ export async function getPublicClasses(
 
     // Apply client-side sorting for unsupported sort options
     const results = gradeLevels.map(mapToPublicClass);
-    
+
     if (sortBy && (sortBy === "hours" || sortBy === "subjects")) {
       results.sort((a, b) => {
         const direction = sortOrder === "desc" ? -1 : 1;
@@ -125,14 +133,17 @@ export async function getPublicClasses(
 
     return results;
   } catch (err) {
-    console.warn("[PublicClasses] getPublicClasses error:", (err as Error).message);
+    console.warn(
+      "[PublicClasses] getPublicClasses error:",
+      (err as Error).message,
+    );
     return [];
   }
 }
 
 /**
  * Get paginated classes
- * 
+ *
  * MIGRATED: Uses getPublicClasses which now uses repository
  */
 export async function getPaginatedClasses(params: {
@@ -166,14 +177,17 @@ export async function getPaginatedClasses(params: {
 
 /**
  * Get total class count
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getClassCount() {
   try {
     return await publicDataRepository.countGradeLevels();
   } catch (err) {
-    console.warn("[PublicClasses] getClassCount fallback to 0:", (err as Error).message);
+    console.warn(
+      "[PublicClasses] getClassCount fallback to 0:",
+      (err as Error).message,
+    );
     return 0;
   }
 }

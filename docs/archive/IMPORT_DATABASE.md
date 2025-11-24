@@ -3,6 +3,7 @@
 ## Overview
 
 Your `seed.ts` contains comprehensive data for a Thai secondary school:
+
 - ✅ 60 Teachers across 8 departments
 - ✅ 40 Classrooms in 3 buildings
 - ✅ 18 Grade levels (M.1-M.6, 3 sections each)
@@ -28,13 +29,15 @@ We'll use Prisma's seeding feature to import this data into your PostgreSQL data
    - It looks like: `postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require`
 
 4. **Update your `.env` file**:
-   
+
    Replace this line:
+
    ```env
    DIRECT_DATABASE_URL="ADD_YOUR_DIRECT_CONNECTION_STRING_HERE"
    ```
-   
+
    With your actual connection string:
+
    ```env
    DIRECT_DATABASE_URL="postgresql://av4z6...@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require"
    ```
@@ -50,12 +53,14 @@ pnpm prisma migrate dev --name init-postgresql
 ```
 
 This will:
+
 - ✅ Create all tables (teacher, room, subject, gradelevel, etc.)
 - ✅ Set up foreign keys and indexes
 - ✅ Create enums for day_of_week, semester, etc.
 - ✅ Generate migration history
 
 **Expected Output:**
+
 ```
 ✔ Created database (if didn't exist)
 ✔ Applied migration 20XX_init-postgresql
@@ -73,6 +78,7 @@ pnpm prisma db seed
 ```
 
 This will create:
+
 - **Programs**: Core curriculum, science-math, language programs
 - **Grade Levels**: M.1/1 through M.6/3 (18 classes)
 - **Rooms**: 40 classrooms across 3 buildings
@@ -83,6 +89,7 @@ This will create:
 - **Table Config**: Semester configuration
 
 **Expected Output:**
+
 ```
 🌱 Starting seed...
 🗑️  Cleaning existing data...
@@ -117,6 +124,7 @@ pnpm prisma studio
 ```
 
 Opens a web interface where you can:
+
 - Browse all tables
 - View teacher data
 - Check timetable assignments
@@ -127,7 +135,7 @@ Opens a web interface where you can:
 ```powershell
 # Count records in each table
 pnpm prisma db execute --stdin <<EOF
-SELECT 
+SELECT
   'teachers' as table_name, COUNT(*) as count FROM teacher
 UNION ALL SELECT 'rooms', COUNT(*) FROM room
 UNION ALL SELECT 'subjects', COUNT(*) FROM subject
@@ -150,6 +158,7 @@ pnpm dev
 Visit: http://localhost:3000
 
 Test these features:
+
 - ✅ View teacher list (should show 60 teachers)
 - ✅ View rooms (should show 40 rooms)
 - ✅ View subjects (should show 50+ subjects)
@@ -171,6 +180,7 @@ DIRECT_DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=requi
 ### Error: "Can't reach database server"
 
 **Solutions**:
+
 1. Check your connection string is correct
 2. Verify your IP is whitelisted (if using Prisma Cloud)
 3. Ensure database is running
@@ -179,6 +189,7 @@ DIRECT_DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=requi
 ### Error: "Migration failed"
 
 **Solution**: Reset and try again:
+
 ```powershell
 pnpm prisma migrate reset
 pnpm prisma migrate dev --name init-postgresql
@@ -190,6 +201,7 @@ pnpm prisma db seed
 ### Seed Fails Partway
 
 **Solution**: The seed script cleans data first, so just run it again:
+
 ```powershell
 pnpm prisma db seed
 ```
@@ -197,6 +209,7 @@ pnpm prisma db seed
 ### Want to Re-import Data
 
 **Solution**: Run seed again (it cleans before importing):
+
 ```powershell
 pnpm prisma db seed
 ```
@@ -206,22 +219,27 @@ pnpm prisma db seed
 ## Understanding the Seeded Data
 
 ### Teachers (60 total)
+
 - Distributed across 8 departments
 - Thai names with appropriate prefixes (นาย, นาง, นางสาว, ครู)
 - Realistic email addresses
 - Department-specific assignments
 
 ### Rooms (40 total)
+
 - **Building 1 (ตึกเรียน)**: Rooms 101-120 (20 rooms)
 - **Building 2 (ตึกวิทยาศาสตร์)**: Rooms 201-210 (10 rooms)
 - **Building 3 (ตึกกีฬา)**: Rooms 301-310 (10 rooms)
 
 ### Grade Levels (18 total)
+
 - **ม.ต้น (Junior)**: M.1/1, M.1/2, M.1/3, M.2/1-3, M.3/1-3 (9 classes)
 - **ม.ปลาย (Senior)**: M.4/1, M.4/2, M.4/3, M.5/1-3, M.6/1-3 (9 classes)
 
 ### Subjects (50+)
+
 Core subjects for Thai curriculum:
+
 - **Thai Language**: TH101-TH106
 - **Mathematics**: MA101-MA106
 - **Science**: SC101-SC106
@@ -233,9 +251,10 @@ Core subjects for Thai curriculum:
 - **Additional subjects**: Health, ICT, etc.
 
 ### Timeslots (40)
+
 - **8 periods per day**: 08:00-15:30
 - **5 days**: Monday to Friday
-- **Break times**: 
+- **Break times**:
   - Morning break (BREAK_JUNIOR/SENIOR)
   - Lunch break (BREAK_BOTH)
 - **Academic Year**: 2567 (2024)

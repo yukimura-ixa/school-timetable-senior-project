@@ -35,17 +35,17 @@ export function ConfigField({
         alignItems: "center",
         transition: "all 0.2s",
         bgcolor: isEditable ? "background.paper" : "grey.50",
-        "&:hover": isEditable ? {
-          borderColor: "primary.main",
-          boxShadow: 1,
-        } : {},
+        "&:hover": isEditable
+          ? {
+              borderColor: "primary.main",
+              boxShadow: 1,
+            }
+          : {},
       }}
     >
       {/* Left: Icon + Label */}
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Box sx={{ color: "text.secondary", display: "flex" }}>
-          {icon}
-        </Box>
+        <Box sx={{ color: "text.secondary", display: "flex" }}>{icon}</Box>
         <Box>
           <Typography variant="body1" fontWeight="medium">
             {label}

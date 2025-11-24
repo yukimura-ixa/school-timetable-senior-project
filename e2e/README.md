@@ -1,6 +1,7 @@
 # E2E Tests for School Timetable System
 
 ## Overview
+
 This directory contains end-to-end (E2E) tests for the School Timetable Management System using Playwright.
 
 ## Test Structure
@@ -25,11 +26,13 @@ e2e/
 ## Prerequisites
 
 1. **Install Dependencies**
+
    ```bash
    pnpm install
    ```
 
 2. **Install Playwright Browsers**
+
    ```bash
    pnpm playwright:install
    ```
@@ -42,6 +45,7 @@ e2e/
 ## Running Tests
 
 ### Run All Tests
+
 ```bash
 pnpm test:e2e
 ```
@@ -49,36 +53,43 @@ pnpm test:e2e
 ### Run Specific Test Suites
 
 **Drag-and-drop tests only:**
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts
 ```
 
 **Core functionality tests:**
+
 ```bash
 pnpm playwright test e2e/02-data-management.spec.ts e2e/04-timetable-arrangement.spec.ts
 ```
 
 ### Run Tests in UI Mode (Interactive)
+
 ```bash
 pnpm test:e2e:ui
 ```
 
 ### Run Specific Test File
+
 ```bash
 pnpm playwright test e2e/01-home-page.spec.ts
 ```
 
 ### Run Tests with Video Recording
+
 ```bash
 pnpm test:e2e --video=on
 ```
 
 ### Run Tests with Screenshots
+
 ```bash
 pnpm playwright test --screenshot=on
 ```
 
 ### Generate HTML Report
+
 ```bash
 pnpm playwright show-report
 ```
@@ -108,68 +119,80 @@ For comprehensive testing, ensure your test database contains:
 ## Test Coverage
 
 ### Phase 1: Critical Path (8 tests)
+
 ✅ Authentication and authorization  
 ✅ Core data management (teachers, subjects, rooms)  
 ✅ Timetable configuration  
 ✅ Subject assignment  
-✅ Timetable arrangement  
+✅ Timetable arrangement
 
 ### Phase 2: Drag-and-Drop Interactions (NEW)
+
 ✅ **Subject List to Timeslot** (TC-DND-001)
-  - Draggable subject items
-  - Click selection
-  - Drag to empty timeslot
-  - Visual feedback during drag
+
+- Draggable subject items
+- Click selection
+- Drag to empty timeslot
+- Visual feedback during drag
 
 ✅ **Between Timeslots** (TC-DND-002)
-  - Identify filled timeslots
-  - Drag subjects between slots
-  - Click-to-change mode
+
+- Identify filled timeslots
+- Drag subjects between slots
+- Click-to-change mode
 
 ✅ **Conflict Detection** (TC-DND-003)
-  - Error indicators
-  - Invalid drop attempts
-  - Occupied slot conflicts
+
+- Error indicators
+- Invalid drop attempts
+- Occupied slot conflicts
 
 ✅ **Lock State Behavior** (TC-DND-004)
-  - Identify locked timeslots
-  - Prevent drops on locked slots
-  - Locked slots not draggable
+
+- Identify locked timeslots
+- Prevent drops on locked slots
+- Locked slots not draggable
 
 ✅ **Keyboard Accessibility** (TC-DND-005)
-  - Keyboard focus on subjects
-  - Space/Arrow key navigation
-  - Escape cancels drag
+
+- Keyboard focus on subjects
+- Space/Arrow key navigation
+- Escape cancels drag
 
 ✅ **Student Arrange Page** (TC-DND-006)
-  - Student page drag functionality
-  - Class selection affects drag
+
+- Student page drag functionality
+- Class selection affects drag
 
 ✅ **Performance & Edge Cases** (TC-DND-007)
-  - Multiple rapid drags
-  - Drag outside boundaries
-  - Responsive viewports  
-✅ Conflict detection  
-✅ View schedules  
-✅ Export to Excel  
+
+- Multiple rapid drags
+- Drag outside boundaries
+- Responsive viewports  
+  ✅ Conflict detection  
+  ✅ View schedules  
+  ✅ Export to Excel
 
 ### Phase 2: Core Features (10 tests)
+
 ✅ Additional data management  
 ✅ Copy from previous semester  
 ✅ Student timetable arrangement  
 ✅ Lock timeslots  
 ✅ View student schedules  
-✅ Additional export formats (PDF)  
+✅ Additional export formats (PDF)
 
 ### Phase 3: Extended Features (11 tests)
+
 ✅ Unlock timeslots  
 ✅ Summary views  
 ✅ Edge cases and error handling  
-✅ Mobile responsiveness  
+✅ Mobile responsiveness
 
 ## Screenshots and Videos
 
 Test artifacts are stored in:
+
 - **Screenshots**: `test-results/screenshots/`
 - **Videos**: `test-results/artifacts/` (on failure)
 - **HTML Report**: `playwright-report/`
@@ -196,17 +219,20 @@ The current tests do not fully implement Google OAuth authentication due to comp
 ## Interpreting Test Results
 
 ### Success ✅
+
 - Test passed with all assertions met
 - Screenshots show expected UI state
 - No errors in console logs
 
 ### Failure ❌
+
 - Review screenshot to see actual state
 - Check video recording for interaction flow
 - Review console logs for errors
 - Verify test data exists
 
 ### Skipped ⏭️
+
 - Test requires authentication or data not present
 - May need manual setup or configuration
 
@@ -235,7 +261,7 @@ For CI/CD pipelines:
 
 - name: Run E2E tests
   run: pnpm test:e2e
-  
+
 - name: Upload test results
   if: always()
   uses: actions/upload-artifact@v3
@@ -247,21 +273,25 @@ For CI/CD pipelines:
 ## Troubleshooting
 
 ### Tests Timing Out
+
 - Increase timeout in `playwright.config.ts`
 - Check if dev server started successfully
 - Verify network connectivity
 
 ### Authentication Failures
+
 - Ensure `.env` file is configured
 - Check NextAuth configuration
 - Review middleware redirects
 
 ### Database Errors
+
 - Verify database is running
 - Check Prisma migrations are applied
 - Ensure test data is seeded
 
 ### Screenshots Not Captured
+
 - Check `test-results/` directory permissions
 - Verify screenshot configuration in playwright.config.ts
 - Ensure tests reach screenshot commands
@@ -287,6 +317,7 @@ When adding new tests:
 ## Contact
 
 For questions about E2E tests:
+
 - Review TEST_PLAN.md for test case details
 - Check existing issues in the repository
 - Refer to project README for team contacts

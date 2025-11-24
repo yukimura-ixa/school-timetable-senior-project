@@ -1,7 +1,8 @@
 # Prisma Mock Fix Summary
+
 **Date**: November 12, 2025  
 **Issue**: Missing Prisma model mocks in `jest.setup.js`  
-**Status**: ✅ RESOLVED  
+**Status**: ✅ RESOLVED
 
 ---
 
@@ -17,6 +18,7 @@ at Object.findAllTeachers (...teaching-assignment.repository.ts:209:11)
 ```
 
 **Affected Models**:
+
 - ❌ `teachers_responsibility` - **CRITICAL** (missing entirely)
 - ❌ `program_subject` - **MISSING** (junction table)
 - ⚠️ All models - **INCOMPLETE** (missing methods: `findFirst`, `createMany`, `updateMany`, `deleteMany`, `upsert`)
@@ -38,6 +40,7 @@ The `jest.setup.js` Prisma Client mock (lines 89-186) had two issues:
 ### Why This Mattered
 
 Repository tests directly call these methods:
+
 ```typescript
 // Teaching Assignment Repository
 await prisma.teachers_responsibility.findMany({ ... })  // ❌ Undefined
@@ -90,6 +93,7 @@ program_subject: {
 Updated all existing models to include missing methods:
 
 **Before** (incomplete):
+
 ```javascript
 teacher: {
   findMany: jest.fn().mockResolvedValue([]),
@@ -102,6 +106,7 @@ teacher: {
 ```
 
 **After** (complete):
+
 ```javascript
 teacher: {
   findMany: jest.fn().mockResolvedValue([]),
@@ -141,18 +146,21 @@ All 11 Prisma models now have complete method mocks:
 ### Jest Test Suite
 
 **Before Fix**:
+
 ```
 Test Suites: 10+ failed (Prisma undefined errors)
 Tests:       Many failing with TypeError
 ```
 
 **After Fix**:
+
 ```
 Test Suites: 5 failed, 1 skipped, 26 passed, 31 of 32 total
 Tests:       73 failed, 4 skipped, 412 passed, 489 total
 ```
 
 **Analysis**:
+
 - ✅ No more "Cannot read properties of undefined" errors
 - ✅ Prisma mocks working correctly
 - ⚠️ Remaining 73 failures are **test logic issues**, not mock issues
@@ -161,18 +169,20 @@ Tests:       73 failed, 4 skipped, 412 passed, 489 total
 ### Specific Test Files Verified
 
 **Teaching Assignment Repository** (`teaching-assignment.repository.test.ts`):
+
 - Before: All tests failing with undefined errors
 - After: 4 passed, 9 failed (failures are assertion logic, not mocks)
 - ✅ All Prisma method calls working correctly
 
 **Example Working Test**:
+
 ```typescript
-it('should find all teachers', async () => {
+it("should find all teachers", async () => {
   mockPrisma.teacher.findMany = jest.fn().mockResolvedValue(mockTeachers);
   const result = await teachingAssignmentRepository.findAllTeachers();
-  
+
   expect(mockPrisma.teacher.findMany).toHaveBeenCalledWith({
-    orderBy: { FullName: 'asc' },
+    orderBy: { FullName: "asc" },
   });
   expect(result).toEqual(mockTeachers);
 });
@@ -184,6 +194,7 @@ it('should find all teachers', async () => {
 ## Impact Assessment
 
 ### What Was Fixed
+
 1. ✅ All Prisma Client methods now properly mocked
 2. ✅ Junction table models (`teachers_responsibility`, `program_subject`) added
 3. ✅ Bulk operations (`createMany`, `updateMany`, `deleteMany`) supported
@@ -191,12 +202,15 @@ it('should find all teachers', async () => {
 5. ✅ Upsert operations supported
 
 ### What Improved
+
 - **Jest Test Reliability**: No more mock-related failures
 - **Test Coverage**: Can now test repository methods that use bulk operations
 - **Developer Experience**: Tests fail for the right reasons (logic, not infrastructure)
 
 ### Remaining Work
+
 The 73 failing tests are due to:
+
 1. **Test Logic Issues**: Assertions expecting different data than mocks return
 2. **Business Logic Bugs**: Actual code issues discovered by tests
 3. **Test Setup Issues**: Mock data not matching test expectations
@@ -208,9 +222,11 @@ The 73 failing tests are due to:
 ## Files Modified
 
 ### `jest.setup.js`
+
 **Lines Changed**: 89-186 (Prisma Client mock section)
 
 **Changes**:
+
 1. Added `teachers_responsibility` model mock (11 methods)
 2. Added `program_subject` model mock (11 methods)
 3. Added 5 missing methods to each existing model:
@@ -227,9 +243,11 @@ The 73 failing tests are due to:
 ## Lessons Learned
 
 ### 1. Prisma Client Mock Completeness
+
 **Problem**: Partial mocks lead to runtime failures that are hard to debug.
 
 **Solution**: Always mock the full Prisma Client API surface:
+
 ```typescript
 // Standard mock pattern for any Prisma model
 modelName: {
@@ -237,7 +255,7 @@ modelName: {
   findMany: jest.fn().mockResolvedValue([]),
   findUnique: jest.fn().mockResolvedValue(null),
   findFirst: jest.fn().mockResolvedValue(null),
-  
+
   // Write operations
   create: jest.fn().mockResolvedValue({}),
   createMany: jest.fn().mockResolvedValue({ count: 0 }),
@@ -246,16 +264,18 @@ modelName: {
   delete: jest.fn().mockResolvedValue({}),
   deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
   upsert: jest.fn().mockResolvedValue({}),
-  
+
   // Aggregate operations
   count: jest.fn().mockResolvedValue(0),
 },
 ```
 
 ### 2. Schema-Driven Mock Generation
+
 **Problem**: Manually tracking which models need mocks is error-prone.
 
 **Solution**: Use Prisma schema as source of truth:
+
 ```bash
 # Generate list of models from schema
 grep "^model" prisma/schema.prisma
@@ -275,9 +295,11 @@ model program
 ```
 
 ### 3. Test-Driven Mock Discovery
+
 **Problem**: Don't know which methods are actually used until tests fail.
 
 **Strategy**:
+
 1. Run tests and watch for `Cannot read properties of undefined` errors
 2. Add the missing method to the mock
 3. Re-run tests to find next missing method
@@ -306,6 +328,7 @@ When writing repository tests:
 4. ✅ Clear mocks between tests: `jest.clearAllMocks()` in `beforeEach()`
 
 **DON'T**:
+
 - ❌ Mock Prisma locally in test files (use global mock)
 - ❌ Assume all methods exist (verify with TypeScript autocomplete)
 - ❌ Forget to reset mocks between tests
@@ -315,16 +338,19 @@ When writing repository tests:
 ## Next Steps
 
 ### Immediate (P0)
+
 - [x] Fix Prisma mock missing models ✅ **DONE**
 - [x] Verify Jest tests run without mock errors ✅ **DONE**
 - [ ] Fix teacher dropdown selector in E2E tests (see `E2E_PRIORITY_FIX_LIST.md`)
 
 ### Short-term (P1)
+
 - [ ] Investigate 73 failing Jest tests (test logic issues)
 - [ ] Fix teaching assignment repository test assertions
 - [ ] Add integration tests with real database (Testcontainers)
 
 ### Long-term (P2)
+
 - [ ] Generate Prisma mocks automatically from schema
 - [ ] Add type safety checks for mock completeness
 - [ ] Document mock patterns in testing guide

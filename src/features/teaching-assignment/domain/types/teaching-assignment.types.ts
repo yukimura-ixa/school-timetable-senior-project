@@ -3,7 +3,7 @@
  * Manages teacher-to-subject assignments for specific grades, semesters, and academic years
  */
 
-import { semester } from '@/prisma/generated/client';;
+import { semester } from "@/prisma/generated/client";
 
 // ============================================================================
 // Core Domain Types
@@ -51,7 +51,7 @@ export interface WorkloadAssignment {
 /**
  * Workload status based on hours
  */
-export type WorkloadStatus = 'ok' | 'warning' | 'overload';
+export type WorkloadStatus = "ok" | "warning" | "overload";
 
 /**
  * Validation result for assignment
@@ -160,9 +160,9 @@ export const WORKLOAD_LIMITS = {
  * Calculate workload status based on hours
  */
 export function getWorkloadStatus(hours: number): WorkloadStatus {
-  if (hours > WORKLOAD_LIMITS.MAX_WEEKLY_HOURS) return 'overload';
-  if (hours > WORKLOAD_LIMITS.RECOMMENDED_HOURS) return 'warning';
-  return 'ok';
+  if (hours > WORKLOAD_LIMITS.MAX_WEEKLY_HOURS) return "overload";
+  if (hours > WORKLOAD_LIMITS.RECOMMENDED_HOURS) return "warning";
+  return "ok";
 }
 
 /**
@@ -170,12 +170,12 @@ export function getWorkloadStatus(hours: number): WorkloadStatus {
  */
 export function getWorkloadColor(status: WorkloadStatus): string {
   switch (status) {
-    case 'ok':
-      return 'success';
-    case 'warning':
-      return 'warning';
-    case 'overload':
-      return 'error';
+    case "ok":
+      return "success";
+    case "warning":
+      return "warning";
+    case "overload":
+      return "error";
   }
 }
 
@@ -184,11 +184,11 @@ export function getWorkloadColor(status: WorkloadStatus): string {
  */
 export function getWorkloadLabel(status: WorkloadStatus): string {
   switch (status) {
-    case 'ok':
-      return 'ปกติ';
-    case 'warning':
-      return 'เตือน';
-    case 'overload':
-      return 'เกินภาระ';
+    case "ok":
+      return "ปกติ";
+    case "warning":
+      return "เตือน";
+    case "overload":
+      return "เกินภาระ";
   }
 }

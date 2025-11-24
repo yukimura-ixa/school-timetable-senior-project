@@ -26,7 +26,8 @@ import { getSemestersAction } from "@/features/semester/application/actions/seme
 
 export function SemesterSelector() {
   const router = useRouter();
-  const { selectedSemester, academicYear, semester, setSemester } = useSemesterStore();
+  const { selectedSemester, academicYear, semester, setSemester } =
+    useSemesterStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -39,7 +40,7 @@ export function SemesterSelector() {
     },
     {
       revalidateOnFocus: false,
-    }
+    },
   );
 
   const semesters = semestersData || [];
@@ -52,10 +53,14 @@ export function SemesterSelector() {
     setAnchorEl(null);
   };
 
-  const handleSelectSemester = (configId: string, year: number, sem: number) => {
+  const handleSelectSemester = (
+    configId: string,
+    year: number,
+    sem: number,
+  ) => {
     setSemester(configId, year, sem);
     handleClose();
-    
+
     // Navigate to dashboard with selected semester
     router.push(`/dashboard/${configId}`);
   };
@@ -100,8 +105,19 @@ export function SemesterSelector() {
           textTransform: "none",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mr: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            mr: 1,
+          }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ lineHeight: 1 }}
+          >
             ภาคเรียน
           </Typography>
           <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>
@@ -147,9 +163,22 @@ export function SemesterSelector() {
             <MenuItem
               key={sem.configId}
               selected={sem.configId === selectedSemester}
-              onClick={() => handleSelectSemester(sem.configId, sem.academicYear, sem.semester)}
+              onClick={() =>
+                handleSelectSemester(
+                  sem.configId,
+                  sem.academicYear,
+                  sem.semester,
+                )
+              }
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
                 <Box>
                   <Typography variant="body2">
                     ภาคเรียนที่ {sem.semester}/{sem.academicYear}

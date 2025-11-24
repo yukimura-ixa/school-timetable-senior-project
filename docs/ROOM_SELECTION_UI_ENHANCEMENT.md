@@ -25,6 +25,7 @@ Created two new MUI-based components with comprehensive features:
 **Location:** `src/components/room/RoomAutocomplete.tsx`
 
 **Features:**
+
 - ✅ Single room selection
 - ✅ Grouped by building/floor
 - ✅ Case-insensitive search
@@ -37,21 +38,22 @@ Created two new MUI-based components with comprehensive features:
 - ✅ Screen reader friendly
 
 **Props:**
+
 ```typescript
 interface RoomAutocompleteProps {
-  rooms: room[];                    // Array of room objects
-  value: room | null;               // Selected room
-  onChange: (room: room | null) => void;  // Change handler
-  label?: string;                   // Input label (default: "สถานที่เรียน")
-  placeholder?: string;             // Placeholder text
-  required?: boolean;               // Required field
-  error?: boolean;                  // Error state
-  helperText?: string;              // Helper/error message
-  disabled?: boolean;               // Disabled state
-  fullWidth?: boolean;              // Full width (default: true)
-  size?: "small" | "medium";        // Input size (default: "small")
-  availabilityMap?: Record<number, 'available' | 'occupied' | 'partial'>; // Optional availability status by RoomID
-  showAvailability?: boolean;       // Display colored status dot (default: true)
+  rooms: room[]; // Array of room objects
+  value: room | null; // Selected room
+  onChange: (room: room | null) => void; // Change handler
+  label?: string; // Input label (default: "สถานที่เรียน")
+  placeholder?: string; // Placeholder text
+  required?: boolean; // Required field
+  error?: boolean; // Error state
+  helperText?: string; // Helper/error message
+  disabled?: boolean; // Disabled state
+  fullWidth?: boolean; // Full width (default: true)
+  size?: "small" | "medium"; // Input size (default: "small")
+  availabilityMap?: Record<number, "available" | "occupied" | "partial">; // Optional availability status by RoomID
+  showAvailability?: boolean; // Display colored status dot (default: true)
 }
 ```
 
@@ -60,28 +62,30 @@ interface RoomAutocompleteProps {
 **Location:** `src/components/room/RoomMultiSelect.tsx`
 
 **Features:**
+
 - ✅ Multiple room selection
 - ✅ Same grouping/search/visual features as single select
 - ✅ Chip display for selected rooms
 - ✅ Limit tags option to prevent overflow
 
 **Props:**
+
 ```typescript
 interface RoomMultiSelectProps {
-  rooms: room[];                    // Array of room objects
-  value: room[];                    // Selected rooms array
-  onChange: (rooms: room[]) => void;  // Change handler
-  label?: string;                   // Input label
-  placeholder?: string;             // Placeholder text
-  required?: boolean;               // Required field
-  error?: boolean;                  // Error state
-  helperText?: string;              // Helper/error message
-  disabled?: boolean;               // Disabled state
-  fullWidth?: boolean;              // Full width (default: true)
-  size?: "small" | "medium";        // Input size (default: "small")
-  limitTags?: number;               // Max tags shown (default: 3)
-  availabilityMap?: Record<number, 'available' | 'occupied' | 'partial'>; // Optional availability status by RoomID
-  showAvailability?: boolean;       // Display colored status dot (default: true)
+  rooms: room[]; // Array of room objects
+  value: room[]; // Selected rooms array
+  onChange: (rooms: room[]) => void; // Change handler
+  label?: string; // Input label
+  placeholder?: string; // Placeholder text
+  required?: boolean; // Required field
+  error?: boolean; // Error state
+  helperText?: string; // Helper/error message
+  disabled?: boolean; // Disabled state
+  fullWidth?: boolean; // Full width (default: true)
+  size?: "small" | "medium"; // Input size (default: "small")
+  limitTags?: number; // Max tags shown (default: 3)
+  availabilityMap?: Record<number, "available" | "occupied" | "partial">; // Optional availability status by RoomID
+  showAvailability?: boolean; // Display colored status dot (default: true)
 }
 ```
 
@@ -109,17 +113,20 @@ const groupBy = (option: RoomSelectOption) => {
 ### Visual Rendering
 
 **Group Headers:**
+
 - Sticky positioned for easy navigation
 - LocationOn icon with primary color
 - Bold text for group name
 
 **Options:**
+
 - MeetingRoom icon
 - Room name as primary text
 - Building/floor as secondary caption text
 - Hover effects for better UX
 
 **Tags (Multi-select):**
+
 - MeetingRoom icon
 - Room name label
 - Compact chip display
@@ -165,17 +172,17 @@ function SelectRoomName(props: Props) {
   const { data } = useRooms();
   const [rooms, setRooms] = useState<room[]>([]);
   const [roomsFilter, setRoomsFilter] = useState<room[]>([]);
-  
+
   useEffect(() => {
     setRooms(() => data);
     setRoomsFilter(() => data);
   }, [data]);
-  
+
   const searchHandle: InputChangeHandler = (event) => {
     const text = event.target.value;
     searchName(text);
   };
-  
+
   const searchName = (name: string) => {
     const res = roomsFilter.filter((item) => `${item.RoomName}`.match(name));
     setRooms(res);
@@ -202,10 +209,14 @@ function SelectRoomName(props: Props) {
 import { RoomAutocomplete } from "@/components/room";
 import { Box } from "@mui/material";
 
-function SelectRoomName({ roomName, handleRoomChange, required = false }: Props) {
+function SelectRoomName({
+  roomName,
+  handleRoomChange,
+  required = false,
+}: Props) {
   const { data: rooms } = useRooms();
 
-  const selectedRoom = roomName 
+  const selectedRoom = roomName
     ? rooms.find((r) => r.RoomName === roomName) || null
     : null;
 
@@ -231,6 +242,7 @@ function SelectRoomName({ roomName, handleRoomChange, required = false }: Props)
 ```
 
 **Benefits:**
+
 - ✅ Removed manual search state management
 - ✅ Removed case-sensitive regex search
 - ✅ Added building/floor grouping automatically
@@ -293,7 +305,7 @@ function ValidatedForm() {
   const { data: rooms } = useRooms();
   const [room, setRoom] = useState<room | null>(null);
   const [touched, setTouched] = useState(false);
-  
+
   const error = touched && !room;
 
   return (
@@ -324,9 +336,9 @@ function AvailabilityExample() {
   const [selectedRoom, setSelectedRoom] = useState<room | null>(null);
   // Stub map; integrate real schedule occupancy later
   const availabilityMap = {
-    1: 'available',
-    2: 'occupied',
-    3: 'partial'
+    1: "available",
+    2: "occupied",
+    3: "partial",
   } as const;
 
   return (
@@ -343,17 +355,20 @@ function AvailabilityExample() {
 ```
 
 Availability dot colors:
+
 - Green: `available` (ว่างทุกคาบที่สนใจ)
 - Yellow: `partial` (มีบางคาบถูกใช้)
 - Red: `occupied` (เต็มหรือชนทั้งหมดในช่วงเลือก)
 
 Future derivation strategy:
+
 1. Query existing schedules/locks for the target semester & intended timeslots.
 2. Build a per-room occupancy set.
 3. Classify each room into available/partial/occupied.
 4. Memoize `availabilityMap` keyed by RoomID + timeslot window for performance.
 
 Multi-select usage:
+
 ```tsx
 <RoomMultiSelect
   rooms={rooms}
@@ -374,6 +389,7 @@ Both components are fully typed with:
 - ✅ Proper room type from Prisma schema
 
 **Type Safety:**
+
 ```typescript
 import type { room } from "@/prisma/generated/client";
 import type { RoomSelectOption } from "@/types/ui-state";
@@ -410,18 +426,18 @@ describe("RoomAutocomplete", () => {
 ```typescript
 test("should select room with building/floor info", async ({ page }) => {
   await page.goto("/schedule/1-2567/lock");
-  
+
   // Open autocomplete
   await page.click('label:has-text("สถานที่เรียน")');
-  
+
   // Search for room
   await page.fill('input[placeholder="เลือกห้องเรียน"]', "301");
-  
+
   // Select first option
   await page.click('li:has-text("301")');
-  
+
   // Verify selection
-  await expect(page.locator('input')).toHaveValue("301");
+  await expect(page.locator("input")).toHaveValue("301");
 });
 ```
 
@@ -443,6 +459,7 @@ test("should select room with building/floor info", async ({ page }) => {
 ## Browser Compatibility
 
 Tested and working in:
+
 - ✅ Chrome 120+
 - ✅ Firefox 121+
 - ✅ Safari 17+
@@ -470,6 +487,7 @@ Potential improvements for future versions (availability implemented):
 ### November 14, 2025 - Initial Release
 
 **Added:**
+
 - ✅ RoomAutocomplete component (single selection)
 - ✅ RoomMultiSelect component (multiple selection)
 - ✅ Building/floor grouping
@@ -480,9 +498,11 @@ Potential improvements for future versions (availability implemented):
 - ✅ Availability indicator (API + docs; stub status logic)
 
 **Refactored:**
+
 - ✅ SelectRoomName.tsx to use new RoomAutocomplete
 
 **Impact:**
+
 - Lines of code: 57 → 44 (SelectRoomName.tsx)
 - Components added: 3 files (RoomAutocomplete, RoomMultiSelect, examples)
 - Features added: Grouping, better search, accessibility

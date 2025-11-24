@@ -1,7 +1,7 @@
 /**
  * Unit Tests for Assign Repository
  * Tests new repository methods for responsibility management
- * 
+ *
  * Note: Prisma is mocked globally in jest.setup.js
  */
 
@@ -48,7 +48,9 @@ describe("Assign Repository - New Methods", () => {
 
       const result = await assignRepository.findByRespId(123);
 
-      expect(mockPrisma.teachers_responsibility.findUnique).toHaveBeenCalledWith({
+      expect(
+        mockPrisma.teachers_responsibility.findUnique,
+      ).toHaveBeenCalledWith({
         where: { RespID: 123 },
         include: {
           subject: true,
@@ -102,7 +104,7 @@ describe("Assign Repository - New Methods", () => {
       await expect(
         assignRepository.transaction(async (tx) => {
           throw error;
-        })
+        }),
       ).rejects.toThrow("Transaction failed");
     });
   });

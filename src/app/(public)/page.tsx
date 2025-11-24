@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { QuickStatsCards, QuickStatsCardsSkeleton } from "./_components/QuickStats";
+import {
+  QuickStatsCards,
+  QuickStatsCardsSkeleton,
+} from "./_components/QuickStats";
 import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
 import { DataTableSection } from "./_components/DataTableSection";
 import { CurrentSemesterBadge } from "./_components/CurrentSemesterBadge";
@@ -10,7 +13,8 @@ import { getQuickStats } from "@/lib/public/stats";
 
 export const metadata: Metadata = {
   title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
-  description: "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
+  description:
+    "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
 };
 
 // NOTE: Static page - all interactivity handled client-side
@@ -28,11 +32,15 @@ export default async function HomePage() {
       // email explicitly excluded - PII must not be serialized to client
     };
   })();
-  
+
   // Import data fetching functions
-  const { getTeacherCount, getPaginatedTeachers } = await import("@/lib/public/teachers");
-  const { getClassCount, getPaginatedClasses } = await import("@/lib/public/classes");
-  
+  const { getTeacherCount, getPaginatedTeachers } = await import(
+    "@/lib/public/teachers"
+  );
+  const { getClassCount, getPaginatedClasses } = await import(
+    "@/lib/public/classes"
+  );
+
   // Fetch counts for pagination
   const totalTeachers = await getTeacherCount();
   const totalClasses = await getClassCount();
@@ -75,7 +83,7 @@ export default async function HomePage() {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-4">
-              ระบบตารางเรียนตารางสอน
+                ระบบตารางเรียนตารางสอน
               </h1>
               {/* Show current semester badge if one is selected */}
               <CurrentSemesterBadge />
@@ -87,9 +95,11 @@ export default async function HomePage() {
                     {userInfo.name || "ผู้ใช้งาน"}
                   </div>
                   <div className="text-xs text-blue-100">
-                    {userInfo.role === "admin" ? "ผู้ดูแลระบบ" : 
-                     userInfo.role === "teacher" ? "ครูผู้สอน" : 
-                     "นักเรียน"}
+                    {userInfo.role === "admin"
+                      ? "ผู้ดูแลระบบ"
+                      : userInfo.role === "teacher"
+                        ? "ครูผู้สอน"
+                        : "นักเรียน"}
                   </div>
                 </div>
                 <Link
@@ -98,8 +108,18 @@ export default async function HomePage() {
                   data-testid="admin-dashboard-button"
                   className="inline-flex items-center gap-2 rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-white/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700 transition-all"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    />
                   </svg>
                   กลับสู่หน้าจัดการ
                 </Link>
@@ -150,9 +170,7 @@ export default async function HomePage() {
 
       <footer className="bg-white border-t border-gray-200 py-8 mt-12">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl text-center text-gray-600">
-          <p>
-            © 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma
-          </p>
+          <p>© 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma</p>
         </div>
       </footer>
     </main>

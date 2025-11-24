@@ -9,23 +9,32 @@ import SelectClassRoomModal from "../component/SelectClassRoomModal";
 import AddSubjectModal from "../component/AddSubjectModal";
 import useSWR from "swr";
 import Loading from "@/app/loading";
-import { subjectCreditValues, subject_credit, type SubjectCreditValues } from "@/models/credit-value";
+import {
+  subjectCreditValues,
+  subject_credit,
+  type SubjectCreditValues,
+} from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
 import { useSemesterSync } from "@/hooks";
 
 // Server Actions (Clean Architecture)
-import { getAssignmentsAction, syncAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
+import {
+  getAssignmentsAction,
+  syncAssignmentsAction,
+} from "@/features/assign/application/actions/assign.actions";
 import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
 function ClassroomResponsibility() {
   const params = useParams();
   const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
-  
+
   // Use useSemesterSync to extract and sync semester with global store
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
+
   const searchTeacherID = useSearchParams().get("TeacherID");
-  
+
   // Fetch teacher responsibilities using Server Action
   const responsibilityData = useSWR<any>(
     () =>
@@ -49,19 +58,19 @@ function ClassroomResponsibility() {
     },
     { revalidateOnFocus: false },
   );
-  
+
   // Fetch teacher data using Server Action
   const teacherData = useSWR<any>(
-    () => searchTeacherID ? `teacher-${searchTeacherID}` : null,
+    () => (searchTeacherID ? `teacher-${searchTeacherID}` : null),
     async () => {
       if (!searchTeacherID) return null;
       const result = await getTeachersAction();
-      if (!result || typeof result !== 'object' || !('success' in result)) {
+      if (!result || typeof result !== "object" || !("success" in result)) {
         return null;
       }
-      if (result.success && 'data' in result) {
+      if (result.success && "data" in result) {
         const teacher = (result.data as any[]).find(
-          (t: any) => t.TeacherID === parseInt(searchTeacherID)
+          (t: any) => t.TeacherID === parseInt(searchTeacherID),
         );
         return teacher || null;
       }
@@ -104,8 +113,9 @@ function ClassroomResponsibility() {
       })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
       const removeDulpicateGradeID = mapGradeIDOnly.filter(
         (obj: any, index: number) =>
-          mapGradeIDOnly.findIndex((item: any) => item.GradeID == obj.GradeID) ===
-          index,
+          mapGradeIDOnly.findIndex(
+            (item: any) => item.GradeID == obj.GradeID,
+          ) === index,
       ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
       return removeDulpicateGradeID;
     };
@@ -188,12 +198,12 @@ function ClassroomResponsibility() {
     setCurrentSubjectInClassRoom(subj);
   };
   const [year, setYear] = useState<number | null>(null);
-  
+
   // Helper function to check if a value is a valid subject_credit
   const isValidCredit = (value: any): value is subject_credit => {
-    return typeof value === 'string' && value in subjectCreditValues;
+    return typeof value === "string" && value in subjectCreditValues;
   };
-  
+
   const sumTeachHour = (year: number): number => {
     const getSubjectsByYear = data.Subjects.filter(
       (subj) => subj.GradeID?.[0] && parseInt(subj.GradeID[0]) == year,
@@ -270,7 +280,7 @@ function ClassroomResponsibility() {
         AcademicYear: data.AcademicYear,
         Semester: data.Semester as "SEMESTER_1" | "SEMESTER_2",
       });
-      
+
       // syncAssignmentsAction returns result directly, not wrapped in success/error
       setValidateStatus(false);
       setIsApiLoading(false);
@@ -278,8 +288,11 @@ function ClassroomResponsibility() {
       responsibilityData.mutate();
     } catch (error) {
       console.error(error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก: " + errorMessage, { variant: "error" });
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก: " + errorMessage, {
+        variant: "error",
+      });
       setIsApiLoading(false);
     }
   };
@@ -383,12 +396,12 @@ function ClassroomResponsibility() {
                           isSelected={false}
                           hoverable={true}
                           handleClick={() => {
-                            setAddSubjectModalActive(true),
+                            (setAddSubjectModalActive(true),
                               setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
                                 Number: parseInt(room.GradeID.substring(2)),
-                              }));
+                              })));
                             // setCurrentSubject(room.Subjects);
                             setCurrentSubject(
                               getSubjectDataByGradeID(room.GradeID),
@@ -427,12 +440,12 @@ function ClassroomResponsibility() {
                           isSelected={false}
                           hoverable={true}
                           handleClick={() => {
-                            setAddSubjectModalActive(true),
+                            (setAddSubjectModalActive(true),
                               setClassRoomForAddSubj(() => ({
                                 Year: grade.Year,
                                 GradeID: room.GradeID,
                                 Number: parseInt(room.GradeID.substring(2)),
-                              }));
+                              })));
                             setCurrentSubject(
                               getSubjectDataByGradeID(room.GradeID),
                             );
@@ -450,7 +463,10 @@ function ClassroomResponsibility() {
                           {getSubjectDataByGradeID(room.GradeID).map(
                             (subject: any, index: number) => {
                               const credit = subject.Credit;
-                              const hoursPerWeek = (isValidCredit(credit) ? subjectCreditValues[credit] : 0) * 2;
+                              const hoursPerWeek =
+                                (isValidCredit(credit)
+                                  ? subjectCreditValues[credit]
+                                  : 0) * 2;
                               return (
                                 <Fragment
                                   key={`${subject.SubjectCode}(${room.GradeID})${index}`}
@@ -469,9 +485,7 @@ function ClassroomResponsibility() {
                                       title={`${subject.SubjectCode} ${subject.SubjectName}`}
                                     />
                                     <p className="text-sm text-[#4F515E]">
-                                      จำนวน{" "}
-                                      {hoursPerWeek}{" "}
-                                      คาบ
+                                      จำนวน {hoursPerWeek} คาบ
                                     </p>
                                   </div>
                                 </Fragment>

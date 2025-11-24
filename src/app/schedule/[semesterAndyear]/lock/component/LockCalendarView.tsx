@@ -28,7 +28,7 @@ import {
 import { useTimeslots } from "@/hooks";
 import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import type { timeslot } from '@/prisma/generated/client';;
+import type { timeslot } from "@/prisma/generated/client";
 
 interface LockCalendarViewProps {
   lockData: GroupedLockedSchedule[];
@@ -82,9 +82,8 @@ function LockCalendarView({
   onDeleteLock,
 }: LockCalendarViewProps) {
   const timeslotsData = useTimeslots(academicYear, semester);
-  const [selectedLock, setSelectedLock] = useState<GroupedLockedSchedule | null>(
-    null
-  );
+  const [selectedLock, setSelectedLock] =
+    useState<GroupedLockedSchedule | null>(null);
 
   // Group timeslots by day and period
   const timeslotGrid = useMemo(() => {
@@ -127,7 +126,8 @@ function LockCalendarView({
   // Get lock type (heuristic-based classification)
   // Note: Exam periods should use dedicated "Exam Arrange Mode" feature instead
   const getLockType = (lock: GroupedLockedSchedule): LockType => {
-    if (lock.SubjectName && lock.SubjectName.includes("กิจกรรม")) return "ACTIVITY";
+    if (lock.SubjectName && lock.SubjectName.includes("กิจกรรม"))
+      return "ACTIVITY";
     if (!lock.SubjectCode || lock.SubjectCode === "-") return "BLOCK";
     return "SUBJECT";
   };
@@ -160,7 +160,7 @@ function LockCalendarView({
 
   const days = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"];
   const maxPeriods = Math.max(
-    ...days.map((day) => Object.keys(timeslotGrid[day] || {}).length)
+    ...days.map((day) => Object.keys(timeslotGrid[day] || {}).length),
   );
   const periods: number[] = Array.from({ length: maxPeriods }, (_, i) => i + 1);
 
@@ -250,9 +250,12 @@ function LockCalendarView({
               {/* Day Cells */}
               {days.map((day) => {
                 const timeslot = timeslotGrid[day]?.[period];
-                const lock = timeslot ? (lockMap[timeslot.TimeslotID] ?? null) : null;
+                const lock = timeslot
+                  ? (lockMap[timeslot.TimeslotID] ?? null)
+                  : null;
                 const lockType = lock ? getLockType(lock) : null;
-                const config = lockType !== null ? LOCK_TYPE_CONFIG[lockType] : null;
+                const config =
+                  lockType !== null ? LOCK_TYPE_CONFIG[lockType] : null;
 
                 return (
                   <Paper
@@ -453,7 +456,9 @@ function LockCalendarView({
                   >
                     ครูผู้สอน ({selectedLock.teachers.length} คน)
                   </Typography>
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
                     {selectedLock.teachers.map((teacher, index) => (
                       <Chip
                         key={index}

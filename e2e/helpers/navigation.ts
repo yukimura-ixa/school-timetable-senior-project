@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 /**
  * Navigation helpers for E2E tests
@@ -11,34 +11,34 @@ export class NavigationHelper {
    * Navigate to home page
    */
   async goHome() {
-    await this.page.goto('/');
+    await this.page.goto("/");
   }
 
   /**
    * Navigate to management section
    */
   async goToManagement() {
-    await this.page.goto('/management/teacher');
+    await this.page.goto("/management/teacher");
   }
 
   async goToTeacherManagement() {
-    await this.page.goto('/management/teacher');
+    await this.page.goto("/management/teacher");
   }
 
   async goToSubjectManagement() {
-    await this.page.goto('/management/subject');
+    await this.page.goto("/management/subject");
   }
 
   async goToRoomManagement() {
-    await this.page.goto('/management/rooms');
+    await this.page.goto("/management/rooms");
   }
 
   async goToGradeLevelManagement() {
-    await this.page.goto('/management/gradelevel');
+    await this.page.goto("/management/gradelevel");
   }
 
   async goToProgramManagement() {
-    await this.page.goto('/management/program');
+    await this.page.goto("/management/program");
   }
 
   /**
@@ -46,7 +46,7 @@ export class NavigationHelper {
    * Note: Redirects to dashboard/select-semester (modernized UI)
    */
   async goToScheduleSelector() {
-    await this.page.goto('/dashboard/select-semester');
+    await this.page.goto("/dashboard/select-semester");
   }
 
   async goToSchedule(semesterAndYear: string) {
@@ -62,11 +62,15 @@ export class NavigationHelper {
   }
 
   async goToTeacherArrange(semesterAndYear: string) {
-    await this.page.goto(`/schedule/${semesterAndYear}/arrange/teacher-arrange`);
+    await this.page.goto(
+      `/schedule/${semesterAndYear}/arrange/teacher-arrange`,
+    );
   }
 
   async goToStudentArrange(semesterAndYear: string) {
-    await this.page.goto(`/schedule/${semesterAndYear}/arrange/student-arrange`);
+    await this.page.goto(
+      `/schedule/${semesterAndYear}/arrange/student-arrange`,
+    );
   }
 
   async goToLockTimeslots(semesterAndYear: string) {
@@ -77,7 +81,7 @@ export class NavigationHelper {
    * Navigate to dashboard
    */
   async goToDashboardSelector() {
-    await this.page.goto('/dashboard/select-semester');
+    await this.page.goto("/dashboard/select-semester");
   }
 
   async goToTeacherTable(semesterAndYear: string) {
@@ -100,6 +104,6 @@ export class NavigationHelper {
    * Wait for navigation to complete
    */
   async waitForNavigation() {
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 }

@@ -131,19 +131,19 @@ Add these to your Edge Config store via the Vercel Dashboard:
 interface FlagConfig {
   // Master switch - if false, feature is disabled for everyone
   enabled: boolean;
-  
+
   // Rollout percentage (0-100)
   // Uses consistent hashing on userId
   rolloutPercent?: number;
-  
+
   // Role-based access control
   // Only these roles can access the feature
   allowedRoles?: string[]; // e.g., ['admin', 'teacher']
-  
+
   // Email allowlist
   // Only these emails can access the feature
   allowedEmails?: string[]; // e.g., ['user@example.com']
-  
+
   // Human-readable description (optional)
   description?: string;
 }
@@ -169,14 +169,14 @@ import { auth } from '@/lib/auth';
 
 export default async function SchedulePage() {
   const session = await auth();
-  
+
   const useNewUI = await isFeatureEnabled(
     'newScheduleUI',
     session?.user?.id,
     session?.user?.role,
     session?.user?.email
   );
-  
+
   return useNewUI ? <NewScheduleUI /> : <LegacyScheduleUI />;
 }
 ```
@@ -192,9 +192,9 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 
 function ExportButton() {
   const { enabled, loading } = useFeatureFlag('exportV2');
-  
+
   if (loading) return <ButtonSkeleton />;
-  
+
   return enabled ? (
     <NewExportButton />
   ) : (
@@ -212,7 +212,7 @@ import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 
 function AdminPanel() {
   const flags = useFeatureFlags(['analyticsV2', 'exportV2', 'notifications']);
-  
+
   return (
     <div>
       {flags.get('analyticsV2')?.enabled && <AnalyticsSection />}
@@ -238,8 +238,8 @@ import { FeatureGate } from '@/components/feature-gate';
 #### With Fallback
 
 ```typescript
-<FeatureGate 
-  feature="exportV2" 
+<FeatureGate
+  feature="exportV2"
   fallback={<LegacyExport />}
 >
   <NewExport />
@@ -249,7 +249,7 @@ import { FeatureGate } from '@/components/feature-gate';
 #### With Loading State
 
 ```typescript
-<FeatureGate 
+<FeatureGate
   feature="analyticsV2"
   loading={<DashboardSkeleton />}
   fallback={<LegacyDashboard />}
@@ -310,26 +310,28 @@ async function isFeatureEnabled(
   flag: FeatureFlag,
   userId?: string,
   userRole?: string,
-  userEmail?: string
-): Promise<boolean>
+  userEmail?: string,
+): Promise<boolean>;
 ```
 
 #### `getAllFeatureFlags()`
 
 ```typescript
-async function getAllFeatureFlags(): Promise<Record<string, FlagConfig> | null>
+async function getAllFeatureFlags(): Promise<Record<string, FlagConfig> | null>;
 ```
 
 #### `hasFeatureFlag()`
 
 ```typescript
-async function hasFeatureFlag(flag: FeatureFlag): Promise<boolean>
+async function hasFeatureFlag(flag: FeatureFlag): Promise<boolean>;
 ```
 
 #### `getFeatureFlagConfig()`
 
 ```typescript
-async function getFeatureFlagConfig(flag: FeatureFlag): Promise<FlagConfig | null>
+async function getFeatureFlagConfig(
+  flag: FeatureFlag,
+): Promise<FlagConfig | null>;
 ```
 
 ### React Hooks
@@ -339,21 +341,21 @@ async function getFeatureFlagConfig(flag: FeatureFlag): Promise<FlagConfig | nul
 ```typescript
 function useFeatureFlag(
   flag: FeatureFlag,
-  options?: { fallbackEnabled?: boolean }
+  options?: { fallbackEnabled?: boolean },
 ): {
   enabled: boolean;
   loading: boolean;
   error: Error | null;
   revalidate: () => void;
-}
+};
 ```
 
 #### `useFeatureFlags()`
 
 ```typescript
 function useFeatureFlags(
-  flags: FeatureFlag[]
-): Map<FeatureFlag, UseFeatureFlagResult>
+  flags: FeatureFlag[],
+): Map<FeatureFlag, UseFeatureFlagResult>;
 ```
 
 ### API Routes
@@ -408,8 +410,8 @@ Response: { flags: { newScheduleUI: true, analyticsV2: false } }
 
 ```typescript
 const useExperimentalAlgorithm = await isFeatureEnabled(
-  'advancedFilters',
-  userId
+  "advancedFilters",
+  userId,
 );
 
 const results = useExperimentalAlgorithm
@@ -417,8 +419,8 @@ const results = useExperimentalAlgorithm
   : await legacyFilterAlgorithm(data);
 
 // Track metrics for both groups
-await trackMetric('filter_performance', {
-  algorithm: useExperimentalAlgorithm ? 'new' : 'legacy',
+await trackMetric("filter_performance", {
+  algorithm: useExperimentalAlgorithm ? "new" : "legacy",
   responseTime: results.elapsed,
 });
 ```
@@ -455,9 +457,9 @@ await trackMetric('filter_performance', {
 ```typescript
 // Only admins see new dashboard
 const canAccessAnalytics = await isFeatureEnabled(
-  'analyticsV2',
+  "analyticsV2",
   session?.user?.id,
-  session?.user?.role  // 'admin', 'teacher', 'student'
+  session?.user?.role, // 'admin', 'teacher', 'student'
 );
 ```
 
@@ -467,11 +469,7 @@ const canAccessAnalytics = await isFeatureEnabled(
 {
   "betaFeatures": {
     "enabled": true,
-    "allowedEmails": [
-      "dev@example.com",
-      "qa@example.com",
-      "admin@school.ac.th"
-    ]
+    "allowedEmails": ["dev@example.com", "qa@example.com", "admin@school.ac.th"]
   }
 }
 ```
@@ -487,18 +485,21 @@ const canAccessAnalytics = await isFeatureEnabled(
 ### 2. Use Consistent Hashing for Rollouts
 
 The `rolloutPercent` uses FNV-1a hashing on `userId` to ensure:
+
 - Same user always gets same experience (no flickering)
 - Deterministic rollout (user in 10% will stay in 50% and 100%)
 
 ### 3. Fail Closed (Secure by Default)
 
 If Edge Config is unavailable:
+
 - Feature flags return `false`
 - Application degrades gracefully to stable version
 
 ### 4. Clean Up Old Flags
 
 After a feature is fully rolled out (100% for 2+ weeks):
+
 1. Remove feature flag checks from code
 2. Delete flag from Edge Config
 3. Deploy code without flag logic
@@ -520,7 +521,7 @@ Always add `description` field to config:
 ### 6. Monitor Flag Usage
 
 ```typescript
-const enabled = await isFeatureEnabled('newScheduleUI', userId);
+const enabled = await isFeatureEnabled("newScheduleUI", userId);
 
 // Log for analytics
 console.log(`[FeatureFlag] newScheduleUI: ${enabled} for user ${userId}`);
@@ -532,13 +533,13 @@ Always test both feature-enabled and feature-disabled paths:
 
 ```typescript
 // __tests__/schedule-page.test.ts
-describe('SchedulePage', () => {
-  it('renders new UI when feature is enabled', async () => {
+describe("SchedulePage", () => {
+  it("renders new UI when feature is enabled", async () => {
     // Mock flag as enabled
     // Test new UI
   });
-  
-  it('renders legacy UI when feature is disabled', async () => {
+
+  it("renders legacy UI when feature is disabled", async () => {
     // Mock flag as disabled
     // Test legacy UI
   });
@@ -565,9 +566,7 @@ describe('SchedulePage', () => {
 Make sure to add new flags to the `FeatureFlag` type in `src/lib/feature-flags.ts`:
 
 ```typescript
-export type FeatureFlag =
-  | 'newScheduleUI'
-  | 'myNewFlag';  // Add new flag here
+export type FeatureFlag = "newScheduleUI" | "myNewFlag"; // Add new flag here
 ```
 
 ### API Route Returns 500

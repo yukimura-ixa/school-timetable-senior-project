@@ -2,16 +2,21 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { semester as SemesterEnum, type timeslot } from '@/prisma/generated/client';;
+import {
+  semester as SemesterEnum,
+  type timeslot,
+} from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
-function parseConfigId(configId: string): { academicYear: number; semesterEnum: 'SEMESTER_1' | 'SEMESTER_2' } | null {
+function parseConfigId(
+  configId: string,
+): { academicYear: number; semesterEnum: "SEMESTER_1" | "SEMESTER_2" } | null {
   const match = /^(1|2)-(\d{4})$/.exec(configId);
   if (!match) return null;
   const [, sem, year] = match;
-  const semesterEnum = sem === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+  const semesterEnum = sem === "1" ? "SEMESTER_1" : "SEMESTER_2";
   return { academicYear: parseInt(year!, 10), semesterEnum };
 }
 
@@ -19,16 +24,18 @@ type PageProps = {
   params: Promise<{ gradeId: string; semesterAndyear: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { gradeId, semesterAndyear } = await params;
   const parsed = parseConfigId(semesterAndyear);
   if (!parsed) return { title: "ไม่พบข้อมูล" };
-  
+
   const gradeLevel = await prisma.gradelevel.findUnique({
     where: { GradeID: gradeId },
   });
   if (!gradeLevel) return { title: "ไม่พบข้อมูล" };
-  
+
   return {
     title: `ตารางเรียน - ม.${gradeLevel.Year}/${gradeLevel.Number}`,
     description: `ดูตารางเรียนของชั้น ม.${gradeLevel.Year}/${gradeLevel.Number}`,
@@ -58,11 +65,14 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   if (!gradeLevel) notFound();
 
   // Fetch class schedules for this grade and term
-  const semesterValue = semesterEnum === 'SEMESTER_1' ? SemesterEnum.SEMESTER_1 : SemesterEnum.SEMESTER_2;
+  const semesterValue =
+    semesterEnum === "SEMESTER_1"
+      ? SemesterEnum.SEMESTER_1
+      : SemesterEnum.SEMESTER_2;
   const schedules = await classRepository.findByGrade(
     gradeId,
     academicYear,
-    semesterValue
+    semesterValue,
   );
 
   // Get all timeslots for this term to build grid structure
@@ -71,10 +81,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
       AcademicYear: academicYear,
       Semester: semesterValue,
     },
-    orderBy: [
-      { DayOfWeek: 'asc' },
-      { StartTime: 'asc' },
-    ],
+    orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
   });
 
   // Extract slot numbers and create mapping
@@ -84,11 +91,13 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   };
 
   const slotNumbers = Array.from(
-    new Set<number>(timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)))
+    new Set<number>(
+      timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)),
+    ),
   ).sort((a: number, b: number) => a - b);
 
   // Build schedule lookup by timeslot ID
-  const scheduleLookup = new Map<string, typeof schedules[0]>();
+  const scheduleLookup = new Map<string, (typeof schedules)[0]>();
   schedules.forEach((s) => {
     scheduleLookup.set(s.timeslot.TimeslotID, s);
   });
@@ -101,22 +110,35 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
       const startTime = new Date(t.StartTime);
       const endTime = new Date(t.EndTime);
       slotTimeRanges.set(slotNum, {
-        start: startTime.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
-        end: endTime.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
+        start: startTime.toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        end: endTime.toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       });
     }
   });
 
   // Build grid data: day x slot
-  const gridData: Record<string, Map<number, typeof schedules[0] | null>> = {};
+  const gridData: Record<
+    string,
+    Map<number, (typeof schedules)[0] | null>
+  > = {};
   dayOrder.forEach((day) => {
     gridData[day] = new Map();
     slotNumbers.forEach((slotNum: number) => {
       const timeslotForDaySlot = timeslots.find(
-        (t: timeslot) => t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum
+        (t: timeslot) =>
+          t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum,
       );
       if (timeslotForDaySlot) {
-        gridData[day]!.set(slotNum, scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null);
+        gridData[day]!.set(
+          slotNum,
+          scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null,
+        );
       } else {
         gridData[day]!.set(slotNum, null);
       }
@@ -137,17 +159,23 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         {/* Class Header */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 mb-4 md:mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            ตารางเรียน <span data-testid="class-name">ม.{gradeLevel.Year}/{gradeLevel.Number}</span>
+            ตารางเรียน{" "}
+            <span data-testid="class-name">
+              ม.{gradeLevel.Year}/{gradeLevel.Number}
+            </span>
           </h1>
           <p className="text-xs md:text-sm text-gray-500 mt-2">
-            ภาคเรียนที่ {semesterAndyear.split('-')[0]} ปีการศึกษา {semesterAndyear.split('-')[1]}
+            ภาคเรียนที่ {semesterAndyear.split("-")[0]} ปีการศึกษา{" "}
+            {semesterAndyear.split("-")[1]}
           </p>
         </div>
 
         {/* Schedule Table */}
         {schedules.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 md:p-12 text-center">
-            <p className="text-gray-500 text-base md:text-lg">ไม่มีตารางเรียนในภาคเรียนนี้</p>
+            <p className="text-gray-500 text-base md:text-lg">
+              ไม่มีตารางเรียนในภาคเรียนนี้
+            </p>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto print:shadow-none">
@@ -173,7 +201,9 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
                   return (
                     <tr key={slotNum} className="hover:bg-gray-50">
                       <td className="border border-gray-300 px-2 md:px-3 py-2 text-center bg-gray-50">
-                        <div className="text-xs md:text-sm font-semibold text-gray-900">คาบ {slotNum}</div>
+                        <div className="text-xs md:text-sm font-semibold text-gray-900">
+                          คาบ {slotNum}
+                        </div>
                         {timeRange && (
                           <div className="text-[10px] md:text-xs text-gray-600 mt-1">
                             {timeRange.start}-{timeRange.end}
@@ -196,16 +226,26 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
                                   {schedule.subject.SubjectCode}
                                 </div>
                                 {schedule.room && (
-                                  <div className="text-gray-500 mt-1">ห้อง {schedule.room.RoomName}</div>
+                                  <div className="text-gray-500 mt-1">
+                                    ห้อง {schedule.room.RoomName}
+                                  </div>
                                 )}
-                                {schedule.teachers_responsibility.length > 0 && (
+                                {schedule.teachers_responsibility.length >
+                                  0 && (
                                   <div className="text-gray-500 mt-1 text-[10px] md:text-xs">
-                                    {schedule.teachers_responsibility.map((tr) => `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`).join(', ')}
+                                    {schedule.teachers_responsibility
+                                      .map(
+                                        (tr) =>
+                                          `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
+                                      )
+                                      .join(", ")}
                                   </div>
                                 )}
                               </div>
                             ) : (
-                              <div className="text-xs md:text-sm text-gray-400 text-center">-</div>
+                              <div className="text-xs md:text-sm text-gray-400 text-center">
+                                -
+                              </div>
                             )}
                           </td>
                         );

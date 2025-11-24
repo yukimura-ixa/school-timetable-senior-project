@@ -1,17 +1,17 @@
 /**
  * Schedule Arrangement UI Store
- * 
+ *
  * Manages all UI state for the teacher/student schedule arrangement pages.
  * Replaces 34+ useState hooks with centralized Zustand state management.
- * 
+ *
  * Created: Week 5 - Phase 2 Refactoring
  * Pattern: Zustand store with devtools middleware
  * Related Docs: Context7 Zustand v5.0.8
  */
 
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import type { class_schedule, teacher } from '@/prisma/generated/client';
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import type { class_schedule, teacher } from "@/prisma/generated/client";
 
 // Phase 1: Import strict types from schedule.types.ts
 import type {
@@ -22,7 +22,7 @@ import type {
   BreakSlotData,
   DayOfWeekDisplay,
   TimeslotErrorStateMap,
-} from '@/types/schedule.types';
+} from "@/types/schedule.types";
 
 // ============================================================================
 // Type Definitions (imported from schedule.types.ts)
@@ -122,8 +122,11 @@ interface ArrangementUIActions {
   removeSubjectFromData: (subjectCode: string) => void;
 
   // === Timeslot Actions ===
-  setTimeSlotData: (data: Partial<ArrangementUIState['timeSlotData']>) => void;
-  updateTimeslotSubject: (timeslotID: string, subject: SubjectData | null) => void;
+  setTimeSlotData: (data: Partial<ArrangementUIState["timeSlotData"]>) => void;
+  updateTimeslotSubject: (
+    timeslotID: string,
+    subject: SubjectData | null,
+  ) => void;
   setLockData: (data: class_schedule[]) => void;
 
   // === Modal Actions ===
@@ -140,7 +143,7 @@ interface ArrangementUIActions {
   setIsSaving: (saving: boolean) => void;
 
   // === Filter Actions ===
-  setFilters: (filters: Partial<ArrangementUIState['filters']>) => void;
+  setFilters: (filters: Partial<ArrangementUIState["filters"]>) => void;
 
   // === History Actions (Undo/Redo) ===
   pushHistory: (scheduledSubjects: SubjectData[]) => void;
@@ -172,7 +175,7 @@ const initialState: ArrangementUIState = {
   // Subject Change - now properly null
   changeTimeSlotSubject: null,
   destinationSubject: null,
-  timeslotIDtoChange: { source: '', destination: '' },
+  timeslotIDtoChange: { source: "", destination: "" },
   isClickToChangeSubject: false, // Fixed typo
 
   // Subject Data
@@ -227,10 +230,14 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
 
       // === Teacher Actions ===
       setCurrentTeacherID: (id) =>
-        set({ currentTeacherID: id }, undefined, 'arrangement/setCurrentTeacherID'),
+        set(
+          { currentTeacherID: id },
+          undefined,
+          "arrangement/setCurrentTeacherID",
+        ),
 
       setTeacherData: (data) =>
-        set({ teacherData: data }, undefined, 'arrangement/setTeacherData'),
+        set({ teacherData: data }, undefined, "arrangement/setTeacherData"),
 
       // === Subject Selection Actions ===
       setSelectedSubject: (subject) =>
@@ -240,14 +247,18 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             yearSelected: subject?.gradelevel?.year || null, // Fixed casing: Year -> year
           },
           undefined,
-          'arrangement/setSelectedSubject',
+          "arrangement/setSelectedSubject",
         ),
 
       setDraggedSubject: (subject) =>
-        set({ draggedSubject: subject }, undefined, 'arrangement/setDraggedSubject'),
+        set(
+          { draggedSubject: subject },
+          undefined,
+          "arrangement/setDraggedSubject",
+        ),
 
       setYearSelected: (year) =>
-        set({ yearSelected: year }, undefined, 'arrangement/setYearSelected'),
+        set({ yearSelected: year }, undefined, "arrangement/setYearSelected"),
 
       clearSelectedSubject: () =>
         set(
@@ -257,7 +268,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             yearSelected: null,
           },
           undefined,
-          'arrangement/clearSelectedSubject',
+          "arrangement/clearSelectedSubject",
         ),
 
       // === Subject Change Actions ===
@@ -265,20 +276,30 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
         set(
           { changeTimeSlotSubject: subject },
           undefined,
-          'arrangement/setChangeTimeSlotSubject',
+          "arrangement/setChangeTimeSlotSubject",
         ),
 
       setDestinationSubject: (subject) =>
-        set({ destinationSubject: subject }, undefined, 'arrangement/setDestinationSubject'),
+        set(
+          { destinationSubject: subject },
+          undefined,
+          "arrangement/setDestinationSubject",
+        ),
 
       setTimeslotIDtoChange: (change) =>
-        set({ timeslotIDtoChange: change }, undefined, 'arrangement/setTimeslotIDtoChange'),
+        set(
+          { timeslotIDtoChange: change },
+          undefined,
+          "arrangement/setTimeslotIDtoChange",
+        ),
 
-      setIsClickToChangeSubject: (isClicked: boolean) => // Fixed typo, added type
+      setIsClickToChangeSubject: (
+        isClicked: boolean, // Fixed typo, added type
+      ) =>
         set(
           { isClickToChangeSubject: isClicked },
           undefined,
-          'arrangement/setIsClickToChangeSubject',
+          "arrangement/setIsClickToChangeSubject",
         ),
 
       clearChangeSubjectState: () =>
@@ -286,19 +307,23 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
           {
             changeTimeSlotSubject: null,
             destinationSubject: null,
-            timeslotIDtoChange: { source: '', destination: '' },
+            timeslotIDtoChange: { source: "", destination: "" },
             isClickToChangeSubject: false, // Fixed typo
           },
           undefined,
-          'arrangement/clearChangeSubjectState',
+          "arrangement/clearChangeSubjectState",
         ),
 
       // === Subject Data Actions ===
       setSubjectData: (data) =>
-        set({ subjectData: data }, undefined, 'arrangement/setSubjectData'),
+        set({ subjectData: data }, undefined, "arrangement/setSubjectData"),
 
       setScheduledSubjects: (subjects) =>
-        set({ scheduledSubjects: subjects }, undefined, 'arrangement/setScheduledSubjects'),
+        set(
+          { scheduledSubjects: subjects },
+          undefined,
+          "arrangement/setScheduledSubjects",
+        ),
 
       addSubjectToData: (subject) =>
         set(
@@ -306,16 +331,18 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             subjectData: [...state.subjectData, subject],
           }),
           undefined,
-          'arrangement/addSubjectToData',
+          "arrangement/addSubjectToData",
         ),
 
       removeSubjectFromData: (subjectCode) =>
         set(
           (state) => ({
-            subjectData: state.subjectData.filter((s) => s.subjectCode !== subjectCode), // Fixed casing
+            subjectData: state.subjectData.filter(
+              (s) => s.subjectCode !== subjectCode,
+            ), // Fixed casing
           }),
           undefined,
-          'arrangement/removeSubjectFromData',
+          "arrangement/removeSubjectFromData",
         ),
 
       // === Timeslot Actions ===
@@ -325,7 +352,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             timeSlotData: { ...state.timeSlotData, ...data },
           }),
           undefined,
-          'arrangement/setTimeSlotData',
+          "arrangement/setTimeSlotData",
         ),
 
       updateTimeslotSubject: (timeslotID, subject) =>
@@ -339,28 +366,33 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             },
           }),
           undefined,
-          'arrangement/updateTimeslotSubject',
+          "arrangement/updateTimeslotSubject",
         ),
 
-      setLockData: (data) => set({ lockData: data }, undefined, 'arrangement/setLockData'),
+      setLockData: (data) =>
+        set({ lockData: data }, undefined, "arrangement/setLockData"),
 
       // === Modal Actions ===
       openModal: (payload) =>
         set(
           { isActiveModal: true, subjectPayload: payload },
           undefined,
-          'arrangement/openModal',
+          "arrangement/openModal",
         ),
 
       closeModal: () =>
         set(
           { isActiveModal: false, subjectPayload: null }, // Fixed: use null instead of empty object
           undefined,
-          'arrangement/closeModal',
+          "arrangement/closeModal",
         ),
 
       setSubjectPayload: (payload) =>
-        set({ subjectPayload: payload }, undefined, 'arrangement/setSubjectPayload'),
+        set(
+          { subjectPayload: payload },
+          undefined,
+          "arrangement/setSubjectPayload",
+        ),
 
       // === Error Display Actions ===
       setShowErrorMsg: (timeslotID, show) =>
@@ -372,7 +404,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             },
           }),
           undefined,
-          'arrangement/setShowErrorMsg',
+          "arrangement/setShowErrorMsg",
         ),
 
       setShowLockDataMsg: (timeslotID, show) =>
@@ -384,7 +416,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             },
           }),
           undefined,
-          'arrangement/setShowLockDataMsg',
+          "arrangement/setShowLockDataMsg",
         ),
 
       clearErrorMessages: () =>
@@ -394,11 +426,12 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             showLockDataMsgByTimeslotID: {},
           },
           undefined,
-          'arrangement/clearErrorMessages',
+          "arrangement/clearErrorMessages",
         ),
 
       // === Save State Actions ===
-      setIsSaving: (saving) => set({ isSaving: saving }, undefined, 'arrangement/setIsSaving'),
+      setIsSaving: (saving) =>
+        set({ isSaving: saving }, undefined, "arrangement/setIsSaving"),
 
       // === Filter Actions ===
       setFilters: (filters) =>
@@ -407,7 +440,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             filters: { ...state.filters, ...filters },
           }),
           undefined,
-          'arrangement/setFilters',
+          "arrangement/setFilters",
         ),
 
       // === History Actions (Undo/Redo) ===
@@ -422,7 +455,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             scheduledSubjects,
           }),
           undefined,
-          'arrangement/pushHistory',
+          "arrangement/pushHistory",
         ),
 
       undo: () =>
@@ -444,7 +477,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             };
           },
           undefined,
-          'arrangement/undo',
+          "arrangement/undo",
         ),
 
       redo: () =>
@@ -466,7 +499,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             };
           },
           undefined,
-          'arrangement/redo',
+          "arrangement/redo",
         ),
 
       canUndo: () => {
@@ -489,11 +522,12 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             },
           },
           undefined,
-          'arrangement/clearHistory',
+          "arrangement/clearHistory",
         ),
 
       // === Reset Actions ===
-      resetAllState: () => set(initialState, undefined, 'arrangement/resetAllState'),
+      resetAllState: () =>
+        set(initialState, undefined, "arrangement/resetAllState"),
 
       resetOnTeacherChange: () =>
         set(
@@ -503,7 +537,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             yearSelected: null,
             changeTimeSlotSubject: null, // Fixed: use null
             destinationSubject: null, // Fixed: use null
-            timeslotIDtoChange: { source: '', destination: '' },
+            timeslotIDtoChange: { source: "", destination: "" },
             isClickToChangeSubject: false, // Fixed typo
             subjectPayload: null, // Fixed: use null
             showErrorMsgByTimeslotID: {},
@@ -515,10 +549,10 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
             },
           },
           undefined,
-          'arrangement/resetOnTeacherChange',
+          "arrangement/resetOnTeacherChange",
         ),
     }),
-    { name: 'arrangement-ui-store' },
+    { name: "arrangement-ui-store" },
   ),
 );
 
@@ -540,7 +574,8 @@ export const useCurrentTeacher = () =>
 export const useSelectedSubject = () =>
   useArrangementUIStore((state) => state.selectedSubject);
 
-export const useTimeslotData = () => useArrangementUIStore((state) => state.timeSlotData);
+export const useTimeslotData = () =>
+  useArrangementUIStore((state) => state.timeSlotData);
 
 export const useModalState = () =>
   useArrangementUIStore((state) => ({
@@ -548,4 +583,5 @@ export const useModalState = () =>
     payload: state.subjectPayload,
   }));
 
-export const useSaveState = () => useArrangementUIStore((state) => state.isSaving);
+export const useSaveState = () =>
+  useArrangementUIStore((state) => state.isSaving);

@@ -1,6 +1,6 @@
 /**
  * Room Selection UI Components - Usage Examples
- * 
+ *
  * This file demonstrates how to use the enhanced room selection components
  * with building/floor grouping and MUI integration.
  */
@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { Box, Stack, Typography, Paper } from "@mui/material";
 import { RoomAutocomplete, RoomMultiSelect } from "@/components/room";
 import { useRooms } from "@/hooks";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 
 /**
  * Example 1: Single Room Selection
@@ -112,7 +112,9 @@ export function RoomWithValidationExample() {
         placeholder="กรุณาเลือกห้องเรียน"
         required
         error={error}
-        helperText={error ? "กรุณาเลือกห้องเรียน" : "เลือกห้องที่ต้องการสำหรับตารางนี้"}
+        helperText={
+          error ? "กรุณาเลือกห้องเรียน" : "เลือกห้องที่ต้องการสำหรับตารางนี้"
+        }
       />
     </Paper>
   );
@@ -138,7 +140,11 @@ export function DisabledRoomExample() {
         label="ห้องเรียน"
         disabled
       />
-      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ mt: 1, display: "block" }}
+      >
         คุณไม่มีสิทธิ์แก้ไขห้องเรียนในตารางนี้
       </Typography>
     </Paper>
@@ -188,37 +194,37 @@ export function RoomFormIntegrationExample() {
 
 /**
  * Features Overview:
- * 
+ *
  * ✅ Building/Floor Grouping
  *    - Rooms are automatically grouped by building and floor
  *    - Easy to find rooms in specific locations
- * 
+ *
  * ✅ Case-Insensitive Search
  *    - Search by room name, building, or floor
  *    - Works in both Thai and English
- * 
+ *
  * ✅ Visual Enhancements
  *    - Icons for better visual recognition
  *    - Building/floor metadata shown in options
  *    - Sticky group headers for easy navigation
- * 
+ *
  * ✅ Accessibility
  *    - Keyboard navigation support
  *    - Screen reader friendly
  *    - Proper ARIA labels
- * 
+ *
  * ✅ MUI Integration
  *    - Consistent with Material-UI design system
  *    - Responsive and mobile-friendly
  *    - Theme-aware styling
- * 
+ *
  * ✅ Validation Support
  *    - Required field validation
  *    - Custom error messages
  *    - Helper text support
- * 
+ *
  * Migration Guide:
- * 
+ *
  * Old way (custom Dropdown):
  * ```tsx
  * <Dropdown
@@ -228,7 +234,7 @@ export function RoomFormIntegrationExample() {
  *   useSearchBar={true}
  * />
  * ```
- * 
+ *
  * New way (RoomAutocomplete):
  * ```tsx
  * <RoomAutocomplete

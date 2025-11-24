@@ -1,11 +1,11 @@
 /**
  * Common Valibot Schemas
- * 
+ *
  * Reusable validation schemas used across features.
  * Define once, use everywhere for consistency.
  */
 
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /**
  * Academic year validation
@@ -13,9 +13,9 @@ import * as v from 'valibot';
  * Note: Thai schools use Buddhist Era (BE) which is ~543 years ahead of CE
  */
 export const academicYearSchema = v.pipe(
-  v.number('Academic year must be a number'),
-  v.minValue(2500, 'Year must be 2500 or later'),
-  v.maxValue(2700, 'Year must be 2700 or earlier')
+  v.number("Academic year must be a number"),
+  v.minValue(2500, "Year must be 2500 or later"),
+  v.maxValue(2700, "Year must be 2700 or earlier"),
 );
 
 /**
@@ -23,17 +23,20 @@ export const academicYearSchema = v.pipe(
  * Must be "SEMESTER_1" or "SEMESTER_2" (matching database enum)
  */
 export const semesterSchema = v.pipe(
-  v.string('Semester must be a string'),
-  v.picklist(['SEMESTER_1', 'SEMESTER_2'], 'Semester must be SEMESTER_1 or SEMESTER_2')
+  v.string("Semester must be a string"),
+  v.picklist(
+    ["SEMESTER_1", "SEMESTER_2"],
+    "Semester must be SEMESTER_1 or SEMESTER_2",
+  ),
 );
 
 /**
  * Non-empty string schema
  */
 export const nonEmptyStringSchema = v.pipe(
-  v.string('Must be a string'),
-  v.nonEmpty('Cannot be empty'),
-  v.trim()
+  v.string("Must be a string"),
+  v.nonEmpty("Cannot be empty"),
+  v.trim(),
 );
 
 /**
@@ -45,18 +48,18 @@ export const idSchema = nonEmptyStringSchema;
  * Email schema
  */
 export const emailSchema = v.pipe(
-  v.string('Email must be a string'),
-  v.nonEmpty('Email is required'),
-  v.email('Invalid email format'),
-  v.maxLength(100, 'Email too long')
+  v.string("Email must be a string"),
+  v.nonEmpty("Email is required"),
+  v.email("Invalid email format"),
+  v.maxLength(100, "Email too long"),
 );
 
 /**
  * Positive number schema
  */
 export const positiveNumberSchema = v.pipe(
-  v.number('Must be a number'),
-  v.minValue(1, 'Must be greater than 0')
+  v.number("Must be a number"),
+  v.minValue(1, "Must be greater than 0"),
 );
 
 /**
@@ -67,10 +70,10 @@ export const paginationSchema = v.object({
   pageSize: v.optional(
     v.pipe(
       v.number(),
-      v.minValue(1, 'Page size must be at least 1'),
-      v.maxValue(100, 'Page size cannot exceed 100')
+      v.minValue(1, "Page size must be at least 1"),
+      v.maxValue(100, "Page size cannot exceed 100"),
     ),
-    20
+    20,
   ),
 });
 
@@ -79,19 +82,19 @@ export const paginationSchema = v.object({
  */
 export const dateRangeSchema = v.object({
   startDate: v.pipe(
-    v.string('Start date must be a string'),
-    v.isoDate('Start date must be in ISO format')
+    v.string("Start date must be a string"),
+    v.isoDate("Start date must be in ISO format"),
   ),
   endDate: v.pipe(
-    v.string('End date must be a string'),
-    v.isoDate('End date must be in ISO format')
+    v.string("End date must be a string"),
+    v.isoDate("End date must be in ISO format"),
   ),
 });
 
 /**
  * Boolean flag schema
  */
-export const booleanSchema = v.boolean('Must be true or false');
+export const booleanSchema = v.boolean("Must be true or false");
 
 /**
  * Optional boolean with default

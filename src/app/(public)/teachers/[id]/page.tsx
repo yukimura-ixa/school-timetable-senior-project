@@ -3,22 +3,27 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { Suspense } from "react";
-import { getPublicTeacherById, getTeacherSchedule } from "@/lib/public/teachers";
+import {
+  getPublicTeacherById,
+  getTeacherSchedule,
+} from "@/lib/public/teachers";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
   const teacherId = parseInt(id);
-  
+
   if (isNaN(teacherId)) {
     return { title: "ไม่พบข้อมูล" };
   }
 
   const teacher = await getPublicTeacherById(teacherId);
-  
+
   if (!teacher) {
     return { title: "ไม่พบข้อมูล" };
   }
@@ -48,7 +53,9 @@ type TeacherScheduleContentProps = {
   teacherId: number;
 };
 
-async function TeacherScheduleContent({ teacherId }: TeacherScheduleContentProps) {
+async function TeacherScheduleContent({
+  teacherId,
+}: TeacherScheduleContentProps) {
   const [teacher, schedules] = await Promise.all([
     getPublicTeacherById(teacherId),
     getTeacherSchedule(teacherId),
@@ -73,7 +80,7 @@ async function TeacherScheduleContent({ teacherId }: TeacherScheduleContentProps
       acc[day].push(schedule);
       return acc;
     },
-    {} as Record<string, typeof schedules>
+    {} as Record<string, typeof schedules>,
   );
 
   return (
@@ -104,7 +111,10 @@ async function TeacherScheduleContent({ teacherId }: TeacherScheduleContentProps
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 print:break-inside-avoid">
             {(["MON", "TUE", "WED", "THU", "FRI"] as const).map((day) => (
-              <div key={day} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:shadow-none">
+              <div
+                key={day}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden print:shadow-none"
+              >
                 <div className="bg-blue-600 text-white px-4 py-3 font-semibold text-center print:bg-blue-600 print:text-white">
                   {dayNames[day]}
                 </div>
@@ -112,7 +122,7 @@ async function TeacherScheduleContent({ teacherId }: TeacherScheduleContentProps
                   {schedulesByDay[day]?.map((schedule: any) => {
                     const startTime = new Date(schedule.timeslot.StartTime);
                     const endTime = new Date(schedule.timeslot.EndTime);
-                    
+
                     return (
                       <div
                         key={schedule.ClassID}
@@ -133,7 +143,8 @@ async function TeacherScheduleContent({ teacherId }: TeacherScheduleContentProps
                           {schedule.subject.SubjectName}
                         </div>
                         <div className="text-xs text-gray-600">
-                          ม.{schedule.gradelevel.Year}/{schedule.gradelevel.Number}
+                          ม.{schedule.gradelevel.Year}/
+                          {schedule.gradelevel.Number}
                         </div>
                         {schedule.room && (
                           <div className="text-xs text-gray-600 mt-1">

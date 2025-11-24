@@ -1,11 +1,11 @@
 /**
  * Public data access for system statistics and visualizations
- * 
+ *
  * MIGRATED: Now uses publicDataRepository instead of direct Prisma queries
  * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
-import { semester } from '@/prisma/generated/client';;
+import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type {
   QuickStats,
@@ -19,7 +19,7 @@ export type { QuickStats, PeriodLoad, RoomOccupancy };
 /**
  * Get quick stats for homepage
  * Uses Next.js fetch cache with 60s revalidation
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getQuickStats(): Promise<QuickStats> {
@@ -35,10 +35,10 @@ export async function getQuickStats(): Promise<QuickStats> {
       totalPrograms: 0,
       periodsPerDay: 0,
       currentTerm: "N/A",
-      lastUpdated: new Date().toLocaleDateString('th-TH', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
+      lastUpdated: new Date().toLocaleDateString("th-TH", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
       }),
     };
   }
@@ -47,32 +47,39 @@ export async function getQuickStats(): Promise<QuickStats> {
 /**
  * Get period load per day for sparkline visualization
  * Uses Next.js fetch cache with 60s revalidation
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
   try {
     // Get current term info from quick stats
     const stats = await publicDataRepository.getQuickStats();
-    
-    if (stats.currentTerm === 'N/A') {
+
+    if (stats.currentTerm === "N/A") {
       return [];
     }
 
     // Extract academic year and semester from current term
     const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
-    
+
     if (!termMatch?.[1] || !semesterMatch?.[1]) {
       return [];
     }
 
     const academicYear = parseInt(termMatch[1], 10);
-    const semesterValue = semesterMatch[1] === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
+    const semesterValue =
+      semesterMatch[1] === "1" ? semester.SEMESTER_1 : semester.SEMESTER_2;
 
-    return await publicDataRepository.getPeriodLoad(academicYear, semesterValue);
+    return await publicDataRepository.getPeriodLoad(
+      academicYear,
+      semesterValue,
+    );
   } catch (err) {
-    console.warn("[PublicStats] getPeriodLoadPerDay error:", (err as Error).message);
+    console.warn(
+      "[PublicStats] getPeriodLoadPerDay error:",
+      (err as Error).message,
+    );
     return [];
   }
 }
@@ -80,32 +87,39 @@ export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
 /**
  * Get room occupancy data for heatmap
  * Uses Next.js fetch cache with 60s revalidation
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getRoomOccupancy(): Promise<RoomOccupancy[]> {
   try {
     // Get current term info from quick stats
     const stats = await publicDataRepository.getQuickStats();
-    
-    if (stats.currentTerm === 'N/A') {
+
+    if (stats.currentTerm === "N/A") {
       return [];
     }
 
     // Extract academic year and semester from current term
     const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
-    
+
     if (!termMatch?.[1] || !semesterMatch?.[1]) {
       return [];
     }
 
     const academicYear = parseInt(termMatch[1], 10);
-    const semesterValue = semesterMatch[1] === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
+    const semesterValue =
+      semesterMatch[1] === "1" ? semester.SEMESTER_1 : semester.SEMESTER_2;
 
-    return await publicDataRepository.getRoomOccupancy(academicYear, semesterValue);
+    return await publicDataRepository.getRoomOccupancy(
+      academicYear,
+      semesterValue,
+    );
   } catch (err) {
-    console.warn("[PublicStats] getRoomOccupancy error:", (err as Error).message);
+    console.warn(
+      "[PublicStats] getRoomOccupancy error:",
+      (err as Error).message,
+    );
     return [];
   }
 }

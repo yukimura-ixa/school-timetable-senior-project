@@ -2,39 +2,46 @@ import { test, expect } from "./fixtures/admin.fixture";
 
 /**
  * Seed Semesters API E2E Tests
- * 
+ *
  * Tests the /api/admin/seed-semesters endpoint with authentication and data validation.
  * Converted from integration tests to E2E for proper server environment.
- * 
+ *
  * Prerequisites:
  * - SEED_SECRET environment variable must be set
  * - Dev/test database should be clean or idempotent
- * 
+ *
  * Related: Issue #55 - Integration tests converted to E2E
  */
 
-const SEED_SECRET = process.env.SEED_SECRET || 'test-secret';
-const BASE_URL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000';
+const SEED_SECRET = process.env.SEED_SECRET || "test-secret";
+const BASE_URL =
+  process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3000";
 
-test.describe('Seed Semesters API', () => {
+test.describe("Seed Semesters API", () => {
   test.beforeAll(async () => {
     if (!process.env.SEED_SECRET) {
-      console.warn('⚠️  SEED_SECRET not set in environment; using default test secret');
+      console.warn(
+        "⚠️  SEED_SECRET not set in environment; using default test secret",
+      );
     }
   });
 
-  test('should require authentication (401 without secret)', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/api/admin/seed-semesters?years=2567`);
+  test("should require authentication (401 without secret)", async ({
+    request,
+  }) => {
+    const response = await request.get(
+      `${BASE_URL}/api/admin/seed-semesters?years=2567`,
+    );
     const data = await response.json();
 
     expect(response.status()).toBe(401);
     expect(data.ok).toBe(false);
-    expect(data.error).toBe('Unauthorized');
+    expect(data.error).toBe("Unauthorized");
   });
 
-  test('should create semesters when authenticated', async ({ request }) => {
+  test("should create semesters when authenticated", async ({ request }) => {
     const response = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`,
     );
     const data = await response.json();
 
@@ -45,27 +52,29 @@ test.describe('Seed Semesters API', () => {
 
     // Validate structure of each result
     for (const result of data.results) {
-      expect(result).toHaveProperty('year');
-      expect(result).toHaveProperty('semester');
-      expect(result).toHaveProperty('created');
-      expect(result).toHaveProperty('configId');
+      expect(result).toHaveProperty("year");
+      expect(result).toHaveProperty("semester");
+      expect(result).toHaveProperty("created");
+      expect(result).toHaveProperty("configId");
       expect(result.year).toBe(2567);
       expect([1, 2]).toContain(result.semester);
-      expect(typeof result.created).toBe('boolean');
-      expect(typeof result.configId).toBe('string');
+      expect(typeof result.created).toBe("boolean");
+      expect(typeof result.configId).toBe("string");
     }
   });
 
-  test('should be idempotent (can run multiple times safely)', async ({ request }) => {
+  test("should be idempotent (can run multiple times safely)", async ({
+    request,
+  }) => {
     // First run
     const response1 = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`,
     );
     const data1 = await response1.json();
 
     // Second run - should not error, should return existing records
     const response2 = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`,
     );
     const data2 = await response2.json();
 
@@ -75,13 +84,15 @@ test.describe('Seed Semesters API', () => {
     expect(data2.ok).toBe(true);
 
     // Second run should show "created: false" for all (already exist)
-    const allExist = data2.results.every((r: { created: boolean }) => r.created === false);
+    const allExist = data2.results.every(
+      (r: { created: boolean }) => r.created === false,
+    );
     expect(allExist).toBe(true);
   });
 
-  test('should seed multiple years correctly', async ({ request }) => {
+  test("should seed multiple years correctly", async ({ request }) => {
     const response = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567,2568`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567,2568`,
     );
     const data = await response.json();
 
@@ -95,9 +106,11 @@ test.describe('Seed Semesters API', () => {
     expect(years.has(2568)).toBe(true);
   });
 
-  test('should seed timeslots and config when seedData=true', async ({ request }) => {
+  test("should seed timeslots and config when seedData=true", async ({
+    request,
+  }) => {
     const response = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2569&seedData=true`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2569&seedData=true`,
     );
     const data = await response.json();
 
@@ -113,9 +126,11 @@ test.describe('Seed Semesters API', () => {
     }
   });
 
-  test('should default to years 2567,2568 when not specified', async ({ request }) => {
+  test("should default to years 2567,2568 when not specified", async ({
+    request,
+  }) => {
     const response = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}`,
     );
     const data = await response.json();
 
@@ -129,9 +144,11 @@ test.describe('Seed Semesters API', () => {
     expect(years.has(2568)).toBe(true);
   });
 
-  test('should validate ConfigID format (SEMESTER-YEAR)', async ({ request }) => {
+  test("should validate ConfigID format (SEMESTER-YEAR)", async ({
+    request,
+  }) => {
     const response = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`,
     );
     const data = await response.json();
 
@@ -145,16 +162,18 @@ test.describe('Seed Semesters API', () => {
     }
   });
 
-  test('should handle GET and POST methods identically', async ({ request }) => {
+  test("should handle GET and POST methods identically", async ({
+    request,
+  }) => {
     // GET request
     const getResponse = await request.get(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`,
     );
     const getData = await getResponse.json();
 
     // POST request
     const postResponse = await request.post(
-      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`
+      `${BASE_URL}/api/admin/seed-semesters?secret=${SEED_SECRET}&years=2567`,
     );
     const postData = await postResponse.json();
 

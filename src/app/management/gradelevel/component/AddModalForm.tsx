@@ -9,7 +9,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { createGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
-import type { gradelevel } from '@/prisma/generated/client';;
+import type { gradelevel } from "@/prisma/generated/client";
 import type { CreateGradeLevelsInput } from "@/features/gradelevel/application/schemas/gradelevel.schemas";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type Props = {
@@ -51,22 +51,27 @@ function AddModalForm({ closeModal, mutate }: Props) {
       variant: "info",
       persist: true,
     });
-    
+
     try {
       const payload: CreateGradeLevelsInput = data
-        .filter((d): d is { Year: number; Number: number } =>
-          d.Year !== null && d.Year !== undefined && d.Number !== null && d.Number !== undefined
+        .filter(
+          (d): d is { Year: number; Number: number } =>
+            d.Year !== null &&
+            d.Year !== undefined &&
+            d.Number !== null &&
+            d.Number !== undefined,
         )
         .map((d) => ({ Year: Number(d.Year), Number: Number(d.Number) }));
       const result = await createGradeLevelsAction(payload);
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
       mutate();
@@ -79,7 +84,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
       console.error(error);
     }
   };
-  
+
   const handleSubmit = async () => {
     if (isValidData()) {
       await addData(gradeLevels);
@@ -127,11 +132,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
-                    <p
-                      className="text-sm font-bold"
-                    >
-                      รายการที่
-                    </p>
+                    <p className="text-sm font-bold">รายการที่</p>
                     <p>{index + 1}</p>
                   </div>
                   <div className="relative flex flex-col gap-2">
@@ -140,7 +141,11 @@ function AddModalForm({ closeModal, mutate }: Props) {
                     </label>
                     <Dropdown
                       data={[1, 2, 3, 4, 5, 6]}
-                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                      renderItem={({
+                        data,
+                      }: {
+                        data: unknown;
+                      }): JSX.Element => {
                         const year = data as number;
                         return <li className="w-full">{year}</li>;
                       }}
@@ -179,12 +184,17 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
                             index === ind
-                              ? { ...item, Number: parseInt(value) || undefined }
+                              ? {
+                                  ...item,
+                                  Number: parseInt(value) || undefined,
+                                }
                               : item,
                           ),
                         );

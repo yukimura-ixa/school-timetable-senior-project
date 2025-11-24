@@ -1,28 +1,28 @@
 /**
  * Arrange Feature - Server Actions
- * 
+ *
  * React Server Actions for teacher schedule arrangement.
  * Handles fetching teacher schedules and syncing drag-and-drop changes.
  */
 
-'use server';
+"use server";
 
-import { semester } from '@/prisma/generated/client';
-import { createAction } from '@/shared/lib/action-wrapper';
+import { semester } from "@/prisma/generated/client";
+import { createAction } from "@/shared/lib/action-wrapper";
 import {
   getTeacherScheduleSchema,
   syncTeacherScheduleSchema,
   type GetTeacherScheduleOutput,
   type SyncTeacherScheduleOutput,
-} from '../schemas/arrange.schemas';
+} from "../schemas/arrange.schemas";
 import {
   arrangeRepository,
   type TeacherScheduleWithRelations,
-} from '../../infrastructure/repositories/arrange.repository';
+} from "../../infrastructure/repositories/arrange.repository";
 import {
   calculateScheduleChanges,
   countChanges,
-} from '../../domain/services/arrange-validation.service';
+} from "../../domain/services/arrange-validation.service";
 
 // ============================================================================
 // Action Results
@@ -57,10 +57,10 @@ export type SyncTeacherScheduleResult =
 /**
  * Get teacher's schedule with all relations
  * Used for displaying the teacher's timetable in the arrange UI
- * 
+ *
  * @param input - Teacher ID
  * @returns Array of class schedules with relations
- * 
+ *
  * @example
  * ```ts
  * const result = await getTeacherScheduleAction({ TeacherID: 1 });
@@ -81,10 +81,13 @@ export const getTeacherScheduleAction = createAction<
       data: schedules,
     };
   } catch (error) {
-    console.error('[getTeacherScheduleAction] Error:', error);
+    console.error("[getTeacherScheduleAction] Error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to fetch teacher schedule',
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch teacher schedule",
     };
   }
 });
@@ -92,10 +95,10 @@ export const getTeacherScheduleAction = createAction<
 /**
  * Sync teacher schedule changes (drag-and-drop)
  * Calculates diff between current and new state, then deletes/creates schedules
- * 
+ *
  * @param input - Teacher ID, term info, and schedule slots
  * @returns Summary of deleted and added schedules
- * 
+ *
  * @example
  * ```ts
  * const result = await syncTeacherScheduleAction({
@@ -118,13 +121,14 @@ export const syncTeacherScheduleAction = createAction<
 >(syncTeacherScheduleSchema, async (input) => {
   try {
     // Convert semester string to enum
-    const semesterValue = input.Semester === '1' ? semester.SEMESTER_1 : semester.SEMESTER_2;
+    const semesterValue =
+      input.Semester === "1" ? semester.SEMESTER_1 : semester.SEMESTER_2;
 
     // Fetch existing unlocked schedules for this teacher/term
     const existingSchedules = await arrangeRepository.findExistingUnlocked(
       input.TeacherID,
       input.AcademicYear,
-      semesterValue
+      semesterValue,
     );
 
     // Calculate what needs to be deleted and created
@@ -140,7 +144,7 @@ export const syncTeacherScheduleAction = createAction<
           console.warn(`Failed to delete schedule ${item.ClassID}:`, error);
           return null;
         }
-      })
+      }),
     );
 
     // Execute creations
@@ -160,11 +164,13 @@ export const syncTeacherScheduleAction = createAction<
           console.warn(`Failed to create schedule ${item.ClassID}:`, error);
           return null;
         }
-      })
+      }),
     );
 
     // Filter out failed operations
-    const successfulDeletes = deletedResults.filter((r) => r !== null) as Array<{
+    const successfulDeletes = deletedResults.filter(
+      (r) => r !== null,
+    ) as Array<{
       ClassID: string;
     }>;
     const successfulAdds = addedResults.filter((r) => r !== null);
@@ -174,7 +180,9 @@ export const syncTeacherScheduleAction = createAction<
       added: successfulAdds,
     });
 
-    console.warn(`[syncTeacherScheduleAction] Teacher ${input.TeacherID}: ${totalChanges} changes (${successfulDeletes.length} deleted, ${successfulAdds.length} added)`);
+    console.warn(
+      `[syncTeacherScheduleAction] Teacher ${input.TeacherID}: ${totalChanges} changes (${successfulDeletes.length} deleted, ${successfulAdds.length} added)`,
+    );
 
     return {
       success: true,
@@ -185,17 +193,20 @@ export const syncTeacherScheduleAction = createAction<
       },
     };
   } catch (error) {
-    console.error('[syncTeacherScheduleAction] Error:', error);
+    console.error("[syncTeacherScheduleAction] Error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to sync teacher schedule',
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to sync teacher schedule",
     };
   }
 });
 
 /**
  * Get count of schedules for a teacher (utility action)
- * 
+ *
  * @param input - Teacher ID
  * @returns Count of schedules
  */
@@ -211,10 +222,13 @@ export const getTeacherScheduleCountAction = createAction<
       data: count,
     };
   } catch (error) {
-    console.error('[getTeacherScheduleCountAction] Error:', error);
+    console.error("[getTeacherScheduleCountAction] Error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to count teacher schedules',
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to count teacher schedules",
     };
   }
 });

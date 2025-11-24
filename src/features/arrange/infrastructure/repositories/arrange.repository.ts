@@ -1,12 +1,12 @@
 /**
  * Arrange Feature - Repository
- * 
+ *
  * Data access layer for teacher schedule arrangement.
  * Handles all database operations related to arranging teacher timetables.
  */
 
-import prisma from '@/lib/prisma';
-import { semester, type Prisma } from '@/prisma/generated/client';
+import prisma from "@/lib/prisma";
+import { semester, type Prisma } from "@/prisma/generated/client";
 
 // ============================================================================
 // Types
@@ -42,11 +42,13 @@ export type BasicSchedule = Prisma.class_scheduleGetPayload<{
 export class ArrangeRepository {
   /**
    * Find all schedules for a teacher (for display in arrange UI)
-   * 
+   *
    * @param teacherId - The teacher's ID
    * @returns Array of schedules with all relations
    */
-  async findByTeacher(teacherId: number): Promise<TeacherScheduleWithRelations[]> {
+  async findByTeacher(
+    teacherId: number,
+  ): Promise<TeacherScheduleWithRelations[]> {
     return prisma.class_schedule.findMany({
       where: {
         teachers_responsibility: {
@@ -68,7 +70,7 @@ export class ArrangeRepository {
   /**
    * Find existing unlocked schedules for a teacher in a specific term
    * Used for diff calculation in sync operation
-   * 
+   *
    * @param teacherId - The teacher's ID
    * @param academicYear - Academic year (e.g., 2024)
    * @param semesterValue - Semester enum value (semester.SEMESTER_1 or semester.SEMESTER_2)
@@ -77,7 +79,7 @@ export class ArrangeRepository {
   async findExistingUnlocked(
     teacherId: number,
     academicYear: number,
-    semesterValue: semester
+    semesterValue: semester,
   ): Promise<BasicSchedule[]> {
     return prisma.class_schedule.findMany({
       where: {
@@ -101,7 +103,7 @@ export class ArrangeRepository {
 
   /**
    * Create a new class schedule
-   * 
+   *
    * @param data - Schedule data (ClassID, TimeslotID, SubjectCode, GradeID, RoomID, RespID)
    * @returns The created schedule
    */
@@ -112,7 +114,9 @@ export class ArrangeRepository {
     GradeID: string;
     RoomID: number;
     RespID: number;
-  }): Promise<Prisma.class_scheduleGetPayload<Prisma.class_scheduleDefaultArgs>> {
+  }): Promise<
+    Prisma.class_scheduleGetPayload<Prisma.class_scheduleDefaultArgs>
+  > {
     return prisma.class_schedule.create({
       data: {
         ClassID: data.ClassID,
@@ -132,11 +136,15 @@ export class ArrangeRepository {
 
   /**
    * Delete a schedule by ClassID
-   * 
+   *
    * @param classId - The ClassID to delete
    * @returns The deleted schedule
    */
-  async deleteById(classId: string): Promise<Prisma.class_scheduleGetPayload<Prisma.class_scheduleDefaultArgs>> {
+  async deleteById(
+    classId: string,
+  ): Promise<
+    Prisma.class_scheduleGetPayload<Prisma.class_scheduleDefaultArgs>
+  > {
     return prisma.class_schedule.delete({
       where: {
         ClassID: classId,
@@ -146,7 +154,7 @@ export class ArrangeRepository {
 
   /**
    * Count schedules by teacher
-   * 
+   *
    * @param teacherId - The teacher's ID
    * @returns Count of schedules
    */

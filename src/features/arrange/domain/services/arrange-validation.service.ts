@@ -1,11 +1,11 @@
 /**
  * Arrange Feature - Validation Service
- * 
+ *
  * Pure functions for validating and processing teacher schedule arrangement.
  * All functions are side-effect free and testable.
  */
 
-import type { SyncTeacherScheduleOutput } from '../../application/schemas/arrange.schemas';
+import type { SyncTeacherScheduleOutput } from "../../application/schemas/arrange.schemas";
 
 // ============================================================================
 // Types
@@ -22,12 +22,15 @@ export interface BasicSchedule {
 /**
  * Schedule slot from the sync request
  */
-export type ScheduleSlot = SyncTeacherScheduleOutput['Schedule'][number];
+export type ScheduleSlot = SyncTeacherScheduleOutput["Schedule"][number];
 
 /**
  * Subject data within a schedule slot
  */
-export type SubjectData = Exclude<ScheduleSlot['subject'], Record<string, never>>;
+export type SubjectData = Exclude<
+  ScheduleSlot["subject"],
+  Record<string, never>
+>;
 
 /**
  * Result of schedule sync operation
@@ -50,7 +53,7 @@ export interface ScheduleSyncResult {
 
 /**
  * Check if a slot is empty (will delete existing schedule)
- * 
+ *
  * @param slot - Schedule slot to check
  * @returns True if slot has empty subject object
  */
@@ -60,7 +63,7 @@ export function isEmptySlot(slot: ScheduleSlot): boolean {
 
 /**
  * Check if subject is locked (should skip processing)
- * 
+ *
  * @param subject - Subject data
  * @returns True if subject is locked
  */
@@ -70,7 +73,7 @@ export function isLockedSubject(subject: SubjectData): boolean {
 
 /**
  * Check if this is a new subject being added (no existing ClassID)
- * 
+ *
  * @param subject - Subject data
  * @returns True if subject has no ClassID (new assignment)
  */
@@ -80,19 +83,24 @@ export function isNewSubject(subject: SubjectData): boolean {
 
 /**
  * Check if subject was moved to a different timeslot
- * 
+ *
  * @param subject - Subject data
  * @param newTimeslotId - The new TimeslotID from the slot
  * @returns True if subject's original timeslot differs from new timeslot
  */
-export function isMovedSubject(subject: SubjectData, newTimeslotId: string): boolean {
-  return subject.timeslot?.TimeslotID !== undefined && 
-         subject.timeslot.TimeslotID !== newTimeslotId;
+export function isMovedSubject(
+  subject: SubjectData,
+  newTimeslotId: string,
+): boolean {
+  return (
+    subject.timeslot?.TimeslotID !== undefined &&
+    subject.timeslot.TimeslotID !== newTimeslotId
+  );
 }
 
 /**
  * Extract RespID from subject data (handles multiple formats)
- * 
+ *
  * @param subject - Subject data
  * @returns RespID or undefined if not found
  */
@@ -101,18 +109,21 @@ export function getRespID(subject: SubjectData): number | undefined {
   if (subject.RespID) {
     return subject.RespID;
   }
-  
+
   // RespID from teachers_responsibility array
-  if (subject.teachers_responsibility && subject.teachers_responsibility.length > 0) {
+  if (
+    subject.teachers_responsibility &&
+    subject.teachers_responsibility.length > 0
+  ) {
     return subject.teachers_responsibility[0]?.RespID;
   }
-  
+
   return undefined;
 }
 
 /**
  * Extract RoomID from subject data
- * 
+ *
  * @param subject - Subject data
  * @returns RoomID or undefined if not found
  */
@@ -123,7 +134,7 @@ export function getRoomID(subject: SubjectData): number | undefined {
 /**
  * Generate ClassID from components
  * Format: "{TimeslotID}-{SubjectCode}-{GradeID}"
- * 
+ *
  * @param timeslotId - Timeslot ID
  * @param subjectCode - Subject code
  * @param gradeId - Grade ID
@@ -132,29 +143,29 @@ export function getRoomID(subject: SubjectData): number | undefined {
 export function generateClassID(
   timeslotId: string,
   subjectCode: string,
-  gradeId: string
+  gradeId: string,
 ): string {
   return `${timeslotId}-${subjectCode}-${gradeId}`;
 }
 
 /**
  * Validate schedule slot has all required fields for creation
- * 
+ *
  * @param subject - Subject data
  * @returns Error message if validation fails, undefined if valid
  */
 export function validateScheduleSlot(subject: SubjectData): string | undefined {
   if (!subject.SubjectCode) {
-    return 'SubjectCode is required';
+    return "SubjectCode is required";
   }
   if (!subject.GradeID) {
-    return 'GradeID is required';
+    return "GradeID is required";
   }
   if (getRoomID(subject) === undefined) {
-    return 'RoomID is required';
+    return "RoomID is required";
   }
   if (getRespID(subject) === undefined) {
-    return 'RespID is required';
+    return "RespID is required";
   }
   return undefined;
 }
@@ -166,14 +177,14 @@ export function validateScheduleSlot(subject: SubjectData): string | undefined {
 /**
  * Calculate schedule changes based on current state and new slots
  * This implements the core drag-and-drop logic
- * 
+ *
  * @param slots - Array of schedule slots from the UI
  * @param existingSchedules - Current unlocked schedules in the database
  * @returns Object with arrays of schedules to delete and create
  */
 export function calculateScheduleChanges(
   slots: ScheduleSlot[],
-  existingSchedules: BasicSchedule[]
+  existingSchedules: BasicSchedule[],
 ): ScheduleSyncResult {
   const result: ScheduleSyncResult = {
     deleted: [],
@@ -182,7 +193,7 @@ export function calculateScheduleChanges(
 
   // Create map for quick lookup of existing schedules
   const existingMap = new Map(
-    existingSchedules.map(schedule => [schedule.TimeslotID, schedule])
+    existingSchedules.map((schedule) => [schedule.TimeslotID, schedule]),
   );
 
   for (const slot of slots) {
@@ -208,7 +219,9 @@ export function calculateScheduleChanges(
     // Validate required fields
     const validationError = validateScheduleSlot(subject);
     if (validationError) {
-      console.warn(`Skipping invalid slot at TimeslotID ${slot.TimeslotID}: ${validationError}`);
+      console.warn(
+        `Skipping invalid slot at TimeslotID ${slot.TimeslotID}: ${validationError}`,
+      );
       continue;
     }
 
@@ -217,7 +230,11 @@ export function calculateScheduleChanges(
 
     // Case 2: New subject (drag new assignment to timeslot)
     if (isNewSubject(subject)) {
-      const newClassID = generateClassID(slot.TimeslotID, subject.SubjectCode!, subject.GradeID!);
+      const newClassID = generateClassID(
+        slot.TimeslotID,
+        subject.SubjectCode!,
+        subject.GradeID!,
+      );
       result.added.push({
         ClassID: newClassID,
         TimeslotID: slot.TimeslotID,
@@ -237,7 +254,11 @@ export function calculateScheduleChanges(
       }
 
       // Create in new timeslot
-      const newClassID = generateClassID(slot.TimeslotID, subject.SubjectCode!, subject.GradeID!);
+      const newClassID = generateClassID(
+        slot.TimeslotID,
+        subject.SubjectCode!,
+        subject.GradeID!,
+      );
       result.added.push({
         ClassID: newClassID,
         TimeslotID: slot.TimeslotID,
@@ -256,12 +277,12 @@ export function calculateScheduleChanges(
 
 /**
  * Filter out locked subjects from schedule slots
- * 
+ *
  * @param slots - Array of schedule slots
  * @returns Filtered array without locked subjects
  */
 export function filterLockedSlots(slots: ScheduleSlot[]): ScheduleSlot[] {
-  return slots.filter(slot => {
+  return slots.filter((slot) => {
     if (isEmptySlot(slot)) return true;
     const subject = slot.subject as SubjectData;
     return !isLockedSubject(subject);
@@ -270,7 +291,7 @@ export function filterLockedSlots(slots: ScheduleSlot[]): ScheduleSlot[] {
 
 /**
  * Count total changes (for logging/debugging)
- * 
+ *
  * @param result - Sync result
  * @returns Total number of changes (deleted + added)
  */

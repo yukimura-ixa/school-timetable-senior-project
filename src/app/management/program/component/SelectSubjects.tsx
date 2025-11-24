@@ -1,7 +1,7 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
-import type { subject } from '@/prisma/generated/client';;
+import type { subject } from "@/prisma/generated/client";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { CircularProgress } from "@mui/material";
 import useSWR from "swr";
@@ -19,23 +19,27 @@ type Props = {
 };
 
 function SelectSubjects(props: Props) {
-  const subjectData = useSWR("subjects-not-in-programs", async () => {
-    try {
-      const result = await getSubjectsAction();
-      if (!result.success) {
-        throw new Error(result.error);
+  const subjectData = useSWR(
+    "subjects-not-in-programs",
+    async () => {
+      try {
+        const result = await getSubjectsAction();
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        // Filter subjects that are not already in programs
+        // Note: Original endpoint was /subject/notInPrograms which filtered on backend
+        // For now we return all subjects and filter on client side
+        return result.data || [];
+      } catch (error) {
+        console.error("Error fetching subjects:", error);
+        return [];
       }
-      // Filter subjects that are not already in programs
-      // Note: Original endpoint was /subject/notInPrograms which filtered on backend
-      // For now we return all subjects and filter on client side
-      return result.data || [];
-    } catch (error) {
-      console.error("Error fetching subjects:", error);
-      return [];
-    }
-  }, {
-    revalidateOnMount: true,
-  });
+    },
+    {
+      revalidateOnMount: true,
+    },
+  );
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
 
   useEffect(() => {

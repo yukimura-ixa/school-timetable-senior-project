@@ -21,6 +21,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 **Purpose**: Loading skeleton matching the exact structure of `SemesterCard`
 
 **Features**:
+
 - Card layout with header, status, progress bar
 - Statistics rows (4 items)
 - Last accessed timestamp
@@ -28,24 +29,25 @@ Implemented comprehensive loading states with skeleton components for the semest
 - Matches card dimensions (300-400px width)
 
 **Structure**:
+
 ```tsx
 <Card>
   <CardContent>
     {/* Header: Semester + Year + Status */}
     <Skeleton text + chip />
-    
+
     {/* Progress Bar */}
     <Skeleton rectangular />
-    
+
     {/* Statistics (4 rows) */}
     <Stack>
       <Skeleton text /> × 4
     </Stack>
-    
+
     {/* Last Accessed */}
     <Skeleton text />
   </CardContent>
-  
+
   <CardActions>
     <Skeleton button />
     <Skeleton icon />
@@ -62,6 +64,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 **Purpose**: Loading skeleton for semester sections (Recent/Pinned/All)
 
 **Props**:
+
 ```typescript
 {
   title?: string;        // Section title or show skeleton
@@ -71,12 +74,14 @@ Implemented comprehensive loading states with skeleton components for the semest
 ```
 
 **Features**:
+
 - Optional title skeleton or fixed title
 - Configurable card count
 - Responsive flex layout matching actual sections
 - Proper spacing and margins
 
 **Usage**:
+
 ```tsx
 // With title skeleton
 <SemesterSectionSkeleton count={3} />
@@ -97,6 +102,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 **Purpose**: Loading skeleton for filter controls
 
 **Features**:
+
 - Paper container matching filters layout
 - 5 filter controls:
   - Academic Year dropdown (200px)
@@ -108,6 +114,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 - Proper heights matching MUI input fields (56px)
 
 **Structure**:
+
 ```tsx
 <Paper>
   <Stack>
@@ -128,6 +135,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 **Purpose**: Full page loading skeleton (optional, for future Suspense implementation)
 
 **Features**:
+
 - Complete page structure skeleton
 - Header with title and buttons
 - Recent section (3 cards)
@@ -136,6 +144,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 - All semesters section (6 cards)
 
 **Usage**:
+
 ```tsx
 // In layout or with Suspense boundary
 <Suspense fallback={<SelectSemesterPageSkeleton />}>
@@ -154,11 +163,12 @@ Implemented comprehensive loading states with skeleton components for the semest
 **Changes**:
 
 1. **Imports Updated**:
+
    ```tsx
    // Removed
    import { Skeleton, Stack } from "@mui/material";
    function SemesterCardSkeleton() { ... }
-   
+
    // Added
    import { SemesterSectionSkeleton } from "./_components/SemesterSectionSkeleton";
    import { SemesterFiltersSkeleton } from "./_components/SemesterFiltersSkeleton";
@@ -166,42 +176,49 @@ Implemented comprehensive loading states with skeleton components for the semest
    ```
 
 2. **Recent Section** (Lines ~132-150):
+
    ```tsx
    // Before
-   {!loading && recentSemesters.length > 0 && (
-     <Box>...</Box>
-   )}
-   
+   {
+     !loading && recentSemesters.length > 0 && <Box>...</Box>;
+   }
+
    // After
-   {loading ? (
-     <SemesterSectionSkeleton title="ล่าสุด" count={3} />
-   ) : recentSemesters.length > 0 && (
-     <Box>...</Box>
-   )}
+   {
+     loading ? (
+       <SemesterSectionSkeleton title="ล่าสุด" count={3} />
+     ) : (
+       recentSemesters.length > 0 && <Box>...</Box>
+     );
+   }
    ```
 
 3. **Pinned Section** (Lines ~152-170):
+
    ```tsx
    // Before
-   {!loading && pinnedSemesters.length > 0 && (
-     <Box>...</Box>
-   )}
-   
+   {
+     !loading && pinnedSemesters.length > 0 && <Box>...</Box>;
+   }
+
    // After
-   {loading ? (
-     <SemesterSectionSkeleton title="ปักหมุด" count={2} />
-   ) : pinnedSemesters.length > 0 && (
-     <Box>...</Box>
-   )}
+   {
+     loading ? (
+       <SemesterSectionSkeleton title="ปักหมุด" count={2} />
+     ) : (
+       pinnedSemesters.length > 0 && <Box>...</Box>
+     );
+   }
    ```
 
 4. **Filters Section** (Lines ~172-180):
+
    ```tsx
    // Before
    <Box sx={{ mb: 3 }}>
      <SemesterFilters filters={filters} onFiltersChange={setFilters} />
    </Box>
-   
+
    // After
    <Box sx={{ mb: 3 }}>
      {loading ? (
@@ -213,6 +230,7 @@ Implemented comprehensive loading states with skeleton components for the semest
    ```
 
 5. **All Semesters Grid** (Lines ~182-200):
+
    ```tsx
    // Before
    {loading ? (
@@ -222,7 +240,7 @@ Implemented comprehensive loading states with skeleton components for the semest
        ))}
      </Box>
    ) : ...}
-   
+
    // After
    {loading ? (
      <SemesterSectionSkeleton showTitle={false} count={6} />
@@ -251,6 +269,7 @@ Implemented comprehensive loading states with skeleton components for the semest
 ### Filter Changes
 
 When user changes filters:
+
 1. `setLoading(true)` → All sections show skeletons again
 2. Data fetched with new filters
 3. `setLoading(false)` → Actual data displayed
@@ -261,7 +280,6 @@ When user changes filters:
   - Show skeleton during loading
   - Show actual data if available
   - Hide completely if no data
-  
 - **Always-visible sections** (Filters, All):
   - Show skeleton during loading
   - Show actual component/data when loaded
@@ -310,8 +328,8 @@ Convert to Server Components with Suspense:
 
 ```tsx
 // layout.tsx or page.tsx
-import { Suspense } from 'react';
-import { SelectSemesterPageSkeleton } from './_components/SelectSemesterPageSkeleton';
+import { Suspense } from "react";
+import { SelectSemesterPageSkeleton } from "./_components/SelectSemesterPageSkeleton";
 
 export default async function SelectSemesterPage() {
   return (
@@ -334,7 +352,7 @@ Use `loading.tsx` for route-level loading:
 
 ```tsx
 // app/dashboard/select-semester/loading.tsx
-import { SelectSemesterPageSkeleton } from './_components/SelectSemesterPageSkeleton';
+import { SelectSemesterPageSkeleton } from "./_components/SelectSemesterPageSkeleton";
 
 export default function Loading() {
   return <SelectSemesterPageSkeleton />;
@@ -360,10 +378,10 @@ Wrap each section independently:
 Add shimmer effect:
 
 ```tsx
-<Skeleton 
-  variant="rectangular" 
-  animation="wave"  // or "pulse"
-  height={180} 
+<Skeleton
+  variant="rectangular"
+  animation="wave" // or "pulse"
+  height={180}
 />
 ```
 
@@ -427,24 +445,24 @@ const handlePin = async () => {
 
 ### Before vs After
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Loading State** | Simple rectangular skeleton | Detailed multi-component skeleton |
-| **Sections** | All or nothing loading | Per-section loading states |
-| **Filters** | No loading state | Dedicated filter skeleton |
-| **Accuracy** | Generic placeholder | Matches actual layout exactly |
-| **UX** | Basic feedback | Professional loading experience |
-| **Code Quality** | Inline skeleton | Reusable components |
-| **Maintainability** | Coupled | Separated concerns |
+| Aspect              | Before                      | After                             |
+| ------------------- | --------------------------- | --------------------------------- |
+| **Loading State**   | Simple rectangular skeleton | Detailed multi-component skeleton |
+| **Sections**        | All or nothing loading      | Per-section loading states        |
+| **Filters**         | No loading state            | Dedicated filter skeleton         |
+| **Accuracy**        | Generic placeholder         | Matches actual layout exactly     |
+| **UX**              | Basic feedback              | Professional loading experience   |
+| **Code Quality**    | Inline skeleton             | Reusable components               |
+| **Maintainability** | Coupled                     | Separated concerns                |
 
 ### Skeleton Complexity
 
-| Component | Skeleton Elements | Complexity |
-|-----------|------------------|------------|
-| SemesterCard | 15+ elements | High (matches complex card) |
-| SemesterSection | 3-6 cards | Medium (wrapper) |
-| SemesterFilters | 6 elements | Medium (multiple inputs) |
-| FullPage | 30+ elements | High (entire page) |
+| Component       | Skeleton Elements | Complexity                  |
+| --------------- | ----------------- | --------------------------- |
+| SemesterCard    | 15+ elements      | High (matches complex card) |
+| SemesterSection | 3-6 cards         | Medium (wrapper)            |
+| SemesterFilters | 6 elements        | Medium (multiple inputs)    |
+| FullPage        | 30+ elements      | High (entire page)          |
 
 ---
 
@@ -487,7 +505,7 @@ src/app/dashboard/select-semester/
 ✅ **Per-section skeletons** for granular loading feedback  
 ✅ **Type-safe** with proper TypeScript props  
 ✅ **Reusable** components with customization props  
-✅ **Build verified** - no errors  
+✅ **Build verified** - no errors
 
 ### Metrics
 
@@ -511,12 +529,14 @@ src/app/dashboard/select-semester/
 ## Next Steps
 
 **Recommended**:
+
 1. Test with real users on slow networks
 2. Consider adding animation="wave" for shimmer effect
 3. Implement Suspense boundaries for streaming SSR
 4. Add individual section Suspense for progressive loading
 
 **Optional**:
+
 1. Create skeletons for other pages (config, assign, arrange)
 2. Implement optimistic UI for mutations
 3. Add skeleton for export button during export

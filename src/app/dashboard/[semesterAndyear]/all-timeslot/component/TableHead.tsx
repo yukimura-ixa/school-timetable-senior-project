@@ -27,7 +27,10 @@ const TableHead = (props: Props) => {
               </div>
               <div className="flex gap-2 pt-1 w-fit h-[25px]">
                 {props.slotAmount.map((item, slotIndex) => (
-                  <div key={slotIndex} className="w-14 h-full items-center flex justify-center bg-slate-100 rounded">
+                  <div
+                    key={slotIndex}
+                    className="w-14 h-full items-center flex justify-center bg-slate-100 rounded"
+                  >
                     <p className="text-sm">{item}</p>
                   </div>
                 ))}

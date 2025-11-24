@@ -12,7 +12,10 @@ export async function POST(request: Request) {
     const body = (await request.json()) as LoadingStuckEvent;
 
     if (body?.event !== "loading_stuck_banner_shown" || !body.occurredAt) {
-      return NextResponse.json({ success: false, error: "Invalid payload" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Invalid payload" },
+        { status: 400 },
+      );
     }
 
     console.info("[telemetry] loading-stuck", body);

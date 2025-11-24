@@ -16,8 +16,8 @@ function Content(props: Props) {
           pathName.match("/dashboard/select-semester")
             ? "w-full"
             : pathName === "/"
-            ? "w-full"
-            : "w-full max-w-7xl mx-auto"
+              ? "w-full"
+              : "w-full max-w-7xl mx-auto"
         } h-auto`}
       >
         {pathName === "/" ? (

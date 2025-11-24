@@ -1,6 +1,6 @@
 /**
  * TimeSlot Component - Refactored with @dnd-kit
- * 
+ *
  * Week 6.2 - Removed react-beautiful-dnd dependencies
  * Now uses TimeslotCell component with @dnd-kit
  */

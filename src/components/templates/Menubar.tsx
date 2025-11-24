@@ -5,7 +5,7 @@ import {
   managementMenu,
   scheduleMenu,
   othersMenu,
-// @ts-expect-error - JS module without types
+  // @ts-expect-error - JS module without types
 } from "@/raw-data/menubar-data";
 import { IoIosArrowDown } from "react-icons/io";
 import { usePathname } from "next/navigation";
@@ -16,7 +16,7 @@ function Menubar() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
-  
+
   // Extract current semester from URL if present
   const currentSemester = useMemo(() => {
     // Match patterns like /schedule/1-2567/* or /dashboard/1-2567/*
@@ -58,7 +58,9 @@ function Menubar() {
                           index === managementMenu.length - 1 ? "10px" : 0,
                       }}
                     >
-                      <item.IconStyle.Icon className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`} />
+                      <item.IconStyle.Icon
+                        className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`}
+                      />
                       <p className="text-md font-medium">{item.title}</p>
                     </Link>
                   )}
@@ -73,12 +75,13 @@ function Menubar() {
             </p>
             {scheduleMenu.map((item: any, index: number) => {
               // For dynamic links (จัดตารางสอน), use current semester if available
-              const linkHref = item.dynamicLink && currentSemester 
-                ? `/schedule/${currentSemester}/arrange/teacher-arrange`
-                : item.link || "/dashboard/select-semester";
-              
+              const linkHref =
+                item.dynamicLink && currentSemester
+                  ? `/schedule/${currentSemester}/arrange/teacher-arrange`
+                  : item.link || "/dashboard/select-semester";
+
               const isSelected = linkHref === linkSelected;
-              
+
               return (
                 <React.Fragment key={item.id}>
                   <>
@@ -105,7 +108,9 @@ function Menubar() {
                             index === scheduleMenu.length - 1 ? "10px" : 0,
                         }}
                       >
-                        <item.IconStyle.Icon className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`} />
+                        <item.IconStyle.Icon
+                          className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`}
+                        />
                         <p className="text-md font-medium">{item.title}</p>
                       </Link>
                     )}

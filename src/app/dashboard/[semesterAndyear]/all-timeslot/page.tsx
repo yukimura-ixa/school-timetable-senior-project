@@ -4,15 +4,13 @@ import { sortTimeslots } from "@/features/timeslot/domain/services/timeslot.serv
 import { timeslotRepository } from "@/features/timeslot/infrastructure/repositories/timeslot.repository";
 import { findSummary } from "@/features/class/infrastructure/repositories/class.repository";
 import { teacherRepository } from "@/features/teacher/infrastructure/repositories/teacher.repository";
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 import AllTimeslotClient from "./AllTimeslotClient";
-
-
 
 type PageParams = Promise<{ semesterAndyear: string }>;
 
 const parseSemesterParam = (
-  param: string
+  param: string,
 ): { semester: 1 | 2; year: number } => {
   const [semStr, yearStr] = (param || "").split("-");
   const semesterNum = Number(semStr);
@@ -25,7 +23,11 @@ const parseSemesterParam = (
   return { semester: semesterNum as 1 | 2, year: yearNum };
 };
 
-export default async function AllTimeslotPage({ params }: { params: PageParams }) {
+export default async function AllTimeslotPage({
+  params,
+}: {
+  params: PageParams;
+}) {
   const { semesterAndyear } = await params;
   const { semester, year } = parseSemesterParam(semesterAndyear);
   const semesterEnum = `SEMESTER_${semester}` as semester;

@@ -19,7 +19,7 @@ import {
   Collapse,
   IconButton,
 } from "@mui/material";
-import { 
+import {
   Add as AddIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
@@ -57,10 +57,14 @@ export default function SelectSemesterPage() {
   const [showAnalytics, setShowAnalytics] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<InferOutput<typeof SemesterFilterSchema>>({});
+  const [filters, setFilters] = useState<
+    InferOutput<typeof SemesterFilterSchema>
+  >({});
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [copyModalOpen, setCopyModalOpen] = useState(false);
-  const [selectedForCopy, setSelectedForCopy] = useState<SemesterDTO | null>(null);
+  const [selectedForCopy, setSelectedForCopy] = useState<SemesterDTO | null>(
+    null,
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -68,7 +72,7 @@ export default function SelectSemesterPage() {
     try {
       // Force refresh from server to get latest data (after config updates)
       router.refresh();
-      
+
       const [recentResult, pinnedResult, allResult] = await Promise.all([
         getRecentSemestersAction(5),
         getPinnedSemestersAction(),
@@ -85,7 +89,8 @@ export default function SelectSemesterPage() {
         setAllSemesters(allResult.data);
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+      const message =
+        err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการโหลดข้อมูล";
       setError(message);
     } finally {
       setLoading(false);
@@ -100,9 +105,11 @@ export default function SelectSemesterPage() {
   const handleSelectSemester = async (semester: SemesterDTO) => {
     // Track access
     await trackSemesterAccessAction({ configId: semester.configId });
-    
+
     // Navigate to student table
-    router.push(`/dashboard/${semester.semester}-${semester.academicYear}/student-table`);
+    router.push(
+      `/dashboard/${semester.semester}-${semester.academicYear}/student-table`,
+    );
   };
 
   const handleCopyClick = (semester: SemesterDTO) => {
@@ -113,7 +120,14 @@ export default function SelectSemesterPage() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       {/* Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
         <Typography variant="h4" component="h1" fontWeight="bold">
           เลือกปีการศึกษาและภาคเรียน
         </Typography>
@@ -141,16 +155,25 @@ export default function SelectSemesterPage() {
       {/* Analytics Dashboard */}
       {allSemesters.length > 0 && (
         <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
             <Typography variant="h6" fontWeight="bold">
               📊 แดชบอร์ดวิเคราะห์
             </Typography>
             <IconButton
               onClick={() => setShowAnalytics(!showAnalytics)}
               size="small"
-              sx={{ 
+              sx={{
                 bgcolor: showAnalytics ? "primary.50" : "grey.100",
-                "&:hover": { bgcolor: showAnalytics ? "primary.100" : "grey.200" }
+                "&:hover": {
+                  bgcolor: showAnalytics ? "primary.100" : "grey.200",
+                },
               }}
             >
               {showAnalytics ? <ExpandLessIcon /> : <ExpandMoreIcon />}
@@ -169,47 +192,65 @@ export default function SelectSemesterPage() {
       {/* Recent Semesters Section */}
       {loading ? (
         <SemesterSectionSkeleton title="ล่าสุด" count={3} />
-      ) : recentSemesters.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            ล่าสุด
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            {recentSemesters.map((semester) => (
-              <Box key={semester.configId} sx={{ flex: '1 1 300px', maxWidth: 400 }}>
-                <SemesterCard
-                  semester={semester}
-                  onSelect={(s) => { void handleSelectSemester(s); }}
-                  onCopy={handleCopyClick}
-                  onUpdate={() => { void loadData(); }}
-                />
-              </Box>
-            ))}
+      ) : (
+        recentSemesters.length > 0 && (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              ล่าสุด
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              {recentSemesters.map((semester) => (
+                <Box
+                  key={semester.configId}
+                  sx={{ flex: "1 1 300px", maxWidth: 400 }}
+                >
+                  <SemesterCard
+                    semester={semester}
+                    onSelect={(s) => {
+                      void handleSelectSemester(s);
+                    }}
+                    onCopy={handleCopyClick}
+                    onUpdate={() => {
+                      void loadData();
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
           </Box>
-        </Box>
+        )
       )}
 
       {/* Pinned Semesters Section */}
       {loading ? (
         <SemesterSectionSkeleton title="ปักหมุด" count={2} />
-      ) : pinnedSemesters.length > 0 && (
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h6" gutterBottom>
-            ปักหมุด
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            {pinnedSemesters.map((semester) => (
-              <Box key={semester.configId} sx={{ flex: '1 1 300px', maxWidth: 400 }}>
-                <SemesterCard
-                  semester={semester}
-                  onSelect={(s) => { void handleSelectSemester(s); }}
-                  onCopy={handleCopyClick}
-                  onUpdate={() => { void loadData(); }}
-                />
-              </Box>
-            ))}
+      ) : (
+        pinnedSemesters.length > 0 && (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              ปักหมุด
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              {pinnedSemesters.map((semester) => (
+                <Box
+                  key={semester.configId}
+                  sx={{ flex: "1 1 300px", maxWidth: 400 }}
+                >
+                  <SemesterCard
+                    semester={semester}
+                    onSelect={(s) => {
+                      void handleSelectSemester(s);
+                    }}
+                    onCopy={handleCopyClick}
+                    onUpdate={() => {
+                      void loadData();
+                    }}
+                  />
+                </Box>
+              ))}
+            </Box>
           </Box>
-        </Box>
+        )
       )}
 
       {/* Filters */}
@@ -239,14 +280,21 @@ export default function SelectSemesterPage() {
           </Button>
         </Paper>
       ) : (
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
           {allSemesters.map((semester) => (
-            <Box key={semester.configId} sx={{ flex: '1 1 300px', maxWidth: 400 }}>
+            <Box
+              key={semester.configId}
+              sx={{ flex: "1 1 300px", maxWidth: 400 }}
+            >
               <SemesterCard
                 semester={semester}
-                onSelect={(s) => { void handleSelectSemester(s); }}
+                onSelect={(s) => {
+                  void handleSelectSemester(s);
+                }}
                 onCopy={handleCopyClick}
-                onUpdate={() => { void loadData(); }}
+                onUpdate={() => {
+                  void loadData();
+                }}
               />
             </Box>
           ))}

@@ -23,6 +23,7 @@ pnpm exec playwright show-report
 ### After Running `pnpm test`
 
 **Expected Output:**
+
 ```
 PASS  __test__/management-server-actions.test.ts
   ✓ getTeachersWithOrderAction returns ordered teachers (45ms)
@@ -42,6 +43,7 @@ Time:        8.5s
 ```
 
 **✅ Success criteria:**
+
 - All 22 tests pass
 - No TypeScript errors
 - No console warnings
@@ -51,6 +53,7 @@ Time:        8.5s
 ### After Running `pnpm test:e2e`
 
 **Expected Output:**
+
 ```
 Running 19 tests using 1 worker
 
@@ -65,6 +68,7 @@ Running 19 tests using 1 worker
 ```
 
 **Key logs to look for:**
+
 ```
 ✓ Teacher management page rendered with server data
 ✓ Initial HTML contains table structure: true
@@ -74,6 +78,7 @@ Running 19 tests using 1 worker
 ```
 
 **✅ Success criteria:**
+
 - All 19 E2E tests pass (7 existing + 12 new)
 - Load times < 3000ms
 - 0-1 API requests on mount
@@ -91,6 +96,7 @@ explorer test-results\screenshots
 ```
 
 **Look for:**
+
 - `20-teacher-server-rendered.png` - Table with data, **no loading spinner**
 - `21-teacher-ssr-content.png` - Data visible immediately
 - `23-rooms-server-rendered.png` - Rooms table populated
@@ -111,10 +117,12 @@ explorer test-results\screenshots
 ```
 
 **Compare to baseline:**
+
 - Old (SWR): ~1300ms with loading spinner visible for 800ms
 - New (Server): ~1000ms with data visible immediately
 
 **Expected improvement:**
+
 - ~300ms faster
 - 0 client-side API calls on mount
 - No loading spinner
@@ -126,6 +134,7 @@ explorer test-results\screenshots
 ### If Unit Tests Fail
 
 **Check database connection:**
+
 ```bash
 # Verify Prisma can connect
 pnpm prisma db pull
@@ -135,6 +144,7 @@ pnpm prisma generate
 ```
 
 **Check TypeScript compilation:**
+
 ```bash
 # Run type check
 pnpm tsc --noEmit
@@ -147,28 +157,32 @@ pnpm tsc --noEmit
 **Common issues:**
 
 1. **Dev server not running:**
+
    ```bash
    # Start dev server (separate terminal)
    pnpm dev
    ```
 
 2. **Database empty:**
+
    ```bash
    # Seed database
    pnpm prisma db seed
    ```
 
 3. **Playwright browsers not installed:**
+
    ```bash
    # Install Playwright browsers
    pnpm exec playwright install --with-deps chromium
    ```
 
 4. **Port 3000 in use:**
+
    ```bash
    # Kill process on port 3000 (Windows PowerShell)
    Get-Process -Id (Get-NetTCPConnection -LocalPort 3000).OwningProcess | Stop-Process
-   
+
    # Then restart dev server
    pnpm dev
    ```
@@ -185,12 +199,14 @@ pnpm tsc --noEmit
 4. **Refresh page**
 
 **Expected:**
+
 - Table with teacher data visible immediately
 - No loading spinner
 - No API calls to `/api/teacher` or similar in Network tab
 - Only 1 request: `GET /management/teacher` (the page HTML)
 
 **If you see multiple API requests:**
+
 - Check that Server Component is passing `initialData` to client wrapper
 - Check that client wrapper uses `initialData` in `useState`
 - Verify no `useSWR` or `useEffect` data fetching in client component
@@ -206,6 +222,7 @@ After all tests pass, you'll have:
 - ✅ **Total: 34 Tests** covering the Server Component migration
 
 **Coverage:**
+
 - Server Actions: 100% (all 4 management pages)
 - Client Wrappers: 100% (all 4 components)
 - Server Rendering: 100% (all pages verified)

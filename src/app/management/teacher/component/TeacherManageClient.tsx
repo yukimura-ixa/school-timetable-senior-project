@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 import TeacherTable from "@/app/management/teacher/component/TeacherTable";
-import { TeacherListSkeleton, NoTeachersEmptyState } from "@/components/feedback";
+import {
+  TeacherListSkeleton,
+  NoTeachersEmptyState,
+} from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
@@ -33,7 +36,9 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
 
   // Empty state
   if (!teachers || teachers.length === 0) {
-    return <NoTeachersEmptyState onAdd={() => router.push("/management/teacher")} />;
+    return (
+      <NoTeachersEmptyState onAdd={() => router.push("/management/teacher")} />
+    );
   }
 
   // Show skeleton during refresh
@@ -42,10 +47,5 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
   }
 
   // Success state
-  return (
-    <TeacherTable
-      tableData={teachers}
-      mutate={handleMutate}
-    />
-  );
+  return <TeacherTable tableData={teachers} mutate={handleMutate} />;
 }

@@ -1,13 +1,13 @@
 /**
  * Presentation Layer: Teacher Selection Store Slice
- * 
+ *
  * Manages teacher selection and filtering state.
  * Part of the refactored arrangement store architecture.
- * 
+ *
  * @module teacher-selection.slice
  */
 
-import type { StateCreator } from 'zustand';
+import type { StateCreator } from "zustand";
 
 // ============================================================================
 // TYPES
@@ -27,10 +27,10 @@ export interface TeacherSelectionState {
   // Current selected teacher
   currentTeacherID: string | null;
   teacherData: TeacherData;
-  
+
   // Teacher list for selection
   availableTeachers: TeacherData[];
-  
+
   // Loading state
   isLoadingTeachers: boolean;
 }
@@ -43,7 +43,8 @@ export interface TeacherSelectionActions {
   clearTeacherSelection: () => void;
 }
 
-export type TeacherSelectionSlice = TeacherSelectionState & TeacherSelectionActions;
+export type TeacherSelectionSlice = TeacherSelectionState &
+  TeacherSelectionActions;
 
 // ============================================================================
 // INITIAL STATE
@@ -51,12 +52,12 @@ export type TeacherSelectionSlice = TeacherSelectionState & TeacherSelectionActi
 
 const initialTeacherData: TeacherData = {
   TeacherID: null,
-  Firstname: '',
-  Lastname: '',
-  Prefix: '',
-  Department: '',
-  Email: '',
-  Role: '',
+  Firstname: "",
+  Lastname: "",
+  Prefix: "",
+  Department: "",
+  Email: "",
+  Role: "",
 };
 
 const initialState: TeacherSelectionState = {
@@ -78,17 +79,13 @@ export const createTeacherSelectionSlice: StateCreator<
 > = (set) => ({
   ...initialState,
 
-  setCurrentTeacherID: (id) =>
-    set({ currentTeacherID: id }),
+  setCurrentTeacherID: (id) => set({ currentTeacherID: id }),
 
-  setTeacherData: (data) =>
-    set({ teacherData: data }),
+  setTeacherData: (data) => set({ teacherData: data }),
 
-  setAvailableTeachers: (teachers) =>
-    set({ availableTeachers: teachers }),
+  setAvailableTeachers: (teachers) => set({ availableTeachers: teachers }),
 
-  setIsLoadingTeachers: (isLoading) =>
-    set({ isLoadingTeachers: isLoading }),
+  setIsLoadingTeachers: (isLoading) => set({ isLoadingTeachers: isLoading }),
 
   clearTeacherSelection: () =>
     set({

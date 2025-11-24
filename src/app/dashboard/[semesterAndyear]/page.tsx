@@ -11,8 +11,11 @@ import {
   detectConflicts,
 } from "@/features/dashboard/domain/services/dashboard-stats.service";
 import { getPublishReadiness } from "@/features/config/application/services/publish-readiness-query.service";
-import type { semester } from '@/prisma/generated/client';;
-import { PublishReadinessCard, ReadinessIssues } from "../_components/PublishReadiness";
+import type { semester } from "@/prisma/generated/client";
+import {
+  PublishReadinessCard,
+  ReadinessIssues,
+} from "../_components/PublishReadiness";
 
 export const metadata: Metadata = {
   title: "Dashboard - ภาพรวมภาคเรียน",
@@ -25,23 +28,25 @@ export default async function DashboardPage({
   params: Promise<{ semesterAndyear: string }>;
 }) {
   const { semesterAndyear } = await params;
-  
+
   // Validate and parse semester and year
   const [semester, academicYear] = semesterAndyear.split("-");
-  
+
   if (!semester || !academicYear) {
     return (
       <div className="p-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
-          <p className="text-red-600">รูปแบบข้อมูลภาคเรียนและปีการศึกษาไม่ถูกต้อง</p>
+          <p className="text-red-600">
+            รูปแบบข้อมูลภาคเรียนและปีการศึกษาไม่ถูกต้อง
+          </p>
         </div>
       </div>
     );
   }
-  
+
   const year = parseInt(academicYear, 10);
-  
+
   // Validate that year is a valid number
   if (isNaN(year) || year < 2500 || year > 2600) {
     return (
@@ -49,22 +54,20 @@ export default async function DashboardPage({
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
           <p className="text-red-600">ปีการศึกษาไม่ถูกต้อง ({academicYear})</p>
-          <p className="mt-2 text-sm text-red-500">กรุณาเลือกภาคเรียนจากหน้าหลัก</p>
+          <p className="mt-2 text-sm text-red-500">
+            กรุณาเลือกภาคเรียนจากหน้าหลัก
+          </p>
         </div>
       </div>
     );
   }
-  
+
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
   // Fetch all dashboard data in parallel
   const [dashboardData, readiness] = await Promise.all([
-    dashboardRepository.getDashboardData(
-      semesterAndyear,
-      year,
-      semesterEnum
-    ),
-    getPublishReadiness(semesterAndyear)
+    dashboardRepository.getDashboardData(semesterAndyear, year, semesterEnum),
+    getPublishReadiness(semesterAndyear),
   ]);
 
   const {
@@ -82,16 +85,16 @@ export default async function DashboardPage({
   const completionRate = calculateCompletionRate(
     schedules,
     grades.length,
-    timeslots.length
+    timeslots.length,
   );
   const { withSchedules, withoutSchedules } = countTeachersWithSchedules(
     schedules,
-    teachers
+    teachers,
   );
   const classCompletion = countClassCompletion(
     schedules,
     grades,
-    timeslots.length
+    timeslots.length,
   );
   const conflicts = detectConflicts(schedules);
   const totalConflicts =
@@ -130,7 +133,7 @@ export default async function DashboardPage({
         )}
       </div>
 
-      {readiness && readiness.status !== 'ready' && (
+      {readiness && readiness.status !== "ready" && (
         <ReadinessIssues issues={readiness.issues} />
       )}
 
@@ -162,9 +165,7 @@ export default async function DashboardPage({
 
       {/* Quick Actions */}
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          เมนูด่วน
-        </h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">เมนูด่วน</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <QuickActionButton
             href={`/dashboard/${semesterAndyear}/teacher-table`}
@@ -230,7 +231,9 @@ export default async function DashboardPage({
                   <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
                     <div
                       className="h-full bg-blue-600"
-                      style={{ width: `${Math.min(workload.utilizationRate, 100)}%` }}
+                      style={{
+                        width: `${Math.min(workload.utilizationRate, 100)}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -251,7 +254,10 @@ export default async function DashboardPage({
           </h2>
           <div className="space-y-3">
             {subjectDistribution.slice(0, 10).map((subject) => (
-              <div key={subject.subjectCode} className="flex items-center gap-3">
+              <div
+                key={subject.subjectCode}
+                className="flex items-center gap-3"
+              >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-gray-900">
                     {subject.subjectName}
@@ -328,7 +334,8 @@ export default async function DashboardPage({
                 <span className="text-lg">📋</span>
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    มีชั้นเรียน {classCompletion.partial} ชั้น ที่ตารางยังไม่เต็ม
+                    มีชั้นเรียน {classCompletion.partial} ชั้น
+                    ที่ตารางยังไม่เต็ม
                   </p>
                   <p className="text-xs text-gray-600">
                     ควรจัดตารางให้ครบทุกคาบเรียน
@@ -357,9 +364,7 @@ export default async function DashboardPage({
 
       {/* Summary Info */}
       <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          ข้อมูลสรุป
-        </h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">ข้อมูลสรุป</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           <InfoItem label="ครูทั้งหมด" value={teachers.length} />
           <InfoItem label="ชั้นเรียน" value={grades.length} />

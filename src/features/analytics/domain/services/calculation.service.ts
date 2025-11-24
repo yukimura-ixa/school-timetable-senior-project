@@ -1,24 +1,24 @@
 /**
  * Calculation Service
  * Pure business logic functions for analytics calculations
- * 
+ *
  * NO external dependencies (Prisma, fetch, etc.)
  * All functions are pure and testable
  */
 
-import type { 
+import type {
   ParsedConfig,
   TeacherWorkload,
   DepartmentWorkload,
   CompletionMetrics,
-  CategoryCredits
+  CategoryCredits,
 } from "../types/analytics.types";
-import { 
+import {
   WORKLOAD_THRESHOLDS,
   ROOM_UTILIZATION_THRESHOLDS,
-  COMPLETION_THRESHOLDS
+  COMPLETION_THRESHOLDS,
 } from "../types/analytics.types";
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 
 /**
  * Parse config ID string into structured format
@@ -28,18 +28,20 @@ import type { semester } from '@/prisma/generated/client';;
  */
 export function parseConfigId(configId: string): ParsedConfig {
   const parts = configId.split("-");
-  
+
   if (parts.length !== 2) {
-    throw new Error(`Invalid configId format: ${configId}. Expected "SEMESTER-YEAR"`);
+    throw new Error(
+      `Invalid configId format: ${configId}. Expected "SEMESTER-YEAR"`,
+    );
   }
-  
+
   const [semesterStr, yearStr] = parts;
-  const academicYear = parseInt(yearStr || '0', 10);
-  
+  const academicYear = parseInt(yearStr || "0", 10);
+
   if (isNaN(academicYear)) {
     throw new Error(`Invalid academic year: ${yearStr}`);
   }
-  
+
   // Map semester string to enum
   let semester: semester;
   if (semesterStr === "1") {
@@ -49,7 +51,7 @@ export function parseConfigId(configId: string): ParsedConfig {
   } else {
     throw new Error(`Invalid semester: ${semesterStr}. Expected "1" or "2"`);
   }
-  
+
   return {
     semester,
     academicYear,
@@ -63,7 +65,10 @@ export function parseConfigId(configId: string): ParsedConfig {
  * @param required - Number of required slots
  * @returns Percentage (0-100) rounded to 1 decimal
  */
-export function calculateCompletionRate(scheduled: number, required: number): number {
+export function calculateCompletionRate(
+  scheduled: number,
+  required: number,
+): number {
   if (required === 0) return 0;
   const rate = (scheduled / required) * 100;
   return Math.round(rate * 10) / 10;
@@ -74,15 +79,23 @@ export function calculateCompletionRate(scheduled: number, required: number): nu
  * @param hours - Number of teaching hours
  * @returns Workload status classification
  */
-export function getWorkloadStatus(hours: number): TeacherWorkload['workloadStatus'] {
+export function getWorkloadStatus(
+  hours: number,
+): TeacherWorkload["workloadStatus"] {
   if (hours <= WORKLOAD_THRESHOLDS.UNDERUTILIZED_MAX) {
-    return 'underutilized';
-  } else if (hours >= WORKLOAD_THRESHOLDS.OPTIMAL_MIN && hours <= WORKLOAD_THRESHOLDS.OPTIMAL_MAX) {
-    return 'optimal';
-  } else if (hours >= WORKLOAD_THRESHOLDS.HIGH_MIN && hours <= WORKLOAD_THRESHOLDS.HIGH_MAX) {
-    return 'high';
+    return "underutilized";
+  } else if (
+    hours >= WORKLOAD_THRESHOLDS.OPTIMAL_MIN &&
+    hours <= WORKLOAD_THRESHOLDS.OPTIMAL_MAX
+  ) {
+    return "optimal";
+  } else if (
+    hours >= WORKLOAD_THRESHOLDS.HIGH_MIN &&
+    hours <= WORKLOAD_THRESHOLDS.HIGH_MAX
+  ) {
+    return "high";
   } else {
-    return 'overloaded';
+    return "overloaded";
   }
 }
 
@@ -94,10 +107,14 @@ export function getWorkloadStatus(hours: number): TeacherWorkload['workloadStatu
 export function getWorkloadColor(hours: number): string {
   const status = getWorkloadStatus(hours);
   switch (status) {
-    case 'underutilized': return '#10b981'; // Green
-    case 'optimal': return '#f59e0b'; // Yellow
-    case 'high': return '#f97316'; // Orange
-    case 'overloaded': return '#ef4444'; // Red
+    case "underutilized":
+      return "#10b981"; // Green
+    case "optimal":
+      return "#f59e0b"; // Yellow
+    case "high":
+      return "#f97316"; // Orange
+    case "overloaded":
+      return "#ef4444"; // Red
   }
 }
 
@@ -107,18 +124,18 @@ export function getWorkloadColor(hours: number): string {
  * @returns Utilization status classification
  */
 export function getRoomUtilizationStatus(
-  utilizationRate: number
-): 'rarely-used' | 'light' | 'moderate' | 'well-used' | 'over-utilized' {
+  utilizationRate: number,
+): "rarely-used" | "light" | "moderate" | "well-used" | "over-utilized" {
   if (utilizationRate < ROOM_UTILIZATION_THRESHOLDS.RARELY_USED_MAX) {
-    return 'rarely-used';
+    return "rarely-used";
   } else if (utilizationRate < ROOM_UTILIZATION_THRESHOLDS.LIGHT_MAX) {
-    return 'light';
+    return "light";
   } else if (utilizationRate < ROOM_UTILIZATION_THRESHOLDS.MODERATE_MAX) {
-    return 'moderate';
+    return "moderate";
   } else if (utilizationRate < ROOM_UTILIZATION_THRESHOLDS.WELL_USED_MAX) {
-    return 'well-used';
+    return "well-used";
   } else {
-    return 'over-utilized';
+    return "over-utilized";
   }
 }
 
@@ -130,11 +147,16 @@ export function getRoomUtilizationStatus(
 export function getRoomUtilizationColor(utilizationRate: number): string {
   const status = getRoomUtilizationStatus(utilizationRate);
   switch (status) {
-    case 'rarely-used': return '#9ca3af'; // Gray
-    case 'light': return '#10b981'; // Green
-    case 'moderate': return '#f59e0b'; // Yellow
-    case 'well-used': return '#f97316'; // Orange
-    case 'over-utilized': return '#ef4444'; // Red
+    case "rarely-used":
+      return "#9ca3af"; // Gray
+    case "light":
+      return "#10b981"; // Green
+    case "moderate":
+      return "#f59e0b"; // Yellow
+    case "well-used":
+      return "#f97316"; // Orange
+    case "over-utilized":
+      return "#ef4444"; // Red
   }
 }
 
@@ -144,16 +166,16 @@ export function getRoomUtilizationColor(utilizationRate: number): string {
  * @returns Progress status classification
  */
 export function getProgressStatus(
-  completionRate: number
-): CompletionMetrics['progressStatus'] {
+  completionRate: number,
+): CompletionMetrics["progressStatus"] {
   if (completionRate < COMPLETION_THRESHOLDS.NOT_STARTED_MAX) {
-    return 'not-started';
+    return "not-started";
   } else if (completionRate < COMPLETION_THRESHOLDS.IN_PROGRESS_MAX) {
-    return 'in-progress';
+    return "in-progress";
   } else if (completionRate < COMPLETION_THRESHOLDS.NEAR_COMPLETE_MAX) {
-    return 'near-complete';
+    return "near-complete";
   } else {
-    return 'complete';
+    return "complete";
   }
 }
 
@@ -176,11 +198,13 @@ export function calculateAverage(numbers: number[]): number {
  */
 export function calculateDepartmentWorkload(
   teacherWorkloads: TeacherWorkload[],
-  department: string
+  department: string,
 ): DepartmentWorkload {
-  const deptTeachers = teacherWorkloads.filter(t => t.department === department);
-  const hours = deptTeachers.map(t => t.totalHours);
-  
+  const deptTeachers = teacherWorkloads.filter(
+    (t) => t.department === department,
+  );
+  const hours = deptTeachers.map((t) => t.totalHours);
+
   if (hours.length === 0) {
     return {
       department,
@@ -192,10 +216,12 @@ export function calculateDepartmentWorkload(
       utilizationRate: 0,
     };
   }
-  
+
   const totalHours = hours.reduce((sum, h) => sum + h, 0);
-  const avgUtilization = deptTeachers.reduce((sum, t) => sum + t.utilizationRate, 0) / deptTeachers.length;
-  
+  const avgUtilization =
+    deptTeachers.reduce((sum, t) => sum + t.utilizationRate, 0) /
+    deptTeachers.length;
+
   return {
     department,
     teacherCount: hours.length,
@@ -213,7 +239,9 @@ export function calculateDepartmentWorkload(
  * @returns Total credits
  */
 export function sumCategoryCredits(credits: CategoryCredits): number {
-  return credits.core + credits.additional + credits.activity + credits.elective;
+  return (
+    credits.core + credits.additional + credits.activity + credits.elective
+  );
 }
 
 /**
@@ -225,8 +253,8 @@ export function sumCategoryCredits(credits: CategoryCredits): number {
 export function extractPeriodFromTimeslotId(timeslotId: string): number | null {
   const parts = timeslotId.split("-");
   if (parts.length < 4) return null;
-  
-  const period = parseInt(parts[3] || '0', 10);
+
+  const period = parseInt(parts[3] || "0", 10);
   return isNaN(period) ? null : period;
 }
 
@@ -259,7 +287,7 @@ export function formatPeriodTime(period: number): string {
     7: "15:00-16:00",
     8: "16:00-17:00",
   };
-  
+
   return timeRanges[period] || `Period ${period}`;
 }
 
@@ -270,15 +298,15 @@ export function formatPeriodTime(period: number): string {
  */
 export function getThaiDayLabel(day: string): string {
   const dayLabels: Record<string, string> = {
-    MON: 'จันทร์',
-    TUE: 'อังคาร',
-    WED: 'พุธ',
-    THU: 'พฤหัสบดี',
-    FRI: 'ศุกร์',
-    SAT: 'เสาร์',
-    SUN: 'อาทิตย์',
+    MON: "จันทร์",
+    TUE: "อังคาร",
+    WED: "พุธ",
+    THU: "พฤหัสบดี",
+    FRI: "ศุกร์",
+    SAT: "เสาร์",
+    SUN: "อาทิตย์",
   };
-  
+
   return dayLabels[day] || day;
 }
 

@@ -21,7 +21,9 @@ type TeacherUtilizationChartProps = {
   data: Array<{ name: string; hours: number; color: string }>;
 };
 
-export function TeacherUtilizationChart({ data }: TeacherUtilizationChartProps) {
+export function TeacherUtilizationChart({
+  data,
+}: TeacherUtilizationChartProps) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data} layout="vertical" margin={{ left: 10, right: 10 }}>
@@ -96,7 +98,9 @@ export function RoomOccupancyGrid({ data, days }: RoomOccupancyGridProps) {
         return (
           <div key={period} className="flex gap-1">
             {days.map((day) => {
-              const cell = data.find((d) => d.day === day && d.period === period);
+              const cell = data.find(
+                (d) => d.day === day && d.period === period,
+              );
               const occupancy = cell?.occupancyPercent || 0;
               return (
                 <div

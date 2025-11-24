@@ -85,7 +85,11 @@ export function CompletenessIndicator({
         sx={{ height: 8, borderRadius: 1 }}
       />
 
-      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={{ display: "block", mt: 0.5 }}
+      >
         {getMessage()}
       </Typography>
 

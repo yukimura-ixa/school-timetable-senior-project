@@ -88,9 +88,12 @@ export function ConfigStatusBadge({
       });
 
       if (result.success) {
-        enqueueSnackbar(`เปลี่ยนสถานะเป็น ${STATUS_CONFIG[confirmDialog.newStatus].label} สำเร็จ`, {
-          variant: "success",
-        });
+        enqueueSnackbar(
+          `เปลี่ยนสถานะเป็น ${STATUS_CONFIG[confirmDialog.newStatus].label} สำเร็จ`,
+          {
+            variant: "success",
+          },
+        );
         onStatusChange?.();
       } else {
         enqueueSnackbar(result.error || "เกิดข้อผิดพลาด", { variant: "error" });
@@ -168,7 +171,8 @@ export function ConfigStatusBadge({
           {confirmDialog.newStatus && (
             <Typography>
               ต้องการเปลี่ยนสถานะจาก <strong>{config.label}</strong> เป็น{" "}
-              <strong>{STATUS_CONFIG[confirmDialog.newStatus].label}</strong> ใช่หรือไม่?
+              <strong>{STATUS_CONFIG[confirmDialog.newStatus].label}</strong>{" "}
+              ใช่หรือไม่?
             </Typography>
           )}
 
@@ -185,7 +189,9 @@ export function ConfigStatusBadge({
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDialog({ open: false, newStatus: null })}>
+          <Button
+            onClick={() => setConfirmDialog({ open: false, newStatus: null })}
+          >
             ยกเลิก
           </Button>
           <Button onClick={handleConfirmStatusChange} variant="contained">

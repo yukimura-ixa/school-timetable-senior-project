@@ -14,7 +14,10 @@ import Counter from "./component/Counter";
 import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import { getConfigByTermAction, createConfigAction } from "@/features/config/application/actions/config.actions";
+import {
+  getConfigByTermAction,
+  createConfigAction,
+} from "@/features/config/application/actions/config.actions";
 import useSWR from "swr";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
@@ -26,9 +29,11 @@ import { useSemesterSync } from "@/hooks";
 
 function TimetableConfigValue() {
   const params = useParams();
-  
+
   // Sync URL params with global store
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
   const [isCopying, setIsCopying] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
@@ -53,16 +58,13 @@ function TimetableConfigValue() {
     HasMinibreak: false,
   });
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
-  const tableConfig = useSWR(
-    `config-${academicYear}-${semester}`,
-    async () => {
-      const result = await getConfigByTermAction({
-        AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
-      });
-      return result.success ? result.data : null;
-    }
-  );
+  const tableConfig = useSWR(`config-${academicYear}-${semester}`, async () => {
+    const result = await getConfigByTermAction({
+      AcademicYear: parseInt(academicYear),
+      Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+    });
+    return result.success ? result.data : null;
+  });
 
   useEffect(() => {
     const checkSetTimeslot = tableConfig.data !== undefined;
@@ -147,7 +149,7 @@ function TimetableConfigValue() {
     }));
   };
 
-    const handleChangeBreakTimeS = (currentValue: unknown) => {
+  const handleChangeBreakTimeS = (currentValue: unknown) => {
     setConfigData(() => ({
       ...configData,
       BreakTimeslots: {
@@ -197,13 +199,13 @@ function TimetableConfigValue() {
       const result = await createConfigAction({
         ConfigID: `${semester}-${academicYear}`,
         AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         Config: {
           ...configData,
           HasMinibreak: addMiniBreak,
         },
       });
-      
+
       if (result.success) {
         closeSnackbar(saving);
         enqueueSnackbar("ตั้งค่าตารางสำเร็จ", { variant: "success" });

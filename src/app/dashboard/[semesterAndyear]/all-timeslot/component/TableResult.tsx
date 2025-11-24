@@ -1,4 +1,4 @@
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
@@ -14,11 +14,12 @@ type Props = {
 const TableResult = (props: Props) => {
   const findResult = (tID: number) => {
     const filter1 = props.classData.filter((item) =>
-      item.teachers_responsibility
-        .map((tid) => tid.TeacherID)
-        .includes(tID),
+      item.teachers_responsibility.map((tid) => tid.TeacherID).includes(tID),
     );
-    const filter2 = filter1.filter((cid, index) => filter1.findIndex(item => item.TimeslotID == cid.TimeslotID) == index)
+    const filter2 = filter1.filter(
+      (cid, index) =>
+        filter1.findIndex((item) => item.TimeslotID == cid.TimeslotID) == index,
+    );
     return filter2.length;
   };
   return (
@@ -32,13 +33,12 @@ const TableResult = (props: Props) => {
       </thead>
       <tbody>
         {props.teachers.map((tch, index) => (
-          <tr key={tch.TeacherID} className="flex items-center gap-2 h-fit mt-1 select-none">
+          <tr
+            key={tch.TeacherID}
+            className="flex items-center gap-2 h-fit mt-1 select-none"
+          >
             <td className="w-[50px] h-[59.8px] flex items-center justify-center bg-slate-100 rounded">
-              <p className="text-sm">
-                {
-                  findResult(tch.TeacherID)
-                }
-              </p>
+              <p className="text-sm">{findResult(tch.TeacherID)}</p>
             </td>
           </tr>
         ))}

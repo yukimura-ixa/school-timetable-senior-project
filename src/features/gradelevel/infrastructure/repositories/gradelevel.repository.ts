@@ -1,15 +1,18 @@
 /**
  * Infrastructure Layer: GradeLevel Repository
- * 
+ *
  * Handles all database operations for gradelevels using Prisma.
  * Pure data access layer with no business logic.
- * 
+ *
  * @module gradelevel.repository
  */
 
-import prisma from '@/lib/prisma';
-import type { semester } from '@/prisma/generated/client';
-import type { CreateGradeLevelInput, UpdateGradeLevelInput } from '../../application/schemas/gradelevel.schemas';
+import prisma from "@/lib/prisma";
+import type { semester } from "@/prisma/generated/client";
+import type {
+  CreateGradeLevelInput,
+  UpdateGradeLevelInput,
+} from "../../application/schemas/gradelevel.schemas";
 
 export const gradeLevelRepository = {
   /**
@@ -18,7 +21,7 @@ export const gradeLevelRepository = {
   async findAll() {
     return prisma.gradelevel.findMany({
       orderBy: {
-        GradeID: 'asc',
+        GradeID: "asc",
       },
       include: {
         program: true,
@@ -60,7 +63,7 @@ export const gradeLevelRepository = {
     subjectCode: string,
     academicYear: number,
     semester: semester,
-    teacherIds: number[]
+    teacherIds: number[],
   ) {
     return prisma.teachers_responsibility.findMany({
       where: {
@@ -109,7 +112,7 @@ export const gradeLevelRepository = {
   /**
    * Update a gradelevel by ID
    */
-  async update(gradeId: string, data: Omit<UpdateGradeLevelInput, 'GradeID'>) {
+  async update(gradeId: string, data: Omit<UpdateGradeLevelInput, "GradeID">) {
     return prisma.gradelevel.update({
       where: {
         GradeID: gradeId,

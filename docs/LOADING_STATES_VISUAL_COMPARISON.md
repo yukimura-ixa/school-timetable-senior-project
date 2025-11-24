@@ -3,6 +3,7 @@
 ## Before Implementation
 
 ### Initial Page Load
+
 ```
 ┌─────────────────────────────────────────────────┐
 │ เลือกปีการศึกษาและภาคเรียน    [Export] [สร้าง] │
@@ -33,6 +34,7 @@ Problems:
 ## After Implementation
 
 ### Initial Page Load
+
 ```
 ┌──────────────────────────────────────────────────────────┐
 │ เลือกปีการศึกษาและภาคเรียน         [Export] [สร้าง]      │
@@ -85,6 +87,7 @@ Benefits:
 ## Component Structure Comparison
 
 ### Before: SemesterCardSkeleton (Simple)
+
 ```tsx
 function SemesterCardSkeleton() {
   return (
@@ -94,12 +97,14 @@ function SemesterCardSkeleton() {
   );
 }
 ```
+
 - 1 element
 - Generic box
 - No detail
 - 4 lines of code
 
 ### After: SemesterCardSkeleton (Detailed)
+
 ```tsx
 export function SemesterCardSkeleton() {
   return (
@@ -111,22 +116,22 @@ export function SemesterCardSkeleton() {
           <Skeleton text width="40%" />
           <Skeleton circular + rounded />
         </Box>
-        
+
         {/* Progress Bar */}
         <Box>
           <Skeleton text × 2 />
           <Skeleton rectangular />
         </Box>
-        
+
         {/* Statistics (4 rows) */}
         <Stack>
           <Skeleton text × 8 />
         </Stack>
-        
+
         {/* Last Accessed */}
         <Skeleton text />
       </CardContent>
-      
+
       <CardActions>
         <Skeleton button />
         <Skeleton circular />
@@ -135,6 +140,7 @@ export function SemesterCardSkeleton() {
   );
 }
 ```
+
 - 15+ elements
 - Detailed structure
 - Matches actual card
@@ -169,11 +175,13 @@ export function SemesterCardSkeleton() {
 ### Perceived Performance
 
 **Before**:
+
 - 0-800ms: Blank or spinning loader
 - User doesn't know what to expect
 - Feels slow
 
 **After**:
+
 - 0-50ms: Skeletons appear instantly
 - 50-800ms: User sees structure, knows what's coming
 - 800-850ms: Smooth content replacement
@@ -182,6 +190,7 @@ export function SemesterCardSkeleton() {
 ## Responsive Behavior
 
 ### Desktop (>1200px)
+
 ```
 ┌────────────────────────────────────────┐
 │ [Card] [Card] [Card]                  │ ← 3 cards per row
@@ -190,6 +199,7 @@ export function SemesterCardSkeleton() {
 ```
 
 ### Tablet (768-1200px)
+
 ```
 ┌────────────────────┐
 │ [Card] [Card]     │ ← 2 cards per row
@@ -199,6 +209,7 @@ export function SemesterCardSkeleton() {
 ```
 
 ### Mobile (<768px)
+
 ```
 ┌──────┐
 │[Card]│ ← 1 card per row
@@ -215,20 +226,22 @@ export function SemesterCardSkeleton() {
 ## Performance Metrics
 
 ### Render Time
-| Component | Elements | Render Time |
-|-----------|----------|-------------|
-| Simple skeleton (before) | 1 | <1ms |
-| Card skeleton (after) | 15+ | 2-3ms |
-| Section skeleton (3 cards) | 45+ | 6-9ms |
-| Full page skeleton | 100+ | 15-20ms |
+
+| Component                  | Elements | Render Time |
+| -------------------------- | -------- | ----------- |
+| Simple skeleton (before)   | 1        | <1ms        |
+| Card skeleton (after)      | 15+      | 2-3ms       |
+| Section skeleton (3 cards) | 45+      | 6-9ms       |
+| Full page skeleton         | 100+     | 15-20ms     |
 
 **Total page skeleton**: ~20ms (well under 16ms target for 60fps)
 
 ### Bundle Size
-| File | Before | After | Diff |
-|------|--------|-------|------|
-| page.tsx | 6.2 KB | 6.5 KB | +0.3 KB |
-| Skeletons | 0 KB | 2.1 KB | +2.1 KB |
+
+| File      | Before | After  | Diff    |
+| --------- | ------ | ------ | ------- |
+| page.tsx  | 6.2 KB | 6.5 KB | +0.3 KB |
+| Skeletons | 0 KB   | 2.1 KB | +2.1 KB |
 | **Total** | 6.2 KB | 8.6 KB | +2.4 KB |
 
 **Impact**: Negligible (<0.1% of total bundle)
@@ -236,18 +249,22 @@ export function SemesterCardSkeleton() {
 ## Code Quality Metrics
 
 ### Maintainability
+
 - **Before**: Skeleton inline in page component
 - **After**: 4 separate, reusable components
 
 ### Testability
+
 - **Before**: Hard to test skeleton state
 - **After**: Each skeleton can be tested independently
 
 ### Reusability
+
 - **Before**: 1 generic skeleton
 - **After**: 4 specialized skeletons, reusable across app
 
 ### Type Safety
+
 - **Before**: No types for skeleton
 - **After**: Typed props for all skeletons
 
@@ -256,24 +273,30 @@ export function SemesterCardSkeleton() {
 ### Expected User Reactions
 
 **Before**:
+
 > "Is the page loading? Should I refresh?"
 
 **After**:
+
 > "I can see the structure loading. This looks professional."
 
 ### Accessibility
 
 **Before**:
+
 ```html
-<Skeleton /> <!-- No ARIA labels -->
+<Skeleton />
+<!-- No ARIA labels -->
 ```
 
 **After**:
+
 ```html
 <Skeleton aria-label="Loading semester card" />
 ```
 
 MUI Skeleton automatically includes:
+
 - `aria-busy="true"`
 - `role="status"`
 - Screen reader announcements
@@ -290,6 +313,7 @@ To add skeletons to other pages:
 4. **Test** loading behavior
 
 Example for Config Page:
+
 ```tsx
 // 1. Create skeleton
 export function ConfigSectionSkeleton() {
@@ -302,26 +326,26 @@ export function ConfigSectionSkeleton() {
 }
 
 // 2. Use in page
-{loading ? (
-  <ConfigSectionSkeleton />
-) : (
-  <ConfigSection data={data} />
-)}
+{
+  loading ? <ConfigSectionSkeleton /> : <ConfigSection data={data} />;
+}
 ```
 
 ## Summary
 
 ### Improvements
-| Aspect | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Visual Detail** | Low | High | 10x more elements |
-| **User Clarity** | Poor | Excellent | Clear structure preview |
-| **Code Quality** | Inline | Modular | 4 reusable components |
-| **Performance** | Good | Good | No degradation |
-| **UX** | Basic | Professional | Industry standard |
-| **Maintainability** | Low | High | Separated concerns |
+
+| Aspect              | Before | After        | Improvement             |
+| ------------------- | ------ | ------------ | ----------------------- |
+| **Visual Detail**   | Low    | High         | 10x more elements       |
+| **User Clarity**    | Poor   | Excellent    | Clear structure preview |
+| **Code Quality**    | Inline | Modular      | 4 reusable components   |
+| **Performance**     | Good   | Good         | No degradation          |
+| **UX**              | Basic  | Professional | Industry standard       |
+| **Maintainability** | Low    | High         | Separated concerns      |
 
 ### Numbers
+
 - **4 components** created
 - **268 lines** of skeleton code
 - **5 loading states** (header, recent, pinned, filters, all)

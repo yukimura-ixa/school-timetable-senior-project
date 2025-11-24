@@ -10,7 +10,10 @@ import {
   validateTemplate,
   getTemplateSummary,
 } from "@/features/lock/domain/services/lock-template.service";
-import { LOCK_TEMPLATES, getTemplateById } from "@/features/lock/domain/models/lock-template.model";
+import {
+  LOCK_TEMPLATES,
+  getTemplateById,
+} from "@/features/lock/domain/models/lock-template.model";
 
 describe("Lock Template Service", () => {
   // Mock data fixtures - match service interface
@@ -60,7 +63,7 @@ describe("Lock Template Service", () => {
       availableRooms: typeof mockRooms;
       availableSubjects: typeof mockSubjects;
       availableResponsibilities: typeof mockResponsibilities;
-    }>
+    }>,
   ) => ({
     template: template!,
     academicYear: 2567,
@@ -139,19 +142,19 @@ describe("Lock Template Service", () => {
 
       // Should filter to Friday, Periods 8-9
       const timeslotIds = result.locks.map((l) => l.TimeslotID);
-      const fridayPeriods = timeslotIds.filter((id) => 
-        id === "1-FRI-8" || id === "1-FRI-9"
+      const fridayPeriods = timeslotIds.filter(
+        (id) => id === "1-FRI-8" || id === "1-FRI-9",
       );
       expect(fridayPeriods.length).toBeGreaterThan(0);
     });
 
     it("should generate warning when room not found", () => {
       const template = getTemplateById("lunch-junior")!;
-      const roomsWithoutMatch = [
-        { RoomID: 99, RoomName: "ห้องอื่น" },
-      ];
+      const roomsWithoutMatch = [{ RoomID: 99, RoomName: "ห้องอื่น" }];
 
-      const result = resolveTemplate(createTestInput(template, { availableRooms: roomsWithoutMatch }));
+      const result = resolveTemplate(
+        createTestInput(template, { availableRooms: roomsWithoutMatch }),
+      );
 
       expect(result.warnings.some((w) => w.includes("ห้อง"))).toBe(true);
     });
@@ -160,7 +163,9 @@ describe("Lock Template Service", () => {
       const template = getTemplateById("lunch-junior")!;
       const emptySubjects: typeof mockSubjects = [];
 
-      const result = resolveTemplate(createTestInput(template, { availableSubjects: emptySubjects }));
+      const result = resolveTemplate(
+        createTestInput(template, { availableSubjects: emptySubjects }),
+      );
 
       // Service generates warning (not error) when subject not found
       expect(result.warnings.some((w) => w.includes("วิชา"))).toBe(true);
@@ -170,9 +175,11 @@ describe("Lock Template Service", () => {
       const template = getTemplateById("lunch-junior")!;
       const emptyResp: typeof mockResponsibilities = [];
 
-      const result = resolveTemplate(createTestInput(template, {
-        availableResponsibilities: emptyResp,
-      }));
+      const result = resolveTemplate(
+        createTestInput(template, {
+          availableResponsibilities: emptyResp,
+        }),
+      );
 
       // Service generates error (not warning) when NO responsibilities exist at all
       expect(result.errors.some((e: string) => e.includes("ครู"))).toBe(true);
@@ -184,9 +191,11 @@ describe("Lock Template Service", () => {
         { TimeslotID: "1-SAT-1", Day: "SAT", PeriodStart: 1 },
       ];
 
-      const result = resolveTemplate(createTestInput(template, {
-        availableTimeslots: wrongTimeslots,
-      }));
+      const result = resolveTemplate(
+        createTestInput(template, {
+          availableTimeslots: wrongTimeslots,
+        }),
+      );
 
       // When no timeslots match, the Cartesian product is empty
       expect(result.locks.length).toBe(0);
@@ -237,9 +246,11 @@ describe("Lock Template Service", () => {
     it("should still validate when missing subject (generates warning only)", () => {
       const template = getTemplateById("lunch-junior")!;
 
-      const result = validateTemplate(createTestInput(template, {
-        availableSubjects: [],
-      }));
+      const result = validateTemplate(
+        createTestInput(template, {
+          availableSubjects: [],
+        }),
+      );
 
       // Missing subject generates warning, not error - template is still valid
       expect(result.valid).toBe(true);
@@ -249,9 +260,11 @@ describe("Lock Template Service", () => {
     it("should invalidate when no matching grades", () => {
       const template = getTemplateById("lunch-junior")!;
 
-      const result = validateTemplate(createTestInput(template, {
-        availableGrades: [],
-      }));
+      const result = validateTemplate(
+        createTestInput(template, {
+          availableGrades: [],
+        }),
+      );
 
       expect(result.valid).toBe(false);
     });
@@ -259,9 +272,11 @@ describe("Lock Template Service", () => {
     it("should invalidate when no matching timeslots", () => {
       const template = getTemplateById("lunch-junior")!;
 
-      const result = validateTemplate(createTestInput(template, {
-        availableTimeslots: [],
-      }));
+      const result = validateTemplate(
+        createTestInput(template, {
+          availableTimeslots: [],
+        }),
+      );
 
       expect(result.valid).toBe(false);
     });
@@ -292,10 +307,12 @@ describe("Lock Template Service", () => {
     it("should show zero counts when no matches", () => {
       const template = getTemplateById("lunch-junior")!;
 
-      const summary = getTemplateSummary(createTestInput(template, {
-        availableGrades: [],
-        availableTimeslots: [],
-      }));
+      const summary = getTemplateSummary(
+        createTestInput(template, {
+          availableGrades: [],
+          availableTimeslots: [],
+        }),
+      );
 
       expect(summary.gradeCount).toBe(0);
       expect(summary.timeslotCount).toBe(0);
@@ -325,10 +342,16 @@ describe("Lock Template Service", () => {
     });
 
     it("should have proper category assignments", () => {
-      const lunchTemplates = LOCK_TEMPLATES.filter(t => t.category === "lunch");
-      const activityTemplates = LOCK_TEMPLATES.filter(t => t.category === "activity");
-      const assemblyTemplates = LOCK_TEMPLATES.filter(t => t.category === "assembly");
-      const examTemplates = LOCK_TEMPLATES.filter(t => t.category === "exam");
+      const lunchTemplates = LOCK_TEMPLATES.filter(
+        (t) => t.category === "lunch",
+      );
+      const activityTemplates = LOCK_TEMPLATES.filter(
+        (t) => t.category === "activity",
+      );
+      const assemblyTemplates = LOCK_TEMPLATES.filter(
+        (t) => t.category === "assembly",
+      );
+      const examTemplates = LOCK_TEMPLATES.filter((t) => t.category === "exam");
 
       expect(lunchTemplates.length).toBe(2);
       expect(activityTemplates.length).toBe(3);
@@ -358,10 +381,14 @@ describe("Lock Template Service", () => {
       expect(template.config.timeslotFilter.allDay).toBe(true);
 
       // Should match all periods for specified days
-      const result = resolveTemplate(createTestInput(template, {
-        availableSubjects: [{ SubjectID: "EXAM-MID", Name_TH: "สอบกลางภาค" }],
-        availableResponsibilities: [{ RespID: 200, SubjectCode: "EXAM-MID", TeacherID: 1 }],
-      }));
+      const result = resolveTemplate(
+        createTestInput(template, {
+          availableSubjects: [{ SubjectID: "EXAM-MID", Name_TH: "สอบกลางภาค" }],
+          availableResponsibilities: [
+            { RespID: 200, SubjectCode: "EXAM-MID", TeacherID: 1 },
+          ],
+        }),
+      );
 
       expect(result.locks.length).toBeGreaterThan(0);
     });
@@ -380,10 +407,14 @@ describe("Lock Template Service", () => {
       const template = getTemplateById("activity-club")!;
       expect(template.config.timeslotFilter.periods.length).toBe(2); // Periods 8-9
 
-      const result = resolveTemplate(createTestInput(template, {
-        availableSubjects: [{ SubjectID: "ACT-CLUB", Name_TH: "ชุมนุม" }],
-        availableResponsibilities: [{ RespID: 300, SubjectCode: "ACT-CLUB", TeacherID: 1 }],
-      }));
+      const result = resolveTemplate(
+        createTestInput(template, {
+          availableSubjects: [{ SubjectID: "ACT-CLUB", Name_TH: "ชุมนุม" }],
+          availableResponsibilities: [
+            { RespID: 300, SubjectCode: "ACT-CLUB", TeacherID: 1 },
+          ],
+        }),
+      );
 
       const uniqueTimeslots = new Set(result.locks.map((l) => l.TimeslotID));
       expect(uniqueTimeslots.has("1-FRI-8")).toBe(true);
@@ -391,4 +422,3 @@ describe("Lock Template Service", () => {
     });
   });
 });
-

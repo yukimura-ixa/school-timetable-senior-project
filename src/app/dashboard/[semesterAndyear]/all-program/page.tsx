@@ -8,7 +8,7 @@ import useSWR from "swr";
 import ExportAllProgram from "./function/ExportAllProgram";
 import { subjectCreditValues } from "@/models/credit-value";
 import { isUndefined } from "swr/_internal";
-import { SubjectCategory } from '@/models/subject-category';
+import { SubjectCategory } from "@/models/subject-category";
 import {
   Container,
   Paper,
@@ -51,15 +51,19 @@ const categoryMap: Record<SubjectCategory, CategoryType> = {
 
 const Page = (_props: Props) => {
   const params = useParams();
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
   const gradeLevelData = useGradeLevels();
   const [currentGradeID, setCurrentGradeID] = useState("");
-  
+
   const programOfGrade = useSWR(
-    currentGradeID !== "" && semester && academicYear ? ['program-by-grade', currentGradeID, semester, academicYear] : null,
+    currentGradeID !== "" && semester && academicYear
+      ? ["program-by-grade", currentGradeID, semester, academicYear]
+      : null,
     async ([, gradeId]) => {
       if (!semester || !academicYear) return null;
-      return await getProgramByGradeAction({ 
+      return await getProgramByGradeAction({
         GradeID: gradeId,
         Semester: semester,
         AcademicYear: academicYear,
@@ -80,32 +84,39 @@ const Page = (_props: Props) => {
     );
   }
 
-  const subjects: SubjectRow[] = (!programOfGrade.isLoading && programOfGrade.data?.success && programOfGrade.data.data)
-    ? programOfGrade.data.data.subjects.map((subject: any) => {
-        const teachers = Array.isArray(subject.teachers_responsibility)
-          ? subject.teachers_responsibility.map((tr: any) => ({
-              TeacherFullName: `${tr.teacher.Prefix} ${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
-            }))
-          : [];
-        
-        return {
-          SubjectCode: subject.SubjectCode,
-          SubjectName: subject.SubjectName,
-          Credit: subject.Credit as keyof typeof subjectCreditValues,
-          Category: categoryMap[subject.Category as SubjectCategory],
-          teachers,
-        };
-      })
-    : [];
+  const subjects: SubjectRow[] =
+    !programOfGrade.isLoading &&
+    programOfGrade.data?.success &&
+    programOfGrade.data.data
+      ? programOfGrade.data.data.subjects.map((subject: any) => {
+          const teachers = Array.isArray(subject.teachers_responsibility)
+            ? subject.teachers_responsibility.map((tr: any) => ({
+                TeacherFullName: `${tr.teacher.Prefix} ${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
+              }))
+            : [];
+
+          return {
+            SubjectCode: subject.SubjectCode,
+            SubjectName: subject.SubjectName,
+            Credit: subject.Credit as keyof typeof subjectCreditValues,
+            Category: categoryMap[subject.Category as SubjectCategory],
+            teachers,
+          };
+        })
+      : [];
 
   const primarySubjectData = (): SubjectRow[] =>
     sortSubjectCategory(subjects.filter((item) => item.Category === "พื้นฐาน"));
 
   const extraSubjectData = (): SubjectRow[] =>
-    sortSubjectCategory(subjects.filter((item) => item.Category === "เพิ่มเติม"));
+    sortSubjectCategory(
+      subjects.filter((item) => item.Category === "เพิ่มเติม"),
+    );
 
   const activitiesSubjectData = (): SubjectRow[] =>
-    sortSubjectCategory(subjects.filter((item) => item.Category === "กิจกรรมพัฒนาผู้เรียน"));
+    sortSubjectCategory(
+      subjects.filter((item) => item.Category === "กิจกรรมพัฒนาผู้เรียน"),
+    );
   // Render helper functions (not components to avoid re-creation during render)
   const renderTableHead = () => (
     <TableHead>
@@ -115,20 +126,30 @@ const Page = (_props: Props) => {
           align="center"
           sx={{ bgcolor: "success.light", fontWeight: "bold", py: 1.5 }}
         >
-          โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
+          โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่{" "}
+          {semester} ปีการศึกษา {academicYear}
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell align="center" sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+        <TableCell
+          align="center"
+          sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}
+        >
           ลำดับ
         </TableCell>
-        <TableCell align="center" sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+        <TableCell
+          align="center"
+          sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}
+        >
           รหัสวิชา
         </TableCell>
         <TableCell sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
           ชื่อวิชา
         </TableCell>
-        <TableCell align="center" sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+        <TableCell
+          align="center"
+          sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}
+        >
           หน่วยกิต
         </TableCell>
         <TableCell sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
@@ -156,18 +177,20 @@ const Page = (_props: Props) => {
     <TableBody key={`subjects-${indexStart}`}>
       {data.map((item, index) => (
         <TableRow
-          key={`${currentGradeID || 'unknown'}-${item.SubjectCode}`}
+          key={`${currentGradeID || "unknown"}-${item.SubjectCode}`}
           hover
-          sx={{ '&:nth-of-type(even)': { bgcolor: 'action.hover' } }}
+          sx={{ "&:nth-of-type(even)": { bgcolor: "action.hover" } }}
         >
           <TableCell align="center">{indexStart + index}</TableCell>
           <TableCell align="center">{item.SubjectCode}</TableCell>
           <TableCell>{item.SubjectName}</TableCell>
           <TableCell align="center">
-            {item.Category === "กิจกรรมพัฒนาผู้เรียน" ? "" : subjectCreditTitles[item.Credit]}
+            {item.Category === "กิจกรรมพัฒนาผู้เรียน"
+              ? ""
+              : subjectCreditTitles[item.Credit]}
           </TableCell>
           <TableCell>
-            {item.teachers && item.teachers.length > 0 
+            {item.teachers && item.teachers.length > 0
               ? item.teachers.map((t) => t.TeacherFullName).join(", ")
               : "-"}
           </TableCell>
@@ -188,29 +211,40 @@ const Page = (_props: Props) => {
         <TableCell sx={{ fontWeight: "bold" }}>หน่วยกิต</TableCell>
       </TableRow>
     </TableBody>
-  )
+  );
   const getSumCreditValue = () => {
     return subjects
       .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
       .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
-  }
+  };
   const sortSubjectCategory = (data: SubjectRow[]) => {
     //ท ค ว ส พ ศ ก อ
-    const SubjectCodeVal: Record<string, number> = {"ท" : 1, "ค" : 2, "ว" : 3, "ส" : 4, "พ" : 5, "ศ" : 6, "ก" : 7, "อ" : 8}
+    const SubjectCodeVal: Record<string, number> = {
+      ท: 1,
+      ค: 2,
+      ว: 3,
+      ส: 4,
+      พ: 5,
+      ศ: 6,
+      ก: 7,
+      อ: 8,
+    };
     const sortedData = data.sort((a, b) => {
       const getVal = (sCode: string) => {
-        return isUndefined(SubjectCodeVal[sCode]) ? 9 : (SubjectCodeVal[sCode] ?? 9)
-      }
-      if(getVal(a.SubjectCode[0] ?? "") < getVal(b.SubjectCode[0] ?? "")){
+        return isUndefined(SubjectCodeVal[sCode])
+          ? 9
+          : (SubjectCodeVal[sCode] ?? 9);
+      };
+      if (getVal(a.SubjectCode[0] ?? "") < getVal(b.SubjectCode[0] ?? "")) {
         return -1;
       }
-      if(getVal(a.SubjectCode[0] ?? "") > getVal(b.SubjectCode[0] ?? "")){
+      if (getVal(a.SubjectCode[0] ?? "") > getVal(b.SubjectCode[0] ?? "")) {
         return 1;
       }
-      return 0
-    })
+      return 0;
+    });
     return sortedData;
-  }
+  };
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       {programOfGrade.isLoading || gradeLevelData.isLoading ? (
@@ -220,7 +254,11 @@ const Page = (_props: Props) => {
         </Stack>
       ) : (
         <Stack spacing={3}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <FormControl sx={{ minWidth: 300 }}>
               <InputLabel id="grade-select-label">เลือกชั้นเรียน</InputLabel>
               <Select
@@ -260,7 +298,9 @@ const Page = (_props: Props) => {
           </Stack>
           {currentGradeID === "" ? (
             <Paper sx={{ p: 8, textAlign: "center" }}>
-              <SchoolIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
+              <SchoolIcon
+                sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+              />
               <Typography variant="h6" color="text.secondary" gutterBottom>
                 กรุณาเลือกชั้นเรียน
               </Typography>
@@ -274,12 +314,30 @@ const Page = (_props: Props) => {
                 {renderTableHead()}
                 {renderCategoryRow("สาระการเรียนรู้พิ้นฐาน")}
                 {renderSubjectRows(primarySubjectData(), 1)}
-                {renderSumRow("รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน", primarySubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0))}
+                {renderSumRow(
+                  "รวมหน่วยกิตสาระการเรียนรู้พิ้นฐาน",
+                  primarySubjectData().reduce(
+                    (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
+                    0,
+                  ),
+                )}
                 {renderCategoryRow("สาระการเรียนรู้เพิ่มเติม")}
-                {renderSubjectRows(extraSubjectData(), primarySubjectData().length + 1)}
-                {renderSumRow("รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม", extraSubjectData().reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0))}
+                {renderSubjectRows(
+                  extraSubjectData(),
+                  primarySubjectData().length + 1,
+                )}
+                {renderSumRow(
+                  "รวมหน่วยกิตสาระการเรียนรู้เพิ่มเติม",
+                  extraSubjectData().reduce(
+                    (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
+                    0,
+                  ),
+                )}
                 {renderCategoryRow("กิจกรรมพัฒนาผู้เรียน")}
-                {renderSubjectRows(activitiesSubjectData(), primarySubjectData().length + extraSubjectData().length + 1)}
+                {renderSubjectRows(
+                  activitiesSubjectData(),
+                  primarySubjectData().length + extraSubjectData().length + 1,
+                )}
                 {renderSumRow("รวมหน่วยกิตทั้งหมด", getSumCreditValue())}
               </Table>
             </TableContainer>

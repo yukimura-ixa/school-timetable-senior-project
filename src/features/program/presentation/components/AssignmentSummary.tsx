@@ -1,17 +1,17 @@
 /**
  * Assignment Summary Component
- * 
+ *
  * Displays statistics about selected subjects:
  * - Total selected count
  * - Total credits
  * - Category breakdown
  */
 
-import React, { useMemo } from 'react';
-import { Box, Typography, Chip, Stack } from '@mui/material';
-import { SubjectCategory } from '@/features/program/domain/types/enums';
-import type { SubjectConfig } from '../hooks/useSubjectAssignment';
-import type { Subject } from '../hooks/useProgramSubjects';
+import React, { useMemo } from "react";
+import { Box, Typography, Chip, Stack } from "@mui/material";
+import { SubjectCategory } from "@/features/program/domain/types/enums";
+import type { SubjectConfig } from "../hooks/useSubjectAssignment";
+import type { Subject } from "../hooks/useProgramSubjects";
 
 interface AssignmentSummaryProps {
   subjectConfigs: Record<string, SubjectConfig>;
@@ -21,7 +21,10 @@ interface AssignmentSummaryProps {
 /**
  * Renders summary statistics for subject assignments
  */
-export function AssignmentSummary({ subjectConfigs, subjects }: AssignmentSummaryProps) {
+export function AssignmentSummary({
+  subjectConfigs,
+  subjects,
+}: AssignmentSummaryProps) {
   // Calculate category breakdown
   const categoryStats = useMemo(() => {
     const stats: Record<string, { count: number; credits: number }> = {};
@@ -29,7 +32,9 @@ export function AssignmentSummary({ subjectConfigs, subjects }: AssignmentSummar
     Object.values(subjectConfigs)
       .filter((config) => config.selected)
       .forEach((config) => {
-        const subject = subjects.find((s) => s.SubjectCode === config.SubjectCode);
+        const subject = subjects.find(
+          (s) => s.SubjectCode === config.SubjectCode,
+        );
         if (!subject) return;
 
         const category = subject.Category;
@@ -44,15 +49,19 @@ export function AssignmentSummary({ subjectConfigs, subjects }: AssignmentSummar
     return stats;
   }, [subjectConfigs, subjects]);
 
-  const selectedCount = Object.values(subjectConfigs).filter((c) => c.selected).length;
+  const selectedCount = Object.values(subjectConfigs).filter(
+    (c) => c.selected,
+  ).length;
   const totalCredits = Object.values(subjectConfigs)
     .filter((c) => c.selected)
     .reduce((sum, c) => sum + c.minCredits, 0);
-  const mandatoryCount = Object.values(subjectConfigs).filter((c) => c.selected && c.isMandatory).length;
+  const mandatoryCount = Object.values(subjectConfigs).filter(
+    (c) => c.selected && c.isMandatory,
+  ).length;
 
   if (selectedCount === 0) {
     return (
-      <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
+      <Box sx={{ p: 2, bgcolor: "action.hover", borderRadius: 1, mb: 2 }}>
         <Typography variant="body2" color="text.secondary">
           ยังไม่ได้เลือกรายวิชา กรุณาเลือกรายวิชาที่ต้องการมอบหมายให้หลักสูตร
         </Typography>
@@ -62,9 +71,9 @@ export function AssignmentSummary({ subjectConfigs, subjects }: AssignmentSummar
 
   // Category labels in Thai
   const categoryLabels: Record<SubjectCategory, string> = {
-    [SubjectCategory.CORE]: 'พื้นฐาน',
-    [SubjectCategory.ADDITIONAL]: 'เพิ่มเติม',
-    [SubjectCategory.ACTIVITY]: 'กิจกรรมพัฒนาผู้เรียน',
+    [SubjectCategory.CORE]: "พื้นฐาน",
+    [SubjectCategory.ADDITIONAL]: "เพิ่มเติม",
+    [SubjectCategory.ACTIVITY]: "กิจกรรมพัฒนาผู้เรียน",
   };
 
   return (
@@ -102,7 +111,7 @@ export function AssignmentSummary({ subjectConfigs, subjects }: AssignmentSummar
             label={`${categoryLabels[category as SubjectCategory]}: ${stats.count} วิชา (${stats.credits} หน่วยกิต)`}
             variant="outlined"
             size="small"
-            sx={{ bgcolor: 'background.paper' }}
+            sx={{ bgcolor: "background.paper" }}
           />
         ))}
       </Stack>

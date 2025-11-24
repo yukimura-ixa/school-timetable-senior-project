@@ -3,7 +3,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 
 // Server Actions
 import { deleteTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
@@ -36,7 +36,10 @@ function ConfirmDeleteModal({
     closeModal();
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = async (data: teacher[], checkedList: (string | number)[]) => {
+  const removeMultiData = async (
+    data: teacher[],
+    checkedList: (string | number)[],
+  ) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลครู", {
       variant: "info",
       persist: true,
@@ -49,22 +52,26 @@ function ConfirmDeleteModal({
       const result = await deleteTeachersAction({
         teacherIds: deleteData,
       });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "ลบข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.log(error);
     }
     clearCheckList();
@@ -91,13 +98,17 @@ function ConfirmDeleteModal({
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
           </span>
         </div>

@@ -1,9 +1,9 @@
 /**
  * Schedule Arrangement Type Definitions
- * 
+ *
  * Strict type definitions for schedule arrangement features.
  * Replaces unsafe 'any' types and consolidates schedule-related types.
- * 
+ *
  * Phase 1: Type Safety Refactoring
  * Created: October 30, 2025
  */
@@ -17,7 +17,7 @@ import type {
   day_of_week,
   teachers_responsibility,
   teacher,
-} from '@/prisma/generated/client';
+} from "@/prisma/generated/client";
 
 // ============================================================================
 // Subject Category Enum
@@ -26,7 +26,7 @@ import type {
 /**
  * Subject category types based on Thai education system
  */
-export type SubjectCategory = 'CORE' | 'ADDITIONAL' | 'ACTIVITY';
+export type SubjectCategory = "CORE" | "ADDITIONAL" | "ACTIVITY";
 
 // ============================================================================
 // Subject Data (for Drag & Drop Operations)
@@ -35,7 +35,7 @@ export type SubjectCategory = 'CORE' | 'ADDITIONAL' | 'ACTIVITY';
 /**
  * Subject data structure for drag and drop operations in timetable arrangement.
  * Uses consistent camelCase naming (database fields remain as-is from Prisma).
- * 
+ *
  * Required fields must always be present; optional fields marked with '?'.
  */
 export interface SubjectData {
@@ -50,19 +50,19 @@ export interface SubjectData {
   // Teaching hours (required for scheduling logic)
   credit: number;
   teachHour: number; // Weekly teaching hours from teachers_responsibility
-  
+
   // Optional scheduling data
   remainingHours?: number;
   scheduled?: boolean;
-  
+
   // Room assignment (optional, assigned during arrangement)
   roomID?: number | null;
   roomName?: string | null;
   room?: room | null;
-  
+
   // Class context
   classID?: string;
-  
+
   // Related data
   gradelevel?: {
     year: number;
@@ -135,7 +135,7 @@ export type DayOfWeekDisplay = {
   day_of_week: day_of_week;
   textColor: string;
   bgColor: string;
-}
+};
 
 // ============================================================================
 // Timeslot Grid Data
@@ -148,13 +148,13 @@ export type DayOfWeekDisplay = {
 export interface TimeSlotGridData {
   /** All timeslot data for the grid */
   allData: TimeslotData[];
-  
+
   /** Number of slots per day (e.g., [1, 2, 3, 4, 5, 6, 7, 8]) */
   slotAmount: number[];
-  
+
   /** Days of the week with styling */
   daysOfWeek: DayOfWeekDisplay[];
-  
+
   /** Break time slots */
   breakSlots: BreakSlotData[];
 }
@@ -204,7 +204,7 @@ export interface SubjectPayload {
  * Drag source data structure
  */
 export interface DragSourceData {
-  type: 'subject' | 'timeslot';
+  type: "subject" | "timeslot";
   subject?: SubjectData;
   timeslotID?: string;
 }
@@ -213,7 +213,7 @@ export interface DragSourceData {
  * Drop target data structure
  */
 export interface DropTargetData {
-  type: 'timeslot';
+  type: "timeslot";
   timeslotID: string;
   item: TimeslotData;
 }
@@ -253,12 +253,15 @@ export type IsSelectedToChangeCallback = () => boolean;
 export type TimeSlotCssClassNameCallback = (
   subject: SubjectData | null,
   isBreakTime: boolean,
-  isLocked: boolean
+  isLocked: boolean,
 ) => string;
 
 export type AddRoomModalCallback = (payload: SubjectPayload) => void;
 
-export type ClickOrDragToChangeCallback = (sourceID: string, destID: string) => void;
+export type ClickOrDragToChangeCallback = (
+  sourceID: string,
+  destID: string,
+) => void;
 
 export type RemoveSubjectCallback = (timeslotID: string) => void;
 
@@ -278,21 +281,21 @@ export interface ScheduleStoreActions {
   // Subject selection
   setSelectedSubject: (subject: SubjectData | null) => void;
   clearSelectedSubject: () => void;
-  
+
   // Timeslot operations
   addSubjectToTimeslot: (timeslotID: string, subject: SubjectData) => void;
   removeSubjectFromTimeslot: (timeslotID: string) => void;
   swapTimeslots: (sourceID: string, destinationID: string) => void;
-  
+
   // Modal state
   openAddRoomModal: (payload: SubjectPayload) => void;
   closeModal: () => void;
-  
+
   // Error handling
   showError: (timeslotID: string) => void;
   hideError: (timeslotID: string) => void;
   clearAllErrors: () => void;
-  
+
   // Save operations
   saveSchedule: () => Promise<void>;
   resetSchedule: () => void;
@@ -309,7 +312,7 @@ export interface ScheduleStoreActions {
 export interface TimeslotCellProps {
   item: TimeslotData;
   index: number;
-  
+
   // Optional props for special rendering
   showError?: boolean;
   showLockMessage?: boolean;
@@ -362,7 +365,7 @@ export interface SaveScheduleResponse {
  * Type guard to check if subject data is complete
  */
 export function isCompleteSubjectData(
-  subject: Partial<SubjectData>
+  subject: Partial<SubjectData>,
 ): subject is SubjectData {
   return !!(
     subject.itemID &&
@@ -371,8 +374,8 @@ export function isCompleteSubjectData(
     subject.gradeID &&
     subject.teacherID &&
     subject.category &&
-    typeof subject.credit === 'number' &&
-    typeof subject.teachHour === 'number'
+    typeof subject.credit === "number" &&
+    typeof subject.teachHour === "number"
   );
 }
 
@@ -380,7 +383,7 @@ export function isCompleteSubjectData(
  * Type guard to check if timeslot has subject assigned
  */
 export function hasSubjectAssigned(
-  timeslot: TimeslotData
+  timeslot: TimeslotData,
 ): timeslot is TimeslotData & { subject: SubjectData } {
   return !!timeslot.subject && isCompleteSubjectData(timeslot.subject);
 }

@@ -1,9 +1,9 @@
 /**
  * Domain Layer: Timetable Configuration Constants
- * 
+ *
  * Centralized constraints and defaults for timetable configuration.
  * These values enforce MOE curriculum standards and system limitations.
- * 
+ *
  * @module config.constants
  */
 
@@ -16,67 +16,67 @@ export const CONFIG_CONSTRAINTS = {
     min: 7,
     max: 10,
     default: 8,
-    label: 'จำนวนคาบต่อวัน',
+    label: "จำนวนคาบต่อวัน",
   },
-  
+
   /** Duration of each timeslot in minutes */
   DURATION: {
     min: 30,
     max: 120,
     default: 50,
     step: 5,
-    label: 'ระยะเวลาต่อคาบ (นาที)',
+    label: "ระยะเวลาต่อคาบ (นาที)",
   },
-  
+
   /** Break duration in minutes */
   BREAK_DURATION: {
     min: 30,
     max: 120,
     default: 50,
     step: 5,
-    label: 'ระยะเวลาพักเที่ยง (นาที)',
+    label: "ระยะเวลาพักเที่ยง (นาที)",
   },
-  
+
   /** Mini break duration in minutes */
   MINI_BREAK_DURATION: {
     min: 5,
     max: 20,
     default: 10,
     step: 5,
-    label: 'ระยะเวลาพักเบรก (นาที)',
+    label: "ระยะเวลาพักเบรก (นาที)",
   },
-  
+
   /** Start time */
   START_TIME: {
-    default: '08:30',
-    earliest: '07:00',
-    latest: '09:00',
-    label: 'เวลาเริ่มเรียน',
+    default: "08:30",
+    earliest: "07:00",
+    latest: "09:00",
+    label: "เวลาเริ่มเรียน",
   },
-  
+
   /** Academic year */
   ACADEMIC_YEAR: {
     min: 2500,
     max: 2700,
-    label: 'ปีการศึกษา',
+    label: "ปีการศึกษา",
   },
 } as const;
 
 /**
  * Default days of the week for timetable
  */
-export const DEFAULT_DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI'] as const;
+export const DEFAULT_DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 
 /**
  * Default configuration for new timetable setup
  */
 export const DEFAULT_CONFIG = {
-  Days: ['MON', 'TUE', 'WED', 'THU', 'FRI'],
-  StartTime: '08:30' as string,
+  Days: ["MON", "TUE", "WED", "THU", "FRI"],
+  StartTime: "08:30" as string,
   BreakDuration: 50 as number,
   BreakTimeslots: {
     Junior: 4, // ม.1-3 break at period 4
-    Senior: 5,  // ม.4-6 break at period 5
+    Senior: 5, // ม.4-6 break at period 5
   },
   Duration: 50 as number,
   TimeslotPerDay: 8 as number,
@@ -100,12 +100,12 @@ export const CONFIG_VALIDATION_MESSAGES = {
     MAX: `ระยะเวลาคาบต้องไม่เกิน ${CONFIG_CONSTRAINTS.DURATION.max} นาที`,
   },
   BREAK_SLOT: {
-    INVALID: 'คาบพักต้องอยู่ภายในจำนวนคาบทั้งหมด',
-    SAME: 'คาบพักมัธยมต้นและมัธยมปลายไม่ควรซ้ำกัน',
+    INVALID: "คาบพักต้องอยู่ภายในจำนวนคาบทั้งหมด",
+    SAME: "คาบพักมัธยมต้นและมัธยมปลายไม่ควรซ้ำกัน",
   },
   START_TIME: {
-    INVALID: 'รูปแบบเวลาไม่ถูกต้อง (ต้องเป็น HH:MM)',
-    OUT_OF_RANGE: 'เวลาเริ่มควรอยู่ระหว่าง 07:00-09:00',
+    INVALID: "รูปแบบเวลาไม่ถูกต้อง (ต้องเป็น HH:MM)",
+    OUT_OF_RANGE: "เวลาเริ่มควรอยู่ระหว่าง 07:00-09:00",
   },
 } as const;
 

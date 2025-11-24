@@ -1,22 +1,25 @@
 /**
  * Infrastructure Layer: Timeslot Repository
- * 
+ *
  * Handles all database operations for timeslots using Prisma.
  * Pure data access layer with no business logic.
- * 
+ *
  * @module timeslot.repository
  */
 
-import prisma from '@/lib/prisma';
-import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
-import type { Prisma, timeslot, semester } from '@/prisma/generated/client';
-import type { TimetableConfig } from '@/lib/timetable-config';
-import { generateConfigID } from '@/features/config/domain/services/config-validation.service';
+import prisma from "@/lib/prisma";
+import {
+  withPrismaTransaction,
+  type TransactionClient,
+} from "@/lib/prisma-transaction";
+import type { Prisma, timeslot, semester } from "@/prisma/generated/client";
+import type { TimetableConfig } from "@/lib/timetable-config";
+import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 
 // Helper: convert Prisma semester enum (e.g., 'SEMESTER_1') to canonical number string ('1')
 const toSemesterNum = (sem: semester): string => {
   const match = String(sem).match(/_(\d)$/);
-  return match?.[1] || '1';
+  return match?.[1] || "1";
 };
 export const timeslotRepository = {
   /**
@@ -123,7 +126,11 @@ export const tableConfigRepository = {
   /**
    * Create table config
    */
-  async create(academicYear: number, semester: semester, config: TimetableConfig) {
+  async create(
+    academicYear: number,
+    semester: semester,
+    config: TimetableConfig,
+  ) {
     const semesterNum = toSemesterNum(semester);
     const configId = generateConfigID(semesterNum, academicYear);
     return prisma.table_config.create({

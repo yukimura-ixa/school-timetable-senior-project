@@ -1,9 +1,9 @@
-import { PrismaClient } from '../prisma/generated/client';
+import { PrismaClient } from "../prisma/generated/client";
 
 const prisma = new PrismaClient();
 
 async function testAPI() {
-  console.log('🧪 Testing API call simulation...\n');
+  console.log("🧪 Testing API call simulation...\n");
 
   // Simulate the API call that the page makes
   const year = 1;
@@ -16,7 +16,7 @@ async function testAPI() {
   });
 
   console.log(`\n✅ Found ${programs.length} programs:`);
-  programs.forEach(p => {
+  programs.forEach((p) => {
     console.log(`   - ${p.ProgramCode}: ${p.ProgramName} (Year ${p.Year})`);
   });
 

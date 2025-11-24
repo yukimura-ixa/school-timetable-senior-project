@@ -16,11 +16,13 @@ Successfully configured the project to use **Prisma Studio's local proxy server*
 ### **1. Test Environment Configuration** (`.env.test`)
 
 **Updated DATABASE_URL to use Prisma proxy:**
+
 ```env
 DATABASE_URL="prisma+postgres://localhost:51213/?api_key=eyJuYW1lIjoid..."
 ```
 
 **Connection Details:**
+
 - **Protocol:** `prisma+postgres://` (Prisma Accelerate-style proxy)
 - **Proxy Server:** `localhost:51213`
 - **Target Database:** `postgres://postgres:postgres@localhost:51214/template1`
@@ -29,11 +31,13 @@ DATABASE_URL="prisma+postgres://localhost:51213/?api_key=eyJuYW1lIjoid..."
 ### **2. Playwright Configuration** (`playwright.config.ts`)
 
 **Fixed ES Module Issues:**
+
 - Added `fileURLToPath` import for `__dirname` equivalent
 - Replaced `require.resolve()` with `path.resolve()` for global setup/teardown
 - Ensured full ES module compatibility
 
 **Changes:**
+
 ```typescript
 // Added ES module __dirname support
 import { fileURLToPath } from 'url';
@@ -47,6 +51,7 @@ globalTeardown: path.resolve(__dirname, 'playwright.global-teardown.ts'),
 ### **3. E2E Test Runner** (`scripts/run-e2e-tests.mjs`)
 
 **Docker Fallback Enhancement:**
+
 - If Docker is not available, gracefully falls back to local database
 - No longer exits on Docker failure
 - Shows informative warnings instead of hard errors
@@ -56,10 +61,13 @@ globalTeardown: path.resolve(__dirname, 'playwright.global-teardown.ts'),
 ## ✅ **Verification**
 
 ### **Database Connection Test:**
+
 ```powershell
 pnpm prisma db push
 ```
+
 **Result:** ✅ **SUCCESS**
+
 ```
 Datasource "db": PostgreSQL database "postgres", schema "public" at "localhost:51213"
 The database is already in sync with the Prisma schema.
@@ -72,9 +80,11 @@ The database is already in sync with the Prisma schema.
 ### **Before Running Tests:**
 
 1. **Start Prisma Studio** (if not already running):
+
    ```powershell
    pnpm db:studio
    ```
+
    This starts the local Prisma proxy servers on:
    - `localhost:51213` (proxy)
    - `localhost:51214` (main DB)
@@ -88,6 +98,7 @@ The database is already in sync with the Prisma schema.
 ### **No Docker Required! ** 🎉
 
 The configuration now uses Prisma's built-in proxy, so you don't need:
+
 - ❌ Docker Desktop
 - ❌ PostgreSQL installation
 - ❌ Manual database setup
@@ -114,6 +125,7 @@ The `prisma+postgres://` URL uses **Prisma Accelerate** architecture:
    - Temporary, disposable database
 
 ### **Benefits:**
+
 - ✅ Connection pooling built-in
 - ✅ Query caching (if using Prisma Accelerate cloud)
 - ✅ Better connection management
@@ -124,12 +136,15 @@ The `prisma+postgres://` URL uses **Prisma Accelerate** architecture:
 ## 📊 **Configuration Files**
 
 ### **`.env.test`**
+
 Test environment variables with Prisma proxy URL
 
 ### **`playwright.config.ts`**
+
 Updated for ES module compatibility and Prisma proxy support
 
 ### **`scripts/run-e2e-tests.mjs`**
+
 Enhanced with graceful Docker fallback
 
 ---
@@ -141,6 +156,7 @@ Enhanced with graceful Docker fallback
 **Cause:** Prisma Studio proxy not running
 
 **Solution:**
+
 ```powershell
 # Start Prisma Studio
 pnpm db:studio
@@ -152,12 +168,14 @@ pnpm db:studio
 
 **Solution:**  
 The current configuration uses `template1` database. To change:
+
 1. Update the API key in `.env.test`
 2. Or create a new proxy URL from Prisma Studio
 
 ### **E2E Tests Still Trying Docker**
 
 **Expected Behavior** - The test runner will:
+
 1. Try to start Docker (will fail if not installed)
 2. Show warning: "Failed to start Docker database"
 3. Continue with local PostgreSQL proxy
@@ -170,6 +188,7 @@ This is **not an error** - it's a graceful fallback!
 ## 📝 **Next Steps**
 
 1. **Run E2E Tests:**
+
    ```powershell
    pnpm test:e2e
    ```
@@ -188,13 +207,13 @@ This is **not an error** - it's a graceful fallback!
 
 ## 🎯 **Status**
 
-| Component | Status |
-|-----------|--------|
-| Database Connection | ✅ Working |
-| Prisma Proxy | ✅ Configured |
-| Playwright Config | ✅ Fixed |
-| E2E Test Runner | ✅ Enhanced |
-| Docker Fallback | ✅ Implemented |
+| Component           | Status         |
+| ------------------- | -------------- |
+| Database Connection | ✅ Working     |
+| Prisma Proxy        | ✅ Configured  |
+| Playwright Config   | ✅ Fixed       |
+| E2E Test Runner     | ✅ Enhanced    |
+| Docker Fallback     | ✅ Implemented |
 
 ---
 

@@ -1,7 +1,14 @@
 "use client";
-import type { teacher } from '@/prisma/generated/client';;
-import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
-import { deleteTeachersAction, updateTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+import type { teacher } from "@/prisma/generated/client";
+import {
+  EditableTable,
+  type ColumnDef,
+  type ValidationFn,
+} from "@/components/tables";
+import {
+  deleteTeachersAction,
+  updateTeachersAction,
+} from "@/features/teacher/application/actions/teacher.actions";
 
 type TeacherTableProps = {
   tableData: teacher[];
@@ -146,7 +153,7 @@ const handleUpdate = async (teachers: Partial<teacher>[]) => {
       Department: t.Department?.trim() || "-",
       Email: t.Email?.trim() || "", // Email is protected but include in payload
       Role: t.Role || "teacher",
-    }))
+    })),
   );
 };
 

@@ -2,7 +2,7 @@
 import React, { Fragment } from "react";
 import { BiEdit } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 
 type TableRowProps = {
   item: teacher;
@@ -42,7 +42,9 @@ function TableRow({
           checked={checkedList.includes(item.TeacherID)}
         />
       </th>
-      {(["Prefix", "Firstname", "Lastname", "Department", "Email"] as const).map((key) => (
+      {(
+        ["Prefix", "Firstname", "Lastname", "Department", "Email"] as const
+      ).map((key) => (
         <td
           key={key}
           className="px-6 whitespace-nowrap select-none"
@@ -57,7 +59,7 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              setEditModalActive(true), clickToSelect(item.TeacherID);
+              (setEditModalActive(true), clickToSelect(item.TeacherID));
             }}
           />
           {/* Delete action removed - use top toolbar button with multi-select */}

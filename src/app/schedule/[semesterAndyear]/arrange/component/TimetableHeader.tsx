@@ -1,4 +1,4 @@
-import type { timeslot } from '@/prisma/generated/client';;
+import type { timeslot } from "@/prisma/generated/client";
 import { Fragment } from "react";
 interface ITimetableHeaderProps {
   timeslot: {
@@ -15,7 +15,10 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
     const date = new Date(time);
     const hoursNum = date.getHours() - 7;
     const hours = hoursNum < 10 ? `0${hoursNum}` : String(hoursNum);
-    const minutes = date.getMinutes() === 0 ? `0${date.getMinutes()}` : String(date.getMinutes());
+    const minutes =
+      date.getMinutes() === 0
+        ? `0${date.getMinutes()}`
+        : String(date.getMinutes());
     return `${hours}:${minutes}`;
   }
   return (
@@ -23,9 +26,9 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
       <tr className="flex gap-4">
         {/* Column for time labels */}
         <td className="flex items-center bg-gray-100 justify-center p-[10px] h-full rounded">
-            <span className="flex w-[50px] justify-center">
-              <p className="text-gray-600">คาบที่</p>
-            </span>
+          <span className="flex w-[50px] justify-center">
+            <p className="text-gray-600">คาบที่</p>
+          </span>
         </td>
 
         {/* Header cells for each day */}
@@ -43,21 +46,23 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
             <p className="text-gray-600">เวลา</p>
           </span>
         </td>
-        {timeslot.AllData.filter((item) => item.DayOfWeek === "MON").map((item) => (
-          <Fragment key={`Time-${item.TimeslotID}`}>
-            <td className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none">
-              <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                {formatTime(item.StartTime)}
-              </p>
-              <p className="flex text-xs items-center justify-center text-gray-600">
-                -
-              </p>
-              <p className="flex text-xs w-full items-center justify-center text-gray-600">
-                {formatTime(item.EndTime)}
-              </p>
-            </td>
-          </Fragment>
-        ))}
+        {timeslot.AllData.filter((item) => item.DayOfWeek === "MON").map(
+          (item) => (
+            <Fragment key={`Time-${item.TimeslotID}`}>
+              <td className="flex flex-col min-[1440px]:flex-row grow items-center justify-center py-[10px] rounded bg-gray-100 select-none">
+                <p className="flex text-xs w-full items-center justify-center text-gray-600">
+                  {formatTime(item.StartTime)}
+                </p>
+                <p className="flex text-xs items-center justify-center text-gray-600">
+                  -
+                </p>
+                <p className="flex text-xs w-full items-center justify-center text-gray-600">
+                  {formatTime(item.EndTime)}
+                </p>
+              </td>
+            </Fragment>
+          ),
+        )}
       </tr>
     </>
   );

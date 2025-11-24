@@ -12,7 +12,7 @@ export interface ApiErrorResponse {
 /**
  * Create a standardized error response for API routes.
  * Safely handles unknown error types and provides consistent error format.
- * 
+ *
  * @param error - The error object (unknown type)
  * @param defaultMessage - Default message if error cannot be parsed
  * @param status - HTTP status code (default: 500)
@@ -21,12 +21,12 @@ export interface ApiErrorResponse {
 export function createErrorResponse(
   error: unknown,
   defaultMessage: string = "An unexpected error occurred",
-  status: number = 500
+  status: number = 500,
 ): NextResponse<ApiErrorResponse> {
   console.error(error);
 
   let message = defaultMessage;
-  
+
   if (error instanceof Error) {
     message = error.message;
   } else if (typeof error === "string") {
@@ -41,18 +41,18 @@ export function createErrorResponse(
       message,
       status,
     },
-    { status }
+    { status },
   );
 }
 
 /**
  * Validate required query parameters.
- * 
+ *
  * @param params - Object containing parameter name and value pairs
  * @returns Error response if validation fails, null otherwise
  */
 export function validateRequiredParams(
-  params: Record<string, unknown>
+  params: Record<string, unknown>,
 ): NextResponse<ApiErrorResponse> | null {
   const missingParams = Object.entries(params)
     .filter(([, value]) => value === null || value === undefined)
@@ -65,7 +65,7 @@ export function validateRequiredParams(
         message: `Missing required parameters: ${missingParams.join(", ")}`,
         status: 400,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

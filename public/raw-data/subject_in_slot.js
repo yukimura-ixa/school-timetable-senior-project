@@ -3,7 +3,7 @@ export const subject_in_slot = [
     DayOfWeek: "จันทร์",
     Slots: [
       {
-        SlotID : "MON01",
+        SlotID: "MON01",
         SlotNumber: 1,
         Subject: {
           SubjectCode: "ค21202",
@@ -12,7 +12,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON02",
+        SlotID: "MON02",
         SlotNumber: 2,
         Subject: {
           SubjectCode: "ค21101",
@@ -21,7 +21,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON03",
+        SlotID: "MON03",
         SlotNumber: 3,
         Subject: {
           SubjectCode: null,
@@ -30,7 +30,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON04",
+        SlotID: "MON04",
         SlotNumber: 4,
         Subject: {
           SubjectCode: null,
@@ -39,7 +39,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON05",
+        SlotID: "MON05",
         SlotNumber: 5,
         Subject: {
           SubjectCode: null,
@@ -48,7 +48,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON06",
+        SlotID: "MON06",
         SlotNumber: 6,
         Subject: {
           SubjectCode: null,
@@ -57,7 +57,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON07",
+        SlotID: "MON07",
         SlotNumber: 7,
         Subject: {
           SubjectCode: null,
@@ -66,7 +66,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON08",
+        SlotID: "MON08",
         SlotNumber: 8,
         Subject: {
           SubjectCode: null,
@@ -75,7 +75,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON09",
+        SlotID: "MON09",
         SlotNumber: 9,
         Subject: {
           SubjectCode: null,
@@ -84,7 +84,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "MON10",
+        SlotID: "MON10",
         SlotNumber: 10,
         Subject: {
           SubjectCode: null,
@@ -98,25 +98,25 @@ export const subject_in_slot = [
     DayOfWeek: "อังคาร",
     Slots: [
       {
-        SlotID : "TUE01",
+        SlotID: "TUE01",
         SlotNumber: 1,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
-        SlotID : "TUE02",
+        SlotID: "TUE02",
         SlotNumber: 2,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
-        SlotID : "TUE03",
+        SlotID: "TUE03",
         SlotNumber: 3,
         Subject: {
           SubjectCode: null,
@@ -125,7 +125,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE04",
+        SlotID: "TUE04",
         SlotNumber: 4,
         Subject: {
           SubjectCode: null,
@@ -134,7 +134,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE05",
+        SlotID: "TUE05",
         SlotNumber: 5,
         Subject: {
           SubjectCode: null,
@@ -143,7 +143,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE06",
+        SlotID: "TUE06",
         SlotNumber: 6,
         Subject: {
           SubjectCode: null,
@@ -152,7 +152,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE07",
+        SlotID: "TUE07",
         SlotNumber: 7,
         Subject: {
           SubjectCode: null,
@@ -161,7 +161,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE08",
+        SlotID: "TUE08",
         SlotNumber: 8,
         Subject: {
           SubjectCode: null,
@@ -170,7 +170,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE09",
+        SlotID: "TUE09",
         SlotNumber: 9,
         Subject: {
           SubjectCode: null,
@@ -179,7 +179,7 @@ export const subject_in_slot = [
         },
       },
       {
-        SlotID : "TUE10",
+        SlotID: "TUE10",
         SlotNumber: 10,
         Subject: {
           SubjectCode: null,
@@ -195,17 +195,17 @@ export const subject_in_slot = [
       {
         SlotNumber: 1,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
         SlotNumber: 2,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
@@ -280,17 +280,17 @@ export const subject_in_slot = [
       {
         SlotNumber: 1,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
         SlotNumber: 2,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
@@ -365,17 +365,17 @@ export const subject_in_slot = [
       {
         SlotNumber: 1,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {
         SlotNumber: 2,
         Subject: {
-            SubjectCode: null,
-            SubjectName: null,
-            RoomName: null,
+          SubjectCode: null,
+          SubjectName: null,
+          RoomName: null,
         },
       },
       {

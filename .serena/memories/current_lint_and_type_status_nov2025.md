@@ -14,12 +14,12 @@ All 4 primary server action files have **0 ESLint errors, 0 warnings** following
 
 ### High-Priority Files (Server Actions) - ✅ COMPLETE
 
-| File | Status | Errors | Warnings | Notes |
-|------|--------|--------|----------|-------|
-| `config.actions.ts` | ✅ CLEAN | 0 | 0 | Was 79 errors - Fixed with ConfigData type |
-| `assign.actions.ts` | ✅ CLEAN | 0 | 0 | Was 24 errors - Typed transaction callbacks |
-| `timeslot.actions.ts` | ✅ CLEAN | 0 | 0 | Was 10 errors - ESLint config fix |
-| `arrange.actions.ts` | ✅ CLEAN | 0 | 0 | Was already clean |
+| File                  | Status   | Errors | Warnings | Notes                                       |
+| --------------------- | -------- | ------ | -------- | ------------------------------------------- |
+| `config.actions.ts`   | ✅ CLEAN | 0      | 0        | Was 79 errors - Fixed with ConfigData type  |
+| `assign.actions.ts`   | ✅ CLEAN | 0      | 0        | Was 24 errors - Typed transaction callbacks |
+| `timeslot.actions.ts` | ✅ CLEAN | 0      | 0        | Was 10 errors - ESLint config fix           |
+| `arrange.actions.ts`  | ✅ CLEAN | 0      | 0        | Was already clean                           |
 
 **Total Resolved**: 113 type violations eliminated (100% success rate)
 
@@ -28,6 +28,7 @@ All 4 primary server action files have **0 ESLint errors, 0 warnings** following
 **Remaining Errors**: ~680 errors in other files (not covered by this sprint)
 
 Most common patterns:
+
 - Similar Prisma transaction typing issues in other features
 - Legacy component type annotations
 - Missing SWR type parameters in UI components
@@ -60,6 +61,7 @@ export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;
 ```
 
 **Key Exports**:
+
 - `ConfigDataSchema` - Runtime validation schema
 - `ConfigData` - Inferred TypeScript type
 - `isConfigData()` - Type guard function
@@ -82,6 +84,7 @@ export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;
 ```
 
 **Rationale**:
+
 - Prisma's `$transaction(async (tx) => {...})` uses complex generic types
 - TypeScript cannot fully infer types through nested async callbacks
 - Operations ARE type-safe (Prisma validates at runtime)
@@ -91,18 +94,22 @@ export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;
 ### 3. Server Actions Fixed ✅
 
 **config.actions.ts** (79 → 0 errors):
+
 - Replaced 4 `as any` casts with `as ConfigData`
 - Added explicit types to transaction callbacks
 - Fixed optional field handling with nullish coalescing
 
 **assign.actions.ts** (24 → 0 errors):
+
 - Added `teachers_responsibility` type import
 - Typed transaction results explicitly
 
 **timeslot.actions.ts** (10 → 0 errors):
+
 - Benefited from ESLint configuration changes
 
 **arrange.actions.ts** (0 → 0 errors):
+
 - Changed `console.log` → `console.warn`
 - Removed unused error variable
 
@@ -113,22 +120,23 @@ export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;
 **Version**: ESLint 9.39.1 (Flat Config)
 
 **Key Rules**:
+
 ```javascript
 {
   // Type safety
   "@typescript-eslint/no-explicit-any": "error", // STRICT: Prevent new 'any' violations
   "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-  
+
   // Disabled for Prisma transactions (false positives)
   "@typescript-eslint/no-unsafe-assignment": "off",
   "@typescript-eslint/no-unsafe-call": "off",
   "@typescript-eslint/no-unsafe-member-access": "off",
   "@typescript-eslint/no-unsafe-return": "off",
-  
+
   // Code quality
   "no-console": ["warn", { allow: ["warn", "error"] }],
   "eqeqeq": ["error", "smart"],
-  
+
   // Next.js
   "@next/next/no-html-link-for-pages": "error",
   "@next/next/no-img-element": "warn",
@@ -136,6 +144,7 @@ export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;
 ```
 
 **Ignored Paths**:
+
 - `node_modules/**`
 - `e2e/**`
 - `__test__/**`
@@ -151,29 +160,35 @@ export type ConfigData = v.InferOutput<typeof ConfigDataSchema>;
 ### For Prisma Json Fields
 
 1. **Create domain type schema** using Valibot:
+
    ```typescript
-   export const MyDataSchema = v.object({ /* fields */ });
+   export const MyDataSchema = v.object({
+     /* fields */
+   });
    export type MyData = v.InferOutput<typeof MyDataSchema>;
    ```
 
 2. **Cast Json fields** using domain type:
+
    ```typescript
    Config: input.Config as ConfigData,
    ```
 
 3. **Add explicit types to transaction results**:
+
    ```typescript
    const result: ModelType = await tx.model.operation(...);
    ```
 
 4. **Handle optional fields** with nullish coalescing:
    ```typescript
-   data.optional ?? defaultValue
+   data.optional ?? defaultValue;
    ```
 
 ### For Transaction Callbacks
 
 **DO**:
+
 ```typescript
 const result = await prisma.$transaction(async (tx) => {
   const data: ModelType = await tx.model.findMany(...);
@@ -182,6 +197,7 @@ const result = await prisma.$transaction(async (tx) => {
 ```
 
 **DON'T**:
+
 ```typescript
 const result = await prisma.$transaction(async (tx) => {
   const data = await tx.model.findMany(...); // Implicit any
@@ -196,6 +212,7 @@ const result = await prisma.$transaction(async (tx) => {
 ### Remaining Codebase Errors (~680)
 
 **Categories**:
+
 1. **UI Components** - Missing SWR type parameters, loose callback signatures
 2. **Legacy Code** - Old components without proper type annotations
 3. **Stores** - Zustand store type mismatches (see issue #32)
@@ -239,6 +256,7 @@ pnpm test:e2e       # E2E tests (Playwright)
 ## Success Metrics
 
 **Technical Debt Sprint Results**:
+
 - ✅ Started with: 113 documented type violations
 - ✅ Resolved: 113 violations (100% success rate)
 - ✅ Created: 1 new type definition file (config-data.types.ts)
@@ -253,16 +271,19 @@ pnpm test:e2e       # E2E tests (Playwright)
 ## Recommendations
 
 ### Immediate (P0)
+
 - ✅ **DONE**: Fix server action type violations
 - ✅ **DONE**: Update ESLint config for Prisma transactions
 - ✅ **DONE**: Document patterns for future reference
 
 ### Short-term (P1)
+
 - [ ] Run full test suite to verify no regressions
 - [ ] Update other features to use same patterns (program, class, etc.)
 - [ ] Fix Zustand store type mismatches (issue #32)
 
 ### Long-term (P2)
+
 - [ ] Address remaining ~680 errors in UI components
 - [ ] Migrate legacy components to proper typing
 - [ ] Add type parameters to all SWR hooks
@@ -282,6 +303,7 @@ pnpm test:e2e       # E2E tests (Playwright)
 ## Contact for Questions
 
 This memory file tracks ESLint and TypeScript status across the codebase. For questions about:
+
 - **Type patterns**: See issue #52 or config-data.types.ts
 - **ESLint rules**: See eslint.config.mjs comments
 - **Prisma typing**: Consult Prisma 6.18.0 docs via context7 MCP

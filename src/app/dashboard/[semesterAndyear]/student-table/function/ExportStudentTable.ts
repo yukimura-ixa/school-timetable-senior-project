@@ -1,5 +1,5 @@
-import type { gradelevel, timeslot } from '@/prisma/generated/client';;
-import type { Prisma } from '@/prisma/generated/client';;
+import type { gradelevel, timeslot } from "@/prisma/generated/client";
+import type { Prisma } from "@/prisma/generated/client";
 import ExcelJS from "exceljs";
 
 // Type matching ClassScheduleWithSummary from repository
@@ -18,7 +18,9 @@ export type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
 
 // Type for timeslot data structure used in dashboard
 export interface TimeslotData {
-  AllData: (timeslot & { subject: ClassScheduleWithSummary | Record<string, never> })[];
+  AllData: (timeslot & {
+    subject: ClassScheduleWithSummary | Record<string, never>;
+  })[];
   SlotAmount: number[];
 }
 
@@ -31,12 +33,16 @@ export const ExportStudentTable = (
 ) => {
   const grades = [...gradeLevel];
   function formatTime(time: Date | string): string {
-    const date = new Date(time)
-    const hours = date.getHours() - 7 < 10 ? `0${date.getHours() - 7}` : date.getHours() - 7
-    const minutes = date.getMinutes() === 0 ? `0${date.getMinutes()}` : date.getMinutes();
-    return `${hours}:${minutes}`
+    const date = new Date(time);
+    const hours =
+      date.getHours() - 7 < 10
+        ? `0${date.getHours() - 7}`
+        : date.getHours() - 7;
+    const minutes =
+      date.getMinutes() === 0 ? `0${date.getMinutes()}` : date.getMinutes();
+    return `${hours}:${minutes}`;
   }
-  
+
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("นักเรียน", {
     pageSetup: { paperSize: 9, orientation: "landscape" },
@@ -63,26 +69,33 @@ export const ExportStudentTable = (
   for (let i = 0; i < grades.length; i++) {
     const grd = grades[i]; //นำข้อมูลของครูมาใช้ในแต่ละรอบ
     if (!grd) continue; // Skip if grade is undefined
-    
-    let filterClassDataByGID: ClassScheduleWithSummary[] = []
-    if (grades.length === 1){ //ถ้าส่งครูเข้ามาคนเดียว (หมายถึง พิมพ์ตารางรายคน)
-      filterClassDataByGID = [...classData] //นำข้อมูลมาใช้ได้เลย
-    }
-    else{ //ถ้าเป็นตารางรวม ต้อง filter ก่อน
-      filterClassDataByGID = classData.filter((item: ClassScheduleWithSummary) =>
-      item.GradeID.includes(grd.GradeID),
+
+    let filterClassDataByGID: ClassScheduleWithSummary[] = [];
+    if (grades.length === 1) {
+      //ถ้าส่งครูเข้ามาคนเดียว (หมายถึง พิมพ์ตารางรายคน)
+      filterClassDataByGID = [...classData]; //นำข้อมูลมาใช้ได้เลย
+    } else {
+      //ถ้าเป็นตารางรวม ต้อง filter ก่อน
+      filterClassDataByGID = classData.filter(
+        (item: ClassScheduleWithSummary) => item.GradeID.includes(grd.GradeID),
       );
     }
     timeSlotData = {
       ...timeSlotData,
-      AllData: timeSlotData.AllData.map((item: timeslot & { subject: ClassScheduleWithSummary | Record<string, never> }) => {
-        const matchedSubject = filterClassDataByGID.find(
-          (id: ClassScheduleWithSummary) => id.TimeslotID === item.TimeslotID,
-        );
-        return matchedSubject
-          ? { ...item, subject: matchedSubject }
-          : { ...item, subject: {} };
-      }),
+      AllData: timeSlotData.AllData.map(
+        (
+          item: timeslot & {
+            subject: ClassScheduleWithSummary | Record<string, never>;
+          },
+        ) => {
+          const matchedSubject = filterClassDataByGID.find(
+            (id: ClassScheduleWithSummary) => id.TimeslotID === item.TimeslotID,
+          );
+          return matchedSubject
+            ? { ...item, subject: matchedSubject }
+            : { ...item, subject: {} };
+        },
+      ),
     };
     for (let j = tableRow.start; j <= tableRow.end; j++) {
       //loop j คือ loop เขียนข้อมูลลงแถวในแต่ละชุด
@@ -103,7 +116,12 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "วัน / เวลา",
-          ...timeSlotData.AllData.filter(item => item.DayOfWeek === 'MON').map((item) => `${formatTime(item.StartTime)}-${formatTime(item.EndTime)}`),
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "MON",
+          ).map(
+            (item) =>
+              `${formatTime(item.StartTime)}-${formatTime(item.EndTime)}`,
+          ),
         ];
         keepCellCol.push(tableRow.start + 2);
         keepTimeLine.push(tableRow.start + 2);
@@ -112,10 +130,12 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map(
-            (item) =>
-              Object.keys(item.subject).length !== 0 ?
-              item.subject.SubjectCode : "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "MON",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? item.subject.SubjectCode
+              : "",
           ),
         ];
         keepCellRow.push(tableRow.start + 3);
@@ -124,34 +144,44 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "จันทร์",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map(
-            (item) =>
-              item.Breaktime === "BREAK_BOTH"
-                ? "พักกลางวัน"
-                : Object.keys(item.subject).length === 0
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "MON",
+          ).map((item) =>
+            item.Breaktime === "BREAK_BOTH"
+              ? "พักกลางวัน"
+              : Object.keys(item.subject).length === 0
+                ? ""
+                : (item.subject as ClassScheduleWithSummary).IsLocked
                   ? ""
-                  : (item.subject as ClassScheduleWithSummary).IsLocked ? "" : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
+                  : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
           ),
         ];
         keepCellCol.push(tableRow.start + 4);
       } else if (j === tableRow.start + 5) {
         const row = sheet.getRow(tableRow.start + 5);
         row.alignment = alignCell("middle", "center");
-        row.values = ["", ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map(
-          (item) =>
-            Object.keys(item.subject).length !== 0 ?
-            item.subject.room?.RoomName ?? "" : "",
-        ),];
+        row.values = [
+          "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "MON",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? (item.subject.room?.RoomName ?? "")
+              : "",
+          ),
+        ];
         keepCellCol.push(tableRow.start + 5);
       } else if (j === tableRow.start + 6) {
         const row = sheet.getRow(tableRow.start + 6);
         row.alignment = alignCell("middle", "center");
         row.values = [
           "",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "TUE").map(
-            (item) =>
-              Object.keys(item.subject).length !== 0 ?
-              item.subject.SubjectCode : "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "TUE",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? item.subject.SubjectCode
+              : "",
           ),
         ];
         keepCellRow.push(tableRow.start + 6);
@@ -160,34 +190,44 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "อังคาร",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "TUE").map(
-            (item) =>
-              item.Breaktime === "BREAK_BOTH"
-                ? "พักกลางวัน"
-                : Object.keys(item.subject).length === 0
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "TUE",
+          ).map((item) =>
+            item.Breaktime === "BREAK_BOTH"
+              ? "พักกลางวัน"
+              : Object.keys(item.subject).length === 0
+                ? ""
+                : (item.subject as ClassScheduleWithSummary).IsLocked
                   ? ""
-                  : (item.subject as ClassScheduleWithSummary).IsLocked ? "" : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
+                  : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
           ),
         ];
         keepCellCol.push(tableRow.start + 7);
       } else if (j === tableRow.start + 8) {
         const row = sheet.getRow(tableRow.start + 8);
         row.alignment = alignCell("middle", "center");
-        row.values = ["", ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "TUE").map(
-          (item) =>
-            Object.keys(item.subject).length !== 0 ?
-            item.subject.room?.RoomName ?? "" : "",
-        )];
+        row.values = [
+          "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "TUE",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? (item.subject.room?.RoomName ?? "")
+              : "",
+          ),
+        ];
         keepCellCol.push(tableRow.start + 8);
       } else if (j === tableRow.start + 9) {
         const row = sheet.getRow(tableRow.start + 9);
         row.alignment = alignCell("middle", "center");
         row.values = [
           "",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "WED").map(
-            (item) =>
-              Object.keys(item.subject).length !== 0 ?
-              item.subject.SubjectCode : "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "WED",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? item.subject.SubjectCode
+              : "",
           ),
         ];
         keepCellRow.push(tableRow.start + 9);
@@ -196,34 +236,44 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "พุธ",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "WED").map(
-            (item) =>
-              item.Breaktime === "BREAK_BOTH"
-                ? "พักกลางวัน"
-                : Object.keys(item.subject).length === 0
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "WED",
+          ).map((item) =>
+            item.Breaktime === "BREAK_BOTH"
+              ? "พักกลางวัน"
+              : Object.keys(item.subject).length === 0
+                ? ""
+                : (item.subject as ClassScheduleWithSummary).IsLocked
                   ? ""
-                  : (item.subject as ClassScheduleWithSummary).IsLocked ? "" : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
+                  : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
           ),
         ];
         keepCellCol.push(tableRow.start + 10);
       } else if (j === tableRow.start + 11) {
         const row = sheet.getRow(tableRow.start + 11);
         row.alignment = alignCell("middle", "center");
-        row.values = ["", ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "WED").map(
-          (item) =>
-            Object.keys(item.subject).length !== 0 ?
-            item.subject.room?.RoomName ?? "" : "",
-        )];
+        row.values = [
+          "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "WED",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? (item.subject.room?.RoomName ?? "")
+              : "",
+          ),
+        ];
         keepCellCol.push(tableRow.start + 11);
       } else if (j === tableRow.start + 12) {
         const row = sheet.getRow(tableRow.start + 12);
         row.alignment = alignCell("middle", "center");
         row.values = [
           "",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "THU").map(
-            (item) =>
-              Object.keys(item.subject).length !== 0 ?
-              item.subject.SubjectCode : "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "THU",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? item.subject.SubjectCode
+              : "",
           ),
         ];
         keepCellRow.push(tableRow.start + 12);
@@ -232,34 +282,44 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "พฤหัสบดี",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "THU").map(
-            (item) =>
-              item.Breaktime === "BREAK_BOTH"
-                ? "พักกลางวัน"
-                : Object.keys(item.subject).length === 0
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "THU",
+          ).map((item) =>
+            item.Breaktime === "BREAK_BOTH"
+              ? "พักกลางวัน"
+              : Object.keys(item.subject).length === 0
+                ? ""
+                : (item.subject as ClassScheduleWithSummary).IsLocked
                   ? ""
-                  : (item.subject as ClassScheduleWithSummary).IsLocked ? "" : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
+                  : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
           ),
         ];
         keepCellCol.push(tableRow.start + 13);
       } else if (j === tableRow.start + 14) {
         const row = sheet.getRow(tableRow.start + 14);
         row.alignment = alignCell("middle", "center");
-        row.values = ["", ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "THU").map(
-          (item) =>
-            Object.keys(item.subject).length !== 0 ?
-            item.subject.room?.RoomName ?? "" : "",
-        )];
+        row.values = [
+          "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "THU",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? (item.subject.room?.RoomName ?? "")
+              : "",
+          ),
+        ];
         keepCellCol.push(tableRow.start + 14);
       } else if (j === tableRow.start + 15) {
         const row = sheet.getRow(tableRow.start + 15);
         row.alignment = alignCell("middle", "center");
         row.values = [
           "",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "FRI").map(
-            (item) =>
-              Object.keys(item.subject).length !== 0 ?
-              item.subject.SubjectCode : "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "FRI",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? item.subject.SubjectCode
+              : "",
           ),
         ];
         keepCellRow.push(tableRow.start + 15);
@@ -268,24 +328,32 @@ export const ExportStudentTable = (
         row.alignment = alignCell("middle", "center");
         row.values = [
           "ศุกร์",
-          ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "FRI").map(
-            (item) =>
-              item.Breaktime === "BREAK_BOTH"
-                ? "พักกลางวัน"
-                : Object.keys(item.subject).length === 0
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "FRI",
+          ).map((item) =>
+            item.Breaktime === "BREAK_BOTH"
+              ? "พักกลางวัน"
+              : Object.keys(item.subject).length === 0
+                ? ""
+                : (item.subject as ClassScheduleWithSummary).IsLocked
                   ? ""
-                  : (item.subject as ClassScheduleWithSummary).IsLocked ? "" : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
+                  : `${(item.subject as ClassScheduleWithSummary).teachers_responsibility[0]?.teacher?.Firstname ?? ""}`,
           ),
         ];
         keepCellCol.push(tableRow.start + 16);
       } else if (j === tableRow.start + 17) {
         const row = sheet.getRow(tableRow.start + 17);
         row.alignment = alignCell("middle", "center");
-        row.values = ["", ...timeSlotData.AllData.filter((item) => item.DayOfWeek === "FRI").map(
-          (item) =>
-            Object.keys(item.subject).length !== 0 ?
-            item.subject.room?.RoomName ?? "" : "",
-        )];
+        row.values = [
+          "",
+          ...timeSlotData.AllData.filter(
+            (item) => item.DayOfWeek === "FRI",
+          ).map((item) =>
+            Object.keys(item.subject).length !== 0
+              ? (item.subject.room?.RoomName ?? "")
+              : "",
+          ),
+        ];
         keepCellCol.push(tableRow.start + 17);
         keepLastRowLine.push(tableRow.start + 17);
       } else if (j === tableRow.start + 18) {

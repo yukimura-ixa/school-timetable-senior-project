@@ -11,16 +11,17 @@
 
 ### Test Failure Statistics (CI Run #19352639027)
 
-| Metric | Count | Percentage |
-|--------|-------|------------|
-| **Total Tests** | 582 | 100% |
-| **Passed** | 251 | 43.13% |
-| **Failed** | 309 | 53.09% |
+| Metric              | Count                       | Percentage                         |
+| ------------------- | --------------------------- | ---------------------------------- |
+| **Total Tests**     | 582                         | 100%                               |
+| **Passed**          | 251                         | 43.13%                             |
+| **Failed**          | 309                         | 53.09%                             |
 | **Primary Failure** | Element visibility timeouts | 269 failures (87% of all failures) |
 
 ### Root Causes Identified
 
 #### 1.1 Next.js 16 Server Components Streaming
+
 - **Issue**: React Server Components stream content progressively
 - **Impact**: Elements may not be visible immediately after navigation
 - **Requires**: Suspense boundaries for async components (cookies(), headers())
@@ -39,7 +40,8 @@ export async function User() {
 </Suspense>
 ```
 
-#### 1.2 Anti-pattern: Excessive `waitForLoadState('networkidle')` 
+#### 1.2 Anti-pattern: Excessive `waitForLoadState('networkidle')`
+
 - **Found**: 50+ occurrences across test files
 - **Playwright Docs**: "Often unnecessary as Playwright auto-waits"
 - **Problem**: Next.js 16 with streaming may never reach "networkidle" state
@@ -47,7 +49,7 @@ export async function User() {
 
 ```typescript
 // ❌ Anti-pattern: Wait for networkidle then assert
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 await expect(table).toBeVisible({ timeout: 5000 });
 
 // ✅ Best practice: Web-first assertion (auto-waits)
@@ -55,6 +57,7 @@ await expect(table).toBeVisible({ timeout: 10000 });
 ```
 
 #### 1.3 Missing Data-Loaded Attributes
+
 - **Issue**: Tests can't reliably detect when async data has loaded
 - **Solution**: Add `data-loaded="true"` attributes to components
 - **Pattern**: Wait for specific state instead of generic network idle
@@ -68,9 +71,10 @@ await expect(table).toBeVisible({ timeout: 10000 });
 **Server Component Streaming Best Practices:**
 
 1. **Always wrap dynamic components in Suspense**
+
    ```typescript
    import { Suspense } from 'react'
-   
+
    export default function Page() {
      return (
        <>
@@ -84,9 +88,10 @@ await expect(table).toBeVisible({ timeout: 10000 });
    ```
 
 2. **Use `connection()` API for dynamic rendering**
+
    ```typescript
    import { connection } from 'next/server'
-   
+
    export default async function Page() {
      await connection()
      return <div>...</div>
@@ -98,7 +103,7 @@ await expect(table).toBeVisible({ timeout: 10000 });
    const nextConfig = {
      cacheComponents: true, // Enable Cache Components mode
      reactCompiler: true,
-   }
+   };
    ```
 
 ### From Playwright Official Documentation
@@ -107,16 +112,16 @@ await expect(table).toBeVisible({ timeout: 10000 });
 
 ```javascript
 // ✅ RECOMMENDED: Auto-retrying assertions
-await expect(page.getByText('welcome')).toBeVisible();
-await expect(page.locator('table')).toBeVisible();
-await expect(page).toHaveURL('/dashboard');
+await expect(page.getByText("welcome")).toBeVisible();
+await expect(page.locator("table")).toBeVisible();
+await expect(page).toHaveURL("/dashboard");
 
 // ❌ DISCOURAGED: Manual checks
 const visible = await element.isVisible();
 expect(visible).toBe(true);
 
 // ❌ OFTEN UNNECESSARY: Load state waits
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 ```
 
 **When to Use Specific Waits:**
@@ -126,9 +131,12 @@ await page.waitForLoadState('networkidle');
 await page.waitForSelector('[data-loaded="true"]', { timeout: 10000 });
 
 // For dynamic lists: Wait for meaningful DOM change
-await page.waitForFunction(() => {
-  return document.querySelectorAll('tbody tr').length > 0;
-}, { timeout: 3000 });
+await page.waitForFunction(
+  () => {
+    return document.querySelectorAll("tbody tr").length > 0;
+  },
+  { timeout: 3000 },
+);
 ```
 
 ---
@@ -212,7 +220,7 @@ await page.waitForSelector('[data-loaded="true"]', { timeout: 10000 });
 ```javascript
 // next.config.mjs
 const nextConfig = {
-  cacheComponents: true,  // Add this
+  cacheComponents: true, // Add this
   reactCompiler: true,
   images: {
     remotePatterns: [
@@ -228,11 +236,11 @@ const nextConfig = {
 
 ### Pass Rate Improvement Estimate
 
-| Scenario | Current | After Phase 1 | After Phase 2 | After Phase 3 |
-|----------|---------|---------------|---------------|---------------|
-| Pass Rate | 43% | 60-65% | 75-80% | 85-90% |
-| Failing Tests | 309 | ~200 | ~120 | ~60 |
-| Element Timeouts | 269 | ~150 | ~50 | ~10 |
+| Scenario         | Current | After Phase 1 | After Phase 2 | After Phase 3 |
+| ---------------- | ------- | ------------- | ------------- | ------------- |
+| Pass Rate        | 43%     | 60-65%        | 75-80%        | 85-90%        |
+| Failing Tests    | 309     | ~200          | ~120          | ~60           |
+| Element Timeouts | 269     | ~150          | ~50           | ~10           |
 
 ### Test Execution Time
 
@@ -249,7 +257,7 @@ const nextConfig = {
 
 ```typescript
 // ❌ DON'T: Use networkidle unless absolutely necessary
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 
 // ❌ DON'T: Manual visibility checks
 const visible = await element.isVisible();
@@ -263,16 +271,19 @@ await page.waitForTimeout(3000);
 
 ```typescript
 // ✅ DO: Web-first assertions (auto-wait)
-await expect(page.locator('table')).toBeVisible();
+await expect(page.locator("table")).toBeVisible();
 
 // ✅ DO: Wait for specific conditions
-await page.waitForFunction(() => {
-  return document.querySelector('[data-loaded="true"]') !== null;
-}, { timeout: 10000 });
+await page.waitForFunction(
+  () => {
+    return document.querySelector('[data-loaded="true"]') !== null;
+  },
+  { timeout: 10000 },
+);
 
 // ✅ DO: Use expect.toPass() for debounced operations
 await expect(async () => {
-  expect(page.url()).toContain('search=test');
+  expect(page.url()).toContain("search=test");
 }).toPass({ timeout: 3000 });
 ```
 
@@ -280,23 +291,23 @@ await expect(async () => {
 
 ```typescript
 // Pattern 1: Test SSR (data in initial HTML)
-page.on('response', async (response) => {
-  if (response.url().includes('/dashboard')) {
+page.on("response", async (response) => {
+  if (response.url().includes("/dashboard")) {
     const html = await response.text();
-    expect(html).toContain('<table'); // Data server-rendered
+    expect(html).toContain("<table"); // Data server-rendered
   }
 });
 
 // Pattern 2: Test streaming with Suspense
-await expect(page.locator('main')).toBeVisible(); // Static content
-await expect(page.locator('[data-loaded]')).toBeVisible(); // Streamed content
+await expect(page.locator("main")).toBeVisible(); // Static content
+await expect(page.locator("[data-loaded]")).toBeVisible(); // Streamed content
 
 // Pattern 3: Verify no client-side fetching (Server Components)
 const apiCalls = [];
-page.on('request', req => {
-  if (req.url().includes('/api/')) apiCalls.push(req.url());
+page.on("request", (req) => {
+  if (req.url().includes("/api/")) apiCalls.push(req.url());
 });
-await page.goto('/dashboard/1-2567/teacher-table');
+await page.goto("/dashboard/1-2567/teacher-table");
 expect(apiCalls.length).toBe(0); // All data server-rendered
 ```
 

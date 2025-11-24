@@ -28,15 +28,18 @@ function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
 
   const deleteLockSchedule = async (data: DeleteLockScheduleData) => {
     const deleteData = data.ClassIDs;
-    
+
     try {
       await deleteLocksAction(deleteData);
       mutate();
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
     } catch (error: any) {
-      enqueueSnackbar("ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
   };

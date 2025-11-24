@@ -28,10 +28,10 @@ useEffect(() => {
     onSelectSubject(); // This callback changes when its dependencies change
   }
 }, [
-  storeSelectedSubject,       // Changes → triggers useEffect
-  changeTimeSlotSubject,      // Changes → triggers useEffect  
+  storeSelectedSubject, // Changes → triggers useEffect
+  changeTimeSlotSubject, // Changes → triggers useEffect
   checkConflictData.isValidating,
-  onSelectSubject,            // Changes when dependencies change → triggers useEffect
+  onSelectSubject, // Changes when dependencies change → triggers useEffect
 ]);
 
 // Line ~750: onSelectSubject depends on many things
@@ -45,16 +45,17 @@ const onSelectSubject = useCallback(() => {
   // - currentTeacherID
   // - actions (stable, but used internally)
 }, [
-  storeSelectedSubject,      // Same as useEffect dependency
-  changeTimeSlotSubject,     // Same as useEffect dependency
+  storeSelectedSubject, // Same as useEffect dependency
+  changeTimeSlotSubject, // Same as useEffect dependency
   checkConflictData.data,
-  timeSlotData,              // ❌ PROBLEM: Complex object, changes frequently
-  clearScheduledData,        // ❌ PROBLEM: Callback depends on timeSlotData
+  timeSlotData, // ❌ PROBLEM: Complex object, changes frequently
+  clearScheduledData, // ❌ PROBLEM: Callback depends on timeSlotData
   actions,
 ]);
 ```
 
 **The Loop:**
+
 1. `timeSlotData` changes (from any action)
 2. `clearScheduledData` callback recreates (depends on `timeSlotData`)
 3. `onSelectSubject` callback recreates (depends on `clearScheduledData` + `timeSlotData`)
@@ -65,12 +66,14 @@ const onSelectSubject = useCallback(() => {
 ## Evidence
 
 **Test Output:**
+
 ```
 POST /schedule/1-2567/arrange?TeacherID=1  (65 requests in single page load)
 ```
 
 **Server Logs:**
 Every POST request triggers:
+
 - Route compilation (6-72ms)
 - React rendering (15-63ms)
 - Full Server Component re-render
@@ -78,15 +81,18 @@ Every POST request triggers:
 ## Attempted Fixes
 
 ### ✅ Completed
+
 1. Added `useShallow` to all object-returning selectors
 2. Removed unstable dependencies from useEffect arrays (actions, currentTeacherID)
 3. Added SWR deduplication config
 4. Gated palette rendering on data availability
 
 ### 🟡 Partial
+
 - Added `onSelectSubject` to dependency array (fixes lint, but doesn't stop loop)
 
 ### ❌ Not Effective
+
 The fixes reduced some re-renders but the fundamental circular dependency remains.
 
 ## Proper Solution
@@ -97,7 +103,9 @@ Move the logic directly into the useEffect to eliminate callback dependency:
 
 ```tsx
 // ❌ BEFORE: Callback dependency creates loop
-const onSelectSubject = useCallback(() => { /* ... */ }, [many, deps]);
+const onSelectSubject = useCallback(() => {
+  /* ... */
+}, [many, deps]);
 useEffect(() => {
   onSelectSubject();
 }, [storeSelectedSubject, changeTimeSlotSubject, onSelectSubject]);
@@ -106,9 +114,9 @@ useEffect(() => {
 useEffect(() => {
   const isSelectedToAdd = storeSelectedSubject != null;
   const isSelectedToChange = changeTimeSlotSubject != null;
-  
+
   // ... all logic inline
-}, [storeSelectedSubject, changeTimeSlotSubject, /* only data deps */]);
+}, [storeSelectedSubject, changeTimeSlotSubject /* only data deps */]);
 ```
 
 ### Option 2: Use `useEvent` (React RFC)
@@ -160,17 +168,20 @@ useEffect(() => {
 ## Impact Assessment
 
 **Performance:**
+
 - 65 POST requests = 65 full Server Component re-renders
 - Each render: ~20-100ms compile + render
 - Total wasted time: ~3-6 seconds per page load
 - User experience: Slow loading, spinner lag
 
 **Data Integrity:**
+
 - SWR deduplication prevents duplicate fetches (✅)
 - But still causes unnecessary network traffic
 - Race conditions possible if user interacts during loop
 
 **Developer Experience:**
+
 - 12+ lint errors disabled with `eslint-disable-next-line`
 - Confusing dependency arrays
 - Hard to reason about render triggers
@@ -185,17 +196,20 @@ useEffect(() => {
 ## Testing Strategy
 
 **Before Fix:**
+
 ```bash
 pnpm test:e2e -- e2e/tests/admin/schedule-assignment.spec.ts:71 --project=chromium 2>&1 | Select-String "POST /schedule" | Measure-Object
 # Count: 65
 ```
 
 **After Fix Target:**
+
 ```bash
 # Expected: 1-3 POST requests (initial load + teacher selection + data fetch)
 ```
 
 **Acceptance Criteria:**
+
 - ✅ POST request count ≤ 5
 - ✅ All lint errors resolved
 - ✅ E2E test passes (subject data loads)

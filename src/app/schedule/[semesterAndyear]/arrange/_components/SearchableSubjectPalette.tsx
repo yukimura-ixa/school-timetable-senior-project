@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Searchable Subject Palette
- * 
+ *
  * Enhanced subject selection component with search and category filters.
  * Phase 2 Part 1 - Interactive Enhancements
- * 
+ *
  * @module SearchableSubjectPalette
  */
 
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   Box,
   TextField,
@@ -22,7 +22,7 @@ import {
   ToggleButton,
   Badge,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   FilterList as FilterIcon,
@@ -30,11 +30,11 @@ import {
   Add as AddIcon,
   LocalActivity as ActivityIcon,
   Clear as ClearIcon,
-} from '@mui/icons-material';
-import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
-import SubjectItem from '../component/SubjectItem';
-import type { teacher } from '@/prisma/generated/client';
-import type { SubjectData as SubjectDataType } from '@/types/schedule.types';
+} from "@mui/icons-material";
+import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
+import SubjectItem from "../component/SubjectItem";
+import type { teacher } from "@/prisma/generated/client";
+import type { SubjectData as SubjectDataType } from "@/types/schedule.types";
 
 interface SearchableSubjectPaletteProps {
   respData: SubjectDataType[];
@@ -54,18 +54,18 @@ export function SearchableSubjectPalette({
   // ============================================================================
   // STATE
   // ============================================================================
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [yearFilter, setYearFilter] = useState<number[]>([]);
 
   // ============================================================================
   // FILTERING LOGIC
   // ============================================================================
-  
+
   const filteredSubjects = useMemo(() => {
     // Filter out items without required fields (gradeID, subjectCode, subjectName)
     let filtered = respData.filter(
-      (item) => !!item.gradeID && !!item.subjectCode && !!item.subjectName
+      (item) => !!item.gradeID && !!item.subjectCode && !!item.subjectName,
     );
 
     // Search filter (subject code or name)
@@ -75,14 +75,14 @@ export function SearchableSubjectPalette({
         (item) =>
           item.subjectCode?.toLowerCase().includes(query) ||
           item.subjectName?.toLowerCase().includes(query) ||
-          item.gradeID?.toLowerCase().includes(query)
+          item.gradeID?.toLowerCase().includes(query),
       );
     }
 
     // Category filter
     if (categoryFilter.length > 0) {
       filtered = filtered.filter((item) =>
-        categoryFilter.includes(item.category || 'CORE')
+        categoryFilter.includes(item.category || "CORE"),
       );
     }
 
@@ -99,77 +99,92 @@ export function SearchableSubjectPalette({
     }
 
     // Type assertion: after filtering, we know these fields are non-null
-    return filtered as Array<SubjectDataType & { gradeID: string; subjectCode: string; subjectName: string }>;
+    return filtered as Array<
+      SubjectDataType & {
+        gradeID: string;
+        subjectCode: string;
+        subjectName: string;
+      }
+    >;
   }, [respData, searchQuery, categoryFilter, yearFilter]);
 
   // ============================================================================
   // STATS
   // ============================================================================
-  
+
   const stats = useMemo(() => {
     const total = respData.length;
-    const core = respData.filter((item) => item.category === 'CORE').length;
-    const additional = respData.filter((item) => item.category === 'ADDITIONAL').length;
-    const activity = respData.filter((item) => item.category === 'ACTIVITY').length;
-    
+    const core = respData.filter((item) => item.category === "CORE").length;
+    const additional = respData.filter(
+      (item) => item.category === "ADDITIONAL",
+    ).length;
+    const activity = respData.filter(
+      (item) => item.category === "ACTIVITY",
+    ).length;
+
     return { total, core, additional, activity };
   }, [respData]);
 
   // ============================================================================
   // HANDLERS
   // ============================================================================
-  
+
   const handleCategoryToggle = (
     _event: React.MouseEvent<HTMLElement>,
-    newCategories: string[]
+    newCategories: string[],
   ) => {
     setCategoryFilter(newCategories);
   };
 
   const handleYearToggle = (
     _event: React.MouseEvent<HTMLElement>,
-    newYears: number[]
+    newYears: number[],
   ) => {
     setYearFilter(newYears);
   };
 
   const handleClearFilters = () => {
-    setSearchQuery('');
+    setSearchQuery("");
     setCategoryFilter([]);
     setYearFilter([]);
   };
 
-  const hasActiveFilters = searchQuery || categoryFilter.length > 0 || yearFilter.length > 0;
+  const hasActiveFilters =
+    searchQuery || categoryFilter.length > 0 || yearFilter.length > 0;
 
   // Generate IDs for SortableContext
   const itemIds = filteredSubjects.map(
-    (item, index) => `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`
+    (item, index) => `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`,
   );
 
   // ============================================================================
   // RENDER
   // ============================================================================
-  
+
   return (
     <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
       <Stack spacing={2}>
         {/* Header */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Typography variant="subtitle1" fontWeight="bold">
             วิชาที่สามารถจัดลงได้
           </Typography>
-          
+
           <Stack direction="row" spacing={1}>
-            <Chip 
+            <Chip
               label={`ทั้งหมด: ${stats.total}`}
               size="small"
               variant="outlined"
             />
-            <Chip 
+            <Chip
               label={`กรอง: ${filteredSubjects.length}`}
               size="small"
-              color={hasActiveFilters ? 'primary' : 'default'}
-              sx={{ fontWeight: hasActiveFilters ? 'bold' : 'normal' }}
+              color={hasActiveFilters ? "primary" : "default"}
+              sx={{ fontWeight: hasActiveFilters ? "bold" : "normal" }}
             />
           </Stack>
         </Stack>
@@ -192,8 +207,8 @@ export function SearchableSubjectPalette({
                 <Tooltip title="ล้างการค้นหา">
                   <ClearIcon
                     fontSize="small"
-                    sx={{ cursor: 'pointer', color: 'text.secondary' }}
-                    onClick={() => setSearchQuery('')}
+                    sx={{ cursor: "pointer", color: "text.secondary" }}
+                    onClick={() => setSearchQuery("")}
                   />
                 </Tooltip>
               </InputAdornment>
@@ -204,9 +219,18 @@ export function SearchableSubjectPalette({
         {/* Filter Section */}
         <Stack spacing={1.5}>
           {/* Category Filter */}
-          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-            <FilterIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 60 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+          >
+            <FilterIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ minWidth: 60 }}
+            >
               หมวดหมู่:
             </Typography>
             <ToggleButtonGroup
@@ -223,7 +247,7 @@ export function SearchableSubjectPalette({
                   </Stack>
                 </Badge>
               </ToggleButton>
-              
+
               <ToggleButton value="ADDITIONAL" aria-label="additional subjects">
                 <Badge badgeContent={stats.additional} color="success" max={99}>
                   <Stack direction="row" spacing={0.5} alignItems="center">
@@ -232,7 +256,7 @@ export function SearchableSubjectPalette({
                   </Stack>
                 </Badge>
               </ToggleButton>
-              
+
               <ToggleButton value="ACTIVITY" aria-label="activity subjects">
                 <Badge badgeContent={stats.activity} color="secondary" max={99}>
                   <Stack direction="row" spacing={0.5} alignItems="center">
@@ -245,9 +269,18 @@ export function SearchableSubjectPalette({
           </Stack>
 
           {/* Year Filter */}
-          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-            <FilterIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 60 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            flexWrap="wrap"
+          >
+            <FilterIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ minWidth: 60 }}
+            >
               ระดับชั้น:
             </Typography>
             <ToggleButtonGroup
@@ -257,7 +290,11 @@ export function SearchableSubjectPalette({
               aria-label="year filter"
             >
               {[1, 2, 3, 4, 5, 6].map((year) => (
-                <ToggleButton key={year} value={year} aria-label={`year ${year}`}>
+                <ToggleButton
+                  key={year}
+                  value={year}
+                  aria-label={`year ${year}`}
+                >
                   <Typography variant="caption">ม.{year}</Typography>
                 </ToggleButton>
               ))}
@@ -275,7 +312,7 @@ export function SearchableSubjectPalette({
                 onDelete={handleClearFilters}
                 onClick={handleClearFilters}
                 deleteIcon={<ClearIcon />}
-                sx={{ cursor: 'pointer' }}
+                sx={{ cursor: "pointer" }}
               />
             </Box>
           )}
@@ -285,34 +322,34 @@ export function SearchableSubjectPalette({
         <Box
           sx={{
             border: 1,
-            borderColor: 'divider',
+            borderColor: "divider",
             borderRadius: 1,
             p: 1,
             minHeight: 140,
             maxHeight: 200,
-            overflowY: 'auto',
-            bgcolor: 'background.default',
+            overflowY: "auto",
+            bgcolor: "background.default",
           }}
         >
           {filteredSubjects.length === 0 ? (
             <Stack
               alignItems="center"
               justifyContent="center"
-              sx={{ minHeight: 120, color: 'text.secondary' }}
+              sx={{ minHeight: 120, color: "text.secondary" }}
             >
               <SearchIcon sx={{ fontSize: 40, opacity: 0.3, mb: 1 }} />
               <Typography variant="body2">
                 {hasActiveFilters
-                  ? 'ไม่พบวิชาที่ตรงกับเงื่อนไขการกรอง'
-                  : 'ไม่มีวิชาที่สามารถจัดได้'}
+                  ? "ไม่พบวิชาที่ตรงกับเงื่อนไขการกรอง"
+                  : "ไม่มีวิชาที่สามารถจัดได้"}
               </Typography>
             </Stack>
           ) : (
             <SortableContext items={itemIds} strategy={rectSortingStrategy}>
               <Box
                 sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
                   gap: 1,
                 }}
               >
@@ -335,7 +372,11 @@ export function SearchableSubjectPalette({
         </Box>
 
         {/* Help Text */}
-        <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ fontStyle: "italic" }}
+        >
           💡 <b>เคล็ดลับ:</b> คลิกหรือลากวิชาที่ต้องการเพื่อจัดลงในตารางสอน
         </Typography>
       </Stack>

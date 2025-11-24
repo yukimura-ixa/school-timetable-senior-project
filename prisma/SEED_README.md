@@ -8,16 +8,16 @@ This seed file creates a comprehensive mock database based on a medium-sized Tha
 
 The seed generates realistic data for a medium-sized Thai secondary school:
 
-| Entity | Count | Description |
-|--------|-------|-------------|
-| **Programs** | 4 | Core curriculum (junior/senior) + electives (Science-Math, Arts-Language) |
-| **Grade Levels** | 18 | M.1-M.6 with 3 sections each (101-603) |
-| **Teachers** | 60 | Distributed across 8 departments |
-| **Rooms** | 40 | 3 specialized buildings (Academic, Science, Sports/Arts) |
-| **Subjects** | 42+ | Thai curriculum (core + elective + activities) |
-| **Timeslots** | 40 | 8 periods/day × 5 days (MON-FRI) |
-| **Teacher Responsibilities** | 150+ | Subject assignments per grade/teacher (following Ministry standards: 1-3 subjects/teacher) |
-| **Class Schedules** | 40+ | Sample schedules including locked slots |
+| Entity                       | Count | Description                                                                                |
+| ---------------------------- | ----- | ------------------------------------------------------------------------------------------ |
+| **Programs**                 | 4     | Core curriculum (junior/senior) + electives (Science-Math, Arts-Language)                  |
+| **Grade Levels**             | 18    | M.1-M.6 with 3 sections each (101-603)                                                     |
+| **Teachers**                 | 60    | Distributed across 8 departments                                                           |
+| **Rooms**                    | 40    | 3 specialized buildings (Academic, Science, Sports/Arts)                                   |
+| **Subjects**                 | 42+   | Thai curriculum (core + elective + activities)                                             |
+| **Timeslots**                | 40    | 8 periods/day × 5 days (MON-FRI)                                                           |
+| **Teacher Responsibilities** | 150+  | Subject assignments per grade/teacher (following Ministry standards: 1-3 subjects/teacher) |
+| **Class Schedules**          | 40+   | Sample schedules including locked slots                                                    |
 
 ## Data Structure
 
@@ -34,6 +34,7 @@ The seed generates realistic data for a medium-sized Thai secondary school:
 - **M.4-M.6 (มัธยมปลาย)**: Grades 401, 402, 403, 501, 502, 503, 601, 602, 603
 
 Each grade has:
+
 - Year: 1-6
 - Number: 1-3 (section/classroom number)
 - Associated programs (core + elective based on track)
@@ -52,6 +53,7 @@ Each grade has:
 8. **การงานอาชีพ** - Career and Technology (7-8 teachers)
 
 Each teacher has:
+
 - Thai prefix (นาย, นางสาว, นาง, ครู, อาจารย์)
 - Thai firstname and lastname (realistic names)
 - Email: `teacher[N]@school.ac.th`
@@ -84,6 +86,7 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 #### Core Subjects (วิชาหลัก)
 
 **ภาษาไทย (Thai Language)**
+
 - ท21101: ภาษาไทย 1 (1.5 credits)
 - ท21102: ภาษาไทย 2 (1.5 credits)
 - ท21201: ภาษาไทย 3 (1.5 credits)
@@ -91,6 +94,7 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 - ท31102: ภาษาไทย 5 (1.5 credits)
 
 **คณิตศาสตร์ (Mathematics)**
+
 - ค21101: คณิตศาสตร์ 1 (1.5 credits)
 - ค21102: คณิตศาสตร์ 2 (1.5 credits)
 - ค21201: คณิตศาสตร์ 3 (1.5 credits)
@@ -98,6 +102,7 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 - ค31201: คณิตศาสตร์เพิ่มเติม (1.0 credit) - Elective
 
 **วิทยาศาสตร์ (Science)**
+
 - ว21101: วิทยาศาสตร์ 1 (1.5 credits)
 - ว21102: วิทยาศาสตร์ 2 (1.5 credits)
 - ว21171: เคมี 1 (1.0 credit) - Elective
@@ -106,6 +111,7 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 - ว31101: ฟิสิกส์ 1 (1.0 credit) - Elective
 
 **ภาษาอังกฤษ (English)**
+
 - อ21101: ภาษาอังกฤษ 1 (1.5 credits)
 - อ21102: ภาษาอังกฤษ 2 (1.5 credits)
 - อ21201: ภาษาอังกฤษ 3 (1.5 credits)
@@ -113,24 +119,28 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 - อ31201: ภาษาอังกฤษสนทนา (1.0 credit) - Elective
 
 **สังคมศึกษา (Social Studies)**
+
 - ส21101: สังคมศึกษา 1 (1.5 credits)
 - ส21102: สังคมศึกษา 2 (1.5 credits)
 - ส21104: ประวัติศาสตร์ (1.0 credit)
 - ส31101: สังคมศึกษา 4 (1.5 credits)
 
 **พลศึกษา (Physical Education)**
+
 - พ21101: พลศึกษา 1 (0.5 credit)
 - พ21102: พลศึกษา 2 (0.5 credit)
 - พ21103: สุขศึกษา (0.5 credit)
 - พ31101: พลศึกษา 4 (0.5 credit)
 
 **ศิลปะ (Arts)**
+
 - ศ21101: ศิลปะ 1 (1.0 credit)
 - ศ21102: ดนตรี (0.5 credit)
 - ศ20201: นาฏศิลป์ (2.0 credits) - Special elective
 - ศ31101: ศิลปะ 4 (1.0 credit)
 
 **การงานอาชีพ (Career and Technology)**
+
 - ง21101: การงานอาชีพ 1 (1.0 credit)
 - ง21102: คอมพิวเตอร์ 1 (1.0 credit)
 - ง21201: การงานอาชีพ 2 (1.0 credit)
@@ -148,30 +158,33 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 
 **Schedule**: 5 days (MON-FRI) × 8 periods = 40 timeslots
 
-| Period | Time | Break Type |
-|--------|------|------------|
-| 1 | 08:30-09:20 | None |
-| 2 | 09:20-10:10 | None |
-| 3 | 10:10-11:00 | None |
-| 4 | 11:00-11:50 | None |
-| **Lunch Break** | **11:50-12:50** | **60 minutes** |
-| 5 | 12:50-13:40 | Junior break (after period 4) |
-| 6 | 13:40-14:30 | Senior break (after period 5) |
-| 7 | 14:30-15:20 | None |
-| 8 | 15:20-16:10 | None |
+| Period          | Time            | Break Type                    |
+| --------------- | --------------- | ----------------------------- |
+| 1               | 08:30-09:20     | None                          |
+| 2               | 09:20-10:10     | None                          |
+| 3               | 10:10-11:00     | None                          |
+| 4               | 11:00-11:50     | None                          |
+| **Lunch Break** | **11:50-12:50** | **60 minutes**                |
+| 5               | 12:50-13:40     | Junior break (after period 4) |
+| 6               | 13:40-14:30     | Senior break (after period 5) |
+| 7               | 14:30-15:20     | None                          |
+| 8               | 15:20-16:10     | None                          |
 
 **Timeslot ID Format**: `1-2567-{DAY}{PERIOD}`
+
 - Example: `1-2567-MON1` = Semester 1, Year 2567, Monday Period 1
 
 ### Teacher Responsibilities (ความรับผิดชอบครู)
 
 **Ministry of Education Standards**:
+
 - Each teacher is assigned **1-3 subjects** per semester
 - Core subject teachers (Thai, Math, Science, English, Social) typically teach their subject across 2-3 grade levels
 - Secondary subject teachers (PE, Arts, Career) may teach across more grade levels with fewer periods per week
 - Activity coordinators (ชุมนุม, ลูกเสือ) are assigned as additional responsibilities, typically to PE, Arts, or Social Studies teachers
 
 **Assignment Distribution**:
+
 - **Core Subjects (Thai, Math, Science, English, Social)**: All 18 grade levels covered, 3 periods/week each
 - **PE & Health**: All 18 grade levels, 1 period/week
 - **Arts**: All 18 grade levels, 2 periods/week
@@ -180,6 +193,7 @@ Room naming format: `ห้อง xyz` where x=building number, y=floor number, 
 - **ลูกเสือ/ยุวกาชาด (Scouts)**: All 18 grade levels, 1 period/week (assigned to PE/Social teachers)
 
 **Teacher Workload**:
+
 - Most teachers have 2-3 subject assignments
 - Activity subjects count toward the 3-subject maximum
 - Workload is balanced across departments to simulate realistic teaching assignments
@@ -194,6 +208,7 @@ The seed includes locked slots for school-wide activities:
 - **Wednesday Period 8**: ลูกเสือ/ยุวกาชาด (Scout activities) - All 18 classes locked
 
 These demonstrate:
+
 - Multiple classes scheduled at the same time
 - Periods that cannot be modified (IsLocked = true)
 - Activities without specific room assignments
@@ -201,6 +216,7 @@ These demonstrate:
 ### 2. Multiple Teacher Assignments
 
 Teachers are assigned to multiple classes:
+
 - Each teacher typically teaches 2-3 different classes
 - Some teachers handle both junior and senior levels
 - Demonstrates workload distribution
@@ -214,6 +230,7 @@ Teachers are assigned to multiple classes:
 ### 4. Mixed Credit Subjects
 
 Subjects range from 0.5 to 2.0 credits:
+
 - 0.5 credits: PE, Activities
 - 1.0 credit: Arts, Career subjects, Electives
 - 1.5 credits: Core subjects (Thai, Math, Science, English, Social)
@@ -368,6 +385,7 @@ The seeded data supports testing these scenarios:
 ### Thai Subject Codes
 
 Follows standard Thai Ministry of Education coding:
+
 - **ท** (Thai Language)
 - **ค** (Mathematics)
 - **ว** (Science)
@@ -378,6 +396,7 @@ Follows standard Thai Ministry of Education coding:
 - **ง** (Career/Technology)
 
 Format: `[Category][Level][Sequence]`
+
 - Example: `ท21101` = Thai Language, Level 2 (M.1-M.3), Course 1, Version 01
 
 ### Academic Calendar
@@ -397,13 +416,18 @@ To customize the seed data, modify these constants in `prisma/seed.ts`:
 const teachersPerDept = Math.floor(60 / DEPARTMENTS.length); // Change 60
 
 // Adjust number of grade sections
-for (let section = 1; section <= 3; section++) // Change 3
-
-// Adjust rooms
-const roomsPerFloor = 5; // Change 5
+for (
+  let section = 1;
+  section <= 3;
+  section++ // Change 3
+)
+  // Adjust rooms
+  const roomsPerFloor = 5; // Change 5
 
 // Adjust periods
-const periods = [ /* ... */ ]; // Modify periods array
+const periods = [
+  /* ... */
+]; // Modify periods array
 
 // Adjust academic year
 const academicYear = 2567; // Change year
@@ -414,6 +438,7 @@ const academicYear = 2567; // Change year
 ### Seed Fails with Foreign Key Error
 
 Ensure migrations are up to date:
+
 ```bash
 npx prisma migrate dev
 npx prisma generate
@@ -422,6 +447,7 @@ npx prisma generate
 ### ts-node Not Found
 
 Install ts-node:
+
 ```bash
 pnpm add -D ts-node
 ```
@@ -429,6 +455,7 @@ pnpm add -D ts-node
 ### Database Connection Error
 
 Check your `.env` file has correct `DATABASE_URL`:
+
 ```env
 DATABASE_URL="mysql://user:password@localhost:3306/school-timetable-db-dev"
 ```
@@ -436,6 +463,7 @@ DATABASE_URL="mysql://user:password@localhost:3306/school-timetable-db-dev"
 ### Prisma Client Out of Sync
 
 Regenerate Prisma Client:
+
 ```bash
 npx prisma generate
 ```
@@ -449,6 +477,7 @@ npx prisma generate
 ## Contributing
 
 When adding new seed data:
+
 1. Maintain realistic Thai naming conventions
 2. Ensure foreign key relationships are valid
 3. Include comments explaining edge cases

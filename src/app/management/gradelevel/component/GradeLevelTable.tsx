@@ -1,9 +1,17 @@
 "use client";
-import type { gradelevel } from '@/prisma/generated/client';;
-import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
-import { deleteGradeLevelsAction, updateGradeLevelsAction, createGradeLevelAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import type { gradelevel } from "@/prisma/generated/client";
+import {
+  EditableTable,
+  type ColumnDef,
+  type ValidationFn,
+} from "@/components/tables";
+import {
+  deleteGradeLevelsAction,
+  updateGradeLevelsAction,
+  createGradeLevelAction,
+} from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { FormControl, MenuItem, Select } from "@mui/material";
-import type { program } from '@/prisma/generated/client';;
+import type { program } from "@/prisma/generated/client";
 
 type GradeLevelTableProps = {
   tableData: gradelevel[];
@@ -12,7 +20,9 @@ type GradeLevelTableProps = {
 };
 
 // Build column definitions for gradelevel table (row-aware Program selector)
-const buildGradeLevelColumns = (programsByYear: Record<number, program[]>): ColumnDef<gradelevel>[] => [
+const buildGradeLevelColumns = (
+  programsByYear: Record<number, program[]>,
+): ColumnDef<gradelevel>[] => [
   {
     key: "GradeID",
     label: "รหัส",
@@ -42,7 +52,10 @@ const buildGradeLevelColumns = (programsByYear: Record<number, program[]>): Colu
     editable: true,
     // View mode: show related program name if available
     render: (_value: number | null, row: gradelevel) => {
-      const anyRow = row as unknown as { program?: program | null; ProgramID?: number | null };
+      const anyRow = row as unknown as {
+        program?: program | null;
+        ProgramID?: number | null;
+      };
       if (anyRow?.program) {
         return `${anyRow.program.ProgramName}`;
       }
@@ -51,7 +64,7 @@ const buildGradeLevelColumns = (programsByYear: Record<number, program[]>): Colu
     },
     // Edit mode: filter options by row.Year
     renderEdit: ({ value, row, onChange, hasError }) => {
-  const year = row.Year;
+      const year = row.Year;
       const options = programsByYear[year] ?? [];
       const selected = value == null || value === "" ? "" : String(value);
       return (
@@ -88,51 +101,53 @@ const buildGradeLevelColumns = (programsByYear: Record<number, program[]>): Colu
 ];
 
 // Create a validator that is aware of programs for Year-based validation
-const createValidateGradeLevel = (programsByYear: Record<number, program[]>): ValidationFn<gradelevel> => (id, data, allData) => {
-  // Check required fields
-  if (!data.Year || data.Year < 1 || data.Year > 6) {
-    return "ชั้นปีต้องอยู่ระหว่าง 1-6 (ม.1 - ม.6)";
-  }
-
-  if (!data.Number || data.Number < 1) {
-    return "ห้องต้องมากกว่า 0";
-  }
-
-  if (data.Number > 99) {
-    return "ห้องต้องไม่เกิน 99";
-  }
-
-  if (data.StudentCount != null && data.StudentCount < 0) {
-    return "จำนวนนักเรียนต้องไม่น้อยกว่า 0";
-  }
-
-  if (data.StudentCount != null && data.StudentCount > 100) {
-    return "จำนวนนักเรียนต้องไม่เกิน 100 คน";
-  }
-
-  // If assigning a program, ensure it's valid for the selected Year
-  if (data.ProgramID != null) {
-    const list = programsByYear[data.Year] ?? [];
-    const exists = list.some((p) => p.ProgramID === data.ProgramID);
-    if (!exists) {
-      return `หลักสูตรที่เลือกไม่ตรงกับชั้นปี ม.${data.Year}`;
+const createValidateGradeLevel =
+  (programsByYear: Record<number, program[]>): ValidationFn<gradelevel> =>
+  (id, data, allData) => {
+    // Check required fields
+    if (!data.Year || data.Year < 1 || data.Year > 6) {
+      return "ชั้นปีต้องอยู่ระหว่าง 1-6 (ม.1 - ม.6)";
     }
-  }
 
-  // Check for duplicate Year + Number combination (excluding current row)
-  const duplicate = allData.find(
-    (g) =>
-      g.Year === data.Year &&
-      g.Number === data.Number &&
-      g.GradeID !== String(id)
-  );
+    if (!data.Number || data.Number < 1) {
+      return "ห้องต้องมากกว่า 0";
+    }
 
-  if (duplicate) {
-    return `ม.${data.Year}/${data.Number} มีอยู่ในระบบแล้ว`;
-  }
+    if (data.Number > 99) {
+      return "ห้องต้องไม่เกิน 99";
+    }
 
-  return null;
-};
+    if (data.StudentCount != null && data.StudentCount < 0) {
+      return "จำนวนนักเรียนต้องไม่น้อยกว่า 0";
+    }
+
+    if (data.StudentCount != null && data.StudentCount > 100) {
+      return "จำนวนนักเรียนต้องไม่เกิน 100 คน";
+    }
+
+    // If assigning a program, ensure it's valid for the selected Year
+    if (data.ProgramID != null) {
+      const list = programsByYear[data.Year] ?? [];
+      const exists = list.some((p) => p.ProgramID === data.ProgramID);
+      if (!exists) {
+        return `หลักสูตรที่เลือกไม่ตรงกับชั้นปี ม.${data.Year}`;
+      }
+    }
+
+    // Check for duplicate Year + Number combination (excluding current row)
+    const duplicate = allData.find(
+      (g) =>
+        g.Year === data.Year &&
+        g.Number === data.Number &&
+        g.GradeID !== String(id),
+    );
+
+    if (duplicate) {
+      return `ม.${data.Year}/${data.Number} มีอยู่ในระบบแล้ว`;
+    }
+
+    return null;
+  };
 
 // Empty gradelevel factory for creating new rows
 const createEmptyGradeLevel = (): Partial<gradelevel> => ({
@@ -161,7 +176,7 @@ const handleUpdate = async (grades: Partial<gradelevel>[]) => {
       Number: g.Number || 1,
       StudentCount: g.StudentCount ?? 0,
       ProgramID: g.ProgramID ?? null,
-    }))
+    })),
   );
 };
 
@@ -170,7 +185,11 @@ const handleDelete = async (ids: (string | number)[]) => {
   return await deleteGradeLevelsAction({ gradeIds: ids as string[] });
 };
 
-export default function GradeLevelTable({ tableData, mutate, programsByYear }: GradeLevelTableProps) {
+export default function GradeLevelTable({
+  tableData,
+  mutate,
+  programsByYear,
+}: GradeLevelTableProps) {
   const gradeLevelColumns = buildGradeLevelColumns(programsByYear);
   const validateGradeLevel = createValidateGradeLevel(programsByYear);
   return (

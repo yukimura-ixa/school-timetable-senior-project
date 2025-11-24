@@ -3,10 +3,10 @@
  * Project policy: only "admin" is privileged; "teacher" and "student" are guests.
  */
 
-export type AppRole = 'admin' | 'teacher' | 'student' | undefined;
+export type AppRole = "admin" | "teacher" | "student" | undefined;
 
 export function normalizeAppRole(rawRole: string | null | undefined): AppRole {
-  if (rawRole === 'admin' || rawRole === 'teacher' || rawRole === 'student') {
+  if (rawRole === "admin" || rawRole === "teacher" || rawRole === "student") {
     return rawRole;
   }
   return undefined;
@@ -15,7 +15,7 @@ export function normalizeAppRole(rawRole: string | null | undefined): AppRole {
 export const toAppRole = normalizeAppRole;
 
 export function isAdminRole(role: AppRole): boolean {
-  return role === 'admin';
+  return role === "admin";
 }
 
 export function isGuestRole(role: AppRole): boolean {

@@ -1,6 +1,6 @@
 /**
  * Types for Publish Readiness Service
- * 
+ *
  * @module features/config/domain/types/publish-readiness-types
  */
 
@@ -15,7 +15,12 @@ import type { ProgramValidationResult } from "@/features/program/domain/services
  * - 'conflicts': Contains unresolved scheduling conflicts (future).
  * - 'unknown': Status could not be determined.
  */
-export type PublishReadinessStatus = 'ready' | 'incomplete' | 'moe-failed' | 'conflicts' | 'unknown';
+export type PublishReadinessStatus =
+  | "ready"
+  | "incomplete"
+  | "moe-failed"
+  | "conflicts"
+  | "unknown";
 
 /**
  * The result object from the publish readiness check.
@@ -23,7 +28,7 @@ export type PublishReadinessStatus = 'ready' | 'incomplete' | 'moe-failed' | 'co
 export interface PublishReadinessResult {
   /** The overall readiness status. */
   status: PublishReadinessStatus;
-  
+
   /** A list of human-readable issues (in Thai) explaining why the status is not 'ready'. */
   issues: string[];
 

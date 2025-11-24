@@ -9,12 +9,14 @@ This document explains how to set up the test database for E2E tests.
 Use your local PostgreSQL installation. No Docker required.
 
 #### **Prerequisites**
+
 - PostgreSQL 16+ installed on Windows
 - PostgreSQL service running
 
 #### **Setup Steps**
 
 1. **Run the setup script:**
+
    ```powershell
    .\scripts\setup-local-test-db.ps1
    ```
@@ -26,6 +28,7 @@ Use your local PostgreSQL installation. No Docker required.
    - Grant all necessary privileges
 
 2. **Verify the setup:**
+
    ```powershell
    psql -U test_user -d test_timetable -h localhost -p 5432
    ```
@@ -53,6 +56,7 @@ GRANT ALL PRIVILEGES ON DATABASE test_timetable TO test_user;
 ```
 
 Then run migrations:
+
 ```powershell
 $env:DATABASE_URL="postgresql://test_user:test_password@localhost:5432/test_timetable?schema=public"
 pnpm prisma migrate deploy
@@ -65,22 +69,26 @@ pnpm prisma migrate deploy
 Use Docker containers for complete isolation.
 
 #### **Prerequisites**
+
 - Docker Desktop installed and running
 - No local PostgreSQL on port 5433
 
 #### **Setup Steps**
 
 1. **Start the test database:**
+
    ```powershell
    docker compose -f docker-compose.test.yml up -d
    ```
 
 2. **Verify it's running:**
+
    ```powershell
    docker ps | Select-String "timetable-test-db"
    ```
 
 3. **Run tests:**
+
    ```powershell
    pnpm test:e2e
    ```
@@ -95,7 +103,9 @@ Use Docker containers for complete isolation.
 ## 🔧 **Configuration Files**
 
 ### **`.env.test`**
+
 Contains test environment variables, including:
+
 - `DATABASE_URL` - Database connection string
 - `ENABLE_DEV_BYPASS=true` - Bypass auth for E2E tests
 - `TEST_PASSWORD` - Test user password
@@ -105,6 +115,7 @@ Contains test environment variables, including:
 The project is currently configured to use **local PostgreSQL** (localhost:5432).
 
 To switch to Docker:
+
 ```env
 # In .env.test
 DATABASE_URL="postgresql://test_user:test_password@127.0.0.1:5433/test_timetable?schema=public&connection_limit=5&pool_timeout=20&connect_timeout=10"
@@ -119,6 +130,7 @@ DATABASE_URL="postgresql://test_user:test_password@127.0.0.1:5433/test_timetable
 **Cause:** PostgreSQL service not running
 
 **Solution:**
+
 ```powershell
 # Check service status
 Get-Service -Name "postgresql*"
@@ -132,6 +144,7 @@ net start postgresql-x64-16
 **Cause:** User or password not configured correctly
 
 **Solution:**
+
 ```sql
 -- Connect as superuser
 psql -U postgres
@@ -145,6 +158,7 @@ ALTER USER test_user WITH PASSWORD 'test_password';
 **Cause:** Database not created
 
 **Solution:**
+
 ```powershell
 # Run setup script
 .\scripts\setup-local-test-db.ps1
@@ -153,6 +167,7 @@ ALTER USER test_user WITH PASSWORD 'test_password';
 ### **Migrations Not Applied**
 
 **Solution:**
+
 ```powershell
 # Set environment variable
 $env:DATABASE_URL="postgresql://test_user:test_password@localhost:5432/test_timetable?schema=public"
@@ -183,6 +198,7 @@ pnpm db:seed
 ## 🚀 **Quick Commands**
 
 ### **Reset Test Database**
+
 ```powershell
 # Drop and recreate
 dropdb -U postgres test_timetable
@@ -194,12 +210,14 @@ pnpm prisma migrate deploy
 ```
 
 ### **Check Connection**
+
 ```powershell
 # Test connection
 psql -U test_user -d test_timetable -h localhost -c "SELECT version();"
 ```
 
 ### **View Database**
+
 ```powershell
 # Open Prisma Studio
 pnpm db:studio

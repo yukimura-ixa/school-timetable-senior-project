@@ -123,7 +123,11 @@ function Dropdown({
         aria-hidden={!isHidden}
       >
         {useSearchBar && searchFunction ? (
-          <SearchBar height="auto" fill="#FFFFFF" handleChange={searchFunction} />
+          <SearchBar
+            height="auto"
+            fill="#FFFFFF"
+            handleChange={searchFunction}
+          />
         ) : null}
         {data.length === 0 ? (
           <div

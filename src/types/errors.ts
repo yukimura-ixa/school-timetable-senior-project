@@ -1,21 +1,21 @@
 /**
  * Error Types for Server Actions and API Routes
- * 
+ *
  * Provides type-safe error handling with discriminated unions.
  * Replaces generic `any` error types throughout the application.
- * 
+ *
  * Created: Week 8 - Type Safety Improvements
  * Pattern: Discriminated unions with 'code' as discriminator
  */
 
-import type { ConflictType } from '@/features/schedule-arrangement/domain/models/conflict.model';
+import type { ConflictType } from "@/features/schedule-arrangement/domain/models/conflict.model";
 
 // ============================================================================
 // Conflict Errors (Schedule Arrangement)
 // ============================================================================
 
 // Re-export ConflictType from domain model for consistency
-export type { ConflictType } from '@/features/schedule-arrangement/domain/models/conflict.model';
+export type { ConflictType } from "@/features/schedule-arrangement/domain/models/conflict.model";
 
 /**
  * Details about a conflicting schedule
@@ -34,7 +34,7 @@ export interface ConflictingSchedule {
 }
 
 export interface ConflictError extends Error {
-  code: 'CONFLICT';
+  code: "CONFLICT";
   conflictDetails: {
     hasConflict: true;
     conflictType: ConflictType;
@@ -48,7 +48,7 @@ export interface ConflictError extends Error {
 // ============================================================================
 
 export interface ValidationError extends Error {
-  code: 'VALIDATION_ERROR';
+  code: "VALIDATION_ERROR";
   field?: string;
   value?: unknown;
 }
@@ -58,7 +58,7 @@ export interface ValidationError extends Error {
 // ============================================================================
 
 export interface AuthorizationError extends Error {
-  code: 'UNAUTHORIZED' | 'FORBIDDEN';
+  code: "UNAUTHORIZED" | "FORBIDDEN";
   requiredRole?: string;
   userRole?: string;
 }
@@ -68,7 +68,7 @@ export interface AuthorizationError extends Error {
 // ============================================================================
 
 export interface NotFoundError extends Error {
-  code: 'NOT_FOUND';
+  code: "NOT_FOUND";
   resource: string;
   identifier: string | number;
 }
@@ -78,8 +78,8 @@ export interface NotFoundError extends Error {
 // ============================================================================
 
 export interface DatabaseError extends Error {
-  code: 'DATABASE_ERROR';
-  operation: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE';
+  code: "DATABASE_ERROR";
+  operation: "CREATE" | "READ" | "UPDATE" | "DELETE";
   table?: string;
 }
 
@@ -88,8 +88,8 @@ export interface DatabaseError extends Error {
 // ============================================================================
 
 export interface LockedScheduleError extends Error {
-  code: 'LOCKED_SCHEDULE';
-  operation: 'UPDATE' | 'DELETE';
+  code: "LOCKED_SCHEDULE";
+  operation: "UPDATE" | "DELETE";
   scheduleId: string;
 }
 
@@ -98,7 +98,7 @@ export interface LockedScheduleError extends Error {
 // ============================================================================
 
 export interface UnknownError extends Error {
-  code: 'UNKNOWN_ERROR';
+  code: "UNKNOWN_ERROR";
   originalError?: unknown;
 }
 
@@ -121,55 +121,61 @@ export type ServerActionError =
 
 export function isConflictError(error: unknown): error is ConflictError {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'CONFLICT'
+    "code" in error &&
+    error.code === "CONFLICT"
   );
 }
 
 export function isValidationError(error: unknown): error is ValidationError {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'VALIDATION_ERROR'
+    "code" in error &&
+    error.code === "VALIDATION_ERROR"
   );
 }
 
-export function isAuthorizationError(error: unknown): error is AuthorizationError {
+export function isAuthorizationError(
+  error: unknown,
+): error is AuthorizationError {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    (error.code === 'UNAUTHORIZED' || error.code === 'FORBIDDEN')
+    "code" in error &&
+    (error.code === "UNAUTHORIZED" || error.code === "FORBIDDEN")
   );
 }
 
 export function isNotFoundError(error: unknown): error is NotFoundError {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'NOT_FOUND'
+    "code" in error &&
+    error.code === "NOT_FOUND"
   );
 }
 
-export function isLockedScheduleError(error: unknown): error is LockedScheduleError {
+export function isLockedScheduleError(
+  error: unknown,
+): error is LockedScheduleError {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    error.code === 'LOCKED_SCHEDULE'
+    "code" in error &&
+    error.code === "LOCKED_SCHEDULE"
   );
 }
 
-export function isServerActionError(error: unknown): error is ServerActionError {
+export function isServerActionError(
+  error: unknown,
+): error is ServerActionError {
   return (
-    typeof error === 'object' &&
+    typeof error === "object" &&
     error !== null &&
-    'code' in error &&
-    typeof (error as ServerActionError).code === 'string'
+    "code" in error &&
+    typeof (error as ServerActionError).code === "string"
   );
 }
 
@@ -178,12 +184,16 @@ export function isServerActionError(error: unknown): error is ServerActionError 
 // ============================================================================
 
 export function createConflictError(
-  conflictType: ConflictType | 'TEACHER_CONFLICT' | 'CLASS_CONFLICT' | 'ROOM_CONFLICT',
+  conflictType:
+    | ConflictType
+    | "TEACHER_CONFLICT"
+    | "CLASS_CONFLICT"
+    | "ROOM_CONFLICT",
   message: string,
-  conflictingSchedule: ConflictingSchedule
+  conflictingSchedule: ConflictingSchedule,
 ): ConflictError {
   const error = new Error(message) as ConflictError;
-  error.code = 'CONFLICT';
+  error.code = "CONFLICT";
   error.conflictDetails = {
     hasConflict: true,
     conflictType: conflictType as ConflictType,
@@ -193,19 +203,23 @@ export function createConflictError(
   return error;
 }
 
-export function createValidationError(message: string, field?: string, value?: unknown): ValidationError {
+export function createValidationError(
+  message: string,
+  field?: string,
+  value?: unknown,
+): ValidationError {
   const error = new Error(message) as ValidationError;
-  error.code = 'VALIDATION_ERROR';
+  error.code = "VALIDATION_ERROR";
   if (field) error.field = field;
   if (value !== undefined) error.value = value;
   return error;
 }
 
 export function createAuthorizationError(
-  type: 'UNAUTHORIZED' | 'FORBIDDEN',
+  type: "UNAUTHORIZED" | "FORBIDDEN",
   message: string,
   requiredRole?: string,
-  userRole?: string
+  userRole?: string,
 ): AuthorizationError {
   const error = new Error(message) as AuthorizationError;
   error.code = type;
@@ -214,31 +228,39 @@ export function createAuthorizationError(
   return error;
 }
 
-export function createNotFoundError(resource: string, identifier: string | number): NotFoundError {
-  const error = new Error(`${resource} with identifier ${identifier} not found`) as NotFoundError;
-  error.code = 'NOT_FOUND';
+export function createNotFoundError(
+  resource: string,
+  identifier: string | number,
+): NotFoundError {
+  const error = new Error(
+    `${resource} with identifier ${identifier} not found`,
+  ) as NotFoundError;
+  error.code = "NOT_FOUND";
   error.resource = resource;
   error.identifier = identifier;
   return error;
 }
 
-export function createLockedScheduleError(operation: 'UPDATE' | 'DELETE', scheduleId: string): LockedScheduleError {
+export function createLockedScheduleError(
+  operation: "UPDATE" | "DELETE",
+  scheduleId: string,
+): LockedScheduleError {
   const error = new Error(
-    `Cannot ${operation.toLowerCase()} a locked schedule. This operation is forbidden.`
+    `Cannot ${operation.toLowerCase()} a locked schedule. This operation is forbidden.`,
   ) as LockedScheduleError;
-  error.code = 'LOCKED_SCHEDULE';
+  error.code = "LOCKED_SCHEDULE";
   error.operation = operation;
   error.scheduleId = scheduleId;
   return error;
 }
 
 export function createDatabaseError(
-  operation: 'CREATE' | 'READ' | 'UPDATE' | 'DELETE',
+  operation: "CREATE" | "READ" | "UPDATE" | "DELETE",
   message: string,
-  table?: string
+  table?: string,
 ): DatabaseError {
   const error = new Error(message) as DatabaseError;
-  error.code = 'DATABASE_ERROR';
+  error.code = "DATABASE_ERROR";
   error.operation = operation;
   if (table) error.table = table;
   return error;

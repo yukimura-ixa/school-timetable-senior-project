@@ -134,11 +134,11 @@ The system consists of three layers:
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `AUTO_MANAGE_TEST_DB` | `true` | Enable automatic database lifecycle management |
-| `SKIP_DB_CLEANUP` | `false` | Keep database running after tests |
-| `DATABASE_URL` | `.env.test` | Test database connection string |
+| Variable              | Default     | Description                                    |
+| --------------------- | ----------- | ---------------------------------------------- |
+| `AUTO_MANAGE_TEST_DB` | `true`      | Enable automatic database lifecycle management |
+| `SKIP_DB_CLEANUP`     | `false`     | Keep database running after tests              |
+| `DATABASE_URL`        | `.env.test` | Test database connection string                |
 
 ### Examples
 
@@ -168,7 +168,7 @@ DATABASE_URL="postgresql://..." pnpm test:e2e
 
 ```yaml
 # docker-compose.test.yml
-version: '3.8'
+version: "3.8"
 
 services:
   postgres-test:
@@ -206,18 +206,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: "20"
+
       - name: Install dependencies
         run: pnpm install
-      
+
       # No manual database setup needed!
       # The test runner handles it automatically
-      
+
       - name: Run E2E Tests
         run: pnpm test:e2e
 ```
@@ -237,6 +237,7 @@ steps:
 ```
 
 Each shard will:
+
 1. Start its own database container
 2. Run ~7 tests (27 tests ÷ 4 shards)
 3. Clean up its database
@@ -249,6 +250,7 @@ Each shard will:
 **Symptom**: "Database failed to start within timeout"
 
 **Solutions**:
+
 1. Check Docker is running: `docker ps`
 2. Check port 5433 is available: `netstat -an | grep 5433`
 3. Remove old containers: `docker compose -f docker-compose.test.yml down -v`
@@ -259,6 +261,7 @@ Each shard will:
 **Symptom**: "port is already allocated"
 
 **Solutions**:
+
 1. Check for conflicting services on port 5433
 2. Stop other PostgreSQL instances
 3. Change port in `docker-compose.test.yml` and `.env.test`
@@ -349,16 +352,19 @@ pnpm test:e2e:admin              # Admin tests only
 ## Performance
 
 ### Before Automatic Management
+
 - Manual setup: 2-3 minutes (human time)
 - Risk of stale data from previous runs
 - Inconsistent state between developers
 
 ### After Automatic Management
+
 - Automatic setup: 5-10 seconds (computer time)
 - Fresh database every run (reliable)
 - Consistent experience for all developers
 
 ### CI Performance
+
 - **Without Sharding**: ~2.5 hours (150 minutes)
 - **With Sharding (4 runners)**: ~10 minutes (93% faster)
 - **Database startup**: ~5 seconds per runner
@@ -369,6 +375,7 @@ pnpm test:e2e:admin              # Admin tests only
 ### From Old Setup (Manual)
 
 **Before** (manual commands):
+
 ```bash
 # Old workflow (error-prone)
 docker compose -f docker-compose.test.yml up -d
@@ -380,6 +387,7 @@ docker compose -f docker-compose.test.yml down
 ```
 
 **After** (automatic):
+
 ```bash
 # New workflow (one command)
 pnpm test:e2e

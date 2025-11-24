@@ -14,7 +14,7 @@
 
 ```typescript
 // ✅ Server State (use Server Actions + SWR or React Query)
-const { data: teachers } = useSWR('/api/teachers', fetcher);
+const { data: teachers } = useSWR("/api/teachers", fetcher);
 
 // ✅ UI State (use Zustand)
 const { isModalOpen, selectedTeacher } = useTeacherUIStore();
@@ -24,19 +24,19 @@ const { isModalOpen, selectedTeacher } = useTeacherUIStore();
 
 ```typescript
 // features/teacher-management/presentation/stores/teacher.store.ts
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 
 interface TeacherStore {
   teachers: Teacher[];
   optimisticTeachers: Teacher[];
-  
+
   // Optimistic update
   addTeacherOptimistic: (teacher: Teacher) => void;
-  
+
   // Rollback if server action fails
   rollback: () => void;
-  
+
   // Commit if server action succeeds
   commit: (teachers: Teacher[]) => void;
 }
@@ -61,7 +61,7 @@ export const useTeacherStore = create<TeacherStore>()(
         state.teachers = teachers;
         state.optimisticTeachers = [];
       }),
-  }))
+  })),
 );
 ```
 
@@ -72,7 +72,7 @@ const { addTeacherOptimistic, rollback, commit } = useTeacherStore();
 
 const handleAddTeacher = async (data) => {
   // 1. Optimistic update
-  addTeacherOptimistic({ ...data, id: 'temp-' + Date.now() });
+  addTeacherOptimistic({ ...data, id: "temp-" + Date.now() });
 
   // 2. Server action
   const result = await createTeacherAction(data);
@@ -95,9 +95,9 @@ const handleAddTeacher = async (data) => {
 **Create**: `shared/lib/action-wrapper.ts`
 
 ```typescript
-import { z } from 'zod';
-import { handleError } from '@/shared/utils/error.utils';
-import { logger } from '@/shared/lib/logger';
+import { z } from "zod";
+import { handleError } from "@/shared/utils/error.utils";
+import { logger } from "@/shared/lib/logger";
 
 export interface ActionResult<T> {
   success: boolean;
@@ -111,7 +111,7 @@ export interface ActionResult<T> {
 
 export function createAction<TInput, TOutput>(
   schema: z.ZodSchema<TInput>,
-  handler: (input: TInput) => Promise<TOutput>
+  handler: (input: TInput) => Promise<TOutput>,
 ) {
   return async (input: unknown): Promise<ActionResult<TOutput>> => {
     try {
@@ -119,13 +119,13 @@ export function createAction<TInput, TOutput>(
       const validated = schema.parse(input);
 
       // 2. Log
-      logger.info('Action called', { input: validated });
+      logger.info("Action called", { input: validated });
 
       // 3. Execute
       const result = await handler(validated);
 
       // 4. Log success
-      logger.info('Action succeeded', { result });
+      logger.info("Action succeeded", { result });
 
       return {
         success: true,
@@ -133,7 +133,7 @@ export function createAction<TInput, TOutput>(
       };
     } catch (error) {
       // 5. Log error
-      logger.error('Action failed', { error });
+      logger.error("Action failed", { error });
 
       // 6. Handle error
       const errorInfo = handleError(error);
@@ -151,11 +151,11 @@ export function createAction<TInput, TOutput>(
 
 ```typescript
 // features/teacher-management/application/actions/create-teacher.action.ts
-'use server';
+"use server";
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import { createTeacherSchema } from '../schemas/teacher.schema';
-import { teacherRepository } from '../../infrastructure/repositories/teacher.repository';
+import { createAction } from "@/shared/lib/action-wrapper";
+import { createTeacherSchema } from "../schemas/teacher.schema";
+import { teacherRepository } from "../../infrastructure/repositories/teacher.repository";
 
 export const createTeacherAction = createAction(
   createTeacherSchema,
@@ -163,7 +163,7 @@ export const createTeacherAction = createAction(
     // Just business logic - validation and error handling are automatic
     const teacher = await teacherRepository.create(input);
     return teacher;
-  }
+  },
 );
 ```
 
@@ -177,7 +177,7 @@ import { prisma } from '@/shared/lib/prisma';
 export async function complexArrangementAction(input: any) {
   return await prisma.$transaction(async (tx) => {
     // All operations succeed or all fail
-    
+
     // 1. Delete old schedules
     await tx.class_schedule.deleteMany({
       where: { /* ... */ }
@@ -219,16 +219,16 @@ export class TimeslotID {
     year: number,
     semester: number,
     day: string,
-    time: string
+    time: string,
   ): TimeslotID {
     return new TimeslotID(`${year}/${semester}/${day}/${time}`);
   }
 
   static fromString(value: string): TimeslotID {
     // Validate format
-    const parts = value.split('/');
+    const parts = value.split("/");
     if (parts.length !== 4) {
-      throw new Error('Invalid TimeslotID format');
+      throw new Error("Invalid TimeslotID format");
     }
     return new TimeslotID(value);
   }
@@ -242,19 +242,19 @@ export class TimeslotID {
   }
 
   get year(): number {
-    return parseInt(this.value.split('/')[0]);
+    return parseInt(this.value.split("/")[0]);
   }
 
   get semester(): number {
-    return parseInt(this.value.split('/')[1]);
+    return parseInt(this.value.split("/")[1]);
   }
 
   get day(): string {
-    return this.value.split('/')[2];
+    return this.value.split("/")[2];
   }
 
   get time(): string {
-    return this.value.split('/')[3];
+    return this.value.split("/")[3];
   }
 }
 ```
@@ -263,10 +263,10 @@ export class TimeslotID {
 
 ```typescript
 // Instead of:
-const timeslotId = '2024/1/Mon/08:00'; // String, no validation
+const timeslotId = "2024/1/Mon/08:00"; // String, no validation
 
 // Use:
-const timeslotId = TimeslotID.create(2024, 1, 'Mon', '08:00');
+const timeslotId = TimeslotID.create(2024, 1, "Mon", "08:00");
 console.log(timeslotId.year); // 2024
 console.log(timeslotId.toString()); // '2024/1/Mon/08:00'
 ```
@@ -277,7 +277,7 @@ console.log(timeslotId.toString()); // '2024/1/Mon/08:00'
 
 ```typescript
 export interface ScheduleArrangedEvent {
-  type: 'SCHEDULE_ARRANGED';
+  type: "SCHEDULE_ARRANGED";
   payload: {
     teacherId: string;
     schedules: Array<{
@@ -290,7 +290,7 @@ export interface ScheduleArrangedEvent {
 }
 
 export interface ScheduleConflictEvent {
-  type: 'SCHEDULE_CONFLICT';
+  type: "SCHEDULE_CONFLICT";
   payload: {
     conflictType: string;
     message: string;
@@ -305,8 +305,8 @@ class EventBus {
   private handlers = new Map<string, Array<(event: any) => void>>();
 
   subscribe<T extends DomainEvent>(
-    type: T['type'],
-    handler: (event: T) => void
+    type: T["type"],
+    handler: (event: T) => void,
   ) {
     if (!this.handlers.has(type)) {
       this.handlers.set(type, []);
@@ -390,12 +390,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 ```typescript
 // features/teacher-management/presentation/hooks/use-teachers.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTeachersAction, createTeacherAction } from '../../application/actions';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getTeachersAction,
+  createTeacherAction,
+} from "../../application/actions";
 
 export function useTeachers() {
   return useQuery({
-    queryKey: ['teachers'],
+    queryKey: ["teachers"],
     queryFn: () => getTeachersAction(),
   });
 }
@@ -407,7 +410,7 @@ export function useCreateTeacher() {
     mutationFn: createTeacherAction,
     onSuccess: () => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ['teachers'] });
+      queryClient.invalidateQueries({ queryKey: ["teachers"] });
     },
   });
 }
@@ -423,10 +426,10 @@ export const revalidate = 300; // Revalidate every 5 minutes
 
 export default async function AllTimeslotPage({ params }: PageProps) {
   const { semesterAndyear } = await params;
-  
+
   // Fetch data server-side
   const data = await getTimeslotData(semesterAndyear);
-  
+
   return <AllTimeslotView data={data} />;
 }
 ```
@@ -494,7 +497,7 @@ const selectedSubject = useArrangementUIStore((s) => s.selectedSubject);
 // ✅ Even better: Memoize computed values
 const selectedSubjectId = useArrangementUIStore(
   (s) => s.selectedSubject?.id,
-  shallow // Import from 'zustand/shallow'
+  shallow, // Import from 'zustand/shallow'
 );
 ```
 
@@ -571,10 +574,7 @@ pnpm husky add .husky/pre-commit "pnpm lint-staged"
 ```json
 {
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write"]
   }
 }
 ```
@@ -595,15 +595,15 @@ pnpm add @sentry/nextjs
 // shared/lib/analytics.ts
 export const analytics = {
   track: (event: string, properties?: Record<string, any>) => {
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', event, properties);
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", event, properties);
     }
   },
 };
 
 // Usage:
-analytics.track('schedule_arranged', {
-  teacherId: 'T001',
+analytics.track("schedule_arranged", {
+  teacherId: "T001",
   scheduleCount: 5,
 });
 ```
@@ -614,16 +614,16 @@ analytics.track('schedule_arranged', {
 
 ### 8.1 JSDoc with TypeScript
 
-```typescript
+````typescript
 /**
  * Checks if a teacher has a scheduling conflict
- * 
+ *
  * @param teacherId - The unique identifier of the teacher
  * @param timeslotId - The timeslot to check
  * @param existingSchedules - Current schedules to check against
- * 
+ *
  * @returns ConflictResult indicating if conflict exists
- * 
+ *
  * @example
  * ```typescript
  * const result = checkTeacherConflict('T001', 'TS-001', schedules);
@@ -635,11 +635,11 @@ analytics.track('schedule_arranged', {
 export function checkTeacherConflict(
   teacherId: string,
   timeslotId: string,
-  existingSchedules: ClassSchedule[]
+  existingSchedules: ClassSchedule[],
 ): ConflictResult {
   // Implementation...
 }
-```
+````
 
 ### 8.2 Architecture Decision Records (ADRs)
 
@@ -649,16 +649,20 @@ export function checkTeacherConflict(
 # ADR 001: Feature-Based Architecture
 
 ## Status
+
 Accepted
 
 ## Context
+
 Current codebase organizes code by technical layer (components, api, hooks),
 making it hard to understand features and maintain code.
 
 ## Decision
+
 Reorganize codebase by business feature using Clean Architecture principles.
 
 ## Consequences
+
 - Easier to understand and maintain
 - Clear boundaries between features
 - Better testability
@@ -691,8 +695,8 @@ jobs:
           version: 10
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "20"
+          cache: "pnpm"
       - run: pnpm install
       - run: pnpm lint
       - run: pnpm test

@@ -8,6 +8,7 @@
 ## Test Environment Overview
 
 This project uses a comprehensive testing strategy:
+
 - **Jest 29.7.0** for unit tests
 - **Playwright 1.56.1** for E2E tests
 - **React Testing Library 16.3.0** for component tests
@@ -17,6 +18,7 @@ This project uses a comprehensive testing strategy:
 ## Unit Testing (Jest)
 
 ### Location & Structure
+
 ```
 __test__/
 ├── features/               # Feature-based tests
@@ -33,6 +35,7 @@ __test__/
 ```
 
 ### Test File Naming
+
 - Repository tests: `{domain}.repository.test.ts`
 - Domain services: `{domain}-validation.test.ts`
 - Server Actions: `{domain}.actions.test.ts`
@@ -43,7 +46,7 @@ __test__/
 ```typescript
 /**
  * Unit Tests for {Feature} {Component}
- * 
+ *
  * Tests verify:
  * - Core business logic
  * - Validation rules
@@ -54,7 +57,7 @@ __test__/
 import { describe, test, expect, beforeEach, afterEach } from "@jest/globals";
 import { functionToTest } from "@/features/{domain}/domain/services/{domain}-service";
 
-describe('{ComponentName}', () => {
+describe("{ComponentName}", () => {
   // Setup before each test
   beforeEach(() => {
     // Initialize test data
@@ -65,29 +68,29 @@ describe('{ComponentName}', () => {
     // Reset state
   });
 
-  describe('Happy Path', () => {
-    test('should handle normal case correctly', () => {
+  describe("Happy Path", () => {
+    test("should handle normal case correctly", () => {
       const result = functionToTest(validInput);
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
     });
   });
 
-  describe('Edge Cases', () => {
-    test('should handle empty input', () => {
+  describe("Edge Cases", () => {
+    test("should handle empty input", () => {
       const result = functionToTest([]);
       expect(result.success).toBe(false);
-      expect(result.error).toContain('ข้อมูลว่าง');
+      expect(result.error).toContain("ข้อมูลว่าง");
     });
 
-    test('should handle null values', () => {
+    test("should handle null values", () => {
       const result = functionToTest(null);
       expect(result.success).toBe(false);
     });
   });
 
-  describe('Error Handling', () => {
-    test('should throw error for invalid input', () => {
+  describe("Error Handling", () => {
+    test("should throw error for invalid input", () => {
       expect(() => functionToTest(invalidInput)).toThrow();
     });
   });
@@ -97,17 +100,17 @@ describe('{ComponentName}', () => {
 ### Table-Driven Test Pattern
 
 ```typescript
-describe('validateBusinessRule', () => {
+describe("validateBusinessRule", () => {
   const testCases = [
     {
-      name: 'should accept valid data',
-      input: { valid: 'data' },
-      expected: { success: true }
+      name: "should accept valid data",
+      input: { valid: "data" },
+      expected: { success: true },
     },
     {
-      name: 'should reject invalid data',
-      input: { invalid: 'data' },
-      expected: { success: false, error: 'ข้อมูลไม่ถูกต้อง' }
+      name: "should reject invalid data",
+      input: { invalid: "data" },
+      expected: { success: false, error: "ข้อมูลไม่ถูกต้อง" },
     },
     // Add more cases
   ];
@@ -124,10 +127,10 @@ describe('validateBusinessRule', () => {
 ### Mocking Prisma Client
 
 ```typescript
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 
 // Mock Prisma
-jest.mock('@/lib/prisma', () => ({
+jest.mock("@/lib/prisma", () => ({
   __esModule: true,
   default: {
     teacher: {
@@ -142,14 +145,14 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 // In test
-import prisma from '@/lib/prisma';
+import prisma from "@/lib/prisma";
 
-test('should fetch teachers', async () => {
-  const mockTeachers = [{ TeacherID: 'T001', Name: 'John' }];
+test("should fetch teachers", async () => {
+  const mockTeachers = [{ TeacherID: "T001", Name: "John" }];
   (prisma.teacher.findMany as jest.Mock).mockResolvedValue(mockTeachers);
 
   const result = await teacherRepository.findAll();
-  
+
   expect(result).toEqual(mockTeachers);
   expect(prisma.teacher.findMany).toHaveBeenCalledTimes(1);
 });
@@ -179,6 +182,7 @@ pnpm test --coverage
 ## E2E Testing (Playwright)
 
 ### Location & Structure
+
 ```
 e2e/
 ├── smoke/                  # Quick smoke tests
@@ -194,6 +198,7 @@ e2e/
 ```
 
 ### Test File Naming
+
 - Feature tests: `{feature-name}.spec.ts`
 - Integration tests: `{area}-integration.spec.ts`
 - Smoke tests: `{area}-smoke.spec.ts`
@@ -203,54 +208,54 @@ e2e/
 ```typescript
 /**
  * E2E Tests for {Feature Name}
- * 
+ *
  * Tests critical user flows:
  * - {Flow 1 description}
  * - {Flow 2 description}
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('{Feature Name}', () => {
+test.describe("{Feature Name}", () => {
   // Setup authentication
   test.beforeEach(async ({ page }) => {
     // Login as admin (if needed)
-    await page.goto('/signin');
+    await page.goto("/signin");
     // Handle auth flow
     await expect(page).toHaveURL(/\/dashboard/);
   });
 
-  test('should complete {action} successfully', async ({ page }) => {
+  test("should complete {action} successfully", async ({ page }) => {
     // Navigate to page
-    await page.goto('/schedule/1-2567/assign');
-    
+    await page.goto("/schedule/1-2567/assign");
+
     // Wait for page load
-    await expect(page.locator('h1')).toContainText('มอบหมายรายวิชา');
-    
+    await expect(page.locator("h1")).toContainText("มอบหมายรายวิชา");
+
     // Perform action
     await page.click('button:has-text("เพิ่มรายวิชา")');
-    await page.fill('input[name="subjectCode"]', 'TH101');
+    await page.fill('input[name="subjectCode"]', "TH101");
     await page.click('button[type="submit"]');
-    
+
     // Verify result
-    await expect(page.locator('text=บันทึกสำเร็จ')).toBeVisible();
-    
+    await expect(page.locator("text=บันทึกสำเร็จ")).toBeVisible();
+
     // Verify data persistence
     await page.reload();
-    await expect(page.locator('text=TH101')).toBeVisible();
+    await expect(page.locator("text=TH101")).toBeVisible();
   });
 
-  test('should validate {error condition}', async ({ page }) => {
+  test("should validate {error condition}", async ({ page }) => {
     // Setup error scenario
-    await page.goto('/schedule/1-2567/assign');
-    
+    await page.goto("/schedule/1-2567/assign");
+
     // Trigger error
     await page.click('button:has-text("เพิ่มรายวิชา")');
     // Don't fill required fields
     await page.click('button[type="submit"]');
-    
+
     // Verify error message
-    await expect(page.locator('text=กรุณากรอกข้อมูล')).toBeVisible();
+    await expect(page.locator("text=กรุณากรอกข้อมูล")).toBeVisible();
   });
 });
 ```
@@ -258,18 +263,20 @@ test.describe('{Feature Name}', () => {
 ### Test Data Strategy
 
 **Use seeded data from `prisma/seed.ts`:**
+
 - **Semesters**: `1-2567`, `2-2567`, `1-2568`
 - **Teachers**: Seeded teachers with known IDs
 - **Classes**: Seeded grade levels (M.1/1, M.2/1, etc.)
 - **Subjects**: Seeded subjects with known codes
 
 **Document in test comments:**
+
 ```typescript
-test('should assign teacher to class', async ({ page }) => {
+test("should assign teacher to class", async ({ page }) => {
   // Using seeded semester: 1-2567
   // Using seeded teacher: Check seed.ts for current IDs
   // Using seeded class: M.1/1
-  await page.goto('/schedule/1-2567/assign');
+  await page.goto("/schedule/1-2567/assign");
   // ...
 });
 ```
@@ -300,16 +307,16 @@ export class ScheduleAssignPage {
   }
 
   async expectSuccessMessage() {
-    await expect(this.page.locator('text=บันทึกสำเร็จ')).toBeVisible();
+    await expect(this.page.locator("text=บันทึกสำเร็จ")).toBeVisible();
   }
 }
 
 // In test
-test('should assign subject', async ({ page }) => {
+test("should assign subject", async ({ page }) => {
   const assignPage = new ScheduleAssignPage(page);
-  await assignPage.goto('1-2567');
-  await assignPage.selectGrade('M.1/1');
-  await assignPage.addSubject('TH101', 'T001');
+  await assignPage.goto("1-2567");
+  await assignPage.selectGrade("M.1/1");
+  await assignPage.addSubject("TH101", "T001");
   await assignPage.save();
   await assignPage.expectSuccessMessage();
 });
@@ -378,6 +385,7 @@ NEXT_TELEMETRY_DISABLED="1"
 ### Test-Specific Config
 
 Create `.env.test.local` for test-specific overrides:
+
 ```env
 DATABASE_URL="postgresql://localhost:5432/test_db"
 NODE_ENV="test"
@@ -418,6 +426,7 @@ pnpm db:studio
 #### 3. Seed Data Reference
 
 **Seeded Test Data** (from `prisma/seed.ts`):
+
 - **Semesters**: 1-2567, 2-2567, 1-2568
 - **Teachers**: Multiple teachers with departments
 - **Subjects**: Core subjects (TH, EN, MA, SCI, SOC)
@@ -427,15 +436,16 @@ pnpm db:studio
 - **Timeslots**: Full schedule grid (MON-FRI, 8 periods/day)
 
 **Reference in E2E Tests**:
+
 ```typescript
 // Use seeded semester IDs
-await page.goto('/schedule/1-2567/assign');
+await page.goto("/schedule/1-2567/assign");
 
 // Use seeded teacher IDs (check seed.ts for current IDs)
-await page.selectOption('select[name="teacherId"]', 'seeded-teacher-id');
+await page.selectOption('select[name="teacherId"]', "seeded-teacher-id");
 
 // Use seeded class IDs
-await page.selectOption('select[name="gradeLevel"]', 'M.1/1');
+await page.selectOption('select[name="gradeLevel"]', "M.1/1");
 ```
 
 #### 4. Cloud CI/CD Seed Strategy
@@ -455,7 +465,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     # Temporary PostgreSQL service container
     services:
       postgres:
@@ -471,21 +481,21 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Install pnpm
         run: npm install -g pnpm
-      
+
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Setup environment
         run: |
           echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_timetable" >> .env.test.local
@@ -495,27 +505,27 @@ jobs:
           echo "SEED_FOR_TESTS=true" >> .env.test.local
           echo "SEED_CLEAN_DATA=true" >> .env.test.local
           echo "NEXT_TELEMETRY_DISABLED=1" >> .env.test.local
-      
+
       - name: Apply database migrations
         run: pnpm db:deploy
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
-      
+
       - name: Seed test database (clean slate)
         run: pnpm db:seed:clean
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
-      
+
       - name: Install Playwright browsers
         run: pnpm playwright:install
-      
+
       - name: Run E2E tests
         run: pnpm test:e2e
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_timetable
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -523,7 +533,7 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
-      
+
       - name: Upload test videos (on failure)
         if: failure()
         uses: actions/upload-artifact@v3
@@ -531,11 +541,11 @@ jobs:
           name: playwright-videos
           path: test-results/
           retention-days: 7
-
 # Temporary database is automatically destroyed after job completes
 ```
 
 **Benefits of Temporary Database**:
+
 - ✅ **Isolated**: Each test run gets a fresh database
 - ✅ **Fast**: No cleanup needed, destroyed automatically
 - ✅ **Safe**: Cannot affect production or staging
@@ -556,39 +566,39 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-      
+          node-version: "18"
+
       - name: Install pnpm
         run: npm install -g pnpm
-      
+
       - name: Install dependencies
         run: pnpm install
-      
+
       - name: Setup environment
         run: |
           echo "DATABASE_URL=${{ secrets.TEST_DATABASE_URL }}" >> .env.test.local
           echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env.test.local
           echo "SEED_FOR_TESTS=true" >> .env.test.local
-      
+
       - name: Apply database migrations
         run: pnpm db:deploy
-      
+
       - name: Seed test database
         run: pnpm db:seed
         env:
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "false"
-      
+
       - name: Run E2E tests
         run: pnpm test:e2e
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v3
@@ -599,26 +609,27 @@ jobs:
 
 **When to Use Each Option**:
 
-| Feature | Temporary DB (Option A) | Persistent DB (Option B) |
-|---------|-------------------------|--------------------------|
-| **Isolation** | ✅ Perfect | ⚠️ Shared between runs |
-| **Speed** | ✅ Fast (no cleanup) | ⚠️ Slower (needs cleanup) |
-| **Cost** | ✅ Free | 💰 May have costs |
-| **Setup** | ✅ Simple | ⚠️ Requires external service |
-| **Data persistence** | ❌ Destroyed after run | ✅ Persists |
-| **Best for** | CI/CD, PRs | Manual testing, debugging |
+| Feature              | Temporary DB (Option A) | Persistent DB (Option B)     |
+| -------------------- | ----------------------- | ---------------------------- |
+| **Isolation**        | ✅ Perfect              | ⚠️ Shared between runs       |
+| **Speed**            | ✅ Fast (no cleanup)    | ⚠️ Slower (needs cleanup)    |
+| **Cost**             | ✅ Free                 | 💰 May have costs            |
+| **Setup**            | ✅ Simple               | ⚠️ Requires external service |
+| **Data persistence** | ❌ Destroyed after run  | ✅ Persists                  |
+| **Best for**         | CI/CD, PRs              | Manual testing, debugging    |
 
 #### 5. Environment-Specific Seed Flags
 
-| Environment | `SEED_FOR_TESTS` | `SEED_CLEAN_DATA` | Use Case |
-|-------------|------------------|-------------------|----------|
-| **Local Dev** | `false` | `false` | Preserve data, add minimal seed |
-| **Local Test** | `true` | `false` | Add test data without deletion |
-| **CI/CD** | `true` | `true` | Clean slate for each test run |
-| **Staging** | `false` | `false` | Preserve staging data |
-| **Production** | `false` | `false` | Never delete production data |
+| Environment    | `SEED_FOR_TESTS` | `SEED_CLEAN_DATA` | Use Case                        |
+| -------------- | ---------------- | ----------------- | ------------------------------- |
+| **Local Dev**  | `false`          | `false`           | Preserve data, add minimal seed |
+| **Local Test** | `true`           | `false`           | Add test data without deletion  |
+| **CI/CD**      | `true`           | `true`            | Clean slate for each test run   |
+| **Staging**    | `false`          | `false`           | Preserve staging data           |
+| **Production** | `false`          | `false`           | Never delete production data    |
 
 **Warning**: `SEED_CLEAN_DATA=true` **DELETES ALL DATA**. Only use in:
+
 - ✅ Test databases
 - ✅ CI/CD ephemeral databases
 - ❌ **NEVER in production**
@@ -627,6 +638,7 @@ jobs:
 #### 6. Seed Data Consistency
 
 **Best Practices**:
+
 - Document seed data IDs in `prisma/seed.ts` comments
 - Use deterministic IDs (e.g., `T001`, `S001`) for easy reference
 - Keep seed data minimal but sufficient for all test scenarios
@@ -644,7 +656,7 @@ For local E2E testing with an isolated temporary database:
 Create `docker-compose.test.yml`:
 
 ```yaml
-version: '3.8'
+version: "3.8"
 
 services:
   postgres-test:
@@ -655,7 +667,7 @@ services:
       POSTGRES_PASSWORD: test_password
       POSTGRES_DB: test_timetable
     ports:
-      - "5433:5432"  # Use 5433 to avoid conflicts with existing PostgreSQL
+      - "5433:5432" # Use 5433 to avoid conflicts with existing PostgreSQL
     volumes:
       - test_db_data:/var/lib/postgresql/data
     healthcheck:
@@ -772,6 +784,7 @@ exit $testExitCode
 ```
 
 **Usage**:
+
 ```bash
 # Make executable (Git Bash)
 chmod +x scripts/run-e2e-tests.ps1
@@ -785,11 +798,13 @@ pwsh scripts/run-e2e-tests.ps1
 ## Playwright Configuration
 
 ### Local Tests (`playwright.config.ts`)
+
 - Uses local dev server (`http://localhost:3000`)
 - Runs on `pnpm test:e2e`
 - Full browser testing (Chromium, Brave if available)
 
 ### Vercel Tests (`playwright.vercel.config.ts`)
+
 - Uses production URL (`https://phrasongsa-timetable.vercel.app`)
 - Runs on `pnpm test:vercel`
 - Public pages only (no authentication)
@@ -801,6 +816,7 @@ pwsh scripts/run-e2e-tests.ps1
 ### What Copilot Should Test
 
 **Unit Tests (Always):**
+
 - ✅ Domain service functions (pure logic)
 - ✅ Validation functions
 - ✅ Repository methods (mocked Prisma)
@@ -808,6 +824,7 @@ pwsh scripts/run-e2e-tests.ps1
 - ✅ Business rule enforcement
 
 **E2E Tests (Critical Flows):**
+
 - ✅ Schedule creation workflow
 - ✅ Schedule modification
 - ✅ Conflict detection
@@ -817,12 +834,14 @@ pwsh scripts/run-e2e-tests.ps1
 - ✅ Public pages (teacher search, class search)
 
 **What NOT to Test:**
+
 - ❌ Prisma Client internals
 - ❌ Third-party library internals
 - ❌ Next.js framework code
 - ❌ MUI component internals
 
 ### Coverage Targets
+
 - **Unit tests**: 70%+ for domain services
 - **E2E tests**: All critical user flows
 - **Integration tests**: All Server Actions
@@ -834,36 +853,36 @@ pwsh scripts/run-e2e-tests.ps1
 ### Testing Server Actions
 
 ```typescript
-import { getTeacherByIdAction } from '@/features/teacher/application/actions/teacher.actions';
+import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
 
-test('should return teacher by ID', async () => {
-  const result = await getTeacherByIdAction({ TeacherID: 'T001' });
-  
+test("should return teacher by ID", async () => {
+  const result = await getTeacherByIdAction({ TeacherID: "T001" });
+
   expect(result.success).toBe(true);
   expect(result.data).toBeDefined();
-  expect(result.data?.TeacherID).toBe('T001');
+  expect(result.data?.TeacherID).toBe("T001");
 });
 
-test('should return error for invalid ID', async () => {
-  const result = await getTeacherByIdAction({ TeacherID: '' });
-  
+test("should return error for invalid ID", async () => {
+  const result = await getTeacherByIdAction({ TeacherID: "" });
+
   expect(result.success).toBe(false);
-  expect(result.error).toContain('รหัสครูห้ามว่าง');
+  expect(result.error).toContain("รหัสครูห้ามว่าง");
 });
 ```
 
 ### Testing Validation Services
 
 ```typescript
-import { validateTimeslotConflict } from '@/features/timeslot/domain/services/timeslot-validation.service';
+import { validateTimeslotConflict } from "@/features/timeslot/domain/services/timeslot-validation.service";
 
-describe('validateTimeslotConflict', () => {
-  test('should detect same-time conflict', () => {
-    const slot1 = { day: 'MON', period: 1 };
-    const slot2 = { day: 'MON', period: 1 };
-    
+describe("validateTimeslotConflict", () => {
+  test("should detect same-time conflict", () => {
+    const slot1 = { day: "MON", period: 1 };
+    const slot2 = { day: "MON", period: 1 };
+
     const result = validateTimeslotConflict(slot1, slot2);
-    
+
     expect(result.hasConflict).toBe(true);
     expect(result.message).toMatch(/ซ้ำซ้อน|ทับซ้อน/);
   });
@@ -875,19 +894,19 @@ describe('validateTimeslotConflict', () => {
 ```typescript
 // __test__/fixtures/teacher.fixtures.ts
 export const mockTeacher = {
-  TeacherID: 'T001',
-  Name: 'สมชาย',
-  Surname: 'ใจดี',
-  Department: 'คณิตศาสตร์',
+  TeacherID: "T001",
+  Name: "สมชาย",
+  Surname: "ใจดี",
+  Department: "คณิตศาสตร์",
   isActive: true,
 };
 
 // In test
-import { mockTeacher } from '../fixtures/teacher.fixtures';
+import { mockTeacher } from "../fixtures/teacher.fixtures";
 
-test('should format teacher name', () => {
+test("should format teacher name", () => {
   const result = formatTeacherName(mockTeacher);
-  expect(result).toBe('สมชาย ใจดี');
+  expect(result).toBe("สมชาย ใจดี");
 });
 ```
 
@@ -896,6 +915,7 @@ test('should format teacher name', () => {
 ## Debugging Tests
 
 ### Jest Debugging
+
 ```bash
 # Run with verbose output
 pnpm test --verbose
@@ -907,6 +927,7 @@ node --inspect-brk node_modules/.bin/jest __test__/path/to/test.ts
 ```
 
 ### Playwright Debugging
+
 ```bash
 # Debug mode (opens inspector)
 pnpm test:e2e:debug
@@ -924,6 +945,7 @@ PWDEBUG=1 pnpm test:e2e
 ### VS Code Integration
 
 Add to `.vscode/launch.json`:
+
 ```json
 {
   "configurations": [
@@ -953,6 +975,7 @@ Add to `.vscode/launch.json`:
 ## Test Best Practices
 
 ### DO
+
 - ✅ Write descriptive test names
 - ✅ Use Thai error messages for user-facing validation
 - ✅ Use table-driven tests for multiple scenarios
@@ -963,6 +986,7 @@ Add to `.vscode/launch.json`:
 - ✅ Use meaningful assertions with clear error messages
 
 ### DON'T
+
 - ❌ Test implementation details
 - ❌ Write flaky tests (timing-dependent)
 - ❌ Share state between tests
@@ -976,11 +1000,13 @@ Add to `.vscode/launch.json`:
 ## Continuous Integration
 
 Tests run automatically on:
+
 - **Pre-commit**: Lint and type check
 - **Pull Request**: Full test suite
 - **Pre-deployment**: E2E tests against preview
 
 GitHub Actions configuration handles:
+
 - Unit test execution
 - E2E test execution
 - Coverage reporting

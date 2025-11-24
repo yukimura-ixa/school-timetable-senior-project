@@ -30,7 +30,10 @@ export function ConfigSection({
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
-    <Paper elevation={0} sx={{ border: 1, borderColor: "divider", overflow: "hidden" }}>
+    <Paper
+      elevation={0}
+      sx={{ border: 1, borderColor: "divider", overflow: "hidden" }}
+    >
       {/* Header */}
       <Box
         sx={{
@@ -50,7 +53,9 @@ export function ConfigSection({
         onClick={() => setExpanded(!expanded)}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {icon && <Box sx={{ color: "primary.main", display: "flex" }}>{icon}</Box>}
+          {icon && (
+            <Box sx={{ color: "primary.main", display: "flex" }}>{icon}</Box>
+          )}
           <Box>
             <Typography variant="h6" fontWeight="bold">
               {title}

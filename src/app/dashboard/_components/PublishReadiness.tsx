@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { PublishReadinessResult } from "@/features/config/domain/types/publish-readiness-types";
 
 // Stat Card Component
@@ -41,79 +41,83 @@ function StatCard({
   );
 }
 
+export function PublishReadinessCard({
+  readiness,
+}: {
+  readiness: PublishReadinessResult;
+}) {
+  const { status, issues } = readiness;
 
-export function PublishReadinessCard({ readiness }: { readiness: PublishReadinessResult }) {
-    const { status, issues } = readiness;
-  
-    const statusMap = {
-      ready: {
-        title: "Publish Readiness",
-        value: "พร้อมเผยแพร่",
-        subtitle: "ผ่านการตรวจสอบทั้งหมด",
-        icon: "✅",
-        color: "green",
-      },
-      incomplete: {
-        title: "Publish Readiness",
-        value: "ยังไม่ครบถ้วน",
-        subtitle: `${issues.length} issues found`,
-        icon: "⚠️",
-        color: "yellow",
-      },
-      "moe-failed": {
-        title: "Publish Readiness",
-        value: "ไม่ผ่านเกณฑ์",
-        subtitle: `${issues.length} issues found`,
-        icon: "❌",
-        color: "red",
-      },
-      conflicts: {
-          title: "Publish Readiness",
-          value: "มีความขัดแย้ง",
-          subtitle: `${issues.length} issues found`,
-          icon: "⚠️",
-          color: "yellow",
-      },
-      unknown: {
-          title: "Publish Readiness",
-          value: "ไม่ทราบ",
-          subtitle: "ไม่สามารถตรวจสอบได้",
-          icon: "❓",
-          color: "blue",
+  const statusMap = {
+    ready: {
+      title: "Publish Readiness",
+      value: "พร้อมเผยแพร่",
+      subtitle: "ผ่านการตรวจสอบทั้งหมด",
+      icon: "✅",
+      color: "green",
+    },
+    incomplete: {
+      title: "Publish Readiness",
+      value: "ยังไม่ครบถ้วน",
+      subtitle: `${issues.length} issues found`,
+      icon: "⚠️",
+      color: "yellow",
+    },
+    "moe-failed": {
+      title: "Publish Readiness",
+      value: "ไม่ผ่านเกณฑ์",
+      subtitle: `${issues.length} issues found`,
+      icon: "❌",
+      color: "red",
+    },
+    conflicts: {
+      title: "Publish Readiness",
+      value: "มีความขัดแย้ง",
+      subtitle: `${issues.length} issues found`,
+      icon: "⚠️",
+      color: "yellow",
+    },
+    unknown: {
+      title: "Publish Readiness",
+      value: "ไม่ทราบ",
+      subtitle: "ไม่สามารถตรวจสอบได้",
+      icon: "❓",
+      color: "blue",
+    },
+  };
+
+  const currentStatus = statusMap[status];
+
+  return (
+    <StatCard
+      title={currentStatus.title}
+      value={currentStatus.value}
+      subtitle={currentStatus.subtitle}
+      icon={currentStatus.icon}
+      color={
+        currentStatus.color as "blue" | "green" | "purple" | "red" | "yellow"
       }
-    };
-  
-    const currentStatus = statusMap[status];
-  
-    return (
-      <StatCard
-        title={currentStatus.title}
-        value={currentStatus.value}
-        subtitle={currentStatus.subtitle}
-        icon={currentStatus.icon}
-        color={currentStatus.color as "blue" | "green" | "purple" | "red" | "yellow"}
-      />
-    );
+    />
+  );
+}
+
+export function ReadinessIssues({ issues }: { issues: string[] }) {
+  if (issues.length === 0) {
+    return null;
   }
-  
-  export function ReadinessIssues({ issues }: { issues: string[] }) {
-    if (issues.length === 0) {
-      return null;
-    }
-  
-    return (
-      <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-yellow-900">
-          ⚠️ ประเด็นที่ต้องดำเนินการก่อนเผยแพร่
-        </h2>
-        <ul className="list-disc space-y-2 pl-5">
-          {issues.map((issue, index) => (
-            <li key={index} className="text-sm text-yellow-800">
-              {issue}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-  
+
+  return (
+    <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-yellow-900">
+        ⚠️ ประเด็นที่ต้องดำเนินการก่อนเผยแพร่
+      </h2>
+      <ul className="list-disc space-y-2 pl-5">
+        {issues.map((issue, index) => (
+          <li key={index} className="text-sm text-yellow-800">
+            {issue}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}

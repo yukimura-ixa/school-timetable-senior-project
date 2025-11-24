@@ -14,6 +14,7 @@
 **Architecture:** Clean Architecture + Server Actions + ActionResult<T>
 
 **User Roles:**
+
 - 🔐 **Admin** - Full access (authenticated)
 - 👨‍🏫 **Teacher** - View own schedule (public)
 - 🎓 **Student** - View class schedule (public)
@@ -76,6 +77,7 @@ graph LR
 ```
 
 **Key Steps:**
+
 1. 🔐 **Login** via Google OAuth
 2. 🗓️ **Create Config** (semester/year/periods/breaks)
 3. ⚙️ **Generate Timeslots** (auto-created from config)
@@ -103,12 +105,14 @@ graph LR
 ```
 
 **Validation Rules:**
+
 - ✅ Subject must be in grade's program
 - ✅ NumberOfHours = Subject.Credits
 - ✅ Teacher total hours ≤ MaxHours
 - ✅ No duplicate assignment (GradeID + SubjectID + TeacherID unique)
 
 **Example:**
+
 ```
 Grade: ม.1/1
 Subject: Math (2 credits)
@@ -141,12 +145,14 @@ graph TD
 ```
 
 **Conflict Types:**
+
 1. **🚨 Teacher Conflict** - Teaching 2 classes at same time
 2. **🚨 Class Conflict** - 2 subjects at same time
 3. **🚨 Room Conflict** - Room used by 2 classes
 4. **🔒 Locked Timeslot** - Special event scheduled
 
 **Visual Features:**
+
 - 🎨 Color-coded subjects
 - 📊 Progress bars (remaining slots)
 - 🔴 Red borders for conflicts
@@ -175,6 +181,7 @@ graph LR
 ```
 
 **Conflict Display:**
+
 ```
 🚨 ครูสอน 2 ชั้นพร้อมกัน
 - ครู: นาย สมชาย (10001)
@@ -201,12 +208,14 @@ graph TB
 **3 Sections (Phase 1 Complete):**
 
 #### Section 1: Overview
+
 - 📊 Total Scheduled Hours
 - ✅ Completion Rate
 - 👨‍🏫 Active Teachers
 - 🚨 Conflicts Count
 
 #### Section 2: Teacher Workload
+
 - Sorted by hours (descending)
 - Status chips:
   - 🟢 เหมาะสม (40-70% MaxHours)
@@ -216,6 +225,7 @@ graph TB
 - Visual progress bars
 
 #### Section 3: Room Utilization
+
 - Sorted by occupancy rate
 - Status chips:
   - 🔴 ≥80% (Overutilized)
@@ -226,6 +236,7 @@ graph TB
 - Optional day breakdown
 
 **Future Phases:**
+
 - Phase 2: Subject Distribution, Quality Metrics, Time Analysis, Compliance
 - Phase 3: Recharts visualizations (bar/pie/line charts)
 - Phase 4: Filtering, export, date ranges
@@ -250,11 +261,13 @@ graph LR
 ```
 
 **Lock Templates:**
+
 - 🎤 **Assembly:** MON period 1 (all classes)
 - 🏃 **Club Activities:** FRI periods 9-10 (all classes)
 - 📝 **Exam Week:** All periods all days (selected classes)
 
 **Lock Effect:**
+
 - 🔒 Locked cells show lock icon
 - ❌ Cannot drag subjects to locked cells
 - ⚠️ Existing schedules show warning
@@ -278,6 +291,7 @@ graph LR
 ```
 
 **Features:**
+
 - 🔍 Search by name/ID
 - 🔽 Sort by columns
 - 📄 Pagination (20/page)
@@ -291,6 +305,7 @@ graph LR
 ### Core Entities
 
 **Config** (Semester)
+
 - `ConfigID` (PK): "1-2567" (SEMESTER-YEAR)
 - `NumberOfPeriod`: 10 periods/day
 - `TimePerPeriod`: 50 minutes
@@ -298,12 +313,14 @@ graph LR
 - `SchoolDays`: JSON ["MON","TUE","WED","THU","FRI"]
 
 **Teacher**
+
 - `TeacherID` (PK): "10001"
 - `Name`, `Surname`
 - `MaxHours`: 18-25 typical
 - Relation: `assigned_subject[]`, `classschedule[]`
 
 **Subject**
+
 - `SubjectID` (PK): "ท21101"
 - `Name_TH`, `Name_EN`
 - `Credits`: 0.5, 1.0, 1.5, 2.0
@@ -311,38 +328,45 @@ graph LR
 - `Color`: Hex code for UI
 
 **Room**
+
 - `RoomID` (PK): "A101", "LAB1"
 - `Capacity`: 20-50 students
 - `RoomType`: "ห้องเรียน", "ห้องปฏิบัติการ"
 
 **GradeLevel** (Class)
+
 - `GradeID` (PK): "1-1" (ม.1/1)
 - `Level`: 1-6
 - `Section`: Room number
 - `ProgramID` (FK): Curriculum track
 
 **Program** (Curriculum)
+
 - `ProgramID` (PK): "SCI-MATH"
 - `ProgramName`: "วิทยาศาสตร์-คณิตศาสตร์"
 - `Track`: "วิทย์-คณิต"
 - Relation: `program_subject[]` (junction with subjects)
 
 **Timeslot**
+
 - `TimeslotID` (PK): "1-2567-MON1"
 - Format: `{ConfigID}-{Day}{Period}`
 - `StartTime`, `EndTime`: "08:00", "08:50"
 - Auto-generated from config
 
 **Assigned_Subject** (Assignment)
+
 - Junction: GradeID + SubjectID + TeacherID
 - `NumberOfHours`: Must equal subject.Credits
 - Validates teacher not overbooked
 
 **ClassSchedule** (Schedule Entry)
+
 - Links: Grade + Subject + Teacher + Room + Timeslot
 - Validates: No conflicts (class/teacher/room)
 
 **Locked_Resource** (Lock)
+
 - `ResourceType`: "CLASS", "TEACHER", "ROOM"
 - `Reason`: "ชุมนุม", "สอบกลางภาค", etc.
 
@@ -353,11 +377,13 @@ graph LR
 ### Color Coding
 
 **Subject Categories:**
+
 - 🔵 Blue - Core subjects (พื้นฐาน)
 - 🟢 Green - Elective subjects (เพิ่มเติม)
 - 🟡 Yellow - Activity subjects (กิจกรรม)
 
 **Status Indicators:**
+
 - ✅ Green - Complete, optimal, no conflicts
 - 🟡 Yellow - Partial, moderate, warnings
 - 🔴 Red - Conflicts, overbooked, critical
@@ -365,6 +391,7 @@ graph LR
 - 🔵 Blue - Informational
 
 **Workload Levels:**
+
 - 🟢 Green (40-70%) - เหมาะสม (Optimal)
 - 🟠 Orange (70-100%) - สูง (High)
 - 🔴 Red (>100%) - สูงเกินไป (Excessive)
@@ -375,18 +402,20 @@ graph LR
 ## 🧪 Testing Strategy
 
 ### Unit Tests (`__test__/`)
+
 - Pure functions (validation, calculation)
 - Repository methods (mocked Prisma)
 - Business rules
 - Table-driven tests
 
 **Example:**
+
 ```typescript
-describe('validateTeacherWorkload', () => {
-  it('should reject when exceeding MaxHours', () => {
+describe("validateTeacherWorkload", () => {
+  it("should reject when exceeding MaxHours", () => {
     const result = validateTeacherWorkload(
       { MaxHours: 18, CurrentHours: 17 },
-      { NumberOfHours: 3 }
+      { NumberOfHours: 3 },
     );
     expect(result.valid).toBe(false);
   });
@@ -394,23 +423,26 @@ describe('validateTeacherWorkload', () => {
 ```
 
 ### E2E Tests (`e2e/`)
+
 - Critical user flows
 - Cross-role scenarios
 - Uses seeded data (1-2567, 2-2567, 1-2568)
 
 **Example:**
+
 ```typescript
-test('Admin can assign subject to class', async ({ page }) => {
-  await page.goto('/schedule/1-2567/assign');
-  await page.click('text=+ มอบหมายวิชา');
-  await page.selectOption('[name="GradeID"]', '1-1');
-  await page.selectOption('[name="SubjectID"]', 'ท21101');
+test("Admin can assign subject to class", async ({ page }) => {
+  await page.goto("/schedule/1-2567/assign");
+  await page.click("text=+ มอบหมายวิชา");
+  await page.selectOption('[name="GradeID"]', "1-1");
+  await page.selectOption('[name="SubjectID"]', "ท21101");
   await page.click('button[type="submit"]');
-  await expect(page.locator('text=บันทึกสำเร็จ')).toBeVisible();
+  await expect(page.locator("text=บันทึกสำเร็จ")).toBeVisible();
 });
 ```
 
 **Run Commands:**
+
 ```bash
 pnpm test           # Unit tests
 pnpm test:e2e       # E2E local
@@ -422,6 +454,7 @@ pnpm test:vercel    # E2E production
 ## 🔐 Business Rules Checklist
 
 ### ✅ Hard Constraints (MUST NOT violate)
+
 - [ ] Class cannot have 2 subjects at same time
 - [ ] Teacher cannot teach 2 classes at same time
 - [ ] Room cannot be used by 2 classes at same time
@@ -432,6 +465,7 @@ pnpm test:vercel    # E2E production
 - [ ] ConfigID format: `/^[1-3]-\d{4}$/`
 
 ### 💡 Soft Constraints (SHOULD avoid)
+
 - [ ] Minimize gaps in teacher's schedule
 - [ ] Distribute subjects evenly across week
 - [ ] Assign lab rooms to science subjects
@@ -440,6 +474,7 @@ pnpm test:vercel    # E2E production
 - [ ] Room utilization 60-80% is optimal
 
 ### 📜 Ministry Standards (Thailand)
+
 - [ ] Core subjects: Minimum credits per year
 - [ ] Total credits: ~20 per semester
 - [ ] Activity subjects: 1 credit minimum
@@ -453,12 +488,14 @@ pnpm test:vercel    # E2E production
 ### First-Time Setup (3 days)
 
 **Day 1: Configuration**
+
 1. Login with Google OAuth
 2. Create new semester (1-2568)
 3. Configure: 10 periods, 50 min/period, break after period 4
 4. Verify 50 timeslots generated
 
 **Day 2: Master Data**
+
 1. Import/add 80 teachers (CSV or manual)
 2. Import/add 50 subjects
 3. Add 10 rooms
@@ -467,6 +504,7 @@ pnpm test:vercel    # E2E production
 6. Assign subjects to programs
 
 **Day 3: Assignment & Arrangement**
+
 1. Assign subjects to all 40 classes
 2. Verify no teacher exceeds MaxHours
 3. Lock assembly time (MON period 1)
@@ -483,21 +521,25 @@ pnpm test:vercel    # E2E production
 ## 🎯 Common User Journeys
 
 ### Journey 1: New Semester
+
 **Admin → Login → Create Config → Add Data → Assign → Arrange → Publish**  
 **Time:** 2-3 days  
 **Result:** Complete published schedule
 
 ### Journey 2: Mid-Semester Adjustment
+
 **Admin → Select Semester → Edit Assignment → Rearrange → Fix Conflicts**  
 **Time:** 30-60 minutes  
 **Result:** Updated schedule with teacher change
 
 ### Journey 3: Teacher Views Own Schedule
+
 **Teacher → Open Email Link → Public Page → View Timetable → Print**  
 **Time:** 2 minutes  
 **Result:** Personal schedule printed
 
 ### Journey 4: Parent Checks Child's Schedule
+
 **Parent → Homepage → Search Class → View Schedule → Share Link**  
 **Time:** 3 minutes  
 **Result:** Class schedule viewed and shared
@@ -507,6 +549,7 @@ pnpm test:vercel    # E2E production
 ## 📊 Key Metrics
 
 ### System Capacity
+
 - **Teachers:** 100+ (tested with 80)
 - **Classes:** 50+ (tested with 40)
 - **Subjects:** 100+ (tested with 50)
@@ -514,12 +557,14 @@ pnpm test:vercel    # E2E production
 - **Schedules:** 2,000+ entries (40 classes × 50 timeslots)
 
 ### Performance
+
 - **Page Load:** < 2 seconds (with SSR)
 - **Conflict Detection:** < 1 second (for 2,000 schedules)
 - **Drag-and-Drop:** Real-time (optimistic UI)
 - **Analytics:** < 3 seconds (parallel queries)
 
 ### Code Stats (Jan 2025)
+
 - **Total Lines:** 20,000+
 - **Features:** 16 modules
 - **Server Actions:** 50+
@@ -531,25 +576,33 @@ pnpm test:vercel    # E2E production
 ## 🆘 Troubleshooting
 
 ### Issue: Teacher appears overbooked
+
 **Solution:** Check analytics → Teacher Workload section → Verify MaxHours vs. actual assignments
 
 ### Issue: Conflict not auto-detected
+
 **Solution:** Navigate to Conflicts page → Click "Refresh" → Review all conflict types
 
 ### Issue: Cannot drag subject to timeslot
+
 **Check:**
+
 1. Is timeslot locked? (🔒 icon visible?)
 2. Does subject have remaining slots? (Counter > 0?)
 3. Is there a conflict? (Red border on drop?)
 
 ### Issue: Public page not showing schedule
+
 **Check:**
+
 1. Is config.status = "PUBLISHED"?
 2. Has schedule been created for this class/teacher?
 3. Clear browser cache and refresh
 
 ### Issue: Login not working
+
 **Check:**
+
 1. Is email in authorized admin list? (see `src/auth.ts`)
 2. Is Google OAuth configured correctly?
 3. Check browser console for errors
@@ -567,6 +620,7 @@ pnpm test:vercel    # E2E production
 - 📝 **Migrations:** `PRISMA_MIGRATION.md`, `docs/COMPLETE_MIGRATION_SUMMARY.md`
 
 **MCP Servers:**
+
 - **Next DevTools:** Next.js 16 diagnostics, upgrades
 - **Prisma MCP:** Schema reasoning, migrations
 - **Serena:** Symbol-aware code navigation
@@ -578,7 +632,9 @@ pnpm test:vercel    # E2E production
 ## 🎉 Recent Additions
 
 ### ✨ Analytics Dashboard (Jan 2025)
+
 **Phase 1 Complete:**
+
 - Overview Stats (4 cards)
 - Teacher Workload Analysis (sorted list + status)
 - Room Utilization Analysis (occupancy rates)
@@ -586,6 +642,7 @@ pnpm test:vercel    # E2E production
 - Route: `/dashboard/[term]/analytics`
 
 **Next Steps:**
+
 - Phase 2: Subject/Quality/Time/Compliance sections
 - Phase 3: Recharts visualizations
 - Phase 4: Filtering and export

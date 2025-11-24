@@ -1,24 +1,24 @@
 /**
  * Application Layer: Timeslot Server Actions
- * 
+ *
  * Server Actions for timeslot management feature.
  * Handles complex timeslot generation and cascade deletion.
- * 
+ *
  * @module timeslot.actions
  */
 
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { createAction } from '@/shared/lib/action-wrapper';
-import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
-import { withPrismaTransaction } from '@/lib/prisma-transaction';
+import { revalidatePath } from "next/cache";
+import { createAction } from "@/shared/lib/action-wrapper";
+import { timeslotRepository } from "../../infrastructure/repositories/timeslot.repository";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   generateTimeslots,
   sortTimeslots,
   validateNoExistingTimeslots,
   validateTimeslotsExist,
-} from '../../domain/services/timeslot.service';
+} from "../../domain/services/timeslot.service";
 import {
   createTimeslotsSchema,
   getTimeslotsByTermSchema,
@@ -28,15 +28,15 @@ import {
   type GetTimeslotsByTermInput,
   type DeleteTimeslotsByTermInput,
   type GetTimeslotByIdInput,
-} from '../schemas/timeslot.schemas';
+} from "../schemas/timeslot.schemas";
 
 /**
  * Get timeslots for a specific academic year and semester
  * Returns sorted timeslots (by day and slot number)
- * 
+ *
  * @param input - AcademicYear and Semester
  * @returns Sorted array of timeslots
- * 
+ *
  * @example
  * ```tsx
  * const result = await getTimeslotsByTermAction({
@@ -53,22 +53,22 @@ export const getTimeslotsByTermAction = createAction(
   async (input: GetTimeslotsByTermInput) => {
     const timeslots = await timeslotRepository.findByTerm(
       input.AcademicYear,
-      input.Semester
+      input.Semester,
     );
 
     // Apply custom sorting
     const sorted = sortTimeslots(timeslots);
 
     return sorted;
-  }
+  },
 );
 
 /**
  * Get a single timeslot by ID
- * 
+ *
  * @param input - TimeslotID
  * @returns Single timeslot or null
- * 
+ *
  * @example
  * ```tsx
  * const result = await getTimeslotByIdAction({ TimeslotID: "1/2567-MON1" });
@@ -82,23 +82,23 @@ export const getTimeslotByIdAction = createAction(
   async (input: GetTimeslotByIdInput) => {
     const timeslot = await timeslotRepository.findById(input.TimeslotID);
     return timeslot;
-  }
+  },
 );
 
 /**
  * Create timeslots for a term based on configuration
  * Generates multiple timeslots, creates table_config, and uses transaction for atomicity
- * 
+ *
  * Complex logic:
  * - Validates no existing timeslots for the term
  * - Generates timeslots from configuration (calculates start/end times, breaks)
  * - Creates table_config record
  * - Creates all timeslots
  * - Uses Prisma transaction for atomicity
- * 
+ *
  * @param input - Configuration for timeslot generation
  * @returns Success message with count
- * 
+ *
  * @example
  * ```tsx
  * const result = await createTimeslotsAction({
@@ -121,7 +121,7 @@ export const createTimeslotsAction = createAction(
     // Validate no existing timeslots
     const existingError = await validateNoExistingTimeslots(
       input.AcademicYear,
-      input.Semester
+      input.Semester,
     );
     if (existingError) {
       throw new Error(existingError);
@@ -131,9 +131,14 @@ export const createTimeslotsAction = createAction(
     const timeslots = generateTimeslots(input);
 
     // Use transaction to create table_config and timeslots atomically
-    const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
+    const semesterNum =
+      input.Semester === "SEMESTER_1"
+        ? "1"
+        : input.Semester === "SEMESTER_2"
+          ? "2"
+          : "3";
     const configId = `${semesterNum}-${input.AcademicYear}`;
-    
+
     await withPrismaTransaction(async (tx) => {
       // Create or update table config with canonical ConfigID format
       await tx.table_config.upsert({
@@ -160,25 +165,25 @@ export const createTimeslotsAction = createAction(
     });
 
     // Revalidate paths to ensure UI sees fresh data (Next.js 16 cache invalidation)
-    revalidatePath('/dashboard/select-semester');
+    revalidatePath("/dashboard/select-semester");
     revalidatePath(`/schedule/${configId}`);
 
     return {
-      message: 'สร้างตารางเวลาสำเร็จ',
+      message: "สร้างตารางเวลาสำเร็จ",
       count: timeslots.length,
     };
-  }
+  },
 );
 
 /**
  * Delete timeslots for a term with cascade cleanup
  * Deletes table_config, timeslots, and teacher responsibilities
- * 
+ *
  * Uses transaction to ensure all deletes succeed or all fail
- * 
+ *
  * @param input - AcademicYear and Semester
  * @returns Success message
- * 
+ *
  * @example
  * ```tsx
  * const result = await deleteTimeslotsByTermAction({
@@ -193,7 +198,7 @@ export const deleteTimeslotsByTermAction = createAction(
     // Validate timeslots exist
     const existsError = await validateTimeslotsExist(
       input.AcademicYear,
-      input.Semester
+      input.Semester,
     );
     if (existsError) {
       throw new Error(existsError);
@@ -202,7 +207,12 @@ export const deleteTimeslotsByTermAction = createAction(
     // Use transaction for cascade deletion
     await withPrismaTransaction(async (tx) => {
       // Delete table config with canonical ConfigID format
-      const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : input.Semester === 'SEMESTER_2' ? '2' : '3';
+      const semesterNum =
+        input.Semester === "SEMESTER_1"
+          ? "1"
+          : input.Semester === "SEMESTER_2"
+            ? "2"
+            : "3";
       const configId = `${semesterNum}-${input.AcademicYear}`;
       await tx.table_config.delete({
         where: {
@@ -228,16 +238,16 @@ export const deleteTimeslotsByTermAction = createAction(
     });
 
     return {
-      message: 'ลบตารางเวลาสำเร็จ',
+      message: "ลบตารางเวลาสำเร็จ",
     };
-  }
+  },
 );
 
 /**
  * Get total timeslot count (statistics)
- * 
+ *
  * @returns Total count of all timeslots
- * 
+ *
  * @example
  * ```tsx
  * const result = await getTimeslotCountAction();
@@ -253,17 +263,17 @@ export async function getTimeslotCountAction() {
   } catch {
     return {
       success: false as const,
-      error: 'ไม่สามารถนับจำนวนช่วงเวลาได้',
+      error: "ไม่สามารถนับจำนวนช่วงเวลาได้",
     };
   }
 }
 
 /**
  * Get timeslot count for a specific term (statistics)
- * 
+ *
  * @param input - AcademicYear and Semester
  * @returns Count of timeslots for the term
- * 
+ *
  * @example
  * ```tsx
  * const result = await getTimeslotCountByTermAction({
@@ -277,8 +287,8 @@ export const getTimeslotCountByTermAction = createAction(
   async (input: GetTimeslotsByTermInput) => {
     const count = await timeslotRepository.countByTerm(
       input.AcademicYear,
-      input.Semester
+      input.Semester,
     );
     return { count };
-  }
+  },
 );

@@ -1,15 +1,15 @@
-"use server"
+"use server";
 
 /**
  * Semester Server Actions
  * Handle semester CRUD operations with validation
  */
 
-import * as v from "valibot"
-import { semesterRepository } from "../../infrastructure/repositories/semester.repository"
-import { Prisma } from '@/prisma/generated/client';;
-import type { semester } from '@/prisma/generated/client';;
-import { withPrismaTransaction } from "@/lib/prisma-transaction"
+import * as v from "valibot";
+import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
+import { Prisma } from "@/prisma/generated/client";
+import type { semester } from "@/prisma/generated/client";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   type SemesterFilter,
   SemesterFilterSchema,
@@ -24,34 +24,34 @@ import {
   type CopySemester,
   CopySemesterSchema,
   type SemesterDTO,
-} from "../schemas/semester.schemas"
-import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas"
-import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service"
+} from "../schemas/semester.schemas";
+import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
+import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 
 type ActionResult<T = unknown> = {
-  success: boolean
-  data?: T
-  error?: string
-}
+  success: boolean;
+  data?: T;
+  error?: string;
+};
 
 /**
  * Get all semesters with filtering
  */
 export async function getSemestersAction(
-  filter?: SemesterFilter
+  filter?: SemesterFilter,
 ): Promise<ActionResult<SemesterDTO[]>> {
   try {
     // Validate filter
     if (filter) {
-      v.parse(SemesterFilterSchema, filter)
+      v.parse(SemesterFilterSchema, filter);
     }
 
-    const semesters = await semesterRepository.findMany(filter)
+    const semesters = await semesterRepository.findMany(filter);
 
     // Enrich with statistics
     const enrichedSemesters = await Promise.all(
       semesters.map(async (semester: any) => {
-        const stats = await semesterRepository.getStatistics(semester.ConfigID)
+        const stats = await semesterRepository.getStatistics(semester.ConfigID);
         return {
           configId: semester.ConfigID,
           academicYear: semester.AcademicYear,
@@ -67,15 +67,16 @@ export async function getSemestersAction(
           teacherCount: stats?.teacherCount || 0,
           roomCount: stats?.roomCount || 0,
           subjectCount: stats?.subjectCount || 0,
-        } as SemesterDTO
-      })
-    )
+        } as SemesterDTO;
+      }),
+    );
 
-    return { success: true, data: enrichedSemesters }
+    return { success: true, data: enrichedSemesters };
   } catch (err: unknown) {
-    console.error("[getSemestersAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to fetch semesters"
-    return { success: false, error: message }
+    console.error("[getSemestersAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch semesters";
+    return { success: false, error: message };
   }
 }
 
@@ -83,14 +84,14 @@ export async function getSemestersAction(
  * Get recent semesters
  */
 export async function getRecentSemestersAction(
-  limit = 2
+  limit = 2,
 ): Promise<ActionResult<SemesterDTO[]>> {
   try {
-    const semesters = await semesterRepository.findRecent(limit)
+    const semesters = await semesterRepository.findRecent(limit);
 
     const enrichedSemesters = await Promise.all(
       semesters.map(async (semester: any) => {
-        const stats = await semesterRepository.getStatistics(semester.ConfigID)
+        const stats = await semesterRepository.getStatistics(semester.ConfigID);
         return {
           configId: semester.ConfigID,
           academicYear: semester.AcademicYear,
@@ -106,28 +107,31 @@ export async function getRecentSemestersAction(
           teacherCount: stats?.teacherCount || 0,
           roomCount: 0,
           subjectCount: stats?.subjectCount || 0,
-        } as SemesterDTO
-      })
-    )
+        } as SemesterDTO;
+      }),
+    );
 
-    return { success: true, data: enrichedSemesters }
+    return { success: true, data: enrichedSemesters };
   } catch (err: unknown) {
-    console.error("[getRecentSemestersAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to fetch recent semesters"
-    return { success: false, error: message }
+    console.error("[getRecentSemestersAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch recent semesters";
+    return { success: false, error: message };
   }
 }
 
 /**
  * Get pinned semesters
  */
-export async function getPinnedSemestersAction(): Promise<ActionResult<SemesterDTO[]>> {
+export async function getPinnedSemestersAction(): Promise<
+  ActionResult<SemesterDTO[]>
+> {
   try {
-    const semesters = await semesterRepository.findPinned()
+    const semesters = await semesterRepository.findPinned();
 
     const enrichedSemesters = await Promise.all(
       semesters.map(async (semester: any) => {
-        const stats = await semesterRepository.getStatistics(semester.ConfigID)
+        const stats = await semesterRepository.getStatistics(semester.ConfigID);
         return {
           configId: semester.ConfigID,
           academicYear: semester.AcademicYear,
@@ -143,15 +147,16 @@ export async function getPinnedSemestersAction(): Promise<ActionResult<SemesterD
           teacherCount: stats?.teacherCount || 0,
           roomCount: 0,
           subjectCount: stats?.subjectCount || 0,
-        } as SemesterDTO
-      })
-    )
+        } as SemesterDTO;
+      }),
+    );
 
-    return { success: true, data: enrichedSemesters }
+    return { success: true, data: enrichedSemesters };
   } catch (err: unknown) {
-    console.error("[getPinnedSemestersAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to fetch pinned semesters"
-    return { success: false, error: message }
+    console.error("[getPinnedSemestersAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to fetch pinned semesters";
+    return { success: false, error: message };
   }
 }
 
@@ -159,31 +164,33 @@ export async function getPinnedSemestersAction(): Promise<ActionResult<SemesterD
  * Create a new semester
  */
 export async function createSemesterAction(
-  input: CreateSemester
+  input: CreateSemester,
 ): Promise<ActionResult<SemesterDTO>> {
   try {
     // Validate input
-    v.parse(CreateSemesterSchema, input)
+    v.parse(CreateSemesterSchema, input);
 
     // Check if semester already exists
     const existing = await semesterRepository.findByYearAndSemester(
       input.academicYear,
-      input.semester
-    )
+      input.semester,
+    );
 
     if (existing) {
       return {
         success: false,
         error: `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
-      }
+      };
     }
 
     // Copy config from source if requested
-    let configData: Prisma.InputJsonValue | undefined
+    let configData: Prisma.InputJsonValue | undefined;
     if (input.copyFromConfigId && input.copyConfig) {
-      const source = await semesterRepository.findById(input.copyFromConfigId)
+      const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
-        configData = (source.Config ?? undefined) as Prisma.InputJsonValue | undefined
+        configData = (source.Config ?? undefined) as
+          | Prisma.InputJsonValue
+          | undefined;
       }
     }
 
@@ -192,17 +199,18 @@ export async function createSemesterAction(
       academicYear: input.academicYear,
       semester: input.semester,
       config: configData,
-    })
+    });
 
     // If copying from previous semester, copy timeslots
     if (input.copyFromConfigId) {
-      const source = await semesterRepository.findById(input.copyFromConfigId)
+      const source = await semesterRepository.findById(input.copyFromConfigId);
       if (source) {
-        const sourceYear = source.AcademicYear
-        const sourceSemester = source.Semester
-        const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2
-        const targetSemesterNum = input.semester
-        const targetSemesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"
+        const sourceYear = source.AcademicYear;
+        const sourceSemester = source.Semester;
+        const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2;
+        const targetSemesterNum = input.semester;
+        const targetSemesterEnum =
+          input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
         // Copy timeslots using repository method
         await semesterRepository.copyTimeslots(
@@ -211,12 +219,12 @@ export async function createSemesterAction(
           input.academicYear,
           targetSemesterEnum as semester,
           sourceSemesterNum,
-          targetSemesterNum
-        )
+          targetSemesterNum,
+        );
       }
     }
 
-    const stats = await semesterRepository.getStatistics(newSemester.ConfigID)
+    const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
 
     return {
       success: true,
@@ -236,21 +244,22 @@ export async function createSemesterAction(
         roomCount: 0,
         subjectCount: stats?.subjectCount || 0,
       } as SemesterDTO,
-    }
+    };
   } catch (err: unknown) {
-    console.error("[createSemesterAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to create semester"
-    return { success: false, error: message }
+    console.error("[createSemesterAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to create semester";
+    return { success: false, error: message };
   }
 }
 
 /**
  * Create semester with timeslots in one atomic transaction
  * Combines semester creation and timeslot generation
- * 
+ *
  * @param input - Semester data + optional timeslot configuration
  * @returns Created semester with statistics
- * 
+ *
  * @example
  * ```tsx
  * const result = await createSemesterWithTimeslotsAction({
@@ -266,11 +275,11 @@ export async function createSemesterAction(
  * ```
  */
 export async function createSemesterWithTimeslotsAction(input: {
-  academicYear: number
-  semester: number
-  copyFromConfigId?: string
-  copyConfig?: boolean
-  timeslotConfig?: CreateTimeslotsInput
+  academicYear: number;
+  semester: number;
+  copyFromConfigId?: string;
+  copyConfig?: boolean;
+  timeslotConfig?: CreateTimeslotsInput;
 }): Promise<ActionResult<SemesterDTO>> {
   try {
     // Validate semester number
@@ -278,40 +287,39 @@ export async function createSemesterWithTimeslotsAction(input: {
       return {
         success: false,
         error: "ภาคเรียนต้องเป็น 1 หรือ 2 เท่านั้น",
-      }
+      };
     }
 
     // Check if semester already exists
     const existing = await semesterRepository.findByYearAndSemester(
       input.academicYear,
-      input.semester
-    )
+      input.semester,
+    );
 
     if (existing) {
       return {
         success: false,
         error: `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
-      }
+      };
     }
 
     // Prepare semester enum
-    const semesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"
+    const semesterEnum = input.semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
     // Use transaction for atomicity
     const newSemester = await withPrismaTransaction(async (tx) => {
       // 1. Copy config from source if requested
-      let configData: Prisma.InputJsonValue | undefined
+      let configData: Prisma.InputJsonValue | undefined;
       if (input.copyFromConfigId && input.copyConfig) {
         const source = await tx.table_config.findUnique({
           where: { ConfigID: input.copyFromConfigId },
-        })
+        });
         if (source) {
-          configData = source.Config ?? undefined
+          configData = source.Config ?? undefined;
         }
       }
 
-      const normalizedConfig: Prisma.InputJsonValue =
-        configData ?? {}
+      const normalizedConfig: Prisma.InputJsonValue = configData ?? {};
 
       // 2. Create new semester
       const semester = await tx.table_config.create({
@@ -324,7 +332,7 @@ export async function createSemesterWithTimeslotsAction(input: {
           isPinned: false,
           configCompleteness: 0,
         },
-      })
+      });
 
       // 3. Create timeslots if config provided
       if (input.timeslotConfig) {
@@ -334,10 +342,10 @@ export async function createSemesterWithTimeslotsAction(input: {
             AcademicYear: input.academicYear,
             Semester: semesterEnum,
           },
-        })
+        });
 
         if (existingTimeslots) {
-          throw new Error("มีตารางเวลาสำหรับภาคเรียนนี้อยู่แล้ว")
+          throw new Error("มีตารางเวลาสำหรับภาคเรียนนี้อยู่แล้ว");
         }
 
         // Generate and create timeslots
@@ -345,45 +353,45 @@ export async function createSemesterWithTimeslotsAction(input: {
           ...input.timeslotConfig,
           AcademicYear: input.academicYear,
           Semester: semesterEnum,
-        })
+        });
 
         await tx.timeslot.createMany({
           data: timeslots,
-        })
+        });
 
         // Update config completeness (timeslots configured)
         await tx.table_config.update({
           where: { ConfigID: semester.ConfigID },
           data: { configCompleteness: 25 }, // 25% complete after timeslots
-        })
+        });
       }
 
       // 4. Copy timeslots from source if requested (and no new config)
       if (input.copyFromConfigId && !input.timeslotConfig) {
         const source = await tx.table_config.findUnique({
           where: { ConfigID: input.copyFromConfigId },
-        })
+        });
 
         if (source) {
-          const sourceYear = source.AcademicYear
-          const sourceSemester = source.Semester
+          const sourceYear = source.AcademicYear;
+          const sourceSemester = source.Semester;
 
           const timeslots = await tx.timeslot.findMany({
             where: {
               AcademicYear: sourceYear,
               Semester: sourceSemester,
             },
-          })
+          });
 
           if (timeslots.length > 0) {
-            const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2
-            const targetSemesterNum = input.semester
+            const sourceSemesterNum = sourceSemester === "SEMESTER_1" ? 1 : 2;
+            const targetSemesterNum = input.semester;
 
             await tx.timeslot.createMany({
               data: timeslots.map((ts: any) => ({
                 TimeslotID: ts.TimeslotID.replace(
                   `${sourceSemesterNum}-${sourceYear}`,
-                  `${targetSemesterNum}-${input.academicYear}`
+                  `${targetSemesterNum}-${input.academicYear}`,
                 ),
                 AcademicYear: input.academicYear,
                 Semester: semesterEnum,
@@ -393,22 +401,22 @@ export async function createSemesterWithTimeslotsAction(input: {
                 DayOfWeek: ts.DayOfWeek,
               })),
               skipDuplicates: true,
-            })
+            });
 
             // Update config completeness
             await tx.table_config.update({
               where: { ConfigID: semester.ConfigID },
               data: { configCompleteness: 25 },
-            })
+            });
           }
         }
       }
 
-      return semester
-    })
+      return semester;
+    });
 
     // 5. Get statistics
-    const stats = await semesterRepository.getStatistics(newSemester.ConfigID)
+    const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
 
     return {
       success: true,
@@ -428,12 +436,14 @@ export async function createSemesterWithTimeslotsAction(input: {
         roomCount: 0,
         subjectCount: stats?.subjectCount || 0,
       } as SemesterDTO,
-    }
+    };
   } catch (err: unknown) {
-    console.error("[createSemesterWithTimeslotsAction] Error:", err)
+    console.error("[createSemesterWithTimeslotsAction] Error:", err);
     const message =
-      err instanceof Error ? err.message : "Failed to create semester with timeslots"
-    return { success: false, error: message }
+      err instanceof Error
+        ? err.message
+        : "Failed to create semester with timeslots";
+    return { success: false, error: message };
   }
 }
 
@@ -441,35 +451,39 @@ export async function createSemesterWithTimeslotsAction(input: {
  * Update semester status
  */
 export async function updateSemesterStatusAction(
-  input: UpdateSemesterStatus
+  input: UpdateSemesterStatus,
 ): Promise<ActionResult> {
   try {
-    v.parse(UpdateSemesterStatusSchema, input)
+    v.parse(UpdateSemesterStatusSchema, input);
 
-    await semesterRepository.updateStatus(input.configId, input.status)
+    await semesterRepository.updateStatus(input.configId, input.status);
 
-    return { success: true }
+    return { success: true };
   } catch (err: unknown) {
-    console.error("[updateSemesterStatusAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to update semester status"
-    return { success: false, error: message }
+    console.error("[updateSemesterStatusAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to update semester status";
+    return { success: false, error: message };
   }
 }
 
 /**
  * Toggle pin status
  */
-export async function pinSemesterAction(input: PinSemester): Promise<ActionResult> {
+export async function pinSemesterAction(
+  input: PinSemester,
+): Promise<ActionResult> {
   try {
-    v.parse(PinSemesterSchema, input)
+    v.parse(PinSemesterSchema, input);
 
-    await semesterRepository.togglePin(input.configId, input.isPinned)
+    await semesterRepository.togglePin(input.configId, input.isPinned);
 
-    return { success: true }
+    return { success: true };
   } catch (err: unknown) {
-    console.error("[pinSemesterAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to pin semester"
-    return { success: false, error: message }
+    console.error("[pinSemesterAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to pin semester";
+    return { success: false, error: message };
   }
 }
 
@@ -477,18 +491,19 @@ export async function pinSemesterAction(input: PinSemester): Promise<ActionResul
  * Track semester access
  */
 export async function trackSemesterAccessAction(
-  input: TrackSemesterAccess
+  input: TrackSemesterAccess,
 ): Promise<ActionResult> {
   try {
-    v.parse(TrackSemesterAccessSchema, input)
+    v.parse(TrackSemesterAccessSchema, input);
 
-    await semesterRepository.trackAccess(input.configId)
+    await semesterRepository.trackAccess(input.configId);
 
-    return { success: true }
+    return { success: true };
   } catch (err: unknown) {
-    console.error("[trackSemesterAccessAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to track semester access"
-    return { success: false, error: message }
+    console.error("[trackSemesterAccessAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to track semester access";
+    return { success: false, error: message };
   }
 }
 
@@ -496,41 +511,44 @@ export async function trackSemesterAccessAction(
  * Copy semester (duplicate with new year/semester)
  */
 export async function copySemesterAction(
-  input: CopySemester
+  input: CopySemester,
 ): Promise<ActionResult<SemesterDTO>> {
   try {
-    v.parse(CopySemesterSchema, input)
+    v.parse(CopySemesterSchema, input);
 
     // Check if target already exists
     const existing = await semesterRepository.findByYearAndSemester(
       input.targetAcademicYear,
-      input.targetSemester
-    )
+      input.targetSemester,
+    );
 
     if (existing) {
       return {
         success: false,
         error: `ภาคเรียนที่ ${input.targetSemester}/${input.targetAcademicYear} มีอยู่ในระบบแล้ว`,
-      }
+      };
     }
 
     // Get source semester
-    const source = await semesterRepository.findById(input.sourceConfigId)
+    const source = await semesterRepository.findById(input.sourceConfigId);
     if (!source) {
-      return { success: false, error: "ไม่พบภาคเรียนต้นทาง" }
+      return { success: false, error: "ไม่พบภาคเรียนต้นทาง" };
     }
 
     // Create new semester with copied data
     const newSemester = await semesterRepository.create({
       academicYear: input.targetAcademicYear,
       semester: input.targetSemester,
-      config: (input.copyConfig ? (source.Config as Prisma.InputJsonValue) : ({} as Prisma.InputJsonValue)),
-    })
+      config: input.copyConfig
+        ? (source.Config as Prisma.InputJsonValue)
+        : ({} as Prisma.InputJsonValue),
+    });
 
     // Copy timeslots if requested
     if (input.copyTimeslots) {
-      const sourceSemesterEnum = source.Semester
-      const targetSemesterEnum = input.targetSemester === 1 ? "SEMESTER_1" : "SEMESTER_2"
+      const sourceSemesterEnum = source.Semester;
+      const targetSemesterEnum =
+        input.targetSemester === 1 ? "SEMESTER_1" : "SEMESTER_2";
 
       await semesterRepository.copyTimeslots(
         source.AcademicYear,
@@ -538,11 +556,11 @@ export async function copySemesterAction(
         input.targetAcademicYear,
         targetSemesterEnum as semester,
         source.Semester === "SEMESTER_1" ? 1 : 2,
-        input.targetSemester
-      )
+        input.targetSemester,
+      );
     }
 
-    const stats = await semesterRepository.getStatistics(newSemester.ConfigID)
+    const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
 
     return {
       success: true,
@@ -562,12 +580,11 @@ export async function copySemesterAction(
         roomCount: 0,
         subjectCount: stats?.subjectCount || 0,
       } as SemesterDTO,
-    }
+    };
   } catch (err: unknown) {
-    console.error("[copySemesterAction] Error:", err)
-    const message = err instanceof Error ? err.message : "Failed to copy semester"
-    return { success: false, error: message }
+    console.error("[copySemesterAction] Error:", err);
+    const message =
+      err instanceof Error ? err.message : "Failed to copy semester";
+    return { success: false, error: message };
   }
 }
-
-

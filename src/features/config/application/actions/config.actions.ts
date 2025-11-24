@@ -1,19 +1,23 @@
 /**
  * Config Feature - Server Actions
- * 
+ *
  * Server Actions for managing table_config (timetable configuration).
  * Includes complex copy operation for cloning entire term configurations.
  * Uses React 19 Server Actions with 'use server' directive.
  */
 
-'use server';
+"use server";
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import type { table_config, timeslot, teachers_responsibility } from '@/prisma/generated/client';
-import { Prisma } from '@/prisma/generated/client';
-import * as v from 'valibot';
-import * as configRepository from '../../infrastructure/repositories/config.repository';
-import { withPrismaTransaction } from '@/lib/prisma-transaction';
+import { createAction } from "@/shared/lib/action-wrapper";
+import type {
+  table_config,
+  timeslot,
+  teachers_responsibility,
+} from "@/prisma/generated/client";
+import { Prisma } from "@/prisma/generated/client";
+import * as v from "valibot";
+import * as configRepository from "../../infrastructure/repositories/config.repository";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   validateConfigExists,
   validateNoDuplicateConfig,
@@ -21,8 +25,8 @@ import {
   parseConfigID,
   replaceConfigIDInString,
   parseSemesterEnum,
-} from '../../domain/services/config-validation.service';
-import type { ConfigData } from '../../domain/types/config-data.types';
+} from "../../domain/services/config-validation.service";
+import type { ConfigData } from "../../domain/types/config-data.types";
 import {
   getConfigByTermSchema,
   createConfigSchema,
@@ -34,18 +38,15 @@ import {
   type UpdateConfigInput,
   type DeleteConfigInput,
   type CopyConfigInput,
-} from '../schemas/config.schemas';
+} from "../schemas/config.schemas";
 
 /**
  * Get all configs ordered by ConfigID
  */
-export const getAllConfigsAction = createAction(
-  v.object({}),
-  async () => {
-    const configs = await configRepository.findAll();
-    return configs;
-  }
-);
+export const getAllConfigsAction = createAction(v.object({}), async () => {
+  const configs = await configRepository.findAll();
+  return configs;
+});
 
 /**
  * Get config by academic year and semester
@@ -55,15 +56,15 @@ export const getConfigByTermAction = createAction(
   async (input: GetConfigByTermInput) => {
     const config = await configRepository.findByTerm(
       input.AcademicYear,
-      input.Semester
+      input.Semester,
     );
 
     if (!config) {
-      throw new Error('ไม่พบการตั้งค่าสำหรับปีการศึกษาและภาคเรียนนี้');
+      throw new Error("ไม่พบการตั้งค่าสำหรับปีการศึกษาและภาคเรียนนี้");
     }
 
     return config;
-  }
+  },
 );
 
 /**
@@ -75,7 +76,7 @@ export const createConfigAction = createAction(
     // Validate no duplicate by term
     const duplicateError = await validateNoDuplicateConfig(
       input.AcademicYear,
-      input.Semester
+      input.Semester,
     );
 
     if (duplicateError) {
@@ -90,7 +91,7 @@ export const createConfigAction = createAction(
     });
 
     return config;
-  }
+  },
 );
 
 /**
@@ -115,7 +116,7 @@ export const updateConfigAction = createAction(
         const duplicateError = await validateNoDuplicateConfig(
           newYear,
           newSemester,
-          input.ConfigID
+          input.ConfigID,
         );
 
         if (duplicateError) {
@@ -131,7 +132,7 @@ export const updateConfigAction = createAction(
     });
 
     return config;
-  }
+  },
 );
 
 /**
@@ -149,7 +150,7 @@ export const deleteConfigAction = createAction(
     const config = await configRepository.deleteById(configId);
 
     return config;
-  }
+  },
 );
 
 /**
@@ -160,7 +161,7 @@ export const deleteConfigAction = createAction(
  * 3. Optionally: teachers_responsibility (assign flag)
  * 4. Optionally: locked class_schedule (lock flag)
  * 5. Optionally: non-locked class_schedule (timetable flag)
- * 
+ *
  * Uses Prisma transaction for atomicity
  */
 export const copyConfigAction = createAction(
@@ -195,7 +196,8 @@ export const copyConfigAction = createAction(
           ConfigID: input.to,
           Semester: toSemester,
           AcademicYear: toParsed.academicYear,
-          Config: (fromConfig.Config ?? Prisma.JsonNull) as Prisma.InputJsonValue,
+          Config: (fromConfig.Config ??
+            Prisma.JsonNull) as Prisma.InputJsonValue,
         },
       });
 
@@ -208,7 +210,11 @@ export const copyConfigAction = createAction(
       });
 
       const toSlots = fromSlots.map((slot) => ({
-        TimeslotID: replaceConfigIDInString(slot.TimeslotID, input.from, input.to),
+        TimeslotID: replaceConfigIDInString(
+          slot.TimeslotID,
+          input.from,
+          input.to,
+        ),
         DayOfWeek: slot.DayOfWeek,
         AcademicYear: toParsed.academicYear,
         Semester: toSemester,
@@ -228,12 +234,13 @@ export const copyConfigAction = createAction(
 
       // 3. Copy teachers_responsibility (if assign flag is true)
       if (input.assign) {
-        const fromResp: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
-          where: {
-            AcademicYear: fromParsed.academicYear,
-            Semester: fromSemester,
-          },
-        });
+        const fromResp: teachers_responsibility[] =
+          await tx.teachers_responsibility.findMany({
+            where: {
+              AcademicYear: fromParsed.academicYear,
+              Semester: fromSemester,
+            },
+          });
 
         const toResp = fromResp.map((resp) => ({
           TeacherID: resp.TeacherID,
@@ -253,12 +260,13 @@ export const copyConfigAction = createAction(
         copiedAssignments = created.count;
 
         // Get new responsibilities for class_schedule connections
-        const newResp: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
-          where: {
-            AcademicYear: toParsed.academicYear,
-            Semester: toSemester,
-          },
-        });
+        const newResp: teachers_responsibility[] =
+          await tx.teachers_responsibility.findMany({
+            where: {
+              AcademicYear: toParsed.academicYear,
+              Semester: toSemester,
+            },
+          });
 
         // 4. Copy locked class_schedule (if lock flag is true)
         if (input.lock) {
@@ -300,12 +308,12 @@ export const copyConfigAction = createAction(
             const newTimeslotID = replaceConfigIDInString(
               lock.TimeslotID,
               input.from,
-              input.to
+              input.to,
             );
             const newClassID = replaceConfigIDInString(
               lock.ClassID,
               input.from,
-              input.to
+              input.to,
             );
 
             // Use lookup map instead of filtering
@@ -329,7 +337,7 @@ export const copyConfigAction = createAction(
               return true;
             } catch (error) {
               // Skip if already exists or error (idempotent)
-              console.error('Error copying locked schedule:', error);
+              console.error("Error copying locked schedule:", error);
               return false;
             }
           });
@@ -374,43 +382,45 @@ export const copyConfigAction = createAction(
           }
 
           // Parallel creates for better performance
-          const timetableCreatePromises = fromTimetable.map(async (schedule) => {
-            const newTimeslotID = replaceConfigIDInString(
-              schedule.TimeslotID,
-              input.from,
-              input.to
-            );
-            const newClassID = replaceConfigIDInString(
-              schedule.ClassID,
-              input.from,
-              input.to
-            );
+          const timetableCreatePromises = fromTimetable.map(
+            async (schedule) => {
+              const newTimeslotID = replaceConfigIDInString(
+                schedule.TimeslotID,
+                input.from,
+                input.to,
+              );
+              const newClassID = replaceConfigIDInString(
+                schedule.ClassID,
+                input.from,
+                input.to,
+              );
 
-            // Use lookup map instead of filtering
-            const key = `${schedule.GradeID}|${schedule.SubjectCode}`;
-            const newRespIDs = respLookupMap.get(key) || [];
+              // Use lookup map instead of filtering
+              const key = `${schedule.GradeID}|${schedule.SubjectCode}`;
+              const newRespIDs = respLookupMap.get(key) || [];
 
-            try {
-              await tx.class_schedule.create({
-                data: {
-                  ClassID: newClassID,
-                  TimeslotID: newTimeslotID,
-                  SubjectCode: schedule.SubjectCode,
-                  RoomID: schedule.RoomID,
-                  GradeID: schedule.GradeID,
-                  IsLocked: false,
-                  teachers_responsibility: {
-                    connect: newRespIDs.map((id) => ({ RespID: id })),
+              try {
+                await tx.class_schedule.create({
+                  data: {
+                    ClassID: newClassID,
+                    TimeslotID: newTimeslotID,
+                    SubjectCode: schedule.SubjectCode,
+                    RoomID: schedule.RoomID,
+                    GradeID: schedule.GradeID,
+                    IsLocked: false,
+                    teachers_responsibility: {
+                      connect: newRespIDs.map((id) => ({ RespID: id })),
+                    },
                   },
-                },
-              });
-              return true;
-            } catch (error) {
-              // Skip if already exists or error (idempotent)
-              console.error('Error copying timetable schedule:', error);
-              return false;
-            }
-          });
+                });
+                return true;
+              } catch (error) {
+                // Skip if already exists or error (idempotent)
+                console.error("Error copying timetable schedule:", error);
+                return false;
+              }
+            },
+          );
 
           const timetableResults = await Promise.all(timetableCreatePromises);
           copiedTimetables = timetableResults.filter(Boolean).length;
@@ -427,35 +437,32 @@ export const copyConfigAction = createAction(
     });
 
     return result;
-  }
+  },
 );
 
 /**
  * Get count of all configs
  */
-export const getConfigCountAction = createAction(
-  v.object({}),
-  async () => {
-    const count = await configRepository.count();
-    return { count };
-  }
-);
+export const getConfigCountAction = createAction(v.object({}), async () => {
+  const count = await configRepository.count();
+  return { count };
+});
 
 /**
  * Update config and regenerate timeslots
- * 
+ *
  * This action updates the table_config and regenerates all timeslots.
  * Use when configuration changes require new timeslot generation.
- * 
+ *
  * Steps:
  * 1. Validate config exists
  * 2. Delete existing timeslots and teacher responsibilities
  * 3. Update config
  * 4. Regenerate timeslots with new configuration
- * 
+ *
  * @param input - UpdateConfigInput with Config data
  * @returns Updated config with timeslot count
- * 
+ *
  * @example
  * ```tsx
  * const result = await updateConfigWithTimeslotsAction({
@@ -481,13 +488,15 @@ export const updateConfigWithTimeslotsAction = createAction(
 
     // Import timeslot service for regeneration
     const { generateTimeslots } = await import(
-      '../../../timeslot/domain/services/timeslot.service'
+      "../../../timeslot/domain/services/timeslot.service"
     );
 
     // Get existing config to extract AcademicYear and Semester
-    const existingConfig = await configRepository.findByConfigId(input.ConfigID);
+    const existingConfig = await configRepository.findByConfigId(
+      input.ConfigID,
+    );
     if (!existingConfig) {
-      throw new Error('ไม่พบการตั้งค่า');
+      throw new Error("ไม่พบการตั้งค่า");
     }
 
     // Use transaction to ensure atomicity
@@ -543,5 +552,5 @@ export const updateConfigWithTimeslotsAction = createAction(
     });
 
     return result;
-  }
+  },
 );

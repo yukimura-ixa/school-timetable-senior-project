@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 import RoomsTable from "@/app/management/rooms/component/RoomsTable";
 import { TableSkeleton, NoRoomsEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";
@@ -42,10 +42,5 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
   }
 
   // Success state
-  return (
-    <RoomsTable
-      tableData={rooms}
-      mutate={handleMutate}
-    />
-  );
+  return <RoomsTable tableData={rooms} mutate={handleMutate} />;
 }

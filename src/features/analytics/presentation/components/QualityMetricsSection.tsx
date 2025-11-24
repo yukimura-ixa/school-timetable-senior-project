@@ -1,12 +1,19 @@
 /**
  * Quality Metrics Section Component
  * Analytics Dashboard - Phase 2
- * 
+ *
  * Displays schedule quality metrics including completion rate,
  * lock status, and quality indicators
  */
 
-import { Box, Typography, Card, CardContent, Chip, LinearProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  LinearProgress,
+} from "@mui/material";
 import {
   CheckCircle as CheckIcon,
   Warning as WarningIcon,
@@ -25,15 +32,28 @@ interface QualityMetricsSectionProps {
   };
 }
 
-export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsSectionProps) {
+export function QualityMetricsSection({
+  metrics,
+  qualityCheck,
+}: QualityMetricsSectionProps) {
   // Determine completion status and color
-  const getCompletionStatus = (rate: number): { status: string; color: string; icon: React.ReactNode } => {
+  const getCompletionStatus = (
+    rate: number,
+  ): { status: string; color: string; icon: React.ReactNode } => {
     if (rate >= 95) {
       return { status: "เสร็จสมบูรณ์", color: "#10b981", icon: <CheckIcon /> };
     } else if (rate >= 70) {
-      return { status: "ใกล้เสร็จสมบูรณ์", color: "#3b82f6", icon: <InfoIcon /> };
+      return {
+        status: "ใกล้เสร็จสมบูรณ์",
+        color: "#3b82f6",
+        icon: <InfoIcon />,
+      };
     } else if (rate >= 10) {
-      return { status: "กำลังดำเนินการ", color: "#f59e0b", icon: <WarningIcon /> };
+      return {
+        status: "กำลังดำเนินการ",
+        color: "#f59e0b",
+        icon: <WarningIcon />,
+      };
     } else {
       return { status: "ยังไม่เริ่ม", color: "#ef4444", icon: <ErrorIcon /> };
     }
@@ -44,28 +64,57 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
   return (
     <Box sx={{ mb: 4 }}>
       {/* Section Header */}
-      <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+      <Typography
+        variant="h5"
+        component="h2"
+        gutterBottom
+        sx={{ fontWeight: 600, mb: 3 }}
+      >
         ✨ คุณภาพตารางเรียน
       </Typography>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
+          gap: 3,
+        }}
+      >
         {/* Completion Card */}
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
               {completion.icon}
               ความสมบูรณ์ของตาราง
             </Typography>
 
             {/* Completion Rate Gauge */}
             <Box sx={{ my: 3 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
                 <Chip
                   label={completion.status}
-                  sx={{ bgcolor: completion.color, color: "white", fontWeight: 600 }}
+                  sx={{
+                    bgcolor: completion.color,
+                    color: "white",
+                    fontWeight: 600,
+                  }}
                   size="small"
                 />
-                <Typography variant="h4" sx={{ fontWeight: 700, color: completion.color }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: 700, color: completion.color }}
+                >
                   {metrics.completionRate.toFixed(1)}%
                 </Typography>
               </Box>
@@ -85,12 +134,25 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
             </Box>
 
             {/* Stats Grid */}
-            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, mt: 3 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 2,
+                mt: 3,
+              }}
+            >
               <Box>
                 <Typography variant="body2" color="text.secondary">
                   ความขัดแย้ง
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: metrics.totalConflicts > 0 ? "#ef4444" : "#10b981" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 600,
+                    color: metrics.totalConflicts > 0 ? "#ef4444" : "#10b981",
+                  }}
+                >
                   {metrics.totalConflicts}
                 </Typography>
               </Box>
@@ -98,7 +160,10 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
                 <Typography variant="body2" color="text.secondary">
                   ครูที่ใช้งาน
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: "#10b981" }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, color: "#10b981" }}
+                >
                   {metrics.activeTeachers}
                 </Typography>
               </Box>
@@ -106,7 +171,10 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
                 <Typography variant="body2" color="text.secondary">
                   คะแนนสมดุล
                 </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: "#3b82f6" }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, color: "#3b82f6" }}
+                >
                   {metrics.balanceScore}/100
                 </Typography>
               </Box>
@@ -124,7 +192,14 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
             {/* Additional Stats */}
             <Box sx={{ mt: 3 }}>
               <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                  }}
+                >
                   <Typography variant="body2">สัดส่วนการล็อกตาราง</Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {metrics.lockedPercentage.toFixed(1)}%
@@ -144,7 +219,13 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
                 />
               </Box>
 
-              <Box sx={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 2 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gap: 2,
+                }}
+              >
                 <Box>
                   <Typography variant="body2" color="text.secondary">
                     จำนวนชั้นเรียน
@@ -170,7 +251,10 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
                 คะแนนความสมดุลโดยรวม
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: "#3b82f6" }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: 700, color: "#3b82f6" }}
+                >
                   {metrics.balanceScore}
                 </Typography>
                 <Box sx={{ flex: 1 }}>
@@ -182,13 +266,22 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
                       borderRadius: 1,
                       bgcolor: "grey.300",
                       "& .MuiLinearProgress-bar": {
-                        bgcolor: metrics.balanceScore >= 70 ? "#10b981" : metrics.balanceScore >= 50 ? "#f59e0b" : "#ef4444",
+                        bgcolor:
+                          metrics.balanceScore >= 70
+                            ? "#10b981"
+                            : metrics.balanceScore >= 50
+                              ? "#f59e0b"
+                              : "#ef4444",
                       },
                     }}
                   />
                 </Box>
               </Box>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mt: 0.5, display: "block" }}
+              >
                 คะแนนเต็ม 100 (คำนวณจากความสมบูรณ์และการล็อก)
               </Typography>
             </Box>
@@ -200,11 +293,17 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
       {!qualityCheck.isAcceptable && qualityCheck.reasons.length > 0 && (
         <Card sx={{ mt: 3 }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ display: "flex", alignItems: "center", gap: 1 }}
+            >
               <WarningIcon color="warning" />
               ประเด็นที่ต้องปรับปรุง
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 2 }}>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 2 }}
+            >
               {qualityCheck.reasons.map((reason, index) => (
                 <Box
                   key={index}
@@ -230,12 +329,23 @@ export function QualityMetricsSection({ metrics, qualityCheck }: QualityMetricsS
 
       {/* Success Message when quality is good */}
       {qualityCheck.isAcceptable && metrics.completionRate >= 95 && (
-        <Card sx={{ mt: 3, bgcolor: "#d1fae5", borderColor: "#10b981", borderWidth: 1, borderStyle: "solid" }}>
+        <Card
+          sx={{
+            mt: 3,
+            bgcolor: "#d1fae5",
+            borderColor: "#10b981",
+            borderWidth: 1,
+            borderStyle: "solid",
+          }}
+        >
           <CardContent>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <CheckIcon sx={{ fontSize: 48, color: "#10b981" }} />
               <Box>
-                <Typography variant="h6" sx={{ color: "#10b981", fontWeight: 600 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#10b981", fontWeight: 600 }}
+                >
                   คุณภาพตารางดีมาก!
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#059669" }}>

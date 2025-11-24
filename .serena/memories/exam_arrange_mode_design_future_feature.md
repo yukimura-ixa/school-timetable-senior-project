@@ -15,6 +15,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
 - **Exams** = Temporary, one-time scheduling events requiring specialized workflows
 
 ### Current Gaps:
+
 1. ❌ No dedicated exam period configuration
 2. ❌ No exam-specific scheduling grid
 3. ❌ No exam timetable validation (all subjects covered, no conflicts)
@@ -28,6 +29,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
 ### Use Cases:
 
 **UC1: Configure Exam Period**
+
 - **Actor**: Admin
 - **Goal**: Define exam period parameters (dates, name, scope)
 - **Flow**:
@@ -39,6 +41,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
   6. System creates exam period and generates empty exam grid
 
 **UC2: Schedule Exam Slots**
+
 - **Actor**: Admin
 - **Goal**: Assign subjects to specific exam time slots
 - **Flow**:
@@ -53,6 +56,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
   6. Grid updates with color-coded subject card
 
 **UC3: Validate Exam Coverage**
+
 - **Actor**: Admin
 - **Goal**: Ensure all subjects have exam slots before finalizing
 - **Flow**:
@@ -69,6 +73,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
   4. Admin addresses issues before finalizing
 
 **UC4: Export Exam Timetables**
+
 - **Actor**: Admin, Teacher, Student
 - **Goal**: Generate printable/downloadable exam schedules
 - **Flows**:
@@ -79,6 +84,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
   - **Individual Student**: Personalized exam schedule with dates/times/rooms
 
 **UC5: Publish Exam Schedule**
+
 - **Actor**: Admin
 - **Goal**: Make exam schedule visible to students/teachers
 - **Flow**:
@@ -95,6 +101,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
 ### 1. Exam Period Management
 
 **Features**:
+
 - Create new exam period
 - Edit existing exam period (if not started)
 - Delete exam period (if no exams scheduled)
@@ -102,6 +109,7 @@ Currently, the school timetable system lacks a dedicated mechanism for schedulin
 - Archive completed exam periods
 
 **Data Required**:
+
 ```typescript
 interface ExamPeriod {
   id: string;
@@ -120,6 +128,7 @@ interface ExamPeriod {
 ### 2. Exam Scheduling Grid
 
 **Features**:
+
 - Visual grid: Days × Periods × Grades
 - Drag-and-drop subject assignment
 - Color coding by subject category or grade
@@ -130,6 +139,7 @@ interface ExamPeriod {
 - Auto-schedule button (AI suggestion)
 
 **Grid Structure**:
+
 ```typescript
 interface ExamGridCell {
   date: Date;
@@ -145,6 +155,7 @@ interface ExamGridCell {
 ### 3. Conflict Detection & Validation
 
 **Rules**:
+
 - ✅ Each subject scheduled exactly once per grade
 - ✅ No room double-booking (room capacity respected)
 - ✅ No teacher conflicts (if teacher supervises multiple exams)
@@ -153,6 +164,7 @@ interface ExamGridCell {
 - ✅ Optional subjects handled (if offered to grade)
 
 **Real-time Validation**:
+
 - Warning badges on cells with conflicts
 - Coverage progress bar (X/Y subjects scheduled)
 - Filter view: "Show only conflicts", "Show missing subjects"
@@ -160,27 +172,26 @@ interface ExamGridCell {
 ### 4. Export Templates
 
 **PDF Exports**:
+
 1. **Student Exam Schedule** (Individual)
    - Header: Student name, grade, student ID
    - Table: Date, Time, Subject, Room
    - Footer: Total exams, school contact info
-   
 2. **Class Exam Schedule** (Per Grade)
    - Header: Grade (e.g., ม.1/1), Academic Year, Semester
    - Table: Date, Time, Subject, Room, Duration
    - Color-coded by date
-   
 3. **Daily Exam Schedule** (School-wide)
    - Header: Date, Exam period name
    - Grouped by time slot
    - Lists all grades taking exams at that time
-   
 4. **Room Exam Schedule** (Facility)
    - Header: Room name/number
    - Table: Date, Time, Grade, Subject, Capacity
    - Useful for room preparation
 
 **Excel Exports**:
+
 - Same formats as PDF but editable
 - Includes raw data for further analysis
 - Formulas for calculating exam duration totals
@@ -188,11 +199,13 @@ interface ExamGridCell {
 ### 5. Student Portal Integration
 
 **Public View** (No login required):
+
 - Enter student ID → View personal exam schedule
 - Download PDF of personal schedule
 - Add to calendar (iCal format)
 
 **Authenticated View** (After login):
+
 - Dashboard showing upcoming exams
 - Countdown timers to each exam
 - Exam preparation resources (if linked)
@@ -218,9 +231,9 @@ model exam_period {
   CreatedBy       String
   CreatedAt       DateTime @default(now())
   UpdatedAt       DateTime @updatedAt
-  
+
   exam_schedules  exam_schedule[]
-  
+
   @@unique([Name, AcademicYear, Semester])
   @@index([AcademicYear, Semester, Status])
 }
@@ -246,13 +259,13 @@ model exam_schedule {
   Notes           String?  // Special instructions
   CreatedAt       DateTime @default(now())
   UpdatedAt       DateTime @updatedAt
-  
+
   exam_period  exam_period @relation(fields: [ExamPeriodID], references: [ExamPeriodID], onDelete: Cascade)
   subject      subject     @relation(fields: [SubjectCode], references: [SubjectCode])
   grade        grade_level @relation(fields: [GradeID], references: [GradeID])
   room         room        @relation(fields: [RoomID], references: [RoomID])
   timeslot     timeslot    @relation(fields: [TimeslotID], references: [TimeslotID])
-  
+
   @@unique([ExamPeriodID, SubjectCode, GradeID])
   @@index([ExamPeriodID, Date])
   @@index([Date, TimeslotID, RoomID]) // For conflict detection
@@ -317,7 +330,7 @@ class ExamValidationService {
     // Check which have exam assignments
     // Return missing subjects list
   }
-  
+
   // Check for scheduling conflicts
   validateConflicts(examPeriodId: string): ConflictResult {
     // Check room double-booking
@@ -325,7 +338,7 @@ class ExamValidationService {
     // Check duplicate subject assignments
     // Return conflict list with severity
   }
-  
+
   // Check if exam period is valid
   validateExamPeriod(examPeriod: ExamPeriod): boolean {
     // Dates are valid (start < end)
@@ -333,7 +346,7 @@ class ExamValidationService {
     // At least one grade included
     // Name is unique for term
   }
-  
+
   // Auto-suggest exam schedule
   suggestExamSchedule(examPeriodId: string): ExamSchedule[] {
     // Use algorithm to distribute exams optimally
@@ -369,12 +382,14 @@ Schedule Management
 ### Main Components
 
 **1. ExamPeriodsList**
+
 - Table showing all exam periods
 - Columns: Name, Date Range, Status, Grades, Progress
 - Actions: Create, Edit, Delete, Publish, Clone
 - Filters: Academic Year, Semester, Status
 
 **2. ExamPeriodForm**
+
 - Modal dialog for create/edit
 - Fields: Name, Date Range, Semester, Academic Year, Included Grades
 - Date picker with calendar view
@@ -382,6 +397,7 @@ Schedule Management
 - Save/Cancel buttons
 
 **3. ExamSchedulingGrid**
+
 - Similar to arrange tab but for exams
 - Header: Exam period name, date range, progress bar
 - Tabs: One per grade level (ม.1/1, ม.1/2, etc.)
@@ -394,6 +410,7 @@ Schedule Management
 - Click: Full detail dialog with edit/delete
 
 **4. ValidationDashboard**
+
 - Coverage section:
   - Progress bars per grade (X/Y subjects scheduled)
   - List of missing subjects (clickable to auto-suggest slots)
@@ -408,6 +425,7 @@ Schedule Management
   - 🟢 Green: Ready to publish
 
 **5. ExportCenter**
+
 - Tab navigation: PDF, Excel, iCal
 - Export type selector: By Grade, By Date, By Room, By Teacher, Individual Student
 - Preview pane (for PDF)
@@ -415,6 +433,7 @@ Schedule Management
 - Batch export option (all grades at once)
 
 **6. StudentExamPortal**
+
 - Public page: `/exam-schedule`
 - Input: Student ID field
 - Output: Personal exam schedule table
@@ -492,24 +511,28 @@ Schedule Management
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure (6 hours)
+
 - Database schema migration
 - Server actions (CRUD for exam periods and schedules)
 - Basic validation service
 - Unit tests for validation logic
 
 ### Phase 2: Admin UI (8 hours)
+
 - ExamPeriodsList component
 - ExamPeriodForm modal
 - Basic exam scheduling grid (no drag-and-drop yet)
 - Manual cell assignment (click to assign)
 
 ### Phase 3: Enhanced Scheduling (4 hours)
+
 - Drag-and-drop functionality
 - Grid interactions (hover, click, delete)
 - Real-time validation feedback
 - Progress tracking
 
 ### Phase 4: Validation & Export (6 hours)
+
 - ValidationDashboard component
 - Coverage checking
 - Conflict detection
@@ -517,12 +540,14 @@ Schedule Management
 - Excel export templates
 
 ### Phase 5: Student Portal (4 hours)
+
 - Public exam schedule lookup
 - Student authentication integration
 - Personal schedule view
 - Download/calendar export
 
 ### Phase 6: Polish & Testing (4 hours)
+
 - E2E tests
 - Performance optimization
 - Mobile responsive design
@@ -535,6 +560,7 @@ Schedule Management
 ## Success Metrics
 
 ### Quantitative:
+
 - Time to schedule full exam period: < 2 hours (vs. manual process ~4-6 hours)
 - Validation accuracy: 100% (catch all conflicts before publish)
 - Export generation time: < 10 seconds for full timetable
@@ -542,6 +568,7 @@ Schedule Management
 - Zero exam scheduling conflicts after publish
 
 ### Qualitative:
+
 - Admin feedback: "Much easier than manual Excel scheduling"
 - Student feedback: "Clear, easy to find my exam schedule"
 - Teacher feedback: "Helpful for invigilator planning"
@@ -552,6 +579,7 @@ Schedule Management
 ## Risk Analysis
 
 ### Technical Risks:
+
 - **Risk**: Complex validation logic (room conflicts, teacher conflicts)
   - **Mitigation**: Incremental validation, clear error messages
 - **Risk**: Performance issues with large schools (many grades/subjects)
@@ -560,12 +588,14 @@ Schedule Management
   - **Mitigation**: Store as UTC, display in school's timezone
 
 ### Business Risks:
+
 - **Risk**: Admin learns new workflow (change resistance)
   - **Mitigation**: Product tour, video tutorials, gradual rollout
 - **Risk**: Edge cases not covered (split exams, makeup exams)
   - **Mitigation**: Flexible design, custom fields, future iterations
 
 ### Data Risks:
+
 - **Risk**: Accidental exam schedule deletion
   - **Mitigation**: Soft delete, audit log, backup/restore
 - **Risk**: Unauthorized access to unpublished exams
@@ -589,6 +619,7 @@ Schedule Management
 ## Dependencies
 
 ### Required:
+
 - Prisma schema migration
 - PDF generation library (e.g., jsPDF, Puppeteer)
 - Excel generation library (e.g., exceljs)
@@ -596,6 +627,7 @@ Schedule Management
 - Drag-and-drop library (dnd-kit or react-beautiful-dnd)
 
 ### Optional:
+
 - Email service for notifications
 - SMS gateway for reminders
 - Calendar integration (Google Calendar, Outlook)
@@ -605,16 +637,19 @@ Schedule Management
 ## Alternatives Considered
 
 ### Alternative 1: Extend Lock Schedule
+
 - **Pros**: No new feature, reuse existing code
 - **Cons**: Conflates two different concepts, confusing UX, limited validation
 - **Decision**: ❌ Rejected - Exams are fundamentally different
 
 ### Alternative 2: Manual Excel Entry
+
 - **Pros**: Simple, no development needed
 - **Cons**: No validation, error-prone, hard to share, no student portal
 - **Decision**: ❌ Not scalable
 
 ### Alternative 3: Third-Party Exam Scheduling Tool
+
 - **Pros**: Off-the-shelf solution, mature features
 - **Cons**: Integration complexity, recurring costs, data privacy concerns
 - **Decision**: ❌ Custom solution better fits existing system
@@ -635,7 +670,7 @@ The Exam Arrange Mode is a **high-value feature** that addresses a real pain poi
 
 ---
 
-*Design Document Version: 1.0*  
-*Created: October 31, 2025*  
-*Status: Awaiting Approval for Future Implementation*  
-*Next Step: Review with stakeholders, refine requirements*
+_Design Document Version: 1.0_  
+_Created: October 31, 2025_  
+_Status: Awaiting Approval for Future Implementation_  
+_Next Step: Review with stakeholders, refine requirements_

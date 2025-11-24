@@ -107,11 +107,13 @@ pnpm test
 ### When to Use Local Validation
 
 **✅ USE when:**
+
 - Debugging a failing CI check (reproduce locally)
 - Pre-release validation (major version bump)
 - Offline development (no GitHub access)
 
 **❌ DON'T USE when:**
+
 - Normal feature development (trust CI instead)
 - Every commit (too slow, defeats the purpose)
 - Checking "if it works" (push to CI for that)
@@ -136,12 +138,12 @@ graph LR
 
 ### Job Durations
 
-| Job              | Duration  | Parallelized | Caching |
-|------------------|-----------|--------------|---------|
-| Lint & Type Check| ~3-5 min  | No           | Yes ✅  |
-| Unit Tests       | ~8-10 min | Yes (50%)    | Yes ✅  |
-| Build            | ~8-10 min | No           | Yes ✅  |
-| E2E Tests        | ~15 min   | Yes (4x)     | Yes ✅  |
+| Job               | Duration  | Parallelized | Caching |
+| ----------------- | --------- | ------------ | ------- |
+| Lint & Type Check | ~3-5 min  | No           | Yes ✅  |
+| Unit Tests        | ~8-10 min | Yes (50%)    | Yes ✅  |
+| Build             | ~8-10 min | No           | Yes ✅  |
+| E2E Tests         | ~15 min   | Yes (4x)     | Yes ✅  |
 
 **Total feedback time:** ~15 minutes for complete validation
 
@@ -197,6 +199,7 @@ You can manually trigger workflows via GitHub UI:
 ### "CI is taking too long"
 
 **Solutions:**
+
 1. Check if you can work on next task while CI runs (parallel work)
 2. Push smaller commits (faster to validate)
 3. Use draft PR for WIP (CI still runs, but reviewers know it's not ready)
@@ -204,6 +207,7 @@ You can manually trigger workflows via GitHub UI:
 ### "CI failed but it works locally"
 
 **Solutions:**
+
 1. Check [CI Troubleshooting Guide](./CI_TROUBLESHOOTING.md)
 2. Verify environment variables (CI uses `DATABASE_URL`, `AUTH_SECRET`, etc.)
 3. Check Node version (CI uses Node 20, match it locally)
@@ -212,6 +216,7 @@ You can manually trigger workflows via GitHub UI:
 ### "I need faster feedback"
 
 **Solutions:**
+
 1. Use `pnpm test:affected` for quick unit test validation
 2. Use TypeScript errors in IDE (instant feedback)
 3. Use ESLint extension in VS Code (instant linting)

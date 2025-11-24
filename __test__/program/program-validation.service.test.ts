@@ -6,7 +6,7 @@
  * - Duplicate detection on update (excluding current ProgramID)
  * - Existence check by ProgramID
  * - Thai error messages
- * 
+ *
  * Jest globals (describe, test, expect, beforeEach, jest) are available globally
  */
 
@@ -32,34 +32,26 @@ describe("Program Validation Service", () => {
         .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue(null as any);
 
-      const result = await validateNoDuplicateProgram(
-        year,
-        track
-      );
+      const result = await validateNoDuplicateProgram(year, track);
 
       expect(programRepository.findByYearAndTrack).toHaveBeenCalledWith(
         year,
-        track
+        track,
       );
       expect(result).toBeNull();
     });
 
     test("returns Thai error message when duplicate exists", async () => {
-      jest
-        .spyOn(programRepository, "findByYearAndTrack")
-        .mockResolvedValue({
+      jest.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
         ProgramID: 101,
         Year: year,
         Track: track,
-        } as any);
+      } as any);
 
-      const result = await validateNoDuplicateProgram(
-        year,
-        track
-      );
+      const result = await validateNoDuplicateProgram(year, track);
 
       expect(result).toBe(
-        "มีหลักสูตรสำหรับ ม.1 แผนการเรียนGENERAL อยู่แล้ว กรุณาตรวจสอบอีกครั้ง"
+        "มีหลักสูตรสำหรับ ม.1 แผนการเรียนGENERAL อยู่แล้ว กรุณาตรวจสอบอีกครั้ง",
       );
     });
   });
@@ -73,44 +65,40 @@ describe("Program Validation Service", () => {
       const result = await validateNoDuplicateProgramForUpdate(
         101,
         year,
-        track
+        track,
       );
       expect(result).toBeNull();
     });
 
     test("returns null when existing record is the same ProgramID", async () => {
-      jest
-        .spyOn(programRepository, "findByYearAndTrack")
-        .mockResolvedValue({
+      jest.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
         ProgramID: 101,
         Year: year,
         Track: track,
-        } as any);
+      } as any);
 
       const result = await validateNoDuplicateProgramForUpdate(
         101,
         year,
-        track
+        track,
       );
       expect(result).toBeNull();
     });
 
     test("returns Thai error message when another program has same year/track", async () => {
-      jest
-        .spyOn(programRepository, "findByYearAndTrack")
-        .mockResolvedValue({
+      jest.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
         ProgramID: 202, // different program
         Year: year,
         Track: track,
-        } as any);
+      } as any);
 
       const result = await validateNoDuplicateProgramForUpdate(
         101,
         year,
-        track
+        track,
       );
       expect(result).toBe(
-        "มีหลักสูตรสำหรับ ม.1 แผนการเรียนGENERAL อยู่แล้ว กรุณาตรวจสอบอีกครั้ง"
+        "มีหลักสูตรสำหรับ ม.1 แผนการเรียนGENERAL อยู่แล้ว กรุณาตรวจสอบอีกครั้ง",
       );
     });
   });
@@ -127,9 +115,7 @@ describe("Program Validation Service", () => {
     });
 
     test("returns Thai error message when program not found", async () => {
-      jest
-        .spyOn(programRepository, "findById")
-        .mockResolvedValue(null as any);
+      jest.spyOn(programRepository, "findById").mockResolvedValue(null as any);
 
       const result = await validateProgramExists(999);
       expect(result).toBe("ไม่พบหลักสูตรที่ระบุ");

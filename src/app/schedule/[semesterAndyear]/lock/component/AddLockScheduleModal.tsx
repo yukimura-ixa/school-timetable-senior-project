@@ -6,9 +6,13 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import type { room, subject } from '@/prisma/generated/client';;
-import { subject_credit, SubjectCategory } from '@/prisma/generated/client';;
-import type { ModalCloseHandler, ModalConfirmHandler, InputChangeHandler } from "@/types/events";
+import type { room, subject } from "@/prisma/generated/client";
+import { subject_credit, SubjectCategory } from "@/prisma/generated/client";
+import type {
+  ModalCloseHandler,
+  ModalConfirmHandler,
+  InputChangeHandler,
+} from "@/types/events";
 import type { LockScheduleFormData } from "@/types/lock-schedule";
 
 type Props = {
@@ -16,24 +20,28 @@ type Props = {
   confirmChange: ModalConfirmHandler<LockScheduleFormData>;
 };
 
-function AddLockScheduleModal({ closeModal, confirmChange: _confirmChange }: Props) {
-  const [lockScheduleData, setLockScheduledata] = useState<LockScheduleFormData>({
-    Subject: {
-      SubjectCode: "",
-      SubjectName: "",
-      Credit: subject_credit.CREDIT_05,
-      Category: SubjectCategory.CORE,
-      LearningArea: null,
-      ActivityType: null,
-      IsGraded: true,
-      Description: "",
-    },
-    DayOfWeek: "",
-    timeSlotID: [],
-    Teachers: [],
-    Grade: [],
-    RoomName: null,
-  });
+function AddLockScheduleModal({
+  closeModal,
+  confirmChange: _confirmChange,
+}: Props) {
+  const [lockScheduleData, setLockScheduledata] =
+    useState<LockScheduleFormData>({
+      Subject: {
+        SubjectCode: "",
+        SubjectName: "",
+        Credit: subject_credit.CREDIT_05,
+        Category: SubjectCategory.CORE,
+        LearningArea: null,
+        ActivityType: null,
+        IsGraded: true,
+        Description: "",
+      },
+      DayOfWeek: "",
+      timeSlotID: [],
+      Teachers: [],
+      Grade: [],
+      RoomName: null,
+    });
   const [isEmptyData, setIsEmptyData] = useState({
     Subject: false,
     DayOfWeek: false,

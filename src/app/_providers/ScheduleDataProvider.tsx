@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import type { teacher, room } from '@/prisma/generated/client';;
+import type { teacher, room } from "@/prisma/generated/client";
 
 /**
  * Context to provide schedule-related data (teachers, rooms) to client components
@@ -15,7 +15,9 @@ interface ScheduleDataContextValue {
   rooms: room[];
 }
 
-const ScheduleDataContext = createContext<ScheduleDataContextValue | null>(null);
+const ScheduleDataContext = createContext<ScheduleDataContextValue | null>(
+  null,
+);
 
 interface ScheduleDataProviderProps {
   children: ReactNode;
@@ -38,16 +40,14 @@ export function ScheduleDataProvider({
 /**
  * Hook to access teacher and room data in client components
  * Replaces: useTeacherData() and useRoomData()
- * 
+ *
  * @example
  * const { teachers, rooms } = useScheduleData();
  */
 export function useScheduleData() {
   const context = useContext(ScheduleDataContext);
   if (!context) {
-    throw new Error(
-      "useScheduleData must be used within ScheduleDataProvider"
-    );
+    throw new Error("useScheduleData must be used within ScheduleDataProvider");
   }
   return context;
 }

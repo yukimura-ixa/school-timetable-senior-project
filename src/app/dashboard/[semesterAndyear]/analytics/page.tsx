@@ -26,7 +26,8 @@ import {
 
 export const metadata: Metadata = {
   title: "วิเคราะห์ข้อมูล - Analytics Dashboard",
-  description: "วิเคราะห์ข้อมูลตารางเรียน ภาระงานสอน การใช้ห้องเรียน และความสมบูรณ์",
+  description:
+    "วิเคราะห์ข้อมูลตารางเรียน ภาระงานสอน การใช้ห้องเรียน และความสมบูรณ์",
 };
 
 export default async function AnalyticsPage({
@@ -80,7 +81,9 @@ export default async function AnalyticsPage({
         ) : (
           <ErrorDisplay
             title="ไม่สามารถโหลดข้อมูลภาพรวมได้"
-            message={"error" in overviewResult ? overviewResult.error : "Unknown error"}
+            message={
+              "error" in overviewResult ? overviewResult.error : "Unknown error"
+            }
           />
         )}
       </Suspense>
@@ -92,7 +95,11 @@ export default async function AnalyticsPage({
         ) : (
           <ErrorDisplay
             title="ไม่สามารถโหลดข้อมูลภาระงานสอนได้"
-            message={"error" in teacherWorkloadsResult ? teacherWorkloadsResult.error : "Unknown error"}
+            message={
+              "error" in teacherWorkloadsResult
+                ? teacherWorkloadsResult.error
+                : "Unknown error"
+            }
           />
         )}
       </Suspense>
@@ -104,7 +111,11 @@ export default async function AnalyticsPage({
         ) : (
           <ErrorDisplay
             title="ไม่สามารถโหลดข้อมูลการใช้ห้องเรียนได้"
-            message={"error" in roomOccupancyResult ? roomOccupancyResult.error : "Unknown error"}
+            message={
+              "error" in roomOccupancyResult
+                ? roomOccupancyResult.error
+                : "Unknown error"
+            }
           />
         )}
       </Suspense>
@@ -112,11 +123,17 @@ export default async function AnalyticsPage({
       {/* Section 4: Subject Distribution */}
       <Suspense fallback={<SubjectSkeleton />}>
         {subjectDistributionResult.success ? (
-          <SubjectDistributionSection distribution={subjectDistributionResult.data} />
+          <SubjectDistributionSection
+            distribution={subjectDistributionResult.data}
+          />
         ) : (
           <ErrorDisplay
             title="ไม่สามารถโหลดข้อมูลการกระจายรายวิชาได้"
-            message={"error" in subjectDistributionResult ? subjectDistributionResult.error : "Unknown error"}
+            message={
+              "error" in subjectDistributionResult
+                ? subjectDistributionResult.error
+                : "Unknown error"
+            }
           />
         )}
       </Suspense>
@@ -135,8 +152,8 @@ export default async function AnalyticsPage({
               !qualityMetricsResult.success && "error" in qualityMetricsResult
                 ? qualityMetricsResult.error
                 : !qualityCheckResult.success && "error" in qualityCheckResult
-                ? qualityCheckResult.error
-                : "Unknown error"
+                  ? qualityCheckResult.error
+                  : "Unknown error"
             }
           />
         )}
@@ -153,11 +170,13 @@ export default async function AnalyticsPage({
           <ErrorDisplay
             title="ไม่สามารถโหลดข้อมูลการกระจายช่วงเวลาได้"
             message={
-              !periodDistributionResult.success && "error" in periodDistributionResult
+              !periodDistributionResult.success &&
+              "error" in periodDistributionResult
                 ? periodDistributionResult.error
-                : !dayDistributionResult.success && "error" in dayDistributionResult
-                ? dayDistributionResult.error
-                : "Unknown error"
+                : !dayDistributionResult.success &&
+                    "error" in dayDistributionResult
+                  ? dayDistributionResult.error
+                  : "Unknown error"
             }
           />
         )}
@@ -170,7 +189,11 @@ export default async function AnalyticsPage({
         ) : (
           <ErrorDisplay
             title="ไม่สามารถโหลดข้อมูลการตรวจสอบหลักสูตรได้"
-            message={"error" in programComplianceResult ? programComplianceResult.error : "Unknown error"}
+            message={
+              "error" in programComplianceResult
+                ? programComplianceResult.error
+                : "Unknown error"
+            }
           />
         )}
       </Suspense>

@@ -1,21 +1,21 @@
 /**
  * Application Layer: GradeLevel Server Actions
- * 
+ *
  * Server Actions for gradelevel management feature.
  * Uses action wrapper for auth, validation, and error handling.
- * 
+ *
  * @module gradelevel.actions
  */
 
-'use server';
+"use server";
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import { gradeLevelRepository } from '../../infrastructure/repositories/gradelevel.repository';
+import { createAction } from "@/shared/lib/action-wrapper";
+import { gradeLevelRepository } from "../../infrastructure/repositories/gradelevel.repository";
 import {
   validateNoDuplicateGradeLevel,
   validateBulkGradeLevels,
   findGradeLevelsForLock,
-} from '../../domain/services/gradelevel-validation.service';
+} from "../../domain/services/gradelevel-validation.service";
 import {
   createGradeLevelSchema,
   createGradeLevelsSchema,
@@ -29,13 +29,13 @@ import {
   type UpdateGradeLevelsInput,
   type DeleteGradeLevelsInput,
   type GetGradeLevelsForLockInput,
-} from '../schemas/gradelevel.schemas';
+} from "../schemas/gradelevel.schemas";
 
 /**
  * Get all gradelevels ordered by GradeID with program relation
- * 
+ *
  * @returns Array of all gradelevels
- * 
+ *
  * @example
  * ```tsx
  * const gradelevels = await getGradeLevelsAction();
@@ -53,7 +53,7 @@ export async function getGradeLevelsAction() {
   } catch {
     return {
       success: false as const,
-      error: 'ไม่สามารถดึงข้อมูลชั้นเรียนได้',
+      error: "ไม่สามารถดึงข้อมูลชั้นเรียนได้",
     };
   }
 }
@@ -61,10 +61,10 @@ export async function getGradeLevelsAction() {
 /**
  * Create a single gradelevel with duplicate validation
  * GradeID is auto-generated from Year + '0' + Number
- * 
+ *
  * @param input - Year and Number
  * @returns Created gradelevel
- * 
+ *
  * @example
  * ```tsx
  * const result = await createGradeLevelAction({ Year: 1, Number: 1 });
@@ -77,29 +77,32 @@ export const createGradeLevelAction = createAction(
   createGradeLevelSchema,
   async (input: CreateGradeLevelInput) => {
     // Validate no duplicate
-    const duplicateError = await validateNoDuplicateGradeLevel(input.Year, input.Number);
+    const duplicateError = await validateNoDuplicateGradeLevel(
+      input.Year,
+      input.Number,
+    );
     if (duplicateError) {
       throw new Error(duplicateError);
     }
 
     // Create gradelevel
     const gradelevel = await gradeLevelRepository.create(input);
-    
+
     // Note: revalidateTag is optional in Next.js 16
     // Commented out for now as it requires second parameter
     // revalidateTag('gradelevels');
 
     return gradelevel;
-  }
+  },
 );
 
 /**
  * Create multiple gradelevels (bulk operation)
  * Validates all entries before creating any
- * 
+ *
  * @param input - Array of gradelevels
  * @returns Array of created gradelevels
- * 
+ *
  * @example
  * ```tsx
  * const result = await createGradeLevelsAction([
@@ -114,24 +117,24 @@ export const createGradeLevelsAction = createAction(
     // Validate all gradelevels
     const errors = await validateBulkGradeLevels(input);
     if (errors.length > 0) {
-      throw new Error(errors.join(', '));
+      throw new Error(errors.join(", "));
     }
 
     // Create all gradelevels
     const created = await Promise.all(
-      input.map((data) => gradeLevelRepository.create(data))
+      input.map((data) => gradeLevelRepository.create(data)),
     );
 
     return created;
-  }
+  },
 );
 
 /**
  * Update a single gradelevel
- * 
+ *
  * @param input - GradeID, Year, Number
  * @returns Updated gradelevel
- * 
+ *
  * @example
  * ```tsx
  * const result = await updateGradeLevelAction({
@@ -154,15 +157,15 @@ export const updateGradeLevelAction = createAction(
     });
 
     return gradelevel;
-  }
+  },
 );
 
 /**
  * Update multiple gradelevels (bulk operation)
- * 
+ *
  * @param input - Array of gradelevels with GradeID
  * @returns Array of updated gradelevels
- * 
+ *
  * @example
  * ```tsx
  * const result = await updateGradeLevelsAction([
@@ -181,20 +184,20 @@ export const updateGradeLevelsAction = createAction(
           Number: data.Number,
           StudentCount: data.StudentCount,
           ProgramID: data.ProgramID ?? null,
-        })
-      )
+        }),
+      ),
     );
 
     return updated;
-  }
+  },
 );
 
 /**
  * Delete multiple gradelevels
- * 
+ *
  * @param input - Array of GradeIDs
  * @returns Delete result
- * 
+ *
  * @example
  * ```tsx
  * const result = await deleteGradeLevelsAction(["101", "102", "103"]);
@@ -209,16 +212,16 @@ export const deleteGradeLevelsAction = createAction(
       count: result.count,
       message: `ลบข้อมูล ${result.count} ชั้นเรียนสำเร็จ`,
     };
-  }
+  },
 );
 
 /**
  * Get gradelevels for lock feature
  * Finds gradelevels where multiple teachers are responsible for the same subject
- * 
+ *
  * @param input - SubjectCode, AcademicYear, Semester, TeacherIDs
  * @returns Array of gradelevels with shared teachers
- * 
+ *
  * @example
  * ```tsx
  * const result = await getGradeLevelsForLockAction({
@@ -236,18 +239,18 @@ export const getGradeLevelsForLockAction = createAction(
       input.SubjectCode,
       input.AcademicYear,
       input.Semester,
-      input.TeacherIDs
+      input.TeacherIDs,
     );
 
     return gradelevels;
-  }
+  },
 );
 
 /**
  * Get gradelevel count (statistics)
- * 
+ *
  * @returns Count of all gradelevels
- * 
+ *
  * @example
  * ```tsx
  * const result = await getGradeLevelCountAction();
@@ -263,7 +266,7 @@ export async function getGradeLevelCountAction() {
   } catch {
     return {
       success: false as const,
-      error: 'ไม่สามารถนับจำนวนชั้นเรียนได้',
+      error: "ไม่สามารถนับจำนวนชั้นเรียนได้",
     };
   }
 }

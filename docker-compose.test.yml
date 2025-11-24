@@ -13,7 +13,7 @@ services:
       POSTGRES_MAX_CONNECTIONS: 100
       POSTGRES_SHARED_BUFFERS: 256MB
     ports:
-      - "5433:5432"  # Use 5433 to avoid conflicts with existing PostgreSQL
+      - "5433:5432" # Use 5433 to avoid conflicts with existing PostgreSQL
     volumes:
       - test_db_data:/var/lib/postgresql/data
     healthcheck:

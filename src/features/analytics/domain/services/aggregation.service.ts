@@ -14,9 +14,12 @@ import type {
   SubjectDistribution,
   CompletionMetrics,
   ProgramCompliance,
-} from '../types/analytics.types';
-import type { PeriodDistribution, DayDistribution } from '../../infrastructure/repositories/time.repository';
-import type { QualityMetrics } from '../../infrastructure/repositories/quality.repository';
+} from "../types/analytics.types";
+import type {
+  PeriodDistribution,
+  DayDistribution,
+} from "../../infrastructure/repositories/time.repository";
+import type { QualityMetrics } from "../../infrastructure/repositories/quality.repository";
 
 /**
  * Dashboard summary aggregating all key metrics
@@ -84,7 +87,7 @@ export type ComplianceInsights = {
  */
 export function aggregateWorkloadInsights(
   teachers: TeacherWorkload[],
-  departments: DepartmentWorkload[]
+  departments: DepartmentWorkload[],
 ): WorkloadInsights {
   if (teachers.length === 0) {
     return {
@@ -100,13 +103,17 @@ export function aggregateWorkloadInsights(
 
   const totalHours = teachers.reduce((sum, t) => sum + t.totalHours, 0);
   const avgHoursPerTeacher = totalHours / teachers.length;
-  const maxHours = Math.max(...teachers.map(t => t.totalHours));
-  const minHours = Math.min(...teachers.map(t => t.totalHours));
+  const maxHours = Math.max(...teachers.map((t) => t.totalHours));
+  const minHours = Math.min(...teachers.map((t) => t.totalHours));
 
   return {
     departments,
-    overloadedTeachers: teachers.filter(t => t.workloadStatus === 'overloaded'),
-    underutilizedTeachers: teachers.filter(t => t.workloadStatus === 'underutilized'),
+    overloadedTeachers: teachers.filter(
+      (t) => t.workloadStatus === "overloaded",
+    ),
+    underutilizedTeachers: teachers.filter(
+      (t) => t.workloadStatus === "underutilized",
+    ),
     avgHoursPerTeacher: Math.round(avgHoursPerTeacher * 10) / 10,
     maxHours,
     minHours,
@@ -133,9 +140,13 @@ export function aggregateRoomInsights(rooms: RoomOccupancy[]): RoomInsights {
 
   return {
     rooms,
-    overUtilizedRooms: rooms.filter(r => r.utilizationStatus === 'over-utilized'),
-    underUtilizedRooms: rooms.filter(r => 
-      r.utilizationStatus === 'rarely-used' || r.utilizationStatus === 'light'
+    overUtilizedRooms: rooms.filter(
+      (r) => r.utilizationStatus === "over-utilized",
+    ),
+    underUtilizedRooms: rooms.filter(
+      (r) =>
+        r.utilizationStatus === "rarely-used" ||
+        r.utilizationStatus === "light",
     ),
     avgOccupancyRate: Math.round(avgOccupancyRate * 10) / 10,
     totalRooms: rooms.length,
@@ -149,15 +160,19 @@ export function aggregateTimeInsights(
   periodDistribution: PeriodDistribution[],
   dayDistribution: DayDistribution[],
   peakHours: PeriodDistribution[],
-  leastUtilized: PeriodDistribution[]
+  leastUtilized: PeriodDistribution[],
 ): TimeInsights {
-  const avgUtilizationByPeriod = periodDistribution.length > 0
-    ? periodDistribution.reduce((sum, p) => sum + p.utilizationRate, 0) / periodDistribution.length
-    : 0;
+  const avgUtilizationByPeriod =
+    periodDistribution.length > 0
+      ? periodDistribution.reduce((sum, p) => sum + p.utilizationRate, 0) /
+        periodDistribution.length
+      : 0;
 
-  const avgUtilizationByDay = dayDistribution.length > 0
-    ? dayDistribution.reduce((sum, d) => sum + d.utilizationRate, 0) / dayDistribution.length
-    : 0;
+  const avgUtilizationByDay =
+    dayDistribution.length > 0
+      ? dayDistribution.reduce((sum, d) => sum + d.utilizationRate, 0) /
+        dayDistribution.length
+      : 0;
 
   return {
     periodDistribution,
@@ -172,7 +187,9 @@ export function aggregateTimeInsights(
 /**
  * Aggregate program compliance into insights
  */
-export function aggregateComplianceInsights(programs: ProgramCompliance[]): ComplianceInsights {
+export function aggregateComplianceInsights(
+  programs: ProgramCompliance[],
+): ComplianceInsights {
   if (programs.length === 0) {
     return {
       programs,
@@ -183,15 +200,22 @@ export function aggregateComplianceInsights(programs: ProgramCompliance[]): Comp
     };
   }
 
-  const totalCompliance = programs.reduce((sum, p) => sum + p.complianceRate, 0);
+  const totalCompliance = programs.reduce(
+    (sum, p) => sum + p.complianceRate,
+    0,
+  );
   const avgComplianceRate = totalCompliance / programs.length;
 
   return {
     programs,
-    nonCompliantPrograms: programs.filter(p => 
-      p.complianceStatus === 'non-compliant' || p.complianceStatus === 'partial'
+    nonCompliantPrograms: programs.filter(
+      (p) =>
+        p.complianceStatus === "non-compliant" ||
+        p.complianceStatus === "partial",
     ),
-    programsWithMissingSubjects: programs.filter(p => p.missingMandatorySubjects.length > 0),
+    programsWithMissingSubjects: programs.filter(
+      (p) => p.missingMandatorySubjects.length > 0,
+    ),
     avgComplianceRate: Math.round(avgComplianceRate * 10) / 10,
     totalPrograms: programs.length,
   };
@@ -205,7 +229,7 @@ export type TrendData = {
   previous?: number;
   change?: number;
   changePercentage?: number;
-  trend?: 'up' | 'down' | 'stable';
+  trend?: "up" | "down" | "stable";
 };
 
 /**
@@ -216,20 +240,20 @@ export function calculateTrend(current: number, previous?: number): TrendData {
     return {
       current,
       previous,
-      trend: 'stable',
+      trend: "stable",
     };
   }
 
   const change = current - previous;
   const changePercentage = (change / previous) * 100;
 
-  let trend: 'up' | 'down' | 'stable';
+  let trend: "up" | "down" | "stable";
   if (Math.abs(changePercentage) < 5) {
-    trend = 'stable';
+    trend = "stable";
   } else if (changePercentage > 0) {
-    trend = 'up';
+    trend = "up";
   } else {
-    trend = 'down';
+    trend = "down";
   }
 
   return {
@@ -246,30 +270,33 @@ export function calculateTrend(current: number, previous?: number): TrendData {
  */
 export function groupBy<T, K extends string | number>(
   items: T[],
-  keyFn: (item: T) => K
+  keyFn: (item: T) => K,
 ): Map<K, T[]> {
   const grouped = new Map<K, T[]>();
-  
-  items.forEach(item => {
+
+  items.forEach((item) => {
     const key = keyFn(item);
     if (!grouped.has(key)) {
       grouped.set(key, []);
     }
     grouped.get(key)?.push(item);
   });
-  
+
   return grouped;
 }
 
 /**
  * Calculate percentile value from sorted array
  */
-export function calculatePercentile(values: number[], percentile: number): number {
+export function calculatePercentile(
+  values: number[],
+  percentile: number,
+): number {
   if (values.length === 0) return 0;
-  
+
   const sorted = [...values].sort((a, b) => a - b);
   const index = Math.ceil((percentile / 100) * sorted.length) - 1;
-  
+
   return sorted[Math.max(0, index)] || 0;
 }
 
@@ -278,18 +305,22 @@ export function calculatePercentile(values: number[], percentile: number): numbe
  */
 export function calculateStandardDeviation(values: number[]): number {
   if (values.length === 0) return 0;
-  
+
   const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-  const squaredDiffs = values.map(val => Math.pow(val - mean, 2));
-  const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
-  
+  const squaredDiffs = values.map((val) => Math.pow(val - mean, 2));
+  const variance =
+    squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
+
   return Math.sqrt(variance);
 }
 
 /**
  * Find outliers using IQR method
  */
-export function findOutliers(values: number[]): { lower: number[]; upper: number[] } {
+export function findOutliers(values: number[]): {
+  lower: number[];
+  upper: number[];
+} {
   if (values.length < 4) {
     return { lower: [], upper: [] };
   }
@@ -298,12 +329,12 @@ export function findOutliers(values: number[]): { lower: number[]; upper: number
   const q1 = calculatePercentile(sorted, 25);
   const q3 = calculatePercentile(sorted, 75);
   const iqr = q3 - q1;
-  
+
   const lowerBound = q1 - 1.5 * iqr;
   const upperBound = q3 + 1.5 * iqr;
-  
+
   return {
-    lower: values.filter(v => v < lowerBound),
-    upper: values.filter(v => v > upperBound),
+    lower: values.filter((v) => v < lowerBound),
+    upper: values.filter((v) => v > upperBound),
   };
 }

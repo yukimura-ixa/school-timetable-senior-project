@@ -5,7 +5,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -50,10 +50,10 @@ function AddModalForm({ closeModal, mutate }: props) {
       variant: "info",
       persist: true,
     });
-    
+
     try {
       const result = await createTeachersAction({
-        teachers: data.map(t => ({
+        teachers: data.map((t) => ({
           Prefix: t.Prefix,
           Firstname: t.Firstname,
           Lastname: t.Lastname,
@@ -62,22 +62,26 @@ function AddModalForm({ closeModal, mutate }: props) {
           Role: t.Role || "teacher",
         })),
       });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เพิ่มข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "เพิ่มข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.log(error);
     }
   };
@@ -177,7 +181,11 @@ function AddModalForm({ closeModal, mutate }: props) {
                     </label>
                     <Dropdown
                       data={["นาย", "นาง", "นางสาว"]}
-                      renderItem={({ data }: { data: unknown }): JSX.Element => (
+                      renderItem={({
+                        data,
+                      }: {
+                        data: unknown;
+                      }): JSX.Element => (
                         <li className="w-full">{data as string}</li>
                       )}
                       width={150}
@@ -192,7 +200,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                       handleChange={(value: unknown) => {
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind ? { ...item, Prefix: value as string } : item,
+                            index === ind
+                              ? { ...item, Prefix: value as string }
+                              : item,
                           ),
                         );
                       }}
@@ -279,7 +289,11 @@ function AddModalForm({ closeModal, mutate }: props) {
                         "สังคมศึกษา ศาสนา และวัฒนธรรม",
                         "สุขศึกษาและพลศึกษา",
                       ]}
-                      renderItem={({ data }: { data: unknown }): JSX.Element => (
+                      renderItem={({
+                        data,
+                      }: {
+                        data: unknown;
+                      }): JSX.Element => (
                         <li className="w-full">{data as string}</li>
                       )}
                       width={150}
@@ -354,16 +368,18 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} 
-              reverseIcon={false} 
+              Icon={<CloseIcon />}
+              reverseIcon={false}
               isDisabled={isSubmitting}
             />
             <PrimaryButton
               handleClick={handleSubmit}
               title={isSubmitting ? "" : "ยืนยัน"}
               color={"success"}
-              Icon={isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />} 
-              reverseIcon={false} 
+              Icon={
+                isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />
+              }
+              reverseIcon={false}
               isDisabled={isSubmitting}
             />
           </span>

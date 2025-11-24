@@ -1,38 +1,43 @@
 /**
  * Assign Feature - Repository Layer
- * 
+ *
  * Data access layer for teacher responsibility (assign) operations.
  * Handles all database interactions via Prisma.
  */
 
-import prisma from '@/lib/prisma';
-import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction';
-import { semester, Prisma } from '@/prisma/generated/client';
+import prisma from "@/lib/prisma";
+import {
+  withPrismaTransaction,
+  type TransactionClient,
+} from "@/lib/prisma-transaction";
+import { semester, Prisma } from "@/prisma/generated/client";
 
 type SubjectCodeRecord = { SubjectCode: string | null };
 
 /**
  * Type: Teacher responsibility with full relations
  */
-export type TeacherResponsibilityWithRelations = Prisma.teachers_responsibilityGetPayload<{
-  include: {
-    subject: true;
-    gradelevel: true;
-    teacher: true;
-  };
-}>;
+export type TeacherResponsibilityWithRelations =
+  Prisma.teachers_responsibilityGetPayload<{
+    include: {
+      subject: true;
+      gradelevel: true;
+      teacher: true;
+    };
+  }>;
 
 /**
  * Type: Teacher responsibility with class schedules (for available slots)
  */
-export type TeacherResponsibilityWithSchedules = Prisma.teachers_responsibilityGetPayload<{
-  include: {
-    subject: true;
-    gradelevel: true;
-    teacher: true;
-    class_schedule: true;
-  };
-}>;
+export type TeacherResponsibilityWithSchedules =
+  Prisma.teachers_responsibilityGetPayload<{
+    include: {
+      subject: true;
+      gradelevel: true;
+      teacher: true;
+      class_schedule: true;
+    };
+  }>;
 
 /**
  * Type: Subject with responsibilities
@@ -49,7 +54,7 @@ export type SubjectWithResponsibilities = Prisma.subjectGetPayload<{
 export async function findByTeacherAndTerm(
   teacherId: number,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<TeacherResponsibilityWithRelations[]> {
   return prisma.teachers_responsibility.findMany({
     where: {
@@ -71,7 +76,7 @@ export async function findByTeacherAndTerm(
 export async function findAvailableByTeacherAndTerm(
   teacherId: number,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<TeacherResponsibilityWithSchedules[]> {
   return prisma.teachers_responsibility.findMany({
     where: {
@@ -93,16 +98,16 @@ export async function findAvailableByTeacherAndTerm(
  */
 export async function findLockedSubjectsByTerm(
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<SubjectWithResponsibilities[]> {
   // First, group by SubjectCode to get distinct subjects
-  const groupedSubjects = await prisma.teachers_responsibility.groupBy({
-    by: ['SubjectCode'],
+  const groupedSubjects = (await prisma.teachers_responsibility.groupBy({
+    by: ["SubjectCode"],
     where: {
       AcademicYear: academicYear,
       Semester: sem,
     },
-  }) as SubjectCodeRecord[];
+  })) as SubjectCodeRecord[];
 
   const subjectCodes = groupedSubjects
     .map((item) => item.SubjectCode)
@@ -136,7 +141,7 @@ export async function findLockedSubjectsByTerm(
  * Find all responsibilities matching criteria
  */
 export async function findMany(
-  where: Prisma.teachers_responsibilityWhereInput
+  where: Prisma.teachers_responsibilityWhereInput,
 ) {
   return prisma.teachers_responsibility.findMany({
     where,
@@ -146,9 +151,7 @@ export async function findMany(
 /**
  * Create a new teacher responsibility
  */
-export async function create(
-  data: Prisma.teachers_responsibilityCreateInput
-) {
+export async function create(data: Prisma.teachers_responsibilityCreateInput) {
   return prisma.teachers_responsibility.create({
     data,
   });
@@ -172,7 +175,7 @@ export async function deleteById(respId: number) {
 export async function deleteSchedulesByTeacherAndTerm(
   teacherId: number,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ) {
   return prisma.class_schedule.deleteMany({
     where: {
@@ -195,11 +198,10 @@ export async function deleteSchedulesByTeacherAndTerm(
  * Count all responsibilities
  */
 export async function count(
-  where?: Prisma.teachers_responsibilityWhereInput
+  where?: Prisma.teachers_responsibilityWhereInput,
 ): Promise<number> {
   return prisma.teachers_responsibility.count({ where });
 }
-
 
 /**
  * Find a single teacher responsibility by RespID
@@ -215,7 +217,8 @@ export async function findByRespId(respId: number) {
   });
 }
 
-export async function transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
+export async function transaction<T>(
+  callback: (tx: TransactionClient) => Promise<T>,
+) {
   return withPrismaTransaction(callback);
 }
-

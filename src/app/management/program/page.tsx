@@ -3,7 +3,6 @@ import Link from "next/link";
 import React, { Fragment } from "react";
 import { IoArrowForwardCircle } from "react-icons/io5";
 
-
 type Props = {};
 
 function StudyProgram(props: Props) {
@@ -27,7 +26,7 @@ function StudyProgram(props: Props) {
               <p className="flex justify-between text-xl font-bold">
                 หลักสูตรชั้นมัธยมศึกษาปีที่ {item}
                 <span>
-                  <IoArrowForwardCircle size={30}/>
+                  <IoArrowForwardCircle size={30} />
                 </span>
               </p>
             </Link>

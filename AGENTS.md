@@ -97,7 +97,8 @@ The Next.js DevTools MCP provides powerful tools for Next.js 16+ projects, inclu
 
 ```typescript
 // Start every Next.js session with this
-mcp_next-devtools_init({ project_path: "b:/Dev/school-timetable-senior-project" })
+mcp_next -
+  devtools_init({ project_path: "b:/Dev/school-timetable-senior-project" });
 ```
 
 This tool:
@@ -117,34 +118,37 @@ This tool:
 
 ```typescript
 // Fetch full documentation by path (from llms.txt index)
-mcp_next-devtools_nextjs_docs({
-  action: 'get',
-  path: '/docs/app/building-your-application/routing',
-  // Optional: anchor for specific section
-  anchor: 'dynamic-routes'
-})
+mcp_next -
+  devtools_nextjs_docs({
+    action: "get",
+    path: "/docs/app/building-your-application/routing",
+    // Optional: anchor for specific section
+    anchor: "dynamic-routes",
+  });
 ```
 
 **Action: `search` (Keyword-based discovery)**
 
 ```typescript
 // Search for documentation by keyword
-mcp_next-devtools_nextjs_docs({
-  action: 'search',
-  query: 'server actions',
-  routerType: 'app' // 'app', 'pages', or 'all'
-})
+mcp_next -
+  devtools_nextjs_docs({
+    action: "search",
+    query: "server actions",
+    routerType: "app", // 'app', 'pages', or 'all'
+  });
 ```
 
 **Action: `force-search` (Escape hatch)**
 
 ```typescript
 // Bypass init check and force API search (use sparingly)
-mcp_next-devtools_nextjs_docs({
-  action: 'force-search',
-  query: 'middleware',
-  routerType: 'app'
-})
+mcp_next -
+  devtools_nextjs_docs({
+    action: "force-search",
+    query: "middleware",
+    routerType: "app",
+  });
 ```
 
 **Best Practices:**
@@ -167,43 +171,48 @@ Next.js 16+ exposes an MCP endpoint at `/_next/mcp` automatically (no config nee
 ```typescript
 // User asks: "Add a loading state to the teacher table"
 // Step 1: Query runtime FIRST
-mcp_next-devtools_nextjs_runtime({
-  action: 'list_tools',
-  port: '3000' // Auto-discovered if omitted
-})
+mcp_next -
+  devtools_nextjs_runtime({
+    action: "list_tools",
+    port: "3000", // Auto-discovered if omitted
+  });
 
 // Step 2: Call specific tools to understand current state
-mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  port: '3000',
-  toolName: 'get_routes',
-  // args: {} // Omit if tool requires no arguments
-})
+mcp_next -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    port: "3000",
+    toolName: "get_routes",
+    // args: {} // Omit if tool requires no arguments
+  });
 ```
 
 **For diagnostic questions:**
 
 ```typescript
 // "What's happening?" / "Why isn't this working?"
-mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  port: '3000',
-  toolName: 'get_errors'
-})
+mcp_next -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    port: "3000",
+    toolName: "get_errors",
+  });
 
 // "What routes are available?"
-mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  port: '3000',
-  toolName: 'get_routes'
-})
+mcp_next -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    port: "3000",
+    toolName: "get_routes",
+  });
 
 // "Clear the cache"
-mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  port: '3000',
-  toolName: 'clear_cache'
-})
+mcp_next -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    port: "3000",
+    toolName: "clear_cache",
+  });
 ```
 
 **For agentic codebase search:**
@@ -211,12 +220,13 @@ mcp_next-devtools_nextjs_runtime({
 ```typescript
 // FIRST CHOICE: Query running app
 // If not found → fallback to static codebase search (Serena)
-mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  port: '3000',
-  toolName: 'search_components',
-  args: { query: "TeacherTable" }
-})
+mcp_next -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    port: "3000",
+    toolName: "search_components",
+    args: { query: "TeacherTable" },
+  });
 ```
 
 **Important Notes:**
@@ -232,34 +242,39 @@ mcp_next-devtools_nextjs_runtime({
 
 ```typescript
 // Step 1: Start browser (automatically installs Playwright if needed)
-mcp_next-devtools_browser_eval({
-  action: 'start',
-  browser: 'chrome',
-  headless: true
-})
+mcp_next -
+  devtools_browser_eval({
+    action: "start",
+    browser: "chrome",
+    headless: true,
+  });
 
 // Step 2: Navigate to page
-mcp_next-devtools_browser_eval({
-  action: 'navigate',
-  url: 'http://localhost:3000/dashboard/1-2567/teacher-table'
-})
+mcp_next -
+  devtools_browser_eval({
+    action: "navigate",
+    url: "http://localhost:3000/dashboard/1-2567/teacher-table",
+  });
 
 // Step 3: Get console errors (detects runtime issues curl can't catch)
-mcp_next-devtools_browser_eval({
-  action: 'console_messages',
-  errorsOnly: true
-})
+mcp_next -
+  devtools_browser_eval({
+    action: "console_messages",
+    errorsOnly: true,
+  });
 
 // Step 4: Take screenshot for visual verification
-mcp_next-devtools_browser_eval({
-  action: 'screenshot',
-  fullPage: true
-})
+mcp_next -
+  devtools_browser_eval({
+    action: "screenshot",
+    fullPage: true,
+  });
 
 // Step 5: Close browser when done
-mcp_next-devtools_browser_eval({
-  action: 'close'
-})
+mcp_next -
+  devtools_browser_eval({
+    action: "close",
+  });
 ```
 
 **Why browser automation over curl:**
@@ -277,9 +292,10 @@ mcp_next-devtools_browser_eval({
 
 ```typescript
 // Automated upgrade with official codemod
-mcp_next-devtools_upgrade_nextjs_16({
-  project_path: "b:/Dev/school-timetable-senior-project"
-})
+mcp_next -
+  devtools_upgrade_nextjs_16({
+    project_path: "b:/Dev/school-timetable-senior-project",
+  });
 ```
 
 This tool:
@@ -300,9 +316,10 @@ This tool:
 
 ```typescript
 // Complete setup for Cache Components
-mcp_next-devtools_enable_cache_components({
-  project_path: "b:/Dev/school-timetable-senior-project"
-})
+mcp_next -
+  devtools_enable_cache_components({
+    project_path: "b:/Dev/school-timetable-senior-project",
+  });
 ```
 
 This tool handles ALL steps:
@@ -330,18 +347,20 @@ This tool handles ALL steps:
 
 ```typescript
 // 1. Initialize session
-await mcp_next-devtools_init({ project_path: "." })
+(await mcp_next) - devtools_init({ project_path: "." });
 
 // 2. Query relevant Next.js docs
-await mcp_next-devtools_nextjs_docs({
-  action: 'get',
-  path: '/docs/app/building-your-application/data-fetching/server-actions-and-mutations'
-})
+(await mcp_next) -
+  devtools_nextjs_docs({
+    action: "get",
+    path: "/docs/app/building-your-application/data-fetching/server-actions-and-mutations",
+  });
 
 // 3. Check current runtime state
-await mcp_next-devtools_nextjs_runtime({
-  action: 'list_tools'
-})
+(await mcp_next) -
+  devtools_nextjs_runtime({
+    action: "list_tools",
+  });
 
 // 4. Implement feature using Serena + official patterns
 // 5. Verify with browser automation if needed
@@ -351,56 +370,63 @@ await mcp_next-devtools_nextjs_runtime({
 
 ```typescript
 // 1. Get runtime errors
-await mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  toolName: 'get_errors'
-})
+(await mcp_next) -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    toolName: "get_errors",
+  });
 
 // 2. Check build diagnostics
-await mcp_next-devtools_nextjs_runtime({
-  action: 'call_tool',
-  toolName: 'get_build_info'
-})
+(await mcp_next) -
+  devtools_nextjs_runtime({
+    action: "call_tool",
+    toolName: "get_build_info",
+  });
 
 // 3. Inspect specific route
-await mcp_next-devtools_browser_eval({
-  action: 'navigate',
-  url: 'http://localhost:3000/problematic-route'
-})
+(await mcp_next) -
+  devtools_browser_eval({
+    action: "navigate",
+    url: "http://localhost:3000/problematic-route",
+  });
 
-await mcp_next-devtools_browser_eval({
-  action: 'console_messages',
-  errorsOnly: true
-})
+(await mcp_next) -
+  devtools_browser_eval({
+    action: "console_messages",
+    errorsOnly: true,
+  });
 ```
 
 **Workflow 3: Verifying pages after upgrade**
 
 ```typescript
 // 1. Upgrade Next.js
-await mcp_next-devtools_upgrade_nextjs_16({ project_path: "." })
+(await mcp_next) - devtools_upgrade_nextjs_16({ project_path: "." });
 
 // 2. Start dev server (separate terminal)
 // $ pnpm dev
 
 // 3. Verify critical pages with browser automation
 const criticalPages = [
-  '/dashboard/1-2567/teacher-table',
-  '/dashboard/1-2567/student-table',
-  '/dashboard/1-2567/assign'
-]
+  "/dashboard/1-2567/teacher-table",
+  "/dashboard/1-2567/student-table",
+  "/dashboard/1-2567/assign",
+];
 
 for (const page of criticalPages) {
-  await mcp_next-devtools_browser_eval({
-    action: 'navigate',
-    url: `http://localhost:3000${page}`
-  })
-  
-  const errors = await mcp_next-devtools_browser_eval({
-    action: 'console_messages',
-    errorsOnly: true
-  })
-  
+  (await mcp_next) -
+    devtools_browser_eval({
+      action: "navigate",
+      url: `http://localhost:3000${page}`,
+    });
+
+  const errors =
+    (await mcp_next) -
+    devtools_browser_eval({
+      action: "console_messages",
+      errorsOnly: true,
+    });
+
   // Analyze and fix any errors found
 }
 ```
@@ -414,7 +440,7 @@ for (const page of criticalPages) {
 // $ pnpm list next
 
 // If version < 16, upgrade first:
-await mcp_next-devtools_upgrade_nextjs_16({ project_path: "." })
+(await mcp_next) - devtools_upgrade_nextjs_16({ project_path: "." });
 
 // Verify dev server is running:
 // $ pnpm dev
@@ -426,16 +452,18 @@ await mcp_next-devtools_upgrade_nextjs_16({ project_path: "." })
 
 ```typescript
 // Manually specify port if auto-discovery fails
-await mcp_next-devtools_nextjs_runtime({
-  action: 'list_tools',
-  port: '3000' // Explicit port
-})
+(await mcp_next) -
+  devtools_nextjs_runtime({
+    action: "list_tools",
+    port: "3000", // Explicit port
+  });
 
 // Or discover all running servers
-await mcp_next-devtools_nextjs_runtime({
-  action: 'discover_servers',
-  includeUnverified: true
-})
+(await mcp_next) -
+  devtools_nextjs_runtime({
+    action: "discover_servers",
+    includeUnverified: true,
+  });
 ```
 
 **Browser automation not working:**
@@ -445,9 +473,10 @@ await mcp_next-devtools_nextjs_runtime({
 // $ pnpm exec playwright install chromium
 
 // Check browser availability:
-await mcp_next-devtools_browser_eval({
-  action: 'list_tools'
-})
+(await mcp_next) -
+  devtools_browser_eval({
+    action: "list_tools",
+  });
 ```
 
 #### 8. Best Practices
@@ -489,6 +518,7 @@ This project follows a **CI-first development workflow** where all tests, lintin
 ### Core Philosophy
 
 **✅ DO:**
+
 - **Trust CI as the quality gatekeeper** - All validation happens in GitHub Actions
 - **Commit and push frequently** - Small commits get faster feedback
 - **Continue working while CI runs** - Parallel work while awaiting CI results
@@ -496,6 +526,7 @@ This project follows a **CI-first development workflow** where all tests, lintin
 - **Use draft PRs for WIP** - CI still runs, but reviewers know it's not ready
 
 **❌ DON'T:**
+
 - **Don't add pre-commit hooks** - Violates CI-first philosophy (slows commits)
 - **Don't add pre-push hooks** - Blocks rapid iteration
 - **Don't run full test suite locally** - Slow and redundant (trust CI instead)
@@ -507,12 +538,14 @@ This project follows a **CI-first development workflow** where all tests, lintin
 **Optional local validation** is available for specific scenarios:
 
 **✅ USE local validation when:**
+
 - Debugging a failing CI check (reproduce the exact failure)
 - Pre-release validation (major version bumps)
 - Offline development (no GitHub access)
 - Quick sanity check (optional convenience, not required)
 
 **Commands for optional local validation:**
+
 ```bash
 pnpm test:affected       # Run affected tests (faster than full suite)
 pnpm lint:files src/**   # Lint specific files (when debugging CI lint failures)
@@ -522,6 +555,7 @@ pnpm test:e2e            # E2E tests locally (requires local DB setup)
 ```
 
 **❌ DON'T use local validation for:**
+
 - Normal feature development (trust CI instead)
 - Every commit (too slow, defeats CI-first purpose)
 - Checking "if it works" (push to CI for validation)
@@ -546,8 +580,8 @@ Agent: "Push your changes to GitHub. CI will automatically run:
         - Unit Tests (~8 min)
         - Build (~8 min)
         - E2E Tests (~15 min)
-        
-        You'll see results in the PR checks. Continue working on other tasks 
+
+        You'll see results in the PR checks. Continue working on other tasks
         while CI runs in parallel."
 
 User: "Should I run tests before committing?"
@@ -565,14 +599,15 @@ Agent: "Let's check the CI logs. [Analyze failure logs from GitHub Actions]
 
 Our CI runs **4 parallel jobs** for fast feedback:
 
-| Job              | Duration  | Caching | Parallelized |
-|------------------|-----------|---------|--------------|
-| Lint & Type Check| ~3-5 min  | Yes ✅  | No           |
-| Unit Tests       | ~8-10 min | Yes ✅  | Yes (50%)    |
-| Build            | ~8-10 min | Yes ✅  | No           |
-| E2E Tests        | ~15 min   | Yes ✅  | Yes (4x)     |
+| Job               | Duration  | Caching | Parallelized |
+| ----------------- | --------- | ------- | ------------ |
+| Lint & Type Check | ~3-5 min  | Yes ✅  | No           |
+| Unit Tests        | ~8-10 min | Yes ✅  | Yes (50%)    |
+| Build             | ~8-10 min | Yes ✅  | No           |
+| E2E Tests         | ~15 min   | Yes ✅  | Yes (4x)     |
 
 **Caching optimizations:**
+
 - PNPM dependencies (setup-node built-in)
 - Prisma Client (`.prisma` cache)
 - Next.js build (`.next/cache`)
@@ -590,14 +625,17 @@ Our CI runs **4 parallel jobs** for fast feedback:
 ### CI Triggers & Optimizations
 
 **Automatic triggers:**
+
 - ✅ Push to `main` or `develop` branches
 - ✅ Pull request creation/updates
 - ❌ Skipped for docs-only changes (`**.md`, `docs/**`, `screenshots/**`)
 
 **Manual triggers:**
+
 - E2E tests via GitHub Actions UI (workflow_dispatch)
 
 **Quality gates:**
+
 - Branch protection rules require all CI checks to pass
 - Cannot merge failing PRs
 - Draft PRs still run CI (for iterative development)
@@ -611,6 +649,7 @@ This project **transitioned to CI-first** to improve developer velocity:
 - **Result:** 10x faster local development, same quality guarantees
 
 **Historical notes:**
+
 - Jest setup migration (Issue #9e1459d) - Migrated to TypeScript for proper linting
 - Jest stack overflow (Issue #46) - Workaround with `forceExit: true` for Next.js 16 compatibility
 
@@ -767,11 +806,11 @@ Jest tests pass but process doesn't exit cleanly due to Next.js 16.0.1 unhandled
 **Unit Test (Jest)**:
 
 ```typescript
-describe('validateTimeslotConflict', () => {
-  it('should return conflict when timeslots overlap', () => {
+describe("validateTimeslotConflict", () => {
+  it("should return conflict when timeslots overlap", () => {
     const result = validateTimeslotConflict(slot1, slot2);
     expect(result.hasConflict).toBe(true);
-    expect(result.message).toContain('ซ้ำซ้อน');
+    expect(result.message).toContain("ซ้ำซ้อน");
   });
 });
 ```
@@ -779,23 +818,23 @@ describe('validateTimeslotConflict', () => {
 **E2E Test (Playwright)**:
 
 ```typescript
-test('should create new schedule assignment', async ({ page }) => {
-  await page.goto('/schedule/1-2567/assign');
-  await page.click('text=เพิ่มรายวิชา');
-  await page.fill('[name="subjectCode"]', 'TH101');
+test("should create new schedule assignment", async ({ page }) => {
+  await page.goto("/schedule/1-2567/assign");
+  await page.click("text=เพิ่มรายวิชา");
+  await page.fill('[name="subjectCode"]', "TH101");
   await page.click('button[type="submit"]');
-  await expect(page.locator('text=บันทึกสำเร็จ')).toBeVisible();
+  await expect(page.locator("text=บันทึกสำเร็จ")).toBeVisible();
 });
 ```
 
 ## 9. Response Format (every task)
 
-1) Plan (<= 8 bullets)  
-2) Evidence Panel (versions/APIs)  
-3) Code (ready to paste)  
-4) Tests (unit/E2E when applicable)  
-5) Runbook (commands/env/migrations)  
-6) Risks and TODOs
+1. Plan (<= 8 bullets)
+2. Evidence Panel (versions/APIs)
+3. Code (ready to paste)
+4. Tests (unit/E2E when applicable)
+5. Runbook (commands/env/migrations)
+6. Risks and TODOs
 
 ## 9.1 GitHub Issue & PR Policy
 
@@ -845,32 +884,40 @@ Use this structure when creating issues:
 
 ```markdown
 ## Description
+
 [Clear description of the bug/feature/debt]
 
 ## Location
+
 - File(s): [path/to/file.ts]
 - Line(s): [specific lines if applicable]
 
 ## Current Behavior
+
 [What currently happens]
 
 ## Expected Behavior
+
 [What should happen]
 
 ## Reproduction Steps (for bugs)
+
 1. [Step 1]
 2. [Step 2]
-...
+   ...
 
 ## Proposed Solution
+
 [Suggested approach or fix]
 
 ## Technical Context
+
 - Related files: [list]
 - Dependencies: [list]
 - Estimated effort: [S/M/L/XL]
 
 ## Related Issues/PRs
+
 - Relates to #[issue number]
 - Blocked by #[issue number]
 ```
@@ -887,17 +934,21 @@ Create a PR when:
 
 ```markdown
 ## Changes
+
 [Summary of what changed]
 
 ## Related Issues
+
 Closes #[issue number]
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] E2E tests added/updated
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Follows AGENTS.md guidelines
 - [ ] Context7 consulted for all library usage
 - [ ] Type safety maintained (no new `any`)
@@ -938,7 +989,7 @@ GitHub Issue #32: "Fix store type mismatch in arrangement-ui"
 - Solution: Create mapper functions
 - Status: In Progress
 
-GitHub Issue #33: "Fix 7 failing Jest test suites"  
+GitHub Issue #33: "Fix 7 failing Jest test suites"
 - Description: Mock setup conflicts and data fixture issues
 - Root cause: Duplicate jest.mock() declarations
 - Status: In Progress (5/7 fixed)
@@ -953,12 +1004,12 @@ When creating issues via MCP GitHub tools:
 ```typescript
 // Use structured approach
 await mcp_github_issue_write({
-  method: 'create',
-  owner: 'yukimura-ixa',
-  repo: 'school-timetable-senior-project',
-  title: '[Bug] Clear, concise title',
-  body: '## Description\n...\n## Location\n...',
-  labels: ['bug', 'priority: high']
+  method: "create",
+  owner: "yukimura-ixa",
+  repo: "school-timetable-senior-project",
+  title: "[Bug] Clear, concise title",
+  body: "## Description\n...\n## Location\n...",
+  labels: ["bug", "priority: high"],
 });
 ```
 
@@ -1015,12 +1066,12 @@ export function CurrentSemesterBadge() {
 function StudentTablePage() {
   const { data: session } = useSession();
   const isStudent = session?.user?.role === "student";
-  
+
   return (
     <>
       {/* Bulk export hidden for students */}
       {!isStudent && <BulkExportSection />}
-      
+
       {/* Individual export hidden for students */}
       {!isStudent && (
         <Stack direction="row" spacing={1}>
@@ -1028,7 +1079,7 @@ function StudentTablePage() {
           <Button onClick={handlePDF}>Export PDF</Button>
         </Stack>
       )}
-      
+
       {/* Students see read-only timetable only */}
       <TimetableDisplay />
     </>
@@ -1042,10 +1093,15 @@ function StudentTablePage() {
 
 ```typescript
 // Use Valibot for all user inputs
-import * as v from 'valibot';
+import * as v from "valibot";
 
 const CreateSubjectSchema = v.object({
-  code: v.pipe(v.string(), v.minLength(5), v.maxLength(10), v.regex(/^[A-Z]{2}\d{3}$/)),
+  code: v.pipe(
+    v.string(),
+    v.minLength(5),
+    v.maxLength(10),
+    v.regex(/^[A-Z]{2}\d{3}$/),
+  ),
   name: v.pipe(v.string(), v.minLength(1), v.maxLength(200)),
   credits: v.pipe(v.number(), v.minValue(0.5), v.maxValue(5)),
 });
@@ -1054,7 +1110,7 @@ export async function createSubject(input: unknown) {
   // ✅ Always validate before database operations
   const result = v.safeParse(CreateSubjectSchema, input);
   if (!result.success) {
-    return { success: false, error: 'Invalid input' };
+    return { success: false, error: "Invalid input" };
   }
   // ... use result.output (typed and validated)
 }
@@ -1069,12 +1125,12 @@ export async function createSubject(input: unknown) {
 ```typescript
 // ✅ SAFE: Prisma query builder
 await prisma.teacher.findMany({
-  where: { name: { contains: userInput } }
+  where: { name: { contains: userInput } },
 });
 
 // ❌ UNSAFE: Raw SQL with user input
 await prisma.$executeRawUnsafe(
-  `SELECT * FROM Teacher WHERE name LIKE '%${userInput}%'`
+  `SELECT * FROM Teacher WHERE name LIKE '%${userInput}%'`,
 );
 ```
 
@@ -1142,20 +1198,20 @@ function isValidUrl(url: string): boolean {
 
 ```typescript
 // Implement rate limiting for public endpoints
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(10, '10 s'), // 10 requests per 10 seconds
+  limiter: Ratelimit.slidingWindow(10, "10 s"), // 10 requests per 10 seconds
 });
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') ?? 'unknown';
+  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const { success } = await ratelimit.limit(ip);
-  
+
   if (!success) {
-    return new Response('Rate limit exceeded', { status: 429 });
+    return new Response("Rate limit exceeded", { status: 429 });
   }
   // ... handle request
 }
@@ -1167,13 +1223,13 @@ export async function POST(request: Request) {
 
 ```javascript
 const securityHeaders = [
-  { key: 'X-DNS-Prefetch-Control', value: 'on' },
-  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
+  { key: "X-DNS-Prefetch-Control", value: "on" },
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "origin-when-cross-origin" },
   {
-    key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=()'
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=()",
   },
 ];
 
@@ -1181,7 +1237,7 @@ export default {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: securityHeaders,
       },
     ];
@@ -1200,7 +1256,7 @@ export default {
 ```typescript
 // ✅ Include necessary relations only
 const schedules = await prisma.classSchedule.findMany({
-  where: { configId: '1-2567' },
+  where: { configId: "1-2567" },
   include: {
     subject: true,
     room: true,
@@ -1220,7 +1276,7 @@ const teachers = await prisma.teacher.findMany({
 // ✅ Batch queries instead of loops
 const teacherIds = [1, 2, 3];
 const teachers = await prisma.teacher.findMany({
-  where: { id: { in: teacherIds } }
+  where: { id: { in: teacherIds } },
 });
 // ❌ for (const id of teacherIds) { await prisma.teacher.findUnique({ where: { id } }) }
 ```
@@ -1228,12 +1284,12 @@ const teachers = await prisma.teacher.findMany({
 **Caching with SWR:**
 
 ```typescript
-'use client';
-import useSWR from 'swr';
+"use client";
+import useSWR from "swr";
 
 export function TeacherList() {
   const { data, error, isLoading } = useSWR(
-    'teachers-list',
+    "teachers-list",
     async () => {
       const result = await getTeachersAction();
       return result.success ? result.data : [];
@@ -1241,7 +1297,7 @@ export function TeacherList() {
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, // 1 minute
-    }
+    },
   );
   // ...
 }
@@ -1323,48 +1379,50 @@ npx webpack-bundle-analyzer .next/server/app/**/*.js
 
 ```typescript
 // ✅ Import specific functions
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 // ❌ Imports entire library
-import * as dateFns from 'date-fns';
+import * as dateFns from "date-fns";
 
 // ✅ Use dynamic imports for heavy libraries
-const { default: jsPDF } = await import('jspdf');
+const { default: jsPDF } = await import("jspdf");
 ```
 
 ---
 
 ## 12. Testing Best Practices
+
 ### 12.0 Rules of Engagement (agents)
-1) Choose the lowest test level that proves the behavior:
+
+1. Choose the lowest test level that proves the behavior:
    - Unit for pure logic, schemas, selectors.
    - Integration for UI ↔ data boundaries (React component + server action, repo + DB).
    - E2E only for critical journeys (auth, timetable CRUD, conflict resolution, export).
-   Rationale: test pyramid/trophy = lots of unit/integration, few E2E. (Higher layers are slower and flakier.)
-2) No `waitForTimeout()` in E2E except in `visual-inspection.spec.ts`.
-3) Before adding a new E2E spec, ask: can a contract test (Pact) or an integration test prove this?
-4) Every E2E action must use locator assertions (`expect(...).toBeVisible()/toBeEnabled()`) before click/press.
-5) Keep E2E specs short, outcome-based, and tagged in the title: `[journey]`, `[smoke]`, `[a11y]`, `[visual]`, `[contract]`.
-6) CI quality gates: E2E wall time ≤ 15 min, flake rate < 2%. If exceeded, downshift tests or fix root causes.
-7) Prefer realistic DB in tests using Testcontainers (integration) over adding more E2E permutations.
+     Rationale: test pyramid/trophy = lots of unit/integration, few E2E. (Higher layers are slower and flakier.)
+2. No `waitForTimeout()` in E2E except in `visual-inspection.spec.ts`.
+3. Before adding a new E2E spec, ask: can a contract test (Pact) or an integration test prove this?
+4. Every E2E action must use locator assertions (`expect(...).toBeVisible()/toBeEnabled()`) before click/press.
+5. Keep E2E specs short, outcome-based, and tagged in the title: `[journey]`, `[smoke]`, `[a11y]`, `[visual]`, `[contract]`.
+6. CI quality gates: E2E wall time ≤ 15 min, flake rate < 2%. If exceeded, downshift tests or fix root causes.
+7. Prefer realistic DB in tests using Testcontainers (integration) over adding more E2E permutations.
 
 ### Unit Testing Strategy
 
 **Test Structure (AAA Pattern):**
 
 ```typescript
-describe('validateTimeslotConflict', () => {
-  it('should return conflict when timeslots overlap', () => {
+describe("validateTimeslotConflict", () => {
+  it("should return conflict when timeslots overlap", () => {
     // Arrange
     const slot1 = { day: 1, period: 1, roomId: 1 };
     const slot2 = { day: 1, period: 1, roomId: 1 };
-    
+
     // Act
     const result = validateTimeslotConflict(slot1, slot2);
-    
+
     // Assert
     expect(result.hasConflict).toBe(true);
-    expect(result.message).toContain('ซ้ำซ้อน');
+    expect(result.message).toContain("ซ้ำซ้อน");
   });
 });
 ```
@@ -1372,14 +1430,14 @@ describe('validateTimeslotConflict', () => {
 **Table-Driven Tests:**
 
 ```typescript
-describe('credit validation', () => {
+describe("credit validation", () => {
   const testCases = [
-    { input: 0.5, expected: true, desc: 'minimum valid credit' },
-    { input: 2.0, expected: true, desc: 'maximum valid credit' },
-    { input: 0.0, expected: false, desc: 'zero credits' },
-    { input: 5.5, expected: false, desc: 'exceeds maximum' },
+    { input: 0.5, expected: true, desc: "minimum valid credit" },
+    { input: 2.0, expected: true, desc: "maximum valid credit" },
+    { input: 0.0, expected: false, desc: "zero credits" },
+    { input: 5.5, expected: false, desc: "exceeds maximum" },
   ];
-  
+
   testCases.forEach(({ input, expected, desc }) => {
     it(`should return ${expected} for ${desc}`, () => {
       expect(isValidCredit(input)).toBe(expected);
@@ -1392,7 +1450,7 @@ describe('credit validation', () => {
 
 ```typescript
 // ✅ Mock at module level
-jest.mock('@/lib/prisma', () => ({
+jest.mock("@/lib/prisma", () => ({
   prisma: {
     teacher: {
       findMany: jest.fn(),
@@ -1406,12 +1464,12 @@ beforeEach(() => {
 });
 
 // ✅ Type-safe mocks
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 const mockFindMany = prisma.teacher.findMany as jest.MockedFunction<
   typeof prisma.teacher.findMany
 >;
 
-mockFindMany.mockResolvedValue([{ id: 1, name: 'John' }]);
+mockFindMany.mockResolvedValue([{ id: 1, name: "John" }]);
 ```
 
 ### E2E Testing Strategy
@@ -1423,19 +1481,21 @@ mockFindMany.mockResolvedValue([{ id: 1, name: 'John' }]);
 export class TeacherTablePO extends BasePage {
   readonly exportButton: Locator;
   readonly teacherCheckboxes: Locator;
-  
+
   constructor(page: Page) {
     super(page);
-    this.exportButton = page.getByRole('button', { name: 'ส่งออก PDF' });
-    this.teacherCheckboxes = page.locator('input[type="checkbox"][name^="teacher-"]');
+    this.exportButton = page.getByRole("button", { name: "ส่งออก PDF" });
+    this.teacherCheckboxes = page.locator(
+      'input[type="checkbox"][name^="teacher-"]',
+    );
   }
-  
+
   async goto(semesterAndYear: string) {
     await super.goto(`/dashboard/${semesterAndYear}/teacher-table`);
     await this.waitForPageLoad();
     await this.waitForSemesterSync(semesterAndYear);
   }
-  
+
   async selectTeachers(count: number) {
     for (let i = 0; i < count; i++) {
       await this.teacherCheckboxes.nth(i).check();
@@ -1448,14 +1508,14 @@ export class TeacherTablePO extends BasePage {
 
 ```typescript
 // Use seeded data consistently
-test('TC-001: Export teacher PDFs', async ({ page }) => {
+test("TC-001: Export teacher PDFs", async ({ page }) => {
   const teacherTablePO = new TeacherTablePO(page);
-  
+
   // Use known seeded data (1-2567 always has 56 teachers)
-  await teacherTablePO.goto('1-2567');
+  await teacherTablePO.goto("1-2567");
   await teacherTablePO.selectTeachers(5);
   await teacherTablePO.exportButton.click();
-  
+
   // Verify using data-testid
   await expect(page.locator('[data-testid="pdf-dialog"]')).toBeVisible();
 });
@@ -1484,50 +1544,69 @@ await page.locator('[data-testid="submit-button"]').click();
 Use these standardized patterns to reduce flakiness. Prefer them over time-based waits or broad `networkidle` waits.
 
 - Safe interaction: assert visibility/enabled before click
+
   ```ts
-  const submit = page.getByRole('button', { name: /บันทึก|save/i });
+  const submit = page.getByRole("button", { name: /บันทึก|save/i });
   await expect(submit).toBeVisible({ timeout: 5000 });
   await expect(submit).toBeEnabled();
   await submit.click();
   ```
 
 - Navigation readiness: target key selectors instead of `networkidle`
+
   ```ts
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
   await page.waitForSelector('table, main, [role="main"]', { timeout: 10000 });
   ```
 
 - Debounced search/filter: rely on retries with `expect().toPass()`
+
   ```ts
-  await page.fill('input[placeholder*="ค้นหา"]', 'นาย');
+  await page.fill('input[placeholder*="ค้นหา"]', "นาย");
   await expect(async () => {
-    expect(page.url()).toContain('search=นาย');
+    expect(page.url()).toContain("search=นาย");
   }).toPass({ timeout: 3000 });
   ```
 
 - Table/data update: wait for meaningful DOM change
+
   ```ts
-  const initial = await page.locator('table tbody tr').count();
-  await page.waitForFunction((prev) => {
-    const rows = document.querySelectorAll('table tbody tr').length;
-    return rows !== prev || rows === 0;
-  }, initial, { timeout: 3000 }).catch(() => {});
+  const initial = await page.locator("table tbody tr").count();
+  await page
+    .waitForFunction(
+      (prev) => {
+        const rows = document.querySelectorAll("table tbody tr").length;
+        return rows !== prev || rows === 0;
+      },
+      initial,
+      { timeout: 3000 },
+    )
+    .catch(() => {});
   ```
 
 - Modal flow: assert dialog appears and closes deterministically
+
   ```ts
   await openButton.click();
   const modal = page.locator('[role="dialog"], .modal');
   await expect(modal).toBeVisible({ timeout: 5000 });
   await cancelButton.click();
-  await page.waitForFunction(() => document.querySelectorAll('[role="dialog"]').length === 0, { timeout: 2000 }).catch(() => {});
+  await page
+    .waitForFunction(
+      () => document.querySelectorAll('[role="dialog"]').length === 0,
+      { timeout: 2000 },
+    )
+    .catch(() => {});
   await expect(modal).not.toBeVisible();
   ```
 
 - MUI selects: wait for enabled state before opening
+
   ```ts
-  await page.waitForSelector('#grade-select:not(.Mui-disabled)', { timeout: 10000 });
-  await page.locator('#grade-select').click();
+  await page.waitForSelector("#grade-select:not(.Mui-disabled)", {
+    timeout: 10000,
+  });
+  await page.locator("#grade-select").click();
   await page.waitForSelector('[role="listbox"]', { timeout: 5000 });
   ```
 
@@ -1536,18 +1615,34 @@ Use these standardized patterns to reduce flakiness. Prefer them over time-based
   await expect(source).toBeVisible();
   await expect(target).toBeVisible();
   await page.mouse.down();
-  await page.waitForFunction(() => document.body.style.cursor === 'grabbing' || document.querySelector('[data-dragging]'), { timeout: 1000 }).catch(() => {});
+  await page
+    .waitForFunction(
+      () =>
+        document.body.style.cursor === "grabbing" ||
+        document.querySelector("[data-dragging]"),
+      { timeout: 1000 },
+    )
+    .catch(() => {});
   await page.mouse.up();
-  await page.waitForFunction(() => document.body.style.cursor !== 'grabbing' && !document.body.classList.contains('dragging'), { timeout: 1000 }).catch(() => {});
+  await page
+    .waitForFunction(
+      () =>
+        document.body.style.cursor !== "grabbing" &&
+        !document.body.classList.contains("dragging"),
+      { timeout: 1000 },
+    )
+    .catch(() => {});
   ```
 
 Anti-patterns to avoid:
+
 - `waitForTimeout()` (except manual `visual-inspection.spec.ts`)
 - Blind `page.click()` without visibility/enabled checks
 - Blanket `waitForLoadState('networkidle')` for UI readiness
 - Assertions that assume immediate DOM updates after actions
 
 E2E Reliability Metrics (Nov 2025):
+
 - Phase A: 210/210 functional `waitForTimeout` calls removed (100%)
 - Phase B Session 1: Public + Arrange flows stabilized; DnD `networkidle` reduced
 - Phase B Session 2: Management CRUD replacing 12+ `networkidle` calls
@@ -1571,6 +1666,7 @@ E2E Reliability Metrics (Nov 2025):
 5. Error handling and edge cases
 
 ### 12.1 Playwright “paved road” config (drop-in)
+
 ```
 // playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
@@ -1601,7 +1697,9 @@ export default defineConfig({
 ```
 
 ### 12.2 Test taxonomy & naming
+
 Place files under:
+
 ```
 e2e/
   01-auth/…               // [journey] login/logout/password reset
@@ -1613,9 +1711,11 @@ e2e/
   a11y/…                  // [a11y] axe scans (smoke-level)
   visual/…                // [visual] targeted screenshots for critical pages
 ```
+
 Add tags in test titles, e.g. `test('[journey] create class and save', …)` so agents can run subsets via `--grep`.
 
 ### 12.3 a11y smoke with axe
+
 ```
 // e2e/a11y/dashboard-a11y.spec.ts
 import { test, expect } from '@playwright/test';
@@ -1628,7 +1728,9 @@ test('[a11y] dashboard has no critical violations', async ({ page }) => {
 });
 // Why: official Playwright  axe-core flow for automatically detectable issues.
 ```
+
 ### 12.4 Visual checks for critical chrome
+
 ```
 // e.g., header, timetable grid, export dialog
 import { test, expect } from '@playwright/test';
@@ -1640,27 +1742,33 @@ test('[visual] timetable grid renders baseline', async ({ page }) => {
 ```
 
 ### 12.5 Contract tests instead of brittle E2E
+
 ```
 // pact tests live in __contracts__/ and run in CI before E2E
 // Replace matrixed “client↔API” E2E with Pact contracts for stable boundaries.
 // Agents: write Pact tests when adding/changing API endpoints; keep 1 happy-path E2E per endpoint.
 ```
+
 ### 12.6 DB integration via Testcontainers (Node)
+
 ```
 // For repository/service tests, spin up Postgres with Testcontainers.
 // Agents: prefer this to mocking Prisma for behavior that depends on SQL semantics or constraints.
 // See runbook: `pnpm test:integration` starts containers locally and in CI (GitHub Actions supports Docker).
 ```
+
 ### 12.7 Agent checklists (per PR)
+
 **Plan**
+
 - Which level(s)? Why the lowest possible?
 - Data: seeded IDs or containerized DB?
 - For E2E: which `[journey]` is covered and why only 1–2 permutations?
-**Implementation**
+  **Implementation**
 - Locator-based waits only; no `waitForTimeout`.
 - Traces/videos/screenshots only on failure.
 - a11y smoke added for new pages; visual baselines for critical chrome.
-**Validation**
+  **Validation**
 - CI green under 15 min E2E wall time; re-run flaky spec locally with `--debug` and trace viewer.
 - If flake recurs, file an issue and downshift the test.
 
@@ -1684,36 +1792,36 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-      
+          node-version: "20"
+          cache: "pnpm"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Run linter
         run: pnpm lint
-      
+
       - name: Run type check
         run: pnpm typecheck
-      
+
       - name: Run unit tests
         run: pnpm test --coverage
-      
+
       - name: Run E2E tests
         run: pnpm test:e2e
         env:
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-      
+
       - name: Build
         run: pnpm build
         env:
@@ -1791,12 +1899,12 @@ import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  environment: process.env.VERCEL_ENV || 'development',
+  environment: process.env.VERCEL_ENV || "development",
   tracesSampleRate: 0.1,
-  
+
   beforeSend(event, hint) {
     // Filter out noise
-    if (event.exception?.values?.[0]?.value?.includes('ResizeObserver')) {
+    if (event.exception?.values?.[0]?.value?.includes("ResizeObserver")) {
       return null;
     }
     return event;
@@ -1816,10 +1924,10 @@ export async function fetchTeachers() {
       name: "GET /api/teachers",
     },
     async (span) => {
-      const result = await fetch('/api/teachers');
-      span.setAttribute('teacher_count', result.length);
+      const result = await fetch("/api/teachers");
+      span.setAttribute("teacher_count", result.length);
       return result;
-    }
+    },
   );
 }
 ```
@@ -1890,14 +1998,14 @@ logger.fatal("Database connection pool exhausted");
 **Correlation IDs:**
 
 ```typescript
-import { headers } from 'next/headers';
-import { v4 as uuidv4 } from 'uuid';
+import { headers } from "next/headers";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: Request) {
-  const requestId = (await headers()).get('x-request-id') || uuidv4();
-  
+  const requestId = (await headers()).get("x-request-id") || uuidv4();
+
   logger.info("Processing request", { requestId, path: request.url });
-  
+
   try {
     // ... handle request
     logger.info("Request completed", { requestId, duration: 123 });
@@ -1928,7 +2036,7 @@ function TestComponent() {
       },
     );
   };
-  
+
   return <button onClick={handleButtonClick}>Export PDF</button>;
 }
 
@@ -1960,8 +2068,8 @@ try {
   // Capture with context
   Sentry.captureException(error, {
     tags: {
-      feature: 'schedule-creation',
-      semester: '1-2567',
+      feature: "schedule-creation",
+      semester: "1-2567",
     },
     extra: {
       scheduleData: data,
@@ -1983,7 +2091,7 @@ export function ErrorBoundary({ error }: { error: Error }) {
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
-  
+
   return (
     <div>
       <h2>เกิดข้อผิดพลาด</h2>
@@ -2002,10 +2110,10 @@ export function ErrorBoundary({ error }: { error: Error }) {
 // View in Vercel Dashboard > Analytics
 
 // Custom events
-import { track } from '@vercel/analytics';
+import { track } from "@vercel/analytics";
 
-track('schedule_created', {
-  semester: '1-2567',
+track("schedule_created", {
+  semester: "1-2567",
   teacher_count: 56,
 });
 ```
@@ -2016,12 +2124,12 @@ track('schedule_created', {
 // Track business metrics
 export async function trackScheduleMetrics(configId: string) {
   const metrics = await prisma.classSchedule.groupBy({
-    by: ['configId'],
+    by: ["configId"],
     where: { configId },
     _count: { id: true },
     _sum: { conflictCount: true },
   });
-  
+
   logger.info("Schedule metrics", {
     configId,
     total_schedules: metrics._count.id,
@@ -2160,4 +2268,3 @@ The application encodes many requirements of the Thai secondary curriculum. Admi
 ## Conclusion
 
 Overall, the current implementation largely fulfills the original plan and offers a modern, compliant timetable management system. Remaining gaps mainly concern UI polish, reporting and automation. Addressing these will make the system more user-friendly and fully aligned with Thai secondary school standards.
-

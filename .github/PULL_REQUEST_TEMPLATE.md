@@ -22,9 +22,9 @@
 
 <!-- List the main changes made in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 
@@ -41,6 +41,7 @@
 - [ ] GitHub Actions E2E workflow passed
 
 **E2E Test Results:**
+
 <!-- If you ran E2E tests, provide a summary or link to the GitHub Actions run -->
 
 ### Manual Testing
@@ -105,25 +106,26 @@
 
 <!-- Highlight specific areas that need careful review -->
 
-- 
+-
 
 ### Testing Instructions
 
 <!-- Provide step-by-step instructions for reviewers to test the changes -->
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ### E2E Test Coverage
 
 <!-- Describe which E2E test scenarios cover this change -->
 
-- 
+-
 
 ---
 
-**Note for Contributors:** 
+**Note for Contributors:**
+
 - E2E tests run automatically on GitHub Actions for every PR
 - You can manually trigger E2E tests from the Actions tab
 - Download test reports from workflow artifacts if tests fail

@@ -1,23 +1,23 @@
 /**
  * Config Feature - Domain Types
- * 
+ *
  * Type-safe schema for table_config.Config JSON field.
  * Eliminates `as any` casts and provides full type safety.
  */
 
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /**
  * Days of week enum for timetable configuration
  */
 export const DayOfWeekSchema = v.picklist([
-  'MON',
-  'TUE',
-  'WED',
-  'THU',
-  'FRI',
-  'SAT',
-  'SUN',
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+  "SUN",
 ]);
 
 export type DayOfWeek = v.InferOutput<typeof DayOfWeekSchema>;
@@ -45,7 +45,7 @@ export type BreakTimeslots = v.InferOutput<typeof BreakTimeslotsSchema>;
 /**
  * Complete configuration data for timetable generation
  * Maps to table_config.Config JSON field in Prisma schema
- * 
+ *
  * @example
  * ```typescript
  * const config: ConfigData = {
@@ -63,25 +63,25 @@ export type BreakTimeslots = v.InferOutput<typeof BreakTimeslotsSchema>;
 export const ConfigDataSchema = v.object({
   /** Days of week included in timetable */
   Days: v.array(DayOfWeekSchema),
-  
+
   /** Start time in HH:MM format (24-hour) */
   StartTime: v.pipe(v.string(), v.minLength(5), v.maxLength(5)),
-  
+
   /** Duration of each timeslot in minutes */
   Duration: v.pipe(v.number(), v.integer(), v.minValue(1)),
-  
+
   /** Duration of break between timeslots in minutes */
   BreakDuration: v.pipe(v.number(), v.integer(), v.minValue(0)),
-  
+
   /** Number of timeslots per day */
   TimeslotPerDay: v.pipe(v.number(), v.integer(), v.minValue(1)),
-  
+
   /** Whether to include a mini-break during the day */
   HasMinibreak: v.boolean(),
-  
+
   /** Optional mini-break configuration */
   MiniBreak: v.optional(MiniBreakSchema),
-  
+
   /** Break timeslot positions for different grade levels */
   BreakTimeslots: BreakTimeslotsSchema,
 });

@@ -1,5 +1,5 @@
 import type { JSX } from "react";
- 
+
 interface ICheckBoxProps {
   label: string;
   value: string | number;

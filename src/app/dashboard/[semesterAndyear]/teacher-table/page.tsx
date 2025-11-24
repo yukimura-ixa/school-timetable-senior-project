@@ -47,14 +47,20 @@ import { getTeacherByIdAction } from "@/features/teacher/application/actions/tea
 
 import TimeSlot from "./component/Timeslot";
 import SelectTeacher from "./component/SelectTeacher";
-import { generateTeacherBatchPDF, type BatchPDFOptions } from "../shared/batchPdfGenerator";
+import {
+  generateTeacherBatchPDF,
+  type BatchPDFOptions,
+} from "../shared/batchPdfGenerator";
 import { PDFCustomizationDialog } from "../shared/PDFCustomizationDialog";
-import { 
-  ExportTeacherTable, 
+import {
+  ExportTeacherTable,
   type ExportTimeslotData,
-  type ClassScheduleWithSummary 
+  type ClassScheduleWithSummary,
 } from "../all-timeslot/functions/ExportTeacherTable";
-import { createTimeSlotTableData, type TimeSlotTableData } from "../shared/timeSlot";
+import {
+  createTimeSlotTableData,
+  type TimeSlotTableData,
+} from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
 
@@ -78,14 +84,19 @@ const formatTeacherName = (teacher?: Teacher) => {
 
 function TeacherTablePage() {
   const params = useParams();
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
   const { data: session } = useSession();
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
-  const isTeacher = userRole === 'teacher';
-  const currentTeacherId = isTeacher && session?.user?.id ? parseInt(session.user.id) : null;
+  const isTeacher = userRole === "teacher";
+  const currentTeacherId =
+    isTeacher && session?.user?.id ? parseInt(session.user.id) : null;
 
-  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(currentTeacherId);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
+    currentTeacherId,
+  );
 
   // Effect to enforce teacher selection for non-admins
   useEffect(() => {
@@ -93,19 +104,21 @@ function TeacherTablePage() {
       setSelectedTeacherId(currentTeacherId);
     }
   }, [isTeacher, currentTeacherId]);
-  
+
   // Bulk operation state
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
   const [showBulkFilters, setShowBulkFilters] = useState(false);
-  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
-  
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
+
   // PDF customization dialog state
   const [showPdfCustomization, setShowPdfCustomization] = useState(false);
-  
+
   // Responsive hooks
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   // Get all teachers for bulk operations
   const allTeachers = useTeachers();
 
@@ -115,12 +128,12 @@ function TeacherTablePage() {
     isValidating: isTimeslotValidating,
   } = useSWR(
     semester && academicYear
-      ? ['timeslots-by-term', academicYear, semester]
+      ? ["timeslots-by-term", academicYear, semester]
       : null,
     async ([, year, sem]) => {
       return await getTimeslotsByTermAction({
         AcademicYear: parseInt(year),
-        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
     { revalidateOnFocus: false },
@@ -132,13 +145,13 @@ function TeacherTablePage() {
     isValidating: isClassValidating,
   } = useSWR(
     selectedTeacherId && semester && academicYear
-      ? ['class-schedules-teacher', selectedTeacherId, academicYear, semester]
+      ? ["class-schedules-teacher", selectedTeacherId, academicYear, semester]
       : null,
     async ([, teacherId, year, sem]) => {
       return await getClassSchedulesAction({
         TeacherID: teacherId,
         AcademicYear: parseInt(year),
-        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
     {
@@ -152,7 +165,7 @@ function TeacherTablePage() {
     isLoading: isTeacherLoading,
     isValidating: isTeacherValidating,
   } = useSWR(
-    selectedTeacherId ? ['teacher-by-id', selectedTeacherId] : null,
+    selectedTeacherId ? ["teacher-by-id", selectedTeacherId] : null,
     async ([, teacherId]) => {
       return await getTeacherByIdAction({ TeacherID: teacherId });
     },
@@ -161,23 +174,40 @@ function TeacherTablePage() {
     },
   );
 
-  const hasTimeslotError = !timeslotResponse || ('success' in (timeslotResponse as object) && !(timeslotResponse as ActionResult<unknown>).success);
-  const hasClassError = classDataResponse && 'success' in (classDataResponse as object) && !(classDataResponse as ActionResult<unknown>).success;
-  const hasTeacherError = teacherResponse && 'success' in (teacherResponse as object) && !(teacherResponse as ActionResult<unknown>).success;
+  const hasTimeslotError =
+    !timeslotResponse ||
+    ("success" in (timeslotResponse as object) &&
+      !(timeslotResponse as ActionResult<unknown>).success);
+  const hasClassError =
+    classDataResponse &&
+    "success" in (classDataResponse as object) &&
+    !(classDataResponse as ActionResult<unknown>).success;
+  const hasTeacherError =
+    teacherResponse &&
+    "success" in (teacherResponse as object) &&
+    !(teacherResponse as ActionResult<unknown>).success;
 
   const classData = useMemo((): ScheduleEntry[] => {
-    const response = classDataResponse as ActionResult<ScheduleEntry[]> | undefined;
+    const response = classDataResponse as
+      | ActionResult<ScheduleEntry[]>
+      | undefined;
     if (!response || !response.success || !response.data) {
       return [];
     }
     return response.data;
   }, [classDataResponse]);
-  
+
   const timeSlotData: TimeSlotTableData = useMemo(() => {
     const response = timeslotResponse;
-    const timeslots = (response && typeof response === 'object' && 'success' in response && response.success && 'data' in response && response.data) 
-      ? response.data 
-      : undefined;
+    const timeslots =
+      response &&
+      typeof response === "object" &&
+      "success" in response &&
+      response.success &&
+      "data" in response &&
+      response.data
+        ? response.data
+        : undefined;
     return createTimeSlotTableData(timeslots, classData);
   }, [timeslotResponse, classData]);
 
@@ -206,7 +236,12 @@ function TeacherTablePage() {
   const [isPDFExport, setIsPDFExport] = useState(false);
 
   const teacherName = useMemo(() => {
-    if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
+    if (
+      teacherResponse &&
+      "success" in teacherResponse &&
+      teacherResponse.success &&
+      teacherResponse.data
+    ) {
       return formatTeacherName(teacherResponse.data);
     }
     return "";
@@ -227,7 +262,7 @@ function TeacherTablePage() {
 
   // Add print styles
   useEffect(() => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       @media print {
         .no-print {
@@ -271,11 +306,11 @@ function TeacherTablePage() {
 
   const handleBulkExportExcel = () => {
     if (selectedTeacherIds.length === 0 || !allTeachers.data) return;
-    
-    const selectedTeachers = allTeachers.data.filter(t => 
-      selectedTeacherIds.includes(t.TeacherID)
+
+    const selectedTeachers = allTeachers.data.filter((t) =>
+      selectedTeacherIds.includes(t.TeacherID),
     );
-    
+
     // Note: This requires fetching class data for all selected teachers
     // For now, we'll use the export function from all-timeslot page
     ExportTeacherTable(
@@ -301,29 +336,31 @@ function TeacherTablePage() {
   };
 
   // Generate PDF with custom options
-  const handleBulkPDFGeneration = async (customOptions?: Partial<BatchPDFOptions>) => {
+  const handleBulkPDFGeneration = async (
+    customOptions?: Partial<BatchPDFOptions>,
+  ) => {
     if (selectedTeacherIds.length === 0 || !allTeachers.data) return;
-    
+
     // Get selected teachers
-    const selectedTeachers = allTeachers.data.filter(t => 
-      selectedTeacherIds.includes(t.TeacherID)
+    const selectedTeachers = allTeachers.data.filter((t) =>
+      selectedTeacherIds.includes(t.TeacherID),
     );
-    
+
     // For simplification, we'll use a single element approach
     // In production, you'd need to fetch data for each teacher and render separate tables
     const elements: HTMLElement[] = [];
     const names: string[] = [];
-    
+
     for (const teacher of selectedTeachers) {
       const teacherName = formatTeacherName(teacher);
       names.push(teacherName);
-      
+
       // Create a temporary div with the timetable
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = '1200px';
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      tempDiv.style.top = "0";
+      tempDiv.style.width = "1200px";
       tempDiv.innerHTML = `
         <div style="padding: 20px; background: white;">
           <h2>ตารางสอน: ${teacherName}</h2>
@@ -334,12 +371,18 @@ function TeacherTablePage() {
       document.body.appendChild(tempDiv);
       elements.push(tempDiv);
     }
-    
+
     try {
-      await generateTeacherBatchPDF(elements, names, semester, academicYear, customOptions);
+      await generateTeacherBatchPDF(
+        elements,
+        names,
+        semester,
+        academicYear,
+        customOptions,
+      );
     } finally {
       // Clean up temporary elements
-      elements.forEach(el => el.remove());
+      elements.forEach((el) => el.remove());
     }
   };
 
@@ -349,13 +392,13 @@ function TeacherTablePage() {
 
   const disableExport = Boolean(
     isClassLoading ||
-    isClassValidating ||
-    isTeacherLoading ||
-    isTeacherValidating ||
-    !selectedTeacherId ||
-    hasClassError ||
-    hasTimeslotError ||
-    hasTeacherError
+      isClassValidating ||
+      isTeacherLoading ||
+      isTeacherValidating ||
+      !selectedTeacherId ||
+      hasClassError ||
+      hasTimeslotError ||
+      hasTeacherError,
   );
 
   return (
@@ -363,147 +406,205 @@ function TeacherTablePage() {
       <Stack spacing={3}>
         {/* Selector Section */}
         {showLoadingOverlay ? (
-          <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={60}
+            sx={{ borderRadius: 1 }}
+          />
         ) : (
           <SelectTeacher
             setTeacherID={handleSelectTeacher}
-            currentTeacher={teacherResponse && 'success' in teacherResponse && teacherResponse.success ? teacherResponse.data : null}
+            currentTeacher={
+              teacherResponse &&
+              "success" in teacherResponse &&
+              teacherResponse.success
+                ? teacherResponse.data
+                : null
+            }
             disabled={!isAdmin}
           />
         )}
 
         {/* Bulk Export Filter Section - Admin only */}
         {isAdmin && (
-        <Paper elevation={1} sx={{ p: 2 }} className="no-print">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: showBulkFilters ? 2 : 0 }}>
-            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FilterListIcon />
-              การส่งออกแบบกลุ่ม
-            </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              endIcon={showBulkFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              onClick={() => setShowBulkFilters(!showBulkFilters)}
+          <Paper elevation={1} sx={{ p: 2 }} className="no-print">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: showBulkFilters ? 2 : 0,
+              }}
             >
-              {showBulkFilters ? 'ซ่อน' : 'แสดง'}ตัวกรอง
-            </Button>
-          </Box>
+              <Typography
+                variant="h6"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
+                <FilterListIcon />
+                การส่งออกแบบกลุ่ม
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                endIcon={
+                  showBulkFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />
+                }
+                onClick={() => setShowBulkFilters(!showBulkFilters)}
+              >
+                {showBulkFilters ? "ซ่อน" : "แสดง"}ตัวกรอง
+              </Button>
+            </Box>
 
-          <Collapse in={showBulkFilters}>
-            <Stack spacing={2} direction={isMobile ? "column" : "row"} sx={{ mt: 2 }}>
-              {/* Teacher Multi-Select */}
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel>เลือกครู</InputLabel>
-                <Select
-                  multiple
-                  value={selectedTeacherIds}
-                  onChange={(e) => setSelectedTeacherIds(e.target.value as number[])}
-                  input={<OutlinedInput label="เลือกครู" />}
-                  data-testid="teacher-multi-select"
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((id) => {
-                        const teacher = allTeachers.data?.find(t => t.TeacherID === id);
-                        const name = teacher ? formatTeacherName(teacher) : `ครู ${id}`;
-                        return <Chip key={id} label={name} size="small" />;
-                      })}
-                    </Box>
-                  )}
-                  disabled={allTeachers.isLoading || !allTeachers.data}
+            <Collapse in={showBulkFilters}>
+              <Stack
+                spacing={2}
+                direction={isMobile ? "column" : "row"}
+                sx={{ mt: 2 }}
+              >
+                {/* Teacher Multi-Select */}
+                <FormControl sx={{ flex: 1 }}>
+                  <InputLabel>เลือกครู</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedTeacherIds}
+                    onChange={(e) =>
+                      setSelectedTeacherIds(e.target.value as number[])
+                    }
+                    input={<OutlinedInput label="เลือกครู" />}
+                    data-testid="teacher-multi-select"
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((id) => {
+                          const teacher = allTeachers.data?.find(
+                            (t) => t.TeacherID === id,
+                          );
+                          const name = teacher
+                            ? formatTeacherName(teacher)
+                            : `ครู ${id}`;
+                          return <Chip key={id} label={name} size="small" />;
+                        })}
+                      </Box>
+                    )}
+                    disabled={allTeachers.isLoading || !allTeachers.data}
+                  >
+                    {allTeachers.data?.map((teacher) => (
+                      <MenuItem
+                        key={teacher.TeacherID}
+                        value={teacher.TeacherID}
+                      >
+                        <Checkbox
+                          checked={selectedTeacherIds.includes(
+                            teacher.TeacherID,
+                          )}
+                        />
+                        <ListItemText primary={formatTeacherName(teacher)} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Action Buttons */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "flex-start" }}
                 >
-                  {allTeachers.data?.map((teacher) => (
-                    <MenuItem key={teacher.TeacherID} value={teacher.TeacherID}>
-                      <Checkbox checked={selectedTeacherIds.includes(teacher.TeacherID)} />
-                      <ListItemText primary={formatTeacherName(teacher)} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Action Buttons */}
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
-                {selectedTeacherIds.length > 0 && (
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => setSelectedTeacherIds([])}
-                  >
-                    ล้างตัวกรอง
-                  </Button>
-                )}
-                <Tooltip title="ส่งออกครูที่เลือก">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={selectedTeacherIds.length === 0 || hasTimeslotError}
-                    onClick={handleBulkExportExcel}
-                    startIcon={<GridOnIcon />}
-                  >
-                    {isMobile ? 'Excel' : 'ส่งออก Excel'}
-                  </Button>
-                </Tooltip>
-                <Tooltip title="พิมพ์ครูที่เลือก">
-                  <IconButton
-                    color="primary"
-                    disabled={selectedTeacherIds.length === 0 || hasTimeslotError}
-                    onClick={handleBulkPrint}
-                  >
-                    <PrintIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="ตัวเลือกเพิ่มเติม">
-                  <IconButton
-                    onClick={handleExportMenuOpen}
-                    disabled={selectedTeacherIds.length === 0}
-                    data-testid="teacher-export-menu-button"
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Tooltip>
+                  {selectedTeacherIds.length > 0 && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => setSelectedTeacherIds([])}
+                    >
+                      ล้างตัวกรอง
+                    </Button>
+                  )}
+                  <Tooltip title="ส่งออกครูที่เลือก">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        selectedTeacherIds.length === 0 || hasTimeslotError
+                      }
+                      onClick={handleBulkExportExcel}
+                      startIcon={<GridOnIcon />}
+                    >
+                      {isMobile ? "Excel" : "ส่งออก Excel"}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="พิมพ์ครูที่เลือก">
+                    <IconButton
+                      color="primary"
+                      disabled={
+                        selectedTeacherIds.length === 0 || hasTimeslotError
+                      }
+                      onClick={handleBulkPrint}
+                    >
+                      <PrintIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="ตัวเลือกเพิ่มเติม">
+                    <IconButton
+                      onClick={handleExportMenuOpen}
+                      disabled={selectedTeacherIds.length === 0}
+                      data-testid="teacher-export-menu-button"
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </Stack>
-            </Stack>
 
-            {/* Export Options Menu */}
-            <Menu
-              anchorEl={exportMenuAnchor}
-              open={Boolean(exportMenuAnchor)}
-              onClose={handleExportMenuClose}
-              data-testid="teacher-export-menu"
-            >
-              <MenuItem onClick={handleBulkExportExcel} data-testid="export-excel-option">
-                <GridOnIcon sx={{ mr: 1 }} />
-                ส่งออก Excel
-              </MenuItem>
-              <MenuItem onClick={handleBulkPrint} data-testid="export-print-option">
-                <PrintIcon sx={{ mr: 1 }} />
-                พิมพ์ทั้งหมด
-              </MenuItem>
-              <MenuItem onClick={handleOpenPdfCustomization} data-testid="export-custom-pdf-option">
-                <PictureAsPdfIcon sx={{ mr: 1 }} />
-                สร้าง PDF (กำหนดค่าเอง)
-              </MenuItem>
-            </Menu>
-            
-            {/* PDF Customization Dialog */}
-            <PDFCustomizationDialog
-              open={showPdfCustomization}
-              onClose={() => setShowPdfCustomization(false)}
-              onExport={(options) => void handleBulkPDFGeneration(options)}
-              title="กำหนดค่าการส่งออก PDF ตารางสอนครู"
-              maxTablesPerPage={4}
-            />
+              {/* Export Options Menu */}
+              <Menu
+                anchorEl={exportMenuAnchor}
+                open={Boolean(exportMenuAnchor)}
+                onClose={handleExportMenuClose}
+                data-testid="teacher-export-menu"
+              >
+                <MenuItem
+                  onClick={handleBulkExportExcel}
+                  data-testid="export-excel-option"
+                >
+                  <GridOnIcon sx={{ mr: 1 }} />
+                  ส่งออก Excel
+                </MenuItem>
+                <MenuItem
+                  onClick={handleBulkPrint}
+                  data-testid="export-print-option"
+                >
+                  <PrintIcon sx={{ mr: 1 }} />
+                  พิมพ์ทั้งหมด
+                </MenuItem>
+                <MenuItem
+                  onClick={handleOpenPdfCustomization}
+                  data-testid="export-custom-pdf-option"
+                >
+                  <PictureAsPdfIcon sx={{ mr: 1 }} />
+                  สร้าง PDF (กำหนดค่าเอง)
+                </MenuItem>
+              </Menu>
 
-            {/* Selection Summary */}
-            {selectedTeacherIds.length > 0 && (
-              <Box sx={{ mt: 2, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  เลือกแล้ว {selectedTeacherIds.length} ครู
-                </Typography>
-              </Box>
-            )}
-          </Collapse>
-        </Paper>
+              {/* PDF Customization Dialog */}
+              <PDFCustomizationDialog
+                open={showPdfCustomization}
+                onClose={() => setShowPdfCustomization(false)}
+                onExport={(options) => void handleBulkPDFGeneration(options)}
+                title="กำหนดค่าการส่งออก PDF ตารางสอนครู"
+                maxTablesPerPage={4}
+              />
+
+              {/* Selection Summary */}
+              {selectedTeacherIds.length > 0 && (
+                <Box
+                  sx={{ mt: 2, p: 1, bgcolor: "action.hover", borderRadius: 1 }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    เลือกแล้ว {selectedTeacherIds.length} ครู
+                  </Typography>
+                </Box>
+              )}
+            </Collapse>
+          </Paper>
         )}
 
         {/* Error Display */}
@@ -524,12 +625,12 @@ function TeacherTablePage() {
             elevation={0}
             sx={{
               p: 6,
-              textAlign: 'center',
-              bgcolor: 'action.hover',
+              textAlign: "center",
+              bgcolor: "action.hover",
               borderRadius: 2,
             }}
           >
-            <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <SchoolIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               กรุณาเลือกครู
             </Typography>
@@ -550,10 +651,10 @@ function TeacherTablePage() {
               <Paper elevation={1} sx={{ p: 2 }}>
                 <Box
                   sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
                     gap: 2,
                   }}
                 >
@@ -573,7 +674,12 @@ function TeacherTablePage() {
                         startIcon={<DownloadIcon />}
                         disabled={disableExport}
                         onClick={() => {
-                          if (teacherResponse && 'success' in teacherResponse && teacherResponse.success && teacherResponse.data) {
+                          if (
+                            teacherResponse &&
+                            "success" in teacherResponse &&
+                            teacherResponse.success &&
+                            teacherResponse.data
+                          ) {
                             ExportTeacherTable(
                               timeSlotData as ExportTimeslotData,
                               [teacherResponse.data],
@@ -602,9 +708,13 @@ function TeacherTablePage() {
 
               {/* Timetable */}
               {showLoadingOverlay ? (
-                <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+                <Skeleton
+                  variant="rectangular"
+                  height={400}
+                  sx={{ borderRadius: 1 }}
+                />
               ) : (
-                <Paper elevation={1} sx={{ p: 2, overflow: 'auto' }}>
+                <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
                   <TimeSlot timeSlotData={timeSlotData} />
                 </Paper>
               )}

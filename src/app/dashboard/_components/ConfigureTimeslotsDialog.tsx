@@ -38,7 +38,8 @@ export function ConfigureTimeslotsDialog({
   configId,
 }: Props) {
   const [loading, setLoading] = useState(false);
-  const [timeslotConfig, setTimeslotConfig] = useState<CreateTimeslotsInput | null>(null);
+  const [timeslotConfig, setTimeslotConfig] =
+    useState<CreateTimeslotsInput | null>(null);
   const [isValid, setIsValid] = useState(false);
 
   const handleCreate = async () => {
@@ -52,9 +53,10 @@ export function ConfigureTimeslotsDialog({
       const result = await createTimeslotsAction(timeslotConfig);
 
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Failed to create timeslots";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Failed to create timeslots";
         throw new Error(errorMessage);
       }
 
@@ -63,7 +65,9 @@ export function ConfigureTimeslotsDialog({
       onClose();
     } catch (error: unknown) {
       const message =
-        error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการตั้งค่าตารางเรียน";
+        error instanceof Error
+          ? error.message
+          : "เกิดข้อผิดพลาดในการตั้งค่าตารางเรียน";
       enqueueSnackbar(message, { variant: "error" });
     } finally {
       setLoading(false);

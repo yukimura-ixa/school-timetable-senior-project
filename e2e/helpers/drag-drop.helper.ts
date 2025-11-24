@@ -1,11 +1,11 @@
 /**
  * E2E Drag and Drop Helper Module
- * 
+ *
  * Reusable utilities for testing @dnd-kit drag-and-drop functionality
  * Provides robust helpers for mouse-based and keyboard-based drag operations
  */
 
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 /**
  * Configuration for drag operations
@@ -35,10 +35,12 @@ export interface DragResult {
 /**
  * Get center coordinates of an element
  */
-export async function getElementCenter(locator: Locator): Promise<{ x: number; y: number }> {
+export async function getElementCenter(
+  locator: Locator,
+): Promise<{ x: number; y: number }> {
   const box = await locator.boundingBox();
   if (!box) {
-    throw new Error('Element not visible or has no bounding box');
+    throw new Error("Element not visible or has no bounding box");
   }
   return {
     x: box.x + box.width / 2,
@@ -49,21 +51,24 @@ export async function getElementCenter(locator: Locator): Promise<{ x: number; y
 /**
  * Wait for DndContext and draggable elements to be ready
  */
-export async function waitForDndReady(page: Page, timeout = 10000): Promise<void> {
-  await page.waitForLoadState('networkidle');
-  await page.waitForLoadState('domcontentloaded');
-  
+export async function waitForDndReady(
+  page: Page,
+  timeout = 10000,
+): Promise<void> {
+  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
+
   // Wait for dnd-kit elements
   await page.waitForFunction(
     () => {
       const draggables = document.querySelectorAll(
-        '[data-sortable-id], [data-droppable-id], [draggable="true"]'
+        '[data-sortable-id], [data-droppable-id], [draggable="true"]',
       );
       return draggables.length > 0;
     },
-    { timeout }
+    { timeout },
   );
-  
+
   // Allow event listeners to attach
   await page.waitForTimeout(500);
 }
@@ -75,72 +80,72 @@ export async function dragAndDrop(
   page: Page,
   source: Locator,
   target: Locator,
-  config: DragConfig = {}
+  config: DragConfig = {},
 ): Promise<DragResult> {
   const {
     steps = 10,
     dragDelay = 200,
     dropDelay = 300,
     captureScreenshots = false,
-    screenshotDir = 'test-results/screenshots/drag-drop',
+    screenshotDir = "test-results/screenshots/drag-drop",
   } = config;
 
   const screenshots: string[] = [];
-  
+
   try {
     // Ensure elements are visible
-    await source.waitFor({ state: 'visible', timeout: 5000 });
-    await target.waitFor({ state: 'visible', timeout: 5000 });
-    
+    await source.waitFor({ state: "visible", timeout: 5000 });
+    await target.waitFor({ state: "visible", timeout: 5000 });
+
     // Scroll into view
     await source.scrollIntoViewIfNeeded();
     await target.scrollIntoViewIfNeeded();
-    
+
     // Get coordinates
     const sourceCenter = await getElementCenter(source);
     const targetCenter = await getElementCenter(target);
-    
+
     if (captureScreenshots) {
       const timestamp = Date.now();
       const beforePath = `${screenshotDir}/before-${timestamp}.png`;
       await page.screenshot({ path: beforePath, fullPage: true });
       screenshots.push(beforePath);
     }
-    
+
     // Start drag
     await page.mouse.move(sourceCenter.x, sourceCenter.y);
     await page.mouse.down();
     await page.waitForTimeout(dragDelay);
-    
+
     if (captureScreenshots) {
       const timestamp = Date.now();
       const draggingPath = `${screenshotDir}/dragging-${timestamp}.png`;
       await page.screenshot({ path: draggingPath, fullPage: true });
       screenshots.push(draggingPath);
     }
-    
+
     // Move to target
     await page.mouse.move(targetCenter.x, targetCenter.y, { steps });
     await page.waitForTimeout(100);
-    
+
     if (captureScreenshots) {
       const timestamp = Date.now();
       const overTargetPath = `${screenshotDir}/over-target-${timestamp}.png`;
       await page.screenshot({ path: overTargetPath, fullPage: true });
       screenshots.push(overTargetPath);
     }
-    
+
     // Drop
     await page.mouse.up();
     await page.waitForTimeout(dropDelay);
-    
+
     if (captureScreenshots) {
       const timestamp = Date.now();
       const afterPath = `${screenshotDir}/after-${timestamp}.png`;
       await page.screenshot({ path: afterPath, fullPage: true });
       screenshots.push(afterPath);
     }
-    
+
     return {
       success: true,
       screenshots: captureScreenshots ? screenshots : undefined,
@@ -161,7 +166,7 @@ export async function dragBySelector(
   page: Page,
   sourceSelector: string,
   targetSelector: string,
-  config: DragConfig = {}
+  config: DragConfig = {},
 ): Promise<DragResult> {
   const source = page.locator(sourceSelector).first();
   const target = page.locator(targetSelector).first();
@@ -175,32 +180,32 @@ export async function dragBySelector(
 export async function keyboardDrag(
   page: Page,
   source: Locator,
-  direction: 'up' | 'down' | 'left' | 'right',
+  direction: "up" | "down" | "left" | "right",
   moves = 1,
-  config: DragConfig = {}
+  config: DragConfig = {},
 ): Promise<DragResult> {
   const { dragDelay = 200, dropDelay = 300 } = config;
-  
+
   try {
-    await source.waitFor({ state: 'visible', timeout: 5000 });
+    await source.waitFor({ state: "visible", timeout: 5000 });
     await source.focus();
     await page.waitForTimeout(200);
-    
+
     // Activate drag mode with Space
-    await page.keyboard.press('Space');
+    await page.keyboard.press("Space");
     await page.waitForTimeout(dragDelay);
-    
+
     // Move with arrow keys
     const arrowKey = `Arrow${direction.charAt(0).toUpperCase()}${direction.slice(1)}`;
     for (let i = 0; i < moves; i++) {
       await page.keyboard.press(arrowKey);
       await page.waitForTimeout(100);
     }
-    
+
     // Drop with Space
-    await page.keyboard.press('Space');
+    await page.keyboard.press("Space");
     await page.waitForTimeout(dropDelay);
-    
+
     return { success: true };
   } catch (error) {
     return {
@@ -218,12 +223,12 @@ export async function cancelDrag(page: Page, source: Locator): Promise<void> {
   if (box) {
     const x = box.x + box.width / 2;
     const y = box.y + box.height / 2;
-    
+
     await page.mouse.move(x, y);
     await page.mouse.down();
     await page.waitForTimeout(200);
     await page.mouse.move(x + 50, y + 50, { steps: 5 });
-    await page.keyboard.press('Escape');
+    await page.keyboard.press("Escape");
     await page.waitForTimeout(300);
     await page.mouse.up();
   }
@@ -235,8 +240,8 @@ export async function cancelDrag(page: Page, source: Locator): Promise<void> {
 export async function findDraggableSubjects(page: Page): Promise<Locator> {
   return page.locator('[data-sortable-id*="SubjectCode"]').or(
     page.locator('.subject-item, [class*="subject"]').filter({
-      has: page.locator('b'),
-    })
+      has: page.locator("b"),
+    }),
   );
 }
 
@@ -244,7 +249,7 @@ export async function findDraggableSubjects(page: Page): Promise<Locator> {
  * Find all droppable timeslot cells
  */
 export async function findDroppableTimeslots(page: Page): Promise<Locator> {
-  return page.locator('[data-droppable-id], td.timeslot, .timeslot-cell, td');
+  return page.locator("[data-droppable-id], td.timeslot, .timeslot-cell, td");
 }
 
 /**
@@ -253,7 +258,7 @@ export async function findDroppableTimeslots(page: Page): Promise<Locator> {
 export async function findEmptyTimeslots(page: Page): Promise<Locator> {
   const allSlots = await findDroppableTimeslots(page);
   return allSlots.filter({
-    hasNot: page.locator('.subject-code, .scheduled, b'),
+    hasNot: page.locator(".subject-code, .scheduled, b"),
   });
 }
 
@@ -263,7 +268,7 @@ export async function findEmptyTimeslots(page: Page): Promise<Locator> {
 export async function findFilledTimeslots(page: Page): Promise<Locator> {
   const allSlots = await findDroppableTimeslots(page);
   return allSlots.filter({
-    has: page.locator('text=/ค|พ|ส|ง|ว|ENG|MAT|SCI/i'),
+    has: page.locator("text=/ค|พ|ส|ง|ว|ENG|MAT|SCI/i"),
   });
 }
 
@@ -301,9 +306,9 @@ export async function isBeingDragged(locator: Locator): Promise<boolean> {
  * Check if a drop zone is currently highlighted/active
  */
 export async function isDropZoneActive(locator: Locator): Promise<boolean> {
-  const classes = await locator.getAttribute('class');
+  const classes = await locator.getAttribute("class");
   if (!classes) return false;
-  
+
   // Check for common active/hover classes
   return /active|hover|over|highlight|drop-target/.test(classes);
 }
@@ -312,11 +317,11 @@ export async function isDropZoneActive(locator: Locator): Promise<boolean> {
  * Get the current position of a draggable element
  */
 export async function getDraggablePosition(
-  locator: Locator
+  locator: Locator,
 ): Promise<{ x: number; y: number } | null> {
   const box = await locator.boundingBox();
   if (!box) return null;
-  
+
   return {
     x: box.x,
     y: box.y,
@@ -328,15 +333,15 @@ export async function getDraggablePosition(
  */
 export async function verifyDragCompleted(
   locator: Locator,
-  beforePosition: { x: number; y: number }
+  beforePosition: { x: number; y: number },
 ): Promise<boolean> {
   const afterPosition = await getDraggablePosition(locator);
   if (!afterPosition) return false;
-  
+
   const moved =
     Math.abs(afterPosition.x - beforePosition.x) > 5 ||
     Math.abs(afterPosition.y - beforePosition.y) > 5;
-  
+
   return moved;
 }
 
@@ -347,34 +352,34 @@ export async function touchDragAndDrop(
   page: Page,
   source: Locator,
   target: Locator,
-  config: DragConfig = {}
+  config: DragConfig = {},
 ): Promise<DragResult> {
   const { steps = 10, dragDelay = 200, dropDelay = 300 } = config;
-  
+
   try {
-    await source.waitFor({ state: 'visible', timeout: 5000 });
-    await target.waitFor({ state: 'visible', timeout: 5000 });
-    
+    await source.waitFor({ state: "visible", timeout: 5000 });
+    await target.waitFor({ state: "visible", timeout: 5000 });
+
     const sourceCenter = await getElementCenter(source);
     const targetCenter = await getElementCenter(target);
-    
+
     // Touch start
     await page.touchscreen.tap(sourceCenter.x, sourceCenter.y);
     await page.waitForTimeout(dragDelay);
-    
+
     // Move touch
     const deltaX = (targetCenter.x - sourceCenter.x) / steps;
     const deltaY = (targetCenter.y - sourceCenter.y) / steps;
-    
+
     for (let i = 0; i <= steps; i++) {
       const x = sourceCenter.x + deltaX * i;
       const y = sourceCenter.y + deltaY * i;
       await page.touchscreen.tap(x, y);
       await page.waitForTimeout(20);
     }
-    
+
     await page.waitForTimeout(dropDelay);
-    
+
     return { success: true };
   } catch (error) {
     return {
@@ -387,14 +392,21 @@ export async function touchDragAndDrop(
 /**
  * Wait for drag animation to complete
  */
-export async function waitForDragAnimation(page: Page, duration = 300): Promise<void> {
+export async function waitForDragAnimation(
+  page: Page,
+  duration = 300,
+): Promise<void> {
   await page.waitForTimeout(duration);
   await page.waitForFunction(() => {
     // Check if any elements have transform or transition active
-    const elements = document.querySelectorAll('[style*="transform"], [style*="transition"]');
+    const elements = document.querySelectorAll(
+      '[style*="transform"], [style*="transition"]',
+    );
     return Array.from(elements).every((el) => {
       const style = window.getComputedStyle(el);
-      return style.transform === 'none' || !style.transition.includes('transform');
+      return (
+        style.transform === "none" || !style.transition.includes("transform")
+      );
     });
   });
 }
@@ -430,13 +442,13 @@ export async function getDragStateSnapshot(page: Page) {
   const subjectCount = await getSubjectCount(page);
   const filledCount = await getFilledSlotsCount(page);
   const emptyCount = await getEmptySlotsCount(page);
-  
+
   const lockedSlots = await findLockedTimeslots(page);
   const lockedCount = await lockedSlots.count();
-  
+
   const errorSlots = await findErrorTimeslots(page);
   const errorCount = await errorSlots.count();
-  
+
   return {
     timestamp: new Date().toISOString(),
     subjects: {
@@ -458,7 +470,7 @@ export const DragDropHelper = {
   keyboardDrag,
   cancelDrag,
   touchDragAndDrop,
-  
+
   // Finders
   findDraggableSubjects,
   findDroppableTimeslots,
@@ -466,13 +478,13 @@ export const DragDropHelper = {
   findFilledTimeslots,
   findLockedTimeslots,
   findErrorTimeslots,
-  
+
   // State checkers
   isBeingDragged,
   isDropZoneActive,
   getDraggablePosition,
   verifyDragCompleted,
-  
+
   // Utilities
   waitForDndReady,
   waitForDragAnimation,

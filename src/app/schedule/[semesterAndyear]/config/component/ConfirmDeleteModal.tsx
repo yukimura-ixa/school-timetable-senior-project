@@ -35,20 +35,21 @@ function ConfirmDeleteModal({
       variant: "info",
       persist: true,
     });
-    
+
     try {
       const result = await deleteTimeslotsByTermAction({
         AcademicYear: parseInt(academicYear),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       mutate();

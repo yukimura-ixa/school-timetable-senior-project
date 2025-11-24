@@ -1,31 +1,31 @@
 /**
  * Teacher Arrange Store (Context7-Powered Refactor)
- * 
+ *
  * Production-ready Zustand store with best practices from pmndrs/zustand docs.
  * Implements immer middleware for immutable updates and persist middleware for filter preferences.
- * 
+ *
  * Features:
  * - Immer middleware for draft-based state updates
  * - Persist middleware for filter/preference persistence
  * - Optimized selectors to prevent unnecessary re-renders
  * - Type-safe actions with proper TypeScript inference
  * - DevTools integration for debugging
- * 
+ *
  * Context7 Sources:
  * - Store creation: /pmndrs/zustand/docs/guides/typescript.md
  * - Immer middleware: /pmndrs/zustand/docs/integrations/immer-middleware.md
  * - Persist middleware: /pmndrs/zustand/docs/middlewares/persist.md
  * - Selector patterns: /pmndrs/zustand (best practices)
- * 
+ *
  * Created: Phase 3 - Context7-Powered Zustand Implementation
  * Related: AGENTS.md, .github/copilot-instructions.md
  */
 
-import { create } from 'zustand';
-import { devtools, persist, createJSONStorage } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { useShallow } from 'zustand/react/shallow';
-import type { class_schedule, teacher } from '@/prisma/generated/client';
+import { create } from "zustand";
+import { devtools, persist, createJSONStorage } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import { useShallow } from "zustand/react/shallow";
+import type { class_schedule, teacher } from "@/prisma/generated/client";
 
 // Import strict types from schedule.types.ts
 import type {
@@ -36,7 +36,7 @@ import type {
   BreakSlotData,
   DayOfWeekDisplay,
   TimeslotErrorStateMap,
-} from '@/types/schedule.types';
+} from "@/types/schedule.types";
 
 // ============================================================================
 // Type Definitions
@@ -153,11 +153,17 @@ interface TeacherArrangeActions {
   setScheduledSubjects: (subjects: SubjectData[]) => void;
   addSubjectToData: (subject: SubjectData) => void;
   removeSubjectFromData: (subjectCode: string) => void;
-  updateSubjectInData: (subjectCode: string, updates: Partial<SubjectData>) => void;
+  updateSubjectInData: (
+    subjectCode: string,
+    updates: Partial<SubjectData>,
+  ) => void;
 
   // === Timeslot Actions ===
   setTimeSlotData: (data: Partial<TimeSlotContainer>) => void;
-  updateTimeslotSubject: (timeslotID: string, subject: SubjectData | null) => void;
+  updateTimeslotSubject: (
+    timeslotID: string,
+    subject: SubjectData | null,
+  ) => void;
   swapTimeslots: (sourceID: string, destID: string) => void;
   setLockData: (data: class_schedule[]) => void;
 
@@ -209,7 +215,7 @@ const initialState: TeacherArrangeState = {
   // Subject Change/Swap
   changeTimeSlotSubject: null,
   destinationSubject: null,
-  timeslotIDtoChange: { source: '', destination: '' },
+  timeslotIDtoChange: { source: "", destination: "" },
   isClickToChangeSubject: false,
 
   // Subject Collections
@@ -259,12 +265,12 @@ type TeacherArrangeStore = TeacherArrangeState & TeacherArrangeActions;
 
 /**
  * Main teacher arrange store
- * 
+ *
  * Middleware Stack:
  * 1. immer - Enables draft-based mutations for cleaner update logic
  * 2. persist - Saves filter preferences to localStorage
  * 3. devtools - Redux DevTools integration for debugging
- * 
+ *
  * Pattern from Context7:
  * - Use create<Type>()() for proper TypeScript inference
  * - Apply middlewares from innermost to outermost
@@ -282,300 +288,450 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
         // ========================================================================
 
         setCurrentTeacherID: (id) =>
-          set((state) => {
-            state.currentTeacherID = id;
-          }, undefined, 'teacher/setCurrentTeacherID'),
+          set(
+            (state) => {
+              state.currentTeacherID = id;
+            },
+            undefined,
+            "teacher/setCurrentTeacherID",
+          ),
 
         setTeacherData: (data) =>
-          set((state) => {
-            state.teacherData = data;
-          }, undefined, 'teacher/setTeacherData'),
+          set(
+            (state) => {
+              state.teacherData = data;
+            },
+            undefined,
+            "teacher/setTeacherData",
+          ),
 
         // ========================================================================
         // Subject Selection Actions (with immer draft mutations)
         // ========================================================================
 
         setSelectedSubject: (subject) =>
-          set((state) => {
-            state.selectedSubject = subject;
-            state.yearSelected = subject?.gradelevel?.year || null;
-          }, undefined, 'subject/setSelectedSubject'),
+          set(
+            (state) => {
+              state.selectedSubject = subject;
+              state.yearSelected = subject?.gradelevel?.year || null;
+            },
+            undefined,
+            "subject/setSelectedSubject",
+          ),
 
         setDraggedSubject: (subject) =>
-          set((state) => {
-            state.draggedSubject = subject;
-          }, undefined, 'subject/setDraggedSubject'),
+          set(
+            (state) => {
+              state.draggedSubject = subject;
+            },
+            undefined,
+            "subject/setDraggedSubject",
+          ),
 
         setYearSelected: (year) =>
-          set((state) => {
-            state.yearSelected = year;
-          }, undefined, 'subject/setYearSelected'),
+          set(
+            (state) => {
+              state.yearSelected = year;
+            },
+            undefined,
+            "subject/setYearSelected",
+          ),
 
         clearSelectedSubject: () =>
-          set((state) => {
-            state.selectedSubject = null;
-            state.draggedSubject = null;
-            state.yearSelected = null;
-          }, undefined, 'subject/clearSelectedSubject'),
+          set(
+            (state) => {
+              state.selectedSubject = null;
+              state.draggedSubject = null;
+              state.yearSelected = null;
+            },
+            undefined,
+            "subject/clearSelectedSubject",
+          ),
 
         // ========================================================================
         // Subject Change Actions
         // ========================================================================
 
         setChangeTimeSlotSubject: (subject) =>
-          set((state) => {
-            state.changeTimeSlotSubject = subject;
-          }, undefined, 'subject/setChangeTimeSlotSubject'),
+          set(
+            (state) => {
+              state.changeTimeSlotSubject = subject;
+            },
+            undefined,
+            "subject/setChangeTimeSlotSubject",
+          ),
 
         setDestinationSubject: (subject) =>
-          set((state) => {
-            state.destinationSubject = subject;
-          }, undefined, 'subject/setDestinationSubject'),
+          set(
+            (state) => {
+              state.destinationSubject = subject;
+            },
+            undefined,
+            "subject/setDestinationSubject",
+          ),
 
         setTimeslotIDtoChange: (change) =>
-          set((state) => {
-            state.timeslotIDtoChange = change;
-          }, undefined, 'subject/setTimeslotIDtoChange'),
+          set(
+            (state) => {
+              state.timeslotIDtoChange = change;
+            },
+            undefined,
+            "subject/setTimeslotIDtoChange",
+          ),
 
         setIsClickToChangeSubject: (isClicked) =>
-          set((state) => {
-            state.isClickToChangeSubject = isClicked;
-          }, undefined, 'subject/setIsClickToChangeSubject'),
+          set(
+            (state) => {
+              state.isClickToChangeSubject = isClicked;
+            },
+            undefined,
+            "subject/setIsClickToChangeSubject",
+          ),
 
         clearChangeSubjectState: () =>
-          set((state) => {
-            state.changeTimeSlotSubject = null;
-            state.destinationSubject = null;
-            state.timeslotIDtoChange = { source: '', destination: '' };
-            state.isClickToChangeSubject = false;
-          }, undefined, 'subject/clearChangeSubjectState'),
+          set(
+            (state) => {
+              state.changeTimeSlotSubject = null;
+              state.destinationSubject = null;
+              state.timeslotIDtoChange = { source: "", destination: "" };
+              state.isClickToChangeSubject = false;
+            },
+            undefined,
+            "subject/clearChangeSubjectState",
+          ),
 
         // ========================================================================
         // Subject Data Actions (immer simplifies array operations)
         // ========================================================================
 
         setSubjectData: (data) =>
-          set((state) => {
-            state.subjectData = data;
-          }, undefined, 'data/setSubjectData'),
+          set(
+            (state) => {
+              state.subjectData = data;
+            },
+            undefined,
+            "data/setSubjectData",
+          ),
 
         setScheduledSubjects: (subjects) =>
-          set((state) => {
-            state.scheduledSubjects = subjects;
-          }, undefined, 'data/setScheduledSubjects'),
+          set(
+            (state) => {
+              state.scheduledSubjects = subjects;
+            },
+            undefined,
+            "data/setScheduledSubjects",
+          ),
 
         addSubjectToData: (subject) =>
-          set((state) => {
-            // Immer allows direct push()
-            state.subjectData.push(subject);
-          }, undefined, 'data/addSubjectToData'),
+          set(
+            (state) => {
+              // Immer allows direct push()
+              state.subjectData.push(subject);
+            },
+            undefined,
+            "data/addSubjectToData",
+          ),
 
         removeSubjectFromData: (subjectCode) =>
-          set((state) => {
-            // Immer allows filter() assignments
-            state.subjectData = state.subjectData.filter((s) => s.subjectCode !== subjectCode);
-          }, undefined, 'data/removeSubjectFromData'),
+          set(
+            (state) => {
+              // Immer allows filter() assignments
+              state.subjectData = state.subjectData.filter(
+                (s) => s.subjectCode !== subjectCode,
+              );
+            },
+            undefined,
+            "data/removeSubjectFromData",
+          ),
 
         updateSubjectInData: (subjectCode, updates) =>
-          set((state) => {
-            const index = state.subjectData.findIndex((s) => s.subjectCode === subjectCode);
-            if (index !== -1 && state.subjectData[index]) {
-              // Immer allows direct mutation - cast to any to bypass WritableDraft type
-              Object.assign(state.subjectData[index], updates as any);
-            }
-          }, undefined, 'data/updateSubjectInData'),
+          set(
+            (state) => {
+              const index = state.subjectData.findIndex(
+                (s) => s.subjectCode === subjectCode,
+              );
+              if (index !== -1 && state.subjectData[index]) {
+                // Immer allows direct mutation - cast to any to bypass WritableDraft type
+                Object.assign(state.subjectData[index], updates as any);
+              }
+            },
+            undefined,
+            "data/updateSubjectInData",
+          ),
 
         // ========================================================================
         // Timeslot Actions (immer shines with nested updates)
         // ========================================================================
 
         setTimeSlotData: (data) =>
-          set((state) => {
-            // Immer handles nested spread automatically
-            Object.assign(state.timeSlotData, data);
-          }, undefined, 'timeslot/setTimeSlotData'),
+          set(
+            (state) => {
+              // Immer handles nested spread automatically
+              Object.assign(state.timeSlotData, data);
+            },
+            undefined,
+            "timeslot/setTimeSlotData",
+          ),
 
         updateTimeslotSubject: (timeslotID, subject) =>
-          set((state) => {
-            const slot = state.timeSlotData.AllData.find((s) => s.TimeslotID === timeslotID);
-            if (slot) {
-              slot.subject = subject;
-            }
-          }, undefined, 'timeslot/updateTimeslotSubject'),
+          set(
+            (state) => {
+              const slot = state.timeSlotData.AllData.find(
+                (s) => s.TimeslotID === timeslotID,
+              );
+              if (slot) {
+                slot.subject = subject;
+              }
+            },
+            undefined,
+            "timeslot/updateTimeslotSubject",
+          ),
 
         swapTimeslots: (sourceID, destID) =>
-          set((state) => {
-            const sourceSlot = state.timeSlotData.AllData.find((s) => s.TimeslotID === sourceID);
-            const destSlot = state.timeSlotData.AllData.find((s) => s.TimeslotID === destID);
+          set(
+            (state) => {
+              const sourceSlot = state.timeSlotData.AllData.find(
+                (s) => s.TimeslotID === sourceID,
+              );
+              const destSlot = state.timeSlotData.AllData.find(
+                (s) => s.TimeslotID === destID,
+              );
 
-            if (sourceSlot && destSlot) {
-              // Immer allows simple swap
-              const tempSubject = sourceSlot.subject;
-              sourceSlot.subject = destSlot.subject;
-              destSlot.subject = tempSubject;
-            }
-          }, undefined, 'timeslot/swapTimeslots'),
+              if (sourceSlot && destSlot) {
+                // Immer allows simple swap
+                const tempSubject = sourceSlot.subject;
+                sourceSlot.subject = destSlot.subject;
+                destSlot.subject = tempSubject;
+              }
+            },
+            undefined,
+            "timeslot/swapTimeslots",
+          ),
 
         setLockData: (data) =>
-          set((state) => {
-            state.lockData = data;
-          }, undefined, 'timeslot/setLockData'),
+          set(
+            (state) => {
+              state.lockData = data;
+            },
+            undefined,
+            "timeslot/setLockData",
+          ),
 
         // ========================================================================
         // Modal Actions
         // ========================================================================
 
         openModal: (payload) =>
-          set((state) => {
-            state.isActiveModal = true;
-            state.subjectPayload = payload;
-          }, undefined, 'modal/openModal'),
+          set(
+            (state) => {
+              state.isActiveModal = true;
+              state.subjectPayload = payload;
+            },
+            undefined,
+            "modal/openModal",
+          ),
 
         closeModal: () =>
-          set((state) => {
-            state.isActiveModal = false;
-            state.subjectPayload = null;
-          }, undefined, 'modal/closeModal'),
+          set(
+            (state) => {
+              state.isActiveModal = false;
+              state.subjectPayload = null;
+            },
+            undefined,
+            "modal/closeModal",
+          ),
 
         setSubjectPayload: (payload) =>
-          set((state) => {
-            state.subjectPayload = payload;
-          }, undefined, 'modal/setSubjectPayload'),
+          set(
+            (state) => {
+              state.subjectPayload = payload;
+            },
+            undefined,
+            "modal/setSubjectPayload",
+          ),
 
         // ========================================================================
         // Error Display Actions
         // ========================================================================
 
         setShowErrorMsg: (timeslotID, show) =>
-          set((state) => {
-            state.showErrorMsgByTimeslotID[timeslotID] = show;
-          }, undefined, 'error/setShowErrorMsg'),
+          set(
+            (state) => {
+              state.showErrorMsgByTimeslotID[timeslotID] = show;
+            },
+            undefined,
+            "error/setShowErrorMsg",
+          ),
 
         setShowLockDataMsg: (timeslotID, show) =>
-          set((state) => {
-            state.showLockDataMsgByTimeslotID[timeslotID] = show;
-          }, undefined, 'error/setShowLockDataMsg'),
+          set(
+            (state) => {
+              state.showLockDataMsgByTimeslotID[timeslotID] = show;
+            },
+            undefined,
+            "error/setShowLockDataMsg",
+          ),
 
         clearErrorMessages: () =>
-          set((state) => {
-            state.showErrorMsgByTimeslotID = {};
-            state.showLockDataMsgByTimeslotID = {};
-          }, undefined, 'error/clearErrorMessages'),
+          set(
+            (state) => {
+              state.showErrorMsgByTimeslotID = {};
+              state.showLockDataMsgByTimeslotID = {};
+            },
+            undefined,
+            "error/clearErrorMessages",
+          ),
 
         clearAllErrors: () =>
-          set((state) => {
-            state.showErrorMsgByTimeslotID = {};
-            state.showLockDataMsgByTimeslotID = {};
-          }, undefined, 'error/clearAllErrors'),
+          set(
+            (state) => {
+              state.showErrorMsgByTimeslotID = {};
+              state.showLockDataMsgByTimeslotID = {};
+            },
+            undefined,
+            "error/clearAllErrors",
+          ),
 
         // ========================================================================
         // Save State Actions
         // ========================================================================
 
         setIsSaving: (saving) =>
-          set((state) => {
-            state.isSaving = saving;
-          }, undefined, 'save/setIsSaving'),
+          set(
+            (state) => {
+              state.isSaving = saving;
+            },
+            undefined,
+            "save/setIsSaving",
+          ),
 
         // ========================================================================
         // Filter Actions (persisted to localStorage)
         // ========================================================================
 
         setFilters: (filters) =>
-          set((state) => {
-            Object.assign(state.filters, filters);
-          }, undefined, 'filter/setFilters'),
+          set(
+            (state) => {
+              Object.assign(state.filters, filters);
+            },
+            undefined,
+            "filter/setFilters",
+          ),
 
         resetFilters: () =>
-          set((state) => {
-            state.filters = {
-              academicYear: null,
-              semester: null,
-              gradeLevel: null,
-            };
-          }, undefined, 'filter/resetFilters'),
+          set(
+            (state) => {
+              state.filters = {
+                academicYear: null,
+                semester: null,
+                gradeLevel: null,
+              };
+            },
+            undefined,
+            "filter/resetFilters",
+          ),
 
         // ========================================================================
         // History Actions (Undo/Redo)
         // ========================================================================
 
         pushHistory: (scheduledSubjects) =>
-          set((state) => {
-            state.history.past.push(state.history.present);
-            state.history.present = scheduledSubjects;
-            state.history.future = []; // Clear future on new action
-            state.scheduledSubjects = scheduledSubjects;
-          }, undefined, 'history/pushHistory'),
+          set(
+            (state) => {
+              state.history.past.push(state.history.present);
+              state.history.present = scheduledSubjects;
+              state.history.future = []; // Clear future on new action
+              state.scheduledSubjects = scheduledSubjects;
+            },
+            undefined,
+            "history/pushHistory",
+          ),
 
         undo: () =>
-          set((state) => {
-            if (state.history.past.length === 0) return;
+          set(
+            (state) => {
+              if (state.history.past.length === 0) return;
 
-            const previous = state.history.past.pop()!;
-            state.history.future.unshift(state.history.present);
-            state.history.present = previous;
-            state.scheduledSubjects = previous;
-          }, undefined, 'history/undo'),
+              const previous = state.history.past.pop()!;
+              state.history.future.unshift(state.history.present);
+              state.history.present = previous;
+              state.scheduledSubjects = previous;
+            },
+            undefined,
+            "history/undo",
+          ),
 
         redo: () =>
-          set((state) => {
-            if (state.history.future.length === 0) return;
+          set(
+            (state) => {
+              if (state.history.future.length === 0) return;
 
-            const next = state.history.future.shift()!;
-            state.history.past.push(state.history.present);
-            state.history.present = next;
-            state.scheduledSubjects = next;
-          }, undefined, 'history/redo'),
+              const next = state.history.future.shift()!;
+              state.history.past.push(state.history.present);
+              state.history.present = next;
+              state.scheduledSubjects = next;
+            },
+            undefined,
+            "history/redo",
+          ),
 
         canUndo: () => get().history.past.length > 0,
 
         canRedo: () => get().history.future.length > 0,
 
         clearHistory: () =>
-          set((state) => {
-            state.history = {
-              past: [],
-              present: [],
-              future: [],
-            };
-          }, undefined, 'history/clearHistory'),
+          set(
+            (state) => {
+              state.history = {
+                past: [],
+                present: [],
+                future: [],
+              };
+            },
+            undefined,
+            "history/clearHistory",
+          ),
 
         // ========================================================================
         // Reset Actions
         // ========================================================================
 
         resetAllState: () =>
-          set(() => initialState, undefined, 'reset/resetAllState'),
+          set(() => initialState, undefined, "reset/resetAllState"),
 
         resetOnTeacherChange: () =>
-          set((state) => {
-            // Keep teacher context and filters, reset everything else
-            state.selectedSubject = null;
-            state.draggedSubject = null;
-            state.yearSelected = null;
-            state.changeTimeSlotSubject = null;
-            state.destinationSubject = null;
-            state.timeslotIDtoChange = { source: '', destination: '' };
-            state.isClickToChangeSubject = false;
-            state.subjectPayload = null;
-            state.showErrorMsgByTimeslotID = {};
-            state.showLockDataMsgByTimeslotID = {};
-            state.history = {
-              past: [],
-              present: [],
-              future: [],
-            };
-          }, undefined, 'reset/resetOnTeacherChange'),
+          set(
+            (state) => {
+              // Keep teacher context and filters, reset everything else
+              state.selectedSubject = null;
+              state.draggedSubject = null;
+              state.yearSelected = null;
+              state.changeTimeSlotSubject = null;
+              state.destinationSubject = null;
+              state.timeslotIDtoChange = { source: "", destination: "" };
+              state.isClickToChangeSubject = false;
+              state.subjectPayload = null;
+              state.showErrorMsgByTimeslotID = {};
+              state.showLockDataMsgByTimeslotID = {};
+              state.history = {
+                past: [],
+                present: [],
+                future: [],
+              };
+            },
+            undefined,
+            "reset/resetOnTeacherChange",
+          ),
       })),
       {
-        name: 'teacher-arrange-filters', // localStorage key
+        name: "teacher-arrange-filters", // localStorage key
         // Persist only filter preferences (Context7 partialize pattern)
         partialize: (state) => ({ filters: state.filters }),
         storage: createJSONStorage(() => localStorage),
         version: 1,
       },
     ),
-    { name: 'teacher-arrange-store' }, // DevTools name
+    { name: "teacher-arrange-store" }, // DevTools name
   ),
 );
 
@@ -593,7 +749,7 @@ export const useCurrentTeacher = () =>
     useShallow((state) => ({
       id: state.currentTeacherID,
       data: state.teacherData,
-    }))
+    })),
   );
 
 export const useSelectedSubject = () =>
@@ -622,7 +778,7 @@ export const useModalState = () =>
     useShallow((state) => ({
       isOpen: state.isActiveModal,
       payload: state.subjectPayload,
-    }))
+    })),
   );
 
 export const useErrorState = () =>
@@ -630,7 +786,7 @@ export const useErrorState = () =>
     useShallow((state) => ({
       errorMessages: state.showErrorMsgByTimeslotID,
       lockMessages: state.showLockDataMsgByTimeslotID,
-    }))
+    })),
   );
 
 export const useSaveState = () =>
@@ -646,7 +802,7 @@ export const useHistoryControls = () =>
       canRedo: state.canRedo(),
       undo: state.undo,
       redo: state.redo,
-    }))
+    })),
   );
 
 // ============================================================================
@@ -661,72 +817,68 @@ export const useHistoryControls = () =>
 export const useTeacherArrangeActions = () =>
   useTeacherArrangeStore(
     useShallow((state) => ({
-    // Teacher
-    setCurrentTeacherID: state.setCurrentTeacherID,
-    setTeacherData: state.setTeacherData,
-    
-    // Subject Selection
-    setSelectedSubject: state.setSelectedSubject,
-    setDraggedSubject: state.setDraggedSubject,
-    setYearSelected: state.setYearSelected,
-    clearSelectedSubject: state.clearSelectedSubject,
-    
-    // Subject Change
-    setChangeTimeSlotSubject: state.setChangeTimeSlotSubject,
-    setDestinationSubject: state.setDestinationSubject,
-    setTimeslotIDtoChange: state.setTimeslotIDtoChange,
-    setIsClickToChangeSubject: state.setIsClickToChangeSubject,
-    clearChangeSubjectState: state.clearChangeSubjectState,
-    
-    // Subject Data
-    setSubjectData: state.setSubjectData,
-    setScheduledSubjects: state.setScheduledSubjects,
-    addSubjectToData: state.addSubjectToData,
-    removeSubjectFromData: state.removeSubjectFromData,
-    updateSubjectInData: state.updateSubjectInData,
-    
-    // Timeslot
-    setTimeSlotData: state.setTimeSlotData,
-    updateTimeslotSubject: state.updateTimeslotSubject,
-    swapTimeslots: state.swapTimeslots,
-    setLockData: state.setLockData,
-    
-    // Modal
-    openModal: state.openModal,
-    closeModal: state.closeModal,
-    setSubjectPayload: state.setSubjectPayload,
-    
-    // Error
-    setShowErrorMsg: state.setShowErrorMsg,
-    setShowLockDataMsg: state.setShowLockDataMsg,
-    clearErrorMessages: state.clearErrorMessages,
-    clearAllErrors: state.clearAllErrors,
-    
-    // Save
-    setIsSaving: state.setIsSaving,
-    
-    // Filter
-    setFilters: state.setFilters,
-    resetFilters: state.resetFilters,
-    
-    // History
-    pushHistory: state.pushHistory,
-    undo: state.undo,
-    redo: state.redo,
-    clearHistory: state.clearHistory,
-    
-    // Reset
-    resetAllState: state.resetAllState,
-    resetOnTeacherChange: state.resetOnTeacherChange,
-  })),
+      // Teacher
+      setCurrentTeacherID: state.setCurrentTeacherID,
+      setTeacherData: state.setTeacherData,
+
+      // Subject Selection
+      setSelectedSubject: state.setSelectedSubject,
+      setDraggedSubject: state.setDraggedSubject,
+      setYearSelected: state.setYearSelected,
+      clearSelectedSubject: state.clearSelectedSubject,
+
+      // Subject Change
+      setChangeTimeSlotSubject: state.setChangeTimeSlotSubject,
+      setDestinationSubject: state.setDestinationSubject,
+      setTimeslotIDtoChange: state.setTimeslotIDtoChange,
+      setIsClickToChangeSubject: state.setIsClickToChangeSubject,
+      clearChangeSubjectState: state.clearChangeSubjectState,
+
+      // Subject Data
+      setSubjectData: state.setSubjectData,
+      setScheduledSubjects: state.setScheduledSubjects,
+      addSubjectToData: state.addSubjectToData,
+      removeSubjectFromData: state.removeSubjectFromData,
+      updateSubjectInData: state.updateSubjectInData,
+
+      // Timeslot
+      setTimeSlotData: state.setTimeSlotData,
+      updateTimeslotSubject: state.updateTimeslotSubject,
+      swapTimeslots: state.swapTimeslots,
+      setLockData: state.setLockData,
+
+      // Modal
+      openModal: state.openModal,
+      closeModal: state.closeModal,
+      setSubjectPayload: state.setSubjectPayload,
+
+      // Error
+      setShowErrorMsg: state.setShowErrorMsg,
+      setShowLockDataMsg: state.setShowLockDataMsg,
+      clearErrorMessages: state.clearErrorMessages,
+      clearAllErrors: state.clearAllErrors,
+
+      // Save
+      setIsSaving: state.setIsSaving,
+
+      // Filter
+      setFilters: state.setFilters,
+      resetFilters: state.resetFilters,
+
+      // History
+      pushHistory: state.pushHistory,
+      undo: state.undo,
+      redo: state.redo,
+      clearHistory: state.clearHistory,
+
+      // Reset
+      resetAllState: state.resetAllState,
+      resetOnTeacherChange: state.resetOnTeacherChange,
+    })),
   );
 
 // ============================================================================
 // Type Exports
 // ============================================================================
 
-export type {
-  TeacherArrangeState,
-  TeacherArrangeActions,
-  TeacherArrangeStore,
-};
+export type { TeacherArrangeState, TeacherArrangeActions, TeacherArrangeStore };

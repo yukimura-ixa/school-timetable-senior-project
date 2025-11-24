@@ -39,10 +39,7 @@ export default function Error({
         </p>
 
         <div className="mt-10 flex items-center justify-center gap-x-6">
-          <PrimaryButton
-            startIcon={<RefreshIcon />}
-            onClick={() => reset()}
-          >
+          <PrimaryButton startIcon={<RefreshIcon />} onClick={() => reset()}>
             ลองอีกครั้ง
           </PrimaryButton>
 

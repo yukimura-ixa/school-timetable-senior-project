@@ -1,7 +1,7 @@
 /**
  * Unit Tests for Timeslot Repository
  * Tests new transaction wrapper method
- * 
+ *
  * Note: Prisma is mocked globally in jest.setup.js
  */
 
@@ -22,7 +22,7 @@ describe("Timeslot Repository - Transaction Method", () => {
       mockPrisma.$transaction = jest.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue({ ConfigID: '1-2567' }),
+            create: jest.fn().mockResolvedValue({ ConfigID: "1-2567" }),
           },
           timeslot: {
             createMany: jest.fn().mockResolvedValue({ count: 5 }),
@@ -84,7 +84,7 @@ describe("Timeslot Repository - Transaction Method", () => {
         timeslotRepository.transaction(async (tx) => {
           await tx.table_config.create({ data: {} as any });
           throw error;
-        })
+        }),
       ).rejects.toThrow("Database constraint violation");
     });
   });

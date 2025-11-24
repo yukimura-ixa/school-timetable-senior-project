@@ -1,12 +1,12 @@
 /**
  * MUI-based TextField Component
- * 
+ *
  * This is a backward-compatible wrapper around MUI TextField that maintains
  * the original TextField API while leveraging MUI's features.
- * 
+ *
  * Migration from: src/components/elements/input/field/TextField.tsx
  * Date: October 19, 2025
- * 
+ *
  * @example
  * // Old API (still works)
  * <TextField
@@ -17,7 +17,7 @@
  *   disabled={false}
  *   width={300}
  * />
- * 
+ *
  * // Can also use MUI API directly
  * <TextField
  *   label="Room Name"
@@ -28,8 +28,11 @@
  * />
  */
 
-import React from 'react';
-import { TextField as MuiTextField, type TextFieldProps as MuiTextFieldProps } from '@mui/material';
+import React from "react";
+import {
+  TextField as MuiTextField,
+  type TextFieldProps as MuiTextFieldProps,
+} from "@mui/material";
 
 // Legacy API types (backward compatibility)
 interface LegacyTextFieldProps {
@@ -44,14 +47,14 @@ interface LegacyTextFieldProps {
 
 // Combined type that accepts both old and new APIs
 type TextFieldProps = LegacyTextFieldProps &
-  Omit<MuiTextFieldProps, 'placeholder' | 'onChange'> & {
+  Omit<MuiTextFieldProps, "placeholder" | "onChange"> & {
     placeholder?: string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
   };
 
 /**
  * TextField - MUI-based text field with backward compatibility
- * 
+ *
  * Supports both legacy API (handleChange, placeHolder, width, height, borderColor)
  * and native MUI TextField API (onChange, placeholder, sx, variant, etc.)
  */
@@ -59,57 +62,58 @@ const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
   function TextField(
     {
       // Legacy props
-      width = 'auto',
-      height = 'auto',
+      width = "auto",
+      height = "auto",
       placeHolder,
       handleChange,
       borderColor,
-      
+
       // MUI props
       placeholder,
       onChange,
-      variant = 'outlined',
-      size = 'small',
+      variant = "outlined",
+      size = "small",
       fullWidth = false,
       disabled = false,
       sx,
       label,
       ...rest
     },
-    ref
+    ref,
   ) {
     // Determine which API is being used
-    const useLegacyAPI = handleChange !== undefined || placeHolder !== undefined;
-    
+    const useLegacyAPI =
+      handleChange !== undefined || placeHolder !== undefined;
+
     // Map legacy props to MUI props
     const placeholderText = placeHolder || placeholder;
     const handleChangeEvent = handleChange || onChange;
-    
+
     // Build custom sx prop
     const customSx = {
-      width: width === 'auto' ? undefined : width,
-      ...(height !== 'auto' && {
-        '& .MuiInputBase-root': {
+      width: width === "auto" ? undefined : width,
+      ...(height !== "auto" && {
+        "& .MuiInputBase-root": {
           height: height,
         },
       }),
       ...(borderColor && {
-        '& .MuiOutlinedInput-root': {
-          '& fieldset': {
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
             borderColor: borderColor,
           },
         },
       }),
-      '& .MuiInputBase-input': {
-        fontSize: '0.875rem', // text-sm
+      "& .MuiInputBase-input": {
+        fontSize: "0.875rem", // text-sm
       },
-      '& .MuiInputLabel-root': {
-        fontSize: '0.875rem', // text-sm
+      "& .MuiInputLabel-root": {
+        fontSize: "0.875rem", // text-sm
         fontWeight: 700, // font-bold
       },
       ...sx,
     };
-    
+
     return (
       <MuiTextField
         ref={ref}
@@ -124,10 +128,10 @@ const TextField = React.forwardRef<HTMLDivElement, TextFieldProps>(
         {...rest}
       />
     );
-  }
+  },
 );
 
 export default TextField;
 
 // Re-export MUI TextField for direct usage
-export { TextField as MuiTextField } from '@mui/material';
+export { TextField as MuiTextField } from "@mui/material";

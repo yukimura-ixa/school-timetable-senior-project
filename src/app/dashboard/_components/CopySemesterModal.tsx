@@ -83,7 +83,8 @@ export function CopySemesterModal({
         {sourceSemester && (
           <Box sx={{ mt: 2 }}>
             <Alert severity="info" sx={{ mb: 2 }}>
-              คัดลอกจาก: ภาคเรียนที่ {sourceSemester.semester}/{sourceSemester.academicYear}
+              คัดลอกจาก: ภาคเรียนที่ {sourceSemester.semester}/
+              {sourceSemester.academicYear}
             </Alert>
 
             <TextField

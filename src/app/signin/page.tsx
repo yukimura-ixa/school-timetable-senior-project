@@ -3,7 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, Container, Divider, Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Container,
+  Divider,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import LoginIcon from "@mui/icons-material/Login";
 
@@ -70,11 +79,19 @@ export default function SignInPage() {
     }
   };
 
-  const handleGoogleLogin = () => signIn("google", { callbackUrl: "/dashboard/select-semester" });
+  const handleGoogleLogin = () =>
+    signIn("google", { callbackUrl: "/dashboard/select-semester" });
 
   return (
-    <Container maxWidth="lg" sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}>
-      <Stack direction={{ xs: "column", md: "row" }} spacing={4} sx={{ width: "100%" }}>
+    <Container
+      maxWidth="lg"
+      sx={{ minHeight: "100vh", display: "flex", alignItems: "center" }}
+    >
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={4}
+        sx={{ width: "100%" }}
+      >
         <Paper
           sx={{
             flex: 1,

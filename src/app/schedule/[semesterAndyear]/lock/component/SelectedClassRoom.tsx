@@ -1,6 +1,6 @@
 import MiniButton from "@/components/elements/static/MiniButton";
 import { Skeleton } from "@mui/material";
-import type { subject } from '@/prisma/generated/client';;
+import type { subject } from "@/prisma/generated/client";
 import { useParams } from "next/navigation";
 import React, { Fragment, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
@@ -8,7 +8,7 @@ import useSWR from "swr";
 
 import { useSemesterSync } from "@/hooks";
 import { getGradeLevelsForLockAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 
 type Props = {
   teachers?: teacher[];
@@ -20,19 +20,27 @@ type Props = {
 
 function SelectedClassRoom(props: Props) {
   const params = useParams();
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
   const teacherIDs = props.teachers?.map((teacher) => teacher.TeacherID) || [];
 
   const { data, isValidating } = useSWR(
     props.subject && semester && academicYear && teacherIDs.length > 0
-      ? ['gradelevels-for-lock', props.subject.SubjectCode, semester, academicYear, ...teacherIDs]
+      ? [
+          "gradelevels-for-lock",
+          props.subject.SubjectCode,
+          semester,
+          academicYear,
+          ...teacherIDs,
+        ]
       : null,
     async ([, subjectCode, sem, year, ...ids]) => {
       return await getGradeLevelsForLockAction({
         SubjectCode: subjectCode,
         AcademicYear: parseInt(year),
-        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
-        TeacherIDs: ids.map(id => Number(id)),
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
+        TeacherIDs: ids.map((id) => Number(id)),
       });
     },
     {
@@ -48,16 +56,20 @@ function SelectedClassRoom(props: Props) {
     { Year: 5, rooms: [] as string[] },
     { Year: 6, rooms: [] as string[] },
   ]);
-  
+
   useEffect(() => {
-    if (data && 'success' in data && data.success && data.data) {
+    if (data && "success" in data && data.success && data.data) {
       const ClassRoomClassify = (year: number): string[] => {
         //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
         //รูปแบบข้อมูล จะมาประมาณนี้
         //{GradeID: '101', Year: 1, Number: 1}
         //{GradeID: '101', Year: 1, Number: 1}
         //{GradeID: '102', Year: 1, Number: 2}
-        const grades = data.data as { GradeID: string; Year: number; Number: number }[];
+        const grades = data.data as {
+          GradeID: string;
+          Year: number;
+          Number: number;
+        }[];
         const filterResData = grades
           .filter((grade) => grade.Year === year)
           .map((item) => item.GradeID); //เช่น Year === 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา

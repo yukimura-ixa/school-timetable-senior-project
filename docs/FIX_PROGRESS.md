@@ -29,13 +29,13 @@ Full typecheck results saved to: `typecheck-errors.log`
 
 ### Error Distribution
 
-| Category | Count | Severity | Fix Complexity |
-|----------|-------|----------|----------------|
-| Implicit `any` types in callbacks | ~110 | Medium | Easy (add type annotations) |
-| Script PrismaClient constructor | 5 | High | Medium (requires adapter pattern) |
-| Unknown type assignments | ~8 | Medium | Medium (needs type narrowing) |
-| Missing module (PublishReadiness) | 1 | High | Easy (find/restore file) |  
-| Unused ts-expect-error directives | 2 | Low | Easy (remove directives) |
+| Category                          | Count | Severity | Fix Complexity                    |
+| --------------------------------- | ----- | -------- | --------------------------------- |
+| Implicit `any` types in callbacks | ~110  | Medium   | Easy (add type annotations)       |
+| Script PrismaClient constructor   | 5     | High     | Medium (requires adapter pattern) |
+| Unknown type assignments          | ~8    | Medium   | Medium (needs type narrowing)     |
+| Missing module (PublishReadiness) | 1     | High     | Easy (find/restore file)          |
+| Unused ts-expect-error directives | 2     | Low      | Easy (remove directives)          |
 
 ### Top Error Files (by error count)
 
@@ -44,7 +44,7 @@ Full typecheck results saved to: `typecheck-errors.log`
    - Pattern: Implicit `any` in `.map()`, `.filter()`, `.reduce()` callbacks
    - Example: `(t) => ...` should be `(t: Timeslot) => ...`
 
-2. **Public pages** - 35+ errors  
+2. **Public pages** - 35+ errors
    - `src/app/(public)/classes/[gradeId]/[semesterAndyear]/page.tsx`
    - `src/app/(public)/teachers/[id]/[semesterAndyear]/*.tsx`
    - Pattern: `unknown` types from Prisma queries need type assertions
@@ -56,7 +56,6 @@ Full typecheck results saved to: `typecheck-errors.log`
 4. **Scripts** - 5 errors
    - `scripts/*.ts` (check-admin, create-admin, etc.)
    - Pattern: Prisma 7.x requires adapter in constructor
-   
 5. **Component files** - 10+ errors
    - `src/app/management/subject/component/ActivityTable.tsx`
    - `src/features/teaching-assignment/presentation/components/TeacherSelector.tsx`
@@ -69,22 +68,26 @@ Full typecheck results saved to: `typecheck-errors.log`
 ### Phase 1: Quick Wins (Est. 2-3 hours)
 
 **1. Fix Missing Module (1 error)**
+
 ```bash
 # Find PublishReadiness component or create stub
 git log --all --full-history -- "*PublishReadiness*"
 ```
 
 **2. Remove Unused Directives (2 errors)**
+
 ```typescript
 // File: src/features/teaching-assignment/application/actions/teaching-assignment.actions.ts
 // Lines 326, 328 - Remove these lines:
 // @ts-expect-error
 ```
+
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL!,
+connectionString: process.env.DATABASE_URL!,
 });
 const prisma = new PrismaClient({ adapter });
-```
+
+````
 
 **Recommended**: Option A (simpler, reuses existing config)
 
@@ -95,22 +98,25 @@ const prisma = new PrismaClient({ adapter });
 Before:
 ```typescript
 timeslots.filter((t) => t.DayOfWeek === "MON")
-```
+````
 
 After:
+
 ```typescript
-import type { timeslot } from '@/prisma/generated/client';
-timeslots.filter((t: timeslot) => t.DayOfWeek === "MON")
+import type { timeslot } from "@/prisma/generated/client";
+timeslots.filter((t: timeslot) => t.DayOfWeek === "MON");
 ```
 
 **Pattern 2: Unknown Type Narrowing**
 
 Before:
+
 ```typescript
 const value = someArray[0]; // unknown
 ```
 
 After:
+
 ```typescript
 const value = someArray[0] as number;
 // OR better:
@@ -118,6 +124,7 @@ const value: number = someArray[0] ?? 0;
 ```
 
 **Bulk Fix Commands**:
+
 ```bash
 # Find all implicit any in analytics
 rg "Parameter '.+' implicitly has an 'any' type" typecheck-errors.log | grep analytics
@@ -133,9 +140,9 @@ After fixing all type errors:
 ```json
 // tsconfig.json
 {
- "compilerOptions": {
-    "noUnusedLocals": true,     // Enable
-    "noUnusedParameters": true,  // Enable
+  "compilerOptions": {
+    "noUnusedLocals": true, // Enable
+    "noUnusedParameters": true // Enable
   }
 }
 ```
@@ -147,7 +154,7 @@ Then fix new errors revealed (unused imports, unused variables).
 ## ⏸️ Deferred Items (Not blocking compilation)
 
 1. **Cache Components Security Audit** - Requires running app
-2. **E2E Test Fixes** - Requires fixing seed script first  
+2. **E2E Test Fixes** - Requires fixing seed script first
 3. **Dev Bypass Hardening** - Security enhancement, not urgent
 4. **Access Control Tests** - New test creation
 
@@ -156,18 +163,21 @@ Then fix new errors revealed (unused imports, unused variables).
 ## 🚀 Next Steps
 
 ### Immediate (Today)
+
 1. Fix script files (5 errors) - Use singleton import pattern
 2. Remove unused ts-expect-error (2 errors)
 3. Find/restore PublishReadiness component (1 error)
 4. Run typecheck again - Should drop from 125 → 117 errors
 
 ### Short Term (This Week)
+
 1. Fix top 3 error-heavy files (analytics repos, public pages, feature repos)
 2. Add type annotations systematically using patterns above
 3. Enable strict mode flags
 4. Achieve 0 TypeScript errors
 
 ### Medium Term (Next Week)
+
 1. Complete E2E test suite run
 2. Cache security audit
 3. Dev bypass hardening

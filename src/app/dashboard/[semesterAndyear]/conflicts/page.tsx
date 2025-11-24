@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import ConflictDetector from './component/ConflictDetector';
+import React from "react";
+import ConflictDetector from "./component/ConflictDetector";
 
 export default function ConflictsPage() {
   return (

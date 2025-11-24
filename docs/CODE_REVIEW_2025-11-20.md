@@ -1,4 +1,5 @@
 # Code Review Summary - School Timetable Project
+
 **Date**: 2025-11-20
 **Reviewer**: AI Senior Full-Stack Engineer  
 **Repository**: yukimura-ixa/school-timetable-senior-project  
@@ -23,13 +24,15 @@ This is a well-architected Next.js 16 timetable management system with strong fo
 ### 1.1 TypeScript Configuration Fixes
 
 **Issue**: Missing `baseUrl` in tsconfig.json caused typecheck failures  
-**Fix**: Added `"baseUrl": "."` to tsconfig.json (line 22)  
+**Fix**: Added `"baseUrl": "."` to tsconfig.json (line 22)
+
 - **Why**: TypeScript requires `baseUrl` when using `paths` mapping
 - **Impact**: Fixes compilation errors blocking CI
 - **Status**: ✅ FIXED
 
 **Issue**: Unterminated string literal in TeacherList.tsx  
-**Fix**: Removed extra quote from import statement (line 1)  
+**Fix**: Removed extra quote from import statement (line 1)
+
 - **File**: `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx`
 - **Change**: `import type { teacher } from '@/prisma/generated/client';'` → `'@/prisma/generated/client';`
 - **Status**: ✅ FIXED
@@ -39,6 +42,7 @@ This is a well-architected Next.js 16 timetable management system with strong fo
 **Status**: ⚠️ INCOMPLETE - Full typecheck still failing
 
 **Observed errors** (partial output):
+
 - Multiple errors in repository files
 - Errors in components (ActivityTable, etc.)
 - Full catalog requires complete typecheck run
@@ -54,6 +58,7 @@ This is a well-architected Next.js 16 timetable management system with strong fo
 **Strengths**:
 
 1. **Clean Architecture Pattern** - Well-implemented feature-based structure:
+
    ```
    src/features/<domain>/
      ├── domain/           # Business logic, entities
@@ -97,11 +102,13 @@ This is a well-architected Next.js 16 timetable management system with strong fo
 ⚠️ **HIGH PRIORITY**: Need to audit `"use cache"` directives
 
 **What to check**:
+
 1. Are any cached components using `auth()`, `cookies()`, or `headers()`?
 2. Are caching directives in domain/services and repositories (good) or in user-specific components (bad)?
 3. Are route segment configs (`export const runtime`, `dynamic`, `revalidate`) removed from app routes?
 
 **From AGENTS.md guidelines**:
+
 ```typescript
 // ❌ WRONG - caching user-specific data
 async function UserDashboard() {
@@ -120,7 +127,8 @@ async function getPublicStats() {
 }
 ```
 
-**Action Required**: 
+**Action Required**:
+
 - Search codebase for `"use cache"` directives
 - Verify none use per-request APIs
 - Document all cache usage in CACHE_AUDIT.md
@@ -133,7 +141,6 @@ async function getPublicStats() {
    - Location: Controlled by `ENABLE_DEV_BYPASS` env var
    - Risk: If misconfigured in production, bypasses all auth
    - Mitigation: Should check `process.env.NODE_ENV !== 'production'`
-   
 2. **Seed/Admin Endpoints**:
    - Need to verify all seed/admin routes check auth
    - Check for any exposed `/api/seed` or similar without protection
@@ -144,31 +151,37 @@ async function getPublicStats() {
    - Verify teachers can't edit other teachers' assignments
 
 **Input Validation** ✅:
+
 - Uses Valibot for schema validation (good)
 - Server actions wrap validation (pattern looks solid from AGENTS.md)
 
 **Sensitive Data Logging** ⚠️:
+
 - Need to audit console.log/error statements
 - Check for logged tokens, session data, passwords
 
 **SQL Injection** ✅:
+
 - All database access via Prisma (no raw SQL observed)
 - Risk: LOW for SQL injection
 
 ### 2.4 Database & Prisma
 
 **Strengths**:
+
 - Singleton pattern prevents connection pool exhaustion ✅
 - Accelerate extension for connection pooling ✅
 - Migration system in place (5 migrations) ✅
 - Comprehensive schema (12+ models, proper relations) ✅
 
 **Observations**:
+
 - Schema includes Auth.js v5 models (User, Account, Session) ✅
 - Performance indexes for conflict detection ✅
 - MOE Curriculum enums (ProgramTrack, SubjectCategory, etc.) ✅
 
 **Potential Issues**:
+
 - No schema validation in application layer (only Prisma runtime validation)
 - Consider adding Valibot schemas that mirror Prisma models for double validation
 
@@ -179,17 +192,20 @@ async function getPublicStats() {
 ### 3.1 Test Infrastructure Status
 
 **Docker Test Database**:
+
 - Container: `timetable-test-db` (PostgreSQL 16)
 - Port: 5433 (avoids conflict with local PostgreSQL)
 - Status: ✅ RUNNING
 - Migrations: ✅ UP TO DATE (5 migrations applied)
 
 **Test Environment**:
+
 - Config: `.env.test` ✅ EXISTS
 - Auth bypass: ✅ ENABLED for E2E
 - Database URL: `postgresql://test_user:test_password@127.0.0.1:5433/test_timetable`
 
 **Playwright Configuration**:
+
 - Workers: 4 parallel in CI
 - Global setup/teardown: ✅ CONFIGURED
 - Auth state caching: ✅ CONFIGURED (`playwright/.auth/admin.json`)
@@ -199,15 +215,18 @@ async function getPublicStats() {
 **Status**: ⚠️ UNABLE TO COMPLETE FULL RUN
 
 **Blockers**:
+
 1. TypeScript seed script error (tsx configuration issue with `baseUrl`)
 2. Playwright UI mode launch failed
 
 **Partial Results**:
+
 - Database connectivity: ✅ VERIFIED
 - Migrations: ✅ APPLIED
 - Seed data: ❌ FAILED (TypeScript path resolution)
 
 **Next Steps to Unblock**:
+
 ```bash
 # Fix seed script
 1. Update tsconfig to include baseUrl (DONE)
@@ -218,6 +237,7 @@ async function getPublicStats() {
 ### 3.3 Known Test Issues (from AGENTS.md)
 
 **Jest Stack Overflow** (Issue #46):
+
 - **Status**: Workaround applied with `forceExit: true`
 - **Root Cause**: Next.js 16.0.1 unhandled rejection handler
 - **Impact**: All 50+ tests pass, but may hide async leaks
@@ -230,11 +250,13 @@ async function getPublicStats() {
 ented
 
 ### BUG-001: TypeScript Configuration Missing baseUrl
+
 **Title**: TypeScript paths fail without baseUrl  
 **Severity**: CRITICAL  
 **Status**: ✅ FIXED
 
 **Repro**:
+
 1. Run `pnpm typecheck`
 2. Observe error: "Non-relative paths are not allowed when 'baseUrl' is not set"
 
@@ -243,11 +265,13 @@ ented
 **Verification**: Typecheck should now complete (pending full run)
 
 ### BUG-002: Unterminated String Literal in TeacherList
+
 **Title**: Import statement syntax error  
 **Severity**: HIGH  
 **Status**: ✅ FIXED
 
 **Repro**:
+
 1. Run typecheck
 2. Error in `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx:1`
 
@@ -256,6 +280,7 @@ ented
 **File**: TeacherList.tsx, line 1
 
 ### BUG-003: Dev Bypass Security Risk
+
 **Title**: Dev bypass could leak to production if misconfigured  
 **Severity**: HIGH  
 **Status**: 🔍 NEEDS REVIEW
@@ -266,14 +291,15 @@ Auth bypass controlled by `ENABLE_DEV_BYPASS` environment variable. If accidenta
 **Location**: Auth configuration (exact file TBD - need to locate)
 
 **Recommendation**:
+
 ```typescript
 // Current (assuming):
-const devBypass = process.env.ENABLE_DEV_BYPASS === 'true';
+const devBypass = process.env.ENABLE_DEV_BYPASS === "true";
 
 // Safer:
-const devBypass = 
-  process.env.NODE_ENV !== 'production' && 
-  process.env.ENABLE_DEV_BYPASS === 'true';
+const devBypass =
+  process.env.NODE_ENV !== "production" &&
+  process.env.ENABLE_DEV_BYPASS === "true";
 ```
 
 **Repro**: N/A (security review finding)  
@@ -281,20 +307,24 @@ const devBypass =
 **Actual**: Currently depends only on env var, not environment
 
 ### BUG-004: Seed Script TypeScript Path Resolution
+
 **Title**: tsx fails to resolve @/ paths in seed script  
 **Severity**: MEDIUM  
 **Status**: ⚠️ BLOCKED E2E TESTS
 
 **Repro**:
+
 1. Run `pnpm test:db:seed`
 2. Observe error about baseUrl/paths
 
-**Root Cause**: 
+**Root Cause**:
+
 - Seed script uses tsx with different TypeScript config
 - tsx may not respect tsconfig.json paths
 - Might need explicit path resolution or different runner
 
 **Workaround Options**:
+
 1. Use `ts-node` with `tsconfig-paths` register
 2. Use relative imports in seed script
 3. Configure tsx with explicit config
@@ -302,11 +332,13 @@ const devBypass =
 **Impact**: Blocks E2E test seeding
 
 ### BUG-005: Playwright E2E UI Mode Launch Failure
+
 **Title**: `pnpm test:e2e:ui` exits with code 1  
 **Severity**: MEDIUM  
 **Status**: ⚠️ INVESTIGATION NEEDED
 
 **Repro**:
+
 1. Run `pnpm test:e2e:ui`
 2. Command exits immediately with error code 1
 
@@ -314,7 +346,8 @@ const devBypass =
 
 **Impact**: Can't use Playwright UI for debugging E2E tests
 
-**Next Steps**: 
+**Next Steps**:
+
 - Run with verbose logging: `DEBUG=pw:api pnpm test:e2e:ui`
 - Check if Playwright browsers installed: `pnpm exec playwright install`
 
@@ -325,30 +358,35 @@ const devBypass =
 ### 5.1 High Priority
 
 **HP-1: Complete TypeScript Strict Mode Migration**
+
 - **Current**: `noUnusedLocals` and `noUnusedParameters` disabled
 - **Goal**: Enable these flags and fix all violations
 - **Effort**: Medium (likely 50-100 small fixes)
 - **Benefit**: Catch dead code, improve maintainability
 
 **HP-2: Security Audit - Dev Bypass Protection**
+
 - **Risk**: Dev bypass could activate in production
 - **Action**: Add `NODE_ENV` check to dev bypass logic
 - **Effort**: Low (5 minutes)
 - **Benefit**: Prevents catastrophic auth bypass
 
 **HP-3: Cache Components Audit**
+
 - **Risk**: Cached components with user-specific data
 - **Action**: Search for `"use cache"` and verify no `auth()`, `cookies()`, etc.
 - **Effort**: Medium (need to review each usage)
 - **Benefit**: Prevent cross-user data leaks
 
 **HP-4: Complete E2E Test Suite Run**
+
 - **Blocker**: Seed script TypeScript error
 - **Action**: Fix tsx path resolution or use alternative
 - **Effort**: Low-Medium
 - **Benefit**: Validate all 27 E2E tests pass
 
 **HP-5: Remove Staged Quote Normalization Changes**
+
 - **Observation**: 177 files with quote style changes in staging
 - **Risk**: Massive diff obscures real changes
 - **Action**: Review if these should be committed or reverted
@@ -357,61 +395,73 @@ const devBypass =
 ### 5.2 Medium Priority
 
 **MP-1: Consolidate Code Organization**
+
 - Move shared utilities from `src/lib/` to `src/shared/`
 - Standardize file naming convention
 - Document structure in ARCHITECTURE.md
 
 **MP-2: Input Validation Layer**
+
 - Create Valibot schemas mirroring Prisma models
 - Add double validation (Valibot → Prisma)
 - Document in VALIDATION_STRATEGY.md
 
 **MP-3: Sensitive Data Logging Audit**
+
 - Search for `console.log` statements
 - Remove any logging of tokens, passwords, full session objects
 - Add ESLint rule to warn on console.log in production code
 
 **MP-4: Access Control Testing**
+
 - Add E2E tests for cross-role access (student trying to access teacher views)
 - Add E2E tests for cross-user access (teacher A trying to edit teacher B's data)
 - Document access control matrix
 
 **MP-5: Playwright Best Practices Audit**
+
 - Review all E2E tests for hard waits (`waitForTimeout`)
 - Replace with auto-waiting locators
 - Document patterns in E2E_PATTERNS.md
 
 **MP-6: Route Segment Config Removal**
+
 - Search for `export const runtime`, `dynamic`, `revalidate` in app routes
 - Remove (conflicts with `cacheComponents: true`)
 - Document migration in NEXT16_MIGRATION.md
 
 **MP-7: Error Boundary Implementation**
+
 - Add error boundaries to critical routes
 - Improve error messages (currently generic)
 - Add error tracking (Sentry?)
 
 **MP-8: Performance Monitoring**
+
 - Add performance marks for critical operations
 - Monitor conflict detection performance
 - Document slow queries
 
 **MP-9: API Route Auth Audit**
+
 - List all API routes in `/app/api/`
 - Verify each checks authentication
 - Document authorized roles per endpoint
 
 **MP-10: Prisma Query Optimization**
+
 - Review N+1 query patterns
 - Add `include` optimization
 - Monitor query performance in production
 
 **MP-11: Dependency Audit**
+
 - Review package.json for unused dependencies
 - Update to latest stable versions (where safe)
 - Document update policy
 
 **MP-12: Documentation Completeness**
+
 - Add JSDoc to complex functions
 - Document business rules (MoE validation, conflict detection)
 - Create TROUBLESHOOTING.md
@@ -419,37 +469,45 @@ const devBypass =
 ### 5.3 Low Priority / Tech Debt
 
 **LP-1: Dead Code Removal**
+
 - Remove `*.old.tsx` files (already excluded from tsconfig)
 - Remove commented code blocks
 - Clean up unused imports
 
 **LP-2: Test Coverage Metrics**
+
 - Add coverage reporting to Jest
 - Set coverage thresholds
 - Display in CI
 
 **LP-3: Component Story Documentation**
+
 - Consider Storybook for component documentation
 - Document MUI customization patterns
 
 **LP-4: Migration to TypeScript 5.x**
+
 - Currently on TypeScript 5.9.3
 - Stay current with latest features
 
 **LP-5: Internationalization Preparation**
+
 - Currently Thai-only for user-facing messages
 - Plan for English support if needed
 
 **LP-6: Accessibility Audit**
+
 - Run axe or Lighthouse tests
 - Ensure keyboard navigation works
 - Add ARIA labels where needed
 
 **LP-7: Mobile Responsiveness**
+
 - Test on mobile devices
 - Add responsive breakpoints where missing
 
 **LP-8: Performance Budget**
+
 - Set bundle size limits
 - Monitor with Next.js bundle analyzer
 
@@ -460,12 +518,14 @@ const devBypass =
 ### Current Cache Usage (Needs Verification)
 
 **From AGENTS.md guidance**, caching should be:
+
 - ✅ In domain services (stats, analytics)
 - ✅ In repositories (MoE checks, timetable queries)
 - ❌ NOT in user-specific components
 - ❌ NOT with per-request APIs (`auth`, `cookies`, `headers`)
 
 **Audit Required**:
+
 ```bash
 # Find all cache usage
 rg -A 5 '"use cache"' src/
@@ -475,16 +535,19 @@ rg -B 10 -A 5 'auth\(\)|cookies\(\)|headers\(\)' src/ | grep -B 5 '"use cache"'
 ```
 
 **Tagging Strategy**:
+
 - Need to verify `cacheTag()` usage for invalidation
 - Document tag naming convention
 - Document revalidation triggers
 
 **Performance Opportunities**:
+
 1. Cache teacher assignment queries (frequently accessed, rarely change)
 2. Cache conflict detection results (same inputs → same output)
 3. Cache public timetable views (student/parent access)
 
 **Performance Risks**:
+
 1. Caching too aggressively → stale data
 2. Cache tags too broad → over-invalidation
 3. Cache tags too narrow → stale data persists
@@ -501,6 +564,7 @@ rg -B 10 -A 5 'auth\(\)|cookies\(\)|headers\(\)' src/ | grep -B 5 '"use cache"'
 ### High-Level Review Findings
 
 **Strengths**:
+
 - Clean architecture with feature-based organization
 - Comprehensive testing infrastructure (Jest + Playwright)
 - Modern Next.js 16 patterns
@@ -508,6 +572,7 @@ rg -B 10 -A 5 'auth\(\)|cookies\(\)|headers\(\)' src/ | grep -B 5 '"use cache"'
 - CI-first development workflow
 
 **Weaknesses**:
+
 - TypeScript strict mode not fully enabled
 - Some type safety gaps (needs full typecheck run)
 - E2E tests blocked by seed script issue
@@ -528,16 +593,12 @@ rg -B 10 -A 5 'auth\(\)|cookies\(\)|headers\(\)' src/ | grep -B 5 '"use cache"'
 
 1. **CRITICAL**: Complete TypeScript typecheck and fix all errors
    - Blocking CI, preventing type safety guarantees
-   
 2. **HIGH**: Security - Dev bypass needs NODE_ENV check
    - Prevent accidental auth bypass in production
-   
 3. **HIGH**: Cache Components audit
    - Verify no user-specific data cached
-   
 4. **HIGH**: Unblock E2E tests
    - Fix seed script, run full test suite
-   
 5. **MEDIUM**: Access control testing
    - Verify role-based access working correctly
 
@@ -558,4 +619,3 @@ rg -B 10 -A 5 'auth\(\)|cookies\(\)|headers\(\)' src/ | grep -B 5 '"use cache"'
 **Review Completed**: 2025-11-20  
 **Next Review**: After addressing high-priority items  
 **Estimated Effort for HP Items**: 8-16 hours
-

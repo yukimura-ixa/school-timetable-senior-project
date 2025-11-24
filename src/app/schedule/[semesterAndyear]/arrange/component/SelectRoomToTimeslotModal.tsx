@@ -1,7 +1,7 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { CircularProgress } from "@mui/material";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 import React, { useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import useSWR from "swr";
@@ -30,7 +30,9 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
   const [validateIsPass, setValidateIsPass] = useState(false);
   // const gradeLevelData = useGradeLevelData();
   const roomData = useSWR(
-    payload?.timeslotID ? ["available-rooms", payload.timeslotID] as const : null,
+    payload?.timeslotID
+      ? (["available-rooms", payload.timeslotID] as const)
+      : null,
     async ([, timeslotID]: readonly ["available-rooms", string]) => {
       return await getAvailableRoomsAction({ TimeslotID: timeslotID });
     },
@@ -109,10 +111,20 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               <div className="flex gap-1 items-center">
                 <p>เลือกสถานที่เรียน</p>
               </div>
-              {roomData.data && 'success' in roomData.data && roomData.data.success && roomData.data.data ? (
+              {roomData.data &&
+              "success" in roomData.data &&
+              roomData.data.success &&
+              roomData.data.data ? (
                 <Dropdown
                   width={250}
-                  data={(roomData.data.data as { RoomID: number; RoomName: string; Building: string; Floor: string }[]).map((rm) => rm.RoomName)}
+                  data={(
+                    roomData.data.data as {
+                      RoomID: number;
+                      RoomName: string;
+                      Building: string;
+                      Floor: string;
+                    }[]
+                  ).map((rm) => rm.RoomName)}
                   placeHolder="โปรดเลือก"
                   renderItem={({ data }: { data: unknown }) => (
                     <>
@@ -123,7 +135,15 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
                   handleChange={(data: unknown) => {
                     const roomName = data as string;
                     setRoomName(roomName);
-                    const rooms = roomData.data && 'data' in roomData.data ? (roomData.data.data as { RoomID: number; RoomName: string; Building: string; Floor: string }[]) : [];
+                    const rooms =
+                      roomData.data && "data" in roomData.data
+                        ? (roomData.data.data as {
+                            RoomID: number;
+                            RoomName: string;
+                            Building: string;
+                            Floor: string;
+                          }[])
+                        : [];
                     setRoom(rooms.find((r) => r.RoomName === roomName));
                   }}
                   searchFunction={undefined}

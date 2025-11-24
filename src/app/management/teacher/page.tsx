@@ -1,4 +1,7 @@
-import { TeacherListSkeleton, NetworkErrorEmptyState } from "@/components/feedback";
+import {
+  TeacherListSkeleton,
+  NetworkErrorEmptyState,
+} from "@/components/feedback";
 import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 import { TeacherManageClient } from "./component/TeacherManageClient";
 import { Suspense } from "react";
@@ -11,12 +14,12 @@ import { cookies } from "next/headers";
 export default async function TeacherManagePage() {
   // Force dynamic rendering for Next.js 16
   await cookies();
-  
+
   const result = await getTeachersAction();
 
   // Error state
   if (!result.success) {
-    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
+    return <NetworkErrorEmptyState />;
   }
 
   return (
@@ -25,4 +28,3 @@ export default async function TeacherManagePage() {
     </Suspense>
   );
 }
-

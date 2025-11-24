@@ -106,20 +106,21 @@ ClassifySubject (Server Component)
 ```typescript
 // ❌ INCORRECT - Key as function
 const fetchAllClassData = useSWR<TeacherScheduleData | null>(
-  () => `/teacher-arrange?...`,  // Function returning string
-  fetcher
+  () => `/teacher-arrange?...`, // Function returning string
+  fetcher,
 );
 
 // ✅ CORRECT - Key as value
 const fetchAllClassData = useSWR<TeacherScheduleData | null>(
-  currentTeacherID ? `/teacher-arrange?...` : null,  // Direct ternary
-  fetcher
+  currentTeacherID ? `/teacher-arrange?...` : null, // Direct ternary
+  fetcher,
 );
 ```
 
 **Root Cause:** SWR's key parameter expects `string | null`, not `() => string | null`
 
-**Impact:** 
+**Impact:**
+
 - Build fails with TypeScript errors
 - Prevents deployment to production
 - Same issue as the one we just fixed in checkConflictData
@@ -154,6 +155,7 @@ const fetchAllClassData = useSWR<TeacherScheduleData | null>(
 **Root Cause:** Server Actions return `ActionResult<T>`, not `T` directly
 
 **Impact:**
+
 - Type mismatches cascade through component
 - Data transformations break
 - Runtime errors possible
@@ -174,6 +176,7 @@ room: item.room || { RoomID: 0, RoomName: "ไม่ระบุ", Building: "",
 **Root Cause:** Legacy data transformation assumes empty object
 
 **Impact:**
+
 - Room display fails
 - Type errors in child components
 - UI shows incorrect data
@@ -203,8 +206,8 @@ GradeID: [filterLock[i].GradeID],  // Creates nested array
 // ✅ Should keep as string or handle properly
 GradeID: filterLock[i].GradeID,  // Single string
 // OR
-GradeID: Array.isArray(filterLock[i].GradeID) 
-  ? filterLock[i].GradeID 
+GradeID: Array.isArray(filterLock[i].GradeID)
+  ? filterLock[i].GradeID
   : [filterLock[i].GradeID],
 ```
 
@@ -215,14 +218,14 @@ GradeID: Array.isArray(filterLock[i].GradeID)
 
 ```typescript
 // ❌ Missing required SubjectData properties
-const mappedScheduledSubjects: SubjectData[] = concatClassData.map(item => ({
+const mappedScheduledSubjects: SubjectData[] = concatClassData.map((item) => ({
   itemID: item.ClassScheduleID,
   SubjectCode: item.subject.SubjectCode,
   // ... missing: teacherID, category, credit, teachHour
 }));
 
 // ✅ Should include all required properties
-const mappedScheduledSubjects: SubjectData[] = concatClassData.map(item => ({
+const mappedScheduledSubjects: SubjectData[] = concatClassData.map((item) => ({
   itemID: item.ClassScheduleID,
   SubjectCode: item.subject.SubjectCode,
   // ...
@@ -259,16 +262,16 @@ Both instances try to spread objects that don't match `SubjectData` interface
 
 ### Priority Matrix
 
-| Priority | Issue | Impact | Effort | Order |
-|----------|-------|--------|--------|-------|
-| **P0** | Fix SWR keys (3x) | 🔴 Blocks build | 15 min | 1 |
-| **P0** | Add ActionResult unwrapping | 🔴 Type safety | 30 min | 2 |
-| **P1** | Fix SubjectData room property | 🟡 UI breaks | 15 min | 3 |
-| **P1** | Fix mappedScheduledSubjects | 🟡 Data incomplete | 20 min | 4 |
-| **P2** | Fix DayOfWeek typing | 🟡 Display issue | 10 min | 5 |
-| **P2** | Fix GradeID array handling | 🟡 Edge case | 10 min | 6 |
-| **P2** | Fix subject spread (2x) | 🟡 Type errors | 15 min | 7 |
-| **P3** | Remove unused types | 🟢 Cleanup | 5 min | 8 |
+| Priority | Issue                         | Impact             | Effort | Order |
+| -------- | ----------------------------- | ------------------ | ------ | ----- |
+| **P0**   | Fix SWR keys (3x)             | 🔴 Blocks build    | 15 min | 1     |
+| **P0**   | Add ActionResult unwrapping   | 🔴 Type safety     | 30 min | 2     |
+| **P1**   | Fix SubjectData room property | 🟡 UI breaks       | 15 min | 3     |
+| **P1**   | Fix mappedScheduledSubjects   | 🟡 Data incomplete | 20 min | 4     |
+| **P2**   | Fix DayOfWeek typing          | 🟡 Display issue   | 10 min | 5     |
+| **P2**   | Fix GradeID array handling    | 🟡 Edge case       | 10 min | 6     |
+| **P2**   | Fix subject spread (2x)       | 🟡 Type errors     | 15 min | 7     |
+| **P3**   | Remove unused types           | 🟢 Cleanup         | 5 min  | 8     |
 
 **Total Estimated Time:** ~2 hours
 
@@ -295,28 +298,26 @@ const fetchAllClassData = useSWR<TeacherScheduleData | null>(
       Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       TeacherID: parseInt(currentTeacherID),
     })) as ActionResult<ClassScheduleWithRelations[]>;
-    
+
     if (!result.success || !result.data) return null;
     return result.data;
   },
-  { revalidateOnFocus: false }
+  { revalidateOnFocus: false },
 );
 
 // Fix #2: fetchTeacher (line 280)
 const fetchTeacher = useSWR<TeacherInfo | null>(
-  currentTeacherID
-    ? `/teacher?TeacherID=${currentTeacherID}`
-    : null,
+  currentTeacherID ? `/teacher?TeacherID=${currentTeacherID}` : null,
   async (): Promise<TeacherInfo | null> => {
     if (!currentTeacherID) return null;
     const result = (await getTeachersAction({
       TeacherID: parseInt(currentTeacherID),
     })) as ActionResult<TeacherInfo>;
-    
+
     if (!result.success || !result.data) return null;
     return result.data;
   },
-  { revalidateOnFocus: false }
+  { revalidateOnFocus: false },
 );
 
 // Fix #3: fetchResp (line 303)
@@ -331,11 +332,11 @@ const fetchResp = useSWR<ResponsibilityData | null>(
       AcademicYear: parseInt(academicYear),
       Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
     })) as ActionResult<ResponsibilityData>;
-    
+
     if (!result.success || !result.data) return null;
     return result.data;
   },
-  { revalidateOnFocus: false }
+  { revalidateOnFocus: false },
 );
 ```
 
@@ -373,7 +374,7 @@ room: item.room || {
 
 ```typescript
 // Line 580 - Complete SubjectData mapping
-const mappedScheduledSubjects: SubjectData[] = concatClassData.map(item => ({
+const mappedScheduledSubjects: SubjectData[] = concatClassData.map((item) => ({
   itemID: item.ClassScheduleID,
   SubjectCode: item.subject.SubjectCode,
   SubjectName: item.subject.SubjectName,
@@ -450,18 +451,21 @@ const subjectData: SubjectData = {
 ## 🎯 Success Criteria
 
 ### Must Have (P0)
+
 - [ ] Build completes without TypeScript errors
 - [ ] All 3 SWR calls use correct key pattern
 - [ ] All ActionResult types properly unwrapped
 - [ ] Deploy to production succeeds
 
 ### Should Have (P1)
+
 - [ ] SubjectData room property correctly typed
 - [ ] mappedScheduledSubjects includes all required fields
 - [ ] No runtime type errors in browser console
 - [ ] UI displays all data correctly
 
 ### Nice to Have (P2/P3)
+
 - [ ] DayOfWeek type assertion added
 - [ ] GradeID array handling fixed
 - [ ] Subject spread operations fixed
@@ -472,18 +476,18 @@ const subjectData: SubjectData = {
 
 ## 📊 Comparison: Arrange vs Assign
 
-| Aspect | Teacher Arrange | Assign | Winner |
-|--------|----------------|--------|--------|
-| **TypeScript Errors** | 10 🔴 | 0 ✅ | Assign |
-| **Architecture** | Mixed (legacy + new) | Clean (Server Actions) | Assign |
-| **File Size** | 1,418 lines | 98 lines | Assign |
-| **Complexity** | Very High (DnD, state) | Low (Server Component) | Assign |
-| **Type Safety** | Poor (many `any`) | Excellent | Assign |
-| **Maintainability** | Low (400+ line methods) | High (small, focused) | Assign |
-| **Recent Updates** | Week 5.3 (Oct 2024) | P0 (Oct 31, 2025) | Assign |
-| **Server Actions** | Partial | Full ✅ | Assign |
-| **Modern Patterns** | Mixed | Full ✅ | Assign |
-| **User Experience** | Complex but powerful | Simple and intuitive | Tie |
+| Aspect                | Teacher Arrange         | Assign                 | Winner |
+| --------------------- | ----------------------- | ---------------------- | ------ |
+| **TypeScript Errors** | 10 🔴                   | 0 ✅                   | Assign |
+| **Architecture**      | Mixed (legacy + new)    | Clean (Server Actions) | Assign |
+| **File Size**         | 1,418 lines             | 98 lines               | Assign |
+| **Complexity**        | Very High (DnD, state)  | Low (Server Component) | Assign |
+| **Type Safety**       | Poor (many `any`)       | Excellent              | Assign |
+| **Maintainability**   | Low (400+ line methods) | High (small, focused)  | Assign |
+| **Recent Updates**    | Week 5.3 (Oct 2024)     | P0 (Oct 31, 2025)      | Assign |
+| **Server Actions**    | Partial                 | Full ✅                | Assign |
+| **Modern Patterns**   | Mixed                   | Full ✅                | Assign |
+| **User Experience**   | Complex but powerful    | Simple and intuitive   | Tie    |
 
 **Overall Winner:** **Assign** (6-0, 1 tie)
 
@@ -567,6 +571,7 @@ async function ClassifySubject({ params }: Props) {
 ```
 
 **Benefits:**
+
 - No client state management needed
 - Faster initial load
 - Better SEO
@@ -583,6 +588,7 @@ features/assign/
 ```
 
 **Benefits:**
+
 - Clear separation of concerns
 - Easy to test
 - Easy to maintain
@@ -602,6 +608,7 @@ if (result.success && result.data) {
 ```
 
 **Benefits:**
+
 - Compile-time type checking
 - IDE autocomplete
 - Fewer runtime errors
@@ -612,6 +619,7 @@ if (result.success && result.data) {
 ## 📝 Action Items
 
 ### For Developer
+
 - [ ] **Read this document** (10 min)
 - [ ] **Review Phase 1 fixes** (5 min)
 - [ ] **Create feature branch**: `fix/arrange-type-safety`
@@ -622,6 +630,7 @@ if (result.success && result.data) {
 - [ ] **Request review** from tech lead
 
 ### For Tech Lead
+
 - [ ] **Review this analysis** (15 min)
 - [ ] **Approve improvement plan** (5 min)
 - [ ] **Assign developer** to Phase 1 (immediate)
@@ -629,6 +638,7 @@ if (result.success && result.data) {
 - [ ] **Plan refactoring sprint** for teacher-arrange
 
 ### For QA
+
 - [ ] **Test arrange page** after Phase 1 deployment
 - [ ] **Verify no regressions** in drag-drop
 - [ ] **Check conflict detection** still works
@@ -636,6 +646,7 @@ if (result.success && result.data) {
 - [ ] **Report any issues** to developer
 
 ### For Product Owner
+
 - [ ] **Review user impact** of fixes
 - [ ] **Prioritize refactoring work** in backlog
 - [ ] **Consider UX improvements** for arrange page
@@ -646,12 +657,14 @@ if (result.success && result.data) {
 ## 📚 Related Documentation
 
 **Internal Docs:**
+
 - `AGENTS.md` - AI agent handbook
 - `assign_tab_p0_modernization_complete.md` - Assign modernization
 - `p1_complete_lock_calendar_quick_assignment.md` - P1 features
 - `comprehensive_user_flows.md` - User journeys
 
 **External Resources:**
+
 - [SWR Documentation](https://swr.vercel.app/)
 - [Next.js 16 Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions-and-mutations)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
@@ -661,11 +674,11 @@ if (result.success && result.data) {
 
 ## 🔄 Update Log
 
-| Date | Author | Changes |
-|------|--------|---------|
-| 2025-11-01 | AI Agent | Initial analysis & improvement plan |
-| TBD | Developer | Phase 1 fixes applied |
-| TBD | Tech Lead | Phase 2 scheduled |
+| Date       | Author    | Changes                             |
+| ---------- | --------- | ----------------------------------- |
+| 2025-11-01 | AI Agent  | Initial analysis & improvement plan |
+| TBD        | Developer | Phase 1 fixes applied               |
+| TBD        | Tech Lead | Phase 2 scheduled                   |
 
 ---
 

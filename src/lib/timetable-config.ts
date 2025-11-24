@@ -1,15 +1,15 @@
 /**
  * Timetable Configuration Utility
- * 
+ *
  * Provides typed access to timetable configuration stored in table_config.
  * Replaces hardcoded values throughout the application.
- * 
+ *
  * MIGRATED: Now uses configRepository instead of direct Prisma queries
  * @see src/features/config/infrastructure/repositories/config.repository.ts
  */
 
 import * as configRepository from "@/features/config/infrastructure/repositories/config.repository";
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 
 // Import and re-export types and constants from the constants file (safe for client components)
 // This allows backward compatibility while preventing Prisma from being bundled in browser
@@ -20,44 +20,52 @@ export { DEFAULT_TIMETABLE_CONFIG } from "./timetable-config.constants";
 
 /**
  * Get timetable configuration for a specific semester
- * 
+ *
  * MIGRATED: Now uses repository pattern
- * 
+ *
  * @param academicYear - Academic year (e.g., 2567)
  * @param semester - Semester (FIRST or SECOND)
  * @returns Timetable configuration with defaults if not found
  */
 export async function getTimetableConfig(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ): Promise<TimetableConfig> {
   try {
     const configJson = await configRepository.getTimetableConfig(
       academicYear,
-      semester
+      semester,
     );
 
     if (!configJson) {
       console.warn(
-        `No timetable config found for ${academicYear}/${semester}, using defaults`
+        `No timetable config found for ${academicYear}/${semester}, using defaults`,
       );
       return DEFAULT_TIMETABLE_CONFIG;
     }
 
     // Parse and validate the JSON config
     const jsonConfig = configJson as Partial<TimetableConfig> & {
-      breakSlots?: Partial<TimetableConfig['breakSlots']>;
+      breakSlots?: Partial<TimetableConfig["breakSlots"]>;
     };
-    
+
     return {
-      periodsPerDay: jsonConfig.periodsPerDay ?? DEFAULT_TIMETABLE_CONFIG.periodsPerDay,
-      totalPeriodsPerWeek: jsonConfig.totalPeriodsPerWeek ?? DEFAULT_TIMETABLE_CONFIG.totalPeriodsPerWeek,
+      periodsPerDay:
+        jsonConfig.periodsPerDay ?? DEFAULT_TIMETABLE_CONFIG.periodsPerDay,
+      totalPeriodsPerWeek:
+        jsonConfig.totalPeriodsPerWeek ??
+        DEFAULT_TIMETABLE_CONFIG.totalPeriodsPerWeek,
       breakSlots: {
-        junior: jsonConfig.breakSlots?.junior ?? DEFAULT_TIMETABLE_CONFIG.breakSlots.junior,
-        senior: jsonConfig.breakSlots?.senior ?? DEFAULT_TIMETABLE_CONFIG.breakSlots.senior,
+        junior:
+          jsonConfig.breakSlots?.junior ??
+          DEFAULT_TIMETABLE_CONFIG.breakSlots.junior,
+        senior:
+          jsonConfig.breakSlots?.senior ??
+          DEFAULT_TIMETABLE_CONFIG.breakSlots.senior,
       },
       schoolDays: jsonConfig.schoolDays ?? DEFAULT_TIMETABLE_CONFIG.schoolDays,
-      periodDuration: jsonConfig.periodDuration ?? DEFAULT_TIMETABLE_CONFIG.periodDuration,
+      periodDuration:
+        jsonConfig.periodDuration ?? DEFAULT_TIMETABLE_CONFIG.periodDuration,
     };
   } catch (error) {
     console.error("Error fetching timetable config:", error);
@@ -77,7 +85,7 @@ export interface TimetableConfigMetadata {
  * decoupled from Prisma.
  */
 export async function getTimetableConfigMetadata(
-  configId: string
+  configId: string,
 ): Promise<TimetableConfigMetadata | null> {
   const config = await configRepository.findByConfigId(configId);
 
@@ -88,7 +96,7 @@ export async function getTimetableConfigMetadata(
 
   const totalTimeslots = await configRepository.countTimeslotsForTerm(
     config.AcademicYear,
-    config.Semester
+    config.Semester,
   );
 
   return {
@@ -109,7 +117,10 @@ export function getDefaultTimetableConfig(): TimetableConfig {
 /**
  * Calculate total periods based on days and periods per day
  */
-export function calculateTotalPeriods(periodsPerDay: number, schoolDays: number): number {
+export function calculateTotalPeriods(
+  periodsPerDay: number,
+  schoolDays: number,
+): number {
   return periodsPerDay * schoolDays;
 }
 
@@ -118,8 +129,8 @@ export function calculateTotalPeriods(periodsPerDay: number, schoolDays: number)
  */
 export function isBreakPeriod(
   periodNumber: number,
-  breakSlots: TimetableConfig['breakSlots'],
-  gradeLevel: number
+  breakSlots: TimetableConfig["breakSlots"],
+  gradeLevel: number,
 ): boolean {
   const breakSlot = gradeLevel <= 3 ? breakSlots.junior : breakSlots.senior;
   return periodNumber === breakSlot;

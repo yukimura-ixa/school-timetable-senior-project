@@ -1,16 +1,19 @@
 /**
  * Infrastructure Layer: Teacher Repository
- * 
+ *
  * Handles all database operations for teachers using Prisma.
  * Pure data access layer with no business logic.
  * Uses React cache() for request-level memoization.
- * 
+ *
  * @module teacher.repository
  */
 
-import { cache } from 'react';
-import prisma from '@/lib/prisma';
-import type { CreateTeacherInput, UpdateTeacherInput } from '../../application/schemas/teacher.schemas';
+import { cache } from "react";
+import prisma from "@/lib/prisma";
+import type {
+  CreateTeacherInput,
+  UpdateTeacherInput,
+} from "../../application/schemas/teacher.schemas";
 
 /**
  * Find all teachers ordered by firstname
@@ -19,7 +22,7 @@ import type { CreateTeacherInput, UpdateTeacherInput } from '../../application/s
 const findAllTeachers = cache(async () => {
   return prisma.teacher.findMany({
     orderBy: {
-      Firstname: 'asc',
+      Firstname: "asc",
     },
   });
 });
@@ -97,7 +100,7 @@ export const teacherRepository = {
   /**
    * Update a teacher by ID
    */
-  async update(teacherId: number, data: Omit<UpdateTeacherInput, 'TeacherID'>) {
+  async update(teacherId: number, data: Omit<UpdateTeacherInput, "TeacherID">) {
     return prisma.teacher.update({
       where: {
         TeacherID: teacherId,

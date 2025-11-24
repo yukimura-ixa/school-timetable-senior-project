@@ -1,4 +1,5 @@
 # Test Database Setup Scripts
+
 # Scripts for managing the local PostgreSQL test database with Docker
 
 ## Quick Start
@@ -23,17 +24,20 @@ pnpm test:db:down
 ## Available Commands
 
 ### Database Lifecycle
+
 - `pnpm test:db:up` - Start PostgreSQL test database in Docker
 - `pnpm test:db:down` - Stop and remove test database container
 - `pnpm test:db:restart` - Restart test database
 - `pnpm test:db:logs` - View database logs
 
 ### Schema Management
+
 - `pnpm test:db:migrate` - Apply all migrations to test database
 - `pnpm test:db:reset` - Reset database (drop + migrate)
 - `pnpm test:db:seed` - Seed test data
 
 ### Testing
+
 - `pnpm test:unit` - Run Jest tests with test database
 - `pnpm test:unit:watch` - Run Jest in watch mode
 
@@ -46,6 +50,7 @@ pnpm test:db:down
 **Password:** test_password
 
 **Connection String:**
+
 ```
 postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public
 ```
@@ -53,6 +58,7 @@ postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public
 ## Docker Compose
 
 The test database is configured in `docker-compose.test.yml`:
+
 - Uses PostgreSQL 16
 - Persists data in Docker volume `test_db_data`
 - Includes health checks
@@ -61,6 +67,7 @@ The test database is configured in `docker-compose.test.yml`:
 ## Environment Variables
 
 Test environment variables are loaded from `.env.test.local`:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `AUTH_SECRET` - Mock auth secret
 - `NODE_ENV=test` - Ensures test mode
@@ -68,6 +75,7 @@ Test environment variables are loaded from `.env.test.local`:
 ## Troubleshooting
 
 ### Port 5433 already in use
+
 ```powershell
 # Check what's using the port
 Get-NetTCPConnection -LocalPort 5433
@@ -80,6 +88,7 @@ docker-compose -f docker-compose.test.yml down -v
 ```
 
 ### Connection refused
+
 ```powershell
 # Check if container is running
 docker ps | Select-String "timetable-test-db"
@@ -92,6 +101,7 @@ pnpm test:db:restart
 ```
 
 ### Migration errors
+
 ```powershell
 # Reset database completely
 pnpm test:db:reset
@@ -102,6 +112,7 @@ pnpm prisma db push
 ```
 
 ### Clean slate
+
 ```powershell
 # Remove everything and start fresh
 docker-compose -f docker-compose.test.yml down -v
@@ -121,6 +132,7 @@ pnpm test:db:seed
 ## Integration with Jest
 
 Jest is configured to:
+
 1. Load `.env.test.local` automatically
 2. Mock Prisma client for unit tests
 3. Polyfill TextEncoder/TextDecoder for Node.js

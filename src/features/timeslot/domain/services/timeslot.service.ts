@@ -1,21 +1,26 @@
 /**
  * Domain Layer: Timeslot Service
- * 
+ *
  * Pure business logic for timeslot generation and management.
  * Complex algorithm for calculating timeslot times and break periods.
- * 
+ *
  * @module timeslot.service
  */
 
-import type { timeslot, day_of_week, breaktime, semester } from '@/prisma/generated/client';
-import { breaktime as breaktimeEnum } from '@/prisma/generated/client';
-import { timeslotRepository } from '../../infrastructure/repositories/timeslot.repository';
-import type { CreateTimeslotsInput } from '../../application/schemas/timeslot.schemas';
+import type {
+  timeslot,
+  day_of_week,
+  breaktime,
+  semester,
+} from "@/prisma/generated/client";
+import { breaktime as breaktimeEnum } from "@/prisma/generated/client";
+import { timeslotRepository } from "../../infrastructure/repositories/timeslot.repository";
+import type { CreateTimeslotsInput } from "../../application/schemas/timeslot.schemas";
 
 // Helper: convert Prisma semester enum to number string
 const toSemesterNum = (sem: semester): string => {
   const match = String(sem).match(/_(\d)$/);
-  return match?.[1] || '1';
+  return match?.[1] || "1";
 };
 
 /**
@@ -26,7 +31,7 @@ export function generateTimeslotId(
   semester: semester,
   academicYear: number,
   dayOfWeek: day_of_week,
-  slotNumber: number
+  slotNumber: number,
 ): string {
   const semesterNum = toSemesterNum(semester);
   return `${semesterNum}-${academicYear}-${dayOfWeek}${slotNumber}`;
@@ -37,7 +42,7 @@ export function generateTimeslotId(
  */
 export function calculateBreaktime(
   slotNumber: number,
-  breakConfig: { Junior: number; Senior: number }
+  breakConfig: { Junior: number; Senior: number },
 ): breaktime {
   const isJuniorBreak = breakConfig.Junior === slotNumber;
   const isSeniorBreak = breakConfig.Senior === slotNumber;
@@ -69,12 +74,20 @@ export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
       const currentSlotNumber = index + 1;
 
       // Apply mini break if configured
-      if (config.HasMinibreak && config.MiniBreak.SlotNumber === currentSlotNumber) {
-        slotStart.setUTCMinutes(slotStart.getUTCMinutes() + config.MiniBreak.Duration);
+      if (
+        config.HasMinibreak &&
+        config.MiniBreak.SlotNumber === currentSlotNumber
+      ) {
+        slotStart.setUTCMinutes(
+          slotStart.getUTCMinutes() + config.MiniBreak.Duration,
+        );
       }
 
       // Determine if this slot is a break period
-      const isBreak = calculateBreaktime(currentSlotNumber, config.BreakTimeslots);
+      const isBreak = calculateBreaktime(
+        currentSlotNumber,
+        config.BreakTimeslots,
+      );
 
       // Calculate end time based on break status
       const endTime = new Date(slotStart);
@@ -86,7 +99,12 @@ export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
 
       // Create timeslot record
       const newSlot: timeslot = {
-        TimeslotID: generateTimeslotId(config.Semester, config.AcademicYear, day, currentSlotNumber),
+        TimeslotID: generateTimeslotId(
+          config.Semester,
+          config.AcademicYear,
+          day,
+          currentSlotNumber,
+        ),
         DayOfWeek: day,
         AcademicYear: config.AcademicYear,
         Semester: config.Semester,
@@ -110,15 +128,15 @@ export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
  * Custom sorting logic: MON < TUE < ... < SUN, then by slot number
  */
 export function sortTimeslots(timeslots: timeslot[]): timeslot[] {
-  const dayOrder = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+  const dayOrder = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
   return timeslots.sort((a, b) => {
     const dayA = dayOrder.indexOf(a.DayOfWeek);
     const dayB = dayOrder.indexOf(b.DayOfWeek);
 
     // Extract slot number from TimeslotID (format: "1-2567-MON1")
-    const slotA = parseInt(a.TimeslotID.split('-')[2]?.substring(3) || '0');
-    const slotB = parseInt(b.TimeslotID.split('-')[2]?.substring(3) || '0');
+    const slotA = parseInt(a.TimeslotID.split("-")[2]?.substring(3) || "0");
+    const slotB = parseInt(b.TimeslotID.split("-")[2]?.substring(3) || "0");
 
     // Sort by day first, then by slot number
     if (dayA === dayB) {
@@ -133,12 +151,12 @@ export function sortTimeslots(timeslots: timeslot[]): timeslot[] {
  */
 export async function validateNoExistingTimeslots(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ): Promise<string | null> {
   const existing = await timeslotRepository.findFirst(academicYear, semester);
 
   if (existing) {
-    return 'มีตารางเวลาสำหรับภาคเรียนนี้อยู่แล้ว กรุณาลบตารางเดิมก่อนสร้างใหม่';
+    return "มีตารางเวลาสำหรับภาคเรียนนี้อยู่แล้ว กรุณาลบตารางเดิมก่อนสร้างใหม่";
   }
 
   return null;
@@ -149,12 +167,12 @@ export async function validateNoExistingTimeslots(
  */
 export async function validateTimeslotsExist(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ): Promise<string | null> {
   const count = await timeslotRepository.countByTerm(academicYear, semester);
 
   if (count === 0) {
-    return 'ไม่พบตารางเวลาสำหรับภาคเรียนที่ระบุ';
+    return "ไม่พบตารางเวลาสำหรับภาคเรียนที่ระบุ";
   }
 
   return null;

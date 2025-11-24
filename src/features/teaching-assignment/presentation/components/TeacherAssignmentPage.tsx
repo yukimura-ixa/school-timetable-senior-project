@@ -14,7 +14,7 @@ import {
   ContentCopy as CopyIcon,
   DeleteSweep as ClearIcon,
 } from "@mui/icons-material";
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 import { AssignmentFilters } from "./AssignmentFilters";
 import { SubjectAssignmentTable } from "./SubjectAssignmentTable";
 import {
@@ -41,7 +41,7 @@ export function TeacherAssignmentPage() {
     }
 
     const confirmed = window.confirm(
-      `คัดลอกการมอบหมายครูจากภาคเรียนก่อนหน้าไปยัง ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้จะเพิ่มการมอบหมายใหม่โดยไม่ลบข้อมูลเดิม`
+      `คัดลอกการมอบหมายครูจากภาคเรียนก่อนหน้าไปยัง ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้จะเพิ่มการมอบหมายใหม่โดยไม่ลบข้อมูลเดิม`,
     );
 
     if (!confirmed) return;
@@ -54,7 +54,8 @@ export function TeacherAssignmentPage() {
       // Calculate previous semester
       const prevSemester: semester =
         semester === "SEMESTER_1" ? "SEMESTER_2" : "SEMESTER_1";
-      const prevYear = semester === "SEMESTER_1" ? academicYear - 1 : academicYear;
+      const prevYear =
+        semester === "SEMESTER_1" ? academicYear - 1 : academicYear;
 
       const result = await copyAssignmentsAction({
         sourceGradeID: gradeId,
@@ -67,7 +68,7 @@ export function TeacherAssignmentPage() {
 
       if (result.success) {
         setSuccess(
-          `คัดลอกสำเร็จ ${result.data?.count || 0} รายการ จากภาคเรียนก่อนหน้า`
+          `คัดลอกสำเร็จ ${result.data?.count || 0} รายการ จากภาคเรียนก่อนหน้า`,
         );
         // Force refresh table
         window.location.reload();
@@ -88,7 +89,7 @@ export function TeacherAssignmentPage() {
     }
 
     const confirmed = window.confirm(
-      `⚠️ ต้องการลบการมอบหมายครูทั้งหมดใน ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้!`
+      `⚠️ ต้องการลบการมอบหมายครูทั้งหมดใน ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้!`,
     );
 
     if (!confirmed) return;
@@ -105,10 +106,9 @@ export function TeacherAssignmentPage() {
       });
 
       if (result.success && result.data) {
-        const count = typeof result.data.count === 'number' ? result.data.count : 0;
-        setSuccess(
-          `ลบสำเร็จ ${count} รายการ`
-        );
+        const count =
+          typeof result.data.count === "number" ? result.data.count : 0;
+        setSuccess(`ลบสำเร็จ ${count} รายการ`);
         // Force refresh table
         window.location.reload();
       } else {
@@ -152,7 +152,11 @@ export function TeacherAssignmentPage() {
         </Alert>
       )}
       {success && (
-        <Alert severity="success" onClose={() => setSuccess(null)} sx={{ mb: 2 }}>
+        <Alert
+          severity="success"
+          onClose={() => setSuccess(null)}
+          sx={{ mb: 2 }}
+        >
           {success}
         </Alert>
       )}
@@ -162,7 +166,9 @@ export function TeacherAssignmentPage() {
         <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
           <Button
             variant="outlined"
-            startIcon={isLoading ? <CircularProgress size={20} /> : <CopyIcon />}
+            startIcon={
+              isLoading ? <CircularProgress size={20} /> : <CopyIcon />
+            }
             onClick={() => void handleCopyFromPrevious()}
             disabled={isLoading}
           >
@@ -171,7 +177,9 @@ export function TeacherAssignmentPage() {
           <Button
             variant="outlined"
             color="error"
-            startIcon={isLoading ? <CircularProgress size={20} /> : <ClearIcon />}
+            startIcon={
+              isLoading ? <CircularProgress size={20} /> : <ClearIcon />
+            }
             onClick={() => void handleClearAll()}
             disabled={isLoading}
           >

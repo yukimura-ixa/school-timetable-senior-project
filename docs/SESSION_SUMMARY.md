@@ -33,7 +33,7 @@
 
 2. **FIX_PROGRESS.md** - Progress tracking
    - Complete TypeScript error catalog (125 errors)
-   - Error distribution analysis  
+   - Error distribution analysis
    - Detailed fix strategy
    - Success criteria
 
@@ -45,11 +45,12 @@
 ### ⏸️ Partially Completed
 
 **Script Files Prisma Constructor Fixes** (5 files)
+
 - Status: Documented but NOT applied
 - Reason: File editing proved fragile with multi-replace tool
 - Recommendation: Apply manually using QUICKFIX_GUIDE.md (5 minutes)
 - Files affected:
-  - `scripts/check-admin-user.ts`  
+  - `scripts/check-admin-user.ts`
   - `scripts/check-semester.ts`
   - `scripts/create-admin.ts`
   - `scripts/verify-admin.ts`
@@ -66,12 +67,12 @@
 
 ###Error Breakdown
 
-| Category | Count | Complexity | Time Estimate |
-|----------|-------|------------|---------------|
-| Script PrismaClient fixes | 5 | Easy | 5 min (manual) |
-| Implicit `any` in callbacks | ~110 | Easy-Medium | 6-8 hours |
-| Unknown type assertions | ~8 | Medium | 1-2 hours |
-| PublishReadiness module error | 1 | Non-issue (stale cache) | 0 min |
+| Category                      | Count | Complexity              | Time Estimate  |
+| ----------------------------- | ----- | ----------------------- | -------------- |
+| Script PrismaClient fixes     | 5     | Easy                    | 5 min (manual) |
+| Implicit `any` in callbacks   | ~110  | Easy-Medium             | 6-8 hours      |
+| Unknown type assertions       | ~8    | Medium                  | 1-2 hours      |
+| PublishReadiness module error | 1     | Non-issue (stale cache) | 0 min          |
 
 ---
 
@@ -89,21 +90,25 @@
 
 2. **Fix Implicit `any` Types**
    - Pattern 1: Callback parameters (most common)
+
      ```typescript
      // Before
      .map((t) => t.DayOfWeek)
-     
-     // After  
+
+     // After
      .map((t: timeslot) => t.DayOfWeek)
      ```
+
    - Pattern 2: Event handlers
+
      ```typescript
      // Before
      onClick={(e) => handleClick()}
-     
+
      // After
      onClick={(e: React.MouseEvent) => handleClick())
      ```
+
    - Focus areas:
      - Analytics repositories (40+ errors)
      - Public pages (35+ errors)
@@ -169,14 +174,14 @@
 
 ## Success Metrics
 
-| Metric | Current | Target | Status |
-|--------|---------|--------|--------|
-| TypeScript Errors | 123 | 0 | 🟡 In Progress |
-| Lint Errors | Unknown | 0 | ⏳ Pending |
-| Unit Tests Passing | ✅ 50+ | ✅ All | ✅ Done |
-| E2E Tests Passing | ❌ Blocked | ✅ 27/27 | ⏳ Pending |
-| Security Audit | ⏳ Pending | ✅ Complete | ⏳ Pending |
-| Cache Audit | ⏳ Pending | ✅ Complete | ⏳ Pending |
+| Metric             | Current    | Target      | Status         |
+| ------------------ | ---------- | ----------- | -------------- |
+| TypeScript Errors  | 123        | 0           | 🟡 In Progress |
+| Lint Errors        | Unknown    | 0           | ⏳ Pending     |
+| Unit Tests Passing | ✅ 50+     | ✅ All      | ✅ Done        |
+| E2E Tests Passing  | ❌ Blocked | ✅ 27/27    | ⏳ Pending     |
+| Security Audit     | ⏳ Pending | ✅ Complete | ⏳ Pending     |
+| Cache Audit        | ⏳ Pending | ✅ Complete | ⏳ Pending     |
 
 ---
 

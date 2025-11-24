@@ -54,14 +54,16 @@ export function ClassesTableClient({
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 text-lg">
-          {search ? `ไม่พบชั้นเรียนที่ค้นหา "${search}"` : "ไม่มีข้อมูลชั้นเรียน"}
+          {search
+            ? `ไม่พบชั้นเรียนที่ค้นหา "${search}"`
+            : "ไม่มีข้อมูลชั้นเรียน"}
         </p>
       </div>
     );
   }
 
   return (
-    <div 
+    <div
       className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
       data-testid={testId}
     >

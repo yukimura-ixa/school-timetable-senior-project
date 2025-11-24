@@ -1,7 +1,7 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { dayOfWeekTextColor } from "@/models/dayofWeek-textColor";
 import { dayOfWeekColor } from "@/models/dayofweek-color";
-import type { timeslot } from '@/prisma/generated/client';;
+import type { timeslot } from "@/prisma/generated/client";
 
 const BREAK_TYPES = new Set(["BREAK_BOTH", "BREAK_JUNIOR", "BREAK_SENIOR"]);
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
@@ -72,7 +72,9 @@ export const createTimeSlotTableData = (
       return dayDiff;
     }
 
-    return parseSlotNumber(slotA.TimeslotID) - parseSlotNumber(slotB.TimeslotID);
+    return (
+      parseSlotNumber(slotA.TimeslotID) - parseSlotNumber(slotB.TimeslotID)
+    );
   });
 
   const dayOfWeek = Array.from(
@@ -84,14 +86,18 @@ export const createTimeSlotTableData = (
   }));
 
   const breakSlots = sortedTimeslots
-    .filter((slot) => BREAK_TYPES.has(slot.Breaktime) && slot.DayOfWeek === "MON")
+    .filter(
+      (slot) => BREAK_TYPES.has(slot.Breaktime) && slot.DayOfWeek === "MON",
+    )
     .map((slot) => ({
       TimeslotID: slot.TimeslotID,
       Breaktime: slot.Breaktime,
       SlotNumber: parseSlotNumber(slot.TimeslotID),
     }));
 
-  const mondaySlots = sortedTimeslots.filter((slot) => slot.DayOfWeek === "MON");
+  const mondaySlots = sortedTimeslots.filter(
+    (slot) => slot.DayOfWeek === "MON",
+  );
   const slotAmount = mondaySlots.map((_, index) => index + 1);
 
   const allData = sortedTimeslots.map((slot) => ({

@@ -17,15 +17,17 @@ We need to decide between two approaches to fix the broken `schedule-assignment.
 ## Current State Analysis
 
 ### Existing Page Structure
+
 - **Page**: `/schedule/[semesterAndyear]/arrange/teacher-arrange`
 - **Component**: Complex 1425-line React component with Zustand state management
 - **Tech Stack**: @dnd-kit for drag-and-drop, MUI components, Server Actions
 
 ### Existing data-testid Coverage
+
 ```tsx
 // Currently in teacher-arrange/page.tsx:
 data-testid="subject-list"        // Line 1335
-data-testid="save-button"          // Line 1381  
+data-testid="save-button"          // Line 1381
 data-testid="timeslot-grid"        // Line 1416
 
 // In SelectTeacher.tsx:
@@ -33,7 +35,9 @@ data-testid="teacher-selector"     // Line 39
 ```
 
 ### ArrangePage POM Capabilities
+
 The existing `ArrangePage.ts` POM is **production-ready** and already supports:
+
 - ✅ Room selection dialog testing (Issue #83)
 - ✅ Subject placement validation (Issue #84)
 - ✅ Lock data integration (Issue #85)
@@ -42,17 +46,18 @@ The existing `ArrangePage.ts` POM is **production-ready** and already supports:
 - ✅ Robust locator strategies (role-based + text-based)
 
 **ArrangePage Methods**:
+
 ```typescript
-navigateTo(semester, year)
-selectTeacher(teacherName)
-dragSubjectToTimeslot(subjectCode, row, col)
-selectRoom(roomName)
-assertRoomDialogVisible()
-assertSubjectPlaced(row, col, subjectCode)
-assertTimeslotLocked(row, col)
-deleteSchedule()
-getSubjectPaletteCount()
-isSubjectInPalette(subjectCode)
+navigateTo(semester, year);
+selectTeacher(teacherName);
+dragSubjectToTimeslot(subjectCode, row, col);
+selectRoom(roomName);
+assertRoomDialogVisible();
+assertSubjectPlaced(row, col, subjectCode);
+assertTimeslotLocked(row, col);
+deleteSchedule();
+getSubjectPaletteCount();
+isSubjectInPalette(subjectCode);
 ```
 
 ---
@@ -60,49 +65,63 @@ isSubjectInPalette(subjectCode)
 ## Option A: Rewrite Tests Using ArrangePage POM
 
 ### Approach
+
 Use existing ArrangePage methods with minimal changes to the page components.
 
 ### Example Test Rewrite
 
 **Before (Broken)**:
+
 ```typescript
-test('should successfully assign subject to empty timeslot', async ({ scheduleAssignmentPage }) => {
+test("should successfully assign subject to empty timeslot", async ({
+  scheduleAssignmentPage,
+}) => {
   await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
   await scheduleAssignmentPage.selectTeacher(testTeacher.TeacherID.toString());
-  await scheduleAssignmentPage.dragSubjectToTimeslot(testSubject.SubjectCode, 'MON', 1);
-  
+  await scheduleAssignmentPage.dragSubjectToTimeslot(
+    testSubject.SubjectCode,
+    "MON",
+    1,
+  );
+
   const conflict = await scheduleAssignmentPage.getConflictMessage();
   expect(conflict).toBeNull();
 });
 ```
 
 **After (Using ArrangePage)**:
+
 ```typescript
-test('should successfully assign subject to empty timeslot', async ({ arrangePage }) => {
-  await arrangePage.navigateTo('1', '2567');
-  await arrangePage.selectTeacher('สมชาย ใจดี'); // Use teacher name instead of ID
-  await arrangePage.dragSubjectToTimeslot('TH21101', 1, 2); // row, col instead of 'MON', 1
-  await arrangePage.selectRoom('ห้อง 101'); // Handle room selection dialog
-  
-  await arrangePage.assertSubjectPlaced(1, 2, 'TH21101');
+test("should successfully assign subject to empty timeslot", async ({
+  arrangePage,
+}) => {
+  await arrangePage.navigateTo("1", "2567");
+  await arrangePage.selectTeacher("สมชาย ใจดี"); // Use teacher name instead of ID
+  await arrangePage.dragSubjectToTimeslot("TH21101", 1, 2); // row, col instead of 'MON', 1
+  await arrangePage.selectRoom("ห้อง 101"); // Handle room selection dialog
+
+  await arrangePage.assertSubjectPlaced(1, 2, "TH21101");
 });
 ```
 
 ### Pros
+
 ✅ **Faster to implement** - ArrangePage already exists and is battle-tested  
 ✅ **No page refactoring needed** - Don't touch the complex 1425-line component  
 ✅ **Robust fallback selectors** - Uses `.or()` pattern for reliability  
 ✅ **Matches real user behavior** - Uses role-based + text-based selectors  
 ✅ **Already proven in production** - Used in Issues #83-85, #89 tests  
 ✅ **Minimal risk** - No changes to production code  
-✅ **Better maintainability** - Selectors don't rely on implementation details  
+✅ **Better maintainability** - Selectors don't rely on implementation details
 
 ### Cons
+
 ❌ **Different API signature** - Tests need complete rewrite (not just parameter fixes)  
 ❌ **Locator abstraction** - Slightly harder to debug vs direct testids  
-❌ **Need test data updates** - Must map teacher IDs to names, timeslot coords to row/col  
+❌ **Need test data updates** - Must map teacher IDs to names, timeslot coords to row/col
 
 ### Implementation Effort
+
 - **Time**: 2-3 hours
 - **Files Modified**: `schedule-assignment.spec.ts` only
 - **Risk**: **LOW** - No production code changes
@@ -112,11 +131,13 @@ test('should successfully assign subject to empty timeslot', async ({ arrangePag
 ## Option B: Add data-testid Attributes to Components
 
 ### Approach
+
 Add comprehensive `data-testid` attributes throughout the page, then fix test locators.
 
 ### Required Changes
 
 #### 1. Subject Cards (SearchableSubjectPalette)
+
 ```tsx
 // Before:
 <Card>
@@ -130,6 +151,7 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 ```
 
 #### 2. Timeslot Grid Cells (TimeSlot component)
+
 ```tsx
 // Before:
 <TableCell>
@@ -137,7 +159,7 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 </TableCell>
 
 // After:
-<TableCell 
+<TableCell
   data-testid={`timeslot-${dayOfWeek}-${period}`}
   data-day={dayOfWeek}
   data-period={period}
@@ -149,23 +171,27 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 ```
 
 #### 3. Conflict Indicators
+
 ```tsx
 // Before:
-{conflicts.length > 0 && (
-  <Alert severity="error">
-    {conflicts.map(c => c.message).join(', ')}
-  </Alert>
-)}
+{
+  conflicts.length > 0 && (
+    <Alert severity="error">{conflicts.map((c) => c.message).join(", ")}</Alert>
+  );
+}
 
 // After:
-{conflicts.length > 0 && (
-  <Alert severity="error" data-testid="conflict-indicator">
-    {conflicts.map(c => c.message).join(', ')}
-  </Alert>
-)}
+{
+  conflicts.length > 0 && (
+    <Alert severity="error" data-testid="conflict-indicator">
+      {conflicts.map((c) => c.message).join(", ")}
+    </Alert>
+  );
+}
 ```
 
 #### 4. Room Selection Dialog
+
 ```tsx
 // Before:
 <Dialog open={roomDialogOpen}>
@@ -181,6 +207,7 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 ```
 
 #### 5. Lock/Unlock Buttons
+
 ```tsx
 // Before:
 <IconButton onClick={lockTimeslot}>
@@ -188,7 +215,7 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 </IconButton>
 
 // After:
-<IconButton 
+<IconButton
   onClick={lockTimeslot}
   data-testid={`lock-button-${day}-${period}`}
 >
@@ -197,6 +224,7 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 ```
 
 #### 6. Export Button
+
 ```tsx
 // Before:
 <Button onClick={exportToExcel}>
@@ -204,7 +232,7 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 </Button>
 
 // After:
-<Button 
+<Button
   onClick={exportToExcel}
   data-testid="export-button"
 >
@@ -213,13 +241,15 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 ```
 
 ### Pros
+
 ✅ **Explicit selectors** - Clear, predictable element identification  
 ✅ **Easier debugging** - Can inspect testids in DevTools  
 ✅ **IDE autocomplete** - Can grep for all testids easily  
 ✅ **Minimal test changes** - Original test logic mostly unchanged  
-✅ **Future-proof** - New features can follow testid convention  
+✅ **Future-proof** - New features can follow testid convention
 
 ### Cons
+
 ❌ **Touches production code** - Changes to stable, complex component (1425 lines)  
 ❌ **Regression risk** - Any mistake could break working functionality  
 ❌ **More files to modify** - Need to update 5+ components  
@@ -227,11 +257,12 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 ❌ **Performance impact** - Additional props on every rendered element  
 ❌ **Maintenance burden** - Must keep testids in sync with refactors  
 ❌ **HTML bloat** - Adds ~10-15 KB to page HTML  
-❌ **Testing anti-pattern** - Testing Library discourages testids (use roles/text instead)  
+❌ **Testing anti-pattern** - Testing Library discourages testids (use roles/text instead)
 
 ### Implementation Effort
+
 - **Time**: 4-6 hours
-- **Files Modified**: 
+- **Files Modified**:
   - `teacher-arrange/page.tsx` (1425 lines - **HIGH RISK**)
   - `SearchableSubjectPalette.tsx`
   - `TimeSlot.tsx`
@@ -244,42 +275,46 @@ Add comprehensive `data-testid` attributes throughout the page, then fix test lo
 
 ## Detailed Comparison Matrix
 
-| Criterion | Option A: ArrangePage POM | Option B: Add testids |
-|-----------|---------------------------|------------------------|
-| **Implementation Time** | 2-3 hours | 4-6 hours |
-| **Files Modified** | 1 (test only) | 6+ (components + test) |
-| **Production Code Risk** | None | Medium-High |
-| **Regression Risk** | Minimal | Medium |
-| **Future Maintainability** | Excellent | Good |
-| **Debugging Ease** | Good | Excellent |
-| **Alignment with Best Practices** | ✅ Excellent | ⚠️ Acceptable |
-| **Playwright Recommendation** | ✅ Preferred | ❌ Fallback |
-| **Testing Library Philosophy** | ✅ Matches | ❌ Discouraged |
-| **Refactoring Resilience** | ✅ High | ⚠️ Low |
-| **Test Readability** | Good | Excellent |
-| **Performance Impact** | None | Minor (~10KB HTML) |
+| Criterion                         | Option A: ArrangePage POM | Option B: Add testids  |
+| --------------------------------- | ------------------------- | ---------------------- |
+| **Implementation Time**           | 2-3 hours                 | 4-6 hours              |
+| **Files Modified**                | 1 (test only)             | 6+ (components + test) |
+| **Production Code Risk**          | None                      | Medium-High            |
+| **Regression Risk**               | Minimal                   | Medium                 |
+| **Future Maintainability**        | Excellent                 | Good                   |
+| **Debugging Ease**                | Good                      | Excellent              |
+| **Alignment with Best Practices** | ✅ Excellent              | ⚠️ Acceptable          |
+| **Playwright Recommendation**     | ✅ Preferred              | ❌ Fallback            |
+| **Testing Library Philosophy**    | ✅ Matches                | ❌ Discouraged         |
+| **Refactoring Resilience**        | ✅ High                   | ⚠️ Low                 |
+| **Test Readability**              | Good                      | Excellent              |
+| **Performance Impact**            | None                      | Minor (~10KB HTML)     |
 
 ---
 
 ## Expert Recommendations
 
 ### Playwright Best Practices (Official Docs)
+
 > "Prefer user-facing attributes like role, label, text content, and accessibility attributes over test IDs."  
 > — [Playwright Locators Guide](https://playwright.dev/docs/locators)
 
 **Priority Order**:
+
 1. **Role-based selectors** (ARIA roles)
 2. **Text content** (visible to users)
 3. **Accessibility attributes** (labels, titles)
 4. **data-testid** (last resort)
 
 ### Testing Library Philosophy (Kent C. Dodds)
+
 > "The more your tests resemble the way your software is used, the more confidence they can give you."
 
 **ArrangePage already follows this**:
+
 ```typescript
 // ✅ Good - How users interact
-teacherDropdown = page.locator('[role="button"]', { hasText: 'เลือกครู' });
+teacherDropdown = page.locator('[role="button"]', { hasText: "เลือกครู" });
 
 // ❌ Avoid - Implementation detail
 teacherDropdown = page.locator('[data-testid="teacher-dropdown"]');
@@ -290,7 +325,9 @@ teacherDropdown = page.locator('[data-testid="teacher-dropdown"]');
 ## Real-World Codebase Context
 
 ### Current ArrangePage Usage
+
 ArrangePage is **actively used** in 4 test suites:
+
 - Issue #83 tests (room selection)
 - Issue #84 tests (subject placement)
 - Issue #85 tests (lock integration)
@@ -299,7 +336,9 @@ ArrangePage is **actively used** in 4 test suites:
 **Success Rate**: 100% pass rate in CI/CD
 
 ### Component Stability
+
 `teacher-arrange/page.tsx` is:
+
 - ✅ 1425 lines of complex React code
 - ✅ Already refactored twice (Week 5.3, Week 8)
 - ✅ Using Zustand state management
@@ -317,6 +356,7 @@ ArrangePage is **actively used** in 4 test suites:
 2. **Enhancement**: Add **5-7 critical testids** only where role/text selectors are ambiguous
 
 ### Critical testids to Add (Low Risk)
+
 ```tsx
 // 1. Conflict indicator (changes dynamically)
 <Alert data-testid="conflict-indicator" severity="error">
@@ -335,6 +375,7 @@ ArrangePage is **actively used** in 4 test suites:
 ```
 
 **Why This Works**:
+
 - ✅ Minimal production code changes (5 components, ~10 lines total)
 - ✅ Testids only where genuinely needed
 - ✅ ArrangePage handles 90% of test scenarios
@@ -346,10 +387,11 @@ ArrangePage is **actively used** in 4 test suites:
 ## Implementation Plan
 
 ### Phase 1: Rewrite Core Tests (2 hours)
+
 ```typescript
 // Fix fixture parameter names
 test('...', async ({ arrangePage }) => {
-  
+
 // Update navigation
 - scheduleAssignmentPage.goto(testSemester.SemesterAndyear)
 + arrangePage.navigateTo('1', '2567')
@@ -369,9 +411,11 @@ test('...', async ({ arrangePage }) => {
 ```
 
 ### Phase 2: Add Strategic testids (1 hour)
+
 Only if ArrangePage can't handle a specific scenario.
 
 ### Phase 3: Test & Validate (30 mins)
+
 ```bash
 pnpm playwright test schedule-assignment.spec.ts
 ```
@@ -382,18 +426,19 @@ pnpm playwright test schedule-assignment.spec.ts
 
 ### Original Test Suite → ArrangePage Methods
 
-| Original Test | ArrangePage Equivalent | Additional Work |
-|---------------|------------------------|-----------------|
-| `goto()` | `navigateTo(semester, year)` | ✅ Direct replacement |
-| `selectTeacher(id)` | `selectTeacher(name)` | ⚠️ Need teacher name lookup |
+| Original Test                              | ArrangePage Equivalent                  | Additional Work                 |
+| ------------------------------------------ | --------------------------------------- | ------------------------------- |
+| `goto()`                                   | `navigateTo(semester, year)`            | ✅ Direct replacement           |
+| `selectTeacher(id)`                        | `selectTeacher(name)`                   | ⚠️ Need teacher name lookup     |
 | `dragSubjectToTimeslot(code, day, period)` | `dragSubjectToTimeslot(code, row, col)` | ⚠️ Convert day+period → row/col |
-| `getConflictMessage()` | `assertSubjectPlaced()` (inverse) | ⚠️ Need new conflict assertion |
-| `hasConflict(type)` | **Missing** | ❌ Need to add |
-| `lockTimeslot(day, period)` | **Missing** | ❌ Need to add |
-| `exportSchedule(format)` | **Missing** | ❌ Need to add |
-| `getAvailableSubjects()` | `getSubjectPaletteCount()` | ⚠️ Partial coverage |
+| `getConflictMessage()`                     | `assertSubjectPlaced()` (inverse)       | ⚠️ Need new conflict assertion  |
+| `hasConflict(type)`                        | **Missing**                             | ❌ Need to add                  |
+| `lockTimeslot(day, period)`                | **Missing**                             | ❌ Need to add                  |
+| `exportSchedule(format)`                   | **Missing**                             | ❌ Need to add                  |
+| `getAvailableSubjects()`                   | `getSubjectPaletteCount()`              | ⚠️ Partial coverage             |
 
 ### Missing ArrangePage Methods to Add
+
 ```typescript
 // Add to ArrangePage.ts:
 async hasConflict(type: 'teacher' | 'room' | 'locked'): Promise<boolean>
@@ -411,16 +456,18 @@ async getAvailableSubjects(): Promise<string[]>
 ## Decision Matrix
 
 ### Choose Option A (ArrangePage) if:
+
 ✅ You want **minimal risk** to production code  
 ✅ You prioritize **long-term maintainability**  
 ✅ You follow **Playwright/Testing Library best practices**  
-✅ You're okay with a **2-day implementation** (test rewrite + add POM methods)  
+✅ You're okay with a **2-day implementation** (test rewrite + add POM methods)
 
 ### Choose Option B (testids) if:
+
 ✅ You need **explicit, debuggable selectors**  
 ✅ You have **QA team unfamiliar with POM pattern**  
 ✅ You're willing to **accept technical debt** for faster initial setup  
-✅ You plan to **add testids to all new components** going forward  
+✅ You plan to **add testids to all new components** going forward
 
 ---
 
@@ -464,17 +511,20 @@ The original tests use `(day, period)` but ArrangePage uses `(row, col)`:
 
 ```typescript
 // Helper function to add to test file:
-function getTimeslotCoords(day: string, period: number): { row: number, col: number } {
-  const dayIndex = ['MON', 'TUE', 'WED', 'THU', 'FRI'].indexOf(day);
+function getTimeslotCoords(
+  day: string,
+  period: number,
+): { row: number; col: number } {
+  const dayIndex = ["MON", "TUE", "WED", "THU", "FRI"].indexOf(day);
   return {
     row: period, // Period 1 = row 1
-    col: dayIndex + 1 // MON = col 1, TUE = col 2, etc.
+    col: dayIndex + 1, // MON = col 1, TUE = col 2, etc.
   };
 }
 
 // Usage:
-const { row, col } = getTimeslotCoords('MON', 1);
-await arrangePage.dragSubjectToTimeslot('TH101', row, col);
+const { row, col } = getTimeslotCoords("MON", 1);
+await arrangePage.dragSubjectToTimeslot("TH101", row, col);
 ```
 
 ---

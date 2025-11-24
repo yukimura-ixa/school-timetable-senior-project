@@ -114,7 +114,12 @@ export default function ManagementIndexPage() {
                 >
                   {page.icon}
                 </Box>
-                <Typography variant="h6" component="h2" fontWeight="bold" gutterBottom>
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  fontWeight="bold"
+                  gutterBottom
+                >
                   {page.title}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">

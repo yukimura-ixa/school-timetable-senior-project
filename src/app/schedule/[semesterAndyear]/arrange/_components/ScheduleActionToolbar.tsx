@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Schedule Action Toolbar
- * 
+ *
  * Provides bulk operations and quick actions for schedule arrangement.
  * Phase 2 Part 2 - Interactive Enhancements
- * 
+ *
  * @module ScheduleActionToolbar
  */
 
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Stack,
   Button,
@@ -26,7 +26,7 @@ import {
   InputLabel,
   Alert,
   Chip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Delete as DeleteIcon,
   ContentCopy as CopyIcon,
@@ -35,7 +35,7 @@ import {
   Redo as RedoIcon,
   AutoAwesome as AutoIcon,
   Warning as WarningIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface ScheduleActionToolbarProps {
   onClearDay?: (day: number) => void;
@@ -71,7 +71,7 @@ export function ScheduleActionToolbar({
   const [clearAllDialog, setClearAllDialog] = useState(false);
   const [copyDayDialog, setCopyDayDialog] = useState(false);
   const [autoArrangeDialog, setAutoArrangeDialog] = useState(false);
-  
+
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [sourceDay, setSourceDay] = useState<number>(1);
   const [targetDay, setTargetDay] = useState<number>(2);
@@ -80,24 +80,23 @@ export function ScheduleActionToolbar({
   // CONSTANTS
   // ============================================================================
   const DAYS = [
-    { value: 1, label: 'จันทร์' },
-    { value: 2, label: 'อังคาร' },
-    { value: 3, label: 'พุธ' },
-    { value: 4, label: 'พฤหัสบดี' },
-    { value: 5, label: 'ศุกร์' },
+    { value: 1, label: "จันทร์" },
+    { value: 2, label: "อังคาร" },
+    { value: 3, label: "พุธ" },
+    { value: 4, label: "พฤหัสบดี" },
+    { value: 5, label: "ศุกร์" },
   ];
 
   // ============================================================================
   // STATS
   // ============================================================================
-  const completionPercentage = totalSlots > 0 
-    ? Math.round((filledSlots / totalSlots) * 100) 
-    : 0;
+  const completionPercentage =
+    totalSlots > 0 ? Math.round((filledSlots / totalSlots) * 100) : 0;
 
   // ============================================================================
   // HANDLERS
   // ============================================================================
-  
+
   const handleClearDay = () => {
     onClearDay?.(selectedDay);
     setClearDayDialog(false);
@@ -110,7 +109,7 @@ export function ScheduleActionToolbar({
 
   const handleCopyDay = () => {
     if (sourceDay === targetDay) {
-      alert('กรุณาเลือกวันที่ต่างกัน');
+      alert("กรุณาเลือกวันที่ต่างกัน");
       return;
     }
     onCopyDay?.(sourceDay, targetDay);
@@ -125,7 +124,7 @@ export function ScheduleActionToolbar({
   // ============================================================================
   // RENDER
   // ============================================================================
-  
+
   return (
     <>
       <Stack
@@ -134,11 +133,11 @@ export function ScheduleActionToolbar({
         alignItems="center"
         sx={{
           p: 2,
-          bgcolor: 'background.paper',
+          bgcolor: "background.paper",
           borderRadius: 1,
           border: 1,
-          borderColor: 'divider',
-          flexWrap: 'wrap',
+          borderColor: "divider",
+          flexWrap: "wrap",
           gap: 1,
         }}
       >
@@ -151,8 +150,8 @@ export function ScheduleActionToolbar({
             <Chip
               label={`${filledSlots}/${totalSlots}`}
               size="small"
-              color={completionPercentage === 100 ? 'success' : 'default'}
-              sx={{ fontWeight: 'bold' }}
+              color={completionPercentage === 100 ? "success" : "default"}
+              sx={{ fontWeight: "bold" }}
             />
             <Typography variant="caption" color="text.secondary">
               ({completionPercentage}%)
@@ -161,7 +160,7 @@ export function ScheduleActionToolbar({
         </Stack>
 
         {/* Divider */}
-        <Stack sx={{ height: 40, width: 1, bgcolor: 'divider' }} />
+        <Stack sx={{ height: 40, width: 1, bgcolor: "divider" }} />
 
         {/* Action Buttons */}
         <ButtonGroup variant="outlined" size="small">
@@ -250,14 +249,19 @@ export function ScheduleActionToolbar({
       </Stack>
 
       {/* Clear Day Dialog */}
-      <Dialog open={clearDayDialog} onClose={() => setClearDayDialog(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={clearDayDialog}
+        onClose={() => setClearDayDialog(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>ล้างตารางของวันที่เลือก</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
             <Alert severity="warning">
               การดำเนินการนี้จะลบวิชาทั้งหมดในวันที่เลือก และไม่สามารถยกเลิกได้
             </Alert>
-            
+
             <FormControl fullWidth>
               <InputLabel>เลือกวัน</InputLabel>
               <Select
@@ -283,7 +287,12 @@ export function ScheduleActionToolbar({
       </Dialog>
 
       {/* Clear All Dialog */}
-      <Dialog open={clearAllDialog} onClose={() => setClearAllDialog(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={clearAllDialog}
+        onClose={() => setClearAllDialog(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>ล้างตารางทั้งหมด</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
@@ -292,10 +301,11 @@ export function ScheduleActionToolbar({
                 ⚠️ คำเตือนสำคัญ
               </Typography>
               <Typography variant="body2">
-                การดำเนินการนี้จะลบวิชาทั้งหมดในตารางสอน ทั้ง 5 วัน และไม่สามารถยกเลิกได้
+                การดำเนินการนี้จะลบวิชาทั้งหมดในตารางสอน ทั้ง 5 วัน
+                และไม่สามารถยกเลิกได้
               </Typography>
             </Alert>
-            
+
             <Typography variant="body2" color="text.secondary">
               คุณแน่ใจหรือไม่ที่จะล้างตารางทั้งหมด?
             </Typography>
@@ -310,14 +320,20 @@ export function ScheduleActionToolbar({
       </Dialog>
 
       {/* Copy Day Dialog */}
-      <Dialog open={copyDayDialog} onClose={() => setCopyDayDialog(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={copyDayDialog}
+        onClose={() => setCopyDayDialog(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>คัดลอกตารางระหว่างวัน</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
             <Alert severity="info">
-              คัดลอกวิชาทั้งหมดจากวันต้นทางไปยังวันปลายทาง (จะเขียนทับข้อมูลเดิม)
+              คัดลอกวิชาทั้งหมดจากวันต้นทางไปยังวันปลายทาง
+              (จะเขียนทับข้อมูลเดิม)
             </Alert>
-            
+
             <FormControl fullWidth>
               <InputLabel>วันต้นทาง (คัดลอกจาก)</InputLabel>
               <Select
@@ -341,7 +357,11 @@ export function ScheduleActionToolbar({
                 label="วันปลายทาง (คัดลอกไป)"
               >
                 {DAYS.map((day) => (
-                  <MenuItem key={day.value} value={day.value} disabled={day.value === sourceDay}>
+                  <MenuItem
+                    key={day.value}
+                    value={day.value}
+                    disabled={day.value === sourceDay}
+                  >
                     {day.label}
                   </MenuItem>
                 ))}
@@ -358,7 +378,12 @@ export function ScheduleActionToolbar({
       </Dialog>
 
       {/* Auto Arrange Dialog */}
-      <Dialog open={autoArrangeDialog} onClose={() => setAutoArrangeDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={autoArrangeDialog}
+        onClose={() => setAutoArrangeDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>จัดตารางอัตโนมัติ (ทดลอง)</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
@@ -367,16 +392,24 @@ export function ScheduleActionToolbar({
                 🤖 ฟีเจอร์นี้อยู่ในระหว่างการพัฒนา
               </Typography>
               <Typography variant="body2">
-                ระบบจะพยายามจัดวิชาที่เหลืออยู่ลงในช่องว่างโดยอัตโนมัติ 
+                ระบบจะพยายามจัดวิชาที่เหลืออยู่ลงในช่องว่างโดยอัตโนมัติ
                 โดยคำนึงถึงข้อจำกัดต่างๆ เช่น:
               </Typography>
             </Alert>
 
             <Stack spacing={0.5} sx={{ pl: 2 }}>
-              <Typography variant="caption">• ครูไม่สอนซ้ำในเวลาเดียวกัน</Typography>
-              <Typography variant="caption">• ห้องเรียนไม่ซ้ำในเวลาเดียวกัน</Typography>
-              <Typography variant="caption">• คาบพักและคาบล็อคจะไม่ถูกแก้ไข</Typography>
-              <Typography variant="caption">• กระจายภาระงานให้เท่ากันในแต่ละวัน</Typography>
+              <Typography variant="caption">
+                • ครูไม่สอนซ้ำในเวลาเดียวกัน
+              </Typography>
+              <Typography variant="caption">
+                • ห้องเรียนไม่ซ้ำในเวลาเดียวกัน
+              </Typography>
+              <Typography variant="caption">
+                • คาบพักและคาบล็อคจะไม่ถูกแก้ไข
+              </Typography>
+              <Typography variant="caption">
+                • กระจายภาระงานให้เท่ากันในแต่ละวัน
+              </Typography>
             </Stack>
 
             <Alert severity="warning">
@@ -386,7 +419,11 @@ export function ScheduleActionToolbar({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAutoArrangeDialog(false)}>ยกเลิก</Button>
-          <Button onClick={handleAutoArrange} color="secondary" variant="contained">
+          <Button
+            onClick={handleAutoArrange}
+            color="secondary"
+            variant="contained"
+          >
             เริ่มจัดอัตโนมัติ
           </Button>
         </DialogActions>

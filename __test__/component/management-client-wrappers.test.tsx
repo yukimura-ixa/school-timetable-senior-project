@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
- * 
+ *
  * Unit Tests for Management Client Wrappers
- * 
+ *
  * Tests that verify:
  * - Client components render with initial data
  * - Mutation handlers work correctly
@@ -10,15 +10,19 @@
  * - Empty states render when needed
  */
 
-
-import '@testing-library/jest-dom'
+import "@testing-library/jest-dom";
 // Jest globals are available without import
 import { render, screen, waitFor } from "@testing-library/react";
 import { TeacherManageClient } from "@/app/management/teacher/component/TeacherManageClient";
 import { RoomsManageClient } from "@/app/management/rooms/component/RoomsManageClient";
 import { SubjectManageClient } from "@/app/management/subject/component/SubjectManageClient";
 import { GradeLevelManageClient } from "@/app/management/gradelevel/component/GradeLevelManageClient";
-import type { teacher, room, subject, gradelevel } from '@/prisma/generated/client';;
+import type {
+  teacher,
+  room,
+  subject,
+  gradelevel,
+} from "@/prisma/generated/client";
 
 // Mock Next.js router
 jest.mock("next/navigation", () => ({
@@ -41,9 +45,12 @@ jest.mock("@/features/subject/application/actions/subject.actions", () => ({
   getSubjectsAction: jest.fn(),
 }));
 
-jest.mock("@/features/gradelevel/application/actions/gradelevel.actions", () => ({
-  getGradeLevelsAction: jest.fn(),
-}));
+jest.mock(
+  "@/features/gradelevel/application/actions/gradelevel.actions",
+  () => ({
+    getGradeLevelsAction: jest.fn(),
+  }),
+);
 
 describe("TeacherManageClient", () => {
   const mockTeachers: teacher[] = [
@@ -60,16 +67,18 @@ describe("TeacherManageClient", () => {
 
   test("renders with initial teacher data", () => {
     render(<TeacherManageClient initialData={mockTeachers} />);
-    
+
     // Should render the teacher table
     expect(screen.getByText("สมชาย")).toBeInTheDocument();
   });
 
   test("shows empty state when no teachers", () => {
     render(<TeacherManageClient initialData={[]} />);
-    
+
     // Should show empty state message
-    expect(screen.getByText(/ยังไม่มีข้อมูลครู|No teachers/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ยังไม่มีข้อมูลครู|No teachers/i),
+    ).toBeInTheDocument();
   });
 });
 
@@ -85,16 +94,18 @@ describe("RoomsManageClient", () => {
 
   test("renders with initial room data", () => {
     render(<RoomsManageClient initialData={mockRooms} />);
-    
+
     // Should render the room table
     expect(screen.getByText("ห้อง 101")).toBeInTheDocument();
   });
 
   test("shows empty state when no rooms", () => {
     render(<RoomsManageClient initialData={[]} />);
-    
+
     // Should show empty state message
-    expect(screen.getByText(/ยังไม่มีข้อมูลห้องเรียน|No rooms/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ยังไม่มีข้อมูลห้องเรียน|No rooms/i),
+    ).toBeInTheDocument();
   });
 });
 
@@ -111,16 +122,18 @@ describe("SubjectManageClient", () => {
 
   test("renders with initial subject data", () => {
     render(<SubjectManageClient initialData={mockSubjects} />);
-    
+
     // Should render the subject table
     expect(screen.getByText("คณิตศาสตร์พื้นฐาน")).toBeInTheDocument();
   });
 
   test("shows empty state when no subjects", () => {
     render(<SubjectManageClient initialData={[]} />);
-    
+
     // Should show empty state message
-    expect(screen.getByText(/ยังไม่มีรายวิชา|No subjects/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/ยังไม่มีรายวิชา|No subjects/i),
+    ).toBeInTheDocument();
   });
 });
 
@@ -135,14 +148,14 @@ describe("GradeLevelManageClient", () => {
 
   test("renders with initial gradelevel data", () => {
     render(<GradeLevelManageClient initialData={mockGradeLevels} />);
-    
+
     // Should render the gradelevel table
     expect(screen.getByText("101")).toBeInTheDocument();
   });
 
   test("shows empty state when no gradelevels", () => {
     render(<GradeLevelManageClient initialData={[]} />);
-    
+
     // Should show empty state
     const emptyStateElements = screen.queryAllByText(/ยังไม่มีข้อมูล|No data/i);
     expect(emptyStateElements.length).toBeGreaterThan(0);

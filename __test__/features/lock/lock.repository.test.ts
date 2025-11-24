@@ -1,13 +1,13 @@
 /**
  * Unit Tests for Lock Repository
  * Tests new repository methods added for multi-entity queries
- * 
+ *
  * Note: Prisma is mocked globally in jest.setup.js
  */
 
 import * as lockRepository from "@/features/lock/infrastructure/repositories/lock.repository";
 import prisma from "@/lib/prisma";
-import { semester } from '@/prisma/generated/client';;
+import { semester } from "@/prisma/generated/client";
 
 // Get reference to the mocked Prisma client
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
@@ -59,7 +59,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
 
       const result = await lockRepository.findTimeslotsByTerm(
         2567,
-        "SEMESTER_1" as semester
+        "SEMESTER_1" as semester,
       );
 
       expect(mockPrisma.timeslot.findMany).toHaveBeenCalledWith({
@@ -150,7 +150,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
 
       const result = await lockRepository.findTeacherResponsibilitiesByTerm(
         2567,
-        "SEMESTER_1" as semester
+        "SEMESTER_1" as semester,
       );
 
       expect(mockPrisma.teachers_responsibility.findMany).toHaveBeenCalledWith({

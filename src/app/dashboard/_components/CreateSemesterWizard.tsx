@@ -41,7 +41,12 @@ type Props = {
   existingSemesters?: SemesterDTO[];
 };
 
-const STEPS = ["ข้อมูลพื้นฐาน", "คัดลอกจากภาคเรียนก่อนหน้า", "ตั้งค่าตารางเรียน", "ตรวจสอบและสร้าง"];
+const STEPS = [
+  "ข้อมูลพื้นฐาน",
+  "คัดลอกจากภาคเรียนก่อนหน้า",
+  "ตั้งค่าตารางเรียน",
+  "ตรวจสอบและสร้าง",
+];
 
 export function CreateSemesterWizard({
   open,
@@ -53,7 +58,9 @@ export function CreateSemesterWizard({
   const [loading, setLoading] = useState(false);
 
   // Step 1: Basic Info
-  const [academicYear, setAcademicYear] = useState(new Date().getFullYear() + 543);
+  const [academicYear, setAcademicYear] = useState(
+    new Date().getFullYear() + 543,
+  );
   const [semester, setSemester] = useState(1);
 
   // Step 2: Copy from previous
@@ -62,7 +69,8 @@ export function CreateSemesterWizard({
   const [copyTimeslots, setCopyTimeslots] = useState(true);
 
   // Step 3: Timeslot configuration
-  const [timeslotConfig, setTimeslotConfig] = useState<CreateTimeslotsInput | null>(null);
+  const [timeslotConfig, setTimeslotConfig] =
+    useState<CreateTimeslotsInput | null>(null);
   const [isTimeslotConfigValid, setIsTimeslotConfigValid] = useState(false);
 
   const handleNext = () => {
@@ -102,7 +110,10 @@ export function CreateSemesterWizard({
       handleReset();
       onClose();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการสร้างภาคเรียน";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "เกิดข้อผิดพลาดในการสร้างภาคเรียน";
       enqueueSnackbar(message, {
         variant: "error",
       });
@@ -186,7 +197,11 @@ export function CreateSemesterWizard({
                   }
                   label="คัดลอกช่วงเวลา (Timeslots)"
                 />
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
                   หมายเหตุ: ข้อมูลครู นักเรียน และวิชาจะไม่ถูกคัดลอก
                 </Typography>
               </FormGroup>
@@ -202,9 +217,7 @@ export function CreateSemesterWizard({
           return (
             <Box sx={{ mt: 2, textAlign: "center" }}>
               <CircularProgress />
-              <Typography sx={{ mt: 2 }}>
-                กำลังข้ามไปขั้นตอนถัดไป...
-              </Typography>
+              <Typography sx={{ mt: 2 }}>กำลังข้ามไปขั้นตอนถัดไป...</Typography>
             </Box>
           );
         }
@@ -232,14 +245,15 @@ export function CreateSemesterWizard({
                 <>
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     <strong>คัดลอกจาก:</strong>{" "}
-                    {(existingSemesters || []).find((s) => s.configId === copyFrom)?.configId}
+                    {
+                      (existingSemesters || []).find(
+                        (s) => s.configId === copyFrom,
+                      )?.configId
+                    }
                   </Typography>
                   <Typography variant="body2" sx={{ mt: 0.5 }}>
                     <strong>คัดลอก:</strong>{" "}
-                    {[
-                      copyConfig && "การตั้งค่า",
-                      copyTimeslots && "ช่วงเวลา",
-                    ]
+                    {[copyConfig && "การตั้งค่า", copyTimeslots && "ช่วงเวลา"]
                       .filter(Boolean)
                       .join(", ") || "ไม่มี"}
                   </Typography>
@@ -288,8 +302,8 @@ export function CreateSemesterWizard({
           </Button>
         )}
         {activeStep < STEPS.length - 1 ? (
-          <Button 
-            onClick={handleNext} 
+          <Button
+            onClick={handleNext}
             variant="contained"
             disabled={
               // Disable Next on Step 2 (timeslot config) if config is invalid

@@ -1,6 +1,6 @@
 import { useRooms } from "@/hooks";
 import { RoomAutocomplete } from "@/components/room";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
@@ -8,7 +8,7 @@ type Props = {
   roomName: string | null;
   handleRoomChange: (value: room) => void;
   required?: boolean;
-  availabilityMap?: Record<number, 'available' | 'occupied' | 'partial'>;
+  availabilityMap?: Record<number, "available" | "occupied" | "partial">;
   showAvailability?: boolean;
 };
 
@@ -20,11 +20,17 @@ type Props = {
  * - Visual icons and metadata
  * - Accessible keyboard navigation
  */
-function SelectRoomName({ roomName, handleRoomChange, required = false, availabilityMap, showAvailability }: Props) {
+function SelectRoomName({
+  roomName,
+  handleRoomChange,
+  required = false,
+  availabilityMap,
+  showAvailability,
+}: Props) {
   const { data: rooms } = useRooms();
 
   // Find the currently selected room by name
-  const selectedRoom = roomName 
+  const selectedRoom = roomName
     ? rooms.find((r) => r.RoomName === roomName) || null
     : null;
 

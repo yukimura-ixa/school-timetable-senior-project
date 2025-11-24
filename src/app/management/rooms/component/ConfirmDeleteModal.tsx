@@ -4,7 +4,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { deleteRoomsAction } from "@/features/room/application/actions/room.actions";
-import { room } from '@/prisma/generated/client';;
+import { room } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
@@ -39,29 +39,33 @@ function ConfirmDeleteModal({
       variant: "info",
       persist: true,
     });
-    
+
     const deleteData = data
       .filter((item, _index) => checkedList.includes(item.RoomID))
       .map((item) => item.RoomID);
 
     try {
       const result = await deleteRoomsAction({ roomIds: deleteData });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
 
@@ -90,13 +94,17 @@ function ConfirmDeleteModal({
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
           </span>
         </div>

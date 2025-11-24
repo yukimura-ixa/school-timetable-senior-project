@@ -5,17 +5,28 @@
  * Provides data fetching methods for room occupancy and utilization metrics.
  */
 
-import prisma from '@/lib/prisma'
-import type { RoomOccupancy, DayOccupancy, PeriodOccupancy } from '../../domain/types/analytics.types'
-import { parseConfigId, getRoomUtilizationStatus, extractDayFromTimeslotId, extractPeriodFromTimeslotId, getThaiDayLabel, formatPeriodTime } from '../../domain/services/calculation.service'
-import { DAYS_OF_WEEK } from '../../domain/types/analytics.types'
-import type { day_of_week } from '@/prisma/generated/client'
+import prisma from "@/lib/prisma";
+import type {
+  RoomOccupancy,
+  DayOccupancy,
+  PeriodOccupancy,
+} from "../../domain/types/analytics.types";
+import {
+  parseConfigId,
+  getRoomUtilizationStatus,
+  extractDayFromTimeslotId,
+  extractPeriodFromTimeslotId,
+  getThaiDayLabel,
+  formatPeriodTime,
+} from "../../domain/services/calculation.service";
+import { DAYS_OF_WEEK } from "../../domain/types/analytics.types";
+import type { day_of_week } from "@/prisma/generated/client";
 
 /**
  * Get room occupancy data for all rooms
  */
 async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
-  const config = parseConfigId(configId)
+  const config = parseConfigId(configId);
 
   // Get timeslot IDs for this semester
   const timeslots = await prisma.timeslot.findMany({
@@ -27,10 +38,10 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
       TimeslotID: true,
       DayOfWeek: true,
     },
-  })
+  });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID)
-  const totalAvailableSlots = timeslotIds.length
+  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+  const totalAvailableSlots = timeslotIds.length;
 
   // Get all rooms
   const rooms = await prisma.room.findMany({
@@ -40,9 +51,9 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
       Building: true,
     },
     orderBy: {
-      RoomName: 'asc',
+      RoomName: "asc",
     },
-  })
+  });
 
   // Get all schedules for this semester
   const schedules = await prisma.class_schedule.findMany({
@@ -55,35 +66,41 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
       RoomID: true,
       TimeslotID: true,
     },
-  })
+  });
 
   // Build room occupancy map
-  const roomOccupancyMap = new Map<number, Set<string>>()
-  const roomDayOccupancy = new Map<number, Map<string, number>>()
+  const roomOccupancyMap = new Map<number, Set<string>>();
+  const roomDayOccupancy = new Map<number, Map<string, number>>();
 
   schedules.forEach((schedule: any) => {
-    if (!schedule.RoomID) return
+    if (!schedule.RoomID) return;
 
     // Track total occupancy
     if (!roomOccupancyMap.has(schedule.RoomID)) {
-      roomOccupancyMap.set(schedule.RoomID, new Set())
+      roomOccupancyMap.set(schedule.RoomID, new Set());
     }
-    roomOccupancyMap.get(schedule.RoomID)?.add(schedule.TimeslotID)
+    roomOccupancyMap.get(schedule.RoomID)?.add(schedule.TimeslotID);
 
     // Track day-by-day occupancy
-    const day = extractDayFromTimeslotId(schedule.TimeslotID)
-    if (!day) return // Skip invalid timeslots
+    const day = extractDayFromTimeslotId(schedule.TimeslotID);
+    if (!day) return; // Skip invalid timeslots
     if (!roomDayOccupancy.has(schedule.RoomID)) {
-      roomDayOccupancy.set(schedule.RoomID, new Map())
+      roomDayOccupancy.set(schedule.RoomID, new Map());
     }
-    const dayMap = roomDayOccupancy.get(schedule.RoomID)
+    const dayMap = roomDayOccupancy.get(schedule.RoomID);
     if (dayMap) {
-      dayMap.set(day, (dayMap.get(day) || 0) + 1)
+      dayMap.set(day, (dayMap.get(day) || 0) + 1);
     }
-  })
+  });
 
   // Build day occupancy with period details
-  const dayOccupancyDetails = new Map<number, Map<day_of_week, Map<number, { classId: string; subjectCode?: string; gradeId?: string }>>>()
+  const dayOccupancyDetails = new Map<
+    number,
+    Map<
+      day_of_week,
+      Map<number, { classId: string; subjectCode?: string; gradeId?: string }>
+    >
+  >();
 
   // First, get detailed schedule info
   const detailedSchedules = await prisma.class_schedule.findMany({
@@ -103,59 +120,61 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
         },
       },
     },
-  })
+  });
 
   // Build detailed occupancy map
   detailedSchedules.forEach((schedule: any) => {
-    if (!schedule.RoomID) return
+    if (!schedule.RoomID) return;
 
-    const day = extractDayFromTimeslotId(schedule.TimeslotID)
-    const period = extractPeriodFromTimeslotId(schedule.TimeslotID)
+    const day = extractDayFromTimeslotId(schedule.TimeslotID);
+    const period = extractPeriodFromTimeslotId(schedule.TimeslotID);
 
-    if (!day || period === null) return // Skip invalid timeslots
+    if (!day || period === null) return; // Skip invalid timeslots
 
     if (!dayOccupancyDetails.has(schedule.RoomID)) {
-      dayOccupancyDetails.set(schedule.RoomID, new Map())
+      dayOccupancyDetails.set(schedule.RoomID, new Map());
     }
-    const roomMap = dayOccupancyDetails.get(schedule.RoomID)
-    if (!roomMap) return
+    const roomMap = dayOccupancyDetails.get(schedule.RoomID);
+    if (!roomMap) return;
 
     if (!roomMap.has(day as day_of_week)) {
-      roomMap.set(day as day_of_week, new Map())
+      roomMap.set(day as day_of_week, new Map());
     }
-    const dayMap = roomMap.get(day as day_of_week)
-    if (!dayMap) return
+    const dayMap = roomMap.get(day as day_of_week);
+    if (!dayMap) return;
     dayMap.set(period, {
       classId: schedule.ClassID,
       subjectCode: schedule.subject?.SubjectCode,
       gradeId: schedule.GradeID || undefined,
-    })
-  })
+    });
+  });
 
   // Calculate periods per day for this semester
-  const periodsPerDayMap = new Map<day_of_week, number>()
+  const periodsPerDayMap = new Map<day_of_week, number>();
   timeslots.forEach((ts: any) => {
-    periodsPerDayMap.set(ts.DayOfWeek, (periodsPerDayMap.get(ts.DayOfWeek) || 0) + 1)
-  })
-  const periodsPerDay = Math.max(...Array.from(periodsPerDayMap.values()))
+    periodsPerDayMap.set(
+      ts.DayOfWeek,
+      (periodsPerDayMap.get(ts.DayOfWeek) || 0) + 1,
+    );
+  });
+  const periodsPerDay = Math.max(...Array.from(periodsPerDayMap.values()));
 
   // Transform to RoomOccupancy data
   return rooms.map((room: any) => {
-    const occupiedSlots = roomOccupancyMap.get(room.RoomID)?.size || 0
-    const totalSlots = totalAvailableSlots
-    const emptySlots = totalSlots - occupiedSlots
-    const occupancyRate = totalSlots > 0
-      ? (occupiedSlots / totalSlots) * 100
-      : 0
+    const occupiedSlots = roomOccupancyMap.get(room.RoomID)?.size || 0;
+    const totalSlots = totalAvailableSlots;
+    const emptySlots = totalSlots - occupiedSlots;
+    const occupancyRate =
+      totalSlots > 0 ? (occupiedSlots / totalSlots) * 100 : 0;
 
     // Build day occupancy array with period details
-    const roomDayMap = dayOccupancyDetails.get(room.RoomID)
-    const dayOccupancy: DayOccupancy[] = DAYS_OF_WEEK.map(dayInfo => {
-      const day = dayInfo.value
-      const periods: PeriodOccupancy[] = []
+    const roomDayMap = dayOccupancyDetails.get(room.RoomID);
+    const dayOccupancy: DayOccupancy[] = DAYS_OF_WEEK.map((dayInfo) => {
+      const day = dayInfo.value;
+      const periods: PeriodOccupancy[] = [];
 
       for (let p = 1; p <= periodsPerDay; p++) {
-        const periodData = roomDayMap?.get(day)?.get(p)
+        const periodData = roomDayMap?.get(day)?.get(p);
         periods.push({
           period: p,
           periodLabel: formatPeriodTime(p),
@@ -163,29 +182,29 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
           classId: periodData?.classId,
           subjectCode: periodData?.subjectCode,
           gradeId: periodData?.gradeId,
-        })
+        });
       }
 
       return {
         day,
         dayLabel: getThaiDayLabel(day),
         periods,
-      }
-    })
+      };
+    });
 
     return {
       roomId: room.RoomID,
       roomName: room.RoomName,
-      building: room.Building || '',
-      floor: '', // Not available in current schema
+      building: room.Building || "",
+      floor: "", // Not available in current schema
       dayOccupancy,
       occupancyRate: Math.round(occupancyRate * 10) / 10,
       totalSlots,
       occupiedSlots,
       emptySlots,
       utilizationStatus: getRoomUtilizationStatus(occupancyRate),
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -193,10 +212,10 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
  */
 async function getRoomsByUtilizationStatus(
   configId: string,
-  status: RoomOccupancy['utilizationStatus']
+  status: RoomOccupancy["utilizationStatus"],
 ): Promise<RoomOccupancy[]> {
-  const occupancy = await getRoomOccupancy(configId)
-  return occupancy.filter(r => r.utilizationStatus === status)
+  const occupancy = await getRoomOccupancy(configId);
+  return occupancy.filter((r) => r.utilizationStatus === status);
 }
 
 /**
@@ -204,10 +223,10 @@ async function getRoomsByUtilizationStatus(
  */
 async function getRoomOccupancyById(
   configId: string,
-  roomId: number
+  roomId: number,
 ): Promise<RoomOccupancy | null> {
-  const occupancy = await getRoomOccupancy(configId)
-  return occupancy.find(r => r.roomId === roomId) || null
+  const occupancy = await getRoomOccupancy(configId);
+  return occupancy.find((r) => r.roomId === roomId) || null;
 }
 
 /**
@@ -215,22 +234,25 @@ async function getRoomOccupancyById(
  */
 async function getTopRoomsByOccupancy(
   configId: string,
-  limit = 10
+  limit = 10,
 ): Promise<RoomOccupancy[]> {
-  const occupancy = await getRoomOccupancy(configId)
+  const occupancy = await getRoomOccupancy(configId);
   return occupancy
     .sort((a, b) => b.occupancyRate - a.occupancyRate)
-    .slice(0, limit)
+    .slice(0, limit);
 }
 
 /**
  * Get rooms with low utilization (rarely-used and light)
  */
-async function getLowUtilizationRooms(configId: string): Promise<RoomOccupancy[]> {
-  const occupancy = await getRoomOccupancy(configId)
-  return occupancy.filter(r =>
-    r.utilizationStatus === 'rarely-used' || r.utilizationStatus === 'light'
-  )
+async function getLowUtilizationRooms(
+  configId: string,
+): Promise<RoomOccupancy[]> {
+  const occupancy = await getRoomOccupancy(configId);
+  return occupancy.filter(
+    (r) =>
+      r.utilizationStatus === "rarely-used" || r.utilizationStatus === "light",
+  );
 }
 
 export const roomRepository = {
@@ -239,4 +261,4 @@ export const roomRepository = {
   getRoomOccupancyById,
   getTopRoomsByOccupancy,
   getLowUtilizationRooms,
-}
+};

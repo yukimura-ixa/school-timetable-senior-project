@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Arrangement Header Component
- * 
+ *
  * MUI v7 header for schedule arrangement page with teacher selection,
  * save actions, and status display.
- * 
+ *
  * @module ArrangementHeader
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Box,
   Stack,
@@ -22,33 +22,33 @@ import {
   FormControl,
   InputLabel,
   Avatar,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Save as SaveIcon,
   Person as PersonIcon,
   School as SchoolIcon,
-} from '@mui/icons-material';
-import type { teacher } from '@/prisma/generated/client';
+} from "@mui/icons-material";
+import type { teacher } from "@/prisma/generated/client";
 
 interface ArrangementHeaderProps {
   /** Current selected teacher data */
   teacherData: teacher | null;
-  
+
   /** List of available teachers */
   availableTeachers: teacher[];
-  
+
   /** Handler for teacher selection */
   onTeacherChange: (teacherID: string) => void;
-  
+
   /** Handler for save action */
   onSave: () => void;
-  
+
   /** Save button disabled state */
   isSaving?: boolean;
-  
+
   /** Dirty state indicator */
   isDirty?: boolean;
-  
+
   /** Current semester and year */
   semester: string;
   academicYear: string;
@@ -68,11 +68,11 @@ export function ArrangementHeader({
   academicYear,
 }: ArrangementHeaderProps) {
   const getTeacherFullName = (teacher: teacher) => {
-    if (!teacher || !teacher.TeacherID) return '';
+    if (!teacher || !teacher.TeacherID) return "";
     return `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`;
   };
 
-  const currentTeacherName = teacherData ? getTeacherFullName(teacherData) : '';
+  const currentTeacherName = teacherData ? getTeacherFullName(teacherData) : "";
 
   return (
     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
@@ -114,15 +114,15 @@ export function ArrangementHeader({
             disabled={!isDirty || isSaving}
             size="large"
           >
-            {isSaving ? 'กำลังบันทึก...' : 'บันทึกตารางสอน'}
+            {isSaving ? "กำลังบันทึก..." : "บันทึกตารางสอน"}
           </Button>
         </Stack>
 
         {/* Teacher Selection Row */}
         <Stack
-          direction={{ xs: 'column', sm: 'row' }}
+          direction={{ xs: "column", sm: "row" }}
           spacing={2}
-          alignItems={{ xs: 'stretch', sm: 'center' }}
+          alignItems={{ xs: "stretch", sm: "center" }}
         >
           <FormControl sx={{ minWidth: 300, flex: 1 }}>
             <InputLabel id="teacher-select-label">เลือกครูผู้สอน</InputLabel>
@@ -131,11 +131,13 @@ export function ArrangementHeader({
               id="teacher-select"
               data-testid="teacher-select"
               aria-label="เลือกครูผู้สอน"
-              value={teacherData?.TeacherID?.toString() || ''}
+              value={teacherData?.TeacherID?.toString() || ""}
               onChange={(e) => onTeacherChange(e.target.value)}
               label="เลือกครูผู้สอน"
               startAdornment={
-                <Avatar sx={{ width: 32, height: 32, mr: 1, bgcolor: 'primary.main' }}>
+                <Avatar
+                  sx={{ width: 32, height: 32, mr: 1, bgcolor: "primary.main" }}
+                >
                   <PersonIcon fontSize="small" />
                 </Avatar>
               }
@@ -146,12 +148,10 @@ export function ArrangementHeader({
               {availableTeachers.map((teacher) => (
                 <MenuItem
                   key={teacher.TeacherID}
-                  value={teacher.TeacherID?.toString() || ''}
+                  value={teacher.TeacherID?.toString() || ""}
                 >
                   <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography>
-                      {getTeacherFullName(teacher)}
-                    </Typography>
+                    <Typography>{getTeacherFullName(teacher)}</Typography>
                     <Chip
                       label={teacher.Department}
                       size="small"
@@ -171,13 +171,13 @@ export function ArrangementHeader({
               sx={{
                 p: 2,
                 flex: 1,
-                bgcolor: 'primary.50',
-                border: '2px solid',
-                borderColor: 'primary.main',
+                bgcolor: "primary.50",
+                border: "2px solid",
+                borderColor: "primary.main",
               }}
             >
               <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar sx={{ bgcolor: 'primary.main', width: 48, height: 48 }}>
+                <Avatar sx={{ bgcolor: "primary.main", width: 48, height: 48 }}>
                   <PersonIcon />
                 </Avatar>
                 <Box>

@@ -1,6 +1,6 @@
 /**
  * SubjectDragBox Component - Refactored with @dnd-kit
- * 
+ *
  * Week 6.1 - Component Migration
  * Container for draggable subject items using @dnd-kit
  */
@@ -8,7 +8,7 @@
 import React from "react";
 import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import SubjectItem from "./SubjectItem";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 
 type Props = {
   respData: any[];
@@ -27,7 +27,7 @@ const SubjectDragBox = ({
 }: Props) => {
   // Generate IDs for SortableContext
   const itemIds = respData.map(
-    (item, index) => `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`
+    (item, index) => `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`,
   );
 
   return (

@@ -22,6 +22,7 @@
 **Route:** `/login` or `/signin`
 
 **Flow:**
+
 1. User visits any protected route (e.g., `/dashboard`)
 2. System checks session via `auth()` from Auth.js
 3. If no session → Redirect to `/login`
@@ -35,11 +36,13 @@
 11. If not authorized → Show error, deny access
 
 **Key Components:**
+
 - `src/app/login/page.tsx` - Login page with Google button
 - `src/auth.ts` - Auth.js configuration
 - `src/app/_providers/Providers.tsx` - SessionProvider wrapper
 
 **Authorization Logic:**
+
 ```typescript
 // Only users with @admin.school.ac.th emails can access admin features
 const authorizedAdmins = [
@@ -55,6 +58,7 @@ callbacks: {
 ```
 
 **Session Management:**
+
 - Session stored in JWT token
 - Session expires after 30 days (default)
 - Automatic refresh on page navigation
@@ -73,6 +77,7 @@ callbacks: {
 **Purpose:** Choose which academic term to work with
 
 **Flow:**
+
 1. Admin logs in successfully
 2. Lands on semester selection page
 3. Sees list of all configs (semesters) ordered by latest first
@@ -87,12 +92,14 @@ callbacks: {
 8. All subsequent pages use this ConfigID for data filtering
 
 **Key Features:**
+
 - Create new semester button → Opens config creation modal
 - Copy from previous semester option
 - Delete semester (cascade deletes all related data)
 - Filter by academic year or status
 
 **Components:**
+
 - `src/app/dashboard/select-semester/page.tsx`
 - `src/features/semester/presentation/components/SemesterCard.tsx`
 - `src/features/semester/presentation/components/CreateSemesterModal.tsx`
@@ -106,6 +113,7 @@ callbacks: {
 **Purpose:** High-level view of timetable status for selected semester
 
 **Flow:**
+
 1. Admin selects semester (e.g., "1-2567")
 2. Lands on dashboard page
 3. Page fetches all relevant data in parallel:
@@ -136,11 +144,13 @@ callbacks: {
    - Detected conflicts
 
 **Navigation Options:**
+
 - Click any Quick Action button → Navigate to specific feature
 - View full teacher/class list → Go to respective tables
 - Check conflicts → Go to conflict detection page
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/page.tsx`
 - `src/features/dashboard/infrastructure/repositories/dashboard.repository.ts`
 - `src/features/dashboard/presentation/components/StatCard.tsx`
@@ -154,6 +164,7 @@ callbacks: {
 **Purpose:** Set up semester structure (periods, breaks, school days)
 
 **Flow:**
+
 1. Admin navigates from dashboard or sidebar
 2. Lands on config page
 3. If config doesn't exist → Shows creation form
@@ -178,6 +189,7 @@ callbacks: {
 8. Shows success message + preview of generated timeslots
 
 **Timeslot Generation Logic:**
+
 ```typescript
 // Example: 10 periods, 50 min each, break after period 4 (20 min)
 Timeslots generated:
@@ -191,12 +203,14 @@ Timeslots generated:
 ```
 
 **Copy Feature:**
+
 - Option to copy config from previous semester
 - Copies: NumberOfPeriod, TimePerPeriod, Break, SchoolDays
 - Creates new ConfigID, links via CopiedFromID
 - Does NOT copy: schedules, assignments (only structure)
 
 **Components:**
+
 - `src/app/schedule/[semesterAndyear]/config/page.tsx`
 - `src/features/config/presentation/components/ConfigForm.tsx`
 - `src/features/config/presentation/components/TimeslotPreview.tsx`
@@ -212,6 +226,7 @@ Timeslots generated:
 **Purpose:** CRUD operations for core entities
 
 **Entities:**
+
 - `gradelevel` - Classes (ม.1/1, ม.2/3, etc.)
 - `program` - Curriculum tracks (วิทย์-คณิต, ศิลป์-คำนวณ)
 - `rooms` - Classrooms and labs
@@ -223,6 +238,7 @@ Timeslots generated:
 **Route:** `/management/teacher`
 
 **Flow:**
+
 1. Admin clicks "จัดการข้อมูลครู" from sidebar
 2. Lands on teacher management page
 3. Sees table with all teachers:
@@ -234,11 +250,11 @@ Timeslots generated:
 4. **Create New Teacher:**
    - Clicks "+ เพิ่มครู" button
    - Modal opens with form fields:
-     * TeacherID (auto-generated or manual)
-     * Name (ชื่อ)
-     * Surname (นามสกุล)
-     * MaxHours (18-25 typical range)
-     * AcademicYear, Semester (auto-filled from context)
+     - TeacherID (auto-generated or manual)
+     - Name (ชื่อ)
+     - Surname (นามสกุล)
+     - MaxHours (18-25 typical range)
+     - AcademicYear, Semester (auto-filled from context)
    - Validates: Required fields, MaxHours > 0
    - On save: Creates teacher record
    - Shows success snackbar
@@ -254,17 +270,19 @@ Timeslots generated:
    - Checks if teacher has assignments or schedules
    - If yes → Shows warning "Teacher has X assignments, delete anyway?"
    - If confirmed → Cascade deletes:
-     * assigned_subject records
-     * classschedule records
-     * locked_teacher records
+     - assigned_subject records
+     - classschedule records
+     - locked_teacher records
    - Shows success snackbar
 
 **Validation Rules:**
+
 - TeacherID must be unique
 - MaxHours must be positive integer
 - Cannot delete if teacher has active responsibilities (optional check)
 
 **Components:**
+
 - `src/app/management/teacher/page.tsx`
 - `src/app/management/teacher/AddTeacherModal.tsx`
 - `src/app/management/teacher/EditTeacherModal.tsx`
@@ -276,6 +294,7 @@ Timeslots generated:
 **Route:** `/management/subject`
 
 **Flow:**
+
 1. Admin clicks "จัดการวิชา" from sidebar
 2. Sees subject list grouped by category:
    - **พื้นฐาน** (Core subjects)
@@ -291,12 +310,12 @@ Timeslots generated:
 4. **Create New Subject:**
    - Clicks "+ เพิ่มวิชา" button
    - Modal with fields:
-     * SubjectID (manual input)
-     * Name_TH (Thai name)
-     * Name_EN (English name)
-     * Credits (dropdown: 0.5, 1.0, 1.5, 2.0)
-     * Category (พื้นฐาน/เพิ่มเติม/กิจกรรม)
-     * Color (color picker)
+     - SubjectID (manual input)
+     - Name_TH (Thai name)
+     - Name_EN (English name)
+     - Credits (dropdown: 0.5, 1.0, 1.5, 2.0)
+     - Category (พื้นฐาน/เพิ่มเติม/กิจกรรม)
+     - Color (color picker)
    - Validates: SubjectID format, Credits > 0
    - On save: Creates subject record
 5. **Edit Subject:**
@@ -307,17 +326,19 @@ Timeslots generated:
    - Checks if subject is in any program or assignment
    - If yes → Shows warning
    - Cascade deletes:
-     * program_subject records
-     * assigned_subject records
-     * classschedule records
+     - program_subject records
+     - assigned_subject records
+     - classschedule records
 
 **Activity Subjects Special Case:**
+
 - Category = "กิจกรรม"
 - Always 1 credit
 - No grades (for transcript)
 - Typically scheduled as single blocks
 
 **Components:**
+
 - `src/app/management/subject/page.tsx`
 - `src/features/subject/presentation/components/SubjectTable.tsx`
 - `src/features/subject/presentation/components/SubjectModals.tsx`
@@ -327,6 +348,7 @@ Timeslots generated:
 **Route:** `/management/rooms`
 
 **Flow:**
+
 1. Admin sees room list with:
    - RoomID (e.g., "A101", "LAB1")
    - Name (friendly name)
@@ -338,12 +360,14 @@ Timeslots generated:
 4. **Delete Room:** Checks for schedules using this room
 
 **Room Types:**
+
 - ห้องเรียน (Regular classroom)
 - ห้องปฏิบัติการ (Lab - science/computer)
 - ห้องกิจกรรม (Activity room)
 - อื่นๆ (Other)
 
 **Components:**
+
 - `src/app/management/rooms/page.tsx`
 - `src/features/room/application/actions/room.actions.ts`
 
@@ -352,6 +376,7 @@ Timeslots generated:
 **Route:** `/management/gradelevel`
 
 **Flow:**
+
 1. Admin sees class list organized by level (ม.1 to ม.6)
 2. Each class shows:
    - GradeID (e.g., "1-1" for ม.1/1)
@@ -373,6 +398,7 @@ Timeslots generated:
    - Cascade deletes all related records
 
 **Components:**
+
 - `src/app/management/gradelevel/page.tsx`
 - `src/features/gradelevel/presentation/components/GradeLevelTable.tsx`
 
@@ -381,6 +407,7 @@ Timeslots generated:
 **Route:** `/management/program`
 
 **Flow:**
+
 1. Admin sees program list with curriculum details
 2. Each program shows:
    - ProgramID (e.g., "SCI-MATH")
@@ -395,9 +422,9 @@ Timeslots generated:
    - Opens subject assignment modal
    - Shows available subjects list
    - For each subject can specify:
-     * Credits (may override subject.Credits)
-     * Category (may override subject.Category)
-     * SortOrder (display order)
+     - Credits (may override subject.Credits)
+     - Category (may override subject.Category)
+     - SortOrder (display order)
    - Creates program_subject junction records
 5. **Edit Program:**
    - Can update: ProgramName, Track, subject assignments
@@ -407,11 +434,13 @@ Timeslots generated:
    - If yes → Must reassign grades first
 
 **Ministry Standards Check:**
+
 - Core subjects (พื้นฐาน): Minimum credits required
 - Total credits per semester: ~20 credits
 - Activity subjects: 1 credit minimum
 
 **Components:**
+
 - `src/app/management/program/page.tsx`
 - `src/features/program/presentation/components/ProgramTable.tsx`
 - `src/features/program/presentation/components/SubjectAssignmentModal.tsx`
@@ -425,31 +454,32 @@ Timeslots generated:
 **Purpose:** Assign subjects to classes with teachers
 
 **Flow:**
+
 1. Admin navigates to assign page
 2. Sees current assignments grouped by grade
 3. For each grade, shows:
    - GradeName (e.g., "ม.1/1")
    - Program name
    - List of assigned subjects with:
-     * SubjectID, Subject name
-     * TeacherID, Teacher name
-     * NumberOfHours
+     - SubjectID, Subject name
+     - TeacherID, Teacher name
+     - NumberOfHours
    - Progress bar (assigned hours vs. required hours)
 4. **Create New Assignment:**
    - Clicks "+ มอบหมายวิชา" button
    - Modal opens with form:
-     * Select Grade (dropdown)
-     * Select Subject (filtered by grade's program)
-     * Select Teacher (dropdown with available teachers)
-     * NumberOfHours (auto-filled from subject.Credits)
+     - Select Grade (dropdown)
+     - Select Subject (filtered by grade's program)
+     - Select Teacher (dropdown with available teachers)
+     - NumberOfHours (auto-filled from subject.Credits)
    - Validates:
-     * Subject must be in grade's program
-     * NumberOfHours must equal subject.Credits
-     * Teacher's total hours cannot exceed MaxHours
-     * No duplicate assignment (GradeID + SubjectID must be unique per teacher)
+     - Subject must be in grade's program
+     - NumberOfHours must equal subject.Credits
+     - Teacher's total hours cannot exceed MaxHours
+     - No duplicate assignment (GradeID + SubjectID must be unique per teacher)
    - On save:
-     * Creates assigned_subject record
-     * Updates teacher's workload counter
+     - Creates assigned_subject record
+     - Updates teacher's workload counter
 5. **Edit Assignment:**
    - Can change: TeacherID, NumberOfHours (with validation)
    - Cannot change: GradeID, SubjectID (delete and recreate instead)
@@ -457,12 +487,13 @@ Timeslots generated:
    - Checks if there are schedules for this assignment
    - If yes → Shows warning "This assignment has X schedule entries"
    - On confirm:
-     * Deletes assigned_subject record
-     * Cascade deletes related classschedule records
+     - Deletes assigned_subject record
+     - Cascade deletes related classschedule records
 
 **Validation Examples:**
 
 **Success Case:**
+
 ```
 Grade: ม.1/1
 Subject: ท21101 (Thai, 2 credits)
@@ -472,6 +503,7 @@ Result: ✅ Valid (Teacher has 8 hours remaining)
 ```
 
 **Failure Case - Teacher Overbooked:**
+
 ```
 Grade: ม.2/3
 Subject: ค21101 (Math, 3 credits)
@@ -481,6 +513,7 @@ Result: ❌ Error "ครูสอนเกิน 18 ชม. (ปัจจุบ
 ```
 
 **Failure Case - Hours Mismatch:**
+
 ```
 Grade: ม.3/1
 Subject: อ31101 (English, 2 credits)
@@ -490,6 +523,7 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 ```
 
 **Components:**
+
 - `src/app/schedule/[semesterAndyear]/assign/page.tsx`
 - `src/features/assign/presentation/components/AssignmentList.tsx`
 - `src/features/assign/presentation/components/AssignmentModal.tsx`
@@ -500,7 +534,8 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 
 ### 2.6 Schedule Arrangement Flow (Drag-and-Drop)
 
-**Routes:** 
+**Routes:**
+
 - `/schedule/[semesterAndyear]/arrange/student-arrange` (Class view)
 - `/schedule/[semesterAndyear]/arrange/teacher-arrange` (Teacher view)
 
@@ -509,23 +544,24 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 #### 2.6.1 Student Arrange (Class View)
 
 **Flow:**
+
 1. Admin navigates to student arrange page
 2. Sees list of all grades on left sidebar
 3. Selects a grade (e.g., "ม.1/1")
 4. Main area shows:
    - **Subject Palette** (left): Available subjects to assign
-     * Shows only subjects assigned to this grade
-     * Each subject shows:
+     - Shows only subjects assigned to this grade
+     - Each subject shows:
        - Subject name, code
        - Teacher name
        - NumberOfHours (how many slots needed)
        - Color indicator
-     * Counts remaining slots (e.g., "2 remaining")
+     - Counts remaining slots (e.g., "2 remaining")
    - **Timetable Grid** (right): Week view (MON-FRI × Periods)
-     * Columns: Days (MON, TUE, WED, THU, FRI)
-     * Rows: Periods (1-10 based on config)
-     * Each cell represents one timeslot
-     * Cells show:
+     - Columns: Days (MON, TUE, WED, THU, FRI)
+     - Rows: Periods (1-10 based on config)
+     - Each cell represents one timeslot
+     - Cells show:
        - Subject name (if scheduled)
        - Teacher name
        - Room name
@@ -535,35 +571,36 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
    - Admin drags subject from palette
    - Drops onto timetable cell
    - Modal opens:
-     * TimeslotID (pre-filled from target cell)
-     * Subject, Teacher (pre-filled from dragged item)
-     * Room (dropdown showing available rooms for this timeslot)
+     - TimeslotID (pre-filled from target cell)
+     - Subject, Teacher (pre-filled from dragged item)
+     - Room (dropdown showing available rooms for this timeslot)
    - Validates:
-     * No class conflict (this grade doesn't have another subject at same time)
-     * No teacher conflict (this teacher isn't teaching elsewhere at same time)
-     * No room conflict (this room isn't used by another class at same time)
-     * Timeslot not locked for this class
-     * Subject has remaining slots (not all hours scheduled yet)
+     - No class conflict (this grade doesn't have another subject at same time)
+     - No teacher conflict (this teacher isn't teaching elsewhere at same time)
+     - No room conflict (this room isn't used by another class at same time)
+     - Timeslot not locked for this class
+     - Subject has remaining slots (not all hours scheduled yet)
    - On save:
-     * Creates classschedule record
-     * Decrements subject's remaining slots counter
-     * Shows success snackbar
-     * Updates grid immediately (optimistic UI)
+     - Creates classschedule record
+     - Decrements subject's remaining slots counter
+     - Shows success snackbar
+     - Updates grid immediately (optimistic UI)
 6. **Delete Schedule Entry:**
    - Clicks X button on timetable cell
    - Confirmation dialog appears
    - On confirm:
-     * Deletes classschedule record
-     * Increments subject's remaining slots counter
-     * Removes from grid
+     - Deletes classschedule record
+     - Increments subject's remaining slots counter
+     - Removes from grid
 7. **Visual Conflict Indicators:**
    - If conflict detected after drag:
-     * Cell border turns red
-     * Error message shown
-     * Schedule NOT saved
+     - Cell border turns red
+     - Error message shown
+     - Schedule NOT saved
    - Conflicting cells highlighted in grid
 
 **Subject Palette Counter Logic:**
+
 ```typescript
 // Example: Math subject with 3 credits = 3 hours needed
 // User has scheduled 2 slots
@@ -572,6 +609,7 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 ```
 
 **Components:**
+
 - `src/app/schedule/[semesterAndyear]/arrange/student-arrange/page.tsx`
 - `src/features/arrange/presentation/components/SubjectPalette.tsx`
 - `src/features/arrange/presentation/components/TimetableGrid.tsx`
@@ -582,6 +620,7 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 #### 2.6.2 Teacher Arrange (Teacher View)
 
 **Flow:**
+
 1. Similar to Student Arrange but perspective flipped
 2. Selects a teacher from left sidebar
 3. Subject Palette shows:
@@ -597,11 +636,13 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
    - Selected room is available
 
 **Use Case:**
+
 - Admin wants to optimize teacher's schedule
 - Minimize gaps between classes
 - Ensure teacher isn't overloaded on specific days
 
 **Components:**
+
 - `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
 - (Reuses same components as Student Arrange with different data source)
 
@@ -614,36 +655,37 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 **Purpose:** Block specific timeslots for special events (assembly, exams, club activities)
 
 **Flow:**
+
 1. Admin navigates to lock page
 2. Sees calendar view of entire week (MON-FRI × Periods)
 3. Current locked timeslots highlighted in red/yellow
 4. **Lock Single Timeslot:**
    - Clicks on timeslot cell
    - Modal opens:
-     * Resource Type: CLASS, TEACHER, or ROOM
-     * Resource: Dropdown of available resources
-     * Reason: "ชุมนุม", "สอบกลางภาค", "กิจกรรม", "อื่นๆ"
+     - Resource Type: CLASS, TEACHER, or ROOM
+     - Resource: Dropdown of available resources
+     - Reason: "ชุมนุม", "สอบกลางภาค", "กิจกรรม", "อื่นๆ"
    - On save:
-     * Creates locked_resource record
-     * Creates linked record (locked_class, locked_teacher, or locked_room)
-     * Updates calendar view
+     - Creates locked_resource record
+     - Creates linked record (locked_class, locked_teacher, or locked_room)
+     - Updates calendar view
 5. **Bulk Lock (Template):**
    - Clicks "Bulk Lock" button
    - Modal shows predefined templates:
-     * **Assembly Time:** Lock all classes MON 08:00-08:50
-     * **Club Activities:** Lock all classes FRI periods 9-10
-     * **Exam Week:** Lock all classes entire week
+     - **Assembly Time:** Lock all classes MON 08:00-08:50
+     - **Club Activities:** Lock all classes FRI periods 9-10
+     - **Exam Week:** Lock all classes entire week
    - Admin selects template
    - System batch-creates locked_resource records
    - Shows progress indicator
 6. **Custom Bulk Lock:**
    - Clicks "Custom Lock" button
    - Multi-select interface:
-     * Days (checkboxes: MON-FRI)
-     * Periods (checkboxes: 1-10)
-     * Resource Type (CLASS/TEACHER/ROOM)
-     * Resources (multi-select dropdown)
-     * Reason (text input)
+     - Days (checkboxes: MON-FRI)
+     - Periods (checkboxes: 1-10)
+     - Resource Type (CLASS/TEACHER/ROOM)
+     - Resources (multi-select dropdown)
+     - Reason (text input)
    - Validates: At least 1 day, 1 period, 1 resource
    - On save: Batch creates all combinations
 7. **Unlock Timeslot:**
@@ -652,16 +694,18 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
    - "Unlock" button deletes locked_resource record
 8. **View Locked Summary:**
    - Sidebar shows list of all locks:
-     * Grouped by resource type
-     * Shows count per resource
-     * Quick unlock buttons
+     - Grouped by resource type
+     - Shows count per resource
+     - Quick unlock buttons
 
 **Validation:**
+
 - Cannot lock past timeslots
 - If timeslot has existing schedule → Shows warning
 - "Proceed anyway?" → If yes, schedule remains but shows warning in arrange view
 
 **Lock Effect on Arrangement:**
+
 - In arrange view, locked cells show lock icon
 - Cannot drag subjects to locked cells
 - Error message: "คาบนี้ถูกล็อค: {Reason}"
@@ -669,6 +713,7 @@ Result: ❌ Error "จำนวนชั่วโมงต้องเท่า�
 **Templates Example:**
 
 **Assembly Template:**
+
 ```
 Lock Type: CLASS
 Resources: ALL grades (ม.1/1 through ม.6/8)
@@ -678,6 +723,7 @@ Result: 48 locked_resource records created
 ```
 
 **Components:**
+
 - `src/app/schedule/[semesterAndyear]/lock/page.tsx`
 - `src/features/lock/presentation/components/LockCalendarView.tsx`
 - `src/features/lock/presentation/components/BulkLockModal.tsx`
@@ -693,6 +739,7 @@ Result: 48 locked_resource records created
 **Purpose:** Automatically detect and highlight scheduling conflicts
 
 **Flow:**
+
 1. Admin navigates to conflicts page
 2. System runs conflict detection algorithm:
    - **Teacher Conflicts:** Teacher teaching 2+ classes at same time
@@ -701,13 +748,13 @@ Result: 48 locked_resource records created
    - **Teacher Overload:** Teacher exceeding MaxHours
 3. Page displays 3 sections (expandable):
    - **🚨 Critical Conflicts (Red):**
-     * Teacher/Class/Room double-bookings
-     * Must be fixed before publishing
+     - Teacher/Class/Room double-bookings
+     - Must be fixed before publishing
    - **⚠️ Warnings (Yellow):**
-     * Teacher approaching MaxHours (90% utilization)
-     * Classes with incomplete schedule
+     - Teacher approaching MaxHours (90% utilization)
+     - Classes with incomplete schedule
    - **✅ No Issues (Green):**
-     * All constraints satisfied
+     - All constraints satisfied
 4. For each conflict, shows:
    - Conflict type (icon + label)
    - Affected resources (teacher name, class name, room ID)
@@ -728,13 +775,13 @@ Result: 48 locked_resource records created
 ```typescript
 // Pseudocode for teacher conflict detection
 function detectTeacherConflicts(schedules: classschedule[]) {
-  const grouped = groupBy(schedules, s => `${s.TeacherID}-${s.TimeslotID}`);
+  const grouped = groupBy(schedules, (s) => `${s.TeacherID}-${s.TimeslotID}`);
   return Object.entries(grouped)
     .filter(([key, entries]) => entries.length > 1)
     .map(([key, entries]) => ({
-      type: 'TEACHER_CONFLICT',
-      teacherId: key.split('-')[0],
-      timeslotId: key.split('-').slice(1).join('-'),
+      type: "TEACHER_CONFLICT",
+      teacherId: key.split("-")[0],
+      timeslotId: key.split("-").slice(1).join("-"),
       conflicts: entries,
     }));
 }
@@ -751,6 +798,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 ```
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/conflicts/page.tsx`
 - `src/features/conflict/application/actions/conflict.actions.ts`
 - `src/features/conflict/domain/services/conflict-detector.service.ts`
@@ -765,50 +813,56 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Purpose:** Data visualization and insights (NEW - Phase 1 complete)
 
 **Flow:**
+
 1. Admin navigates to analytics from dashboard Quick Actions
 2. Page fetches analytics data in parallel (3 server actions)
 3. Displays 3 sections:
 
 #### Section 1: Overview Stats (4 Cards)
+
 - **Total Scheduled Hours:** Count of all schedule entries
 - **Completion Rate:** Percentage of filled timeslots
 - **Active Teachers:** Count of teachers with schedules
 - **Conflicts:** Count of detected conflicts (color-coded)
 
 #### Section 2: Teacher Workload Analysis
+
 - List of all teachers sorted by totalHours descending
 - For each teacher:
   - Name, MaxHours, Assigned Hours, Scheduled Hours
   - Status chip:
-    * ใช้งานต่ำ (< 40% MaxHours) - Gray
-    * เหมาะสม (40-70%) - Green
-    * สูง (70-100%) - Orange
-    * สูงเกินไป (> 100%) - Red
-  - Visual progress bar (width = hours/MaxHours * 100%)
+    - ใช้งานต่ำ (< 40% MaxHours) - Gray
+    - เหมาะสม (40-70%) - Green
+    - สูง (70-100%) - Orange
+    - สูงเกินไป (> 100%) - Red
+  - Visual progress bar (width = hours/MaxHours \* 100%)
   - Color matches status
 - Scrollable list (max 600px height)
 
 #### Section 3: Room Utilization Analysis
+
 - List of all rooms sorted by occupancyRate descending
 - For each room:
   - RoomID, Name, Total Periods Available
   - Scheduled Periods (count)
   - Occupancy Rate (percentage)
   - Status chip:
-    * ≥80% - Red (Overutilized)
-    * 60-79% - Green (Optimal)
-    * 40-59% - Yellow (Moderate)
-    * 20-39% - Blue (Underutilized)
-    * <20% - Gray (Barely used)
+    - ≥80% - Red (Overutilized)
+    - 60-79% - Green (Optimal)
+    - 40-59% - Yellow (Moderate)
+    - 20-39% - Blue (Underutilized)
+    - <20% - Gray (Barely used)
   - Visual progress bar
   - Optional: Day-by-day breakdown chips
 
 **Future Phases (Planned):**
+
 - Phase 2: Subject Distribution, Quality Metrics, Time Distribution, Compliance
 - Phase 3: Recharts visualizations (bar charts, pie charts, line graphs)
 - Phase 4: Filtering, export, date range selection
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/analytics/page.tsx`
 - `src/features/analytics/presentation/components/OverviewSection.tsx`
 - `src/features/analytics/presentation/components/TeacherWorkloadSection.tsx`
@@ -827,6 +881,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Purpose:** View all teachers' schedules in table format
 
 **Flow:**
+
 1. Admin navigates from dashboard
 2. Sees dropdown to select teacher
 3. Selects teacher → Table loads
@@ -843,6 +898,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
    - PDF export (via PDF library)
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx`
 - `src/features/schedule-arrangement/presentation/components/TeacherScheduleTable.tsx`
 
@@ -853,6 +909,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Purpose:** View class schedules in table format
 
 **Flow:**
+
 1. Admin selects grade from dropdown
 2. Table shows class schedule:
    - Rows: Timeslots
@@ -864,6 +921,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 4. Export options (same as teacher table)
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/student-table/page.tsx`
 - `src/features/schedule-arrangement/presentation/components/ClassScheduleTable.tsx`
 
@@ -874,6 +932,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Purpose:** Master view of all timeslots and their usage
 
 **Flow:**
+
 1. Admin lands on page
 2. Sees full timetable matrix:
    - Rows: All grades (ม.1/1 through ม.6/X)
@@ -891,6 +950,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
    - Emptiest timeslots
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx`
 - `src/features/timeslot/presentation/components/TimeslotMatrix.tsx`
 
@@ -901,6 +961,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Purpose:** Curriculum overview for all programs
 
 **Flow:**
+
 1. Admin sees list of all programs
 2. For each program:
    - Program name, track
@@ -914,6 +975,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 4. Export program curriculum (PDF)
 
 **Components:**
+
 - `src/app/dashboard/[semesterAndyear]/all-program/page.tsx`
 - `src/features/program/presentation/components/ProgramOverview.tsx`
 
@@ -930,6 +992,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Route:** `/` (public)
 
 **Flow:**
+
 1. Visitor lands on homepage
 2. Sees two tabs:
    - **Teachers** (default)
@@ -942,12 +1005,14 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 5. Click on teacher/class → Navigate to detail page
 
 **Features:**
+
 - Search by name/ID
 - Sort by various columns
 - Pagination (20 items per page)
 - Responsive design (mobile-friendly)
 
 **Components:**
+
 - `src/app/(public)/page.tsx`
 - `src/app/(public)/_components/QuickStats.tsx`
 - `src/app/(public)/_components/TabNavigation.tsx`
@@ -959,6 +1024,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Route:** `/(public)/teachers/[teacherId]`
 
 **Flow:**
+
 1. Visitor clicks on teacher from homepage table
 2. Lands on teacher detail page
 3. Sees:
@@ -974,11 +1040,13 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 6. Print button for print-friendly view
 
 **Data Source:**
+
 - Fetches from public API (no auth required)
 - Only shows published schedules (config.status = "PUBLISHED")
 - Drafts not visible
 
 **Components:**
+
 - `src/app/(public)/teachers/[teacherId]/page.tsx`
 - `src/features/teacher/presentation/components/PublicTeacherSchedule.tsx`
 
@@ -987,6 +1055,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Route:** `/(public)/classes/[gradeId]`
 
 **Flow:**
+
 1. Visitor clicks on class from homepage table
 2. Lands on class detail page
 3. Sees:
@@ -1002,6 +1071,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 6. Print button
 
 **Components:**
+
 - `src/app/(public)/classes/[gradeId]/page.tsx`
 - `src/features/gradelevel/presentation/components/PublicClassSchedule.tsx`
 
@@ -1012,6 +1082,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 ### 4.1 Journey: New Semester Setup (Admin)
 
 **Steps:**
+
 1. Login → Dashboard → Select Semester → "+ Create New"
 2. Fill config form (periods, breaks, days)
 3. Save → System generates timeslots
@@ -1047,14 +1118,15 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 **Scenario:** Teacher 10001 is sick, need to reassign their classes temporarily
 
 **Steps:**
+
 1. Login → Dashboard → Select current semester
 2. Navigate to Teacher Table → Select teacher 10001
 3. View their schedule (10 classes per week)
 4. Navigate to Assign:
    - Find all assignments for teacher 10001
    - For each assignment:
-     * Edit → Change TeacherID to backup teacher
-     * Validate backup teacher has capacity
+     - Edit → Change TeacherID to backup teacher
+     - Validate backup teacher has capacity
 5. Navigate to Arrange:
    - Existing schedules now show new teacher
    - Check for conflicts (backup teacher may have time conflicts)
@@ -1071,6 +1143,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 ### 4.3 Journey: Schedule Publication (Admin)
 
 **Steps:**
+
 1. Complete all scheduling (100% completion rate)
 2. Navigate to Conflicts → Verify 0 conflicts
 3. Navigate to Analytics → Review stats:
@@ -1092,6 +1165,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 ### 4.4 Journey: Teacher Viewing Own Schedule
 
 **Steps:**
+
 1. Teacher receives email: "Your schedule for 1/2567 is published"
 2. Clicks link in email → Redirects to `/(public)/teachers/{teacherId}`
 3. Sees personal schedule on public page
@@ -1104,6 +1178,7 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 ### 4.5 Journey: Parent Checking Child's Schedule
 
 **Steps:**
+
 1. Parent opens browser → Goes to school website
 2. Clicks "ตารางเรียน" link → Redirects to `/(public)`
 3. Switches to "Classes" tab
@@ -1134,16 +1209,16 @@ function detectTeacherConflicts(schedules: classschedule[]) {
 
 3. **Domain Layer:**
    - `conflict-detector.service.ts` runs validation:
-     * Check class availability
-     * Check teacher availability
-     * Check room availability
-     * Check timeslot not locked
+     - Check class availability
+     - Check teacher availability
+     - Check room availability
+     - Check timeslot not locked
    - Returns `{ valid: boolean, error?: string }`
 
 4. **Infrastructure Layer:**
    - `schedule.repository.ts` queries database:
-     * `findConflictingSchedules()`
-     * `findLockedResource()`
+     - `findConflictingSchedules()`
+     - `findLockedResource()`
    - If valid: `prisma.classschedule.create()`
    - Returns ActionResult<classschedule>
 
@@ -1151,10 +1226,11 @@ function detectTeacherConflicts(schedules: classschedule[]) {
    - ActionResult propagates back to Server Action
    - Server Action returns to client component
    - Client component updates UI:
-     * Success: Add cell to grid, show snackbar
-     * Error: Show error message, revert drag
+     - Success: Add cell to grid, show snackbar
+     - Error: Show error message, revert drag
 
 **Diagram:**
+
 ```
 User Drag → UI Component → Hook → Server Action
                                         ↓
@@ -1180,6 +1256,7 @@ Client Update ← UI Feedback ← Server Action Response
 **Example:** Teacher MaxHours exceeded
 
 **Flow:**
+
 1. User tries to assign 5-hour subject to teacher with 18/18 hours used
 2. Domain service validates: `teacherHours (18) + newHours (5) > MaxHours (18)`
 3. Returns: `{ success: false, error: "ครูสอนเกิน 18 ชม. (ปัจจุบัน 18 + ใหม่ 5)" }`
@@ -1191,6 +1268,7 @@ Client Update ← UI Feedback ← Server Action Response
 **Example:** Teacher double-booking
 
 **Flow:**
+
 1. User tries to schedule teacher for MON period 3 at two classes
 2. Conflict detector finds existing schedule
 3. Returns: `{ success: false, error: "ครู 10001 สอนวิชาอื่นในช่วงเวลานี้แล้ว" }`
@@ -1205,6 +1283,7 @@ Client Update ← UI Feedback ← Server Action Response
 **Example:** Prisma query timeout
 
 **Flow:**
+
 1. User saves complex schedule change
 2. Database connection times out
 3. Prisma throws error
@@ -1217,6 +1296,7 @@ Client Update ← UI Feedback ← Server Action Response
 **Example:** Non-admin user tries to access management
 
 **Flow:**
+
 1. User manually types URL: `/management/teacher`
 2. Middleware checks session
 3. User not in authorized admin list
@@ -1228,6 +1308,7 @@ Client Update ← UI Feedback ← Server Action Response
 ## 7. Key Business Rules Summary
 
 ### Hard Constraints (MUST NOT violate):
+
 1. Class cannot have 2 subjects at same time
 2. Teacher cannot teach 2 classes at same time
 3. Room cannot be used by 2 classes at same time
@@ -1238,6 +1319,7 @@ Client Update ← UI Feedback ← Server Action Response
 8. ConfigID format: `/^[1-3]-\d{4}$/`
 
 ### Soft Constraints (SHOULD avoid):
+
 1. Minimize gaps in teacher's schedule
 2. Distribute subjects evenly across week
 3. Assign lab rooms to science subjects
@@ -1247,6 +1329,7 @@ Client Update ← UI Feedback ← Server Action Response
 7. Avoid scheduling all core subjects on same day
 
 ### Ministry Standards (Thailand):
+
 1. Core subjects (พื้นฐาน): Minimum credits required per year
 2. Elective subjects (เพิ่มเติม): Student choice
 3. Activity subjects (กิจกรรม): 1 credit, no grades
@@ -1278,7 +1361,7 @@ export const createTeacherAction = createAction(
 
     // Business logic
     const teacher = await teacherRepository.create(input);
-    
+
     // Return data
     return teacher;
   }
@@ -1303,7 +1386,7 @@ export const teacherRepository = {
   async findAll(configId: string) {
     return prisma.teacher.findMany({
       where: { ConfigID: configId },
-      orderBy: { Name: 'asc' },
+      orderBy: { Name: "asc" },
     });
   },
 
@@ -1343,7 +1426,7 @@ Semester context shared via Zustand:
 
 ```typescript
 // src/store/semester-store.ts
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface SemesterState {
   semesterAndyear: string | null;
@@ -1465,21 +1548,21 @@ Located in `e2e/` directory:
 
 ```typescript
 // e2e/semester-setup.spec.ts
-test('Admin can set up new semester', async ({ page }) => {
-  await page.goto('/login');
-  await page.click('text=Sign in with Google');
+test("Admin can set up new semester", async ({ page }) => {
+  await page.goto("/login");
+  await page.click("text=Sign in with Google");
   // ... OAuth flow
-  
-  await page.goto('/dashboard/select-semester');
-  await page.click('text=+ Create New');
-  
-  await page.fill('[name="AcademicYear"]', '2568');
-  await page.selectOption('[name="Semester"]', '1');
-  await page.fill('[name="NumberOfPeriod"]', '10');
-  await page.fill('[name="TimePerPeriod"]', '50');
+
+  await page.goto("/dashboard/select-semester");
+  await page.click("text=+ Create New");
+
+  await page.fill('[name="AcademicYear"]', "2568");
+  await page.selectOption('[name="Semester"]', "1");
+  await page.fill('[name="NumberOfPeriod"]', "10");
+  await page.fill('[name="TimePerPeriod"]', "50");
   await page.click('button[type="submit"]');
-  
-  await expect(page.locator('text=สร้างสำเร็จ')).toBeVisible();
+
+  await expect(page.locator("text=สร้างสำเร็จ")).toBeVisible();
   await expect(page).toHaveURL(/\/dashboard\/1-2568/);
 });
 ```
@@ -1491,6 +1574,7 @@ Run with: `pnpm test:e2e`
 ## 11. Future Enhancements
 
 ### Phase 2 (Planned):
+
 1. **Analytics Phase 2:**
    - Subject Distribution charts
    - Quality Metrics (gaps, balance)

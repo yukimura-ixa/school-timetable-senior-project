@@ -13,7 +13,11 @@ type Props = {
   totalItems: number;
 };
 
-export function TablePagination({ currentPage, totalPages, totalItems }: Props) {
+export function TablePagination({
+  currentPage,
+  totalPages,
+  totalItems,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -50,7 +54,8 @@ export function TablePagination({ currentPage, totalPages, totalItems }: Props) 
         <div>
           <p className="text-sm text-gray-700">
             แสดง{" "}
-            <span className="font-medium">{(currentPage - 1) * 25 + 1}</span> ถึง{" "}
+            <span className="font-medium">{(currentPage - 1) * 25 + 1}</span>{" "}
+            ถึง{" "}
             <span className="font-medium">
               {Math.min(currentPage * 25, totalItems)}
             </span>{" "}

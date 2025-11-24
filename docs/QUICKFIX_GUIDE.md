@@ -3,8 +3,9 @@
 ## Problem: 5 Script Files With PrismaClient Constructor Errors
 
 Files affected:
+
 - `scripts/check-admin-user.ts`
-- `scripts/check-semester.ts` 
+- `scripts/check-semester.ts`
 - `scripts/create-admin.ts`
 - `scripts/verify-admin.ts`
 - `scripts/verify-program-seed.ts`
@@ -18,18 +19,21 @@ Error: `Expected 1 arguments, but got 0`
 For each of the 5 files above, make these two changes:
 
 **Step 1**: Find this import (around line 6-8):
+
 ```typescript
 import { PrismaClient } from "../prisma/generated/client";
 // OR
-import { PrismaClient } from '@/prisma/generated/client';
+import { PrismaClient } from "@/prisma/generated/client";
 ```
 
 **Replace with**:
+
 ```typescript
 import prisma from "../src/lib/prisma";
 ```
 
 **Step 2**: Find this line (usually line 9):
+
 ```typescript
 const prisma = new PrismaClient();
 ```
@@ -44,7 +48,7 @@ Run from project root:
 # Fix all 5 scripts at once
 $scripts = @(
   'scripts/check-admin-user.ts',
-  'scripts/check-semester.ts', 
+  'scripts/check-semester.ts',
   'scripts/create-admin.ts',
   'scripts/verify-admin.ts',
   'scripts/verify-program-seed.ts'
@@ -52,9 +56,9 @@ $scripts = @(
 
 foreach ($file in $scripts) {
   # Step 1: Replace import statement
-  (Get-Content $file) -replace 
-    'import \{ PrismaClient \} from [''"](@\/|\.\.\/)prisma\/generated\/client[''"];?', 
-    'import prisma from "../src/lib/prisma";' | 
+  (Get-Content $file) -replace
+    'import \{ PrismaClient \} from [''"](@\/|\.\.\/)prisma\/generated\/client[''"];?',
+    'import prisma from "../src/lib/prisma";' |
   # Step 2: Remove constructor line
    Where-Object { $_ -notmatch '^\s*const prisma = new PrismaClient\(\);?\s*$' } |
   Set-Content $file
@@ -64,6 +68,7 @@ foreach ($file in $scripts) {
 ### Verification
 
 After fix, run:
+
 ```bash
 pnpm typecheck 2>&1 | grep "Expected 1 arguments"
 ```

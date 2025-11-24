@@ -1,7 +1,15 @@
 "use client";
-import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
-import type { program, $Enums } from '@/prisma/generated/client';;
-import { createProgramAction, updateProgramAction, deleteProgramAction } from "@/features/program/application/actions/program.actions";
+import {
+  EditableTable,
+  type ColumnDef,
+  type ValidationFn,
+} from "@/components/tables";
+import type { program, $Enums } from "@/prisma/generated/client";
+import {
+  createProgramAction,
+  updateProgramAction,
+  deleteProgramAction,
+} from "@/features/program/application/actions/program.actions";
 import { enqueueSnackbar } from "notistack";
 
 export type ProgramEditableTableProps = {
@@ -20,8 +28,22 @@ const trackLabels: Record<$Enums.ProgramTrack, string> = {
 
 const columnsForYear = (_year: number): ColumnDef<program>[] => [
   { key: "ProgramID", label: "ID", editable: false, width: 80 },
-  { key: "ProgramCode", label: "รหัสหลักสูตร", editable: true, required: true, type: "text", width: 140 },
-  { key: "ProgramName", label: "ชื่อหลักสูตร", editable: true, required: true, type: "text", width: 260 },
+  {
+    key: "ProgramCode",
+    label: "รหัสหลักสูตร",
+    editable: true,
+    required: true,
+    type: "text",
+    width: 140,
+  },
+  {
+    key: "ProgramName",
+    label: "ชื่อหลักสูตร",
+    editable: true,
+    required: true,
+    type: "text",
+    width: 260,
+  },
   {
     key: "Track",
     label: "แผนการเรียน",
@@ -37,7 +59,13 @@ const columnsForYear = (_year: number): ColumnDef<program>[] => [
     width: 160,
     render: (value: $Enums.ProgramTrack) => trackLabels[value] || value,
   },
-  { key: "MinTotalCredits", label: "หน่วยกิตขั้นต่ำ", editable: true, type: "number", width: 140 },
+  {
+    key: "MinTotalCredits",
+    label: "หน่วยกิตขั้นต่ำ",
+    editable: true,
+    type: "number",
+    width: 140,
+  },
   {
     key: "IsActive",
     label: "สถานะ",
@@ -52,32 +80,41 @@ const columnsForYear = (_year: number): ColumnDef<program>[] => [
   },
 ];
 
-const validateProgram: (year: number) => ValidationFn<program> = (year: number) => (_id, data, all) => {
-  // Basic required
-  if (!data.ProgramCode || String(data.ProgramCode).trim() === "") {
-    return "รหัสหลักสูตรห้ามว่าง";
-  }
-  if (!data.ProgramName || String(data.ProgramName).trim() === "") {
-    return "ชื่อหลักสูตรห้ามว่าง";
-  }
-  // ProgramCode format (M1-M6 for Thai years ม.1-ม.6)
-  if (!/^[A-Z_]+-M[1-6]-\d{4}$/.test(String(data.ProgramCode))) {
-    return "รหัสต้องมีรูปแบบ GENERAL-M1-2567, SCI_MATH-M4-2567 เป็นต้น";
-  }
-  // Unique ProgramCode among rows (client-side)
-  const dup = all.find((r) => r.ProgramCode === data.ProgramCode && r.ProgramID !== data.ProgramID);
-  if (dup) {
-    return "รหัสหลักสูตรซ้ำในรายการ";
-  }
-  // Only one program per track for the same year (soft check)
-  if (data.Track) {
-    const sameTrack = all.find((r) => r.Year === year && r.Track === data.Track && r.ProgramID !== data.ProgramID);
-    if (sameTrack) {
-      return "ปีเดียวกันห้ามมีแผนการเรียนซ้ำ";
+const validateProgram: (year: number) => ValidationFn<program> =
+  (year: number) => (_id, data, all) => {
+    // Basic required
+    if (!data.ProgramCode || String(data.ProgramCode).trim() === "") {
+      return "รหัสหลักสูตรห้ามว่าง";
     }
-  }
-  return null;
-};
+    if (!data.ProgramName || String(data.ProgramName).trim() === "") {
+      return "ชื่อหลักสูตรห้ามว่าง";
+    }
+    // ProgramCode format (M1-M6 for Thai years ม.1-ม.6)
+    if (!/^[A-Z_]+-M[1-6]-\d{4}$/.test(String(data.ProgramCode))) {
+      return "รหัสต้องมีรูปแบบ GENERAL-M1-2567, SCI_MATH-M4-2567 เป็นต้น";
+    }
+    // Unique ProgramCode among rows (client-side)
+    const dup = all.find(
+      (r) =>
+        r.ProgramCode === data.ProgramCode && r.ProgramID !== data.ProgramID,
+    );
+    if (dup) {
+      return "รหัสหลักสูตรซ้ำในรายการ";
+    }
+    // Only one program per track for the same year (soft check)
+    if (data.Track) {
+      const sameTrack = all.find(
+        (r) =>
+          r.Year === year &&
+          r.Track === data.Track &&
+          r.ProgramID !== data.ProgramID,
+      );
+      if (sameTrack) {
+        return "ปีเดียวกันห้ามมีแผนการเรียนซ้ำ";
+      }
+    }
+    return null;
+  };
 
 // Empty row for creation
 const emptyProgram = (year: number): Partial<program> => ({
@@ -89,7 +126,11 @@ const emptyProgram = (year: number): Partial<program> => ({
   IsActive: true,
 });
 
-export default function ProgramEditableTable({ year, rows, mutate }: ProgramEditableTableProps) {
+export default function ProgramEditableTable({
+  year,
+  rows,
+  mutate,
+}: ProgramEditableTableProps) {
   const columns = columnsForYear(year);
   const validate = validateProgram(year);
 
@@ -100,14 +141,15 @@ export default function ProgramEditableTable({ year, rows, mutate }: ProgramEdit
         ProgramCode: String(row.ProgramCode),
         ProgramName: String(row.ProgramName),
         Year: year,
-  Track: (row.Track ?? "GENERAL"),
+        Track: row.Track ?? "GENERAL",
         MinTotalCredits: Number(row.MinTotalCredits ?? 0),
         IsActive: String(row.IsActive) === "true" || row.IsActive === true,
       });
       enqueueSnackbar("เพิ่มหลักสูตรสำเร็จ", { variant: "success" });
       return { success: true as const, data: res.data };
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "เพิ่มหลักสูตรไม่สำเร็จ";
+      const message =
+        err instanceof Error ? err.message : "เพิ่มหลักสูตรไม่สำเร็จ";
       enqueueSnackbar(message, { variant: "error" });
       return { success: false as const, error: message };
     } finally {
@@ -126,7 +168,8 @@ export default function ProgramEditableTable({ year, rows, mutate }: ProgramEdit
           ProgramName: r.ProgramName ?? "",
           Track: r.Track,
           MinTotalCredits: r.MinTotalCredits,
-          IsActive: typeof r.IsActive === "string" ? r.IsActive === "true" : r.IsActive,
+          IsActive:
+            typeof r.IsActive === "string" ? r.IsActive === "true" : r.IsActive,
         });
       }
       enqueueSnackbar("บันทึกสำเร็จ", { variant: "success" });

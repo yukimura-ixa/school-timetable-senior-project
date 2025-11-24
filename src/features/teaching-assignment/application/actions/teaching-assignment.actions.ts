@@ -7,16 +7,16 @@
  * @module teaching-assignment.actions
  */
 
-"use server"
+"use server";
 
-import { revalidatePath } from "next/cache"
-import { createAction } from "@/shared/lib/action-wrapper"
-import prisma from "@/lib/prisma"
-import * as teachingAssignmentRepository from "../../infrastructure/repositories/teaching-assignment.repository"
+import { revalidatePath } from "next/cache";
+import { createAction } from "@/shared/lib/action-wrapper";
+import prisma from "@/lib/prisma";
+import * as teachingAssignmentRepository from "../../infrastructure/repositories/teaching-assignment.repository";
 import {
   validateAssignment,
   validateBulkAssignments,
-} from "../../domain/services/teacher-validation.service"
+} from "../../domain/services/teacher-validation.service";
 import {
   assignTeacherSchema,
   unassignTeacherSchema,
@@ -28,7 +28,7 @@ import {
   type BulkAssignInput,
   type CopyAssignmentsInput,
   type ClearAssignmentsInput,
-} from "../schemas/teaching-assignment.schemas"
+} from "../schemas/teaching-assignment.schemas";
 
 /**
  * Assign a teacher to a subject
@@ -65,37 +65,36 @@ export const assignTeacherAction = createAction(
       semester: input.Semester,
       year: input.AcademicYear,
       additionalHours: input.TeachHour,
-    })
+    });
 
     if (!validation.valid) {
       // Return validation errors in Thai
-      throw new Error(
-        validation.errors.join(", ") || "ไม่สามารถมอบหมายได้"
-      )
+      throw new Error(validation.errors.join(", ") || "ไม่สามารถมอบหมายได้");
     }
 
     // Create/update assignment
-    const assignment = await teachingAssignmentRepository.assignTeacherToSubject(
-      {
+    const assignment =
+      await teachingAssignmentRepository.assignTeacherToSubject({
         TeacherID: input.TeacherID,
         SubjectCode: input.SubjectCode,
         GradeID: input.GradeID,
         Semester: input.Semester,
         AcademicYear: input.AcademicYear,
         TeachHour: input.TeachHour,
-      }
-    )
+      });
 
     // Revalidate relevant pages
-    revalidatePath("/management/teacher-assignment")
-    revalidatePath(`/schedule/${input.GradeID}-${input.Semester}-${input.AcademicYear}`)
+    revalidatePath("/management/teacher-assignment");
+    revalidatePath(
+      `/schedule/${input.GradeID}-${input.Semester}-${input.AcademicYear}`,
+    );
 
     return {
       assignment,
       warnings: validation.warnings,
-    }
-  }
-)
+    };
+  },
+);
 
 /**
  * Unassign a teacher from a subject
@@ -120,14 +119,14 @@ export const unassignTeacherAction = createAction(
     // For now, we can delete directly by RespID using Prisma
     await prisma.teachers_responsibility.delete({
       where: { RespID: input.RespID },
-    })
+    });
 
     // Revalidate all teacher assignment pages
-    revalidatePath("/management/teacher-assignment")
+    revalidatePath("/management/teacher-assignment");
 
-    return { success: true }
-  }
-)
+    return { success: true };
+  },
+);
 
 /**
  * Bulk assign multiple teachers
@@ -160,34 +159,34 @@ export const bulkAssignTeachersAction = createAction(
       semester: a.Semester,
       year: a.AcademicYear,
       hours: a.TeachHour,
-    }))
+    }));
 
     // Validate all assignments together
-    const validation = await validateBulkAssignments(validationInput)
+    const validation = await validateBulkAssignments(validationInput);
 
     if (!validation.valid) {
       // Return all validation errors
       throw new Error(
         `พบข้อผิดพลาด ${validation.errors.length} รายการ:\n` +
-        validation.errors.map((e) => `- ${e}`).join("\n")
-      )
+          validation.errors.map((e) => `- ${e}`).join("\n"),
+      );
     }
 
     // Apply assignments in transaction
     const results = await teachingAssignmentRepository.bulkAssignTeachers(
-      input.assignments
-    )
+      input.assignments,
+    );
 
     // Revalidate pages
-    revalidatePath("/management/teacher-assignment")
+    revalidatePath("/management/teacher-assignment");
 
     return {
       successCount: results.length,
       warnings: validation.warnings,
       assignments: results,
-    }
-  }
-)
+    };
+  },
+);
 
 /**
  * Copy assignments from previous semester
@@ -221,18 +220,18 @@ export const copyAssignmentsAction = createAction(
         input.sourceYear,
         input.targetGradeID,
         input.targetSemester,
-        input.targetYear
-      )
+        input.targetYear,
+      );
 
     // Revalidate pages
-    revalidatePath("/management/teacher-assignment")
+    revalidatePath("/management/teacher-assignment");
 
     return {
       count: copiedAssignments.length,
       assignments: copiedAssignments,
-    }
-  }
-)
+    };
+  },
+);
 
 /**
  * Clear all assignments for a grade/semester/year
@@ -256,21 +255,20 @@ export const copyAssignmentsAction = createAction(
 export const clearAllAssignmentsAction = createAction(
   clearAssignmentsSchema,
   async (input: ClearAssignmentsInput) => {
-    const deletedCount =
-      await teachingAssignmentRepository.clearAllAssignments(
-        input.GradeID,
-        input.Semester,
-        input.AcademicYear
-      )
+    const deletedCount = await teachingAssignmentRepository.clearAllAssignments(
+      input.GradeID,
+      input.Semester,
+      input.AcademicYear,
+    );
 
     // Revalidate pages
-    revalidatePath("/management/teacher-assignment")
+    revalidatePath("/management/teacher-assignment");
 
     return {
       count: deletedCount,
-    }
-  }
-)
+    };
+  },
+);
 
 /**
  * Fetch subjects and assignments for a grade/semester/year
@@ -284,35 +282,36 @@ export const clearAllAssignmentsAction = createAction(
 export async function getSubjectsWithAssignments(
   gradeId: string,
   semester: "SEMESTER_1" | "SEMESTER_2",
-  academicYear: number
+  academicYear: number,
 ) {
-  "use server"
+  "use server";
 
   console.warn("[getSubjectsWithAssignments] Called with:", {
     gradeId,
     semester,
     academicYear,
-  })
+  });
 
   const subjectsData =
-    await teachingAssignmentRepository.findSubjectsByGrade(gradeId)
+    await teachingAssignmentRepository.findSubjectsByGrade(gradeId);
   console.warn(
-    `[getSubjectsWithAssignments] Found ${subjectsData.length} subjects for grade ${gradeId}`
-  )
+    `[getSubjectsWithAssignments] Found ${subjectsData.length} subjects for grade ${gradeId}`,
+  );
 
-  const assignments = await teachingAssignmentRepository.findAssignmentsByContext(
-    gradeId,
-    semester,
-    academicYear
-  )
+  const assignments =
+    await teachingAssignmentRepository.findAssignmentsByContext(
+      gradeId,
+      semester,
+      academicYear,
+    );
   console.warn(
-    `[getSubjectsWithAssignments] Found ${assignments.length} assignments`
-  )
+    `[getSubjectsWithAssignments] Found ${assignments.length} assignments`,
+  );
 
   return subjectsData.map((subjectData: any) => {
     const assignment = assignments.find(
-      (a: any) => a.SubjectCode === subjectData.SubjectCode
-    )
+      (a: any) => a.SubjectCode === subjectData.SubjectCode,
+    );
 
     return {
       SubjectCode: subjectData.SubjectCode,
@@ -320,16 +319,16 @@ export async function getSubjectsWithAssignments(
       Credit: subjectData.subject.Credit,
       assignedTeacher: assignment
         ? {
-          RespID: assignment.RespID,
-          TeacherID: assignment.TeacherID,
-          TeachHour: assignment.TeachHour,
-          TeacherName: assignment.teacher
-            ? `${assignment.teacher.Prefix}${assignment.teacher.Firstname} ${assignment.teacher.Lastname}`
-            : "ไม่ทราบชื่อ",
-        }
+            RespID: assignment.RespID,
+            TeacherID: assignment.TeacherID,
+            TeachHour: assignment.TeachHour,
+            TeacherName: assignment.teacher
+              ? `${assignment.teacher.Prefix}${assignment.teacher.Firstname} ${assignment.teacher.Lastname}`
+              : "ไม่ทราบชื่อ",
+          }
         : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -342,9 +341,9 @@ export async function getSubjectsWithAssignments(
  */
 export async function getTeachersWithWorkload(
   semester: "SEMESTER_1" | "SEMESTER_2",
-  academicYear: number
+  academicYear: number,
 ) {
-  "use server"
+  "use server";
 
   const teachers = await prisma.teacher.findMany({
     select: {
@@ -354,27 +353,31 @@ export async function getTeachersWithWorkload(
       Lastname: true,
     },
     orderBy: [{ Prefix: "asc" }, { Firstname: "asc" }],
-  })
+  });
 
   // Calculate workload for each teacher
   const teachersWithWorkload = await Promise.all(
     teachers.map(async (teacher: any) => {
       // Get teacher's workload from repository
-      const assignments = await teachingAssignmentRepository.findTeacherWorkload(
-        teacher.TeacherID,
-        semester,
-        academicYear
-      )
+      const assignments =
+        await teachingAssignmentRepository.findTeacherWorkload(
+          teacher.TeacherID,
+          semester,
+          academicYear,
+        );
 
       // Calculate total hours and determine status
-      const totalHours = assignments.reduce((sum: any, a: any) => sum + a.TeachHour, 0)
-      let status: "ok" | "warning" | "overload"
+      const totalHours = assignments.reduce(
+        (sum: any, a: any) => sum + a.TeachHour,
+        0,
+      );
+      let status: "ok" | "warning" | "overload";
       if (totalHours >= 25) {
-        status = "overload"
+        status = "overload";
       } else if (totalHours >= 20) {
-        status = "warning"
+        status = "warning";
       } else {
-        status = "ok"
+        status = "ok";
       }
 
       return {
@@ -385,9 +388,9 @@ export async function getTeachersWithWorkload(
           status,
           assignments: assignments.length,
         },
-      }
-    })
-  )
+      };
+    }),
+  );
 
-  return teachersWithWorkload
+  return teachersWithWorkload;
 }

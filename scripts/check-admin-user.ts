@@ -4,11 +4,11 @@
  * Run with: pnpm tsx scripts/check-admin-user.ts
  */
 
-import prisma from "../src/lib/prisma"
+import prisma from "../src/lib/prisma";
 
 async function checkAdminUser() {
   try {
-    console.log("\n🔍 Checking for admin users...\n")
+    console.log("\n🔍 Checking for admin users...\n");
 
     const adminUsers = await prisma.user.findMany({
       where: {
@@ -22,38 +22,38 @@ async function checkAdminUser() {
         password: true, // Will show if password exists (not the actual hash)
         createdAt: true,
       },
-    })
+    });
 
     if (adminUsers.length === 0) {
-      console.log("❌ No admin users found in database")
-      console.log("\n💡 Create an admin user with:")
-      console.log("   pnpm admin:create")
-      return
+      console.log("❌ No admin users found in database");
+      console.log("\n💡 Create an admin user with:");
+      console.log("   pnpm admin:create");
+      return;
     }
 
-    console.log(`✅ Found ${adminUsers.length} admin user(s):\n`)
+    console.log(`✅ Found ${adminUsers.length} admin user(s):\n`);
 
     adminUsers.forEach((user: any, index: number) => {
-      console.log(`${index + 1}. ${user.name || "Unnamed"}`)
-      console.log(`   Email: ${user.email}`)
-      console.log(`   ID: ${user.id}`)
-      console.log(`   Password set: ${user.password ? "✅ Yes" : "❌ No"}`)
-      console.log(`   Created: ${user.createdAt.toLocaleDateString()}`)
-      console.log("")
-    })
+      console.log(`${index + 1}. ${user.name || "Unnamed"}`);
+      console.log(`   Email: ${user.email}`);
+      console.log(`   ID: ${user.id}`);
+      console.log(`   Password set: ${user.password ? "✅ Yes" : "❌ No"}`);
+      console.log(`   Created: ${user.createdAt.toLocaleDateString()}`);
+      console.log("");
+    });
 
-    const usersWithoutPassword = adminUsers.filter((u: any) => !u.password)
+    const usersWithoutPassword = adminUsers.filter((u: any) => !u.password);
     if (usersWithoutPassword.length > 0) {
       console.log(
-        "⚠️  Warning: Some admin users don't have passwords set (likely created via OAuth)"
-      )
-      console.log("   These users cannot use credential-based login\n")
+        "⚠️  Warning: Some admin users don't have passwords set (likely created via OAuth)",
+      );
+      console.log("   These users cannot use credential-based login\n");
     }
   } catch (error) {
-    console.error("❌ Error checking admin users:", error)
+    console.error("❌ Error checking admin users:", error);
   } finally {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
-checkAdminUser()
+checkAdminUser();

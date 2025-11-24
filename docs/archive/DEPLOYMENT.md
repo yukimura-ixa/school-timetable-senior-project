@@ -21,6 +21,7 @@
 6. Copy the **Connection String** (starts with `postgresql://`)
 
 **Example Connection String:**
+
 ```
 postgresql://user:password@aws-region.prisma.io:5432/database?schema=public&connection_limit=10
 ```
@@ -84,28 +85,33 @@ Go to **Vercel Dashboard → Your Project → Settings → Environment Variables
 Add these variables (for **Production** environment):
 
 #### **Database**
+
 ```bash
 DATABASE_URL=postgresql://your-connection-string-from-prisma
 ```
 
 #### **NextAuth**
+
 ```bash
 NEXTAUTH_URL=https://your-app.vercel.app
 NEXTAUTH_SECRET=your-generated-secret-here
 ```
 
 **Generate NEXTAUTH_SECRET:**
+
 ```bash
 openssl rand -base64 32
 ```
 
 #### **Google OAuth**
+
 ```bash
 NEXT_GOOGLE_AUTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
 NEXT_GOOGLE_AUTH_CLIENT_SECRET=your-client-secret
 ```
 
 #### **Security (Important!)**
+
 ```bash
 # Do NOT add ENABLE_DEV_BYPASS in production!
 # Or explicitly set it to false:
@@ -137,6 +143,7 @@ pnpm prisma db seed
 #### Option B: Add to Vercel Build Script
 
 Update `package.json`:
+
 ```json
 {
   "scripts": {
@@ -154,10 +161,10 @@ Update `package.json`:
 
 1. **Check Build Logs**: Vercel Dashboard → Deployments → Latest → View Logs
 2. **Test Application**: Visit `https://your-app.vercel.app`
-3. **Test Authentication**: 
+3. **Test Authentication**:
    - Try logging in with Google OAuth
    - Verify the dev bypass is disabled (button should NOT appear)
-4. **Test Database**: 
+4. **Test Database**:
    - Try creating a teacher/subject/room
    - Verify data persists
 
@@ -231,6 +238,7 @@ pg_dump -h host -U user -d database > backup.sql
 ### Build Fails with "Prisma Client not found"
 
 **Solution**: Ensure `postinstall` script is in `package.json`:
+
 ```json
 {
   "scripts": {
@@ -242,6 +250,7 @@ pg_dump -h host -U user -d database > backup.sql
 ### Database Connection Fails
 
 **Check**:
+
 1. DATABASE_URL is correctly formatted
 2. Prisma Postgres database is active
 3. Connection limit is appropriate (10-20 for serverless)
@@ -250,6 +259,7 @@ pg_dump -h host -U user -d database > backup.sql
 ### Authentication Redirects Fail
 
 **Check**:
+
 1. NEXTAUTH_URL matches your Vercel domain exactly
 2. Google OAuth redirect URI includes your Vercel domain
 3. No trailing slashes in URLs
@@ -257,6 +267,7 @@ pg_dump -h host -U user -d database > backup.sql
 ### Dev Bypass Appears in Production
 
 **FIX IMMEDIATELY**:
+
 1. Remove `ENABLE_DEV_BYPASS` from Vercel environment variables
 2. Redeploy the application
 3. Verify the button no longer appears

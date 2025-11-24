@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * Legacy redirect page for schedule/select-semester
- * 
+ *
  * This page has been replaced with the modern semester selection interface
  * at /dashboard/select-semester which includes:
  * - Card-based semester display
@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
  * - Analytics dashboard
  * - Semester creation wizard
  * - Integration with global semester selector in navbar
- * 
+ *
  * Users are automatically redirected to the modern interface.
  */
 export default function SelectYearAndSemester() {
@@ -31,9 +31,7 @@ export default function SelectYearAndSemester() {
         <h2 className="text-lg font-semibold text-gray-800">
           กำลังเปลี่ยนหน้า...
         </h2>
-        <p className="text-sm text-gray-600">
-          กรุณารอสักครู่
-        </p>
+        <p className="text-sm text-gray-600">กรุณารอสักครู่</p>
       </div>
     </div>
   );

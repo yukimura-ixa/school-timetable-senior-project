@@ -1,13 +1,13 @@
 /**
  * Thai School Year Format Utilities
- * 
+ *
  * Converts between database values and Thai display format
  * Thai School System: มัธยมศึกษา (Mathayom) ม.1-ม.6
- * 
+ *
  * Database Format:
  * - Year: 1-6 (integer)
  * - GradeID: "ม.1/1", "ม.2/2", etc. (string)
- * 
+ *
  * Display Format: "ม.1", "ม.2", etc.
  */
 
@@ -42,14 +42,16 @@ export const SENIOR_HIGH_YEARS = [4, 5, 6] as const;
  * Convert Thai year to display format
  * @param year Thai year (1-6)
  * @returns Display format "ม.1" to "ม.6"
- * 
+ *
  * @example
  * formatThaiYear(1) // "ม.1"
  * formatThaiYear(6) // "ม.6"
  */
 export function formatThaiYear(year: number): string {
   if (year < THAI_YEAR_MIN || year > THAI_YEAR_MAX) {
-    throw new Error(`Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);
+    throw new Error(
+      `Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`,
+    );
   }
   return `ม.${year}`;
 }
@@ -58,7 +60,7 @@ export function formatThaiYear(year: number): string {
  * Parse Thai year display format to number
  * @param thaiYearStr Display format "ม.1" to "ม.6"
  * @returns Thai year (1-6)
- * 
+ *
  * @example
  * parseThaiYear("ม.1") // 1
  * parseThaiYear("ม.6") // 6
@@ -66,11 +68,15 @@ export function formatThaiYear(year: number): string {
 export function parseThaiYear(thaiYearStr: string): number {
   const match = thaiYearStr.match(/^ม\.(\d)$/);
   if (!match) {
-    throw new Error(`Invalid Thai year format: ${thaiYearStr}. Expected format: "ม.1" to "ม.6"`);
+    throw new Error(
+      `Invalid Thai year format: ${thaiYearStr}. Expected format: "ม.1" to "ม.6"`,
+    );
   }
-  const year = parseInt(match[1] || '0', 10);
+  const year = parseInt(match[1] || "0", 10);
   if (year < THAI_YEAR_MIN || year > THAI_YEAR_MAX) {
-    throw new Error(`Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);
+    throw new Error(
+      `Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`,
+    );
   }
   return year;
 }
@@ -80,14 +86,16 @@ export function parseThaiYear(thaiYearStr: string): number {
  * @param year Thai year (1-6)
  * @param section Section/room number
  * @returns GradeID in format "ม.1/1", "ม.2/2", etc.
- * 
+ *
  * @example
  * generateThaiGradeID(1, 1) // "ม.1/1"
  * generateThaiGradeID(6, 3) // "ม.6/3"
  */
 export function generateThaiGradeID(year: number, section: number): string {
   if (year < THAI_YEAR_MIN || year > THAI_YEAR_MAX) {
-    throw new Error(`Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);
+    throw new Error(
+      `Invalid Thai year: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`,
+    );
   }
   if (section < 1) {
     throw new Error(`Invalid section: ${section}. Must be >= 1`);
@@ -99,23 +107,30 @@ export function generateThaiGradeID(year: number, section: number): string {
  * Parse Thai GradeID to year and section
  * @param gradeID GradeID in format "ม.1/1", "ม.2/2", etc.
  * @returns Object with year and section
- * 
+ *
  * @example
  * parseThaiGradeID("ม.1/1") // { year: 1, section: 1 }
  * parseThaiGradeID("ม.6/3") // { year: 6, section: 3 }
  */
-export function parseThaiGradeID(gradeID: string): { year: number; section: number } {
+export function parseThaiGradeID(gradeID: string): {
+  year: number;
+  section: number;
+} {
   const match = gradeID.match(/^ม\.(\d)\/(\d+)$/);
   if (!match) {
-    throw new Error(`Invalid Thai GradeID format: ${gradeID}. Expected format: "ม.1/1", "ม.2/2", etc.`);
+    throw new Error(
+      `Invalid Thai GradeID format: ${gradeID}. Expected format: "ม.1/1", "ม.2/2", etc.`,
+    );
   }
-  const year = parseInt(match[1] || '0', 10);
-  const section = parseInt(match[2] || '0', 10);
-  
+  const year = parseInt(match[1] || "0", 10);
+  const section = parseInt(match[2] || "0", 10);
+
   if (year < THAI_YEAR_MIN || year > THAI_YEAR_MAX) {
-    throw new Error(`Invalid Thai year in GradeID: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);
+    throw new Error(
+      `Invalid Thai year in GradeID: ${year}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`,
+    );
   }
-  
+
   return { year, section };
 }
 
@@ -143,7 +158,7 @@ export function isSeniorHigh(year: number): boolean {
  * @returns "ม.ต้น" or "ม.ปลาย"
  */
 export function getLevelName(year: number): string {
-  return isJuniorHigh(year) ? 'ม.ต้น' : 'ม.ปลาย';
+  return isJuniorHigh(year) ? "ม.ต้น" : "ม.ปลาย";
 }
 
 /**
@@ -151,15 +166,18 @@ export function getLevelName(year: number): string {
  * @param internationalYear International year (7-12)
  * @returns Thai year (1-6)
  * @deprecated Use Thai year format directly
- * 
+ *
  * @example
  * convertToThaiYear(7) // 1
  * convertToThaiYear(12) // 6
  */
 export function convertToThaiYear(internationalYear: number): number {
-  if (internationalYear < INTERNATIONAL_YEAR_MIN || internationalYear > INTERNATIONAL_YEAR_MAX) {
+  if (
+    internationalYear < INTERNATIONAL_YEAR_MIN ||
+    internationalYear > INTERNATIONAL_YEAR_MAX
+  ) {
     throw new Error(
-      `Invalid international year: ${internationalYear}. Must be between ${INTERNATIONAL_YEAR_MIN} and ${INTERNATIONAL_YEAR_MAX}`
+      `Invalid international year: ${internationalYear}. Must be between ${INTERNATIONAL_YEAR_MIN} and ${INTERNATIONAL_YEAR_MAX}`,
     );
   }
   return internationalYear - 6;
@@ -170,14 +188,16 @@ export function convertToThaiYear(internationalYear: number): number {
  * @param thaiYear Thai year (1-6)
  * @returns International year (7-12)
  * @deprecated Use Thai year format directly
- * 
+ *
  * @example
  * convertToInternationalYear(1) // 7
  * convertToInternationalYear(6) // 12
  */
 export function convertToInternationalYear(thaiYear: number): number {
   if (thaiYear < THAI_YEAR_MIN || thaiYear > THAI_YEAR_MAX) {
-    throw new Error(`Invalid Thai year: ${thaiYear}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`);
+    throw new Error(
+      `Invalid Thai year: ${thaiYear}. Must be between ${THAI_YEAR_MIN} and ${THAI_YEAR_MAX}`,
+    );
   }
   return thaiYear + 6;
 }
@@ -188,7 +208,9 @@ export function convertToInternationalYear(thaiYear: number): number {
  * @returns true if valid
  */
 export function isValidThaiYear(year: number): boolean {
-  return Number.isInteger(year) && year >= THAI_YEAR_MIN && year <= THAI_YEAR_MAX;
+  return (
+    Number.isInteger(year) && year >= THAI_YEAR_MIN && year <= THAI_YEAR_MAX
+  );
 }
 
 /**

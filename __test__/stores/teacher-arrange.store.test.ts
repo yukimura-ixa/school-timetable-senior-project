@@ -4,15 +4,15 @@
 
 /**
  * Teacher Arrange Store Unit Tests
- * 
+ *
  * Comprehensive test suite for the Context7-powered Zustand store.
  * Tests all actions, selectors, history operations, and persistence.
- * 
+ *
  * Pattern: Jest + @testing-library/react hooks
  * Related: teacher-arrange.store.ts, Phase 4.1
  */
 
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act } from "@testing-library/react";
 import {
   useTeacherArrangeStore,
   useTeacherArrangeActions,
@@ -28,61 +28,61 @@ import {
   useFilters,
   useHistoryControls,
   useCurrentTeacher,
-} from '@/features/schedule-arrangement/presentation/stores/teacher-arrange.store';
+} from "@/features/schedule-arrangement/presentation/stores/teacher-arrange.store";
 import type {
   SubjectData,
   TimeslotData,
   SubjectPayload,
   DayOfWeekDisplay,
   BreakSlotData,
-} from '@/types/schedule.types';
-import type { teacher } from '@/prisma/generated/client';
+} from "@/types/schedule.types";
+import type { teacher } from "@/prisma/generated/client";
 
 // ============================================================================
 // Mock Data
 // ============================================================================
 
 const mockTeacher: teacher = {
-  teacher_id: 'TCH001',
-  t_name: 'John Doe',
-  t_surname: 'Teacher',
-  email: 'john@example.com',
-  google_id: 'google123',
+  teacher_id: "TCH001",
+  t_name: "John Doe",
+  t_surname: "Teacher",
+  email: "john@example.com",
+  google_id: "google123",
   created_at: new Date(),
   updated_at: new Date(),
 };
 
 const mockSubject1: SubjectData = {
-  subjectCode: 'TH101',
-  subjectNameTH: 'ภาษาไทย',
-  subjectNameEN: 'Thai Language',
-  semester: '1',
-  year: '2567',
+  subjectCode: "TH101",
+  subjectNameTH: "ภาษาไทย",
+  subjectNameEN: "Thai Language",
+  semester: "1",
+  year: "2567",
   gradelevel: {
     id: 1,
-    grade_level: 'ม.1',
+    grade_level: "ม.1",
     year: 1,
-    class_section: 'A',
+    class_section: "A",
     updated_at: new Date(),
     created_at: new Date(),
   },
   teacher: mockTeacher,
   room: {
     room_id: 1,
-    name: 'R101',
-    campus: 'Main',
+    name: "R101",
+    campus: "Main",
     created_at: new Date(),
     updated_at: new Date(),
   },
   class_schedule_id: 1,
   class_schedule: null,
   semester_id: 1,
-  teacher_id: 'TCH001',
+  teacher_id: "TCH001",
   room_id: 1,
   gradelevel_id: 1,
   credits: 1.0,
-  subject_type: 'core',
-  color: '#FF5733',
+  subject_type: "core",
+  color: "#FF5733",
   hours_per_week: 2,
   updated_at: new Date(),
   created_at: new Date(),
@@ -90,16 +90,16 @@ const mockSubject1: SubjectData = {
 
 const mockSubject2: SubjectData = {
   ...mockSubject1,
-  subjectCode: 'MA101',
-  subjectNameTH: 'คณิตศาสตร์',
-  subjectNameEN: 'Mathematics',
+  subjectCode: "MA101",
+  subjectNameTH: "คณิตศาสตร์",
+  subjectNameEN: "Mathematics",
   class_schedule_id: 2,
-  color: '#33FF57',
+  color: "#33FF57",
 };
 
 const mockTimeslot1: TimeslotData = {
-  TimeslotID: 'slot1',
-  Day: 'จันทร์',
+  TimeslotID: "slot1",
+  Day: "จันทร์",
   Slot: 1,
   subject: mockSubject1,
   isBreak: false,
@@ -107,8 +107,8 @@ const mockTimeslot1: TimeslotData = {
 };
 
 const mockTimeslot2: TimeslotData = {
-  TimeslotID: 'slot2',
-  Day: 'จันทร์',
+  TimeslotID: "slot2",
+  Day: "จันทร์",
   Slot: 2,
   subject: null,
   isBreak: false,
@@ -116,9 +116,9 @@ const mockTimeslot2: TimeslotData = {
 };
 
 const mockPayload: SubjectPayload = {
-  timeslotID: 'slot1',
+  timeslotID: "slot1",
   semester_id: 1,
-  currentSubjectCode: 'TH101',
+  currentSubjectCode: "TH101",
 };
 
 // ============================================================================
@@ -146,19 +146,19 @@ afterEach(() => {
 // Teacher Actions Tests
 // ============================================================================
 
-describe('Teacher Actions', () => {
-  it('should set current teacher ID', () => {
+describe("Teacher Actions", () => {
+  it("should set current teacher ID", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: teacherResult } = renderHook(() => useCurrentTeacher());
 
     act(() => {
-      result.current.setCurrentTeacherID('TCH001');
+      result.current.setCurrentTeacherID("TCH001");
     });
 
-    expect(teacherResult.current.id).toBe('TCH001');
+    expect(teacherResult.current.id).toBe("TCH001");
   });
 
-  it('should set teacher data', () => {
+  it("should set teacher data", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: teacherResult } = renderHook(() => useCurrentTeacher());
 
@@ -169,7 +169,7 @@ describe('Teacher Actions', () => {
     expect(teacherResult.current.data).toEqual(mockTeacher);
   });
 
-  it('should clear teacher data by setting null', () => {
+  it("should clear teacher data by setting null", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: teacherResult } = renderHook(() => useCurrentTeacher());
 
@@ -191,8 +191,8 @@ describe('Teacher Actions', () => {
 // Subject Selection Actions Tests
 // ============================================================================
 
-describe('Subject Selection Actions', () => {
-  it('should set selected subject and auto-set year', () => {
+describe("Subject Selection Actions", () => {
+  it("should set selected subject and auto-set year", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: subjectResult } = renderHook(() => useSelectedSubject());
     const { result: yearResult } = renderHook(() => useYearSelected());
@@ -205,7 +205,7 @@ describe('Subject Selection Actions', () => {
     expect(yearResult.current).toBe(1);
   });
 
-  it('should set dragged subject', () => {
+  it("should set dragged subject", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: draggedResult } = renderHook(() => useDraggedSubject());
 
@@ -216,7 +216,7 @@ describe('Subject Selection Actions', () => {
     expect(draggedResult.current).toEqual(mockSubject1);
   });
 
-  it('should set year selected manually', () => {
+  it("should set year selected manually", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: yearResult } = renderHook(() => useYearSelected());
 
@@ -227,7 +227,7 @@ describe('Subject Selection Actions', () => {
     expect(yearResult.current).toBe(3);
   });
 
-  it('should clear all selection state', () => {
+  it("should clear all selection state", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: subjectResult } = renderHook(() => useSelectedSubject());
     const { result: draggedResult } = renderHook(() => useDraggedSubject());
@@ -258,8 +258,8 @@ describe('Subject Selection Actions', () => {
 // Subject Change Actions Tests
 // ============================================================================
 
-describe('Subject Change Actions', () => {
-  it('should set change timeslot subject', () => {
+describe("Subject Change Actions", () => {
+  it("should set change timeslot subject", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
@@ -270,7 +270,7 @@ describe('Subject Change Actions', () => {
     expect(result.current.changeTimeSlotSubject).toEqual(mockSubject1);
   });
 
-  it('should set destination subject', () => {
+  it("should set destination subject", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
@@ -281,11 +281,11 @@ describe('Subject Change Actions', () => {
     expect(result.current.destinationSubject).toEqual(mockSubject2);
   });
 
-  it('should set timeslot ID to change', () => {
+  it("should set timeslot ID to change", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
-    const change = { source: 'slot1', destination: 'slot2' };
+    const change = { source: "slot1", destination: "slot2" };
 
     act(() => {
       actions.current.setTimeslotIDtoChange(change);
@@ -294,7 +294,7 @@ describe('Subject Change Actions', () => {
     expect(result.current.timeslotIDtoChange).toEqual(change);
   });
 
-  it('should set click to change subject flag', () => {
+  it("should set click to change subject flag", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
@@ -311,7 +311,7 @@ describe('Subject Change Actions', () => {
     expect(result.current.isClickToChangeSubject).toBe(false);
   });
 
-  it('should clear all change subject state', () => {
+  it("should clear all change subject state", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
@@ -319,7 +319,10 @@ describe('Subject Change Actions', () => {
     act(() => {
       actions.current.setChangeTimeSlotSubject(mockSubject1);
       actions.current.setDestinationSubject(mockSubject2);
-      actions.current.setTimeslotIDtoChange({ source: 'slot1', destination: 'slot2' });
+      actions.current.setTimeslotIDtoChange({
+        source: "slot1",
+        destination: "slot2",
+      });
       actions.current.setIsClickToChangeSubject(true);
     });
 
@@ -333,7 +336,10 @@ describe('Subject Change Actions', () => {
 
     expect(result.current.changeTimeSlotSubject).toBeNull();
     expect(result.current.destinationSubject).toBeNull();
-    expect(result.current.timeslotIDtoChange).toEqual({ source: '', destination: '' });
+    expect(result.current.timeslotIDtoChange).toEqual({
+      source: "",
+      destination: "",
+    });
     expect(result.current.isClickToChangeSubject).toBe(false);
   });
 });
@@ -342,8 +348,8 @@ describe('Subject Change Actions', () => {
 // Subject Data Actions Tests
 // ============================================================================
 
-describe('Subject Data Actions', () => {
-  it('should set subject data', () => {
+describe("Subject Data Actions", () => {
+  it("should set subject data", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: dataResult } = renderHook(() => useSubjectData());
 
@@ -356,9 +362,11 @@ describe('Subject Data Actions', () => {
     expect(dataResult.current).toEqual(subjects);
   });
 
-  it('should set scheduled subjects', () => {
+  it("should set scheduled subjects", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
-    const { result: scheduledResult } = renderHook(() => useScheduledSubjects());
+    const { result: scheduledResult } = renderHook(() =>
+      useScheduledSubjects(),
+    );
 
     const subjects = [mockSubject1];
 
@@ -369,7 +377,7 @@ describe('Subject Data Actions', () => {
     expect(scheduledResult.current).toEqual(subjects);
   });
 
-  it('should add subject to data', () => {
+  it("should add subject to data", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: dataResult } = renderHook(() => useSubjectData());
 
@@ -385,7 +393,7 @@ describe('Subject Data Actions', () => {
     expect(dataResult.current[1]).toEqual(mockSubject2);
   });
 
-  it('should remove subject from data by code', () => {
+  it("should remove subject from data by code", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: dataResult } = renderHook(() => useSubjectData());
 
@@ -396,14 +404,14 @@ describe('Subject Data Actions', () => {
     expect(dataResult.current).toHaveLength(2);
 
     act(() => {
-      result.current.removeSubjectFromData('TH101');
+      result.current.removeSubjectFromData("TH101");
     });
 
     expect(dataResult.current).toHaveLength(1);
-    expect(dataResult.current[0].subjectCode).toBe('MA101');
+    expect(dataResult.current[0].subjectCode).toBe("MA101");
   });
 
-  it('should update subject in data', () => {
+  it("should update subject in data", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: dataResult } = renderHook(() => useSubjectData());
 
@@ -412,17 +420,17 @@ describe('Subject Data Actions', () => {
     });
 
     act(() => {
-      result.current.updateSubjectInData('TH101', {
-        subjectNameTH: 'ภาษาไทยใหม่',
-        color: '#000000',
+      result.current.updateSubjectInData("TH101", {
+        subjectNameTH: "ภาษาไทยใหม่",
+        color: "#000000",
       });
     });
 
-    const updated = dataResult.current.find((s) => s.subjectCode === 'TH101');
-    expect(updated?.subjectNameTH).toBe('ภาษาไทยใหม่');
-    expect(updated?.color).toBe('#000000');
+    const updated = dataResult.current.find((s) => s.subjectCode === "TH101");
+    expect(updated?.subjectNameTH).toBe("ภาษาไทยใหม่");
+    expect(updated?.color).toBe("#000000");
     // Other fields should remain unchanged
-    expect(updated?.subjectNameEN).toBe('Thai Language');
+    expect(updated?.subjectNameEN).toBe("Thai Language");
   });
 });
 
@@ -430,15 +438,15 @@ describe('Subject Data Actions', () => {
 // Timeslot Actions Tests
 // ============================================================================
 
-describe('Timeslot Actions', () => {
-  it('should set timeslot data', () => {
+describe("Timeslot Actions", () => {
+  it("should set timeslot data", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: timeslotResult } = renderHook(() => useTimeslotData());
 
     const data = {
       AllData: [mockTimeslot1, mockTimeslot2],
       SlotAmount: [1, 2, 3, 4],
-      DayOfWeek: ['จันทร์', 'อังคาร'] as DayOfWeekDisplay[],
+      DayOfWeek: ["จันทร์", "อังคาร"] as DayOfWeekDisplay[],
       BreakSlot: [] as BreakSlotData[],
     };
 
@@ -451,7 +459,7 @@ describe('Timeslot Actions', () => {
     expect(timeslotResult.current.DayOfWeek).toEqual(data.DayOfWeek);
   });
 
-  it('should update partial timeslot data', () => {
+  it("should update partial timeslot data", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: timeslotResult } = renderHook(() => useTimeslotData());
 
@@ -474,7 +482,7 @@ describe('Timeslot Actions', () => {
     expect(timeslotResult.current.SlotAmount).toEqual([1, 2]); // Unchanged
   });
 
-  it('should update single timeslot subject', () => {
+  it("should update single timeslot subject", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: timeslotResult } = renderHook(() => useTimeslotData());
 
@@ -485,18 +493,22 @@ describe('Timeslot Actions', () => {
     });
 
     act(() => {
-      result.current.updateTimeslotSubject('slot2', mockSubject2);
+      result.current.updateTimeslotSubject("slot2", mockSubject2);
     });
 
-    const updated = timeslotResult.current.AllData.find((s) => s.TimeslotID === 'slot2');
+    const updated = timeslotResult.current.AllData.find(
+      (s) => s.TimeslotID === "slot2",
+    );
     expect(updated?.subject).toEqual(mockSubject2);
 
     // slot1 should be unchanged
-    const unchanged = timeslotResult.current.AllData.find((s) => s.TimeslotID === 'slot1');
+    const unchanged = timeslotResult.current.AllData.find(
+      (s) => s.TimeslotID === "slot1",
+    );
     expect(unchanged?.subject).toEqual(mockSubject1);
   });
 
-  it('should swap timeslots correctly', () => {
+  it("should swap timeslots correctly", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: timeslotResult } = renderHook(() => useTimeslotData());
 
@@ -507,17 +519,21 @@ describe('Timeslot Actions', () => {
     });
 
     act(() => {
-      result.current.swapTimeslots('slot1', 'slot2');
+      result.current.swapTimeslots("slot1", "slot2");
     });
 
-    const slot1 = timeslotResult.current.AllData.find((s) => s.TimeslotID === 'slot1');
-    const slot2 = timeslotResult.current.AllData.find((s) => s.TimeslotID === 'slot2');
+    const slot1 = timeslotResult.current.AllData.find(
+      (s) => s.TimeslotID === "slot1",
+    );
+    const slot2 = timeslotResult.current.AllData.find(
+      (s) => s.TimeslotID === "slot2",
+    );
 
     expect(slot1?.subject).toBeNull(); // Originally slot2's subject
     expect(slot2?.subject).toEqual(mockSubject1); // Originally slot1's subject
   });
 
-  it('should handle swap with non-existent timeslots gracefully', () => {
+  it("should handle swap with non-existent timeslots gracefully", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: timeslotResult } = renderHook(() => useTimeslotData());
 
@@ -529,7 +545,7 @@ describe('Timeslot Actions', () => {
 
     // Swap with non-existent slot should not crash
     act(() => {
-      result.current.swapTimeslots('slot1', 'nonexistent');
+      result.current.swapTimeslots("slot1", "nonexistent");
     });
 
     // Data should be unchanged
@@ -541,8 +557,8 @@ describe('Timeslot Actions', () => {
 // Modal Actions Tests
 // ============================================================================
 
-describe('Modal Actions', () => {
-  it('should open modal with payload', () => {
+describe("Modal Actions", () => {
+  it("should open modal with payload", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: modalResult } = renderHook(() => useModalState());
 
@@ -554,7 +570,7 @@ describe('Modal Actions', () => {
     expect(modalResult.current.payload).toEqual(mockPayload);
   });
 
-  it('should close modal and clear payload', () => {
+  it("should close modal and clear payload", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: modalResult } = renderHook(() => useModalState());
 
@@ -572,7 +588,7 @@ describe('Modal Actions', () => {
     expect(modalResult.current.payload).toBeNull();
   });
 
-  it('should set subject payload independently', () => {
+  it("should set subject payload independently", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: modalResult } = renderHook(() => useModalState());
 
@@ -589,40 +605,40 @@ describe('Modal Actions', () => {
 // Error Display Actions Tests
 // ============================================================================
 
-describe('Error Display Actions', () => {
-  it('should set error message for timeslot', () => {
+describe("Error Display Actions", () => {
+  it("should set error message for timeslot", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: errorResult } = renderHook(() => useErrorState());
 
     act(() => {
-      result.current.setShowErrorMsg('slot1', true);
+      result.current.setShowErrorMsg("slot1", true);
     });
 
-    expect(errorResult.current.errorMessages['slot1']).toBe(true);
+    expect(errorResult.current.errorMessages["slot1"]).toBe(true);
   });
 
-  it('should set lock message for timeslot', () => {
+  it("should set lock message for timeslot", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: errorResult } = renderHook(() => useErrorState());
 
     act(() => {
-      result.current.setShowLockDataMsg('slot2', true);
+      result.current.setShowLockDataMsg("slot2", true);
     });
 
-    expect(errorResult.current.lockMessages['slot2']).toBe(true);
+    expect(errorResult.current.lockMessages["slot2"]).toBe(true);
   });
 
-  it('should clear all error messages', () => {
+  it("should clear all error messages", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: errorResult } = renderHook(() => useErrorState());
 
     act(() => {
-      result.current.setShowErrorMsg('slot1', true);
-      result.current.setShowLockDataMsg('slot2', true);
+      result.current.setShowErrorMsg("slot1", true);
+      result.current.setShowLockDataMsg("slot2", true);
     });
 
-    expect(errorResult.current.errorMessages['slot1']).toBe(true);
-    expect(errorResult.current.lockMessages['slot2']).toBe(true);
+    expect(errorResult.current.errorMessages["slot1"]).toBe(true);
+    expect(errorResult.current.lockMessages["slot2"]).toBe(true);
 
     act(() => {
       result.current.clearErrorMessages();
@@ -632,13 +648,13 @@ describe('Error Display Actions', () => {
     expect(errorResult.current.lockMessages).toEqual({});
   });
 
-  it('should use clearAllErrors alias', () => {
+  it("should use clearAllErrors alias", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: errorResult } = renderHook(() => useErrorState());
 
     act(() => {
-      result.current.setShowErrorMsg('slot1', true);
-      result.current.setShowLockDataMsg('slot2', true);
+      result.current.setShowErrorMsg("slot1", true);
+      result.current.setShowLockDataMsg("slot2", true);
     });
 
     act(() => {
@@ -654,8 +670,8 @@ describe('Error Display Actions', () => {
 // Save State Actions Tests
 // ============================================================================
 
-describe('Save State Actions', () => {
-  it('should set saving state', () => {
+describe("Save State Actions", () => {
+  it("should set saving state", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: saveResult } = renderHook(() => useSaveState());
 
@@ -677,20 +693,20 @@ describe('Save State Actions', () => {
 // Filter Actions Tests
 // ============================================================================
 
-describe('Filter Actions', () => {
-  it('should set filters', () => {
+describe("Filter Actions", () => {
+  it("should set filters", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: filterResult } = renderHook(() => useFilters());
 
     act(() => {
-      result.current.setFilters({ academicYear: 2567, semester: '1' });
+      result.current.setFilters({ academicYear: 2567, semester: "1" });
     });
 
     expect(filterResult.current.academicYear).toBe(2567);
-    expect(filterResult.current.semester).toBe('1');
+    expect(filterResult.current.semester).toBe("1");
   });
 
-  it('should update filters partially', () => {
+  it("should update filters partially", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: filterResult } = renderHook(() => useFilters());
 
@@ -699,19 +715,23 @@ describe('Filter Actions', () => {
     });
 
     act(() => {
-      result.current.setFilters({ semester: '2' });
+      result.current.setFilters({ semester: "2" });
     });
 
     expect(filterResult.current.academicYear).toBe(2567);
-    expect(filterResult.current.semester).toBe('2');
+    expect(filterResult.current.semester).toBe("2");
   });
 
-  it('should reset filters to defaults', () => {
+  it("should reset filters to defaults", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: filterResult } = renderHook(() => useFilters());
 
     act(() => {
-      result.current.setFilters({ academicYear: 2567, semester: '1', gradeLevel: 'ม.1' });
+      result.current.setFilters({
+        academicYear: 2567,
+        semester: "1",
+        gradeLevel: "ม.1",
+      });
     });
 
     act(() => {
@@ -728,11 +748,13 @@ describe('Filter Actions', () => {
 // History Actions Tests (Undo/Redo)
 // ============================================================================
 
-describe('History Actions', () => {
-  it('should push history state', () => {
+describe("History Actions", () => {
+  it("should push history state", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: historyResult } = renderHook(() => useHistoryControls());
-    const { result: scheduledResult } = renderHook(() => useScheduledSubjects());
+    const { result: scheduledResult } = renderHook(() =>
+      useScheduledSubjects(),
+    );
 
     act(() => {
       result.current.pushHistory([mockSubject1]);
@@ -743,10 +765,12 @@ describe('History Actions', () => {
     expect(historyResult.current.canRedo).toBe(false);
   });
 
-  it('should handle undo operation', () => {
+  it("should handle undo operation", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: historyResult } = renderHook(() => useHistoryControls());
-    const { result: scheduledResult } = renderHook(() => useScheduledSubjects());
+    const { result: scheduledResult } = renderHook(() =>
+      useScheduledSubjects(),
+    );
 
     act(() => {
       result.current.pushHistory([mockSubject1]);
@@ -764,10 +788,12 @@ describe('History Actions', () => {
     expect(historyResult.current.canRedo).toBe(true);
   });
 
-  it('should handle redo operation', () => {
+  it("should handle redo operation", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: historyResult } = renderHook(() => useHistoryControls());
-    const { result: scheduledResult } = renderHook(() => useScheduledSubjects());
+    const { result: scheduledResult } = renderHook(() =>
+      useScheduledSubjects(),
+    );
 
     act(() => {
       result.current.pushHistory([mockSubject1]);
@@ -788,7 +814,7 @@ describe('History Actions', () => {
     expect(historyResult.current.canUndo).toBe(true);
   });
 
-  it('should clear future on new push', () => {
+  it("should clear future on new push", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: historyResult } = renderHook(() => useHistoryControls());
 
@@ -811,9 +837,11 @@ describe('History Actions', () => {
     expect(historyResult.current.canRedo).toBe(false);
   });
 
-  it('should handle undo when no history', () => {
+  it("should handle undo when no history", () => {
     const { result } = renderHook(() => useHistoryControls());
-    const { result: scheduledResult } = renderHook(() => useScheduledSubjects());
+    const { result: scheduledResult } = renderHook(() =>
+      useScheduledSubjects(),
+    );
 
     expect(result.current.canUndo).toBe(false);
 
@@ -825,9 +853,11 @@ describe('History Actions', () => {
     expect(scheduledResult.current).toEqual([]);
   });
 
-  it('should handle redo when no future', () => {
+  it("should handle redo when no future", () => {
     const { result } = renderHook(() => useHistoryControls());
-    const { result: scheduledResult } = renderHook(() => useScheduledSubjects());
+    const { result: scheduledResult } = renderHook(() =>
+      useScheduledSubjects(),
+    );
 
     expect(result.current.canRedo).toBe(false);
 
@@ -839,7 +869,7 @@ describe('History Actions', () => {
     expect(scheduledResult.current).toEqual([]);
   });
 
-  it('should clear history', () => {
+  it("should clear history", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
     const { result: historyResult } = renderHook(() => useHistoryControls());
 
@@ -863,47 +893,47 @@ describe('History Actions', () => {
 // Persistence Tests (localStorage)
 // ============================================================================
 
-describe('Filter Persistence', () => {
-  it('should persist filters to localStorage', () => {
+describe("Filter Persistence", () => {
+  it("should persist filters to localStorage", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
 
     act(() => {
-      result.current.setFilters({ academicYear: 2567, semester: '1' });
+      result.current.setFilters({ academicYear: 2567, semester: "1" });
     });
 
     // Check localStorage
-    const stored = localStorage.getItem('teacher-arrange-filters');
+    const stored = localStorage.getItem("teacher-arrange-filters");
     expect(stored).toBeTruthy();
 
     const parsed = JSON.parse(stored!);
     expect(parsed.state.filters.academicYear).toBe(2567);
-    expect(parsed.state.filters.semester).toBe('1');
+    expect(parsed.state.filters.semester).toBe("1");
   });
 
-  it('should hydrate filters from localStorage', () => {
+  it("should hydrate filters from localStorage", () => {
     // Manually set localStorage
     const mockState = {
       state: {
         filters: {
           academicYear: 2567,
-          semester: '2',
-          gradeLevel: 'ม.2',
+          semester: "2",
+          gradeLevel: "ม.2",
         },
       },
       version: 1,
     };
-    localStorage.setItem('teacher-arrange-filters', JSON.stringify(mockState));
+    localStorage.setItem("teacher-arrange-filters", JSON.stringify(mockState));
 
     // Create new hook instance (simulates page refresh)
     const { result } = renderHook(() => useFilters());
 
     // Filters should be hydrated from localStorage
     expect(result.current.academicYear).toBe(2567);
-    expect(result.current.semester).toBe('2');
-    expect(result.current.gradeLevel).toBe('ม.2');
+    expect(result.current.semester).toBe("2");
+    expect(result.current.gradeLevel).toBe("ม.2");
   });
 
-  it('should not persist non-filter state', () => {
+  it("should not persist non-filter state", () => {
     const { result } = renderHook(() => useTeacherArrangeActions());
 
     act(() => {
@@ -911,7 +941,7 @@ describe('Filter Persistence', () => {
       result.current.setFilters({ academicYear: 2567 });
     });
 
-    const stored = localStorage.getItem('teacher-arrange-filters');
+    const stored = localStorage.getItem("teacher-arrange-filters");
     const parsed = JSON.parse(stored!);
 
     // Only filters should be in localStorage
@@ -924,14 +954,14 @@ describe('Filter Persistence', () => {
 // Reset Actions Tests
 // ============================================================================
 
-describe('Reset Actions', () => {
-  it('should reset all state', () => {
+describe("Reset Actions", () => {
+  it("should reset all state", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
     // Set various state
     act(() => {
-      actions.current.setCurrentTeacherID('TCH001');
+      actions.current.setCurrentTeacherID("TCH001");
       actions.current.setSelectedSubject(mockSubject1);
       actions.current.setSubjectData([mockSubject1, mockSubject2]);
       actions.current.setFilters({ academicYear: 2567 });
@@ -948,13 +978,13 @@ describe('Reset Actions', () => {
     expect(result.current.filters.academicYear).toBeNull();
   });
 
-  it('should reset on teacher change but keep teacher context', () => {
+  it("should reset on teacher change but keep teacher context", () => {
     const { result } = renderHook(() => useTeacherArrangeStore());
     const { result: actions } = renderHook(() => useTeacherArrangeActions());
 
     // Set state
     act(() => {
-      actions.current.setCurrentTeacherID('TCH001');
+      actions.current.setCurrentTeacherID("TCH001");
       actions.current.setTeacherData(mockTeacher);
       actions.current.setSelectedSubject(mockSubject1);
       actions.current.setFilters({ academicYear: 2567 });
@@ -967,7 +997,7 @@ describe('Reset Actions', () => {
     });
 
     // Teacher context should be preserved
-    expect(result.current.currentTeacherID).toBe('TCH001');
+    expect(result.current.currentTeacherID).toBe("TCH001");
     expect(result.current.teacherData).toEqual(mockTeacher);
     expect(result.current.filters.academicYear).toBe(2567);
 
@@ -982,8 +1012,8 @@ describe('Reset Actions', () => {
 // Selector Performance Tests
 // ============================================================================
 
-describe('Selector Performance', () => {
-  it('should not re-render when unrelated state changes', () => {
+describe("Selector Performance", () => {
+  it("should not re-render when unrelated state changes", () => {
     let renderCount = 0;
 
     const { result } = renderHook(() => {
@@ -1012,7 +1042,7 @@ describe('Selector Performance', () => {
     expect(renderCount).toBe(2);
   });
 
-  it('actions hook should never cause re-renders', () => {
+  it("actions hook should never cause re-renders", () => {
     let renderCount = 0;
 
     const { result } = renderHook(() => {

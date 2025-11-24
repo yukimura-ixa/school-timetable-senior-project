@@ -1,7 +1,7 @@
 // TableRow.jsx
 import React from "react";
 import { BiEdit } from "react-icons/bi";
-import type { Prisma } from '@/prisma/generated/client';;
+import type { Prisma } from "@/prisma/generated/client";
 
 type GradeLevelWithProgram = Prisma.gradelevelGetPayload<{
   include: { program: true };
@@ -68,7 +68,7 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              setEditModalActive(true), clickToSelect(item.GradeID);
+              (setEditModalActive(true), clickToSelect(item.GradeID));
             }}
           />
           {/* Delete action removed - use top toolbar button with multi-select */}

@@ -37,7 +37,10 @@ type Props = {
   title?: string;
 };
 
-export function SemesterExportButton({ semesters, title = "Semester Export" }: Props) {
+export function SemesterExportButton({
+  semesters,
+  title = "Semester Export",
+}: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -95,7 +98,7 @@ export function SemesterExportButton({ semesters, title = "Semester Export" }: P
       const html = arrayToExcelHTML(
         data,
         undefined,
-        `รายการภาคเรียน - ${timestamp}`
+        `รายการภาคเรียน - ${timestamp}`,
       );
       downloadExcel(html, `semesters-${timestamp}.xls`);
       enqueueSnackbar(`ส่งออก Excel สำเร็จ (${semesters.length} รายการ)`, {
@@ -113,13 +116,16 @@ export function SemesterExportButton({ semesters, title = "Semester Export" }: P
   const handleExportSummary = () => {
     try {
       setIsExporting(true);
-      
+
       // Create summary statistics
       const totalSemesters = semesters.length;
-      const byStatus = semesters.reduce((acc, s) => {
-        acc[s.status] = (acc[s.status] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const byStatus = semesters.reduce(
+        (acc, s) => {
+          acc[s.status] = (acc[s.status] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       const avgCompleteness =
         semesters.reduce((sum, s) => sum + s.configCompleteness, 0) /
@@ -131,7 +137,7 @@ export function SemesterExportButton({ semesters, title = "Semester Export" }: P
         เผยแพร่: byStatus.PUBLISHED || 0,
         ล็อก: byStatus.LOCKED || 0,
         เก็บถาวร: byStatus.ARCHIVED || 0,
-        "ความสมบูรณ์เฉลี่ย": `${avgCompleteness.toFixed(1)}%`,
+        ความสมบูรณ์เฉลี่ย: `${avgCompleteness.toFixed(1)}%`,
         สร้างเมื่อ: formatThaiDate(new Date()),
       };
 
@@ -263,14 +269,20 @@ export function SemesterExportButton({ semesters, title = "Semester Export" }: P
     <>
       <Button
         variant="outlined"
-        startIcon={isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
+        startIcon={
+          isExporting ? <CircularProgress size={20} /> : <DownloadIcon />
+        }
         onClick={handleOpenMenu}
         disabled={isExporting}
       >
         ส่งออกข้อมูล
       </Button>
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+      >
         <MenuItem onClick={handleExportCSV}>
           <ListItemIcon>
             <CSVIcon fontSize="small" />

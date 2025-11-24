@@ -15,22 +15,22 @@ Successfully separated environment configurations for **local development**, **G
 
 ### **✅ Example/Template Files** (Committed to Git)
 
-| File | Purpose | Committed |
-|------|---------|-----------|
-| `.env.example` | General template with setup guide | ✅ Yes |
-| `.env.local.example` | Local development template | ✅ Yes |
-| `.env.production.example` | Production deployment template | ✅ Yes |
-| `.env.ci` | GitHub Actions configuration | ✅ Yes |
-| `.env.test` | E2E testing configuration | ✅ Yes |
+| File                      | Purpose                           | Committed |
+| ------------------------- | --------------------------------- | --------- |
+| `.env.example`            | General template with setup guide | ✅ Yes    |
+| `.env.local.example`      | Local development template        | ✅ Yes    |
+| `.env.production.example` | Production deployment template    | ✅ Yes    |
+| `.env.ci`                 | GitHub Actions configuration      | ✅ Yes    |
+| `.env.test`               | E2E testing configuration         | ✅ Yes    |
 
 ### **🚫 Actual Environment Files** (Gitignored)
 
-| File | Purpose | Gitignored |
-|------|---------|------------|
-| `.env.local` | Your personal local config | ✅ Yes |
-| `.env.production` | Production secrets | ✅ Yes |
-| `.env` | Generic environment file | ✅ Yes |
-| `.env.development` | Development overrides | ✅ Yes |
+| File               | Purpose                    | Gitignored |
+| ------------------ | -------------------------- | ---------- |
+| `.env.local`       | Your personal local config | ✅ Yes     |
+| `.env.production`  | Production secrets         | ✅ Yes     |
+| `.env`             | Generic environment file   | ✅ Yes     |
+| `.env.development` | Development overrides      | ✅ Yes     |
 
 ---
 
@@ -39,6 +39,7 @@ Successfully separated environment configurations for **local development**, **G
 ### **1. Local Development** (`.env.local`)
 
 **Database:**
+
 ```env
 # Option 1: Prisma Studio Proxy (Recommended)
 DATABASE_URL="prisma+postgres://localhost:51213/?api_key=..."
@@ -48,12 +49,14 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/school_timetable_dev
 ```
 
 **Authentication:**
+
 ```env
 AUTH_SECRET="dev-secret-replace-in-prod"
 AUTH_URL="http://localhost:3000"
 ```
 
 **Development Bypass:**
+
 ```env
 ENABLE_DEV_BYPASS="true"  # Skip OAuth for local testing
 DEV_USER_EMAIL="admin@test.local"
@@ -61,6 +64,7 @@ DEV_USER_ROLE="admin"
 ```
 
 **Setup:**
+
 ```powershell
 # 1. Copy template
 cp .env.local.example .env.local
@@ -77,23 +81,27 @@ pnpm dev
 ### **2. GitHub CI** (`.env.ci`)
 
 **Database:**
+
 ```env
 # Uses PostgreSQL service container in GitHub Actions
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/test_timetable"
 ```
 
 **Authentication:**
+
 ```env
 AUTH_SECRET="${AUTH_SECRET}"  # Set in GitHub Secrets
 ENABLE_DEV_BYPASS="true"      # For E2E tests
 ```
 
 **Configuration:**
+
 - File is committed (no secrets inside)
 - Actual secrets stored in GitHub repository secrets
 - CI workflows automatically load `.env.ci`
 
 **GitHub Secrets to Set:**
+
 1. Go to: `Settings > Secrets and variables > Actions`
 2. Add:
    - `AUTH_SECRET` - Generate with `openssl rand -base64 32`
@@ -105,6 +113,7 @@ ENABLE_DEV_BYPASS="true"      # For E2E tests
 ### **3. Production** (`.env.production`)
 
 **Database:**
+
 ```env
 # Vercel Postgres (auto-configured)
 DATABASE_URL="${DATABASE_URL}"  # Set by Vercel
@@ -117,18 +126,21 @@ DATABASE_URL="prisma://accelerate.prisma-data.net/?api_key=${KEY}"
 ```
 
 **Authentication:**
+
 ```env
 AUTH_SECRET="${AUTH_SECRET}"  # STRONG secret
 =AUTH_URL="${VERCEL_URL}"      # Production domain
 ```
 
 **Security:**
+
 ```env
 ENABLE_DEV_BYPASS="false"  # ⚠️ MUST be false!
 NODE_ENV="production"
 ```
 
 **Deployment:**
+
 1. **Never commit** `.env.production`
 2. Set all variables in hosting platform:
    - Vercel: Project Settings > Environment Variables
@@ -176,7 +188,7 @@ NODE_ENV="production"
 4. ✅ **Environment validation** (recommended to add)
    ```typescript
    if (!process.env.AUTH_SECRET) {
-     throw new Error('AUTH_SECRET required');
+     throw new Error("AUTH_SECRET required");
    }
    ```
 
@@ -186,17 +198,19 @@ NODE_ENV="production"
 
 ### **Comprehensive Guides**
 
-| Document | Description | Location |
-|----------|-------------|----------|
-| **Environment Setup Guide** | Complete environment configuration | [`docs/ENVIRONMENT_SETUP.md`](docs/ENVIRONMENT_SETUP.md) |
-| **Prisma Proxy Setup** | Prisma Studio proxy configuration | [`docs/PRISMA_PROXY_SETUP.md`](docs/PRISMA_PROXY_SETUP.md) |
-| **Test Database Setup** | Local PostgreSQL and Docker options | [`docs/TEST_DATABASE_SETUP.md`](docs/TEST_DATABASE_SETUP.md) |
+| Document                    | Description                         | Location                                                     |
+| --------------------------- | ----------------------------------- | ------------------------------------------------------------ |
+| **Environment Setup Guide** | Complete environment configuration  | [`docs/ENVIRONMENT_SETUP.md`](docs/ENVIRONMENT_SETUP.md)     |
+| **Prisma Proxy Setup**      | Prisma Studio proxy configuration   | [`docs/PRISMA_PROXY_SETUP.md`](docs/PRISMA_PROXY_SETUP.md)   |
+| **Test Database Setup**     | Local PostgreSQL and Docker options | [`docs/TEST_DATABASE_SETUP.md`](docs/TEST_DATABASE_SETUP.md) |
 
 ### **Quick Reference**
 
 **Added to README.md:**
+
 ```markdown
 ### Getting Started
+
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** ⭐ START HERE
 - **[Environment Setup](docs/ENVIRONMENT_SETUP.md)** 🔧 CONFIGURATION
 ```
@@ -206,12 +220,14 @@ NODE_ENV="production"
 ## 🧪 **Testing Different Environments**
 
 ### **Local Development**
+
 ```powershell
 # Uses .env.local
 pnpm dev
 ```
 
 ### **Production Build**
+
 ```powershell
 # Uses .env.production
 pnpm build
@@ -219,12 +235,14 @@ pnpm start
 ```
 
 ### **E2E Tests**
+
 ```powershell
 # Uses .env.test
 pnpm test:e2e
 ```
 
 ### **CI Simulation**
+
 ```powershell
 # Temporarily use CI config
 cp .env.ci .env.local
@@ -237,21 +255,22 @@ pnpm dev
 
 ### **Environment Variables by Type**
 
-| Variable | Local | CI | Production |
-|----------|-------|----|------------|
-| `DATABASE_URL` | Prisma Proxy | PostgreSQL Service | Vercel/External |
-| `AUTH_SECRET` | `dev-secret` | GitHub Secret | Strong Secret |
-| `AUTH_URL` | `localhost:3000` | `localhost:3000` | Production Domain |
-| `ENABLE_DEV_BYPASS` | `true` | `true` | `false` ⚠️ |
-| `AUTH_GOOGLE_ID` | Optional | From Secret | Required |
-| `AUTH_GOOGLE_SECRET` | Optional | From Secret | Required |
-| `NODE_ENV` | `development` | `test` | `production` |
+| Variable             | Local            | CI                 | Production        |
+| -------------------- | ---------------- | ------------------ | ----------------- |
+| `DATABASE_URL`       | Prisma Proxy     | PostgreSQL Service | Vercel/External   |
+| `AUTH_SECRET`        | `dev-secret`     | GitHub Secret      | Strong Secret     |
+| `AUTH_URL`           | `localhost:3000` | `localhost:3000`   | Production Domain |
+| `ENABLE_DEV_BYPASS`  | `true`           | `true`             | `false` ⚠️        |
+| `AUTH_GOOGLE_ID`     | Optional         | From Secret        | Required          |
+| `AUTH_GOOGLE_SECRET` | Optional         | From Secret        | Required          |
+| `NODE_ENV`           | `development`    | `test`             | `production`      |
 
 ---
 
 ## 🚀 **Quick Start by Environment**
 
 ### **For Local Development:**
+
 ```powershell
 # 1. Setup
 cp .env.local.example .env.local
@@ -265,6 +284,7 @@ pnpm dev
 ```
 
 ### **For GitHub CI:**
+
 ```powershell
 # No local setup needed!
 # Just push to GitHub and Actions will run
@@ -272,6 +292,7 @@ pnpm dev
 ```
 
 ### **For Production:**
+
 ```powershell
 # 1. Never commit .env.production
 # 2. Set all variables in hosting platform
@@ -284,9 +305,10 @@ vercel deploy --prod  # or your platform's deploy command
 ## 📊 **File Status**
 
 ### **Committed Files** ✅
+
 - [x] `.env.example` - General template
 - [x] `.env.local.example` - Local template
-- [x] `.env.production.example` - Production template  
+- [x] `.env.production.example` - Production template
 - [x] `.env.ci` - CI configuration
 - [x] `.env.test` - Test configuration
 - [x] `.gitignore` - Updated with proper rules
@@ -295,6 +317,7 @@ vercel deploy --prod  # or your platform's deploy command
 - [x] `README.md` - Updated with environment link
 
 ### **Gitignored Files** 🚫
+
 - [ ] `.env.local` - User creates this locally
 - [ ] `.env.production` - Never commit
 - [ ] `.env` - Generic, gitignored
@@ -327,6 +350,7 @@ vercel deploy --prod  # or your platform's deploy command
 ## 📞 **Support**
 
 For environment configuration help:
+
 1. Check [`docs/ENVIRONMENT_SETUP.md`](docs/ENVIRONMENT_SETUP.md)
 2. Review troubleshooting section
 3. Verify `.gitignore` is properly configured

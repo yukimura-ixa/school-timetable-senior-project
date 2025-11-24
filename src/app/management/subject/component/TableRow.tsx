@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { BiEdit } from "react-icons/bi";
 import { TbTrash } from "react-icons/tb";
 import { subjectCreditTitles } from "@/models/credit-titles";
-import type { subject } from '@/prisma/generated/client';;
+import type { subject } from "@/prisma/generated/client";
 
 type TableRowProps = {
   item: subject;
@@ -42,27 +42,31 @@ function TableRow({
           checked={checkedList.includes(item.SubjectCode)}
         />
       </th>
-      {(["SubjectCode", "SubjectName", "Credit", "Category"] as const).map((key) => (
-        <td
-          key={key}
-          className="px-6 whitespace-nowrap select-none"
-          onClick={() => clickToSelect(item.SubjectCode)}
-        >
-          {key === "Credit" ? subjectCreditTitles[item[key]] : item[key]}
-        </td>
-      ))}
+      {(["SubjectCode", "SubjectName", "Credit", "Category"] as const).map(
+        (key) => (
+          <td
+            key={key}
+            className="px-6 whitespace-nowrap select-none"
+            onClick={() => clickToSelect(item.SubjectCode)}
+          >
+            {key === "Credit" ? subjectCreditTitles[item[key]] : item[key]}
+          </td>
+        ),
+      )}
       {checkedList.length < 1 ? (
         <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none">
           <BiEdit
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              setEditModalActive(true), clickToSelect(item.SubjectCode);
+              (setEditModalActive(true), clickToSelect(item.SubjectCode));
             }}
           />
           {/* Delete action removed - use top toolbar button with multi-select */}
         </td>
-      ) : <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none" />}
+      ) : (
+        <td className="mt-5 flex gap-5 px-6 whitespace-nowrap select-none" />
+      )}
     </tr>
   );
 }

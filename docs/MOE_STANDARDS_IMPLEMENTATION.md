@@ -11,20 +11,22 @@
 ## 📚 What Was Implemented
 
 ### 1. MOE Standards Configuration ✓
+
 **File**: `src/config/moe-standards.ts`
 
 Comprehensive configuration based on **Basic Education Core Curriculum B.E. 2551 (A.D. 2008)**
 
 #### Grade Level Standards
 
-| Level | Years | Min Lessons/Week | Max Lessons/Week | Core Subjects |
-|-------|-------|------------------|------------------|---------------|
-| **Lower Secondary** | M.1-M.3 | 28 | 32 | 8 learning areas |
-| **Upper Secondary** | M.4-M.6 | 30 | 34 | 6 core + electives |
+| Level               | Years   | Min Lessons/Week | Max Lessons/Week | Core Subjects      |
+| ------------------- | ------- | ---------------- | ---------------- | ------------------ |
+| **Lower Secondary** | M.1-M.3 | 28               | 32               | 8 learning areas   |
+| **Upper Secondary** | M.4-M.6 | 30               | 34               | 6 core + electives |
 
 #### Core Subjects (8 Learning Areas)
 
 **Lower Secondary (M.1-M.3):**
+
 1. **Thai Language** (ภาษาไทย) — 4-5 periods/week
 2. **Mathematics** (คณิตศาสตร์) — 4-5 periods/week
 3. **Science** (วิทยาศาสตร์) — 3-4 periods/week
@@ -35,12 +37,14 @@ Comprehensive configuration based on **Basic Education Core Curriculum B.E. 2551
 8. **Foreign Languages** (ภาษาอังกฤษ) — 2-3 periods/week
 
 **Upper Secondary (M.4-M.6):**
+
 - Reduced core requirements (6 subjects, 14-19 periods/week)
 - Additional space for track-specific electives (11-15 periods/week)
 
 #### Program Tracks
 
 **Science-Math Track Electives:**
+
 - Advanced Mathematics (2-4 periods)
 - Physics (2-3 periods)
 - Chemistry (2-3 periods)
@@ -48,21 +52,25 @@ Comprehensive configuration based on **Basic Education Core Curriculum B.E. 2551
 - Computer Science (1-2 periods)
 
 **Arts-Language Track Electives:**
+
 - Advanced Social Studies (2-3 periods)
 - Advanced English (2-3 periods)
 - Chinese/Japanese (2-3 periods each)
 - Advanced Arts (1-2 periods)
 
 **Common Electives (All Levels):**
+
 - Chinese, Japanese, Computer (1-2 periods each)
 
 #### Required Activities
+
 - **Homeroom** (ชั้นเรียน) — 1 period/week
 - **Club Activity** (ชุมนุม) — 1-2 periods/week
 
 ---
 
 ### 2. Validation Utilities ✓
+
 **File**: `src/utils/moe-validation.ts`
 
 #### Key Functions
@@ -116,11 +124,13 @@ formatValidationResult(result: ValidationResult): string
 ---
 
 ### 3. Comprehensive Unit Tests ✓
+
 **File**: `__test__/moe-standards/moe-standards.test.ts`
 
 #### Test Coverage: **34/34 Tests Passed** ✅
 
 **MOE Standards Configuration (16 tests)**
+
 - ✅ Standards exist for all grade levels (M1-M6)
 - ✅ Correct lesson ranges (28-32 for lower, 30-34 for upper)
 - ✅ All 8 core subjects for lower secondary
@@ -131,6 +141,7 @@ formatValidationResult(result: ValidationResult): string
 - ✅ Track-specific electives (Science-Math, Arts-Language)
 
 **Validation Utilities (18 tests)**
+
 - ✅ Year format conversions (numeric ↔ key)
 - ✅ Invalid year error handling
 - ✅ Round-trip conversion accuracy
@@ -149,24 +160,29 @@ formatValidationResult(result: ValidationResult): string
 ## 🎯 Features & Capabilities
 
 ### 1. Grade-Level Standards
+
 Each grade level (M1-M6) has:
+
 - Minimum/maximum total weekly lessons
 - Core subject requirements with ranges
 - Recommended elective subjects
 - Required activities
 
 ### 2. Program Track Support
+
 - **General Track** — Balanced curriculum
 - **Science-Math Track** — STEM-focused electives
 - **Arts-Language Track** — Humanities-focused electives
 
 ### 3. Flexible Validation
+
 - Configurable min/max ranges (not rigid requirements)
 - Warnings vs. errors (guidance vs. blocking)
 - Thai-language error messages
 - Detailed validation summary
 
 ### 4. Type Safety
+
 - TypeScript interfaces for all standards
 - Enum-based year keys (M1-M6)
 - Strongly-typed validation results
@@ -179,9 +195,9 @@ Each grade level (M1-M6) has:
 ### Types
 
 ```typescript
-type YearKey = 'M1' | 'M2' | 'M3' | 'M4' | 'M5' | 'M6';
-type SubjectCategory = 'CORE' | 'ELECTIVE' | 'ACTIVITY';
-type ProgramTrack = 'GENERAL' | 'SCIENCE_MATH' | 'ARTS_LANGUAGE';
+type YearKey = "M1" | "M2" | "M3" | "M4" | "M5" | "M6";
+type SubjectCategory = "CORE" | "ELECTIVE" | "ACTIVITY";
+type ProgramTrack = "GENERAL" | "SCIENCE_MATH" | "ARTS_LANGUAGE";
 
 interface SubjectWeeklyStandard {
   subjectCode: string;
@@ -207,9 +223,9 @@ interface YearStandard {
 ### Configuration Access
 
 ```typescript
-import { getMOEStandards } from '@/config/moe-standards';
+import { getMOEStandards } from "@/config/moe-standards";
 
-const m1Standards = getMOEStandards('M1');
+const m1Standards = getMOEStandards("M1");
 console.log(m1Standards.minTotalLessons); // 28
 console.log(m1Standards.coreSubjects.length); // 8
 ```
@@ -217,20 +233,25 @@ console.log(m1Standards.coreSubjects.length); // 8
 ### Validation Usage
 
 ```typescript
-import { validateProgramStandards } from '@/utils/moe-validation';
+import { validateProgramStandards } from "@/utils/moe-validation";
 
 const result = validateProgramStandards({
-  year: 'M1',
-  track: 'GENERAL',
+  year: "M1",
+  track: "GENERAL",
   subjects: [
-    { subjectCode: 'TH', subjectName: 'ภาษาไทย', 
-      weeklyLessons: 4, category: 'CORE', group: 'ภาษาไทย' },
+    {
+      subjectCode: "TH",
+      subjectName: "ภาษาไทย",
+      weeklyLessons: 4,
+      category: "CORE",
+      group: "ภาษาไทย",
+    },
     // ... more subjects
-  ]
+  ],
 });
 
 if (!result.valid) {
-  console.error('Validation errors:', result.errors);
+  console.error("Validation errors:", result.errors);
 }
 ```
 
@@ -245,6 +266,7 @@ pnpm test __test__/moe-standards/moe-standards.test.ts
 ```
 
 **Expected Output:**
+
 ```
 Test Suites: 1 passed, 1 total
 Tests:       34 passed, 34 total
@@ -254,16 +276,16 @@ Tests:       34 passed, 34 total
 
 ```typescript
 // Test M1 standards
-import { getMOEStandards, validateTotalLessons } from '@/config/moe-standards';
+import { getMOEStandards, validateTotalLessons } from "@/config/moe-standards";
 
-const m1 = getMOEStandards('M1');
+const m1 = getMOEStandards("M1");
 console.log(m1.description); // "มัธยมศึกษาปีที่ 1 (Lower Secondary Year 1)"
 
 // Test validation
-const valid = validateTotalLessons('M1', 30);
+const valid = validateTotalLessons("M1", 30);
 console.log(valid); // { valid: true }
 
-const tooFew = validateTotalLessons('M1', 20);
+const tooFew = validateTotalLessons("M1", 20);
 console.log(tooFew); // { valid: false, message: "..." }
 ```
 
@@ -272,7 +294,9 @@ console.log(tooFew); // { valid: false, message: "..." }
 ## 🔗 Integration Points
 
 ### 1. Program Creation/Update
+
 When creating or updating a program:
+
 1. Get year from Program form
 2. Collect subject assignments
 3. Run `validateProgramStandards()`
@@ -280,13 +304,17 @@ When creating or updating a program:
 5. Block submission if `valid === false`
 
 ### 2. Timetable Generation
+
 Before generating timetables:
+
 1. Validate each program's compliance
 2. Ensure all grade levels meet standards
 3. Check total weekly lessons per class
 
 ### 3. Reporting
+
 Generate compliance reports:
+
 - Programs meeting/failing standards
 - Lesson distribution by subject group
 - Track-specific elective coverage
@@ -299,21 +327,21 @@ Generate compliance reports:
 
 ```typescript
 const m1Program = {
-  year: 'M1',
+  year: "M1",
   subjects: [
-    { code: 'TH', name: 'ภาษาไทย', lessons: 4, category: 'CORE' },
-    { code: 'MA', name: 'คณิตศาสตร์', lessons: 4, category: 'CORE' },
-    { code: 'SC', name: 'วิทยาศาสตร์', lessons: 3, category: 'CORE' },
-    { code: 'SS', name: 'สังคมศึกษา', lessons: 3, category: 'CORE' },
-    { code: 'PE', name: 'พลศึกษา', lessons: 2, category: 'CORE' },
-    { code: 'AR', name: 'ศิลปะ', lessons: 2, category: 'CORE' },
-    { code: 'CT', name: 'การงาน', lessons: 2, category: 'CORE' },
-    { code: 'EN', name: 'ภาษาอังกฤษ', lessons: 2, category: 'CORE' },
-    { code: 'CH', name: 'ภาษาจีน', lessons: 2, category: 'ELECTIVE' },
-    { code: 'CP', name: 'คอมพิวเตอร์', lessons: 2, category: 'ELECTIVE' },
-    { code: 'HR', name: 'ชั้นเรียน', lessons: 1, category: 'ACTIVITY' },
-    { code: 'CLUB', name: 'ชุมนุม', lessons: 1, category: 'ACTIVITY' }
-  ]
+    { code: "TH", name: "ภาษาไทย", lessons: 4, category: "CORE" },
+    { code: "MA", name: "คณิตศาสตร์", lessons: 4, category: "CORE" },
+    { code: "SC", name: "วิทยาศาสตร์", lessons: 3, category: "CORE" },
+    { code: "SS", name: "สังคมศึกษา", lessons: 3, category: "CORE" },
+    { code: "PE", name: "พลศึกษา", lessons: 2, category: "CORE" },
+    { code: "AR", name: "ศิลปะ", lessons: 2, category: "CORE" },
+    { code: "CT", name: "การงาน", lessons: 2, category: "CORE" },
+    { code: "EN", name: "ภาษาอังกฤษ", lessons: 2, category: "CORE" },
+    { code: "CH", name: "ภาษาจีน", lessons: 2, category: "ELECTIVE" },
+    { code: "CP", name: "คอมพิวเตอร์", lessons: 2, category: "ELECTIVE" },
+    { code: "HR", name: "ชั้นเรียน", lessons: 1, category: "ACTIVITY" },
+    { code: "CLUB", name: "ชุมนุม", lessons: 1, category: "ACTIVITY" },
+  ],
 };
 // Total: 28 lessons (within 28-32 range) ✅
 ```
@@ -322,28 +350,33 @@ const m1Program = {
 
 ```typescript
 const m4ScienceMath = {
-  year: 'M4',
-  track: 'SCIENCE_MATH',
+  year: "M4",
+  track: "SCIENCE_MATH",
   subjects: [
     // Core (14 lessons)
-    { code: 'TH', name: 'ภาษาไทย', lessons: 3, category: 'CORE' },
-    { code: 'MA', name: 'คณิตศาสตร์', lessons: 3, category: 'CORE' },
-    { code: 'SC', name: 'วิทยาศาสตร์', lessons: 2, category: 'CORE' },
-    { code: 'SS', name: 'สังคมศึกษา', lessons: 2, category: 'CORE' },
-    { code: 'PE', name: 'พลศึกษา', lessons: 2, category: 'CORE' },
-    { code: 'EN', name: 'ภาษาอังกฤษ', lessons: 2, category: 'CORE' },
-    
+    { code: "TH", name: "ภาษาไทย", lessons: 3, category: "CORE" },
+    { code: "MA", name: "คณิตศาสตร์", lessons: 3, category: "CORE" },
+    { code: "SC", name: "วิทยาศาสตร์", lessons: 2, category: "CORE" },
+    { code: "SS", name: "สังคมศึกษา", lessons: 2, category: "CORE" },
+    { code: "PE", name: "พลศึกษา", lessons: 2, category: "CORE" },
+    { code: "EN", name: "ภาษาอังกฤษ", lessons: 2, category: "CORE" },
+
     // Science-Math Electives (14 lessons)
-    { code: 'MA_ADV', name: 'คณิตศาสตร์เพิ่มเติม', lessons: 4, category: 'ELECTIVE' },
-    { code: 'PH', name: 'ฟิสิกส์', lessons: 3, category: 'ELECTIVE' },
-    { code: 'CH_SCI', name: 'เคมี', lessons: 3, category: 'ELECTIVE' },
-    { code: 'BI', name: 'ชีววิทยา', lessons: 3, category: 'ELECTIVE' },
-    { code: 'CP_ADV', name: 'วิทยาการคำนวณ', lessons: 1, category: 'ELECTIVE' },
-    
+    {
+      code: "MA_ADV",
+      name: "คณิตศาสตร์เพิ่มเติม",
+      lessons: 4,
+      category: "ELECTIVE",
+    },
+    { code: "PH", name: "ฟิสิกส์", lessons: 3, category: "ELECTIVE" },
+    { code: "CH_SCI", name: "เคมี", lessons: 3, category: "ELECTIVE" },
+    { code: "BI", name: "ชีววิทยา", lessons: 3, category: "ELECTIVE" },
+    { code: "CP_ADV", name: "วิทยาการคำนวณ", lessons: 1, category: "ELECTIVE" },
+
     // Activities (2 lessons)
-    { code: 'HR', name: 'ชั้นเรียน', lessons: 1, category: 'ACTIVITY' },
-    { code: 'CLUB', name: 'ชุมนุม', lessons: 1, category: 'ACTIVITY' }
-  ]
+    { code: "HR", name: "ชั้นเรียน", lessons: 1, category: "ACTIVITY" },
+    { code: "CLUB", name: "ชุมนุม", lessons: 1, category: "ACTIVITY" },
+  ],
 };
 // Total: 30 lessons (within 30-34 range) ✅
 ```
@@ -387,11 +420,13 @@ const m4ScienceMath = {
 ## 📚 Reference Documentation
 
 ### Official MOE Sources
+
 - Basic Education Core Curriculum B.E. 2551 (A.D. 2008)
 - [OBEC Official Website](http://academic.obec.go.th/)
 - Thai MOE Secondary Education Standards
 
 ### Related Files
+
 - **Config**: `src/config/moe-standards.ts`
 - **Validation**: `src/utils/moe-validation.ts`
 - **Tests**: `__test__/moe-standards/moe-standards.test.ts`
@@ -402,6 +437,7 @@ const m4ScienceMath = {
 ## ✅ Summary
 
 ### Implemented
+
 - ✅ Complete MOE standards configuration (M1-M6)
 - ✅ 8 learning areas for lower secondary
 - ✅ Program track support (General, Science-Math, Arts-Language)
@@ -411,6 +447,7 @@ const m4ScienceMath = {
 - ✅ Comprehensive documentation
 
 ### Ready For
+
 - Integration into Program CRUD actions
 - UI validation feedback
 - Seed data compliance
@@ -418,6 +455,7 @@ const m4ScienceMath = {
 - Compliance reporting
 
 ### Benefits
+
 - **Standards Compliance** — Ensures programs meet MOE requirements
 - **Quality Assurance** — Catches errors before they reach the database
 - **User Guidance** — Clear Thai-language feedback

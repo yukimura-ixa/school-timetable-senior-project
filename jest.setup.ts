@@ -3,15 +3,24 @@
 
 // Mock Next.js Cache Components APIs
 // These are only called in tests; production code uses real implementations
-global.cacheTag = jest.fn(() => { })
-global.cacheLife = jest.fn(() => { })
+declare global {
+  // eslint-disable-next-line no-var
+  var cacheTag: jest.Mock;
+  // eslint-disable-next-line no-var
+  var cacheLife: jest.Mock;
+}
+
+global.cacheTag = jest.fn(() => {});
+global.cacheLife = jest.fn(() => {});
+
+export {};
 
 // Fix UTF-8 encoding for terminal output (Thai characters)
 if (process.stdout.setEncoding) {
-  process.stdout.setEncoding('utf8')
+  process.stdout.setEncoding("utf8");
 }
 if (process.stderr.setEncoding) {
-  process.stderr.setEncoding('utf8')
+  process.stderr.setEncoding("utf8");
 }
 
 // Suppress console warnings during tests (optional - uncomment if needed)

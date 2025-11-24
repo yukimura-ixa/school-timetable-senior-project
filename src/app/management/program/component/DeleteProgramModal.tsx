@@ -22,25 +22,29 @@ function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
       variant: "info",
       persist: true,
     });
-    
+
     try {
       const result = await deleteProgramAction({ programId: ProgramID });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "เกิดข้อผิดพลาดในการลบข้อมูล: " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
   };

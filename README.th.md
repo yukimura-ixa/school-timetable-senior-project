@@ -20,7 +20,6 @@
 - **นายณภัทร พ่อบุตรดี** (Napat Phobutdee) - รหัสนักศึกษา: 63070046
 - **นายณัฐพล วังคำ** (Natapon Wangkham) - รหัสนักศึกษา: 63070056
 
-
 **อาจารย์ที่ปรึกษา:**
 
 - ผศ.ดร.พัฒนพงษ์ ฉันทมิตรโอภาส (Asst. Prof. Dr. Pattanapong Chantamit-O-Pas)
@@ -142,21 +141,25 @@
 **เอกสารทั้งหมดของโครงการจัดอยู่ในโฟลเดอร์ `/docs`**
 
 ### การเริ่มต้น
+
 - **[คู่มือการพัฒนา](docs/DEVELOPMENT_GUIDE.md)** ⭐ **เริ่มที่นี่** - การติดตั้งพร้อม OAuth bypass สำหรับการทดสอบ
 - **[สรุป OAuth Bypass](docs/OAUTH_BYPASS_SUMMARY.md)** - สรุปทางเทคนิคของ dev bypass
 - **[Quickstart](docs/QUICKSTART.md)** - คู่มือการติดตั้งอย่างรวดเร็ว
 
 ### เอกสารหลัก
+
 - **[ดัชนีเอกสาร](docs/INDEX.md)** - แคตตาล็อกเอกสารฉบับสมบูรณ์
 - **[บริบทโครงการ](docs/PROJECT_CONTEXT.md)** - เป้าหมายโครงการในระดับสูง
 - **[ภาพรวมฐานข้อมูล](docs/DATABASE_OVERVIEW.md)** - โครงสร้างและโมเดลข้อมูล
 
 ### การทดสอบ
+
 - **[แผนการทดสอบ](docs/TEST_PLAN.md)** - 29 กรณีทดสอบที่ครอบคลุม
 - **[คู่มือการทดสอบ E2E](docs/E2E_TEST_EXECUTION_GUIDE.md)** - วิธีการรันการทดสอบ E2E
 - **[สรุปผลการทดสอบ](docs/TEST_RESULTS_SUMMARY.md)** - สถานะการทดสอบล่าสุด
 
 ### การอัปเกรดและสถาปัตยกรรม
+
 - **[การอัปเกรด Next.js 16](docs/LINTING_MIGRATION_NEXTJS16.md)** - การเปลี่ยนแปลงใน Next.js 16
 - **[การอัปเกรด MUI v7](docs/MUI_MIGRATION_COMPLETE.md)** - สรุปการอัปเกรด Material-UI v7
 - **[Architecture Decisions](docs/adr/)** - ADR สำหรับการตัดสินใจทางเทคนิค
@@ -203,6 +206,7 @@ cp .env.example .env
 ```
 
 **สำหรับการพัฒนาในเครื่อง (OAuth Bypass):**
+
 ```env
 # เปิดใช้งาน dev bypass (สำหรับทดสอบในเครื่องเท่านั้น - ห้ามใช้ใน production)
 ENABLE_DEV_BYPASS="true"
@@ -218,6 +222,7 @@ NEXTAUTH_SECRET="your-secret-key-here"
 ```
 
 **สำหรับ production หรือ Google OAuth:**
+
 ```env
 # ปิดใช้งาน dev bypass
 ENABLE_DEV_BYPASS="false"
@@ -244,6 +249,7 @@ pnpm db:seed:clean
 ```
 
 ระบบจะสร้างข้อมูลจำลองสำหรับโรงเรียนขนาดกลาง:
+
 - 60 ครู, 18 ชั้นเรียน, 40 ห้องเรียน, 42+ วิชา
 - ตารางตัวอย่างพร้อม edge cases สำหรับทดสอบ
 
@@ -371,11 +377,13 @@ pnpm test:report
 ```
 
 **เอกสารการทดสอบ E2E:**
+
 - **แผนการทดสอบ**: ดู `e2e/TEST_PLAN.md` สำหรับ 29 กรณีทดสอบที่ครอบคลุม
 - **คู่มือการทดสอบ**: ดู `E2E_TEST_EXECUTION_GUIDE.md` สำหรับคำแนะนำโดยละเอียด
 - **ผลการทดสอบ**: ดู `e2e/TEST_RESULTS_SUMMARY.md` สำหรับสถานะปัจจุบัน
 
 **ความครอบคลุมของการทดสอบ:**
+
 - ✅ 29 กรณีทดสอบ E2E ครอบคลุมทุกเวิร์กโฟลว์หลัก
 - ✅ การยืนยันตัวตนและการอนุญาต
 - ✅ การจัดการข้อมูล (CRUD operations)
@@ -502,9 +510,11 @@ school-timetable-senior-project/
 ### สำหรับคำถามหรือการสนับสนุน:
 
 **นายณภัทร พ่อบุตรดี | Napat Phobutdee**
+
 - Email: 63070046@kmitl.ac.th
 
 **นายณัฐพล วังคำ | Natapon Wangkham**
+
 - Email: nataponball@hotmail.com
 
 ---

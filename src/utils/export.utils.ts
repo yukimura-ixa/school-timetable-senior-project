@@ -8,7 +8,7 @@
  */
 export function arrayToCSV<T extends Record<string, unknown>>(
   data: T[],
-  headers?: Record<keyof T, string>
+  headers?: Record<keyof T, string>,
 ): string {
   if (data.length === 0) return "";
 
@@ -31,7 +31,7 @@ export function arrayToCSV<T extends Record<string, unknown>>(
           }
           return stringValue;
         })
-        .join(",")
+        .join(","),
     ),
   ];
 
@@ -43,7 +43,7 @@ export function arrayToCSV<T extends Record<string, unknown>>(
  */
 export function downloadCSV(
   data: string,
-  filename: string = "export.csv"
+  filename: string = "export.csv",
 ): void {
   const blob = new Blob(["\uFEFF" + data], {
     type: "text/csv;charset=utf-8;",
@@ -67,7 +67,7 @@ export function downloadCSV(
  */
 export function downloadJSON(
   data: unknown,
-  filename: string = "export.json"
+  filename: string = "export.json",
 ): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
@@ -103,10 +103,14 @@ export function formatThaiDate(date: Date | string): string {
 /**
  * Format semester display
  */
-export function formatSemester(semester: string | number, year: number): string {
-  const semesterNum = typeof semester === "number" 
-    ? semester.toString() 
-    : semester.replace("SEMESTER_", "");
+export function formatSemester(
+  semester: string | number,
+  year: number,
+): string {
+  const semesterNum =
+    typeof semester === "number"
+      ? semester.toString()
+      : semester.replace("SEMESTER_", "");
   return `${semesterNum}/${year}`;
 }
 
@@ -114,7 +118,7 @@ export function formatSemester(semester: string | number, year: number): string 
  * Format status in Thai
  */
 export function formatStatusThai(
-  status: "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED"
+  status: "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED",
 ): string {
   const statusMap = {
     DRAFT: "แบบร่าง",
@@ -132,7 +136,7 @@ export function formatStatusThai(
 export function arrayToExcelHTML<T extends Record<string, unknown>>(
   data: T[],
   headers?: Record<keyof T, string>,
-  title?: string
+  title?: string,
 ): string {
   if (data.length === 0) return "";
 
@@ -188,7 +192,7 @@ export function arrayToExcelHTML<T extends Record<string, unknown>>(
  */
 export function downloadExcel(
   data: string,
-  filename: string = "export.xls"
+  filename: string = "export.xls",
 ): void {
   const blob = new Blob([data], {
     type: "application/vnd.ms-excel",
@@ -213,7 +217,7 @@ export function downloadExcel(
  */
 export function printElementAsPDF(
   elementId: string,
-  title: string = "Export"
+  title: string = "Export",
 ): void {
   const element = document.getElementById(elementId);
   if (!element) {

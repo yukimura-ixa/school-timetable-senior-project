@@ -1,13 +1,13 @@
 /**
  * Presentation Layer: Break Slot Select Component
- * 
+ *
  * MUI Select dropdown for choosing break timeslot periods.
  * Replaces legacy custom Dropdown component.
- * 
+ *
  * @module BreakSlotSelect
  */
 
-import React from 'react';
+import React from "react";
 import {
   FormControl,
   InputLabel,
@@ -15,8 +15,8 @@ import {
   MenuItem,
   FormHelperText,
   SelectChangeEvent,
-} from '@mui/material';
-import { LunchDining as LunchIcon } from '@mui/icons-material';
+} from "@mui/material";
+import { LunchDining as LunchIcon } from "@mui/icons-material";
 
 interface BreakSlotSelectProps {
   /** Current selected slot number */
@@ -62,7 +62,7 @@ export function BreakSlotSelect({
         value={value}
         onChange={handleChange as any}
         label={label}
-        startAdornment={<LunchIcon sx={{ mr: 1, color: 'action.active' }} />}
+        startAdornment={<LunchIcon sx={{ mr: 1, color: "action.active" }} />}
       >
         {Array.from({ length: maxSlots }, (_, i) => i + 1).map((slot) => (
           <MenuItem key={slot} value={slot}>

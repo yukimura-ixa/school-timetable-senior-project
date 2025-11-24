@@ -1,6 +1,6 @@
 /**
  * TimeSlot Component - Refactored with @dnd-kit
- * 
+ *
  * Week 6.2 - Removed react-beautiful-dnd dependencies
  * Now uses TimeslotCell component with @dnd-kit
  */
@@ -23,7 +23,7 @@ import type {
   SetErrorStateCallback,
   DisplayErrorChangeSubjectCallback,
   TimeslotChange,
-} from '@/types/schedule.types';
+} from "@/types/schedule.types";
 
 type Props = {
   timeSlotData: {
@@ -108,7 +108,9 @@ function TimeSlot({
                     showErrorMsgByTimeslotID={showErrorMsgByTimeslotID}
                     showLockDataMsgByTimeslotID={showLockDataMsgByTimeslotID}
                     setShowErrorMsgByTimeslotID={setShowErrorMsgByTimeslotID}
-                    setShowLockDataMsgByTimeslotID={setShowLockDataMsgByTimeslotID}
+                    setShowLockDataMsgByTimeslotID={
+                      setShowLockDataMsgByTimeslotID
+                    }
                     displayErrorChangeSubject={displayErrorChangeSubject}
                   />
                 ))}

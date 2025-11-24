@@ -1,20 +1,23 @@
 /**
  * Infrastructure Layer: Schedule Repository
- * 
+ *
  * Data access layer for schedule-related database operations.
  * Uses Prisma ORM to interact with MySQL database.
- * 
+ *
  * Responsibilities:
  * - Fetch schedules and related data
  * - Create, update, delete schedules
  * - Transform Prisma types to domain models
- * 
+ *
  * @module schedule.repository
  */
 
-import prisma from '@/lib/prisma'
-import { semester } from '@/prisma/generated/client'
-import type { ExistingSchedule, TeacherResponsibility } from '../../domain/models/conflict.model'
+import prisma from "@/lib/prisma";
+import { semester } from "@/prisma/generated/client";
+import type {
+  ExistingSchedule,
+  TeacherResponsibility,
+} from "../../domain/models/conflict.model";
 
 /**
  * Repository for schedule-related database operations
@@ -23,11 +26,11 @@ export class ScheduleRepository {
   /**
    * Find all schedules for a specific academic term
    * Includes teacher information for conflict detection
-   * 
+   *
    * @param academicYear - Academic year (e.g., 2566)
    * @param semester - Semester (SEMESTER_1 or SEMESTER_2)
    * @returns Array of existing schedules with full details
-   * 
+   *
    * @example
    * ```ts
    * const repo = new ScheduleRepository();
@@ -37,7 +40,7 @@ export class ScheduleRepository {
    */
   async findSchedulesByTerm(
     academicYear: number,
-    semesterValue: string
+    semesterValue: string,
   ): Promise<ExistingSchedule[]> {
     const schedules = await prisma.class_schedule.findMany({
       where: {
@@ -57,13 +60,13 @@ export class ScheduleRepository {
           },
         },
       },
-    })
+    });
 
     // Transform Prisma types to domain model
     return schedules.map((schedule: any) => {
       // Get the first teacher from teachers_responsibility (if any)
-      const firstTeacher = schedule.teachers_responsibility[0]
-      const teacher = firstTeacher?.teacher
+      const firstTeacher = schedule.teachers_responsibility[0];
+      const teacher = firstTeacher?.teacher;
 
       return {
         classId: schedule.ClassID,
@@ -78,18 +81,18 @@ export class ScheduleRepository {
         teacherName: teacher
           ? `${teacher.Prefix} ${teacher.Firstname} ${teacher.Lastname}`
           : undefined,
-      }
-    })
+      };
+    });
   }
 
   /**
    * Find all teacher responsibilities for a specific academic term
    * Used for checking if teachers are assigned to teach specific subjects/grades
-   * 
+   *
    * @param academicYear - Academic year
    * @param semester - Semester
    * @returns Array of teacher responsibilities
-   * 
+   *
    * @example
    * ```ts
    * const responsibilities = await repo.findResponsibilitiesByTerm(2566, 'SEMESTER_1');
@@ -98,14 +101,14 @@ export class ScheduleRepository {
    */
   async findResponsibilitiesByTerm(
     academicYear: number,
-    semesterValue: string
+    semesterValue: string,
   ): Promise<TeacherResponsibility[]> {
     const responsibilities = await prisma.teachers_responsibility.findMany({
       where: {
         AcademicYear: academicYear,
         Semester: semesterValue as semester,
       },
-    })
+    });
 
     return responsibilities.map((resp: any) => ({
       respId: resp.RespID,
@@ -115,15 +118,15 @@ export class ScheduleRepository {
       academicYear: resp.AcademicYear,
       semester: resp.Semester,
       teachHour: resp.TeachHour,
-    }))
+    }));
   }
 
   /**
    * Create a new schedule entry
-   * 
+   *
    * @param data - Schedule data to create
    * @returns Created schedule
-   * 
+   *
    * @example
    * ```ts
    * const schedule = await repo.createSchedule({
@@ -137,12 +140,12 @@ export class ScheduleRepository {
    * ```
    */
   async createSchedule(data: {
-    ClassID: string
-    TimeslotID: string
-    SubjectCode: string
-    RoomID?: number | null
-    GradeID: string
-    IsLocked?: boolean
+    ClassID: string;
+    TimeslotID: string;
+    SubjectCode: string;
+    RoomID?: number | null;
+    GradeID: string;
+    IsLocked?: boolean;
   }) {
     return await prisma.class_schedule.create({
       data,
@@ -152,16 +155,16 @@ export class ScheduleRepository {
         gradelevel: true,
         timeslot: true,
       },
-    })
+    });
   }
 
   /**
    * Update an existing schedule entry
-   * 
+   *
    * @param classId - Class ID to update
    * @param data - Fields to update
    * @returns Updated schedule
-   * 
+   *
    * @example
    * ```ts
    * const updated = await repo.updateSchedule('C_001', {
@@ -173,12 +176,12 @@ export class ScheduleRepository {
   async updateSchedule(
     classId: string,
     data: {
-      TimeslotID?: string
-      SubjectCode?: string
-      RoomID?: number | null
-      GradeID?: string
-      IsLocked?: boolean
-    }
+      TimeslotID?: string;
+      SubjectCode?: string;
+      RoomID?: number | null;
+      GradeID?: string;
+      IsLocked?: boolean;
+    },
   ) {
     return await prisma.class_schedule.update({
       where: { ClassID: classId },
@@ -189,15 +192,15 @@ export class ScheduleRepository {
         gradelevel: true,
         timeslot: true,
       },
-    })
+    });
   }
 
   /**
    * Delete a schedule entry
-   * 
+   *
    * @param classId - Class ID to delete
    * @returns Deleted schedule
-   * 
+   *
    * @example
    * ```ts
    * await repo.deleteSchedule('C_001');
@@ -206,12 +209,12 @@ export class ScheduleRepository {
   async deleteSchedule(classId: string) {
     return await prisma.class_schedule.delete({
       where: { ClassID: classId },
-    })
+    });
   }
 
   /**
    * Find a specific schedule by class ID
-   * 
+   *
    * @param classId - Class ID to find
    * @returns Schedule or null if not found
    */
@@ -229,13 +232,13 @@ export class ScheduleRepository {
           },
         },
       },
-    })
+    });
   }
 
   /**
    * Link a teacher to a class schedule
    * Creates/updates the many-to-many relationship
-   * 
+   *
    * @param classId - Class schedule ID
    * @param respId - Teacher responsibility ID
    */
@@ -248,12 +251,12 @@ export class ScheduleRepository {
           connect: { ClassID: classId },
         },
       },
-    })
+    });
   }
 
   /**
    * Unlink a teacher from a class schedule
-   * 
+   *
    * @param classId - Class schedule ID
    * @param respId - Teacher responsibility ID
    */
@@ -265,11 +268,11 @@ export class ScheduleRepository {
           disconnect: { ClassID: classId },
         },
       },
-    })
+    });
   }
 }
 
 /**
  * Singleton instance for use across the application
  */
-export const scheduleRepository = new ScheduleRepository()
+export const scheduleRepository = new ScheduleRepository();

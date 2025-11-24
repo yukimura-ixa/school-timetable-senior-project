@@ -1,9 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
- 
- 
-/* eslint-disable @typescript-eslint/no-misused-promises */
 "use client";
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { useState, useEffect, type ReactNode } from "react";
 import {
   Table as MuiTable,
@@ -37,6 +33,7 @@ export type ColumnDef<T> = {
   key: keyof T;
   label: string;
   editable?: boolean;
+  creatable?: boolean;
   required?: boolean;
   type?: "text" | "number" | "select";
   options?: { value: string | number; label: string }[];
@@ -56,7 +53,7 @@ export type ColumnDef<T> = {
 export type ValidationFn<T> = (
   id: string | number,
   data: Partial<T>,
-  allData: T[]
+  allData: T[],
 ) => string | null;
 
 // Generic action result
@@ -108,7 +105,9 @@ export function EditableTable<T extends Record<string, any>>({
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   useEffect(() => {
     setTableData(data);
@@ -116,9 +115,12 @@ export function EditableTable<T extends Record<string, any>>({
 
   const allIds = tableData.map((r) => r[idField]).filter((x) => x != null);
   const isSelected = (id: string | number) => selected.includes(id);
-  const toggleAll = (checked: boolean) => setSelected(checked ? [...allIds] : []);
+  const toggleAll = (checked: boolean) =>
+    setSelected(checked ? [...allIds] : []);
   const toggleOne = (id: string | number) =>
-    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
 
   // Search filter
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +138,10 @@ export function EditableTable<T extends Record<string, any>>({
     });
   });
 
-  const paged = filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paged = filtered.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage,
+  );
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
   const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(e.target.value, 10));
@@ -208,9 +213,12 @@ export function EditableTable<T extends Record<string, any>>({
       await onMutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(`เพิ่ม${title}ไม่สำเร็จ: ` + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        `เพิ่ม${title}ไม่สำเร็จ: ` + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
     }
   };
 
@@ -253,9 +261,12 @@ export function EditableTable<T extends Record<string, any>>({
       await onMutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(`ลบ${title}ไม่สำเร็จ: ` + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        `ลบ${title}ไม่สำเร็จ: ` + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
   };
@@ -328,13 +339,21 @@ export function EditableTable<T extends Record<string, any>>({
       await onMutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("บันทึกการแก้ไขไม่สำเร็จ: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "บันทึกการแก้ไขไม่สำเร็จ: " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
     }
   };
 
-  const renderCell = (column: ColumnDef<T>, row: T, isEditing: boolean, id: string | number) => {
+  const renderCell = (
+    column: ColumnDef<T>,
+    row: T,
+    isEditing: boolean,
+    id: string | number,
+  ) => {
     const value = row[column.key];
 
     // Use custom render if provided and not editing
@@ -342,8 +361,15 @@ export function EditableTable<T extends Record<string, any>>({
       return column.render(value, row);
     }
 
-    // Not editable or not in edit mode - just display
-    if (!isEditing || column.editable === false) {
+    // Check if field should be editable
+    // 1. Must be in edit mode (isEditing=true)
+    // 2. AND (editable is not false OR (it's a new row AND field is creatable))
+    const isNew = String(id).startsWith("new_");
+    const canEdit =
+      isEditing && (column.editable !== false || (isNew && column.creatable));
+
+    // Not editable - just display
+    if (!canEdit) {
       return value != null ? String(value) : "-";
     }
 
@@ -360,7 +386,10 @@ export function EditableTable<T extends Record<string, any>>({
         onChange: (newValue: any) => {
           setDrafts((d) => {
             const updated = { ...d };
-            updated[id] = { ...(d[id] ?? {}), [column.key]: newValue } as Partial<T>;
+            updated[id] = {
+              ...(d[id] ?? {}),
+              [column.key]: newValue,
+            } as Partial<T>;
             return updated;
           });
         },
@@ -375,7 +404,10 @@ export function EditableTable<T extends Record<string, any>>({
             onChange={(e) => {
               setDrafts((d) => {
                 const updated = { ...d };
-                updated[id] = { ...(d[id] ?? {}), [column.key]: e.target.value } as Partial<T>;
+                updated[id] = {
+                  ...(d[id] ?? {}),
+                  [column.key]: e.target.value,
+                } as Partial<T>;
                 return updated;
               });
             }}
@@ -401,7 +433,10 @@ export function EditableTable<T extends Record<string, any>>({
             const updated = { ...d };
             updated[id] = {
               ...(d[id] ?? {}),
-              [column.key]: column.type === "number" ? Number(e.target.value) : e.target.value,
+              [column.key]:
+                column.type === "number"
+                  ? Number(e.target.value)
+                  : e.target.value,
             } as Partial<T>;
             return updated;
           });
@@ -486,8 +521,12 @@ export function EditableTable<T extends Record<string, any>>({
             <MuiTableRow>
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={selected.length > 0 && selected.length < filtered.length}
-                  checked={filtered.length > 0 && selected.length === filtered.length}
+                  indeterminate={
+                    selected.length > 0 && selected.length < filtered.length
+                  }
+                  checked={
+                    filtered.length > 0 && selected.length === filtered.length
+                  }
                   onChange={(e) => toggleAll(e.target.checked)}
                   inputProps={{ "aria-label": "select all" }}
                   disabled={addMode}

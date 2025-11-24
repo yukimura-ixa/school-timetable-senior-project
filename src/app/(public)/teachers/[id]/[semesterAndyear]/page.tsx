@@ -3,15 +3,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import { semester as SemesterEnum, type timeslot } from '@/prisma/generated/client';;
+import {
+  semester as SemesterEnum,
+  type timeslot,
+} from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
-function parseConfigId(configId: string): { academicYear: number; semesterEnum: 'SEMESTER_1' | 'SEMESTER_2' } | null {
+function parseConfigId(
+  configId: string,
+): { academicYear: number; semesterEnum: "SEMESTER_1" | "SEMESTER_2" } | null {
   const match = /^(1|2)-(\d{4})$/.exec(configId);
   if (!match) return null;
   const [, sem, year] = match;
-  const semesterEnum = sem === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+  const semesterEnum = sem === "1" ? "SEMESTER_1" : "SEMESTER_2";
   return { academicYear: parseInt(year!, 10), semesterEnum };
 }
 
@@ -19,7 +24,9 @@ type PageProps = {
   params: Promise<{ id: string; semesterAndyear: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id, semesterAndyear } = await params;
   const teacherId = parseInt(id, 10);
   if (isNaN(teacherId)) return { title: "ไม่พบข้อมูล" };
@@ -28,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const teacher = await publicDataRepository.findPublicTeacherById(
     teacherId,
     parsed.academicYear,
-    parsed.semesterEnum
+    parsed.semesterEnum,
   );
   if (!teacher) return { title: "ไม่พบข้อมูล" };
   return {
@@ -41,7 +48,9 @@ type ResponsibilityWithSchedules = Awaited<
   ReturnType<typeof publicDataRepository.findTeacherResponsibilities>
 >[number];
 
-type PublicScheduleEntry = NonNullable<ResponsibilityWithSchedules["class_schedule"]>[number];
+type PublicScheduleEntry = NonNullable<
+  ResponsibilityWithSchedules["class_schedule"]
+>[number];
 
 const dayNames: Record<string, string> = {
   MON: "จันทร์",
@@ -65,31 +74,32 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const teacher = await publicDataRepository.findPublicTeacherById(
     teacherId,
     academicYear,
-    semesterEnum
+    semesterEnum,
   );
   if (!teacher) notFound();
 
   // Get responsibilities to build schedule grid
-  const responsibilities = await publicDataRepository.findTeacherResponsibilities(
-    teacherId,
-    academicYear,
-    semesterEnum
-  );
+  const responsibilities =
+    await publicDataRepository.findTeacherResponsibilities(
+      teacherId,
+      academicYear,
+      semesterEnum,
+    );
   const schedules: PublicScheduleEntry[] = responsibilities.flatMap(
-    (resp) => resp.class_schedule ?? []
+    (resp) => resp.class_schedule ?? [],
   );
 
   // Get all timeslots for this term to build grid structure
-  const semesterValue = semesterEnum === 'SEMESTER_1' ? SemesterEnum.SEMESTER_1 : SemesterEnum.SEMESTER_2;
+  const semesterValue =
+    semesterEnum === "SEMESTER_1"
+      ? SemesterEnum.SEMESTER_1
+      : SemesterEnum.SEMESTER_2;
   const timeslots = await prisma.timeslot.findMany({
     where: {
       AcademicYear: academicYear,
       Semester: semesterValue,
     },
-    orderBy: [
-      { DayOfWeek: 'asc' },
-      { StartTime: 'asc' },
-    ],
+    orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
   });
 
   // Extract slot numbers and create mapping
@@ -99,7 +109,9 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   };
 
   const slotNumbers = Array.from(
-    new Set<number>(timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)))
+    new Set<number>(
+      timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)),
+    ),
   ).sort((a: number, b: number) => a - b);
 
   // Build schedule lookup by timeslot ID
@@ -116,8 +128,14 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       const startTime = new Date(t.StartTime);
       const endTime = new Date(t.EndTime);
       slotTimeRanges.set(slotNum, {
-        start: startTime.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
-        end: endTime.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
+        start: startTime.toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        end: endTime.toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       });
     }
   });
@@ -128,10 +146,14 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
     gridData[day] = new Map();
     slotNumbers.forEach((slotNum: number) => {
       const timeslotForDaySlot = timeslots.find(
-        (t: timeslot) => t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum
+        (t: timeslot) =>
+          t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum,
       );
       if (timeslotForDaySlot) {
-        gridData[day]!.set(slotNum, scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null);
+        gridData[day]!.set(
+          slotNum,
+          scheduleLookup.get(timeslotForDaySlot.TimeslotID) || null,
+        );
       } else {
         gridData[day]!.set(slotNum, null);
       }
@@ -162,7 +184,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
             ภาควิชา: {teacher.department || "-"}
           </p>
           <p className="text-sm text-gray-600">
-            ภาคเรียนที่ {parsed.semesterEnum === 'SEMESTER_1' ? '1' : '2'} ปีการศึกษา {parsed.academicYear}
+            ภาคเรียนที่ {parsed.semesterEnum === "SEMESTER_1" ? "1" : "2"}{" "}
+            ปีการศึกษา {parsed.academicYear}
           </p>
         </div>
       </div>
@@ -177,9 +200,14 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="bg-blue-600 text-white">
-                <th className="border border-gray-300 px-2 py-2 text-sm">คาบ/เวลา</th>
+                <th className="border border-gray-300 px-2 py-2 text-sm">
+                  คาบ/เวลา
+                </th>
                 {dayOrder.map((day) => (
-                  <th key={day} className="border border-gray-300 px-2 py-2 text-sm">
+                  <th
+                    key={day}
+                    className="border border-gray-300 px-2 py-2 text-sm"
+                  >
                     {dayNames[day]}
                   </th>
                 ))}
@@ -214,7 +242,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
                                 ({schedule.subject.SubjectCode})
                               </div>
                               <div className="text-xs text-gray-600">
-                                ม.{schedule.gradelevel.Year}/{schedule.gradelevel.Number}
+                                ม.{schedule.gradelevel.Year}/
+                                {schedule.gradelevel.Number}
                               </div>
                               {schedule.room && (
                                 <div className="text-xs text-gray-500">
@@ -223,7 +252,9 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
                               )}
                             </div>
                           ) : (
-                            <div className="text-xs text-gray-400 text-center">-</div>
+                            <div className="text-xs text-gray-400 text-center">
+                              -
+                            </div>
                           )}
                         </td>
                       );

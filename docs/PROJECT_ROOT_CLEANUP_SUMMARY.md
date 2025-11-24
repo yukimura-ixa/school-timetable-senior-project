@@ -8,6 +8,7 @@
 ## 🎯 **Objective**
 
 Clean up the project root directory by:
+
 1. Moving old documentation to `docs/archive/`
 2. Removing build artifacts and temporary files
 3. Updating `.gitignore` to prevent future clutter
@@ -18,19 +19,19 @@ Clean up the project root directory by:
 
 ### **Migration & Setup Documentation** (11 files)
 
-| File | New Location | Reason |
-|------|--------------|--------|
-| `DEBUG_SESSION_READY.md` | `docs/archive/` | Historical debug notes |
-| `DEPLOYMENT.md` | `docs/archive/` | Superseded by current docs |
-| `E2E_PRIORITY_FIX_LIST.md` | `docs/archive/` | Historical fix list |
-| `GEMINI.md` | `docs/archive/` | AI session notes |
-| `IMPORT_DATABASE.md` | `docs/archive/` | Old database import guide |
-| `PRISMA_MIGRATION.md` | `docs/archive/` | Historical migration notes |
-| `PRISMA_MOCK_FIX_SUMMARY.md` | `docs/archive/` | Mock data fix history |
-| `QUICKSTART_TEST_MIGRATION.md` | `docs/archive/` | Old test migration guide |
-| `QUICK_TEST_GUIDE.md` | `docs/archive/` | Superseded by TEST_PLAN.md |
-| `SEED_MERGE_AND_DOCKER_FIX_SUMMARY.md` | `docs/archive/` | Historical seed fixes |
-| `TEST_DATABASE.md` | `docs/archive/` | Old database setup guide |
+| File                                   | New Location    | Reason                     |
+| -------------------------------------- | --------------- | -------------------------- |
+| `DEBUG_SESSION_READY.md`               | `docs/archive/` | Historical debug notes     |
+| `DEPLOYMENT.md`                        | `docs/archive/` | Superseded by current docs |
+| `E2E_PRIORITY_FIX_LIST.md`             | `docs/archive/` | Historical fix list        |
+| `GEMINI.md`                            | `docs/archive/` | AI session notes           |
+| `IMPORT_DATABASE.md`                   | `docs/archive/` | Old database import guide  |
+| `PRISMA_MIGRATION.md`                  | `docs/archive/` | Historical migration notes |
+| `PRISMA_MOCK_FIX_SUMMARY.md`           | `docs/archive/` | Mock data fix history      |
+| `QUICKSTART_TEST_MIGRATION.md`         | `docs/archive/` | Old test migration guide   |
+| `QUICK_TEST_GUIDE.md`                  | `docs/archive/` | Superseded by TEST_PLAN.md |
+| `SEED_MERGE_AND_DOCKER_FIX_SUMMARY.md` | `docs/archive/` | Historical seed fixes      |
+| `TEST_DATABASE.md`                     | `docs/archive/` | Old database setup guide   |
 
 ---
 
@@ -38,23 +39,23 @@ Clean up the project root directory by:
 
 ### **Build Artifacts** (7 files)
 
-| File | Reason |
-|------|--------|
-| `typecheck-errors.log` | Old error log (no longer needed) |
-| `typecheck_errors.txt` | Old error log (no longer needed) |
+| File                     | Reason                           |
+| ------------------------ | -------------------------------- |
+| `typecheck-errors.log`   | Old error log (no longer needed) |
+| `typecheck_errors.txt`   | Old error log (no longer needed) |
 | `typecheck_errors_2.txt` | Old error log (no longer needed) |
 | `typecheck_errors_3.txt` | Old error log (no longer needed) |
 | `typecheck_errors_4.txt` | Old error log (no longer needed) |
-| `build.log` | Temporary build log |
-| `.env.test.local` | Duplicate of `.env.test` |
+| `build.log`              | Temporary build log              |
+| `.env.test.local`        | Duplicate of `.env.test`         |
 
 ### **TypeScript Build Info** (3 files)
 
-| File | Reason |
-|------|--------|
-| `.tsbuildinfo.typecheck` | Auto-generated, can be recreated |
+| File                        | Reason                           |
+| --------------------------- | -------------------------------- |
+| `.tsbuildinfo.typecheck`    | Auto-generated, can be recreated |
 | `tsconfig.test.tsbuildinfo` | Auto-generated, can be recreated |
-| `tsconfig.tsbuildinfo` | Auto-generated, can be recreated |
+| `tsconfig.tsbuildinfo`      | Auto-generated, can be recreated |
 
 ---
 
@@ -74,6 +75,7 @@ typecheck*.log
 ```
 
 ### **Existing Patterns** (already covered):
+
 - `*.tsbuildinfo` - TypeScript build info files
 - `.env*.local` - Local environment files
 - `/coverage/` - Test coverage reports
@@ -85,6 +87,7 @@ typecheck*.log
 ## 📊 **Root Directory - Before vs After**
 
 ### **Before Cleanup:**
+
 ```
 project/
 ├── 📄 56 files (including duplicates and old docs)
@@ -93,6 +96,7 @@ project/
 ```
 
 ### **After Cleanup:**
+
 ```
 project/
 ├── 📄 35 files (essential only)
@@ -194,6 +198,7 @@ docs/
 ```
 
 ### **Quick Links:**
+
 - **Getting Started**: [DEVELOPMENT_GUIDE.md](docs/DEVELOPMENT_GUIDE.md)
 - **Environment Setup**: [ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md)
 - **Full Documentation**: [docs/INDEX.md](docs/INDEX.md)
@@ -205,15 +210,15 @@ docs/
 
 The updated `.gitignore` now automatically ignores:
 
-| Pattern | Prevents |
-|---------|----------|
-| `*.tsbuildinfo` | TypeScript build artifacts |
-| `build.log` | Build logs |
-| `*.log` | All log files |
-| `typecheck*.txt` | Typecheck error logs |
-| `typecheck*.log` | Typecheck logs |
-| `/screenshots/` | Temporary screenshots |
-| `.env*.local` | Local environment files |
+| Pattern          | Prevents                   |
+| ---------------- | -------------------------- |
+| `*.tsbuildinfo`  | TypeScript build artifacts |
+| `build.log`      | Build logs                 |
+| `*.log`          | All log files              |
+| `typecheck*.txt` | Typecheck error logs       |
+| `typecheck*.log` | Typecheck logs             |
+| `/screenshots/`  | Temporary screenshots      |
+| `.env*.local`    | Local environment files    |
 
 ---
 
@@ -247,12 +252,12 @@ The updated `.gitignore` now automatically ignores:
 
 ## 📊 **Summary**
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Root files | 56 | 35 | -37% |
-| Markdown in root | 14 | 3 | -79% |
-| Build artifacts | 10 | 0 | -100% |
-| Duplicate env files | 2 | 0 | -100% |
+| Metric              | Before | After | Improvement |
+| ------------------- | ------ | ----- | ----------- |
+| Root files          | 56     | 35    | -37%        |
+| Markdown in root    | 14     | 3     | -79%        |
+| Build artifacts     | 10     | 0     | -100%       |
+| Duplicate env files | 2      | 0     | -100%       |
 
 ---
 

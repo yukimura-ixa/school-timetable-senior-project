@@ -1,25 +1,29 @@
 /**
  * Application Layer: Program Server Actions (MOE-Compliant)
- * 
+ *
  * Server Actions for MOE-compliant program management feature.
  * Uses action wrapper for auth, validation, and error handling.
- * 
+ *
  * @module program.actions
  */
 
-'use server';
+"use server";
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import { programRepository } from '../../infrastructure/repositories/program.repository';
+import { createAction } from "@/shared/lib/action-wrapper";
+import { programRepository } from "../../infrastructure/repositories/program.repository";
 import {
   validateNoDuplicateProgram,
   validateNoDuplicateProgramForUpdate,
   validateProgramExists,
   validateUniqueProgramCode,
   validateUniqueProgramCodeForUpdate,
-} from '../../domain/services/program-validation.service';
-import { validateProgramMOECredits } from '../../domain/services/moe-validation.service';
-import type { ProgramTrack, program_subject, subject } from '@/prisma/generated/client';
+} from "../../domain/services/program-validation.service";
+import { validateProgramMOECredits } from "../../domain/services/moe-validation.service";
+import type {
+  ProgramTrack,
+  program_subject,
+  subject,
+} from "@/prisma/generated/client";
 import {
   createProgramSchema,
   updateProgramSchema,
@@ -35,13 +39,13 @@ import {
   type GetProgramByIdInput,
   type GetProgramsByYearInput,
   type AssignSubjectsToProgramInput,
-} from '../schemas/program.schemas';
+} from "../schemas/program.schemas";
 
 /**
  * Get all programs with gradelevel and subject relations
- * 
+ *
  * @returns Array of all programs
- * 
+ *
  * @example
  * ```tsx
  * const programs = await getProgramsAction();
@@ -59,17 +63,17 @@ export async function getProgramsAction() {
   } catch {
     return {
       success: false as const,
-      error: 'ไม่สามารถดึงข้อมูลหลักสูตรได้',
+      error: "ไม่สามารถดึงข้อมูลหลักสูตรได้",
     };
   }
 }
 
 /**
  * Get programs by Year (optional), Track (optional), IsActive (optional)
- * 
+ *
  * @param input - Optional filters: Year, Track, IsActive
  * @returns Array of programs
- * 
+ *
  * @example
  * ```tsx
  * const result = await getProgramsByYearAction({ Year: 1 });
@@ -87,15 +91,15 @@ export const getProgramsByYearAction = createAction(
       IsActive: input.IsActive,
     });
     return programs;
-  }
+  },
 );
 
 /**
  * Get a single program by ID with relations
- * 
+ *
  * @param input - ProgramID
  * @returns Single program or null
- * 
+ *
  * @example
  * ```tsx
  * const result = await getProgramByIdAction({ ProgramID: 1 });
@@ -109,18 +113,18 @@ export const getProgramByIdAction = createAction(
   async (input: GetProgramByIdInput) => {
     const program = await programRepository.findById(input.ProgramID);
     return program;
-  }
+  },
 );
 /**
  * Get program by grade
  * Returns program associated with a specific grade level including subjects
- * 
+ *
  * @param input - GradeID, optional Semester and AcademicYear for teacher data
  * @returns Program with subjects or null (includes teacher assignments if semester/year provided)
- * 
+ *
  * @example
  * ```tsx
- * const result = await getProgramByGradeAction({ 
+ * const result = await getProgramByGradeAction({
  *   GradeID: "101",
  *   Semester: "SEMESTER_1",
  *   AcademicYear: 2567
@@ -136,20 +140,20 @@ export const getProgramByGradeAction = createAction(
     const program = await programRepository.findByGrade(
       input.GradeID,
       input.Semester,
-      input.AcademicYear
+      input.AcademicYear,
     );
     return program;
-  }
+  },
 );
 
 /**
  * Create a MOE-compliant program
  * Validates unique ProgramCode and Year + Track combination
  * Does NOT assign subjects initially (use assignSubjectsToProgramAction)
- * 
+ *
  * @param input - ProgramCode, ProgramName, Year, Track, MinTotalCredits, Description, IsActive
  * @returns Created program
- * 
+ *
  * @example
  * ```tsx
  * const result = await createProgramAction({
@@ -173,7 +177,7 @@ export const createProgramAction = createAction(
     // Validate no duplicate (Year + Track)
     const duplicateError = await validateNoDuplicateProgram(
       input.Year,
-      input.Track
+      input.Track,
     );
     if (duplicateError) {
       throw new Error(duplicateError);
@@ -183,17 +187,17 @@ export const createProgramAction = createAction(
     const program = await programRepository.create(input);
 
     return program;
-  }
+  },
 );
 
 /**
  * Update a MOE-compliant program
  * Validates unique ProgramCode and Year + Track (excluding current program)
  * Does NOT update subject assignments (use assignSubjectsToProgramAction)
- * 
+ *
  * @param input - ProgramID, ProgramCode, ProgramName, Year, Track, MinTotalCredits, Description, IsActive
  * @returns Updated program
- * 
+ *
  * @example
  * ```tsx
  * const result = await updateProgramAction({
@@ -216,7 +220,7 @@ export const updateProgramAction = createAction(
     if (input.ProgramCode) {
       const codeError = await validateUniqueProgramCodeForUpdate(
         input.ProgramID,
-        input.ProgramCode
+        input.ProgramCode,
       );
       if (codeError) {
         throw new Error(codeError);
@@ -227,16 +231,16 @@ export const updateProgramAction = createAction(
     // Fetch current program to check
     const currentProgram = await programRepository.findById(input.ProgramID);
     if (!currentProgram) {
-      throw new Error('ไม่พบหลักสูตรที่ระบุ');
+      throw new Error("ไม่พบหลักสูตรที่ระบุ");
     }
 
-  const yearToCheck = currentProgram.Year;
-  const trackToCheck = input.Track ?? currentProgram.Track;
+    const yearToCheck = currentProgram.Year;
+    const trackToCheck = input.Track ?? currentProgram.Track;
 
     const duplicateError = await validateNoDuplicateProgramForUpdate(
       input.ProgramID,
       yearToCheck,
-      trackToCheck
+      trackToCheck,
     );
     if (duplicateError) {
       throw new Error(duplicateError);
@@ -253,17 +257,17 @@ export const updateProgramAction = createAction(
     });
 
     return program;
-  }
+  },
 );
 
 /**
  * Assign subjects to a program with MOE credit validation
  * Replaces all existing subject assignments
  * Validates against MOE minimum credits per learning area
- * 
+ *
  * @param input - ProgramID, subjects[] with Category, IsMandatory, MinCredits, MaxCredits
  * @returns Updated program with subjects
- * 
+ *
  * @example
  * ```tsx
  * const result = await assignSubjectsToProgramAction({
@@ -288,35 +292,37 @@ export const assignSubjectsToProgramAction = createAction(
     const updatedProgram = await programRepository.assignSubjects(input);
 
     if (!updatedProgram) {
-      throw new Error('ไม่สามารถอัปเดตวิชาในหลักสูตรได้');
+      throw new Error("ไม่สามารถอัปเดตวิชาในหลักสูตรได้");
     }
 
     // Validate MOE credits using updated assignments (with subject details)
     const validationResult = validateProgramMOECredits(
       updatedProgram.Year,
-      updatedProgram.program_subject as Array<program_subject & { subject: subject }>
+      updatedProgram.program_subject as Array<
+        program_subject & { subject: subject }
+      >,
     );
 
     // Log warnings if not fully compliant (could display in UI)
     if (!validationResult.isValid && validationResult.warnings.length > 0) {
-      console.warn('MOE Validation Warnings:', validationResult.warnings);
+      console.warn("MOE Validation Warnings:", validationResult.warnings);
     }
 
     return {
       program: updatedProgram,
       moeValidation: validationResult,
     };
-  }
+  },
 );
 
 /**
  * Delete a program by ID
  * Note: Will cascade delete program_subject entries
  * Will set ProgramID to null in gradelevel (due to SetNull cascade)
- * 
+ *
  * @param input - ProgramID
  * @returns Deleted program
- * 
+ *
  * @example
  * ```tsx
  * const result = await deleteProgramAction({ ProgramID: 1 });
@@ -338,15 +344,15 @@ export const deleteProgramAction = createAction(
     const program = await programRepository.delete(input.ProgramID);
 
     return program;
-  }
+  },
 );
 
 /**
  * Get program count with optional filters
- * 
+ *
  * @param filters - Optional Year, Track, IsActive filters
  * @returns Count of programs matching filters
- * 
+ *
  * @example
  * ```tsx
  * const result = await getProgramCountAction({ Year: 1, IsActive: true });
@@ -366,16 +372,16 @@ export async function getProgramCountAction(filters?: {
   } catch {
     return {
       success: false as const,
-      error: 'ไม่สามารถนับจำนวนหลักสูตรได้',
+      error: "ไม่สามารถนับจำนวนหลักสูตรได้",
     };
   }
 }
 
 /**
  * Get programs grouped by Year (for management page)
- * 
+ *
  * @returns Record of Year -> program[]
- * 
+ *
  * @example
  * ```tsx
  * const result = await getProgramsGroupedByYearAction();
@@ -391,7 +397,7 @@ export async function getProgramsGroupedByYearAction() {
   } catch {
     return {
       success: false as const,
-      error: 'ไม่สามารถดึงข้อมูลหลักสูตรได้',
+      error: "ไม่สามารถดึงข้อมูลหลักสูตรได้",
     };
   }
 }

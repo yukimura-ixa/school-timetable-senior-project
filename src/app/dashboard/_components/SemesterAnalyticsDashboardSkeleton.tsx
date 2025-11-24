@@ -6,14 +6,7 @@
  */
 
 import React from "react";
-import {
-  Box,
-  Paper,
-  Skeleton,
-  Card,
-  CardContent,
-  Stack,
-} from "@mui/material";
+import { Box, Paper, Skeleton, Card, CardContent, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 
 export function SemesterAnalyticsDashboardSkeleton() {
@@ -31,7 +24,9 @@ export function SemesterAnalyticsDashboardSkeleton() {
           <Grid size={{ xs: 12, sm: 6, md: 3 }} key={`stat-${i}`}>
             <Card variant="outlined">
               <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+                >
                   <Skeleton variant="circular" width={20} height={20} />
                   <Skeleton variant="text" width="60%" height={20} />
                 </Box>
@@ -49,11 +44,21 @@ export function SemesterAnalyticsDashboardSkeleton() {
               <Stack spacing={2}>
                 {[...Array(4)].map((_, i) => (
                   <Box key={`status-${i}`}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 0.5,
+                      }}
+                    >
                       <Skeleton variant="rounded" width={100} height={24} />
                       <Skeleton variant="text" width={60} height={20} />
                     </Box>
-                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 1 }} />
+                    <Skeleton
+                      variant="rectangular"
+                      height={8}
+                      sx={{ borderRadius: 1 }}
+                    />
                   </Box>
                 ))}
               </Stack>
@@ -69,11 +74,21 @@ export function SemesterAnalyticsDashboardSkeleton() {
               <Stack spacing={2}>
                 {[...Array(3)].map((_, i) => (
                   <Box key={`complete-${i}`}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 0.5,
+                      }}
+                    >
                       <Skeleton variant="rounded" width={120} height={24} />
                       <Skeleton variant="text" width={60} height={20} />
                     </Box>
-                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 1 }} />
+                    <Skeleton
+                      variant="rectangular"
+                      height={8}
+                      sx={{ borderRadius: 1 }}
+                    />
                   </Box>
                 ))}
               </Stack>
@@ -89,10 +104,32 @@ export function SemesterAnalyticsDashboardSkeleton() {
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 {[...Array(4)].map((_, i) => (
                   <Grid size={{ xs: 6, sm: 3 }} key={`resource-${i}`}>
-                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
-                      <Skeleton variant="circular" width={40} height={40} sx={{ mx: "auto", mb: 1 }} />
-                      <Skeleton variant="text" width="60%" height={32} sx={{ mx: "auto" }} />
-                      <Skeleton variant="text" width="50%" height={20} sx={{ mx: "auto" }} />
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        p: 2,
+                        bgcolor: "grey.50",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <Skeleton
+                        variant="circular"
+                        width={40}
+                        height={40}
+                        sx={{ mx: "auto", mb: 1 }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="60%"
+                        height={32}
+                        sx={{ mx: "auto" }}
+                      />
+                      <Skeleton
+                        variant="text"
+                        width="50%"
+                        height={20}
+                        sx={{ mx: "auto" }}
+                      />
                     </Box>
                   </Grid>
                 ))}
@@ -109,11 +146,21 @@ export function SemesterAnalyticsDashboardSkeleton() {
               <Stack spacing={2}>
                 {[...Array(5)].map((_, i) => (
                   <Box key={`year-${i}`}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 0.5,
+                      }}
+                    >
                       <Skeleton variant="text" width={80} height={24} />
                       <Skeleton variant="text" width={100} height={20} />
                     </Box>
-                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 1 }} />
+                    <Skeleton
+                      variant="rectangular"
+                      height={8}
+                      sx={{ borderRadius: 1 }}
+                    />
                   </Box>
                 ))}
               </Stack>

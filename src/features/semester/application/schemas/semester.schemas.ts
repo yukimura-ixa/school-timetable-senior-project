@@ -21,7 +21,7 @@ export const SemesterFilterSchema = v.object({
   status: v.optional(SemesterStatusSchema),
   year: v.optional(v.number()),
   sortBy: v.optional(
-    v.picklist(["recent", "name", "status", "year", "completeness"])
+    v.picklist(["recent", "name", "status", "year", "completeness"]),
   ),
   sortOrder: v.optional(v.picklist(["asc", "desc"])),
   showArchived: v.optional(v.boolean()),
@@ -34,7 +34,7 @@ export const CreateSemesterSchema = v.object({
   academicYear: v.pipe(
     v.number(),
     v.minValue(2500, "ปีการศึกษาต้องมากกว่า 2500"),
-    v.maxValue(2600, "ปีการศึกษาต้องน้อยกว่า 2600")
+    v.maxValue(2600, "ปีการศึกษาต้องน้อยกว่า 2600"),
   ),
   semester: v.pipe(v.number(), v.minValue(1), v.maxValue(2)),
   copyFromConfigId: v.optional(v.string()),
@@ -76,11 +76,7 @@ export type TrackSemesterAccess = v.InferOutput<
 // Copy Semester Schema
 export const CopySemesterSchema = v.object({
   sourceConfigId: v.pipe(v.string(), v.minLength(1)),
-  targetAcademicYear: v.pipe(
-    v.number(),
-    v.minValue(2500),
-    v.maxValue(2600)
-  ),
+  targetAcademicYear: v.pipe(v.number(), v.minValue(2500), v.maxValue(2600)),
   targetSemester: v.pipe(v.number(), v.minValue(1), v.maxValue(2)),
   copyConfig: v.boolean(),
   copyTimeslots: v.optional(v.boolean()),

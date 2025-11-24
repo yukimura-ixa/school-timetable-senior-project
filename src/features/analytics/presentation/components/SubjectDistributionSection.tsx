@@ -1,7 +1,7 @@
 /**
  * Subject Distribution Section Component
  * Analytics Dashboard - Phase 2
- * 
+ *
  * Displays subject distribution by category (CORE, ADDITIONAL, ACTIVITY)
  * Shows statistics for each category with visual representation
  */
@@ -18,12 +18,19 @@ interface SubjectDistributionSectionProps {
   distribution: SubjectDistribution[];
 }
 
-export function SubjectDistributionSection({ distribution }: SubjectDistributionSectionProps) {
+export function SubjectDistributionSection({
+  distribution,
+}: SubjectDistributionSectionProps) {
   // Sort by hours (descending)
-  const sortedDistribution = [...distribution].sort((a, b) => b.totalHours - a.totalHours);
+  const sortedDistribution = [...distribution].sort(
+    (a, b) => b.totalHours - a.totalHours,
+  );
 
   // Calculate total hours for percentage calculation
-  const totalHours = distribution.reduce((sum, item) => sum + item.totalHours, 0);
+  const totalHours = distribution.reduce(
+    (sum, item) => sum + item.totalHours,
+    0,
+  );
 
   // Get icon for category
   const getCategoryIcon = (category: string) => {
@@ -40,7 +47,16 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
   };
 
   // Get color for category
-  const getCategoryColor = (color: string): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
+  const getCategoryColor = (
+    color: string,
+  ):
+    | "default"
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning" => {
     // Map hex colors to MUI chip colors
     if (color.includes("3b82f6")) return "primary"; // Blue
     if (color.includes("10b981")) return "success"; // Green
@@ -51,7 +67,12 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
   return (
     <Box sx={{ mb: 4 }}>
       {/* Section Header */}
-      <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
+      <Typography
+        variant="h5"
+        component="h2"
+        gutterBottom
+        sx={{ fontWeight: 600, mb: 3 }}
+      >
         📚 การกระจายวิชาตามประเภท
       </Typography>
 
@@ -93,7 +114,14 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
               >
                 <CardContent>
                   {/* Category Header */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      mb: 2,
+                    }}
+                  >
                     <Box
                       sx={{
                         display: "flex",
@@ -108,14 +136,22 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
                     >
                       {getCategoryIcon(item.category)}
                     </Box>
-                    <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
+                    <Typography
+                      variant="h6"
+                      component="h3"
+                      sx={{ fontWeight: 600 }}
+                    >
                       {item.categoryLabel}
                     </Typography>
                   </Box>
 
                   {/* Statistics */}
                   <Box sx={{ mb: 2 }}>
-                    <Typography variant="h4" component="div" sx={{ fontWeight: 700, color: item.color }}>
+                    <Typography
+                      variant="h4"
+                      component="div"
+                      sx={{ fontWeight: 700, color: item.color }}
+                    >
                       {item.totalHours}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -156,7 +192,11 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
                         }}
                       />
                     </Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ mt: 0.5, display: "block" }}
+                    >
                       {item.percentage.toFixed(1)}% ของชั่วโมงทั้งหมด
                     </Typography>
                   </Box>
@@ -171,7 +211,13 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
               <Typography variant="h6" gutterBottom>
                 สรุปภาพรวม
               </Typography>
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" },
+                  gap: 2,
+                }}
+              >
                 <Box>
                   <Typography variant="body2" color="text.secondary">
                     ชั่วโมงทั้งหมด
@@ -193,7 +239,11 @@ export function SubjectDistributionSection({ distribution }: SubjectDistribution
                     วิชาทั้งหมด
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {distribution.reduce((sum, item) => sum + item.subjectCount, 0)} วิชา
+                    {distribution.reduce(
+                      (sum, item) => sum + item.subjectCount,
+                      0,
+                    )}{" "}
+                    วิชา
                   </Typography>
                 </Box>
               </Box>

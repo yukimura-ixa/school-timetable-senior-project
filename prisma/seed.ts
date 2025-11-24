@@ -47,14 +47,23 @@ import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
 
-const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL,
-});
+const connectionString = process.env.DATABASE_URL!;
+const isAccelerate = connectionString.startsWith("prisma+");
 
 const prisma = new PrismaClient({
   log: ["error", "warn"],
   errorFormat: "minimal",
-  adapter,
+  ...(isAccelerate
+    ? {
+        // Prisma Accelerate / Data Proxy path (no pg adapter)
+        accelerateUrl: connectionString,
+      }
+    : {
+        // Direct Postgres connection via pg adapter
+        adapter: new PrismaPg({
+          connectionString,
+        }),
+      }),
   // Connection pooling settings for Docker Desktop on Windows
   // Helps with connection stability when Docker network isn't in host mode
 });
@@ -64,7 +73,7 @@ async function withRetry<T>(
   operation: () => Promise<T>,
   operationName: string,
   maxRetries = 3,
-  delayMs = 1000
+  delayMs = 1000,
 ): Promise<T> {
   let lastError: Error | null = null;
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -78,7 +87,7 @@ async function withRetry<T>(
         error.message?.includes("connection");
       if (attempt < maxRetries && isRetryable) {
         console.warn(
-          `⚠️  ${operationName} failed (attempt ${attempt}/${maxRetries}): ${error.message}`
+          `⚠️  ${operationName} failed (attempt ${attempt}/${maxRetries}): ${error.message}`,
         );
         console.warn(`   Retrying in ${delayMs}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -243,7 +252,7 @@ const BUILDINGS = [
 async function main() {
   console.log("🌱 Starting MOE-compliant seed with retry logic...");
   console.log(
-    "🔧 Connection: " + (process.env.DATABASE_URL?.substring(0, 50) + "...")
+    "🔧 Connection: " + (process.env.DATABASE_URL?.substring(0, 50) + "..."),
   );
 
   // ===== AUTH.JS USERS =====
@@ -252,7 +261,7 @@ async function main() {
   const adminPassword = await bcrypt.hash("admin123", 10);
   const existingAdmin = await withRetry(
     () => prisma.user.findUnique({ where: { email: "admin@school.local" } }),
-    "Check existing admin"
+    "Check existing admin",
   );
 
   if (!existingAdmin) {
@@ -267,10 +276,10 @@ async function main() {
             emailVerified: new Date(),
           },
         }),
-      "Create admin user"
+      "Create admin user",
     );
     console.log(
-      "✅ Admin user created (email: admin@school.local, password: admin123)"
+      "✅ Admin user created (email: admin@school.local, password: admin123)",
     );
   } else {
     console.log("ℹ️  Admin user already exists");
@@ -283,7 +292,7 @@ async function main() {
 
   if (!shouldCleanData) {
     console.log(
-      "ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true or SEED_FOR_TESTS=true to enable)"
+      "ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true or SEED_FOR_TESTS=true to enable)",
     );
     console.log("✅ Seed completed - admin user ready");
     return;
@@ -294,7 +303,7 @@ async function main() {
     console.log("🧪 Test mode enabled - Seeding E2E test data...");
   } else {
     console.log(
-      "⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data..."
+      "⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data...",
     );
   }
 
@@ -307,26 +316,26 @@ async function main() {
     await withRetry(() => prisma.session.deleteMany({}), "Delete sessions");
     await withRetry(
       () => prisma.verificationToken.deleteMany({}),
-      "Delete verification tokens"
+      "Delete verification tokens",
     );
     console.log("✅ Auth sessions cleaned");
   }
   await withRetry(
     () => prisma.class_schedule.deleteMany({}),
-    "Delete class_schedule"
+    "Delete class_schedule",
   );
   await withRetry(
     () => prisma.teachers_responsibility.deleteMany({}),
-    "Delete teachers_responsibility"
+    "Delete teachers_responsibility",
   );
   await withRetry(
     () => prisma.program_subject.deleteMany({}),
-    "Delete program_subject"
+    "Delete program_subject",
   );
   await withRetry(() => prisma.timeslot.deleteMany({}), "Delete timeslot");
   await withRetry(
     () => prisma.table_config.deleteMany({}),
-    "Delete table_config"
+    "Delete table_config",
   );
   await withRetry(() => prisma.gradelevel.deleteMany({}), "Delete gradelevel");
   await withRetry(() => prisma.subject.deleteMany({}), "Delete subject");
@@ -858,7 +867,7 @@ async function main() {
             IsGraded: true,
           },
         }),
-      `Create core subject ${subject.code}`
+      `Create core subject ${subject.code}`,
     );
   }
 
@@ -875,7 +884,7 @@ async function main() {
             IsGraded: true,
           },
         }),
-      `Create additional subject ${subject.code}`
+      `Create additional subject ${subject.code}`,
     );
   }
 
@@ -892,14 +901,14 @@ async function main() {
             IsGraded: false,
           },
         }),
-      `Create activity subject ${subject.code}`
+      `Create activity subject ${subject.code}`,
     );
   }
 
   const totalSubjects =
     coreSubjects.length + additionalSubjects.length + activitySubjects.length;
   console.log(
-    `✅ Created ${totalSubjects} subjects (${coreSubjects.length} core + ${additionalSubjects.length} additional + ${activitySubjects.length} activities)`
+    `✅ Created ${totalSubjects} subjects (${coreSubjects.length} core + ${additionalSubjects.length} additional + ${activitySubjects.length} activities)`,
   );
 
   // ===== PROGRAMS (3 tracks × 6 years) =====
@@ -923,8 +932,8 @@ async function main() {
               Description: `หลักสูตรเน้นวิทยาศาสตร์และคณิตศาสตร์สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ ${year}`,
             },
           }),
-        `Create program M${year}-SCI`
-      )
+        `Create program M${year}-SCI`,
+      ),
     );
 
     programs.push(
@@ -940,8 +949,8 @@ async function main() {
               Description: `หลักสูตรเน้นภาษาและคณิตศาสตร์สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ ${year}`,
             },
           }),
-        `Create program M${year}-LANG-MATH`
-      )
+        `Create program M${year}-LANG-MATH`,
+      ),
     );
 
     programs.push(
@@ -957,8 +966,8 @@ async function main() {
               Description: `หลักสูตรเน้นภาษาและศิลปะสำหรับนักเรียนชั้นมัธยมศึกษาปีที่ ${year}`,
             },
           }),
-        `Create program M${year}-LANG`
-      )
+        `Create program M${year}-LANG`,
+      ),
     );
   }
 
@@ -992,14 +1001,14 @@ async function main() {
                 ProgramID: program?.ProgramID,
               },
             }),
-          `Create grade level ${gradeId}`
-        )
+          `Create grade level ${gradeId}`,
+        ),
       );
     }
   }
 
   console.log(
-    `✅ Created ${gradeLevels.length} grade levels with program assignments`
+    `✅ Created ${gradeLevels.length} grade levels with program assignments`,
   );
 
   // ===== ROOMS =====
@@ -1021,15 +1030,15 @@ async function main() {
                   Floor: `ชั้น ${floor}`,
                 },
               }),
-            `Create room ${roomName}`
-          )
+            `Create room ${roomName}`,
+          ),
         );
       }
     }
   }
 
   console.log(
-    `✅ Created ${rooms.length} rooms across ${BUILDINGS.length} buildings`
+    `✅ Created ${rooms.length} rooms across ${BUILDINGS.length} buildings`,
   );
 
   // ===== TEACHERS =====
@@ -1061,15 +1070,15 @@ async function main() {
                 Role: i === 0 ? "admin" : "teacher",
               },
             }),
-          `Create teacher ${teacherEmailCount}`
-        )
+          `Create teacher ${teacherEmailCount}`,
+        ),
       );
       teacherEmailCount++;
     }
   }
 
   console.log(
-    `✅ Created ${teachers.length} teachers across ${DEPARTMENTS.length} departments`
+    `✅ Created ${teachers.length} teachers across ${DEPARTMENTS.length} departments`,
   );
 
   // ===== TIMESLOTS =====
@@ -1108,14 +1117,14 @@ async function main() {
                 DayOfWeek: day,
               },
             }),
-          `Create timeslot ${day}-${periodNum}`
-        )
+          `Create timeslot ${day}-${periodNum}`,
+        ),
       );
     }
   }
 
   console.log(
-    `✅ Created ${timeslots.length} timeslots for Semester 1 (5 days × 8 periods)`
+    `✅ Created ${timeslots.length} timeslots for Semester 1 (5 days × 8 periods)`,
   );
 
   // ===== TIMESLOTS (SEMESTER 2) =====
@@ -1140,13 +1149,13 @@ async function main() {
                 DayOfWeek: day,
               },
             }),
-          `Create timeslot S2 ${day}-${periodNum}`
-        )
+          `Create timeslot S2 ${day}-${periodNum}`,
+        ),
       );
     }
   }
   console.log(
-    `✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × 8 periods)`
+    `✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × 8 periods)`,
   );
 
   // ===== TABLE CONFIG =====
@@ -1171,7 +1180,7 @@ async function main() {
           },
         },
       }),
-    "Create table config"
+    "Create table config",
   );
   console.log("✅ Created timetable configuration");
 
@@ -1180,7 +1189,7 @@ async function main() {
 
   const m1SciProgram = programs.find((p) => p.ProgramCode === "M1-SCI")!;
   const m1LangMathProgram = programs.find(
-    (p) => p.ProgramCode === "M1-LANG-MATH"
+    (p) => p.ProgramCode === "M1-LANG-MATH",
   )!;
   const m1LangProgram = programs.find((p) => p.ProgramCode === "M1-LANG")!;
 
@@ -1240,16 +1249,16 @@ async function main() {
               SortOrder: sortOrder++,
             },
           }),
-        `Link subject ${ps.code} to M1-SCI`
+        `Link subject ${ps.code} to M1-SCI`,
       );
     }
   }
 
   console.log(
-    `✅ Assigned ${m1SciSubjects.length} subjects to M.1 Science-Math program`
+    `✅ Assigned ${m1SciSubjects.length} subjects to M.1 Science-Math program`,
   );
   console.log(
-    "ℹ️  Other programs can be populated similarly via the UI or additional seed logic"
+    "ℹ️  Other programs can be populated similarly via the UI or additional seed logic",
   );
 
   // ===== SAMPLE TEACHER RESPONSIBILITIES =====
@@ -1265,7 +1274,7 @@ async function main() {
     teacherID: number,
     gradeID: string,
     subjectCode: string,
-    teachHour: number
+    teachHour: number,
   ) => {
     const currentLoad = teacherWorkload.get(teacherID) || 0;
     if (currentLoad >= 3) return null;
@@ -1282,7 +1291,7 @@ async function main() {
             TeachHour: teachHour,
           },
         }),
-      `Assign ${subjectCode} to teacher ${teacherID} for ${gradeID}`
+      `Assign ${subjectCode} to teacher ${teacherID} for ${gradeID}`,
     );
 
     teacherWorkload.set(teacherID, currentLoad + 1);
@@ -1310,7 +1319,7 @@ async function main() {
         thaiTeachers[i % thaiTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `TH${year}01`,
-        3
+        3,
       );
     }
     if (mathTeachers.length > 0) {
@@ -1318,7 +1327,7 @@ async function main() {
         mathTeachers[i % mathTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `MA${year}01`,
-        3
+        3,
       );
     }
     if (scienceTeachers.length > 0) {
@@ -1326,7 +1335,7 @@ async function main() {
         scienceTeachers[i % scienceTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `SC${year}01`,
-        3
+        3,
       );
     }
     if (englishTeachers.length > 0) {
@@ -1334,7 +1343,7 @@ async function main() {
         englishTeachers[i % englishTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `EN${year}01`,
-        2
+        2,
       );
     }
     if (socialTeachers.length > 0) {
@@ -1342,7 +1351,7 @@ async function main() {
         socialTeachers[i % socialTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `SO${year}01`,
-        2
+        2,
       );
     }
     if (peTeachers.length > 0) {
@@ -1350,7 +1359,7 @@ async function main() {
         peTeachers[i % peTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `PE${year}01`,
-        1
+        1,
       );
     }
     if (artsTeachers.length > 0) {
@@ -1358,7 +1367,7 @@ async function main() {
         artsTeachers[i % artsTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `AR${year}01`,
-        1
+        1,
       );
     }
     if (careerTeachers.length > 0) {
@@ -1366,13 +1375,13 @@ async function main() {
         careerTeachers[i % careerTeachers.length].TeacherID,
         gradeLevel.GradeID,
         `CA${year}01`,
-        1
+        1,
       );
     }
   }
 
   console.log(
-    `✅ Created ${responsibilities.length} sample teacher responsibilities`
+    `✅ Created ${responsibilities.length} sample teacher responsibilities`,
   );
 
   // ===== SAMPLE LOCKED SCHEDULES =====
@@ -1385,13 +1394,13 @@ async function main() {
     for (let i = 0; i < 3; i++) {
       const gradeLevel = gradeLevels[i];
       const timeslot = timeslots.find(
-        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-MON-8`
+        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-MON-8`,
       );
 
       if (timeslot) {
         const activityResp = responsibilities.find(
           (r) =>
-            r.GradeID === gradeLevel.GradeID && r.SubjectCode.startsWith("ACT")
+            r.GradeID === gradeLevel.GradeID && r.SubjectCode.startsWith("ACT"),
         );
 
         if (activityResp) {
@@ -1411,8 +1420,8 @@ async function main() {
                     },
                   },
                 }),
-              `Create locked schedule for ${clubSubject.code}`
-            )
+              `Create locked schedule for ${clubSubject.code}`,
+            ),
           );
         }
       }
@@ -1428,23 +1437,23 @@ async function main() {
   console.log("📊 Database Summary:");
   console.log(`   • Programs: ${programs.length} (3 tracks × 6 years)`);
   console.log(
-    `   • Grade Levels: ${gradeLevels.length} (M.1-M.6, 3 sections each)`
+    `   • Grade Levels: ${gradeLevels.length} (M.1-M.6, 3 sections each)`,
   );
   console.log(`   • Rooms: ${rooms.length} (${BUILDINGS.length} buildings)`);
   console.log(
-    `   • Teachers: ${teachers.length} (${DEPARTMENTS.length} departments; target 40 met)`
+    `   • Teachers: ${teachers.length} (${DEPARTMENTS.length} departments; target 40 met)`,
   );
   console.log(`   • Subjects: ${totalSubjects} subjects`);
   console.log(`     - Core (8 learning areas): ${coreSubjects.length}`);
   console.log(
-    `     - Additional (track-specific): ${additionalSubjects.length}`
+    `     - Additional (track-specific): ${additionalSubjects.length}`,
   );
   console.log(`     - Activities (MOE-compliant): ${activitySubjects.length}`);
   const totalTimeslots =
     timeslots.length +
     (typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0);
   console.log(
-    `   • Timeslots: ${totalTimeslots} (Semester 1: ${timeslots.length}, Semester 2: ${typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0})`
+    `   • Timeslots: ${totalTimeslots} (Semester 1: ${timeslots.length}, Semester 2: ${typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0})`,
   );
   console.log(`   • Teacher Responsibilities: ${responsibilities.length}`);
   console.log(`   • Sample Locked Schedules: ${classSchedules.length}`);
@@ -1455,13 +1464,13 @@ async function main() {
   console.log("   - ✅ Retry logic for Docker Desktop connection stability");
   console.log("   - ✅ MOE 8 Learning Areas structure");
   console.log(
-    "   - ✅ Proper ActivityType (ชุมนุม, ลูกเสือ, แนะแนว, กิจกรรมเพื่อสังคม)"
+    "   - ✅ Proper ActivityType (ชุมนุม, ลูกเสือ, แนะแนว, กิจกรรมเพื่อสังคม)",
   );
   console.log(
-    "   - ✅ Three program tracks (วิทย์-คณิต, ศิลป์-คำนวณ, ศิลป์-ภาษา)"
+    "   - ✅ Three program tracks (วิทย์-คณิต, ศิลป์-คำนวณ, ศิลป์-ภาษา)",
   );
   console.log(
-    "   - ✅ Realistic teacher workload (1-3 subjects per Ministry standard)"
+    "   - ✅ Realistic teacher workload (1-3 subjects per Ministry standard)",
   );
   console.log("   - ✅ Locked timeslots for school-wide activities");
   console.log("   - ✅ Grade-program assignments");

@@ -11,14 +11,14 @@
  */
 
 // SECURITY: Ensure this file is never included in client bundles
-import "server-only"
+import "server-only";
 
-import NextAuth, { type DefaultSession } from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
-import Google from "next-auth/providers/google"
-import Credentials from "next-auth/providers/credentials"
-import prisma from "@/lib/prisma"
-import bcrypt from "bcryptjs"
+import NextAuth, { type DefaultSession } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -62,58 +62,58 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           hasEmail: !!credentials?.email,
           hasPassword: !!credentials?.password,
           email: credentials?.email,
-        })
+        });
 
         if (!credentials?.email || !credentials?.password) {
           console.log(
             "[AUTH] Missing credentials - email or password not provided",
-          )
-          return null
+          );
+          return null;
         }
 
         try {
           // Find user with password
           const user = await prisma.user.findUnique({
             where: { email: credentials.email as string },
-          })
+          });
 
           if (!user) {
-            console.log("[AUTH] User not found for email:", credentials.email)
-            return null
+            console.log("[AUTH] User not found for email:", credentials.email);
+            return null;
           }
 
           if (!user.password) {
             console.log(
               "[AUTH] User found but no password set for:",
               credentials.email,
-            )
-            return null
+            );
+            return null;
           }
 
           // Verify password
           const isValid = await bcrypt.compare(
             credentials.password as string,
             user.password,
-          )
+          );
 
           if (!isValid) {
-            console.log("[AUTH] Invalid password for user:", credentials.email)
-            return null
+            console.log("[AUTH] Invalid password for user:", credentials.email);
+            return null;
           }
 
           console.log(
             "[AUTH] Credential authentication successful for:",
             user.email,
-          )
+          );
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
-          }
+          };
         } catch (error) {
-          console.error("[AUTH] Error during credential authorization:", error)
-          return null
+          console.error("[AUTH] Error during credential authorization:", error);
+          return null;
         }
       },
     }),
@@ -121,34 +121,34 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     // SECURITY: Only enabled in development/test environments
     // Follows Auth.js testing best practices: https://authjs.dev/guides/testing
     ...(process.env.NODE_ENV === "development" ||
-      process.env.NODE_ENV === "test"
+    process.env.NODE_ENV === "test"
       ? [
-        Credentials({
-          id: "test-credentials",
-          name: "Test Login",
-          credentials: {
-            password: { label: "Password", type: "password" },
-          },
-          authorize(credentials) {
-            // Check if password matches TEST_PASSWORD env var
-            if (credentials.password === process.env.TEST_PASSWORD) {
-              // eslint-disable-next-line no-console
-              console.log("[AUTH] Test credentials authenticated")
-              return {
-                id: process.env.DEV_USER_ID || "1",
-                email: process.env.DEV_USER_EMAIL || "admin@test.local",
-                name: process.env.DEV_USER_NAME || "E2E Admin",
-                role: process.env.DEV_USER_ROLE || "admin",
+          Credentials({
+            id: "test-credentials",
+            name: "Test Login",
+            credentials: {
+              password: { label: "Password", type: "password" },
+            },
+            authorize(credentials) {
+              // Check if password matches TEST_PASSWORD env var
+              if (credentials.password === process.env.TEST_PASSWORD) {
+                // eslint-disable-next-line no-console
+                console.log("[AUTH] Test credentials authenticated");
+                return {
+                  id: process.env.DEV_USER_ID || "1",
+                  email: process.env.DEV_USER_EMAIL || "admin@test.local",
+                  name: process.env.DEV_USER_NAME || "E2E Admin",
+                  role: process.env.DEV_USER_ROLE || "admin",
+                };
               }
-            }
-            // eslint-disable-next-line no-console
-            console.log(
-              "[AUTH] Test credentials rejected - invalid password",
-            )
-            return null
-          },
-        }),
-      ]
+              // eslint-disable-next-line no-console
+              console.log(
+                "[AUTH] Test credentials rejected - invalid password",
+              );
+              return null;
+            },
+          }),
+        ]
       : []),
   ],
   theme: {
@@ -156,123 +156,123 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn(params) {
-      const { account, profile, user } = params
-      console.log("[AUTH] Sign in callback - provider:", account?.provider)
+      const { account, profile, user } = params;
+      console.log("[AUTH] Sign in callback - provider:", account?.provider);
 
       // Allow credential provider
       if (account?.provider === "credentials") {
-        console.log("[AUTH] Credential authentication")
-        return true
+        console.log("[AUTH] Credential authentication");
+        return true;
       }
 
       // Google OAuth: check if email exists in teacher table OR User table
       if (account?.provider === "google" && profile?.email) {
-        console.log("[AUTH] Google provider - checking email:", profile.email)
+        console.log("[AUTH] Google provider - checking email:", profile.email);
 
         // Check if user already exists in User table
         const existingUser = await prisma.user.findUnique({
           where: { email: profile.email },
-        })
+        });
 
         if (existingUser) {
-          console.log("[AUTH] User found in User table")
-          return true
+          console.log("[AUTH] User found in User table");
+          return true;
         }
 
         // Check legacy teacher table
         const isTeacherExist = await prisma.teacher.findUnique({
           where: { Email: profile.email },
-        })
+        });
 
         if (isTeacherExist) {
           console.log(
             "[AUTH] Teacher found in database - creating User record",
-          )
+          );
           // User will be created by Prisma adapter automatically
-          return true
+          return true;
         }
 
-        console.log("[AUTH] Email not authorized - access denied")
-        return false
+        console.log("[AUTH] Email not authorized - access denied");
+        return false;
       }
 
-      return false
+      return false;
     },
     async jwt(params) {
-      const { token, user, account } = params
-      console.log("[AUTH] JWT callback")
+      const { token, user, account } = params;
+      console.log("[AUTH] JWT callback");
 
       // On sign in, add role to token
       if (user) {
         // For credential providers, user.role is already set
         if (user.role) {
-          token.role = user.role
-          token.id = user.id
-          return token
+          token.role = user.role;
+          token.id = user.id;
+          return token;
         }
 
         // For Google OAuth, fetch from User table first
         const dbUser = await prisma.user.findUnique({
           where: { email: user.email! },
-        })
+        });
 
         if (dbUser) {
-          token.role = dbUser.role
-          token.id = dbUser.id
-          return token
+          token.role = dbUser.role;
+          token.id = dbUser.id;
+          return token;
         }
 
         // Fallback: check legacy teacher table
         if (user.email) {
           const teacher = await prisma.teacher.findUnique({
             where: { Email: user.email },
-          })
+          });
           if (teacher) {
-            token.role = teacher.Role
-            token.id = teacher.TeacherID.toString()
+            token.role = teacher.Role;
+            token.id = teacher.TeacherID.toString();
           }
         }
       }
 
-      return token
+      return token;
     },
     session(params) {
-      const { session, token } = params
-      console.log("[AUTH] Session callback")
+      const { session, token } = params;
+      console.log("[AUTH] Session callback");
 
       if (session.user) {
-        session.user.role = token.role as string
-        session.user.id = token.id as string
+        session.user.role = token.role as string;
+        session.user.id = token.id as string;
       }
-      return session
+      return session;
     },
   },
-})
+});
 
 // Type augmentation for NextAuth
 declare module "next-auth" {
   interface Session {
     user: {
-      role?: string
-      id?: string
-    } & DefaultSession["user"]
+      role?: string;
+      id?: string;
+    } & DefaultSession["user"];
   }
 
   interface User {
-    role?: string
+    role?: string;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    role?: string
-    id?: string | number
+    role?: string;
+    id?: string | number;
   }
 }
 
 // Wrap auth() to inject dev bypass session
-const originalAuth = auth
+const originalAuth = auth;
 export const authWithDevBypass = async () => {
   // Use original auth
-  return originalAuth()
-}
+  return originalAuth();
+};

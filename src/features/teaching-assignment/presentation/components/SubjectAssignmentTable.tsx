@@ -16,7 +16,7 @@ import {
   Chip,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 import { TeacherSelector } from "./TeacherSelector";
 import {
   assignTeacherAction,
@@ -71,11 +71,11 @@ export function SubjectAssignmentTable({
         const subjectsWithAssignments = await getSubjectsWithAssignments(
           gradeId,
           semester,
-          academicYear
+          academicYear,
         );
 
         console.warn(
-          `[SubjectAssignmentTable] Received ${subjectsWithAssignments.length} subjects`
+          `[SubjectAssignmentTable] Received ${subjectsWithAssignments.length} subjects`,
         );
         setSubjects(subjectsWithAssignments);
       } catch (err) {
@@ -101,7 +101,7 @@ export function SubjectAssignmentTable({
   const handleAssign = (
     subjectCode: string,
     teacherId: number,
-    teachHour: number
+    teachHour: number,
   ) => {
     void (async () => {
       try {
@@ -176,12 +176,24 @@ export function SubjectAssignmentTable({
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell><strong>รหัสวิชา</strong></TableCell>
-            <TableCell><strong>ชื่อวิชา</strong></TableCell>
-            <TableCell align="center"><strong>หน่วยกิต</strong></TableCell>
-            <TableCell><strong>ครูผู้สอน</strong></TableCell>
-            <TableCell align="center"><strong>จำนวนชั่วโมง</strong></TableCell>
-            <TableCell align="center"><strong>จัดการ</strong></TableCell>
+            <TableCell>
+              <strong>รหัสวิชา</strong>
+            </TableCell>
+            <TableCell>
+              <strong>ชื่อวิชา</strong>
+            </TableCell>
+            <TableCell align="center">
+              <strong>หน่วยกิต</strong>
+            </TableCell>
+            <TableCell>
+              <strong>ครูผู้สอน</strong>
+            </TableCell>
+            <TableCell align="center">
+              <strong>จำนวนชั่วโมง</strong>
+            </TableCell>
+            <TableCell align="center">
+              <strong>จัดการ</strong>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

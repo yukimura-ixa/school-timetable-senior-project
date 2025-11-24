@@ -1,13 +1,13 @@
 /**
  * Unit Tests for Semester Repository
  * Tests new repository methods added for timeslot operations
- * 
+ *
  * Note: Prisma is mocked globally in jest.setup.js
  */
 
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 import prisma from "@/lib/prisma";
-import { semester } from '@/prisma/generated/client';;
+import { semester } from "@/prisma/generated/client";
 
 // Get reference to the mocked Prisma client
 const mockPrisma = prisma as jest.Mocked<typeof prisma>;
@@ -42,7 +42,7 @@ describe("Semester Repository - Timeslot Methods", () => {
 
       const result = await semesterRepository.findTimeslots(
         2567,
-        "SEMESTER_1" as semester
+        "SEMESTER_1" as semester,
       );
 
       expect(mockPrisma.timeslot.findMany).toHaveBeenCalledWith({
@@ -78,8 +78,12 @@ describe("Semester Repository - Timeslot Methods", () => {
         },
       ];
 
-      mockPrisma.timeslot.findMany = jest.fn().mockResolvedValue(sourceTimeslots);
-      mockPrisma.timeslot.createMany = jest.fn().mockResolvedValue({ count: 2 });
+      mockPrisma.timeslot.findMany = jest
+        .fn()
+        .mockResolvedValue(sourceTimeslots);
+      mockPrisma.timeslot.createMany = jest
+        .fn()
+        .mockResolvedValue({ count: 2 });
 
       const result = await semesterRepository.copyTimeslots(
         2566, // source year
@@ -87,7 +91,7 @@ describe("Semester Repository - Timeslot Methods", () => {
         2567, // target year
         "SEMESTER_1" as semester, // target semester
         1, // source semester number
-        1  // target semester number
+        1, // target semester number
       );
 
       expect(mockPrisma.timeslot.findMany).toHaveBeenCalledWith({
@@ -125,7 +129,7 @@ describe("Semester Repository - Timeslot Methods", () => {
         2567,
         "SEMESTER_1" as semester,
         1,
-        1
+        1,
       );
 
       expect(result).toEqual([]);
@@ -156,7 +160,9 @@ describe("Semester Repository - Timeslot Methods", () => {
         },
       ];
 
-      mockPrisma.timeslot.createMany = jest.fn().mockResolvedValue({ count: 2 });
+      mockPrisma.timeslot.createMany = jest
+        .fn()
+        .mockResolvedValue({ count: 2 });
 
       await semesterRepository.createTimeslots(timeslotsToCreate);
 
@@ -250,7 +256,7 @@ describe("Semester Repository - Timeslot Methods", () => {
       mockPrisma.$transaction = jest.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue({ ConfigID: '1-2567' }),
+            create: jest.fn().mockResolvedValue({ ConfigID: "1-2567" }),
           },
         };
         return callback(mockTx);

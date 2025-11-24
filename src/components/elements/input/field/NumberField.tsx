@@ -1,5 +1,5 @@
 import type { JSX } from "react";
- 
+
 interface INumberFieldProps {
   width?: string | number;
   height?: string | number;

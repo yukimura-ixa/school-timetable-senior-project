@@ -1,9 +1,9 @@
 /**
  * Feedback Components - Barrel Export
- * 
+ *
  * Import all feedback components from one place:
  * import { EmptyState, TimetableGridSkeleton, ErrorDisplay } from '@/components/feedback';
- * 
+ *
  * Created: October 22, 2025
  */
 
@@ -16,7 +16,7 @@ export {
   TableSkeleton,
   FormSkeleton,
   CardSkeleton,
-} from './LoadingStates';
+} from "./LoadingStates";
 
 // Empty States
 export {
@@ -33,4 +33,4 @@ export {
   PermissionDeniedEmptyState,
   NetworkErrorEmptyState,
   ComingSoonEmptyState,
-} from './EmptyStates';
+} from "./EmptyStates";

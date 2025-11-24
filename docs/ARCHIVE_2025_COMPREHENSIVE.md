@@ -23,36 +23,36 @@
 
 ### Active Documentation (Keep Using These)
 
-| Need | Active Document | Location |
-|------|----------------|----------|
-| **Project Overview** | `README.md` | Root directory |
-| **Agent Instructions** | `AGENTS.md` | Root directory |
-| **Database Setup** | `SEED_README.md` | `docs/` |
-| **E2E Testing** | `E2E_RELIABILITY_GUIDE.md` | `docs/` |
-| **E2E Coverage** | `E2E_COVERAGE_MATRIX.md` | `docs/` |
-| **Current Progress** | `E2E_PHASE1_PROGRESS.md` | `docs/` |
-| **Feature Flags** | `FEATURE_FLAGS.md` | `docs/` |
-| **High Priority Issues** | `GITHUB_ISSUES_HIGH_PRIORITY.md` | `docs/` |
-| **Local DB Setup** | `E2E_LOCAL_POSTGRESQL_SETUP.md` | `docs/` |
-| **Database Lifecycle** | `E2E_DATABASE_LIFECYCLE_MANAGEMENT.md` | `docs/` |
-| **MOE Standards** | `MOE_STANDARDS_IMPLEMENTATION.md` | `docs/` |
-| **ConfigId Format** | `CONFIGID_QUICK_REF.md` | `docs/` |
-| **Loading States** | `LOADING_STATES_IMPLEMENTATION.md` | `docs/` |
+| Need                     | Active Document                        | Location       |
+| ------------------------ | -------------------------------------- | -------------- |
+| **Project Overview**     | `README.md`                            | Root directory |
+| **Agent Instructions**   | `AGENTS.md`                            | Root directory |
+| **Database Setup**       | `SEED_README.md`                       | `docs/`        |
+| **E2E Testing**          | `E2E_RELIABILITY_GUIDE.md`             | `docs/`        |
+| **E2E Coverage**         | `E2E_COVERAGE_MATRIX.md`               | `docs/`        |
+| **Current Progress**     | `E2E_PHASE1_PROGRESS.md`               | `docs/`        |
+| **Feature Flags**        | `FEATURE_FLAGS.md`                     | `docs/`        |
+| **High Priority Issues** | `GITHUB_ISSUES_HIGH_PRIORITY.md`       | `docs/`        |
+| **Local DB Setup**       | `E2E_LOCAL_POSTGRESQL_SETUP.md`        | `docs/`        |
+| **Database Lifecycle**   | `E2E_DATABASE_LIFECYCLE_MANAGEMENT.md` | `docs/`        |
+| **MOE Standards**        | `MOE_STANDARDS_IMPLEMENTATION.md`      | `docs/`        |
+| **ConfigId Format**      | `CONFIGID_QUICK_REF.md`                | `docs/`        |
+| **Loading States**       | `LOADING_STATES_IMPLEMENTATION.md`     | `docs/`        |
 
 ### Archived Categories
 
-| Archived Category | Reason | Active Alternative |
-|------------------|--------|-------------------|
-| MUI v6→v7 Migration | Complete (Oct 2024) | `AGENTS.md` Section 5 (MUI 7.3.4) |
-| Tailwind v3→v4 Migration | Complete (Oct 2024) | `AGENTS.md` Section 5 (Tailwind 4.1.14) |
-| Next.js 14→15→16 | Complete (Oct-Nov 2024) | `AGENTS.md` Section 6 (Next.js 16 guardrails) |
-| Prisma 5→6 Migration | Complete (Oct 2024) | `AGENTS.md` Section 7 (Prisma 6.18.0) |
-| Auth.js v4→v5 | Complete (Oct 2024) | `AGENTS.md` Section 10 (Auth.js patterns) |
-| Clean Architecture | 100% Complete (Nov 2025) | `src/features/` structure |
-| Repository Pattern | 100% Complete (Nov 2025) | `*/infrastructure/repositories/` |
-| Feature Migrations | All Complete (Oct-Nov 2024) | Current codebase |
-| Weekly Progress (Weeks 5-9) | Historical snapshots | `E2E_COVERAGE_MATRIX.md` |
-| Implementation Summaries | Redundant with current docs | Active docs listed above |
+| Archived Category           | Reason                      | Active Alternative                            |
+| --------------------------- | --------------------------- | --------------------------------------------- |
+| MUI v6→v7 Migration         | Complete (Oct 2024)         | `AGENTS.md` Section 5 (MUI 7.3.4)             |
+| Tailwind v3→v4 Migration    | Complete (Oct 2024)         | `AGENTS.md` Section 5 (Tailwind 4.1.14)       |
+| Next.js 14→15→16            | Complete (Oct-Nov 2024)     | `AGENTS.md` Section 6 (Next.js 16 guardrails) |
+| Prisma 5→6 Migration        | Complete (Oct 2024)         | `AGENTS.md` Section 7 (Prisma 6.18.0)         |
+| Auth.js v4→v5               | Complete (Oct 2024)         | `AGENTS.md` Section 10 (Auth.js patterns)     |
+| Clean Architecture          | 100% Complete (Nov 2025)    | `src/features/` structure                     |
+| Repository Pattern          | 100% Complete (Nov 2025)    | `*/infrastructure/repositories/`              |
+| Feature Migrations          | All Complete (Oct-Nov 2024) | Current codebase                              |
+| Weekly Progress (Weeks 5-9) | Historical snapshots        | `E2E_COVERAGE_MATRIX.md`                      |
+| Implementation Summaries    | Redundant with current docs | Active docs listed above                      |
 
 ---
 
@@ -61,6 +61,7 @@
 ### Framework & Library Upgrades (October 2024)
 
 #### 1. MUI v6 → v7 Migration
+
 - **Status:** ✅ Complete
 - **Date:** October 19-21, 2024
 - **Scope:** 50+ components updated
@@ -71,7 +72,8 @@
   - Fixed deprecation warnings
 - **Files:** `MUI_MIGRATION_*.md` (6 docs archived)
 
-#### 2. Tailwind CSS v3 → v4 Migration  
+#### 2. Tailwind CSS v3 → v4 Migration
+
 - **Status:** ✅ Complete
 - **Date:** October 21, 2024
 - **Scope:** Entire codebase
@@ -83,7 +85,8 @@
 - **Files:** `TAILWIND_V4_*.md` (2 docs archived)
 
 #### 3. Next.js 14 → 15 → 16 Migration
-- **Status:** ✅ Complete  
+
+- **Status:** ✅ Complete
 - **Date:** October 19, 2024 (v15), November 2024 (v16)
 - **Scope:** App Router, Server Components, API routes
 - **Key Changes:**
@@ -94,8 +97,9 @@
 - **Files:** `MIGRATION_NEXTJS15.md`, `LINTING_MIGRATION_NEXTJS16.md`
 
 #### 4. Prisma 5 → 6 Migration
+
 - **Status:** ✅ Complete
-- **Date:** October 23, 2024  
+- **Date:** October 23, 2024
 - **Scope:** Database schema, client generation
 - **Key Changes:**
   - Prisma 6.18.0 with `@prisma/extension-accelerate`
@@ -104,6 +108,7 @@
 - **Files:** `PRISMA_6_MIGRATION.md`, `PRISMA_SCHEMA_MIGRATION_GUIDE.md`
 
 #### 5. Auth.js v4 → v5 Migration
+
 - **Status:** ✅ Complete
 - **Date:** October 26, 2024
 - **Scope:** Authentication system
@@ -117,6 +122,7 @@
 ### Architecture Transformations (October-November 2024)
 
 #### 6. Clean Architecture Migration
+
 - **Status:** ✅ 100% Complete
 - **Date:** October 25 - November 1, 2024
 - **Scope:** Entire feature set restructured
@@ -132,6 +138,7 @@
 - **Files:** `CLEAN_ARCHITECTURE_MIGRATION_PLAN.md` + 10 feature migration docs
 
 #### 7. Repository Pattern Migration
+
 - **Status:** ✅ 100% Complete (from Serena memory)
 - **Date:** November 5, 2025
 - **Scope:** All Prisma queries centralized (excluding Auth.js)
@@ -144,13 +151,14 @@
   ```typescript
   // src/features/<domain>/infrastructure/repositories/
   export class SubjectRepository {
-    async findByCode(code: string): Promise<Subject | null>
-    async findAll(): Promise<Subject[]>
-    async create(data: CreateSubjectInput): Promise<Subject>
+    async findByCode(code: string): Promise<Subject | null>;
+    async findAll(): Promise<Subject[]>;
+    async create(data: CreateSubjectInput): Promise<Subject>;
   }
   ```
 
 #### 8. Component Migration to Server Components
+
 - **Status:** ✅ Complete
 - **Date:** October 26, 2024
 - **Scope:** All admin dashboard pages
@@ -166,7 +174,7 @@
 All completed during Clean Architecture migration:
 
 1. **Room Feature** - Oct 25 (8KB doc)
-2. **GradeLevel Feature** - Oct 25 (9.5KB doc)  
+2. **GradeLevel Feature** - Oct 25 (9.5KB doc)
 3. **Program Feature** - Oct 25 (10KB doc)
 4. **Subject Feature** - Oct 25 (12.6KB doc)
 5. **Lock Feature** - Oct 25 (14.7KB doc)
@@ -181,12 +189,14 @@ All completed during Clean Architecture migration:
 ### UI/UX Migrations (October 2024)
 
 #### Teacher Arrange & Teacher Responsibility Pages
+
 - **Status:** ✅ Complete
 - **Date:** October 26, 2024
 - **Scope:** Server Component conversion, loading states
 - **Files:** `UI_MIGRATION_TEACHER_*.md` (2 docs)
 
-#### Config & Program Pages  
+#### Config & Program Pages
+
 - **Status:** ✅ Complete
 - **Date:** October 26, 2024
 - **Files:** `UI_MIGRATION_CONFIG.md`, `UI_MIGRATION_PROGRAM.md`, `UI_MIGRATION_STATUS.md`
@@ -196,16 +206,19 @@ All completed during Clean Architecture migration:
 ## 📅 Weekly Progress Reports (Weeks 5-9)
 
 ### Week 5 - DnD Kit Migration & Zustand Store
+
 **Period:** October 2024  
 **Focus:** Teacher assignment drag-and-drop + state management
 
 **Achievements:**
+
 - Migrated from `react-beautiful-dnd` to `@dnd-kit`
 - Implemented Zustand store for teacher arrange state
 - Extracted custom hooks for reusability
 - Refactoring complete with passing tests
 
 **Files Archived:**
+
 - `WEEK5_DND_KIT_MIGRATION.md` (18KB)
 - `WEEK5_ZUSTAND_STORE.md` (10KB)
 - `WEEK5.3_REFACTORING_COMPLETE.md` (14KB)
@@ -219,16 +232,19 @@ All completed during Clean Architecture migration:
 **Total:** 9 files, 112KB
 
 ### Week 7 - API Safety Refactoring
+
 **Period:** October 2024  
 **Focus:** Database access safety, edge runtime compatibility
 
 **Achievements:**
+
 - Audited 25+ API routes
 - Fixed Prisma/edge runtime conflicts
 - Removed direct DB access from edge functions
 - Implemented proper error handling
 
 **Files Archived:**
+
 - `WEEK7.1_API_AUDIT_RESULTS.md` (9KB)
 - `WEEK7.2_CRITICAL_ROUTES_COMPLETE.md` (7KB)
 - `WEEK7_API_SAFETY_REFACTORING.md` (7KB)
@@ -237,32 +253,38 @@ All completed during Clean Architecture migration:
 **Total:** 4 files, 37KB
 
 ### Week 8 - Type Safety Audit
+
 **Period:** October 2024  
 **Focus:** TypeScript strict mode, type coverage
 
 **Achievements:**
+
 - Type safety audit across codebase
 - Reduced `any` types significantly
 - Improved type inference
 - Progress report documented
 
 **Files Archived:**
+
 - `WEEK_8_PROGRESS_REPORT.md` (8KB)
 - `WEEK_8_TYPE_SAFETY_AUDIT.md` (13KB)
 
 **Total:** 2 files, 21KB
 
 ### Week 9 - Seeding & ConfigId Migration
+
 **Period:** October 28, 2024  
 **Focus:** Production-ready seeding, ConfigId format standardization
 
 **Achievements:**
+
 - Implemented safe production seeding (`SEED_SECRET` requirement)
 - Migrated ConfigId format to `semester-year` (e.g., `1-2567`)
 - Created seeding guides and quickstart docs
 - ConfigId migration complete across codebase
 
 **Files Archived:**
+
 - `WEEK_9_SEEDING_AND_CONFIGID_COMPLETE.md` (15KB)
 
 **Total:** 1 file, 15KB
@@ -274,47 +296,56 @@ All completed during Clean Architecture migration:
 ## 🎯 Feature Implementations (Complete)
 
 ### Analytics Dashboard (Oct 27, 2024)
+
 - **Status:** ✅ Complete with E2E tests
 - **Scope:** 7-section dashboard with Recharts visualizations
 - **E2E Coverage:** 8 test scenarios (overview, workload, room utilization)
 - **Files:** `ANALYTICS_DASHBOARD_*.md` (6 docs, 75KB)
 
-### Export Feature (Oct 27, 2024)  
+### Export Feature (Oct 27, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Excel/PDF export for schedules, teacher tables
 - **Files:** `EXPORT_FEATURE_SUMMARY.md` (9KB)
 
 ### Loading States (Oct 27, 2024)
+
 - **Status:** ✅ Complete with visual comparisons
 - **Scope:** Skeleton loaders, Suspense boundaries, loading spinners
 - **Files:** `LOADING_STATES_*.md` (3 docs, 34KB)
 
 ### Config Copy Optimization (Oct 25, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Optimized semester configuration copying
 - **Files:** `CONFIG_COPY_OPTIMIZATION*.md` (2 docs, 13KB)
 
 ### API Routes Cleanup (Oct 25, 2024)
-- **Status:** ✅ Complete  
+
+- **Status:** ✅ Complete
 - **Scope:** Removed redundant API routes, migrated to Server Actions
 - **Files:** `API_ROUTES_CLEANUP_COMPLETE.md` (8KB)
 
 ### Hooks Modernization (Nov 1, 2024)
+
 - **Status:** ✅ Complete (from Serena memory)
 - **Scope:** Custom hooks extracted and modernized
 - **Files:** `HOOKS_MODERNIZATION_COMPLETE.md` (10KB)
 
 ### UX/UI Improvements - Phase 1 (Oct 23, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Responsive layouts, accessibility, visual polish
 - **Files:** `UX_P1_IMPLEMENTATION_COMPLETE.md` (23KB), `UX_UI_*.md` (3 docs, 50KB)
 
 ### Teacher Arrange Type Safety (Nov 1, 2024)
+
 - **Status:** ✅ Complete (from Serena memory)
 - **Scope:** Full type safety for teacher arrangement feature
 - **Files:** `TEACHER_ARRANGE_TYPE_SAFETY_COMPLETE.md` (12KB)
 
 ### Teacher Arrange - Phase 2 & 4 (Nov 1, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Zustand implementation, migration checklist
 - **Files:** `TEACHER_ARRANGE_PHASE*.md`, `TEACHER_ARRANGE_ZUSTAND_IMPLEMENTATION.md` (3 docs, 43KB)
@@ -326,11 +357,13 @@ All completed during Clean Architecture migration:
 ## ⚡ Testing Infrastructure (Complete)
 
 ### E2E Test Setup & Implementation (Oct 27, 2024)
+
 - **Status:** ✅ Complete with Docker PostgreSQL
 - **Scope:** Playwright setup, auth storage state, test database
 - **Files:** `E2E_TEST_SETUP_COMPLETE.md`, `E2E_IMPLEMENTATION_SUMMARY.md` (2 docs, 23KB)
 
 ### E2E Test Optimizations (from Serena memories)
+
 - **90% Speed Improvement** (Nov 2025)
   - Auth storage state reuse (eliminates per-test login)
   - Database seed optimization
@@ -343,33 +376,39 @@ All completed during Clean Architecture migration:
   - Files: `.github/workflows/e2e-tests.yml`
 
 ### Program E2E Tests (Oct 29, 2024)
+
 - **Status:** ✅ Complete with MOE standards
 - **Scope:** 18 Thai MOE programs validated
 - **Files:** `E2E_TESTS_MOE_PROGRAM.md`, `PROGRAM_E2E_TEST_SUMMARY.md` (2 docs, 25KB)
 
 ### Vercel Integration Tests (Oct 27, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Production deployment testing
 - **Files:** `VERCEL_INTEGRATION_TESTS*.md` (3 docs, 29KB)
 
 ### Jest Environment Fix (Nov 1, 2024)
+
 - **Status:** ✅ Complete (from Serena memory)
 - **Issue:** Next.js 16 + Jest stack overflow
 - **Solution:** `forceExit: true` workaround
 - **Files:** `JEST_ENVIRONMENT_FIX_COMPLETE.md` (11KB)
 
 ### Unit Tests Summary (Oct 27, 2024)
+
 - **Status:** ✅ Complete
 - **Coverage:** Business logic, validation, repositories
 - **Files:** `UNIT_TESTS_SUMMARY.md` (6KB)
 
 ### Storage State Auth Implementation (Nov 6, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Playwright auth optimization
 - **Files:** `STORAGE_STATE_AUTH_IMPLEMENTATION.md` (9KB)
 
 ### E2E Test Selector Fixes (Nov 6, 2024)
-- **Status:** ✅ Complete  
+
+- **Status:** ✅ Complete
 - **Scope:** Stabilized selectors for flaky tests
 - **Files:** `E2E_TEST_SELECTOR_FIXES.md` (11KB)
 
@@ -380,34 +419,40 @@ All completed during Clean Architecture migration:
 ## 🐛 Resolved Issues & Fixes
 
 ### Seed Bug Fix - Issue #95 (Nov 6, 2024)
+
 - **Status:** ✅ Fixed
 - **Issue:** Subject seed data violating MOE constraints
 - **Solution:** Validated learning areas, credit ranges
 - **Files:** `ISSUE_95_SEED_BUG_FIX_COMPLETE.md` (11KB)
 
 ### Navigation Redirect Investigation (Nov 6, 2024)
+
 - **Status:** ✅ Resolved
 - **Issue:** Semester redirect loops
 - **Solution:** Middleware optimization, debug guide created
 - **Files:** `NAVIGATION_REDIRECT_INVESTIGATION.md`, `REDIRECT_FIX_TEST_RESULTS.md`, `SEMESTER_REDIRECT_DEBUG_GUIDE.md` (3 docs, 24KB)
 
 ### Vercel Deployment Fix (Nov 1, 2024)
-- **Status:** ✅ Fixed  
+
+- **Status:** ✅ Fixed
 - **Issue:** Production build errors
 - **Files:** `VERCEL_DEPLOYMENT_FIX_2025_11_01.md` (9KB)
 
 ### Windows Docker Database URL Fix (Nov 10, 2024)
+
 - **Status:** ✅ Fixed
 - **Issue:** Windows path escaping in `DATABASE_URL`
 - **Solution:** Proper connection string format
 - **Files:** `WINDOWS_DOCKER_DATABASE_URL_FIX.md` (2KB)
 
 ### Error Fixes Summary (Oct 26, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Various compilation/runtime errors resolved
 - **Files:** `ERROR_FIXES_SUMMARY.md` (7KB)
 
 ### Fix Summaries (Oct 21, 2024)
+
 - **Status:** ✅ Complete
 - **Files:** `FIX_SUMMARY.md` (3KB), `FIX_SUMMARY_USEMEMO_API_CONFIG.md` (9KB)
 
@@ -418,21 +463,25 @@ All completed during Clean Architecture migration:
 ## 📚 Phase Completion Summaries
 
 ### Phase 1 Completion (Oct 30, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Initial architecture setup, feature migrations
 - **Files:** `PHASE_1_COMPLETE.md`, `PHASE1_COMPLETION_SUMMARY.md` (2 docs, 27KB)
 
-### Phase 2 - Config Redesign (Oct 27, 2024)  
+### Phase 2 - Config Redesign (Oct 27, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Configuration management improvements
 - **Files:** `PHASE_2_CONFIG_REDESIGN_COMPLETE.md`, `PHASE_2_MIGRATION_SUMMARY.md` (2 docs, 21KB)
 
 ### Phase 3 - Config Lifecycle (Oct 27, 2024)
+
 - **Status:** ✅ Complete
 - **Scope:** Configuration lifecycle management
 - **Files:** `PHASE_3_CONFIG_LIFECYCLE_COMPLETE.md`, `PHASE3_FULL_MIGRATION_PLAN.md` (2 docs, 26KB)
 
 ### Phase 2 Type Migration Plan (Oct 30, 2024)
+
 - **Status:** ✅ Complete
 - **Files:** `PHASE2_TYPE_MIGRATION_PLAN.md` (31KB)
 
@@ -443,22 +492,25 @@ All completed during Clean Architecture migration:
 ## 🗂️ Reference Documents (Outdated)
 
 ### Refactoring Plans (Oct 23, 2024)
+
 - **Status:** Superseded by Clean Architecture implementation
-- **Files:** 
+- **Files:**
   - `COMPREHENSIVE_REFACTORING_PLAN.md` (49KB)
   - `REFACTORING_PLAN_V2_UPDATED.md` (30KB)
   - `REFACTORING_QUICKSTART.md` (13KB)
   - `REFACTORING_ANALYSIS.md` (10KB)
 
 ### Implementation Summaries (Oct 19-28, 2024)
+
 - **Status:** Redundant with current docs
 - **Files:**
   - `IMPLEMENTATION_COMPLETE.md` (4KB)
-  - `IMPLEMENTATION_SUMMARY.md` (8KB)  
+  - `IMPLEMENTATION_SUMMARY.md` (8KB)
   - `IMPLEMENTATION_SUMMARY_PROD_SEEDING.md` (14KB)
   - `MIGRATION_IMPLEMENTATION_SUMMARY.md` (15KB)
 
 ### Test Results & Reviews (Oct 19-23, 2024)
+
 - **Status:** Historical snapshots
 - **Files:**
   - `TEST_RESULTS_SUMMARY.md` (11KB)
@@ -466,6 +518,7 @@ All completed during Clean Architecture migration:
   - `E2E_TEST_RESULTS_POST_MIGRATION.md` (7KB)
 
 ### Guides (Outdated) (Oct 19-28, 2024)
+
 - **Status:** Superseded by active guides
 - **Files:**
   - `QUICKSTART.md` (3KB) → Use `E2E_RELIABILITY_GUIDE.md`
@@ -482,6 +535,7 @@ All completed during Clean Architecture migration:
   - `VERCEL_INTEGRATION_TESTS_QUICKREF.md` (4KB) → Use `E2E_RELIABILITY_GUIDE.md`
 
 ### Other Reference Docs (Oct 2024)
+
 - **Files:**
   - `PROJECT_CONTEXT.md` (3KB) → Use `README.md`
   - `START_HERE.md` (9KB) → Use `README.md` or `AGENTS.md`
@@ -499,16 +553,19 @@ All completed during Clean Architecture migration:
 **(Previously archived in `_ARCHIVED_MEMORIES_2025.md`)**
 
 ### Analytics Dashboard (7 memories)
+
 1. `analytics_data_visualization_strategy` - Recharts usage patterns
 2. `analytics_testids_patch_nov2025` - TestID stability improvements
 3. `analytics_ui_phase1_implementation_complete` - Overview + status sections
 4. `analytics_ui_phase2_implementation_complete` - Workload + room utilization
 
 ### Architecture (2 memories)
+
 5. `repository_pattern_migration_complete` - 100% coverage achieved
 6. `assign_tab_p0_modernization_complete` - Clean Architecture applied
 
 ### Testing (5 memories)
+
 7. `e2e_performance_optimization_nov2025` - 90% speed improvement
 8. `e2e_test_sharding_implementation_nov2025` - 93% with 4-worker sharding
 9. `e2e_test_progress_database_fix_refactoring_jan2025` - Database lifecycle
@@ -516,29 +573,35 @@ All completed during Clean Architecture migration:
 11. `jest_test_status_nov2025_fixes_applied` - 50+ tests passing
 
 ### Features (4 memories)
+
 12. `p1_complete_lock_calendar_quick_assignment` - Lock feature ready
 13. `phase4_teacher_arrange_migration_complete` - Zustand + Clean Architecture
 14. `timeslot_config_integration_complete` - Timeslot management done
 15. `issue_57_phase1_conflict_ui_integration_complete` - Conflict detection UI
 
 ### Known Issues (3 memories)
+
 16. `nextjs_16_jest_stack_overflow_issue` - forceExit workaround documented
 17. `nextjs_16_segment_config_breaking_change` - Async params migration
 18. `react19_testing_library_infinite_loop_issue` - Testing Library compatibility
 
 ### Refactoring Sessions (3 memories)
+
 19. `semester_global_state_refactoring_complete` - Zustand semester store
 20. `teacher_arrange_zustand_refactoring_complete` - Teacher arrange store
 21. `option_b_technical_debt_sprint_session1` - Technical debt cleanup
 
 ### Temporary (1 memory)
+
 22. `temp_db_cloud_e2e_tests_config` - Cloud DB config (deprecated)
 
 ### Documentation (2 memories)
+
 23. `copilot_documentation_oct_2025_update` - Agent handbook updates
 24. `public_data_e2e_tests_migration` - Public page E2E migration
 
 ### Remaining Issues (1 memory)
+
 25. `jest_test_remaining_issues` - 7 test suites (5 fixed, 2 remaining)
 
 **Total:** 25 Serena memory files archived
@@ -548,6 +611,7 @@ All completed during Clean Architecture migration:
 ## 📋 Complete Archived File List
 
 ### Migrations (47 files)
+
 ```
 ARRANGE_FEATURE_MIGRATION_COMPLETE.md
 ASSIGN_FEATURE_MIGRATION_COMPLETE.md
@@ -599,6 +663,7 @@ WEEK5_DND_KIT_MIGRATION.md
 ```
 
 ### Weekly Progress (15 files)
+
 ```
 WEEK_7_API_SAFETY_COMPLETE.md
 WEEK_8_PROGRESS_REPORT.md
@@ -618,6 +683,7 @@ WEEK7_API_SAFETY_REFACTORING.md
 ```
 
 ### Implementation Complete (12 files)
+
 ```
 ANALYTICS_DASHBOARD_E2E_IMPLEMENTATION_SUMMARY.md
 API_ROUTES_CLEANUP_COMPLETE.md
@@ -634,6 +700,7 @@ UX_P1_IMPLEMENTATION_COMPLETE.md
 ```
 
 ### Summaries (17 files)
+
 ```
 ANALYTICS_DASHBOARD_E2E_TEST_RESULTS.md
 ANALYTICS_DASHBOARD_SUMMARY.md
@@ -655,6 +722,7 @@ VERCEL_INTEGRATION_TESTS_SUMMARY.md
 ```
 
 ### Guides (Outdated - 13 files)
+
 ```
 ANALYTICS_DASHBOARD_E2E_QUICKSTART.md
 DEVELOPMENT_GUIDE.md
@@ -672,6 +740,7 @@ VERCEL_INTEGRATION_TESTS_QUICKREF.md
 ```
 
 ### Test Documents (Outdated - 7 files)
+
 ```
 ANALYTICS_DASHBOARD_E2E_TESTS.md (covered by E2E_COVERAGE_MATRIX)
 ANALYTICS_DASHBOARD_TESTING_CHECKLIST.md (obsolete)
@@ -683,6 +752,7 @@ VERCEL_INTEGRATION_TESTS.md (feature complete)
 ```
 
 ### Reference (Redundant - 10 files)
+
 ```
 CONFIG_COPY_OPTIMIZATION.md (work complete, covered by codebase)
 DATABASE_OVERVIEW.md (use SEED_README)
@@ -697,6 +767,7 @@ UX_UI_IMPROVEMENTS.md (phase complete)
 ```
 
 ### Investigation/Debug (Resolved - 6 files)
+
 ```
 AUTH_PRISMA_ADAPTER_IMPLEMENTATION.md (implementation complete)
 NAVIGATION_REDIRECT_INVESTIGATION.md (issue resolved)
@@ -707,6 +778,7 @@ VERCEL_DEPLOYMENT_FIX_2025_11_01.md (issue resolved)
 ```
 
 ### Miscellaneous (Outdated - 4 files)
+
 ```
 E2E_TEST_SELECTOR_FIXES.md (fixes applied, covered by E2E_RELIABILITY_GUIDE)
 LOADING_STATES_QUICKREF.md (use LOADING_STATES_IMPLEMENTATION)
@@ -720,26 +792,27 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 
 ## 📊 Archive Statistics
 
-| Category | Count | Size (KB) |
-|----------|-------|-----------|
-| Migrations | 47 | ~650 |
-| Weekly Progress | 15 | ~185 |
-| Implementation Complete | 12 | ~140 |
-| Summaries | 17 | ~145 |
-| Guides (Outdated) | 13 | ~95 |
-| Test Documents | 7 | ~75 |
-| Reference (Redundant) | 10 | ~160 |
-| Investigation/Debug | 6 | ~60 |
-| Miscellaneous | 4 | ~35 |
-| **Total Docs** | **91** | **~1,545** |
-| Serena Memories | 25 | ~600 |
-| **Grand Total** | **116** | **~2,145 KB** |
+| Category                | Count   | Size (KB)     |
+| ----------------------- | ------- | ------------- |
+| Migrations              | 47      | ~650          |
+| Weekly Progress         | 15      | ~185          |
+| Implementation Complete | 12      | ~140          |
+| Summaries               | 17      | ~145          |
+| Guides (Outdated)       | 13      | ~95           |
+| Test Documents          | 7       | ~75           |
+| Reference (Redundant)   | 10      | ~160          |
+| Investigation/Debug     | 6       | ~60           |
+| Miscellaneous           | 4       | ~35           |
+| **Total Docs**          | **91**  | **~1,545**    |
+| Serena Memories         | 25      | ~600          |
+| **Grand Total**         | **116** | **~2,145 KB** |
 
 ---
 
 ## ✅ What Remains Active
 
 ### Essential Documentation (18 files in docs/)
+
 1. `README.md` - Project overview
 2. `E2E_RELIABILITY_GUIDE.md` - Current best practices
 3. `E2E_COVERAGE_MATRIX.md` - Test coverage tracking
@@ -760,6 +833,7 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 18. `SCHEDULE_ASSIGNMENT_TEST_STRATEGY_COMPARISON.md` - Test strategy analysis
 
 ### Project Root Documentation
+
 - `AGENTS.md` - AI agent instructions
 - `README.md` / `README.th.md` - Project documentation
 - `DEPLOYMENT.md` - Deployment guide
@@ -769,6 +843,7 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 - `QUICK_TEST_GUIDE.md` - Testing quick reference
 
 ### Serena Active Memories (18 remaining)
+
 1. `project_overview` - Project context
 2. `code_style_conventions` - Coding standards
 3. `data_model_business_rules` - Business logic
@@ -808,6 +883,7 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 **Archive Policy:** Archive completed work after 3 months of no updates
 
 **How to Add to Archive:**
+
 1. Identify completed/outdated documentation
 2. Extract key decisions and add to relevant section
 3. Add file to "Complete Archived File List"
@@ -816,4 +892,4 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 
 ---
 
-*End of Comprehensive Archive*
+_End of Comprehensive Archive_

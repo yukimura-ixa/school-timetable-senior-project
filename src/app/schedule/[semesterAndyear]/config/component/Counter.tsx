@@ -1,30 +1,41 @@
-import React, {useState} from 'react'
-import { IoMdRemove, IoMdAdd } from 'react-icons/io'
+import React, { useState } from "react";
+import { IoMdRemove, IoMdAdd } from "react-icons/io";
 type Props = {
-    classifier: string;
-    currentValue: number;
-    onChange: Function;
-    isDisabled: boolean;
-}
+  classifier: string;
+  currentValue: number;
+  onChange: Function;
+  isDisabled: boolean;
+};
 
-function Counter({classifier, currentValue=1, onChange, isDisabled}: Props) {
+function Counter({
+  classifier,
+  currentValue = 1,
+  onChange,
+  isDisabled,
+}: Props) {
   return (
     <>
-    <div className='flex w-fit justify-between h-[45px] select-none gap-5 px-3 items-center'>
-        <div 
-          style={{display : isDisabled ? 'none' : 'flex'}}
-          onClick={() => onChange(currentValue - 1)} className='p-2 drop-shadow w-fit bg-white rounded cursor-pointer hover:bg-slate-100 duration-300'>
+      <div className="flex w-fit justify-between h-[45px] select-none gap-5 px-3 items-center">
+        <div
+          style={{ display: isDisabled ? "none" : "flex" }}
+          onClick={() => onChange(currentValue - 1)}
+          className="p-2 drop-shadow w-fit bg-white rounded cursor-pointer hover:bg-slate-100 duration-300"
+        >
           <IoMdRemove size={20} className="cursor-pointer" />
         </div>
-        <p className='text-md text-gray-600'>{currentValue} {classifier}</p>
+        <p className="text-md text-gray-600">
+          {currentValue} {classifier}
+        </p>
         <div
-          style={{display : isDisabled ? 'none' : 'flex'}} 
-          onClick={() => onChange(currentValue + 1)} className='p-2 drop-shadow w-fit bg-white rounded cursor-pointer hover:bg-slate-100 duration-300'>
-          <IoMdAdd size={20} className="cursor-pointer"/>
+          style={{ display: isDisabled ? "none" : "flex" }}
+          onClick={() => onChange(currentValue + 1)}
+          className="p-2 drop-shadow w-fit bg-white rounded cursor-pointer hover:bg-slate-100 duration-300"
+        >
+          <IoMdAdd size={20} className="cursor-pointer" />
         </div>
-    </div>
+      </div>
     </>
-  )
+  );
 }
 
 export default Counter;

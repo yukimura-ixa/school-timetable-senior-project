@@ -1,7 +1,7 @@
 /**
  * Public data access layer for teachers
  * Security: Strict field whitelisting, NO PII (email)
- * 
+ *
  * MIGRATED: Now uses publicDataRepository instead of direct Prisma queries
  * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
@@ -26,25 +26,28 @@ async function getCurrentTermInfo(): Promise<{
 } | null> {
   try {
     const config = await publicDataRepository.getQuickStats();
-    
-    if (!config || config.currentTerm === 'N/A') {
+
+    if (!config || config.currentTerm === "N/A") {
       return null;
     }
 
     // Extract academic year and semester from current term
     const termMatch = config.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = config.currentTerm.match(/ภาคเรียนที่ (\d+)/);
-    
+
     if (!termMatch?.[1] || !semesterMatch?.[1]) {
       return null;
     }
 
     const academicYear = parseInt(termMatch[1], 10);
-    const semester = semesterMatch[1] === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+    const semester = semesterMatch[1] === "1" ? "SEMESTER_1" : "SEMESTER_2";
 
     return { academicYear, semester };
   } catch (err) {
-    console.warn("[PublicTeachers] getCurrentTermInfo error:", (err as Error).message);
+    console.warn(
+      "[PublicTeachers] getCurrentTermInfo error:",
+      (err as Error).message,
+    );
     return null;
   }
 }
@@ -56,7 +59,7 @@ async function getCurrentTermInfo(): Promise<{
 /**
  * Get teachers with public-safe data and teaching statistics
  * Uses Next.js fetch cache with 60s revalidation
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getPublicTeachers(
@@ -64,30 +67,33 @@ export async function getPublicTeachers(
   sortBy?: "name" | "hours" | "utilization",
   sortOrder?: "asc" | "desc",
 ): Promise<PublicTeacher[]> {
-    try {
-      const termInfo = await getCurrentTermInfo();
-      
-      if (!termInfo) {
-        return [];
-      }
+  try {
+    const termInfo = await getCurrentTermInfo();
 
-      // Use repository to fetch teachers
-      return await publicDataRepository.findPublicTeachers({
-        academicYear: termInfo.academicYear,
-        semester: termInfo.semester,
-        searchQuery,
-        sortBy,
-        sortOrder,
-      });
-    } catch (err) {
-      console.warn("[PublicTeachers] getPublicTeachers error:", (err as Error).message);
+    if (!termInfo) {
       return [];
     }
+
+    // Use repository to fetch teachers
+    return await publicDataRepository.findPublicTeachers({
+      academicYear: termInfo.academicYear,
+      semester: termInfo.semester,
+      searchQuery,
+      sortBy,
+      sortOrder,
+    });
+  } catch (err) {
+    console.warn(
+      "[PublicTeachers] getPublicTeachers error:",
+      (err as Error).message,
+    );
+    return [];
+  }
 }
 
 /**
  * Get paginated teachers with search and sorting
- * 
+ *
  * MIGRATED: Uses getPublicTeachers which now uses repository
  */
 export async function getPaginatedTeachers(params: {
@@ -127,24 +133,29 @@ export async function getPaginatedTeachers(params: {
 
 /**
  * Get total teacher count
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getTeacherCount(): Promise<number> {
   try {
     return await publicDataRepository.countTeachers();
   } catch (err) {
-    console.warn("[PublicTeachers] getTeacherCount fallback to 0:", (err as Error).message);
+    console.warn(
+      "[PublicTeachers] getTeacherCount fallback to 0:",
+      (err as Error).message,
+    );
     return 0;
   }
 }
 
 /**
  * Get top teachers by utilization for visualization
- * 
+ *
  * MIGRATED: Uses getPublicTeachers which now uses repository
  */
-export async function getTopTeachersByUtilization(limit = 5): Promise<PublicTeacher[]> {
+export async function getTopTeachersByUtilization(
+  limit = 5,
+): Promise<PublicTeacher[]> {
   try {
     const teachers = await getPublicTeachers(undefined, "utilization", "desc");
     return teachers.slice(0, limit);
@@ -155,7 +166,7 @@ export async function getTopTeachersByUtilization(limit = 5): Promise<PublicTeac
 
 /**
  * Get a single teacher by ID with public-safe data
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getPublicTeacherById(teacherId: number): Promise<{
@@ -165,7 +176,7 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
 } | null> {
   try {
     const termInfo = await getCurrentTermInfo();
-    
+
     if (!termInfo) {
       return null;
     }
@@ -173,7 +184,7 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
     const teacher = await publicDataRepository.findPublicTeacherById(
       teacherId,
       termInfo.academicYear,
-      termInfo.semester
+      termInfo.semester,
     );
 
     if (!teacher) return null;
@@ -185,50 +196,58 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
       department: teacher.department || null,
     };
   } catch (err) {
-    console.warn("[PublicTeachers] getPublicTeacherById error:", (err as Error).message);
+    console.warn(
+      "[PublicTeachers] getPublicTeacherById error:",
+      (err as Error).message,
+    );
     return null;
   }
 }
 
 /**
  * Get teacher's schedule for current semester
- * 
+ *
  * MIGRATED: Now uses repository pattern
  */
 export async function getTeacherSchedule(teacherId: number) {
   try {
     const termInfo = await getCurrentTermInfo();
-    
+
     if (!termInfo) {
       return [];
     }
 
     // Get teacher's responsibilities for this term
-    const responsibilities = await publicDataRepository.findTeacherResponsibilities(
-      teacherId,
-      termInfo.academicYear,
-      termInfo.semester
-    );
+    const responsibilities =
+      await publicDataRepository.findTeacherResponsibilities(
+        teacherId,
+        termInfo.academicYear,
+        termInfo.semester,
+      );
 
     type ResponsibilityWithSchedules = Awaited<
       ReturnType<typeof publicDataRepository.findTeacherResponsibilities>
     >[number];
     // Flatten to class schedules
     const schedules = responsibilities.flatMap(
-      (resp: ResponsibilityWithSchedules) => resp.class_schedule ?? []
+      (resp: ResponsibilityWithSchedules) => resp.class_schedule ?? [],
     );
 
     // Sort by day and time
     return schedules.sort((a, b) => {
       const dayOrder = { MON: 0, TUE: 1, WED: 2, THU: 3, FRI: 4 };
-      const dayDiff = dayOrder[a.timeslot.DayOfWeek as keyof typeof dayOrder] - 
-                      dayOrder[b.timeslot.DayOfWeek as keyof typeof dayOrder];
+      const dayDiff =
+        dayOrder[a.timeslot.DayOfWeek as keyof typeof dayOrder] -
+        dayOrder[b.timeslot.DayOfWeek as keyof typeof dayOrder];
       if (dayDiff !== 0) return dayDiff;
-      
+
       return a.timeslot.StartTime < b.timeslot.StartTime ? -1 : 1;
     });
   } catch (err) {
-    console.warn("[PublicTeachers] getTeacherSchedule error:", (err as Error).message);
+    console.warn(
+      "[PublicTeachers] getTeacherSchedule error:",
+      (err as Error).message,
+    );
     return [];
   }
 }

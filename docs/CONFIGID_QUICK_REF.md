@@ -9,12 +9,12 @@
 
 All code layers, tests, and database records now use the standardized `"SEMESTER-YEAR"` format.
 
-| Format | Example | Where Used | Status |
-|--------|---------|------------|--------|
-| **Format 1** | `"1/2567"` | Display only (Thai UI) | ✅ UI display format |
-| **Format 2** | `"SEMESTER_1_2024"` | N/A | ✅ Removed |
-| **Format 3** | `"1-2567"` | URLs, DB, code | ✅ **CANONICAL** |
-| **Format 4** | `"2567-SEMESTER_1"` | N/A | ✅ Removed |
+| Format       | Example             | Where Used             | Status               |
+| ------------ | ------------------- | ---------------------- | -------------------- |
+| **Format 1** | `"1/2567"`          | Display only (Thai UI) | ✅ UI display format |
+| **Format 2** | `"SEMESTER_1_2024"` | N/A                    | ✅ Removed           |
+| **Format 3** | `"1-2567"`          | URLs, DB, code         | ✅ **CANONICAL**     |
+| **Format 4** | `"2567-SEMESTER_1"` | N/A                    | ✅ Removed           |
 
 **Important**: `"1/2567"` is now **only** used for Thai UI display. The canonical data format `"1-2567"` is used everywhere else.
 
@@ -23,6 +23,7 @@ All code layers, tests, and database records now use the standardized `"SEMESTER
 ## � Migration Summary
 
 **Completed Phases (8/8):**
+
 - ✅ Phase 1: Validation layer
 - ✅ Phase 2: Route patterns
 - ✅ Phase 3: Action layers
@@ -33,6 +34,7 @@ All code layers, tests, and database records now use the standardized `"SEMESTER
 - ✅ Phase 8: Deploy & verify
 
 **Migration Statistics:**
+
 - ✅ 6 code files updated
 - ✅ 3 test files updated
 - ✅ 41 database records migrated (1 table_config + 40 timeslots)
@@ -76,12 +78,15 @@ Examples:
 
 ```typescript
 // src/features/config/domain/services/config-validation.service.ts
-export function generateConfigID(semesterNum: string, academicYear: number): string {
+export function generateConfigID(
+  semesterNum: string,
+  academicYear: number,
+): string {
   return `${semesterNum}-${academicYear}`; // "1-2567"
 }
 
 export function parseConfigID(configId: string): ParsedConfigID {
-  const parts = configId.split('-');
+  const parts = configId.split("-");
   // ...
   return { semester: parts[0], academicYear: parseInt(parts[1], 10) };
 }
@@ -92,10 +97,13 @@ export function parseConfigID(configId: string): ParsedConfigID {
 ```typescript
 // src/features/config/infrastructure/schemas/config.schemas.ts
 ConfigID: v.pipe(
-  v.string('ConfigID ต้องเป็นข้อความ'),
-  v.nonEmpty('ConfigID ต้องไม่เป็นค่าว่าง'),
-  v.regex(/^[1-3]-\d{4}$/, 'ConfigID ต้องมีรูปแบบ "SEMESTER-YEAR" (เช่น "1-2567")')
-)
+  v.string("ConfigID ต้องเป็นข้อความ"),
+  v.nonEmpty("ConfigID ต้องไม่เป็นค่าว่าง"),
+  v.regex(
+    /^[1-3]-\d{4}$/,
+    'ConfigID ต้องมีรูปแบบ "SEMESTER-YEAR" (เช่น "1-2567")',
+  ),
+);
 ```
 
 ### Display Label (UI Only)
@@ -103,7 +111,7 @@ ConfigID: v.pipe(
 ```typescript
 // Converts "1-2567" → "1/2567" for Thai UI display
 export function generateConfigIDLabel(configId: string): string {
-  return configId.replace('-', '/');
+  return configId.replace("-", "/");
 }
 ```
 
@@ -114,39 +122,46 @@ export function generateConfigIDLabel(configId: string): string {
 ### Verification Script
 
 **Usage**: Check if migration is needed
+
 ```bash
 pnpm db:verify-configid
 ```
 
 **Output**:
+
 - ✅ Exit 0: All ConfigIDs canonical
 - ❌ Exit 1: Migration needed (shows details)
 
 ### Migration Script
 
 **Usage**: Automated migration to canonical format
+
 ```bash
 pnpm db:migrate-configid
 ```
 
 **Features**:
+
 - ✅ Idempotent (safe to re-run)
 - ✅ Create-then-delete strategy
 - ✅ Referential integrity checks
 - ✅ Detailed logging
 
 **Files**:
+
 - `scripts/verify-configid-migration.ts` (~340 lines)
 - `scripts/migrate-configid.ts` (~280 lines)
 
 ---
 
 ## 🧪 Verification
+
 ---
 
 ## 🧪 Verification
 
 ### Run All Tests
+
 ```bash
 # Unit tests
 pnpm test
@@ -162,6 +177,7 @@ pnpm tsc --noEmit --skipLibCheck
 ```
 
 ### Verify Database
+
 ```bash
 # Check if migration needed
 pnpm db:verify-configid
@@ -171,6 +187,7 @@ pnpm db:verify-configid
 ```
 
 ### E2E Smoke Tests
+
 ```bash
 # Local
 pnpm test:e2e
@@ -186,21 +203,25 @@ PLAYWRIGHT_BASE_URL=https://phrasongsa-timetable.vercel.app pnpm test:e2e
 ### VS Code Regex Search
 
 **Old slash format** (ConfigID):
+
 ```regex
 ["'`]\d+/\d{4}["'`]
 ```
 
-**Old SEMESTER_ prefix**:
+**Old SEMESTER\_ prefix**:
+
 ```regex
 SEMESTER_\d+_\d{4}
 ```
 
 **Old year-first format**:
+
 ```regex
 \d{4}-SEMESTER_\d+
 ```
 
 **Note**: These patterns should now only appear in:
+
 - Display label generation code (intentional)
 - Migration documentation (historical reference)
 - Comments explaining the migration
@@ -210,6 +231,7 @@ SEMESTER_\d+_\d{4}
 ## 🛡️ Prevention (Future-Proofing)
 
 ### ESLint Rule (Optional)
+
 ```javascript
 // .eslintrc.js
 rules: {
@@ -224,9 +246,10 @@ rules: {
 ```
 
 ### Database Constraint (Optional)
+
 ```sql
-ALTER TABLE table_config 
-ADD CONSTRAINT chk_configid_format 
+ALTER TABLE table_config
+ADD CONSTRAINT chk_configid_format
 CHECK (ConfigID REGEXP '^[1-3]-[0-9]{4}$');
 ```
 
@@ -293,17 +316,17 @@ CHECK (ConfigID REGEXP '^[1-3]-[0-9]{4}$');
 
 ## ⏱️ Estimated Timeline
 
-| Phase | Time | Risk |
-|-------|------|------|
-| Phase 1: Validation | 15 min | Low |
-| Phase 2: Routes | 30 min | Medium |
-| Phase 3: Actions | 30 min | Medium |
-| Phase 4: Repository | 15 min | Low |
-| Phase 5: Tests | 45 min | Low |
-| Phase 6: Database | 30 min | High |
-| Phase 7: Documentation | 15 min | Low |
-| Phase 8: Deploy | 30 min | Medium |
-| **Total** | **3-4 hours** | **Medium** |
+| Phase                  | Time          | Risk       |
+| ---------------------- | ------------- | ---------- |
+| Phase 1: Validation    | 15 min        | Low        |
+| Phase 2: Routes        | 30 min        | Medium     |
+| Phase 3: Actions       | 30 min        | Medium     |
+| Phase 4: Repository    | 15 min        | Low        |
+| Phase 5: Tests         | 45 min        | Low        |
+| Phase 6: Database      | 30 min        | High       |
+| Phase 7: Documentation | 15 min        | Low        |
+| Phase 8: Deploy        | 30 min        | Medium     |
+| **Total**              | **3-4 hours** | **Medium** |
 
 ---
 
@@ -326,4 +349,4 @@ CHECK (ConfigID REGEXP '^[1-3]-[0-9]{4}$');
 
 ---
 
-*Quick Ref v1.0 — 2025-01-27*
+_Quick Ref v1.0 — 2025-01-27_

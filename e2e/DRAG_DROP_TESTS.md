@@ -7,6 +7,7 @@ Comprehensive end-to-end tests for the @dnd-kit drag-and-drop functionality in t
 ## Architecture
 
 ### Technology Stack
+
 - **@dnd-kit/core**: Main drag-and-drop library (pointer & keyboard sensors)
 - **@dnd-kit/sortable**: Sortable list functionality for subject items and timeslot cells
 - **@dnd-kit/utilities**: CSS transforms and utilities
@@ -27,9 +28,11 @@ Teacher Arrange Page
 ## Test Categories
 
 ### TC-DND-001: Subject List to Timeslot
+
 **Purpose**: Verify dragging subjects from the subject list to empty timeslots
 
 **Tests**:
+
 1. **TC-DND-001-01**: Subject items are draggable
    - Verifies `[data-sortable-id]` attributes exist
    - Checks drag cursor on hover
@@ -51,6 +54,7 @@ Teacher Arrange Page
    - Drag overlay rendering
 
 **Expected Behavior**:
+
 - Subjects show drag cursor on hover
 - Click selection highlights subject with green border
 - Smooth drag animation with 10-step interpolation
@@ -60,9 +64,11 @@ Teacher Arrange Page
 ---
 
 ### TC-DND-002: Between Timeslots
+
 **Purpose**: Verify dragging subjects between existing timeslots (swap/move)
 
 **Tests**:
+
 1. **TC-DND-002-01**: Identify filled timeslots
    - Locates timeslots containing subjects
    - Checks for subject code/name text
@@ -80,6 +86,7 @@ Teacher Arrange Page
    - Confirms swap operation
 
 **Expected Behavior**:
+
 - Filled timeslots are draggable (unless locked)
 - Dragging between slots swaps subjects
 - Click-to-change mode provides alternative to drag
@@ -89,9 +96,11 @@ Teacher Arrange Page
 ---
 
 ### TC-DND-003: Conflict Detection
+
 **Purpose**: Verify error detection and prevention of invalid operations
 
 **Tests**:
+
 1. **TC-DND-003-01**: Detect error indicators
    - Finds error icons (ErrorIcon component)
    - Checks red borders/styling
@@ -108,6 +117,7 @@ Teacher Arrange Page
    - Checks error feedback shown
 
 **Expected Behavior**:
+
 - Conflicts detected before drop completes
 - Error icons appear on conflicted timeslots
 - Error messages explain conflict (teacher/room/class)
@@ -115,6 +125,7 @@ Teacher Arrange Page
 - Original state preserved
 
 **Conflict Types**:
+
 - Teacher already teaching at this time
 - Classroom already occupied
 - Class already has a subject scheduled
@@ -123,9 +134,11 @@ Teacher Arrange Page
 ---
 
 ### TC-DND-004: Lock State Behavior
+
 **Purpose**: Verify locked timeslots cannot be modified
 
 **Tests**:
+
 1. **TC-DND-004-01**: Identify locked timeslots
    - Finds HttpsIcon (lock indicator)
    - Checks locked styling
@@ -142,6 +155,7 @@ Teacher Arrange Page
    - No drag cursor shown
 
 **Expected Behavior**:
+
 - Lock icon displayed prominently
 - Locked slots have disabled state
 - Drop attempts rejected immediately
@@ -149,6 +163,7 @@ Teacher Arrange Page
 - Locked slots cannot be dragged
 
 **Lock Use Cases**:
+
 - School assemblies
 - Exam periods
 - Lunch breaks
@@ -158,9 +173,11 @@ Teacher Arrange Page
 ---
 
 ### TC-DND-005: Keyboard Accessibility
+
 **Purpose**: Verify full keyboard navigation support for accessibility
 
 **Tests**:
+
 1. **TC-DND-005-01**: Subject items have keyboard focus
    - Tab to focus subjects
    - Visual focus indicator
@@ -179,6 +196,7 @@ Teacher Arrange Page
    - Item returns to original position
 
 **Expected Behavior**:
+
 - All draggable items keyboard-focusable
 - Space bar activates drag mode
 - Arrow keys move drag overlay
@@ -187,6 +205,7 @@ Teacher Arrange Page
 - Escape key cancels and restores original state
 
 **Keyboard Commands**:
+
 - `Tab`: Move focus
 - `Space`: Activate/drop
 - `Arrow Keys`: Navigate during drag
@@ -196,9 +215,11 @@ Teacher Arrange Page
 ---
 
 ### TC-DND-006: Student Arrange Page
+
 **Purpose**: Verify drag-and-drop works on student arrangement page
 
 **Tests**:
+
 1. **TC-DND-006-01**: Student page drag functionality
    - Navigates to student arrange page
    - Verifies draggable elements present
@@ -210,6 +231,7 @@ Teacher Arrange Page
    - Tests drag with selected class context
 
 **Expected Behavior**:
+
 - Similar drag behavior to teacher page
 - Class selection filters available subjects
 - Drag operations scoped to selected class
@@ -218,9 +240,11 @@ Teacher Arrange Page
 ---
 
 ### TC-DND-007: Performance & Edge Cases
+
 **Purpose**: Stress test and edge case validation
 
 **Tests**:
+
 1. **TC-DND-007-01**: Multiple rapid drags
    - Performs 3+ consecutive drags quickly
    - Verifies no state corruption
@@ -238,6 +262,7 @@ Teacher Arrange Page
    - Verifies touch support on mobile
 
 **Expected Behavior**:
+
 - Smooth performance with rapid operations
 - No memory leaks or state corruption
 - Graceful handling of edge cases
@@ -255,10 +280,10 @@ Teacher Arrange Page
 await dragAndDrop(page, sourceLocator, targetLocator, config);
 
 // Drag by CSS selector
-await dragBySelector(page, '.subject-item:first', '.timeslot-cell:nth(5)');
+await dragBySelector(page, ".subject-item:first", ".timeslot-cell:nth(5)");
 
 // Keyboard-based drag
-await keyboardDrag(page, sourceLocator, 'down', 3);
+await keyboardDrag(page, sourceLocator, "down", 3);
 
 // Cancel drag with Escape
 await cancelDrag(page, sourceLocator);
@@ -319,22 +344,23 @@ const moved = await verifyDragCompleted(locator, beforePosition);
 
 ```typescript
 interface DragConfig {
-  steps?: number;           // Mouse movement steps (default: 10)
-  dragDelay?: number;       // Delay before drag starts (default: 200ms)
-  dropDelay?: number;       // Delay after drop (default: 300ms)
-  captureScreenshots?: boolean;  // Take screenshots (default: false)
-  screenshotDir?: string;   // Screenshot directory
+  steps?: number; // Mouse movement steps (default: 10)
+  dragDelay?: number; // Delay before drag starts (default: 200ms)
+  dropDelay?: number; // Delay after drop (default: 300ms)
+  captureScreenshots?: boolean; // Take screenshots (default: false)
+  screenshotDir?: string; // Screenshot directory
 }
 ```
 
 **Usage Example**:
+
 ```typescript
 await dragAndDrop(page, source, target, {
-  steps: 15,              // Smoother animation
-  dragDelay: 300,         // Wait longer before drag
-  dropDelay: 500,         // Wait longer after drop
+  steps: 15, // Smoother animation
+  dragDelay: 300, // Wait longer before drag
+  dropDelay: 500, // Wait longer after drop
   captureScreenshots: true,
-  screenshotDir: 'test-results/screenshots/custom'
+  screenshotDir: "test-results/screenshots/custom",
 });
 ```
 
@@ -352,6 +378,7 @@ Tests automatically capture screenshots at key points:
 **Screenshot locations**: `test-results/screenshots/drag-drop/`
 
 **Naming convention**:
+
 - `01-subject-items-draggable.png`
 - `02-subject-selected.png`
 - `03-before-drag.png`
@@ -376,7 +403,7 @@ Tests automatically capture screenshots at key points:
 ```typescript
 // Get comprehensive state
 const state = await getDragStateSnapshot(page);
-console.log('Drag State:', state);
+console.log("Drag State:", state);
 
 // Check element visibility
 await expect(sourceLocator).toBeVisible();
@@ -385,12 +412,12 @@ await expect(targetLocator).toBeVisible();
 // Verify bounding boxes
 const sourceBox = await sourceLocator.boundingBox();
 const targetBox = await targetLocator.boundingBox();
-console.log('Source:', sourceBox, 'Target:', targetBox);
+console.log("Source:", sourceBox, "Target:", targetBox);
 
 // Take debug screenshot
-await page.screenshot({ 
-  path: 'debug-screenshot.png', 
-  fullPage: true 
+await page.screenshot({
+  path: "debug-screenshot.png",
+  fullPage: true,
 });
 ```
 
@@ -399,24 +426,28 @@ await page.screenshot({
 ## Best Practices
 
 ### Test Organization
+
 1. Group related tests in describe blocks
 2. Use beforeEach for common setup
 3. Clean up state after tests if needed
 4. Use meaningful test names with TC codes
 
 ### Assertions
+
 1. Always verify element visibility before drag
 2. Check state snapshots before/after operations
 3. Validate error messages appear when expected
 4. Confirm drag visual feedback
 
 ### Performance
+
 1. Use `waitForDndReady()` only once per page load
 2. Reuse locators instead of re-querying
 3. Minimize screenshot captures in loops
 4. Use targeted selectors (data attributes)
 
 ### Accessibility
+
 1. Test keyboard navigation in addition to mouse
 2. Verify focus indicators
 3. Check ARIA attributes if present
@@ -427,11 +458,13 @@ await page.screenshot({
 ## Running Tests
 
 ### Full Drag-and-Drop Suite
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts
 ```
 
 ### Specific Category
+
 ```bash
 # Subject list tests only
 pnpm playwright test e2e/08-drag-and-drop.spec.ts -g "Subject List to Timeslot"
@@ -441,16 +474,19 @@ pnpm playwright test e2e/08-drag-and-drop.spec.ts -g "Conflict Detection"
 ```
 
 ### With UI Mode (Interactive)
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts --ui
 ```
 
 ### Debug Mode
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts --debug
 ```
 
 ### Headed Mode (See Browser)
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts --headed
 ```
@@ -464,14 +500,14 @@ pnpm playwright test e2e/08-drag-and-drop.spec.ts --headed
 ```yaml
 - name: Run Drag-and-Drop Tests
   run: pnpm playwright test e2e/08-drag-and-drop.spec.ts --reporter=html
-  
+
 - name: Upload Screenshots
   if: failure()
   uses: actions/upload-artifact@v3
   with:
     name: drag-drop-screenshots
     path: test-results/screenshots/drag-drop/
-    
+
 - name: Upload HTML Report
   if: always()
   uses: actions/upload-artifact@v3
@@ -485,6 +521,7 @@ pnpm playwright test e2e/08-drag-and-drop.spec.ts --headed
 ## Future Enhancements
 
 ### Planned Improvements
+
 - [ ] Touch/mobile drag testing
 - [ ] Multi-select drag (drag multiple subjects at once)
 - [ ] Drag preview customization tests
@@ -494,6 +531,7 @@ pnpm playwright test e2e/08-drag-and-drop.spec.ts --headed
 - [ ] Undo/redo functionality tests
 
 ### Known Limitations
+
 - Touch events may require device emulation
 - Some visual feedback timing-dependent
 - Mobile keyboard navigation differs from desktop
@@ -511,6 +549,7 @@ pnpm playwright test e2e/08-drag-and-drop.spec.ts --headed
 ## Support
 
 For issues or questions:
+
 1. Check screenshot captures in `test-results/screenshots/drag-drop/`
 2. Review Playwright trace: `pnpm playwright show-trace trace.zip`
 3. Check helper function logs in console output

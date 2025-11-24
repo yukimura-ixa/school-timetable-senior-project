@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Action Toolbar Component
- * 
+ *
  * MUI v7 toolbar for bulk actions on timetable.
  * Provides clear all, undo, and other batch operations.
- * 
+ *
  * @module ActionToolbar
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Paper,
   Stack,
@@ -18,43 +18,43 @@ import {
   Divider,
   Tooltip,
   Chip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   DeleteSweep as ClearAllIcon,
   Undo as UndoIcon,
   Redo as RedoIcon,
   ContentCopy as CopyIcon,
   Refresh as RefreshIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface ActionToolbarProps {
   /** Total scheduled subjects count */
   scheduledCount?: number;
-  
+
   /** Can undo */
   canUndo?: boolean;
-  
+
   /** Can redo */
   canRedo?: boolean;
-  
+
   /** Has any scheduled subjects */
   hasSchedules?: boolean;
-  
+
   /** Handler for clear all */
   onClearAll?: () => void;
-  
+
   /** Handler for undo */
   onUndo?: () => void;
-  
+
   /** Handler for redo */
   onRedo?: () => void;
-  
+
   /** Handler for copy from another day */
   onCopyDay?: () => void;
-  
+
   /** Handler for refresh */
   onRefresh?: () => void;
-  
+
   /** Disabled state */
   disabled?: boolean;
 }
@@ -83,7 +83,7 @@ export function ActionToolbar({
       setTimeout(() => setConfirmClear(false), 3000);
       return;
     }
-    
+
     onClearAll?.();
     setConfirmClear(false);
   };
@@ -94,22 +94,22 @@ export function ActionToolbar({
       sx={{
         p: 1.5,
         mb: 2,
-        bgcolor: 'grey.50',
-        border: '1px solid',
-        borderColor: 'divider',
+        bgcolor: "grey.50",
+        border: "1px solid",
+        borderColor: "divider",
       }}
     >
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
+        direction={{ xs: "column", sm: "row" }}
         spacing={2}
-        alignItems={{ xs: 'stretch', sm: 'center' }}
+        alignItems={{ xs: "stretch", sm: "center" }}
         justifyContent="space-between"
       >
         {/* Left: Info */}
         <Stack direction="row" spacing={1} alignItems="center">
           <Chip
             label={`จัดแล้ว ${scheduledCount} รายการ`}
-            color={scheduledCount > 0 ? 'primary' : 'default'}
+            color={scheduledCount > 0 ? "primary" : "default"}
             size="small"
             variant="outlined"
           />
@@ -185,19 +185,19 @@ export function ActionToolbar({
             <Tooltip
               title={
                 confirmClear
-                  ? 'คลิกอีกครั้งเพื่อยืนยันการลบทั้งหมด'
-                  : 'ลบตารางทั้งหมดของครูท่านนี้'
+                  ? "คลิกอีกครั้งเพื่อยืนยันการลบทั้งหมด"
+                  : "ลบตารางทั้งหมดของครูท่านนี้"
               }
             >
               <Button
                 size="small"
-                variant={confirmClear ? 'contained' : 'outlined'}
-                color={confirmClear ? 'error' : 'inherit'}
+                variant={confirmClear ? "contained" : "outlined"}
+                color={confirmClear ? "error" : "inherit"}
                 startIcon={<ClearAllIcon />}
                 onClick={handleClearAll}
                 disabled={!hasSchedules || disabled}
               >
-                {confirmClear ? 'ยืนยันลบทั้งหมด' : 'ล้างตาราง'}
+                {confirmClear ? "ยืนยันลบทั้งหมด" : "ล้างตาราง"}
               </Button>
             </Tooltip>
           )}

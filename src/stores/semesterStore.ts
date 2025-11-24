@@ -12,9 +12,13 @@ type SemesterState = {
   selectedSemester: string | null; // Format: "1-2567"
   academicYear: number | null;
   semester: number | null;
-  
+
   // Actions
-  setSemester: (configId: string, academicYear: number, semester: number) => void;
+  setSemester: (
+    configId: string,
+    academicYear: number,
+    semester: number,
+  ) => void;
   clearSemester: () => void;
 };
 
@@ -27,13 +31,19 @@ export const useSemesterStore = create<SemesterState>()(
       setSemester: (configId, academicYear, semester) =>
         setState({ selectedSemester: configId, academicYear, semester }),
       clearSemester: () =>
-        setState({ selectedSemester: null, academicYear: null, semester: null }),
+        setState({
+          selectedSemester: null,
+          academicYear: null,
+          semester: null,
+        }),
     }),
-    { name: "semester-selection" }
-  )
+    { name: "semester-selection" },
+  ),
 );
 
 // Expose for E2E (non-production) without global type augmentation to avoid build issues
-if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
-  (window as unknown as { __semesterStore?: typeof useSemesterStore }).__semesterStore = useSemesterStore;
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+  (
+    window as unknown as { __semesterStore?: typeof useSemesterStore }
+  ).__semesterStore = useSemesterStore;
 }

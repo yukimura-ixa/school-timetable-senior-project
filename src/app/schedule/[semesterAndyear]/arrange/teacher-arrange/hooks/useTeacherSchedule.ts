@@ -1,20 +1,20 @@
 /**
  * useTeacherSchedule Hook
- * 
+ *
  * Manages data fetching for teacher schedule arrangement with:
  * - Teacher data
  * - Available responsibilities (subjects)
  * - Timeslots configuration
  * - Existing class schedules
  * - Conflict detection
- * 
+ *
  * Uses Server Actions (Clean Architecture) with SWR for client-side caching.
  * Applies type transformations at API boundaries for type safety.
- * 
+ *
  * @module useTeacherSchedule
  */
 
-import { useMemo } from 'react';
+import { useMemo } from "react";
 
 // ============================================================================
 // TYPE GUARDS FOR SERVER ACTION RESPONSES
@@ -23,31 +23,33 @@ import { useMemo } from 'react';
 /**
  * Type guard for successful Server Action response
  */
-function isSuccessResponse(result: unknown): result is { success: true; data: unknown } {
+function isSuccessResponse(
+  result: unknown,
+): result is { success: true; data: unknown } {
   return (
-    typeof result === 'object' &&
+    typeof result === "object" &&
     result !== null &&
-    'success' in result &&
+    "success" in result &&
     result.success === true &&
-    'data' in result
+    "data" in result
   );
 }
-import useSWR from 'swr';
-import type { 
-  timeslot, 
-  class_schedule, 
-  subject, 
-  room, 
+import useSWR from "swr";
+import type {
+  timeslot,
+  class_schedule,
+  subject,
+  room,
   teacher,
-  teachers_responsibility 
-} from '@/prisma/generated/client';
+  teachers_responsibility,
+} from "@/prisma/generated/client";
 
 // Server Actions
-import { getTeacherScheduleAction } from '@/features/arrange/application/actions/arrange.actions';
-import { getConflictsAction } from '@/features/class/application/actions/class.actions';
-import { getTeachersAction } from '@/features/teacher/application/actions/teacher.actions';
-import { getAvailableRespsAction } from '@/features/assign/application/actions/assign.actions';
-import { getTimeslotsByTermAction } from '@/features/timeslot/application/actions/timeslot.actions';
+import { getTeacherScheduleAction } from "@/features/arrange/application/actions/arrange.actions";
+import { getConflictsAction } from "@/features/class/application/actions/class.actions";
+import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+import { getAvailableRespsAction } from "@/features/assign/application/actions/assign.actions";
+import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 
 // Type definition for class schedule with relations
 export type ClassScheduleWithRelations = class_schedule & {
@@ -73,23 +75,23 @@ export interface UseTeacherScheduleParams {
 export interface UseTeacherScheduleResult {
   // Teacher data
   teacher: teacher | null;
-  
+
   // Subject responsibilities
   responsibilities: teachers_responsibility[];
-  
+
   // Timeslots configuration
   timeslots: timeslot[];
-  
+
   // Existing schedules
   schedules: ClassScheduleWithRelations[];
-  
+
   // Conflict data (schedules for the selected grade)
   conflicts: ConflictSchedule[] | null;
-  
+
   // Loading states
   isLoading: boolean;
   isValidating: boolean;
-  
+
   // Error states
   hasError: boolean;
   errors: {
@@ -99,7 +101,7 @@ export interface UseTeacherScheduleResult {
     schedules?: Error;
     conflicts?: Error;
   };
-  
+
   // Refetch functions
   refetch: {
     teacher: () => void;
@@ -113,10 +115,10 @@ export interface UseTeacherScheduleResult {
 
 /**
  * Hook for fetching all teacher schedule arrangement data
- * 
+ *
  * @param params - Teacher ID, academic year, semester
  * @returns Teacher schedule data with loading/error states
- * 
+ *
  * @example
  * const { teacher, responsibilities, timeslots, schedules, isLoading } = useTeacherSchedule({
  *   teacherID: '123',
@@ -130,7 +132,7 @@ export function useTeacherSchedule({
   semester,
 }: UseTeacherScheduleParams): UseTeacherScheduleResult {
   // Convert semester to enum format
-  const semesterEnum = `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2';
+  const semesterEnum = `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2";
   const academicYearNum = parseInt(academicYear);
   const teacherIDNum = teacherID ? parseInt(teacherID) : null;
 
@@ -141,7 +143,7 @@ export function useTeacherSchedule({
     teacherID ? `teacher-${teacherID}` : null,
     async () => {
       if (!teacherID) return null;
-      
+
       const result = await getTeachersAction();
       if (!result || !result.success || !result.data) {
         return null;
@@ -151,7 +153,7 @@ export function useTeacherSchedule({
       const foundTeacher = teachers.find((t) => t.TeacherID === teacherIDNum);
       return foundTeacher || null;
     },
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   // ============================================================================
@@ -176,7 +178,7 @@ export function useTeacherSchedule({
 
       return result.data as teachers_responsibility[];
     },
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   // ============================================================================
@@ -200,7 +202,7 @@ export function useTeacherSchedule({
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       return result.data as timeslot[];
     },
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   // ============================================================================
@@ -223,7 +225,7 @@ export function useTeacherSchedule({
 
       return result.data as ClassScheduleWithRelations[];
     },
-    { revalidateOnFocus: false, revalidateOnMount: true }
+    { revalidateOnFocus: false, revalidateOnMount: true },
   );
 
   // ============================================================================
@@ -246,13 +248,13 @@ export function useTeacherSchedule({
 
       return result.data as ConflictSchedule[];
     },
-    { revalidateOnFocus: false }
+    { revalidateOnFocus: false },
   );
 
   // ============================================================================
   // COMPUTED STATES
   // ============================================================================
-  
+
   const isLoading = useMemo(() => {
     return (
       !teacherQuery.data &&
@@ -326,7 +328,7 @@ export function useTeacherSchedule({
   // ============================================================================
   // REFETCH FUNCTIONS
   // ============================================================================
-  
+
   const refetch = useMemo(() => {
     return {
       teacher: () => void teacherQuery.mutate(),
@@ -353,7 +355,7 @@ export function useTeacherSchedule({
   // ============================================================================
   // RETURN
   // ============================================================================
-  
+
   return {
     teacher: teacherQuery.data ?? null,
     responsibilities: responsibilitiesQuery.data ?? [],

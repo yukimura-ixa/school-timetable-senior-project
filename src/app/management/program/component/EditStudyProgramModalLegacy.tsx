@@ -3,9 +3,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { program, subject } from '@/prisma/generated/client';;
+import type { program, subject } from "@/prisma/generated/client";
 import { updateProgramAction } from "@/features/program/application/actions/program.actions";
-
 
 type Props = {
   data: any;
@@ -13,11 +12,7 @@ type Props = {
   mutate: any;
 };
 
-function EditStudyProgramModal({
-  data,
-  closeModal,
-  mutate
-}: Props) {
+function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
   const [subject, setSubject] = useState<subject[]>([]);
   const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
   const [programData, setProgramData] = useState(data);
@@ -30,7 +25,7 @@ function EditStudyProgramModal({
   const searchName = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
     const res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name)
+      `${item.SubjectCode} ${item.SubjectName}`.match(name),
     );
     setSubject(res);
   };
@@ -43,7 +38,7 @@ function EditStudyProgramModal({
   const searchSubject = (name: string) => {
     //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
     const res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} - ${item.SubjectName}`.match(name)
+      `${item.SubjectCode} - ${item.SubjectName}`.match(name),
     );
     setSubject(res);
   };
@@ -54,13 +49,13 @@ function EditStudyProgramModal({
   };
   const classRoomHandleChange = (value: any) => {
     const removeDulpItem = programData.gradelevel.filter(
-      (item: any) => item.GradeID != value.GradeID
+      (item: any) => item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setProgramData(() => ({
       ...programData,
       gradelevel:
         programData.gradelevel.filter(
-          (item: any) => item.GradeID === value.GradeID //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+          (item: any) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...programData.gradelevel, value]
           : [...removeDulpItem],
@@ -78,22 +73,19 @@ function EditStudyProgramModal({
       validateData();
     };
     return validate();
-  }, [
-    programData.ProgramName,
-    programData.gradelevel,
-    programData.subject,
-  ]);
+  }, [programData.ProgramName, programData.gradelevel, programData.subject]);
   const editProgram = async (program: program) => {
     try {
       const result = await updateProgramAction({ programs: [program] });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       mutate();
     } catch (error: any) {
       console.error("Failed to update program:", error);
@@ -101,11 +93,12 @@ function EditStudyProgramModal({
     }
   };
   const editItemAndCloseModal = () => {
-    const cond = isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
+    const cond =
+      isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
     if (cond) {
       validateData();
     } else {
-      editProgram(data)
+      editProgram(data);
       closeModal();
       mutate();
       console.log(programData);
@@ -114,7 +107,11 @@ function EditStudyProgramModal({
   const removeSubjectFromList = (index: number) => {
     setProgramData(() => ({
       ...programData,
-      subject: [...programData.subject.filter((_item: any, ind: number) => ind != index)],
+      subject: [
+        ...programData.subject.filter(
+          (_item: any, ind: number) => ind != index,
+        ),
+      ],
     }));
   };
   const handleAddSubjectList = (subject: subject) => {
@@ -140,15 +137,15 @@ function EditStudyProgramModal({
           </div>
           <div className="flex flex-col gap-5 p-4 w-full h-auto overflow-y-scroll border border-[#EDEEF3]">
             <StudyProgramLabel
-                required={false}
-                title={programData.ProgramName}
-                handleChange={(e: any) => {
-                  const value: string = e.target.value;
-                  setProgramData(() => ({
-                    ...programData,
-                    ProgramName : value
-                  }));
-                }}
+              required={false}
+              title={programData.ProgramName}
+              handleChange={(e: any) => {
+                const value: string = e.target.value;
+                setProgramData(() => ({
+                  ...programData,
+                  ProgramName: value,
+                }));
+              }}
             />
             <SelectSubjects
               subjectSelected={programData.subject}

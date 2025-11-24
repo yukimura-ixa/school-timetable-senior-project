@@ -53,22 +53,26 @@ function TimeSlot({ timeSlotData }: Props) {
               เวลา
             </span>
           </td>
-          {timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map((item) => (
-            <Fragment key={`time-${item.StartTime}${item.EndTime}`}>
-              <td
-                style={{ width: `${1062 / timeSlotData.SlotAmount.length - 10}px` }}
-                className="flex grow flex-col items-center justify-center rounded bg-gray-100 py-[10px] text-xs text-gray-600 min-[1440px]:flex-row"
-              >
-                <p className="flex w-full items-center justify-center">
-                  {formatTime(item.StartTime)}
-                </p>
-                <p className="flex items-center justify-center">-</p>
-                <p className="flex w-full items-center justify-center">
-                  {formatTime(item.EndTime)}
-                </p>
-              </td>
-            </Fragment>
-          ))}
+          {timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map(
+            (item) => (
+              <Fragment key={`time-${item.StartTime}${item.EndTime}`}>
+                <td
+                  style={{
+                    width: `${1062 / timeSlotData.SlotAmount.length - 10}px`,
+                  }}
+                  className="flex grow flex-col items-center justify-center rounded bg-gray-100 py-[10px] text-xs text-gray-600 min-[1440px]:flex-row"
+                >
+                  <p className="flex w-full items-center justify-center">
+                    {formatTime(item.StartTime)}
+                  </p>
+                  <p className="flex items-center justify-center">-</p>
+                  <p className="flex w-full items-center justify-center">
+                    {formatTime(item.EndTime)}
+                  </p>
+                </td>
+              </Fragment>
+            ),
+          )}
         </tr>
         {timeSlotData.DayOfWeek.map((day) => (
           <Fragment key={`day${day.Day}`}>
@@ -81,49 +85,55 @@ function TimeSlot({ timeSlotData }: Props) {
                   <p style={{ color: day.TextColor }}>{day.Day}</p>
                 </span>
               </td>
-              {timeSlotData.AllData.filter((item) => dayOfWeekThai[item.DayOfWeek] === day.Day).map(
-                (data) => {
-                  const breakSlot = isBreakSlot(data.Breaktime);
-                  const subject = data.subject;
-                  const subjectCode = subject?.SubjectCode ?? "";
-                  const isLocked = Boolean(subject?.IsLocked);
-                  const grade = formatGrade(subject?.GradeID);
-                  const roomName = subject?.room?.RoomName ?? "";
+              {timeSlotData.AllData.filter(
+                (item) => dayOfWeekThai[item.DayOfWeek] === day.Day,
+              ).map((data) => {
+                const breakSlot = isBreakSlot(data.Breaktime);
+                const subject = data.subject;
+                const subjectCode = subject?.SubjectCode ?? "";
+                const isLocked = Boolean(subject?.IsLocked);
+                const grade = formatGrade(subject?.GradeID);
+                const roomName = subject?.room?.RoomName ?? "";
 
-                  return (
-                    <Fragment key={`slot-no${data.TimeslotID}`}>
-                      <td
-                        style={{
-                          width: `${1062 / timeSlotData.SlotAmount.length - 10}px`,
-                          backgroundColor: breakSlot ? "#f3f4f6" : "white",
-                        }}
-                        className="grid h-[76px] cursor-default items-center justify-center rounded border border-[#ABBAC1] text-center text-xs font-light"
-                      >
-                        {breakSlot ? (
-                          <p className="mt-4">พักกลางวัน</p>
-                        ) : (
-                          <span className="flex flex-col items-center gap-[2px] text-xs">
-                            {subjectCode && (
-                              <p
-                                className="text-sm font-bold"
-                                style={{ fontSize: subjectCode.length > 8 ? 12 : 14 }}
-                              >
-                                {subjectCode}
-                              </p>
-                            )}
-                            {!isLocked && grade && <p className="text-sm">{grade}</p>}
-                            {roomName && (
-                              <p className="text-xs">
-                                {roomName.length > 9 ? `${roomName.substring(0, 9)}...` : roomName}
-                              </p>
-                            )}
-                          </span>
-                        )}
-                      </td>
-                    </Fragment>
-                  );
-                },
-              )}
+                return (
+                  <Fragment key={`slot-no${data.TimeslotID}`}>
+                    <td
+                      style={{
+                        width: `${1062 / timeSlotData.SlotAmount.length - 10}px`,
+                        backgroundColor: breakSlot ? "#f3f4f6" : "white",
+                      }}
+                      className="grid h-[76px] cursor-default items-center justify-center rounded border border-[#ABBAC1] text-center text-xs font-light"
+                    >
+                      {breakSlot ? (
+                        <p className="mt-4">พักกลางวัน</p>
+                      ) : (
+                        <span className="flex flex-col items-center gap-[2px] text-xs">
+                          {subjectCode && (
+                            <p
+                              className="text-sm font-bold"
+                              style={{
+                                fontSize: subjectCode.length > 8 ? 12 : 14,
+                              }}
+                            >
+                              {subjectCode}
+                            </p>
+                          )}
+                          {!isLocked && grade && (
+                            <p className="text-sm">{grade}</p>
+                          )}
+                          {roomName && (
+                            <p className="text-xs">
+                              {roomName.length > 9
+                                ? `${roomName.substring(0, 9)}...`
+                                : roomName}
+                            </p>
+                          )}
+                        </span>
+                      )}
+                    </td>
+                  </Fragment>
+                );
+              })}
             </tr>
           </Fragment>
         ))}

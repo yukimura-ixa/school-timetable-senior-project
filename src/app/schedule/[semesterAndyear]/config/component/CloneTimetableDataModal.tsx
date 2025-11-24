@@ -10,7 +10,10 @@ import useSWR from "swr";
 import { CircularProgress } from "@mui/material";
 
 // Server Actions
-import { getAllConfigsAction, copyConfigAction } from "@/features/config/application/actions/config.actions";
+import {
+  getAllConfigsAction,
+  copyConfigAction,
+} from "@/features/config/application/actions/config.actions";
 
 import type { ModalCloseHandler } from "@/types/events";
 
@@ -100,9 +103,10 @@ function CloneTimetableDataModal({
       });
 
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
 
@@ -110,7 +114,10 @@ function CloneTimetableDataModal({
       mutate();
     } catch (error: any) {
       console.log(error);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการเรียกข้อมูล: " + (error.message || "Unknown error"), { variant: "error" });
+      enqueueSnackbar(
+        "เกิดข้อผิดพลาดในการเรียกข้อมูล: " + (error.message || "Unknown error"),
+        { variant: "error" },
+      );
     } finally {
       setIsCopying(false);
     }
@@ -145,7 +152,11 @@ function CloneTimetableDataModal({
                   ) : (
                     <Dropdown
                       data={tableConfig.data ?? []}
-                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                      renderItem={({
+                        data,
+                      }: {
+                        data: unknown;
+                      }): JSX.Element => {
                         const item = data as TableConfigItem;
                         return item.ConfigID !== currentTime ? (
                           <li className="w-full text-sm">{item.ConfigID}</li>

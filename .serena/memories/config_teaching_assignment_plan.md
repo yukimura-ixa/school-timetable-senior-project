@@ -19,6 +19,7 @@ This document covers TWO interconnected systems that manage the foundation of th
 **Location:** `src/app/dashboard/[semesterAndyear]/`
 
 **Pages:**
+
 ```
 dashboard/[semesterAndyear]/
 ├── page.tsx                    # Dashboard home (analytics)
@@ -39,9 +40,11 @@ dashboard/[semesterAndyear]/
 ### Features Currently Implemented
 
 #### 1. Timeslot Configuration (`all-timeslot/`)
+
 **Purpose:** Configure daily schedule structure (periods, breaks, times)
 
 **Current Features:**
+
 - ✅ View all timeslots in table format
 - ✅ Display by day (MON-FRI)
 - ✅ Show period numbers and times
@@ -52,19 +55,21 @@ dashboard/[semesterAndyear]/
 - ⚠️ Mixed Tailwind + inline styles
 
 **Data Model:**
+
 ```typescript
 interface Timeslot {
-  TimeslotID: string;        // "1-2567-MON1"
-  ConfigID: string;          // "1-2567"
-  DayOfWeek: 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI';
-  PeriodNumber: number;      // 1-8
-  StartTime: Date;           // "08:00:00"
-  EndTime: Date;             // "09:00:00"
-  Breaktime: 'NONE' | 'BREAK_JUNIOR' | 'BREAK_SENIOR' | 'BREAK_BOTH';
+  TimeslotID: string; // "1-2567-MON1"
+  ConfigID: string; // "1-2567"
+  DayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI";
+  PeriodNumber: number; // 1-8
+  StartTime: Date; // "08:00:00"
+  EndTime: Date; // "09:00:00"
+  Breaktime: "NONE" | "BREAK_JUNIOR" | "BREAK_SENIOR" | "BREAK_BOTH";
 }
 ```
 
 #### 2. Program Configuration (`all-program/`)
+
 **Purpose:** Manage academic programs (หลักสูตร)
 
 **Status:** ⚠️ Implementation unclear, may be incomplete
@@ -72,18 +77,19 @@ interface Timeslot {
 ### Issues & Technical Debt
 
 #### Architecture Issues
+
 1. **Legacy Fetcher Pattern**
+
    ```typescript
    // ❌ OLD: Using axios fetcher
    const fetchTimeSlot = useSWR(
      `/timeslot?AcademicYear=${year}&Semester=SEMESTER_${semester}`,
-     fetcher
+     fetcher,
    );
-   
+
    // ✅ NEW: Should use Server Actions
-   const { data } = useSWR(
-     ['timeslots', configId],
-     () => getTimeslotsByTermAction({ configId })
+   const { data } = useSWR(["timeslots", configId], () =>
+     getTimeslotsByTermAction({ configId }),
    );
    ```
 
@@ -107,13 +113,16 @@ interface Timeslot {
 #### Phase 1: Modernize Timeslot Configuration (3-4 hours)
 
 **Goals:**
+
 - Migrate to Server Actions
 - Add CRUD operations (Create, Update, Delete)
 - Use MUI v7 DataGrid
 - Improve UX with dialogs/forms
 
 **New Features:**
+
 1. **Timeslot Editor Dialog**
+
    ```tsx
    <Dialog open={editDialog}>
      <DialogTitle>แก้ไขช่วงเวลา</DialogTitle>
@@ -134,7 +143,9 @@ interface Timeslot {
      </DialogContent>
      <DialogActions>
        <Button onClick={onCancel}>ยกเลิก</Button>
-       <Button onClick={onSave} variant="contained">บันทึก</Button>
+       <Button onClick={onSave} variant="contained">
+         บันทึก
+       </Button>
      </DialogActions>
    </Dialog>
    ```
@@ -150,37 +161,38 @@ interface Timeslot {
    - Break times don't overlap with classes
 
 **Server Actions to Add:**
+
 ```typescript
 // src/features/timeslot/application/actions/timeslot.actions.ts
 
 export async function createTimeslotAction(
-  params: CreateTimeslotInput
+  params: CreateTimeslotInput,
 ): Promise<ActionResult<timeslot>>;
 
 export async function updateTimeslotAction(
-  params: UpdateTimeslotInput
+  params: UpdateTimeslotInput,
 ): Promise<ActionResult<timeslot>>;
 
-export async function deleteTimeslotAction(
-  params: { timeslotId: string }
-): Promise<ActionResult<void>>;
+export async function deleteTimeslotAction(params: {
+  timeslotId: string;
+}): Promise<ActionResult<void>>;
 
-export async function copyTimeslotsFromTermAction(
-  params: { sourceConfigId: string; targetConfigId: string }
-): Promise<ActionResult<timeslot[]>>;
+export async function copyTimeslotsFromTermAction(params: {
+  sourceConfigId: string;
+  targetConfigId: string;
+}): Promise<ActionResult<timeslot[]>>;
 
-export async function generateStandardScheduleAction(
-  params: {
-    configId: string;
-    periodsPerDay: number;
-    startTime: string;
-    periodDuration: number; // minutes
-    breakPeriods: number[]; // [4, 8]
-  }
-): Promise<ActionResult<timeslot[]>>;
+export async function generateStandardScheduleAction(params: {
+  configId: string;
+  periodsPerDay: number;
+  startTime: string;
+  periodDuration: number; // minutes
+  breakPeriods: number[]; // [4, 8]
+}): Promise<ActionResult<timeslot[]>>;
 ```
 
 **UI Components:**
+
 ```
 dashboard/[semesterAndyear]/all-timeslot/
 ├── page.tsx                          # Main page (refactored)
@@ -196,11 +208,13 @@ dashboard/[semesterAndyear]/all-timeslot/
 #### Phase 2: Program Configuration (2-3 hours)
 
 **Analyze Current State:**
+
 - Determine if `all-program/` is implemented or stub
 - Document current functionality
 - Identify missing features
 
 **Expected Features:**
+
 1. View all programs for semester
 2. Add/edit program details
 3. Configure program settings
@@ -213,6 +227,7 @@ dashboard/[semesterAndyear]/all-timeslot/
 **Location:** `src/app/management/program/`
 
 **Structure:**
+
 ```
 management/program/
 ├── page.tsx                          # Program list (ม.1-6)
@@ -234,23 +249,26 @@ management/program/
 ### Features Currently Implemented
 
 #### 1. Program Management
+
 **Purpose:** Define academic programs (หลักสูตร) for each grade
 
 **Current Features:**
+
 - ✅ List programs by year (ม.1-6)
 - ✅ Add/edit/delete programs
 - ✅ Program details (name, year)
 - ⚠️ Basic UI, not using MUI v7
 
 **Data Model:**
+
 ```typescript
 interface StudyProgram {
   ProgramID: number;
-  ProgramName: string;        // "แผนการเรียนวิทย์-คณิต"
-  Year: number;               // 1-6 (ม.1-6)
-  AcademicYear: string;       // "2567"
-  Semester: 'SEMESTER_1' | 'SEMESTER_2' | 'SEMESTER_3';
-  
+  ProgramName: string; // "แผนการเรียนวิทย์-คณิต"
+  Year: number; // 1-6 (ม.1-6)
+  AcademicYear: string; // "2567"
+  Semester: "SEMESTER_1" | "SEMESTER_2" | "SEMESTER_3";
+
   // Relations
   program_subject: ProgramSubject[];
   class_config: ClassConfig[];
@@ -258,11 +276,13 @@ interface StudyProgram {
 ```
 
 #### 2. Subject Assignment to Programs
+
 **Purpose:** Assign subjects to each program with credit hours
 
 **Location:** `management/program/[programId]/component/ProgramSubjectAssignmentPage.tsx`
 
 **Current Features:**
+
 - ✅ View all available subjects
 - ✅ Select subjects for program
 - ✅ Configure credits (min/max)
@@ -271,33 +291,35 @@ interface StudyProgram {
 - ⚠️ Uses MUI v5/v6 components (needs v7 migration)
 
 **Data Model:**
+
 ```typescript
 interface ProgramSubject {
   ProgramID: number;
   SubjectCode: string;
-  MinCredits: number;         // Minimum required credits
-  MaxCredits: number;         // Maximum allowed credits
-  IsMandatory: boolean;       // Required vs elective
-  SortOrder: number;          // Display order
-  
+  MinCredits: number; // Minimum required credits
+  MaxCredits: number; // Maximum allowed credits
+  IsMandatory: boolean; // Required vs elective
+  SortOrder: number; // Display order
+
   // Relations
   subject: Subject;
 }
 
 interface Subject {
-  SubjectCode: string;        // "ENG101"
-  SubjectName: string;        // "English Communication"
-  Category: 'CORE' | 'ADDITIONAL' | 'ACTIVITY';
-  Credit: string;             // "1.0"
+  SubjectCode: string; // "ENG101"
+  SubjectName: string; // "English Communication"
+  Category: "CORE" | "ADDITIONAL" | "ACTIVITY";
+  Credit: string; // "1.0"
 }
 ```
 
 **MOE Validation:**
+
 ```typescript
 interface MoeValidation {
   isValid: boolean;
-  errors?: string[];          // Critical issues
-  warnings?: string[];        // Recommendations
+  errors?: string[]; // Critical issues
+  warnings?: string[]; // Recommendations
 }
 
 // Example validation rules:
@@ -310,25 +332,31 @@ interface MoeValidation {
 ### Issues & Technical Debt
 
 #### 1. UI Inconsistency
+
 - Program list page uses basic Tailwind
 - Assignment page uses older MUI components
 - No unified design system
 
 #### 2. Workflow Complexity
-**Current:** 
+
+**Current:**
+
 1. Create program → 2. Navigate to program details → 3. Assign subjects
 
 **Better:**
+
 1. Create program with inline subject selection
 2. Wizard-style flow
 
 #### 3. Limited Features
+
 - ❌ No bulk assignment (copy from previous year)
 - ❌ No program templates
 - ❌ No subject grouping/categories view
 - ❌ No credit summary visualization
 
 #### 4. Type Safety
+
 - Uses PascalCase types (legacy)
 - Some `any` types in validation
 - Needs migration to strict types
@@ -338,6 +366,7 @@ interface MoeValidation {
 #### Phase 1: Program Management Modernization (3-4 hours)
 
 **Goals:**
+
 - Migrate to MUI v7
 - Add wizard for program creation
 - Improve subject assignment UX
@@ -345,6 +374,7 @@ interface MoeValidation {
 **New Components:**
 
 1. **ProgramWizard.tsx** (Multi-step form)
+
    ```tsx
    <Stepper activeStep={step}>
      <Step key="basic">
@@ -354,14 +384,14 @@ interface MoeValidation {
          <Select label="ระดับชั้น" />
        </StepContent>
      </Step>
-     
+
      <Step key="subjects">
        <StepLabel>เลือกวิชา</StepLabel>
        <StepContent>
          <SubjectSelectionGrid />
        </StepContent>
      </Step>
-     
+
      <Step key="review">
        <StepLabel>ตรวจสอบ</StepLabel>
        <StepContent>
@@ -373,31 +403,30 @@ interface MoeValidation {
    ```
 
 2. **SubjectSelectionGrid.tsx** (Enhanced selection)
+
    ```tsx
    <DataGrid
      rows={subjects}
      columns={[
-       { field: 'SubjectCode', headerName: 'รหัส' },
-       { field: 'SubjectName', headerName: 'ชื่อวิชา' },
-       { field: 'Category', headerName: 'ประเภท' },
-       { 
-         field: 'selected', 
-         headerName: 'เลือก',
-         renderCell: (params) => (
-           <Checkbox checked={params.value} />
-         )
+       { field: "SubjectCode", headerName: "รหัส" },
+       { field: "SubjectName", headerName: "ชื่อวิชา" },
+       { field: "Category", headerName: "ประเภท" },
+       {
+         field: "selected",
+         headerName: "เลือก",
+         renderCell: (params) => <Checkbox checked={params.value} />,
        },
        {
-         field: 'credits',
-         headerName: 'หน่วยกิต',
+         field: "credits",
+         headerName: "หน่วยกิต",
          renderCell: (params) => (
            <TextField
              type="number"
              size="small"
              disabled={!params.row.selected}
            />
-         )
-       }
+         ),
+       },
      ]}
      checkboxSelection
      groupBy="Category"
@@ -409,34 +438,34 @@ interface MoeValidation {
    <Card>
      <CardContent>
        <Typography variant="h6">สรุปหน่วยกิต</Typography>
-       
+
        <Stack spacing={2}>
          <Box>
            <Typography>วิชาพื้นฐาน (Core)</Typography>
-           <LinearProgress 
-             variant="determinate" 
+           <LinearProgress
+             variant="determinate"
              value={(coreCredits / 20) * 100}
            />
            <Typography variant="caption">
              {coreCredits} / 20 หน่วยกิต (ขั้นต่ำ)
            </Typography>
          </Box>
-         
+
          <Box>
            <Typography>วิชาเพิ่มเติม (Additional)</Typography>
-           <LinearProgress 
-             variant="determinate" 
+           <LinearProgress
+             variant="determinate"
              value={(additionalCredits / 10) * 100}
            />
            <Typography variant="caption">
              {additionalCredits} / 10 หน่วยกิต (ขั้นต่ำ)
            </Typography>
          </Box>
-         
+
          <Box>
            <Typography>กิจกรรม (Activity)</Typography>
-           <LinearProgress 
-             variant="determinate" 
+           <LinearProgress
+             variant="determinate"
              value={(activityCredits / 1) * 100}
            />
            <Typography variant="caption">
@@ -444,12 +473,12 @@ interface MoeValidation {
            </Typography>
          </Box>
        </Stack>
-       
+
        <Divider sx={{ my: 2 }} />
-       
-       <Alert severity={totalCredits <= 50 ? 'success' : 'error'}>
+
+       <Alert severity={totalCredits <= 50 ? "success" : "error"}>
          รวมทั้งหมด: {totalCredits} หน่วยกิต
-         {totalCredits > 50 && ' (เกินกว่าที่กำหนด 50 หน่วยกิต)'}
+         {totalCredits > 50 && " (เกินกว่าที่กำหนด 50 หน่วยกิต)"}
        </Alert>
      </CardContent>
    </Card>
@@ -460,6 +489,7 @@ interface MoeValidation {
 **New Features:**
 
 1. **Copy Program from Previous Year**
+
    ```typescript
    export async function copyProgramAction(params: {
      sourceProgramId: number;
@@ -469,6 +499,7 @@ interface MoeValidation {
    ```
 
 2. **Program Templates**
+
    ```typescript
    // Predefined templates
    const PROGRAM_TEMPLATES = {
@@ -504,6 +535,7 @@ Timetable Arrangement (จัดตารางเรียน)
 ```
 
 **New Flow:**
+
 1. Admin creates program with subjects
 2. System suggests teacher assignments based on:
    - Teacher qualifications
@@ -515,16 +547,19 @@ Timetable Arrangement (จัดตารางเรียน)
 ## Implementation Priority
 
 ### High Priority (P0)
+
 1. ✅ **Timeslot CRUD Operations** - Essential for timetable setup
 2. ✅ **Program Subject Assignment** - Core feature, needs polish
 3. ⏳ **MOE Validation Improvements** - Ensure compliance
 
 ### Medium Priority (P1)
+
 1. ⏳ **Program Wizard** - Better UX
 2. ⏳ **Credit Summary Visualization** - Helpful for admins
 3. ⏳ **Bulk Operations** - Time saver
 
 ### Low Priority (P2)
+
 1. ⏳ **Program Templates** - Nice to have
 2. ⏳ **Subject Recommendations** - AI-powered feature
 3. ⏳ **Advanced Reporting** - Analytics
@@ -532,6 +567,7 @@ Timetable Arrangement (จัดตารางเรียน)
 ## Recommended Implementation Order
 
 ### Session 1: Timeslot Configuration (3-4 hours)
+
 1. Create Server Actions for CRUD
 2. Build TimeslotDataGrid component
 3. Add TimeslotEditorDialog
@@ -539,6 +575,7 @@ Timetable Arrangement (จัดตารางเรียน)
 5. Test
 
 ### Session 2: Program Management (3-4 hours)
+
 1. Migrate to MUI v7
 2. Create ProgramWizard
 3. Enhance SubjectSelectionGrid
@@ -546,12 +583,14 @@ Timetable Arrangement (จัดตารางเรียน)
 5. Test
 
 ### Session 3: Bulk Operations (2-3 hours)
+
 1. Copy from previous term
 2. Program templates
 3. Subject recommendations
 4. Test
 
 ### Session 4: Polish & Integration (1-2 hours)
+
 1. Responsive design
 2. Accessibility
 3. Documentation
@@ -562,6 +601,7 @@ Timetable Arrangement (จัดตารางเรียน)
 ## Success Metrics
 
 ### Must Have
+
 - ✅ Full CRUD for timeslots
 - ✅ Program wizard functional
 - ✅ MOE validation passing
@@ -570,12 +610,14 @@ Timetable Arrangement (จัดตารางเรียน)
 - ✅ Mobile responsive
 
 ### Should Have
+
 - ✅ Bulk operations
 - ✅ Credit visualization
 - ✅ Copy from previous year
 - ✅ Validation improvements
 
 ### Nice to Have
+
 - ⏳ Program templates
 - ⏳ AI recommendations
 - ⏳ Advanced analytics

@@ -1,9 +1,0 @@
-
-> school-timetable@2.0.0 build B:\Dev\school-timetable-senior-project
-> next build
-
-   โ–ฒ Next.js 16.0.3 (Turbopack, Cache Components)
-   - Environments: .env
-
-   Creating an optimized production build ...
-โ€ELIFECYCLEโ€ Command failed with exit code 1.

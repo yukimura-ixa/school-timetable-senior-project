@@ -1,6 +1,6 @@
 /**
  * Program Subject Assignment Page - Modernized
- * 
+ *
  * Features:
  * - Clean Architecture with custom hooks
  * - SWR data fetching with caching
@@ -43,9 +43,12 @@ interface ProgramSubjectAssignmentPageProps {
  * Main component for assigning subjects to a program
  * Follows Clean Architecture with presentation-layer hooks
  */
-export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubjectAssignmentPageProps) {
+export default function ProgramSubjectAssignmentPage({
+  programId,
+}: ProgramSubjectAssignmentPageProps) {
   // Data fetching with SWR
-  const { program, subjects, isLoading, mutateProgram } = useProgramSubjects(programId);
+  const { program, subjects, isLoading, mutateProgram } =
+    useProgramSubjects(programId);
 
   // Assignment logic with optimistic updates
   const {
@@ -79,7 +82,7 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
         <Typography variant="h5" gutterBottom>
           จัดการรายวิชาในหลักสูตร
         </Typography>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
+        <Paper sx={{ p: 4, textAlign: "center" }}>
           <Typography variant="body1" color="text.secondary">
             ไม่พบรายวิชาในระบบ กรุณาเพิ่มรายวิชาก่อนจัดการหลักสูตร
           </Typography>
@@ -121,9 +124,11 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
                 <TableRow
                   key={subject.SubjectCode}
                   sx={{
-                    backgroundColor: config.selected ? 'action.selected' : 'inherit',
-                    '&:hover': { backgroundColor: 'action.hover' },
-                    transition: 'background-color 0.2s',
+                    backgroundColor: config.selected
+                      ? "action.selected"
+                      : "inherit",
+                    "&:hover": { backgroundColor: "action.hover" },
+                    transition: "background-color 0.2s",
                   }}
                 >
                   <TableCell padding="checkbox">
@@ -138,7 +143,10 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
                     {subject.SubjectName}
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" color={config.selected ? 'primary' : 'text.secondary'}>
+                    <Typography
+                      variant="body2"
+                      color={config.selected ? "primary" : "text.secondary"}
+                    >
                       {subject.Category}
                     </Typography>
                   </TableCell>
@@ -148,18 +156,22 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
                       size="small"
                       value={config.minCredits}
                       onChange={(e) =>
-                        handleConfigChange(subject.SubjectCode, 'minCredits', parseFloat(e.target.value) || 0)
+                        handleConfigChange(
+                          subject.SubjectCode,
+                          "minCredits",
+                          parseFloat(e.target.value) || 0,
+                        )
                       }
                       disabled={!config.selected}
                       inputProps={{
                         min: 0,
                         max: 10,
                         step: 0.5,
-                        style: { width: 60, textAlign: 'center' },
+                        style: { width: 60, textAlign: "center" },
                       }}
                       sx={{
-                        '& .MuiInputBase-input.Mui-disabled': {
-                          WebkitTextFillColor: 'rgba(0, 0, 0, 0.38)',
+                        "& .MuiInputBase-input.Mui-disabled": {
+                          WebkitTextFillColor: "rgba(0, 0, 0, 0.38)",
                         },
                       }}
                     />
@@ -170,18 +182,22 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
                       size="small"
                       value={config.maxCredits}
                       onChange={(e) =>
-                        handleConfigChange(subject.SubjectCode, 'maxCredits', parseFloat(e.target.value) || 0)
+                        handleConfigChange(
+                          subject.SubjectCode,
+                          "maxCredits",
+                          parseFloat(e.target.value) || 0,
+                        )
                       }
                       disabled={!config.selected}
                       inputProps={{
                         min: 0,
                         max: 10,
                         step: 0.5,
-                        style: { width: 60, textAlign: 'center' },
+                        style: { width: 60, textAlign: "center" },
                       }}
                       sx={{
-                        '& .MuiInputBase-input.Mui-disabled': {
-                          WebkitTextFillColor: 'rgba(0, 0, 0, 0.38)',
+                        "& .MuiInputBase-input.Mui-disabled": {
+                          WebkitTextFillColor: "rgba(0, 0, 0, 0.38)",
                         },
                       }}
                     />
@@ -189,7 +205,13 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
                   <TableCell align="center">
                     <Switch
                       checked={config.isMandatory}
-                      onChange={(e) => handleConfigChange(subject.SubjectCode, 'isMandatory', e.target.checked)}
+                      onChange={(e) =>
+                        handleConfigChange(
+                          subject.SubjectCode,
+                          "isMandatory",
+                          e.target.checked,
+                        )
+                      }
                       disabled={!config.selected}
                       size="small"
                       color="primary"
@@ -203,7 +225,7 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
       </TableContainer>
 
       {/* Action Button */}
-      <Box sx={{ mt: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+      <Box sx={{ mt: 3, display: "flex", gap: 2, alignItems: "center" }}>
         <Button
           variant="contained"
           color="primary"
@@ -212,7 +234,7 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
           size="large"
           sx={{ minWidth: 200 }}
         >
-          {assigning ? 'กำลังบันทึก...' : `บันทึก ${selectedCount} รายวิชา`}
+          {assigning ? "กำลังบันทึก..." : `บันทึก ${selectedCount} รายวิชา`}
         </Button>
 
         {selectedCount === 0 && (
@@ -223,7 +245,10 @@ export default function ProgramSubjectAssignmentPage({ programId }: ProgramSubje
       </Box>
 
       {/* MOE Validation Results */}
-      <MOEValidationAlert validation={validation} programName={program?.ProgramName} />
+      <MOEValidationAlert
+        validation={validation}
+        programName={program?.ProgramName}
+      />
     </Container>
   );
 }

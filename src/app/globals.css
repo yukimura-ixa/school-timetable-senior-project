@@ -10,10 +10,13 @@
   /* Font families */
   --font-sans: var(--font-sarabun);
   --font-serif: var(--font-sarabun);
-  
+
   /* Custom gradients */
   --gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --gradient-conic: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+  --gradient-conic: conic-gradient(
+    from 180deg at 50% 50%,
+    var(--tw-gradient-stops)
+  );
 }
 
 /* @layer base {
@@ -29,15 +32,15 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* Blue focus ring */
 }
 .text-field::-webkit-outer-spin-button,
-.text-field::-webkit-inner-spin-button{
-    -webkit-appearance: none;
+.text-field::-webkit-inner-spin-button {
+  -webkit-appearance: none;
 }
-.text-field::placeholder{
+.text-field::placeholder {
   font-size: 14px;
 }
 
 .printFont {
-  font-family: 'Sarabun', sans-serif;
+  font-family: "Sarabun", sans-serif;
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -45,40 +48,40 @@
 
 /* เอาไว้เปลี่ยน fill ของ icon */
 .hoverfill:hover > .iconhover {
-  fill : #0891B2
+  fill: #0891b2;
 }
 /* ตั้งชื่อ class มั่วไปหน่อย เอาไว้ selector เปลี่ยนสี element ลึกๆซักอันของ menubar */
-.texthover:hover > div > span > .changetext{
+.texthover:hover > div > span > .changetext {
   color: rgb(8 145 178);
   fill: rgb(8 145 178);
 }
-.texthover:hover > div > .changetext{
+.texthover:hover > div > .changetext {
   color: white;
-  fill: #0891B2
+  fill: #0891b2;
 }
 .semester-text:hover > p {
-  color: #0891B2;
+  color: #0891b2;
 }
 .loader {
-	border-top-color: #3498db;
-	-webkit-animation: spinner 1.5s linear infinite;
-	animation: spinner 1.5s linear infinite;
+  border-top-color: #3498db;
+  -webkit-animation: spinner 1.5s linear infinite;
+  animation: spinner 1.5s linear infinite;
 }
 
 @-webkit-keyframes spinner {
-	0% {
-		-webkit-transform: rotate(0deg);
-	}
-	100% {
-		-webkit-transform: rotate(360deg);
-	}
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spinner {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

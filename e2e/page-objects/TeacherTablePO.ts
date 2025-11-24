@@ -1,9 +1,9 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "./BasePage";
 
 /**
  * Page Object Model for Teacher Table page
- * 
+ *
  * This page displays teacher schedules with export functionality:
  * - View all teacher schedules
  * - Select specific teachers via checkboxes
@@ -15,7 +15,7 @@ export class TeacherTablePO extends BasePage {
   readonly pageTitle: Locator;
   readonly teacherCheckboxes: Locator;
   readonly selectAllCheckbox: Locator;
-  
+
   // Export menu
   readonly exportButton: Locator;
   readonly exportMenu: Locator;
@@ -27,26 +27,38 @@ export class TeacherTablePO extends BasePage {
   readonly teacherTable: Locator;
   readonly teacherRows: Locator;
 
-  constructor(page: Page, baseUrl: string = 'http://localhost:3000') {
+  constructor(page: Page, baseUrl: string = "http://localhost:3000") {
     super(page, baseUrl);
-    
+
     // Page title
-    this.pageTitle = page.locator('h1, h2, h4').filter({ hasText: /ตารางสอน.*ครู/ });
+    this.pageTitle = page
+      .locator("h1, h2, h4")
+      .filter({ hasText: /ตารางสอน.*ครู/ });
 
     // Teacher selection
-    this.teacherCheckboxes = page.locator('input[type="checkbox"][name^="teacher-"]');
-    this.selectAllCheckbox = page.locator('input[type="checkbox"][aria-label="Select all"]');
+    this.teacherCheckboxes = page.locator(
+      'input[type="checkbox"][name^="teacher-"]',
+    );
+    this.selectAllCheckbox = page.locator(
+      'input[type="checkbox"][aria-label="Select all"]',
+    );
 
     // Export button and menu
-    this.exportButton = page.locator('[data-testid="teacher-export-menu-button"]');
+    this.exportButton = page.locator(
+      '[data-testid="teacher-export-menu-button"]',
+    );
     this.exportMenu = page.locator('[data-testid="teacher-export-menu"]');
-    this.exportExcelOption = page.locator('[data-testid="export-excel-option"]');
+    this.exportExcelOption = page.locator(
+      '[data-testid="export-excel-option"]',
+    );
     this.exportPdfOption = page.locator('[data-testid="export-print-option"]');
-    this.exportCustomPdfOption = page.locator('[data-testid="export-custom-pdf-option"]');
+    this.exportCustomPdfOption = page.locator(
+      '[data-testid="export-custom-pdf-option"]',
+    );
 
     // Table
-    this.teacherTable = page.locator('table').first();
-    this.teacherRows = this.teacherTable.locator('tbody tr');
+    this.teacherTable = page.locator("table").first();
+    this.teacherRows = this.teacherTable.locator("tbody tr");
   }
 
   /**
@@ -55,10 +67,10 @@ export class TeacherTablePO extends BasePage {
   async goto(semesterAndYear: string) {
     await super.goto(`/dashboard/${semesterAndYear}/teacher-table`);
     await this.waitForPageLoad();
-    
+
     // Wait for semester to sync with global store
     // Convert "1-2567" to "1/2567" for display format
-    const [semester, year] = semesterAndYear.split('-');
+    const [semester, year] = semesterAndYear.split("-");
     await this.waitForSemesterSync(`${semester}/${year}`);
   }
 
@@ -156,8 +168,8 @@ export class TeacherTablePO extends BasePage {
   async assertTeachersSelected() {
     const checkboxes = await this.teacherCheckboxes.all();
     const checkedCount = await Promise.all(
-      checkboxes.map(cb => cb.isChecked())
-    ).then(results => results.filter(Boolean).length);
+      checkboxes.map((cb) => cb.isChecked()),
+    ).then((results) => results.filter(Boolean).length);
     expect(checkedCount).toBeGreaterThan(0);
   }
 

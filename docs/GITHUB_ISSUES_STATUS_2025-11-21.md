@@ -5,12 +5,14 @@
 **Status:** ✅ Successfully Created
 
 **Issue Details:**
+
 - **Title:** `[COMPLETED] TypeScript Fixes, Environment Separation, and Project Cleanup`
 - **State:** Open
 - **Created:** 2025-11-21 (8 hours ago)
-- **Labels:** enhancement *(note: 'completed' label doesn't exist in repo)*
+- **Labels:** enhancement _(note: 'completed' label doesn't exist in repo)_
 
 **Content Summary:**
+
 - Fixed all TypeScript TS7006 errors (40+ files)
 - Separated environment configs (local/CI/prod)
 - Set up Prisma proxy for local testing
@@ -19,6 +21,7 @@
 - Created 6+ new documentation files
 
 **Impact:**
+
 - TypeScript errors: 50+ → 0 (100% reduction)
 - Files changed: 73
 - Insertions: +4,636
@@ -31,6 +34,7 @@
 ### **Open Issues:** ~45 issues
 
 ### **Categories** (estimated based on common issue patterns):
+
 - 🐛 Bugs and errors
 - ✨ Feature requests
 - 📚 Documentation
@@ -44,23 +48,28 @@
 While our automated search didn't find directly related issues, the following types of issues may now be resolved:
 
 ### **1. TypeScript/Type Safety Issues** ✅
+
 **Resolution:** All TS7006 errors fixed
 **Files affected:** 40+ files across all features
 **Validation:** `pnpm typecheck` returns 0 errors
 
 **Suggested action:**
+
 - Search for issues containing: "typescript", "type error", "TS7006", "implicit any"
 - Add comment referencing commit: `feat: Complete TypeScript fixes...`
 - Close if resolved
 
 ### **2. Environment Configuration Issues** ✅
+
 **Resolution:** Separated local/CI/prod environments
 **Files created:**
+
 - `.env.local.example`
 - `.env.production.example`
 - Updated `.env.ci` and `.env.test`
 
 **Suggested action:**
+
 - Search for issues about: "environment", "config", "database setup", "local development"
 - Reference new documentation:
   - `docs/ENVIRONMENT_SETUP.md`
@@ -68,25 +77,31 @@ While our automated search didn't find directly related issues, the following ty
 - Close if resolved
 
 ### **3. Testing Infrastructure Issues** ✅
+
 **Resolution:** Fixed Playwright and Jest configurations
 **Changes:**
+
 - Playwright ES module compatibility
 - Jest setup with jest-dom
 - E2E test runner with Docker fallback
 
 **Suggested action:**
+
 - Search for: "playwright", "jest", "e2e", "test fail"
 - Reference: `docs/TEST_DATABASE_SETUP.md`
 - Close if resolved
 
 ### **4. Project Organization Issues** ✅
+
 **Resolution:** Cleaned root directory, organized documentation
 **Changes:**
+
 - Root files: 56 → 35 (-37%)
 - All docs moved to `/docs`
 - Build artifacts removed
 
 **Suggested action:**
+
 - Search for: "cleanup", "organization", "documentation", "structure"
 - Reference: `docs/PROJECT_ROOT_CLEANUP_SUMMARY.md`
 - Close if resolved
@@ -132,6 +147,7 @@ This issue has been resolved by the improvements completed on 2025-11-21.
 **Commit:** `feat: Complete TypeScript fixes, environment separation, and project cleanup`
 
 **Changes that address this issue:**
+
 - [Specific change related to the issue]
 - [Another relevant change]
 
@@ -139,6 +155,7 @@ This issue has been resolved by the improvements completed on 2025-11-21.
 [How to verify the fix - e.g., "Run `pnpm typecheck`", "See docs/ENVIRONMENT_SETUP.md"]
 
 **Documentation:**
+
 - See: docs/SESSION_2025-11-21_COMPLETE_SUMMARY.md
 
 Closing as resolved.
@@ -147,6 +164,7 @@ Closing as resolved.
 ### **Step 3: Close Resolved Issues**
 
 After adding the comment:
+
 1. Click "Close issue" button
 2. Select close reason (if applicable)
 3. Confirm closure
@@ -156,15 +174,18 @@ After adding the comment:
 ## 🔧 **Tools Available**
 
 ### **1. Update Script**
+
 **Location:** `scripts/update-github-issues.ps1`
 
 **Usage:**
+
 ```powershell
 cd b:\Dev\school-timetable-senior-project
 .\scripts\update-github-issues.ps1
 ```
 
 **Features:**
+
 - Fetches all open issues
 - Searches for keywords
 - Creates summary issues
@@ -173,21 +194,25 @@ cd b:\Dev\school-timetable-senior-project
 ### **2. GitHub CLI Commands**
 
 **View specific issue:**
+
 ```powershell
 gh issue view 123
 ```
 
 **Add comment to issue:**
+
 ```powershell
 gh issue comment 123 --body "Issue resolved by..."
 ```
 
 **Close issue:**
+
 ```powershell
 gh issue close 123 --reason completed
 ```
 
 **Search issues:**
+
 ```powershell
 gh issue list --search "typescript"
 ```
@@ -199,9 +224,11 @@ gh issue list --search "typescript"
 ### **Priority 1: High Impact** ⭐
 
 1. **Search for TypeScript issues**
+
    ```
    is:issue is:open typescript OR "type error" OR TS7006
    ```
+
    - Likely to find 2-5 issues
    - All can probably be closed now
 
@@ -209,21 +236,25 @@ gh issue list --search "typescript"
    ```
    is:issue is:open environment OR config OR "local setup"
    ```
+
    - Check if new docs resolve them
    - Close or update with documentation links
 
 ### **Priority 2: Medium Impact**
 
 3. **Search for testing issues**
+
    ```
    is:issue is:open playwright OR jest OR "e2e test"
    ```
+
    - Review if infrastructure fixes resolved them
 
 4. **Search for documentation issues**
    ```
    is:issue is:open documentation OR "setup guide"
    ```
+
    - Reference new comprehensive docs
 
 ### **Priority 3: Optional**
@@ -237,6 +268,7 @@ gh issue list --search "typescript"
 ## 📈 **Expected Outcome**
 
 Based on typical issue distribution, you might close:
+
 - **3-5 TypeScript issues** ✅
 - **2-3 Environment setup issues** ✅
 - **1-2 Testing issues** ✅
@@ -249,6 +281,7 @@ Based on typical issue distribution, you might close:
 ## 🔗 **Quick Links**
 
 **GitHub Issues:**
+
 ```
 https://github.com/yukimura-ixa/school-timetable-senior-project/issues
 ```
@@ -257,6 +290,7 @@ https://github.com/yukimura-ixa/school-timetable-senior-project/issues
 Look for: `[COMPLETED] TypeScript Fixes, Environment Separation, and Project Cleanup`
 
 **Related Commits:**
+
 - Main commit: `feat: Complete TypeScript fixes, environment separation, and project cleanup`
 - Docs commit: `docs: Add GitHub issue summary and update tools`
 
@@ -284,11 +318,13 @@ Look for: `[COMPLETED] TypeScript Fixes, Environment Separation, and Project Cle
 ## 💡 **Pro Tip**
 
 Use GitHub's Projects board (if you have one) to:
+
 1. Move completed items to "Done" column
 2. Update status of related tasks
 3. Track overall project progress
 
 **GitHub Projects:**
+
 ```
 https://github.com/yukimura-ixa/school-timetable-senior-project/projects
 ```

@@ -78,6 +78,7 @@ Error: Environment variable DATABASE_URL is not set
 **Solution:** Check `.github/workflows/*.yml` for required env vars
 
 **CI Environment Variables:**
+
 - `DATABASE_URL` - Set per-job in workflows
 - `AUTH_SECRET` - Dummy value for build (`build-time-secret`)
 - `AUTH_GOOGLE_ID` - Dummy value (`dummy-client-id`)
@@ -113,6 +114,7 @@ git push
 ```
 
 **Common Issues:**
+
 - Unused imports → Remove them
 - Missing dependencies in `useEffect` → Add to deps array
 - `any` types → Add proper types (see `AGENTS.md` for typing standards)
@@ -141,6 +143,7 @@ git push
 ```
 
 **Common Issues:**
+
 - Missing type annotations → Add explicit types
 - Incorrect prop types → Check component interfaces
 - Prisma type mismatches → Regenerate client (`pnpm prisma generate`)
@@ -186,6 +189,7 @@ git push
 ```
 
 **Common Issues:**
+
 - Mock setup issues → Check `jest.setup.ts` for proper mocks
 - Prisma mock conflicts → Ensure single `jest.mock('@/lib/prisma')` declaration
 - Missing test data → Add fixtures or seed data in test
@@ -199,12 +203,14 @@ git push
 **Status:** ✅ **WORKAROUND APPLIED** - `forceExit: true` in `jest.config.ts`
 
 **Details:**
+
 - Next.js 16.0.1 + Jest incompatibility
 - Unhandled rejection handler causes `setImmediate` recursion
 - Workaround: `forceExit: true` (lines 34-37 of `jest.config.ts`)
 - See `nextjs_16_jest_stack_overflow_issue` memory or Issue #46
 
 **What NOT to do:**
+
 - ❌ Remove `forceExit` flag
 - ❌ Try to mock Next.js rejection module
 - ❌ Wrap `setImmediate`
@@ -257,6 +263,7 @@ git push
 ```
 
 **Common Issues:**
+
 - Type errors in pages/components → Fix types
 - Missing environment variables → Check `next.config.mjs`
 - Import errors → Check path aliases (`@/...`)
@@ -272,6 +279,7 @@ git push
 **Solution:** See `nextjs_cache_components_deep_knowledge` memory
 
 **Common Issues:**
+
 - Missing `Suspense` boundaries → Add `<Suspense>` wrappers
 - Async components without `"use cache"` → Add directive if needed
 - Hydration mismatches → Check server/client component split
@@ -302,6 +310,7 @@ const { default: jsPDF } = await import('jspdf');
 **Symptom:** E2E tests fail in CI but pass locally
 
 **Common Causes:**
+
 1. **Timing issues** - CI is slower than local
 2. **Database state** - Seed data mismatch
 3. **Environment variables** - Missing `ENABLE_DEV_BYPASS` flags
@@ -343,6 +352,7 @@ Check `.github/workflows/e2e-tests.yml`:
 ```
 
 **Verify seed data:**
+
 - 56 teachers created
 - 82 subjects created
 - 3 semesters (1-2567, 2-2567, 1-2568)
@@ -365,11 +375,12 @@ Ensure **BOTH** environment variables are set in workflow:
 
 ```yaml
 env:
-  ENABLE_DEV_BYPASS: "true"              # Server-side check
-  NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true"  # Client-side visibility
+  ENABLE_DEV_BYPASS: "true" # Server-side check
+  NEXT_PUBLIC_ENABLE_DEV_BYPASS: "true" # Client-side visibility
 ```
 
 **Why both?**
+
 - `ENABLE_DEV_BYPASS` - Server Action auth bypass
 - `NEXT_PUBLIC_ENABLE_DEV_BYPASS` - Button visibility (build-time inline)
 
@@ -389,7 +400,7 @@ Use E2E reliability patterns from `E2E_RELIABILITY_GUIDE.md`:
 
 ```typescript
 // ✅ GOOD: Assert visibility before click
-const submit = page.getByRole('button', { name: /บันทึก|save/i });
+const submit = page.getByRole("button", { name: /บันทึก|save/i });
 await expect(submit).toBeVisible({ timeout: 5000 });
 await expect(submit).toBeEnabled();
 await submit.click();
@@ -399,6 +410,7 @@ await page.click('button[type="submit"]');
 ```
 
 **Anti-patterns to avoid:**
+
 - `waitForTimeout()` (except `visual-inspection.spec.ts`)
 - Blind `page.click()` without visibility checks
 - Blanket `waitForLoadState('networkidle')`
@@ -417,6 +429,7 @@ await page.click('button[type="submit"]');
 4. **File GitHub issue** - If flake persists, downshift to integration test
 
 **Current E2E metrics (Nov 2025):**
+
 - Phase A: 210/210 `waitForTimeout` calls removed ✅
 - Phase B: DnD and management flows stabilized
 - Target: <2% flake rate
@@ -517,6 +530,7 @@ pnpm build
 ### 2. Check CI Logs
 
 **Navigate to GitHub Actions:**
+
 1. Go to repository → Actions tab
 2. Click on failed workflow run
 3. Click on failed job (e.g., "Lint & Type Check")
@@ -524,6 +538,7 @@ pnpm build
 5. Read full error output
 
 **Download artifacts:**
+
 - Test results (E2E failures)
 - Coverage reports (unit tests)
 - Playwright reports (E2E screenshots/videos)
@@ -533,6 +548,7 @@ pnpm build
 ### 3. Use Draft PRs
 
 **While debugging:**
+
 1. Create pull request as **draft**
 2. Push commits to trigger CI
 3. Review CI failures
@@ -540,6 +556,7 @@ pnpm build
 5. Mark as ready for review when all checks pass
 
 **Benefits:**
+
 - CI still runs (same as normal PR)
 - Reviewers know it's WIP
 - Can iterate without blocking team
@@ -549,6 +566,7 @@ pnpm build
 ### 4. Inspect Workflow Files
 
 **Check configuration:**
+
 - `.github/workflows/ci.yml` - Lint, test, build jobs
 - `.github/workflows/e2e-tests.yml` - E2E test matrix
 - `jest.config.ts` - Unit test config
@@ -560,6 +578,7 @@ pnpm build
 ### 5. Use Workflow Dispatch (E2E)
 
 **Manual E2E trigger:**
+
 1. Go to Actions → E2E Tests
 2. Click "Run workflow"
 3. Select branch
@@ -567,6 +586,7 @@ pnpm build
 5. Run workflow
 
 **Use cases:**
+
 - Test specific branch without creating PR
 - Adjust shard count for faster iteration (fewer shards)
 - Re-run E2E after merging new changes
@@ -577,12 +597,12 @@ pnpm build
 
 ### CI Job Matrix
 
-| Job                | Runs On     | Timeout | Triggers                  |
-|--------------------|-------------|---------|---------------------------|
-| Lint & Type Check  | ubuntu-latest | 10 min  | Push to main/develop, PRs |
-| Unit Tests         | ubuntu-latest | 15 min  | Push to main/develop, PRs |
-| Build              | ubuntu-latest | 15 min  | Push to main/develop, PRs |
-| E2E Tests          | ubuntu-latest | 60 min  | Triggered by CI job       |
+| Job               | Runs On       | Timeout | Triggers                  |
+| ----------------- | ------------- | ------- | ------------------------- |
+| Lint & Type Check | ubuntu-latest | 10 min  | Push to main/develop, PRs |
+| Unit Tests        | ubuntu-latest | 15 min  | Push to main/develop, PRs |
+| Build             | ubuntu-latest | 15 min  | Push to main/develop, PRs |
+| E2E Tests         | ubuntu-latest | 60 min  | Triggered by CI job       |
 
 ### Common Commands
 
@@ -605,12 +625,14 @@ pnpm build                       # Verify build works
 ### When to Contact Team
 
 **Escalate if:**
+
 - CI fails consistently but works locally
 - Infrastructure issues (GitHub Actions down)
 - Flaky tests with >2% failure rate
 - Performance degradation (CI taking >20 min)
 
 **How to escalate:**
+
 1. File GitHub issue with `ci` label
 2. Include workflow run URL
 3. Include error logs

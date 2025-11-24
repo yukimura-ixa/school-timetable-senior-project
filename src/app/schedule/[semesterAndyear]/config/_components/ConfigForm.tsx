@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Config Form Component
- * 
+ *
  * Main form for timetable configuration using Zustand store
  * and MUI v7 components. Replaces legacy form implementation.
- * 
+ *
  * @module ConfigForm
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Box,
   Stack,
@@ -20,18 +20,18 @@ import {
   Switch,
   Divider,
   Grid,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Schedule as ScheduleIcon,
   Timer as TimerIcon,
   LunchDining as LunchIcon,
   Coffee as CoffeeIcon,
   AccessTime as ClockIcon,
-} from '@mui/icons-material';
-import { useConfigStore } from '@/features/config/presentation/stores/timetable-config.store';
-import { CONFIG_CONSTRAINTS } from '@/features/config/domain/constants/config.constants';
-import { NumberInput } from './NumberInput';
-import { BreakSlotSelect } from './BreakSlotSelect';
+} from "@mui/icons-material";
+import { useConfigStore } from "@/features/config/presentation/stores/timetable-config.store";
+import { CONFIG_CONSTRAINTS } from "@/features/config/domain/constants/config.constants";
+import { NumberInput } from "./NumberInput";
+import { BreakSlotSelect } from "./BreakSlotSelect";
 
 interface ConfigFormProps {
   /** Whether the form is in view-only mode */
@@ -59,7 +59,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
         </Stack>
         <NumberInput
           value={config.TimeslotPerDay}
-          onChange={(val) => updateField('TimeslotPerDay', val)}
+          onChange={(val) => updateField("TimeslotPerDay", val)}
           min={CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.min}
           max={CONFIG_CONSTRAINTS.TIMESLOT_PER_DAY.max}
           step={1}
@@ -67,7 +67,11 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
           disabled={readonly}
         />
         {errors.timeslotPerDay && (
-          <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ mt: 1, display: "block" }}
+          >
             {errors.timeslotPerDay}
           </Typography>
         )}
@@ -82,7 +86,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
         <TextField
           type="time"
           value={config.StartTime}
-          onChange={(e) => updateField('StartTime', e.target.value)}
+          onChange={(e) => updateField("StartTime", e.target.value)}
           disabled={readonly}
           error={!!errors.startTime}
           helperText={errors.startTime}
@@ -99,7 +103,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
         </Stack>
         <NumberInput
           value={config.Duration}
-          onChange={(val) => updateField('Duration', val)}
+          onChange={(val) => updateField("Duration", val)}
           min={CONFIG_CONSTRAINTS.DURATION.min}
           max={CONFIG_CONSTRAINTS.DURATION.max}
           step={CONFIG_CONSTRAINTS.DURATION.step}
@@ -107,7 +111,11 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
           disabled={readonly}
         />
         {errors.duration && (
-          <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ mt: 1, display: "block" }}
+          >
             {errors.duration}
           </Typography>
         )}
@@ -126,7 +134,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
             <BreakSlotSelect
               label="มัธยมต้น (ม.1-3)"
               value={config.BreakTimeslots.Junior}
-              onChange={(slot) => updateBreakSlot('Junior', slot)}
+              onChange={(slot) => updateBreakSlot("Junior", slot)}
               maxSlots={config.TimeslotPerDay}
               error={errors.breakSlotJunior}
               disabled={readonly}
@@ -136,7 +144,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
             <BreakSlotSelect
               label="มัธยมปลาย (ม.4-6)"
               value={config.BreakTimeslots.Senior}
-              onChange={(slot) => updateBreakSlot('Senior', slot)}
+              onChange={(slot) => updateBreakSlot("Senior", slot)}
               maxSlots={config.TimeslotPerDay}
               error={errors.breakSlotSenior}
               disabled={readonly}
@@ -144,7 +152,11 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
           </Grid>
         </Grid>
         {errors.breakSlotWarning && (
-          <Typography variant="caption" color="warning.main" sx={{ mt: 2, display: 'block' }}>
+          <Typography
+            variant="caption"
+            color="warning.main"
+            sx={{ mt: 2, display: "block" }}
+          >
             ⚠️ {errors.breakSlotWarning}
           </Typography>
         )}
@@ -175,7 +187,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
               <Grid size={{ xs: 12, md: 6 }}>
                 <NumberInput
                   value={config.MiniBreak.Duration}
-                  onChange={(val) => updateMiniBreak('Duration', val)}
+                  onChange={(val) => updateMiniBreak("Duration", val)}
                   min={CONFIG_CONSTRAINTS.MINI_BREAK_DURATION.min}
                   max={CONFIG_CONSTRAINTS.MINI_BREAK_DURATION.max}
                   step={CONFIG_CONSTRAINTS.MINI_BREAK_DURATION.step}
@@ -183,7 +195,11 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
                   disabled={readonly}
                 />
                 {errors.miniBreakDuration && (
-                  <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                  <Typography
+                    variant="caption"
+                    color="error"
+                    sx={{ mt: 1, display: "block" }}
+                  >
                     {errors.miniBreakDuration}
                   </Typography>
                 )}
@@ -192,7 +208,7 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
                 <BreakSlotSelect
                   label="หลังคาบที่"
                   value={config.MiniBreak.SlotNumber}
-                  onChange={(slot) => updateMiniBreak('SlotNumber', slot)}
+                  onChange={(slot) => updateMiniBreak("SlotNumber", slot)}
                   maxSlots={config.TimeslotPerDay}
                   error={errors.miniBreakSlot}
                   disabled={readonly}
@@ -205,4 +221,3 @@ export function ConfigForm({ readonly = false }: ConfigFormProps) {
     </Stack>
   );
 }
-

@@ -20,14 +20,14 @@ interface State {
 
 /**
  * ErrorBoundary - React error boundary for graceful crash recovery
- * 
+ *
  * Usage:
  * ```tsx
  * <ErrorBoundary>
  *   <YourComponent />
  * </ErrorBoundary>
  * ```
- * 
+ *
  * With custom fallback:
  * ```tsx
  * <ErrorBoundary fallback={<CustomErrorUI />}>

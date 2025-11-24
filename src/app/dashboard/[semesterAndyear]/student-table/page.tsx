@@ -46,10 +46,20 @@ import { getClassSchedulesAction } from "@/features/class/application/actions/cl
 
 import TimeSlot from "./component/Timeslot";
 import SelectClassRoom from "./component/SelectClassroom";
-import { ExportStudentTable, type TimeslotData as ExportTimeslotData, type ClassScheduleWithSummary } from "./function/ExportStudentTable";
-import { generateStudentBatchPDF, type BatchPDFOptions } from "../shared/batchPdfGenerator";
+import {
+  ExportStudentTable,
+  type TimeslotData as ExportTimeslotData,
+  type ClassScheduleWithSummary,
+} from "./function/ExportStudentTable";
+import {
+  generateStudentBatchPDF,
+  type BatchPDFOptions,
+} from "../shared/batchPdfGenerator";
 import { PDFCustomizationDialog } from "../shared/PDFCustomizationDialog";
-import { createTimeSlotTableData, type TimeSlotTableData } from "../shared/timeSlot";
+import {
+  createTimeSlotTableData,
+  type TimeSlotTableData,
+} from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
 
@@ -63,23 +73,27 @@ const getGradeLabel = (gradeId: string | null) => {
 
 function StudentTablePage() {
   const params = useParams();
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
   const { data: session } = useSession();
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
-  
+
   // Bulk operation state
   const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>([]);
   const [showBulkFilters, setShowBulkFilters] = useState(false);
-  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(null);
-  
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
+    null,
+  );
+
   // PDF customization dialog state
   const [showPdfCustomization, setShowPdfCustomization] = useState(false);
-  
+
   // Responsive hooks
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const {
     data: timeslotResponse,
@@ -87,12 +101,12 @@ function StudentTablePage() {
     isValidating: isTimeslotValidating,
   } = useSWR(
     semester && academicYear
-      ? ['timeslots-by-term', academicYear, semester]
+      ? ["timeslots-by-term", academicYear, semester]
       : null,
     async ([, year, sem]) => {
       return await getTimeslotsByTermAction({
         AcademicYear: parseInt(year),
-        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
     { revalidateOnFocus: false },
@@ -104,13 +118,13 @@ function StudentTablePage() {
     isValidating: isClassValidating,
   } = useSWR(
     selectedGradeId && semester && academicYear
-      ? ['class-schedules-grade', selectedGradeId, academicYear, semester]
+      ? ["class-schedules-grade", selectedGradeId, academicYear, semester]
       : null,
     async ([, gradeId, year, sem]) => {
       return await getClassSchedulesAction({
         GradeID: gradeId,
         AcademicYear: parseInt(year),
-        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
     {
@@ -122,25 +136,37 @@ function StudentTablePage() {
   const gradeLevelData = useGradeLevels();
 
   const hasTimeslotError = Boolean(
-    !timeslotResponse || ('success' in (timeslotResponse as object) && !(timeslotResponse as ActionResult<unknown>).success)
+    !timeslotResponse ||
+      ("success" in (timeslotResponse as object) &&
+        !(timeslotResponse as ActionResult<unknown>).success),
   );
   const hasClassError = Boolean(
-    classDataResponse && 'success' in (classDataResponse as object) && !(classDataResponse as ActionResult<unknown>).success
+    classDataResponse &&
+      "success" in (classDataResponse as object) &&
+      !(classDataResponse as ActionResult<unknown>).success,
   );
 
   const classData = useMemo((): ScheduleEntry[] => {
-    const response = classDataResponse as ActionResult<ScheduleEntry[]> | undefined;
+    const response = classDataResponse as
+      | ActionResult<ScheduleEntry[]>
+      | undefined;
     if (!response || !response.success || !response.data) {
       return [];
     }
     return response.data;
   }, [classDataResponse]);
-  
+
   const timeSlotData: TimeSlotTableData = useMemo(() => {
     const response = timeslotResponse;
-    const timeslots = (response && typeof response === 'object' && 'success' in response && response.success && 'data' in response && response.data) 
-      ? response.data 
-      : undefined;
+    const timeslots =
+      response &&
+      typeof response === "object" &&
+      "success" in response &&
+      response.success &&
+      "data" in response &&
+      response.data
+        ? response.data
+        : undefined;
     return createTimeSlotTableData(timeslots, classData);
   }, [timeslotResponse, classData]);
 
@@ -176,7 +202,7 @@ function StudentTablePage() {
 
   // Add print styles
   useEffect(() => {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       @media print {
         .no-print {
@@ -220,11 +246,11 @@ function StudentTablePage() {
 
   const handleBulkExportExcel = () => {
     if (selectedGradeIds.length === 0 || !gradeLevelData.data) return;
-    
-    const selectedGrades = gradeLevelData.data.filter(g => 
-      selectedGradeIds.includes(g.GradeID)
+
+    const selectedGrades = gradeLevelData.data.filter((g) =>
+      selectedGradeIds.includes(g.GradeID),
     );
-    
+
     // Export for selected grades
     ExportStudentTable(
       timeSlotData as unknown as ExportTimeslotData,
@@ -249,28 +275,30 @@ function StudentTablePage() {
   };
 
   // Generate PDF with custom options
-  const handleBulkPDFGeneration = async (customOptions?: Partial<BatchPDFOptions>) => {
+  const handleBulkPDFGeneration = async (
+    customOptions?: Partial<BatchPDFOptions>,
+  ) => {
     if (selectedGradeIds.length === 0 || !gradeLevelData.data) return;
-    
+
     // Get selected grades
-    const selectedGrades = gradeLevelData.data.filter(g => 
-      selectedGradeIds.includes(g.GradeID)
+    const selectedGrades = gradeLevelData.data.filter((g) =>
+      selectedGradeIds.includes(g.GradeID),
     );
-    
+
     // For simplification, we'll use a single element approach
     const elements: HTMLElement[] = [];
     const labels: string[] = [];
-    
+
     for (const grade of selectedGrades) {
       const gradeLabel = getGradeLabel(grade.GradeID);
       labels.push(gradeLabel);
-      
+
       // Create a temporary div with the timetable
-      const tempDiv = document.createElement('div');
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '0';
-      tempDiv.style.width = '1200px';
+      const tempDiv = document.createElement("div");
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      tempDiv.style.top = "0";
+      tempDiv.style.width = "1200px";
       tempDiv.innerHTML = `
         <div style="padding: 20px; background: white;">
           <h2>ตารางเรียน: ${gradeLabel}</h2>
@@ -281,12 +309,18 @@ function StudentTablePage() {
       document.body.appendChild(tempDiv);
       elements.push(tempDiv);
     }
-    
+
     try {
-      await generateStudentBatchPDF(elements, labels, semester, academicYear, customOptions);
+      await generateStudentBatchPDF(
+        elements,
+        labels,
+        semester,
+        academicYear,
+        customOptions,
+      );
     } finally {
       // Clean up temporary elements
-      elements.forEach(el => el.remove());
+      elements.forEach((el) => el.remove());
     }
   };
 
@@ -310,7 +344,11 @@ function StudentTablePage() {
       <Stack spacing={3}>
         {/* Selector Section */}
         {showLoadingOverlay ? (
-          <Skeleton variant="rectangular" height={60} sx={{ borderRadius: 1 }} />
+          <Skeleton
+            variant="rectangular"
+            height={60}
+            sx={{ borderRadius: 1 }}
+          />
         ) : (
           <SelectClassRoom
             setGradeID={handleSelectGrade}
@@ -323,134 +361,177 @@ function StudentTablePage() {
 
         {/* Bulk Export Filter Section - Admin only (guests hidden) */}
         {isAdmin && (
-        <Paper elevation={1} sx={{ p: 2 }} className="no-print">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: showBulkFilters ? 2 : 0 }}>
-            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FilterListIcon />
-              การส่งออกแบบกลุ่ม
-            </Typography>
-            <Button
-              variant="outlined"
-              size="small"
-              endIcon={showBulkFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              onClick={() => setShowBulkFilters(!showBulkFilters)}
+          <Paper elevation={1} sx={{ p: 2 }} className="no-print">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: showBulkFilters ? 2 : 0,
+              }}
             >
-              {showBulkFilters ? 'ซ่อน' : 'แสดง'}ตัวกรอง
-            </Button>
-          </Box>
+              <Typography
+                variant="h6"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
+                <FilterListIcon />
+                การส่งออกแบบกลุ่ม
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                endIcon={
+                  showBulkFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />
+                }
+                onClick={() => setShowBulkFilters(!showBulkFilters)}
+              >
+                {showBulkFilters ? "ซ่อน" : "แสดง"}ตัวกรอง
+              </Button>
+            </Box>
 
-          <Collapse in={showBulkFilters}>
-            <Stack spacing={2} direction={isMobile ? "column" : "row"} sx={{ mt: 2 }}>
-              {/* Grade Multi-Select */}
-              <FormControl sx={{ flex: 1 }}>
-                <InputLabel>เลือกห้องเรียน</InputLabel>
-                <Select
-                  multiple
-                  value={selectedGradeIds}
-                  onChange={(e) => setSelectedGradeIds(e.target.value as string[])}
-                  input={<OutlinedInput label="เลือกห้องเรียน" />}
-                  data-testid="class-multi-select"
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((id) => (
-                        <Chip key={id} label={getGradeLabel(id)} size="small" />
-                      ))}
-                    </Box>
-                  )}
-                  disabled={gradeLevelData.isLoading || !gradeLevelData.data}
+            <Collapse in={showBulkFilters}>
+              <Stack
+                spacing={2}
+                direction={isMobile ? "column" : "row"}
+                sx={{ mt: 2 }}
+              >
+                {/* Grade Multi-Select */}
+                <FormControl sx={{ flex: 1 }}>
+                  <InputLabel>เลือกห้องเรียน</InputLabel>
+                  <Select
+                    multiple
+                    value={selectedGradeIds}
+                    onChange={(e) =>
+                      setSelectedGradeIds(e.target.value as string[])
+                    }
+                    input={<OutlinedInput label="เลือกห้องเรียน" />}
+                    data-testid="class-multi-select"
+                    renderValue={(selected) => (
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {selected.map((id) => (
+                          <Chip
+                            key={id}
+                            label={getGradeLabel(id)}
+                            size="small"
+                          />
+                        ))}
+                      </Box>
+                    )}
+                    disabled={gradeLevelData.isLoading || !gradeLevelData.data}
+                  >
+                    {gradeLevelData.data?.map((grade) => (
+                      <MenuItem key={grade.GradeID} value={grade.GradeID}>
+                        <Checkbox
+                          checked={selectedGradeIds.includes(grade.GradeID)}
+                        />
+                        <ListItemText primary={getGradeLabel(grade.GradeID)} />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                {/* Action Buttons */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "flex-start" }}
                 >
-                  {gradeLevelData.data?.map((grade) => (
-                    <MenuItem key={grade.GradeID} value={grade.GradeID}>
-                      <Checkbox checked={selectedGradeIds.includes(grade.GradeID)} />
-                      <ListItemText primary={getGradeLabel(grade.GradeID)} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              {/* Action Buttons */}
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
-                {selectedGradeIds.length > 0 && (
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => setSelectedGradeIds([])}
-                  >
-                    ล้างตัวกรอง
-                  </Button>
-                )}
-                <Tooltip title="ส่งออกห้องเรียนที่เลือก">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={selectedGradeIds.length === 0 || hasTimeslotError}
-                    onClick={handleBulkExportExcel}
-                    startIcon={<GridOnIcon />}
-                  >
-                    {isMobile ? 'Excel' : 'ส่งออก Excel'}
-                  </Button>
-                </Tooltip>
-                <Tooltip title="พิมพ์ห้องเรียนที่เลือก">
-                  <IconButton
-                    color="primary"
-                    disabled={selectedGradeIds.length === 0 || hasTimeslotError}
-                    onClick={handleBulkPrint}
-                  >
-                    <PrintIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="ตัวเลือกเพิ่มเติม">
-                  <IconButton
-                    onClick={handleExportMenuOpen}
-                    disabled={selectedGradeIds.length === 0}
-                    data-testid="student-export-menu-button"
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Tooltip>
+                  {selectedGradeIds.length > 0 && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => setSelectedGradeIds([])}
+                    >
+                      ล้างตัวกรอง
+                    </Button>
+                  )}
+                  <Tooltip title="ส่งออกห้องเรียนที่เลือก">
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        selectedGradeIds.length === 0 || hasTimeslotError
+                      }
+                      onClick={handleBulkExportExcel}
+                      startIcon={<GridOnIcon />}
+                    >
+                      {isMobile ? "Excel" : "ส่งออก Excel"}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="พิมพ์ห้องเรียนที่เลือก">
+                    <IconButton
+                      color="primary"
+                      disabled={
+                        selectedGradeIds.length === 0 || hasTimeslotError
+                      }
+                      onClick={handleBulkPrint}
+                    >
+                      <PrintIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="ตัวเลือกเพิ่มเติม">
+                    <IconButton
+                      onClick={handleExportMenuOpen}
+                      disabled={selectedGradeIds.length === 0}
+                      data-testid="student-export-menu-button"
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </Stack>
-            </Stack>
 
-            {/* Export Options Menu */}
-            <Menu
-              anchorEl={exportMenuAnchor}
-              open={Boolean(exportMenuAnchor)}
-              onClose={handleExportMenuClose}
-              data-testid="student-export-menu"
-            >
-              <MenuItem onClick={handleBulkExportExcel} data-testid="export-excel-option">
-                <GridOnIcon sx={{ mr: 1 }} />
-                ส่งออก Excel
-              </MenuItem>
-              <MenuItem onClick={handleBulkPrint} data-testid="export-print-option">
-                <PrintIcon sx={{ mr: 1 }} />
-                พิมพ์ทั้งหมด
-              </MenuItem>
-              <MenuItem onClick={handleOpenPdfCustomization} data-testid="export-custom-pdf-option">
-                <PictureAsPdfIcon sx={{ mr: 1 }} />
-                สร้าง PDF (กำหนดค่าเอง)
-              </MenuItem>
-            </Menu>
-            
-            {/* PDF Customization Dialog */}
-            <PDFCustomizationDialog
-              open={showPdfCustomization}
-              onClose={() => setShowPdfCustomization(false)}
-              onExport={(options) => void handleBulkPDFGeneration(options)}
-              title="กำหนดค่าการส่งออก PDF ตารางเรียนนักเรียน"
-              maxTablesPerPage={6}
-            />
+              {/* Export Options Menu */}
+              <Menu
+                anchorEl={exportMenuAnchor}
+                open={Boolean(exportMenuAnchor)}
+                onClose={handleExportMenuClose}
+                data-testid="student-export-menu"
+              >
+                <MenuItem
+                  onClick={handleBulkExportExcel}
+                  data-testid="export-excel-option"
+                >
+                  <GridOnIcon sx={{ mr: 1 }} />
+                  ส่งออก Excel
+                </MenuItem>
+                <MenuItem
+                  onClick={handleBulkPrint}
+                  data-testid="export-print-option"
+                >
+                  <PrintIcon sx={{ mr: 1 }} />
+                  พิมพ์ทั้งหมด
+                </MenuItem>
+                <MenuItem
+                  onClick={handleOpenPdfCustomization}
+                  data-testid="export-custom-pdf-option"
+                >
+                  <PictureAsPdfIcon sx={{ mr: 1 }} />
+                  สร้าง PDF (กำหนดค่าเอง)
+                </MenuItem>
+              </Menu>
 
-            {/* Selection Summary */}
-            {selectedGradeIds.length > 0 && (
-              <Box sx={{ mt: 2, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
-                <Typography variant="body2" color="text.secondary">
-                  เลือกแล้ว {selectedGradeIds.length} ห้องเรียน
-                </Typography>
-              </Box>
-            )}
-          </Collapse>
-        </Paper>
+              {/* PDF Customization Dialog */}
+              <PDFCustomizationDialog
+                open={showPdfCustomization}
+                onClose={() => setShowPdfCustomization(false)}
+                onExport={(options) => void handleBulkPDFGeneration(options)}
+                title="กำหนดค่าการส่งออก PDF ตารางเรียนนักเรียน"
+                maxTablesPerPage={6}
+              />
+
+              {/* Selection Summary */}
+              {selectedGradeIds.length > 0 && (
+                <Box
+                  sx={{ mt: 2, p: 1, bgcolor: "action.hover", borderRadius: 1 }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    เลือกแล้ว {selectedGradeIds.length} ห้องเรียน
+                  </Typography>
+                </Box>
+              )}
+            </Collapse>
+          </Paper>
         )}
 
         {/* Error Display */}
@@ -471,12 +552,12 @@ function StudentTablePage() {
             elevation={0}
             sx={{
               p: 6,
-              textAlign: 'center',
-              bgcolor: 'action.hover',
+              textAlign: "center",
+              bgcolor: "action.hover",
               borderRadius: 2,
             }}
           >
-            <ClassIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+            <ClassIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               กรุณาเลือกห้องเรียน
             </Typography>
@@ -493,10 +574,10 @@ function StudentTablePage() {
             <Paper elevation={1} sx={{ p: 2 }}>
               <Box
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
                   gap: 2,
                 }}
               >
@@ -509,43 +590,47 @@ function StudentTablePage() {
                   </Typography>
                 </Box>
                 {isAdmin && (
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    startIcon={<DownloadIcon />}
-                    disabled={disableExport}
-                    onClick={() =>
-                      ExportStudentTable(
-                        timeSlotData as unknown as ExportTimeslotData,
-                        selectedGradeInfo,
-                        classData as unknown as ClassScheduleWithSummary[], 
-                        semester,
-                        academicYear,
-                      )
-                    }
-                  >
-                    นำออก Excel
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="success"
-                    startIcon={<PictureAsPdfIcon />}
-                    disabled={disableExport}
-                    onClick={handleExportPDF}
-                  >
-                    นำออก PDF
-                  </Button>
-                </Stack>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      startIcon={<DownloadIcon />}
+                      disabled={disableExport}
+                      onClick={() =>
+                        ExportStudentTable(
+                          timeSlotData as unknown as ExportTimeslotData,
+                          selectedGradeInfo,
+                          classData as unknown as ClassScheduleWithSummary[],
+                          semester,
+                          academicYear,
+                        )
+                      }
+                    >
+                      นำออก Excel
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      startIcon={<PictureAsPdfIcon />}
+                      disabled={disableExport}
+                      onClick={handleExportPDF}
+                    >
+                      นำออก PDF
+                    </Button>
+                  </Stack>
                 )}
               </Box>
             </Paper>
 
             {/* Timetable */}
             {showLoadingOverlay ? (
-              <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 1 }} />
+              <Skeleton
+                variant="rectangular"
+                height={400}
+                sx={{ borderRadius: 1 }}
+              />
             ) : (
-              <Paper elevation={1} sx={{ p: 2, overflow: 'auto' }}>
+              <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
                 <TimeSlot
                   searchGradeID={selectedGradeId}
                   timeSlotData={timeSlotData}

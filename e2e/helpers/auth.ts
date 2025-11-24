@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page } from "@playwright/test";
 
 /**
  * Authentication helpers for E2E tests
@@ -12,7 +12,7 @@ export class AuthHelper {
    * Navigate to sign-in page
    */
   async navigateToSignIn() {
-    await this.page.goto('/signin');
+    await this.page.goto("/signin");
   }
 
   /**
@@ -24,14 +24,14 @@ export class AuthHelper {
    * - Session management
    */
   async signInWithGoogle(email?: string, password?: string) {
-    await this.page.goto('/signin');
-    
+    await this.page.goto("/signin");
+
     // Look for sign-in button
-    const signInButton = this.page.locator('text=/sign in/i').first();
-    
+    const signInButton = this.page.locator("text=/sign in/i").first();
+
     if (await signInButton.isVisible()) {
       await signInButton.click();
-      
+
       // In real scenario, this would handle Google OAuth popup/redirect
       // For testing, we might need to:
       // 1. Use a mock auth provider
@@ -46,8 +46,8 @@ export class AuthHelper {
   async isAuthenticated(): Promise<boolean> {
     // Check for common authenticated indicators
     const userMenu = this.page.locator('[data-testid="user-menu"]');
-    const signOutButton = this.page.locator('text=/sign out/i');
-    
+    const signOutButton = this.page.locator("text=/sign out/i");
+
     return (await userMenu.count()) > 0 || (await signOutButton.count()) > 0;
   }
 
@@ -55,7 +55,7 @@ export class AuthHelper {
    * Sign out
    */
   async signOut() {
-    const signOutButton = this.page.locator('text=/sign out/i').first();
+    const signOutButton = this.page.locator("text=/sign out/i").first();
     if (await signOutButton.isVisible()) {
       await signOutButton.click();
     }
@@ -66,10 +66,10 @@ export class AuthHelper {
    */
   async verifyProtectedRoute(route: string) {
     await this.page.goto(route);
-    
+
     // Should redirect to sign-in
     await this.page.waitForURL(/signin/, { timeout: 5000 });
-    
-    return this.page.url().includes('signin');
+
+    return this.page.url().includes("signin");
   }
 }

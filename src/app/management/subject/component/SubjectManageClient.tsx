@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import type { subject } from '@/prisma/generated/client';;
+import type { subject } from "@/prisma/generated/client";
 import SubjectTable from "@/app/management/subject/component/SubjectTable";
-import { SubjectListSkeleton, NoSubjectsEmptyState } from "@/components/feedback";
+import {
+  SubjectListSkeleton,
+  NoSubjectsEmptyState,
+} from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
@@ -33,7 +36,9 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
 
   // Empty state
   if (!subjects || subjects.length === 0) {
-    return <NoSubjectsEmptyState onAdd={() => router.push("/management/subject")} />;
+    return (
+      <NoSubjectsEmptyState onAdd={() => router.push("/management/subject")} />
+    );
   }
 
   // Show skeleton during refresh
@@ -42,10 +47,5 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
   }
 
   // Success state
-  return (
-    <SubjectTable
-      tableData={subjects}
-      mutate={handleMutate}
-    />
-  );
+  return <SubjectTable tableData={subjects} mutate={handleMutate} />;
 }

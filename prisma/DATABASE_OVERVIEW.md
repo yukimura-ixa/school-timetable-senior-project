@@ -66,8 +66,8 @@ Activities (กิจกรรม)
        MON    TUE    WED    THU    FRI
 P1   08:30  08:30  08:30  08:30  08:30  Regular
 P2   09:20  09:20  09:20  09:20  09:20  Classes
-P3   10:10  10:10  10:10  10:10  10:10  
-P4   11:00  11:00  11:00  11:00  11:00  
+P3   10:10  10:10  10:10  10:10  10:10
+P4   11:00  11:00  11:00  11:00  11:00
      ═════  ═════  ═════  ═════  ═════  LUNCH 60min
 P5   12:50  12:50  12:50  12:50  12:50  Junior Break
 P6   13:40  13:40  13:40  13:40  13:40  Senior Break
@@ -121,13 +121,14 @@ Total Teaching Load: 9 periods/week
 ## Edge Cases Demonstrated
 
 ### 1. Locked Timeslots
+
 ```
 MON Period 8 - All 18 classes
   101 → ชุมนุม (LOCKED)
   102 → ชุมนุม (LOCKED)
   103 → ชุมนุม (LOCKED)
   ... (15 more classes)
-  
+
 WED Period 8 - All 18 classes
   101 → ลูกเสือ/ยุวกาชาด (LOCKED)
   102 → ลูกเสือ/ยุวกาชาด (LOCKED)
@@ -135,18 +136,20 @@ WED Period 8 - All 18 classes
 ```
 
 ### 2. Break Time Differences
+
 ```
 Junior Students (M.1-M.3)
   Period 4: 11:00-11:50
   LUNCH BREAK: 11:50-12:50 (60 min)
   Period 5: 12:50-13:40 ← BREAK_JUNIOR
-  
+
 Senior Students (M.4-M.6)
   Period 5: 12:50-13:40
   Period 6: 13:40-14:30 ← BREAK_SENIOR
 ```
 
 ### 3. Multiple Teacher Assignments
+
 ```
 Teacher A teaches:
   - Math to 101, 102, 103 (3 classes × 3 periods = 9 periods)
@@ -159,17 +162,19 @@ Teacher B teaches:
 ```
 
 ### 4. Room Assignment Scenarios
+
 ```
 Regular Classes:
   MON P1: ไทย @ Room 1101
   MON P2: คณิต @ Room 1101
-  
+
 Activities (no room):
   MON P8: ชุมนุม @ null (outdoor/various)
   WED P8: ลูกเสือ @ null (field/various)
 ```
 
 ### 5. Conflict Scenarios
+
 ```
 Potential Teacher Conflict:
   Teacher X teaching 101 at MON P1

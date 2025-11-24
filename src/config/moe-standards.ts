@@ -1,23 +1,23 @@
 /**
  * Thai Ministry of Education (MOE) Weekly Lesson Standards
- * 
+ *
  * Based on Basic Education Core Curriculum B.E. 2551 (A.D. 2008)
- * 
+ *
  * This configuration defines the minimum weekly lesson requirements for each grade level
  * in Thai secondary education (Matthayom 1-6).
- * 
+ *
  * Standards Reference:
  * - Lower Secondary (M.1-M.3): 28-32 periods/week minimum
  * - Upper Secondary (M.4-M.6): 30-34 periods/week minimum
- * 
+ *
  * Subject Categories:
  * - CORE: Required subjects for all students
  * - ELECTIVE: Additional subjects based on program track
  * - ACTIVITY: Non-academic activities (homeroom, club, etc.)
  */
 
-export type YearKey = 'M1' | 'M2' | 'M3' | 'M4' | 'M5' | 'M6';
-export type SubjectCategory = 'CORE' | 'ELECTIVE' | 'ACTIVITY';
+export type YearKey = "M1" | "M2" | "M3" | "M4" | "M5" | "M6";
+export type SubjectCategory = "CORE" | "ELECTIVE" | "ACTIVITY";
 
 export interface SubjectWeeklyStandard {
   /** Subject code (e.g., TH101, MA101) */
@@ -55,7 +55,7 @@ export interface YearStandard {
 
 /**
  * MOE Weekly Lesson Standards for Lower Secondary (M.1-M.3)
- * 
+ *
  * Core Subjects (8 Learning Areas):
  * 1. Thai Language (4-5 periods)
  * 2. Mathematics (4-5 periods)
@@ -68,82 +68,82 @@ export interface YearStandard {
  */
 const LOWER_SECONDARY_CORE: SubjectWeeklyStandard[] = [
   {
-    subjectCode: 'TH',
-    subjectNameTh: 'ภาษาไทย',
-    subjectNameEn: 'Thai Language',
+    subjectCode: "TH",
+    subjectNameTh: "ภาษาไทย",
+    subjectNameEn: "Thai Language",
     minWeeklyLessons: 4,
     maxWeeklyLessons: 5,
-    category: 'CORE',
-    group: 'ภาษาไทย'
+    category: "CORE",
+    group: "ภาษาไทย",
   },
   {
-    subjectCode: 'MA',
-    subjectNameTh: 'คณิตศาสตร์',
-    subjectNameEn: 'Mathematics',
+    subjectCode: "MA",
+    subjectNameTh: "คณิตศาสตร์",
+    subjectNameEn: "Mathematics",
     minWeeklyLessons: 4,
     maxWeeklyLessons: 5,
-    category: 'CORE',
-    group: 'คณิตศาสตร์'
+    category: "CORE",
+    group: "คณิตศาสตร์",
   },
   {
-    subjectCode: 'SC',
-    subjectNameTh: 'วิทยาศาสตร์',
-    subjectNameEn: 'Science',
+    subjectCode: "SC",
+    subjectNameTh: "วิทยาศาสตร์",
+    subjectNameEn: "Science",
     minWeeklyLessons: 3,
     maxWeeklyLessons: 4,
-    category: 'CORE',
-    group: 'วิทยาศาสตร์'
+    category: "CORE",
+    group: "วิทยาศาสตร์",
   },
   {
-    subjectCode: 'SS',
-    subjectNameTh: 'สังคมศึกษา ศาสนา และวัฒนธรรม',
-    subjectNameEn: 'Social Studies, Religion, and Culture',
+    subjectCode: "SS",
+    subjectNameTh: "สังคมศึกษา ศาสนา และวัฒนธรรม",
+    subjectNameEn: "Social Studies, Religion, and Culture",
     minWeeklyLessons: 3,
     maxWeeklyLessons: 4,
-    category: 'CORE',
-    group: 'สังคมศึกษา'
+    category: "CORE",
+    group: "สังคมศึกษา",
   },
   {
-    subjectCode: 'PE',
-    subjectNameTh: 'สุขศึกษาและพลศึกษา',
-    subjectNameEn: 'Health and Physical Education',
+    subjectCode: "PE",
+    subjectNameTh: "สุขศึกษาและพลศึกษา",
+    subjectNameEn: "Health and Physical Education",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'พลศึกษา'
+    category: "CORE",
+    group: "พลศึกษา",
   },
   {
-    subjectCode: 'AR',
-    subjectNameTh: 'ศิลปะ',
-    subjectNameEn: 'Arts',
+    subjectCode: "AR",
+    subjectNameTh: "ศิลปะ",
+    subjectNameEn: "Arts",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'ศิลปะ'
+    category: "CORE",
+    group: "ศิลปะ",
   },
   {
-    subjectCode: 'CT',
-    subjectNameTh: 'การงานอาชีพและเทคโนโลยี',
-    subjectNameEn: 'Career and Technology',
+    subjectCode: "CT",
+    subjectNameTh: "การงานอาชีพและเทคโนโลยี",
+    subjectNameEn: "Career and Technology",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'การงานอาชีพ'
+    category: "CORE",
+    group: "การงานอาชีพ",
   },
   {
-    subjectCode: 'EN',
-    subjectNameTh: 'ภาษาอังกฤษ',
-    subjectNameEn: 'English',
+    subjectCode: "EN",
+    subjectNameTh: "ภาษาอังกฤษ",
+    subjectNameEn: "English",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'ภาษาอังกฤษ'
-  }
+    category: "CORE",
+    group: "ภาษาอังกฤษ",
+  },
 ];
 
 /**
  * MOE Weekly Lesson Standards for Upper Secondary (M.4-M.6)
- * 
+ *
  * Core Subjects (reduced) + Track-specific electives:
  * - Science-Math Track: Additional Science, Math, Computer
  * - Arts-Language Track: Additional Social Studies, Languages, Arts
@@ -151,59 +151,59 @@ const LOWER_SECONDARY_CORE: SubjectWeeklyStandard[] = [
  */
 const UPPER_SECONDARY_CORE: SubjectWeeklyStandard[] = [
   {
-    subjectCode: 'TH',
-    subjectNameTh: 'ภาษาไทย',
-    subjectNameEn: 'Thai Language',
+    subjectCode: "TH",
+    subjectNameTh: "ภาษาไทย",
+    subjectNameEn: "Thai Language",
     minWeeklyLessons: 3,
     maxWeeklyLessons: 4,
-    category: 'CORE',
-    group: 'ภาษาไทย'
+    category: "CORE",
+    group: "ภาษาไทย",
   },
   {
-    subjectCode: 'MA',
-    subjectNameTh: 'คณิตศาสตร์',
-    subjectNameEn: 'Mathematics',
+    subjectCode: "MA",
+    subjectNameTh: "คณิตศาสตร์",
+    subjectNameEn: "Mathematics",
     minWeeklyLessons: 3,
     maxWeeklyLessons: 4,
-    category: 'CORE',
-    group: 'คณิตศาสตร์'
+    category: "CORE",
+    group: "คณิตศาสตร์",
   },
   {
-    subjectCode: 'SC',
-    subjectNameTh: 'วิทยาศาสตร์',
-    subjectNameEn: 'Science',
+    subjectCode: "SC",
+    subjectNameTh: "วิทยาศาสตร์",
+    subjectNameEn: "Science",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'วิทยาศาสตร์'
+    category: "CORE",
+    group: "วิทยาศาสตร์",
   },
   {
-    subjectCode: 'SS',
-    subjectNameTh: 'สังคมศึกษา ศาสนา และวัฒนธรรม',
-    subjectNameEn: 'Social Studies, Religion, and Culture',
+    subjectCode: "SS",
+    subjectNameTh: "สังคมศึกษา ศาสนา และวัฒนธรรม",
+    subjectNameEn: "Social Studies, Religion, and Culture",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'สังคมศึกษา'
+    category: "CORE",
+    group: "สังคมศึกษา",
   },
   {
-    subjectCode: 'PE',
-    subjectNameTh: 'สุขศึกษาและพลศึกษา',
-    subjectNameEn: 'Health and Physical Education',
+    subjectCode: "PE",
+    subjectNameTh: "สุขศึกษาและพลศึกษา",
+    subjectNameEn: "Health and Physical Education",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 2,
-    category: 'CORE',
-    group: 'พลศึกษา'
+    category: "CORE",
+    group: "พลศึกษา",
   },
   {
-    subjectCode: 'EN',
-    subjectNameTh: 'ภาษาอังกฤษ',
-    subjectNameEn: 'English',
+    subjectCode: "EN",
+    subjectNameTh: "ภาษาอังกฤษ",
+    subjectNameEn: "English",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'CORE',
-    group: 'ภาษาอังกฤษ'
-  }
+    category: "CORE",
+    group: "ภาษาอังกฤษ",
+  },
 ];
 
 /**
@@ -211,32 +211,32 @@ const UPPER_SECONDARY_CORE: SubjectWeeklyStandard[] = [
  */
 const LOWER_SECONDARY_ELECTIVES: SubjectWeeklyStandard[] = [
   {
-    subjectCode: 'CH',
-    subjectNameTh: 'ภาษาจีน',
-    subjectNameEn: 'Chinese',
+    subjectCode: "CH",
+    subjectNameTh: "ภาษาจีน",
+    subjectNameEn: "Chinese",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
-    category: 'ELECTIVE',
-    group: 'ภาษาต่างประเทศ'
+    category: "ELECTIVE",
+    group: "ภาษาต่างประเทศ",
   },
   {
-    subjectCode: 'JP',
-    subjectNameTh: 'ภาษาญี่ปุ่น',
-    subjectNameEn: 'Japanese',
+    subjectCode: "JP",
+    subjectNameTh: "ภาษาญี่ปุ่น",
+    subjectNameEn: "Japanese",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
-    category: 'ELECTIVE',
-    group: 'ภาษาต่างประเทศ'
+    category: "ELECTIVE",
+    group: "ภาษาต่างประเทศ",
   },
   {
-    subjectCode: 'CP',
-    subjectNameTh: 'คอมพิวเตอร์',
-    subjectNameEn: 'Computer',
+    subjectCode: "CP",
+    subjectNameTh: "คอมพิวเตอร์",
+    subjectNameEn: "Computer",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
-    category: 'ELECTIVE',
-    group: 'การงานอาชีพ'
-  }
+    category: "ELECTIVE",
+    group: "การงานอาชีพ",
+  },
 ];
 
 /**
@@ -244,50 +244,50 @@ const LOWER_SECONDARY_ELECTIVES: SubjectWeeklyStandard[] = [
  */
 const SCIENCE_MATH_ELECTIVES: SubjectWeeklyStandard[] = [
   {
-    subjectCode: 'MA_ADV',
-    subjectNameTh: 'คณิตศาสตร์เพิ่มเติม',
-    subjectNameEn: 'Advanced Mathematics',
+    subjectCode: "MA_ADV",
+    subjectNameTh: "คณิตศาสตร์เพิ่มเติม",
+    subjectNameEn: "Advanced Mathematics",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 4,
-    category: 'ELECTIVE',
-    group: 'คณิตศาสตร์'
+    category: "ELECTIVE",
+    group: "คณิตศาสตร์",
   },
   {
-    subjectCode: 'PH',
-    subjectNameTh: 'ฟิสิกส์',
-    subjectNameEn: 'Physics',
+    subjectCode: "PH",
+    subjectNameTh: "ฟิสิกส์",
+    subjectNameEn: "Physics",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'วิทยาศาสตร์'
+    category: "ELECTIVE",
+    group: "วิทยาศาสตร์",
   },
   {
-    subjectCode: 'CH_SCI',
-    subjectNameTh: 'เคมี',
-    subjectNameEn: 'Chemistry',
+    subjectCode: "CH_SCI",
+    subjectNameTh: "เคมี",
+    subjectNameEn: "Chemistry",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'วิทยาศาสตร์'
+    category: "ELECTIVE",
+    group: "วิทยาศาสตร์",
   },
   {
-    subjectCode: 'BI',
-    subjectNameTh: 'ชีววิทยา',
-    subjectNameEn: 'Biology',
+    subjectCode: "BI",
+    subjectNameTh: "ชีววิทยา",
+    subjectNameEn: "Biology",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'วิทยาศาสตร์'
+    category: "ELECTIVE",
+    group: "วิทยาศาสตร์",
   },
   {
-    subjectCode: 'CP_ADV',
-    subjectNameTh: 'วิทยาการคำนวณ',
-    subjectNameEn: 'Computer Science',
+    subjectCode: "CP_ADV",
+    subjectNameTh: "วิทยาการคำนวณ",
+    subjectNameEn: "Computer Science",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
-    category: 'ELECTIVE',
-    group: 'การงานอาชีพ'
-  }
+    category: "ELECTIVE",
+    group: "การงานอาชีพ",
+  },
 ];
 
 /**
@@ -295,50 +295,50 @@ const SCIENCE_MATH_ELECTIVES: SubjectWeeklyStandard[] = [
  */
 const ARTS_LANGUAGE_ELECTIVES: SubjectWeeklyStandard[] = [
   {
-    subjectCode: 'SS_ADV',
-    subjectNameTh: 'สังคมศึกษาเพิ่มเติม',
-    subjectNameEn: 'Advanced Social Studies',
+    subjectCode: "SS_ADV",
+    subjectNameTh: "สังคมศึกษาเพิ่มเติม",
+    subjectNameEn: "Advanced Social Studies",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'สังคมศึกษา'
+    category: "ELECTIVE",
+    group: "สังคมศึกษา",
   },
   {
-    subjectCode: 'EN_ADV',
-    subjectNameTh: 'ภาษาอังกฤษเพิ่มเติม',
-    subjectNameEn: 'Advanced English',
+    subjectCode: "EN_ADV",
+    subjectNameTh: "ภาษาอังกฤษเพิ่มเติม",
+    subjectNameEn: "Advanced English",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'ภาษาอังกฤษ'
+    category: "ELECTIVE",
+    group: "ภาษาอังกฤษ",
   },
   {
-    subjectCode: 'CH',
-    subjectNameTh: 'ภาษาจีน',
-    subjectNameEn: 'Chinese',
+    subjectCode: "CH",
+    subjectNameTh: "ภาษาจีน",
+    subjectNameEn: "Chinese",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'ภาษาต่างประเทศ'
+    category: "ELECTIVE",
+    group: "ภาษาต่างประเทศ",
   },
   {
-    subjectCode: 'JP',
-    subjectNameTh: 'ภาษาญี่ปุ่น',
-    subjectNameEn: 'Japanese',
+    subjectCode: "JP",
+    subjectNameTh: "ภาษาญี่ปุ่น",
+    subjectNameEn: "Japanese",
     minWeeklyLessons: 2,
     maxWeeklyLessons: 3,
-    category: 'ELECTIVE',
-    group: 'ภาษาต่างประเทศ'
+    category: "ELECTIVE",
+    group: "ภาษาต่างประเทศ",
   },
   {
-    subjectCode: 'AR_ADV',
-    subjectNameTh: 'ศิลปะเพิ่มเติม',
-    subjectNameEn: 'Advanced Arts',
+    subjectCode: "AR_ADV",
+    subjectNameTh: "ศิลปะเพิ่มเติม",
+    subjectNameEn: "Advanced Arts",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
-    category: 'ELECTIVE',
-    group: 'ศิลปะ'
-  }
+    category: "ELECTIVE",
+    group: "ศิลปะ",
+  },
 ];
 
 /**
@@ -346,23 +346,23 @@ const ARTS_LANGUAGE_ELECTIVES: SubjectWeeklyStandard[] = [
  */
 const COMMON_ACTIVITIES: SubjectWeeklyStandard[] = [
   {
-    subjectCode: 'HR',
-    subjectNameTh: 'ชั้นเรียน',
-    subjectNameEn: 'Homeroom',
+    subjectCode: "HR",
+    subjectNameTh: "ชั้นเรียน",
+    subjectNameEn: "Homeroom",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 1,
-    category: 'ACTIVITY',
-    group: 'กิจกรรม'
+    category: "ACTIVITY",
+    group: "กิจกรรม",
   },
   {
-    subjectCode: 'CLUB',
-    subjectNameTh: 'ชุมนุม',
-    subjectNameEn: 'Club Activity',
+    subjectCode: "CLUB",
+    subjectNameTh: "ชุมนุม",
+    subjectNameEn: "Club Activity",
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
-    category: 'ACTIVITY',
-    group: 'กิจกรรม'
-  }
+    category: "ACTIVITY",
+    group: "กิจกรรม",
+  },
 ];
 
 /**
@@ -370,59 +370,59 @@ const COMMON_ACTIVITIES: SubjectWeeklyStandard[] = [
  */
 export const MOE_WEEKLY_STANDARDS: Record<YearKey, YearStandard> = {
   M1: {
-    year: 'M1',
-    description: 'มัธยมศึกษาปีที่ 1 (Lower Secondary Year 1)',
+    year: "M1",
+    description: "มัธยมศึกษาปีที่ 1 (Lower Secondary Year 1)",
     minTotalLessons: 28,
     maxTotalLessons: 32,
     coreSubjects: LOWER_SECONDARY_CORE,
     electiveSubjects: LOWER_SECONDARY_ELECTIVES,
-    activities: COMMON_ACTIVITIES
+    activities: COMMON_ACTIVITIES,
   },
   M2: {
-    year: 'M2',
-    description: 'มัธยมศึกษาปีที่ 2 (Lower Secondary Year 2)',
+    year: "M2",
+    description: "มัธยมศึกษาปีที่ 2 (Lower Secondary Year 2)",
     minTotalLessons: 28,
     maxTotalLessons: 32,
     coreSubjects: LOWER_SECONDARY_CORE,
     electiveSubjects: LOWER_SECONDARY_ELECTIVES,
-    activities: COMMON_ACTIVITIES
+    activities: COMMON_ACTIVITIES,
   },
   M3: {
-    year: 'M3',
-    description: 'มัธยมศึกษาปีที่ 3 (Lower Secondary Year 3)',
+    year: "M3",
+    description: "มัธยมศึกษาปีที่ 3 (Lower Secondary Year 3)",
     minTotalLessons: 28,
     maxTotalLessons: 32,
     coreSubjects: LOWER_SECONDARY_CORE,
     electiveSubjects: LOWER_SECONDARY_ELECTIVES,
-    activities: COMMON_ACTIVITIES
+    activities: COMMON_ACTIVITIES,
   },
   M4: {
-    year: 'M4',
-    description: 'มัธยมศึกษาปีที่ 4 (Upper Secondary Year 4)',
+    year: "M4",
+    description: "มัธยมศึกษาปีที่ 4 (Upper Secondary Year 4)",
     minTotalLessons: 30,
     maxTotalLessons: 34,
     coreSubjects: UPPER_SECONDARY_CORE,
     electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...ARTS_LANGUAGE_ELECTIVES],
-    activities: COMMON_ACTIVITIES
+    activities: COMMON_ACTIVITIES,
   },
   M5: {
-    year: 'M5',
-    description: 'มัธยมศึกษาปีที่ 5 (Upper Secondary Year 5)',
+    year: "M5",
+    description: "มัธยมศึกษาปีที่ 5 (Upper Secondary Year 5)",
     minTotalLessons: 30,
     maxTotalLessons: 34,
     coreSubjects: UPPER_SECONDARY_CORE,
     electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...ARTS_LANGUAGE_ELECTIVES],
-    activities: COMMON_ACTIVITIES
+    activities: COMMON_ACTIVITIES,
   },
   M6: {
-    year: 'M6',
-    description: 'มัธยมศึกษาปีที่ 6 (Upper Secondary Year 6)',
+    year: "M6",
+    description: "มัธยมศึกษาปีที่ 6 (Upper Secondary Year 6)",
     minTotalLessons: 30,
     maxTotalLessons: 34,
     coreSubjects: UPPER_SECONDARY_CORE,
     electiveSubjects: [...SCIENCE_MATH_ELECTIVES, ...ARTS_LANGUAGE_ELECTIVES],
-    activities: COMMON_ACTIVITIES
-  }
+    activities: COMMON_ACTIVITIES,
+  },
 };
 
 /**
@@ -437,7 +437,10 @@ export function getMOEStandards(year: YearKey): YearStandard {
  */
 export function getMinCoreLessons(year: YearKey): number {
   const standard = getMOEStandards(year);
-  return standard.coreSubjects.reduce((sum, subject) => sum + subject.minWeeklyLessons, 0);
+  return standard.coreSubjects.reduce(
+    (sum, subject) => sum + subject.minWeeklyLessons,
+    0,
+  );
 }
 
 /**
@@ -445,32 +448,38 @@ export function getMinCoreLessons(year: YearKey): number {
  */
 export function getMaxCoreLessons(year: YearKey): number {
   const standard = getMOEStandards(year);
-  return standard.coreSubjects.reduce((sum, subject) => sum + subject.maxWeeklyLessons, 0);
+  return standard.coreSubjects.reduce(
+    (sum, subject) => sum + subject.maxWeeklyLessons,
+    0,
+  );
 }
 
 /**
  * Helper: Validate if total weekly lessons meet MOE standards
  */
-export function validateTotalLessons(year: YearKey, totalLessons: number): {
+export function validateTotalLessons(
+  year: YearKey,
+  totalLessons: number,
+): {
   valid: boolean;
   message?: string;
 } {
   const standard = getMOEStandards(year);
-  
+
   if (totalLessons < standard.minTotalLessons) {
     return {
       valid: false,
-      message: `จำนวนคาบเรียนรวมต่ำกว่ามาตรฐาน กพฐ. (ต้องการอย่างน้อย ${standard.minTotalLessons} คาบ/สัปดาห์)`
+      message: `จำนวนคาบเรียนรวมต่ำกว่ามาตรฐาน กพฐ. (ต้องการอย่างน้อย ${standard.minTotalLessons} คาบ/สัปดาห์)`,
     };
   }
-  
+
   if (totalLessons > standard.maxTotalLessons) {
     return {
       valid: false,
-      message: `จำนวนคาบเรียนรวมเกินมาตรฐาน กพฐ. (ไม่ควรเกิน ${standard.maxTotalLessons} คาบ/สัปดาห์)`
+      message: `จำนวนคาบเรียนรวมเกินมาตรฐาน กพฐ. (ไม่ควรเกิน ${standard.maxTotalLessons} คาบ/สัปดาห์)`,
     };
   }
-  
+
   return { valid: true };
 }
 
@@ -482,35 +491,38 @@ export function getSubjectGroups(year: YearKey): string[] {
   const allSubjects = [
     ...standard.coreSubjects,
     ...standard.electiveSubjects,
-    ...standard.activities
+    ...standard.activities,
   ];
-  
-  return [...new Set(allSubjects.map(s => s.group))];
+
+  return [...new Set(allSubjects.map((s) => s.group))];
 }
 
 /**
  * Program track types for upper secondary
  */
-export type ProgramTrack = 'GENERAL' | 'SCIENCE_MATH' | 'ARTS_LANGUAGE';
+export type ProgramTrack = "GENERAL" | "SCIENCE_MATH" | "ARTS_LANGUAGE";
 
 /**
  * Helper: Get recommended electives for a program track
  */
-export function getTrackElectives(year: YearKey, track: ProgramTrack): SubjectWeeklyStandard[] {
+export function getTrackElectives(
+  year: YearKey,
+  track: ProgramTrack,
+): SubjectWeeklyStandard[] {
   const standard = getMOEStandards(year);
-  
+
   // Lower secondary has same electives for all
-  if (['M1', 'M2', 'M3'].includes(year)) {
+  if (["M1", "M2", "M3"].includes(year)) {
     return standard.electiveSubjects;
   }
-  
+
   // Upper secondary varies by track
   switch (track) {
-    case 'SCIENCE_MATH':
+    case "SCIENCE_MATH":
       return SCIENCE_MATH_ELECTIVES;
-    case 'ARTS_LANGUAGE':
+    case "ARTS_LANGUAGE":
       return ARTS_LANGUAGE_ELECTIVES;
-    case 'GENERAL':
+    case "GENERAL":
     default:
       return standard.electiveSubjects;
   }

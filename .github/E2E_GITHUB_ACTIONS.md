@@ -11,6 +11,7 @@ E2E tests run automatically on every push and pull request to `main` and `develo
 ### 1. CI Workflow (`.github/workflows/ci.yml`)
 
 Runs on every push/PR and includes:
+
 - **Lint & Type Check**: ESLint and TypeScript validation
 - **Unit Tests**: Jest test suite with coverage reports
 - **Build**: Next.js production build verification
@@ -19,6 +20,7 @@ Runs on every push/PR and includes:
 ### 2. E2E Tests Workflow (`.github/workflows/e2e-tests.yml`)
 
 Runs E2E tests in parallel with the following features:
+
 - **Test Sharding**: Splits tests across 4 parallel jobs (customizable)
 - **PostgreSQL Service**: Temporary database for each test run
 - **Playwright**: Browser automation with Chromium
@@ -58,6 +60,7 @@ By default, tests run across 4 parallel jobs. You can customize this:
 ### Automatic Triggers
 
 E2E tests run automatically when:
+
 - Code is pushed to `main` or `develop`
 - Pull request is created/updated targeting `main` or `develop`
 - CI workflow completes successfully (optional trigger)
@@ -88,6 +91,7 @@ After tests complete:
 ### Inline Results
 
 Test results are also visible:
+
 - ✅ Check marks show passing tests
 - ❌ X marks show failing tests
 - Click on a job to see detailed logs
@@ -105,6 +109,7 @@ Each test run uses a temporary PostgreSQL database:
 ## Authentication
 
 Tests use **Dev Bypass** authentication:
+
 - No real OAuth credentials needed
 - Instant authentication as mock admin user
 - Only enabled when `ENABLE_DEV_BYPASS=true`
@@ -113,6 +118,7 @@ Tests use **Dev Bypass** authentication:
 ## Performance
 
 Current metrics:
+
 - **Total Tests**: ~579 test cases
 - **Shard Count**: 4 parallel jobs
 - **Average Runtime**: ~15-20 minutes per shard
@@ -123,6 +129,7 @@ Current metrics:
 ### Tests Timing Out
 
 If tests timeout:
+
 1. Check test logs for hanging operations
 2. Increase timeout in `playwright.config.ts`
 3. Use fewer shards for better resource allocation
@@ -130,6 +137,7 @@ If tests timeout:
 ### Database Connection Errors
 
 If database connections fail:
+
 1. Check PostgreSQL service health in workflow logs
 2. Verify `DATABASE_URL` format
 3. Ensure migrations ran successfully
@@ -137,6 +145,7 @@ If database connections fail:
 ### Auth Setup Failures
 
 If auth setup fails:
+
 1. Verify `ENABLE_DEV_BYPASS=true` is set
 2. Check that `NEXT_PUBLIC_ENABLE_DEV_BYPASS=true` is set
 3. Look for semester-storage timeout errors
@@ -144,6 +153,7 @@ If auth setup fails:
 ### Flaky Tests
 
 If tests are flaky:
+
 1. Check retry configuration (`retries: 2` in CI)
 2. Review test-specific timeouts
 3. Use `waitForLoadState` instead of fixed delays
@@ -155,7 +165,6 @@ If tests are flaky:
 
 1. **Increase Shards**: Use 8 shards instead of 4
    - Faster execution but higher resource usage
-   
 2. **Skip Visual Tests**: Comment out visual inspection tests
    - Reduces total test count by ~10-15%
 
@@ -165,6 +174,7 @@ If tests are flaky:
 ### Reducing CI Runs
 
 1. **Skip CI**: Add `[skip ci]` to commit message
+
    ```bash
    git commit -m "docs: update README [skip ci]"
    ```
@@ -174,17 +184,19 @@ If tests are flaky:
    on:
      push:
        paths:
-         - 'src/**'
-         - 'e2e/**'
+         - "src/**"
+         - "e2e/**"
    ```
 
 ## Cost Optimization
 
 GitHub Actions is free for public repositories and includes:
+
 - 2,000 minutes/month for private repos on Free plan
 - Unlimited minutes for public repos
 
 To optimize usage:
+
 - Use larger shards for fewer but longer jobs
 - Cache dependencies aggressively (already done)
 - Only run E2E on important branches

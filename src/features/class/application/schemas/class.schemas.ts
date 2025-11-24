@@ -1,11 +1,11 @@
 /**
  * Class Feature - Valibot Schemas
- * 
+ *
  * Input validation schemas for class schedule operations.
  * Uses Valibot for runtime type checking and validation.
  */
 
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /**
  * Schema: Get class schedules with flexible filtering
@@ -13,13 +13,17 @@ import * as v from 'valibot';
  */
 export const getClassSchedulesSchema = v.object({
   AcademicYear: v.pipe(v.number(), v.integer(), v.minValue(2500)),
-  Semester: v.picklist(['SEMESTER_1', 'SEMESTER_2']),
+  Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
   TeacherID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   GradeID: v.optional(v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/))), // e.g., "10/2566"
 });
 
-export type GetClassSchedulesInput = v.InferInput<typeof getClassSchedulesSchema>;
-export type GetClassSchedulesOutput = v.InferOutput<typeof getClassSchedulesSchema>;
+export type GetClassSchedulesInput = v.InferInput<
+  typeof getClassSchedulesSchema
+>;
+export type GetClassSchedulesOutput = v.InferOutput<
+  typeof getClassSchedulesSchema
+>;
 
 /**
  * Schema: Get schedule conflicts for a teacher
@@ -27,7 +31,7 @@ export type GetClassSchedulesOutput = v.InferOutput<typeof getClassSchedulesSche
  */
 export const getConflictsSchema = v.object({
   AcademicYear: v.pipe(v.number(), v.integer(), v.minValue(2500)),
-  Semester: v.picklist(['SEMESTER_1', 'SEMESTER_2']),
+  Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
   TeacherID: v.pipe(v.number(), v.integer(), v.minValue(1)),
 });
 
@@ -40,7 +44,7 @@ export type GetConflictsOutput = v.InferOutput<typeof getConflictsSchema>;
  */
 export const getSummarySchema = v.object({
   AcademicYear: v.pipe(v.number(), v.integer(), v.minValue(2500)),
-  Semester: v.picklist(['SEMESTER_1', 'SEMESTER_2']),
+  Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
 });
 
 export type GetSummaryInput = v.InferInput<typeof getSummarySchema>;
@@ -57,11 +61,17 @@ export const createClassScheduleSchema = v.object({
   RoomID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   GradeID: v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/)),
   IsLocked: v.optional(v.boolean()),
-  ResponsibilityIDs: v.optional(v.array(v.pipe(v.number(), v.integer(), v.minValue(1)))),
+  ResponsibilityIDs: v.optional(
+    v.array(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  ),
 });
 
-export type CreateClassScheduleInput = v.InferInput<typeof createClassScheduleSchema>;
-export type CreateClassScheduleOutput = v.InferOutput<typeof createClassScheduleSchema>;
+export type CreateClassScheduleInput = v.InferInput<
+  typeof createClassScheduleSchema
+>;
+export type CreateClassScheduleOutput = v.InferOutput<
+  typeof createClassScheduleSchema
+>;
 
 /**
  * Schema: Update class schedule
@@ -74,11 +84,17 @@ export const updateClassScheduleSchema = v.object({
   RoomID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   GradeID: v.optional(v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/))),
   IsLocked: v.optional(v.boolean()),
-  ResponsibilityIDs: v.optional(v.array(v.pipe(v.number(), v.integer(), v.minValue(1)))),
+  ResponsibilityIDs: v.optional(
+    v.array(v.pipe(v.number(), v.integer(), v.minValue(1))),
+  ),
 });
 
-export type UpdateClassScheduleInput = v.InferInput<typeof updateClassScheduleSchema>;
-export type UpdateClassScheduleOutput = v.InferOutput<typeof updateClassScheduleSchema>;
+export type UpdateClassScheduleInput = v.InferInput<
+  typeof updateClassScheduleSchema
+>;
+export type UpdateClassScheduleOutput = v.InferOutput<
+  typeof updateClassScheduleSchema
+>;
 
 /**
  * Schema: Delete class schedule
@@ -88,5 +104,9 @@ export const deleteClassScheduleSchema = v.object({
   ClassID: v.pipe(v.string(), v.minLength(1)),
 });
 
-export type DeleteClassScheduleInput = v.InferInput<typeof deleteClassScheduleSchema>;
-export type DeleteClassScheduleOutput = v.InferOutput<typeof deleteClassScheduleSchema>;
+export type DeleteClassScheduleInput = v.InferInput<
+  typeof deleteClassScheduleSchema
+>;
+export type DeleteClassScheduleOutput = v.InferOutput<
+  typeof deleteClassScheduleSchema
+>;

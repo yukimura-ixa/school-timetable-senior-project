@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import type { program } from '@/prisma/generated/client';;
+import type { program } from "@/prisma/generated/client";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
@@ -26,7 +26,7 @@ function StudyProgram() {
     async () => {
       const result = await getProgramsByYearAction({ Year: yearNum });
       return result?.data ?? [];
-    }
+    },
   );
 
   const programs = swr.data ?? [];
@@ -67,7 +67,9 @@ function StudyProgram() {
               <ProgramEditableTable
                 year={yearNum}
                 rows={programs}
-                mutate={() => { void swr.mutate(); }}
+                mutate={() => {
+                  void swr.mutate();
+                }}
               />
             </div>
           )}

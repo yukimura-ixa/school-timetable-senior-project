@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react"
-import { SubjectCategory, type subject } from '@/prisma/generated/client'
-import { getSubjectsAction, deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+import { useState, useEffect } from "react";
+import { SubjectCategory, type subject } from "@/prisma/generated/client";
+import {
+  getSubjectsAction,
+  deleteSubjectsAction,
+} from "@/features/subject/application/actions/subject.actions";
 import {
   Button,
   Table,
@@ -55,7 +58,7 @@ export default function ActivityTable() {
           SubjectName: s.SubjectName,
           ActivityType: s.ActivityType ?? null,
           IsGraded: s.IsGraded,
-        }))
+        })),
     );
     setLoading(false);
   };
@@ -82,7 +85,9 @@ export default function ActivityTable() {
   const handleDeleteConfirm = async () => {
     if (!activityToDelete) return;
 
-    const res = await deleteSubjectsAction({ SubjectCodes: [activityToDelete] });
+    const res = await deleteSubjectsAction({
+      SubjectCodes: [activityToDelete],
+    });
     if (res.success) {
       await fetchActivities();
     }
@@ -172,22 +177,32 @@ export default function ActivityTable() {
         </Table>
       </TableContainer>
 
-      <ActivityModal 
-        open={modalOpen} 
-        onClose={(shouldRefresh: boolean) => void handleModalClose(shouldRefresh)} 
-        editActivity={editActivity} 
+      <ActivityModal
+        open={modalOpen}
+        onClose={(shouldRefresh: boolean) =>
+          void handleModalClose(shouldRefresh)
+        }
+        editActivity={editActivity}
       />
 
-      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+      >
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this activity? This action cannot be undone.
+            Are you sure you want to delete this activity? This action cannot be
+            undone.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
-          <Button onClick={() => void handleDeleteConfirm()} color="error" variant="contained">
+          <Button
+            onClick={() => void handleDeleteConfirm()}
+            color="error"
+            variant="contained"
+          >
             Delete
           </Button>
         </DialogActions>

@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Backdrop, Box, Button, CircularProgress, Paper, Stack, Typography } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 
 const STUCK_TIMEOUT_MS = 10_000;
 const TELEMETRY_ENDPOINT = "/api/telemetry/loading-stuck";
@@ -28,7 +36,10 @@ export default function Loading() {
     };
     const body = JSON.stringify(payload);
 
-    if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+    if (
+      typeof navigator !== "undefined" &&
+      typeof navigator.sendBeacon === "function"
+    ) {
       navigator.sendBeacon(TELEMETRY_ENDPOINT, body);
     } else {
       void fetch(TELEMETRY_ENDPOINT, {
@@ -45,10 +56,16 @@ export default function Loading() {
   return (
     <>
       {!isStuck && (
-        <Backdrop open sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}>
+        <Backdrop
+          open
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
+        >
           <Stack spacing={2} alignItems="center">
             <CircularProgress color="inherit" thickness={4} size={56} />
-            <Typography variant="body2" sx={{ opacity: 0.9, textAlign: "center" }}>
+            <Typography
+              variant="body2"
+              sx={{ opacity: 0.9, textAlign: "center" }}
+            >
               กำลังโหลดข้อมูล...
               <br />
               ระบบกำลังดึงภาคเรียนล่าสุด โปรดรอสักครู่
@@ -85,8 +102,8 @@ export default function Loading() {
                 การโหลดใช้เวลานานผิดปกติ
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                ตรวจสอบอินเทอร์เน็ตหรือรีเฟรชหน้าเพื่อพยายามอีกครั้ง ระบบยังคงแสดงข้อมูล
-                ล่าสุดที่มีเพื่อให้คุณทำงานต่อได้
+                ตรวจสอบอินเทอร์เน็ตหรือรีเฟรชหน้าเพื่อพยายามอีกครั้ง
+                ระบบยังคงแสดงข้อมูล ล่าสุดที่มีเพื่อให้คุณทำงานต่อได้
               </Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 <Button

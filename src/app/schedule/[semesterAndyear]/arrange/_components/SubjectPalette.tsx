@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Subject Palette Component
- * 
+ *
  * MUI v7 drag source for available subjects that can be assigned.
  * Replaces legacy SubjectDragBox with modern design.
- * 
+ *
  * @module SubjectPalette
  */
 
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   Paper,
   Box,
@@ -23,30 +23,30 @@ import {
   Badge,
   Divider,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Search as SearchIcon,
   ExpandMore as ExpandMoreIcon,
   FilterList as FilterIcon,
   DragIndicator as DragIcon,
-} from '@mui/icons-material';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import type { SubjectData } from '@/types/schedule.types';
+} from "@mui/icons-material";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { SubjectData } from "@/types/schedule.types";
 
 interface SubjectPaletteProps {
   /** Available subjects that can be assigned */
   subjects: SubjectData[];
-  
+
   /** Subjects already scheduled */
   scheduledSubjects: SubjectData[];
-  
+
   /** Handler for subject click (alternative to drag) */
   onSubjectClick?: (subject: SubjectData) => void;
-  
+
   /** Currently selected subject */
   selectedSubject?: SubjectData | null;
-  
+
   /** Loading state */
   isLoading?: boolean;
 }
@@ -75,7 +75,7 @@ function DraggableSubjectItem({
   } = useSortable({
     id: `subject-${subject.subjectCode}`,
     data: {
-      type: 'subject',
+      type: "subject",
       subject,
     },
   });
@@ -93,21 +93,21 @@ function DraggableSubjectItem({
       ref={setNodeRef}
       style={style}
       elevation={isDragging ? 4 : isSelected ? 2 : 0}
-      variant={isSelected ? 'elevation' : 'outlined'}
+      variant={isSelected ? "elevation" : "outlined"}
       onClick={onClick}
       sx={{
         p: 1.5,
-        cursor: isFullyScheduled ? 'not-allowed' : 'grab',
-        bgcolor: isSelected ? 'primary.50' : 'background.paper',
-        border: isSelected ? '2px solid' : '1px solid',
-        borderColor: isSelected ? 'primary.main' : 'divider',
+        cursor: isFullyScheduled ? "not-allowed" : "grab",
+        bgcolor: isSelected ? "primary.50" : "background.paper",
+        border: isSelected ? "2px solid" : "1px solid",
+        borderColor: isSelected ? "primary.main" : "divider",
         opacity: isFullyScheduled ? 0.5 : 1,
-        transition: 'all 0.2s',
-        '&:hover': {
-          boxShadow: isFullyScheduled ? 'none' : 2,
-          borderColor: isFullyScheduled ? 'divider' : 'primary.light',
+        transition: "all 0.2s",
+        "&:hover": {
+          boxShadow: isFullyScheduled ? "none" : 2,
+          borderColor: isFullyScheduled ? "divider" : "primary.light",
         },
-        position: 'relative',
+        position: "relative",
       }}
       {...attributes}
       {...listeners}
@@ -117,8 +117,8 @@ function DraggableSubjectItem({
         <DragIcon
           fontSize="small"
           sx={{
-            color: isFullyScheduled ? 'text.disabled' : 'text.secondary',
-            cursor: 'grab',
+            color: isFullyScheduled ? "text.disabled" : "text.secondary",
+            cursor: "grab",
           }}
         />
 
@@ -128,29 +128,27 @@ function DraggableSubjectItem({
             variant="body2"
             fontWeight="medium"
             noWrap
-            sx={{ color: isFullyScheduled ? 'text.disabled' : 'text.primary' }}
+            sx={{ color: isFullyScheduled ? "text.disabled" : "text.primary" }}
           >
             {subject.subjectName}
           </Typography>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            noWrap
-          >
+          <Typography variant="caption" color="text.secondary" noWrap>
             {subject.subjectCode} • ม.{(subject.gradelevel?.year || 0) - 6}
           </Typography>
         </Box>
 
         {/* Hours Badge */}
-        <Tooltip title={`เหลือ ${remainingHours} ชม. จาก ${subject.teachHour} ชม.`}>
+        <Tooltip
+          title={`เหลือ ${remainingHours} ชม. จาก ${subject.teachHour} ชม.`}
+        >
           <Badge
             badgeContent={remainingHours}
-            color={remainingHours > 0 ? 'primary' : 'default'}
+            color={remainingHours > 0 ? "primary" : "default"}
             max={99}
             sx={{
-              '& .MuiBadge-badge': {
-                fontSize: '0.7rem',
-                fontWeight: 'bold',
+              "& .MuiBadge-badge": {
+                fontSize: "0.7rem",
+                fontWeight: "bold",
               },
             }}
           >
@@ -177,15 +175,15 @@ export function SubjectPalette({
   selectedSubject,
   isLoading = false,
 }: SubjectPaletteProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [expanded, setExpanded] = useState(true);
   const [filterByGrade, setFilterByGrade] = useState<number | null>(null);
 
   // Calculate remaining hours for each subject
   const subjectsWithHours = useMemo(() => {
-    return subjects.map(subject => {
+    return subjects.map((subject) => {
       const scheduledCount = scheduledSubjects.filter(
-        s => s.subjectCode === subject.subjectCode
+        (s) => s.subjectCode === subject.subjectCode,
       ).length;
       const remainingHours = (subject.teachHour || 0) - scheduledCount;
       return {
@@ -197,15 +195,16 @@ export function SubjectPalette({
 
   // Filter subjects
   const filteredSubjects = useMemo(() => {
-    return subjectsWithHours.filter(subject => {
+    return subjectsWithHours.filter((subject) => {
       // Search filter
-      const matchesSearch = searchQuery === '' ||
+      const matchesSearch =
+        searchQuery === "" ||
         subject.subjectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         subject.subjectCode.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Grade filter
-      const matchesGrade = filterByGrade === null ||
-        subject.gradelevel?.year === filterByGrade;
+      const matchesGrade =
+        filterByGrade === null || subject.gradelevel?.year === filterByGrade;
 
       return matchesSearch && matchesGrade;
     });
@@ -214,7 +213,7 @@ export function SubjectPalette({
   // Group by grade level
   const subjectsByGrade = useMemo(() => {
     const groups: Record<number, typeof filteredSubjects> = {};
-    filteredSubjects.forEach(subject => {
+    filteredSubjects.forEach((subject) => {
       const grade = subject.gradelevel?.year || 0;
       if (!groups[grade]) {
         groups[grade] = [];
@@ -225,13 +224,24 @@ export function SubjectPalette({
   }, [filteredSubjects]);
 
   const totalSubjects = subjects.length;
-  const availableSubjects = subjectsWithHours.filter(s => s.remainingHours > 0).length;
+  const availableSubjects = subjectsWithHours.filter(
+    (s) => s.remainingHours > 0,
+  ).length;
 
   return (
-    <Paper elevation={2} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Paper
+      elevation={2}
+      sx={{ height: "100%", display: "flex", flexDirection: "column" }}
+    >
       {/* Header */}
-      <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'primary.contrastText' }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Box
+        sx={{ p: 2, bgcolor: "primary.main", color: "primary.contrastText" }}
+      >
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Box>
             <Typography variant="h6" fontWeight="bold">
               วิชาที่สามารถจัดได้
@@ -243,21 +253,29 @@ export function SubjectPalette({
           <IconButton
             size="small"
             onClick={() => setExpanded(!expanded)}
-            sx={{ color: 'inherit' }}
+            sx={{ color: "inherit" }}
           >
             <ExpandMoreIcon
               sx={{
-                transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 0.2s',
+                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s",
               }}
             />
           </IconButton>
         </Stack>
       </Box>
 
-      <Collapse in={expanded} sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <Collapse
+        in={expanded}
+        sx={{
+          flex: 1,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* Search & Filter */}
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
           <Stack spacing={1.5}>
             <TextField
               fullWidth
@@ -273,7 +291,7 @@ export function SubjectPalette({
                 ),
               }}
             />
-            
+
             {/* Grade Filter Chips */}
             <Stack direction="row" spacing={1} flexWrap="wrap" gap={0.5}>
               <Chip
@@ -281,17 +299,17 @@ export function SubjectPalette({
                 label="ทั้งหมด"
                 size="small"
                 onClick={() => setFilterByGrade(null)}
-                color={filterByGrade === null ? 'primary' : 'default'}
-                variant={filterByGrade === null ? 'filled' : 'outlined'}
+                color={filterByGrade === null ? "primary" : "default"}
+                variant={filterByGrade === null ? "filled" : "outlined"}
               />
-              {[7, 8, 9, 10, 11, 12].map(grade => (
+              {[7, 8, 9, 10, 11, 12].map((grade) => (
                 <Chip
                   key={grade}
                   label={`ม.${grade - 6}`}
                   size="small"
                   onClick={() => setFilterByGrade(grade)}
-                  color={filterByGrade === grade ? 'primary' : 'default'}
-                  variant={filterByGrade === grade ? 'filled' : 'outlined'}
+                  color={filterByGrade === grade ? "primary" : "default"}
+                  variant={filterByGrade === grade ? "filled" : "outlined"}
                 />
               ))}
             </Stack>
@@ -299,7 +317,7 @@ export function SubjectPalette({
         </Box>
 
         {/* Subject List */}
-        <Box sx={{ flex: 1, overflowY: 'auto', p: 2 }}>
+        <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
           {isLoading ? (
             <Typography color="text.secondary" textAlign="center">
               กำลังโหลด...
@@ -318,13 +336,13 @@ export function SubjectPalette({
                       variant="caption"
                       fontWeight="bold"
                       color="text.secondary"
-                      sx={{ mb: 1, display: 'block' }}
+                      sx={{ mb: 1, display: "block" }}
                     >
                       มัธยมศึกษาปีที่ {Number(grade) - 6}
                     </Typography>
                     <Divider sx={{ mb: 1 }} />
                     <Stack spacing={1}>
-                      {gradeSubjects.map(subject => (
+                      {gradeSubjects.map((subject) => (
                         <DraggableSubjectItem
                           key={subject.subjectCode}
                           subject={subject}
@@ -343,8 +361,20 @@ export function SubjectPalette({
         </Box>
 
         {/* Footer Info */}
-        <Box sx={{ p: 1.5, borderTop: 1, borderColor: 'divider', bgcolor: 'grey.50' }}>
-          <Typography variant="caption" color="text.secondary" textAlign="center" display="block">
+        <Box
+          sx={{
+            p: 1.5,
+            borderTop: 1,
+            borderColor: "divider",
+            bgcolor: "grey.50",
+          }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            textAlign="center"
+            display="block"
+          >
             💡 ลากวิชาไปยังคาบว่าง หรือคลิกเพื่อเลือก
           </Typography>
         </Box>

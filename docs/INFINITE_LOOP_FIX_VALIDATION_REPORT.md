@@ -12,6 +12,7 @@
 Successfully eliminated infinite loop in teacher scheduling page by removing Zustand `actions` from all useEffect dependency arrays.
 
 **Results**:
+
 - **Before**: 65 POST requests (infinite loop)
 - **After**: 12 POST requests (completes normally)
 - **Reduction**: 81.5%
@@ -25,6 +26,7 @@ Successfully eliminated infinite loop in teacher scheduling page by removing Zus
 ### 1. POST Request Analysis
 
 #### Before Fix (with `actions` in deps)
+
 ```
 Total POST requests: 65
 Pattern: Rapid-fire continuous loop
@@ -33,6 +35,7 @@ Behavior: Never stops, triggers test timeout
 ```
 
 #### After Fix (actions removed from deps)
+
 ```
 Total POST requests: 12
 Pattern: Initial burst, then stops
@@ -41,6 +44,7 @@ Behavior: Completes and stops gracefully
 ```
 
 #### Request Breakdown
+
 ```
 [WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 115ms (compile: 35ms, render: 81ms)
 [WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 37ms (compile: 11ms, render: 25ms)
@@ -57,6 +61,7 @@ Behavior: Completes and stops gracefully
 ```
 
 **Key Observations**:
+
 - ✅ No more rapid-fire 20ms requests
 - ✅ Requests complete and stop (no infinite loop)
 - ⚠️ 12 requests still higher than ideal (target: ≤5)
@@ -89,11 +94,12 @@ useEffect(() => {
 Even though Zustand actions are stable functions, the `actions` **object reference** returned by `useShallow()` can change:
 
 ```typescript
-const actions = useTeacherArrangeActions(); 
+const actions = useTeacherArrangeActions();
 // Returns: { setTimeSlotData, updateTimeslot, ... }
 ```
 
 **Loop mechanism**:
+
 1. useEffect runs → calls `actions.setTimeSlotData()`
 2. Store updates → subscribers re-render
 3. Component re-renders → `useTeacherArrangeActions()` may return new object reference
@@ -166,12 +172,14 @@ All 6 instances followed same pattern with explanatory comments.
 ## Validation Tests
 
 ### TypeScript Compilation
+
 ```bash
 $ pnpm typecheck
 ✅ 0 errors
 ```
 
 ### E2E Test Execution
+
 ```bash
 $ pnpm test:e2e -- e2e/tests/admin/schedule-assignment.spec.ts:71
 Results:
@@ -183,12 +191,12 @@ Results:
 
 ### Performance Comparison
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| POST requests | 65 | 12 | **81.5% ↓** |
-| Average timing | ~30ms | ~57ms | Slower = more legitimate |
-| Loop behavior | Infinite | Stops | **Fixed ✓** |
-| Test outcome | Timeout (loop) | Timeout (data issue) | Different failure |
+| Metric         | Before         | After                | Improvement              |
+| -------------- | -------------- | -------------------- | ------------------------ |
+| POST requests  | 65             | 12                   | **81.5% ↓**              |
+| Average timing | ~30ms          | ~57ms                | Slower = more legitimate |
+| Loop behavior  | Infinite       | Stops                | **Fixed ✓**              |
+| Test outcome   | Timeout (loop) | Timeout (data issue) | Different failure        |
 
 ---
 
@@ -199,11 +207,13 @@ Results:
 **Status**: ❌ **BROKEN** (not caused by infinite loop fix)
 
 **Symptoms**:
+
 - Subject palette shows: "ไม่มีวิชาที่สามารถจัดได้" (0/0)
 - Test fails: Cannot find subject cards
 - SWR fetch completes successfully but data not displayed
 
 **Evidence from test**:
+
 ```
 [BROWSER] error-context.md shows:
   - heading "วิชาที่สามารถจัดลงได้" [level=6]
@@ -213,6 +223,7 @@ Results:
 ```
 
 **Next Steps**:
+
 - Trace `setSubjectData()` calls in useEffect
 - Verify SWR `fetchResp.data` is populated
 - Check rendering gate conditions
@@ -225,21 +236,25 @@ Results:
 **Status**: ⚠️ **NEEDS OPTIMIZATION** (not critical)
 
 **Current State**:
+
 - 12 POST requests on initial load
 - 1 GET + 12 POST = 13 total page renders
 - Target: ≤5 POST requests
 
 **Hypothesis**:
+
 - 5 SWR hooks each trigger Server Component re-renders
 - React may be batching state updates inefficiently
 - Some useEffects may still have problematic dependencies
 
 **Possible Causes**:
+
 1. `checkConflictData.data` in dependency array (SWR data changes reference)
 2. Multiple state setters in quick succession
 3. Server Component re-rendering on every state change
 
 **Investigation Plan**:
+
 1. Profile which useEffects trigger the most re-renders
 2. Check if `checkConflictData.data` needs shallow comparison
 3. Consider batching state updates with `startTransition()`
@@ -249,13 +264,13 @@ Results:
 
 ## Acceptance Criteria
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| ✅ Eliminate infinite loop | **PASS** | 81.5% reduction, no longer loops |
-| ✅ TypeScript errors | **PASS** | 0 errors |
-| ✅ Follow Zustand best practices | **PASS** | No actions in deps (Context7) |
-| ❌ E2E test passes | **FAIL** | Blocked by subject data issue |
-| ⚠️ POST count ≤5 | **PARTIAL** | 12 requests (down from 65) |
+| Criterion                        | Status      | Notes                            |
+| -------------------------------- | ----------- | -------------------------------- |
+| ✅ Eliminate infinite loop       | **PASS**    | 81.5% reduction, no longer loops |
+| ✅ TypeScript errors             | **PASS**    | 0 errors                         |
+| ✅ Follow Zustand best practices | **PASS**    | No actions in deps (Context7)    |
+| ❌ E2E test passes               | **FAIL**    | Blocked by subject data issue    |
+| ⚠️ POST count ≤5                 | **PARTIAL** | 12 requests (down from 65)       |
 
 **Overall**: **MAJOR SUCCESS** - Core issue resolved, remaining work is optimization.
 
@@ -270,13 +285,19 @@ Results:
 **Why**: Even with `useShallow()`, the actions object reference can change on re-renders, triggering infinite loops.
 
 **Pattern**:
+
 ```typescript
 // ✅ CORRECT
 const actions = useTeacherArrangeActions();
-useEffect(() => {
-  actions.doSomething();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [/* other deps, NOT actions */]);
+useEffect(
+  () => {
+    actions.doSomething();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },
+  [
+    /* other deps, NOT actions */
+  ],
+);
 
 // ❌ INCORRECT
 useEffect(() => {
@@ -287,6 +308,7 @@ useEffect(() => {
 ### 2. Debugging Infinite Loops
 
 **Approach**:
+
 1. Count POST requests to detect loop
 2. Identify all useEffect dependency arrays
 3. Check for complex objects (actions, data, etc.)
@@ -298,6 +320,7 @@ useEffect(() => {
 **Insight**: POST requests to `/schedule/...` endpoints indicate Server Component re-renders.
 
 **Pattern**:
+
 - 1 GET = Initial navigation
 - N POST = N re-renders of Server Component
 - Excessive POST = Component re-rendering in loop
@@ -307,16 +330,19 @@ useEffect(() => {
 ## Next Steps
 
 ### Immediate (Priority 1)
+
 1. ✅ **Complete validation report** (this document)
 2. ⬜ **Create GitHub issue for subject data loading**
 3. ⬜ **Investigate why `setSubjectData()` not populating store**
 
 ### Short-term (Priority 2)
+
 1. ⬜ **Optimize 12 POST requests down to ≤5**
 2. ⬜ **Profile useEffect execution to find remaining triggers**
 3. ⬜ **Add React DevTools profiler analysis**
 
 ### Long-term (Priority 3)
+
 1. ⬜ **Document Zustand patterns in AGENTS.md**
 2. ⬜ **Add ESLint rule to catch actions in deps**
 3. ⬜ **Create architectural decision record (ADR)**
@@ -337,11 +363,13 @@ useEffect(() => {
 ### Full Test Execution
 
 **Command**:
+
 ```bash
 pnpm test:e2e -- e2e/tests/admin/schedule-assignment.spec.ts:71 --project=chromium
 ```
 
 **Results**:
+
 - Auth setup: ✅ PASS (29.2s)
 - Subject assignment: ❌ FAIL (30.7s timeout)
 - Total POST requests: **12**

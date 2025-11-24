@@ -13,10 +13,10 @@ import { test, expect } from "./fixtures/admin.fixture";
 
 test("feature description", async ({ authenticatedAdmin }) => {
   const { page } = authenticatedAdmin;
-  
+
   await page.goto("/your-route");
   await expect(page.locator("h1")).toBeVisible();
-  
+
   // Your test logic...
 });
 ```
@@ -25,13 +25,13 @@ test("feature description", async ({ authenticatedAdmin }) => {
 
 ## ✅ Web-First Cheat Sheet
 
-| ❌ **DON'T**  | ✅ **DO** |
-|--------------|-----------|
-| `await page.waitForTimeout(3000)` | `await expect(locator).toBeVisible()` |
-| `await page.waitForSelector("h1")` | `await expect(page.locator("h1")).toBeVisible()` |
-| `await page.waitForLoadState()` | `await expect(page.locator("main")).toBeVisible()` |
-| `page.goto("/url", {waitUntil: 'X'})` | `page.goto("/url")` + `expect().toBeVisible()` |
-| `if (await el.isVisible())` | `await expect(el).toBeVisible()` |
+| ❌ **DON'T**                          | ✅ **DO**                                          |
+| ------------------------------------- | -------------------------------------------------- |
+| `await page.waitForTimeout(3000)`     | `await expect(locator).toBeVisible()`              |
+| `await page.waitForSelector("h1")`    | `await expect(page.locator("h1")).toBeVisible()`   |
+| `await page.waitForLoadState()`       | `await expect(page.locator("main")).toBeVisible()` |
+| `page.goto("/url", {waitUntil: 'X'})` | `page.goto("/url")` + `expect().toBeVisible()`     |
+| `if (await el.isVisible())`           | `await expect(el).toBeVisible()`                   |
 
 ---
 
@@ -62,6 +62,7 @@ await expect(page.locator("li")).toHaveCount(5);
 ## 🔒 Authentication
 
 ### Authenticated Test (99% of cases)
+
 ```typescript
 test("example", async ({ authenticatedAdmin }) => {
   const { page, session } = authenticatedAdmin;
@@ -70,6 +71,7 @@ test("example", async ({ authenticatedAdmin }) => {
 ```
 
 ### Public Test (rare)
+
 ```typescript
 test("public page", async ({ page }) => {
   // No authentication
@@ -81,6 +83,7 @@ test("public page", async ({ page }) => {
 ## 🛠️ Migration Tools
 
 ### Migrate Files
+
 ```powershell
 # Preview
 .\scripts\migrate-e2e-tests.ps1 -DryRun
@@ -90,6 +93,7 @@ test("public page", async ({ page }) => {
 ```
 
 ### Run Tests
+
 ```powershell
 # All tests
 pnpm test:e2e
@@ -136,4 +140,3 @@ pnpm playwright test file.spec.ts --headed --debug
 ---
 
 **Need Help?** See full migration guide or fixture documentation above.
-

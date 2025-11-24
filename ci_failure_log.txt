@@ -1,0 +1,1098 @@
+Unit Tests	UNKNOWN STEP	﻿2025-11-23T11:47:49.3953985Z Current runner version: '2.329.0'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3978705Z ##[group]Runner Image Provisioner
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3979477Z Hosted Compute Agent
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3980100Z Version: 20251016.436
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3980697Z Commit: 8ab8ac8bfd662a3739dab9fe09456aba92132568
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3981391Z Build Date: 2025-10-15T20:44:12Z
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3982055Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3982573Z ##[group]Operating System
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3983142Z Ubuntu
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3983569Z 24.04.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3984106Z LTS
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3984576Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3985148Z ##[group]Runner Image
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3985706Z Image: ubuntu-24.04
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3986205Z Version: 20251112.124.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3987189Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20251112.124/images/ubuntu/Ubuntu2404-Readme.md
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3988860Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20251112.124
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3989822Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3992361Z ##[group]GITHUB_TOKEN Permissions
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3994269Z Actions: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3994927Z ArtifactMetadata: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3995448Z Attestations: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3995984Z Checks: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3996523Z Contents: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3996995Z Deployments: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3997508Z Discussions: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3998009Z Issues: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3998872Z Metadata: read
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.3999370Z Models: read
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4000250Z Packages: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4000783Z Pages: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4001254Z PullRequests: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4001826Z RepositoryProjects: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4002521Z SecurityEvents: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4003150Z Statuses: write
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4003694Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4005687Z Secret source: Actions
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4006392Z Prepare workflow directory
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4389870Z Prepare all required actions
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.4428939Z Getting action download info
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:49.9583545Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:50.7670040Z Download action repository 'pnpm/action-setup@v4' (SHA:41ff72655975bd51cab0327fa583b6e92b6d3061)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.3571329Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.4971414Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.6370113Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.8731357Z Complete job name: Unit Tests
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9382455Z ##[group]Run actions/checkout@v4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9383071Z with:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9383392Z   repository: yukimura-ixa/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9383924Z   token: ***
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9384170Z   ssh-strict: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9384390Z   ssh-user: git
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9384628Z   persist-credentials: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9384885Z   clean: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9385121Z   sparse-checkout-cone-mode: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9385402Z   fetch-depth: 1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9385642Z   fetch-tags: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9385877Z   show-progress: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9386104Z   lfs: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9386320Z   submodules: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9386555Z   set-safe-directory: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9387014Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9387424Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:51.9387712Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.0438494Z Syncing repository: yukimura-ixa/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.0440106Z ##[group]Getting Git version info
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.0440722Z Working directory is '/home/runner/work/school-timetable-senior-project/school-timetable-senior-project'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.0441491Z [command]/usr/bin/git version
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1302361Z git version 2.51.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1329548Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1351437Z Temporarily overriding HOME='/home/runner/work/_temp/4b5a7f1d-a9bd-413a-9b7f-38b189e9940d' before making global git config changes
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1352824Z Adding repository directory to the temporary git global config as a safe directory
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1356990Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/school-timetable-senior-project/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1427920Z Deleting the contents of '/home/runner/work/school-timetable-senior-project/school-timetable-senior-project'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1431444Z ##[group]Initializing the repository
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1435529Z [command]/usr/bin/git init /home/runner/work/school-timetable-senior-project/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1891106Z hint: Using 'master' as the name for the initial branch. This default branch name
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1892059Z hint: is subject to change. To configure the initial branch name to use in all
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1892944Z hint: of your new repositories, which will suppress this warning, call:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1893586Z hint:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1894033Z hint: 	git config --global init.defaultBranch <name>
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1894406Z hint:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1894749Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1895319Z hint: 'development'. The just-created branch can be renamed via this command:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1895756Z hint:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1895989Z hint: 	git branch -m <name>
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1896262Z hint:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1896628Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1931679Z Initialized empty Git repository in /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/.git/
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.1943643Z [command]/usr/bin/git remote add origin https://github.com/yukimura-ixa/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2014855Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2015571Z ##[group]Disabling automatic garbage collection
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2020334Z [command]/usr/bin/git config --local gc.auto 0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2047886Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2048708Z ##[group]Setting up auth
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2054431Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.2083049Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.3572401Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.3604512Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.3832737Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.3864325Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.4085297Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.4117530Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.4118275Z ##[group]Fetching the repository
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:52.4125665Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +0d6bf41e850629c86f4e4f28469df7fee656b00c:refs/remotes/origin/main
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3524002Z From https://github.com/yukimura-ixa/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3525435Z  * [new ref]         0d6bf41e850629c86f4e4f28469df7fee656b00c -> origin/main
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3605946Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3606588Z ##[group]Determining the checkout info
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3607876Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3613597Z [command]/usr/bin/git sparse-checkout disable
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3691278Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3717746Z ##[group]Checking out the ref
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.3722901Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4634424Z Switched to a new branch 'main'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4635658Z branch 'main' set up to track 'origin/main'.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4646863Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4687411Z [command]/usr/bin/git log -1 --format=%H
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4711717Z 0d6bf41e850629c86f4e4f28469df7fee656b00c
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4894995Z ##[group]Run pnpm/action-setup@v4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4895273Z with:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4895445Z   dest: ~/setup-pnpm
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4895638Z   run_install: null
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4895841Z   package_json_file: package.json
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4896075Z   standalone: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4896266Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4896749Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.4896992Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:53.5489528Z ##[group]Running self-installer...
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.0751165Z Progress: resolved 1, reused 0, downloaded 0, added 0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.0835296Z Packages: +1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.0836897Z +
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.4960909Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5230737Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5231038Z dependencies:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5231318Z + pnpm 10.22.0 (10.23.0 is available)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5231504Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5257343Z Done in 819ms
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5429983Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5433703Z Installation Completed!
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5563840Z ##[group]Run actions/setup-node@v4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5564106Z with:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5564280Z   node-version: 20
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5564495Z   cache: pnpm
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5564681Z   always-auth: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5564885Z   check-latest: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5565239Z   token: ***
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5565418Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5565725Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5566027Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.5566297Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.7650157Z Found in cache @ /opt/hostedtoolcache/node/20.19.5/x64
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:54.7657057Z ##[group]Environment details
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:56.7231021Z node: v20.19.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:56.7231381Z npm: 10.8.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:56.7231628Z yarn: 1.22.22
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:56.7233614Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:56.7257775Z [command]/home/runner/setup-pnpm/node_modules/.bin/pnpm store path --silent
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:57.1886231Z /home/runner/setup-pnpm/node_modules/.bin/store/v10
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:57.4839673Z Cache hit for: node-cache-Linux-x64-pnpm-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:58.7841972Z Received 0 of 326948114 (0.0%), 0.0 MBs/sec
+Unit Tests	UNKNOWN STEP	2025-11-23T11:47:59.7845772Z Received 104857600 of 326948114 (32.1%), 50.0 MBs/sec
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:00.7848068Z Received 163577856 of 326948114 (50.0%), 52.0 MBs/sec
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:01.7922503Z Received 268435456 of 326948114 (82.1%), 63.9 MBs/sec
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:02.1845734Z Received 326948114 of 326948114 (100.0%), 70.8 MBs/sec
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:02.1846885Z Cache Size: ~312 MB (326948114 B)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:02.1966711Z [command]/usr/bin/tar -xf /home/runner/work/_temp/12cb2a06-8ee8-49d9-8637-15b38248d8c8/cache.tzst -P -C /home/runner/work/school-timetable-senior-project/school-timetable-senior-project --use-compress-program unzstd
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:06.6131096Z Cache restored successfully
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:06.6741733Z Cache restored from key: node-cache-Linux-x64-pnpm-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0879371Z ##[group]Run actions/cache@v4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0879770Z with:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0880074Z   path: node_modules/.prisma
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0881256Z   key: Linux-prisma-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-1fbfaa0121a849d542a5f7d770babaadf7dee44378a8e5fbaf56065b285792f6
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0883156Z   restore-keys: Linux-prisma-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-
+Unit Tests	UNKNOWN STEP	Linux-prisma-
+Unit Tests	UNKNOWN STEP	
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0884047Z   enableCrossOsArchive: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0884446Z   fail-on-cache-miss: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0884816Z   lookup-only: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0885135Z   save-always: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0885450Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0886081Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0886593Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.0887054Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.4632008Z Cache not found for input keys: Linux-prisma-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-1fbfaa0121a849d542a5f7d770babaadf7dee44378a8e5fbaf56065b285792f6, Linux-prisma-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-, Linux-prisma-
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9896072Z ##[group]Run actions/cache@v4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9896337Z with:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9896518Z   path: .jest-cache
+Unit Tests	UNKNOWN STEP	coverage
+Unit Tests	UNKNOWN STEP	
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9897174Z   key: Linux-jest-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-8ade2f66889dd8071db2aa0c4327ffac8fb7ccddfbf3e2ab77798201cbfab268
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9898077Z   restore-keys: Linux-jest-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-
+Unit Tests	UNKNOWN STEP	Linux-jest-
+Unit Tests	UNKNOWN STEP	
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9898797Z   enableCrossOsArchive: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9899026Z   fail-on-cache-miss: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9899240Z   lookup-only: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9899432Z   save-always: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9899630Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9900093Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9900403Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:07.9900681Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3729674Z Cache not found for input keys: Linux-jest-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-8ade2f66889dd8071db2aa0c4327ffac8fb7ccddfbf3e2ab77798201cbfab268, Linux-jest-aa76f72142e3ac11dccf592a8f8089214a882f0a12db882810e476437398c427-, Linux-jest-
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3809436Z ##[group]Run pnpm install --frozen-lockfile
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3809819Z [36;1mpnpm install --frozen-lockfile[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3851156Z shell: /usr/bin/bash -e {0}
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3851387Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3851814Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3852125Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.3852403Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.8221426Z Lockfile is up to date, resolution step is skipped
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:08.9409580Z Progress: resolved 1, reused 0, downloaded 0, added 0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:09.0947849Z Packages: +1153
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:09.0950768Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:09.9415686Z Progress: resolved 1153, reused 1153, downloaded 0, added 8
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:10.9414039Z Progress: resolved 1153, reused 1153, downloaded 0, added 566
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:11.9418548Z Progress: resolved 1153, reused 1153, downloaded 0, added 1152
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:12.5596306Z Progress: resolved 1153, reused 1153, downloaded 0, added 1153, done
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1061016Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1061631Z dependencies:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1062083Z + @auth/prisma-adapter 2.11.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1062591Z + @dnd-kit/core 6.3.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1063030Z + @dnd-kit/sortable 10.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1063526Z + @dnd-kit/utilities 3.2.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1063968Z + @emotion/cache 11.14.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1064393Z + @emotion/react 11.14.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1064825Z + @emotion/styled 11.14.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1065267Z + @mui/icons-material 7.3.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1065710Z + @mui/material 7.3.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1066158Z + @mui/material-nextjs 7.3.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1066632Z + @prisma/adapter-pg 7.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1067088Z + @prisma/client 7.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1067614Z + @prisma/extension-accelerate 2.0.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1068810Z + @vercel/edge-config 1.4.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1069343Z + @vercel/speed-insights 1.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1069706Z + axios 1.13.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1069899Z + bcryptjs 3.0.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1070175Z + exceljs 4.4.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1070552Z + html2canvas 1.4.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1070987Z + jspdf 3.0.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1071306Z + next 16.0.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1071685Z + next-auth 5.0.0-beta.29
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1072142Z + next-devtools-mcp 0.3.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1072573Z + notistack 3.0.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1072931Z + pg 8.16.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1073252Z + react 19.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1073612Z + react-dom 19.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1073994Z + react-icons 5.5.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1074414Z + react-to-print 3.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1074814Z + recharts 3.4.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1075169Z + swr 2.3.6
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1075493Z + valibot 1.1.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1075850Z + zustand 5.0.8
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1076062Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1076235Z devDependencies:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1076701Z + @babel/preset-typescript 7.28.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1077229Z + @eslint/eslintrc 3.3.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1077670Z + @eslint/js 9.39.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1078059Z + @jest/globals 30.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1078688Z + @playwright/test 1.56.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1079158Z + @tailwindcss/postcss 4.1.17
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1079644Z + @testing-library/dom 10.4.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1080162Z + @testing-library/jest-dom 6.9.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1080708Z + @testing-library/react 16.3.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1081253Z + @testing-library/user-event 14.6.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1081738Z + @types/jest 30.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1082113Z + @types/node 24.10.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1082483Z + @types/pg 8.15.6
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1082837Z + @types/react 19.2.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1083233Z + @types/react-dom 19.2.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1083727Z + @typescript-eslint/eslint-plugin 8.47.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1084270Z + @typescript-eslint/parser 8.47.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1084728Z + autoprefixer 10.4.22
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1085174Z + babel-plugin-react-compiler 1.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1085639Z + dotenv 17.2.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1086300Z + dotenv-cli 11.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1086631Z + eslint 9.39.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1087011Z + eslint-config-next 16.0.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1087536Z + eslint-config-prettier 10.1.8
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1088010Z + eslint-plugin-jest 29.1.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1088731Z + eslint-plugin-jest-dom 5.5.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1089224Z + eslint-plugin-react 7.37.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1089773Z + eslint-plugin-testing-library 7.13.4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1090244Z + globals 16.5.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1090588Z + immer 10.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1091001Z + jest 30.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1091469Z + jest-environment-jsdom 30.2.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1091941Z + jest-mock-extended 4.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1092356Z + playwright 1.56.1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1092710Z + postcss 8.5.6
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1093049Z + prettier 3.6.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1093396Z + prisma 7.0.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1093830Z + prisma-dbml-generator 0.12.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1094254Z + rimraf 6.1.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1094624Z + tailwindcss 4.1.17
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1094983Z + ts-jest 29.4.5
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1095398Z + ts-node 10.9.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1095744Z + tsx 4.20.6
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1096099Z + typescript 5.9.3
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1096496Z + typescript-eslint 8.47.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1096893Z + undici 7.16.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1097101Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1097970Z ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1099056Z │                                                                              │
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1100093Z │   Ignored build scripts: @prisma/engines, @swc/core, core-js, esbuild,       │
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1101278Z │   prisma, sharp, unrs-resolver.                                              │
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1102412Z │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1103806Z │   to run scripts.                                                            │
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1104743Z │                                                                              │
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1105697Z ╰──────────────────────────────────────────────────────────────────────────────╯
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1106087Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1397164Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1398762Z > school-timetable@2.0.0 postinstall /home/runner/work/school-timetable-senior-project/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1399848Z > prisma generate
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:13.1400099Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.1626329Z Loaded Prisma config from prisma.config.ts.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.1626769Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.5523729Z Prisma schema loaded from prisma/schema.prisma
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8070854Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8071797Z ✔ Generated Prisma Client (7.0.0) to ./prisma/generated in 148ms
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8072101Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8613230Z Done in 6.4s using pnpm v10.22.0
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8856923Z ##[group]Run pnpm prisma generate
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8857250Z [36;1mpnpm prisma generate[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8890315Z shell: /usr/bin/bash -e {0}
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8890551Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8891087Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8891407Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:14.8891691Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.0478884Z Loaded Prisma config from prisma.config.ts.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.0479339Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.1510056Z Prisma schema loaded from prisma/schema.prisma
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4273889Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4274870Z ✔ Generated Prisma Client (7.0.0) to ./prisma/generated in 165ms
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4275203Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4558812Z ##[group]Run pnpm exec jest
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4559121Z [36;1mpnpm exec jest[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4591722Z shell: /usr/bin/bash -e {0}
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4591951Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4592355Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4592679Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4592955Z   NODE_ENV: test
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:16.4593135Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6103704Z PASS __test__/features/conflict/conflict.repository.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6340356Z   ● Console
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6340618Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6340780Z     console.log
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6342308Z       [PRISMA] Connecting to DB: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6342748Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6343080Z       at createPrismaClient (src/lib/prisma.ts:17:13)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6343458Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6343606Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6344292Z       Error checking teacher conflict: Error: Database connection failed
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6346000Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/features/conflict/conflict.repository.test.ts:710:23)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6349063Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6350902Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6352686Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6355733Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6357677Z           at processTicksAndRejections (node:internal/process/task_queues:95:5)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6359954Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6363201Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6366273Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6369853Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6373216Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6376417Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6380311Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6384243Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6387079Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6390009Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6391277Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6391598Z     [0m [90m 305 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6392422Z      [90m 306 |[39m       [90m// Add class conflicts (more than 1 subject for same grade)[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6393807Z     [31m[1m>[22m[39m[90m 307 |[39m       [36mfor[39m ([36mconst[39m [gradeId[33m,[39m gradeSchedules] [36mof[39m schedulesByGrade) {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6394892Z      [90m     |[39m                     [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6395878Z      [90m 308 |[39m         [36mif[39m (gradeSchedules[33m.[39mlength [33m>[39m [35m1[39m) {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6396916Z      [90m 309 |[39m           [90m// Extract period from TimeslotID[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6398051Z      [90m 310 |[39m           [36mconst[39m periodMatch [33m=[39m timeslotId[33m.[39mmatch([35m/\d+$/[39m)[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6398868Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6399682Z       at Object.checkTeacherConflict (src/features/conflict/infrastructure/repositories/conflict.repository.ts:307:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6401118Z       at async Object.<anonymous> (__test__/features/conflict/conflict.repository.test.ts:714:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6401739Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6401887Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6402515Z       Error checking room conflict: Error: Database connection failed
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6404223Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/features/conflict/conflict.repository.test.ts:722:23)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6407168Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6409455Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6411399Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6414508Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6416560Z           at processTicksAndRejections (node:internal/process/task_queues:95:5)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6418703Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6421490Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6424535Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6428330Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6431789Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6434976Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6438466Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6441772Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6444563Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6447201Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6448601Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6449289Z     [0m [90m 346 |[39m         [36mif[39m ([33m![39mhasTeacher [33m&&[39m [33m![39mhasRoom) {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6450222Z      [90m 347 |[39m           missingResource [33m=[39m [32m"BOTH"[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6451186Z     [31m[1m>[22m[39m[90m 348 |[39m         } [36melse[39m [36mif[39m ([33m![39mhasTeacher) {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6451995Z      [90m     |[39m                     [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6452769Z      [90m 349 |[39m           missingResource [33m=[39m [32m"TEACHER"[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6453686Z      [90m 350 |[39m         } [36melse[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6454424Z      [90m 351 |[39m           missingResource [33m=[39m [32m"ROOM"[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6454849Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6455597Z       at Object.checkRoomConflict (src/features/conflict/infrastructure/repositories/conflict.repository.ts:348:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6456933Z       at async Object.<anonymous> (__test__/features/conflict/conflict.repository.test.ts:723:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:19.6457542Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0934695Z FAIL __test__/component/PDFCustomizationDialog.test.tsx (5.105 s)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0936193Z   ● PDFCustomizationDialog › Paper Size Selection › should render all paper size options
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0936818Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0937085Z     RangeError: Maximum call stack size exceeded
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0937443Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0939712Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:478:13)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0943310Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0947157Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0950831Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0954364Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0957879Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0961598Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0965054Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0968746Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0972264Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0975747Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0979897Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0983468Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0987031Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0990791Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0994198Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.0998020Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1001929Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1005467Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1009471Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1013027Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1016752Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1020551Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1024284Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1030562Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1034160Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1037861Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1040293Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1042127Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1044294Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1046189Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1048006Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1049962Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1051754Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1053544Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1055352Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1057152Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1059042Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1060965Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1062758Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1064545Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1066333Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1068212Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1070121Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1071915Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1073704Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1075491Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1077277Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1079188Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1080967Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1082748Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1084525Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1086424Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1088341Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1090130Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1091917Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1093812Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1095609Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1097402Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1099279Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1101067Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1102853Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1104640Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1106429Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1108328Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1110233Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1112042Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1113839Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1115631Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1117416Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1119450Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1121242Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1123033Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1124818Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1126608Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1128528Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1130311Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1132101Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1133878Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1135785Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1137566Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1139452Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1141241Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1143133Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1144921Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1146706Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1148591Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1150385Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1152170Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1153958Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1155745Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1157527Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1159601Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1161383Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1163172Z       at filteringUnhandledRejectionHandler (node_modules/.pnpm/next@16.0.3_@babel+core@7.28.5_@opentelemetry+api@1.9.0_@playwright+test@1.56.1_babel-p_198cb25b0b53285f24f63a9efea46924/node_modules/next/dist/server/node-environment-extensions/unhandled-rejection.js:474:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.1164055Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2849739Z FAIL __test__/features/program/moe-validation.service.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2851660Z   ● MOE Validation Service › validateProgramMOECredits › should detect insufficient credits for junior program
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2852651Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2853141Z     expect(received).toContain(expected) // indexOf
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2853547Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2853896Z     Expected substring: "ภาษาไทย"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2854556Z     Received string:    "???????: ?????????????? 5 ???????? ?????????? 3 (??? 2)"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2854998Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2856129Z     [0m [90m 230 |[39m       expect(result[33m.[39misValid)[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2857436Z      [90m 231 |[39m       expect(result[33m.[39merrors[33m.[39mlength)[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2859167Z     [31m[1m>[22m[39m[90m 232 |[39m       expect(result[33m.[39merrors[[35m0[39m])[33m.[39mtoContain([32m'ภาษาไทย'[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2860326Z      [90m     |[39m                                [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2861449Z      [90m 233 |[39m       expect(result[33m.[39merrors[[35m0[39m])[33m.[39mtoContain([32m'5'[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2862617Z      [90m 234 |[39m       [90m// The actual implementation shows current credits (3)[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2864070Z      [90m 235 |[39m       expect(result[33m.[39merrors[[35m0[39m])[33m.[39mtoContain([32m'(ขาด'[39m)[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2864875Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2865477Z       at Object.<anonymous> (__test__/features/program/moe-validation.service.test.ts:232:32)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2866036Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2866787Z   ● MOE Validation Service › validateProgramMOECredits › should warn if activities are missing
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2867427Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2867938Z     expect(received).toContain(expected) // indexOf
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2868491Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2869056Z     Expected substring: "กิจกรรมพัฒนาผู้เรียน"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2869930Z     Received string:    "????????????????????????????????? (??????, ???????, ??????)"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2870647Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2871476Z     [0m [90m 461 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2899554Z      [90m 462 |[39m       expect(result[33m.[39mwarnings[33m.[39mlength)[33m.[39mtoBeGreaterThan([35m0[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2908868Z     [31m[1m>[22m[39m[90m 463 |[39m       expect(result[33m.[39mwarnings[[35m0[39m])[33m.[39mtoContain([32m'กิจกรรมพัฒนาผู้เรียน'[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2910439Z      [90m     |[39m                                  [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2911270Z      [90m 464 |[39m     })[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2912048Z      [90m 465 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2912990Z      [90m 466 |[39m     it([32m'should reject invalid year'[39m[33m,[39m () [33m=>[39m {[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2913464Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2914276Z       at Object.<anonymous> (__test__/features/program/moe-validation.service.test.ts:463:34)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2914805Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2915392Z   ● MOE Validation Service › validateProgramMOECredits › should reject invalid year
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2915891Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2916141Z     expect(received).toContain(expected) // indexOf
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2916465Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2916731Z     Expected value: "ปีต้องอยู่ระหว่าง 1-6"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2917198Z     Received array: ["????????????????? 1-6"]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2917477Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2917651Z     [0m [90m 470 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2918626Z      [90m 471 |[39m       expect(result[33m.[39misValid)[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2919934Z     [31m[1m>[22m[39m[90m 472 |[39m       expect(result[33m.[39merrors)[33m.[39mtoContain([32m'ปีต้องอยู่ระหว่าง 1-6'[39m)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2920898Z      [90m     |[39m                             [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2921474Z      [90m 473 |[39m     })[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2921881Z      [90m 474 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2922668Z      [90m 475 |[39m     it([32m'should handle edge case with zero credits'[39m[33m,[39m () [33m=>[39m {[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2923190Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2923662Z       at Object.<anonymous> (__test__/features/program/moe-validation.service.test.ts:472:29)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.2924191Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.4682042Z PASS src/features/schedule-arrangement/domain/services/conflict-detector.service.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7217691Z FAIL __test__/config/config-lifecycle.actions.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7297030Z   ● Console
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7309486Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7310317Z     console.log
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7312424Z       [PRISMA] Connecting to DB: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7312918Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7314222Z       at createPrismaClient (src/lib/prisma.ts:17:13)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7314682Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7315829Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7316554Z       updateConfigStatusAction error: Error: Database connection error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7319318Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/config/config-lifecycle.actions.test.ts:158:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7322106Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7325605Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7327464Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7330602Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7333503Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7336278Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7340443Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7343580Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7346768Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7350049Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7353101Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7355768Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7358350Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7359541Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7360553Z     [0m [90m 109 |[39m     [36mconst[39m configId [33m=[39m generateConfigID(semesterNum[33m,[39m input[33m.[39macademicYear)[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7361449Z      [90m 110 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7362432Z     [31m[1m>[22m[39m[90m 111 |[39m     [90m// Count related data using repository[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7363205Z      [90m     |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7364315Z      [90m 112 |[39m     [36mconst[39m counts [33m=[39m [36mawait[39m configRepository[33m.[39mcountEntitiesForCompleteness(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7365358Z      [90m 113 |[39m       input[33m.[39macademicYear[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7366026Z      [90m 114 |[39m       input[33m.[39msemester[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7366348Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7367044Z       at updateConfigStatusAction (src/features/config/application/actions/config-lifecycle.actions.ts:111:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7368375Z       at async Object.<anonymous> (__test__/config/config-lifecycle.actions.test.ts:137:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7368911Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7369045Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7369676Z       updateConfigCompletenessAction error: Error: Database connection error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7371287Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/config/config-lifecycle.actions.test.ts:282:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7373928Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7375609Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7377422Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7380514Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7383403Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7386432Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7389546Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7392701Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7395645Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7398837Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7401902Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7404761Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7407228Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7408596Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7408886Z     [0m [90m 147 |[39m     }[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7409342Z      [90m 148 |[39m   }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7409811Z     [31m[1m>[22m[39m[90m 149 |[39m }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7410330Z      [90m     |[39m  [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7410762Z      [90m 150 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7411175Z      [90m 151 |[39m [90m/**[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7411833Z      [90m 152 |[39m [90m * Get config with completeness info[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7412219Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7412965Z       at updateConfigCompletenessAction (src/features/config/application/actions/config-lifecycle.actions.ts:149:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7414212Z       at async Object.<anonymous> (__test__/config/config-lifecycle.actions.test.ts:239:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7414744Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7414877Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7415507Z       getConfigWithCompletenessAction error: Error: Database connection error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7417112Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/config/config-lifecycle.actions.test.ts:369:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7419901Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7446181Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7448072Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7451222Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7454331Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7457119Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7460193Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7463311Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7466276Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7469478Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7472694Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7475347Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7477810Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7479130Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7479633Z     [0m [90m 172 |[39m         success[33m:[39m [36mtrue[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7480420Z      [90m 173 |[39m         data[33m:[39m [36mnull[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7481096Z     [31m[1m>[22m[39m[90m 174 |[39m       }[33m;[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7481724Z      [90m     |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7482218Z      [90m 175 |[39m     }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7482598Z      [90m 176 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7483071Z      [90m 177 |[39m     [36mreturn[39m {[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7483374Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7484130Z       at getConfigWithCompletenessAction (src/features/config/application/actions/config-lifecycle.actions.ts:174:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7485397Z       at async Object.<anonymous> (__test__/config/config-lifecycle.actions.test.ts:318:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7485930Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7485939Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7485947Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7486163Z   ● Test suite failed to run
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7486408Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7486627Z     Jest encountered an unexpected token
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7486929Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7487942Z     Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7489054Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7489769Z     Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7490500Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7490811Z     By default "node_modules" folder is ignored by transformers.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7491212Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7491526Z     Here's what you can do:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7492586Z      • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7493928Z      • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7495348Z      • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7496603Z      • If you need a custom transformation, specify a "transform" option in your config.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7498002Z      • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7498882Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7499276Z     You'll find more details and examples of these config options in the docs:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7499951Z     https://jestjs.io/docs/configuration
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7500519Z     For information about custom transformations, see:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7501114Z     https://jestjs.io/docs/code-transformation
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7501443Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7501563Z     Details:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7501738Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7503651Z     /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/runtime/query_compiler_bg.postgresql.mjs:2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7531482Z     ${e.stack}`:_}function M(e,t){return e=e>>>0,a().subarray(e/1,e/1+t)}function w(e){const t=o.__wbindgen_externrefs.get(e);return o.__externref_table_dealloc(e),t}const I=typeof FinalizationRegistry>"u"?{register:()=>{},unregister:()=>{}}:new FinalizationRegistry(e=>o.__wbg_querycompiler_free(e>>>0,1));class F{__destroy_into_raw(){const t=this.__wbg_ptr;return this.__wbg_ptr=0,I.unregister(this),t}free(){const t=this.__destroy_into_raw();o.__wbg_querycompiler_free(t,0)}compileBatch(t){const n=l(t,o.__wbindgen_malloc,o.__wbindgen_realloc),_=f,r=o.querycompiler_compileBatch(this.__wbg_ptr,n,_);if(r[2])throw w(r[1]);return w(r[0])}constructor(t){const n=o.querycompiler_new(t);if(n[2])throw w(n[1]);return this.__wbg_ptr=n[0]>>>0,I.register(this,this.__wbg_ptr,this),this}compile(t){const n=l(t,o.__wbindgen_malloc,o.__wbindgen_realloc),_=f,r=o.querycompiler_compile(this.__wbg_ptr,n,_);if(r[2])throw w(r[1]);return w(r[0])}}Symbol.dispose&&(F.prototype[Symbol.dispose]=F.prototype.free);function O(e,t){return Error(m(e,t))}function B(e){return Number(e)}function N(e,t){const n=String(t),_=l(n,o.__wbindgen_malloc,o.__wbindgen_realloc),r=f;u().setInt32(e+4*1,r,!0),u().setInt32(e+4*0,_,!0)}function U(e){const t=e,n=typeof t=="boolean"?t:void 0;return x(n)?16777215:n?1:0}function R(e,t){const n=S(t),_=l(n,o.__wbindgen_malloc,o.__wbindgen_realloc),r=f;u().setInt32(e+4*1,r,!0),u().setInt32(e+4*0,_,!0)}function $(e,t){return e in t}function q(e){const t=e;return typeof t=="object"&&t!==null}function C(e){return typeof e=="string"}function k(e){return e===void 0}function W(e,t){return e==t}function V(e,t){const n=t,_=typeof n=="number"?n:void 0;u().setFloat64(e+8*1,x(_)?0:_,!0),u().setInt32(e+4*0,!x(_),!0)}function z(e,t){const n=t,_=typeof n=="string"?n:void 0;var r=x(_)?0:l(_,o.__wbindgen_malloc,o.__wbindgen_realloc),s=f;u().setInt32(e+4*1,s,!0),u().setInt32(e+4*0,r,!0)}function L(e,t){throw new Error(m(e,t))}function P(e){return Object.entries(e)}function Q(e){return e.getTime()}function Y(e,t){return e[t>>>0]}function G(e,t){return e[t]}function J(e){let t;try{t=e instanceof ArrayBuffer}catch{t=!1}return t}function X(e){let t;try{t=e instanceof Uint8Array}catch{t=!1}return t}function H(e){return Number.isSafeInteger(e)}function K(e){return e.length}function Z(e){return e.length}function v(){return new Date}function ee(){return new Object}function te(e){return new Uint8Array(e)}function ne(){return new Map}function re(){return new Array}function _e(e,t,n){Uint8Array.prototype.set.call(M(e,t),n)}function oe(e,t,n){e[t]=n}function ce(e,t,n){return e.set(t,n)}function ie(e,t,n){e[t>>>0]=n}function se(e,t){global.PRISMA_WASM_PANIC_REGISTRY.set_message(m(e,t))}function ue(e,t){return m(e,t)}function fe(e){return BigInt.asUintN(64,e)}function be(e){return e}function de(e){return e}function ae(){const e=o.__wbindgen_externrefs,t=e.grow(4);e.set(0,void 0),e.set(t+0,void 0),e.set(t+1,null),e.set(t+2,!0),e.set(t+3,!1)}export{F as QueryCompiler,O as __wbg_Error_e83987f665cf5504,B as __wbg_Number_bb48ca12f395cd08,N as __wbg_String_8f0eb39a4a4c2f66,U as __wbg___wbindgen_boolean_get_6d5a1ee65bab5f68,R as __wbg___wbindgen_debug_string_df47ffb5e35e6763,$ as __wbg___wbindgen_in_bb933bd9e1b3bc0f,q as __wbg___wbindgen_is_object_c818261d21f283a4,C as __wbg___wbindgen_is_string_fbb76cb2940daafd,k as __wbg___wbindgen_is_undefined_2d472862bd29a478,W as __wbg___wbindgen_jsval_loose_eq_b664b38a2f582147,V as __wbg___wbindgen_number_get_a20bf9b85341449d,z as __wbg___wbindgen_string_get_e4f06c90489ad01b,L as __wbg___wbindgen_throw_b855445ff6a94295,P as __wbg_entries_e171b586f8f6bdbf,Q as __wbg_getTime_14776bfb48a1bff9,Y as __wbg_get_7bed016f185add81,G as __wbg_get_with_ref_key_1dc361bd10053bfe,J as __wbg_instanceof_ArrayBuffer_70beb1189ca63b38,X as __wbg_instanceof_Uint8Array_20c8e73002f7af98,H as __wbg_isSafeInteger_d216eda7911dde36,K as __wbg_length_69bca3cb64fc8748,Z as __wbg_length_cdd215e10d9dd507,v as __wbg_new_0_f9740686d739025c,ee as __wbg_new_1acc0b6eea89d040,te as __wbg_new_5a79be3ab53b8aa5,ne as __wbg_new_68651c719dcda04e,re as __wbg_new_e17d9f43105b08be,_e as __wbg_prototypesetcall_2a6620b6922694b2,oe as __wbg_set_3f1d0b984ed272ed,ce as __wbg_set_907fb406c34a251d,ie as __wbg_set_c213c871859d6500,se as __wbg_set_message_82ae475bb413aa5c,D as __wbg_set_wasm,ue as __wbindgen_cast_2241b6af4c4b2941,fe as __wbindgen_cast_4625c577ab2ec9ee,be as __wbindgen_cast_9ae0607507abb057,de as __wbindgen_cast_d6cd19b81560fd6e,ae as __wbindgen_init_externref_table};
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7554820Z                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7555625Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7555843Z     SyntaxError: Unexpected token 'export'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7556155Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7556367Z     [0m [90m 38 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7556948Z      [90m 39 |[39m config[33m.[39mcompilerWasm [33m=[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7558733Z     [31m[1m>[22m[39m[90m 40 |[39m   getRuntime[33m:[39m [36masync[39m () [33m=>[39m [36mawait[39m [36mimport[39m([32m"@prisma/client/runtime/query_compiler_bg.postgresql.mjs"[39m)[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7560048Z      [90m    |[39m                                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7560549Z      [90m 41 |[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7561327Z      [90m 42 |[39m   getQueryCompilerWasmModule[33m:[39m [36masync[39m () [33m=>[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7562953Z      [90m 43 |[39m     [36mconst[39m { wasm } [33m=[39m [36mawait[39m [36mimport[39m([32m"@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs"[39m)[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7563977Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7564731Z       at Runtime.createScriptFromCode (node_modules/.pnpm/jest-runtime@30.2.0/node_modules/jest-runtime/build/index.js:1318:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7565731Z       at prisma/generated/internal/class.ts:40:33
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7566433Z       at async Object.getRuntime (prisma/generated/internal/class.ts:40:27)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7569185Z       at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/src/runtime/core/engines/client/WasmQueryCompilerLoader.ts:28:25
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7572852Z       at async Object.loadQueryCompiler (node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/src/runtime/core/engines/client/WasmQueryCompilerLoader.ts:55:12)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7575846Z       at async Dt.#o (node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:239:34)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7579349Z       at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:169:29
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7582879Z       at async Dt.#i (node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:192:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7585669Z       at async Dt.start (node_modules/.pnpm/@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react-dom@19.2.0_react@19.2.0__re_e81c875e4c0f7c5d6d6228ec80c6c8b6/node_modules/@prisma/client/src/runtime/core/engines/client/ClientEngine.ts:353:5)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.7587025Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:25.8932111Z PASS __test__/functions/batchPdfGenerator.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.0410027Z PASS __test__/moe-standards/moe-standards.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.1600906Z PASS __test__/features/lock/lock-template.service.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.2897923Z PASS __test__/features/dashboard/dashboard-stats.service.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4320632Z FAIL __test__/hooks/useRoomAvailability.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4322225Z   ● Test suite failed to run
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4323717Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4324019Z     Jest encountered an unexpected token
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4324354Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4325374Z     Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4326322Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4327093Z     Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4327829Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4328390Z     By default "node_modules" folder is ignored by transformers.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4328804Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4328950Z     Here's what you can do:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4330067Z      • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4331435Z      • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4332932Z      • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4334258Z      • If you need a custom transformation, specify a "transform" option in your config.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4335734Z      • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4336908Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4337330Z     You'll find more details and examples of these config options in the docs:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4338036Z     https://jestjs.io/docs/configuration
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4338872Z     For information about custom transformations, see:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4339485Z     https://jestjs.io/docs/code-transformation
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4339828Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4339961Z     Details:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4340137Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4341939Z     /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/@auth+prisma-adapter@2.11.1_@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react_7e682f3a23486b952099e5c14c14acb8/node_modules/@auth/prisma-adapter/index.js:1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4343859Z     export function PrismaAdapter(prisma) {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4344268Z     ^^^^^^
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4344444Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4344666Z     SyntaxError: Unexpected token 'export'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4345016Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4345399Z     [0m [90m 39 |[39m         [32m""[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4346050Z      [90m 40 |[39m       clientSecret[33m:[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4347047Z     [31m[1m>[22m[39m[90m 41 |[39m         process[33m.[39menv[33m.[39m[33mAUTH_GOOGLE_SECRET[39m [33m||[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4347931Z      [90m    |[39m                        [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4349116Z      [90m 42 |[39m         process[33m.[39menv[33m.[39m[33mNEXT_GOOGLE_AUTH_CLIENT_SECRET[39m [33m||[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4350014Z      [90m 43 |[39m         [32m""[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4350977Z      [90m 44 |[39m       authorization[33m:[39m {[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4351375Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4352164Z       at Runtime.createScriptFromCode (node_modules/.pnpm/jest-runtime@30.2.0/node_modules/jest-runtime/build/index.js:1318:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4353214Z       at Object.<anonymous> (src/lib/auth.ts:41:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4353900Z       at Object.<anonymous> (src/shared/lib/action-wrapper.ts:42:15)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4354772Z       at Object.<anonymous> (src/features/lock/application/actions/lock.actions.ts:46:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4355702Z       at Object.<anonymous> (src/hooks/useRoomAvailability.ts:20:22)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4356536Z       at Object.<anonymous> (__test__/hooks/useRoomAvailability.test.ts:10:30)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.4357026Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.5570734Z PASS __test__/config/config-lifecycle.schemas.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6736556Z PASS __test__/utils/type-transformers.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6943653Z   ● Console
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6943961Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6944148Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6944690Z       [Type Transformer] Incomplete legacy subject data: {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6945288Z         hasSubjectCode: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6945710Z         hasSubjectName: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6946120Z         hasGradeID: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6946515Z         hasTeacherID: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6946903Z         hasCategory: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6947274Z         hasCredit: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6947635Z         hasTeachHour: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6947973Z       }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6948374Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6948738Z     [0m [90m 40 |[39m [90m * }[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6949261Z      [90m 41 |[39m [90m */[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6950106Z     [31m[1m>[22m[39m[90m 42 |[39m [36mexport[39m [36mfunction[39m transformLegacySubject(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6950936Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6951960Z      [90m 43 |[39m   legacy[33m:[39m [33mLegacySubjectData[39m [33m|[39m [36mnull[39m [33m|[39m undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6953064Z      [90m 44 |[39m )[33m:[39m [33mSubjectData[39m [33m|[39m [36mnull[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6954072Z      [90m 45 |[39m   [36mif[39m ([33m![39mlegacy) [36mreturn[39m [36mnull[39m[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6955046Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6955458Z       at transformLegacySubject (src/utils/type-transformers.ts:42:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6956313Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:108:73)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6956800Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6956928Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6957407Z       [Type Transformer] Incomplete legacy subject data: {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6957926Z         hasSubjectCode: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6958520Z         hasSubjectName: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6958898Z         hasGradeID: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6959271Z         hasTeacherID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6959658Z         hasCategory: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6960060Z         hasCredit: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6960431Z         hasTeachHour: true
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6960772Z       }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6960941Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6961246Z     [0m [90m 40 |[39m [90m * }[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6961790Z      [90m 41 |[39m [90m */[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6962630Z     [31m[1m>[22m[39m[90m 42 |[39m [36mexport[39m [36mfunction[39m transformLegacySubject(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6963509Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6964581Z      [90m 43 |[39m   legacy[33m:[39m [33mLegacySubjectData[39m [33m|[39m [36mnull[39m [33m|[39m undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6965687Z      [90m 44 |[39m )[33m:[39m [33mSubjectData[39m [33m|[39m [36mnull[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6966703Z      [90m 45 |[39m   [36mif[39m ([33m![39mlegacy) [36mreturn[39m [36mnull[39m[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6967204Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6967612Z       at transformLegacySubject (src/utils/type-transformers.ts:42:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6968967Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:120:73)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6969484Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6969621Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6970102Z       [Type Transformer] Invalid category: INVALID_CATEGORY
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6970478Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6971274Z     [0m [90m 59 |[39m       hasSubjectName[33m:[39m [33m![39m[33m![39mlegacy[33m.[39m[33mSubjectName[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6972506Z      [90m 60 |[39m       hasGradeID[33m:[39m [33m![39m[33m![39mlegacy[33m.[39m[33mGradeID[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6973970Z     [31m[1m>[22m[39m[90m 61 |[39m       hasTeacherID[33m:[39m [36mtypeof[39m legacy[33m.[39m[33mTeacherID[39m [33m===[39m [32m'number'[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6975070Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6976063Z      [90m 62 |[39m       hasCategory[33m:[39m [33m![39m[33m![39mlegacy[33m.[39m[33mCategory[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6977440Z      [90m 63 |[39m       hasCredit[33m:[39m [36mtypeof[39m legacy[33m.[39m[33mCredit[39m [33m===[39m [32m'number'[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6979191Z      [90m 64 |[39m       hasTeachHour[33m:[39m [36mtypeof[39m legacy[33m.[39m[33mTeachHour[39m [33m===[39m [32m'number'[39m[33m,[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6979933Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6980351Z       at transformLegacySubject (src/utils/type-transformers.ts:61:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6981251Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:133:73)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6981766Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6981927Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6982430Z       [Type Transformer] Incomplete legacy subject data: {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6982996Z         hasSubjectCode: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6983523Z         hasSubjectName: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6983918Z         hasGradeID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6984290Z         hasTeacherID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6984689Z         hasCategory: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6985043Z         hasCredit: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6985396Z         hasTeachHour: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6985741Z       }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6985924Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6986249Z     [0m [90m 40 |[39m [90m * }[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6986779Z      [90m 41 |[39m [90m */[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6987973Z     [31m[1m>[22m[39m[90m 42 |[39m [36mexport[39m [36mfunction[39m transformLegacySubject(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6989027Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6990095Z      [90m 43 |[39m   legacy[33m:[39m [33mLegacySubjectData[39m [33m|[39m [36mnull[39m [33m|[39m undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6991140Z      [90m 44 |[39m )[33m:[39m [33mSubjectData[39m [33m|[39m [36mnull[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6992100Z      [90m 45 |[39m   [36mif[39m ([33m![39mlegacy) [36mreturn[39m [36mnull[39m[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6992568Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6992948Z       at transformLegacySubject (src/utils/type-transformers.ts:42:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6993591Z           at Array.map (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6994283Z       at transformLegacySubjects (src/utils/type-transformers.ts:82:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6995153Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:219:74)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6995662Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6995811Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6996299Z       [Type Transformer] Incomplete legacy subject data: {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6996813Z         hasSubjectCode: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6997258Z         hasSubjectName: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6997661Z         hasGradeID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6998047Z         hasTeacherID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6998794Z         hasCategory: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6999188Z         hasCredit: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6999563Z         hasTeachHour: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.6999921Z       }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7000084Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7000404Z     [0m [90m 40 |[39m [90m * }[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7001191Z      [90m 41 |[39m [90m */[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7002073Z     [31m[1m>[22m[39m[90m 42 |[39m [36mexport[39m [36mfunction[39m transformLegacySubject(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7002828Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7003898Z      [90m 43 |[39m   legacy[33m:[39m [33mLegacySubjectData[39m [33m|[39m [36mnull[39m [33m|[39m undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7005029Z      [90m 44 |[39m )[33m:[39m [33mSubjectData[39m [33m|[39m [36mnull[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7006097Z      [90m 45 |[39m   [36mif[39m ([33m![39mlegacy) [36mreturn[39m [36mnull[39m[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7006610Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7007024Z       at transformLegacySubject (src/utils/type-transformers.ts:42:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7007694Z           at Array.map (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7008608Z       at transformLegacySubjects (src/utils/type-transformers.ts:82:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7009475Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:237:74)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7009929Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7010079Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7010575Z       [Type Transformer] Incomplete legacy subject data: {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7011159Z         hasSubjectCode: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7011586Z         hasSubjectName: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7012022Z         hasGradeID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7012444Z         hasTeacherID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7012855Z         hasCategory: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7013277Z         hasCredit: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7013666Z         hasTeachHour: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7014032Z       }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7014196Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7014516Z     [0m [90m 40 |[39m [90m * }[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7015048Z      [90m 41 |[39m [90m */[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7015916Z     [31m[1m>[22m[39m[90m 42 |[39m [36mexport[39m [36mfunction[39m transformLegacySubject(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7016689Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7017774Z      [90m 43 |[39m   legacy[33m:[39m [33mLegacySubjectData[39m [33m|[39m [36mnull[39m [33m|[39m undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7019155Z      [90m 44 |[39m )[33m:[39m [33mSubjectData[39m [33m|[39m [36mnull[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7020249Z      [90m 45 |[39m   [36mif[39m ([33m![39mlegacy) [36mreturn[39m [36mnull[39m[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7021027Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7021448Z       at transformLegacySubject (src/utils/type-transformers.ts:42:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7022149Z           at Array.map (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7022883Z       at transformLegacySubjects (src/utils/type-transformers.ts:82:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7023793Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:237:74)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7024263Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7024410Z     console.warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7024942Z       [Type Transformer] Incomplete legacy subject data: {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7025520Z         hasSubjectCode: true,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7025994Z         hasSubjectName: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7026404Z         hasGradeID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7026804Z         hasTeacherID: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7027221Z         hasCategory: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7027639Z         hasCredit: false,
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7028059Z         hasTeachHour: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7028658Z       }
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7028833Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7029153Z     [0m [90m 40 |[39m [90m * }[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7029732Z      [90m 41 |[39m [90m */[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7030607Z     [31m[1m>[22m[39m[90m 42 |[39m [36mexport[39m [36mfunction[39m transformLegacySubject(
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7031521Z      [90m    |[39m                 [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7032619Z      [90m 43 |[39m   legacy[33m:[39m [33mLegacySubjectData[39m [33m|[39m [36mnull[39m [33m|[39m undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7033749Z      [90m 44 |[39m )[33m:[39m [33mSubjectData[39m [33m|[39m [36mnull[39m {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7035068Z      [90m 45 |[39m   [36mif[39m ([33m![39mlegacy) [36mreturn[39m [36mnull[39m[33m;[39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7035624Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7036038Z       at transformLegacySubject (src/utils/type-transformers.ts:42:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7036731Z           at Array.map (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7037453Z       at transformLegacySubjects (src/utils/type-transformers.ts:82:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7038544Z       at transformAPIResponse (src/utils/type-transformers.ts:99:31)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7039432Z       at Object.<anonymous> (__test__/utils/type-transformers.test.ts:355:71)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.7039936Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8219685Z PASS __test__/lib/feature-flags.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8249065Z   ● Console
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8253272Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8253670Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8255545Z       [FeatureFlags] Error checking flag "newScheduleUI": Error: Edge Config unavailable
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8257557Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/lib/feature-flags.test.ts:287:35)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8262116Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8264420Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8266514Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8270359Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8273616Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8276707Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8280515Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8284703Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8289162Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8292361Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8294900Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8296897Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8298984Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8300490Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8301873Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8302547Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8302956Z     [0m [90m 68 |[39m [90m * // Check if analytics v2 is enabled for admin[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8303567Z      [90m 69 |[39m [90m * const enabled = await isFeatureEnabled('analyticsV2', userId, 'admin');[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8304054Z     [31m[1m>[22m[39m[90m 70 |[39m [90m * [39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8304404Z      [90m    |[39m              [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8304768Z      [90m 71 |[39m [90m * // Check with session data[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8305171Z      [90m 72 |[39m [90m * const session = await auth();[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8305649Z      [90m 73 |[39m [90m * const canUseNewUI = await isFeatureEnabled([39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8305892Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8306062Z       at isFeatureEnabled (src/lib/feature-flags.ts:70:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8306488Z       at async Object.<anonymous> (__test__/lib/feature-flags.test.ts:225:32)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8306758Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8306837Z     console.error
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8307155Z       [FeatureFlags] Error checking flag "exportV2": Error: Timeout
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8307958Z           at Object.<anonymous> (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/__test__/lib/feature-flags.test.ts:309:35)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8309527Z           at Promise.finally.completed (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8310685Z           at new Promise (<anonymous>)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8311693Z           at callAsyncCircusFn (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8313308Z           at _callCircusTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8314895Z           at async _runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8316437Z           at async /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8318069Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8319882Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8321702Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8323415Z           at async _runTestsForDescribeBlock (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8325028Z           at async run (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8326716Z           at async runAndTransformResultsToJestFormat (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8328480Z           at async jestAdapter (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-circus@30.2.0_babel-plugin-macros@3.1.0/node_modules/jest-circus/build/runner.js:101:19)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8329948Z           at async runTestInternal (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:275:16)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8331315Z           at async runTest (/home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/jest-runner@30.2.0/node_modules/jest-runner/build/index.js:343:7)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8331970Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8332256Z     [0m [90m 68 |[39m [90m * // Check if analytics v2 is enabled for admin[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8332852Z      [90m 69 |[39m [90m * const enabled = await isFeatureEnabled('analyticsV2', userId, 'admin');[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8333341Z     [31m[1m>[22m[39m[90m 70 |[39m [90m * [39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8333686Z      [90m    |[39m              [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8334050Z      [90m 71 |[39m [90m * // Check with session data[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8334575Z      [90m 72 |[39m [90m * const session = await auth();[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8335028Z      [90m 73 |[39m [90m * const canUseNewUI = await isFeatureEnabled([39m[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8335276Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8335443Z       at isFeatureEnabled (src/lib/feature-flags.ts:70:17)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8335861Z       at async Object.<anonymous> (__test__/lib/feature-flags.test.ts:237:32)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.8336126Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:26.9324801Z PASS __test__/seed-validation.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0331497Z FAIL src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0359298Z   ● Test suite failed to run
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0359895Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0360308Z     Jest encountered an unexpected token
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0360796Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0362004Z     Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0363208Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0364083Z     Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0365659Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0365991Z     By default "node_modules" folder is ignored by transformers.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0366397Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0366546Z     Here's what you can do:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0367662Z      • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0369220Z      • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0370971Z      • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0372246Z      • If you need a custom transformation, specify a "transform" option in your config.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0373639Z      • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0374396Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0374792Z     You'll find more details and examples of these config options in the docs:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0375468Z     https://jestjs.io/docs/configuration
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0376032Z     For information about custom transformations, see:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0376611Z     https://jestjs.io/docs/code-transformation
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0376937Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0377054Z     Details:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0377226Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0379125Z     /home/runner/work/school-timetable-senior-project/school-timetable-senior-project/node_modules/.pnpm/@auth+prisma-adapter@2.11.1_@prisma+client@7.0.0_prisma@7.0.0_@types+react@19.2.2_react_7e682f3a23486b952099e5c14c14acb8/node_modules/@auth/prisma-adapter/index.js:1
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0380992Z     export function PrismaAdapter(prisma) {
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0381412Z     ^^^^^^
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0381567Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0381783Z     SyntaxError: Unexpected token 'export'
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0382086Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0382411Z     [0m [90m 39 |[39m         [32m""[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0383006Z      [90m 40 |[39m       clientSecret[33m:[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0383956Z     [31m[1m>[22m[39m[90m 41 |[39m         process[33m.[39menv[33m.[39m[33mAUTH_GOOGLE_SECRET[39m [33m||[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0384858Z      [90m    |[39m                        [31m[1m^[22m[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0385812Z      [90m 42 |[39m         process[33m.[39menv[33m.[39m[33mNEXT_GOOGLE_AUTH_CLIENT_SECRET[39m [33m||[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0386614Z      [90m 43 |[39m         [32m""[39m[33m,[39m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0387221Z      [90m 44 |[39m       authorization[33m:[39m {[0m
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0387527Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0388379Z       at Runtime.createScriptFromCode (node_modules/.pnpm/jest-runtime@30.2.0/node_modules/jest-runtime/build/index.js:1318:40)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0389629Z       at Object.<anonymous> (src/lib/auth.ts:41:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0390283Z       at Object.<anonymous> (src/shared/lib/action-wrapper.ts:42:15)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0391425Z       at Object.<anonymous> (src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.ts:33:24)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0392965Z       at Object.<anonymous> (src/features/schedule-arrangement/application/actions/schedule-arrangement.actions.test.ts:12:37)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.0393773Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6681070Z (node:2364) [JEST-01] DeprecationWarning: 'currentlyRunningTest' property was accessed on [Object] after it was soft deleted
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6682460Z   Jest deletes objects that were set on the global scope between test files to reduce memory leaks.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6683667Z   Currently it only "soft" deletes them and emits this warning if those objects were accessed after their deletion.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6684806Z   In future versions of Jest, this behavior will change to "on", which will likely fail tests.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6685801Z   You can change the behavior in your test configuration now to reduce memory usage.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6686771Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6809472Z PASS __test__/lib/infrastructure/repositories/public-data.repository.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6810552Z   ● Console
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6810824Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6811193Z     console.log
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6812005Z       [PRISMA] Connecting to DB: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6812367Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6812633Z       at createPrismaClient (src/lib/prisma.ts:17:13)
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.6812984Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:48:27.9298775Z PASS __test__/features/lock/bulk-lock.test.ts
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2929670Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2930230Z <--- Last few GCs --->
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2930552Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2931955Z [2364:0x22771fd0]   382885 ms: Mark-Compact 4042.8 (4133.1) -> 4027.9 (4133.8) MB, 1760.47 / 0.05 ms  (average mu = 0.140, current mu = 0.053) allocation failure; scavenge might not succeed
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2934346Z [2364:0x22771fd0]   384682 ms: Mark-Compact 4043.6 (4133.8) -> 4028.7 (4134.8) MB, 1699.07 / 0.05 ms  (average mu = 0.100, current mu = 0.055) allocation failure; scavenge might not succeed
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2935216Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2935224Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2935396Z <--- JS stacktrace --->
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2935629Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2936376Z FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2937292Z ----- Native stack trace -----
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2937570Z 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2959212Z  1: 0xb76dc5 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2960282Z  2: 0xee6020 v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2961566Z  3: 0xee6307 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2962374Z  4: 0x10f7f55  [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2963015Z  5: 0x10f84e4 v8::internal::Heap::RecomputeLimits(v8::internal::GarbageCollector) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2966006Z  6: 0x110f3d4 v8::internal::Heap::PerformGarbageCollection(v8::internal::GarbageCollector, v8::internal::GarbageCollectionReason, char const*) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2975649Z  7: 0x110fbec v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2979752Z  8: 0x10e5ef1 v8::internal::HeapAllocator::AllocateRawWithLightRetrySlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2986520Z  9: 0x10e7085 v8::internal::HeapAllocator::AllocateRawWithRetryOrFailSlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.2993379Z 10: 0x10c46d6 v8::internal::Factory::NewFillerObject(int, v8::internal::AllocationAlignment, v8::internal::AllocationType, v8::internal::AllocationOrigin) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.3001303Z 11: 0x1520216 v8::internal::Runtime_AllocateInYoungGeneration(int, unsigned long*, v8::internal::Isolate*) [node]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:54:43.3001916Z 12: 0x7f6450e99ef6 
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9348716Z undefined
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9361007Z  ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command was killed with SIGABRT (Aborted): jest
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9557683Z ##[error]Process completed with exit code 1.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9614602Z ##[group]Run actions/upload-artifact@v4
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9614875Z with:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9615047Z   name: coverage-report
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9615249Z   path: coverage/
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9615436Z   retention-days: 30
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9615629Z   if-no-files-found: warn
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9615837Z   compression-level: 6
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9616026Z   overwrite: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9616212Z   include-hidden-files: false
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9616441Z env:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9616808Z   DATABASE_URL: ***localhost:5432/dummy
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9617105Z   PNPM_HOME: /home/runner/setup-pnpm/node_modules/.bin
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:06.9617382Z ##[endgroup]
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.1770829Z ##[warning]No files were found with the provided path: coverage/. No artifacts will be uploaded.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.1886972Z Post job cleanup.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.2426796Z Pruning is unnecessary.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.2524683Z Post job cleanup.
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3473294Z [command]/usr/bin/git version
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3510756Z git version 2.51.2
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3552824Z Temporarily overriding HOME='/home/runner/work/_temp/b3411d1f-53c8-4127-a0f3-1987b167dbca' before making global git config changes
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3554024Z Adding repository directory to the temporary git global config as a safe directory
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3558545Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/school-timetable-senior-project/school-timetable-senior-project
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3593342Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3624485Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3856250Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3880013Z http.https://github.com/.extraheader
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3893207Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.3925782Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.4161798Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.4192068Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Unit Tests	UNKNOWN STEP	2025-11-23T11:55:07.4524717Z Cleaning up orphan processes

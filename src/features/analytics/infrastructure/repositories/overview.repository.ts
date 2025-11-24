@@ -4,12 +4,11 @@
  *
  * Handles data fetching for high-level statistics and health checks
  */
-'use cache'
 
-import prisma from "@/lib/prisma"
-import type { OverviewStats } from "../../domain/types/analytics.types"
-import { parseConfigId } from "../../domain/services/calculation.service"
-import { cacheTag } from "next/cache"
+import prisma from "@/lib/prisma";
+import type { OverviewStats } from "../../domain/types/analytics.types";
+import { parseConfigId } from "../../domain/services/calculation.service";
+import { cacheTag } from "next/cache";
 
 export const overviewRepository = {
   /**
@@ -18,9 +17,8 @@ export const overviewRepository = {
    * @returns Overview stats including completion rate, active teachers, conflicts
    */
   async getOverviewStats(configId: string): Promise<OverviewStats> {
-    'use cache'
-    cacheTag(`stats:${configId}`)
-    const config = parseConfigId(configId)
+    cacheTag(`stats:${configId}`);
+    const config = parseConfigId(configId);
 
     // Step 1: Get all timeslot IDs for this semester
     const timeslots = await prisma.timeslot.findMany({
@@ -31,73 +29,72 @@ export const overviewRepository = {
       select: {
         TimeslotID: true,
       },
-    })
+    });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID)
+    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
 
     // Step 2: Parallel queries for better performance
-    const [
-      totalScheduled,
-      totalGrades,
-      activeTeachersResult,
-      totalRooms,
-    ] = await Promise.all([
-      // Count all scheduled classes for this semester
-      prisma.class_schedule.count({
-        where: {
-          TimeslotID: {
-            in: timeslotIds,
-          },
-        },
-      }),
-
-      // Count total grade levels
-      prisma.gradelevel.count(),
-
-      // Count unique teachers with assignments for this semester
-      prisma.class_schedule.findMany({
-        where: {
-          TimeslotID: {
-            in: timeslotIds,
-          },
-        },
-        select: {
-          teachers_responsibility: {
-            select: {
-              TeacherID: true,
+    const [totalScheduled, totalGrades, activeTeachersResult, totalRooms] =
+      await Promise.all([
+        // Count all scheduled classes for this semester
+        prisma.class_schedule.count({
+          where: {
+            TimeslotID: {
+              in: timeslotIds,
             },
           },
-        },
-      }).then((schedules: any) => {
-        // Extract unique teacher IDs
-        const teacherIds = new Set<number>()
-        schedules.forEach((schedule: any) => {
-          schedule.teachers_responsibility.forEach((resp: any) => {
-            teacherIds.add(resp.TeacherID)
-          })
-        })
-        return Array.from(teacherIds).map(id => ({ TeacherID: id }))
-      }),
+        }),
 
-      // Count total rooms
-      prisma.room.count(),
-    ])
+        // Count total grade levels
+        prisma.gradelevel.count(),
+
+        // Count unique teachers with assignments for this semester
+        prisma.class_schedule
+          .findMany({
+            where: {
+              TimeslotID: {
+                in: timeslotIds,
+              },
+            },
+            select: {
+              teachers_responsibility: {
+                select: {
+                  TeacherID: true,
+                },
+              },
+            },
+          })
+          .then((schedules: any) => {
+            // Extract unique teacher IDs
+            const teacherIds = new Set<number>();
+            schedules.forEach((schedule: any) => {
+              schedule.teachers_responsibility.forEach((resp: any) => {
+                teacherIds.add(resp.TeacherID);
+              });
+            });
+            return Array.from(teacherIds).map((id) => ({ TeacherID: id }));
+          }),
+
+        // Count total rooms
+        prisma.room.count(),
+      ]);
 
     // Calculate metrics
-    const activeTeachers = activeTeachersResult.length
-    const totalTimeslots = timeslots.length
-    const totalRequiredSlots = totalGrades * totalTimeslots
-    const completionRate = totalRequiredSlots > 0
-      ? (totalScheduled / totalRequiredSlots) * 100
-      : 0
+    const activeTeachers = activeTeachersResult.length;
+    const totalTimeslots = timeslots.length;
+    const totalRequiredSlots = totalGrades * totalTimeslots;
+    const completionRate =
+      totalRequiredSlots > 0 ? (totalScheduled / totalRequiredSlots) * 100 : 0;
 
     // Issue #107: Implement conflict detection using conflictRepository
-    const { conflictRepository } = await import('@/features/conflict/infrastructure/repositories/conflict.repository')
+    const { conflictRepository } = await import(
+      "@/features/conflict/infrastructure/repositories/conflict.repository"
+    );
     const conflictData = await conflictRepository.findAllConflicts(
       config.academicYear,
-      config.semester
-    )
-    const scheduleConflicts = conflictData.totalConflicts
+      config.semester,
+    );
+    const scheduleConflicts = conflictData.totalConflicts;
 
     return {
       totalScheduledHours: totalScheduled,
@@ -106,7 +103,7 @@ export const overviewRepository = {
       scheduleConflicts,
       totalGrades,
       totalRooms,
-    }
+    };
   },
 
   /**
@@ -116,9 +113,8 @@ export const overviewRepository = {
    * @returns Stats specific to the grade
    */
   async getGradeStats(configId: string, gradeId: string) {
-    'use cache'
-    cacheTag(`stats:${configId}`, `stats:${configId}:grade:${gradeId}`)
-    const config = parseConfigId(configId)
+    cacheTag(`stats:${configId}`, `stats:${configId}:grade:${gradeId}`);
+    const config = parseConfigId(configId);
 
     // Get timeslot IDs for this semester
     const timeslots = await prisma.timeslot.findMany({
@@ -129,9 +125,9 @@ export const overviewRepository = {
       select: {
         TimeslotID: true,
       },
-    })
+    });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID)
+    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
 
     const [scheduledCount, gradeInfo] = await Promise.all([
       prisma.class_schedule.count({
@@ -157,17 +153,18 @@ export const overviewRepository = {
           },
         },
       }),
-    ])
+    ]);
 
-    const totalTimeslots = timeslots.length
+    const totalTimeslots = timeslots.length;
 
     return {
       gradeId,
       gradeInfo,
       scheduledHours: scheduledCount,
       totalHours: totalTimeslots,
-      completionRate: totalTimeslots > 0 ? (scheduledCount / totalTimeslots) * 100 : 0,
-    }
+      completionRate:
+        totalTimeslots > 0 ? (scheduledCount / totalTimeslots) * 100 : 0,
+    };
   },
 
   /**
@@ -176,9 +173,8 @@ export const overviewRepository = {
    * @returns Count of locked and unlocked schedules
    */
   async getLockStatusSummary(configId: string) {
-    'use cache'
-    cacheTag(`stats:${configId}`, `stats:${configId}:locks`)
-    const config = parseConfigId(configId)
+    cacheTag(`stats:${configId}`, `stats:${configId}:locks`);
+    const config = parseConfigId(configId);
 
     // Get timeslot IDs for this semester
     const timeslots = await prisma.timeslot.findMany({
@@ -189,9 +185,9 @@ export const overviewRepository = {
       select: {
         TimeslotID: true,
       },
-    })
+    });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID)
+    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
 
     const [locked, unlocked] = await Promise.all([
       prisma.class_schedule.count({
@@ -211,9 +207,9 @@ export const overviewRepository = {
           },
         },
       }),
-    ])
+    ]);
 
-    const total = locked + unlocked
+    const total = locked + unlocked;
 
     return {
       locked,
@@ -221,7 +217,7 @@ export const overviewRepository = {
       total,
       lockedPercentage: total > 0 ? (locked / total) * 100 : 0,
       unlockedPercentage: total > 0 ? (unlocked / total) * 100 : 0,
-    }
+    };
   },
 
   /**
@@ -230,9 +226,8 @@ export const overviewRepository = {
    * @returns Detailed completion metrics
    */
   async getCompletionMetrics(configId: string) {
-    'use cache'
-    cacheTag(`stats:${configId}`, `stats:${configId}:completion`)
-    const config = parseConfigId(configId)
+    cacheTag(`stats:${configId}`, `stats:${configId}:completion`);
+    const config = parseConfigId(configId);
 
     // Get timeslot IDs for this semester
     const timeslots = await prisma.timeslot.findMany({
@@ -243,16 +238,11 @@ export const overviewRepository = {
       select: {
         TimeslotID: true,
       },
-    })
+    });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID)
+    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
 
-    const [
-      totalScheduled,
-      locked,
-      unlocked,
-      totalGrades,
-    ] = await Promise.all([
+    const [totalScheduled, locked, unlocked, totalGrades] = await Promise.all([
       prisma.class_schedule.count({
         where: {
           TimeslotID: {
@@ -280,23 +270,28 @@ export const overviewRepository = {
       }),
 
       prisma.gradelevel.count(),
-    ])
+    ]);
 
-    const totalTimeslots = timeslots.length
-    const totalRequired = totalGrades * totalTimeslots
-    const empty = totalRequired - totalScheduled
-    const completionRate = totalRequired > 0 ? (totalScheduled / totalRequired) * 100 : 0
+    const totalTimeslots = timeslots.length;
+    const totalRequired = totalGrades * totalTimeslots;
+    const empty = totalRequired - totalScheduled;
+    const completionRate =
+      totalRequired > 0 ? (totalScheduled / totalRequired) * 100 : 0;
 
     // Determine progress status
-    let progressStatus: 'not-started' | 'in-progress' | 'near-complete' | 'complete'
+    let progressStatus:
+      | "not-started"
+      | "in-progress"
+      | "near-complete"
+      | "complete";
     if (completionRate < 10) {
-      progressStatus = 'not-started'
+      progressStatus = "not-started";
     } else if (completionRate < 70) {
-      progressStatus = 'in-progress'
+      progressStatus = "in-progress";
     } else if (completionRate < 95) {
-      progressStatus = 'near-complete'
+      progressStatus = "near-complete";
     } else {
-      progressStatus = 'complete'
+      progressStatus = "complete";
     }
 
     return {
@@ -307,6 +302,6 @@ export const overviewRepository = {
       unlockedSchedules: unlocked,
       emptySlots: empty,
       progressStatus,
-    }
+    };
   },
-}
+};

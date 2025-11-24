@@ -5,8 +5,8 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import type { subject } from '@/prisma/generated/client';;
-import { subject_credit, SubjectCategory } from '@/prisma/generated/client';;
+import type { subject } from "@/prisma/generated/client";
+import { subject_credit, SubjectCategory } from "@/prisma/generated/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { createSubjectAction } from "@/features/subject/application/actions/subject.actions";
 import PrimaryButton from "@/components/mui/PrimaryButton";
@@ -21,7 +21,9 @@ type Props = {
 function AddModalForm({ closeModal, mutate }: Props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [subjects, setSubjects] = useState<(Omit<subject, 'Credit'> & { Credit: subject_credit | undefined })[]>([
+  const [subjects, setSubjects] = useState<
+    (Omit<subject, "Credit"> & { Credit: subject_credit | undefined })[]
+  >([
     {
       SubjectCode: "",
       SubjectName: "",
@@ -34,34 +36,40 @@ function AddModalForm({ closeModal, mutate }: Props) {
     },
   ]);
 
-  const addData = async (data: (Omit<subject, 'Credit'> & { Credit: subject_credit | undefined })[]) => {
+  const addData = async (
+    data: (Omit<subject, "Credit"> & { Credit: subject_credit | undefined })[],
+  ) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มวิชา", {
       variant: "info",
       persist: true,
     });
-    
+
     const subjectsToCreate = data.map((subject) => ({
       ...subject,
     }));
 
     try {
       const result = await createSubjectAction({ subjects: subjectsToCreate });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มวิชาสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เพิ่มวิชาไม่สำเร็จ " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "เพิ่มวิชาไม่สำเร็จ " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
   };
@@ -229,9 +237,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                       currentValue={subject.Credit}
                       placeHolder={"ตัวเลือก"}
                       borderColor={
-                        isEmptyData && !subject.Credit
-                          ? "#F96161"
-                          : ""
+                        isEmptyData && !subject.Credit ? "#F96161" : ""
                       }
                       handleChange={(value: unknown) => {
                         setSubjects(() =>
@@ -255,30 +261,40 @@ function AddModalForm({ closeModal, mutate }: Props) {
                       สาระการเรียนรู้ (Category):
                     </label>
                     <Dropdown
-                      data={[SubjectCategory.CORE, SubjectCategory.ADDITIONAL, SubjectCategory.ACTIVITY]}
-                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                      data={[
+                        SubjectCategory.CORE,
+                        SubjectCategory.ADDITIONAL,
+                        SubjectCategory.ACTIVITY,
+                      ]}
+                      renderItem={({
+                        data,
+                      }: {
+                        data: unknown;
+                      }): JSX.Element => {
                         const category = data as SubjectCategory;
                         return (
-                          <li className="w-full">{
-                            category === SubjectCategory.CORE ? "พื้นฐาน" :
-                            category === SubjectCategory.ADDITIONAL ? "เพิ่มเติม" :
-                            "กิจกรรมพัฒนาผู้เรียน"
-                          }</li>
+                          <li className="w-full">
+                            {category === SubjectCategory.CORE
+                              ? "พื้นฐาน"
+                              : category === SubjectCategory.ADDITIONAL
+                                ? "เพิ่มเติม"
+                                : "กิจกรรมพัฒนาผู้เรียน"}
+                          </li>
                         );
                       }}
                       width={150}
                       height={40}
                       currentValue={subject.Category}
                       borderColor={
-                        isEmptyData && !subject.Category
-                          ? "#F96161"
-                          : ""
+                        isEmptyData && !subject.Category ? "#F96161" : ""
                       }
                       placeHolder={"ตัวเลือก"}
                       handleChange={(value: unknown) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
-                            index === ind ? { ...item, Category: value as SubjectCategory } : item,
+                            index === ind
+                              ? { ...item, Category: value as SubjectCategory }
+                              : item,
                           ),
                         );
                       }}
@@ -307,16 +323,18 @@ function AddModalForm({ closeModal, mutate }: Props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} 
-              reverseIcon={false} 
+              Icon={<CloseIcon />}
+              reverseIcon={false}
               isDisabled={isSubmitting}
             />
             <PrimaryButton
               handleClick={handleSubmit}
               title={isSubmitting ? "" : "ยืนยัน"}
               color={"success"}
-              Icon={isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />} 
-              reverseIcon={false} 
+              Icon={
+                isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />
+              }
+              reverseIcon={false}
               isDisabled={isSubmitting}
             />
           </span>

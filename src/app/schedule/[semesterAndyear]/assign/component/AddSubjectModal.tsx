@@ -2,9 +2,9 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import React, { Fragment, useEffect, useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash } from "react-icons/tb";
-import type { subject } from '@/prisma/generated/client';
-import { subject_credit } from '@/models/credit-value';
-import { SubjectCategory } from '@/models/subject-category';
+import type { subject } from "@/prisma/generated/client";
+import { subject_credit } from "@/models/credit-value";
+import { SubjectCategory } from "@/models/subject-category";
 import Loading from "@/app/loading";
 import { useParams, useSearchParams } from "next/navigation";
 import { subjectCreditValues } from "@/models/credit-value";
@@ -42,11 +42,13 @@ function AddSubjectModal(props: Props) {
     props.subjectByGradeID || [],
   ); //รายวิชาของชั้นเรียนทีส่งมา
   const params = useParams();
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
+
   const { data, isLoading, isValidating } = useSWR(
     props.classRoomData?.GradeID
-      ? ['subjects-by-grade', props.classRoomData.GradeID]
+      ? ["subjects-by-grade", props.classRoomData.GradeID]
       : null,
     async ([, gradeId]) => {
       return await getSubjectsByGradeAction({ GradeID: gradeId });
@@ -58,7 +60,13 @@ function AddSubjectModal(props: Props) {
   ); //เรียกข้อมูลวิชาทั้งหมดของชั้นเรียนที่ส่งมา
   const searchTeacherID = useSearchParams().get("TeacherID");
   useEffect(() => {
-    if (!isValidating && data && 'success' in data && data.success && data.data) {
+    if (
+      !isValidating &&
+      data &&
+      "success" in data &&
+      data.success &&
+      data.data
+    ) {
       const subjects = data.data;
       setSubject(subjects);
       const filterData = subjects.filter(
@@ -76,7 +84,7 @@ function AddSubjectModal(props: Props) {
   }, [isValidating]);
   useEffect(() => {
     //กรองวิชาที่เคยมีอยู่แล้วออกไปจาก dropdown โดยเช็คจากชื่อวิชาและรหัสวิชา
-    if (!data || !('success' in data) || !data.success || !data.data) return;
+    if (!data || !("success" in data) || !data.success || !data.data) return;
     const subjects = data.data;
     const filterDataR1 = subjects.filter(
       (item) =>
@@ -185,7 +193,9 @@ function AddSubjectModal(props: Props) {
                       SubjectCode: "",
                       SubjectName: "",
                       Credit: "CREDIT_10" as subject_credit,
-                      TeacherID: searchTeacherID ? parseInt(searchTeacherID) : undefined,
+                      TeacherID: searchTeacherID
+                        ? parseInt(searchTeacherID)
+                        : undefined,
                       Category: SubjectCategory.CORE,
                       LearningArea: null,
                       ActivityType: null,
@@ -211,7 +221,11 @@ function AddSubjectModal(props: Props) {
                     </div>
                     <div className="flex gap-3">
                       <p className="text-sm text-gray-500">
-                        จำนวน {subject.Credit ? (subjectCreditValues[subject.Credit] ?? 0) * 2 : 0} คาบ
+                        จำนวน{" "}
+                        {subject.Credit
+                          ? (subjectCreditValues[subject.Credit] ?? 0) * 2
+                          : 0}{" "}
+                        คาบ
                       </p>
                       <TbTrash
                         onClick={() => removeCurrentSubject(subject)}
@@ -228,11 +242,16 @@ function AddSubjectModal(props: Props) {
                   <div className="flex justify-between items-center">
                     <Dropdown
                       data={subject}
-                      renderItem={({ data }: { data: unknown }): JSX.Element => {
+                      renderItem={({
+                        data,
+                      }: {
+                        data: unknown;
+                      }): JSX.Element => {
                         const subjectData = data as subject;
                         return (
                           <li className="text-sm">
-                            {subjectData.SubjectCode} - {subjectData.SubjectName}
+                            {subjectData.SubjectCode} -{" "}
+                            {subjectData.SubjectName}
                           </li>
                         );
                       }}
@@ -248,7 +267,7 @@ function AddSubjectModal(props: Props) {
                         const subjectItem = item as subject;
                         setSubjectList((prevList) =>
                           prevList.map((listItem, ind) =>
-                            ind === index 
+                            ind === index
                               ? {
                                   ...listItem,
                                   SubjectCode: subjectItem.SubjectCode,
@@ -265,7 +284,10 @@ function AddSubjectModal(props: Props) {
                     <div className="flex justify-between gap-5 items-center">
                       <div className="flex gap-3">
                         <p className="text-sm text-gray-500">
-                          จำนวน {item.Credit ? (subjectCreditValues[item.Credit] ?? 0) * 2 : "0"}{" "}
+                          จำนวน{" "}
+                          {item.Credit
+                            ? (subjectCreditValues[item.Credit] ?? 0) * 2
+                            : "0"}{" "}
                           คาบ
                         </p>
                         <TbTrash

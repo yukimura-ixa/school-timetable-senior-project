@@ -52,18 +52,26 @@ function LockSchedule() {
 
   const { confirm, dialog } = useConfirmDialog();
 
-  const [showMoreteachherData, setShowMoreteacherData] = useState<number | null>(null); //index
+  const [showMoreteachherData, setShowMoreteacherData] = useState<
+    number | null
+  >(null); //index
   const params = useParams();
-  
+
   // Sync URL params with global store
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
-  const lockData = useLockedSchedules(parseInt(academicYear), parseInt(semester));
-  
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
+
+  const lockData = useLockedSchedules(
+    parseInt(academicYear),
+    parseInt(semester),
+  );
+
   // Derive ConfigID from semesterAndyear params
   const configId = `${semester}-${academicYear}`;
 
-  const [selectedLock, setSelectedLock] = useState<GroupedLockedSchedule | null>(null);
+  const [selectedLock, setSelectedLock] =
+    useState<GroupedLockedSchedule | null>(null);
 
   // Save view preference
   useEffect(() => {
@@ -72,7 +80,7 @@ function LockSchedule() {
 
   const handleViewModeChange = (
     _event: React.MouseEvent<HTMLElement>,
-    newMode: ViewMode | null
+    newMode: ViewMode | null,
   ) => {
     if (newMode !== null) {
       setViewMode(newMode);
@@ -83,8 +91,6 @@ function LockSchedule() {
     setSelectedLock(null);
     setLockScheduleFormActive(true);
   };
-
-
 
   const handleClickDeleteLockSchedule = async (item: GroupedLockedSchedule) => {
     const confirmed = await confirm({
@@ -110,20 +116,20 @@ function LockSchedule() {
       await lockData.mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      enqueueSnackbar(
-        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + errorMessage,
-        { variant: "error" }
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("ลบข้อมูลคาบล็อกไม่สำเร็จ: " + errorMessage, {
+        variant: "error",
+      });
       console.error(error);
     }
   };
 
   if (lockData.isLoading) {
     return (
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, py: 2 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, py: 2 }}>
         {[...Array(4)].map((_, i) => (
-          <Box key={i} sx={{ width: '49%' }}>
+          <Box key={i} sx={{ width: "49%" }}>
             <CardSkeleton />
           </Box>
         ))}
@@ -150,7 +156,14 @@ function LockSchedule() {
       ) : null}
 
       {/* Action Buttons and View Toggle (always visible to allow creating first lock) */}
-      <Box sx={{ mb: 3, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          mb: 3,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Stack direction="row" spacing={2}>
           <Button
             variant="contained"
@@ -204,7 +217,7 @@ function LockSchedule() {
           semester={parseInt(semester)}
           onEditLock={(lock) => {
             const index = lockData.data.findIndex(
-              (item) => item.SubjectCode === lock.SubjectCode
+              (item) => item.SubjectCode === lock.SubjectCode,
             );
             if (index !== -1 && lockData.data[index]) {
               setSelectedLock(lockData.data[index]);
@@ -221,12 +234,10 @@ function LockSchedule() {
       {hasData && viewMode === "list" && (
         <div className="w-full flex flex-wrap gap-4 py-4 justify-between">
           {lockData.data.map((item, lockIndex) => (
-          <Fragment key={`${item.SubjectCode}-${lockIndex}`}>
+            <Fragment key={`${item.SubjectCode}-${lockIndex}`}>
               <div className="relative flex flex-col cursor-pointer p-4 gap-4 w-[49%] h-fit bg-white hover:bg-slate-50 duration-300 drop-shadow rounded">
                 <div className="flex justify-between items-center gap-3">
-                  <p
-                    className="text-lg font-medium"
-                  >
+                  <p className="text-lg font-medium">
                     {item.SubjectCode} - {item.SubjectName}
                   </p>
                   <div className="flex gap-3">
@@ -241,7 +252,7 @@ function LockSchedule() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-500">
-                  สถานที่ : {item.room?.RoomName || 'ไม่ระบุ'}
+                  สถานที่ : {item.room?.RoomName || "ไม่ระบุ"}
                 </p>
                 <p className="text-sm text-gray-500">
                   คาบที่ :{" "}
@@ -256,7 +267,10 @@ function LockSchedule() {
                     .join(",")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  วัน : {item.timeslots[0]?.DayOfWeek ? dayOfWeekThai[item.timeslots[0].DayOfWeek] : 'ไม่ระบุ'}
+                  วัน :{" "}
+                  {item.timeslots[0]?.DayOfWeek
+                    ? dayOfWeekThai[item.timeslots[0].DayOfWeek]
+                    : "ไม่ระบุ"}
                 </p>
                 {/* ชั้นเรียนที่กำหนดให้คาบล็อก */}
                 <div className="flex flex-row justify-between items-center">
@@ -317,9 +331,10 @@ function LockSchedule() {
                             titleColor="#4F515E"
                             buttonColor="#ffffff"
                             title={`${teacher.Firstname} - ${
-                              teacher.Department && teacher.Department.length > 10
+                              teacher.Department &&
+                              teacher.Department.length > 10
                                 ? `${teacher.Department.substring(0, 10)}...`
-                                : (teacher.Department || 'ไม่ระบุ')
+                                : teacher.Department || "ไม่ระบุ"
                             }`}
                             handleClick={() => {}}
                             isSelected={false}
@@ -346,7 +361,9 @@ function LockSchedule() {
                                 onMouseEnter={() => {
                                   setShowMoreteacherData(lockIndex);
                                 }}
-                                onMouseLeave={() => setShowMoreteacherData(null)}
+                                onMouseLeave={() =>
+                                  setShowMoreteacherData(null)
+                                }
                               >
                                 {item.teachers.map((item, index) => (
                                   <Fragment key={`moredata${index}`}>
@@ -355,12 +372,13 @@ function LockSchedule() {
                                         {item.Firstname}
                                       </p>
                                       <p className="text-sm">
-                                        {item.Department && item.Department.length > 10
+                                        {item.Department &&
+                                        item.Department.length > 10
                                           ? `${item.Department.substring(
                                               0,
                                               10,
                                             )}...`
-                                          : (item.Department || 'ไม่ระบุ')}
+                                          : item.Department || "ไม่ระบุ"}
                                       </p>
                                     </div>
                                   </Fragment>

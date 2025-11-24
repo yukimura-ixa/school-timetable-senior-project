@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 import { getTeachersWithWorkload } from "../../application/actions/teaching-assignment.actions";
 import {
   getWorkloadColor,
@@ -47,7 +47,7 @@ export function TeacherSelector({
 }: TeacherSelectorProps) {
   const [teachers, setTeachers] = useState<TeacherOption[]>([]);
   const [selectedTeacher, setSelectedTeacher] = useState<TeacherOption | null>(
-    null
+    null,
   );
   const [hours, setHours] = useState<number>(defaultHours);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,15 +58,20 @@ export function TeacherSelector({
       setIsLoading(true);
 
       try {
-        const teachersData = await getTeachersWithWorkload(semester, academicYear);
+        const teachersData = await getTeachersWithWorkload(
+          semester,
+          academicYear,
+        );
 
         // Map server action response to component state
-        const teachersWithWorkload: TeacherOption[] = teachersData.map((teacher: any) => ({
-          id: teacher.TeacherID,
-          name: teacher.TeacherName,
-          currentHours: teacher.currentWorkload.totalHours,
-          status: teacher.currentWorkload.status,
-        }));
+        const teachersWithWorkload: TeacherOption[] = teachersData.map(
+          (teacher: any) => ({
+            id: teacher.TeacherID,
+            name: teacher.TeacherName,
+            currentHours: teacher.currentWorkload.totalHours,
+            status: teacher.currentWorkload.status,
+          }),
+        );
 
         setTeachers(teachersWithWorkload);
       } catch (error) {
@@ -96,7 +101,13 @@ export function TeacherSelector({
         loading={isLoading}
         renderOption={(props, option) => (
           <li {...props}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
               <span>{option.name}</span>
               <Chip
                 size="small"

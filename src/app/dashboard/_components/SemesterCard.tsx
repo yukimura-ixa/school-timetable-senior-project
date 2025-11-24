@@ -60,11 +60,12 @@ export function SemesterCard({
   isSelected,
 }: Props) {
   const [configDialogOpen, setConfigDialogOpen] = useState(false);
-  
-  const semesterLabel = semesterThai[semester.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"];
+
+  const semesterLabel =
+    semesterThai[semester.semester === 1 ? "SEMESTER_1" : "SEMESTER_2"];
   const statusColor = STATUS_COLORS[semester.status];
   const statusLabel = STATUS_LABELS[semester.status];
-  
+
   // Check if timeslots need to be configured (completeness < 25%)
   const needsTimeslotConfig = semester.configCompleteness < 25;
 
@@ -85,7 +86,7 @@ export function SemesterCard({
     });
     onUpdate?.();
   };
-  
+
   const handleConfigSuccess = () => {
     setConfigDialogOpen(false);
     onUpdate?.();
@@ -139,7 +140,7 @@ export function SemesterCard({
             sx={{ mb: 1 }}
           />
         </Box>
-        
+
         {/* Warning for missing timeslots */}
         {needsTimeslotConfig && (
           <Alert severity="warning" sx={{ mb: 2 }}>
@@ -151,7 +152,9 @@ export function SemesterCard({
 
         {/* Progress */}
         <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
+          >
             <Typography variant="caption" color="text.secondary">
               ความสมบูรณ์
             </Typography>
@@ -176,7 +179,11 @@ export function SemesterCard({
           }}
         >
           <Box>
-            <Typography variant="caption" color="text.secondary" display="block">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+            >
               ห้องเรียน
             </Typography>
             <Typography variant="body2" fontWeight="medium">
@@ -184,7 +191,11 @@ export function SemesterCard({
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary" display="block">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+            >
               ครู
             </Typography>
             <Typography variant="body2" fontWeight="medium">
@@ -192,7 +203,11 @@ export function SemesterCard({
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary" display="block">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+            >
               วิชา
             </Typography>
             <Typography variant="body2" fontWeight="medium">
@@ -200,7 +215,11 @@ export function SemesterCard({
             </Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary" display="block">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+            >
               ห้อง
             </Typography>
             <Typography variant="body2" fontWeight="medium">
@@ -215,7 +234,11 @@ export function SemesterCard({
             อัปเดตล่าสุด: {formatDate(semester.updatedAt)}
           </Typography>
           {semester.publishedAt && (
-            <Typography variant="caption" color="text.secondary" display="block">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+            >
               เผยแพร่: {formatDate(semester.publishedAt)}
             </Typography>
           )}
@@ -223,7 +246,15 @@ export function SemesterCard({
       </CardContent>
 
       {/* Actions */}
-      <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2, flexWrap: "wrap", gap: 1 }}>
+      <CardActions
+        sx={{
+          justifyContent: "space-between",
+          px: 2,
+          pb: 2,
+          flexWrap: "wrap",
+          gap: 1,
+        }}
+      >
         <Box sx={{ display: "flex", gap: 1 }}>
           {onCopy && (
             <Tooltip title="คัดลอก">
@@ -239,7 +270,7 @@ export function SemesterCard({
             </Tooltip>
           )}
         </Box>
-        
+
         <Box sx={{ display: "flex", gap: 1, ml: "auto" }}>
           {needsTimeslotConfig && (
             <Button
@@ -264,7 +295,7 @@ export function SemesterCard({
           </Button>
         </Box>
       </CardActions>
-      
+
       {/* Configure Timeslots Dialog */}
       <ConfigureTimeslotsDialog
         open={configDialogOpen}

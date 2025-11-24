@@ -6,9 +6,15 @@ import SelectMultipleTimeSlot from "./SelectMultipleTimeSlot";
 import SelectTeacher from "./SelectTeacher";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectRoomName from "./SelectRoomName";
-import { useParams } from 'next/navigation';
-import { useRoomAvailability } from '@/hooks/useRoomAvailability';
-import type { room, semester, subject, teacher, timeslot } from '@/prisma/generated/client';;
+import { useParams } from "next/navigation";
+import { useRoomAvailability } from "@/hooks/useRoomAvailability";
+import type {
+  room,
+  semester,
+  subject,
+  teacher,
+  timeslot,
+} from "@/prisma/generated/client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { createLockAction } from "@/features/lock/application/actions/lock.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -156,12 +162,12 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   // Derive academic year / semester from route param for fetching locked schedules
   const derivedTerm = useMemo(() => {
     if (!semesterAndyear) return null;
-    const parts = semesterAndyear.split('-');
+    const parts = semesterAndyear.split("-");
     if (parts.length !== 2) return null;
     const semPart = parts[0];
     const yearNum = Number(parts[1]);
-    if (!yearNum || (semPart !== '1' && semPart !== '2')) return null;
-    const semEnum: semester = semPart === '1' ? 'SEMESTER_1' : 'SEMESTER_2';
+    if (!yearNum || (semPart !== "1" && semPart !== "2")) return null;
+    const semEnum: semester = semPart === "1" ? "SEMESTER_1" : "SEMESTER_2";
     return { academicYear: yearNum, semester: semEnum };
   }, [semesterAndyear]);
 
@@ -305,26 +311,30 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       variant: "info",
       persist: true,
     });
-    
+
     try {
       // Transform data to match createLockAction schema
       const lockInput = {
         SubjectCode: data.SubjectCode,
         timeslots: data.timeslots,
         GradeIDs: data.GradeIDs,
-        RespIDs: data.teachers.map(t => t.TeacherID),
+        RespIDs: data.teachers.map((t) => t.TeacherID),
         RoomID: data.room?.RoomID || null,
       };
-      
+
       await createLockAction(lockInput);
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มข้อมูลคาบล็อก: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "เกิดข้อผิดพลาดในการเพิ่มข้อมูลคาบล็อก: " +
+          (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
   };

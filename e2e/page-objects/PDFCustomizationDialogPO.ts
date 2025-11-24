@@ -1,9 +1,9 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "./BasePage";
 
 /**
  * Page Object Model for PDF Customization Dialog
- * 
+ *
  * This dialog allows users to customize PDF exports with options:
  * - Paper size (A4, A3, Letter, Legal, Tabloid)
  * - Orientation (Portrait, Landscape)
@@ -48,12 +48,14 @@ export class PDFCustomizationDialogPO extends BasePage {
   // Preview summary
   readonly previewText: Locator;
 
-  constructor(page: Page, baseUrl: string = 'http://localhost:3000') {
+  constructor(page: Page, baseUrl: string = "http://localhost:3000") {
     super(page, baseUrl);
-    
+
     // Dialog
     this.dialog = page.locator('[role="dialog"]');
-    this.dialogTitle = this.dialog.locator('h2:has-text("ปรับแต่งการส่งออก PDF")');
+    this.dialogTitle = this.dialog.locator(
+      'h2:has-text("ปรับแต่งการส่งออก PDF")',
+    );
 
     // Paper size - using MUI Select with data-testid
     this.paperSizeSelect = page.locator('[data-testid="paper-size-select"]');
@@ -61,20 +63,30 @@ export class PDFCustomizationDialogPO extends BasePage {
     this.paperSizeA3 = page.locator('[role="option"][data-value="A3"]');
     this.paperSizeLetter = page.locator('[role="option"][data-value="Letter"]');
     this.paperSizeLegal = page.locator('[role="option"][data-value="Legal"]');
-    this.paperSizeTabloid = page.locator('[role="option"][data-value="Tabloid"]');
+    this.paperSizeTabloid = page.locator(
+      '[role="option"][data-value="Tabloid"]',
+    );
 
     // Orientation - using MUI Select with data-testid
     this.orientationSelect = page.locator('[data-testid="orientation-select"]');
-    this.orientationPortrait = page.locator('[role="option"][data-value="portrait"]');
-    this.orientationLandscape = page.locator('[role="option"][data-value="landscape"]');
+    this.orientationPortrait = page.locator(
+      '[role="option"][data-value="portrait"]',
+    );
+    this.orientationLandscape = page.locator(
+      '[role="option"][data-value="landscape"]',
+    );
 
     // Sliders - using data-testid
-    this.tablesPerPageSlider = page.locator('[data-testid="tables-per-page-slider"]');
+    this.tablesPerPageSlider = page.locator(
+      '[data-testid="tables-per-page-slider"]',
+    );
     this.marginSlider = page.locator('[data-testid="margin-slider"]');
     this.qualitySlider = page.locator('[data-testid="quality-slider"]');
 
     // Switches - using data-testid
-    this.pageNumbersSwitch = page.locator('[data-testid="page-numbers-switch"]');
+    this.pageNumbersSwitch = page.locator(
+      '[data-testid="page-numbers-switch"]',
+    );
     this.signaturesSwitch = page.locator('[data-testid="signatures-switch"]');
 
     // Buttons
@@ -83,7 +95,7 @@ export class PDFCustomizationDialogPO extends BasePage {
     this.resetButton = this.dialog.locator('button:has-text("รีเซ็ต")');
 
     // Preview
-    this.previewText = this.dialog.locator('text=/กระดาษ .* แนว.*/');
+    this.previewText = this.dialog.locator("text=/กระดาษ .* แนว.*/");
   }
 
   /**
@@ -104,23 +116,23 @@ export class PDFCustomizationDialogPO extends BasePage {
   /**
    * Select paper size
    */
-  async selectPaperSize(size: 'A4' | 'A3' | 'Letter' | 'Legal' | 'Tabloid') {
+  async selectPaperSize(size: "A4" | "A3" | "Letter" | "Legal" | "Tabloid") {
     await this.paperSizeSelect.click();
-    
+
     switch (size) {
-      case 'A4':
+      case "A4":
         await this.paperSizeA4.click();
         break;
-      case 'A3':
+      case "A3":
         await this.paperSizeA3.click();
         break;
-      case 'Letter':
+      case "Letter":
         await this.paperSizeLetter.click();
         break;
-      case 'Legal':
+      case "Legal":
         await this.paperSizeLegal.click();
         break;
-      case 'Tabloid':
+      case "Tabloid":
         await this.paperSizeTabloid.click();
         break;
     }
@@ -129,10 +141,10 @@ export class PDFCustomizationDialogPO extends BasePage {
   /**
    * Select orientation
    */
-  async selectOrientation(orientation: 'portrait' | 'landscape') {
+  async selectOrientation(orientation: "portrait" | "landscape") {
     await this.orientationSelect.click();
-    
-    if (orientation === 'portrait') {
+
+    if (orientation === "portrait") {
       await this.orientationPortrait.click();
     } else {
       await this.orientationLandscape.click();
@@ -145,7 +157,7 @@ export class PDFCustomizationDialogPO extends BasePage {
    */
   async setTablesPerPage(value: number) {
     if (value < 1 || value > 10) {
-      throw new Error('Tables per page must be between 1 and 10');
+      throw new Error("Tables per page must be between 1 and 10");
     }
     await this.tablesPerPageSlider.fill(value.toString());
   }
@@ -155,7 +167,7 @@ export class PDFCustomizationDialogPO extends BasePage {
    */
   async setMargin(value: number) {
     if (value < 5 || value > 20) {
-      throw new Error('Margin must be between 5 and 20');
+      throw new Error("Margin must be between 5 and 20");
     }
     await this.marginSlider.fill(value.toString());
   }
@@ -223,21 +235,21 @@ export class PDFCustomizationDialogPO extends BasePage {
   async assertDefaultValues() {
     // Check paper size select shows A4
     const paperSizeValue = await this.paperSizeSelect.inputValue();
-    expect(paperSizeValue).toBe('A4');
+    expect(paperSizeValue).toBe("A4");
 
     // Check orientation select shows portrait
     const orientationValue = await this.orientationSelect.inputValue();
-    expect(orientationValue).toBe('portrait');
+    expect(orientationValue).toBe("portrait");
 
     // Check sliders have default values
     const tablesValue = await this.tablesPerPageSlider.inputValue();
-    expect(tablesValue).toBe('2');
+    expect(tablesValue).toBe("2");
 
     const marginValue = await this.marginSlider.inputValue();
-    expect(marginValue).toBe('10');
+    expect(marginValue).toBe("10");
 
     const qualityValue = await this.qualitySlider.inputValue();
-    expect(qualityValue).toBe('2');
+    expect(qualityValue).toBe("2");
 
     // Check switches are enabled by default
     expect(await this.pageNumbersSwitch.isChecked()).toBe(true);
@@ -248,8 +260,8 @@ export class PDFCustomizationDialogPO extends BasePage {
    * Configure all PDF options at once
    */
   async configurePDF(options: {
-    paperSize?: 'A4' | 'A3' | 'Letter' | 'Legal' | 'Tabloid';
-    orientation?: 'portrait' | 'landscape';
+    paperSize?: "A4" | "A3" | "Letter" | "Legal" | "Tabloid";
+    orientation?: "portrait" | "landscape";
     tablesPerPage?: number;
     margin?: number;
     quality?: 1 | 2 | 3;

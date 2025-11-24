@@ -19,15 +19,17 @@ type Props = {
 
 function SelectSubject(props: Props) {
   const params = useParams();
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
+
   const respData = useSWR(
     semester && academicYear
-      ? ['locked-subjects', semester, academicYear]
+      ? ["locked-subjects", semester, academicYear]
       : null,
     async ([, sem, year]) => {
       return await getLockedRespsAction({
-        Semester: `SEMESTER_${sem}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
         AcademicYear: parseInt(year),
       });
     },
@@ -37,21 +39,25 @@ function SelectSubject(props: Props) {
     },
   );
   const [subject, setSubject] = useState<SubjectWithResponsibilities[]>([]);
-  const [subjectFilter, setSubjectFilter] = useState<SubjectWithResponsibilities[]>([]);
-  
+  const [subjectFilter, setSubjectFilter] = useState<
+    SubjectWithResponsibilities[]
+  >([]);
+
   useEffect(() => {
-    const result = respData.data as ActionResult<SubjectWithResponsibilities[]> | undefined;
+    const result = respData.data as
+      | ActionResult<SubjectWithResponsibilities[]>
+      | undefined;
     if (result?.success && result.data) {
       setSubject(result.data);
       setSubjectFilter(result.data);
     }
   }, [respData.isValidating, respData.data]);
-  
+
   const searchHandle: InputChangeHandler = (event) => {
     const text = event.target.value;
     searchName(text);
   };
-  
+
   const searchName = (name: string) => {
     const res = subjectFilter.filter((item) =>
       `${item.SubjectCode} ${item.SubjectName}`.match(name),
@@ -76,14 +82,17 @@ function SelectSubject(props: Props) {
             data={subject as unknown[]}
             renderItem={({ data }: { data: unknown }): JSX.Element => (
               <li className="w-full text-sm">
-                {(data as SubjectWithResponsibilities).SubjectCode} {(data as SubjectWithResponsibilities).SubjectName}
+                {(data as SubjectWithResponsibilities).SubjectCode}{" "}
+                {(data as SubjectWithResponsibilities).SubjectName}
               </li>
             )}
             width={300}
             height={40}
             currentValue={props.currentValue}
             placeHolder={"ตัวเลือก"}
-            handleChange={(value: unknown) => props.handleSubjectChange(value as SubjectWithResponsibilities)}
+            handleChange={(value: unknown) =>
+              props.handleSubjectChange(value as SubjectWithResponsibilities)
+            }
             useSearchBar={true}
             searchFunction={searchHandle}
           />

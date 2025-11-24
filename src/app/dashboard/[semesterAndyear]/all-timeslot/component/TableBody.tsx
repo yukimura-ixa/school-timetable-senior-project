@@ -1,5 +1,5 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 import LockIcon from "@mui/icons-material/Lock";
 
 type ClassData = {
@@ -40,32 +40,32 @@ const TableBody = (props: Props) => {
       .map((item) => `${item.GradeID[0]}/${item.GradeID[2]}`)
       .join(",");
     // let convertClass = ["101", "102", "301", "302", "303", "304", "305", "306", "307", "308", "309", "310"].map(item => `${item[0]}/${item[2]}`).join(",")
-    
-      if (filterClass.length === 0) {
-        return null;
-      }
-    
-      const firstClass = filterClass[0];
-      if (!firstClass) {
-        return null;
-      }
-    
-      const res = firstClass.IsLocked
-        ? `${firstClass.SubjectCode}`
-        : `${convertClass}\n${firstClass.SubjectCode}`;
-      
-      return (
-        <div
-          style={{ 
-            color: firstClass.IsLocked ? "red" : "black",
-            fontWeight: firstClass.IsLocked ? 600 : 400,
-          }}
-          className="text-xs text-center flex flex-col items-center gap-1"
-        >
-          {firstClass.IsLocked && <LockIcon sx={{ fontSize: 14 }} />}
-          <p className="whitespace-pre-line">{res}</p>
-        </div>
-      );
+
+    if (filterClass.length === 0) {
+      return null;
+    }
+
+    const firstClass = filterClass[0];
+    if (!firstClass) {
+      return null;
+    }
+
+    const res = firstClass.IsLocked
+      ? `${firstClass.SubjectCode}`
+      : `${convertClass}\n${firstClass.SubjectCode}`;
+
+    return (
+      <div
+        style={{
+          color: firstClass.IsLocked ? "red" : "black",
+          fontWeight: firstClass.IsLocked ? 600 : 400,
+        }}
+        className="text-xs text-center flex flex-col items-center gap-1"
+      >
+        {firstClass.IsLocked && <LockIcon sx={{ fontSize: 14 }} />}
+        <p className="whitespace-pre-line">{res}</p>
+      </div>
+    );
   }
   return (
     <tbody>

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -22,15 +22,18 @@ import {
   ListItem,
   ListItemText,
   CircularProgress,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ContentPaste as TemplateIcon,
   CheckCircle as CheckCircleIcon,
   Warning as WarningIcon,
-} from '@mui/icons-material';
-import { enqueueSnackbar } from 'notistack';
-import { LOCK_TEMPLATES, type LockTemplate } from '@/features/lock/domain/models/lock-template.model';
-import { applyLockTemplateAction } from '@/features/lock/application/actions/lock.actions';
+} from "@mui/icons-material";
+import { enqueueSnackbar } from "notistack";
+import {
+  LOCK_TEMPLATES,
+  type LockTemplate,
+} from "@/features/lock/domain/models/lock-template.model";
+import { applyLockTemplateAction } from "@/features/lock/application/actions/lock.actions";
 
 interface LockTemplatesModalProps {
   open: boolean;
@@ -41,30 +44,33 @@ interface LockTemplatesModalProps {
   onSuccess: () => void;
 }
 
-const CATEGORY_LABELS: Record<LockTemplate['category'], string> = {
-  lunch: 'พักกลางวัน',
-  activity: 'กิจกรรม',
-  assembly: 'ประชุม',
-  exam: 'สอบ',
-  other: 'อื่นๆ',
+const CATEGORY_LABELS: Record<LockTemplate["category"], string> = {
+  lunch: "พักกลางวัน",
+  activity: "กิจกรรม",
+  assembly: "ประชุม",
+  exam: "สอบ",
+  other: "อื่นๆ",
 };
 
-const CATEGORY_COLORS: Record<LockTemplate['category'], 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'> = {
-  lunch: 'success',
-  activity: 'primary',
-  assembly: 'info',
-  exam: 'warning',
-  other: 'secondary',
+const CATEGORY_COLORS: Record<
+  LockTemplate["category"],
+  "primary" | "secondary" | "success" | "warning" | "error" | "info"
+> = {
+  lunch: "success",
+  activity: "primary",
+  assembly: "info",
+  exam: "warning",
+  other: "secondary",
 };
 
 const DAY_NAMES: Record<string, string> = {
-  MON: 'จันทร์',
-  TUE: 'อังคาร',
-  WED: 'พุธ',
-  THU: 'พฤหัสบดี',
-  FRI: 'ศุกร์',
-  SAT: 'เสาร์',
-  SUN: 'อาทิตย์',
+  MON: "จันทร์",
+  TUE: "อังคาร",
+  WED: "พุธ",
+  THU: "พฤหัสบดี",
+  FRI: "ศุกร์",
+  SAT: "เสาร์",
+  SUN: "อาทิตย์",
 };
 
 export default function LockTemplatesModal({
@@ -75,7 +81,9 @@ export default function LockTemplatesModal({
   configId,
   onSuccess,
 }: LockTemplatesModalProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<LockTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<LockTemplate | null>(
+    null,
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
 
@@ -102,16 +110,16 @@ export default function LockTemplatesModal({
         ConfigID: configId,
       });
 
-      if ('success' in result && result.success) {
+      if ("success" in result && result.success) {
         const data = result.data;
         enqueueSnackbar(
           `นำเทมเพลต "${data?.templateName}" ไปใช้สำเร็จ (${data?.count || 0} รายการ)`,
-          { variant: 'success' }
+          { variant: "success" },
         );
 
         if (data?.warnings && data.warnings.length > 0) {
           data.warnings.forEach((warning: string) => {
-            enqueueSnackbar(warning, { variant: 'warning' });
+            enqueueSnackbar(warning, { variant: "warning" });
           });
         }
 
@@ -119,14 +127,17 @@ export default function LockTemplatesModal({
         handleClosePreview();
         onClose();
       } else {
-        const errorMsg = typeof result.error === 'string' ? result.error : result.error?.message || 'เกิดข้อผิดพลาด';
+        const errorMsg =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "เกิดข้อผิดพลาด";
         throw new Error(errorMsg);
       }
     } catch (error) {
       console.error(error);
       enqueueSnackbar(
-        `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        { variant: 'error' }
+        `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
+        { variant: "error" },
       );
     } finally {
       setIsApplying(false);
@@ -134,18 +145,26 @@ export default function LockTemplatesModal({
   };
 
   // Group templates by category
-  const templatesByCategory = LOCK_TEMPLATES.reduce((acc, template) => {
-    if (!acc[template.category]) {
-      acc[template.category] = [];
-    }
-    acc[template.category].push(template);
-    return acc;
-  }, {} as Record<LockTemplate['category'], LockTemplate[]>);
+  const templatesByCategory = LOCK_TEMPLATES.reduce(
+    (acc, template) => {
+      if (!acc[template.category]) {
+        acc[template.category] = [];
+      }
+      acc[template.category].push(template);
+      return acc;
+    },
+    {} as Record<LockTemplate["category"], LockTemplate[]>,
+  );
 
   return (
     <>
       {/* Main Template Selection Dialog */}
-      <Dialog open={open && !showPreview} onClose={onClose} maxWidth="md" fullWidth>
+      <Dialog
+        open={open && !showPreview}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
           <Stack direction="row" spacing={1} alignItems="center">
             <TemplateIcon />
@@ -161,12 +180,12 @@ export default function LockTemplatesModal({
             <Box key={category} sx={{ mt: 3 }}>
               <Stack direction="row" spacing={1} alignItems="center" mb={2}>
                 <Typography variant="h6">
-                  {CATEGORY_LABELS[category as LockTemplate['category']]}
+                  {CATEGORY_LABELS[category as LockTemplate["category"]]}
                 </Typography>
                 <Chip
                   label={templates.length}
                   size="small"
-                  color={CATEGORY_COLORS[category as LockTemplate['category']]}
+                  color={CATEGORY_COLORS[category as LockTemplate["category"]]}
                 />
               </Stack>
 
@@ -176,23 +195,31 @@ export default function LockTemplatesModal({
                     <Card
                       variant="outlined"
                       sx={{
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        '&:hover': {
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                        "&:hover": {
                           boxShadow: 2,
-                          borderColor: 'primary.main',
+                          borderColor: "primary.main",
                         },
                       }}
                       onClick={() => handleSelectTemplate(template)}
                     >
                       <CardContent>
-                        <Stack direction="row" spacing={1} alignItems="center" mb={1}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          mb={1}
+                        >
                           <Typography variant="h4">{template.icon}</Typography>
                           <Box>
                             <Typography variant="subtitle1" fontWeight="bold">
                               {template.name}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               {template.nameEn}
                             </Typography>
                           </Box>
@@ -222,7 +249,12 @@ export default function LockTemplatesModal({
 
       {/* Preview Dialog */}
       {selectedTemplate && (
-        <Dialog open={showPreview} onClose={handleClosePreview} maxWidth="sm" fullWidth>
+        <Dialog
+          open={showPreview}
+          onClose={handleClosePreview}
+          maxWidth="sm"
+          fullWidth
+        >
           <DialogTitle>
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography variant="h4">{selectedTemplate.icon}</Typography>
@@ -250,7 +282,7 @@ export default function LockTemplatesModal({
               <ListItem>
                 <ListItemText
                   primary="ห้อง"
-                  secondary={selectedTemplate.config.roomName || 'ไม่ระบุ'}
+                  secondary={selectedTemplate.config.roomName || "ไม่ระบุ"}
                 />
               </ListItem>
               <Divider />
@@ -258,13 +290,13 @@ export default function LockTemplatesModal({
                 <ListItemText
                   primary="ชั้นเรียนเป้าหมาย"
                   secondary={
-                    selectedTemplate.config.gradeFilter.type === 'junior'
-                      ? 'มัธยมศึกษาตอนต้น (ม.1-3)'
-                      : selectedTemplate.config.gradeFilter.type === 'senior'
-                      ? 'มัธยมศึกษาตอนปลาย (ม.4-6)'
-                      : selectedTemplate.config.gradeFilter.type === 'all'
-                      ? 'ทุกชั้น (ม.1-6)'
-                      : 'ชั้นที่เลือก'
+                    selectedTemplate.config.gradeFilter.type === "junior"
+                      ? "มัธยมศึกษาตอนต้น (ม.1-3)"
+                      : selectedTemplate.config.gradeFilter.type === "senior"
+                        ? "มัธยมศึกษาตอนปลาย (ม.4-6)"
+                        : selectedTemplate.config.gradeFilter.type === "all"
+                          ? "ทุกชั้น (ม.1-6)"
+                          : "ชั้นที่เลือก"
                   }
                 />
               </ListItem>
@@ -273,7 +305,7 @@ export default function LockTemplatesModal({
                   primary="วัน"
                   secondary={selectedTemplate.config.timeslotFilter.days
                     .map((day) => DAY_NAMES[day])
-                    .join(', ')}
+                    .join(", ")}
                 />
               </ListItem>
               <ListItem>
@@ -281,8 +313,8 @@ export default function LockTemplatesModal({
                   primary="คาบ"
                   secondary={
                     selectedTemplate.config.timeslotFilter.allDay
-                      ? 'ทั้งวัน'
-                      : `คาบ ${selectedTemplate.config.timeslotFilter.periods.join(', ')}`
+                      ? "ทั้งวัน"
+                      : `คาบ ${selectedTemplate.config.timeslotFilter.periods.join(", ")}`
                   }
                 />
               </ListItem>
@@ -305,9 +337,15 @@ export default function LockTemplatesModal({
               variant="contained"
               color="primary"
               disabled={isApplying}
-              startIcon={isApplying ? <CircularProgress size={20} /> : <CheckCircleIcon />}
+              startIcon={
+                isApplying ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <CheckCircleIcon />
+                )
+              }
             >
-              {isApplying ? 'กำลังนำไปใช้...' : 'นำเทมเพลตไปใช้'}
+              {isApplying ? "กำลังนำไปใช้..." : "นำเทมเพลตไปใช้"}
             </Button>
           </DialogActions>
         </Dialog>

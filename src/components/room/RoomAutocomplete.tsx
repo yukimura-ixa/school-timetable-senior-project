@@ -4,7 +4,7 @@ import React from "react";
 import { Autocomplete, TextField, Box, Typography, Chip } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 import type { RoomSelectOption } from "@/types/ui-state";
 
 interface RoomAutocompleteProps {
@@ -20,7 +20,7 @@ interface RoomAutocompleteProps {
   fullWidth?: boolean;
   size?: "small" | "medium";
   /** Optional availability map: key = RoomID, value = status */
-  availabilityMap?: Record<number, 'available' | 'occupied' | 'partial'>;
+  availabilityMap?: Record<number, "available" | "occupied" | "partial">;
   /** Show availability dot inside options */
   showAvailability?: boolean;
 }
@@ -106,20 +106,39 @@ export default function RoomAutocomplete({
         />
       )}
       renderOption={(props, option) => {
-        const { key, ...restProps } = props as React.HTMLAttributes<HTMLLIElement> & { key: string };
+        const { key, ...restProps } =
+          props as React.HTMLAttributes<HTMLLIElement> & { key: string };
         const status = availabilityMap?.[option.value];
-        const dotColor = status === 'occupied' ? 'error.main' : status === 'partial' ? 'warning.main' : 'success.main';
+        const dotColor =
+          status === "occupied"
+            ? "error.main"
+            : status === "partial"
+              ? "warning.main"
+              : "success.main";
         return (
-          <Box component="li" key={key} {...restProps} sx={{ gap: 1, alignItems: "center" }}>
+          <Box
+            component="li"
+            key={key}
+            {...restProps}
+            sx={{ gap: 1, alignItems: "center" }}
+          >
             <MeetingRoomIcon sx={{ color: "action.active" }} />
             <Box sx={{ flexGrow: 1 }}>
-              <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{ display: "flex", alignItems: "center", gap: 1 }}
+              >
                 {option.label}
                 {showAvailability && status && (
                   <Box
                     component="span"
                     data-testid={`room-status-${status}`}
-                    sx={{ width: 10, height: 10, borderRadius: '50%', bgcolor: dotColor }}
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      bgcolor: dotColor,
+                    }}
                   />
                 )}
               </Typography>

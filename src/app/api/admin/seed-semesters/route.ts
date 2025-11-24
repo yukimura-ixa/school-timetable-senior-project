@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 import prisma from "@/lib/prisma";
-import { day_of_week, semester, breaktime } from '@/prisma/generated/client';;
+import { day_of_week, semester, breaktime } from "@/prisma/generated/client";
 
 function parseYearsParam(param?: string): number[] {
   if (!param) return [];
@@ -17,9 +17,12 @@ function parseYearsParam(param?: string): number[] {
  * Create baseline timeslots for a term
  * Idempotent - skips if timeslots already exist
  */
-async function seedTimeslots(academicYear: number, sem: semester): Promise<number> {
+async function seedTimeslots(
+  academicYear: number,
+  sem: semester,
+): Promise<number> {
   const existing = await prisma.timeslot.count({
-    where: { AcademicYear: academicYear, Semester: sem }
+    where: { AcademicYear: academicYear, Semester: sem },
   });
 
   if (existing > 0) {
@@ -65,7 +68,10 @@ async function seedTimeslots(academicYear: number, sem: semester): Promise<numbe
  * Create baseline table_config for a term
  * Idempotent - updates config if already exists
  */
-async function seedTableConfig(academicYear: number, sem: semester): Promise<void> {
+async function seedTableConfig(
+  academicYear: number,
+  sem: semester,
+): Promise<void> {
   const semesterNum = sem === "SEMESTER_1" ? 1 : 2;
   const configId = `${semesterNum}-${academicYear}`;
 
@@ -77,8 +83,8 @@ async function seedTableConfig(academicYear: number, sem: semester): Promise<voi
     lunchBreak: { after: 4, duration: 60 },
     breakTimes: {
       junior: { after: 4 },
-      senior: { after: 5 }
-    }
+      senior: { after: 5 },
+    },
   };
 
   await prisma.table_config.upsert({
@@ -92,7 +98,7 @@ async function seedTableConfig(academicYear: number, sem: semester): Promise<voi
       status: "DRAFT",
       configCompleteness: 0,
       isPinned: false,
-    }
+    },
   });
 }
 
@@ -108,7 +114,7 @@ export async function POST(req: Request) {
     if (!expected || !secret || secret !== expected) {
       return NextResponse.json(
         { ok: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -127,9 +133,12 @@ export async function POST(req: Request) {
     for (const year of targetYears) {
       for (const sem of [1, 2] as const) {
         const semEnum = sem === 1 ? "SEMESTER_1" : "SEMESTER_2";
-        
+
         // Ensure semester record exists
-        const existing = await semesterRepository.findByYearAndSemester(year, sem);
+        const existing = await semesterRepository.findByYearAndSemester(
+          year,
+          sem,
+        );
         let configId: string;
         let created: boolean;
 
@@ -137,10 +146,10 @@ export async function POST(req: Request) {
           configId = existing.ConfigID;
           created = false;
         } else {
-          const newSemester = await semesterRepository.create({ 
-            academicYear: year, 
-            semester: sem, 
-            config: {} 
+          const newSemester = await semesterRepository.create({
+            academicYear: year,
+            semester: sem,
+            config: {},
           });
           configId = newSemester.ConfigID;
           created = true;
@@ -181,10 +190,7 @@ export async function POST(req: Request) {
         message = "Unknown error";
       }
     }
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
 

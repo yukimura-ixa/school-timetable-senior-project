@@ -1,11 +1,9 @@
-import React from 'react'
+import React from "react";
 
-type Props = {}
+type Props = {};
 
 const StudentArrange = (props: Props) => {
-  return (
-    <div>page</div>
-  )
-}
+  return <div>page</div>;
+};
 
 export default StudentArrange;

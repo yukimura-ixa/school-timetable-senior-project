@@ -33,7 +33,9 @@ function SelectDayOfWeek(props: Props) {
           height={40}
           currentValue={dayOfWeekThai[props.dayOfWeek]}
           placeHolder={"ตัวเลือก"}
-          handleChange={(value: unknown) => props.handleDayChange(value as string)}
+          handleChange={(value: unknown) =>
+            props.handleDayChange(value as string)
+          }
         />
       </div>
     </>

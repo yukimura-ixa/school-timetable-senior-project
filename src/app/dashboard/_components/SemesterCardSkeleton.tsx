@@ -28,7 +28,14 @@ export function SemesterCardSkeleton() {
     >
       <CardContent sx={{ flex: 1 }}>
         {/* Header with semester and status */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "start", mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "start",
+            mb: 2,
+          }}
+        >
           <Box sx={{ flex: 1 }}>
             <Skeleton variant="text" width="60%" height={32} />
             <Skeleton variant="text" width="40%" height={24} sx={{ mt: 0.5 }} />
@@ -41,7 +48,9 @@ export function SemesterCardSkeleton() {
 
         {/* Progress bar */}
         <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}
+          >
             <Skeleton variant="text" width="40%" height={20} />
             <Skeleton variant="text" width="30%" height={20} />
           </Box>
@@ -73,7 +82,12 @@ export function SemesterCardSkeleton() {
       </CardContent>
 
       <CardActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
-        <Skeleton variant="rectangular" width={80} height={36} sx={{ borderRadius: 1 }} />
+        <Skeleton
+          variant="rectangular"
+          width={80}
+          height={36}
+          sx={{ borderRadius: 1 }}
+        />
         <Skeleton variant="circular" width={36} height={36} />
       </CardActions>
     </Card>

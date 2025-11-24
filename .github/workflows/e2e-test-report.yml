@@ -2,7 +2,7 @@ name: E2E Test Report
 
 on:
   workflow_run:
-    workflows: ['E2E Tests']
+    workflows: ["E2E Tests"]
     types: [completed]
     branches: [main, develop]
 

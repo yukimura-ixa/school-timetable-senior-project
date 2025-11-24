@@ -1,14 +1,14 @@
 /**
  * ComplianceAnalyticsPage - Page Object for Compliance Analytics (Issue #86)
- * 
+ *
  * Tests subject name display in compliance reports
  * URL: /dashboard/[semesterAndyear]/analytics
- * 
+ *
  * @module page-objects/ComplianceAnalyticsPage
  */
 
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from './BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "./BasePage";
 
 export class ComplianceAnalyticsPage extends BasePage {
   // Page elements
@@ -22,14 +22,26 @@ export class ComplianceAnalyticsPage extends BasePage {
     super(page);
 
     // Locators
-    this.complianceSection = page.locator('[data-testid="compliance-section"]').or(
-      page.locator('section, div').filter({ hasText: 'การปฏิบัติตามหลักสูตร' })
-    );
-    this.missingSubjectsSection = page.locator('[data-testid="missing-subjects"]').or(
-      page.locator('section, div').filter({ hasText: 'วิชาบังคับที่ยังไม่ได้จัด' })
-    );
-    this.subjectNameCells = page.locator('td, div').filter({ hasText: /^[ก-๙]+/ }); // Thai characters
-    this.subjectCodeCells = page.locator('td, div').filter({ hasText: /^[A-Z]{2}\d{3}/ }); // Subject codes
+    this.complianceSection = page
+      .locator('[data-testid="compliance-section"]')
+      .or(
+        page
+          .locator("section, div")
+          .filter({ hasText: "การปฏิบัติตามหลักสูตร" }),
+      );
+    this.missingSubjectsSection = page
+      .locator('[data-testid="missing-subjects"]')
+      .or(
+        page
+          .locator("section, div")
+          .filter({ hasText: "วิชาบังคับที่ยังไม่ได้จัด" }),
+      );
+    this.subjectNameCells = page
+      .locator("td, div")
+      .filter({ hasText: /^[ก-๙]+/ }); // Thai characters
+    this.subjectCodeCells = page
+      .locator("td, div")
+      .filter({ hasText: /^[A-Z]{2}\d{3}/ }); // Subject codes
     this.complianceChart = page.locator('[role="img"], canvas, svg').first();
   }
 
@@ -39,7 +51,7 @@ export class ComplianceAnalyticsPage extends BasePage {
   async navigateTo(semester: string, year: string) {
     await this.goto(`/dashboard/${semester}-${year}/analytics`);
     await this.waitForPageLoad();
-    
+
     // Wait for semester to sync with global state
     await this.waitForSemesterSync(`${semester}/${year}`);
   }
@@ -50,14 +62,14 @@ export class ComplianceAnalyticsPage extends BasePage {
   async getSubjectNames(): Promise<string[]> {
     const cells = await this.subjectNameCells.all();
     const names: string[] = [];
-    
+
     for (const cell of cells) {
       const text = await cell.textContent();
       if (text && text.trim() && text.match(/[ก-๙]/)) {
         names.push(text.trim());
       }
     }
-    
+
     return names;
   }
 
@@ -66,10 +78,10 @@ export class ComplianceAnalyticsPage extends BasePage {
    */
   async assertSubjectNamesInThai() {
     const subjectNames = await this.getSubjectNames();
-    
+
     // Should have at least some subject names
     expect(subjectNames.length).toBeGreaterThan(0);
-    
+
     // Each name should contain Thai characters, not just codes
     for (const name of subjectNames) {
       expect(name).toMatch(/[ก-๙]/); // Contains Thai characters

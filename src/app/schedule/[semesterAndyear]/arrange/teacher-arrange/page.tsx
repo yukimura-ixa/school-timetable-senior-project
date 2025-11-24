@@ -79,7 +79,7 @@ import type {
   room,
   teacher,
   day_of_week,
-} from '@/prisma/generated/client';;
+} from "@/prisma/generated/client";
 
 // @dnd-kit
 import {
@@ -185,7 +185,7 @@ type ExpandedResponsibility = {
  * Transforms the expanded responsibility slots into the format expected by the store
  */
 function mapResponsibilityToSubjectData(
-  responsibilities: ExpandedResponsibility[]
+  responsibilities: ExpandedResponsibility[],
 ): SubjectData[] {
   return responsibilities.map((resp) => ({
     itemID: resp.itemID,
@@ -220,13 +220,15 @@ export default function TeacherArrangePageRefactored() {
   const searchTeacherID = searchParams.get("TeacherID");
 
   // Use useSemesterSync to extract and sync semester with global store
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
 
   // ============================================================================
   // ZUSTAND STORE - Context7-Powered (Phase 4 Migration)
   // Using optimized selectors to prevent unnecessary re-renders
   // ============================================================================
-  
+
   // Stable actions reference (never causes re-renders)
   const actions = useTeacherArrangeActions();
 
@@ -237,7 +239,10 @@ export default function TeacherArrangePageRefactored() {
   const scheduledSubjects = useScheduledSubjects();
   const timeSlotData = useTimeslotData();
   const { isOpen: isActiveModal, payload: subjectPayload } = useModalState();
-  const { errorMessages: showErrorMsgByTimeslotID, lockMessages: showLockDataMsgByTimeslotID } = useErrorState();
+  const {
+    errorMessages: showErrorMsgByTimeslotID,
+    lockMessages: showLockDataMsgByTimeslotID,
+  } = useErrorState();
   const isSaving = useSaveState();
 
   // Internal state (not exposed via selectors - use direct store access)
@@ -255,7 +260,7 @@ export default function TeacherArrangePageRefactored() {
       destinationSubject: state.destinationSubject,
       timeslotIDtoChange: state.timeslotIDtoChange,
       isClickToChangeSubject: state.isClickToChangeSubject,
-    }))
+    })),
   );
 
   // ============================================================================
@@ -309,13 +314,13 @@ export default function TeacherArrangePageRefactored() {
     async (): Promise<teacher | null> => {
       if (!currentTeacherID) return null;
       const result = (await getTeachersAction()) as ActionResult<teacher[]>;
-      
+
       if (!result.success || !result.data) return null;
-      
+
       const foundTeacher = result.data.find(
         (t) => t.TeacherID === parseInt(currentTeacherID),
       );
-      
+
       // Use nullish coalescing for cleaner null handling
       return foundTeacher ?? null;
     },
@@ -387,7 +392,10 @@ export default function TeacherArrangePageRefactored() {
   // Reset state when teacher changes (guarded to prevent cascading renders)
   useEffect(() => {
     // Only reset if teacher actually changed (not on initial mount or same teacher)
-    if (prevTeacherIDRef.current !== null && prevTeacherIDRef.current !== searchTeacherID) {
+    if (
+      prevTeacherIDRef.current !== null &&
+      prevTeacherIDRef.current !== searchTeacherID
+    ) {
       actions.resetOnTeacherChange();
     }
     prevTeacherIDRef.current = searchTeacherID;
@@ -404,16 +412,18 @@ export default function TeacherArrangePageRefactored() {
 
   // Fetch and set subject data
   useEffect(() => {
-    if (fetchResp.data && fetchResp.data.length > 0 && !!currentTeacherID && !fetchResp.isValidating) {
+    if (
+      fetchResp.data &&
+      fetchResp.data.length > 0 &&
+      !!currentTeacherID &&
+      !fetchResp.isValidating
+    ) {
       // Transform teachers_responsibility data to SubjectData format
       const transformedData = mapResponsibilityToSubjectData(fetchResp.data);
       actions.setSubjectData(transformedData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    fetchResp.data,
-    fetchResp.isValidating,
-  ]);
+  }, [fetchResp.data, fetchResp.isValidating]);
 
   // Fetch and set teacher data
   useEffect(() => {
@@ -421,10 +431,7 @@ export default function TeacherArrangePageRefactored() {
       actions.setTeacherData(fetchTeacher.data);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    fetchTeacher.isValidating,
-    fetchTeacher.data,
-  ]);
+  }, [fetchTeacher.isValidating, fetchTeacher.data]);
 
   // Fetch and set timeslot data
   useEffect(() => {
@@ -448,10 +455,7 @@ export default function TeacherArrangePageRefactored() {
       fetchClassData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    fetchAllClassData.isValidating,
-    fetchAllClassData.data,
-  ]);
+  }, [fetchAllClassData.isValidating, fetchAllClassData.data]);
 
   // Handle subject selection for conflict display
   // CRITICAL: Logic inlined to prevent circular callback dependencies (Issue #121)
@@ -464,11 +468,12 @@ export default function TeacherArrangePageRefactored() {
 
     // Helper: Clear scheduled conflict markers from timeslots
     const clearScheduledData = () => {
-      const currentTimeSlotData = useTeacherArrangeStore.getState().timeSlotData;
+      const currentTimeSlotData =
+        useTeacherArrangeStore.getState().timeSlotData;
       actions.setTimeSlotData({
         ...currentTimeSlotData,
         AllData: currentTimeSlotData.AllData.map((item) =>
-          (item).subject?.scheduled ? { ...item, subject: null } : item,
+          item.subject?.scheduled ? { ...item, subject: null } : item,
         ),
       });
     };
@@ -508,7 +513,8 @@ export default function TeacherArrangePageRefactored() {
     if (scheduledGradeIDTimeslot.length > 0) {
       // Display conflicts as scheduled subjects in timeslots
       clearScheduledData();
-      const currentTimeSlotData = useTeacherArrangeStore.getState().timeSlotData;
+      const currentTimeSlotData =
+        useTeacherArrangeStore.getState().timeSlotData;
       actions.setTimeSlotData({
         ...currentTimeSlotData,
         AllData: currentTimeSlotData.AllData.map((item) => {
@@ -527,14 +533,27 @@ export default function TeacherArrangePageRefactored() {
             const subjectData: SubjectData = {
               itemID: parseInt(matchedSlot.ClassID),
               subjectCode: matchedSlot.SubjectCode,
-              subjectName: matchedSlot.SubjectName || matchedSlot.subject.SubjectName,
+              subjectName:
+                matchedSlot.SubjectName || matchedSlot.subject.SubjectName,
               gradeID: matchedSlot.GradeID,
-              teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
+              teacherID:
+                typeof currentTeacherID === "string"
+                  ? parseInt(currentTeacherID)
+                  : currentTeacherID || 0,
               category: matchedSlot.subject.Category as SubjectCategory,
-              credit: typeof matchedSlot.subject.Credit === 'string' ? 0 : (matchedSlot.subject.Credit || 0),
-              teachHour: typeof matchedSlot.subject.Credit === 'string' ? 0 : (matchedSlot.subject.Credit || 0),
+              credit:
+                typeof matchedSlot.subject.Credit === "string"
+                  ? 0
+                  : matchedSlot.subject.Credit || 0,
+              teachHour:
+                typeof matchedSlot.subject.Credit === "string"
+                  ? 0
+                  : matchedSlot.subject.Credit || 0,
               roomID: matchedSlot.RoomID,
-              roomName: matchedSlot.RoomName || matchedSlot.room?.RoomName || "ไม่มีห้องเรียน",
+              roomName:
+                matchedSlot.RoomName ||
+                matchedSlot.room?.RoomName ||
+                "ไม่มีห้องเรียน",
               room: matchedSlot.room ?? null,
               classID: matchedSlot.ClassID,
               scheduled: matchedSlot.Scheduled ?? true,
@@ -617,10 +636,12 @@ export default function TeacherArrangePageRefactored() {
 
     // IMPROVED: AllData uses null for empty slots (consistent with type checking throughout)
     actions.setTimeSlotData({
-      AllData: data.map((slot: timeslot): EnrichedTimeslot => ({ 
-        ...slot, 
-        subject: null // null = empty slot (not {} which is ambiguous)
-      })),
+      AllData: data.map(
+        (slot: timeslot): EnrichedTimeslot => ({
+          ...slot,
+          subject: null, // null = empty slot (not {} which is ambiguous)
+        }),
+      ),
       SlotAmount: slotAmount,
       DayOfWeek: dayofweek,
       BreakSlot: breakTime,
@@ -667,7 +688,7 @@ export default function TeacherArrangePageRefactored() {
     );
 
     // Process locked timeslots (combine multiple grade IDs for same timeslot)
-    type LockedScheduleItem = Omit<ClassScheduleWithRelations, 'GradeID'> & {
+    type LockedScheduleItem = Omit<ClassScheduleWithRelations, "GradeID"> & {
       SubjectName: string;
       RoomName: string;
       GradeID: string | string[]; // Can be array when multiple grades share same timeslot
@@ -678,7 +699,7 @@ export default function TeacherArrangePageRefactored() {
     for (let i = 0; i < filterLock.length; i++) {
       const currentItem = filterLock[i];
       if (!currentItem) continue; // Guard against undefined
-      
+
       if (keepId.length === 0 || !keepId.includes(currentItem.TimeslotID)) {
         keepId.push(currentItem.TimeslotID);
         const gradeID = currentItem.GradeID;
@@ -705,34 +726,49 @@ export default function TeacherArrangePageRefactored() {
     }
 
     const concatClassData = [...filterNotLock, ...resFilterLock];
-    
+
     // Map enriched class_schedule to SubjectData format for store compatibility
     // SubjectData has both PascalCase and camelCase fields for backward compatibility
-    const mappedScheduledSubjects: SubjectData[] = concatClassData.map((item) => ({
-      itemID: parseInt(item.ClassID),
-      subjectCode: item.SubjectCode,
-      subjectName: item.SubjectName,
-      gradeID: Array.isArray(item.GradeID) ? (item.GradeID[0] ?? "") : item.GradeID,
-      teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
-      category: item.subject?.Category as SubjectCategory,
-      credit: typeof item.subject?.Credit === 'string' ? 0 : (item.subject?.Credit || 0),
-      teachHour: typeof item.subject?.Credit === 'string' ? 0 : (item.subject?.Credit || 0),
-      roomID: item.RoomID,
-      roomName: item.RoomName,
-      room: item.room,
-      classID: item.ClassID,
-      scheduled: true,
-    }));
-    
+    const mappedScheduledSubjects: SubjectData[] = concatClassData.map(
+      (item) => ({
+        itemID: parseInt(item.ClassID),
+        subjectCode: item.SubjectCode,
+        subjectName: item.SubjectName,
+        gradeID: Array.isArray(item.GradeID)
+          ? (item.GradeID[0] ?? "")
+          : item.GradeID,
+        teacherID:
+          typeof currentTeacherID === "string"
+            ? parseInt(currentTeacherID)
+            : currentTeacherID || 0,
+        category: item.subject?.Category as SubjectCategory,
+        credit:
+          typeof item.subject?.Credit === "string"
+            ? 0
+            : item.subject?.Credit || 0,
+        teachHour:
+          typeof item.subject?.Credit === "string"
+            ? 0
+            : item.subject?.Credit || 0,
+        roomID: item.RoomID,
+        roomName: item.RoomName,
+        room: item.room,
+        classID: item.ClassID,
+        scheduled: true,
+      }),
+    );
+
     const mappedLockData: class_schedule[] = resFilterLock.map((item) => ({
       ClassID: item.ClassID,
       TimeslotID: item.TimeslotID,
       SubjectCode: item.SubjectCode,
       RoomID: item.RoomID,
-      GradeID: Array.isArray(item.GradeID) ? (item.GradeID[0] ?? "") : item.GradeID, // Take first grade, fallback to empty
+      GradeID: Array.isArray(item.GradeID)
+        ? (item.GradeID[0] ?? "")
+        : item.GradeID, // Take first grade, fallback to empty
       IsLocked: item.IsLocked,
     }));
-    
+
     actions.setScheduledSubjects(mappedScheduledSubjects);
     actions.setLockData(mappedLockData);
 
@@ -751,11 +787,22 @@ export default function TeacherArrangePageRefactored() {
             itemID: parseInt(matchedSubject.ClassID),
             subjectCode: matchedSubject.SubjectCode,
             subjectName: matchedSubject.SubjectName,
-            gradeID: Array.isArray(matchedSubject.GradeID) ? (matchedSubject.GradeID[0] ?? "") : matchedSubject.GradeID,
-            teacherID: typeof currentTeacherID === 'string' ? parseInt(currentTeacherID) : (currentTeacherID || 0),
+            gradeID: Array.isArray(matchedSubject.GradeID)
+              ? (matchedSubject.GradeID[0] ?? "")
+              : matchedSubject.GradeID,
+            teacherID:
+              typeof currentTeacherID === "string"
+                ? parseInt(currentTeacherID)
+                : currentTeacherID || 0,
             category: matchedSubject.subject?.Category as SubjectCategory,
-            credit: typeof matchedSubject.subject?.Credit === 'string' ? 0 : (matchedSubject.subject?.Credit || 0),
-            teachHour: typeof matchedSubject.subject?.Credit === 'string' ? 0 : (matchedSubject.subject?.Credit || 0),
+            credit:
+              typeof matchedSubject.subject?.Credit === "string"
+                ? 0
+                : matchedSubject.subject?.Credit || 0,
+            teachHour:
+              typeof matchedSubject.subject?.Credit === "string"
+                ? 0
+                : matchedSubject.subject?.Credit || 0,
             roomID: matchedSubject.RoomID,
             roomName: matchedSubject.RoomName,
             room: matchedSubject.room,
@@ -767,11 +814,7 @@ export default function TeacherArrangePageRefactored() {
         return { ...data, subject: null };
       }),
     });
-  }, [
-    fetchAllClassData.data,
-    timeSlotData,
-    actions,
-  ]);
+  }, [fetchAllClassData.data, timeSlotData, actions]);
 
   // ============================================================================
   // SAVE OPERATION
@@ -787,7 +830,7 @@ export default function TeacherArrangePageRefactored() {
     try {
       const result = await syncTeacherScheduleAction({
         TeacherID: parseInt(searchTeacherID || "0"),
-  AcademicYear: parseInt(academicYear || "0"),
+        AcademicYear: parseInt(academicYear || "0"),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         Schedule: timeSlotData.AllData,
       });
@@ -844,11 +887,7 @@ export default function TeacherArrangePageRefactored() {
       actions.setYearSelected(null);
       actions.closeModal();
     },
-    [
-      timeSlotData,
-      subjectData,
-      actions,
-    ],
+    [timeSlotData, subjectData, actions],
   );
 
   const returnSubject = useCallback(
@@ -960,14 +999,21 @@ export default function TeacherArrangePageRefactored() {
       type SubjectDragData = { type: "subject"; index: number };
       type TimeslotDragData = { type: "timeslot"; timeslotID: string };
       const isSubjectDragData = (x: unknown): x is SubjectDragData =>
-        !!x && (x as any).type === "subject" && typeof (x as any).index === "number";
+        !!x &&
+        (x as any).type === "subject" &&
+        typeof (x as any).index === "number";
       const isTimeslotDragData = (x: unknown): x is TimeslotDragData =>
-        !!x && (x as any).type === "timeslot" && typeof (x as any).timeslotID === "string";
+        !!x &&
+        (x as any).type === "timeslot" &&
+        typeof (x as any).timeslotID === "string";
 
       const sourceDataUnknown = active.data.current as unknown;
       const targetDataUnknown = over.data.current as unknown;
 
-      if (isSubjectDragData(sourceDataUnknown) && isTimeslotDragData(targetDataUnknown)) {
+      if (
+        isSubjectDragData(sourceDataUnknown) &&
+        isTimeslotDragData(targetDataUnknown)
+      ) {
         // Adding subject to timeslot - Phase 2: Pass SubjectPayload
         const payload: SubjectPayload = {
           timeslotID: targetDataUnknown.timeslotID,
@@ -978,14 +1024,23 @@ export default function TeacherArrangePageRefactored() {
           const s = subjectData[sourceDataUnknown.index];
           if (s && s !== null) clickOrDragToSelectSubject(s);
         }
-      } else if (isTimeslotDragData(sourceDataUnknown) && isTimeslotDragData(targetDataUnknown)) {
+      } else if (
+        isTimeslotDragData(sourceDataUnknown) &&
+        isTimeslotDragData(targetDataUnknown)
+      ) {
         // Swapping subjects between timeslots - Phase 2: Use new signature
         const sourceID = sourceDataUnknown.timeslotID;
         const destID = targetDataUnknown.timeslotID;
         clickOrDragToChangeTimeSlot(sourceID, destID);
       }
     },
-    [changeTimeSlotSubject, storeSelectedSubject, subjectData, timeSlotData, timeslotIDtoChange],
+    [
+      changeTimeSlotSubject,
+      storeSelectedSubject,
+      subjectData,
+      timeSlotData,
+      timeslotIDtoChange,
+    ],
   );
 
   // ============================================================================
@@ -998,7 +1053,7 @@ export default function TeacherArrangePageRefactored() {
       actions.setTimeSlotData({
         ...timeSlotData,
         AllData: timeSlotData.AllData.map((item) =>
-          (item).subject?.scheduled ? { ...item, subject: null } : item,
+          item.subject?.scheduled ? { ...item, subject: null } : item,
         ),
       });
 
@@ -1007,18 +1062,16 @@ export default function TeacherArrangePageRefactored() {
 
       if (storeSelectedSubject == null || checkDuplicateSubject) {
         const year = subject.gradelevel?.year;
-        actions.setYearSelected(subject === storeSelectedSubject ? null : year || null);
+        actions.setYearSelected(
+          subject === storeSelectedSubject ? null : year || null,
+        );
       }
 
       actions.setSelectedSubject(checkDuplicateSubject);
       actions.setChangeTimeSlotSubject(null);
       actions.setTimeslotIDtoChange({ source: "", destination: "" });
     },
-    [
-      storeSelectedSubject,
-      timeSlotData,
-      actions,
-    ],
+    [storeSelectedSubject, timeSlotData, actions],
   );
 
   /**
@@ -1027,19 +1080,17 @@ export default function TeacherArrangePageRefactored() {
    */
   const addRoomModal = useCallback(
     (payload: SubjectPayload) => {
-  if (storeSelectedSubject == null) return;
+      if (storeSelectedSubject == null) return;
 
       actions.setSubjectPayload(payload);
       addSubjectToSlot(storeSelectedSubject, payload.timeslotID);
-      actions.setScheduledSubjects([...scheduledSubjects, storeSelectedSubject]);
+      actions.setScheduledSubjects([
+        ...scheduledSubjects,
+        storeSelectedSubject,
+      ]);
       actions.openModal(payload);
     },
-    [
-      storeSelectedSubject,
-      scheduledSubjects,
-      addSubjectToSlot,
-      actions,
-    ],
+    [storeSelectedSubject, scheduledSubjects, addSubjectToSlot, actions],
   );
 
   /**
@@ -1049,7 +1100,9 @@ export default function TeacherArrangePageRefactored() {
   const clickOrDragToChangeTimeSlot = useCallback(
     (sourceID: string, destID: string) => {
       // Find the source subject from the timeslot
-      const sourceSlot = timeSlotData.AllData.find((item) => item.TimeslotID === sourceID);
+      const sourceSlot = timeSlotData.AllData.find(
+        (item) => item.TimeslotID === sourceID,
+      );
 
       if (!sourceSlot?.subject) {
         console.warn("No subject found in source timeslot", sourceID);
@@ -1066,7 +1119,9 @@ export default function TeacherArrangePageRefactored() {
         actions.setIsClickToChangeSubject(
           checkDuplicateSubject ? false : isClickToChange,
         );
-        actions.setChangeTimeSlotSubject(checkDuplicateSubject ? null : subject);
+        actions.setChangeTimeSlotSubject(
+          checkDuplicateSubject ? null : subject,
+        );
         actions.setTimeslotIDtoChange(
           checkDuplicateSubject
             ? { source: "", destination: "" }
@@ -1075,7 +1130,9 @@ export default function TeacherArrangePageRefactored() {
         actions.setYearSelected(checkDuplicateSubject ? null : year || null);
       } else if (timeslotIDtoChange.source !== "" && destID !== sourceID) {
         // Second selection - swap operation
-        const destSlot = timeSlotData.AllData.find((item) => item.TimeslotID === destID);
+        const destSlot = timeSlotData.AllData.find(
+          (item) => item.TimeslotID === destID,
+        );
         actions.setTimeslotIDtoChange({
           source: timeslotIDtoChange.source,
           destination: destID,
@@ -1086,17 +1143,12 @@ export default function TeacherArrangePageRefactored() {
 
       actions.setSelectedSubject(null);
     },
-    [
-      changeTimeSlotSubject,
-      timeslotIDtoChange,
-      timeSlotData,
-      actions,
-    ],
+    [changeTimeSlotSubject, timeslotIDtoChange, timeSlotData, actions],
   );
 
   const changeSubjectSlot = useCallback(() => {
-  const sourceSubj = changeTimeSlotSubject;
-  const destinationSubj = destinationSubject;
+    const sourceSubj = changeTimeSlotSubject;
+    const destinationSubj = destinationSubject;
     const sourceTimeslotID = timeslotIDtoChange.source;
     const destinationTimeslotID = timeslotIDtoChange.destination;
 
@@ -1182,7 +1234,9 @@ export default function TeacherArrangePageRefactored() {
 
   const timeSlotCssClassName = useCallback(
     (breakTimeState: string, subjectInSlot: SubjectData): string => {
-      const isSubjectInSlot = Boolean((subjectInSlot as Partial<SubjectData>).gradeID);
+      const isSubjectInSlot = Boolean(
+        (subjectInSlot as Partial<SubjectData>).gradeID,
+      );
       const isSelectedToAdd = storeSelectedSubject != null;
       const isSelectedToChange = changeTimeSlotSubject != null;
 
@@ -1235,36 +1289,42 @@ export default function TeacherArrangePageRefactored() {
    * Expected: (subject: SubjectData | null, isBreakTime: boolean, isLocked: boolean) => string
    * Original: (breakTimeState: string, subjectInSlot: SubjectData) => string
    */
-  const timeSlotCssClassNameCallback = useCallback<TimeSlotCssClassNameCallback>(
-    (subject: SubjectData | null, isBreakTime: boolean, _isLocked: boolean) => {
-      const breakTimeState = isBreakTime ? "BREAK_BOTH" : "NOT_BREAK";
-      const subjectOrEmpty = subject || ({} as SubjectData);
-      return timeSlotCssClassName(breakTimeState, subjectOrEmpty);
-    },
-    [timeSlotCssClassName],
-  );
+  const timeSlotCssClassNameCallback =
+    useCallback<TimeSlotCssClassNameCallback>(
+      (
+        subject: SubjectData | null,
+        isBreakTime: boolean,
+        _isLocked: boolean,
+      ) => {
+        const breakTimeState = isBreakTime ? "BREAK_BOTH" : "NOT_BREAK";
+        const subjectOrEmpty = subject || ({} as SubjectData);
+        return timeSlotCssClassName(breakTimeState, subjectOrEmpty);
+      },
+      [timeSlotCssClassName],
+    );
 
   /**
    * Adapter for DisplayErrorChangeSubjectCallback
    * Expected: (error: string) => void
    * Original: (Breaktime: string, Year: number) => boolean (wrong function!)
    */
-  const displayErrorChangeSubjectCallback = useCallback<DisplayErrorChangeSubjectCallback>(
-    (error: string) => {
-      // Display error message using setShowErrorMsg
-      if (timeslotIDtoChange.source) {
-        actions.setShowErrorMsg(timeslotIDtoChange.source, true);
-        console.error("Schedule change error:", error);
+  const displayErrorChangeSubjectCallback =
+    useCallback<DisplayErrorChangeSubjectCallback>(
+      (error: string) => {
+        // Display error message using setShowErrorMsg
+        if (timeslotIDtoChange.source) {
+          actions.setShowErrorMsg(timeslotIDtoChange.source, true);
+          console.error("Schedule change error:", error);
 
-        // Auto-hide error after 5 seconds
-        setTimeout(() => {
-          actions.setShowErrorMsg(timeslotIDtoChange.source, false);
-        }, 5000);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [timeslotIDtoChange],
-  );
+          // Auto-hide error after 5 seconds
+          setTimeout(() => {
+            actions.setShowErrorMsg(timeslotIDtoChange.source, false);
+          }, 5000);
+        }
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      [timeslotIDtoChange],
+    );
 
   /**
    * Adapter for RemoveSubjectCallback
@@ -1274,7 +1334,9 @@ export default function TeacherArrangePageRefactored() {
   const removeSubjectFromSlotCallback = useCallback<RemoveSubjectCallback>(
     (timeslotID: string) => {
       // Find subject by timeslotID
-      const slot = timeSlotData.AllData.find((item) => item.TimeslotID === timeslotID);
+      const slot = timeSlotData.AllData.find(
+        (item) => item.TimeslotID === timeslotID,
+      );
       if (slot?.subject) {
         removeSubjectFromSlot(slot.subject, timeslotID);
       }
@@ -1342,9 +1404,9 @@ export default function TeacherArrangePageRefactored() {
   const hasError = useMemo(() => {
     return Boolean(
       fetchTeacher.error ||
-      fetchResp.error ||
-      fetchTimeSlot.error ||
-      fetchAllClassData.error,
+        fetchResp.error ||
+        fetchTimeSlot.error ||
+        fetchAllClassData.error,
     );
   }, [
     fetchTeacher.error,
@@ -1408,7 +1470,9 @@ export default function TeacherArrangePageRefactored() {
       )}
 
       {/* Page Header */}
-  {!!currentTeacherID && teacherData && <PageHeader teacherData={teacherData} />}
+      {!!currentTeacherID && teacherData && (
+        <PageHeader teacherData={teacherData} />
+      )}
 
       {/* Teacher Selection */}
       <SelectTeacher
@@ -1469,7 +1533,8 @@ export default function TeacherArrangePageRefactored() {
             hasChanges={false}
             totalSlots={timeSlotData?.AllData?.length || 0}
             filledSlots={
-              timeSlotData?.AllData?.filter((slot) => Boolean(slot.subject)).length || 0
+              timeSlotData?.AllData?.filter((slot) => Boolean(slot.subject))
+                .length || 0
             }
           />
 
@@ -1503,7 +1568,8 @@ export default function TeacherArrangePageRefactored() {
             dropOutOfZone={dropOutOfZone}
             displayErrorChangeSubject={displayErrorChangeSubjectCallback}
             showErrorMsgByTimeslotID={
-              showErrorMsgByTimeslotID && typeof showErrorMsgByTimeslotID === "object"
+              showErrorMsgByTimeslotID &&
+              typeof showErrorMsgByTimeslotID === "object"
                 ? Object.keys(showErrorMsgByTimeslotID).find(
                     (key) => showErrorMsgByTimeslotID[key],
                   ) || ""
@@ -1511,7 +1577,8 @@ export default function TeacherArrangePageRefactored() {
             }
             removeSubjectFromSlot={removeSubjectFromSlotCallback}
             showLockDataMsgByTimeslotID={
-              showLockDataMsgByTimeslotID && typeof showLockDataMsgByTimeslotID === "object"
+              showLockDataMsgByTimeslotID &&
+              typeof showLockDataMsgByTimeslotID === "object"
                 ? Object.keys(showLockDataMsgByTimeslotID).find(
                     (key) => showLockDataMsgByTimeslotID[key],
                   ) || ""

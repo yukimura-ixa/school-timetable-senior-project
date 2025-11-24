@@ -22,7 +22,6 @@ A comprehensive web application designed to streamline the process of creating a
 - **Napat Phobutdee** (นายณภัทร พ่อบุตรดี) - Student ID: 63070046
 - **Natapon Wangkham** (นายณัฐพล วังคำ) - Student ID: 63070056
 
-
 **Advisors:**
 
 - Asst. Prof. Dr. Pattanapong Chantamit-O-Pas (ผศ.ดร.พัฒนพงษ์ ฉันทมิตรโอภาส)
@@ -41,8 +40,6 @@ A comprehensive web application designed to streamline the process of creating a
 3. Provide accessible online viewing of schedules for teachers and students
 4. Enable data backup, retrieval, and export functionality
 5. Implement conflict detection to prevent double-booking
-
-
 
 ---
 
@@ -146,25 +143,30 @@ The system uses a relational database with the following main entities:
 **All project documentation has been organized in the `/docs` folder.**
 
 ### Getting Started
+
 - **[Development Guide](docs/DEVELOPMENT_GUIDE.md)** ⭐ **START HERE** - Setup with OAuth bypass for local testing
 - **[Environment Setup](docs/ENVIRONMENT_SETUP.md)** 🔧 **CONFIGURATION** - Local, CI, and production environment setup
 - **[OAuth Bypass Summary](docs/OAUTH_BYPASS_SUMMARY.md)** - Complete technical summary of dev bypass
 - **[Quickstart](docs/QUICKSTART.md)** - Quick setup guide
 
 ### For AI Agents & Contributors
+
 - **[AGENTS.md](AGENTS.md)** 🤖 **AI Agent Handbook** - Operating manual for Codex/AI coding agents with MCP-first workflow, coding standards, and future roadmap
 
 ### Core Documentation
+
 - **[Documentation Index](docs/INDEX.md)** - Complete documentation catalog
 - **[Project Context](docs/PROJECT_CONTEXT.md)** - High-level project goals
 - **[Database Overview](docs/DATABASE_OVERVIEW.md)** - Schema and data model
 
 ### Testing
+
 - **[Test Plan](docs/TEST_PLAN.md)** - 29 comprehensive test cases
 - **[E2E Test Execution Guide](docs/E2E_TEST_EXECUTION_GUIDE.md)** - How to run E2E tests
 - **[Test Results Summary](docs/TEST_RESULTS_SUMMARY.md)** - Latest test status
 
 ### Migrations & Architecture
+
 - **[Next.js 16 Migration](docs/LINTING_MIGRATION_NEXTJS16.md)** - Next.js 16 changes (no more `next lint`)
 - **[MUI v7 Migration](docs/MUI_MIGRATION_COMPLETE.md)** - Material-UI v7 upgrade summary
 - **[Architecture Decisions](docs/adr/)** - ADRs for key technical decisions
@@ -205,6 +207,7 @@ cp .env.example .env
 ```
 
 **For local development (OAuth Bypass):**
+
 ```env
 # Enable dev bypass (local testing only - NEVER in production)
 ENABLE_DEV_BYPASS="true"
@@ -220,6 +223,7 @@ NEXTAUTH_SECRET="your-secret-key-here"
 ```
 
 **For production or Google OAuth:**
+
 ```env
 # Disable dev bypass
 ENABLE_DEV_BYPASS="false"
@@ -252,6 +256,7 @@ pnpm db:seed:clean
 ```
 
 The system will create mock data for a medium-sized school:
+
 - 60 teachers, 18 classes, 40 rooms, 42+ subjects
 - Sample schedules with edge cases for testing
 
@@ -303,6 +308,7 @@ pnpm admin:verify           # Verify admin access
 ### ⚠️ Known Issues
 
 #### Next.js 16 + Jest Stack Overflow
+
 **Status**: Workaround Implemented ✅
 
 Jest tests pass successfully but the process does not exit cleanly due to a known incompatibility between Next.js 16.0.1 and Jest 29.7.0. The `forceExit: true` flag has been added to `jest.config.js` as a workaround.
@@ -322,15 +328,17 @@ For more details, see the `nextjs_16_jest_stack_overflow_issue` memory file.
 ### Initial Setup
 
 1. **Setup Database**: Run migrations and seed sample data
+
    ```bash
    pnpm db:deploy        # Apply migrations
    pnpm db:seed:clean    # Populate sample data (clean mode)
    # OR
    pnpm db:seed          # Create admin only (safe - no data deletion)
    ```
+
    📚 See details: [docs/SEED_SAFETY_GUIDE.md](docs/SEED_SAFETY_GUIDE.md)
 
-2. **Login**: 
+2. **Login**:
    - **Admin**: `admin@school.local` / `admin123` (change password in production!)
    - **Google OAuth**: Authenticate with Google account (Admin/Teacher only)
 
@@ -362,6 +370,7 @@ pnpm seed:prod
 🧪 **Testing Guide**: [docs/SEEDING_AND_TESTING_GUIDE.md](docs/SEEDING_AND_TESTING_GUIDE.md)
 
 This will:
+
 - ✅ Create missing semester records (idempotent - safe to run multiple times)
 - ✅ Optionally create baseline timeslots and table config (with `-SeedData` flag)
 - ✅ Enable access to routes like `/dashboard/1-2567/all-timeslot`
@@ -433,11 +442,13 @@ pnpm test:report
 ```
 
 **E2E Test Documentation:**
+
 - **Test Plan**: See `e2e/TEST_PLAN.md` for 29 comprehensive test cases
 - **Execution Guide**: See `E2E_TEST_EXECUTION_GUIDE.md` for detailed instructions
 - **Test Results**: See `e2e/TEST_RESULTS_SUMMARY.md` for current status
 
 **Test Coverage:**
+
 - ✅ 29 E2E test cases covering all major workflows
 - ✅ Authentication and authorization
 - ✅ Data management (CRUD operations)
@@ -564,9 +575,11 @@ Special thanks to:
 ### For questions or support:
 
 **Napat Phobutdee (นายณภัทร พ่อบุตรดี)**
+
 - Email: 63070046@kmitl.ac.th
 
 **Natapon Wangkham (นายณัฐพล วังคำ)**
+
 - Email: nataponball@hotmail.com
 
 ---

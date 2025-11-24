@@ -34,11 +34,7 @@ export default function RootLayout({
   );
 }
 
-async function LayoutContent({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function LayoutContent({ children }: { children: React.ReactNode }) {
   const rawSession = await auth();
 
   const session =

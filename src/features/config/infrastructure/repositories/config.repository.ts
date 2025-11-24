@@ -1,24 +1,27 @@
 /**
  * Config Feature - Repository Layer
- * 
+ *
  * Handles all database operations for table_config using Prisma.
  * Config stores timetable configuration settings as JSON.
  */
 
-import prisma from '@/lib/prisma'
-import { withPrismaTransaction, type TransactionClient } from '@/lib/prisma-transaction'
-import { semester, Prisma } from '@/prisma/generated/client'
-import type { FullConfigData } from '../../types/config-types'
+import prisma from "@/lib/prisma";
+import {
+  withPrismaTransaction,
+  type TransactionClient,
+} from "@/lib/prisma-transaction";
+import { semester, Prisma } from "@/prisma/generated/client";
+import type { FullConfigData } from "../../types/config-types";
 
 /**
  * Type for config data
  */
 export type ConfigData = {
-  ConfigID: string
-  AcademicYear: number
-  Semester: semester
-  Config: Prisma.JsonValue
-}
+  ConfigID: string;
+  AcademicYear: number;
+  Semester: semester;
+  Config: Prisma.JsonValue;
+};
 
 /**
  * Get all configs ordered by ConfigID
@@ -26,25 +29,22 @@ export type ConfigData = {
 export async function findAll() {
   return await prisma.table_config.findMany({
     orderBy: {
-      ConfigID: 'asc',
+      ConfigID: "asc",
     },
-  })
+  });
 }
 
 /**
  * Find config by academic year and semester
  * Returns null if not found
  */
-export async function findByTerm(
-  academicYear: number,
-  semester: semester
-) {
+export async function findByTerm(academicYear: number, semester: semester) {
   return await prisma.table_config.findFirst({
     where: {
       AcademicYear: academicYear,
       Semester: semester,
     },
-  })
+  });
 }
 
 /**
@@ -56,7 +56,7 @@ export async function findByConfigId(configId: string) {
     where: {
       ConfigID: configId,
     },
-  })
+  });
 }
 
 /**
@@ -70,7 +70,7 @@ export async function create(data: ConfigData) {
       Semester: data.Semester,
       Config: data.Config as Prisma.InputJsonValue,
     },
-  })
+  });
 }
 
 /**
@@ -78,17 +78,19 @@ export async function create(data: ConfigData) {
  */
 export async function update(
   configId: string,
-  data: Partial<Omit<ConfigData, 'ConfigID'>>
+  data: Partial<Omit<ConfigData, "ConfigID">>,
 ) {
   const updateData: Prisma.table_configUpdateInput = {
     ...(data.AcademicYear !== undefined && { AcademicYear: data.AcademicYear }),
     ...(data.Semester !== undefined && { Semester: data.Semester }),
-    ...(data.Config !== undefined && { Config: data.Config as Prisma.InputJsonValue }),
-  }
+    ...(data.Config !== undefined && {
+      Config: data.Config as Prisma.InputJsonValue,
+    }),
+  };
   return await prisma.table_config.update({
     where: { ConfigID: configId },
     data: updateData,
-  })
+  });
 }
 
 /**
@@ -99,14 +101,14 @@ export async function deleteById(configId: string) {
     where: {
       ConfigID: configId,
     },
-  })
+  });
 }
 
 /**
  * Count total configs
  */
 export async function count(): Promise<number> {
-  return await prisma.table_config.count()
+  return await prisma.table_config.count();
 }
 
 /**
@@ -115,7 +117,7 @@ export async function count(): Promise<number> {
 export async function updateStatus(
   configId: string,
   status: string,
-  publishedAt?: Date | null
+  publishedAt?: Date | null,
 ) {
   return await prisma.table_config.update({
     where: { ConfigID: configId },
@@ -124,7 +126,7 @@ export async function updateStatus(
       ...(publishedAt !== undefined ? { publishedAt } : {}),
       updatedAt: new Date(),
     },
-  })
+  });
 }
 
 /**
@@ -132,7 +134,7 @@ export async function updateStatus(
  */
 export async function updateCompleteness(
   configId: string,
-  completeness: number
+  completeness: number,
 ) {
   return await prisma.table_config.update({
     where: { ConfigID: configId },
@@ -140,7 +142,7 @@ export async function updateCompleteness(
       configCompleteness: completeness,
       updatedAt: new Date(),
     },
-  })
+  });
 }
 
 /**
@@ -148,7 +150,7 @@ export async function updateCompleteness(
  */
 export async function countEntitiesForCompleteness(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ) {
   const [timeslotCount, teacherCount, subjectCount, classCount, roomCount] =
     await Promise.all([
@@ -167,7 +169,7 @@ export async function countEntitiesForCompleteness(
       prisma.subject.count(),
       prisma.gradelevel.count(),
       prisma.room.count(),
-    ])
+    ]);
 
   return {
     timeslotCount,
@@ -175,7 +177,7 @@ export async function countEntitiesForCompleteness(
     subjectCount,
     classCount,
     roomCount,
-  }
+  };
 }
 
 /**
@@ -183,14 +185,14 @@ export async function countEntitiesForCompleteness(
  */
 export async function countTimeslotsForTerm(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ) {
   return await prisma.timeslot.count({
     where: {
       AcademicYear: academicYear,
       Semester: semester,
     },
-  })
+  });
 }
 
 /**
@@ -199,14 +201,14 @@ export async function countTimeslotsForTerm(
 export async function findByIdWithCounts(
   configId: string,
   academicYear: number,
-  semester: semester
+  semester: semester,
 ) {
   const config = await prisma.table_config.findUnique({
     where: { ConfigID: configId },
-  })
+  });
 
   if (!config) {
-    return null
+    return null;
   }
 
   const [timeslotCount, teacherCount, classScheduleCount] = await Promise.all([
@@ -230,7 +232,7 @@ export async function findByIdWithCounts(
         },
       },
     }),
-  ])
+  ]);
 
   return {
     ...config,
@@ -239,7 +241,7 @@ export async function findByIdWithCounts(
       teachers: teacherCount,
       schedules: classScheduleCount,
     },
-  }
+  };
 }
 
 /**
@@ -248,7 +250,7 @@ export async function findByIdWithCounts(
  */
 export async function getTimetableConfig(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ) {
   const config = await prisma.table_config.findFirst({
     where: {
@@ -258,23 +260,23 @@ export async function getTimetableConfig(
     select: {
       Config: true,
     },
-  })
+  });
 
-  return config?.Config ?? null
+  return config?.Config ?? null;
 }
 
 /**
  * Fetches the data required to run the publish readiness check for a config.
  */
 export async function findFullConfigData(
-  configId: string
+  configId: string,
 ): Promise<FullConfigData | null> {
-  const config = await findByConfigId(configId)
+  const config = await findByConfigId(configId);
   if (!config) {
-    return null
+    return null;
   }
 
-  const { AcademicYear, Semester } = config
+  const { AcademicYear, Semester } = config;
   const [totalTimeslots, schedules, grades, programs] = await Promise.all([
     countTimeslotsForTerm(AcademicYear, Semester),
     prisma.class_schedule.findMany({
@@ -298,28 +300,28 @@ export async function findFullConfigData(
         },
       },
     }),
-  ])
+  ]);
 
-  const requiredSubjects = new Map<string, string[]>()
+  const requiredSubjects = new Map<string, string[]>();
   grades.forEach((grade: any) => {
     if (!grade.ProgramID) {
-      return
+      return;
     }
 
     const gradeProgram = programs.find(
-      (program: any) => program.ProgramID === grade.ProgramID
-    )
+      (program: any) => program.ProgramID === grade.ProgramID,
+    );
 
     if (!gradeProgram) {
-      return
+      return;
     }
 
     const required = gradeProgram.program_subject
       .filter((ps: any) => ps.IsMandatory)
-      .map((ps: any) => ps.SubjectCode)
+      .map((ps: any) => ps.SubjectCode);
 
-    requiredSubjects.set(grade.GradeID, required)
-  })
+    requiredSubjects.set(grade.GradeID, required);
+  });
 
   return {
     configId,
@@ -328,9 +330,11 @@ export async function findFullConfigData(
     programs,
     totalTimeslots,
     requiredSubjects,
-  }
+  };
 }
 
-export async function transaction<T>(callback: (tx: TransactionClient) => Promise<T>) {
-  return withPrismaTransaction(callback)
+export async function transaction<T>(
+  callback: (tx: TransactionClient) => Promise<T>,
+) {
+  return withPrismaTransaction(callback);
 }

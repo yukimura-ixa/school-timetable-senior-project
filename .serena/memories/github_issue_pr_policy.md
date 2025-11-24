@@ -1,28 +1,33 @@
 # GitHub Issue & PR Creation Policy
 
 ## Overview
+
 This memory documents the mandatory policy for creating GitHub issues and pull requests when discovering bugs, TODOs, technical debt, or features during development work.
 
 ## When to Create Issues
 
 ### 1. Bugs (ALWAYS CREATE ISSUE)
+
 - Failed tests or test suites
 - Runtime errors or exceptions
 - Type errors or compilation issues
 - Logic errors or incorrect behavior
 
 ### 2. Technical Debt (CREATE ISSUE)
+
 - `TODO` or `FIXME` comments in code
 - Code smells (duplicate code, complex functions)
 - Missing type annotations or `any` types
 - Deprecated API usage
 
 ### 3. Missing Features (CREATE ISSUE)
+
 - Features mentioned in comments but not implemented
 - User-facing improvements
 - Developer experience enhancements
 
 ### 4. Performance Issues (CREATE ISSUE)
+
 - Slow queries or operations
 - Memory leaks or resource issues
 - Bundle size problems
@@ -43,32 +48,40 @@ This memory documents the mandatory policy for creating GitHub issues and pull r
 
 ```markdown
 ## Description
+
 [Clear description of the bug/feature/debt]
 
 ## Location
+
 - File(s): [path/to/file.ts]
 - Line(s): [specific lines if applicable]
 
 ## Current Behavior
+
 [What currently happens]
 
 ## Expected Behavior
+
 [What should happen]
 
 ## Reproduction Steps (for bugs)
+
 1. [Step 1]
 2. [Step 2]
-...
+   ...
 
 ## Proposed Solution
+
 [Suggested approach or fix]
 
 ## Technical Context
+
 - Related files: [list]
 - Dependencies: [list]
 - Estimated effort: [S/M/L/XL]
 
 ## Related Issues/PRs
+
 - Relates to #[issue number]
 - Blocked by #[issue number]
 ```
@@ -76,6 +89,7 @@ This memory documents the mandatory policy for creating GitHub issues and pull r
 ## PR Creation Criteria
 
 Create a PR when:
+
 - Fixing issues discovered during work
 - Implementing features that span multiple commits
 - Making significant refactoring changes
@@ -84,17 +98,21 @@ Create a PR when:
 
 ```markdown
 ## Changes
+
 [Summary of what changed]
 
 ## Related Issues
+
 Closes #[issue number]
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] E2E tests added/updated
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Follows AGENTS.md guidelines
 - [ ] Context7 consulted for all library usage
 - [ ] Type safety maintained (no new `any`)
@@ -125,6 +143,7 @@ Closes #[issue number]
 ## Example: Real-World Usage
 
 ### Scenario: Fixing Store Type Mismatch
+
 ```typescript
 // While fixing store type mismatch, discovered:
 
@@ -150,10 +169,10 @@ GitHub Issue #33: "Fix 7 failing Jest test suites"
 ```typescript
 // Use structured approach
 await mcp_github_issue_write({
-  method: 'create',
-  owner: 'yukimura-ixa',
-  repo: 'school-timetable-senior-project',
-  title: '[Bug] Clear, concise title',
+  method: "create",
+  owner: "yukimura-ixa",
+  repo: "school-timetable-senior-project",
+  title: "[Bug] Clear, concise title",
   body: `## Description
 Detailed description...
 
@@ -169,13 +188,14 @@ What should happen...
 
 ## Proposed Solution
 Implementation approach...`,
-  labels: ['bug', 'priority: high']
+  labels: ["bug", "priority: high"],
 });
 ```
 
 ## Quality Guidelines
 
 **Do:**
+
 - Create meaningful issues that provide value
 - Include sufficient context for others to understand
 - Use clear, descriptive titles
@@ -184,6 +204,7 @@ Implementation approach...`,
 - Document reproduction steps for bugs
 
 **Don't:**
+
 - Create noise issues for trivial matters
 - Duplicate existing issues (search first)
 - Create issues without adequate description
@@ -193,16 +214,18 @@ Implementation approach...`,
 ## Integration with TODO List
 
 When creating an issue:
+
 1. Add corresponding TODO item if work is ongoing
 2. Reference issue number in TODO description
 3. Update TODO status as work progresses
 4. Mark TODO complete when issue is closed
 
 Example TODO entry:
+
 ```markdown
 - [x] Fix store type mismatch (scheduledSubjects)
-  - Fixed: Created proper mapper functions to convert ClassScheduleWithRelations to SubjectData format. 
-  - Removed 'as any' casts at lines 568-569. 
+  - Fixed: Created proper mapper functions to convert ClassScheduleWithRelations to SubjectData format.
+  - Removed 'as any' casts at lines 568-569.
   - Tracked in GitHub issue #32.
 ```
 

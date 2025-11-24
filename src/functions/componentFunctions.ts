@@ -24,20 +24,21 @@ export const hexToRGB = (hex: string): RGBColor => {
 
   const expandShorthand = (value: string): string => value + value;
 
-  const [rHex, gHex, bHex] = normalizedHex.length === 4
-    ? normalizedHex
-        .slice(1)
-        .split("")
-        .map((char) => expandShorthand(char))
-    : [
-        normalizedHex.slice(1, 3),
-        normalizedHex.slice(3, 5),
-        normalizedHex.slice(5, 7),
-      ];
+  const [rHex, gHex, bHex] =
+    normalizedHex.length === 4
+      ? normalizedHex
+          .slice(1)
+          .split("")
+          .map((char) => expandShorthand(char))
+      : [
+          normalizedHex.slice(1, 3),
+          normalizedHex.slice(3, 5),
+          normalizedHex.slice(5, 7),
+        ];
 
   return {
-    r: parseInt(rHex || '0', 16),
-    g: parseInt(gHex || '0', 16),
-    b: parseInt(bHex || '0', 16),
+    r: parseInt(rHex || "0", 16),
+    g: parseInt(gHex || "0", 16),
+    b: parseInt(bHex || "0", 16),
   };
 };

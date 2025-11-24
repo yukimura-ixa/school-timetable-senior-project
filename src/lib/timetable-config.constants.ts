@@ -1,11 +1,11 @@
 /**
  * Timetable Configuration Constants
- * 
+ *
  * Separated from timetable-config.ts to avoid bundling Prisma/repositories in client components.
  * This file contains only constants and types, no database logic.
  */
 
-import type { semester } from '@/prisma/generated/client';;
+import type { semester } from "@/prisma/generated/client";
 
 /**
  * Timetable configuration structure
@@ -14,10 +14,10 @@ export interface TimetableConfig {
   periodsPerDay: number;
   totalPeriodsPerWeek: number;
   breakSlots: {
-    junior: number;     // e.g., period 4 (lunch for junior high)
-    senior: number;     // e.g., period 4 (lunch for senior high)
+    junior: number; // e.g., period 4 (lunch for junior high)
+    senior: number; // e.g., period 4 (lunch for senior high)
   };
-  schoolDays: number;   // typically 5 (Mon-Fri)
+  schoolDays: number; // typically 5 (Mon-Fri)
   periodDuration: number; // minutes per period
 }
 

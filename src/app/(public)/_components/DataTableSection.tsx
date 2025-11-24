@@ -2,7 +2,7 @@
 
 /**
  * DataTableSection - Client Component
- * 
+ *
  * Handles tab navigation, search, pagination, and table rendering
  * entirely on the client side without page refreshes or URL changes.
  */
@@ -54,29 +54,32 @@ export function DataTableSection({
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Store fetched data
   const [teachersState] = useState(teachersData);
   const [classesState] = useState(classesData);
 
   // totalItems/totalPages removed; pagination is derived from filtered lists below
-  
+
   // Filter data based on search query
   const filteredTeachers = useMemo(() => {
     if (!searchQuery) return teachersState.data;
     const query = searchQuery.toLowerCase();
-    return teachersState.data.filter((teacher) =>
-      teacher.name.toLowerCase().includes(query) ||
-      (teacher.department && teacher.department.toLowerCase().includes(query))
+    return teachersState.data.filter(
+      (teacher) =>
+        teacher.name.toLowerCase().includes(query) ||
+        (teacher.department &&
+          teacher.department.toLowerCase().includes(query)),
     );
   }, [teachersState.data, searchQuery]);
 
   const filteredClasses = useMemo(() => {
     if (!searchQuery) return classesState.data;
     const query = searchQuery.toLowerCase();
-    return classesState.data.filter(cls => 
-      cls.gradeId.toLowerCase().includes(query) ||
-      cls.homeroomTeacher?.toLowerCase().includes(query)
+    return classesState.data.filter(
+      (cls) =>
+        cls.gradeId.toLowerCase().includes(query) ||
+        cls.homeroomTeacher?.toLowerCase().includes(query),
     );
   }, [classesState.data, searchQuery]);
 
@@ -94,7 +97,8 @@ export function DataTableSection({
   }, [filteredClasses, currentPage]);
 
   // Recalculate total pages based on filtered data
-  const actualTotalItems = activeTab === "teachers" ? filteredTeachers.length : filteredClasses.length;
+  const actualTotalItems =
+    activeTab === "teachers" ? filteredTeachers.length : filteredClasses.length;
   const actualTotalPages = Math.ceil(actualTotalItems / 25);
 
   // Tab change handler - instant, no URL changes
@@ -225,13 +229,33 @@ function ClientPagination({
 }) {
   // Inline SVG elements instead of creating components during render
   const chevronLeftIcon = (
-    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 19l-7-7 7-7"
+      />
     </svg>
   );
   const chevronRightIcon = (
-    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5l7 7-7 7"
+      />
     </svg>
   );
 
@@ -261,7 +285,8 @@ function ClientPagination({
         <div>
           <p className="text-sm text-gray-700">
             แสดง{" "}
-            <span className="font-medium">{(currentPage - 1) * 25 + 1}</span> ถึง{" "}
+            <span className="font-medium">{(currentPage - 1) * 25 + 1}</span>{" "}
+            ถึง{" "}
             <span className="font-medium">
               {Math.min(currentPage * 25, totalItems)}
             </span>{" "}

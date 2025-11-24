@@ -16,19 +16,22 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 **Status**: ✅ **COMPLETE**
 
 **Evidence**:
+
 - `src/features/config/domain/services/publish-readiness.service.ts` exists and implements `checkPublishReadiness()`
 - Uses `findIncompletGrades()` from dashboard-stats service
-- Uses `validateProgramMOECredits()` from moe-validation service  
+- Uses `validateProgramMOECredits()` from moe-validation service
 - Returns Thai error messages for incomplete grades and MoE non-compliance
 - Status types: 'ready' | 'incomplete' | 'moe-failed'
 
 **What works**:
+
 - ✅ Timetable completeness checking (per-grade, required hours)
 - ✅ MoE program validation (credit requirements by learning area)
 - ✅ Error message generation in Thai
 - ✅ Detailed breakdown of issues
 
 **Remaining work** (not critical):
+
 - Integration into `updateSemesterStatusAction` to block publishing
 - UI components to surface publish-ready status
 - E2E tests for publish gate workflow
@@ -42,16 +45,19 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 **Status**: ✅ **ALREADY ENABLED**
 
 **Evidence**:
+
 - `next.config.mjs` already has `cacheComponents: true` (line 6)
 - Next.js 16 is running with React Compiler enabled
 
 **What works**:
+
 - ✅ Cache Components experimental feature enabled
 - ✅ React Compiler enabled for automatic optimization
 
 **Remaining work** (optimization opportunities):
+
 - Add `"use cache"` directives to public data fetching functions
-- Configure `cacheLife()` for appropriate TTLs  
+- Configure `cacheLife()` for appropriate TTLs
 - Use `cacheTag()` for invalidation on admin mutations
 - Wrap heavy queries in cached helpers (e.g., `getQuickStats`, `getPaginatedTeachers`)
 
@@ -64,11 +70,13 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 **Status**: ✅ **ALREADY RETIRED**
 
 **Evidence**:
+
 - `__test__/features/teaching-assignment/` directory does not exist
 - No `teaching-assignment.repository.test.ts` found
 - No `teacher-validation.service.test.ts` found
 
 **What happened**:
+
 - Legacy tests mentioned in issue #136 have already been removed
 - Project currently relies on E2E tests for teaching-assignment coverage:
   - `e2e/specs/issue-94-teacher-assignment.spec.ts`
@@ -85,20 +93,24 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 **Status**: 🔄 **PARTIAL - Needs Server-Side Guards**
 
 **Current Implementation**:
+
 - ✅ `src/lib/authz.ts` provides `normalizeAppRole()` and `isAdminRole()`
-- ✅ UI-level role checks in dashboard navigation  
+- ✅ UI-level role checks in dashboard navigation
 - ✅ Auth integration via `authWithDevBypass`
 
 **Gaps** (from issue #137):
+
 - ❌ No server-side role checks in timetable view pages (`student-table`, `teacher-table`)
 - ❌ Timetable repositories don't scope queries by user role
 - ❌ Export actions don't enforce role restrictions
 - ❌ Teachers can potentially access other teachers' data via direct URL manipulation
 
 **Security Risk**: MEDIUM
+
 - UI hiding is not security. Authenticated users with direct URLs could bypass restrictions.
 
 **Remaining Work**:
+
 1. Add server-side role checks to:
    - `src/app/dashboard/[semesterAndyear]/student-table/page.tsx`
    - `src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx`
@@ -119,6 +131,7 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 **Not investigated in this session** - Lower priority than security.
 
 **Next Steps**:
+
 - Review `src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx`
 - Check for SWR usage vs server actions
 - Determine if legacy patterns exist

@@ -1,9 +1,11 @@
 # Jest Mock Pattern for Prisma in This Project
 
 ## Issue Resolved
+
 Fixed Jest mock re-initialization errors across test files (Issue #39).
 
 ## Root Cause
+
 The global Prisma mock in `jest.setup.js` creates **pre-configured** mock functions:
 
 ```typescript
@@ -26,6 +28,7 @@ mockPrisma = {
 ## The Working Pattern
 
 ### ✅ CORRECT - Direct Assignment
+
 Replace the entire mock function with a fresh `jest.fn()`:
 
 ```typescript
@@ -34,6 +37,7 @@ mockPrisma.table.method = jest.fn(() => Promise.resolve(data));
 ```
 
 ### ❌ WRONG - Chaining Methods
+
 These patterns fail with "mockImplementation is not a function":
 
 ```typescript
@@ -42,7 +46,9 @@ mockPrisma.table.method.mockImplementation(() => Promise.resolve(data));
 mockPrisma.table.method.mockResolvedValue(data);
 
 // ❌ Casting doesn't help
-(mockPrisma.table.method as jest.Mock).mockImplementation(() => Promise.resolve(data));
+(mockPrisma.table.method as jest.Mock).mockImplementation(() =>
+  Promise.resolve(data),
+);
 ```
 
 ## According to Jest Official Docs
@@ -69,6 +75,7 @@ mockPrisma.table.method = jest.fn(() => Promise.resolve(data));
 ## Examples by Use Case
 
 ### Single Value Return
+
 ```typescript
 // Return empty array
 mockClassSchedule.findMany = jest.fn(() => Promise.resolve([]));
@@ -81,33 +88,37 @@ mockClassSchedule.create = jest.fn(() => Promise.resolve({ id: 1 } as any));
 ```
 
 ### Complex Data Return
+
 ```typescript
-mockClassSchedule.findMany = jest.fn(() => Promise.resolve([
-  {
-    ClassID: 'C_M1-1_T1_MATH101',
-    TimeslotID: 'T1',
-    SubjectCode: 'MATH101',
-    // ... more fields
-  }
-]));
+mockClassSchedule.findMany = jest.fn(() =>
+  Promise.resolve([
+    {
+      ClassID: "C_M1-1_T1_MATH101",
+      TimeslotID: "T1",
+      SubjectCode: "MATH101",
+      // ... more fields
+    },
+  ]),
+);
 ```
 
 ### Multiple Mocks in One Test
+
 ```typescript
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-it('should handle complex scenario', async () => {
+it("should handle complex scenario", async () => {
   // Set up multiple mocks
   mockClassSchedule.findMany = jest.fn(() => Promise.resolve([]));
   mockTeachersResp.findMany = jest.fn(() => Promise.resolve([mockTeacher]));
   mockClassSchedule.findUnique = jest.fn(() => Promise.resolve(null));
   mockClassSchedule.create = jest.fn(() => Promise.resolve(mockSchedule));
-  
+
   // Run test
   const result = await myFunction();
-  
+
   // Assertions
   expect(result).toBeDefined();
 });
@@ -130,17 +141,20 @@ it('should handle complex scenario', async () => {
 ## When to Use Each Pattern
 
 ### Use Direct Assignment (`= jest.fn(...)`) When:
+
 - ✅ Working with pre-configured global mocks (like our Prisma mock)
 - ✅ Need to replace mock behavior in individual tests
 - ✅ Getting "mockImplementation is not a function" errors
 - ✅ Mock was created in jest.setup.js with `.mockResolvedValue()`
 
 ### Use `.mockImplementation()` When:
+
 - ✅ Creating NEW mock from scratch: `const mock = jest.fn().mockImplementation(...)`
 - ✅ Mock is defined locally in test file without pre-configuration
 - ✅ Need to chain multiple configurations: `.mockImplementationOnce().mockImplementationOnce()`
 
 ### Use `.mockResolvedValue()` When:
+
 - ✅ Creating NEW async mock: `const mock = jest.fn().mockResolvedValue(data)`
 - ✅ Simpler async pattern without custom logic
 - ✅ Mock is not pre-configured
@@ -167,10 +181,10 @@ If we ever need to modify jest.setup.js to NOT pre-configure mocks:
 // Alternative setup (NOT currently used)
 mockPrisma = {
   class_schedule: {
-    findMany: jest.fn(),  // No .mockResolvedValue()
+    findMany: jest.fn(), // No .mockResolvedValue()
     findUnique: jest.fn(),
     // ... etc
-  }
+  },
 };
 ```
 

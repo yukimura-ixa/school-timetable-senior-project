@@ -1,16 +1,19 @@
 /**
  * Infrastructure Layer: Room Repository
- * 
+ *
  * Handles all database operations for rooms using Prisma.
  * Pure data access layer with no business logic.
  * Uses React cache() for request-level memoization.
- * 
+ *
  * @module room.repository
  */
 
-import { cache } from 'react'
-import prisma from '@/lib/prisma'
-import type { CreateRoomInput, UpdateRoomInput } from '../../application/schemas/room.schemas'
+import { cache } from "react";
+import prisma from "@/lib/prisma";
+import type {
+  CreateRoomInput,
+  UpdateRoomInput,
+} from "../../application/schemas/room.schemas";
 
 /**
  * Find all rooms ordered by RoomID
@@ -19,10 +22,10 @@ import type { CreateRoomInput, UpdateRoomInput } from '../../application/schemas
 const findAllRooms = cache(async () => {
   return prisma.room.findMany({
     orderBy: {
-      RoomID: 'asc',
+      RoomID: "asc",
     },
-  })
-})
+  });
+});
 
 /**
  * Find a single room by ID
@@ -33,8 +36,8 @@ const findRoomById = cache(async (roomId: number) => {
     where: {
       RoomID: roomId,
     },
-  })
-})
+  });
+});
 
 export const roomRepository = {
   /**
@@ -42,7 +45,7 @@ export const roomRepository = {
    * Cached per request using React cache()
    */
   async findAll() {
-    return findAllRooms()
+    return findAllRooms();
   },
 
   /**
@@ -50,7 +53,7 @@ export const roomRepository = {
    * Cached per request using React cache()
    */
   async findById(roomId: number) {
-    return findRoomById(roomId)
+    return findRoomById(roomId);
   },
 
   /**
@@ -63,7 +66,7 @@ export const roomRepository = {
         Building: data.Building,
         Floor: data.Floor,
       },
-    })
+    });
   },
 
   /**
@@ -82,9 +85,9 @@ export const roomRepository = {
         },
       },
       orderBy: {
-        RoomName: 'asc',
+        RoomName: "asc",
       },
-    })
+    });
   },
 
   /**
@@ -102,12 +105,12 @@ export const roomRepository = {
       select: {
         RoomID: true,
       },
-      distinct: ['RoomID'],
-    })
+      distinct: ["RoomID"],
+    });
 
     return occupiedRooms
       .map((schedule: any) => schedule.RoomID)
-      .filter((id: any): id is number => id !== null)
+      .filter((id: any): id is number => id !== null);
   },
 
   /**
@@ -120,13 +123,13 @@ export const roomRepository = {
         Building: data.Building,
         Floor: data.Floor,
       },
-    })
+    });
   },
 
   /**
    * Update a room by ID
    */
-  async update(roomId: number, data: Omit<UpdateRoomInput, 'RoomID'>) {
+  async update(roomId: number, data: Omit<UpdateRoomInput, "RoomID">) {
     return prisma.room.update({
       where: {
         RoomID: roomId,
@@ -136,7 +139,7 @@ export const roomRepository = {
         Building: data.Building,
         Floor: data.Floor,
       },
-    })
+    });
   },
 
   /**
@@ -149,13 +152,13 @@ export const roomRepository = {
           in: roomIds,
         },
       },
-    })
+    });
   },
 
   /**
    * Get room count (useful for statistics)
    */
   async count() {
-    return prisma.room.count()
+    return prisma.room.count();
   },
-}
+};

@@ -1,6 +1,6 @@
 /**
  * SubjectItem Component - Refactored with @dnd-kit
- * 
+ *
  * Week 6.1 - Component Migration
  * Migrated from react-beautiful-dnd to @dnd-kit for better performance
  */
@@ -58,7 +58,8 @@ function SubjectItem({
   };
 
   // Check if this item is currently selected
-  const isSelected = storeSelectedSubject === item ||
+  const isSelected =
+    storeSelectedSubject === item ||
     storeSelectedSubject?.subjectCode === item.subjectCode;
 
   return (

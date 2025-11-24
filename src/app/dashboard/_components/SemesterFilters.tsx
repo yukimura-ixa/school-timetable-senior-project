@@ -18,10 +18,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from "@mui/material";
-import {
-  Search as SearchIcon,
-  Sort as SortIcon,
-} from "@mui/icons-material";
+import { Search as SearchIcon, Sort as SortIcon } from "@mui/icons-material";
 import type { SemesterFilterSchema } from "@/features/semester/application/schemas/semester.schemas";
 import type { InferOutput } from "valibot";
 
@@ -36,11 +33,11 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
   const year = filters.year;
   const sortBy = filters.sortBy || "recent";
   const sortOrder = filters.sortOrder || "desc";
-  
+
   const availableYears = [2566, 2567, 2568, 2569, 2570];
-  const statusOptions: Array<"ALL" | "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED"> = [
-    "ALL", "DRAFT", "PUBLISHED", "LOCKED", "ARCHIVED"
-  ];
+  const statusOptions: Array<
+    "ALL" | "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED"
+  > = ["ALL", "DRAFT", "PUBLISHED", "LOCKED", "ARCHIVED"];
 
   const sortOptions = [
     { value: "recent", label: "ล่าสุด" },
@@ -57,7 +54,9 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
         fullWidth
         placeholder="ค้นหาภาคเรียน (ปีการศึกษา หรือ รหัส)..."
         value={search}
-        onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
+        onChange={(e) =>
+          onFiltersChange({ ...filters, search: e.target.value })
+        }
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -76,15 +75,25 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
           color={status === "ALL" ? "primary" : "default"}
           variant={status === "ALL" ? "filled" : "outlined"}
         />
-        {statusOptions.filter(s => s !== "ALL").map((s) => (
-          <Chip
-            key={s}
-            label={s === "DRAFT" ? "แบบร่าง" : s === "PUBLISHED" ? "เผยแพร่" : s === "LOCKED" ? "ล็อก" : "เก็บถาวร"}
-            onClick={() => onFiltersChange({ ...filters, status: s as any })}
-            color={status === s ? "primary" : "default"}
-            variant={status === s ? "filled" : "outlined"}
-          />
-        ))}
+        {statusOptions
+          .filter((s) => s !== "ALL")
+          .map((s) => (
+            <Chip
+              key={s}
+              label={
+                s === "DRAFT"
+                  ? "แบบร่าง"
+                  : s === "PUBLISHED"
+                    ? "เผยแพร่"
+                    : s === "LOCKED"
+                      ? "ล็อก"
+                      : "เก็บถาวร"
+              }
+              onClick={() => onFiltersChange({ ...filters, status: s as any })}
+              color={status === s ? "primary" : "default"}
+              variant={status === s ? "filled" : "outlined"}
+            />
+          ))}
       </Box>
 
       {/* Filters Row */}
@@ -102,7 +111,12 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
           <Select
             value={year || ""}
             label="ปีการศึกษา"
-            onChange={(e) => onFiltersChange({ ...filters, year: e.target.value ? Number(e.target.value) : undefined })}
+            onChange={(e) =>
+              onFiltersChange({
+                ...filters,
+                year: e.target.value ? Number(e.target.value) : undefined,
+              })
+            }
           >
             <MenuItem value="">ทั้งหมด</MenuItem>
             {availableYears.map((y) => (
@@ -119,7 +133,9 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
           <Select
             value={sortBy}
             label="เรียงตาม"
-            onChange={(e) => onFiltersChange({ ...filters, sortBy: e.target.value as any })}
+            onChange={(e) =>
+              onFiltersChange({ ...filters, sortBy: e.target.value as any })
+            }
           >
             {sortOptions.map((option) => (
               <MenuItem key={option.value} value={option.value}>
@@ -138,12 +154,8 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
           }}
           size="small"
         >
-          <ToggleButton value="asc">
-            น้อย → มาก
-          </ToggleButton>
-          <ToggleButton value="desc">
-            มาก → น้อย
-          </ToggleButton>
+          <ToggleButton value="asc">น้อย → มาก</ToggleButton>
+          <ToggleButton value="desc">มาก → น้อย</ToggleButton>
         </ToggleButtonGroup>
       </Box>
     </Box>

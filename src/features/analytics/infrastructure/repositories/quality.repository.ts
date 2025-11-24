@@ -6,21 +6,21 @@
  * Reuses metrics from overview repository for consistency.
  */
 
-import prisma from '@/lib/prisma'
-import { parseConfigId } from '../../domain/services/calculation.service'
-import { overviewRepository } from './overview.repository'
+import prisma from "@/lib/prisma";
+import { parseConfigId } from "../../domain/services/calculation.service";
+import { overviewRepository } from "./overview.repository";
 
 /**
  * Quality metrics type
  */
 export type QualityMetrics = {
-  totalConflicts: number
-  completionRate: number
-  lockedPercentage: number
-  activeTeachers: number
-  totalGrades: number
-  balanceScore: number  // 0-100, higher is better
-}
+  totalConflicts: number;
+  completionRate: number;
+  lockedPercentage: number;
+  activeTeachers: number;
+  totalGrades: number;
+  balanceScore: number; // 0-100, higher is better
+};
 
 /**
  * Get overall schedule quality metrics
@@ -30,14 +30,12 @@ async function getQualityMetrics(configId: string): Promise<QualityMetrics> {
   const [overviewStats, lockStatus] = await Promise.all([
     overviewRepository.getOverviewStats(configId),
     overviewRepository.getLockStatusSummary(configId),
-  ])
+  ]);
 
   // Calculate balance score based on completion and lock status
   // High completion + high lock rate = good balance
-  const balanceScore = (
-    overviewStats.completionRate * 0.7 +
-    lockStatus.lockedPercentage * 0.3
-  )
+  const balanceScore =
+    overviewStats.completionRate * 0.7 + lockStatus.lockedPercentage * 0.3;
 
   return {
     totalConflicts: overviewStats.scheduleConflicts,
@@ -46,17 +44,17 @@ async function getQualityMetrics(configId: string): Promise<QualityMetrics> {
     activeTeachers: overviewStats.activeTeachers,
     totalGrades: overviewStats.totalGrades,
     balanceScore: Math.round(balanceScore * 10) / 10,
-  }
+  };
 }
 
 /**
  * Get gap analysis (periods with no schedules)
  */
 async function getGapAnalysis(configId: string): Promise<{
-  totalGaps: number
-  gapsByGrade: Map<string, number>
+  totalGaps: number;
+  gapsByGrade: Map<string, number>;
 }> {
-  const config = parseConfigId(configId)
+  const config = parseConfigId(configId);
 
   // Get timeslot IDs for this semester
   const timeslots = await prisma.timeslot.findMany({
@@ -67,9 +65,9 @@ async function getGapAnalysis(configId: string): Promise<{
     select: {
       TimeslotID: true,
     },
-  })
+  });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID)
+  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
 
   // Get all gradelevels
   const gradelevels = await prisma.gradelevel.findMany({
@@ -79,7 +77,7 @@ async function getGapAnalysis(configId: string): Promise<{
     select: {
       GradeID: true,
     },
-  })
+  });
 
   // Get all schedules
   const schedules = await prisma.class_schedule.findMany({
@@ -92,57 +90,62 @@ async function getGapAnalysis(configId: string): Promise<{
       GradeID: true,
       TimeslotID: true,
     },
-  })
+  });
 
   // Calculate gaps per grade
-  const gapsByGrade = new Map<string, number>()
-  const totalSlotsPerGrade = timeslotIds.length
+  const gapsByGrade = new Map<string, number>();
+  const totalSlotsPerGrade = timeslotIds.length;
 
   gradelevels.forEach((grade: any) => {
-    const scheduledSlots = schedules.filter((s: any) => s.GradeID === grade.GradeID).length
-    const gaps = totalSlotsPerGrade - scheduledSlots
-    gapsByGrade.set(grade.GradeID, gaps)
-  })
+    const scheduledSlots = schedules.filter(
+      (s: any) => s.GradeID === grade.GradeID,
+    ).length;
+    const gaps = totalSlotsPerGrade - scheduledSlots;
+    gapsByGrade.set(grade.GradeID, gaps);
+  });
 
-  const totalGaps = Array.from(gapsByGrade.values()).reduce((sum, gaps) => sum + gaps, 0)
+  const totalGaps = Array.from(gapsByGrade.values()).reduce(
+    (sum, gaps) => sum + gaps,
+    0,
+  );
 
   return {
     totalGaps,
     gapsByGrade,
-  }
+  };
 }
 
 /**
  * Check if schedule quality is acceptable
  */
 async function isQualityAcceptable(configId: string): Promise<{
-  isAcceptable: boolean
-  reasons: string[]
+  isAcceptable: boolean;
+  reasons: string[];
 }> {
-  const metrics = await getQualityMetrics(configId)
-  const reasons: string[] = []
+  const metrics = await getQualityMetrics(configId);
+  const reasons: string[] = [];
 
   // Quality checks
   if (metrics.totalConflicts > 0) {
-    reasons.push(`มีความขัดแย้ง ${metrics.totalConflicts} รายการ`)
+    reasons.push(`มีความขัดแย้ง ${metrics.totalConflicts} รายการ`);
   }
 
   if (metrics.completionRate < 80) {
-    reasons.push(`อัตราความสมบูรณ์ต่ำ (${metrics.completionRate}%)`)
+    reasons.push(`อัตราความสมบูรณ์ต่ำ (${metrics.completionRate}%)`);
   }
 
   if (metrics.balanceScore < 70) {
-    reasons.push(`คะแนนความสมดุลต่ำ (${metrics.balanceScore}/100)`)
+    reasons.push(`คะแนนความสมดุลต่ำ (${metrics.balanceScore}/100)`);
   }
 
   return {
     isAcceptable: reasons.length === 0,
     reasons,
-  }
+  };
 }
 
 export const qualityRepository = {
   getQualityMetrics,
   getGapAnalysis,
   isQualityAcceptable,
-}
+};

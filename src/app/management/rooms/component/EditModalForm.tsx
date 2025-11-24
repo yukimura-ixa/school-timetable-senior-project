@@ -7,7 +7,7 @@ import React, { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsInfo } from "react-icons/bs";
 import { updateRoomsAction } from "@/features/room/application/actions/room.actions";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
@@ -24,11 +24,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const isValidData = (): boolean => {
     let isValid = true;
     editData.forEach((data) => {
-      if (
-        data.RoomName == "" ||
-        data.Building == "" ||
-        !data.Floor
-      ) {
+      if (data.RoomName == "" || data.Building == "" || !data.Floor) {
         setIsEmptyData(true);
         isValid = false;
       }
@@ -62,14 +58,15 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
         Floor: String(r.Floor ?? ""),
       }));
       const result = await updateRoomsAction(payload);
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
         variant: "success",
@@ -78,7 +75,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " +
+          (error.message || "Unknown error"),
         {
           variant: "error",
         },
@@ -126,7 +124,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.RoomName.length == 0 ? "#F96161" : ""
                     }
-                    disabled={false} handleChange={(e: any) => {
+                    disabled={false}
+                    handleChange={(e: any) => {
                       const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -152,7 +151,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.Building.length == 0 ? "#F96161" : ""
                     }
-                    disabled={false} handleChange={(e: any) => {
+                    disabled={false}
+                    handleChange={(e: any) => {
                       const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -175,11 +175,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     label={`ชั้น (Floor):`}
                     placeHolder="ex. 5"
                     value={item.Floor}
-                    borderColor={
-                      isEmptyData && !item.Floor
-                        ? "#F96161"
-                        : ""
-                    }
+                    borderColor={isEmptyData && !item.Floor ? "#F96161" : ""}
                     disabled={false}
                     handleChange={(e: any) => {
                       const value: string = e.target.value;
@@ -205,13 +201,17 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
           </span>
         </div>

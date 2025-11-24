@@ -3,7 +3,6 @@
 const nextConfig = {
   // Next.js 16 optimizations
   reactCompiler: true,
-  cacheComponents: true,
 
   images: {
     remotePatterns: [
@@ -13,7 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  serverExternalPackages: ['@prisma/client', 'bcryptjs'],
 };
 
 export default nextConfig;

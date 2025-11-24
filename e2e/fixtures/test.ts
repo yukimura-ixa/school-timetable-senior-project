@@ -1,18 +1,18 @@
 /**
  * Custom Fixtures for E2E Tests
- * 
+ *
  * Extends Playwright's base test with custom fixtures:
  * - Page Object Models (POM)
  * - Authentication states
  * - Test data setup/teardown
- * 
+ *
  * @module fixtures/test
  */
 
-import { test as base } from '@playwright/test';
-import { ProgramViewPage } from '../page-objects/ProgramViewPage';
-import { ComplianceAnalyticsPage } from '../page-objects/ComplianceAnalyticsPage';
-import { ArrangePage } from '../page-objects/ArrangePage';
+import { test as base } from "@playwright/test";
+import { ProgramViewPage } from "../page-objects/ProgramViewPage";
+import { ComplianceAnalyticsPage } from "../page-objects/ComplianceAnalyticsPage";
+import { ArrangePage } from "../page-objects/ArrangePage";
 
 /**
  * Custom fixtures type
@@ -25,7 +25,7 @@ type CustomFixtures = {
 
 /**
  * Extended test with custom fixtures
- * 
+ *
  * Usage:
  * ```typescript
  * test('my test', async ({ programViewPage }) => {
@@ -66,4 +66,4 @@ export const test = base.extend<CustomFixtures>({
 /**
  * Export expect from Playwright for convenience
  */
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";

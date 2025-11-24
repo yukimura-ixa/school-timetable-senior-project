@@ -1,15 +1,15 @@
 /**
  * Presentation Layer: Conflict Alert Component
- * 
+ *
  * MUI v7 Alert component for displaying scheduling conflicts
  * with severity levels and actionable messages.
- * 
+ *
  * @module ConflictAlert
  */
 
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   Alert,
   AlertTitle,
@@ -21,7 +21,7 @@ import {
   IconButton,
   Stack,
   Chip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Error as ErrorIcon,
   Warning as WarningIcon,
@@ -29,13 +29,13 @@ import {
   Lock as LockIcon,
   Close as CloseIcon,
   ExpandMore as ExpandMoreIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 import {
   CONFLICT_TYPES,
   CONFLICT_MESSAGES,
   type ConflictType,
   type ConflictSeverity,
-} from '@/features/schedule-arrangement/domain/constants';
+} from "@/features/schedule-arrangement/domain/constants";
 
 interface Conflict {
   type: ConflictType;
@@ -52,10 +52,10 @@ interface Conflict {
 interface ConflictAlertProps {
   /** List of conflicts */
   conflicts: Conflict[];
-  
+
   /** Show/hide handler */
   onClose?: () => void;
-  
+
   /** Expandable details */
   expandable?: boolean;
 }
@@ -75,12 +75,13 @@ export function ConflictAlert({
   }
 
   // Group by severity
-  const errors = conflicts.filter(c => c.severity === 'error');
-  const warnings = conflicts.filter(c => c.severity === 'warning');
-  const infos = conflicts.filter(c => c.severity === 'info');
+  const errors = conflicts.filter((c) => c.severity === "error");
+  const warnings = conflicts.filter((c) => c.severity === "warning");
+  const infos = conflicts.filter((c) => c.severity === "info");
 
   // Primary severity
-  const primarySeverity = errors.length > 0 ? 'error' : warnings.length > 0 ? 'warning' : 'info';
+  const primarySeverity =
+    errors.length > 0 ? "error" : warnings.length > 0 ? "warning" : "info";
 
   const getIcon = (type: ConflictType) => {
     switch (type) {
@@ -111,7 +112,7 @@ export function ConflictAlert({
     if (conflict.timeslotID) {
       parts.push(`คาบ: ${conflict.timeslotID}`);
     }
-    return parts.length > 0 ? `(${parts.join(' • ')})` : '';
+    return parts.length > 0 ? `(${parts.join(" • ")})` : "";
   };
 
   return (
@@ -125,12 +126,12 @@ export function ConflictAlert({
             <IconButton
               size="small"
               onClick={() => setExpanded(!expanded)}
-              sx={{ color: 'inherit' }}
+              sx={{ color: "inherit" }}
             >
               <ExpandMoreIcon
                 sx={{
-                  transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s',
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.2s",
                 }}
               />
             </IconButton>
@@ -139,7 +140,7 @@ export function ConflictAlert({
             <IconButton
               size="small"
               onClick={onClose}
-              sx={{ color: 'inherit' }}
+              sx={{ color: "inherit" }}
             >
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -147,7 +148,7 @@ export function ConflictAlert({
         </Stack>
       }
     >
-      <AlertTitle sx={{ fontWeight: 'bold' }}>
+      <AlertTitle sx={{ fontWeight: "bold" }}>
         พบข้อขัดแย้งในตารางสอน ({conflicts.length} รายการ)
       </AlertTitle>
 
@@ -157,12 +158,17 @@ export function ConflictAlert({
           <List dense sx={{ mt: 1 }}>
             {errors.map((conflict, index) => (
               <ListItem key={`error-${index}`} sx={{ pl: 0 }}>
-                <ListItemIcon sx={{ minWidth: 32, color: 'inherit' }}>
+                <ListItemIcon sx={{ minWidth: 32, color: "inherit" }}>
                   {getIcon(conflict.type)}
                 </ListItemIcon>
                 <ListItemText
                   primary={
-                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      flexWrap="wrap"
+                    >
                       <span>{conflict.message}</span>
                       {conflict.details && (
                         <Chip
@@ -170,15 +176,15 @@ export function ConflictAlert({
                           size="small"
                           variant="outlined"
                           sx={{
-                            borderColor: 'currentColor',
-                            color: 'inherit',
-                            fontSize: '0.7rem',
+                            borderColor: "currentColor",
+                            color: "inherit",
+                            fontSize: "0.7rem",
                           }}
                         />
                       )}
                     </Stack>
                   }
-                  primaryTypographyProps={{ variant: 'body2' }}
+                  primaryTypographyProps={{ variant: "body2" }}
                 />
               </ListItem>
             ))}
@@ -190,12 +196,17 @@ export function ConflictAlert({
           <List dense sx={{ mt: 1 }}>
             {warnings.map((conflict, index) => (
               <ListItem key={`warning-${index}`} sx={{ pl: 0 }}>
-                <ListItemIcon sx={{ minWidth: 32, color: 'inherit' }}>
+                <ListItemIcon sx={{ minWidth: 32, color: "inherit" }}>
                   {getIcon(conflict.type)}
                 </ListItemIcon>
                 <ListItemText
                   primary={
-                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      flexWrap="wrap"
+                    >
                       <span>{conflict.message}</span>
                       {conflict.details && (
                         <Chip
@@ -203,15 +214,15 @@ export function ConflictAlert({
                           size="small"
                           variant="outlined"
                           sx={{
-                            borderColor: 'currentColor',
-                            color: 'inherit',
-                            fontSize: '0.7rem',
+                            borderColor: "currentColor",
+                            color: "inherit",
+                            fontSize: "0.7rem",
                           }}
                         />
                       )}
                     </Stack>
                   }
-                  primaryTypographyProps={{ variant: 'body2' }}
+                  primaryTypographyProps={{ variant: "body2" }}
                 />
               </ListItem>
             ))}
@@ -223,12 +234,12 @@ export function ConflictAlert({
           <List dense sx={{ mt: 1 }}>
             {infos.map((conflict, index) => (
               <ListItem key={`info-${index}`} sx={{ pl: 0 }}>
-                <ListItemIcon sx={{ minWidth: 32, color: 'inherit' }}>
+                <ListItemIcon sx={{ minWidth: 32, color: "inherit" }}>
                   {getIcon(conflict.type)}
                 </ListItemIcon>
                 <ListItemText
                   primary={conflict.message}
-                  primaryTypographyProps={{ variant: 'body2' }}
+                  primaryTypographyProps={{ variant: "body2" }}
                 />
               </ListItem>
             ))}

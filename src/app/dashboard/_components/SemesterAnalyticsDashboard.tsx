@@ -50,9 +50,9 @@ type SemesterStats = {
   totalSubjects: number;
   totalRooms: number;
   completenessDistribution: {
-    low: number;      // 0-30%
-    medium: number;   // 31-79%
-    high: number;     // 80-100%
+    low: number; // 0-30%
+    medium: number; // 31-79%
+    high: number; // 80-100%
   };
 };
 
@@ -115,7 +115,7 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
       }
 
       // Academic year count
-      byAcademicYear[semester.academicYear] = 
+      byAcademicYear[semester.academicYear] =
         (byAcademicYear[semester.academicYear] || 0) + 1;
 
       // Completeness
@@ -134,7 +134,10 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
       }
 
       // Recently accessed
-      if (semester.lastAccessedAt && new Date(semester.lastAccessedAt) > thirtyDaysAgo) {
+      if (
+        semester.lastAccessedAt &&
+        new Date(semester.lastAccessedAt) > thirtyDaysAgo
+      ) {
         recentlyAccessed++;
       }
 
@@ -149,7 +152,8 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
       total: semesters.length,
       byStatus,
       byAcademicYear,
-      avgCompleteness: semesters.length > 0 ? totalCompleteness / semesters.length : 0,
+      avgCompleteness:
+        semesters.length > 0 ? totalCompleteness / semesters.length : 0,
       pinned,
       recentlyAccessed,
       totalClasses,
@@ -160,11 +164,12 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
     };
   }, [semesters]);
 
-  const academicYears = useMemo(() => 
-    Object.entries(stats.byAcademicYear)
-      .sort(([a], [b]) => Number(b) - Number(a))
-      .slice(0, 5), // Top 5 years
-    [stats.byAcademicYear]
+  const academicYears = useMemo(
+    () =>
+      Object.entries(stats.byAcademicYear)
+        .sort(([a], [b]) => Number(b) - Number(a))
+        .slice(0, 5), // Top 5 years
+    [stats.byAcademicYear],
   );
 
   const getCompletenessColor = (percentage: number) => {
@@ -191,7 +196,9 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card variant="outlined">
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <SchoolIcon color="primary" fontSize="small" />
                 <Typography variant="body2" color="text.secondary">
                   ภาคเรียนทั้งหมด
@@ -207,13 +214,19 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card variant="outlined">
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <TrendingUpIcon color="success" fontSize="small" />
                 <Typography variant="body2" color="text.secondary">
                   ความสมบูรณ์เฉลี่ย
                 </Typography>
               </Box>
-              <Typography variant="h4" fontWeight="bold" color={getCompletenessColor(stats.avgCompleteness)}>
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                color={getCompletenessColor(stats.avgCompleteness)}
+              >
                 {stats.avgCompleteness.toFixed(1)}%
               </Typography>
             </CardContent>
@@ -223,7 +236,9 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card variant="outlined">
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <StarIcon sx={{ color: "#ffc107" }} fontSize="small" />
                 <Typography variant="body2" color="text.secondary">
                   ปักหมุด
@@ -239,7 +254,9 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card variant="outlined">
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}
+              >
                 <AssessmentIcon color="info" fontSize="small" />
                 <Typography variant="body2" color="text.secondary">
                   เข้าถึง 30 วันล่าสุด
@@ -266,16 +283,32 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                   LOCKED: stats.byStatus.locked,
                   ARCHIVED: stats.byStatus.archived,
                 }).map(([status, count]) => {
-                  const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                  const percentage =
+                    stats.total > 0 ? (count / stats.total) * 100 : 0;
                   return (
                     <Box key={status}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 0.5,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Chip
-                            label={STATUS_LABELS[status as keyof typeof STATUS_LABELS]}
+                            label={
+                              STATUS_LABELS[
+                                status as keyof typeof STATUS_LABELS
+                              ]
+                            }
                             size="small"
                             sx={{
-                              bgcolor: STATUS_COLORS[status as keyof typeof STATUS_COLORS],
+                              bgcolor:
+                                STATUS_COLORS[
+                                  status as keyof typeof STATUS_COLORS
+                                ],
                               color: "white",
                               fontWeight: "bold",
                             }}
@@ -296,7 +329,10 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                           borderRadius: 1,
                           bgcolor: "grey.200",
                           "& .MuiLinearProgress-bar": {
-                            bgcolor: STATUS_COLORS[status as keyof typeof STATUS_COLORS],
+                            bgcolor:
+                              STATUS_COLORS[
+                                status as keyof typeof STATUS_COLORS
+                              ],
                           },
                         }}
                       />
@@ -317,15 +353,36 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
               </Typography>
               <Stack spacing={2} sx={{ mt: 2 }}>
                 {[
-                  { label: "ต่ำ (0-30%)", value: stats.completenessDistribution.low, color: "#f44336" },
-                  { label: "ปานกลาง (31-79%)", value: stats.completenessDistribution.medium, color: "#ff9800" },
-                  { label: "สูง (80-100%)", value: stats.completenessDistribution.high, color: "#4caf50" },
+                  {
+                    label: "ต่ำ (0-30%)",
+                    value: stats.completenessDistribution.low,
+                    color: "#f44336",
+                  },
+                  {
+                    label: "ปานกลาง (31-79%)",
+                    value: stats.completenessDistribution.medium,
+                    color: "#ff9800",
+                  },
+                  {
+                    label: "สูง (80-100%)",
+                    value: stats.completenessDistribution.high,
+                    color: "#4caf50",
+                  },
                 ].map((item) => {
-                  const percentage = stats.total > 0 ? (item.value / stats.total) * 100 : 0;
+                  const percentage =
+                    stats.total > 0 ? (item.value / stats.total) * 100 : 0;
                   return (
                     <Box key={item.label}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 0.5,
+                        }}
+                      >
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Chip
                             label={item.label}
                             size="small"
@@ -373,7 +430,14 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid size={{ xs: 6, sm: 3 }}>
                   <Tooltip title="จำนวนห้องเรียนทั้งหมดในทุกภาคเรียน">
-                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "primary.50", borderRadius: 1 }}>
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        p: 2,
+                        bgcolor: "primary.50",
+                        borderRadius: 1,
+                      }}
+                    >
                       <ClassIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
                       <Typography variant="h5" fontWeight="bold">
                         {stats.totalClasses}
@@ -386,8 +450,18 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 </Grid>
                 <Grid size={{ xs: 6, sm: 3 }}>
                   <Tooltip title="จำนวนครูทั้งหมดในทุกภาคเรียน">
-                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "success.50", borderRadius: 1 }}>
-                      <PersonIcon color="success" sx={{ fontSize: 40, mb: 1 }} />
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        p: 2,
+                        bgcolor: "success.50",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <PersonIcon
+                        color="success"
+                        sx={{ fontSize: 40, mb: 1 }}
+                      />
                       <Typography variant="h5" fontWeight="bold">
                         {stats.totalTeachers}
                       </Typography>
@@ -399,8 +473,18 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 </Grid>
                 <Grid size={{ xs: 6, sm: 3 }}>
                   <Tooltip title="จำนวนวิชาทั้งหมดในทุกภาคเรียน">
-                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "warning.50", borderRadius: 1 }}>
-                      <SchoolIcon color="warning" sx={{ fontSize: 40, mb: 1 }} />
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        p: 2,
+                        bgcolor: "warning.50",
+                        borderRadius: 1,
+                      }}
+                    >
+                      <SchoolIcon
+                        color="warning"
+                        sx={{ fontSize: 40, mb: 1 }}
+                      />
                       <Typography variant="h5" fontWeight="bold">
                         {stats.totalSubjects}
                       </Typography>
@@ -412,7 +496,14 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 </Grid>
                 <Grid size={{ xs: 6, sm: 3 }}>
                   <Tooltip title="จำนวนห้องเรียนทั้งหมดในทุกภาคเรียน">
-                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "error.50", borderRadius: 1 }}>
+                    <Box
+                      sx={{
+                        textAlign: "center",
+                        p: 2,
+                        bgcolor: "error.50",
+                        borderRadius: 1,
+                      }}
+                    >
                       <RoomIcon color="error" sx={{ fontSize: 40, mb: 1 }} />
                       <Typography variant="h5" fontWeight="bold">
                         {stats.totalRooms}
@@ -438,18 +529,35 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
                 </Typography>
                 <Stack spacing={2} sx={{ mt: 2 }}>
                   {academicYears.map(([year, count]) => {
-                    const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                    const percentage =
+                      stats.total > 0 ? (count / stats.total) * 100 : 0;
                     return (
                       <Box key={year}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            mb: 0.5,
+                          }}
+                        >
                           <Typography variant="body1" fontWeight="bold">
                             {year}
                           </Typography>
-                          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 2,
+                              alignItems: "center",
+                            }}
+                          >
                             <Typography variant="body2">
                               {count} ภาคเรียน
                             </Typography>
-                            <Typography variant="body2" fontWeight="bold" color="primary">
+                            <Typography
+                              variant="body2"
+                              fontWeight="bold"
+                              color="primary"
+                            >
                               {percentage.toFixed(1)}%
                             </Typography>
                           </Box>

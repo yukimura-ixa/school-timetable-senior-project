@@ -16,10 +16,10 @@ type Props = {
   onSearch?: (value: string) => void;
 };
 
-export function TableSearch({ 
-  initialValue = "", 
+export function TableSearch({
+  initialValue = "",
   placeholder = "ค้นหา...",
-  onSearch 
+  onSearch,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();

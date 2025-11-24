@@ -30,15 +30,21 @@ type ButtonProps = {
   labelClassName?: string; //className เพิ่มเติมของตัวหนังสือ
   labelStyle?: CSSProperties; //style ของตัวหนังสือ
   iconPosition?: "left" | "right"; //กำหนดตำแหน่งของ icon
-} & Omit<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  "title" | "color"
->;
+} & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "title" | "color">;
 
-const clampColorValue = (value: number): number => Math.max(0, Math.min(255, value));
+const clampColorValue = (value: number): number =>
+  Math.max(0, Math.min(255, value));
 
-const isStaticImageData = (value: string | StaticImageData | ReactElement<any>): value is StaticImageData => {
-  return typeof value === "object" && value !== null && "src" in value && "height" in value && "width" in value;
+const isStaticImageData = (
+  value: string | StaticImageData | ReactElement<any>,
+): value is StaticImageData => {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "src" in value &&
+    "height" in value &&
+    "width" in value
+  );
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -64,11 +70,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     onMouseLeave: onMouseLeaveProp,
     ...rest
   },
-  ref
+  ref,
 ): React.JSX.Element {
   const [isHover, setIsHover] = useState(false); //Hover state ใช้กับปุ่ม
 
-  const { ["aria-label"]: ariaLabelProp, type: typeProp = "button", ...buttonProps } = rest;
+  const {
+    ["aria-label"]: ariaLabelProp,
+    type: typeProp = "button",
+    ...buttonProps
+  } = rest;
 
   const disabled = disabledProp;
 
@@ -83,9 +93,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   const titleRGB = useMemo(() => hexToRGB(titleColor), [titleColor]);
 
   //เก็บค่าสี RGB ของปุ่ม เพื่อนำไปใช้คำนวณ hover color
-  const backgroundColor = !disabled && isHover
-    ? `rgb(${clampColorValue(buttonRGB.r - 10)}, ${clampColorValue(buttonRGB.g - 10)}, ${clampColorValue(buttonRGB.b - 10)})`
-    : `rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`;
+  const backgroundColor =
+    !disabled && isHover
+      ? `rgb(${clampColorValue(buttonRGB.r - 10)}, ${clampColorValue(buttonRGB.g - 10)}, ${clampColorValue(buttonRGB.b - 10)})`
+      : `rgb(${buttonRGB.r}, ${buttonRGB.g}, ${buttonRGB.b})`;
 
   const textColor = `rgb(${titleRGB.r}, ${titleRGB.g}, ${titleRGB.b})`;
 
@@ -111,26 +122,33 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
 
   const clickHandler = handleClick ?? onClick;
 
-  const handleMouseEnter = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  const handleMouseEnter = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ): void => {
     if (!disabled) {
       setIsHover(true);
     }
     onMouseEnterProp?.(event);
   };
 
-  const handleMouseLeave = (event: React.MouseEvent<HTMLButtonElement>): void => {
+  const handleMouseLeave = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ): void => {
     if (!disabled) {
       setIsHover(false);
     }
     onMouseLeaveProp?.(event);
   };
 
-  const displayTitle = typeof title === "string" && title.trim().length > 0 ? title : "Button";
+  const displayTitle =
+    typeof title === "string" && title.trim().length > 0 ? title : "Button";
 
   const finalAriaLabel = ariaLabelProp ?? displayTitle;
 
   const contentClassName = `flex gap-[10px] items-center${iconPosition === "right" ? " flex-row-reverse" : ""}`;
-  const titleClassName = labelClassName ? `text-sm ${labelClassName}` : "text-sm";
+  const titleClassName = labelClassName
+    ? `text-sm ${labelClassName}`
+    : "text-sm";
 
   const renderIcon = (): React.ReactNode => {
     if (!icon) {
@@ -147,7 +165,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   const baseButtonClass = `flex items-center justify-center px-[15px] py-[10px] rounded${
     disabled ? "" : " cursor-pointer duration-300"
   } select-none`;
-  const mergedButtonClass = className ? `${baseButtonClass} ${className}` : baseButtonClass;
+  const mergedButtonClass = className
+    ? `${baseButtonClass} ${className}`
+    : baseButtonClass;
 
   return (
     <button

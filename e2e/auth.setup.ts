@@ -1,177 +1,220 @@
 /**
  * Authentication Setup for E2E Tests
- * 
+ *
  * This setup script runs once before all tests to establish an authenticated
  * session. It saves the authentication state to a JSON file that can be reused
  * by all subsequent tests, eliminating the need for repeated logins.
- * 
+ *
  * Uses credential-based authentication (email/password) to log in as the admin
  * user created during database seeding.
- * 
+ *
  * Based on:
  * - Playwright best practices: https://playwright.dev/docs/auth
  * - Auth.js testing guide: https://authjs.dev/guides/testing
- * 
+ *
  * @see https://playwright.dev/docs/auth#reuse-signed-in-state
  */
 
-import { test as setup, expect } from '@playwright/test'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { test as setup, expect } from "@playwright/test";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const authFile = path.join(__dirname, '../playwright/.auth/admin.json')
+const authFile = path.join(__dirname, "../playwright/.auth/admin.json");
 
 // Increase setup timeout to accommodate initial compile/HMR and seeding
-setup.setTimeout(60_000)
+setup.setTimeout(60_000);
 
-setup('authenticate as admin', async ({ page }) => {
-  console.log('[AUTH SETUP] Starting authentication flow...')
+setup("authenticate as admin", async ({ page }) => {
+  console.log("[AUTH SETUP] Starting authentication flow...");
 
   // Listen to console logs from the browser
-  page.on('console', msg => console.log(`[BROWSER] ${msg.type()}: ${msg.text()}`))
+  page.on("console", (msg) =>
+    console.log(`[BROWSER] ${msg.type()}: ${msg.text()}`),
+  );
 
   // Navigate to custom sign-in page
   // Increased timeout to 60s for initial page load/compilation
-  await page.goto('http://localhost:3000/signin', { timeout: 60000 })
-  console.log('[AUTH SETUP] Navigated to signin page')
+  await page.goto("http://localhost:3000/signin", { timeout: 60000 });
+  console.log("[AUTH SETUP] Navigated to signin page");
 
   // Wait for the page to load
-  await page.waitForLoadState('networkidle')
+  await page.waitForLoadState("networkidle");
 
   // Check if we're already logged in (redirected to dashboard)
-  if (page.url().includes('/dashboard')) {
-    console.log('[AUTH SETUP] Already authenticated, skipping login')
+  if (page.url().includes("/dashboard")) {
+    console.log("[AUTH SETUP] Already authenticated, skipping login");
 
     // Navigate to semester-specific dashboard
-    await page.goto('http://localhost:3000/dashboard/1-2567')
-    await page.waitForLoadState('networkidle', { timeout: 20000 })
+    await page.goto("http://localhost:3000/dashboard/1-2567");
+    await page.waitForLoadState("networkidle", { timeout: 20000 });
 
     // Wait for useSemesterSync hook to execute by checking localStorage
-    console.log('[AUTH SETUP] Waiting for semester sync (already authenticated path)...')
+    console.log(
+      "[AUTH SETUP] Waiting for semester sync (already authenticated path)...",
+    );
     try {
       await page.waitForFunction(
-        () => window.localStorage.getItem('semester-storage') !== null,
-        { timeout: 20000 }
-      )
-      const storageValue = await page.evaluate(() => window.localStorage.getItem('semester-storage'))
-      console.log('[AUTH SETUP] Semester synced to localStorage:', storageValue)
+        () => window.localStorage.getItem("semester-storage") !== null,
+        { timeout: 20000 },
+      );
+      const storageValue = await page.evaluate(() =>
+        window.localStorage.getItem("semester-storage"),
+      );
+      console.log(
+        "[AUTH SETUP] Semester synced to localStorage:",
+        storageValue,
+      );
     } catch (error) {
-      console.warn('[AUTH SETUP] Timeout waiting for semester-storage')
+      console.warn("[AUTH SETUP] Timeout waiting for semester-storage");
       if (!page.isClosed()) {
-        const storageValue = await page.evaluate(() => window.localStorage.getItem('semester-storage'))
-        console.log('[AUTH SETUP] Current storage value:', storageValue)
+        const storageValue = await page.evaluate(() =>
+          window.localStorage.getItem("semester-storage"),
+        );
+        console.log("[AUTH SETUP] Current storage value:", storageValue);
 
         if (!storageValue) {
-          console.log('[AUTH SETUP] Manually setting semester-storage as fallback')
+          console.log(
+            "[AUTH SETUP] Manually setting semester-storage as fallback",
+          );
           await page.evaluate(() => {
-            window.localStorage.setItem('semester-storage', JSON.stringify({
-              state: { semester: '1-2567' },
-              version: 0
-            }))
-          })
-          const verifyStorage = await page.evaluate(() => window.localStorage.getItem('semester-storage'))
-          console.log('[AUTH SETUP] Verified semester storage:', verifyStorage)
+            window.localStorage.setItem(
+              "semester-storage",
+              JSON.stringify({
+                state: { semester: "1-2567" },
+                version: 0,
+              }),
+            );
+          });
+          const verifyStorage = await page.evaluate(() =>
+            window.localStorage.getItem("semester-storage"),
+          );
+          console.log("[AUTH SETUP] Verified semester storage:", verifyStorage);
         }
       } else {
-        console.warn('[AUTH SETUP] Page already closed; skipping semester-storage inspection')
+        console.warn(
+          "[AUTH SETUP] Page already closed; skipping semester-storage inspection",
+        );
       }
     }
 
     // Save state and exit
-    await page.context().storageState({ path: authFile })
-    console.log(`[AUTH SETUP] Saved existing auth + semester state to ${authFile}`)
-    return
+    await page.context().storageState({ path: authFile });
+    console.log(
+      `[AUTH SETUP] Saved existing auth + semester state to ${authFile}`,
+    );
+    return;
   }
 
   // Fill in the email and password fields
-  console.log('[AUTH SETUP] Filling in credentials...')
-  await page.fill('input[type="email"]', 'admin@school.local')
-  await page.fill('input[type="password"]', 'admin123')
+  console.log("[AUTH SETUP] Filling in credentials...");
+  await page.fill('input[type="email"]', "admin@school.local");
+  await page.fill('input[type="password"]', "admin123");
 
   // Click the login button
-  const loginButton = page.getByRole('button', { name: /เข้าสู่ระบบ/i }).first()
-  await expect(loginButton).toBeVisible({ timeout: 10000 })
-  console.log('[AUTH SETUP] Found login button')
+  const loginButton = page
+    .getByRole("button", { name: /เข้าสู่ระบบ/i })
+    .first();
+  await expect(loginButton).toBeVisible({ timeout: 10000 });
+  console.log("[AUTH SETUP] Found login button");
 
   // Click and wait for navigation
   await Promise.all([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }),
+    page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 15000 }),
     loginButton.click(),
-  ])
-  console.log('[AUTH SETUP] Clicked login button and navigated')
+  ]);
+  console.log("[AUTH SETUP] Clicked login button and navigated");
 
   // Wait for page to be stable
-  await page.waitForLoadState('domcontentloaded', { timeout: 10000 })
-  console.log('[AUTH SETUP] Page loaded')
+  await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
+  console.log("[AUTH SETUP] Page loaded");
 
   // Verify authentication was successful by checking for authenticated user indicator
   // Look for admin name or role display (System Administrator, ผู้ดูแลระบบ, etc.)
-  const adminIndicator = page.locator('text=/System Administrator|ผู้ดูแลระบบ|Admin/i').first()
-  await expect(adminIndicator).toBeVisible({ timeout: 5000 })
-  console.log('[AUTH SETUP] Authentication verified')
+  const adminIndicator = page
+    .locator("text=/System Administrator|ผู้ดูแลระบบ|Admin/i")
+    .first();
+  await expect(adminIndicator).toBeVisible({ timeout: 5000 });
+  console.log("[AUTH SETUP] Authentication verified");
 
   // Pre-select semester by navigating to a semester-specific dashboard URL
   // The useSemesterSync hook will parse the URL and save to localStorage
-  console.log('[AUTH SETUP] Pre-selecting semester (1-2567) via URL navigation...')
-  await page.goto('http://localhost:3000/dashboard/1-2567')
+  console.log(
+    "[AUTH SETUP] Pre-selecting semester (1-2567) via URL navigation...",
+  );
+  await page.goto("http://localhost:3000/dashboard/1-2567");
 
   // Wait for page to finish loading and semester to sync
-  await page.waitForLoadState('networkidle', { timeout: 20000 })
+  await page.waitForLoadState("networkidle", { timeout: 20000 });
 
   // Wait for useSemesterSync hook to execute by checking localStorage
-  console.log('[AUTH SETUP] Waiting for semester sync...')
+  console.log("[AUTH SETUP] Waiting for semester sync...");
   try {
     await page.waitForFunction(
-      () => window.localStorage.getItem('semester-storage') !== null,
-      { timeout: 20000 } // Increased to 20s to account for HMR/Fast Refresh delays
-    )
-    const storageValue = await page.evaluate(() => window.localStorage.getItem('semester-storage'))
-    console.log('[AUTH SETUP] Semester synced to localStorage:', storageValue)
+      () => window.localStorage.getItem("semester-storage") !== null,
+      { timeout: 20000 }, // Increased to 20s to account for HMR/Fast Refresh delays
+    );
+    const storageValue = await page.evaluate(() =>
+      window.localStorage.getItem("semester-storage"),
+    );
+    console.log("[AUTH SETUP] Semester synced to localStorage:", storageValue);
   } catch (error) {
-    console.warn('[AUTH SETUP] Timeout waiting for semester-storage after 20s')
+    console.warn("[AUTH SETUP] Timeout waiting for semester-storage after 20s");
 
     // Check if page is still loading or if there are errors
-    const currentUrl = page.url()
-    const pageTitle = await page.title().catch(() => 'unknown')
-    console.log('[AUTH SETUP] Current URL:', currentUrl)
-    console.log('[AUTH SETUP] Page title:', pageTitle)
+    const currentUrl = page.url();
+    const pageTitle = await page.title().catch(() => "unknown");
+    console.log("[AUTH SETUP] Current URL:", currentUrl);
+    console.log("[AUTH SETUP] Page title:", pageTitle);
 
     // Check current localStorage state
     const allStorage = await page.evaluate(() => {
-      const storage: Record<string, string | null> = {}
+      const storage: Record<string, string | null> = {};
       for (let i = 0; i < window.localStorage.length; i++) {
-        const key = window.localStorage.key(i)
-        if (key) storage[key] = window.localStorage.getItem(key)
+        const key = window.localStorage.key(i);
+        if (key) storage[key] = window.localStorage.getItem(key);
       }
-      return storage
-    })
-    console.log('[AUTH SETUP] All localStorage keys:', Object.keys(allStorage))
+      return storage;
+    });
+    console.log("[AUTH SETUP] All localStorage keys:", Object.keys(allStorage));
 
-    const storageValue = allStorage['semester-storage']
+    const storageValue = allStorage["semester-storage"];
     if (!storageValue) {
-      console.log('[AUTH SETUP] Manually setting semester-storage as fallback...')
+      console.log(
+        "[AUTH SETUP] Manually setting semester-storage as fallback...",
+      );
       await page.evaluate(() => {
         const semesterData = {
-          state: { semester: '1-2567' },
-          version: 0
-        }
-        window.localStorage.setItem('semester-storage', JSON.stringify(semesterData))
-        console.log('[BROWSER] Manually set semester-storage:', semesterData)
-      })
+          state: { semester: "1-2567" },
+          version: 0,
+        };
+        window.localStorage.setItem(
+          "semester-storage",
+          JSON.stringify(semesterData),
+        );
+        console.log("[BROWSER] Manually set semester-storage:", semesterData);
+      });
 
       // Verify it was set
-      const verifyStorage = await page.evaluate(() => window.localStorage.getItem('semester-storage'))
-      console.log('[AUTH SETUP] Verified semester storage after manual set:', verifyStorage)
+      const verifyStorage = await page.evaluate(() =>
+        window.localStorage.getItem("semester-storage"),
+      );
+      console.log(
+        "[AUTH SETUP] Verified semester storage after manual set:",
+        verifyStorage,
+      );
     } else {
-      console.log('[AUTH SETUP] Semester storage already exists:', storageValue)
+      console.log(
+        "[AUTH SETUP] Semester storage already exists:",
+        storageValue,
+      );
     }
   }
 
   // Save authenticated state (including localStorage with semester selection) to file
-  await page.context().storageState({ path: authFile })
-  console.log(`[AUTH SETUP] Saved auth + semester state to ${authFile}`)
-})
+  await page.context().storageState({ path: authFile });
+  console.log(`[AUTH SETUP] Saved auth + semester state to ${authFile}`);
+});

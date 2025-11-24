@@ -1,21 +1,21 @@
 /* eslint-disable no-console */
 /**
  * ConfigID Migration Verification Script
- * 
+ *
  * Purpose: Detect and report old ConfigID formats in the database
  * Run: pnpm tsx scripts/verify-configid-migration.ts
- * 
+ *
  * Checks:
  * 1. table_config.ConfigID format
  * 2. timeslot.TimeslotID format (should start with canonical ConfigID)
- * 
+ *
  * Reports:
  * - Count of records with old formats
  * - Examples of old format records
  * - Suggested migration commands
  */
 
-import prisma from '../src/lib/prisma';
+import prisma from "../src/lib/prisma";
 
 interface ConfigIDIssue {
   table: string;
@@ -32,7 +32,9 @@ const CANONICAL_CONFIGID_PATTERN = /^[1-3]-\d{4}$/;
  */
 function convertToCanonical(oldConfigId: string): string | null {
   // Pattern: SEMESTER_X_YYYY
-  const semesterUnderscoreMatch = oldConfigId.match(/^SEMESTER_([1-3])_(\d{4})$/);
+  const semesterUnderscoreMatch = oldConfigId.match(
+    /^SEMESTER_([1-3])_(\d{4})$/,
+  );
   if (semesterUnderscoreMatch) {
     const [, semester, year] = semesterUnderscoreMatch;
     return `${semester}-${year}`;
@@ -64,27 +66,33 @@ function extractConfigIDFromTimeslot(timeslotId: string): string {
   // - Canonical: "1-2567-MON1" → "1-2567"
   // - Old slash: "1/2567-MON1" → "1/2567"
   // - Old verbose: "SEMESTER_1_2567-MON1" → "SEMESTER_1_2567"
-  
-  const parts = timeslotId.split('-');
-  
+
+  const parts = timeslotId.split("-");
+
   // Handle canonical format: "1-2567-MON1"
-  if (parts.length >= 3 && parts[0] && parts[1] && /^[1-3]$/.test(parts[0]) && /^\d{4}$/.test(parts[1])) {
+  if (
+    parts.length >= 3 &&
+    parts[0] &&
+    parts[1] &&
+    /^[1-3]$/.test(parts[0]) &&
+    /^\d{4}$/.test(parts[1])
+  ) {
     return `${parts[0]}-${parts[1]}`;
   }
-  
+
   // Handle slash format: "1/2567-MON1"
-  if (timeslotId.includes('/')) {
-    const slashParts = timeslotId.split('-');
-    return slashParts[0] ?? ''; // "1/2567"
+  if (timeslotId.includes("/")) {
+    const slashParts = timeslotId.split("-");
+    return slashParts[0] ?? ""; // "1/2567"
   }
-  
+
   // Handle verbose format: "SEMESTER_1_2567-MON1"
   const verboseMatch = timeslotId.match(/^(SEMESTER_[1-3]_\d{4})-/);
   if (verboseMatch && verboseMatch[1]) {
     return verboseMatch[1];
   }
-  
-  return '';
+
+  return "";
 }
 
 /**
@@ -97,10 +105,10 @@ function isCanonicalFormat(configId: string): boolean {
 // NOTE: Old format detection is inlined where needed using OLD_CONFIGID_PATTERNS
 
 async function verifyTableConfig(): Promise<ConfigIDIssue[]> {
-  console.log('\n📊 Checking table_config.ConfigID...');
-  
+  console.log("\n📊 Checking table_config.ConfigID...");
+
   const issues: ConfigIDIssue[] = [];
-  
+
   try {
     const allConfigs = await prisma.table_config.findMany({
       select: {
@@ -115,11 +123,11 @@ async function verifyTableConfig(): Promise<ConfigIDIssue[]> {
     for (const config of allConfigs) {
       if (!isCanonicalFormat(config.ConfigID)) {
         const suggestedValue = convertToCanonical(config.ConfigID);
-        
+
         if (suggestedValue) {
           issues.push({
-            table: 'table_config',
-            field: 'ConfigID',
+            table: "table_config",
+            field: "ConfigID",
             oldValue: config.ConfigID,
             suggestedNewValue: suggestedValue,
           });
@@ -130,22 +138,22 @@ async function verifyTableConfig(): Promise<ConfigIDIssue[]> {
     }
 
     if (issues.length === 0) {
-      console.log('   ✅ All ConfigIDs are in canonical format');
+      console.log("   ✅ All ConfigIDs are in canonical format");
     } else {
       console.log(`   ❌ Found ${issues.length} ConfigIDs in old format`);
     }
   } catch (error) {
-    console.error('   ❌ Error checking table_config:', error);
+    console.error("   ❌ Error checking table_config:", error);
   }
 
   return issues;
 }
 
 async function verifyTimeslots(): Promise<ConfigIDIssue[]> {
-  console.log('\n📊 Checking timeslot.TimeslotID...');
-  
+  console.log("\n📊 Checking timeslot.TimeslotID...");
+
   const issues: ConfigIDIssue[] = [];
-  
+
   try {
     const allTimeslots = await prisma.timeslot.findMany({
       select: {
@@ -159,19 +167,22 @@ async function verifyTimeslots(): Promise<ConfigIDIssue[]> {
 
     for (const timeslot of allTimeslots) {
       const configIdPrefix = extractConfigIDFromTimeslot(timeslot.TimeslotID);
-      
+
       if (configIdPrefix && !isCanonicalFormat(configIdPrefix)) {
-        timeslotsByConfigId.set(configIdPrefix, (timeslotsByConfigId.get(configIdPrefix) || 0) + 1);
+        timeslotsByConfigId.set(
+          configIdPrefix,
+          (timeslotsByConfigId.get(configIdPrefix) || 0) + 1,
+        );
       }
     }
 
     for (const [oldConfigId, count] of timeslotsByConfigId.entries()) {
       const suggestedValue = convertToCanonical(oldConfigId);
-      
+
       if (suggestedValue) {
         issues.push({
-          table: 'timeslot',
-          field: 'TimeslotID',
+          table: "timeslot",
+          field: "TimeslotID",
           oldValue: `${oldConfigId}-*`,
           suggestedNewValue: `${suggestedValue}-*`,
           relatedRecords: count,
@@ -180,25 +191,31 @@ async function verifyTimeslots(): Promise<ConfigIDIssue[]> {
     }
 
     if (issues.length === 0) {
-      console.log('   ✅ All TimeslotIDs use canonical ConfigID prefix');
+      console.log("   ✅ All TimeslotIDs use canonical ConfigID prefix");
     } else {
-      console.log(`   ❌ Found ${issues.length} distinct old ConfigID prefixes`);
+      console.log(
+        `   ❌ Found ${issues.length} distinct old ConfigID prefixes`,
+      );
     }
   } catch (error) {
-    console.error('   ❌ Error checking timeslots:', error);
+    console.error("   ❌ Error checking timeslots:", error);
   }
 
   return issues;
 }
 
 function generateMigrationReport(allIssues: ConfigIDIssue[]): void {
-  console.log('\n' + '='.repeat(80));
-  console.log('📋 MIGRATION REPORT');
-  console.log('='.repeat(80));
+  console.log("\n" + "=".repeat(80));
+  console.log("📋 MIGRATION REPORT");
+  console.log("=".repeat(80));
 
   if (allIssues.length === 0) {
-    console.log('\n✅ No migration needed! All ConfigIDs are in canonical format.');
-    console.log('\nCanonical format: "SEMESTER-YEAR" (e.g., "1-2567", "2-2568")');
+    console.log(
+      "\n✅ No migration needed! All ConfigIDs are in canonical format.",
+    );
+    console.log(
+      '\nCanonical format: "SEMESTER-YEAR" (e.g., "1-2567", "2-2568")',
+    );
     return;
   }
 
@@ -214,8 +231,8 @@ function generateMigrationReport(allIssues: ConfigIDIssue[]): void {
 
   for (const [table, issues] of byTable.entries()) {
     console.log(`\n📊 ${table} (${issues.length} issues):`);
-    console.log('-'.repeat(80));
-    
+    console.log("-".repeat(80));
+
     for (const issue of issues.slice(0, 5)) {
       console.log(`   Old: ${issue.oldValue}`);
       console.log(`   New: ${issue.suggestedNewValue}`);
@@ -230,9 +247,9 @@ function generateMigrationReport(allIssues: ConfigIDIssue[]): void {
     }
   }
 
-  console.log('\n' + '='.repeat(80));
-  console.log('📝 MIGRATION STEPS');
-  console.log('='.repeat(80));
+  console.log("\n" + "=".repeat(80));
+  console.log("📝 MIGRATION STEPS");
+  console.log("=".repeat(80));
   console.log(`
 ⚠️  CRITICAL: Backup your database before running migration!
 
@@ -251,9 +268,9 @@ Option 3: Test migration in development first
 }
 
 async function main() {
-  console.log('🔍 ConfigID Migration Verification');
-  console.log('='.repeat(80));
-  console.log('\nChecking database for old ConfigID formats...');
+  console.log("🔍 ConfigID Migration Verification");
+  console.log("=".repeat(80));
+  console.log("\nChecking database for old ConfigID formats...");
 
   try {
     const configIssues = await verifyTableConfig();
@@ -261,14 +278,14 @@ async function main() {
 
     const allIssues = [...configIssues, ...timeslotIssues];
 
-  generateMigrationReport(allIssues);
+    generateMigrationReport(allIssues);
 
     // Exit with error code if issues found
     if (allIssues.length > 0) {
       process.exit(1);
     }
   } catch (error) {
-    console.error('\n❌ Verification failed:', error);
+    console.error("\n❌ Verification failed:", error);
     process.exit(1);
   } finally {
     await prisma.$disconnect();

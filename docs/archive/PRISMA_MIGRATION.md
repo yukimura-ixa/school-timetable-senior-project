@@ -11,6 +11,7 @@ This guide helps you migrate from MySQL (local dev) to PostgreSQL (Prisma Postgr
 ### 1. Update `schema.prisma` datasource
 
 **Current (MySQL):**
+
 ```prisma
 datasource db {
   provider = "mysql"
@@ -19,6 +20,7 @@ datasource db {
 ```
 
 **New (PostgreSQL):**
+
 ```prisma
 datasource db {
   provider = "postgresql"
@@ -31,11 +33,13 @@ datasource db {
 ### 2. Update Connection String Format
 
 **MySQL format:**
+
 ```
 mysql://user:password@localhost:3306/database?connection_limit=40
 ```
 
 **PostgreSQL format:**
+
 ```
 postgresql://user:password@host:5432/database?schema=public&connection_limit=10&pool_timeout=20
 ```
@@ -47,17 +51,21 @@ postgresql://user:password@host:5432/database?schema=public&connection_limit=10&
 Most of your schema is compatible, but review these:
 
 #### Auto-increment IDs
+
 MySQL uses `@default(autoincrement())`, PostgreSQL uses `@default(autoincrement())` or `@default(sequence())`.
 
 Your schema already uses String IDs, so no changes needed.
 
 #### Boolean Defaults
+
 ✅ Your `@default(false)` syntax works in both databases.
 
 #### Enum Types
+
 ✅ Your Prisma enums (`teacher_role`, `subject_credit`, `semester`) work in both.
 
 #### Indexes
+
 ✅ Your `@@index` syntax is compatible.
 
 ---
@@ -184,17 +192,17 @@ Keep separate schema files and switch based on environment.
 
 ## Compatibility Matrix
 
-| Feature | MySQL | PostgreSQL | Notes |
-|---------|-------|------------|-------|
-| String IDs | ✅ | ✅ | Compatible |
-| Int Auto-increment | ✅ | ✅ | Compatible |
-| Boolean | ✅ | ✅ | Compatible |
-| DateTime | ✅ | ✅ | Compatible |
-| Enums | ✅ | ✅ | Compatible |
-| JSON | ✅ | ✅ | Compatible |
-| Relations | ✅ | ✅ | Compatible |
-| Cascades | ✅ | ✅ | Compatible |
-| Indexes | ✅ | ✅ | Compatible |
+| Feature            | MySQL | PostgreSQL | Notes      |
+| ------------------ | ----- | ---------- | ---------- |
+| String IDs         | ✅    | ✅         | Compatible |
+| Int Auto-increment | ✅    | ✅         | Compatible |
+| Boolean            | ✅    | ✅         | Compatible |
+| DateTime           | ✅    | ✅         | Compatible |
+| Enums              | ✅    | ✅         | Compatible |
+| JSON               | ✅    | ✅         | Compatible |
+| Relations          | ✅    | ✅         | Compatible |
+| Cascades           | ✅    | ✅         | Compatible |
+| Indexes            | ✅    | ✅         | Compatible |
 
 **Result**: Your schema is 100% compatible! 🎉
 
@@ -205,6 +213,7 @@ Keep separate schema files and switch based on environment.
 **Use PostgreSQL for both dev and production:**
 
 ### Why?
+
 1. **Consistency**: Same database in all environments
 2. **Simplicity**: No provider switching
 3. **Free Tier**: Prisma Postgres has a generous free tier
@@ -218,11 +227,13 @@ Keep separate schema files and switch based on environment.
    - Copy connection string
 
 2. **Update local `.env`**
+
    ```bash
    DATABASE_URL="postgresql://dev-connection-string"
    ```
 
 3. **Update `schema.prisma`**
+
    ```prisma
    datasource db {
      provider = "postgresql"
@@ -231,6 +242,7 @@ Keep separate schema files and switch based on environment.
    ```
 
 4. **Run migrations**
+
    ```bash
    pnpm prisma migrate dev --name init_postgresql
    pnpm prisma db seed
@@ -304,7 +316,8 @@ DATABASE_URL="postgresql://...?connection_limit=10&pool_timeout=20&connect_timeo
 
 **Cause**: Wrong connection string or database not accessible.
 
-**Fix**: 
+**Fix**:
+
 - Verify connection string
 - Check database is running
 - Verify IP whitelist (Prisma Postgres allows all by default)
@@ -314,6 +327,7 @@ DATABASE_URL="postgresql://...?connection_limit=10&pool_timeout=20&connect_timeo
 **Cause**: Migrations not applied.
 
 **Fix**:
+
 ```bash
 pnpm prisma migrate deploy
 ```

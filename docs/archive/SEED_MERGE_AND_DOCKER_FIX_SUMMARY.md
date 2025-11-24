@@ -14,6 +14,7 @@ Successfully merged `seed.ts` and `seed-moe.ts` into a comprehensive MOE-complia
 ### 1. Seed File Analysis
 
 **seed.ts (Original):**
+
 - ✅ Retry logic for transient database errors
 - ✅ Comprehensive test data (60 teachers, 40 rooms, 18 grades)
 - ❌ Old program structure (simple tracks)
@@ -21,6 +22,7 @@ Successfully merged `seed.ts` and `seed-moe.ts` into a comprehensive MOE-complia
 - ❌ Missing ActivityType for student development activities
 
 **seed-moe.ts:**
+
 - ✅ MOE-compliant 8 learning areas
 - ✅ Proper ActivityType (ชุมนุม, ลูกเสือ, แนะแนว, กิจกรรมเพื่อสังคม)
 - ✅ Three program tracks (วิทย์-คณิต, ศิลป์-คำนวณ, ศิลป์-ภาษา)
@@ -33,16 +35,18 @@ Successfully merged `seed.ts` and `seed-moe.ts` into a comprehensive MOE-complia
 **New `prisma/seed.ts` includes:**
 
 ✅ **Retry Logic** - Handles transient database connection errors (3 retries with 1s delay)
+
 ```typescript
 async function withRetry<T>(
   operation: () => Promise<T>,
   operationName: string,
   maxRetries = 3,
   delayMs = 1000,
-): Promise<T>
+): Promise<T>;
 ```
 
 ✅ **MOE 8 Learning Areas Structure:**
+
 1. ภาษาไทย (Thai Language)
 2. คณิตศาสตร์ (Mathematics)
 3. วิทยาศาสตร์และเทคโนโลยี (Science & Technology)
@@ -53,17 +57,20 @@ async function withRetry<T>(
 8. ภาษาต่างประเทศ (Foreign Languages)
 
 ✅ **Proper ActivityType:**
+
 - CLUB (ชุมนุม)
 - SCOUT (ลูกเสือ/ลูกเสือวิสามัญ)
 - GUIDANCE (แนะแนว)
 - SOCIAL_SERVICE (กิจกรรมเพื่อสังคมและสาธารณประโยชน์)
 
 ✅ **Three Program Tracks:**
+
 - SCIENCE_MATH (วิทย์-คณิต)
 - LANGUAGE_MATH (ศิลป์-คำนวณ)
 - LANGUAGE_ARTS (ศิลป์-ภาษา)
 
 ✅ **Comprehensive Data:**
+
 - 18 Programs (3 tracks × 6 years)
 - 18 Grade levels (M.1-M.6, 3 sections each)
 - 82 Subjects (48 core + 25 additional + 9 activities)
@@ -78,12 +85,14 @@ async function withRetry<T>(
 ### Problem Identified
 
 **Symptoms:**
+
 - Docker container healthy on port 5433
 - `Test-NetConnection` succeeds
 - Prisma CLI fails with "Can't reach database server at localhost:5433"
 - Windows Docker Desktop without host networking enabled
 
 **Root Cause:**
+
 1. Incorrect `pgbouncer=true` parameter in DATABASE_URL
 2. Missing explicit network_mode in docker-compose
 3. Connection pooling not optimized for Docker Desktop
@@ -93,16 +102,19 @@ async function withRetry<T>(
 #### 1. Fixed `.env` and `.env.test`
 
 **Before:**
+
 ```env
 DATABASE_URL="postgresql://test_user:test_password@127.0.0.1:5433/test_timetable?schema=public&connection_limit=5&pool_timeout=20&connect_timeout=10&pgbouncer=true"
 ```
 
 **After:**
+
 ```env
 DATABASE_URL="postgresql://test_user:test_password@127.0.0.1:5433/test_timetable?schema=public&connection_limit=5&pool_timeout=20&connect_timeout=10"
 ```
 
 **Changes:**
+
 - ❌ Removed incorrect `&pgbouncer=true` parameter
 - ✅ Kept proper connection pooling settings
 - ✅ Using `127.0.0.1` instead of `localhost` for Windows compatibility
@@ -110,10 +122,11 @@ DATABASE_URL="postgresql://test_user:test_password@127.0.0.1:5433/test_timetable
 #### 2. Updated `docker-compose.test.yml`
 
 **Added:**
+
 ```yaml
 services:
   postgres-test:
-    network_mode: bridge  # Explicit bridge network for Windows
+    network_mode: bridge # Explicit bridge network for Windows
     environment:
       POSTGRES_MAX_CONNECTIONS: 100
       POSTGRES_SHARED_BUFFERS: 256MB
@@ -121,6 +134,7 @@ services:
 ```
 
 **Changes:**
+
 - ✅ Explicit `network_mode: bridge` for Windows Docker Desktop
 - ✅ Optimized PostgreSQL settings for test database
 - ✅ Auto-restart on failure
@@ -129,10 +143,11 @@ services:
 #### 3. Updated Prisma Client Initialization
 
 **In `prisma/seed.ts`:**
+
 ```typescript
 const prisma = new PrismaClient({
-  log: ['error', 'warn'],
-  errorFormat: 'minimal',
+  log: ["error", "warn"],
+  errorFormat: "minimal",
   datasources: {
     db: {
       url: process.env.DATABASE_URL,
@@ -148,30 +163,35 @@ const prisma = new PrismaClient({
 ## ✅ Verification Tests
 
 ### 1. Docker Container Status
+
 ```powershell
 docker ps --filter "name=timetable-test-db"
 # Result: Up 45 seconds (healthy) - 0.0.0.0:5433->5432/tcp
 ```
 
 ### 2. Network Connection Test
+
 ```powershell
 Test-NetConnection -ComputerName 127.0.0.1 -Port 5433
 # Result: TcpTestSucceeded : True
 ```
 
 ### 3. Prisma Migration
+
 ```powershell
 pnpm prisma migrate deploy
 # Result: 5 migrations found, No pending migrations to apply
 ```
 
 ### 4. Seed Execution
+
 ```powershell
 SEED_CLEAN_DATA=true pnpm tsx prisma/seed.ts
 # Result: ✅ MOE-Compliant Seed Completed Successfully!
 ```
 
 **Seed Output:**
+
 - ✅ Created 18 programs (3 tracks × 6 years)
 - ✅ Created 18 grade levels with program assignments
 - ✅ Created 82 subjects (48 core + 25 additional + 9 activities)
@@ -186,12 +206,14 @@ SEED_CLEAN_DATA=true pnpm tsx prisma/seed.ts
 ## 📝 Files Modified
 
 ### Created/Updated:
+
 1. ✅ `prisma/seed.ts` - Merged MOE-compliant seed with retry logic
 2. ✅ `.env` - Fixed DATABASE_URL (removed pgbouncer)
 3. ✅ `.env.test` - Ensured consistency with .env
 4. ✅ `docker-compose.test.yml` - Added network_mode and optimizations
 
 ### Deleted:
+
 1. ❌ `prisma/seed-moe.ts` - Content merged into seed.ts (can be kept as reference)
 
 ---
@@ -199,16 +221,19 @@ SEED_CLEAN_DATA=true pnpm tsx prisma/seed.ts
 ## 🚀 Usage Commands
 
 ### Start Test Database
+
 ```powershell
 pnpm run test:db:up
 ```
 
 ### Stop Test Database
+
 ```powershell
 pnpm run test:db:down
 ```
 
 ### Run Seed (Clean)
+
 ```powershell
 pnpm run test:db:seed
 # or
@@ -216,11 +241,13 @@ SEED_CLEAN_DATA=true pnpm run db:seed:clean
 ```
 
 ### Run Seed (Preserve Data)
+
 ```powershell
 pnpm run db:seed
 ```
 
 ### Check Database Status
+
 ```powershell
 docker ps --filter "name=timetable-test-db"
 docker logs timetable-test-db
@@ -231,18 +258,21 @@ docker logs timetable-test-db
 ## 🎯 Key Improvements
 
 ### Data Structure
+
 1. **MOE Compliance** - Follows Thai Ministry of Education standards
 2. **8 Learning Areas** - Proper categorization of all subjects
 3. **Activity Types** - Correct classification of student development activities
 4. **Program Tracks** - Three distinct educational paths
 
 ### Connection Stability
+
 1. **Retry Logic** - Handles transient connection errors automatically
 2. **Optimized Pooling** - Proper connection limits and timeouts
 3. **Network Configuration** - Bridge mode for Windows Docker Desktop compatibility
 4. **Error Handling** - Better error messages and recovery
 
 ### Development Experience
+
 1. **Single Seed File** - No need to maintain two separate files
 2. **Comprehensive Data** - Ready for E2E testing and development
 3. **Clear Documentation** - Better comments and structure
@@ -253,6 +283,7 @@ docker logs timetable-test-db
 ## 🔍 Issues Resolved
 
 ### Before:
+
 - ❌ Prisma CLI connection failures
 - ❌ Inconsistent seed data structure
 - ❌ Missing MOE compliance
@@ -260,6 +291,7 @@ docker logs timetable-test-db
 - ❌ Duplicate seed file maintenance
 
 ### After:
+
 - ✅ Stable Prisma CLI connections
 - ✅ MOE-compliant data structure
 - ✅ Comprehensive seed with retry logic

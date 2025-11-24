@@ -9,12 +9,14 @@ Successfully configured E2E tests to use **local PostgreSQL test database** inst
 ## 📦 What Was Changed
 
 ### 1. **Docker Compose Configuration** (Already existed)
+
 - File: `docker-compose.test.yml`
 - PostgreSQL 16 container on **port 5433**
 - Database: `test_timetable`
 - Credentials: `test_user` / `test_password`
 
 ### 2. **Test Environment Configuration**
+
 - File: `.env.test`
 - Added `DATABASE_URL` pointing to local PostgreSQL:
   ```bash
@@ -23,19 +25,23 @@ Successfully configured E2E tests to use **local PostgreSQL test database** inst
 - Added `SEED_SECRET` matching dev server for API authentication
 
 ### 3. **Setup Scripts** (NEW)
+
 Created PowerShell automation scripts:
 
 #### `scripts/test-db-setup.ps1`
+
 - Starts PostgreSQL container
 - Waits for database to be healthy
 - Runs Prisma migrations
 - Seeds test data automatically
 
 #### `scripts/test-db-cleanup.ps1`
+
 - Stops and removes test database container
 - Optional volume cleanup (commented out for safety)
 
 ### 4. **Package.json Scripts** (Updated)
+
 ```json
 "test:db:setup": "pwsh -File scripts/test-db-setup.ps1",
 "test:db:cleanup": "pwsh -File scripts/test-db-cleanup.ps1",
@@ -44,6 +50,7 @@ Created PowerShell automation scripts:
 ```
 
 ### 5. **E2E Test Conversion** (NEW)
+
 - File: `e2e/api/seed-endpoint.spec.ts`
 - Converted 8 integration tests from `__test__/integration/` to proper Playwright E2E tests
 - Uses Playwright `request` fixture for API testing
@@ -54,6 +61,7 @@ Created PowerShell automation scripts:
 ## 🚀 How to Use
 
 ### Quick Start (All-in-One)
+
 ```bash
 # 1. Start database and run migrations
 pnpm test:db:setup
@@ -68,6 +76,7 @@ pnpm test:db:cleanup
 ### Step-by-Step Commands
 
 #### Database Management
+
 ```bash
 # Start PostgreSQL container
 pnpm test:db:up
@@ -92,6 +101,7 @@ pnpm test:db:cleanup
 ```
 
 #### Running Tests
+
 ```bash
 # All E2E tests
 pnpm test:e2e
@@ -114,7 +124,9 @@ pnpm test:e2e:debug
 ## 📊 Test Results
 
 ### Seed Endpoint E2E Tests
+
 8 tests total:
+
 1. ✅ `should require authentication` - Validates 401 without secret
 2. ✅ `should create semesters when authenticated` - Creates 2 semesters per year
 3. ✅ `should be idempotent` - Safe to run multiple times
@@ -131,6 +143,7 @@ pnpm test:e2e:debug
 ## 🏗️ Architecture
 
 ### Database Isolation
+
 ```
 Production:
   └─ Vercel Postgres (db.prisma.io:5432)
@@ -143,6 +156,7 @@ Test Environment:
 ```
 
 ### Test Flow
+
 ```
 1. Playwright reads .env.test
 2. Dev server starts with test DATABASE_URL
@@ -157,14 +171,16 @@ Test Environment:
 ## 📝 Configuration Details
 
 ### Environment Variables
-| Variable | Production (.env.local) | Test (.env.test) |
-|----------|------------------------|------------------|
-| `DATABASE_URL` | Vercel Postgres (5432) | Local PostgreSQL (5433) |
-| `SEED_SECRET` | Production secret | Same (for API auth) |
-| `ENABLE_DEV_BYPASS` | - | `true` |
-| `DEV_USER_EMAIL` | admin@test.com | admin@test.local |
+
+| Variable            | Production (.env.local) | Test (.env.test)        |
+| ------------------- | ----------------------- | ----------------------- |
+| `DATABASE_URL`      | Vercel Postgres (5432)  | Local PostgreSQL (5433) |
+| `SEED_SECRET`       | Production secret       | Same (for API auth)     |
+| `ENABLE_DEV_BYPASS` | -                       | `true`                  |
+| `DEV_USER_EMAIL`    | admin@test.com          | admin@test.local        |
 
 ### PostgreSQL Container
+
 - **Image**: `postgres:16`
 - **Container Name**: `timetable-test-db`
 - **Port Mapping**: `5433:5432` (host:container)
@@ -176,6 +192,7 @@ Test Environment:
 ## 🔧 Troubleshooting
 
 ### Database Won't Start
+
 ```bash
 # Check if port 5433 is already in use
 netstat -ano | findstr :5433
@@ -189,6 +206,7 @@ pnpm test:db:setup
 ```
 
 ### Migrations Fail
+
 ```bash
 # Reset test database (DESTRUCTIVE!)
 pnpm test:db:reset
@@ -199,6 +217,7 @@ pnpm test:db:migrate
 ```
 
 ### Tests Can't Connect
+
 ```bash
 # Verify database is running
 docker ps | grep timetable-test-db
@@ -227,16 +246,19 @@ psql postgresql://test_user:test_password@localhost:5433/test_timetable
 ## 📚 Related Files
 
 ### Configuration
+
 - `docker-compose.test.yml` - PostgreSQL container definition
 - `.env.test` - Test environment variables
 - `playwright.config.ts` - E2E test configuration
 - `playwright.global-setup.ts` - Database seeding before tests
 
 ### Scripts
+
 - `scripts/test-db-setup.ps1` - Database setup automation
 - `scripts/test-db-cleanup.ps1` - Database cleanup automation
 
 ### Tests
+
 - `e2e/api/seed-endpoint.spec.ts` - Seed API E2E tests (NEW)
 - `__test__/integration/seed-endpoint.integration.test.ts` - Old integration tests (can be removed)
 
@@ -245,12 +267,14 @@ psql postgresql://test_user:test_password@localhost:5433/test_timetable
 ## ✨ Next Steps
 
 ### Immediate
+
 1. ✅ Remove old integration tests: `__test__/integration/`
 2. ✅ Update `jest.config.ts` to remove integration skip pattern
 3. ✅ Update GitHub Issue #55 as resolved
 4. ✅ Create Serena memory for local test database setup
 
 ### Future Enhancements
+
 - [ ] Add more API endpoint E2E tests (subjects, teachers, etc.)
 - [ ] Add E2E tests for Admin UI workflows
 - [ ] Add E2E tests for Teacher arrange feature

@@ -1,5 +1,5 @@
 // jest.polyfills.ts
-import { TextEncoder, TextDecoder } from 'util';
+import { TextEncoder, TextDecoder } from "util";
 
 // Text encoding (required by Prisma and other libs)
 global.TextEncoder = TextEncoder as typeof global.TextEncoder;

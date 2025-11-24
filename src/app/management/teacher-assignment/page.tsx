@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 /**
  * Teacher Assignment Management Page - Server Component
  * Route: /management/teacher-assignment
- * 
+ *
  * Allows administrators to assign teachers to subjects for each grade,
  * semester, and academic year with workload validation.
  */
@@ -17,7 +17,14 @@ export const metadata: Metadata = {
 
 function LoadingSkeleton() {
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "50vh",
+      }}
+    >
       <CircularProgress />
     </Box>
   );

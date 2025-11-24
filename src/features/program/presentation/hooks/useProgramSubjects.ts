@@ -1,6 +1,6 @@
 /**
  * Custom hook for fetching program and subject data with SWR caching
- * 
+ *
  * Benefits:
  * - Automatic caching and deduplication
  * - Revalidation on focus/reconnect
@@ -8,10 +8,10 @@
  * - Loading and error states
  */
 
-import useSWR from 'swr';
-import { getProgramByIdAction } from '../../application/actions/program.actions';
-import { getSubjectsAction } from '@/features/subject/application/actions/subject.actions';
-import type { SubjectCategory } from '@/prisma/generated/client';
+import useSWR from "swr";
+import { getProgramByIdAction } from "../../application/actions/program.actions";
+import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+import type { SubjectCategory } from "@/prisma/generated/client";
 
 export type Subject = {
   SubjectCode: string;
@@ -44,14 +44,14 @@ export function useProgramSubjects(programId: number) {
     data: programResponse,
     error: programError,
     mutate: mutateProgram,
-    isLoading: isProgramLoading
+    isLoading: isProgramLoading,
   } = useSWR(
-    ['program-by-id', programId],
+    ["program-by-id", programId],
     async ([, id]) => await getProgramByIdAction({ ProgramID: id }),
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, // Cache for 1 minute
-    }
+    },
   );
 
   // Fetch all subjects with SWR
@@ -59,25 +59,27 @@ export function useProgramSubjects(programId: number) {
     data: subjectsResponse,
     error: subjectsError,
     mutate: mutateSubjects,
-    isLoading: isSubjectsLoading
-  } = useSWR(
-    'subjects-all',
-    async () => await getSubjectsAction(),
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 60000, // Cache for 1 minute
-    }
-  );
+    isLoading: isSubjectsLoading,
+  } = useSWR("subjects-all", async () => await getSubjectsAction(), {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000, // Cache for 1 minute
+  });
 
   // Unwrap ActionResult for program
   const program =
-    programResponse && 'success' in programResponse && programResponse.success && programResponse.data
+    programResponse &&
+    "success" in programResponse &&
+    programResponse.success &&
+    programResponse.data
       ? (programResponse.data as Program)
       : null;
 
   // Unwrap ActionResult for subjects
   const subjects =
-    subjectsResponse && 'success' in subjectsResponse && subjectsResponse.success && subjectsResponse.data
+    subjectsResponse &&
+    "success" in subjectsResponse &&
+    subjectsResponse.success &&
+    subjectsResponse.data
       ? (subjectsResponse.data as Subject[])
       : [];
 

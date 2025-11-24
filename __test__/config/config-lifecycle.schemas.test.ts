@@ -16,7 +16,7 @@ import {
 describe("ConfigStatusSchema", () => {
   it("should accept valid status values", () => {
     const validStatuses = ["DRAFT", "PUBLISHED", "LOCKED", "ARCHIVED"];
-    
+
     validStatuses.forEach((status) => {
       const result = v.safeParse(ConfigStatusSchema, status);
       expect(result.success).toBe(true);
@@ -28,7 +28,7 @@ describe("ConfigStatusSchema", () => {
 
   it("should reject invalid status values", () => {
     const invalidStatuses = ["PENDING", "ACTIVE", "", null, undefined, 123];
-    
+
     invalidStatuses.forEach((status) => {
       const result = v.safeParse(ConfigStatusSchema, status);
       expect(result.success).toBe(false);
@@ -42,7 +42,7 @@ describe("UpdateConfigStatusSchema", () => {
       configId: "1-2024",
       status: "PUBLISHED",
     };
-    
+
     const result = v.safeParse(UpdateConfigStatusSchema, input);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -57,7 +57,7 @@ describe("UpdateConfigStatusSchema", () => {
       status: "LOCKED",
       reason: "Finalizing timetable for exam period",
     };
-    
+
     const result = v.safeParse(UpdateConfigStatusSchema, input);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -71,7 +71,7 @@ describe("UpdateConfigStatusSchema", () => {
       { status: "PUBLISHED" }, // missing configId
       {}, // missing both
     ];
-    
+
     invalidInputs.forEach((input) => {
       const result = v.safeParse(UpdateConfigStatusSchema, input);
       expect(result.success).toBe(false);
@@ -83,7 +83,7 @@ describe("UpdateConfigStatusSchema", () => {
       configId: "1-2024",
       status: "INVALID_STATUS",
     };
-    
+
     const result = v.safeParse(UpdateConfigStatusSchema, input);
     expect(result.success).toBe(false);
   });
@@ -98,7 +98,7 @@ describe("ConfigCompletenessSchema", () => {
       classCount: 20,
       roomCount: 10,
     };
-    
+
     const result = v.safeParse(ConfigCompletenessSchema, input);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -115,7 +115,7 @@ describe("ConfigCompletenessSchema", () => {
       classCount: 20,
       roomCount: 10,
     };
-    
+
     const result = v.safeParse(ConfigCompletenessSchema, input);
     expect(result.success).toBe(false);
   });
@@ -128,7 +128,7 @@ describe("ConfigCompletenessSchema", () => {
       classCount: 20,
       roomCount: 10,
     };
-    
+
     const result = v.safeParse(ConfigCompletenessSchema, input);
     expect(result.success).toBe(false);
   });
@@ -143,7 +143,7 @@ describe("calculateCompleteness", () => {
       classCount: 0,
       roomCount: 0,
     });
-    
+
     expect(completeness).toBe(0);
   });
 
@@ -155,7 +155,7 @@ describe("calculateCompleteness", () => {
       classCount: 0,
       roomCount: 0,
     });
-    
+
     expect(completeness).toBe(30);
   });
 
@@ -167,7 +167,7 @@ describe("calculateCompleteness", () => {
       classCount: 0,
       roomCount: 0,
     });
-    
+
     expect(completeness).toBe(20);
   });
 
@@ -179,7 +179,7 @@ describe("calculateCompleteness", () => {
       classCount: 20,
       roomCount: 10,
     });
-    
+
     expect(completeness).toBe(100);
   });
 
@@ -192,7 +192,7 @@ describe("calculateCompleteness", () => {
       classCount: 0,
       roomCount: 0,
     });
-    
+
     expect(completeness).toBe(70);
   });
 
@@ -206,7 +206,7 @@ describe("calculateCompleteness", () => {
       classCount: 20,
       roomCount: 10,
     });
-    
+
     expect(Number.isInteger(completeness)).toBe(true);
   });
 
@@ -219,7 +219,7 @@ describe("calculateCompleteness", () => {
       classCount: 1000,
       roomCount: 1000,
     });
-    
+
     expect(completeness).toBe(100);
   });
 
@@ -232,7 +232,7 @@ describe("calculateCompleteness", () => {
       classCount: 0,
       roomCount: 0,
     });
-    
+
     expect(completeness).toBeGreaterThanOrEqual(30);
   });
 
@@ -244,7 +244,7 @@ describe("calculateCompleteness", () => {
       classCount: 0,
       roomCount: 0,
     });
-    
+
     expect(completeness).toBe(50);
   });
 });

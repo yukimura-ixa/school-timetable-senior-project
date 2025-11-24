@@ -27,12 +27,14 @@ Both initiatives are well-defined, have clear acceptance criteria, and are ready
 ### Current State
 
 #### ✅ Already Using Repository Pattern
+
 - All 15 feature modules in `src/features/*/infrastructure/repositories/`
 - All Server Actions using repository pattern
 - Comprehensive test coverage
 - Consistent patterns established
 
 #### ⚠️ Direct Prisma Usage (Needs Migration)
+
 - `src/lib/public/teachers.ts` (288 lines) - 6 raw queries
 - `src/lib/public/stats.ts` (202 lines) - 12+ raw queries
 - `src/lib/public/classes.ts` - 3+ raw queries
@@ -44,27 +46,29 @@ Both initiatives are well-defined, have clear acceptance criteria, and are ready
 ### Solution Overview
 
 #### Phase 1: Create Public Data Repository
+
 **New File:** `src/lib/infrastructure/repositories/public-data.repository.ts`
 
 ```typescript
 export const publicDataRepository = {
   // Teachers
-  async findPublicTeachers(filters: PublicTeacherFilters) { },
-  async countTeachers() { },
-  async findPublicTeacherById(teacherId: number, term: TermInput) { },
-  
+  async findPublicTeachers(filters: PublicTeacherFilters) {},
+  async countTeachers() {},
+  async findPublicTeacherById(teacherId: number, term: TermInput) {},
+
   // Stats
-  async getQuickStats() { },
-  async getPeriodLoad(academicYear: number, semester: string) { },
-  async getRoomOccupancy(academicYear: number, semester: string) { },
-  
+  async getQuickStats() {},
+  async getPeriodLoad(academicYear: number, semester: string) {},
+  async getRoomOccupancy(academicYear: number, semester: string) {},
+
   // Classes
-  async findPublicGradeLevels(filters: PublicGradeLevelFilters) { },
-  async countGradeLevels() { },
+  async findPublicGradeLevels(filters: PublicGradeLevelFilters) {},
+  async countGradeLevels() {},
 };
 ```
 
 #### Phase 2: Update Public Libraries
+
 Refactor `src/lib/public/*.ts` files to use new repository:
 
 ```typescript
@@ -76,6 +80,7 @@ const teachers = await publicDataRepository.findPublicTeachers({ ... });
 ```
 
 #### Phase 3: Consolidate Config Access
+
 **Option A (Recommended):** Extend `src/features/config/infrastructure/repositories/config.repository.ts`
 
 ```typescript
@@ -89,9 +94,11 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 **Option B:** Keep utility, use repository internally
 
 #### Phase 4: Auth.js Integration (Optional)
+
 **Decision:** Keep direct Prisma in auth callbacks (acceptable infrastructure layer exception)
 
 **Rationale:**
+
 - Auth.js callbacks execute outside normal app context
 - Infrastructure layer (auth) accessing infrastructure layer (database) is acceptable
 - Testing auth callbacks is already challenging regardless of pattern
@@ -99,19 +106,20 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 
 ### Implementation Timeline
 
-| Phase | Component | Effort | Priority |
-|-------|-----------|--------|----------|
-| 1 | Public Data Repository | 4-6h | High |
-| 2 | Update Libraries | 3-4h | High |
-| 3 | Config Consolidation | 2-3h | Medium |
-| 4 | Auth Integration | 1-2h | Low (Optional) |
-| Testing | Unit + Integration | 3-4h | High |
+| Phase   | Component              | Effort | Priority       |
+| ------- | ---------------------- | ------ | -------------- |
+| 1       | Public Data Repository | 4-6h   | High           |
+| 2       | Update Libraries       | 3-4h   | High           |
+| 3       | Config Consolidation   | 2-3h   | Medium         |
+| 4       | Auth Integration       | 1-2h   | Low (Optional) |
+| Testing | Unit + Integration     | 3-4h   | High           |
 
 **Total:** 13-19 hours
 
 ### Acceptance Criteria
 
 #### Must Have ✅
+
 - [ ] No direct `prisma.*` calls in `src/lib/public/*.ts`
 - [ ] `public-data.repository.ts` created with all methods
 - [ ] All public files use repository pattern
@@ -120,12 +128,14 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 - [ ] New repository methods have tests
 
 #### Nice to Have 🎁
+
 - [ ] Auth.js callbacks use repository (if feasible)
 - [ ] `AGENTS.md` updated
 - [ ] Memory file: `repository_pattern_complete`
 - [ ] Performance benchmarks documented
 
 ### Technical Debt Resolved
+
 - **Before:** ~600 LOC with direct Prisma access outside repositories
 - **After:** 100% repository pattern compliance (except auth.ts)
 - **Testing:** Full mocking capability for public API layer
@@ -143,6 +153,7 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 ### Current State Analysis
 
 #### ✅ Strong Foundation
+
 - **Domain Logic:** `conflict-detector.service.ts` (355 lines) - 5+ pure functions
   - Teacher, Room, Class, Lock conflict detection
   - Priority-based conflict checking
@@ -190,11 +201,14 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 ### Solution Overview
 
 #### Phase 1: Visual Indicators (Priority: High)
+
 **Components:**
+
 - `ConflictIndicator.tsx` - Icon + color + badge component
 - Update `TimeSlotGrid` - Color-coded cells based on conflicts
 
 **Colors (Accessible):**
+
 - 🔴 Red (`#DC2626`) - Teacher/Room conflicts
 - 🟡 Yellow (`#F59E0B`) - Warnings
 - 🔒 Gray (`#6B7280`) - Locked timeslots
@@ -202,6 +216,7 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 - ℹ️ Blue (`#3B82F6`) - Informational
 
 **Icons (MUI):**
+
 - `WarningAmberIcon` - Conflicts
 - `LockIcon` - Locked
 - `CheckCircleIcon` - Available
@@ -210,12 +225,15 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 **Effort:** 8-12 hours
 
 #### Phase 2: Conflict Summary Dashboard (Priority: High)
+
 **Components:**
+
 - `ConflictSummaryPanel.tsx` - Main dashboard
 - `ConflictListItem.tsx` - Individual conflict display
 - `useConflictSummary.ts` - Data fetching hook
 
 **Features:**
+
 - Total conflict count with breakdown
 - Grouped by type (Teacher, Room, Class, Unassigned)
 - Click to navigate to grid location
@@ -224,22 +242,26 @@ async getTimetableConfig(academicYear: number, semester: semester): Promise<Time
 - Real-time updates
 
 **Integration:**
+
 ```typescript
 // Use existing Server Action
 const { data } = useSWR(
-  ['conflicts', academicYear, semester],
-  async () => await getConflictsAction({ AcademicYear, Semester })
+  ["conflicts", academicYear, semester],
+  async () => await getConflictsAction({ AcademicYear, Semester }),
 );
 ```
 
 **Effort:** 12-16 hours
 
 #### Phase 3: Enhanced Messages (Priority: Medium)
+
 **Components:**
+
 - `ConflictDetailsModal.tsx` - Detailed conflict info
 - `conflict-resolver.service.ts` (NEW) - Suggestion algorithm
 
 **Features:**
+
 - Detailed conflict context
 - Conflicting schedules displayed
 - 1-3 resolution suggestions
@@ -247,12 +269,13 @@ const { data } = useSWR(
 - Impact analysis
 
 **Hook Update:**
+
 ```typescript
 export interface DetailedConflictResult {
   type: ConflictType;
   message: string;
-  severity: 'error' | 'warning' | 'info';
-  
+  severity: "error" | "warning" | "info";
+
   // NEW
   conflictingSchedules: ConflictingSchedule[];
   suggestions: ResolutionSuggestion[];
@@ -262,10 +285,13 @@ export interface DetailedConflictResult {
 **Effort:** 10-14 hours
 
 #### Phase 4: Diff Viewer (Priority: Low)
+
 **Components:**
+
 - `ScheduleDiffViewer.tsx` - Before/After comparison
 
 **Use Cases:**
+
 - Bulk change preview
 - Conflict resolution impact
 - Change history
@@ -273,11 +299,14 @@ export interface DetailedConflictResult {
 **Effort:** 16-20 hours
 
 #### Phase 5: Auto-Resolution (Priority: Future)
+
 **Components:**
+
 - `ConflictResolutionWizard.tsx` - Multi-step wizard
 - Smart suggestion algorithm
 
 **Features:**
+
 - Find nearest available slots
 - Prioritize by availability
 - Minimize total moves
@@ -287,13 +316,13 @@ export interface DetailedConflictResult {
 
 ### Implementation Timeline
 
-| Phase | Focus | Effort | Priority |
-|-------|-------|--------|----------|
-| 1 | Visual Indicators | 8-12h | High |
-| 2 | Summary Dashboard | 12-16h | High |
-| 3 | Enhanced Messages | 10-14h | Medium |
-| 4 | Diff Viewer | 16-20h | Low |
-| 5 | Auto-Resolution | 24-32h | Future |
+| Phase | Focus             | Effort | Priority |
+| ----- | ----------------- | ------ | -------- |
+| 1     | Visual Indicators | 8-12h  | High     |
+| 2     | Summary Dashboard | 12-16h | High     |
+| 3     | Enhanced Messages | 10-14h | Medium   |
+| 4     | Diff Viewer       | 16-20h | Low      |
+| 5     | Auto-Resolution   | 24-32h | Future   |
 
 **MVP (Phase 1-3):** 30-42 hours  
 **Full (Phase 1-5):** 70-94 hours
@@ -301,6 +330,7 @@ export interface DetailedConflictResult {
 ### Acceptance Criteria
 
 #### Phase 1 (Visual Indicators) ✅
+
 - [ ] Color-coded timeslot cells
 - [ ] Icons display correctly
 - [ ] Hover tooltips show details
@@ -308,6 +338,7 @@ export interface DetailedConflictResult {
 - [ ] E2E tests pass
 
 #### Phase 2 (Summary Dashboard) ✅
+
 - [ ] Conflict count displayed
 - [ ] Grouped by type
 - [ ] Click navigates to location
@@ -315,6 +346,7 @@ export interface DetailedConflictResult {
 - [ ] Existing tests pass
 
 #### Phase 3 (Enhanced Messages) ✅
+
 - [ ] Modal opens on click
 - [ ] Shows conflicting schedules
 - [ ] 1-3 suggestions displayed
@@ -322,6 +354,7 @@ export interface DetailedConflictResult {
 - [ ] Thai language maintained
 
 #### Must Not Break ⚠️
+
 - [ ] `12-conflict-detector.spec.ts` passes
 - [ ] `useConflictValidation` API backward compatible
 - [ ] Domain services remain pure
@@ -331,11 +364,13 @@ export interface DetailedConflictResult {
 ### Success Metrics
 
 **Current Baseline:**
+
 - Conflict detection: Functional ✅
 - Visual feedback: Text-only ⚠️
 - Resolution time: Manual (slow) 📉
 
 **Target (After Phase 1-3):**
+
 - Visual feedback: Color + icons ✅
 - Conflict identification: 50% faster 📈
 - Error rate: 30% fewer mistakes 📉
@@ -378,17 +413,20 @@ export interface DetailedConflictResult {
 ## 📚 Reference Documentation
 
 ### Repository Pattern
+
 - **AGENTS.md** - Section 5: Coding Standards, Repository Pattern
 - **code_style_conventions** (Serena memory) - Repository examples
 - **comprehensive_user_flows** (Serena memory) - Architecture context
 
 ### Conflict Detection
+
 - **conflict-detector.service.ts** - Pure domain logic
 - **useConflictValidation.ts** - React hook implementation
 - **12-conflict-detector.spec.ts** - E2E test examples
 - **WEEK5_FINAL_SUMMARY.md** - TeacherArrangePage refactoring context
 
 ### Testing
+
 - **jest_testing_nextjs_patterns** (Serena memory) - Unit test patterns
 - **jest_test_status_nov2025_fixes_applied** (Serena memory) - Test status
 - **playwright.config.ts** - E2E test configuration
@@ -398,6 +436,7 @@ export interface DetailedConflictResult {
 ## 🔗 Related Work
 
 ### Completed Foundations ✅
+
 - Clean Architecture migration (all features)
 - Server Actions pattern (100% adopted)
 - Repository pattern (feature modules)
@@ -405,11 +444,13 @@ export interface DetailedConflictResult {
 - Conflict validation hook (presentation layer)
 
 ### Prerequisites ⚠️
+
 - None - both initiatives are ready to start
 - Repository migration is independent
 - Conflict UI builds on existing logic
 
 ### Future Enhancements 🔮
+
 - API versioning (after repository completion)
 - Real-time collaboration (WebSocket)
 - Advanced conflict resolution AI
@@ -423,6 +464,7 @@ export interface DetailedConflictResult {
 ### Repository Pattern Completion
 
 **Benefits:**
+
 - ✅ 100% Clean Architecture compliance
 - ✅ Full test coverage capability
 - ✅ Centralized query optimization
@@ -430,11 +472,13 @@ export interface DetailedConflictResult {
 - ✅ Better separation of concerns
 
 **Risks:**
+
 - ⚠️ Auth.js callbacks may need special handling
 - ⚠️ Performance regression if not careful
 - ⚠️ Breaking changes in public API contracts
 
 **Mitigation:**
+
 - Keep auth.ts as acceptable exception
 - Benchmark queries before/after
 - Use semantic versioning for API changes
@@ -442,6 +486,7 @@ export interface DetailedConflictResult {
 ### Conflict Detection UI
 
 **Benefits:**
+
 - ✅ Dramatically improved admin UX
 - ✅ 50% faster conflict identification
 - ✅ 30% fewer scheduling errors
@@ -449,11 +494,13 @@ export interface DetailedConflictResult {
 - ✅ Professional, polished interface
 
 **Risks:**
+
 - ⚠️ Complexity increase in UI layer
 - ⚠️ Performance with many conflicts
 - ⚠️ Accessibility concerns (color-only indicators)
 
 **Mitigation:**
+
 - Keep domain logic separate from UI
 - Optimize conflict queries (pagination)
 - Use icons + color (not color alone)
@@ -464,6 +511,7 @@ export interface DetailedConflictResult {
 ## 📝 Notes
 
 ### General Guidelines
+
 - Always consult **context7** before implementing (Next.js, MUI, Prisma patterns)
 - Use **Serena** for codebase analysis and pattern discovery
 - Maintain Thai language for all user-facing text
@@ -471,6 +519,7 @@ export interface DetailedConflictResult {
 - Write tests before refactoring (TDD approach)
 
 ### Repository Pattern
+
 - Follow existing repository patterns in feature modules
 - Export plain objects (not classes)
 - One method per query pattern
@@ -478,6 +527,7 @@ export interface DetailedConflictResult {
 - Include `orderBy` for consistent results
 
 ### Conflict UI
+
 - Color-blind friendly (icons + colors)
 - Performance: < 100ms conflict checks
 - Backward compatibility for `useConflictValidation` hook
@@ -485,6 +535,7 @@ export interface DetailedConflictResult {
 - E2E tests must continue passing
 
 ### Testing Strategy
+
 - Unit tests for repositories (mock Prisma)
 - Unit tests for domain services (pure functions)
 - Integration tests for hooks (React Testing Library)
@@ -498,4 +549,4 @@ export interface DetailedConflictResult {
 
 ---
 
-*Last updated: November 4, 2025*
+_Last updated: November 4, 2025_

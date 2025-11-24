@@ -1,13 +1,13 @@
 /**
  * Dashboard Repository
  * Aggregates data from multiple sources for dashboard statistics
- * 
+ *
  * @module dashboard.repository
  */
 
-import prisma from "@/lib/prisma"
-import type { semester } from '@/prisma/generated/client';;
-import { cache } from "react"
+import prisma from "@/lib/prisma";
+import type { semester } from "@/prisma/generated/client";
+import { cache } from "react";
 
 /**
  * Fetch all data needed for dashboard in a single query
@@ -16,7 +16,7 @@ import { cache } from "react"
 export const getDashboardData = cache(async function getDashboardData(
   configId: string,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ) {
   const [
     config,
@@ -104,10 +104,7 @@ export const getDashboardData = cache(async function getDashboardData(
         AcademicYear: academicYear,
         Semester: sem,
       },
-      orderBy: [
-        { DayOfWeek: "asc" },
-        { StartTime: "asc" },
-      ],
+      orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
     }),
 
     // Get all subjects
@@ -145,7 +142,7 @@ export const getDashboardData = cache(async function getDashboardData(
         },
       },
     }),
-  ])
+  ]);
 
   return {
     config,
@@ -155,8 +152,8 @@ export const getDashboardData = cache(async function getDashboardData(
     timeslots,
     subjects,
     responsibilities,
-  }
-})
+  };
+});
 
 /**
  * Get quick stats counts
@@ -165,7 +162,7 @@ export const getDashboardData = cache(async function getDashboardData(
 export const getQuickStats = cache(async function getQuickStats(
   configId: string,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ) {
   const [
     teacherCount,
@@ -200,7 +197,7 @@ export const getQuickStats = cache(async function getQuickStats(
         Semester: sem,
       },
     }),
-  ])
+  ]);
 
   return {
     teacherCount,
@@ -209,15 +206,18 @@ export const getQuickStats = cache(async function getQuickStats(
     timeslotCount,
     subjectCount,
     responsibilityCount,
-  }
-})
+  };
+});
 
 /**
  * Get teachers with their schedule counts for the semester
  * Note: teacher doesn't have direct class_schedule relation - goes through teachers_responsibility
  */
 export const getTeachersWithScheduleCounts = cache(
-  async function getTeachersWithScheduleCounts(academicYear: number, sem: semester) {
+  async function getTeachersWithScheduleCounts(
+    academicYear: number,
+    sem: semester,
+  ) {
     return prisma.teacher.findMany({
       include: {
         teachers_responsibility: {
@@ -233,16 +233,19 @@ export const getTeachersWithScheduleCounts = cache(
         },
       },
       orderBy: { Firstname: "asc" },
-    })
-  }
-)
+    });
+  },
+);
 
 /**
  * Get grades with their schedule counts for the semester
  * Note: class_schedule has ClassID (not ClassScheduleID) and no TeacherID field
  */
 export const getGradesWithScheduleCounts = cache(
-  async function getGradesWithScheduleCounts(academicYear: number, sem: semester) {
+  async function getGradesWithScheduleCounts(
+    academicYear: number,
+    sem: semester,
+  ) {
     return prisma.gradelevel.findMany({
       include: {
         class_schedule: {
@@ -261,9 +264,9 @@ export const getGradesWithScheduleCounts = cache(
         program: true,
       },
       orderBy: { GradeID: "asc" },
-    })
-  }
-)
+    });
+  },
+);
 
 /**
  * Get subject distribution with counts
@@ -272,13 +275,13 @@ export const getGradesWithScheduleCounts = cache(
 export const getSubjectDistribution = cache(
   async function getSubjectDistribution(academicYear: number, sem: semester) {
     type ScheduleGroup = {
-      SubjectCode: string
+      SubjectCode: string;
       _count: {
-        ClassID: number
-      }
-    }
+        ClassID: number;
+      };
+    };
 
-    const schedules = await prisma.class_schedule.groupBy({
+    const schedules = (await prisma.class_schedule.groupBy({
       by: ["SubjectCode"],
       where: {
         timeslot: {
@@ -294,28 +297,30 @@ export const getSubjectDistribution = cache(
           ClassID: "desc",
         },
       },
-    }) as ScheduleGroup[]
+    })) as ScheduleGroup[];
 
     // Enrich with subject details
-    const subjectCodes = schedules.map(s => s.SubjectCode)
+    const subjectCodes = schedules.map((s) => s.SubjectCode);
     const subjects = await prisma.subject.findMany({
       where: {
         SubjectCode: {
           in: subjectCodes,
         },
       },
-    })
+    });
 
-    return schedules.map(schedule => {
-      const subject = subjects.find((s: any) => s.SubjectCode === schedule.SubjectCode)
+    return schedules.map((schedule) => {
+      const subject = subjects.find(
+        (s: any) => s.SubjectCode === schedule.SubjectCode,
+      );
       return {
         subjectCode: schedule.SubjectCode,
         subjectName: subject?.SubjectName || schedule.SubjectCode,
         count: schedule._count.ClassID,
-      }
-    })
-  }
-)
+      };
+    });
+  },
+);
 
 /**
  * Dashboard repository export
@@ -326,4 +331,4 @@ export const dashboardRepository = {
   getTeachersWithScheduleCounts,
   getGradesWithScheduleCounts,
   getSubjectDistribution,
-}
+};

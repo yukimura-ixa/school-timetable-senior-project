@@ -3,10 +3,7 @@
  * Small, fast charts for glanceable insights
  */
 
-import {
-  getPeriodLoadPerDay,
-  getRoomOccupancy,
-} from "@/lib/public/stats";
+import { getPeriodLoadPerDay, getRoomOccupancy } from "@/lib/public/stats";
 import { getTopTeachersByUtilization } from "@/lib/public/teachers";
 import {
   TeacherUtilizationChart,
@@ -25,7 +22,12 @@ export async function MiniCharts() {
   const teacherChartData = topTeachers.map((t) => ({
     name: t.name.length > 15 ? t.name.substring(0, 15) + "..." : t.name,
     hours: t.weeklyHours,
-    color: t.utilization > 80 ? "#ef4444" : t.utilization > 60 ? "#f97316" : "#22c55e",
+    color:
+      t.utilization > 80
+        ? "#ef4444"
+        : t.utilization > 60
+          ? "#f97316"
+          : "#22c55e",
   }));
 
   // periodLoad already has the correct shape: { day, periods }

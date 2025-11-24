@@ -3,7 +3,7 @@
 /**
  * Timeslot Configuration Step Component
  * Form for configuring timeslots during semester creation
- * 
+ *
  * Used in CreateSemesterWizard as Step 3
  */
 
@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import { AccessTime, CalendarMonth, Schedule } from "@mui/icons-material";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
-import type { day_of_week } from '@/prisma/generated/client';;
+import type { day_of_week } from "@/prisma/generated/client";
 
 type Props = {
   academicYear: number;
@@ -98,7 +98,8 @@ export function TimeslotConfigurationStep({
         newErrors.miniBreak = "หมายเลขคาบพักเล็กไม่ถูกต้อง";
       }
       if (config.MiniBreak.Duration < 5 || config.MiniBreak.Duration > 30) {
-        newErrors.miniBreakDuration = "ระยะเวลาพักเล็กต้องอยู่ระหว่าง 5-30 นาที";
+        newErrors.miniBreakDuration =
+          "ระยะเวลาพักเล็กต้องอยู่ระหว่าง 5-30 นาที";
       }
     }
 
@@ -136,7 +137,10 @@ export function TimeslotConfigurationStep({
   };
 
   // Calculate preview schedule
-  const calculateEndTime = (startTime: string, durationMinutes: number): string => {
+  const calculateEndTime = (
+    startTime: string,
+    durationMinutes: number,
+  ): string => {
     const [hours, minutes] = startTime.split(":").map(Number);
     const totalMinutes = (hours ?? 0) * 60 + (minutes ?? 0) + durationMinutes;
     const endHours = Math.floor(totalMinutes / 60) % 24;
@@ -460,14 +464,25 @@ export function TimeslotConfigurationStep({
             </Box>
           ))}
         </Stack>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
-          เวลาเลิก: {calculateEndTime(config.StartTime, previewSchedule.reduce((acc, slot) => {
-            const [start, end] = slot.time.split("-");
-            const [startH, startM] = (start ?? "").split(":").map(Number);
-            const [endH, endM] = (end ?? "").split(":").map(Number);
-            const duration = ((endH ?? 0) * 60 + (endM ?? 0)) - ((startH ?? 0) * 60 + (startM ?? 0));
-            return acc + duration;
-          }, 0))}
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mt: 2, display: "block" }}
+        >
+          เวลาเลิก:{" "}
+          {calculateEndTime(
+            config.StartTime,
+            previewSchedule.reduce((acc, slot) => {
+              const [start, end] = slot.time.split("-");
+              const [startH, startM] = (start ?? "").split(":").map(Number);
+              const [endH, endM] = (end ?? "").split(":").map(Number);
+              const duration =
+                (endH ?? 0) * 60 +
+                (endM ?? 0) -
+                ((startH ?? 0) * 60 + (startM ?? 0));
+              return acc + duration;
+            }, 0),
+          )}
         </Typography>
       </Paper>
     </Box>

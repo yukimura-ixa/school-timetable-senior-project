@@ -8,10 +8,12 @@
 
 ## ✅ Completed Work
 
-### 1. **Admin Fixture Enhancement** ✅ 
+### 1. **Admin Fixture Enhancement** ✅
+
 **File:** `e2e/fixtures/admin.fixture.ts`
 
 **Improvements:**
+
 - ✅ Consolidated authentication logic into single source of truth
 - ✅ Leveraged `storageState` for automatic session management
 - ✅ Added comprehensive documentation with troubleshooting guide
@@ -20,6 +22,7 @@
 - ✅ Addressed Issue #110 (duplicate auth fixtures)
 
 **Key Features:**
+
 ```typescript
 // Single fixture provides both page and session
 test("example", async ({ authenticatedAdmin }) => {
@@ -29,9 +32,11 @@ test("example", async ({ authenticatedAdmin }) => {
 ```
 
 ### 2. **Conflict Detector Tests Refactoring** ✅
+
 **File:** `e2e/12-conflict-detector.spec.ts`
 
 **Changes Made:**
+
 - ✅ Migrated from `@playwright/test` to `admin.fixture`
 - ✅ Removed all manual authentication code
 - ✅ Replaced `waitForSelector()` with web-first `expect().toBeVisible()`
@@ -41,11 +46,14 @@ test("example", async ({ authenticatedAdmin }) => {
 - ✅ Added web-first assertions with ✅ markers for clarity
 
 **Before vs After:**
+
 ```typescript
 // ❌ BEFORE - Brittle pattern
 test("example", async ({ page }) => {
-  await page.goto("/", { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('main, [role="main"], header, nav', { timeout: 10000 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.waitForSelector('main, [role="main"], header, nav', {
+    timeout: 10000,
+  });
   // Manual navigation and waits
 });
 
@@ -59,6 +67,7 @@ test("example", async ({ authenticatedAdmin }) => {
 ```
 
 **Impact:**
+
 - **Reduced flakiness:** Web-first assertions auto-retry
 - **Faster tests:** No arbitrary timeouts
 - **Better errors:** Clearer failure messages
@@ -69,11 +78,13 @@ test("example", async ({ authenticatedAdmin }) => {
 ## 📊 Test Reliability Metrics
 
 ### Before Refactoring
+
 - **Pass Rate:** ~44% (11/25 tests passing)
 - **Common Failures:** Timeout errors, visibility issues, auth flakiness
 - **Brittle Patterns:** `waitForTimeout()`, `waitForSelector()`, manual auth
 
 ### Expected After Refactoring
+
 - **Pass Rate Target:** 60%+ (15/25 tests passing)
 - **Reduced Failures:** Web-first assertions reduce timeouts
 - **Clean Patterns:** Single auth fixture, no manual waits
@@ -85,16 +96,20 @@ test("example", async ({ authenticatedAdmin }) => {
 ### Pattern Analysis from Codebase Search
 
 #### 1. **Visual Inspection Tests** (High Priority)
+
 **Files:**
+
 - `e2e/visual-inspection.spec.ts`
 - `e2e/visual/visual-inspection.spec.ts`
 
 **Issues Found:**
+
 - ❌ 10+ instances of `waitForTimeout()` (2-10 seconds each)
 - ❌ Not using `admin.fixture` for authentication
 - ❌ Manual waits instead of web-first assertions
 
 **Required Fixes:**
+
 ```typescript
 // ❌ Current pattern
 await page.waitForTimeout(3000);
@@ -104,12 +119,15 @@ await expect(page.locator("target-element")).toBeVisible();
 ```
 
 #### 2. **Authentication Patterns**
+
 **Current State:**
+
 - ✅ `admin.fixture.ts` - Consolidated (DONE)
 - ⚠️ Many tests still using `@playwright/test` directly
 - ⚠️ Tests not leveraging `authenticatedAdmin` fixture
 
 **Required Migration:**
+
 ```typescript
 // ❌ Old pattern
 import { test, expect } from "@playwright/test";
@@ -127,7 +145,9 @@ test("example", async ({ authenticatedAdmin }) => {
 ```
 
 #### 3. **Web-First Assertion Usage**
+
 **Files Needing Updates:**
+
 - `e2e/01-home-page.spec.ts` - ✅ Already has some improvements
 - `e2e/05-viewing-exports.spec.ts` - ⚠️ Commented `waitForTimeout`
 - All other spec files - ⚠️ Need audit
@@ -139,8 +159,10 @@ test("example", async ({ authenticatedAdmin }) => {
 ### High Priority Tasks
 
 #### Task 1: Migrate Remaining Tests to Admin Fixture
+
 **Estimated Effort:** 2-3 hours  
 **Files to Update:**
+
 - [ ] `e2e/01-home-page.spec.ts`
 - [ ] `e2e/02-auth.spec.ts`
 - [ ] `e2e/03-semester-management.spec.ts`
@@ -155,12 +177,15 @@ test("example", async ({ authenticatedAdmin }) => {
 - [x] `e2e/12-conflict-detector.spec.ts` ✅ **COMPLETED**
 
 #### Task 2: Eliminate All `waitForTimeout()` Usage
+
 **Estimated Effort:** 1-2 hours  
 **Critical Files:**
+
 - [ ] `e2e/visual-inspection.spec.ts` - 10 instances
 - [ ] `e2e/visual/visual-inspection.spec.ts` - 9 instances
 
 **Pattern to Apply:**
+
 ```typescript
 // ❌ Remove
 await page.waitForTimeout(3000);
@@ -172,16 +197,20 @@ await expect(page).toHaveURL(/expected-url/);
 ```
 
 #### Task 3: Apply Web-First Assertions Globally
+
 **Estimated Effort:** 2-3 hours  
 **Checklist:**
+
 - [ ] Replace all `waitForSelector()` with `expect().toBeVisible()`
 - [ ] Replace all `waitForLoadState()` with specific element checks
 - [ ] Replace all `waitForFunction()` with web-first locators
 - [ ] Remove all `waitUntil` options from `goto()`
 
 #### Task 4: Standardize Test Structure
+
 **Estimated Effort:** 1 hour  
 **Guidelines:**
+
 - [ ] All tests import from `admin.fixture`
 - [ ] All tests use `authenticatedAdmin` fixture
 - [ ] All assertions use web-first patterns
@@ -192,6 +221,7 @@ await expect(page).toHaveURL(/expected-url/);
 ## 🎯 Success Criteria
 
 ### Completion Checklist
+
 - [ ] All E2E tests use `admin.fixture` for authentication
 - [ ] Zero `waitForTimeout()` usage in codebase
 - [ ] All assertions use web-first patterns
@@ -200,12 +230,13 @@ await expect(page).toHaveURL(/expected-url/);
 - [ ] Clean, maintainable test patterns
 
 ### Verification Steps
+
 1. **Run Full E2E Suite:**
    ```powershell
    pnpm test:e2e
    ```
-   
 2. **Check for Anti-Patterns:**
+
    ```powershell
    # Should return 0 results
    grep -r "waitForTimeout" e2e/
@@ -222,6 +253,7 @@ await expect(page).toHaveURL(/expected-url/);
 ## 📖 Reference Documentation
 
 ### Playwright Web-First Assertions
+
 - [Official Docs](https://playwright.dev/docs/test-assertions)
 - **Best Practices:**
   - Use `expect().toBeVisible()` instead of `waitForSelector()`
@@ -230,7 +262,9 @@ await expect(page).toHaveURL(/expected-url/);
   - Auto-retry is built-in (default 5 seconds)
 
 ### Admin Fixture Usage Guide
+
 See `e2e/fixtures/admin.fixture.ts` header comments:
+
 - Architecture overview
 - Usage examples
 - Troubleshooting guide
@@ -241,17 +275,20 @@ See `e2e/fixtures/admin.fixture.ts` header comments:
 ## 🚀 Next Steps
 
 ### Immediate Actions (Today)
+
 1. ✅ **Completed:** Refactor `12-conflict-detector.spec.ts`
 2. **Next:** Migrate visual inspection tests (high `waitForTimeout` usage)
 3. **Next:** Audit and migrate remaining spec files
 
 ### This Week
+
 1. Complete all test migrations to `admin.fixture`
 2. Eliminate all `waitForTimeout()` usage
 3. Run full E2E suite and measure pass rate
 4. Document lessons learned
 
 ### Stretch Goals
+
 1. Create E2E testing guidelines document
 2. Add pre-commit hooks to prevent anti-patterns
 3. Set up E2E test metrics dashboard
@@ -262,18 +299,21 @@ See `e2e/fixtures/admin.fixture.ts` header comments:
 ## 📝 Notes & Learnings
 
 ### Key Insights
+
 1. **Fixture Consolidation:** Single source of truth dramatically reduces maintenance
 2. **Web-First Beats Manual Waits:** Auto-retry makes tests more resilient
 3. **TypeScript Helps:** Strong typing catches fixture misuse early
 4. **Documentation Matters:** Inline comments prevent regression to old patterns
 
 ### Common Pitfalls to Avoid
+
 - ❌ Don't mix `@playwright/test` with fixture imports
 - ❌ Don't use `waitForTimeout()` - always use web-first assertions
 - ❌ Don't manually handle authentication in tests
 - ❌ Don't use `{ waitUntil: 'domcontentloaded' }` - let web-first handle it
 
 ### Best Practices Established
+
 - ✅ Import from `admin.fixture` for all authenticated tests
 - ✅ Use `authenticatedAdmin` fixture consistently
 - ✅ Mark web-first assertions with ✅ comments
@@ -285,4 +325,3 @@ See `e2e/fixtures/admin.fixture.ts` header comments:
 **Status:** 🟡 In Progress  
 **Blockers:** None  
 **Next Review:** After visual inspection tests migration
-

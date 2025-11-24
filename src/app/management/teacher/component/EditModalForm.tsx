@@ -7,7 +7,7 @@ import { BsInfo } from "react-icons/bs";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { CircularProgress } from "@mui/material";
 
@@ -44,22 +44,26 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
           Role: t.Role || "teacher",
         })),
       });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("แก้ไขข้อมูลครูสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("แก้ไขข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "แก้ไขข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.log(error);
     }
 
@@ -145,7 +149,9 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     handleChange={(value: unknown) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Prefix: value as string } : item,
+                          index === ind
+                            ? { ...item, Prefix: value as string }
+                            : item,
                         ),
                       );
                     }}
@@ -237,7 +243,9 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     handleChange={(value: unknown) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Department: value as string } : item,
+                          index === ind
+                            ? { ...item, Department: value as string }
+                            : item,
                         ),
                       );
                     }}
@@ -284,16 +292,18 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
               handleClick={cancelEdit}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} 
-              reverseIcon={false} 
+              Icon={<CloseIcon />}
+              reverseIcon={false}
               isDisabled={isSubmitting}
             />
             <PrimaryButton
               handleClick={confirmed}
               title={isSubmitting ? "" : "ยืนยัน"}
               color={"success"}
-              Icon={isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />} 
-              reverseIcon={false} 
+              Icon={
+                isSubmitting ? <CircularProgress size={20} /> : <CheckIcon />
+              }
+              reverseIcon={false}
               isDisabled={isSubmitting}
             />
           </span>

@@ -1,11 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
-import { SubjectCategory, ActivityType } from '@/prisma/generated/client';;
-import { createSubjectAction, updateSubjectAction } from "@/features/subject/application/actions/subject.actions";
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem, Checkbox, FormControlLabel } from "@mui/material";
+import { SubjectCategory, ActivityType } from "@/prisma/generated/client";
+import {
+  createSubjectAction,
+  updateSubjectAction,
+} from "@/features/subject/application/actions/subject.actions";
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
 
-export default function ActivityModal({ open, onClose, editActivity }: {
+export default function ActivityModal({
+  open,
+  onClose,
+  editActivity,
+}: {
   open: boolean;
   onClose: (shouldRefresh: boolean) => void;
   editActivity?: {
@@ -74,7 +91,9 @@ export default function ActivityModal({ open, onClose, editActivity }: {
 
   return (
     <Dialog open={open} onClose={() => onClose(false)}>
-      <DialogTitle>{editActivity ? "Edit Activity" : "Add Activity"}</DialogTitle>
+      <DialogTitle>
+        {editActivity ? "Edit Activity" : "Add Activity"}
+      </DialogTitle>
       <DialogContent>
         <TextField
           label="Subject Code"
@@ -102,18 +121,29 @@ export default function ActivityModal({ open, onClose, editActivity }: {
           margin="normal"
         >
           {Object.values(ActivityType).map((type) => (
-            <MenuItem key={type} value={type}>{type}</MenuItem>
+            <MenuItem key={type} value={type}>
+              {type}
+            </MenuItem>
           ))}
         </TextField>
         <FormControlLabel
-          control={<Checkbox checked={form.IsGraded} onChange={handleCheckbox} />}
+          control={
+            <Checkbox checked={form.IsGraded} onChange={handleCheckbox} />
+          }
           label="Is Graded"
         />
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(false)} disabled={submitting}>Cancel</Button>
-        <Button onClick={() => void handleSubmit()} disabled={submitting} variant="contained" color="primary">
+        <Button onClick={() => onClose(false)} disabled={submitting}>
+          Cancel
+        </Button>
+        <Button
+          onClick={() => void handleSubmit()}
+          disabled={submitting}
+          variant="contained"
+          color="primary"
+        >
           {editActivity ? "Update" : "Create"}
         </Button>
       </DialogActions>

@@ -15,13 +15,20 @@ export function RoomUtilizationSection({
 }: RoomUtilizationSectionProps) {
   // Sort by occupancy rate descending
   const sortedOccupancy = [...occupancy].sort(
-    (a, b) => b.occupancyRate - a.occupancyRate
+    (a, b) => b.occupancyRate - a.occupancyRate,
   );
 
   // Get utilization status color
   const getUtilizationColor = (
-    rate: number
-  ): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
+    rate: number,
+  ):
+    | "default"
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning" => {
     if (rate >= 80) return "error"; // Over-utilized
     if (rate >= 60) return "success"; // Well-utilized
     if (rate >= 40) return "warning"; // Moderately-utilized
@@ -142,7 +149,7 @@ export function RoomUtilizationSection({
                       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                         {room.dayOccupancy.map((day) => {
                           const dayOccupiedCount = day.periods.filter(
-                            (p) => p.isOccupied
+                            (p) => p.isOccupied,
                           ).length;
                           const dayRate =
                             (dayOccupiedCount / day.periods.length) * 100;

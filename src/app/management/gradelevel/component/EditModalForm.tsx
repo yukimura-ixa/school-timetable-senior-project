@@ -8,7 +8,7 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { updateGradeLevelAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
-import type { gradelevel } from '@/prisma/generated/client';;
+import type { gradelevel } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: any;
@@ -17,12 +17,7 @@ type props = {
   mutate: Function;
 };
 
-function EditModalForm({
-  closeModal,
-  data,
-  clearCheckList,
-  mutate,
-}: props) {
+function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const [editData, setEditData] = useState<gradelevel[]>(
     Object.assign([], data),
   );
@@ -61,28 +56,32 @@ function EditModalForm({
       variant: "info",
       persist: true,
     });
-    
+
     try {
       const result = await updateGradeLevelAction({ gradeLevels: data });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
       console.error(error);
     }
-    
+
     //clear checkbox
     clearCheckList();
   };

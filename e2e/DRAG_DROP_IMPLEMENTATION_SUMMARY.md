@@ -3,6 +3,7 @@
 ## ✅ Completed
 
 ### 1. Comprehensive Test Suite (`e2e/08-drag-and-drop.spec.ts`)
+
 Created 21 comprehensive E2E tests across 7 categories:
 
 - **TC-DND-001**: Subject List to Timeslot (4 tests)
@@ -41,9 +42,11 @@ Created 21 comprehensive E2E tests across 7 categories:
   - Responsive viewports
 
 ### 2. Helper Module (`e2e/helpers/drag-drop.helper.ts`)
+
 Comprehensive utility library with:
 
 **Core Operations**:
+
 - `dragAndDrop()` - Mouse-based drag operation
 - `dragBySelector()` - Drag by CSS selectors
 - `keyboardDrag()` - Keyboard-based drag (Space/Arrow keys)
@@ -51,6 +54,7 @@ Comprehensive utility library with:
 - `touchDragAndDrop()` - Touch/mobile drag support
 
 **Element Finders**:
+
 - `findDraggableSubjects()` - Locate all draggable subject items
 - `findDroppableTimeslots()` - Find all timeslot drop zones
 - `findEmptyTimeslots()` - Find empty timeslots
@@ -59,19 +63,23 @@ Comprehensive utility library with:
 - `findErrorTimeslots()` - Find timeslots with errors
 
 **State Validation**:
+
 - `isBeingDragged()` - Check if element is dragging
 - `isDropZoneActive()` - Check if drop zone is highlighted
 - `getDraggablePosition()` - Get element position
 - `verifyDragCompleted()` - Verify drag moved element
 
 **Utilities**:
+
 - `waitForDndReady()` - Wait for @dnd-kit initialization
 - `waitForDragAnimation()` - Wait for animations to complete
 - `getElementCenter()` - Get element center coordinates
 - `getDragStateSnapshot()` - Get comprehensive state snapshot
 
 ### 3. Documentation (`e2e/DRAG_DROP_TESTS.md`)
+
 Complete 500+ line documentation covering:
+
 - Test architecture and component structure
 - Detailed test category descriptions
 - Helper function usage examples
@@ -84,6 +92,7 @@ Complete 500+ line documentation covering:
 - Future enhancements
 
 ### 4. Updated README (`e2e/README.md`)
+
 - Added drag-and-drop test suite to file structure
 - Added specific commands for running DND tests
 - Documented Phase 2 test coverage
@@ -92,6 +101,7 @@ Complete 500+ line documentation covering:
 ## 🎯 Test Coverage
 
 ### What's Tested
+
 ✅ **@dnd-kit Integration**: Tests verify @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities
 ✅ **Mouse Operations**: Full mouse drag-and-drop with multi-step interpolation
 ✅ **Keyboard Navigation**: Space/Arrow/Escape key operations
@@ -103,6 +113,7 @@ Complete 500+ line documentation covering:
 ✅ **Edge Cases**: Rapid drags, boundary violations, performance
 
 ### What's Captured
+
 - Screenshots at each drag phase (before, during, over, after)
 - Video recordings on failure
 - State snapshots (subjects, filled/empty/locked/error slots)
@@ -112,6 +123,7 @@ Complete 500+ line documentation covering:
 ## 📊 Test Results
 
 ### Current Status
+
 - **Created**: 21 tests
 - **Expected Failures**: All tests timeout waiting for DND elements
 - **Reason**: Tests require:
@@ -121,12 +133,15 @@ Complete 500+ line documentation covering:
   - @dnd-kit initialization
 
 ### To Make Tests Pass
+
 1. **Ensure authentication bypass** is active in test environment:
+
    ```env
    ENABLE_DEV_BYPASS=true
    ```
 
 2. **Seed database** with test data:
+
    ```bash
    pnpm prisma db seed
    ```
@@ -138,10 +153,11 @@ Complete 500+ line documentation covering:
    - Subjects available to drag
 
 4. **Run with proper setup**:
+
    ```bash
    # Start dev server with test env
    ENABLE_DEV_BYPASS=true pnpm dev
-   
+
    # In another terminal
    pnpm playwright test e2e/08-drag-and-drop.spec.ts
    ```
@@ -149,11 +165,13 @@ Complete 500+ line documentation covering:
 ## 🚀 Usage
 
 ### Run All Drag-and-Drop Tests
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts
 ```
 
 ### Run Specific Category
+
 ```bash
 # Subject list tests only
 pnpm playwright test e2e/08-drag-and-drop.spec.ts -g "Subject List to Timeslot"
@@ -166,16 +184,19 @@ pnpm playwright test e2e/08-drag-and-drop.spec.ts -g "Keyboard"
 ```
 
 ### Interactive Mode
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts --ui
 ```
 
 ### Debug Mode
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts --debug
 ```
 
 ### With Screenshots
+
 ```bash
 pnpm playwright test e2e/08-drag-and-drop.spec.ts --screenshot=on
 ```
@@ -194,21 +215,24 @@ e2e/
 ## 🔑 Key Features
 
 ### 1. Robust Drag Simulation
+
 - Multi-step mouse interpolation (configurable steps)
 - Configurable delays (drag start, drop)
 - Smooth animations
 - Touch support for mobile
 
 ### 2. Screenshot Strategy
+
 ```typescript
 await dragAndDrop(page, source, target, {
   captureScreenshots: true,
-  screenshotDir: 'test-results/screenshots/drag-drop'
+  screenshotDir: "test-results/screenshots/drag-drop",
 });
 // Captures: before, dragging, over-target, after
 ```
 
 ### 3. State Snapshots
+
 ```typescript
 const snapshot = await getDragStateSnapshot(page);
 // Returns: {
@@ -218,18 +242,20 @@ const snapshot = await getDragStateSnapshot(page);
 ```
 
 ### 4. Flexible Configuration
+
 ```typescript
 const config: DragConfig = {
-  steps: 15,              // Smooth animation
-  dragDelay: 300,         // Wait before drag
-  dropDelay: 500,         // Wait after drop
-  captureScreenshots: true
+  steps: 15, // Smooth animation
+  dragDelay: 300, // Wait before drag
+  dropDelay: 500, // Wait after drop
+  captureScreenshots: true,
 };
 ```
 
 ## 🎨 Visual Feedback Tests
 
 Tests verify all visual feedback mechanisms:
+
 - **Drag cursor**: Pointer changes on hover
 - **Selection highlight**: Green border + pulse animation
 - **Drag opacity**: Item opacity 0.5 while dragging
@@ -240,6 +266,7 @@ Tests verify all visual feedback mechanisms:
 ## ⌨️ Accessibility Features
 
 Full keyboard navigation support:
+
 - `Tab`: Move focus between draggable items
 - `Space`: Activate drag mode / Drop
 - `Arrow Keys`: Navigate during drag
@@ -247,6 +274,7 @@ Full keyboard navigation support:
 - `Enter`: Confirm actions (modals)
 
 Tests verify:
+
 - Focus indicators visible
 - Keyboard-only operation possible
 - ARIA attributes present (if implemented)
@@ -255,7 +283,9 @@ Tests verify:
 ## 🔍 Debugging Support
 
 ### Error Context Files
+
 Each failed test generates:
+
 - Screenshot at failure point
 - Video recording
 - Error context markdown with:
@@ -265,29 +295,32 @@ Each failed test generates:
   - Network requests
 
 ### Helper Logging
+
 ```typescript
 // Enable detailed logging
 const state = await getDragStateSnapshot(page);
-console.log('Drag State:', state);
+console.log("Drag State:", state);
 
 // Check element visibility
 const subjects = await findDraggableSubjects(page);
-console.log('Found subjects:', await subjects.count());
+console.log("Found subjects:", await subjects.count());
 
 // Get element positions
 const position = await getDraggablePosition(locator);
-console.log('Element at:', position);
+console.log("Element at:", position);
 ```
 
 ## 📋 Next Steps
 
 ### To Run Tests Successfully
+
 1. Set up authentication bypass in test environment
 2. Seed database with complete test data
 3. Verify semester configuration exists
 4. Run tests and review screenshots/videos
 
 ### Future Enhancements
+
 - [ ] Multi-select drag (drag multiple subjects)
 - [ ] Drag preview customization tests
 - [ ] Performance benchmarking (FPS tracking)
@@ -309,6 +342,7 @@ console.log('Element at:', position);
 ## ✨ Summary
 
 Created a comprehensive, production-ready E2E test suite for @dnd-kit drag-and-drop functionality with:
+
 - 21 tests across 7 categories
 - Reusable helper utilities
 - Extensive documentation

@@ -3,33 +3,25 @@ name: E2E Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'screenshots/**'
-      - 'LICENSE'
-      - '.gitignore'
-  pull_request:
-    branches: [main, develop]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'screenshots/**'
-      - 'LICENSE'
-      - '.gitignore'
+      - "**.md"
+      - "docs/**"
+      - "screenshots/**"
+      - "LICENSE"
+      - ".gitignore"
   workflow_dispatch:
     inputs:
       shard_count:
-        description: 'Number of test shards (1-8)'
+        description: "Number of test shards (1-8)"
         required: false
-        default: '4'
+        default: "4"
         type: choice
         options:
-          - '1'
-          - '2'
-          - '4'
-          - '8'
+          - "1"
+          - "2"
+          - "4"
+          - "8"
 
 jobs:
   test:
@@ -39,18 +31,18 @@ jobs:
       contents: read
       pull-requests: write
       checks: write
-    
+
     env:
       DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
       # Disable Playwright global-setup Docker compose in CI; we use GitHub service container
-      AUTO_MANAGE_TEST_DB: 'false'
-    
+      AUTO_MANAGE_TEST_DB: "false"
+
     # Test sharding: Split tests across parallel jobs
     strategy:
       fail-fast: false
       matrix:
         shard: [1, 2, 3, 4]
-    
+
     # Temporary PostgreSQL service container
     services:
       postgres:
@@ -66,20 +58,20 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-      
+          node-version: "20"
+          cache: "pnpm"
+
       # Setup environment variables for E2E testing
       - name: Setup environment variables
         run: |
@@ -111,16 +103,16 @@ jobs:
           cp .env.test .env.local
           cp .env.test .env.production
           echo "Synced .env.test -> .env.local & .env.production"
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Generate Prisma Client
         run: pnpm prisma generate
-      
+
       - name: Apply database migrations
         run: pnpm prisma migrate deploy
-      
+
       # Seed test database with MOE-compliant data
       # SEED_FOR_TESTS=true triggers:
       # - E2E test data seeding (56 teachers, 82 subjects, etc.)
@@ -143,10 +135,10 @@ jobs:
           SEED_CLEAN_DATA: "true"
           NEXT_TELEMETRY_DISABLED: "1"
           NODE_ENV: production
-      
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
-      
+
       - name: Run E2E tests (Shard ${{ matrix.shard }}/4)
         run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
         env:
@@ -156,7 +148,7 @@ jobs:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: test-results/results-${{ matrix.shard }}.xml
           # Ensure global-setup respects CI-provided Postgres service
           AUTO_MANAGE_TEST_DB: "false"
-      
+
       - name: Upload Playwright JSON results and artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -166,38 +158,38 @@ jobs:
             test-results/
             artifacts/
           retention-days: 14
-  
+
   # Merge reports from all shards
   merge-reports:
     if: always()
     needs: [test]
     runs-on: ubuntu-latest
-    
+
     env:
       DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-      
+          node-version: "20"
+          cache: "pnpm"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Download shard artifacts
         uses: actions/download-artifact@v4
         with:
           path: merged-results
           pattern: test-results-shard-*
-      
+
       - name: Combine JSON results (simple concat)
         run: |
           mkdir -p playwright-report
@@ -231,6 +223,5 @@ jobs:
           name: playwright-junit
           path: playwright-report/junit
           retention-days: 30
-
 # Temporary database is automatically destroyed after job completes
 # Test sharding: 4 parallel jobs by default, customizable via workflow_dispatch

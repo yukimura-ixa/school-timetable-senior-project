@@ -1,16 +1,16 @@
 /**
  * Assign Feature - Server Actions
- * 
+ *
  * React Server Actions for teacher assignment operations.
  * Uses 'use server' directive for Next.js 16+ Server Actions.
  */
 
 "use server";
 
-import { revalidateTag } from 'next/cache';
-import { semester } from '@/prisma/generated/client';
-import type { teachers_responsibility } from '@/prisma/generated/client';
-import * as v from 'valibot';
+import { revalidateTag } from "next/cache";
+import { semester } from "@/prisma/generated/client";
+import type { teachers_responsibility } from "@/prisma/generated/client";
+import * as v from "valibot";
 
 // Schemas
 import {
@@ -24,34 +24,38 @@ import {
   type GetLockedRespsInput,
   type SyncAssignmentsInput,
   type DeleteAssignmentInput,
-} from '../schemas/assign.schemas';
+} from "../schemas/assign.schemas";
 
 // Repository
-import * as assignRepository from '../../infrastructure/repositories/assign.repository';
-import { withPrismaTransaction } from '@/lib/prisma-transaction';
-import { generateConfigID } from '@/features/config/domain/services/config-validation.service';
+import * as assignRepository from "../../infrastructure/repositories/assign.repository";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
+import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 
 // Services
 import {
   calculateTeachHour,
   computeResponsibilitiesDiff,
   expandAvailableSlots,
-} from '../../domain/services/assign-validation.service';
+} from "../../domain/services/assign-validation.service";
 
 /**
  * Helper: Create server action with validation
  */
 function createAction<TInput, TOutput>(
   schema: v.GenericSchema<TInput, TOutput> | undefined,
-  handler: (input: TOutput) => Promise<unknown>
+  handler: (input: TOutput) => Promise<unknown>,
 ) {
   return async (input: TInput) => {
     try {
-      const validated = schema ? v.parse(schema, input) : (input as unknown as TOutput);
+      const validated = schema
+        ? v.parse(schema, input)
+        : (input as unknown as TOutput);
       return await handler(validated);
     } catch (error) {
       if (error instanceof v.ValiError) {
-        const errorMessages = error.issues.map((issue) => issue.message).join(', ');
+        const errorMessages = error.issues
+          .map((issue) => issue.message)
+          .join(", ");
         throw new Error(`Validation failed: ${errorMessages}`);
       }
       throw error;
@@ -67,11 +71,11 @@ export const getAssignmentsAction = createAction(
   getAssignmentsSchema,
   async (input: GetAssignmentsInput) => {
     const sem = semester[input.Semester];
-    
+
     const data = await assignRepository.findByTeacherAndTerm(
       input.TeacherID,
       input.AcademicYear,
-      sem
+      sem,
     );
 
     // Add computed fields
@@ -82,7 +86,7 @@ export const getAssignmentsAction = createAction(
     }));
 
     return results;
-  }
+  },
 );
 
 /**
@@ -93,18 +97,18 @@ export const getAvailableRespsAction = createAction(
   getAvailableRespsSchema,
   async (input: GetAvailableRespsInput) => {
     const sem = semester[input.Semester];
-    
+
     const data = await assignRepository.findAvailableByTeacherAndTerm(
       input.TeacherID,
       input.AcademicYear,
-      sem
+      sem,
     );
 
     // Expand into available slots
     const slots = expandAvailableSlots(data);
 
     return slots;
-  }
+  },
 );
 
 /**
@@ -115,14 +119,14 @@ export const getLockedRespsAction = createAction(
   getLockedRespsSchema,
   async (input: GetLockedRespsInput) => {
     const sem = semester[input.Semester];
-    
+
     const subjects = await assignRepository.findLockedSubjectsByTerm(
       input.AcademicYear,
-      sem
+      sem,
     );
 
     return subjects;
-  }
+  },
 );
 
 /**
@@ -134,30 +138,31 @@ export const syncAssignmentsAction = createAction(
   syncAssignmentsSchema,
   async (input: SyncAssignmentsInput) => {
     const sem = semester[input.Semester];
-    const semesterNum = input.Semester === 'SEMESTER_1' ? '1' : '2';
+    const semesterNum = input.Semester === "SEMESTER_1" ? "1" : "2";
     const configId = generateConfigID(semesterNum, input.AcademicYear);
     const conflictsKey = `${input.AcademicYear}-${semesterNum}`;
 
     // Execute all operations in a transaction
     const result = await withPrismaTransaction(async (tx) => {
       // 1. Get existing responsibilities
-      const existingResponsibilities: teachers_responsibility[] = await tx.teachers_responsibility.findMany({
-        where: {
-          TeacherID: input.TeacherID,
-          AcademicYear: input.AcademicYear,
-          Semester: sem,
-        },
-      });
+      const existingResponsibilities: teachers_responsibility[] =
+        await tx.teachers_responsibility.findMany({
+          where: {
+            TeacherID: input.TeacherID,
+            AcademicYear: input.AcademicYear,
+            Semester: sem,
+          },
+        });
 
       // 2. Compute diff (what to create, what to delete)
       const { toCreate, toDelete } = computeResponsibilitiesDiff(
         existingResponsibilities,
-        input.Resp
+        input.Resp,
       );
 
       const results: Array<{
-        created?: typeof existingResponsibilities[0];
-        deleted?: typeof existingResponsibilities[0];
+        created?: (typeof existingResponsibilities)[0];
+        deleted?: (typeof existingResponsibilities)[0];
       }> = [];
 
       // 3. Create new responsibilities
@@ -208,7 +213,7 @@ export const syncAssignmentsAction = createAction(
       });
 
       return {
-        status: 'success' as const,
+        status: "success" as const,
         results,
         summary: {
           created: toCreate.length,
@@ -218,12 +223,12 @@ export const syncAssignmentsAction = createAction(
     });
 
     await Promise.all([
-      revalidateTag(`stats:${configId}`, 'max'),
-      revalidateTag(`conflicts:${conflictsKey}`, 'max'),
+      revalidateTag(`stats:${configId}`, "max"),
+      revalidateTag(`conflicts:${conflictsKey}`, "max"),
     ]);
 
     return result;
-  }
+  },
 );
 
 /**
@@ -240,7 +245,7 @@ export const deleteAssignmentAction = createAction(
       throw new Error(`Responsibility with RespID ${input.RespID} not found`);
     }
 
-    const semesterNum = resp.Semester === 'SEMESTER_1' ? '1' : '2';
+    const semesterNum = resp.Semester === "SEMESTER_1" ? "1" : "2";
     const configId = generateConfigID(semesterNum, resp.AcademicYear);
     const conflictsKey = `${resp.AcademicYear}-${semesterNum}`;
 
@@ -271,24 +276,21 @@ export const deleteAssignmentAction = createAction(
     });
 
     await Promise.all([
-      revalidateTag(`stats:${configId}`, 'max'),
-      revalidateTag(`conflicts:${conflictsKey}`, 'max'),
+      revalidateTag(`stats:${configId}`, "max"),
+      revalidateTag(`conflicts:${conflictsKey}`, "max"),
     ]);
 
     return result;
-  }
+  },
 );
 
 /**
  * Get count of all assignments
  */
-export const getAssignmentCountAction = createAction(
-  undefined,
-  async () => {
-    const count = await assignRepository.count();
-    return { count };
-  }
-);
+export const getAssignmentCountAction = createAction(undefined, async () => {
+  const count = await assignRepository.count();
+  return { count };
+});
 
 /**
  * Get assignments by teacher (all terms)
@@ -304,7 +306,7 @@ export const getAssignmentsByTeacherAction = createAction(
     });
 
     return assignments;
-  }
+  },
 );
 
 /**
@@ -314,16 +316,19 @@ export const getAssignmentsByTeacherAction = createAction(
 export const getAssignmentsByTermAction = createAction(
   v.object({
     AcademicYear: v.pipe(v.number(), v.integer(), v.minValue(2500)),
-    Semester: v.picklist(['SEMESTER_1', 'SEMESTER_2']),
+    Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
   }),
-  async (input: { AcademicYear: number; Semester: 'SEMESTER_1' | 'SEMESTER_2' }) => {
+  async (input: {
+    AcademicYear: number;
+    Semester: "SEMESTER_1" | "SEMESTER_2";
+  }) => {
     const sem = semester[input.Semester];
-    
+
     const assignments = await assignRepository.findMany({
       AcademicYear: input.AcademicYear,
       Semester: sem,
     });
 
     return assignments;
-  }
+  },
 );

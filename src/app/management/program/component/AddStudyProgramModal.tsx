@@ -3,8 +3,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { program, subject } from '@/prisma/generated/client';;
-import { semester } from '@/prisma/generated/client';;
+import type { program, subject } from "@/prisma/generated/client";
+import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
@@ -19,7 +19,7 @@ type Props = {
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
   // Get current Thai Buddhist year as default
   const currentThaiYear = new Date().getFullYear() + 543;
-  
+
   const [newProgramData, setNewProgramData] = useState<{
     ProgramName: string;
     Semester: semester | string;
@@ -33,7 +33,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     gradelevel: [],
     subject: [],
   });
-  
+
   type ProgramData = {
     ProgramName: string;
     Semester: semester | string;
@@ -41,7 +41,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     gradelevel: any[];
     subject: any[];
   };
-  
+
   const addProgram = async (program: ProgramData) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูล", {
       variant: "info",
@@ -49,29 +49,38 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     });
     console.log(program);
     closeModal();
-    
+
     try {
       const result = await createProgramAction({
         ProgramName: program.ProgramName,
         Semester: program.Semester,
         AcademicYear: program.AcademicYear,
-        gradelevel: program.gradelevel.map((g: any) => ({ GradeID: g.GradeID })),
-        subject: program.subject.map((s: any) => ({ SubjectCode: s.SubjectCode })),
+        gradelevel: program.gradelevel.map((g: any) => ({
+          GradeID: g.GradeID,
+        })),
+        subject: program.subject.map((s: any) => ({
+          SubjectCode: s.SubjectCode,
+        })),
       });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       mutate();
       enqueueSnackbar("เพิ่มข้อมูลสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการเพิ่มหลักสูตร: " + (error.message || "Unknown error"), { variant: "error" });
+      enqueueSnackbar(
+        "เกิดข้อผิดพลาดในการเพิ่มหลักสูตร: " +
+          (error.message || "Unknown error"),
+        { variant: "error" },
+      );
     }
   };
 

@@ -12,7 +12,7 @@ import { cookies } from "next/headers";
 export default async function GradeLevelManagePage() {
   // Force dynamic rendering for Next.js 16
   await cookies();
-  
+
   const result = await getGradeLevelsAction();
   const programsByYear = await getProgramsGroupedByYearAction();
 
@@ -23,9 +23,9 @@ export default async function GradeLevelManagePage() {
 
   return (
     <Suspense fallback={<TableSkeleton rows={6} />}>
-      <GradeLevelManageClient 
-        initialData={result.success ? result.data : []} 
-        programsByYear={programsByYear.success ? programsByYear.data : {}} 
+      <GradeLevelManageClient
+        initialData={result.success ? result.data : []}
+        programsByYear={programsByYear.success ? programsByYear.data : {}}
       />
     </Suspense>
   );

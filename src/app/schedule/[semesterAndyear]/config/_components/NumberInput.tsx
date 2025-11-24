@@ -51,10 +51,10 @@ export function NumberInput({
         size="small"
         onClick={handleDecrement}
         disabled={disabled || value <= min}
-        sx={{ 
-          border: 1, 
+        sx={{
+          border: 1,
           borderColor: "divider",
-          "&:hover": { borderColor: "primary.main" }
+          "&:hover": { borderColor: "primary.main" },
         }}
       >
         <RemoveIcon fontSize="small" />
@@ -77,7 +77,11 @@ export function NumberInput({
       />
 
       {unit && (
-        <Typography variant="body2" color="text.secondary" sx={{ minWidth: 40 }}>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ minWidth: 40 }}
+        >
           {unit}
         </Typography>
       )}
@@ -86,10 +90,10 @@ export function NumberInput({
         size="small"
         onClick={handleIncrement}
         disabled={disabled || value >= max}
-        sx={{ 
-          border: 1, 
+        sx={{
+          border: 1,
           borderColor: "divider",
-          "&:hover": { borderColor: "primary.main" }
+          "&:hover": { borderColor: "primary.main" },
         }}
       >
         <AddIcon fontSize="small" />

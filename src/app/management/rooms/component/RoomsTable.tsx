@@ -1,7 +1,14 @@
 "use client";
-import type { room } from '@/prisma/generated/client';;
-import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
-import { deleteRoomsAction, updateRoomsAction } from "@/features/room/application/actions/room.actions";
+import type { room } from "@/prisma/generated/client";
+import {
+  EditableTable,
+  type ColumnDef,
+  type ValidationFn,
+} from "@/components/tables";
+import {
+  deleteRoomsAction,
+  updateRoomsAction,
+} from "@/features/room/application/actions/room.actions";
 
 type RoomsTableProps = {
   tableData: room[];
@@ -53,7 +60,7 @@ const validateRoom: ValidationFn<room> = (id, data, allData) => {
   const duplicate = allData.find(
     (r) =>
       r.RoomName?.toLowerCase() === data.RoomName?.toLowerCase().trim() &&
-      (typeof id === "string" || r.RoomID !== id)
+      (typeof id === "string" || r.RoomID !== id),
   );
 
   if (duplicate) {
@@ -89,7 +96,7 @@ const handleUpdate = async (rooms: Partial<room>[]) => {
       RoomName: r.RoomName?.trim() || "",
       Building: r.Building?.trim() || "-",
       Floor: r.Floor?.trim() || "-",
-    }))
+    })),
   );
 };
 

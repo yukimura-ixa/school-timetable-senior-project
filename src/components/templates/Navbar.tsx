@@ -53,7 +53,7 @@ function Navbar() {
             <div className="flex w-fit justify-between gap-4 items-center mr-10">
               {/* Semester Selector */}
               {session.status === "authenticated" && <SemesterSelector />}
-              
+
               {/* User Info Card */}
               <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200">
                 <div

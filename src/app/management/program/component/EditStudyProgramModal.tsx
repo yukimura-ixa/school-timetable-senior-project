@@ -3,8 +3,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { program, subject } from '@/prisma/generated/client';;
-import { semester } from '@/prisma/generated/client';;
+import type { program, subject } from "@/prisma/generated/client";
+import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
@@ -41,30 +41,39 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     });
     console.log(program);
     closeModal();
-    
+
     try {
       const result = await updateProgramAction({
         ProgramID: program.ProgramID,
         ProgramName: program.ProgramName,
         Semester: program.Semester,
         AcademicYear: program.AcademicYear,
-        gradelevel: program.gradelevel.map((g: { GradeID: string }) => ({ GradeID: g.GradeID })),
-        subject: program.subject.map((s: subject) => ({ SubjectCode: s.SubjectCode })),
+        gradelevel: program.gradelevel.map((g: { GradeID: string }) => ({
+          GradeID: g.GradeID,
+        })),
+        subject: program.subject.map((s: subject) => ({
+          SubjectCode: s.SubjectCode,
+        })),
       });
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       mutate();
       enqueueSnackbar("แก้ไขหลักสูตรสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
     } catch (error: any) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("เกิดข้อผิดพลาดในการแก้ไขหลักสูตร: " + (error.message || "Unknown error"), { variant: "error" });
+      enqueueSnackbar(
+        "เกิดข้อผิดพลาดในการแก้ไขหลักสูตร: " +
+          (error.message || "Unknown error"),
+        { variant: "error" },
+      );
     }
   };
 
@@ -83,15 +92,20 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
       subject: newProgramData.subject.length == 0,
     }));
   };
-  const classRoomHandleChange = (value: { GradeID: string; [key: string]: unknown }) => {
+  const classRoomHandleChange = (value: {
+    GradeID: string;
+    [key: string]: unknown;
+  }) => {
     const removeDulpItem = newProgramData.gradelevel.filter(
-      (item: { GradeID: string; [key: string]: unknown }) => item.GradeID != value.GradeID,
+      (item: { GradeID: string; [key: string]: unknown }) =>
+        item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
       ...newProgramData,
       gradelevel:
         newProgramData.gradelevel.filter(
-          (item: { GradeID: string; [key: string]: unknown }) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+          (item: { GradeID: string; [key: string]: unknown }) =>
+            item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...newProgramData.gradelevel, value]
           : [...removeDulpItem],
@@ -125,7 +139,11 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const removeSubjectFromList = (index: number) => {
     setNewProgramData(() => ({
       ...newProgramData,
-      subject: [...newProgramData.subject.filter((item: subject, ind: number) => ind != index)],
+      subject: [
+        ...newProgramData.subject.filter(
+          (item: subject, ind: number) => ind != index,
+        ),
+      ],
     }));
   };
   const addItemAndCloseModal = () => {

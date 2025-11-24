@@ -15,8 +15,8 @@ type Props = {
   showTitle?: boolean;
 };
 
-export function SemesterSectionSkeleton({ 
-  title, 
+export function SemesterSectionSkeleton({
+  title,
   count = 3,
   showTitle = true,
 }: Props) {

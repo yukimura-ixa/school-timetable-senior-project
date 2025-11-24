@@ -1,7 +1,6 @@
- 
 /**
  * Arrangement Page - Modern MUI v7 Implementation
- * 
+ *
  * Comprehensive rebuild with:
  * - MUI v7 components (Grid, Paper, Tabs, etc.)
  * - Tab navigation: Teacher Arrange + Grade Level Views (ม.1-ม.6)
@@ -9,25 +8,18 @@
  * - Clean Architecture with Server Actions
  * - Zustand store integration (existing arrangement-ui.store)
  * - Real-time conflict validation
- * 
+ *
  * @module ArrangementPage
  */
 
-'use client';
+"use client";
 
-import React, { useEffect, useCallback, useMemo, useState } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import useSWR from 'swr';
-import { enqueueSnackbar } from 'notistack';
-import { useSemesterSync } from '@/hooks';
-import {
-  Box,
-  Container,
-  Paper,
-  Stack,
-  Alert,
-  AlertTitle,
-} from '@mui/material';
+import React, { useEffect, useCallback, useMemo, useState } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
+import useSWR from "swr";
+import { enqueueSnackbar } from "notistack";
+import { useSemesterSync } from "@/hooks";
+import { Box, Container, Paper, Stack, Alert, AlertTitle } from "@mui/material";
 
 // @dnd-kit
 import {
@@ -40,8 +32,8 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core';
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+} from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 
 // Modern Components
 import {
@@ -54,43 +46,59 @@ import {
   ScheduleActionToolbar,
   GradeClassView,
   ScheduleProgressIndicators,
-} from './_components';
+} from "./_components";
 
 // Domain Constants
 import {
   tabToGradeLevel,
   type ArrangeTab,
-} from '@/features/schedule-arrangement/domain/constants/arrangement.constants';
+} from "@/features/schedule-arrangement/domain/constants/arrangement.constants";
 
 // Server Actions
-import { getTeacherScheduleAction, syncTeacherScheduleAction } from '@/features/arrange/application/actions/arrange.actions';
-import { getConflictsAction, getClassSchedulesAction, createClassScheduleAction } from '@/features/class/application/actions/class.actions';
-import { checkTeacherConflictAction, checkRoomConflictAction } from '@/features/conflict/application/actions/conflict.actions';
-import { getTeachersAction } from '@/features/teacher/application/actions/teacher.actions';
-import { getAvailableRespsAction } from '@/features/assign/application/actions/assign.actions';
-import { getTimeslotsByTermAction } from '@/features/timeslot/application/actions/timeslot.actions';
-import { getGradeLevelsAction } from '@/features/gradelevel/application/actions/gradelevel.actions';
-import { getTimetableConfigAction } from '@/lib/actions/timetable-config.actions';
-import { getRawLockedSchedulesAction } from '@/features/lock/application/actions/lock.actions';
-import { generateClassID } from '@/features/arrange/domain/services/arrange-validation.service';
-import { getAvailableRoomsAction, getOccupiedRoomsAction } from '@/features/room/application/actions/room.actions';
+import {
+  getTeacherScheduleAction,
+  syncTeacherScheduleAction,
+} from "@/features/arrange/application/actions/arrange.actions";
+import {
+  getConflictsAction,
+  getClassSchedulesAction,
+  createClassScheduleAction,
+} from "@/features/class/application/actions/class.actions";
+import {
+  checkTeacherConflictAction,
+  checkRoomConflictAction,
+} from "@/features/conflict/application/actions/conflict.actions";
+import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+import { getAvailableRespsAction } from "@/features/assign/application/actions/assign.actions";
+import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
+import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import { getTimetableConfigAction } from "@/lib/actions/timetable-config.actions";
+import { getRawLockedSchedulesAction } from "@/features/lock/application/actions/lock.actions";
+import { generateClassID } from "@/features/arrange/domain/services/arrange-validation.service";
+import {
+  getAvailableRoomsAction,
+  getOccupiedRoomsAction,
+} from "@/features/room/application/actions/room.actions";
 
 // Zustand Store
-import { useArrangementUIStore } from '@/features/schedule-arrangement/presentation/stores/arrangement-ui.store';
+import { useArrangementUIStore } from "@/features/schedule-arrangement/presentation/stores/arrangement-ui.store";
 
 // Conflict Validation Hook
-import { useConflictValidation } from '@/features/schedule-arrangement/presentation/hooks';
+import { useConflictValidation } from "@/features/schedule-arrangement/presentation/hooks";
 
 // Config (import from constants to avoid bundling Prisma in browser)
-import type { TimetableConfig } from '@/lib/timetable-config.constants';
-import { DEFAULT_TIMETABLE_CONFIG } from '@/lib/timetable-config.constants';
+import type { TimetableConfig } from "@/lib/timetable-config.constants";
+import { DEFAULT_TIMETABLE_CONFIG } from "@/lib/timetable-config.constants";
 
 // Types
-import type { SubjectData, TeacherData } from '@/types/schedule.types';
-import type { gradelevel, teacher, room } from '@/prisma/generated/client';
+import type { SubjectData, TeacherData } from "@/types/schedule.types";
+import type { gradelevel, teacher, room } from "@/prisma/generated/client";
 
 // Feedback Components
-import { TimetableGridSkeleton, NetworkErrorEmptyState } from '@/components/feedback';
+import {
+  TimetableGridSkeleton,
+  NetworkErrorEmptyState,
+} from "@/components/feedback";
 
 /**
  * Main Arrangement Page Component
@@ -102,11 +110,13 @@ export default function ArrangementPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const searchTeacherID = searchParams.get('TeacherID');
-  
+  const searchTeacherID = searchParams.get("TeacherID");
+
   // Use useSemesterSync to extract and sync semester with global store
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
+
   if (!semester || !academicYear) {
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -125,7 +135,7 @@ export default function ArrangementPage() {
     const fetchConfig = async () => {
       const result = await getTimetableConfigAction(
         parseInt(academicYear),
-        `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2'
+        `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       );
       if (result.success && result.data) {
         setTimetableConfig(result.data);
@@ -137,11 +147,15 @@ export default function ArrangementPage() {
   // ============================================================================
   // LOCAL STATE
   // ============================================================================
-  const [currentTab, setCurrentTab] = useState<ArrangeTab>('teacher');
+  const [currentTab, setCurrentTab] = useState<ArrangeTab>("teacher");
   const [activeSubject, setActiveSubject] = useState<SubjectData | null>(null);
   const [roomDialogOpen, setRoomDialogOpen] = useState(false);
-  const [selectedTimeslotForRoom, setSelectedTimeslotForRoom] = useState<string | null>(null);
-  const [timetableConfig, setTimetableConfig] = useState<TimetableConfig>(DEFAULT_TIMETABLE_CONFIG);
+  const [selectedTimeslotForRoom, setSelectedTimeslotForRoom] = useState<
+    string | null
+  >(null);
+  const [timetableConfig, setTimetableConfig] = useState<TimetableConfig>(
+    DEFAULT_TIMETABLE_CONFIG,
+  );
 
   // ============================================================================
   // ZUSTAND STORE
@@ -152,26 +166,26 @@ export default function ArrangementPage() {
     teacherData,
     setCurrentTeacherID,
     setTeacherData,
-    
+
     // Data state
     scheduledSubjects,
     setLockData,
-    
+
     // Save state
     isSaving,
     setIsSaving,
-    
+
     // History actions
     pushHistory,
     undo,
     redo,
     canUndo,
     canRedo,
-    
+
     // Reset
     resetOnTeacherChange,
   } = useArrangementUIStore();
-  
+
   // Local dirty state (store doesn't have isDirty yet)
   const [isDirty, setIsDirty] = useState(false);
 
@@ -191,19 +205,19 @@ export default function ArrangementPage() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // ============================================================================
   // DATA FETCHING - Teachers
   // ============================================================================
   const { data: allTeachers, isLoading: isLoadingTeachers } = useSWR(
-    'teachers',
+    "teachers",
     async () => {
       const result = await getTeachersAction();
       if (!result || !result.success) return [];
       return result.data || [];
-    }
+    },
   );
 
   // ============================================================================
@@ -215,13 +229,17 @@ export default function ArrangementPage() {
       const result = await getGradeLevelsAction();
       if (!result || !result.success) return [];
       return result.data || [];
-    }
+    },
   );
 
   // ============================================================================
   // DATA FETCHING - Teacher Schedule (for Teacher Tab)
   // ============================================================================
-  const { data: teacherSchedule, mutate: mutateTeacherSchedule, isLoading: isLoadingSchedule } = useSWR(
+  const {
+    data: teacherSchedule,
+    mutate: mutateTeacherSchedule,
+    isLoading: isLoadingSchedule,
+  } = useSWR(
     currentTeacherID ? `teacher-schedule-${currentTeacherID}` : null,
     async () => {
       if (!currentTeacherID) return null;
@@ -230,25 +248,33 @@ export default function ArrangementPage() {
       });
       if (!result || !result.success) return null;
       return result.data;
-    }
+    },
   );
 
   // ============================================================================
   // DATA FETCHING - Available Subjects (for Teacher)
   // ============================================================================
   const { data: availableSubjects } = useSWR(
-    currentTeacherID ? `available-subjects-${academicYear}-${semester}-${currentTeacherID}` : null,
+    currentTeacherID
+      ? `available-subjects-${academicYear}-${semester}-${currentTeacherID}`
+      : null,
     async () => {
       if (!currentTeacherID) return [];
       const result = await getAvailableRespsAction({
         AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
       });
-      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
-      if (!('data' in result)) return [];
+      if (
+        !result ||
+        typeof result !== "object" ||
+        !("success" in result) ||
+        !result.success
+      )
+        return [];
+      if (!("data" in result)) return [];
       return (result.data as SubjectData[]) || [];
-    }
+    },
   );
 
   // ============================================================================
@@ -259,29 +285,37 @@ export default function ArrangementPage() {
     async () => {
       const result = await getTimeslotsByTermAction({
         AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
       if (!result || !result.success) return [];
       return result.data || [];
-    }
+    },
   );
 
   // ============================================================================
   // DATA FETCHING - Conflicts
   // ============================================================================
   const { data: conflicts, mutate: mutateConflicts } = useSWR(
-    currentTeacherID ? `conflicts-${academicYear}-${semester}-${currentTeacherID}` : null,
+    currentTeacherID
+      ? `conflicts-${academicYear}-${semester}-${currentTeacherID}`
+      : null,
     async () => {
       if (!currentTeacherID) return [];
       const result = await getConflictsAction({
         AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
       });
-      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
-      if (!('data' in result)) return [];
+      if (
+        !result ||
+        typeof result !== "object" ||
+        !("success" in result) ||
+        !result.success
+      )
+        return [];
+      if (!("data" in result)) return [];
       return (result.data as unknown[]) || [];
-    }
+    },
   );
 
   // ============================================================================
@@ -292,36 +326,56 @@ export default function ArrangementPage() {
     async () => {
       const result = await getRawLockedSchedulesAction({
         AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
       if (!result || !result.success) return [];
       return result.data || [];
-    }
+    },
   );
 
   // ============================================================================
   // DATA FETCHING - Room Availability (for Room Dialog)
   // ============================================================================
   const { data: availableRooms } = useSWR(
-    selectedTimeslotForRoom ? `available-rooms-${selectedTimeslotForRoom}` : null,
+    selectedTimeslotForRoom
+      ? `available-rooms-${selectedTimeslotForRoom}`
+      : null,
     async () => {
       if (!selectedTimeslotForRoom) return [];
-      const result = await getAvailableRoomsAction({ TimeslotID: selectedTimeslotForRoom });
-      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
-      if (!('data' in result)) return [];
+      const result = await getAvailableRoomsAction({
+        TimeslotID: selectedTimeslotForRoom,
+      });
+      if (
+        !result ||
+        typeof result !== "object" ||
+        !("success" in result) ||
+        !result.success
+      )
+        return [];
+      if (!("data" in result)) return [];
       return (result.data as unknown[]) || [];
-    }
+    },
   );
 
   const { data: occupiedRoomIDs } = useSWR(
-    selectedTimeslotForRoom ? `occupied-rooms-${selectedTimeslotForRoom}` : null,
+    selectedTimeslotForRoom
+      ? `occupied-rooms-${selectedTimeslotForRoom}`
+      : null,
     async () => {
       if (!selectedTimeslotForRoom) return [];
-      const result = await getOccupiedRoomsAction({ TimeslotID: selectedTimeslotForRoom });
-      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
-      if (!('data' in result)) return [];
+      const result = await getOccupiedRoomsAction({
+        TimeslotID: selectedTimeslotForRoom,
+      });
+      if (
+        !result ||
+        typeof result !== "object" ||
+        !("success" in result) ||
+        !result.success
+      )
+        return [];
+      if (!("data" in result)) return [];
       return (result.data as number[]) || [];
-    }
+    },
   );
 
   // ============================================================================
@@ -332,24 +386,32 @@ export default function ArrangementPage() {
   }, [currentTab]);
 
   const { data: gradeSchedules, isLoading: isLoadingGradeSchedules } = useSWR(
-    selectedGradeLevel ? `grade-schedules-${academicYear}-${semester}-${selectedGradeLevel}` : null,
+    selectedGradeLevel
+      ? `grade-schedules-${academicYear}-${semester}-${selectedGradeLevel}`
+      : null,
     async () => {
       if (!selectedGradeLevel) return [];
       const result = await getClassSchedulesAction({
         AcademicYear: parseInt(academicYear),
-        Semester: `SEMESTER_${semester}` as 'SEMESTER_1' | 'SEMESTER_2',
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         GradeID: undefined, // Will fetch by Year instead
       });
-      if (!result || typeof result !== 'object' || !('success' in result) || !result.success) return [];
-      if (!('data' in result)) return [];
-      
+      if (
+        !result ||
+        typeof result !== "object" ||
+        !("success" in result) ||
+        !result.success
+      )
+        return [];
+      if (!("data" in result)) return [];
+
       // Filter by grade level Year
       const schedules = (result.data as unknown[]) || [];
       return schedules.filter((s: unknown) => {
         const schedule = s as { gradelevel?: { Year?: number } };
         return schedule.gradelevel?.Year === selectedGradeLevel;
       });
-    }
+    },
   );
 
   // ============================================================================
@@ -357,21 +419,23 @@ export default function ArrangementPage() {
   // ============================================================================
   const gradeClassData = useMemo(() => {
     if (!gradeLevels || !gradeSchedules || !selectedGradeLevel) return [];
-    
+
     // Filter classes for selected grade level
-    const classes = gradeLevels.filter((g: gradelevel) => g.Year === selectedGradeLevel);
-    
+    const classes = gradeLevels.filter(
+      (g: gradelevel) => g.Year === selectedGradeLevel,
+    );
+
     // Group schedules by class
     return classes.map((cls: gradelevel) => {
       const classSchedules = gradeSchedules.filter((s: unknown) => {
         const schedule = s as { GradeID?: string };
         return schedule.GradeID === cls.GradeID;
       });
-      
+
       // Calculate expected periods from config
       const totalPeriods = timetableConfig.totalPeriodsPerWeek;
       const assignedPeriods = classSchedules.length;
-      
+
       return {
         class: cls,
         schedules: classSchedules,
@@ -386,12 +450,12 @@ export default function ArrangementPage() {
   // ============================================================================
   const gradeCounts = useMemo(() => {
     if (!gradeLevels) return {};
-    
+
     const counts: Record<number, number> = {};
     gradeLevels.forEach((g: gradelevel) => {
       counts[g.Year] = (counts[g.Year] || 0) + 1;
     });
-    
+
     return counts;
   }, [gradeLevels]);
 
@@ -430,14 +494,14 @@ export default function ArrangementPage() {
       });
       if (teacher) {
         // Transform PascalCase to camelCase for store
-        const rawTeacher = teacher as { 
-          TeacherID: number; 
-          Prefix: string; 
-          Firstname: string; 
-          Lastname: string; 
-          Department: string; 
-          Email: string; 
-          Role: string; 
+        const rawTeacher = teacher as {
+          TeacherID: number;
+          Prefix: string;
+          Firstname: string;
+          Lastname: string;
+          Department: string;
+          Email: string;
+          Role: string;
         };
         // Store now expects Prisma's teacher type directly
         setTeacherData(rawTeacher);
@@ -468,7 +532,7 @@ export default function ArrangementPage() {
     for (const slot of timeslots) {
       const ts = slot as { TimeslotID?: string; Breaktime?: string };
       // Block any slot that has a break designation (BREAK_JUNIOR, BREAK_SENIOR, BREAK_BOTH)
-      if (ts.Breaktime && ts.Breaktime !== 'NOT_BREAK') {
+      if (ts.Breaktime && ts.Breaktime !== "NOT_BREAK") {
         if (ts.TimeslotID) {
           breakIDs.add(ts.TimeslotID);
         }
@@ -488,22 +552,27 @@ export default function ArrangementPage() {
   // ============================================================================
   // HANDLERS - Teacher Change
   // ============================================================================
-  const handleTeacherChange = useCallback((teacherID: string) => {
-    setCurrentTeacherID(teacherID);
-    router.push(`/schedule/${semester}-${academicYear}/arrange?TeacherID=${teacherID}`);
-  }, [semester, academicYear, router, setCurrentTeacherID]);
+  const handleTeacherChange = useCallback(
+    (teacherID: string) => {
+      setCurrentTeacherID(teacherID);
+      router.push(
+        `/schedule/${semester}-${academicYear}/arrange?TeacherID=${teacherID}`,
+      );
+    },
+    [semester, academicYear, router, setCurrentTeacherID],
+  );
 
   // ============================================================================
   // HANDLERS - Save
   // ============================================================================
   const handleSave = useCallback(async () => {
     if (!currentTeacherID || !teacherSchedule) {
-      enqueueSnackbar('กรุณาเลือกครูก่อนบันทึก', { variant: 'warning' });
+      enqueueSnackbar("กรุณาเลือกครูก่อนบันทึก", { variant: "warning" });
       return;
     }
 
     setIsSaving(true);
-    
+
     try {
       const result = await syncTeacherScheduleAction({
         TeacherID: parseInt(currentTeacherID),
@@ -511,184 +580,239 @@ export default function ArrangementPage() {
       });
 
       if (result.success) {
-        enqueueSnackbar('✅ บันทึกตารางสอนสำเร็จ', { variant: 'success' });
+        enqueueSnackbar("✅ บันทึกตารางสอนสำเร็จ", { variant: "success" });
         setIsDirty(false);
         void mutateTeacherSchedule();
         void mutateConflicts();
       } else {
-        const errorMsg = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || 'ไม่ทราบสาเหตุ';
-        enqueueSnackbar(`❌ บันทึกไม่สำเร็จ: ${errorMsg}`, { variant: 'error' });
+        const errorMsg =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "ไม่ทราบสาเหตุ";
+        enqueueSnackbar(`❌ บันทึกไม่สำเร็จ: ${errorMsg}`, {
+          variant: "error",
+        });
       }
     } catch (error) {
-      console.error('Save error:', error);
-      enqueueSnackbar('❌ เกิดข้อผิดพลาดในการบันทึก', { variant: 'error' });
+      console.error("Save error:", error);
+      enqueueSnackbar("❌ เกิดข้อผิดพลาดในการบันทึก", { variant: "error" });
     } finally {
       setIsSaving(false);
     }
-  }, [currentTeacherID, teacherSchedule, setIsSaving, setIsDirty, mutateTeacherSchedule, mutateConflicts]);
+  }, [
+    currentTeacherID,
+    teacherSchedule,
+    setIsSaving,
+    setIsDirty,
+    mutateTeacherSchedule,
+    mutateConflicts,
+  ]);
 
   // ============================================================================
   // HANDLERS - Drag & Drop
   // ============================================================================
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const { active } = event;
-    const subject = availableSubjects?.find((s: unknown) => {
-      const subj = s as { SubjectCode?: string };
-      return subj.SubjectCode === active.id;
-    });
-    if (subject) {
-      setActiveSubject(subject);
-    }
-  }, [availableSubjects]);
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event;
+      const subject = availableSubjects?.find((s: unknown) => {
+        const subj = s as { SubjectCode?: string };
+        return subj.SubjectCode === active.id;
+      });
+      if (subject) {
+        setActiveSubject(subject);
+      }
+    },
+    [availableSubjects],
+  );
 
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveSubject(null);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveSubject(null);
 
-    if (!over || !activeSubject) return;
+      if (!over || !activeSubject) return;
 
-    const subjectCode = active.id as string;
-    const timeslotID = over.id as string;
+      const subjectCode = active.id as string;
+      const timeslotID = over.id as string;
 
-    // Step 1: Validate timeslot is not a break slot
-    if (breakSlotIDs.has(timeslotID)) {
-      enqueueSnackbar('⏸️ ไม่สามารถจัดวิชาเรียนในคาบพักได้', { variant: 'warning' });
-      return;
-    }
+      // Step 1: Validate timeslot is not a break slot
+      if (breakSlotIDs.has(timeslotID)) {
+        enqueueSnackbar("⏸️ ไม่สามารถจัดวิชาเรียนในคาบพักได้", {
+          variant: "warning",
+        });
+        return;
+      }
 
-    // Step 2: Validate timeslot is not locked
-    if (conflictValidation.lockedTimeslots.has(timeslotID)) {
-      enqueueSnackbar('🔒 ช่วงเวลานี้ถูกล็อคแล้ว ไม่สามารถจัดตารางได้', { variant: 'warning' });
-      return;
-    }
+      // Step 2: Validate timeslot is not locked
+      if (conflictValidation.lockedTimeslots.has(timeslotID)) {
+        enqueueSnackbar("🔒 ช่วงเวลานี้ถูกล็อคแล้ว ไม่สามารถจัดตารางได้", {
+          variant: "warning",
+        });
+        return;
+      }
 
-    // Step 3: Check for general conflicts using validation hook
-    const conflictInfo = conflictValidation.conflictsByTimeslot.get(timeslotID);
-    if (conflictInfo && conflictInfo.type !== 'none' && conflictInfo.severity === 'error') {
-      enqueueSnackbar(`⚠️ ตรวจพบข้อขัดแย้ง: ${conflictInfo.message}`, { variant: 'error' });
-      return;
-    }
+      // Step 3: Check for general conflicts using validation hook
+      const conflictInfo =
+        conflictValidation.conflictsByTimeslot.get(timeslotID);
+      if (
+        conflictInfo &&
+        conflictInfo.type !== "none" &&
+        conflictInfo.severity === "error"
+      ) {
+        enqueueSnackbar(`⚠️ ตรวจพบข้อขัดแย้ง: ${conflictInfo.message}`, {
+          variant: "error",
+        });
+        return;
+      }
 
-    // Step 4: Check for specific teacher conflict (NEW - Issue #84)
-    // Wrapped in async IIFE to avoid breaking useCallback
-    void (async () => {
-      if (currentTeacherID) {
-        try {
-          const teacherConflictResult = await checkTeacherConflictAction({
-            teacherId: parseInt(currentTeacherID),
-            timeslotId: timeslotID,
-          });
+      // Step 4: Check for specific teacher conflict (NEW - Issue #84)
+      // Wrapped in async IIFE to avoid breaking useCallback
+      void (async () => {
+        if (currentTeacherID) {
+          try {
+            const teacherConflictResult = await checkTeacherConflictAction({
+              teacherId: parseInt(currentTeacherID),
+              timeslotId: timeslotID,
+            });
 
-          if (teacherConflictResult.success && teacherConflictResult.data?.hasConflict) {
-            const conflict = teacherConflictResult.data;
-            enqueueSnackbar(
-              `⚠️ ${conflict.teacherName} สอนวิชา "${conflict.subjectName}" ชั้น ${conflict.gradeName} ในช่วงเวลานี้แล้ว`,
-              { variant: 'error' }
-            );
-            return;
+            if (
+              teacherConflictResult.success &&
+              teacherConflictResult.data?.hasConflict
+            ) {
+              const conflict = teacherConflictResult.data;
+              enqueueSnackbar(
+                `⚠️ ${conflict.teacherName} สอนวิชา "${conflict.subjectName}" ชั้น ${conflict.gradeName} ในช่วงเวลานี้แล้ว`,
+                { variant: "error" },
+              );
+              return;
+            }
+
+            // Step 5: If no conflict, open room selection dialog
+            setSelectedTimeslotForRoom(timeslotID);
+            setRoomDialogOpen(true);
+          } catch (error) {
+            console.error("Teacher conflict check error:", error);
+            enqueueSnackbar("⚠️ ไม่สามารถตรวจสอบข้อขัดแย้งของครูได้", {
+              variant: "warning",
+            });
+            // Continue to allow placement despite check failure
+            setSelectedTimeslotForRoom(timeslotID);
+            setRoomDialogOpen(true);
           }
-          
-          // Step 5: If no conflict, open room selection dialog
-          setSelectedTimeslotForRoom(timeslotID);
-          setRoomDialogOpen(true);
-        } catch (error) {
-          console.error('Teacher conflict check error:', error);
-          enqueueSnackbar('⚠️ ไม่สามารถตรวจสอบข้อขัดแย้งของครูได้', { variant: 'warning' });
-          // Continue to allow placement despite check failure
+        } else {
+          // No teacher selected, proceed to room selection
           setSelectedTimeslotForRoom(timeslotID);
           setRoomDialogOpen(true);
         }
-      } else {
-        // No teacher selected, proceed to room selection
-        setSelectedTimeslotForRoom(timeslotID);
-        setRoomDialogOpen(true);
-      }
-    })();
-  }, [activeSubject, breakSlotIDs, conflictValidation.lockedTimeslots, conflictValidation.conflictsByTimeslot, currentTeacherID]);
+      })();
+    },
+    [
+      activeSubject,
+      breakSlotIDs,
+      conflictValidation.lockedTimeslots,
+      conflictValidation.conflictsByTimeslot,
+      currentTeacherID,
+    ],
+  );
 
   // ============================================================================
   // HANDLERS - Room Selection
   // ============================================================================
-  const handleRoomSelect = useCallback(async (room: { RoomID: number; RoomName: string; Building: string; Floor: string }) => {
-    if (!activeSubject || !selectedTimeslotForRoom) {
-      enqueueSnackbar('⚠️ ข้อมูลไม่ครบถ้วน', { variant: 'warning' });
-      setRoomDialogOpen(false);
-      return;
-    }
-
-    try {
-      // Extract required fields from activeSubject (from teachers_responsibility via getAvailableRespsAction)
-      const subjectData = activeSubject as unknown as { 
-        SubjectCode?: string;
-        GradeID?: string;
-        RespID?: number;
-      };
-
-      if (!subjectData.SubjectCode || !subjectData.GradeID || !subjectData.RespID) {
-        enqueueSnackbar('⚠️ ข้อมูลรายวิชาไม่ครบถ้วน', { variant: 'warning' });
+  const handleRoomSelect = useCallback(
+    async (room: {
+      RoomID: number;
+      RoomName: string;
+      Building: string;
+      Floor: string;
+    }) => {
+      if (!activeSubject || !selectedTimeslotForRoom) {
+        enqueueSnackbar("⚠️ ข้อมูลไม่ครบถ้วน", { variant: "warning" });
         setRoomDialogOpen(false);
         return;
       }
 
-      // Step 1: Check for room conflicts before creating schedule
-      const roomConflictResult = await checkRoomConflictAction({
-        roomId: room.RoomID,
-        timeslotId: selectedTimeslotForRoom,
-      });
+      try {
+        // Extract required fields from activeSubject (from teachers_responsibility via getAvailableRespsAction)
+        const subjectData = activeSubject as unknown as {
+          SubjectCode?: string;
+          GradeID?: string;
+          RespID?: number;
+        };
 
-      if (roomConflictResult.data?.hasConflict) {
-        // Room is occupied - show error and keep dialog open for re-selection
-        const conflictData = roomConflictResult.data;
-        const message = `⚠️ ห้อง${conflictData.roomName} มี${conflictData.teacherName} สอนวิชา${conflictData.subjectName} ชั้น${conflictData.gradeName} ในช่วงเวลานี้แล้ว`;
-        enqueueSnackbar(message, { variant: 'error' });
-        return; // Don't close dialog - allow user to select different room
+        if (
+          !subjectData.SubjectCode ||
+          !subjectData.GradeID ||
+          !subjectData.RespID
+        ) {
+          enqueueSnackbar("⚠️ ข้อมูลรายวิชาไม่ครบถ้วน", { variant: "warning" });
+          setRoomDialogOpen(false);
+          return;
+        }
+
+        // Step 1: Check for room conflicts before creating schedule
+        const roomConflictResult = await checkRoomConflictAction({
+          roomId: room.RoomID,
+          timeslotId: selectedTimeslotForRoom,
+        });
+
+        if (roomConflictResult.data?.hasConflict) {
+          // Room is occupied - show error and keep dialog open for re-selection
+          const conflictData = roomConflictResult.data;
+          const message = `⚠️ ห้อง${conflictData.roomName} มี${conflictData.teacherName} สอนวิชา${conflictData.subjectName} ชั้น${conflictData.gradeName} ในช่วงเวลานี้แล้ว`;
+          enqueueSnackbar(message, { variant: "error" });
+          return; // Don't close dialog - allow user to select different room
+        }
+
+        // Generate ClassID using helper function
+        const classID = generateClassID(
+          selectedTimeslotForRoom,
+          subjectData.SubjectCode,
+          subjectData.GradeID,
+        );
+
+        // Create schedule entry via Server Action
+        const result = await createClassScheduleAction({
+          ClassID: classID,
+          TimeslotID: selectedTimeslotForRoom,
+          SubjectCode: subjectData.SubjectCode,
+          GradeID: subjectData.GradeID,
+          RoomID: room.RoomID,
+          IsLocked: false,
+          ResponsibilityIDs: [subjectData.RespID],
+        });
+
+        if (result) {
+          // Revalidate caches to reflect new schedule
+          await Promise.all([mutateTeacherSchedule(), mutateConflicts()]);
+
+          // Push to history for undo/redo
+          pushHistory(scheduledSubjects);
+
+          // Mark as dirty for unsaved changes warning
+          setIsDirty(true);
+
+          enqueueSnackbar("✅ จัดตารางสอนสำเร็จ", { variant: "success" });
+        }
+      } catch (error) {
+        console.error("Schedule creation error:", error);
+        const errorMsg =
+          error instanceof Error ? error.message : "ไม่ทราบสาเหตุ";
+        enqueueSnackbar(`❌ เกิดข้อผิดพลาด: ${errorMsg}`, { variant: "error" });
+      } finally {
+        // Always cleanup dialog state
+        setRoomDialogOpen(false);
+        setSelectedTimeslotForRoom(null);
       }
-
-      // Generate ClassID using helper function
-      const classID = generateClassID(
-        selectedTimeslotForRoom,
-        subjectData.SubjectCode,
-        subjectData.GradeID
-      );
-
-      // Create schedule entry via Server Action
-      const result = await createClassScheduleAction({
-        ClassID: classID,
-        TimeslotID: selectedTimeslotForRoom,
-        SubjectCode: subjectData.SubjectCode,
-        GradeID: subjectData.GradeID,
-        RoomID: room.RoomID,
-        IsLocked: false,
-        ResponsibilityIDs: [subjectData.RespID],
-      });
-
-      if (result) {
-        // Revalidate caches to reflect new schedule
-        await Promise.all([
-          mutateTeacherSchedule(),
-          mutateConflicts(),
-        ]);
-
-        // Push to history for undo/redo
-        pushHistory(scheduledSubjects);
-
-        // Mark as dirty for unsaved changes warning
-        setIsDirty(true);
-
-        enqueueSnackbar('✅ จัดตารางสอนสำเร็จ', { variant: 'success' });
-      }
-    } catch (error) {
-      console.error('Schedule creation error:', error);
-      const errorMsg = error instanceof Error ? error.message : 'ไม่ทราบสาเหตุ';
-      enqueueSnackbar(`❌ เกิดข้อผิดพลาด: ${errorMsg}`, { variant: 'error' });
-    } finally {
-      // Always cleanup dialog state
-      setRoomDialogOpen(false);
-      setSelectedTimeslotForRoom(null);
-    }
-  }, [activeSubject, selectedTimeslotForRoom, mutateTeacherSchedule, mutateConflicts, pushHistory, scheduledSubjects]);
+    },
+    [
+      activeSubject,
+      selectedTimeslotForRoom,
+      mutateTeacherSchedule,
+      mutateConflicts,
+      pushHistory,
+      scheduledSubjects,
+    ],
+  );
 
   // ============================================================================
   // HANDLERS - Clear All
@@ -696,7 +820,7 @@ export default function ArrangementPage() {
   const handleClearAll = useCallback(() => {
     void (async () => {
       if (!currentTeacherID || !teacherSchedule) {
-        enqueueSnackbar('ไม่พบข้อมูลตารางสอน', { variant: 'warning' });
+        enqueueSnackbar("ไม่พบข้อมูลตารางสอน", { variant: "warning" });
         return;
       }
 
@@ -716,192 +840,88 @@ export default function ArrangementPage() {
           await mutateTeacherSchedule();
           await mutateConflicts();
           setIsDirty(false);
-          enqueueSnackbar('✅ ล้างตารางทั้งหมดสำเร็จ', { variant: 'success' });
+          enqueueSnackbar("✅ ล้างตารางทั้งหมดสำเร็จ", { variant: "success" });
         } else {
-          enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
+          enqueueSnackbar("❌ เกิดข้อผิดพลาดในการล้างตาราง", {
+            variant: "error",
+          });
         }
       } catch (error) {
-        console.error('Clear all error:', error);
-        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
+        console.error("Clear all error:", error);
+        enqueueSnackbar("❌ เกิดข้อผิดพลาดในการล้างตาราง", {
+          variant: "error",
+        });
       }
     })();
-  }, [currentTeacherID, teacherSchedule, academicYear, semester, scheduledSubjects, pushHistory, mutateTeacherSchedule, mutateConflicts]);
+  }, [
+    currentTeacherID,
+    teacherSchedule,
+    academicYear,
+    semester,
+    scheduledSubjects,
+    pushHistory,
+    mutateTeacherSchedule,
+    mutateConflicts,
+  ]);
 
   // ============================================================================
   // HANDLERS - Clear Day (Phase 2)
   // ============================================================================
-  const handleClearDay = useCallback((day: number) => {
-    void (async () => {
-      if (!currentTeacherID || !teacherSchedule || !Array.isArray(teacherSchedule) || !timeslots) {
-        enqueueSnackbar('ไม่พบข้อมูลตารางสอน', { variant: 'warning' });
-        return;
-      }
-
-      try {
-        // Push history before modification
-        pushHistory(scheduledSubjects);
-
-        // Map day number to enum (1=MON, 2=TUE, 3=WED, 4=THU, 5=FRI)
-        const dayMap = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
-        const dayOfWeek = dayMap[day - 1];
-        
-        if (!dayOfWeek) {
-          enqueueSnackbar('วันที่เลือกไม่ถูกต้อง', { variant: 'error' });
+  const handleClearDay = useCallback(
+    (day: number) => {
+      void (async () => {
+        if (
+          !currentTeacherID ||
+          !teacherSchedule ||
+          !Array.isArray(teacherSchedule) ||
+          !timeslots
+        ) {
+          enqueueSnackbar("ไม่พบข้อมูลตารางสอน", { variant: "warning" });
           return;
         }
 
-        // Get timeslot IDs for this day
-        const dayTimeslotIDs = new Set(
-          timeslots
-            .filter((ts) => {
-              const slot = ts as { DayOfWeek?: string };
-              return slot.DayOfWeek === dayOfWeek;
-            })
-            .map((ts) => {
-              const slot = ts as { TimeslotID?: string };
-              return slot.TimeslotID;
-            })
-        );
+        try {
+          // Push history before modification
+          pushHistory(scheduledSubjects);
 
-        // Filter out schedules for this day
-        const remainingSchedules = teacherSchedule.filter((schedule) => {
-          const sched = schedule as { TimeslotID?: string };
-          return !dayTimeslotIDs.has(sched.TimeslotID || '');
-        });
+          // Map day number to enum (1=MON, 2=TUE, 3=WED, 4=THU, 5=FRI)
+          const dayMap = ["MON", "TUE", "WED", "THU", "FRI"];
+          const dayOfWeek = dayMap[day - 1];
 
-        // Sync updated schedule
-        const scheduleData = remainingSchedules.map((s) => {
-          const sched = s as { ClassID: string; TimeslotID: string; SubjectCode: string; GradeID: string; RoomID?: number; RespID?: number };
-          return {
-            ClassID: sched.ClassID,
-            TimeslotID: sched.TimeslotID,
-            SubjectCode: sched.SubjectCode,
-            GradeID: sched.GradeID,
-            RoomID: sched.RoomID || null,
-            RespID: sched.RespID || null,
-          };
-        });
-
-        const result = await syncTeacherScheduleAction({
-          TeacherID: parseInt(currentTeacherID),
-          AcademicYear: parseInt(academicYear),
-          Semester: semester,
-          Schedule: scheduleData,
-        });
-
-        if (result.success) {
-          await mutateTeacherSchedule();
-          await mutateConflicts();
-          setIsDirty(false);
-          enqueueSnackbar(`✅ ล้างตารางวัน${dayMap[day - 1]}สำเร็จ`, { variant: 'success' });
-        } else {
-          enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
-        }
-      } catch (error) {
-        console.error('Clear day error:', error);
-        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการล้างตาราง', { variant: 'error' });
-      }
-    })();
-  }, [currentTeacherID, teacherSchedule, timeslots, academicYear, semester, scheduledSubjects, pushHistory, mutateTeacherSchedule, mutateConflicts]);
-
-  // ============================================================================
-  // HANDLERS - Copy Day (Phase 2)
-  // ============================================================================
-  const handleCopyDay = useCallback((sourceDay: number, targetDay: number) => {
-    void (async () => {
-      if (!currentTeacherID || !teacherSchedule || !Array.isArray(teacherSchedule) || !timeslots) {
-        enqueueSnackbar('ไม่พบข้อมูลตารางสอน', { variant: 'warning' });
-        return;
-      }
-
-      if (sourceDay === targetDay) {
-        enqueueSnackbar('ไม่สามารถคัดลอกไปยังวันเดียวกันได้', { variant: 'warning' });
-        return;
-      }
-
-      try {
-        // Push history before modification
-        pushHistory(scheduledSubjects);
-
-        // Map day number to enum
-        const dayMap = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
-        const sourceDayOfWeek = dayMap[sourceDay - 1];
-        const targetDayOfWeek = dayMap[targetDay - 1];
-        
-        if (!sourceDayOfWeek || !targetDayOfWeek) {
-          enqueueSnackbar('วันที่เลือกไม่ถูกต้อง', { variant: 'error' });
-          return;
-        }
-
-        // Build timeslot mapping (source period -> target period)
-        const sourceTimeslots = timeslots.filter((ts) => {
-          const slot = ts as { DayOfWeek?: string };
-          return slot.DayOfWeek === sourceDayOfWeek;
-        });
-        
-        const targetTimeslots = timeslots.filter((ts) => {
-          const slot = ts as { DayOfWeek?: string };
-          return slot.DayOfWeek === targetDayOfWeek;
-        });
-
-        // Sort by StartTime to align periods
-        const sortedSource = [...sourceTimeslots].sort((a, b) => {
-          const timeA = (a as { StartTime?: Date }).StartTime || new Date();
-          const timeB = (b as { StartTime?: Date }).StartTime || new Date();
-          return timeA.getTime() - timeB.getTime();
-        });
-
-        const sortedTarget = [...targetTimeslots].sort((a, b) => {
-          const timeA = (a as { StartTime?: Date }).StartTime || new Date();
-          const timeB = (b as { StartTime?: Date }).StartTime || new Date();
-          return timeA.getTime() - timeB.getTime();
-        });
-
-        // Create timeslot ID mapping
-        const timeslotMap = new Map<string, string>();
-        sortedSource.forEach((sourceSlot, idx) => {
-          const sourceID = (sourceSlot as { TimeslotID?: string }).TimeslotID;
-          const targetSlot = sortedTarget[idx];
-          const targetID = targetSlot ? (targetSlot as { TimeslotID?: string }).TimeslotID : null;
-          if (sourceID && targetID) {
-            timeslotMap.set(sourceID, targetID);
+          if (!dayOfWeek) {
+            enqueueSnackbar("วันที่เลือกไม่ถูกต้อง", { variant: "error" });
+            return;
           }
-        });
 
-        // Get target day timeslot IDs for clearing
-        const targetTimeslotIDs = new Set(sortedTarget.map((ts) => (ts as { TimeslotID?: string }).TimeslotID));
+          // Get timeslot IDs for this day
+          const dayTimeslotIDs = new Set(
+            timeslots
+              .filter((ts) => {
+                const slot = ts as { DayOfWeek?: string };
+                return slot.DayOfWeek === dayOfWeek;
+              })
+              .map((ts) => {
+                const slot = ts as { TimeslotID?: string };
+                return slot.TimeslotID;
+              }),
+          );
 
-        // Remove existing schedules from target day
-        const nonTargetSchedules = teacherSchedule.filter((schedule) => {
-          const sched = schedule as { TimeslotID?: string };
-          return !targetTimeslotIDs.has(sched.TimeslotID || '');
-        });
-
-        // Copy schedules from source day to target day
-        const copiedSchedules = teacherSchedule
-          .filter((schedule) => {
+          // Filter out schedules for this day
+          const remainingSchedules = teacherSchedule.filter((schedule) => {
             const sched = schedule as { TimeslotID?: string };
-            return timeslotMap.has(sched.TimeslotID || '');
-          })
-          .map((schedule) => {
-            const sched = schedule as { ClassID: string; TimeslotID: string; SubjectCode: string; GradeID: string; RoomID?: number; RespID?: number };
-            const newTimeslotID = timeslotMap.get(sched.TimeslotID) || sched.TimeslotID;
-            const newClassID = `${sched.GradeID}-${newTimeslotID}`;
-            
-            return {
-              ClassID: newClassID,
-              TimeslotID: newTimeslotID,
-              SubjectCode: sched.SubjectCode,
-              GradeID: sched.GradeID,
-              RoomID: sched.RoomID || null,
-              RespID: sched.RespID || null,
-            };
+            return !dayTimeslotIDs.has(sched.TimeslotID || "");
           });
 
-        // Combine non-target schedules with copied schedules
-        const newScheduleData = [
-          ...nonTargetSchedules.map((s) => {
-            const sched = s as { ClassID: string; TimeslotID: string; SubjectCode: string; GradeID: string; RoomID?: number; RespID?: number };
+          // Sync updated schedule
+          const scheduleData = remainingSchedules.map((s) => {
+            const sched = s as {
+              ClassID: string;
+              TimeslotID: string;
+              SubjectCode: string;
+              GradeID: string;
+              RoomID?: number;
+              RespID?: number;
+            };
             return {
               ClassID: sched.ClassID,
               TimeslotID: sched.TimeslotID,
@@ -910,32 +930,228 @@ export default function ArrangementPage() {
               RoomID: sched.RoomID || null,
               RespID: sched.RespID || null,
             };
-          }),
-          ...copiedSchedules,
-        ];
+          });
 
-        // Sync updated schedule
-        const result = await syncTeacherScheduleAction({
-          TeacherID: parseInt(currentTeacherID),
-          AcademicYear: parseInt(academicYear),
-          Semester: semester,
-          Schedule: newScheduleData,
-        });
+          const result = await syncTeacherScheduleAction({
+            TeacherID: parseInt(currentTeacherID),
+            AcademicYear: parseInt(academicYear),
+            Semester: semester,
+            Schedule: scheduleData,
+          });
 
-        if (result.success) {
-          await mutateTeacherSchedule();
-          await mutateConflicts();
-          setIsDirty(false);
-          enqueueSnackbar(`✅ คัดลอกตารางจาก${dayMap[sourceDay - 1]}ไป${dayMap[targetDay - 1]}สำเร็จ`, { variant: 'success' });
-        } else {
-          enqueueSnackbar('❌ เกิดข้อผิดพลาดในการคัดลอกตาราง', { variant: 'error' });
+          if (result.success) {
+            await mutateTeacherSchedule();
+            await mutateConflicts();
+            setIsDirty(false);
+            enqueueSnackbar(`✅ ล้างตารางวัน${dayMap[day - 1]}สำเร็จ`, {
+              variant: "success",
+            });
+          } else {
+            enqueueSnackbar("❌ เกิดข้อผิดพลาดในการล้างตาราง", {
+              variant: "error",
+            });
+          }
+        } catch (error) {
+          console.error("Clear day error:", error);
+          enqueueSnackbar("❌ เกิดข้อผิดพลาดในการล้างตาราง", {
+            variant: "error",
+          });
         }
-      } catch (error) {
-        console.error('Copy day error:', error);
-        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการคัดลอกตาราง', { variant: 'error' });
-      }
-    })();
-  }, [currentTeacherID, teacherSchedule, timeslots, academicYear, semester, scheduledSubjects, pushHistory, mutateTeacherSchedule, mutateConflicts]);
+      })();
+    },
+    [
+      currentTeacherID,
+      teacherSchedule,
+      timeslots,
+      academicYear,
+      semester,
+      scheduledSubjects,
+      pushHistory,
+      mutateTeacherSchedule,
+      mutateConflicts,
+    ],
+  );
+
+  // ============================================================================
+  // HANDLERS - Copy Day (Phase 2)
+  // ============================================================================
+  const handleCopyDay = useCallback(
+    (sourceDay: number, targetDay: number) => {
+      void (async () => {
+        if (
+          !currentTeacherID ||
+          !teacherSchedule ||
+          !Array.isArray(teacherSchedule) ||
+          !timeslots
+        ) {
+          enqueueSnackbar("ไม่พบข้อมูลตารางสอน", { variant: "warning" });
+          return;
+        }
+
+        if (sourceDay === targetDay) {
+          enqueueSnackbar("ไม่สามารถคัดลอกไปยังวันเดียวกันได้", {
+            variant: "warning",
+          });
+          return;
+        }
+
+        try {
+          // Push history before modification
+          pushHistory(scheduledSubjects);
+
+          // Map day number to enum
+          const dayMap = ["MON", "TUE", "WED", "THU", "FRI"];
+          const sourceDayOfWeek = dayMap[sourceDay - 1];
+          const targetDayOfWeek = dayMap[targetDay - 1];
+
+          if (!sourceDayOfWeek || !targetDayOfWeek) {
+            enqueueSnackbar("วันที่เลือกไม่ถูกต้อง", { variant: "error" });
+            return;
+          }
+
+          // Build timeslot mapping (source period -> target period)
+          const sourceTimeslots = timeslots.filter((ts) => {
+            const slot = ts as { DayOfWeek?: string };
+            return slot.DayOfWeek === sourceDayOfWeek;
+          });
+
+          const targetTimeslots = timeslots.filter((ts) => {
+            const slot = ts as { DayOfWeek?: string };
+            return slot.DayOfWeek === targetDayOfWeek;
+          });
+
+          // Sort by StartTime to align periods
+          const sortedSource = [...sourceTimeslots].sort((a, b) => {
+            const timeA = (a as { StartTime?: Date }).StartTime || new Date();
+            const timeB = (b as { StartTime?: Date }).StartTime || new Date();
+            return timeA.getTime() - timeB.getTime();
+          });
+
+          const sortedTarget = [...targetTimeslots].sort((a, b) => {
+            const timeA = (a as { StartTime?: Date }).StartTime || new Date();
+            const timeB = (b as { StartTime?: Date }).StartTime || new Date();
+            return timeA.getTime() - timeB.getTime();
+          });
+
+          // Create timeslot ID mapping
+          const timeslotMap = new Map<string, string>();
+          sortedSource.forEach((sourceSlot, idx) => {
+            const sourceID = (sourceSlot as { TimeslotID?: string }).TimeslotID;
+            const targetSlot = sortedTarget[idx];
+            const targetID = targetSlot
+              ? (targetSlot as { TimeslotID?: string }).TimeslotID
+              : null;
+            if (sourceID && targetID) {
+              timeslotMap.set(sourceID, targetID);
+            }
+          });
+
+          // Get target day timeslot IDs for clearing
+          const targetTimeslotIDs = new Set(
+            sortedTarget.map(
+              (ts) => (ts as { TimeslotID?: string }).TimeslotID,
+            ),
+          );
+
+          // Remove existing schedules from target day
+          const nonTargetSchedules = teacherSchedule.filter((schedule) => {
+            const sched = schedule as { TimeslotID?: string };
+            return !targetTimeslotIDs.has(sched.TimeslotID || "");
+          });
+
+          // Copy schedules from source day to target day
+          const copiedSchedules = teacherSchedule
+            .filter((schedule) => {
+              const sched = schedule as { TimeslotID?: string };
+              return timeslotMap.has(sched.TimeslotID || "");
+            })
+            .map((schedule) => {
+              const sched = schedule as {
+                ClassID: string;
+                TimeslotID: string;
+                SubjectCode: string;
+                GradeID: string;
+                RoomID?: number;
+                RespID?: number;
+              };
+              const newTimeslotID =
+                timeslotMap.get(sched.TimeslotID) || sched.TimeslotID;
+              const newClassID = `${sched.GradeID}-${newTimeslotID}`;
+
+              return {
+                ClassID: newClassID,
+                TimeslotID: newTimeslotID,
+                SubjectCode: sched.SubjectCode,
+                GradeID: sched.GradeID,
+                RoomID: sched.RoomID || null,
+                RespID: sched.RespID || null,
+              };
+            });
+
+          // Combine non-target schedules with copied schedules
+          const newScheduleData = [
+            ...nonTargetSchedules.map((s) => {
+              const sched = s as {
+                ClassID: string;
+                TimeslotID: string;
+                SubjectCode: string;
+                GradeID: string;
+                RoomID?: number;
+                RespID?: number;
+              };
+              return {
+                ClassID: sched.ClassID,
+                TimeslotID: sched.TimeslotID,
+                SubjectCode: sched.SubjectCode,
+                GradeID: sched.GradeID,
+                RoomID: sched.RoomID || null,
+                RespID: sched.RespID || null,
+              };
+            }),
+            ...copiedSchedules,
+          ];
+
+          // Sync updated schedule
+          const result = await syncTeacherScheduleAction({
+            TeacherID: parseInt(currentTeacherID),
+            AcademicYear: parseInt(academicYear),
+            Semester: semester,
+            Schedule: newScheduleData,
+          });
+
+          if (result.success) {
+            await mutateTeacherSchedule();
+            await mutateConflicts();
+            setIsDirty(false);
+            enqueueSnackbar(
+              `✅ คัดลอกตารางจาก${dayMap[sourceDay - 1]}ไป${dayMap[targetDay - 1]}สำเร็จ`,
+              { variant: "success" },
+            );
+          } else {
+            enqueueSnackbar("❌ เกิดข้อผิดพลาดในการคัดลอกตาราง", {
+              variant: "error",
+            });
+          }
+        } catch (error) {
+          console.error("Copy day error:", error);
+          enqueueSnackbar("❌ เกิดข้อผิดพลาดในการคัดลอกตาราง", {
+            variant: "error",
+          });
+        }
+      })();
+    },
+    [
+      currentTeacherID,
+      teacherSchedule,
+      timeslots,
+      academicYear,
+      semester,
+      scheduledSubjects,
+      pushHistory,
+      mutateTeacherSchedule,
+      mutateConflicts,
+    ],
+  );
 
   // ============================================================================
   // HANDLERS - Undo (Phase 2)
@@ -943,7 +1159,7 @@ export default function ArrangementPage() {
   const handleUndo = useCallback(() => {
     void (async () => {
       if (!canUndo()) {
-        enqueueSnackbar('ไม่มีประวัติที่จะย้อนกลับ', { variant: 'info' });
+        enqueueSnackbar("ไม่มีประวัติที่จะย้อนกลับ", { variant: "info" });
         return;
       }
 
@@ -952,10 +1168,10 @@ export default function ArrangementPage() {
         await mutateTeacherSchedule();
         await mutateConflicts();
         setIsDirty(true);
-        enqueueSnackbar('↩️ ย้อนกลับสำเร็จ', { variant: 'success' });
+        enqueueSnackbar("↩️ ย้อนกลับสำเร็จ", { variant: "success" });
       } catch (error) {
-        console.error('Undo error:', error);
-        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการย้อนกลับ', { variant: 'error' });
+        console.error("Undo error:", error);
+        enqueueSnackbar("❌ เกิดข้อผิดพลาดในการย้อนกลับ", { variant: "error" });
       }
     })();
   }, [canUndo, undo, mutateTeacherSchedule, mutateConflicts]);
@@ -966,7 +1182,7 @@ export default function ArrangementPage() {
   const handleRedo = useCallback(() => {
     void (async () => {
       if (!canRedo()) {
-        enqueueSnackbar('ไม่มีประวัติที่จะทำซ้ำ', { variant: 'info' });
+        enqueueSnackbar("ไม่มีประวัติที่จะทำซ้ำ", { variant: "info" });
         return;
       }
 
@@ -975,10 +1191,10 @@ export default function ArrangementPage() {
         await mutateTeacherSchedule();
         await mutateConflicts();
         setIsDirty(true);
-        enqueueSnackbar('↪️ ทำซ้ำสำเร็จ', { variant: 'success' });
+        enqueueSnackbar("↪️ ทำซ้ำสำเร็จ", { variant: "success" });
       } catch (error) {
-        console.error('Redo error:', error);
-        enqueueSnackbar('❌ เกิดข้อผิดพลาดในการทำซ้ำ', { variant: 'error' });
+        console.error("Redo error:", error);
+        enqueueSnackbar("❌ เกิดข้อผิดพลาดในการทำซ้ำ", { variant: "error" });
       }
     })();
   }, [canRedo, redo, mutateTeacherSchedule, mutateConflicts]);
@@ -989,7 +1205,9 @@ export default function ArrangementPage() {
   const handleAutoArrange = useCallback(() => {
     // TODO: Implement auto arrange algorithm or show "coming soon" dialog
     // This would require complex constraint satisfaction logic
-    enqueueSnackbar('🚧 ฟีเจอร์จัดตารางอัตโนมัติกำลังพัฒนา', { variant: 'info' });
+    enqueueSnackbar("🚧 ฟีเจอร์จัดตารางอัตโนมัติกำลังพัฒนา", {
+      variant: "info",
+    });
   }, []);
 
   // ============================================================================
@@ -1013,27 +1231,38 @@ export default function ArrangementPage() {
 
   // Multi-teacher progress calculation - fetch all teachers' schedules
   const { data: allTeacherSchedules } = useSWR(
-    allTeachers && timeslots ? `all-teacher-schedules-${academicYear}-${semester}` : null,
+    allTeachers && timeslots
+      ? `all-teacher-schedules-${academicYear}-${semester}`
+      : null,
     async () => {
       if (!allTeachers || !timeslots) return [];
 
       // Fetch schedules for all teachers
       const schedulePromises = (allTeachers as unknown[]).map(async (t) => {
-        const teacher = t as { TeacherID?: number; Firstname?: string; Lastname?: string };
+        const teacher = t as {
+          TeacherID?: number;
+          Firstname?: string;
+          Lastname?: string;
+        };
         const teacherId = teacher.TeacherID;
         if (!teacherId) return null;
 
         try {
-          const result = await getTeacherScheduleAction({ TeacherID: teacherId });
+          const result = await getTeacherScheduleAction({
+            TeacherID: teacherId,
+          });
           if (!result || !result.success || !result.data) return null;
 
           return {
             teacherId,
-            teacherName: `${teacher.Firstname || ''} ${teacher.Lastname || ''}`,
+            teacherName: `${teacher.Firstname || ""} ${teacher.Lastname || ""}`,
             schedule: Array.isArray(result.data) ? result.data : [],
           };
         } catch (error) {
-          console.error(`Error fetching schedule for teacher ${teacherId}:`, error);
+          console.error(
+            `Error fetching schedule for teacher ${teacherId}:`,
+            error,
+          );
           return null;
         }
       });
@@ -1044,7 +1273,7 @@ export default function ArrangementPage() {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-    }
+    },
   );
 
   const teacherProgressData = useMemo(() => {
@@ -1057,30 +1286,37 @@ export default function ArrangementPage() {
     // Map all teachers to progress items
     return (allTeacherSchedules as unknown[])
       .map((item) => {
-        const data = item as { 
-          teacherId?: number; 
-          teacherName?: string; 
-          schedule?: unknown[]; 
+        const data = item as {
+          teacherId?: number;
+          teacherName?: string;
+          schedule?: unknown[];
         };
         if (!data.teacherId) return null;
 
         const completedSlots = data.schedule?.length || 0;
-        
+
         // Get conflicts for this teacher (if they match current teacher)
-        const conflictSlots = currentTeacherID && parseInt(currentTeacherID) === data.teacherId
-          ? (conflicts?.length || 0)
-          : 0; // We don't have conflict data for non-selected teachers yet
+        const conflictSlots =
+          currentTeacherID && parseInt(currentTeacherID) === data.teacherId
+            ? conflicts?.length || 0
+            : 0; // We don't have conflict data for non-selected teachers yet
 
         return {
           id: String(data.teacherId),
-          name: data.teacherName || '',
+          name: data.teacherName || "",
           total: totalSlots,
           completed: completedSlots,
           conflicts: conflictSlots,
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
-  }, [allTeacherSchedules, timeslots, allTeachers, currentTeacherID, conflicts]);
+  }, [
+    allTeacherSchedules,
+    timeslots,
+    allTeachers,
+    currentTeacherID,
+    conflicts,
+  ]);
 
   const classProgressData = useMemo(() => {
     if (!teacherSchedule || !Array.isArray(teacherSchedule) || !gradeLevels) {
@@ -1104,7 +1340,10 @@ export default function ArrangementPage() {
         const conf = conflict as { GradeID?: string };
         const gradeId = conf.GradeID;
         if (gradeId) {
-          gradeConflictMap.set(gradeId, (gradeConflictMap.get(gradeId) || 0) + 1);
+          gradeConflictMap.set(
+            gradeId,
+            (gradeConflictMap.get(gradeId) || 0) + 1,
+          );
         }
       });
     }
@@ -1113,21 +1352,23 @@ export default function ArrangementPage() {
     const periodsPerWeek = timetableConfig.totalPeriodsPerWeek || 35;
 
     // Map to ProgressItem format
-    return Array.from(gradeScheduleMap.entries()).map(([gradeId, completed]) => {
-      const grade = (gradeLevels as unknown[]).find((g) => {
-        const level = g as { GradeID?: string };
-        return level.GradeID === gradeId;
-      });
-      const gradeData = grade as { Year?: number; Number?: number };
+    return Array.from(gradeScheduleMap.entries()).map(
+      ([gradeId, completed]) => {
+        const grade = (gradeLevels as unknown[]).find((g) => {
+          const level = g as { GradeID?: string };
+          return level.GradeID === gradeId;
+        });
+        const gradeData = grade as { Year?: number; Number?: number };
 
-      return {
-        id: gradeId,
-        name: `ม.${gradeData.Year || '?'}/${gradeData.Number || '?'}`,
-        total: periodsPerWeek,
-        completed,
-        conflicts: gradeConflictMap.get(gradeId) || 0,
-      };
-    });
+        return {
+          id: gradeId,
+          name: `ม.${gradeData.Year || "?"}/${gradeData.Number || "?"}`,
+          total: periodsPerWeek,
+          completed,
+          conflicts: gradeConflictMap.get(gradeId) || 0,
+        };
+      },
+    );
   }, [teacherSchedule, gradeLevels, conflicts, timetableConfig]);
 
   // ============================================================================
@@ -1186,7 +1427,7 @@ export default function ArrangementPage() {
           />
 
           {/* Conflicts Alert */}
-          {currentTab === 'teacher' && conflicts && conflicts.length > 0 && (
+          {currentTab === "teacher" && conflicts && conflicts.length > 0 && (
             <ConflictAlert
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               conflicts={conflicts as any}
@@ -1195,7 +1436,7 @@ export default function ArrangementPage() {
           )}
 
           {/* Teacher Tab Content */}
-          {currentTab === 'teacher' && (
+          {currentTab === "teacher" && (
             <>
               {!currentTeacherID ? (
                 <Alert severity="info">
@@ -1203,9 +1444,12 @@ export default function ArrangementPage() {
                   เลือกครูจากรายการด้านบนเพื่อเริ่มจัดตารางสอน
                 </Alert>
               ) : (
-                <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3}>
+                <Stack direction={{ xs: "column", lg: "row" }} spacing={3}>
                   {/* Subject Palette - Phase 2 Enhanced */}
-                  <Box sx={{ width: { xs: '100%', lg: 300 }, flexShrink: 0 }} data-testid="subject-palette">
+                  <Box
+                    sx={{ width: { xs: "100%", lg: 300 }, flexShrink: 0 }}
+                    data-testid="subject-palette"
+                  >
                     <SearchableSubjectPalette
                       respData={availableSubjects || []}
                       dropOutOfZone={() => {
@@ -1215,16 +1459,19 @@ export default function ArrangementPage() {
                         setActiveSubject(subject);
                       }}
                       storeSelectedSubject={activeSubject || {}}
-                      teacher={teacherData || {
-                        // Default empty teacher if null
-                        TeacherID: 0,
-                        Prefix: '',
-                        Firstname: '',
-                        Lastname: '',
-                        Department: '',
-                        Email: '',
-                        Role: 'teacher',
-                      } as teacher}
+                      teacher={
+                        teacherData ||
+                        ({
+                          // Default empty teacher if null
+                          TeacherID: 0,
+                          Prefix: "",
+                          Firstname: "",
+                          Lastname: "",
+                          Department: "",
+                          Email: "",
+                          Role: "teacher",
+                        } as teacher)
+                      }
                     />
                   </Box>
 
@@ -1263,25 +1510,37 @@ export default function ArrangementPage() {
                           breakSlots={timetableConfig.breakSlots}
                           getConflicts={(timeslotID) => {
                             // Use conflict validation hook for real-time checks
-                            const conflictInfo = conflictValidation.conflictsByTimeslot.get(timeslotID);
-                            if (conflictInfo && conflictInfo.type !== 'none') {
+                            const conflictInfo =
+                              conflictValidation.conflictsByTimeslot.get(
+                                timeslotID,
+                              );
+                            if (conflictInfo && conflictInfo.type !== "none") {
                               return {
                                 hasConflict: true,
                                 message: conflictInfo.message,
                                 severity: conflictInfo.severity,
                               };
                             }
-                            
+
                             // Fallback to API conflicts if hook doesn't have info
-                            const apiConflict = conflicts?.find((c: unknown) => {
-                              const conflictData = c as { TimeslotID?: string; message?: string };
-                              return conflictData.TimeslotID === timeslotID;
-                            });
-                            const conflictData = apiConflict as { message?: string } | undefined;
+                            const apiConflict = conflicts?.find(
+                              (c: unknown) => {
+                                const conflictData = c as {
+                                  TimeslotID?: string;
+                                  message?: string;
+                                };
+                                return conflictData.TimeslotID === timeslotID;
+                              },
+                            );
+                            const conflictData = apiConflict as
+                              | { message?: string }
+                              | undefined;
                             return {
                               hasConflict: !!apiConflict,
                               message: conflictData?.message,
-                              severity: apiConflict ? 'error' as const : undefined,
+                              severity: apiConflict
+                                ? ("error" as const)
+                                : undefined,
                             };
                           }}
                           lockedTimeslots={conflictValidation.lockedTimeslots}
@@ -1296,7 +1555,7 @@ export default function ArrangementPage() {
           )}
 
           {/* Grade Level Tab Content */}
-          {currentTab !== 'teacher' && (
+          {currentTab !== "teacher" && (
             <GradeClassView
               gradeLevel={selectedGradeLevel || 7}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1310,8 +1569,8 @@ export default function ArrangementPage() {
         <RoomSelectionDialog
           open={roomDialogOpen}
           rooms={(availableRooms as unknown as room[]) || []}
-          subjectName={activeSubject?.subjectName || ''}
-          timeslotLabel={selectedTimeslotForRoom || ''}
+          subjectName={activeSubject?.subjectName || ""}
+          timeslotLabel={selectedTimeslotForRoom || ""}
           onSelect={handleRoomSelect}
           onCancel={() => {
             setRoomDialogOpen(false);
@@ -1327,10 +1586,10 @@ export default function ArrangementPage() {
               elevation={8}
               sx={{
                 p: 2,
-                bgcolor: 'primary.main',
-                color: 'primary.contrastText',
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
                 minWidth: 200,
-                cursor: 'grabbing',
+                cursor: "grabbing",
               }}
             >
               {activeSubject.subjectName}

@@ -1,5 +1,5 @@
 type rooms = {
-    RoomName: string;
-    Building: string;
-    Floor: number
-}
+  RoomName: string;
+  Building: string;
+  Floor: number;
+};

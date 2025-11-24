@@ -30,11 +30,11 @@ export interface ConfirmDialogProps {
 
 /**
  * ConfirmDialog - Reusable confirmation dialog component
- * 
+ *
  * Usage:
  * ```tsx
  * const [open, setOpen] = useState(false);
- * 
+ *
  * <ConfirmDialog
  *   open={open}
  *   title="ยืนยันการลบ"
@@ -64,7 +64,9 @@ export function ConfirmDialog({
       case "danger":
         return <DeleteIcon sx={{ fontSize: 48, color: "error.main" }} />;
       case "warning":
-        return <WarningAmberIcon sx={{ fontSize: 48, color: "warning.main" }} />;
+        return (
+          <WarningAmberIcon sx={{ fontSize: 48, color: "warning.main" }} />
+        );
       case "info":
         return <InfoIcon sx={{ fontSize: 48, color: "info.main" }} />;
       default:
@@ -162,18 +164,18 @@ export function ConfirmDialog({
 
 /**
  * useConfirmDialog - Hook for managing confirmation dialog state
- * 
+ *
  * Usage:
  * ```tsx
  * const confirmDelete = useConfirmDialog();
- * 
+ *
  * const handleDelete = async () => {
  *   const confirmed = await confirmDelete({
  *     title: "ยืนยันการลบ",
  *     message: "คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?",
  *     variant: "danger",
  *   });
- *   
+ *
  *   if (confirmed) {
  *     // Perform delete
  *   }
@@ -196,7 +198,7 @@ export function useConfirmDialog() {
 
   const confirm = React.useCallback(
     (
-      props: Omit<ConfirmDialogProps, "open" | "onConfirm" | "onCancel">
+      props: Omit<ConfirmDialogProps, "open" | "onConfirm" | "onCancel">,
     ): Promise<boolean> => {
       return new Promise((resolve) => {
         setDialogState({
@@ -206,7 +208,7 @@ export function useConfirmDialog() {
         });
       });
     },
-    []
+    [],
   );
 
   const handleConfirm = React.useCallback(() => {

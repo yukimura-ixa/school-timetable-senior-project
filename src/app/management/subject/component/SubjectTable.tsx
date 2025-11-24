@@ -1,11 +1,18 @@
 "use client";
-import type { 
-  subject, 
-  subject_credit, 
-  $Enums 
-} from '@/prisma/generated/client';;
-import { EditableTable, type ColumnDef, type ValidationFn } from "@/components/tables";
-import { deleteSubjectsAction, updateSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+import type {
+  subject,
+  subject_credit,
+  $Enums,
+} from "@/prisma/generated/client";
+import {
+  EditableTable,
+  type ColumnDef,
+  type ValidationFn,
+} from "@/components/tables";
+import {
+  deleteSubjectsAction,
+  updateSubjectsAction,
+} from "@/features/subject/application/actions/subject.actions";
 
 type SubjectTableProps = {
   tableData: subject[];
@@ -18,6 +25,7 @@ const subjectColumns: ColumnDef<subject>[] = [
     key: "SubjectCode",
     label: "รหัสวิชา",
     editable: false, // Protected - primary key, used in FK relationships
+    creatable: true,
     width: 120,
   },
   {
@@ -240,7 +248,7 @@ const handleUpdate = async (subjects: Partial<subject>[]) => {
       ActivityType: s.ActivityType || null,
       IsGraded: s.IsGraded ?? true,
       Description: s.Description?.trim() || null,
-    }))
+    })),
   );
 };
 

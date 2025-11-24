@@ -27,7 +27,9 @@ project/
 ```
 
 ### **Committed Files** ✅
+
 These files are safe to commit:
+
 - `.env.example` - General template
 - `.env.local.example` - Local development template
 - `.env.production.example` - Production template
@@ -35,7 +37,9 @@ These files are safe to commit:
 - `.env.test` - E2E test configuration
 
 ### **Gitignored Files** 🚫
+
 These files contain secrets and are **never** committed:
+
 - `.env.local` - Your personal local configuration
 - `.env.production` - Production secrets
 - `.env` - Generic environment file
@@ -59,6 +63,7 @@ pnpm dev
 ```
 
 **What to configure:**
+
 - `DATABASE_URL` - Use Prisma proxy or local PostgreSQL
 - `AUTH_SECRET` - Generate with `openssl rand -base64 32`
 - `AUTH_GOOGLE_ID` & `AUTH_GOOGLE_SECRET` - Optional for OAuth
@@ -69,6 +74,7 @@ pnpm dev
 **No setup needed!** GitHub Actions automatically uses `.env.ci`.
 
 **If you need secrets:**
+
 1. Go to: `Settings > Secrets and variables > Actions`
 2. Add repository secrets:
    - `AUTH_SECRET`
@@ -86,6 +92,7 @@ notepad .env.production
 ```
 
 **Critical production settings:**
+
 - `DATABASE_URL` - Production database (Vercel Postgres, Supabase, etc.)
 - `AUTH_SECRET` - Strong secret (NEVER reuse from dev!)
 - `AUTH_URL` - Your production domain
@@ -93,6 +100,7 @@ notepad .env.production
 - Google OAuth credentials for production domain
 
 **Deployment platforms:**
+
 - **Vercel**: Set in Project Settings > Environment Variables
 - **Railway**: Set in Project Settings > Variables
 - **Netlify**: Set in Site Settings > Environment Variables
@@ -103,6 +111,7 @@ notepad .env.production
 **Already configured!** `.env.test` is committed and ready.
 
 **For local E2E testing:**
+
 ```powershell
 # Make sure Prisma Studio proxy is running
 pnpm db:studio
@@ -117,12 +126,13 @@ pnpm test:e2e
 
 ### **Database**
 
-| Variable | Description | Example |
-|----------|-------------|---------|
+| Variable       | Description                 | Example                                    |
+| -------------- | --------------------------- | ------------------------------------------ |
 | `DATABASE_URL` | Primary database connection | `postgresql://user:pass@localhost:5432/db` |
-| `POSTGRES_URL` | Alternate connection string | `postgresql://...` |
+| `POSTGRES_URL` | Alternate connection string | `postgresql://...`                         |
 
 **Database Types:**
+
 - **Prisma Proxy**: `prisma+postgres://localhost:51213/?api_key=...`
 - **Direct PostgreSQL**: `postgresql://user:pass@host:port/database`
 - **Vercel Postgres**: Auto-set by Vercel
@@ -130,35 +140,36 @@ pnpm test:e2e
 
 ### **Authentication**
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `AUTH_SECRET` | NextAuth.js secret key | ✅ Yes |
-| `AUTH_URL` | Application base URL | ✅ Yes |
-| `AUTH_GOOGLE_ID` | Google OAuth client ID | Optional |
+| Variable             | Description                | Required |
+| -------------------- | -------------------------- | -------- |
+| `AUTH_SECRET`        | NextAuth.js secret key     | ✅ Yes   |
+| `AUTH_URL`           | Application base URL       | ✅ Yes   |
+| `AUTH_GOOGLE_ID`     | Google OAuth client ID     | Optional |
 | `AUTH_GOOGLE_SECRET` | Google OAuth client secret | Optional |
 
 **Generate AUTH_SECRET:**
+
 ```powershell
 openssl rand -base64 32
 ```
 
 ### **Development Bypass**
 
-| Variable | Description | Environment |
-|----------|-------------|-------------|
-| `ENABLE_DEV_BYPASS` | Skip OAuth login | Local/CI only |
-| `DEV_USER_EMAIL` | Test user email | Local/CI only |
-| `DEV_USER_ROLE` | Test user role (admin/teacher/student) | Local/CI only |
+| Variable            | Description                            | Environment   |
+| ------------------- | -------------------------------------- | ------------- |
+| `ENABLE_DEV_BYPASS` | Skip OAuth login                       | Local/CI only |
+| `DEV_USER_EMAIL`    | Test user email                        | Local/CI only |
+| `DEV_USER_ROLE`     | Test user role (admin/teacher/student) | Local/CI only |
 
 ⚠️ **SECURITY**: NEVER enable in production!
 
 ### **Testing**
 
-| Variable | Description | Used In |
-|----------|-------------|---------|
-| `TEST_PASSWORD` | E2E test password | `.env.test` |
-| `SEED_SECRET` | Seed API secret | `.env.test`, `.env.ci` |
-| `BASE_URL` | Test server URL | E2E tests |
+| Variable        | Description       | Used In                |
+| --------------- | ----------------- | ---------------------- |
+| `TEST_PASSWORD` | E2E test password | `.env.test`            |
+| `SEED_SECRET`   | Seed API secret   | `.env.test`, `.env.ci` |
+| `BASE_URL`      | Test server URL   | E2E tests              |
 
 ---
 
@@ -174,6 +185,7 @@ Next.js loads environment files in this order (later overrides earlier):
    - `.env.test` (for testing)
 
 **Special cases:**
+
 - `.env.local` is **always loaded** except in test mode
 - GitHub Actions uses `.env.ci` explicitly
 - E2E tests use `.env.test` explicitly
@@ -185,6 +197,7 @@ Next.js loads environment files in this order (later overrides earlier):
 ### **DO** ✅
 
 1. **Use different secrets per environment**
+
    ```powershell
    # Generate unique secrets
    openssl rand -base64 32  # For local
@@ -197,9 +210,10 @@ Next.js loads environment files in this order (later overrides earlier):
    - Rotate secrets regularly
 
 3. **Validate environment variables**
+
    ```typescript
    if (!process.env.AUTH_SECRET) {
-     throw new Error('AUTH_SECRET is required');
+     throw new Error("AUTH_SECRET is required");
    }
    ```
 
@@ -217,15 +231,17 @@ Next.js loads environment files in this order (later overrides earlier):
    - Review git history if secrets leaked
 
 2. **Never reuse secrets across environments**
+
    ```
    ❌ Local:      AUTH_SECRET="dev-secret-123"
    ❌ Production: AUTH_SECRET="dev-secret-123"  # WRONG!
-   
+
    ✅ Local:      AUTH_SECRET="dev-secret-123"
    ✅ Production: AUTH_SECRET="prod-xyz-789"    # CORRECT!
    ```
 
 3. **Never hardcode secrets in code**
+
    ```typescript
    ❌ const secret = "my-secret-key";  // WRONG!
    ✅ const secret = process.env.AUTH_SECRET;  // CORRECT!
@@ -242,12 +258,14 @@ Next.js loads environment files in this order (later overrides earlier):
 ## 🧪 **Testing Different Environments**
 
 ### **Test Local Environment**
+
 ```powershell
 # Uses .env.local
 pnpm dev
 ```
 
 ### **Test Production Build**
+
 ```powershell
 # Uses .env.production
 pnpm build
@@ -255,12 +273,14 @@ pnpm start
 ```
 
 ### **Test E2E**
+
 ```powershell
 # Uses .env.test
 pnpm test:e2e
 ```
 
 ### **Test CI Locally**
+
 ```powershell
 # Temporarily use CI config
 cp .env.ci .env.local
@@ -275,6 +295,7 @@ pnpm dev
 ### **"Environment variable not found"**
 
 **Solution:**
+
 1. Check if file exists: `.env.local` or `.env.production`
 2. Verify variable name matches exactly
 3. Restart dev server after changing env files
@@ -283,6 +304,7 @@ pnpm dev
 ### **"Auth secret not configured"**
 
 **Solution:**
+
 ```powershell
 # Generate new secret
 openssl rand -base64 32
@@ -294,15 +316,18 @@ AUTH_SECRET="<generated-secret>"
 ### **"Database connection failed"**
 
 **Solution:**
+
 1. **Local dev**: Start Prisma Studio (`pnpm db:studio`)
 2. **Check DATABASE_URL** format:
+
    ```env
    # Prisma proxy
    DATABASE_URL="prisma+postgres://localhost:51213/?api_key=..."
-   
+
    # Direct connection
    DATABASE_URL="postgresql://user:pass@host:5432/db"
    ```
+
 3. **Verify database is running**
 
 ### **"OAuth redirect mismatch"**
@@ -310,6 +335,7 @@ AUTH_SECRET="<generated-secret>"
 **Cause:** OAuth credentials configured for different domain
 
 **Solution:**
+
 1. Go to Google Cloud Console
 2. Add authorized redirect URI:
    - Local: `http://localhost:3000/api/auth/callback/google`
@@ -318,6 +344,7 @@ AUTH_SECRET="<generated-secret>"
 ### **"Dev bypass not working"**
 
 **Solution:**
+
 ```env
 # In .env.local
 ENABLE_DEV_BYPASS="true"  # Must be string "true"
@@ -343,14 +370,14 @@ Restart dev server after changing.
 
 ### **Required Variables by Environment**
 
-| Variable | Local | CI | Production |
-|----------|-------|----|-----------| 
-| `DATABASE_URL` | ✅ | ✅ | ✅ |
-| `AUTH_SECRET` | ✅ | ✅ | ✅ |
-| `AUTH_URL` | ✅ | ✅ | ✅ |
-| `AUTH_GOOGLE_ID` | Optional | Optional | ✅ |
-| `AUTH_GOOGLE_SECRET` | Optional | Optional | ✅ |
-| `ENABLE_DEV_BYPASS` | ✅ true | ✅ true | ⚠️ false |
+| Variable             | Local    | CI       | Production |
+| -------------------- | -------- | -------- | ---------- |
+| `DATABASE_URL`       | ✅       | ✅       | ✅         |
+| `AUTH_SECRET`        | ✅       | ✅       | ✅         |
+| `AUTH_URL`           | ✅       | ✅       | ✅         |
+| `AUTH_GOOGLE_ID`     | Optional | Optional | ✅         |
+| `AUTH_GOOGLE_SECRET` | Optional | Optional | ✅         |
+| `ENABLE_DEV_BYPASS`  | ✅ true  | ✅ true  | ⚠️ false   |
 
 ---
 

@@ -1,9 +1,9 @@
 /**
  * UI State Types
- * 
+ *
  * Type definitions for UI state management (Zustand stores, component state).
  * Replaces `any` types in arrangement-ui.store.ts and related components.
- * 
+ *
  * Created: Week 8 - Type Safety Improvements
  * Related: features/schedule-arrangement/presentation/stores/
  */
@@ -18,13 +18,10 @@ import type {
   semester,
   teachers_responsibility,
   teacher,
-} from '@/prisma/generated/client';
+} from "@/prisma/generated/client";
 
 // Import strict types from schedule.types to avoid duplicates
-import type {
-  DragSourceData,
-  DropTargetData,
-} from './schedule.types';
+import type { DragSourceData, DropTargetData } from "./schedule.types";
 
 // ============================================================================
 // Subject Data (for Drag & Drop Operations)
@@ -55,7 +52,7 @@ export interface SubjectData {
   room?: room | null;
   ClassID?: string;
   teacherID?: number;
-  Category?: 'CORE' | 'ADDITIONAL' | 'ACTIVITY';
+  Category?: "CORE" | "ADDITIONAL" | "ACTIVITY";
   gradelevel?: {
     Year: number;
     Number: number;
@@ -296,7 +293,7 @@ export interface SubjectSelectOption extends SelectOption<string> {
 // Removed to avoid conflict with schedule.types.ts
 
 /**
- * @deprecated Use DropTargetData from '@/types/schedule.types' instead  
+ * @deprecated Use DropTargetData from '@/types/schedule.types' instead
  * This type is re-exported below - do not use this definition directly
  */
 // export interface DropTargetData { ... };
@@ -391,7 +388,11 @@ export type {
   SaveScheduleResponse,
   // Store actions
   ScheduleStoreActions,
-} from './schedule.types';
+} from "./schedule.types";
 
 // Type guards
-export { isCompleteSubjectData, hasSubjectAssigned, isBreakTime } from './schedule.types';
+export {
+  isCompleteSubjectData,
+  hasSubjectAssigned,
+  isBreakTime,
+} from "./schedule.types";

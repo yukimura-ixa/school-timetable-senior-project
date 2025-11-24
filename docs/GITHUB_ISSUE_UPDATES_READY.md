@@ -1,4 +1,5 @@
 # GitHub Issue Update Instructions
+
 ## Copy-paste these comments to update the respective issues
 
 ---
@@ -21,12 +22,14 @@ Implemented **43+ new E2E test cases** across 4 new test files, directly address
 #### **Admin Role (Priority 1) - 75% Complete**
 
 **TC-003: Teacher Management CRUD** (`e2e/02-data-management.spec.ts`)
+
 - ✅ Create, edit, delete teacher records
 - ✅ Form validation testing
 - ✅ Success/error state verification
 - **6 test cases**
 
 **TC-007: Semester Configuration** (`e2e/03-schedule-config.spec.ts`)
+
 - ✅ Navigate to configuration page
 - ✅ Configure parameters (periods, duration, start time, breaks)
 - ✅ Save and verify persistence
@@ -34,6 +37,7 @@ Implemented **43+ new E2E test cases** across 4 new test files, directly address
 - **6 test cases**
 
 **TC-011-013: Conflict Detection** (`e2e/04-conflict-prevention.spec.ts`)
+
 - ✅ Teacher double-booking prevention
 - ✅ Class double-booking prevention
 - ✅ Room availability conflict prevention
@@ -41,6 +45,7 @@ Implemented **43+ new E2E test cases** across 4 new test files, directly address
 - **15 test cases**
 
 **TC-017: View Teacher Schedule** (`e2e/05-view-teacher-schedule.spec.ts`)
+
 - ✅ Admin can view any teacher's schedule
 - ✅ Teacher can view own schedule only (RBAC)
 - ✅ Schedule grid display (days, periods, subjects)
@@ -50,6 +55,7 @@ Implemented **43+ new E2E test cases** across 4 new test files, directly address
 - **16 test cases**
 
 #### **Error Scenarios (Priority 1) - 50% Complete**
+
 - ✅ Double-booking prevention (teacher) - TC-011 ✅
 - ✅ Double-booking prevention (room) - TC-013 ✅
 - ✅ Double-booking prevention (class) - TC-012 ✅
@@ -59,16 +65,17 @@ Implemented **43+ new E2E test cases** across 4 new test files, directly address
 
 ### 📊 **Coverage Metrics**
 
-| Category | Target | Current | Progress |
-|----------|--------|---------|----------|
-| **Admin Critical Paths** | 100% | 75% | 🟡 On Track |
-| **Teacher Critical Paths** | 100% | 50% | 🟡 In Progress |
-| **Error Scenarios** | 100% | 50% | 🟡 In Progress |
-| **Overall Phase 1** | 80% | **~70%** | 🟢 Close to Target |
+| Category                   | Target | Current  | Progress           |
+| -------------------------- | ------ | -------- | ------------------ |
+| **Admin Critical Paths**   | 100%   | 75%      | 🟡 On Track        |
+| **Teacher Critical Paths** | 100%   | 50%      | 🟡 In Progress     |
+| **Error Scenarios**        | 100%   | 50%      | 🟡 In Progress     |
+| **Overall Phase 1**        | 80%    | **~70%** | 🟢 Close to Target |
 
 ### 🏆 **Quality Highlights**
 
 All new tests follow best practices:
+
 - ✅ Web-first assertions (no brittle waits)
 - ✅ Role-based fixtures (`authenticatedAdmin`)
 - ✅ Mobile responsive testing
@@ -79,15 +86,18 @@ All new tests follow best practices:
 ### 🔄 **Remaining Work to Hit 80%**
 
 **High Priority (Next Session):**
+
 1. Complete remaining error scenarios (network errors, session timeout)
 2. Enhance TC-009: Subject Assignment tests
 3. Add TC-021: Export to Excel/PDF (partial coverage exists)
 
 **Medium Priority:**
+
 1. Teacher role: Filter by semester/week
 2. Data Management CRUD: TC-004 (Subject), TC-005 (Room), TC-006 (Grade)
 
 **Low Priority:**
+
 1. Student role tests (not in critical path)
 2. Bulk import via CSV/Excel
 
@@ -109,6 +119,7 @@ Excellent progress aligning with the issue's original plan. The foundation is so
 ---
 
 **Related Commits:**
+
 - `2496862` - Fix: SelectTeacher disabled prop
 - `06cf159` - Feat: TC-007 Semester Configuration
 - `d16f2d5` - Feat: TC-011-013 Conflict Prevention
@@ -135,21 +146,25 @@ Implemented 4 new E2E test files that serve as **best practice examples** for Ph
 ### ✅ **Infrastructure Enhancements Applied**
 
 **Web-First Assertion Patterns:**
+
 - All new tests use `await expect(element).toBeVisible()` instead of brittle waits
 - Proper handling of loading states
 - Graceful fallbacks for optional UI elements
 
 **Authentication & Fixtures:**
+
 - Consistent use of `authenticatedAdmin` fixture
 - Role-based test isolation
 - No manual auth flows in individual tests
 
 **Test Organization:**
+
 - Clear naming: `TC-XXX-YY` format aligned with `TEST_PLAN.md`
 - Comprehensive test descriptions
 - Grouped by feature/role for maintainability
 
 **Quality Standards:**
+
 - Screenshot documentation for visual verification
 - Mobile responsive testing patterns
 - Error state handling examples
@@ -182,14 +197,15 @@ These files demonstrate Phase B patterns:
 
 **Alignment with Original Plan:**
 
-| Phase B Objective | Status | Notes |
-|-------------------|--------|-------|
-| **Web-First Assertions** | ✅ Demonstrated | All new tests use pattern |
-| **Auth Fixture Usage** | ✅ Consistent | `authenticatedAdmin` throughout |
-| **Best Practices** | ✅ Documented | 43+ tests as examples |
-| **Test Reliability** | 🟡 Ongoing | New tests are stable |
+| Phase B Objective        | Status          | Notes                           |
+| ------------------------ | --------------- | ------------------------------- |
+| **Web-First Assertions** | ✅ Demonstrated | All new tests use pattern       |
+| **Auth Fixture Usage**   | ✅ Consistent   | `authenticatedAdmin` throughout |
+| **Best Practices**       | ✅ Documented   | 43+ tests as examples           |
+| **Test Reliability**     | 🟡 Ongoing      | New tests are stable            |
 
 **Benefits:**
+
 - **Template for Migration**: Older tests can be refactored following these patterns
 - **Quality Baseline**: New standard for all future E2E tests
 - **Reduced Flakiness**: Web-first approach minimizes timing issues
@@ -197,6 +213,7 @@ These files demonstrate Phase B patterns:
 ### 🔄 **Next for Phase B**
 
 Recommended next steps:
+
 1. Review existing E2E tests against new patterns
 2. Identify flaky tests needing refactoring
 3. Apply web-first patterns to older test files
@@ -221,18 +238,22 @@ These improvements support Phase B's goal of improving E2E test reliability whil
 ## 📝 Summary
 
 **Issues to Update:**
+
 1. **Issue #6** ← Major progress update (70% coverage achieved)
 2. **Issue #112** ← Infrastructure support update
 
 **Issues to Keep Open:**
+
 - Both issues remain open (neither complete)
 - Issue #6: ~70% of 80% target
 - Issue #112: Ongoing work, infrastructure improved
 
 **Issues to Close:**
+
 - None (conservative approach)
 
 **New Issues to Create:**
+
 - None needed (existing issues cover our work)
 
 ---
@@ -246,6 +267,7 @@ These improvements support Phase B's goal of improving E2E test reliability whil
 5. Monitor CI results and update issues if tests fail
 
 **Conservative Approach:** We're keeping issues open because:
+
 - Issue #6 is at ~70%, target is 80%
 - Issue #112 is ongoing infrastructure work
 - Better to update with progress than prematurely close

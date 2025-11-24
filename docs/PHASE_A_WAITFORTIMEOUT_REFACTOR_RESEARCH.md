@@ -28,28 +28,29 @@ Total Count: 246 occurrences across 20 files
 ```
 
 **Breakdown by Category**:
+
 - Test Spec Files: 232 occurrences (94.3%)
 - Helper/POM Files: 14 occurrences (5.7%)
 
 ### 1.2 Files with Most Occurrences (Top 15)
 
-| Rank | File | Count | % of Total | Priority |
-|------|------|-------|------------|----------|
-| 1 | `14-lock-templates.spec.ts` | 43 | 17.5% | 🔴 P0 |
-| 2 | `09-program-management.spec.ts` | 31 | 12.6% | 🔴 P0 |
-| 3 | `13-bulk-lock.spec.ts` | 29 | 11.8% | 🔴 P0 |
-| 4 | `teacher-arrange-store-migration.spec.ts` | 27 | 11.0% | 🔴 P0 |
-| 5 | `06-refactored-teacher-arrange.spec.ts` | 19 | 7.7% | 🟠 P1 |
-| 6 | `08-drag-and-drop.spec.ts` | 19 | 7.7% | 🟠 P1 |
-| 7 | `drag-drop.helper.ts` (helper) | 14 | 5.7% | 🟠 P1 |
-| 8 | `issue-94-teacher-assignment.spec.ts` | 11 | 4.5% | 🟡 P2 |
-| 9 | `12-conflict-detector.spec.ts` | 11 | 4.5% | 🟡 P2 |
-| 10 | `visual-inspection.spec.ts` | 10 | 4.1% | 🟡 P2 |
-| 11 | `analytics-dashboard.spec.ts` | 10 | 4.1% | 🟡 P2 |
-| 12 | `ArrangePage.ts` (POM) | 7 | 2.8% | 🟢 P3 |
-| 13 | `admin-auth-flow.spec.ts` | 3 | 1.2% | 🟢 P3 |
-| 14 | `11-activity-management.spec.ts` | 3 | 1.2% | 🟢 P3 |
-| 15 | `vercel-helpers.ts` (helper) | 3 | 1.2% | 🟢 P3 |
+| Rank | File                                      | Count | % of Total | Priority |
+| ---- | ----------------------------------------- | ----- | ---------- | -------- |
+| 1    | `14-lock-templates.spec.ts`               | 43    | 17.5%      | 🔴 P0    |
+| 2    | `09-program-management.spec.ts`           | 31    | 12.6%      | 🔴 P0    |
+| 3    | `13-bulk-lock.spec.ts`                    | 29    | 11.8%      | 🔴 P0    |
+| 4    | `teacher-arrange-store-migration.spec.ts` | 27    | 11.0%      | 🔴 P0    |
+| 5    | `06-refactored-teacher-arrange.spec.ts`   | 19    | 7.7%       | 🟠 P1    |
+| 6    | `08-drag-and-drop.spec.ts`                | 19    | 7.7%       | 🟠 P1    |
+| 7    | `drag-drop.helper.ts` (helper)            | 14    | 5.7%       | 🟠 P1    |
+| 8    | `issue-94-teacher-assignment.spec.ts`     | 11    | 4.5%       | 🟡 P2    |
+| 9    | `12-conflict-detector.spec.ts`            | 11    | 4.5%       | 🟡 P2    |
+| 10   | `visual-inspection.spec.ts`               | 10    | 4.1%       | 🟡 P2    |
+| 11   | `analytics-dashboard.spec.ts`             | 10    | 4.1%       | 🟡 P2    |
+| 12   | `ArrangePage.ts` (POM)                    | 7     | 2.8%       | 🟢 P3    |
+| 13   | `admin-auth-flow.spec.ts`                 | 3     | 1.2%       | 🟢 P3    |
+| 14   | `11-activity-management.spec.ts`          | 3     | 1.2%       | 🟢 P3    |
+| 15   | `vercel-helpers.ts` (helper)              | 3     | 1.2%       | 🟢 P3    |
 
 **P0 Files (Top 4)**: 124 occurrences = 49% of total
 
@@ -73,12 +74,13 @@ Total Count: 246 occurrences across 20 files
 // ✅ IMPROVED: Use web-first assertion instead of waitForTimeout
 await expect(async () => {
   const url = page.url();
-  const isOnSignIn = url.includes('/signin') || url.includes('/api/auth');
+  const isOnSignIn = url.includes("/signin") || url.includes("/api/auth");
   expect(isOnSignIn).toBe(true);
 }).toPass({ timeout: 5000 });
 ```
 
 **Pattern Demonstrated**:
+
 - Web-first assertions (`toBeVisible()`, `toHaveURL()`)
 - Retry-based expectations (`expect().toPass()`)
 - Role-based selectors for accessibility
@@ -95,15 +97,16 @@ await expect(async () => {
 await page.waitForTimeout(1000); // Wait for React hydration
 
 // ❌ ANTI-PATTERN: Fixed delay after action
-await page.click('button');
+await page.click("button");
 await page.waitForTimeout(500);
 
 // ❌ ANTI-PATTERN: Multiple stacked waits
-await page.waitForLoadState('domcontentloaded');
+await page.waitForLoadState("domcontentloaded");
 await page.waitForTimeout(1000); // Wait for React hydration
 ```
 
 **Problems**:
+
 1. **Brittle**: Fails on slow CI runners or under load
 2. **Unpredictable**: No guarantee element is ready
 3. **Slow**: Adds unnecessary fixed delays
@@ -114,18 +117,20 @@ await page.waitForTimeout(1000); // Wait for React hydration
 ### 2.3 CONTEXT-SPECIFIC USAGE PATTERNS
 
 #### Pattern 1: Post-Navigation Waits
+
 ```typescript
 // ❌ BAD
-await page.goto('/management/program/1');
-await page.waitForLoadState('networkidle');
+await page.goto("/management/program/1");
+await page.waitForLoadState("networkidle");
 await page.waitForTimeout(1000); // Wait for React hydration
 
 // ✅ GOOD
-await page.goto('/management/program/1');
-await expect(page.getByTestId('program-table')).toBeVisible();
+await page.goto("/management/program/1");
+await expect(page.getByTestId("program-table")).toBeVisible();
 ```
 
 #### Pattern 2: After User Interaction
+
 ```typescript
 // ❌ BAD
 await page.click('button[aria-label="Apply Template"]');
@@ -133,10 +138,11 @@ await page.waitForTimeout(500);
 
 // ✅ GOOD
 await page.click('button[aria-label="Apply Template"]');
-await expect(page.getByText('Template Applied')).toBeVisible();
+await expect(page.getByText("Template Applied")).toBeVisible();
 ```
 
 #### Pattern 3: Drag-and-Drop Operations
+
 ```typescript
 // ❌ BAD
 await page.mouse.down();
@@ -154,6 +160,7 @@ await page.mouse.up();
 ```
 
 #### Pattern 4: Modal Animations
+
 ```typescript
 // ❌ BAD
 await page.click('button[aria-label="Open Dialog"]');
@@ -171,24 +178,27 @@ await expect(page.locator('[role="dialog"]')).toBeVisible();
 ### 3.1 Recommended Playwright Patterns
 
 #### Priority 1: Web-First Assertions (Auto-Wait)
+
 ```typescript
 // Waits up to 10s for element to be visible
-await expect(page.getByTestId('element')).toBeVisible();
-await expect(page.getByTestId('element')).toHaveText('Expected');
+await expect(page.getByTestId("element")).toBeVisible();
+await expect(page.getByTestId("element")).toHaveText("Expected");
 await expect(page).toHaveURL(/expected-path/);
 ```
 
 #### Priority 2: Explicit Event Waits
+
 ```typescript
 // Wait for network idle
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 
 // Wait for DOM ready
-await page.waitForLoadState('domcontentloaded');
+await page.waitForLoadState("domcontentloaded");
 
 // Wait for specific network response
-await page.waitForResponse(response => 
-  response.url().includes('/api/programs') && response.status() === 200
+await page.waitForResponse(
+  (response) =>
+    response.url().includes("/api/programs") && response.status() === 200,
 );
 
 // Wait for navigation
@@ -196,22 +206,25 @@ await page.waitForURL(/\/dashboard\/\d+-\d{4}/);
 ```
 
 #### Priority 3: Element State Selectors
+
 ```typescript
 // Wait for element to be attached, visible, enabled
-await page.waitForSelector('button:enabled');
+await page.waitForSelector("button:enabled");
 await page.waitForSelector('[data-testid="submit"]:not([disabled])');
 ```
 
 #### Priority 4: Custom Retry Logic
+
 ```typescript
 // For complex conditions
 await expect(async () => {
-  const count = await page.locator('.item').count();
+  const count = await page.locator(".item").count();
   expect(count).toBeGreaterThan(0);
 }).toPass({ timeout: 5000 });
 ```
 
 #### Priority 5: Function-Based Waits
+
 ```typescript
 // Wait for custom condition
 await page.waitForFunction(() => {
@@ -269,10 +282,10 @@ Is the wait for...?
 **File**: `docs/E2E_COVERAGE_MATRIX.md` (Lines 151-155)
 
 ```markdown
-1. **Replace `waitForTimeout` with Event-Driven Waits**  
-   - Priority: High  
-   - Action: Use `grep_search` to find all `waitForTimeout` usage  
-   - Replace with: `toBeVisible()`, `networkidle`, URL changes  
+1. **Replace `waitForTimeout` with Event-Driven Waits**
+   - Priority: High
+   - Action: Use `grep_search` to find all `waitForTimeout` usage
+   - Replace with: `toBeVisible()`, `networkidle`, URL changes
    - Estimate: 10-15 occurrences across test suite
 ```
 
@@ -284,6 +297,7 @@ Is the wait for...?
 
 ```markdown
 ### Task 1.2: Replace Manual Waits with Web-First Assertions ✅ IN PROGRESS
+
 - [x] Find all manual waits in refactored files
 - [x] Replace with web-first assertions and retry patterns
 - [x] Remove networkidle waits (15+ instances)
@@ -302,7 +316,7 @@ Is the wait for...?
 ```typescript
 // ✅ GOOD: Event-driven waits
 await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 await page.waitForURL(/\/dashboard\/\d+-\d{4}/);
 
 // ❌ BAD: Arbitrary timeouts
@@ -320,19 +334,21 @@ await page.waitForTimeout(3000); // Brittle! Fails on slow machines
 ```typescript
 // LEGITIMATE: Smooth mouse movement for visual drag effect
 export interface DragConfig {
-  steps?: number;         // Mouse movement steps (default: 10)
-  dragDelay?: number;     // Delay before drag (default: 200)
-  dropDelay?: number;     // Delay after drop (default: 300)
+  steps?: number; // Mouse movement steps (default: 10)
+  dragDelay?: number; // Delay before drag (default: 200)
+  dropDelay?: number; // Delay after drop (default: 300)
 }
 ```
 
 **Analysis**:
+
 - These waits simulate human-like drag behavior
 - Required for @dnd-kit library interaction
 - NOT arbitrary - tied to animation frames
 - **Decision**: Keep but parameterize (already done)
 
-**Recommendation**: 
+**Recommendation**:
+
 - Keep helper module as-is (well-designed)
 - Refactor test files that call helper incorrectly
 - Add option to disable delays for fast CI runs
@@ -348,20 +364,23 @@ await page.waitForTimeout(600); // Wait for debounce
 ```
 
 **Analysis**:
+
 - Search input has 500ms debounce
 - Test needs to wait for debounce to complete
 - **Better Approach**: Wait for network request instead
 
 **Recommended Fix**:
+
 ```typescript
 // ❌ BAD
-await page.fill('input[type="search"]', 'math');
+await page.fill('input[type="search"]', "math");
 await page.waitForTimeout(600);
 
 // ✅ GOOD
-await page.fill('input[type="search"]', 'math');
-await page.waitForResponse(response => 
-  response.url().includes('/api/search') && response.status() === 200
+await page.fill('input[type="search"]', "math");
+await page.waitForResponse(
+  (response) =>
+    response.url().includes("/api/search") && response.status() === 200,
 );
 ```
 
@@ -376,11 +395,13 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 ```
 
 **Analysis**:
+
 - External service (Vercel) deployment time
 - Not controlled by application
 - **Better Approach**: Poll deployment status API
 
-**Recommendation**: 
+**Recommendation**:
+
 - Replace with Vercel API status checks
 - Use exponential backoff polling
 - Set max timeout (e.g., 30s)
@@ -392,6 +413,7 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 ### 6.1 Three-Wave Approach
 
 #### Wave 1: Quick Wins (P0 - High Impact, Low Effort)
+
 **Target Files**: 4 files, 124 occurrences (49% of total)
 
 1. `14-lock-templates.spec.ts` (43)
@@ -406,6 +428,7 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 ---
 
 #### Wave 2: Complex Interactions (P1 - Medium Impact, Medium Effort)
+
 **Target Files**: 3 files, 52 occurrences (21% of total)
 
 5. `06-refactored-teacher-arrange.spec.ts` (19)
@@ -417,12 +440,14 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 **Risk**: Medium (requires understanding @dnd-kit timing)
 
 **Special Considerations**:
+
 - Review drag-drop.helper.ts design (may be legitimate)
 - Test drag operations on slow CI (ensure no regressions)
 
 ---
 
 #### Wave 3: Cleanup (P2-P3 - Long Tail)
+
 **Target Files**: 13 files, 70 occurrences (28% of total)
 
 **Estimated Effort**: 1-2 days  
@@ -434,16 +459,19 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 ### 6.2 Success Metrics
 
 #### Before (Current State)
+
 - **Total waitForTimeout**: 246 occurrences
 - **Test Flakiness**: ~20-30% of failures due to timing issues
 - **Test Speed**: +246s unnecessary waits (avg 1s per occurrence)
 
 #### After Wave 1 (50% Reduction)
+
 - **Total waitForTimeout**: ~122 occurrences
 - **Test Flakiness**: Estimated 10-15% reduction
 - **Test Speed**: +124s saved
 
 #### After Wave 3 (Complete)
+
 - **Total waitForTimeout**: ~20 occurrences (legitimate only)
 - **Test Flakiness**: Estimated 25-30% reduction
 - **Test Speed**: +226s saved (~3.8 minutes)
@@ -457,6 +485,7 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 **Phase A = Wave 1 (P0 Files Only)**
 
 **Rationale**:
+
 - Fastest ROI (50% reduction)
 - Proven patterns from `01-home-page.spec.ts`
 - Low risk of regression
@@ -466,6 +495,7 @@ await page.waitForTimeout(2000); // Wait for Vercel deployment
 ### 7.2 Step-by-Step Workflow (Per File)
 
 #### Step 1: Analyze Current Patterns
+
 ```bash
 # Find all waitForTimeout in target file
 grep -n "waitForTimeout" e2e/14-lock-templates.spec.ts
@@ -478,17 +508,20 @@ grep -n "waitForTimeout" e2e/14-lock-templates.spec.ts
 ```
 
 #### Step 2: Add Missing data-testid (If Needed)
+
 ```typescript
 // Check if elements have stable selectors
 // Add data-testid to components if using fragile selectors
 ```
 
 #### Step 3: Replace with Web-First Assertions
+
 ```typescript
 // Pattern-by-pattern replacement using decision tree (Section 3.2)
 ```
 
 #### Step 4: Run Tests + Verify
+
 ```bash
 # Run specific test file
 pnpm playwright test e2e/14-lock-templates.spec.ts --headed
@@ -498,6 +531,7 @@ pnpm playwright test e2e/14-lock-templates.spec.ts --repeat-each=3
 ```
 
 #### Step 5: Document Changes
+
 ```typescript
 // Add comment header to refactored file
 /**
@@ -512,13 +546,13 @@ pnpm playwright test e2e/14-lock-templates.spec.ts --repeat-each=3
 
 ### 7.3 Rollout Timeline (Phase A Only)
 
-| Day | Activity | Files | Output |
-|-----|----------|-------|--------|
-| 1 | Refactor 14-lock-templates.spec.ts | 1 | -43 waitForTimeout |
-| 2 | Refactor 09-program-management.spec.ts | 1 | -31 waitForTimeout |
-| 3 | Refactor 13-bulk-lock.spec.ts | 1 | -29 waitForTimeout |
-| 4 | Refactor teacher-arrange-store-migration.spec.ts | 1 | -27 waitForTimeout |
-| 5 | Regression Testing + Documentation | All | Phase A Complete |
+| Day | Activity                                         | Files | Output             |
+| --- | ------------------------------------------------ | ----- | ------------------ |
+| 1   | Refactor 14-lock-templates.spec.ts               | 1     | -43 waitForTimeout |
+| 2   | Refactor 09-program-management.spec.ts           | 1     | -31 waitForTimeout |
+| 3   | Refactor 13-bulk-lock.spec.ts                    | 1     | -29 waitForTimeout |
+| 4   | Refactor teacher-arrange-store-migration.spec.ts | 1     | -27 waitForTimeout |
+| 5   | Regression Testing + Documentation               | All   | Phase A Complete   |
 
 **Total Duration**: 1 week (5 days)  
 **Estimated Developer Time**: 3-4 days (with testing)
@@ -529,25 +563,27 @@ pnpm playwright test e2e/14-lock-templates.spec.ts --repeat-each=3
 
 ### 8.1 Identified Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Tests fail after refactor | Medium | High | Run tests 3x before/after, use headed mode |
-| New flakiness introduced | Low | Medium | Use longer timeouts (10s) for web-first assertions |
-| Drag-drop breaks | Medium | High | Keep helper module delays, focus on test files |
-| Regression in other tests | Low | Medium | Run full suite after each file |
-| CI timeout increases | Low | Low | Monitor CI times, expect decrease |
+| Risk                      | Probability | Impact | Mitigation                                         |
+| ------------------------- | ----------- | ------ | -------------------------------------------------- |
+| Tests fail after refactor | Medium      | High   | Run tests 3x before/after, use headed mode         |
+| New flakiness introduced  | Low         | Medium | Use longer timeouts (10s) for web-first assertions |
+| Drag-drop breaks          | Medium      | High   | Keep helper module delays, focus on test files     |
+| Regression in other tests | Low         | Medium | Run full suite after each file                     |
+| CI timeout increases      | Low         | Low    | Monitor CI times, expect decrease                  |
 
 ---
 
 ### 8.2 Rollback Plan
 
 **If Phase A causes regressions**:
+
 1. Revert specific file via git
 2. Keep successful refactors
 3. Document problematic patterns
 4. Re-analyze with team
 
 **Git Strategy**:
+
 ```bash
 # One commit per file for easy rollback
 git commit -m "refactor(e2e): remove waitForTimeout from 14-lock-templates.spec.ts"
@@ -562,8 +598,9 @@ git commit -m "refactor(e2e): remove waitForTimeout from 14-lock-templates.spec.
 **Context**: Issue #104 is a tracking issue for cleanup tasks BEFORE Phase A begins.
 
 **Child Issues** (all complete except #105):
+
 - Issue #106: ✅ Complete
-- Issue #107: ✅ Complete  
+- Issue #107: ✅ Complete
 - Issue #108: ✅ Complete
 - Issue #109: ✅ Complete
 - Issue #110: ✅ Complete
@@ -575,11 +612,13 @@ git commit -m "refactor(e2e): remove waitForTimeout from 14-lock-templates.spec.
 ### 9.2 Previous Refactoring Work
 
 **Completed** (E2E Phase 1):
+
 - `01-home-page.spec.ts` - Full refactor (proof of concept)
 - `public-data-api.spec.ts` - Partial refactor (27 tests)
 - Test ID infrastructure added to components
 
 **Incomplete** (Mentioned in E2E_PHASE1_PROGRESS.md):
+
 - Only 1 file fully refactored
 - Original goal: 6-8 files
 - Phase 1 never completed
@@ -611,6 +650,7 @@ git commit -m "refactor(e2e): remove waitForTimeout from 14-lock-templates.spec.
 ### 10.2 Post-Phase A (Wave 2 & 3)
 
 **After Phase A proves successful**:
+
 - Create Issue #112: "Phase A - Wave 2 (Drag-and-Drop)"
 - Create Issue #113: "Phase A - Wave 3 (Long Tail Cleanup)"
 - Consider creating `TESTING_PATTERNS.md` guide for team
@@ -620,6 +660,7 @@ git commit -m "refactor(e2e): remove waitForTimeout from 14-lock-templates.spec.
 ### 10.3 Long-Term Quality Goals
 
 **Beyond waitForTimeout removal**:
+
 1. **Selector Stability**: Finish data-testid migration
 2. **Test Organization**: Implement Page Object Model (POM) pattern
 3. **Parallelization**: Improve test sharding (already in progress)
@@ -680,11 +721,13 @@ grep -r "TODO.*wait|FIXME.*wait" e2e/**/*.ts
 ### 11.3 Reference Documentation
 
 **Internal Docs**:
+
 - `docs/E2E_COVERAGE_MATRIX.md` - Test quality improvements section
 - `docs/E2E_PHASE1_PROGRESS.md` - Previous refactoring attempts
 - `docs/E2E_TEST_SELECTOR_FIXES.md` - Selector patterns
 
 **External Resources**:
+
 - [Playwright Best Practices - Auto-waiting](https://playwright.dev/docs/actionability)
 - [Playwright Web-First Assertions](https://playwright.dev/docs/test-assertions)
 - [Avoiding waitForTimeout Anti-Pattern](https://playwright.dev/docs/api/class-page#page-wait-for-timeout)
@@ -696,6 +739,7 @@ grep -r "TODO.*wait|FIXME.*wait" e2e/**/*.ts
 **Phase A - waitForTimeout Refactor Sweep** is a well-defined, high-impact initiative to eliminate 246 arbitrary timing waits from the E2E test suite.
 
 **Key Takeaways**:
+
 - ✅ Scope is clear: 246 occurrences across 20 files
 - ✅ Patterns are understood: Post-navigation, post-interaction, modal waits
 - ✅ Replacement strategies are documented: Web-first assertions, event-driven waits

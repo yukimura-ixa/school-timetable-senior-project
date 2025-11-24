@@ -1,12 +1,12 @@
 /**
  * Lock Feature - Repository Layer
- * 
+ *
  * Handles all database operations for locked schedules using Prisma.
  * Lock feature uses class_schedule table with IsLocked flag.
  */
 
-import prisma from '@/lib/prisma';
-import { semester } from '@/prisma/generated/client';
+import prisma from "@/lib/prisma";
+import { semester } from "@/prisma/generated/client";
 
 /**
  * Type for raw locked schedule data from database
@@ -56,7 +56,7 @@ export type RawLockedSchedule = {
  */
 export async function findLockedSchedules(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ): Promise<RawLockedSchedule[]> {
   const data = await prisma.class_schedule.findMany({
     where: {
@@ -72,7 +72,7 @@ export async function findLockedSchedules(
       subject: {
         include: {
           teachers_responsibility: {
-            distinct: ['TeacherID'],
+            distinct: ["TeacherID"],
             include: {
               teacher: true,
             },
@@ -150,7 +150,10 @@ export async function deleteMany(classIds: string[]) {
 /**
  * Count total locked schedules for a given academic year and semester
  */
-export async function count(academicYear: number, semester: semester): Promise<number> {
+export async function count(
+  academicYear: number,
+  semester: semester,
+): Promise<number> {
   return await prisma.class_schedule.count({
     where: {
       timeslot: {
@@ -162,13 +165,12 @@ export async function count(academicYear: number, semester: semester): Promise<n
   });
 }
 
-
 /**
  * Find all grade levels
  */
 export async function findAllGradeLevels() {
   return await prisma.gradelevel.findMany({
-    orderBy: { GradeID: 'asc' },
+    orderBy: { GradeID: "asc" },
   });
 }
 
@@ -177,17 +179,14 @@ export async function findAllGradeLevels() {
  */
 export async function findTimeslotsByTerm(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ) {
   return await prisma.timeslot.findMany({
     where: {
       AcademicYear: academicYear,
       Semester: semester,
     },
-    orderBy: [
-      { DayOfWeek: 'asc' },
-      { StartTime: 'asc' },
-    ],
+    orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
   });
 }
 
@@ -196,7 +195,7 @@ export async function findTimeslotsByTerm(
  */
 export async function findAllRooms() {
   return await prisma.room.findMany({
-    orderBy: { RoomID: 'asc' },
+    orderBy: { RoomID: "asc" },
   });
 }
 
@@ -205,7 +204,7 @@ export async function findAllRooms() {
  */
 export async function findAllSubjects() {
   return await prisma.subject.findMany({
-    orderBy: { SubjectCode: 'asc' },
+    orderBy: { SubjectCode: "asc" },
   });
 }
 
@@ -214,7 +213,7 @@ export async function findAllSubjects() {
  */
 export async function findTeacherResponsibilitiesByTerm(
   academicYear: number,
-  semester: semester
+  semester: semester,
 ) {
   return await prisma.teachers_responsibility.findMany({
     where: {

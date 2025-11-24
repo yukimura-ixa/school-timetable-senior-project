@@ -15,13 +15,20 @@ export function TeacherWorkloadSection({
 }: TeacherWorkloadSectionProps) {
   // Sort by total hours descending
   const sortedWorkloads = [...workloads].sort(
-    (a, b) => b.totalHours - a.totalHours
+    (a, b) => b.totalHours - a.totalHours,
   );
 
   // Get workload status color
   const getStatusColor = (
-    status: string
-  ): "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" => {
+    status: string,
+  ):
+    | "default"
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning" => {
     switch (status) {
       case "underutilized":
         return "info";

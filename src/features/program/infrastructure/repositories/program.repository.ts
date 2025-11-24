@@ -1,19 +1,19 @@
 /**
  * Infrastructure Layer: Program Repository (MOE-Compliant)
- * 
+ *
  * Handles all database operations for MOE-compliant programs using Prisma.
  * Pure data access layer with no business logic.
- * 
+ *
  * @module program.repository
  */
 
-import prisma from '@/lib/prisma'
+import prisma from "@/lib/prisma";
 import type {
   CreateProgramInput,
   UpdateProgramInput,
-  AssignSubjectsToProgramInput
-} from '../../application/schemas/program.schemas'
-import type { ProgramTrack } from '@/prisma/generated/client'
+  AssignSubjectsToProgramInput,
+} from "../../application/schemas/program.schemas";
+import type { ProgramTrack } from "@/prisma/generated/client";
 
 export const programRepository = {
   /**
@@ -25,14 +25,11 @@ export const programRepository = {
       where: {
         IsActive: true,
       },
-      orderBy: [
-        { Year: 'asc' },
-        { Track: 'asc' },
-      ],
+      orderBy: [{ Year: "asc" }, { Track: "asc" }],
       include: {
         gradelevel: {
           orderBy: {
-            Number: 'asc',
+            Number: "asc",
           },
         },
         program_subject: {
@@ -40,20 +37,20 @@ export const programRepository = {
             subject: true,
           },
           orderBy: {
-            SortOrder: 'asc',
+            SortOrder: "asc",
           },
         },
       },
-    })
+    });
   },
 
   /**
    * Find programs by Year (optional), Track (optional), and IsActive
    */
   async findByFilters(filters: {
-    Year?: number
-    Track?: ProgramTrack
-    IsActive?: boolean
+    Year?: number;
+    Track?: ProgramTrack;
+    IsActive?: boolean;
   }) {
     return prisma.program.findMany({
       where: {
@@ -61,14 +58,11 @@ export const programRepository = {
         ...(filters.Track && { Track: filters.Track }),
         ...(filters.IsActive !== undefined && { IsActive: filters.IsActive }),
       },
-      orderBy: [
-        { Year: 'asc' },
-        { Track: 'asc' },
-      ],
+      orderBy: [{ Year: "asc" }, { Track: "asc" }],
       include: {
         gradelevel: {
           orderBy: {
-            Number: 'asc',
+            Number: "asc",
           },
         },
         program_subject: {
@@ -76,11 +70,11 @@ export const programRepository = {
             subject: true,
           },
           orderBy: {
-            SortOrder: 'asc',
+            SortOrder: "asc",
           },
         },
       },
-    })
+    });
   },
 
   /**
@@ -94,7 +88,7 @@ export const programRepository = {
       include: {
         gradelevel: {
           orderBy: {
-            Number: 'asc',
+            Number: "asc",
           },
         },
         program_subject: {
@@ -102,11 +96,11 @@ export const programRepository = {
             subject: true,
           },
           orderBy: {
-            SortOrder: 'asc',
+            SortOrder: "asc",
           },
         },
       },
-    })
+    });
   },
 
   /**
@@ -117,7 +111,7 @@ export const programRepository = {
       where: {
         ProgramCode: programCode,
       },
-    })
+    });
   },
 
   /**
@@ -129,7 +123,7 @@ export const programRepository = {
         Year: year,
         Track: track,
       },
-    })
+    });
   },
 
   /**
@@ -144,40 +138,41 @@ export const programRepository = {
           include: {
             program_subject: {
               include: {
-                subject: semester && academicYear
-                  ? {
-                    include: {
-                      teachers_responsibility: {
-                        where: {
-                          GradeID: gradeId,
-                          Semester: semester as 'SEMESTER_1' | 'SEMESTER_2',
-                          AcademicYear: academicYear,
-                        },
+                subject:
+                  semester && academicYear
+                    ? {
                         include: {
-                          teacher: {
-                            select: {
-                              Prefix: true,
-                              Firstname: true,
-                              Lastname: true,
+                          teachers_responsibility: {
+                            where: {
+                              GradeID: gradeId,
+                              Semester: semester as "SEMESTER_1" | "SEMESTER_2",
+                              AcademicYear: academicYear,
+                            },
+                            include: {
+                              teacher: {
+                                select: {
+                                  Prefix: true,
+                                  Firstname: true,
+                                  Lastname: true,
+                                },
+                              },
                             },
                           },
                         },
-                      },
-                    },
-                  }
-                  : true,
+                      }
+                    : true,
               },
               orderBy: {
-                SortOrder: 'asc',
+                SortOrder: "asc",
               },
             },
           },
         },
       },
-    })
+    });
 
     if (!gradelevel?.program) {
-      return null
+      return null;
     }
 
     // Transform program_subject to subjects array for easier consumption
@@ -190,13 +185,14 @@ export const programRepository = {
         Category: ps.Category,
         IsMandatory: ps.IsMandatory,
         SortOrder: ps.SortOrder,
-        teachers_responsibility: 'teachers_responsibility' in ps.subject
-          ? ps.subject.teachers_responsibility
-          : [],
+        teachers_responsibility:
+          "teachers_responsibility" in ps.subject
+            ? ps.subject.teachers_responsibility
+            : [],
       })),
-    }
+    };
 
-    return program
+    return program;
   },
 
   /**
@@ -221,7 +217,7 @@ export const programRepository = {
           },
         },
       },
-    })
+    });
   },
 
   /**
@@ -236,8 +232,12 @@ export const programRepository = {
         ...(data.ProgramCode && { ProgramCode: data.ProgramCode }),
         ...(data.ProgramName && { ProgramName: data.ProgramName }),
         ...(data.Track && { Track: data.Track }),
-        ...(data.Description !== undefined && { Description: data.Description }),
-        ...(data.MinTotalCredits !== undefined && { MinTotalCredits: data.MinTotalCredits }),
+        ...(data.Description !== undefined && {
+          Description: data.Description,
+        }),
+        ...(data.MinTotalCredits !== undefined && {
+          MinTotalCredits: data.MinTotalCredits,
+        }),
         ...(data.IsActive !== undefined && { IsActive: data.IsActive }),
       },
       include: {
@@ -248,7 +248,7 @@ export const programRepository = {
           },
         },
       },
-    })
+    });
   },
 
   /**
@@ -261,7 +261,7 @@ export const programRepository = {
         where: {
           ProgramID: data.ProgramID,
         },
-      })
+      });
 
       await tx.program_subject.createMany({
         data: data.subjects.map((subject, index) => ({
@@ -273,7 +273,7 @@ export const programRepository = {
           MaxCredits: subject.MaxCredits,
           SortOrder: subject.SortOrder ?? index + 1,
         })),
-      })
+      });
 
       return tx.program.findUnique({
         where: {
@@ -286,12 +286,12 @@ export const programRepository = {
               subject: true,
             },
             orderBy: {
-              SortOrder: 'asc',
+              SortOrder: "asc",
             },
           },
         },
-      })
-    })
+      });
+    });
   },
 
   /**
@@ -306,9 +306,9 @@ export const programRepository = {
         subject: true,
       },
       orderBy: {
-        SortOrder: 'asc',
+        SortOrder: "asc",
       },
-    })
+    });
   },
 
   /**
@@ -321,16 +321,16 @@ export const programRepository = {
       where: {
         ProgramID: programId,
       },
-    })
+    });
   },
 
   /**
    * Count programs by filters (for pagination)
    */
   async count(filters: {
-    Year?: number
-    Track?: ProgramTrack
-    IsActive?: boolean
+    Year?: number;
+    Track?: ProgramTrack;
+    IsActive?: boolean;
   }) {
     return prisma.program.count({
       where: {
@@ -338,7 +338,7 @@ export const programRepository = {
         ...(filters.Track && { Track: filters.Track }),
         ...(filters.IsActive !== undefined && { IsActive: filters.IsActive }),
       },
-    })
+    });
   },
 
   /**
@@ -349,10 +349,7 @@ export const programRepository = {
       where: {
         IsActive: true,
       },
-      orderBy: [
-        { Year: 'asc' },
-        { Track: 'asc' },
-      ],
+      orderBy: [{ Year: "asc" }, { Track: "asc" }],
       include: {
         gradelevel: {
           select: {
@@ -366,16 +363,16 @@ export const programRepository = {
           },
         },
       },
-    })
+    });
 
-    const grouped: Record<number, typeof programs> = {}
+    const grouped: Record<number, typeof programs> = {};
     for (const program of programs) {
       if (!grouped[program.Year]) {
-        grouped[program.Year] = []
+        grouped[program.Year] = [];
       }
-      grouped[program.Year]?.push(program)
+      grouped[program.Year]?.push(program);
     }
 
-    return grouped
+    return grouped;
   },
-}
+};

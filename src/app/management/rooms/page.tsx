@@ -11,12 +11,12 @@ import { cookies } from "next/headers";
 export default async function RoomsManagePage() {
   // Force dynamic rendering for Next.js 16
   await cookies();
-  
+
   const result = await getRoomsAction();
 
   // Error state
   if (!result.success) {
-    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
+    return <NetworkErrorEmptyState />;
   }
 
   return (
@@ -25,4 +25,3 @@ export default async function RoomsManagePage() {
     </Suspense>
   );
 }
-

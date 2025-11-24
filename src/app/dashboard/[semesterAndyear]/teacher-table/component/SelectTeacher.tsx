@@ -3,7 +3,7 @@ import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import React, { useEffect, useState } from "react";
-import type { teacher } from '@/prisma/generated/client';;
+import type { teacher } from "@/prisma/generated/client";
 
 type Props = {
   setTeacherID: (teacherId: number | null) => void;
@@ -23,9 +23,15 @@ const formatTeacherName = (teacher?: Partial<teacher> | null) => {
   return `${prefix}${firstname}${firstname && lastname ? " " : ""}${lastname}`.trim();
 };
 
-function SelectTeacher({ setTeacherID, currentTeacher = null, disabled = false }: Props) {
+function SelectTeacher({
+  setTeacherID,
+  currentTeacher = null,
+  disabled = false,
+}: Props) {
   const allTeacher = useTeachers();
-  const [teacher, setTeacher] = useState<string>(formatTeacherName(currentTeacher));
+  const [teacher, setTeacher] = useState<string>(
+    formatTeacherName(currentTeacher),
+  );
 
   useEffect(() => {
     setTeacher(formatTeacherName(currentTeacher));
@@ -40,9 +46,12 @@ function SelectTeacher({ setTeacherID, currentTeacher = null, disabled = false }
   }
 
   return (
-    <div 
+    <div
       className="flex h-fit w-full items-center justify-between border border-[#EDEEF3] p-4"
-      style={{ opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
+      style={{
+        opacity: disabled ? 0.6 : 1,
+        pointerEvents: disabled ? "none" : "auto",
+      }}
     >
       <p>เลือกครู</p>
       <Dropdown
@@ -61,7 +70,9 @@ function SelectTeacher({ setTeacherID, currentTeacher = null, disabled = false }
         handleChange={(data: unknown) => {
           if (disabled) return;
           const t = data as Partial<teacher>;
-          setTeacher(`${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`);
+          setTeacher(
+            `${t.Prefix ?? ""}${t.Firstname ?? ""} ${t.Lastname ?? ""}`,
+          );
           setTeacherID(t.TeacherID ?? null);
         }}
         searchFunction={undefined}

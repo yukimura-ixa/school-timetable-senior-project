@@ -1,9 +1,9 @@
 /**
  * Lock Schedule Types
- * 
+ *
  * Type definitions for lock schedule operations (create, update, delete).
  * Used by lock schedule components and server actions.
- * 
+ *
  * Created: Week 8 - Type Safety Improvements
  * Related: src/app/schedule/[semesterAndyear]/lock/
  */
@@ -18,7 +18,7 @@ import type {
   teacher,
   day_of_week,
   semester,
-} from '@/prisma/generated/client';
+} from "@/prisma/generated/client";
 
 // ============================================================================
 // Extended Types (with relations)
@@ -38,7 +38,7 @@ export type SubjectWithResponsibilities = subject & {
 /**
  * Data structure for creating/editing a lock schedule
  * Used in LockScheduleForm, AddLockScheduleModal, EditLockScheduleModal
- * 
+ *
  * Note: Uses PascalCase field names to match database schema and component usage
  */
 export interface LockScheduleFormData {
@@ -158,15 +158,15 @@ export type LockScheduleFormState = {
 };
 
 export type LockScheduleFormAction =
-  | { type: 'SET_TIMESLOTS'; payload: string[] }
-  | { type: 'SET_GRADES'; payload: string[] }
-  | { type: 'SET_SUBJECT'; payload: string | null }
-  | { type: 'SET_ROOM'; payload: number | null }
-  | { type: 'SET_TEACHERS'; payload: number[] }
-  | { type: 'ADD_TEACHER'; payload: number }
-  | { type: 'REMOVE_TEACHER'; payload: number }
-  | { type: 'SET_DAY_OF_WEEK'; payload: day_of_week }
-  | { type: 'RESET' };
+  | { type: "SET_TIMESLOTS"; payload: string[] }
+  | { type: "SET_GRADES"; payload: string[] }
+  | { type: "SET_SUBJECT"; payload: string | null }
+  | { type: "SET_ROOM"; payload: number | null }
+  | { type: "SET_TEACHERS"; payload: number[] }
+  | { type: "ADD_TEACHER"; payload: number }
+  | { type: "REMOVE_TEACHER"; payload: number }
+  | { type: "SET_DAY_OF_WEEK"; payload: day_of_week }
+  | { type: "RESET" };
 
 // ============================================================================
 // Lock Schedule API Responses

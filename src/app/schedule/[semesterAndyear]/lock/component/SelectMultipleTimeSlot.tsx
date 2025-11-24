@@ -1,11 +1,11 @@
 import { useTimeslots, useSemesterSync } from "@/hooks";
 import { subjectCreditValues } from "@/models/credit-value";
-import type { subject_credit } from '@/prisma/generated/client';;
+import type { subject_credit } from "@/prisma/generated/client";
 import { useParams } from "next/navigation";
 import React, { Fragment, use, useEffect, useState } from "react";
 import { BsInfo } from "react-icons/bs";
 
-import type { subject, teacher } from '@/prisma/generated/client';;
+import type { subject, teacher } from "@/prisma/generated/client";
 
 type Props = {
   subject?: subject;
@@ -18,13 +18,15 @@ type Props = {
 function SelectMultipleTimeSlot(props: Props) {
   // /timeslot?AcademicYear=2566&Semester=SEMESTER_2
   const params = useParams();
-  
+
   // Use useSemesterSync to extract and sync semester with global store
-  const { semester, academicYear } = useSemesterSync(params.semesterAndyear as string);
-  
+  const { semester, academicYear } = useSemesterSync(
+    params.semesterAndyear as string,
+  );
+
   const timeSlotData = useTimeslots(
-    parseInt(academicYear || '0'),
-    parseInt(semester || '0'),
+    parseInt(academicYear || "0"),
+    parseInt(semester || "0"),
   );
   const [timeSlot, setTimeSlot] = useState<string[]>([]);
   useEffect(() => {
@@ -36,7 +38,6 @@ function SelectMultipleTimeSlot(props: Props) {
       );
     }
   }, [timeSlotData.isLoading, props.daySelected]);
-
 
   const checkTimeslotCond = (index: number) => {
     if (!props.subject?.Credit) return false;

@@ -1,14 +1,14 @@
 /**
  * Empty State Components
- * 
+ *
  * User-friendly messages when no data is available.
  * Guides users to next actions.
- * 
+ *
  * Created: October 22, 2025
  * Priority: P1 - Critical UX
  */
 
-import { Box, Typography, Button, Stack } from '@mui/material';
+import { Box, Typography, Button, Stack } from "@mui/material";
 import {
   CalendarToday,
   PersonAdd,
@@ -18,7 +18,7 @@ import {
   FolderOpen,
   EventBusy,
   SchoolOutlined,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -32,7 +32,7 @@ interface EmptyStateProps {
 
 /**
  * Generic empty state component
- * 
+ *
  * @example
  * <EmptyState
  *   icon={<CalendarToday />}
@@ -54,13 +54,13 @@ export function EmptyState({
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         py: { xs: 6, sm: 8, md: 10 },
         px: 3,
-        textAlign: 'center',
+        textAlign: "center",
         minHeight: 300,
       }}
     >
@@ -68,7 +68,7 @@ export function EmptyState({
         <Box
           sx={{
             fontSize: { xs: 48, sm: 64 },
-            color: 'text.disabled',
+            color: "text.disabled",
             mb: 2,
             opacity: 0.6,
           }}
@@ -116,7 +116,11 @@ export function EmptyState({
 /**
  * No timetable created yet
  */
-export const NoTimetableEmptyState = ({ onCreate }: { onCreate?: () => void }) => (
+export const NoTimetableEmptyState = ({
+  onCreate,
+}: {
+  onCreate?: () => void;
+}) => (
   <EmptyState
     icon={<CalendarToday />}
     title="ยังไม่มีตารางเรียน"
@@ -155,7 +159,11 @@ export const NoSubjectsEmptyState = ({ onAdd }: { onAdd?: () => void }) => (
 /**
  * No teacher assignments
  */
-export const NoAssignmentsEmptyState = ({ onAssign }: { onAssign?: () => void }) => (
+export const NoAssignmentsEmptyState = ({
+  onAssign,
+}: {
+  onAssign?: () => void;
+}) => (
   <EmptyState
     icon={<Assignment />}
     title="ยังไม่มีการมอบหมายวิชา"
@@ -168,11 +176,11 @@ export const NoAssignmentsEmptyState = ({ onAssign }: { onAssign?: () => void })
 /**
  * No search results
  */
-export const NoSearchResultsEmptyState = ({ 
-  searchTerm, 
-  onClear 
-}: { 
-  searchTerm?: string; 
+export const NoSearchResultsEmptyState = ({
+  searchTerm,
+  onClear,
+}: {
+  searchTerm?: string;
   onClear?: () => void;
 }) => (
   <EmptyState
@@ -181,7 +189,7 @@ export const NoSearchResultsEmptyState = ({
     description={
       searchTerm
         ? `ไม่พบข้อมูลที่ตรงกับคำค้นหา "${searchTerm}" กรุณาลองค้นหาด้วยคำอื่น`
-        : 'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา'
+        : "ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา"
     }
     actionLabel="ล้างการค้นหา"
     onAction={onClear}
@@ -191,10 +199,10 @@ export const NoSearchResultsEmptyState = ({
 /**
  * No data in general
  */
-export const NoDataEmptyState = ({ 
-  entityName = 'ข้อมูล',
-  onAdd 
-}: { 
+export const NoDataEmptyState = ({
+  entityName = "ข้อมูล",
+  onAdd,
+}: {
   entityName?: string;
   onAdd?: () => void;
 }) => (
@@ -212,7 +220,7 @@ export const NoDataEmptyState = ({
  */
 export const NoConflictsEmptyState = () => (
   <EmptyState
-    icon={<EventBusy sx={{ color: 'success.main' }} />}
+    icon={<EventBusy sx={{ color: "success.main" }} />}
     title="ไม่พบความขัดแย้ง"
     description="ตารางเรียนของคุณไม่มีความขัดแย้ง พร้อมใช้งานได้เลย"
   />
@@ -234,7 +242,11 @@ export const NoRoomsEmptyState = ({ onAdd }: { onAdd?: () => void }) => (
 /**
  * No locked schedules
  */
-export const NoLockedSchedulesEmptyState = ({ onAdd }: { onAdd?: () => void }) => (
+export const NoLockedSchedulesEmptyState = ({
+  onAdd,
+}: {
+  onAdd?: () => void;
+}) => (
   <EmptyState
     icon={<EventBusy />}
     title="ยังไม่มีช่วงเวลาที่ล็อค"
@@ -247,7 +259,11 @@ export const NoLockedSchedulesEmptyState = ({ onAdd }: { onAdd?: () => void }) =
 /**
  * Permission denied empty state
  */
-export const PermissionDeniedEmptyState = ({ onGoBack }: { onGoBack?: () => void }) => (
+export const PermissionDeniedEmptyState = ({
+  onGoBack,
+}: {
+  onGoBack?: () => void;
+}) => (
   <EmptyState
     icon={<Box sx={{ fontSize: 64 }}>🔒</Box>}
     title="ไม่มีสิทธิ์เข้าถึง"
@@ -260,7 +276,11 @@ export const PermissionDeniedEmptyState = ({ onGoBack }: { onGoBack?: () => void
 /**
  * Network error empty state
  */
-export const NetworkErrorEmptyState = ({ onRetry }: { onRetry?: () => void }) => (
+export const NetworkErrorEmptyState = ({
+  onRetry,
+}: {
+  onRetry?: () => void;
+}) => (
   <EmptyState
     icon={<Box sx={{ fontSize: 64 }}>📡</Box>}
     title="ไม่สามารถเชื่อมต่อได้"

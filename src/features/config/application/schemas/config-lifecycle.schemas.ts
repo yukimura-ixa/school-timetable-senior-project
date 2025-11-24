@@ -65,7 +65,7 @@ export function calculateCompleteness(config: ConfigCompleteness): number {
 export function canTransitionStatus(
   currentStatus: ConfigStatus,
   newStatus: ConfigStatus,
-  completeness: number
+  completeness: number,
 ): { allowed: boolean; reason?: string } {
   // DRAFT → PUBLISHED: Must be at least 30% complete (has timeslots)
   if (currentStatus === "DRAFT" && newStatus === "PUBLISHED") {

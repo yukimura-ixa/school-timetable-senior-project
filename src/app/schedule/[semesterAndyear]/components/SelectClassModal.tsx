@@ -28,12 +28,14 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
       { Year: "6" },
     ].filter(
       (item) =>
-        !selectedClassList.map((selectedItem) => selectedItem.Year).includes(item.Year)
-    )
+        !selectedClassList
+          .map((selectedItem) => selectedItem.Year)
+          .includes(item.Year),
+    ),
   );
   const addSelectedClassList = (item: ClassItem) => {
     //ตัวแปร newList จะเพิ่มของใหม่ลงไปพร้อมกับ sort แล้ว set state
-    const newList = [...selectedClassList, item]//.sort((a, b) => a.Year.localeCompare(b.Year))
+    const newList = [...selectedClassList, item]; //.sort((a, b) => a.Year.localeCompare(b.Year))
     setSelectedClassList(() => newList);
     //จากนั้น copy ตัวที่จะลบมาไว้ แล้ว Splice ออกโดยการใช้ indexOf เพื่อเช็ค index ของไอเทม
     const unSelected = [...unSelectedClassList];
@@ -43,7 +45,7 @@ function SelectClassModal({ closeModal, classList, confirmChange }: props) {
   };
   const removeSelectedClassList = (item: ClassItem) => {
     //ทำงานเหมือนกันกับ addSelectedClassList
-    const newList = [...unSelectedClassList, item]//.sort((a, b) => a.Year.localeCompare(b.Year))
+    const newList = [...unSelectedClassList, item]; //.sort((a, b) => a.Year.localeCompare(b.Year))
     setUnSelectedClassList(() => newList);
     const selected = [...selectedClassList];
     selected.splice(selectedClassList.indexOf(item), 1);

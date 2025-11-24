@@ -1,6 +1,7 @@
 # Suggested Commands - School Timetable System
 
 ## Package Manager
+
 **CRITICAL: Use PNPM only (not npm or yarn)**
 
 ```powershell
@@ -20,6 +21,7 @@ pnpm remove <package-name>
 ## Development
 
 ### Start Development Server
+
 ```powershell
 # Start Next.js development server (http://localhost:3000)
 pnpm dev
@@ -34,6 +36,7 @@ pnpm start
 ## Database (Prisma)
 
 ### Schema Management
+
 ```powershell
 # Generate Prisma Client (run after schema changes)
 pnpm prisma generate
@@ -72,6 +75,7 @@ pnpm seed:setup
 ```
 
 ### Admin Management
+
 ```powershell
 # Create admin user
 pnpm admin:create
@@ -83,6 +87,7 @@ pnpm admin:verify
 ## Code Quality
 
 ### Linting
+
 ```powershell
 # Run ESLint
 pnpm lint
@@ -95,6 +100,7 @@ pnpm eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings=0
 ```
 
 ### Formatting
+
 ```powershell
 # Format all files with Prettier
 pnpm format
@@ -107,6 +113,7 @@ pnpm prettier --write src/**/*.ts
 ```
 
 ### Type Checking
+
 ```powershell
 # Type check without emitting files
 pnpm tsc --noEmit
@@ -118,6 +125,7 @@ pnpm tsc --noEmit --skipLibCheck
 ## Testing
 
 ### Unit Tests (Jest)
+
 ```powershell
 # Run all unit tests
 pnpm test
@@ -133,6 +141,7 @@ pnpm test --coverage
 ```
 
 ### E2E Tests (Playwright)
+
 ```powershell
 # Install Playwright browsers (first time setup)
 pnpm playwright:install
@@ -157,6 +166,7 @@ pnpm test:report
 ```
 
 ### Vercel E2E Tests
+
 ```powershell
 # Test against Vercel deployment
 pnpm test:vercel
@@ -177,6 +187,7 @@ pnpm test:vercel:report
 ## Git Workflow
 
 ### Common Git Commands (PowerShell)
+
 ```powershell
 # Check status
 git status
@@ -221,6 +232,7 @@ git checkout -- <file-path>
 ## Windows-Specific Commands
 
 ### PowerShell Navigation
+
 ```powershell
 # List directory contents
 Get-ChildItem
@@ -258,6 +270,7 @@ $env:NODE_ENV = "development"
 ```
 
 ### File Operations
+
 ```powershell
 # Copy file
 Copy-Item <source> <destination>
@@ -272,6 +285,7 @@ Remove-Item <file-path>
 ## Environment Management
 
 ### Local Environment
+
 ```powershell
 # Pull environment variables from Vercel (requires Vercel CLI)
 vercel env pull .env.local
@@ -286,6 +300,7 @@ notepad .env.local
 ## Build & Deploy
 
 ### Local Build
+
 ```powershell
 # Full production build
 pnpm build
@@ -295,6 +310,7 @@ pnpm build --analyze
 ```
 
 ### Vercel Deployment
+
 ```powershell
 # Deploy to Vercel (requires Vercel CLI)
 vercel
@@ -309,6 +325,7 @@ vercel logs
 ## Troubleshooting
 
 ### Common Issues & Solutions
+
 ```powershell
 # Clear Next.js cache
 Remove-Item -Recurse -Force .next
@@ -331,6 +348,7 @@ pnpm --version
 ```
 
 ### Logs & Debugging
+
 ```powershell
 # View Next.js build output
 pnpm build 2>&1 | Out-File build-log.txt
@@ -345,6 +363,7 @@ pnpm prisma db pull
 ## Quick Reference
 
 ### Daily Development Workflow
+
 ```powershell
 # 1. Pull latest changes
 git pull
@@ -372,6 +391,7 @@ git push
 ```
 
 ### Before Committing
+
 ```powershell
 # Check everything passes
 pnpm tsc --noEmit --skipLibCheck
@@ -380,6 +400,7 @@ pnpm test
 ```
 
 ### After Schema Changes
+
 ```powershell
 # 1. Generate Prisma Client
 pnpm prisma generate
@@ -394,6 +415,7 @@ pnpm db:studio
 ## ConfigID Migration Commands (Recent Work)
 
 ### Phase-by-Phase Migration
+
 ```powershell
 # Phase 1: Validation layer (DONE)
 # - Updated config-validation.service.ts

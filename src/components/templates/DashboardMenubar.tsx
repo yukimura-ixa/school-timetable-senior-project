@@ -86,7 +86,9 @@ function DashboardMenubar() {
                           index === showTimetableMenu.length - 1 ? "10px" : 0,
                       }}
                     >
-                      <item.IconStyle.Icon className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`} />
+                      <item.IconStyle.Icon
+                        className={`w-5 h-5 group-hover:fill-cyan-600 transition-colors duration-300`}
+                      />
                       <p className="text-md font-medium">{item.title}</p>
                     </Link>
                   )}

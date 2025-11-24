@@ -31,9 +31,12 @@ import {
   Assignment as AssignmentIcon,
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
-import type { teacher, subject, gradelevel } from '@/prisma/generated/client';;
+import type { teacher, subject, gradelevel } from "@/prisma/generated/client";
 import { enqueueSnackbar } from "notistack";
-import { syncAssignmentsAction, deleteAssignmentAction } from "@/features/assign/application/actions/assign.actions";
+import {
+  syncAssignmentsAction,
+  deleteAssignmentAction,
+} from "@/features/assign/application/actions/assign.actions";
 
 interface QuickAssignmentPanelProps {
   teacher: teacher;
@@ -78,7 +81,7 @@ function QuickAssignmentPanel({
   // Filter out subjects already assigned
   const availableSubjects = useMemo(() => {
     const assignedSubjectCodes = new Set(
-      currentAssignments.map((a) => a.SubjectCode)
+      currentAssignments.map((a) => a.SubjectCode),
     );
     return subjects.filter((s) => !assignedSubjectCodes.has(s.SubjectCode));
   }, [subjects, currentAssignments]);
@@ -109,7 +112,13 @@ function QuickAssignmentPanel({
       const newAssignments = selectedGrades.map((grade) => ({
         SubjectCode: selectedSubject.SubjectCode,
         GradeID: grade.GradeID.toString(),
-        Credit: selectedSubject.Credit.toString() as '0.5' | '1.0' | '1.5' | '2.0' | '2.5' | '3.0',
+        Credit: selectedSubject.Credit.toString() as
+          | "0.5"
+          | "1.0"
+          | "1.5"
+          | "2.0"
+          | "2.5"
+          | "3.0",
       }));
 
       // Get existing assignments for this teacher/term
@@ -117,7 +126,13 @@ function QuickAssignmentPanel({
         RespID: parseInt(assignment.RespID),
         SubjectCode: assignment.SubjectCode,
         GradeID: assignment.GradeID.toString(),
-        Credit: selectedSubject.Credit.toString() as '0.5' | '1.0' | '1.5' | '2.0' | '2.5' | '3.0',
+        Credit: selectedSubject.Credit.toString() as
+          | "0.5"
+          | "1.0"
+          | "1.5"
+          | "2.0"
+          | "2.5"
+          | "3.0",
       }));
 
       // Combine existing + new for sync action
@@ -127,13 +142,13 @@ function QuickAssignmentPanel({
       await syncAssignmentsAction({
         TeacherID: _teacher.TeacherID,
         AcademicYear: _academicYear,
-        Semester: _semester === 1 ? 'SEMESTER_1' : 'SEMESTER_2',
+        Semester: _semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
         Resp: allAssignments,
       });
 
       enqueueSnackbar(
         `เพิ่มวิชา ${selectedSubject.SubjectCode} สำเร็จ (${selectedGrades.length} ห้อง)`,
-        { variant: "success" }
+        { variant: "success" },
       );
 
       // Reset form
@@ -148,7 +163,7 @@ function QuickAssignmentPanel({
     } catch (error) {
       enqueueSnackbar(
         `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
-        { variant: "error" }
+        { variant: "error" },
       );
     } finally {
       setIsSubmitting(false);
@@ -165,15 +180,15 @@ function QuickAssignmentPanel({
     // TeachHour is automatically calculated from Subject.Credit by calculateTeachHour()
     // To change TeachHour, the subject's credit value must be modified
     // For now, this feature is disabled - consider removing edit UI entirely
-    
+
     enqueueSnackbar(
       "ไม่สามารถแก้ไขชั่วโมงสอนได้โดยตรง - ชั่วโมงสอนคำนวณจากหน่วยกิตวิชาโดยอัตโนมัติ",
-      { variant: "info" }
+      { variant: "info" },
     );
-    
+
     setEditingId(null);
     setEditingHours(0);
-    
+
     // Architecture Note:
     // The current design calculates TeachHour from Credit automatically in syncAssignmentsAction.
     // There is no dedicated "update single assignment" server action.
@@ -191,7 +206,7 @@ function QuickAssignmentPanel({
   const handleDelete = async (assignment: (typeof currentAssignments)[0]) => {
     if (
       !confirm(
-        `ต้องการลบวิชา ${assignment.SubjectCode} - ${assignment.SubjectName} ใช่หรือไม่?`
+        `ต้องการลบวิชา ${assignment.SubjectCode} - ${assignment.SubjectName} ใช่หรือไม่?`,
       )
     ) {
       return;
@@ -203,10 +218,9 @@ function QuickAssignmentPanel({
         RespID: parseInt(assignment.RespID),
       });
 
-      enqueueSnackbar(
-        `ลบวิชา ${assignment.SubjectCode} สำเร็จ`,
-        { variant: "success" }
-      );
+      enqueueSnackbar(`ลบวิชา ${assignment.SubjectCode} สำเร็จ`, {
+        variant: "success",
+      });
 
       if (onAssignmentDeleted) {
         onAssignmentDeleted();
@@ -214,7 +228,7 @@ function QuickAssignmentPanel({
     } catch (error) {
       enqueueSnackbar(
         `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
-        { variant: "error" }
+        { variant: "error" },
       );
     }
   };
@@ -350,10 +364,18 @@ function QuickAssignmentPanel({
               </Box>
 
               {/* Validation Hints */}
-              {(selectedSubject || selectedGrades.length > 0 || weeklyHours > 0) && (
-                <Alert severity="info" sx={{ mt: 2 }} icon={<CheckCircleIcon />}>
+              {(selectedSubject ||
+                selectedGrades.length > 0 ||
+                weeklyHours > 0) && (
+                <Alert
+                  severity="info"
+                  sx={{ mt: 2 }}
+                  icon={<CheckCircleIcon />}
+                >
                   {!selectedSubject && "• เลือกวิชาที่ต้องการมอบหมาย"}
-                  {selectedSubject && selectedGrades.length === 0 && "• เลือกชั้นเรียน"}
+                  {selectedSubject &&
+                    selectedGrades.length === 0 &&
+                    "• เลือกชั้นเรียน"}
                   {selectedSubject &&
                     selectedGrades.length > 0 &&
                     weeklyHours <= 0 &&
@@ -431,7 +453,13 @@ function QuickAssignmentPanel({
                       </TableCell>
                       <TableCell align="right">
                         {editingId === assignment.RespID ? (
-                          <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 1,
+                              justifyContent: "flex-end",
+                            }}
+                          >
                             <IconButton
                               size="small"
                               color="primary"
@@ -441,15 +469,18 @@ function QuickAssignmentPanel({
                             >
                               <SaveIcon fontSize="small" />
                             </IconButton>
-                            <IconButton
-                              size="small"
-                              onClick={handleCancelEdit}
-                            >
+                            <IconButton size="small" onClick={handleCancelEdit}>
                               <CancelIcon fontSize="small" />
                             </IconButton>
                           </Box>
                         ) : (
-                          <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 1,
+                              justifyContent: "flex-end",
+                            }}
+                          >
                             <IconButton
                               size="small"
                               onClick={() => handleEdit(assignment)}

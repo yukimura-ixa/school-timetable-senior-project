@@ -7,6 +7,7 @@
 ## Progress Overview
 
 ### Session 3 (Nov 4, 2025) - Arrange & Management Fixes
+
 - **Starting**: 241 errors
 - **Ending**: 205 errors
 - **Fixed**: 36 errors (-15%)
@@ -14,6 +15,7 @@
 - **Commit**: `ae6e925`
 
 ### Overall Progress
+
 - **Original**: 543 TypeScript strict errors
 - **Current**: 205 errors
 - **Reduction**: 338 errors fixed (62% complete)
@@ -22,6 +24,7 @@
 ## Key Discovery: Fast Iteration Workflow
 
 Using `pnpm typecheck` instead of full builds:
+
 ```bash
 # 10x faster than pnpm build
 pnpm typecheck
@@ -34,6 +37,7 @@ $output = pnpm typecheck 2>&1 | Out-String; ($output -split "`n" | Select-String
 ```
 
 Benefits:
+
 - **Speed**: Seconds vs minutes per iteration
 - **Focus**: Only TypeScript errors, no build overhead
 - **Batch Processing**: Fix 5-10 errors, verify, repeat
@@ -41,6 +45,7 @@ Benefits:
 ## Fix Patterns (8 patterns established)
 
 ### Pattern 1: Dropdown Component Type Fix
+
 ```typescript
 // OLD (causes TS2322)
 handleChange={(value: string) => {
@@ -56,6 +61,7 @@ handleChange={(value: unknown) => {
 ```
 
 ### Pattern 2: Optional Chaining for Undefined Guards
+
 ```typescript
 // OLD
 const duplicate = allData.find((r) => r.RoomName.toLowerCase() === ...);
@@ -65,6 +71,7 @@ const duplicate = allData.find((r) => r.RoomName?.toLowerCase() === ...);
 ```
 
 ### Pattern 3: Boolean Prop Explicit Values
+
 ```typescript
 // OLD
 <Component disabled={disabled} />
@@ -74,6 +81,7 @@ const duplicate = allData.find((r) => r.RoomName?.toLowerCase() === ...);
 ```
 
 ### Pattern 4: SWR Mutate Type Annotation
+
 ```typescript
 // OLD
 const handleUpdate = async (updatedItem) => { ... }
@@ -83,26 +91,29 @@ const handleUpdate = async (updatedItem: MyType) => { ... }
 ```
 
 ### Pattern 5: Split Type Parsing
+
 ```typescript
 // OLD
-const parts = str.split(',');
+const parts = str.split(",");
 const value = parts[0]; // possibly undefined
 
 // NEW
-const parts = str.split(',');
-const value = parts[0] ?? ''; // fallback
+const parts = str.split(",");
+const value = parts[0] ?? ""; // fallback
 ```
 
 ### Pattern 6: Type-Only Imports
+
 ```typescript
 // Mixed usage causing circular deps
-import { MyType } from './file';
+import { MyType } from "./file";
 
 // Separate type imports
-import type { MyType } from './file';
+import type { MyType } from "./file";
 ```
 
 ### Pattern 7: Split Guard Pattern (NEW - Session 3)
+
 ```typescript
 // After string.split(), values could be undefined
 const [semester, academicYear] = semesterAndYear.split('-');
@@ -117,6 +128,7 @@ const result = await fetchData(semester, academicYear);
 ```
 
 ### Pattern 8: Regex Match Guard (NEW - Session 3)
+
 ```typescript
 // Regex match returns null if no match, capture groups could be undefined
 const match = str?.match(/pattern(\d)/);
@@ -131,6 +143,7 @@ const value = parseInt(match[1]);
 ## Session 3 Files Fixed (20 fixes)
 
 ### Management Directory (5 fixes) ✅
+
 1. `management/rooms/component/RoomsTable.tsx` (2 fixes)
    - Line 55: `r.RoomName?.toLowerCase()` (optional chaining)
    - Line 55: `data.RoomName?.toLowerCase()` (optional chaining)
@@ -218,11 +231,13 @@ const value = parseInt(match[1]);
 ## Testing Strategy
 
 ### Unit Tests (Jest) - All Passing ✅
+
 - **Status**: 50+ tests passing across 4 test files
 - **Workaround**: `forceExit: true` in jest.config.js (Issue #46)
 - **Coverage**: Business logic, validation, repository methods
 
 ### Type Checking
+
 ```bash
 # Fast iteration (10x faster than build)
 pnpm typecheck
@@ -235,6 +250,7 @@ pnpm build
 ```
 
 ### E2E Tests (Playwright)
+
 - **Status**: Not yet run with strict mode changes
 - **Action**: Run before merging to main
 - **Command**: `pnpm test:e2e`
@@ -244,6 +260,7 @@ pnpm build
 ### Target: teacher-arrange/page.tsx (~10 errors, 30 mins)
 
 1. **Lines 501-518**: Add object existence guards
+
 ```typescript
 // Before
 const subject = schedules[0].subject;
@@ -255,6 +272,7 @@ const teacher = schedules[0]?.teachers_responsibility[0]?.teacher;
 ```
 
 2. **Line 877**: Handle null case
+
 ```typescript
 // Update function signature or add null guard
 if (!subject) return;
@@ -262,12 +280,14 @@ handleSubject(subject, timeSlotID);
 ```
 
 3. **Lines 1301-1302**: Update function signatures
+
 ```typescript
 // Update interface to accept null
 type HandleSubject = (subject: SubjectData | null, timeSlotID: string) => void;
 ```
 
 ### Estimated Timeline
+
 - **Next session**: 30 minutes (teacher-arrange.tsx + quick wins)
 - **Following session**: 2 hours (assign/teacher_responsibility heavy any types)
 - **Final cleanup**: 1 hour (remaining scattered errors)
@@ -276,26 +296,31 @@ type HandleSubject = (subject: SubjectData | null, timeSlotID: string) => void;
 ## Technical Notes
 
 ### Known Issues
+
 - **Next.js 16 + Jest**: Stack overflow with unhandled rejections (Issue #46)
   - Workaround: `forceExit: true` in jest.config.js
   - Waiting for Next.js 16.1+ upstream fix
 
 ### Build Configuration
+
 - TypeScript strict mode: ✅ Enabled
 - Sentry: ❌ Temporarily disabled (reduce build noise)
 - Next.js: 16.0.1 with Turbopack default
 
 ### Performance Metrics
+
 - **Session 1**: 543 → 241 (302 fixed, ~2 hours) = 151 errors/hour
 - **Session 3**: 241 → 205 (36 fixed, ~15 mins) = 144 errors/hour
 - **Average**: ~120-150 errors/hour with patterns
 - **Velocity trend**: Stable with pattern application
 
 ### Commits
+
 - Session 1: `7fc2fc7` (302 errors fixed)
 - Session 3: `ae6e925` (36 errors fixed)
 
 ## References
+
 - **Issue**: [#50](https://github.com/yukimura-ixa/school-timetable-senior-project/issues/50)
 - **Docs**: AGENTS.md (Section 5: Coding Standards)
 - **Patterns**: Based on Next.js 16, MUI 7, TypeScript 5.7 best practices

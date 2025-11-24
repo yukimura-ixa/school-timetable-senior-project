@@ -1,9 +1,9 @@
 /**
  * Domain Service: Conflict Detection
- * 
+ *
  * Pure functions for detecting conflicts in schedule arrangements.
  * These functions have NO side effects and are easily testable.
- * 
+ *
  * @module conflict-detector.service
  */
 
@@ -13,15 +13,15 @@ import {
   ExistingSchedule,
   ScheduleArrangementInput,
   TeacherResponsibility,
-} from '../models/conflict.model';
+} from "../models/conflict.model";
 
 /**
  * Check if a teacher has a conflict at the proposed timeslot
- * 
+ *
  * @param input - The proposed schedule arrangement
  * @param existingSchedules - All existing schedules for this semester
  * @returns Conflict result
- * 
+ *
  * @example
  * ```ts
  * const result = checkTeacherConflict(
@@ -35,14 +35,14 @@ import {
  */
 export function checkTeacherConflict(
   input: ScheduleArrangementInput,
-  existingSchedules: ExistingSchedule[]
+  existingSchedules: ExistingSchedule[],
 ): ConflictResult {
   // If no teacher specified, no teacher conflict
   if (!input.teacherId) {
     return {
       hasConflict: false,
       conflictType: ConflictType.NONE,
-      message: 'No teacher assigned',
+      message: "No teacher assigned",
     };
   }
 
@@ -52,7 +52,7 @@ export function checkTeacherConflict(
     (schedule) =>
       schedule.teacherId === input.teacherId &&
       schedule.timeslotId === input.timeslotId &&
-      schedule.classId !== input.classId // Allow updating same schedule
+      schedule.classId !== input.classId, // Allow updating same schedule
   );
 
   if (conflict) {
@@ -75,17 +75,17 @@ export function checkTeacherConflict(
   return {
     hasConflict: false,
     conflictType: ConflictType.NONE,
-    message: 'No teacher conflict',
+    message: "No teacher conflict",
   };
 }
 
 /**
  * Check if a class (grade) has a conflict at the proposed timeslot
- * 
+ *
  * @param input - The proposed schedule arrangement
  * @param existingSchedules - All existing schedules for this semester
  * @returns Conflict result
- * 
+ *
  * @example
  * ```ts
  * const result = checkClassConflict(
@@ -96,14 +96,14 @@ export function checkTeacherConflict(
  */
 export function checkClassConflict(
   input: ScheduleArrangementInput,
-  existingSchedules: ExistingSchedule[]
+  existingSchedules: ExistingSchedule[],
 ): ConflictResult {
   // Find any schedule where the same class is scheduled at the same time
   const conflict = existingSchedules.find(
     (schedule) =>
       schedule.gradeId === input.gradeId &&
       schedule.timeslotId === input.timeslotId &&
-      schedule.classId !== input.classId
+      schedule.classId !== input.classId,
   );
 
   if (conflict) {
@@ -124,17 +124,17 @@ export function checkClassConflict(
   return {
     hasConflict: false,
     conflictType: ConflictType.NONE,
-    message: 'No class conflict',
+    message: "No class conflict",
   };
 }
 
 /**
  * Check if a room has a conflict at the proposed timeslot
- * 
+ *
  * @param input - The proposed schedule arrangement
  * @param existingSchedules - All existing schedules for this semester
  * @returns Conflict result
- * 
+ *
  * @example
  * ```ts
  * const result = checkRoomConflict(
@@ -145,14 +145,14 @@ export function checkClassConflict(
  */
 export function checkRoomConflict(
   input: ScheduleArrangementInput,
-  existingSchedules: ExistingSchedule[]
+  existingSchedules: ExistingSchedule[],
 ): ConflictResult {
   // If no room specified, no room conflict
   if (!input.roomId) {
     return {
       hasConflict: false,
       conflictType: ConflictType.NONE,
-      message: 'No room assigned',
+      message: "No room assigned",
     };
   }
 
@@ -161,7 +161,7 @@ export function checkRoomConflict(
     (schedule) =>
       schedule.roomId === input.roomId &&
       schedule.timeslotId === input.timeslotId &&
-      schedule.classId !== input.classId
+      schedule.classId !== input.classId,
   );
 
   if (conflict) {
@@ -184,18 +184,18 @@ export function checkRoomConflict(
   return {
     hasConflict: false,
     conflictType: ConflictType.NONE,
-    message: 'No room conflict',
+    message: "No room conflict",
   };
 }
 
 /**
  * Check if the timeslot is locked
  * Locked timeslots cannot be modified (e.g., school assemblies)
- * 
+ *
  * @param input - The proposed schedule arrangement
  * @param existingSchedules - All existing schedules for this semester
  * @returns Conflict result
- * 
+ *
  * @example
  * ```ts
  * const result = checkLockedTimeslot(
@@ -206,7 +206,7 @@ export function checkRoomConflict(
  */
 export function checkLockedTimeslot(
   input: ScheduleArrangementInput,
-  existingSchedules: ExistingSchedule[]
+  existingSchedules: ExistingSchedule[],
 ): ConflictResult {
   // Find if there's a locked schedule for this grade at this timeslot
   const lockedSchedule = existingSchedules.find(
@@ -214,7 +214,7 @@ export function checkLockedTimeslot(
       schedule.gradeId === input.gradeId &&
       schedule.timeslotId === input.timeslotId &&
       schedule.isLocked &&
-      schedule.classId !== input.classId // Allow updating the same locked schedule
+      schedule.classId !== input.classId, // Allow updating the same locked schedule
   );
 
   if (lockedSchedule) {
@@ -235,17 +235,17 @@ export function checkLockedTimeslot(
   return {
     hasConflict: false,
     conflictType: ConflictType.NONE,
-    message: 'Timeslot is not locked',
+    message: "Timeslot is not locked",
   };
 }
 
 /**
  * Check if the teacher is assigned to teach this subject for this grade
- * 
+ *
  * @param input - The proposed schedule arrangement
  * @param responsibilities - Teacher responsibilities for this semester
  * @returns Conflict result
- * 
+ *
  * @example
  * ```ts
  * const result = checkTeacherAssignment(
@@ -256,14 +256,14 @@ export function checkLockedTimeslot(
  */
 export function checkTeacherAssignment(
   input: ScheduleArrangementInput,
-  responsibilities: TeacherResponsibility[]
+  responsibilities: TeacherResponsibility[],
 ): ConflictResult {
   // If no teacher specified, skip this check
   if (!input.teacherId) {
     return {
       hasConflict: false,
       conflictType: ConflictType.NONE,
-      message: 'No teacher assigned',
+      message: "No teacher assigned",
     };
   }
 
@@ -274,7 +274,7 @@ export function checkTeacherAssignment(
       resp.subjectCode === input.subjectCode &&
       resp.gradeId === input.gradeId &&
       resp.academicYear === input.academicYear &&
-      resp.semester === input.semester
+      resp.semester === input.semester,
   );
 
   if (!assignment) {
@@ -288,13 +288,13 @@ export function checkTeacherAssignment(
   return {
     hasConflict: false,
     conflictType: ConflictType.NONE,
-    message: 'Teacher is properly assigned',
+    message: "Teacher is properly assigned",
   };
 }
 
 /**
  * Check all conflicts for a schedule arrangement
- * 
+ *
  * This is the main entry point for conflict checking.
  * Returns the FIRST conflict found, in priority order:
  * 1. Locked timeslot (highest priority)
@@ -302,12 +302,12 @@ export function checkTeacherAssignment(
  * 3. Class conflict
  * 4. Teacher conflict
  * 5. Room conflict (lowest priority)
- * 
+ *
  * @param input - The proposed schedule arrangement
  * @param existingSchedules - All existing schedules for this semester
  * @param responsibilities - Teacher responsibilities for this semester
  * @returns Conflict result (first conflict found, or NONE if no conflicts)
- * 
+ *
  * @example
  * ```ts
  * const result = checkAllConflicts(
@@ -315,7 +315,7 @@ export function checkTeacherAssignment(
  *   existingSchedules,
  *   responsibilities
  * );
- * 
+ *
  * if (result.hasConflict) {
  *   // Show error to user
  *   alert(result.message);
@@ -328,7 +328,7 @@ export function checkTeacherAssignment(
 export function checkAllConflicts(
   input: ScheduleArrangementInput,
   existingSchedules: ExistingSchedule[],
-  responsibilities: TeacherResponsibility[]
+  responsibilities: TeacherResponsibility[],
 ): ConflictResult {
   // Check in priority order - return first conflict found
 
@@ -366,6 +366,6 @@ export function checkAllConflicts(
   return {
     hasConflict: false,
     conflictType: ConflictType.NONE,
-    message: 'No conflicts detected - schedule can be arranged',
+    message: "No conflicts detected - schedule can be arranged",
   };
 }

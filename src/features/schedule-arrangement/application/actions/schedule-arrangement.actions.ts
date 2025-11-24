@@ -1,18 +1,18 @@
 /**
  * Application Layer: Schedule Arrangement Server Actions
- * 
+ *
  * Server Actions for schedule arrangement feature.
  * Uses action wrapper for auth, validation, and error handling.
- * 
+ *
  * @module schedule-arrangement.actions
  */
 
-'use server';
+"use server";
 
-import { createAction } from '@/shared/lib/action-wrapper';
-import type { GenericSchema } from 'valibot';
-import { scheduleRepository } from '../../infrastructure/repositories/schedule.repository';
-import { checkAllConflicts } from '../../domain/services/conflict-detector.service';
+import { createAction } from "@/shared/lib/action-wrapper";
+import type { GenericSchema } from "valibot";
+import { scheduleRepository } from "../../infrastructure/repositories/schedule.repository";
+import { checkAllConflicts } from "../../domain/services/conflict-detector.service";
 import {
   arrangeScheduleSchema,
   deleteScheduleSchema,
@@ -22,22 +22,22 @@ import {
   type DeleteScheduleInput,
   type GetSchedulesByTermInput,
   type UpdateScheduleLockInput,
-} from '../schemas/schedule-arrangement.schemas';
-import type { ConflictResult } from '../../domain/models/conflict.model';
-import { createConflictError, createNotFoundError } from '@/types';
-import type { class_schedule } from '@/prisma/generated/client';
+} from "../schemas/schedule-arrangement.schemas";
+import type { ConflictResult } from "../../domain/models/conflict.model";
+import { createConflictError, createNotFoundError } from "@/types";
+import type { class_schedule } from "@/prisma/generated/client";
 
 /**
  * Arrange (create or update) a class schedule
- * 
+ *
  * This action:
  * 1. Validates input with Valibot
  * 2. Checks for conflicts using conflict detection service
  * 3. Creates or updates the schedule if no conflicts
  * 4. Links teacher to schedule if teacherId provided
- * 
+ *
  * @returns Success with schedule data, or conflict error
- * 
+ *
  * @example
  * ```tsx
  * const result = await arrangeScheduleAction({
@@ -50,7 +50,7 @@ import type { class_schedule } from '@/prisma/generated/client';
  *   academicYear: 2566,
  *   semester: 'SEMESTER_1',
  * });
- * 
+ *
  * if (!result.success) {
  *   // Show error to user
  *   alert(result.error);
@@ -65,8 +65,14 @@ export const arrangeScheduleAction = createAction(
   async (input: ArrangeScheduleInput, _userId: string) => {
     // 1. Fetch existing schedules and teacher responsibilities for conflict checking
     const [existingSchedules, responsibilities] = await Promise.all([
-      scheduleRepository.findSchedulesByTerm(input.academicYear, input.semester),
-      scheduleRepository.findResponsibilitiesByTerm(input.academicYear, input.semester),
+      scheduleRepository.findSchedulesByTerm(
+        input.academicYear,
+        input.semester,
+      ),
+      scheduleRepository.findResponsibilitiesByTerm(
+        input.academicYear,
+        input.semester,
+      ),
     ]);
 
     // 2. Check for conflicts
@@ -82,7 +88,7 @@ export const arrangeScheduleAction = createAction(
         semester: input.semester,
       },
       existingSchedules,
-      responsibilities
+      responsibilities,
     );
 
     // 3. If conflict found, throw error with conflict details
@@ -92,21 +98,23 @@ export const arrangeScheduleAction = createAction(
         conflictResult.conflictType,
         conflictResult.message,
         {
-          classId: schedule?.classId || '',
-          subjectCode: schedule?.subjectCode || '',
-          subjectName: schedule?.subjectName || '',
-          gradeId: schedule?.gradeId || '',
+          classId: schedule?.classId || "",
+          subjectCode: schedule?.subjectCode || "",
+          subjectName: schedule?.subjectName || "",
+          gradeId: schedule?.gradeId || "",
           teacherId: schedule?.teacherId || null,
-          teacherName: schedule?.teacherName || 'Unknown',
-          timeslotId: schedule?.timeslotId || '',
+          teacherName: schedule?.teacherName || "Unknown",
+          timeslotId: schedule?.timeslotId || "",
           roomId: schedule?.roomId,
           roomName: schedule?.roomName,
-        }
+        },
       );
     }
 
     // 4. Check if schedule already exists (update) or create new
-    const existingSchedule = await scheduleRepository.findScheduleById(input.classId);
+    const existingSchedule = await scheduleRepository.findScheduleById(
+      input.classId,
+    );
 
     if (existingSchedule) {
       // Update existing schedule
@@ -138,11 +146,14 @@ export const arrangeScheduleAction = createAction(
           r.subjectCode === input.subjectCode &&
           r.gradeId === input.gradeId &&
           r.academicYear === input.academicYear &&
-          r.semester === input.semester
+          r.semester === input.semester,
       );
 
       if (responsibility) {
-        await scheduleRepository.linkTeacherToSchedule(input.classId, responsibility.respId);
+        await scheduleRepository.linkTeacherToSchedule(
+          input.classId,
+          responsibility.respId,
+        );
       }
     }
 
@@ -151,12 +162,12 @@ export const arrangeScheduleAction = createAction(
       classId: input.classId,
       created: !existingSchedule,
     };
-  }
+  },
 );
 
 /**
  * Delete a class schedule
- * 
+ *
  * @example
  * ```tsx
  * const result = await deleteScheduleAction({ classId: 'C_M1-1_T1_MATH101' });
@@ -171,12 +182,14 @@ export const deleteScheduleAction = createAction(
     // Check if schedule exists
     const schedule = await scheduleRepository.findScheduleById(input.classId);
     if (!schedule) {
-      throw createNotFoundError('schedule', input.classId);
+      throw createNotFoundError("schedule", input.classId);
     }
 
     // Check if schedule is locked
     if (schedule.IsLocked) {
-      throw new Error('Cannot delete a locked schedule. This operation is forbidden.');
+      throw new Error(
+        "Cannot delete a locked schedule. This operation is forbidden.",
+      );
     }
 
     // Delete the schedule
@@ -186,19 +199,19 @@ export const deleteScheduleAction = createAction(
       classId: input.classId,
       deleted: true,
     };
-  }
+  },
 );
 
 /**
  * Get all schedules for a specific term
- * 
+ *
  * @example
  * ```tsx
  * const result = await getSchedulesByTermAction({
  *   academicYear: 2566,
  *   semester: 'SEMESTER_1',
  * });
- * 
+ *
  * if (result.success) {
  *   const schedules = result.data.schedules;
  *   // Render schedules in UI
@@ -210,17 +223,17 @@ export const getSchedulesByTermAction = createAction(
   async (input: GetSchedulesByTermInput, _userId: string) => {
     const schedules = await scheduleRepository.findSchedulesByTerm(
       input.academicYear,
-      input.semester
+      input.semester,
     );
 
     return schedules;
-  }
+  },
 );
 
 /**
  * Update the lock status of a schedule
  * Locked schedules cannot be modified or deleted
- * 
+ *
  * @example
  * ```tsx
  * const result = await updateScheduleLockAction({
@@ -235,7 +248,7 @@ export const updateScheduleLockAction = createAction(
     // Check if schedule exists
     const schedule = await scheduleRepository.findScheduleById(input.classId);
     if (!schedule) {
-      throw new Error('Schedule not found');
+      throw new Error("Schedule not found");
     }
 
     // Update lock status
@@ -247,7 +260,7 @@ export const updateScheduleLockAction = createAction(
       classId: input.classId,
       locked: input.isLocked,
     };
-  }
+  },
 );
 
 /**

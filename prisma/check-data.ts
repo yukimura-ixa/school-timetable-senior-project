@@ -1,13 +1,13 @@
-import { PrismaClient } from '../prisma/generated/client';
+import { PrismaClient } from "../prisma/generated/client";
 
 const prisma = new PrismaClient();
 
 async function checkData() {
-  console.log('📊 Checking database after migration...\n');
+  console.log("📊 Checking database after migration...\n");
 
   // Check programs
   const programs = await prisma.program.findMany({
-    orderBy: { Year: 'asc' },
+    orderBy: { Year: "asc" },
     select: {
       ProgramID: true,
       ProgramCode: true,
@@ -17,16 +17,16 @@ async function checkData() {
     },
   });
 
-  console.log('📚 Programs:');
+  console.log("📚 Programs:");
   console.log(`   Total: ${programs.length}`);
   for (const p of programs) {
     console.log(`   - ${p.ProgramCode}: Year=${p.Year}, Track=${p.Track}`);
   }
 
   // Check grade levels
-  console.log('\n🎓 Grade Levels:');
+  console.log("\n🎓 Grade Levels:");
   const gradeLevels = await prisma.gradelevel.findMany({
-    orderBy: [{ Year: 'asc' }, { Number: 'asc' }],
+    orderBy: [{ Year: "asc" }, { Number: "asc" }],
     select: {
       GradeID: true,
       Year: true,
@@ -40,12 +40,12 @@ async function checkData() {
   }
 
   // Check specific year
-  console.log('\n🔍 Programs for Year 1 (ม.1):');
+  console.log("\n🔍 Programs for Year 1 (ม.1):");
   const year1Programs = await prisma.program.findMany({
     where: { Year: 1 },
   });
   console.log(`   Found: ${year1Programs.length}`);
-  year1Programs.forEach(p => {
+  year1Programs.forEach((p) => {
     console.log(`   - ${p.ProgramCode}: ${p.ProgramName}`);
   });
 

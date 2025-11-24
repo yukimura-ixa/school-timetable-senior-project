@@ -5,7 +5,11 @@ import { semesterRepository } from "@/features/semester/infrastructure/repositor
 // NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
 // when using async params. The layout is already dynamic due to async params.
 
-function parseParam(param: string): { semester: 1 | 2 | null; year: number | null; label: string } {
+function parseParam(param: string): {
+  semester: 1 | 2 | null;
+  year: number | null;
+  label: string;
+} {
   const [semStr, yearStr] = (param || "").split("-");
   const semNum = Number(semStr);
   const yearNum = Number(yearStr);
@@ -32,7 +36,7 @@ export default async function ScheduleSemesterLayout({
   // Validate existence in DB (table_config)
   // Note: We allow unconfigured semesters - they exist in semester table but may not have timeslot config yet
   const exists = await semesterRepository.findByYearAndSemester(year, semester);
-  
+
   if (!exists) {
     // Semester doesn't exist at all - redirect to selection
     return redirect("/dashboard/select-semester");

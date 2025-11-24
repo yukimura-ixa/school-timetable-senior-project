@@ -1,7 +1,7 @@
 import TextField from "@/components/mui/TextField";
-import { BsInfo } from "react-icons/bs"
+import { BsInfo } from "react-icons/bs";
 
-type Props = { required: boolean, title: string, handleChange: any };
+type Props = { required: boolean; title: string; handleChange: any };
 
 const StudyProgramLabel = (props: Props) => {
   return (
@@ -10,11 +10,11 @@ const StudyProgramLabel = (props: Props) => {
         <p>ชื่อหลักสูตร</p>
         <p className="text-red-500">*</p>
         {props.required ? (
-        <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
-          <BsInfo className="bg-red-500 rounded-full fill-white" />
-          <p className="text-red-500 text-sm">ต้องการ</p>
-        </div>
-      ) : null}
+          <div className="ml-3 flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
+            <BsInfo className="bg-red-500 rounded-full fill-white" />
+            <p className="text-red-500 text-sm">ต้องการ</p>
+          </div>
+        ) : null}
       </div>
       <TextField
         width={275}

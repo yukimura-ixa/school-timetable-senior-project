@@ -1,12 +1,12 @@
 /**
  * Class Feature - Repository Layer
- * 
+ *
  * Data access layer for class schedule (timetable) operations.
  * Handles all database interactions via Prisma.
  */
 
-import prisma from '@/lib/prisma';
-import { semester, Prisma } from '@/prisma/generated/client';
+import prisma from "@/lib/prisma";
+import { semester, Prisma } from "@/prisma/generated/client";
 
 /**
  * Type: Class schedule with full relations
@@ -58,7 +58,7 @@ export type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
  */
 export async function findByTerm(
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<ClassScheduleWithRelations[]> {
   return prisma.class_schedule.findMany({
     where: {
@@ -87,7 +87,7 @@ export async function findByTerm(
 export async function findByTeacher(
   teacherId: number,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<ClassScheduleWithRelations[]> {
   return prisma.class_schedule.findMany({
     where: {
@@ -121,7 +121,7 @@ export async function findByTeacher(
 export async function findByGrade(
   gradeId: string,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<ClassScheduleWithRelations[]> {
   return prisma.class_schedule.findMany({
     where: {
@@ -152,7 +152,7 @@ export async function findByGrade(
 export async function findConflicts(
   teacherId: number,
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<ClassScheduleWithConflicts[]> {
   return prisma.class_schedule.findMany({
     where: {
@@ -189,7 +189,7 @@ export async function findConflicts(
  */
 export async function findSummary(
   academicYear: number,
-  sem: semester
+  sem: semester,
 ): Promise<ClassScheduleWithSummary[]> {
   return prisma.class_schedule.findMany({
     where: {
@@ -237,9 +237,7 @@ export async function findByClassId(classId: string) {
 /**
  * Create a new class schedule
  */
-export async function create(
-  data: Prisma.class_scheduleCreateInput
-) {
+export async function create(data: Prisma.class_scheduleCreateInput) {
   return prisma.class_schedule.create({
     data,
   });
@@ -250,7 +248,7 @@ export async function create(
  */
 export async function update(
   classId: string,
-  data: Prisma.class_scheduleUpdateInput
+  data: Prisma.class_scheduleUpdateInput,
 ) {
   return prisma.class_schedule.update({
     where: {
@@ -275,7 +273,7 @@ export async function deleteById(classId: string) {
  * Count all class schedules
  */
 export async function count(
-  where?: Prisma.class_scheduleWhereInput
+  where?: Prisma.class_scheduleWhereInput,
 ): Promise<number> {
   return prisma.class_schedule.count({ where });
 }

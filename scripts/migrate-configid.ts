@@ -1,22 +1,22 @@
 /* eslint-disable no-console */
 /**
  * ConfigID Migration Script
- * 
+ *
  * Purpose: Migrate old ConfigID formats to canonical "SEMESTER-YEAR" format
  * Run: pnpm tsx scripts/migrate-configid.ts
- * 
+ *
  * ⚠️  CRITICAL: Backup your database before running this script!
- * 
+ *
  * This script will:
  * 1. Convert table_config.ConfigID to canonical format
  * 2. Update all timeslot.TimeslotID references
  * 3. Maintain referential integrity
- * 
+ *
  * Safe to run multiple times (idempotent)
  */
 
-import prisma from '../src/lib/prisma';
-import { Prisma } from '@/prisma/generated/client';
+import prisma from "../src/lib/prisma";
+import { Prisma } from "@/prisma/generated/client";
 
 interface MigrationResult {
   success: boolean;
@@ -30,7 +30,9 @@ interface MigrationResult {
  */
 function convertToCanonical(oldConfigId: string): string | null {
   // Pattern: SEMESTER_X_YYYY
-  const semesterUnderscoreMatch = oldConfigId.match(/^SEMESTER_([1-3])_(\d{4})$/);
+  const semesterUnderscoreMatch = oldConfigId.match(
+    /^SEMESTER_([1-3])_(\d{4})$/,
+  );
   if (semesterUnderscoreMatch) {
     const [, semester, year] = semesterUnderscoreMatch;
     return `${semester}-${year}`;
@@ -57,21 +59,21 @@ function convertToCanonical(oldConfigId: string): string | null {
  * Migrate table_config records
  */
 async function migrateTableConfig(): Promise<MigrationResult> {
-  console.log('\n📊 Migrating table_config...');
-  
+  console.log("\n📊 Migrating table_config...");
+
   const result: MigrationResult = {
     success: true,
-    table: 'table_config',
+    table: "table_config",
     recordsUpdated: 0,
     errors: [],
   };
 
   try {
     const configs = await prisma.table_config.findMany();
-    
+
     for (const config of configs) {
       const canonical = convertToCanonical(config.ConfigID);
-      
+
       if (canonical && canonical !== config.ConfigID) {
         try {
           // Create new record with canonical ConfigID
@@ -94,7 +96,10 @@ async function migrateTableConfig(): Promise<MigrationResult> {
           console.log(`   ✅ Created: ${canonical} (from ${config.ConfigID})`);
           result.recordsUpdated++;
         } catch (error) {
-          if (error instanceof Error && error.message.includes('unique constraint')) {
+          if (
+            error instanceof Error &&
+            error.message.includes("unique constraint")
+          ) {
             console.log(`   ℹ️  Skipped: ${canonical} (already exists)`);
           } else {
             const errorMsg = `Failed to migrate ${config.ConfigID}: ${error}`;
@@ -109,7 +114,7 @@ async function migrateTableConfig(): Promise<MigrationResult> {
     // Delete old format records ONLY if corresponding canonical record exists
     for (const config of configs) {
       const canonical = convertToCanonical(config.ConfigID);
-      
+
       if (canonical && canonical !== config.ConfigID) {
         const canonicalExists = await prisma.table_config.findUnique({
           where: { ConfigID: canonical },
@@ -131,7 +136,9 @@ async function migrateTableConfig(): Promise<MigrationResult> {
             });
             console.log(`   🗑️  Deleted old: ${config.ConfigID}`);
           } else {
-            console.log(`   ⚠️  Kept old: ${config.ConfigID} (${timeslotsUsingOld} timeslots still reference it)`);
+            console.log(
+              `   ⚠️  Kept old: ${config.ConfigID} (${timeslotsUsingOld} timeslots still reference it)`,
+            );
           }
         }
       }
@@ -139,7 +146,7 @@ async function migrateTableConfig(): Promise<MigrationResult> {
   } catch (error) {
     result.success = false;
     result.errors.push(`Migration failed: ${error}`);
-    console.error('   ❌ Error:', error);
+    console.error("   ❌ Error:", error);
   }
 
   return result;
@@ -149,43 +156,45 @@ async function migrateTableConfig(): Promise<MigrationResult> {
  * Migrate timeslot records
  */
 async function migrateTimeslots(): Promise<MigrationResult> {
-  console.log('\n📊 Migrating timeslot...');
-  
+  console.log("\n📊 Migrating timeslot...");
+
   const result: MigrationResult = {
     success: true,
-    table: 'timeslot',
+    table: "timeslot",
     recordsUpdated: 0,
     errors: [],
   };
 
   try {
     const timeslots = await prisma.timeslot.findMany();
-    
+
     for (const timeslot of timeslots) {
       // Extract ConfigID prefix and suffix
-      let oldConfigId = '';
-      let suffix = '';
-      
+      let oldConfigId = "";
+      let suffix = "";
+
       // Pattern: "1/2567-MON1" or "SEMESTER_1_2567-MON1"
-      if (timeslot.TimeslotID.includes('/')) {
-        const [first = '', ...rest] = timeslot.TimeslotID.split('-');
+      if (timeslot.TimeslotID.includes("/")) {
+        const [first = "", ...rest] = timeslot.TimeslotID.split("-");
         oldConfigId = first; // "1/2567"
-        suffix = rest.join('-'); // "MON1"
-      } else if (timeslot.TimeslotID.startsWith('SEMESTER_')) {
-        const match = timeslot.TimeslotID.match(/^(SEMESTER_[1-3]_\d{4})-(.+)$/);
+        suffix = rest.join("-"); // "MON1"
+      } else if (timeslot.TimeslotID.startsWith("SEMESTER_")) {
+        const match = timeslot.TimeslotID.match(
+          /^(SEMESTER_[1-3]_\d{4})-(.+)$/,
+        );
         if (match) {
-          const [, g1 = '', g2 = ''] = match;
+          const [, g1 = "", g2 = ""] = match;
           oldConfigId = g1; // "SEMESTER_1_2567"
           suffix = g2; // "MON1"
         }
       }
-      
+
       if (oldConfigId && suffix) {
         const canonical = convertToCanonical(oldConfigId);
-        
+
         if (canonical && canonical !== oldConfigId) {
           const newTimeslotId = `${canonical}-${suffix}`;
-          
+
           try {
             // Create new timeslot with canonical ID
             await prisma.timeslot.create({
@@ -200,7 +209,9 @@ async function migrateTimeslots(): Promise<MigrationResult> {
               },
             });
 
-            console.log(`   ✅ Created: ${newTimeslotId} (from ${timeslot.TimeslotID})`);
+            console.log(
+              `   ✅ Created: ${newTimeslotId} (from ${timeslot.TimeslotID})`,
+            );
             result.recordsUpdated++;
 
             // Delete old timeslot (will fail if referenced by class_schedule)
@@ -210,10 +221,15 @@ async function migrateTimeslots(): Promise<MigrationResult> {
               });
               console.log(`   🗑️  Deleted old: ${timeslot.TimeslotID}`);
             } catch {
-              console.log(`   ⚠️  Could not delete ${timeslot.TimeslotID} (may be referenced by class_schedule)`);
+              console.log(
+                `   ⚠️  Could not delete ${timeslot.TimeslotID} (may be referenced by class_schedule)`,
+              );
             }
           } catch (error) {
-            if (error instanceof Error && error.message.includes('unique constraint')) {
+            if (
+              error instanceof Error &&
+              error.message.includes("unique constraint")
+            ) {
               console.log(`   ℹ️  Skipped: ${newTimeslotId} (already exists)`);
             } else {
               const errorMsg = `Failed to migrate ${timeslot.TimeslotID}: ${error}`;
@@ -228,17 +244,19 @@ async function migrateTimeslots(): Promise<MigrationResult> {
   } catch (error) {
     result.success = false;
     result.errors.push(`Migration failed: ${error}`);
-    console.error('   ❌ Error:', error);
+    console.error("   ❌ Error:", error);
   }
 
   return result;
 }
 
 async function main() {
-  console.log('🔄 ConfigID Migration');
-  console.log('='.repeat(80));
-  console.log('\n⚠️  This will migrate ConfigID formats to canonical "SEMESTER-YEAR"');
-  console.log('⚠️  Make sure you have a database backup!\n');
+  console.log("🔄 ConfigID Migration");
+  console.log("=".repeat(80));
+  console.log(
+    '\n⚠️  This will migrate ConfigID formats to canonical "SEMESTER-YEAR"',
+  );
+  console.log("⚠️  Make sure you have a database backup!\n");
 
   try {
     // Step 1: Migrate table_config
@@ -248,38 +266,44 @@ async function main() {
     const timeslotResult = await migrateTimeslots();
 
     // Report results
-    console.log('\n' + '='.repeat(80));
-    console.log('📋 MIGRATION SUMMARY');
-    console.log('='.repeat(80));
-    
+    console.log("\n" + "=".repeat(80));
+    console.log("📋 MIGRATION SUMMARY");
+    console.log("=".repeat(80));
+
     console.log(`\n${configResult.table}:`);
     console.log(`   Records updated: ${configResult.recordsUpdated}`);
-    console.log(`   Status: ${configResult.success ? '✅ Success' : '❌ Failed'}`);
+    console.log(
+      `   Status: ${configResult.success ? "✅ Success" : "❌ Failed"}`,
+    );
     if (configResult.errors.length > 0) {
       console.log(`   Errors: ${configResult.errors.length}`);
-      configResult.errors.forEach(err => console.log(`     - ${err}`));
+      configResult.errors.forEach((err) => console.log(`     - ${err}`));
     }
 
     console.log(`\n${timeslotResult.table}:`);
     console.log(`   Records updated: ${timeslotResult.recordsUpdated}`);
-    console.log(`   Status: ${timeslotResult.success ? '✅ Success' : '❌ Failed'}`);
+    console.log(
+      `   Status: ${timeslotResult.success ? "✅ Success" : "❌ Failed"}`,
+    );
     if (timeslotResult.errors.length > 0) {
       console.log(`   Errors: ${timeslotResult.errors.length}`);
-      timeslotResult.errors.forEach(err => console.log(`     - ${err}`));
+      timeslotResult.errors.forEach((err) => console.log(`     - ${err}`));
     }
 
-    console.log('\n' + '='.repeat(80));
-    console.log('\n✅ Migration complete!');
-    console.log('\nNext steps:');
-    console.log('  1. Run verification: pnpm tsx scripts/verify-configid-migration.ts');
-    console.log('  2. Run tests: pnpm test && pnpm test:e2e');
-    console.log('  3. Check application in dev: pnpm dev\n');
+    console.log("\n" + "=".repeat(80));
+    console.log("\n✅ Migration complete!");
+    console.log("\nNext steps:");
+    console.log(
+      "  1. Run verification: pnpm tsx scripts/verify-configid-migration.ts",
+    );
+    console.log("  2. Run tests: pnpm test && pnpm test:e2e");
+    console.log("  3. Check application in dev: pnpm dev\n");
 
     if (!configResult.success || !timeslotResult.success) {
       process.exit(1);
     }
   } catch (error) {
-    console.error('\n❌ Migration failed:', error);
+    console.error("\n❌ Migration failed:", error);
     process.exit(1);
   } finally {
     await prisma.$disconnect();

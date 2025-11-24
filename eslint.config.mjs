@@ -5,8 +5,8 @@ import tseslint from "typescript-eslint";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
-import globals from 'globals';
-import jestPlugin from 'eslint-plugin-jest';
+import globals from "globals";
+import jestPlugin from "eslint-plugin-jest";
 
 const eslintConfig = [
   // Ignore non-source folders (matches .gitignore patterns)
@@ -16,38 +16,38 @@ const eslintConfig = [
       "node_modules/**",
       ".pnp/**",
       ".pnp.js",
-      
+
       // Testing
       "coverage/**",
       "test-results/**",
       "playwright-report/**",
       "playwright/.cache/**",
-      
+
       // Next.js
       ".next/**",
       "out/**",
-      
+
       // Production
       "build/**",
-      
+
       // TypeScript
       "*.tsbuildinfo",
       "next-env.d.ts",
-      
+
       // Prisma generated client
       "app/generated/prisma/**",
-      
+
       // Test directories (excluded from linting)
       "e2e/**",
       "__test__/**",
-      
+
       // Legacy/temporary files
       "legacy/**",
       "public/raw-data/**",
-      
+
       // Build artifacts
       ".swc/**",
-      
+
       // IDE
       ".idea/**",
       ".vscode/**",
@@ -87,15 +87,15 @@ const eslintConfig = [
       // Permit async handlers in JSX without void wrapper
       "@typescript-eslint/no-misused-promises": [
         "error",
-        { checksVoidReturn: { attributes: false } }
+        { checksVoidReturn: { attributes: false } },
       ],
-      
+
       // Disable unsafe type rules for Prisma transaction callbacks
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-return": "off",
-      
+
       // Temporary relaxations to unblock CI
       "@typescript-eslint/require-await": "off",
       "@typescript-eslint/await-thenable": "off",
@@ -103,10 +103,13 @@ const eslintConfig = [
     },
   },
   {
-    files: ["src/components/**/*.{ts,tsx}", "src/features/**/*/presentation/stores/**/*.{ts,tsx}"],
+    files: [
+      "src/components/**/*.{ts,tsx}",
+      "src/features/**/*/presentation/stores/**/*.{ts,tsx}",
+    ],
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
-    }
+    },
   },
 
   // JavaScript files (config files, etc.) - disable TS rules
@@ -117,7 +120,10 @@ const eslintConfig = [
 
   // Jest test files - add Jest globals and recommended rules
   {
-    files: ["**/__test__/**/*.{ts,tsx,js,jsx}", "**/*.{test,spec}.{ts,tsx,js,jsx}"],
+    files: [
+      "**/__test__/**/*.{ts,tsx,js,jsx}",
+      "**/*.{test,spec}.{ts,tsx,js,jsx}",
+    ],
     plugins: {
       jest: jestPlugin,
     },
@@ -129,14 +135,14 @@ const eslintConfig = [
     rules: {
       ...jestPlugin.configs.recommended.rules,
       // Testing code can use flexible types safely
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-empty-object-type': 'off',
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
       // Override or customize Jest rules as needed
-      'jest/expect-expect': 'warn',
-      'jest/no-disabled-tests': 'warn',
-      'jest/no-focused-tests': 'error',
-      'jest/valid-expect': 'error',
+      "jest/expect-expect": "warn",
+      "jest/no-disabled-tests": "warn",
+      "jest/no-focused-tests": "error",
+      "jest/valid-expect": "error",
     },
   },
 
@@ -150,7 +156,7 @@ const eslintConfig = [
       // General code quality
       "no-console": ["warn", { allow: ["warn", "error"] }],
       eqeqeq: ["error", "smart"],
-      
+
       // TODO tracking - enforce issue references
       // Requires format: // TODO: [Issue #XX] Description
       "no-warning-comments": [

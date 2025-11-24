@@ -6,7 +6,7 @@ import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import { createRoomsAction } from "@/features/room/application/actions/room.actions";
-import type { room } from '@/prisma/generated/client';;
+import type { room } from "@/prisma/generated/client";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -26,13 +26,12 @@ type props = {
   openSnackBar?: any;
 };
 function AddModalForm({ closeModal, mutate }: props) {
-
   const addData = async (data: RoomFormState[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลสถานที่เรียน", {
       variant: "info",
       persist: true,
     });
-    
+
     try {
       // Map local shape to server action input (Floor must be string)
       const payload = data.map((r) => ({
@@ -41,14 +40,15 @@ function AddModalForm({ closeModal, mutate }: props) {
         Floor: String(r.Floor ?? ""),
       }));
       const result = await createRoomsAction(payload);
-      
+
       if (!result.success) {
-        const errorMessage = typeof result.error === 'string' 
-          ? result.error 
-          : result.error?.message || "Unknown error";
+        const errorMessage =
+          typeof result.error === "string"
+            ? result.error
+            : result.error?.message || "Unknown error";
         throw new Error(errorMessage);
       }
-      
+
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลสถานที่เรียนสำเร็จ", {
         variant: "success",
@@ -57,7 +57,8 @@ function AddModalForm({ closeModal, mutate }: props) {
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
+        "เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " +
+          (error.message || "Unknown error"),
         {
           variant: "error",
         },
@@ -162,7 +163,8 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      disabled={false} handleChange={(e: any) => {
+                      disabled={false}
+                      handleChange={(e: any) => {
                         const value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -190,7 +192,8 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      disabled={false} handleChange={(e: any) => {
+                      disabled={false}
+                      handleChange={(e: any) => {
                         const value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -213,18 +216,17 @@ function AddModalForm({ closeModal, mutate }: props) {
                       label={`ชั้น (Floor):`}
                       placeHolder="ex. 5"
                       value={room.Floor}
-                      borderColor={
-                        isEmptyData && !room.Floor
-                          ? "#F96161"
-                          : ""
-                      }
+                      borderColor={isEmptyData && !room.Floor ? "#F96161" : ""}
                       disabled={false}
                       handleChange={(e: any) => {
                         const value: string = e.target.value;
-                        const floorValue = value === "" ? undefined : Number(value);
+                        const floorValue =
+                          value === "" ? undefined : Number(value);
                         setRooms(() =>
                           rooms.map((item, ind) =>
-                            index === ind ? { ...item, Floor: floorValue } : item,
+                            index === ind
+                              ? { ...item, Floor: floorValue }
+                              : item,
                           ),
                         );
                       }}
@@ -252,13 +254,17 @@ function AddModalForm({ closeModal, mutate }: props) {
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
-              Icon={<CloseIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CloseIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
             <PrimaryButton
               handleClick={handleSubmit}
               title={"ยืนยัน"}
               color={"success"}
-              Icon={<CheckIcon />} reverseIcon={false} isDisabled={false}
+              Icon={<CheckIcon />}
+              reverseIcon={false}
+              isDisabled={false}
             />
           </span>
         </div>

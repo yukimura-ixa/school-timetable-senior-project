@@ -28,13 +28,28 @@ export function ConfigContentSkeleton() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
           <Skeleton variant="circular" width={20} height={20} />
           <Skeleton variant="text" width={150} />
-          <Skeleton variant="rectangular" width={60} height={24} sx={{ ml: "auto", borderRadius: 3 }} />
+          <Skeleton
+            variant="rectangular"
+            width={60}
+            height={24}
+            sx={{ ml: "auto", borderRadius: 3 }}
+          />
         </Box>
-        <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 1, mb: 1 }} />
+        <Skeleton
+          variant="rectangular"
+          height={8}
+          sx={{ borderRadius: 1, mb: 1 }}
+        />
         <Skeleton variant="text" width={250} />
         <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} variant="rectangular" width={80} height={24} sx={{ borderRadius: 3 }} />
+            <Skeleton
+              key={i}
+              variant="rectangular"
+              width={80}
+              height={24}
+              sx={{ borderRadius: 3 }}
+            />
           ))}
         </Box>
       </Paper>
@@ -65,9 +80,24 @@ export function ConfigContentSkeleton() {
 
       {/* Action buttons skeleton */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-        <Skeleton variant="rectangular" width={100} height={40} sx={{ borderRadius: 1 }} />
-        <Skeleton variant="rectangular" width={100} height={40} sx={{ borderRadius: 1 }} />
-        <Skeleton variant="rectangular" width={100} height={40} sx={{ borderRadius: 1 }} />
+        <Skeleton
+          variant="rectangular"
+          width={100}
+          height={40}
+          sx={{ borderRadius: 1 }}
+        />
+        <Skeleton
+          variant="rectangular"
+          width={100}
+          height={40}
+          sx={{ borderRadius: 1 }}
+        />
+        <Skeleton
+          variant="rectangular"
+          width={100}
+          height={40}
+          sx={{ borderRadius: 1 }}
+        />
       </Box>
     </Box>
   );

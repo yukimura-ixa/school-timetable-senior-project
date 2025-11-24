@@ -1,12 +1,12 @@
 /**
  * MUI-based SearchBar Component
- * 
+ *
  * This is a backward-compatible wrapper around MUI TextField with InputAdornment
  * that maintains the original SearchBar API while leveraging MUI's features.
- * 
+ *
  * Migration from: src/components/elements/input/field/SearchBar.tsx
  * Date: October 19, 2025
- * 
+ *
  * @example
  * // Old API (still works)
  * <SearchBar
@@ -16,7 +16,7 @@
  *   width={300}
  *   fill="#EDEEF3"
  * />
- * 
+ *
  * // Can also use MUI API directly
  * <SearchBar
  *   placeholder="Search..."
@@ -26,15 +26,15 @@
  * />
  */
 
-import React from 'react';
-import { 
-  TextField, 
+import React from "react";
+import {
+  TextField,
   InputAdornment,
   IconButton,
-  type TextFieldProps 
-} from '@mui/material';
-import Search from '@mui/icons-material/Search';
-import Clear from '@mui/icons-material/Clear';
+  type TextFieldProps,
+} from "@mui/material";
+import Search from "@mui/icons-material/Search";
+import Clear from "@mui/icons-material/Clear";
 
 // Legacy API types (backward compatibility)
 interface LegacySearchBarProps {
@@ -47,15 +47,15 @@ interface LegacySearchBarProps {
 }
 
 // Combined type that accepts both old and new APIs
-type SearchBarProps = LegacySearchBarProps & 
-  Omit<TextFieldProps, 'placeholder' | 'onChange'> & {
+type SearchBarProps = LegacySearchBarProps &
+  Omit<TextFieldProps, "placeholder" | "onChange"> & {
     placeholder?: string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
   };
 
 /**
  * SearchBar - MUI-based search field with backward compatibility
- * 
+ *
  * Features:
  * - Search icon on the left
  * - Optional clear button when text is present
@@ -68,67 +68,68 @@ const SearchBar = React.forwardRef<HTMLDivElement, SearchBarProps>(
       // Legacy props
       width = null,
       height,
-      placeHolder = 'ค้นหา',
-      fill = '#EDEEF3',
+      placeHolder = "ค้นหา",
+      fill = "#EDEEF3",
       handleChange,
-      
+
       // MUI props
       placeholder,
       onChange,
       value,
-      variant = 'outlined',
-      size = 'small',
+      variant = "outlined",
+      size = "small",
       sx,
       ...rest
     },
-    ref
+    ref,
   ) {
-    const [internalValue, setInternalValue] = React.useState('');
-    
+    const [internalValue, setInternalValue] = React.useState("");
+
     // Determine which API is being used
-    const useLegacyAPI = handleChange !== undefined || placeHolder !== undefined;
-    
+    const useLegacyAPI =
+      handleChange !== undefined || placeHolder !== undefined;
+
     // Map legacy props to MUI props
-    const placeholderText = placeHolder || placeholder || 'ค้นหา';
+    const placeholderText = placeHolder || placeholder || "ค้นหา";
     const handleChangeEvent = handleChange || onChange;
-    
+
     // Manage value (controlled or uncontrolled)
     const currentValue = value ?? internalValue;
     const hasValue = currentValue && currentValue.length > 0;
-    
+
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (!value) {
         setInternalValue(event.target.value);
       }
       handleChangeEvent?.(event);
     };
-    
+
     const handleClear = () => {
       const event = {
-        target: { value: '' },
+        target: { value: "" },
       } as React.ChangeEvent<HTMLInputElement>;
-      
+
       if (!value) {
-        setInternalValue('');
+        setInternalValue("");
       }
       handleChangeEvent?.(event);
     };
-    
+
     // Build custom sx prop
     const customSx = {
-      width: width === null ? 'fit-content' : width,
-      '& .MuiOutlinedInput-root': {
+      width: width === null ? "fit-content" : width,
+      "& .MuiOutlinedInput-root": {
         backgroundColor: fill,
-        paddingLeft: '0.75rem', // pl-3
+        paddingLeft: "0.75rem", // pl-3
         ...(height && { height }),
       },
-      '& .MuiInputBase-input': {
-        fontSize: '0.875rem', // text-sm
-        paddingLeft: '0.5rem', // Space after icon
+      "& .MuiInputBase-input": {
+        fontSize: "0.875rem", // text-sm
+        paddingLeft: "0.5rem", // Space after icon
       },
       ...sx,
     };
-    
+
     return (
       <TextField
         ref={ref}
@@ -141,7 +142,7 @@ const SearchBar = React.forwardRef<HTMLDivElement, SearchBarProps>(
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <Search sx={{ color: 'action.active' }} />
+              <Search sx={{ color: "action.active" }} />
             </InputAdornment>
           ),
           endAdornment: hasValue ? (
@@ -160,11 +161,11 @@ const SearchBar = React.forwardRef<HTMLDivElement, SearchBarProps>(
         {...rest}
       />
     );
-  }
+  },
 );
 
 export default SearchBar;
 
 // Re-export MUI components for advanced usage
-export { TextField, InputAdornment } from '@mui/material';
-export { default as SearchIcon } from '@mui/icons-material/Search';
+export { TextField, InputAdornment } from "@mui/material";
+export { default as SearchIcon } from "@mui/icons-material/Search";

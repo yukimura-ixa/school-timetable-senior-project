@@ -5,6 +5,7 @@
 ## Why This Matters
 
 Starting `pnpm dev` or `pnpm dev:e2e` in the current terminal will:
+
 - ❌ Block the terminal from executing subsequent commands
 - ❌ Force you to stop the server to run other commands
 - ❌ Potentially interrupt test execution if server is stopped mid-run
@@ -12,6 +13,7 @@ Starting `pnpm dev` or `pnpm dev:e2e` in the current terminal will:
 ## Best Practices
 
 ### Option 1: Separate Terminal (Recommended for Development)
+
 ```powershell
 # Terminal 1: Start dev server
 pnpm dev:e2e
@@ -21,6 +23,7 @@ pnpm test:e2e
 ```
 
 ### Option 2: Background Process (PowerShell)
+
 ```powershell
 # Start dev server in background
 Start-Process pwsh -ArgumentList "-NoExit", "-Command", "pnpm dev:e2e"
@@ -30,6 +33,7 @@ pnpm test:e2e
 ```
 
 ### Option 3: Use Playwright's reuseExistingServer (Current Setup)
+
 ```typescript
 // playwright.config.ts
 webServer: {
@@ -41,11 +45,13 @@ webServer: {
 ```
 
 **With this config:**
+
 - Playwright will NOT start a new server if one is already running on port 3000
 - You can manually start server in separate terminal and keep it running
 - Playwright tests will detect and use existing server
 
 ### Option 4: Skip Playwright's Web Server Management
+
 ```powershell
 # Set environment variable to skip auto-server
 $env:SKIP_WEBSERVER = "true"
@@ -60,10 +66,12 @@ pnpm test:e2e
 ## Current Project Configuration
 
 **Package.json Scripts:**
+
 - `dev` - Standard dev server (loads .env)
 - `dev:e2e` - E2E test server (loads .env.test via dotenv-cli)
 
 **Playwright Config:**
+
 - Uses `reuseExistingServer: true` ✅
 - Timeout: 120 seconds for server startup
 - Port: 3000
@@ -91,4 +99,5 @@ pnpm test:e2e
 ✅ **Avoided:** HMR/Fast Refresh interfering with tests (can disable in manual server)
 
 ## Last Updated
+
 November 12, 2025 - Added during E2E test stabilization work

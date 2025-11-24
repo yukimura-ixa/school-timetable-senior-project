@@ -1,4 +1,7 @@
-import { SubjectListSkeleton, NetworkErrorEmptyState } from "@/components/feedback";
+import {
+  SubjectListSkeleton,
+  NetworkErrorEmptyState,
+} from "@/components/feedback";
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 import { SubjectManageClient } from "./component/SubjectManageClient";
 import { Suspense } from "react";
@@ -11,12 +14,12 @@ import { cookies } from "next/headers";
 export default async function SubjectManagePage() {
   // Force dynamic rendering for Next.js 16
   await cookies();
-  
+
   const result = await getSubjectsAction();
 
   // Error state
   if (!result.success) {
-    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
+    return <NetworkErrorEmptyState />;
   }
 
   return (
@@ -25,4 +28,3 @@ export default async function SubjectManagePage() {
     </Suspense>
   );
 }
-

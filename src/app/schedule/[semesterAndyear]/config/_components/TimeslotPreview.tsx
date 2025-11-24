@@ -63,13 +63,17 @@ export function TimeslotPreview({ config }: Props) {
       });
 
       // Check for lunch break
-      if (i === config.BreakTimeslots.Junior || i === config.BreakTimeslots.Senior) {
+      if (
+        i === config.BreakTimeslots.Junior ||
+        i === config.BreakTimeslots.Senior
+      ) {
         const breakFor =
-          i === config.BreakTimeslots.Junior && i === config.BreakTimeslots.Senior
+          i === config.BreakTimeslots.Junior &&
+          i === config.BreakTimeslots.Senior
             ? "both"
             : i === config.BreakTimeslots.Junior
-            ? "junior"
-            : "senior";
+              ? "junior"
+              : "senior";
 
         const breakStart = formatTime(currentTime);
         currentTime += config.BreakDuration;
@@ -85,7 +89,11 @@ export function TimeslotPreview({ config }: Props) {
       }
 
       // Check for mini break
-      if (config.HasMinibreak && config.MiniBreak && i === config.MiniBreak.SlotNumber) {
+      if (
+        config.HasMinibreak &&
+        config.MiniBreak &&
+        i === config.MiniBreak.SlotNumber
+      ) {
         const miniStart = formatTime(currentTime);
         currentTime += config.MiniBreak.Duration;
         const miniEnd = formatTime(currentTime);
@@ -139,15 +147,15 @@ export function TimeslotPreview({ config }: Props) {
                 slot.type === "break"
                   ? "warning.light"
                   : slot.type === "minibreak"
-                  ? "info.light"
-                  : "grey.100",
+                    ? "info.light"
+                    : "grey.100",
               border: 1,
               borderColor:
                 slot.type === "break"
                   ? "warning.main"
                   : slot.type === "minibreak"
-                  ? "info.main"
-                  : "grey.300",
+                    ? "info.main"
+                    : "grey.300",
             }}
           >
             {slot.type === "class" ? (
@@ -168,7 +176,11 @@ export function TimeslotPreview({ config }: Props) {
             ) : slot.type === "break" ? (
               <>
                 <LunchIcon sx={{ color: "warning.dark" }} />
-                <Typography variant="body2" fontWeight="bold" color="warning.dark">
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  color="warning.dark"
+                >
                   พักเที่ยง
                 </Typography>
                 <Typography variant="body2">
@@ -179,8 +191,8 @@ export function TimeslotPreview({ config }: Props) {
                     slot.breakFor === "both"
                       ? "ม.ต้น + ม.ปลาย"
                       : slot.breakFor === "junior"
-                      ? "ม.ต้น"
-                      : "ม.ปลาย"
+                        ? "ม.ต้น"
+                        : "ม.ปลาย"
                   }
                   size="small"
                   variant="outlined"
@@ -208,9 +220,9 @@ export function TimeslotPreview({ config }: Props) {
       {/* Summary */}
       <Box sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
         <Typography variant="caption" color="text.secondary">
-          <strong>สรุป:</strong> {config.TimeslotPerDay} คาบเรียน •{" "}
-          เริ่ม {config.StartTime} • จบ {endTime} •{" "}
-          รวมเวลาประมาณ {calculateTotalDuration(slots)} ชั่วโมง
+          <strong>สรุป:</strong> {config.TimeslotPerDay} คาบเรียน • เริ่ม{" "}
+          {config.StartTime} • จบ {endTime} • รวมเวลาประมาณ{" "}
+          {calculateTotalDuration(slots)} ชั่วโมง
         </Typography>
       </Box>
     </Paper>
@@ -221,13 +233,15 @@ function calculateTotalDuration(slots: any[]): string {
   if (slots.length === 0) return "0";
   const firstStart = slots[0].start;
   const lastEnd = slots[slots.length - 1].end;
-  
+
   const [startH, startM] = firstStart.split(":").map(Number);
   const [endH, endM] = lastEnd.split(":").map(Number);
-  
-  const totalMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+
+  const totalMinutes = endH * 60 + endM - (startH * 60 + startM);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
-  
-  return minutes > 0 ? `${hours}.${Math.round((minutes / 60) * 10)}` : `${hours}`;
+
+  return minutes > 0
+    ? `${hours}.${Math.round((minutes / 60) * 10)}`
+    : `${hours}`;
 }
