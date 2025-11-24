@@ -9,6 +9,7 @@ import { subjectRepository } from "@/features/subject/infrastructure/repositorie
 import type {
   TeacherWorkload,
   ValidationResult,
+  WorkloadAssignment,
 } from "../types/teaching-assignment.types";
 import {
   WORKLOAD_LIMITS,
@@ -32,7 +33,12 @@ export async function calculateTeacherWorkload(
   semesterValue: semester,
   year: number,
 ): Promise<TeacherWorkload> {
-  const assignments = await findTeacherWorkload(teacherId, semesterValue, year);
+  const assignments = await findTeacherWorkload(
+    teacherId,
+    semesterValue,
+    year,
+  );
+  type AssignmentRecord = (typeof assignments)[number];
 
   if (assignments.length === 0) {
     return {
@@ -46,7 +52,7 @@ export async function calculateTeacherWorkload(
 
   // Calculate total hours
   // TeachHour is already per week from the database
-  const totalHours = assignments.reduce((sum: any, assignment: any) => {
+  const totalHours = assignments.reduce<number>((sum: number, assignment: AssignmentRecord) => {
     return sum + assignment.TeachHour;
   }, 0);
 
@@ -54,8 +60,7 @@ export async function calculateTeacherWorkload(
   const status = getWorkloadStatus(totalHours);
 
   // Get teacher name from first assignment
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const firstAssignment = assignments[0] as any;
+  const firstAssignment = assignments[0];
   const teacherName = firstAssignment?.teacher
     ? `${firstAssignment.teacher.Prefix}${firstAssignment.teacher.Firstname} ${firstAssignment.teacher.Lastname}`
     : "Unknown";
@@ -64,12 +69,10 @@ export async function calculateTeacherWorkload(
     teacherId,
     teacherName,
     totalHours,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assignments: assignments.map((a: any) => ({
+    assignments: assignments.map<WorkloadAssignment>((a: AssignmentRecord) => ({
       subject: a.subject?.SubjectName || "Unknown",
       subjectCode: a.subject?.SubjectCode || a.SubjectCode,
       grade: a.gradelevel?.GradeID || a.GradeID,
-
       credits: a.subject?.Credit ? parseFloat(a.subject.Credit) : 0,
       hours: a.TeachHour,
     })),
@@ -210,10 +213,10 @@ function mapDepartmentToLearningArea(
   if (!department) return null;
   const normalized = department.trim().toLowerCase();
   // Exact match first
-  const exact = learningAreaMap[department as keyof typeof learningAreaMap];
+  const exact = learningAreaMap[department];
   if (exact) return exact ?? null;
   // Lower-case match
-  const lower = learningAreaMap[normalized as keyof typeof learningAreaMap];
+  const lower = learningAreaMap[normalized];
   return lower ?? null;
 }
 
@@ -271,8 +274,8 @@ export async function validateBulkAssignments(
 
   // Validate each teacher's assignments
   for (const [teacherId, teacherAssignmentsList] of teacherAssignments) {
-    const totalAdditionalHours = teacherAssignmentsList.reduce(
-      (sum: any, a: any) => sum + a.hours,
+    const totalAdditionalHours = teacherAssignmentsList.reduce<number>(
+      (sum, a) => sum + a.hours,
       0,
     );
 
