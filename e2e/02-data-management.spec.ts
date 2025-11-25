@@ -36,8 +36,13 @@ test.describe("Data Management - Teacher CRUD", () => {
   test("TC-003-04: Add new teacher", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
+    // Wait for table to load data (at least one row exists)
+    await expect(page.locator("tbody tr").first()).toBeVisible();
+
     // Click Add button
-    await page.getByRole("button", { name: "เพิ่ม" }).click();
+    const addButton = page.getByRole("button", { name: /เพิ่ม/ }).first();
+    await expect(addButton).toBeVisible({ timeout: 5000 });
+    await addButton.click();
 
     // Fill form (in the new row)
     // Note: MUI Select is tricky, we might need to click the trigger then the option
@@ -70,8 +75,13 @@ test.describe("Data Management - Teacher CRUD", () => {
     // Click Save
     await page.getByLabel("save").click();
 
+    // Wait for save operation  to complete (either success or error message)
+    await page.waitForTimeout(1000);
+
     // Verify success
-    await expect(page.getByText("เพิ่มจัดการข้อมูลครูสำเร็จ")).toBeVisible();
+    await expect(page.getByText("เพิ่มจัดการข้อมูลครูสำเร็จ")).toBeVisible({
+      timeout: 10000,
+    });
 
     // Verify in list
     await expect(page.getByText(testTeacher.firstname)).toBeVisible();

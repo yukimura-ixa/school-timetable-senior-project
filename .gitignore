@@ -76,5 +76,10 @@ typecheck*.log
 
 # Screenshots and temporary test files
 /screenshots/
-e2e/helpers/navigation.ts
-.env.vercel
+
+# Test artifacts and debug files
+test_output*.txt
+page_dump.html
+buttons_dump.json
+results-*.xml
+*.spec.js.map

@@ -6,6 +6,7 @@ import {
   type ValidationFn,
 } from "@/components/tables";
 import {
+  createTeachersAction,
   deleteTeachersAction,
   updateTeachersAction,
 } from "@/features/teacher/application/actions/teacher.actions";
@@ -100,8 +101,8 @@ const validateTeacher: ValidationFn<teacher> = (id, data, allData) => {
     return "นามสกุลต้องไม่เกิน 100 ตัวอักษร";
   }
 
-  // Email is protected in editing, but validate on create
-  if (typeof id === "string" && data.Email) {
+  // Email is optional for creation, but must be valid if provided
+  if (typeof id === "string" && data.Email && data.Email.trim() !== "") {
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.Email)) {
@@ -130,7 +131,7 @@ const createEmptyTeacher = (): Partial<teacher> => ({
 
 // Wrapper for create action
 const handleCreate = async (newTeacher: Partial<teacher>) => {
-  return await updateTeachersAction([
+  return await createTeachersAction([
     {
       Prefix: newTeacher.Prefix?.trim() || "นาย",
       Firstname: newTeacher.Firstname?.trim() || "",

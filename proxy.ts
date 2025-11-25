@@ -8,9 +8,13 @@ export const proxy = auth((req) => {
 
   // Check if user is authenticated
   if (!token) {
+    console.log("[PROXY] No token found, redirecting to /");
     const signInUrl = new URL("/", req.url);
     return NextResponse.redirect(signInUrl);
   }
+
+  console.log("[PROXY] User role:", token?.user?.role);
+  console.log("[PROXY] Pathname:", pathname);
 
   // Admin: allow access to everything
   if (token?.user?.role === "admin") {

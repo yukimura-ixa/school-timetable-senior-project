@@ -83,31 +83,31 @@ setup("authenticate as admin", async ({ page }) => {
     );
     try {
       await page.waitForFunction(
-        () => window.localStorage.getItem("semester-storage") !== null,
+        () => window.localStorage.getItem("semester-selection") !== null,
         { timeout: 20000 },
       );
       const storageValue = await page.evaluate(() =>
-        window.localStorage.getItem("semester-storage"),
+        window.localStorage.getItem("semester-selection"),
       );
       console.log(
         "[AUTH SETUP] Semester synced to localStorage:",
         storageValue,
       );
     } catch (error) {
-      console.warn("[AUTH SETUP] Timeout waiting for semester-storage");
+      console.warn("[AUTH SETUP] Timeout waiting for semester-selection");
       if (!page.isClosed()) {
         const storageValue = await page.evaluate(() =>
-          window.localStorage.getItem("semester-storage"),
+          window.localStorage.getItem("semester-selection"),
         );
         console.log("[AUTH SETUP] Current storage value:", storageValue);
 
         if (!storageValue) {
           console.log(
-            "[AUTH SETUP] Manually setting semester-storage as fallback",
+            "[AUTH SETUP] Manually setting semester-selection as fallback",
           );
           await page.evaluate(() => {
             window.localStorage.setItem(
-              "semester-storage",
+              "semester-selection",
               JSON.stringify({
                 state: { semester: "1-2567" },
                 version: 0,
@@ -115,13 +115,13 @@ setup("authenticate as admin", async ({ page }) => {
             );
           });
           const verifyStorage = await page.evaluate(() =>
-            window.localStorage.getItem("semester-storage"),
+            window.localStorage.getItem("semester-selection"),
           );
           console.log("[AUTH SETUP] Verified semester storage:", verifyStorage);
         }
       } else {
         console.warn(
-          "[AUTH SETUP] Page already closed; skipping semester-storage inspection",
+          "[AUTH SETUP] Page already closed; skipping semester-selection inspection",
         );
       }
     }
@@ -205,15 +205,17 @@ setup("authenticate as admin", async ({ page }) => {
   console.log("[AUTH SETUP] Waiting for semester sync...");
   try {
     await page.waitForFunction(
-      () => window.localStorage.getItem("semester-storage") !== null,
+      () => window.localStorage.getItem("semester-selection") !== null,
       { timeout: 20000 }, // Increased to 20s to account for HMR/Fast Refresh delays
     );
     const storageValue = await page.evaluate(() =>
-      window.localStorage.getItem("semester-storage"),
+      window.localStorage.getItem("semester-selection"),
     );
     console.log("[AUTH SETUP] Semester synced to localStorage:", storageValue);
   } catch (error) {
-    console.warn("[AUTH SETUP] Timeout waiting for semester-storage after 20s");
+    console.warn(
+      "[AUTH SETUP] Timeout waiting for semester-selection after 20s",
+    );
 
     // Check if page is still loading or if there are errors
     const currentUrl = page.url();
@@ -232,10 +234,10 @@ setup("authenticate as admin", async ({ page }) => {
     });
     console.log("[AUTH SETUP] All localStorage keys:", Object.keys(allStorage));
 
-    const storageValue = allStorage["semester-storage"];
+    const storageValue = allStorage["semester-selection"];
     if (!storageValue) {
       console.log(
-        "[AUTH SETUP] Manually setting semester-storage as fallback...",
+        "[AUTH SETUP] Manually setting semester-selection as fallback...",
       );
       await page.evaluate(() => {
         const semesterData = {
@@ -243,15 +245,15 @@ setup("authenticate as admin", async ({ page }) => {
           version: 0,
         };
         window.localStorage.setItem(
-          "semester-storage",
+          "semester-selection",
           JSON.stringify(semesterData),
         );
-        console.log("[BROWSER] Manually set semester-storage:", semesterData);
+        console.log("[BROWSER] Manually set semester-selection:", semesterData);
       });
 
       // Verify it was set
       const verifyStorage = await page.evaluate(() =>
-        window.localStorage.getItem("semester-storage"),
+        window.localStorage.getItem("semester-selection"),
       );
       console.log(
         "[AUTH SETUP] Verified semester storage after manual set:",
