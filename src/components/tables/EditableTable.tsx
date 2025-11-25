@@ -97,7 +97,8 @@ export function EditableTable<T extends Record<string, any>>({
   defaultRowsPerPage = 10,
 }: EditableTableProps<T>) {
   const { confirm, dialog } = useConfirmDialog();
-  const [tableData, setTableData] = useState<T[]>([]);
+  const [tableData, setTableData] = useState<T[]>(data);
+
   const [selected, setSelected] = useState<(string | number)[]>([]);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [addMode, setAddMode] = useState<boolean>(false);
@@ -114,6 +115,7 @@ export function EditableTable<T extends Record<string, any>>({
   }, [data]);
 
   const allIds = tableData.map((r) => r[idField]).filter((x) => x != null);
+
   const isSelected = (id: string | number) => selected.includes(id);
   const toggleAll = (checked: boolean) =>
     setSelected(checked ? [...allIds] : []);
@@ -142,6 +144,7 @@ export function EditableTable<T extends Record<string, any>>({
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage,
   );
+
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
   const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(e.target.value, 10));
