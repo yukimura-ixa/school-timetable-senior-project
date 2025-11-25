@@ -113,9 +113,14 @@ async function globalSetup() {
 
   // Auto-disable Docker management in CI; GitHub Actions provides a Postgres service
   const isCI = process.env.CI === "true";
-  const autoManageDb = !isCI && process.env.AUTO_MANAGE_TEST_DB !== "false";
+  const autoManageDb =
+    !isCI &&
+    process.env.AUTO_MANAGE_TEST_DB !== "false" &&
+    process.env.SKIP_DB_LIFECYCLE !== "true";
   // Quick fallback: if Docker is unavailable and we only need UI smoke (e.g. teacher dropdown #118), allow skip via FAST_UI_ONLY
   const fastUiOnly = process.env.FAST_UI_ONLY === "true";
+  const skipDbSeed =
+    process.env.SKIP_DB_SEED === "true" || process.env.FAST_UI_ONLY === "true";
   const isDocker = isDockerAvailable();
   if (isCI) {
     console.log(
@@ -185,9 +190,9 @@ async function globalSetup() {
     return;
   }
 
-  if (fastUiOnly) {
+  if (skipDbSeed) {
     console.log(
-      "⚡ FAST_UI_ONLY: Skipping database seed and proceeding with UI-only tests.\n",
+      "⚡ Skipping database seed (FAST_UI_ONLY or SKIP_DB_SEED=true). Proceeding without seed.\n",
     );
     return; // Exit early; tests rely on dev bypass/mock session
   }

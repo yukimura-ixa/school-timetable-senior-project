@@ -38,19 +38,44 @@ setup("authenticate as admin", async ({ page }) => {
 
   // Navigate to custom sign-in page
   // Increased timeout to 60s for initial page load/compilation
-  await page.goto("http://localhost:3000/signin", { timeout: 60000 });
+  await page.goto("http://localhost:3000/signin", {
+    timeout: 60000,
+    waitUntil: "domcontentloaded",
+  });
   console.log("[AUTH SETUP] Navigated to signin page");
 
   // Wait for the page to load
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("domcontentloaded");
 
   // Check if we're already logged in (redirected to dashboard)
   if (page.url().includes("/dashboard")) {
     console.log("[AUTH SETUP] Already authenticated, skipping login");
 
     // Navigate to semester-specific dashboard
-    await page.goto("http://localhost:3000/dashboard/1-2567");
-    await page.waitForLoadState("networkidle", { timeout: 20000 });
+    await page.goto("http://localhost:3000/dashboard/1-2567", {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
+    await page.waitForLoadState("domcontentloaded", { timeout: 20000 });
+
+    // Double-check session is still admin before proceeding
+    await expect
+      .poll(
+        async () => {
+          const response = await page.request.get(
+            "http://localhost:3000/api/auth/session",
+          );
+          if (!response.ok()) return null;
+          const body = await response.json().catch(() => null);
+          return body?.user?.role ?? null;
+        },
+        {
+          timeout: 15000,
+          message:
+            "[AUTH SETUP] Waiting for admin session to be ready (cached login path)",
+        },
+      )
+      .toBe("admin");
 
     // Wait for useSemesterSync hook to execute by checking localStorage
     console.log(
@@ -144,23 +169,37 @@ setup("authenticate as admin", async ({ page }) => {
   await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
   console.log("[AUTH SETUP] Page loaded");
 
-  // Verify authentication was successful by checking for authenticated user indicator
-  // Look for admin name or role display (System Administrator, ผู้ดูแลระบบ, etc.)
-  const adminIndicator = page
-    .locator("text=/System Administrator|ผู้ดูแลระบบ|Admin/i")
-    .first();
-  await expect(adminIndicator).toBeVisible({ timeout: 5000 });
-  console.log("[AUTH SETUP] Authentication verified");
+  // Verify authentication via session API (less flaky than UI visibility checks)
+  await expect
+    .poll(
+      async () => {
+        const response = await page.request.get(
+          "http://localhost:3000/api/auth/session",
+        );
+        if (!response.ok()) return null;
+        const body = await response.json().catch(() => null);
+        return body?.user?.role ?? null;
+      },
+      {
+        timeout: 15000,
+        message: "[AUTH SETUP] Waiting for admin session to be ready",
+      },
+    )
+    .toBe("admin");
+  console.log("[AUTH SETUP] Authentication verified via session API");
 
   // Pre-select semester by navigating to a semester-specific dashboard URL
   // The useSemesterSync hook will parse the URL and save to localStorage
   console.log(
     "[AUTH SETUP] Pre-selecting semester (1-2567) via URL navigation...",
   );
-  await page.goto("http://localhost:3000/dashboard/1-2567");
+  await page.goto("http://localhost:3000/dashboard/1-2567", {
+    waitUntil: "domcontentloaded",
+    timeout: 60000,
+  });
 
   // Wait for page to finish loading and semester to sync
-  await page.waitForLoadState("networkidle", { timeout: 20000 });
+  await page.waitForLoadState("domcontentloaded", { timeout: 20000 });
 
   // Wait for useSemesterSync hook to execute by checking localStorage
   console.log("[AUTH SETUP] Waiting for semester sync...");
@@ -224,6 +263,25 @@ setup("authenticate as admin", async ({ page }) => {
         storageValue,
       );
     }
+  }
+
+  // Pre-warm teacher table route once to avoid cold compilation during tests
+  try {
+    console.log("[AUTH SETUP] Pre-warming teacher-table route...");
+    await page.goto("http://localhost:3000/dashboard/1-2567/teacher-table", {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
+    await page.waitForSelector(
+      '[data-testid="teacher-export-menu-button"], main, table',
+      { timeout: 15000 },
+    );
+    console.log("[AUTH SETUP] Teacher-table pre-warm complete");
+  } catch (err) {
+    console.warn(
+      "[AUTH SETUP] Teacher-table pre-warm skipped due to error:",
+      err,
+    );
   }
 
   // Save authenticated state (including localStorage with semester selection) to file

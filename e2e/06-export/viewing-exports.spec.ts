@@ -22,74 +22,49 @@ test.describe("Dashboard Viewing", () => {
 
   test("[journey] teacher table view loads", async ({ page }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToTeacherTable(semester);
-      await page.waitForSelector("body");
-      await page.screenshot({
-        path: "test-results/screenshots/teacher-table.png",
-        fullPage: true,
-      });
-      expect(page.url()).toContain("/teacher-table");
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/teacher-table-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToTeacherTable(semester);
+    await expect(page).toHaveURL(/teacher-table/, { timeout: 60_000 });
+    const bulkExportContainer = page.locator(
+      '[data-testid="bulk-export-section"], [data-testid="bulk-export-skeleton"]',
+    );
+    await expect(bulkExportContainer.first()).toBeVisible({ timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/teacher-table.png",
+      fullPage: true,
+    });
   });
 
   test("[journey] student table view loads", async ({ page }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToStudentTable(semester);
-      await page.waitForSelector("body");
-      await page.screenshot({
-        path: "test-results/screenshots/student-table.png",
-        fullPage: true,
-      });
-      expect(page.url()).toContain("/student-table");
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/student-table-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToStudentTable(semester);
+    await expect(page).toHaveURL(/student-table/, { timeout: 60_000 });
+    await page.waitForSelector("main,table", { timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/student-table.png",
+      fullPage: true,
+    });
   });
 
   test("[journey] all programs view loads", async ({ page }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToAllPrograms(semester);
-      await page.waitForSelector("body");
-      await page.screenshot({
-        path: "test-results/screenshots/all-programs.png",
-        fullPage: true,
-      });
-      expect(page.url()).toContain("/all-program");
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/all-programs-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToAllPrograms(semester);
+    await expect(page).toHaveURL(/all-program/, { timeout: 60_000 });
+    await page.waitForSelector("main,table", { timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/all-programs.png",
+      fullPage: true,
+    });
   });
 
   test("[journey] all timeslots view loads", async ({ page }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToAllTimeslots(semester);
-      await page.waitForSelector("body");
-      await page.screenshot({
-        path: "test-results/screenshots/all-timeslots.png",
-        fullPage: true,
-      });
-      expect(page.url()).toContain("/all-timeslot");
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/all-timeslots-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToAllTimeslots(semester);
+    await expect(page).toHaveURL(/all-timeslot/, { timeout: 60_000 });
+    await page.waitForSelector("main,table", { timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/all-timeslots.png",
+      fullPage: true,
+    });
   });
 });
 
@@ -104,71 +79,47 @@ test.describe("Export & Print Controls", () => {
     page,
   }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToTeacherTable(semester);
-      await page.waitForSelector("body");
-      const exportButtons = page.locator(
-        'button:has-text("Excel"), button:has-text("PDF"), button:has-text("ส่งออก"), button:has-text("export")',
-      );
-      await page.screenshot({
-        path: "test-results/screenshots/export-buttons-teacher.png",
-        fullPage: true,
-      });
-      const count = await exportButtons.count();
-      expect(count).toBeGreaterThan(0);
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/export-buttons-teacher-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToTeacherTable(semester);
+    const exportButtons = page.locator(
+      '[data-testid="teacher-export-menu-button"], [data-testid="teacher-export-excel-button"], [data-testid="teacher-export-pdf-button"], button:has-text("ส่งออก"), button:has-text("Excel")',
+    );
+    await expect(exportButtons.first()).toBeVisible({ timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/export-buttons-teacher.png",
+      fullPage: true,
+    });
+    expect(await exportButtons.count()).toBeGreaterThan(0);
   });
 
   test("[journey] export buttons visible on student table", async ({
     page,
   }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToStudentTable(semester);
-      await page.waitForSelector("body");
-      const exportButtons = page.locator(
-        'button:has-text("Excel"), button:has-text("PDF"), button:has-text("ส่งออก"), button:has-text("export")',
-      );
-      await page.screenshot({
-        path: "test-results/screenshots/export-buttons-student.png",
-        fullPage: true,
-      });
-      const count = await exportButtons.count();
-      expect(count).toBeGreaterThan(0);
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/export-buttons-student-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToStudentTable(semester);
+    const exportButtons = page.locator(
+      'button:has-text("Excel"), button:has-text("PDF"), button:has-text("ส่งออก"), button:has-text("export")',
+    );
+    await exportButtons.first().waitFor({ timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/export-buttons-student.png",
+      fullPage: true,
+    });
+    expect(await exportButtons.count()).toBeGreaterThan(0);
   });
 
   test("[journey] print functionality available on teacher table", async ({
     page,
   }) => {
     const semester = "1-2567";
-    try {
-      await nav.goToTeacherTable(semester);
-      await page.waitForSelector("body");
-      const printButton = page.locator(
-        'button:has-text("พิมพ์"), button:has-text("print")',
-      );
-      await page.screenshot({
-        path: "test-results/screenshots/print-button-teacher.png",
-        fullPage: true,
-      });
-      const count = await printButton.count();
-      expect(count).toBeGreaterThan(0);
-    } catch (err) {
-      await page.screenshot({
-        path: "test-results/screenshots/print-button-teacher-error.png",
-        fullPage: true,
-      });
-    }
+    await nav.goToTeacherTable(semester);
+    const printButton = page.locator(
+      '[data-testid="bulk-export-print-button"], button:has-text("พิมพ์"), button:has-text("print")',
+    );
+    await expect(printButton.first()).toBeVisible({ timeout: 60_000 });
+    await page.screenshot({
+      path: "test-results/screenshots/print-button-teacher.png",
+      fullPage: true,
+    });
+    expect(await printButton.count()).toBeGreaterThan(0);
   });
 });

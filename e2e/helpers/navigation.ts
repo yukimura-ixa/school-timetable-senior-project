@@ -7,38 +7,49 @@ import { Page } from "@playwright/test";
 export class NavigationHelper {
   constructor(private page: Page) {}
 
+  private async gotoAndReady(path: string) {
+    await this.page.goto(path, {
+      waitUntil: "domcontentloaded",
+      timeout: 60_000,
+    });
+    // Light readiness check; avoid networkidle which stalls on streaming/WS
+    await this.page
+      .waitForSelector("main,[role='main'],table", { timeout: 20_000 })
+      .catch(() => {});
+  }
+
   /**
    * Navigate to home page
    */
   async goHome() {
-    await this.page.goto("/");
+    await this.gotoAndReady("/");
   }
 
   /**
    * Navigate to management section
    */
   async goToManagement() {
-    await this.page.goto("/management/teacher");
+    await this.gotoAndReady("/management/teacher");
   }
 
   async goToTeacherManagement() {
-    await this.page.goto("/management/teacher");
+    await this.gotoAndReady("/management/teacher");
   }
 
   async goToSubjectManagement() {
-    await this.page.goto("/management/subject");
+    await this.gotoAndReady("/management/subject");
   }
 
   async goToRoomManagement() {
-    await this.page.goto("/management/rooms");
+    await this.gotoAndReady("/management/rooms");
   }
 
   async goToGradeLevelManagement() {
-    await this.page.goto("/management/gradelevel");
+    await this.gotoAndReady("/management/gradelevel");
   }
 
   async goToProgramManagement() {
-    await this.page.goto("/management/program");
+    await this.gotoAndReady("/management/program");
   }
 
   /**
@@ -46,64 +57,64 @@ export class NavigationHelper {
    * Note: Redirects to dashboard/select-semester (modernized UI)
    */
   async goToScheduleSelector() {
-    await this.page.goto("/dashboard/select-semester");
+    await this.gotoAndReady("/dashboard/select-semester");
   }
 
   async goToSchedule(semesterAndYear: string) {
-    await this.page.goto(`/schedule/${semesterAndYear}`);
+    await this.gotoAndReady(`/schedule/${semesterAndYear}`);
   }
 
   async goToConfig(semesterAndYear: string) {
-    await this.page.goto(`/schedule/${semesterAndYear}/config`);
+    await this.gotoAndReady(`/schedule/${semesterAndYear}/config`);
   }
 
   async goToAssign(semesterAndYear: string) {
-    await this.page.goto(`/schedule/${semesterAndYear}/assign`);
+    await this.gotoAndReady(`/schedule/${semesterAndYear}/assign`);
   }
 
   async goToTeacherArrange(semesterAndYear: string) {
-    await this.page.goto(
+    await this.gotoAndReady(
       `/schedule/${semesterAndYear}/arrange/teacher-arrange`,
     );
   }
 
   async goToStudentArrange(semesterAndYear: string) {
-    await this.page.goto(
+    await this.gotoAndReady(
       `/schedule/${semesterAndYear}/arrange/student-arrange`,
     );
   }
 
   async goToLockTimeslots(semesterAndYear: string) {
-    await this.page.goto(`/schedule/${semesterAndYear}/lock`);
+    await this.gotoAndReady(`/schedule/${semesterAndYear}/lock`);
   }
 
   /**
    * Navigate to dashboard
    */
   async goToDashboardSelector() {
-    await this.page.goto("/dashboard/select-semester");
+    await this.gotoAndReady("/dashboard/select-semester");
   }
 
   async goToTeacherTable(semesterAndYear: string) {
-    await this.page.goto(`/dashboard/${semesterAndYear}/teacher-table`);
+    await this.gotoAndReady(`/dashboard/${semesterAndYear}/teacher-table`);
   }
 
   async goToStudentTable(semesterAndYear: string) {
-    await this.page.goto(`/dashboard/${semesterAndYear}/student-table`);
+    await this.gotoAndReady(`/dashboard/${semesterAndYear}/student-table`);
   }
 
   async goToAllPrograms(semesterAndYear: string) {
-    await this.page.goto(`/dashboard/${semesterAndYear}/all-program`);
+    await this.gotoAndReady(`/dashboard/${semesterAndYear}/all-program`);
   }
 
   async goToAllTimeslots(semesterAndYear: string) {
-    await this.page.goto(`/dashboard/${semesterAndYear}/all-timeslot`);
+    await this.gotoAndReady(`/dashboard/${semesterAndYear}/all-timeslot`);
   }
 
   /**
    * Wait for navigation to complete
    */
   async waitForNavigation() {
-    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 }

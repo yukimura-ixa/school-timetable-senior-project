@@ -76,3 +76,5 @@ typecheck*.log
 
 # Screenshots and temporary test files
 /screenshots/
+e2e/helpers/navigation.ts
+.env.vercel
