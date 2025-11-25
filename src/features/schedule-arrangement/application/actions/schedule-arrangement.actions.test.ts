@@ -7,6 +7,9 @@
  * @module schedule-arrangement.actions.test
  */
 
+// Mock ESM-only Auth adapter so Jest doesn't try to parse it
+jest.mock("@auth/prisma-adapter", () => ({ PrismaAdapter: jest.fn(() => ({})) }));
+
 import {
   arrangeScheduleAction,
   deleteScheduleAction,

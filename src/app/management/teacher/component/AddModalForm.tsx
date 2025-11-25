@@ -36,11 +36,11 @@ function AddModalForm({ closeModal, mutate }: props) {
   const [teachers, setTeachers] = useState<TeacherFormState[]>([
     {
       TeacherID: null,
-      Prefix: "",
+      Prefix: "นาย",
       Firstname: "",
       Lastname: "",
-      Department: "",
-      Email: "",
+      Department: "คณิตศาสตร์",
+      Email: `new_teacher_${crypto.randomUUID()}@school.local`,
       Role: "teacher",
     },
   ]);
@@ -52,16 +52,16 @@ function AddModalForm({ closeModal, mutate }: props) {
     });
 
     try {
-      const result = await createTeachersAction({
-        teachers: data.map((t) => ({
-          Prefix: t.Prefix,
+      const result = await createTeachersAction(
+        data.map((t) => ({
+          Prefix: t.Prefix || "นาย",
           Firstname: t.Firstname,
           Lastname: t.Lastname,
-          Department: t.Department,
+          Department: t.Department || "คณิตศาสตร์",
           Email: t.Email,
           Role: t.Role || "teacher",
         })),
-      });
+      );
 
       if (!result.success) {
         const errorMessage =
@@ -88,11 +88,11 @@ function AddModalForm({ closeModal, mutate }: props) {
   const addList = () => {
     const newTeacher: TeacherFormState = {
       TeacherID: null,
-      Prefix: "",
+      Prefix: "นาย",
       Firstname: "",
       Lastname: "",
-      Department: "",
-      Email: "",
+      Department: "คณิตศาสตร์",
+      Email: `new_teacher_${Date.now()}@school.local`,
       Role: "teacher",
     };
     setTeachers(() => [...teachers, newTeacher]);
@@ -180,6 +180,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       คำนำหน้าชื่อ (Prefix):
                     </label>
                     <Dropdown
+                      testId={`prefix-${index}`}
                       data={["นาย", "นาง", "นางสาว"]}
                       renderItem={({
                         data,
@@ -221,6 +222,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder="ex. อเนก"
                       label="ชื่อ (Firstname) :"
                       value={teacher.Firstname}
+                      inputProps={{ "data-testid": `firstname-${index}` }}
                       borderColor={
                         isEmptyData && teacher.Firstname.length == 0
                           ? "#F96161"
@@ -252,6 +254,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder="ex. ประสงค์"
                       label="นามสกุล (Lastname) :"
                       value={teacher.Lastname}
+                      inputProps={{ "data-testid": `lastname-${index}` }}
                       borderColor={
                         isEmptyData && teacher.Lastname.length == 0
                           ? "#F96161"
@@ -279,6 +282,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       กลุ่มสาระ (Department):
                     </label>
                     <Dropdown
+                      testId={`department-${index}`}
                       data={[
                         "คณิตศาสตร์",
                         "วิทยาศาสตร์และเทคโนโลยี",
@@ -330,6 +334,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder="ex. example@example.com"
                       label="อีเมล (Email) :"
                       value={teacher.Email}
+                      inputProps={{ "data-testid": `email-${index}` }}
                       borderColor={
                         isEmptyData && teacher.Email.length == 0
                           ? "#F96161"
@@ -365,6 +370,7 @@ function AddModalForm({ closeModal, mutate }: props) {
           </div>
           <span className="w-full flex justify-end mt-5 gap-3 h-11">
             <PrimaryButton
+              data-testid="add-teacher-cancel"
               handleClick={cancel}
               title={"ยกเลิก"}
               color={"danger"}
@@ -373,6 +379,7 @@ function AddModalForm({ closeModal, mutate }: props) {
               isDisabled={isSubmitting}
             />
             <PrimaryButton
+              data-testid="add-teacher-submit"
               handleClick={handleSubmit}
               title={isSubmitting ? "" : "ยืนยัน"}
               color={"success"}

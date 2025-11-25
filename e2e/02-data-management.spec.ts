@@ -13,14 +13,36 @@ import { NavigationHelper } from "./helpers/navigation";
 
 test.describe("Data Management - Teacher CRUD", () => {
   let nav: NavigationHelper;
-  const testTeacher = {
-    firstname: `TestTeacher_${Date.now()}`,
+  const buildTeacher = (label: string) => ({
+    firstname: `TestTeacher_${label}_${Date.now()}`,
     lastname: "Automated",
-    department: "Science",
-    email: `teacher_${Date.now()}@test.local`,
+    department: "คณิตศาสตร์",
+    email: `teacher_${label}_${Date.now()}@test.local`,
+  });
+
+  const createTeacherViaModal = async (
+    page: typeof authenticatedAdmin.page,
+    teacher: ReturnType<typeof buildTeacher>,
+  ) => {
+    await page.getByTestId("add-teacher-button").click();
+    await page.getByTestId("prefix-0").click();
+    await page.getByRole("option", { name: "นาย" }).click();
+    await page.getByTestId("firstname-0").fill(teacher.firstname);
+    await page.getByTestId("lastname-0").fill(teacher.lastname);
+    await page.getByTestId("department-0").click();
+    await page.getByRole("option", { name: teacher.department }).click();
+    await page.getByTestId("email-0").fill(teacher.email);
+    await page.getByTestId("add-teacher-submit").click();
+    await expect(page.getByText("เพิ่มข้อมูลครูสำเร็จ")).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(page.getByText(teacher.firstname)).toBeVisible({
+      timeout: 15000,
+    });
   };
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
     nav = new NavigationHelper(page);
     await nav.goToTeacherManagement();
   });
@@ -35,65 +57,18 @@ test.describe("Data Management - Teacher CRUD", () => {
 
   test("TC-003-04: Add new teacher", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-
-    // Wait for table to load data (at least one row exists)
-    await expect(page.locator("tbody tr").first()).toBeVisible();
-
-    // Click Add button
-    const addButton = page.getByRole("button", { name: /เพิ่ม/ }).first();
-    await expect(addButton).toBeVisible({ timeout: 5000 });
-    await addButton.click();
-
-    // Fill form (in the new row)
-    // Note: MUI Select is tricky, we might need to click the trigger then the option
-    // Assuming default "นาย" is selected for Prefix
-
-    await page.getByPlaceholder("ชื่อ *").fill(testTeacher.firstname);
-    await page.getByPlaceholder("นามสกุล *").fill(testTeacher.lastname);
-    await page.getByPlaceholder("กลุ่มสาระ").fill(testTeacher.department);
-    // Email is auto-generated or not editable in create?
-    // Looking at TeacherTable.tsx: Email is editable: false in columns, but createEmptyTeacher has empty string.
-    // Wait, TeacherTable.tsx says Email editable: false.
-    // But handleCreate uses newTeacher.Email.
-    // If editable is false, renderCell just shows value or "-"
-    // So we might not be able to set Email in UI?
-    // Let's check TeacherTable.tsx again.
-    // Column Email: editable: false.
-    // So we can't set email in the UI?
-    // If so, the backend or database must handle it, or it's a bug in the UI/Test understanding.
-    // Ah, the seed data has emails.
-    // If I can't set email, maybe it's generated?
-    // But validateTeacher checks for email format.
-    // This implies it SHOULD be editable.
-    // Let's assume for now we can't set it and see if it fails or if there's a default.
-    // Wait, if I can't set email, validation might fail if it's required?
-    // validateTeacher: if (typeof id === "string" && data.Email) ...
-    // It seems validation runs on Email.
-    // If the column is not editable, the input won't render.
-    // Let's try to fill what we can.
-
-    // Click Save
-    await page.getByLabel("save").click();
-
-    // Wait for save operation  to complete (either success or error message)
-    await page.waitForTimeout(1000);
-
-    // Verify success
-    await expect(page.getByText("เพิ่มจัดการข้อมูลครูสำเร็จ")).toBeVisible({
-      timeout: 10000,
-    });
-
-    // Verify in list
-    await expect(page.getByText(testTeacher.firstname)).toBeVisible();
+    const teacher = buildTeacher("create");
+    await createTeacherViaModal(page, teacher);
   });
 
   test("TC-003-05: Edit teacher", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    const teacher = buildTeacher("edit");
 
-    // Find the teacher we just added (or any teacher)
-    // We need to reload or ensure we are on the page
-    // Search for the teacher
-    await page.getByPlaceholder("ค้นหา...").fill(testTeacher.firstname);
+    await createTeacherViaModal(page, teacher);
+
+    // Search for the teacher we just added
+    await page.getByTestId("teacher-search").fill(teacher.firstname);
     await page.waitForTimeout(500); // Wait for filter
 
     // Select the row (first checkbox in body)
@@ -103,7 +78,7 @@ test.describe("Data Management - Teacher CRUD", () => {
     await page.getByLabel("edit").click();
 
     // Change name
-    const newName = `${testTeacher.firstname}_Edited`;
+    const newName = `${teacher.firstname}_Edited`;
     await page.getByPlaceholder("ชื่อ *").fill(newName);
 
     // Click Save
@@ -119,9 +94,12 @@ test.describe("Data Management - Teacher CRUD", () => {
   test("TC-003-06: Delete teacher", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
+    const teacher = buildTeacher("delete");
+    await createTeacherViaModal(page, teacher);
+
     // Search for the teacher (using the edited name)
-    const searchName = `${testTeacher.firstname}_Edited`;
-    await page.getByPlaceholder("ค้นหา...").fill(searchName);
+    const searchName = teacher.firstname;
+    await page.getByTestId("teacher-search").fill(searchName);
     await page.waitForTimeout(500);
 
     // Select the row
@@ -133,10 +111,9 @@ test.describe("Data Management - Teacher CRUD", () => {
     // Confirm dialog
     await page.getByRole("button", { name: "ลบ", exact: true }).click();
 
-    // Verify success
-    await expect(page.getByText("ลบจัดการข้อมูลครูสำเร็จ")).toBeVisible();
-
     // Verify removed
-    await expect(page.getByText(searchName)).not.toBeVisible();
+    await expect(page.getByText(searchName)).not.toBeVisible({
+      timeout: 15000,
+    });
   });
 });

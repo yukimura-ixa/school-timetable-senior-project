@@ -70,6 +70,7 @@ export type EditableTableProps<T> = {
   idField: keyof T;
   searchFields?: (keyof T)[];
   searchPlaceholder?: string;
+  searchTestId?: string;
   validate?: ValidationFn<T>;
   onCreate?: (newRow: Partial<T>) => Promise<ActionResult>;
   onUpdate?: (rows: Partial<T>[]) => Promise<ActionResult>;
@@ -78,6 +79,8 @@ export type EditableTableProps<T> = {
   emptyRowFactory: () => Partial<T>;
   rowsPerPageOptions?: number[];
   defaultRowsPerPage?: number;
+  // Allow consumers to keep selection enabled even if add mode is active (useful when add flow is external)
+  disableSelectionDuringCreate?: boolean;
 };
 
 export function EditableTable<T extends Record<string, any>>({
@@ -87,6 +90,7 @@ export function EditableTable<T extends Record<string, any>>({
   idField,
   searchFields = [],
   searchPlaceholder = "ค้นหา...",
+  searchTestId,
   validate,
   onCreate,
   onUpdate,
@@ -95,6 +99,7 @@ export function EditableTable<T extends Record<string, any>>({
   emptyRowFactory,
   rowsPerPageOptions = [5, 10, 25],
   defaultRowsPerPage = 10,
+  disableSelectionDuringCreate = true,
 }: EditableTableProps<T>) {
   const { confirm, dialog } = useConfirmDialog();
   const [tableData, setTableData] = useState<T[]>(data);
@@ -466,6 +471,13 @@ export function EditableTable<T extends Record<string, any>>({
             value={searchTerm}
             onChange={handleSearch}
             sx={{ mr: 2, width: 300 }}
+            inputProps={
+              searchTestId
+                ? {
+                    "data-testid": searchTestId,
+                  }
+                : undefined
+            }
           />
         )}
         {onCreate && (
@@ -532,7 +544,7 @@ export function EditableTable<T extends Record<string, any>>({
                   }
                   onChange={(e) => toggleAll(e.target.checked)}
                   inputProps={{ "aria-label": "select all" }}
-                  disabled={addMode}
+                  disabled={addMode && disableSelectionDuringCreate}
                 />
               </TableCell>
               {columns.map((col) => (
@@ -566,12 +578,12 @@ export function EditableTable<T extends Record<string, any>>({
               return (
                 <MuiTableRow key={String(id)} hover selected={selectedRow}>
                   <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedRow}
-                      onChange={() => toggleOne(id)}
-                      disabled={addMode}
-                    />
-                  </TableCell>
+                  <Checkbox
+                    checked={selectedRow}
+                    onChange={() => toggleOne(id)}
+                    disabled={addMode && disableSelectionDuringCreate}
+                  />
+                </TableCell>
                   {columns.map((col) => (
                     <TableCell key={String(col.key)}>
                       {renderCell(col, item, isEditing, id)}

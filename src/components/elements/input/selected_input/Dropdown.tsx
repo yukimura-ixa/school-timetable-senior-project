@@ -16,6 +16,8 @@ interface DropdownProps {
   borderColor?: string;
   /** Optional: Extract unique ID from data item for stable E2E selectors */
   getItemId?: (item: unknown) => string | number;
+  /** data-testid forwarded to the trigger for E2E reliability */
+  testId?: string;
 }
 
 function Dropdown({
@@ -30,6 +32,7 @@ function Dropdown({
   searchFunction,
   borderColor = "",
   getItemId, // Extract ID for stable selectors
+  testId,
 }: DropdownProps): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
@@ -63,6 +66,7 @@ function Dropdown({
         aria-expanded={isHidden}
         aria-controls={listboxId}
         aria-haspopup="listbox"
+        data-testid={testId}
       >
         <div
           className="flex justify-left text-sm"

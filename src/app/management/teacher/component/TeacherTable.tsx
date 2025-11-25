@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import type { teacher } from "@/prisma/generated/client";
 import {
   EditableTable,
@@ -10,6 +11,8 @@ import {
   deleteTeachersAction,
   updateTeachersAction,
 } from "@/features/teacher/application/actions/teacher.actions";
+import AddModalForm from "./AddModalForm";
+import { Button, Stack } from "@mui/material";
 
 type TeacherTableProps = {
   tableData: teacher[];
@@ -62,7 +65,7 @@ const teacherColumns: ColumnDef<teacher>[] = [
   {
     key: "Email",
     label: "อีเมล",
-    editable: false, // Protected - used in auth, must be unique
+    editable: true, // Required by schema and created via UI
     type: "text",
   },
   {
@@ -160,26 +163,49 @@ const handleUpdate = async (teachers: Partial<teacher>[]) => {
 
 // Wrapper for delete action
 const handleDelete = async (ids: (string | number)[]) => {
-  return await deleteTeachersAction({ teacherIds: ids as number[] });
+  return await deleteTeachersAction(ids as number[]);
 };
 
 export default function TeacherTable({ tableData, mutate }: TeacherTableProps) {
+  const [showAddModal, setShowAddModal] = useState(false);
+
   return (
-    <EditableTable<teacher>
-      title="จัดการข้อมูลครู"
-      columns={teacherColumns}
-      data={tableData}
-      idField="TeacherID"
-      searchFields={["Firstname", "Lastname", "Department", "Email"]}
-      searchPlaceholder="ค้นหาชื่อ นามสกุล กลุ่มสาระ หรืออีเมล"
-      validate={validateTeacher}
-      onCreate={handleCreate}
-      onUpdate={handleUpdate}
-      onDelete={handleDelete}
-      onMutate={mutate}
-      emptyRowFactory={createEmptyTeacher}
-      rowsPerPageOptions={[5, 10, 25, 50]}
-      defaultRowsPerPage={10}
-    />
+    <>
+      {showAddModal && (
+        <AddModalForm
+          closeModal={() => setShowAddModal(false)}
+          mutate={mutate}
+        />
+      )}
+
+      <Stack direction="row" justifyContent="flex-end" mb={1}>
+        <Button
+          variant="contained"
+          color="primary"
+          data-testid="add-teacher-button"
+          onClick={() => setShowAddModal(true)}
+        >
+          เพิ่มข้อมูลครู
+        </Button>
+      </Stack>
+
+      <EditableTable<teacher>
+        title="จัดการข้อมูลครู"
+        columns={teacherColumns}
+        data={tableData}
+        idField="TeacherID"
+        searchFields={["Firstname", "Lastname", "Department", "Email"]}
+        searchPlaceholder="ค้นหาชื่อ นามสกุล กลุ่มสาระ หรืออีเมล"
+        searchTestId="teacher-search"
+        validate={validateTeacher}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+        onMutate={mutate}
+        emptyRowFactory={createEmptyTeacher}
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        defaultRowsPerPage={10}
+        disableSelectionDuringCreate={false}
+      />
+    </>
   );
 }

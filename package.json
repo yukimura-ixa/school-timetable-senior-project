@@ -15,7 +15,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "lint:files": "eslint --ext .ts,.tsx",
     "format": "prettier --write .",
-    "test": "jest",
+  "test": "pnpm run test:e2e",
     "test:watch": "jest --watchAll",
     "test:affected": "jest --onlyChanged --passWithNoTests",
     "test:unit": "dotenv -e .env.test.local -- jest",

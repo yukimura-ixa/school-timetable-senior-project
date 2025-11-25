@@ -267,24 +267,8 @@ setup("authenticate as admin", async ({ page }) => {
     }
   }
 
-  // Pre-warm teacher table route once to avoid cold compilation during tests
-  try {
-    console.log("[AUTH SETUP] Pre-warming teacher-table route...");
-    await page.goto("http://localhost:3000/dashboard/1-2567/teacher-table", {
-      waitUntil: "domcontentloaded",
-      timeout: 60000,
-    });
-    await page.waitForSelector(
-      '[data-testid="teacher-export-menu-button"], main, table',
-      { timeout: 15000 },
-    );
-    console.log("[AUTH SETUP] Teacher-table pre-warm complete");
-  } catch (err) {
-    console.warn(
-      "[AUTH SETUP] Teacher-table pre-warm skipped due to error:",
-      err,
-    );
-  }
+  // (Disabled) Pre-warm teacher-table route — adds 15s flake due to hidden buttons.
+  // Keeping the hook for future use; no-op for speed and stability.
 
   // Save authenticated state (including localStorage with semester selection) to file
   await page.context().storageState({ path: authFile });
