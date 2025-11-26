@@ -14,7 +14,7 @@
     "lint:eslint": "eslint \"src/features/**\" \"src/lib/**\" \"src/types/**\" \"src/utils/**\" --ext .ts,.tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
-  "test": "pnpm run test:e2e",
+    "test": "pnpm run test:e2e",
     "test:watch": "jest --watchAll",
     "test:unit": "dotenv -e .env.test.local -- jest",
     "test:unit:watch": "dotenv -e .env.test.local -- jest --watchAll",
@@ -63,7 +63,7 @@
     "@mui/material": "^7.3.5",
     "@mui/material-nextjs": "^7.3.5",
     "@prisma/adapter-pg": "^7.0.0",
-    "@prisma/client": "^7.0.0",
+    "@prisma/client": "^7.0.1",
     "@prisma/extension-accelerate": "^2.0.2",
     "@vercel/edge-config": "^1.4.3",
     "@vercel/speed-insights": "^1.2.0",
@@ -123,7 +123,7 @@
     "playwright": "^1.56.1",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
-    "prisma": "^7.0.0",
+    "prisma": "^7.0.1",
     "prisma-dbml-generator": "^0.12.0",
     "rimraf": "^6.1.0",
     "tailwindcss": "^4.1.17",
@@ -140,7 +140,7 @@
     "trailingComma": "all",
     "bracketSameLine": false
   },
-  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
+  "packageManager": "pnpm@10.23.0",
   "pnpm": {
     "overrides": {
       "@types/react": "19.2.2",
