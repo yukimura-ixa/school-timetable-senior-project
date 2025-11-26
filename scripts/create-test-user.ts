@@ -3,10 +3,8 @@
  * Quick script to create an admin user for testing
  */
 
-import { PrismaClient } from "@/prisma/generated/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 async function main() {
   console.log("Creating test admin user...");
