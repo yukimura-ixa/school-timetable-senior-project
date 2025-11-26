@@ -22,6 +22,7 @@
 import * as v from "valibot";
 // Use auth for session retrieval
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import {
   isConflictError,
   isValidationError,
@@ -83,7 +84,10 @@ export function createAction<TInput, TOutput>(
   return async (input: unknown): Promise<ActionResult<TOutput>> => {
     try {
       // 1. Authentication check
-      const session = await auth();
+      const session = await auth.api.getSession({
+        headers: await headers(),
+        asResponse: false,
+      });
 
       if (!session || !session.user) {
         return {

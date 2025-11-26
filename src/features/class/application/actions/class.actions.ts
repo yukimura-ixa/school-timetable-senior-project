@@ -32,6 +32,7 @@ import * as classRepository from "../../infrastructure/repositories/class.reposi
 // Services
 import { addTeachersToSchedules } from "../../domain/services/class-validation.service";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 
 /**
@@ -66,7 +67,10 @@ function createAction<TInput, TOutput>(
 export const getClassSchedulesAction = createAction(
   getClassSchedulesSchema,
   async (input: GetClassSchedulesInput) => {
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+      asResponse: false,
+    });
     const userRole = normalizeAppRole(session?.user?.role);
     const userId = session?.user?.id;
     const teacherIdFromSession = userId ? Number(userId) : undefined;

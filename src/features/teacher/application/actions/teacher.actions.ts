@@ -11,6 +11,7 @@
 
 import { createAction } from "@/shared/lib/action-wrapper";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { teacherRepository } from "../../infrastructure/repositories/teacher.repository";
 import {
@@ -77,7 +78,10 @@ export async function getTeachersAction() {
 export const getTeacherByIdAction = createAction(
   getTeacherByIdSchema,
   async (input: GetTeacherByIdInput) => {
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+      asResponse: false,
+    });
     const userRole = normalizeAppRole(session?.user?.role);
     const userId = session?.user?.id;
 

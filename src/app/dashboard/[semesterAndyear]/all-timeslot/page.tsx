@@ -5,6 +5,7 @@ import { timeslotRepository } from "@/features/timeslot/infrastructure/repositor
 import { findSummary } from "@/features/class/infrastructure/repositories/class.repository";
 import { teacherRepository } from "@/features/teacher/infrastructure/repositories/teacher.repository";
 import type { semester } from "@/prisma/generated/client";
+import { headers } from "next/headers";
 import AllTimeslotClient from "./AllTimeslotClient";
 
 type PageParams = Promise<{ semesterAndyear: string }>;
@@ -28,6 +29,7 @@ export default async function AllTimeslotPage({
 }: {
   params: PageParams;
 }) {
+  const headerList = await headers();
   const { semesterAndyear } = await params;
   const { semester, year } = parseSemesterParam(semesterAndyear);
   const semesterEnum = `SEMESTER_${semester}` as semester;
@@ -36,7 +38,10 @@ export default async function AllTimeslotPage({
     timeslotRepository.findByTerm(year, semesterEnum),
     findSummary(year, semesterEnum),
     teacherRepository.findAll(),
-    auth(),
+    auth.api.getSession({
+      headers: headerList,
+      asResponse: false,
+    }),
   ]);
 
   const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
