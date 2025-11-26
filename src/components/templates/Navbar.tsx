@@ -5,17 +5,17 @@ import { useState } from "react";
 
 import { usePathname } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { signOut, useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { normalizeAppRole } from "@/lib/authz";
 
 const FALLBACK_USER_ICON = "/svg/user/usericon.svg";
 import { SemesterSelector } from "./SemesterSelector";
 
 function Navbar() {
-  const session = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const pathName = usePathname();
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
-  const appRole = normalizeAppRole(session.data?.user?.role);
+  const appRole = normalizeAppRole(session?.user?.role);
   return (
     <>
       {pathName === "/signin" || pathName === "/" ? null : (
@@ -52,7 +52,7 @@ function Navbar() {
             {/* Rightside */}
             <div className="flex w-fit justify-between gap-4 items-center mr-10">
               {/* Semester Selector */}
-              {session.status === "authenticated" && <SemesterSelector />}
+              {session && <SemesterSelector />}
 
               {/* User Info Card */}
               <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200">
@@ -67,16 +67,14 @@ function Navbar() {
                     } rounded-full transition-opacity`}
                     width={44}
                     height={44}
-                    src={session.data?.user?.image ?? FALLBACK_USER_ICON}
+                    src={session?.user?.image ?? FALLBACK_USER_ICON}
                     alt="profile_pic"
                     priority
                   />
                 </div>
                 <div className="flex flex-col min-w-[100px]">
                   <p className="font-semibold text-sm text-gray-800 truncate max-w-[150px]">
-                    {session.status !== "authenticated"
-                      ? "นักเรียน"
-                      : session.data?.user?.name}
+                    {!session || isPending ? "นักเรียน" : session?.user?.name}
                   </p>
                   <div className="flex items-center gap-1.5">
                     <span
@@ -89,7 +87,7 @@ function Navbar() {
                       }`}
                     />
                     <p className="text-xs font-medium text-slate-600">
-                      {session.status === "authenticated" && appRole
+                      {session && appRole
                         ? appRole === "admin"
                           ? "ผู้ดูแลระบบ"
                           : appRole === "teacher"
@@ -100,9 +98,9 @@ function Navbar() {
                   </div>
                 </div>
                 {/* Logout Button */}
-                {session.status === "authenticated" && (
+                {session && (
                   <button
-                    onClick={() => void signOut()}
+                    onClick={async () => await authClient.signOut()}
                     className="ml-2 p-2 rounded-full hover:bg-red-50 transition-colors group"
                     aria-label="ออกจากระบบ"
                   >

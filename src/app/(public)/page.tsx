@@ -8,7 +8,6 @@ import { MiniCharts, MiniChartsSkeleton } from "./_components/MiniCharts";
 import { DataTableSection } from "./_components/DataTableSection";
 import { CurrentSemesterBadge } from "./_components/CurrentSemesterBadge";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
 import { getQuickStats } from "@/lib/public/stats";
 
 export const metadata: Metadata = {
@@ -21,17 +20,9 @@ export const metadata: Metadata = {
 // No search params needed, all state managed in DataTableSection
 
 export default async function HomePage() {
-  // SECURITY: Extract only non-sensitive user data for client serialization
-  // Use IIFE to avoid keeping full session object in scope (RSC serialization issue)
-  const userInfo = await (async () => {
-    const sessionData = await auth();
-    if (!sessionData?.user) return null;
-    return {
-      name: sessionData.user.name,
-      role: sessionData.user.role,
-      // email explicitly excluded - PII must not be serialized to client
-    };
-  })();
+  // NOTE: User info check removed - better-auth handles sessions client-side
+  // The Navbar component will display login status via authClient.useSession()
+  const userInfo = null;
 
   // Import data fetching functions
   const { getTeacherCount, getPaginatedTeachers } = await import(

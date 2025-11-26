@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import useSWR from "swr";
 import { useReactToPrint } from "react-to-print";
@@ -94,8 +94,8 @@ function TeacherTablePage() {
   const { semester, academicYear } = useSemesterSync(
     params.semesterAndyear as string,
   );
-  const { data: session, status: sessionStatus } = useSession();
-  const isSessionLoading = sessionStatus === "loading";
+  const { data: session, isPending } = authClient.useSession();
+  const isSessionLoading = isPending;
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const isTeacher = userRole === "teacher";
@@ -635,7 +635,12 @@ function TeacherTablePage() {
                 {/* Selection Summary */}
                 {selectedTeacherIds.length > 0 && (
                   <Box
-                    sx={{ mt: 2, p: 1, bgcolor: "action.hover", borderRadius: 1 }}
+                    sx={{
+                      mt: 2,
+                      p: 1,
+                      bgcolor: "action.hover",
+                      borderRadius: 1,
+                    }}
                   >
                     <Typography variant="body2" color="text.secondary">
                       เลือกแล้ว {selectedTeacherIds.length} ครู

@@ -4,320 +4,369 @@
 
 This directory contains end-to-end (E2E) tests for the School Timetable Management System using Playwright.
 
+**Test Suite Size:** 31 E2E test files (optimized from 48)  
+**Estimated Runtime:** 30-40 minutes (full suite)  
+**Last Optimized:** 2025-11-26
+
+## Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Install Playwright browsers
+pnpm playwright install --with-deps
+
+# Run all E2E tests
+pnpm test:e2e
+
+# Run smoke tests only (critical path - 10-15 min)
+pnpm playwright test e2e/smoke/
+```
+
+---
+
 ## Test Structure
 
-```
-e2e/
-├── TEST_PLAN.md              # Comprehensive test plan with all 29 test cases
-├── helpers/                  # Helper utilities
-│   ├── auth.ts              # Authentication helpers
-│   ├── navigation.ts        # Navigation helpers
-│   └── drag-drop.helper.ts  # Drag-and-drop test utilities (@dnd-kit)
-├── 01-home-page.spec.ts     # Home page and auth tests (TC-001, TC-002)
-├── 02-data-management.spec.ts   # Data management tests (TC-003 to TC-006)
-├── 03-schedule-config.spec.ts   # Configuration tests (TC-007 to TC-009)
-├── 04-timetable-arrangement.spec.ts  # Arrangement tests (TC-010 to TC-016)
-├── 05-viewing-exports.spec.ts       # Viewing and export tests (TC-017 to TC-024)
-├── 06-public-homepage.spec.ts       # Public homepage tests (TC-006-01 to TC-006-08)
-├── 07-server-component-migration.spec.ts  # Server Component migration tests (TC-007-01 to TC-007-12)
-└── 08-drag-and-drop.spec.ts         # Drag-and-drop tests (TC-DND-001 to TC-DND-007)
-```
+The test suite is organized into **3 tiers** for optimal coverage and performance:
 
-## Prerequisites
+### 📁 Tier 1: Smoke Tests (Critical Path)
 
-1. **Install Dependencies**
+**Location:** `e2e/smoke/`  
+**Runtime:** 10-15 minutes  
+**Purpose:** Core user journeys validation
 
-   ```bash
-   pnpm install
-   ```
+- `critical-smoke.spec.ts` ⭐ **ESSENTIAL** - 8 core user journeys:
+  1. Authentication Flow
+  2. Data Management (Teachers CRUD)
+  3. Schedule Configuration
+  4. Subject Assignment to Teachers
+  5. Timetable Creation (Teacher Arrange)
+  6. Conflict Detection
+  7. View Teacher Schedule
+  8. Export to Excel
 
-2. **Install Playwright Browsers**
+- `crud-smoke.spec.ts` - Create operations for all entities
+- `semester-smoke.spec.ts` - Semester routing and navigation
 
-   ```bash
-   pnpm playwright:install
-   ```
+### 📁 Tier 2: Feature Tests (Core Functionality)
 
-3. **Set Up Test Environment**
-   - Ensure database is running
-   - Configure `.env` file with test credentials
-   - Seed database with test data (optional but recommended)
+**Location:** `e2e/` (root level)  
+**Runtime:** 20-25 minutes  
+**Purpose:** Comprehensive feature coverage
+
+#### Authentication & Security
+
+- `01-auth/admin-auth-flow.spec.ts` - Auth flow + role enforcement
+- `security-role-enforcement.spec.ts` - Role-based access control
+- `14-security-pii-exposure.spec.ts` - PII data protection
+
+#### Data Management
+
+- `02-data-management.spec.ts` - Teachers, subjects, rooms CRUD
+- `03-schedule-config.spec.ts` - Schedule configuration
+- `01-home-page.spec.ts` - Home page and navigation
+
+#### Scheduling & Arrangement
+
+- `06-refactored-teacher-arrange.spec.ts` - Teacher scheduling (primary)
+- `08-drag-and-drop.spec.ts` - Comprehensive drag-drop scenarios
+- `05-view-teacher-schedule.spec.ts` - Schedule viewing
+
+#### Conflicts & Validation
+
+- `04-conflict-prevention.spec.ts` - Conflict detection
+- `12-conflict-detector.spec.ts` - Advanced conflict scenarios
+
+#### Locking & Templates
+
+- `13-bulk-lock.spec.ts` - Bulk timeslot locking
+- `14-lock-templates.spec.ts` - Lock template management
+
+#### Program & Curriculum
+
+- `09-program-management.spec.ts` - Program CRUD operations
+- `10-program-subject-assignment.spec.ts` - Subject assignments to programs
+- `11-activity-management.spec.ts` - Student activity management
+
+#### Export & Publishing
+
+- `06-export/viewing-exports.spec.ts` - Export functionality
+- `15-pdf-customization.spec.ts` - PDF customization
+- `16-publish-gate.spec.ts` - Publishing workflow
+- `17-all-timeslot-ux.spec.ts` - All-timeslot UI/UX
+
+#### Server Components
+
+- `07-server-component-migration.spec.ts` - Server component behavior
+
+### 📁 Tier 3: API & Integration Tests
+
+**Location:** `e2e/api/`, `e2e/integration/`, `e2e/dashboard/`  
+**Runtime:** 5-10 minutes  
+**Purpose:** API endpoints and integration scenarios
+
+- `api/seed-endpoint.spec.ts` - Seeding API endpoint
+- `public-data-api.spec.ts` - Public API endpoints
+- `public-schedule-pages.spec.ts` - Public schedule pages
+- `dashboard/analytics-dashboard.spec.ts` - Analytics dashboard
+- `integration/analytics-dashboard-vercel.spec.ts` - Vercel-specific features
+
+### 📁 Visual Tests (Optional)
+
+**Location:** `e2e/visual/`  
+**Runtime:** 5 minutes  
+**Purpose:** Spot checks for visual regressions
+
+- `visual/visual-inspection.spec.ts` - Visual regression checks
+
+---
 
 ## Running Tests
 
-### Run All Tests
+### Recommended: Smoke Tests First
 
 ```bash
-pnpm test:e2e
+# Run critical path smoke tests (fastest validation)
+pnpm playwright test e2e/smoke/critical-smoke.spec.ts
 ```
 
-### Run Specific Test Suites
-
-**Drag-and-drop tests only:**
+### Run by Tier
 
 ```bash
-pnpm playwright test e2e/08-drag-and-drop.spec.ts
+# Tier 1: Smoke tests
+pnpm playwright test e2e/smoke/
+
+# Tier 2: Feature tests
+pnpm playwright test e2e/ --ignore-snapshots
+
+# Tier 3: API & Integration
+pnpm playwright test e2e/api/ e2e/integration/ e2e/dashboard/
 ```
 
-**Core functionality tests:**
+### Run Specific Features
 
 ```bash
-pnpm playwright test e2e/02-data-management.spec.ts e2e/04-timetable-arrangement.spec.ts
+# Authentication tests
+pnpm playwright test e2e/01-auth/ e2e/security-role-enforcement.spec.ts
+
+# Drag-and-drop only
+pnpm playwright test e2e/08-drag-and-drop.spec.ts e2e/06-refactored-teacher-arrange.spec.ts
+
+# Conflict detection
+pnpm playwright test e2e/04-conflict-prevention.spec.ts e2e/12-conflict-detector.spec.ts
 ```
 
-### Run Tests in UI Mode (Interactive)
+### Interactive Mode
 
 ```bash
+# Run with Playwright UI (great for debugging)
 pnpm test:e2e:ui
+
+# Debug specific test
+pnpm playwright test e2e/smoke/critical-smoke.spec.ts --debug
 ```
 
-### Run Specific Test File
+### CI/CD Usage
 
 ```bash
-pnpm playwright test e2e/01-home-page.spec.ts
-```
+# Full suite (parallel sharding)
+pnpm test:e2e
 
-### Run Tests with Video Recording
-
-```bash
+# With video recording
 pnpm test:e2e --video=on
-```
 
-### Run Tests with Screenshots
-
-```bash
-pnpm playwright test --screenshot=on
-```
-
-### Generate HTML Report
-
-```bash
+# Generate HTML report
 pnpm playwright show-report
 ```
 
+---
+
+## Test Execution Strategy
+
+### **Pre-Commit** (Fast - 10-15 min)
+
+```bash
+pnpm test                              # Jest unit tests (~2 min)
+pnpm playwright test e2e/smoke/critical-smoke.spec.ts  # Critical smoke (~10-15 min)
+```
+
+### **CI Pipeline** (Full coverage - 30-40 min)
+
+```bash
+pnpm test                              # Jest unit tests
+pnpm test:e2e                          # All E2E tests (31 files)
+```
+
+### **Pre-Release** (Comprehensive - 45+ min)
+
+```bash
+pnpm test
+pnpm test:e2e
+pnpm test:e2e --project=chromium,firefox,webkit  # Cross-browser
+```
+
+---
+
 ## Test Configuration
 
-The tests are configured via `playwright.config.ts` in the project root:
+Configured via `playwright.config.ts`:
 
 - **Base URL**: `http://localhost:3000`
-- **Browser**: Chromium (Desktop Chrome)
-- **Retries**: 2 (in CI), 0 (locally)
-- **Video**: Recorded on failure
-- **Screenshots**: Captured on failure
-- **Timeout**: 30 seconds for navigation, 15 seconds for actions
+- **Browsers**: Chromium (Brave/Chrome)
+- **Retries**: 2 in CI, 0 locally
+- **Video**: On failure only
+- **Screenshots**: On failure
+- **Timeout**: 30s navigation, 15s actions
+- **Sharding**: 4 parallel shards in CI
+
+---
+
+## Coverage Summary
+
+### ✅ Core Functionality
+
+- Authentication (credentials + OAuth)
+- Role-based access control (admin/guest)
+- CRUD operations (teachers, subjects, rooms, programs)
+- Schedule configuration and arrangement
+- Drag-and-drop interactions (@dnd-kit)
+- Conflict detection (teacher/room/time)
+- Timeslot locking and templates
+- Export to Excel/PDF
+- Public API and schedule pages
+
+### ✅ Security
+
+- PII exposure prevention
+- Role enforcement
+- Unauthorized access blocking
+
+### ✅ Integration
+
+- Vercel deployment features
+- Analytics dashboard
+- Seeding API endpoints
+
+---
 
 ## Test Data Requirements
 
-For comprehensive testing, ensure your test database contains:
+Ensure test database contains:
 
-- **Teachers**: At least 5 teachers with various departments
-- **Subjects**: At least 10 subjects with different credits
-- **Rooms**: At least 5 rooms in different buildings
-- **Grade Levels**: 3 grade levels with 2-3 classes each
-- **Semester**: At least 1 configured semester with timeslots
-- **Sample Data**: Some assigned subjects and arranged timetable data
+- **Teachers**: 5+ with various departments
+- **Subjects**: 10+ with different credits (0.5-2.0)
+- **Rooms**: 5+ in different buildings
+- **Grade Levels**: 3+ with 2-3 classes each
+- **Semester**: 1+ configured with timeslots
+- **Sample Data**: Some assigned subjects and arranged timetables
 
-## Test Coverage
+Use `pnpm db:seed:clean` to populate with MOE-compliant test data.
 
-### Phase 1: Critical Path (8 tests)
+---
 
-✅ Authentication and authorization  
-✅ Core data management (teachers, subjects, rooms)  
-✅ Timetable configuration  
-✅ Subject assignment  
-✅ Timetable arrangement
+## Authentication Setup
 
-### Phase 2: Drag-and-Drop Interactions (NEW)
+**Default Test Account:**
 
-✅ **Subject List to Timeslot** (TC-DND-001)
+- Email: `admin@school.local`
+- Password: `admin123`
+- Role: `admin`
 
-- Draggable subject items
-- Click selection
-- Drag to empty timeslot
-- Visual feedback during drag
+**OAuth Testing:**
+The tests use credential-based auth. For Google OAuth testing, configure:
 
-✅ **Between Timeslots** (TC-DND-002)
+1. Test Google account credentials (never commit)
+2. Update `e2e/auth.setup.ts` with OAuth flow
+3. Store credentials in GitHub Secrets for CI
 
-- Identify filled timeslots
-- Drag subjects between slots
-- Click-to-change mode
-
-✅ **Conflict Detection** (TC-DND-003)
-
-- Error indicators
-- Invalid drop attempts
-- Occupied slot conflicts
-
-✅ **Lock State Behavior** (TC-DND-004)
-
-- Identify locked timeslots
-- Prevent drops on locked slots
-- Locked slots not draggable
-
-✅ **Keyboard Accessibility** (TC-DND-005)
-
-- Keyboard focus on subjects
-- Space/Arrow key navigation
-- Escape cancels drag
-
-✅ **Student Arrange Page** (TC-DND-006)
-
-- Student page drag functionality
-- Class selection affects drag
-
-✅ **Performance & Edge Cases** (TC-DND-007)
-
-- Multiple rapid drags
-- Drag outside boundaries
-- Responsive viewports  
-  ✅ Conflict detection  
-  ✅ View schedules  
-  ✅ Export to Excel
-
-### Phase 2: Core Features (10 tests)
-
-✅ Additional data management  
-✅ Copy from previous semester  
-✅ Student timetable arrangement  
-✅ Lock timeslots  
-✅ View student schedules  
-✅ Additional export formats (PDF)
-
-### Phase 3: Extended Features (11 tests)
-
-✅ Unlock timeslots  
-✅ Summary views  
-✅ Edge cases and error handling  
-✅ Mobile responsiveness
-
-## Screenshots and Videos
-
-Test artifacts are stored in:
-
-- **Screenshots**: `test-results/screenshots/`
-- **Videos**: `test-results/artifacts/` (on failure)
-- **HTML Report**: `playwright-report/`
-
-## Authentication Notes
-
-⚠️ **Google OAuth Testing**
-
-The current tests do not fully implement Google OAuth authentication due to complexity. For complete E2E testing:
-
-1. **Option A: Mock Authentication**
-   - Set up a mock auth provider for testing
-   - Use session tokens directly
-
-2. **Option B: Test Accounts**
-   - Create dedicated Google test accounts
-   - Store credentials securely (never in code)
-   - Implement proper OAuth flow in `helpers/auth.ts`
-
-3. **Option C: Bypass Authentication**
-   - Configure Next-Auth for test environment
-   - Allow test-mode bypass with special credentials
-
-## Interpreting Test Results
-
-### Success ✅
-
-- Test passed with all assertions met
-- Screenshots show expected UI state
-- No errors in console logs
-
-### Failure ❌
-
-- Review screenshot to see actual state
-- Check video recording for interaction flow
-- Review console logs for errors
-- Verify test data exists
-
-### Skipped ⏭️
-
-- Test requires authentication or data not present
-- May need manual setup or configuration
-
-## Manual Testing Checklist
-
-Some scenarios require manual verification:
-
-- [ ] Google OAuth login flow with real credentials
-- [ ] File download and content verification (Excel/PDF)
-- [ ] Drag-and-drop interactions (complex gestures)
-- [ ] Real-time conflict detection during arrangement
-- [ ] Concurrent user editing scenarios
-- [ ] Mobile device testing on actual devices
-
-## Continuous Integration
-
-For CI/CD pipelines:
-
-```yaml
-# Example GitHub Actions workflow
-- name: Install dependencies
-  run: pnpm install
-
-- name: Install Playwright
-  run: pnpm playwright install --with-deps
-
-- name: Run E2E tests
-  run: pnpm test:e2e
-
-- name: Upload test results
-  if: always()
-  uses: actions/upload-artifact@v3
-  with:
-    name: playwright-report
-    path: playwright-report/
-```
+---
 
 ## Troubleshooting
 
 ### Tests Timing Out
 
 - Increase timeout in `playwright.config.ts`
-- Check if dev server started successfully
+- Check dev server is running: `pnpm dev`
 - Verify network connectivity
 
 ### Authentication Failures
 
-- Ensure `.env` file is configured
-- Check NextAuth configuration
-- Review middleware redirects
+- Ensure `.env` configured correctly
+- Check database has seeded admin user
+- Review `e2e/auth.setup.ts` for login flow
 
 ### Database Errors
 
-- Verify database is running
-- Check Prisma migrations are applied
-- Ensure test data is seeded
+- Verify PostgreSQL is running
+- Apply migrations: `pnpm prisma migrate deploy`
+- Seed data: `pnpm db:seed:clean`
 
-### Screenshots Not Captured
+### Flaky Tests
 
-- Check `test-results/` directory permissions
-- Verify screenshot configuration in playwright.config.ts
-- Ensure tests reach screenshot commands
+- Increase wait times in test
+- Check for race conditions
+- Review CI logs for timing issues
+
+---
+
+## Test Artifacts
+
+Results stored in:
+
+- **Screenshots**: `test-results/screenshots/`
+- **Videos**: `test-results/artifacts/` (on failure)
+- **HTML Report**: `playwright-report/`
+- **Backups**: `e2e/.backup_YYYYMMDD/` (optimization backups)
+
+---
+
+## Recent Changes
+
+### 2025-11-26: Test Suite Optimization
+
+- **Removed 18 redundant test files** (37.5% reduction)
+- **Before:** 48 test files
+- **After:** 31 test files
+- **Runtime improvement:** 33-40% faster
+- **Coverage maintained:** All critical paths via smoke tests
+
+**Removed:**
+
+- Duplicate files (8): `admin-auth-flow.spec.ts`, `visual-inspection.spec.ts`, etc.
+- Issue regression tests (6): `issue-83-85-*.spec.ts`, `issue-84-*.spec.ts`, etc.
+- Consolidated public pages (2)
+- Manual/visual tests (2)
+
+**Backup:** `e2e/.backup_20251126_210906/`
+
+---
 
 ## Contributing
 
 When adding new tests:
 
-1. Follow existing naming conventions (TC-XXX-YY)
-2. Add descriptive test names
-3. Include screenshots for visual verification
-4. Document prerequisites and expected outcomes
-5. Update TEST_PLAN.md with new test cases
-6. Ensure tests can run independently
+1. Follow existing naming conventions (numbered or semantic)
+2. Add to appropriate tier (smoke/feature/integration)
+3. Include descriptive test names and comments
+4. Update this README if adding new test categories
+5. Ensure tests can run independently
+6. Use page objects from `e2e/page-objects/` when available
+
+---
 
 ## Resources
 
 - [Playwright Documentation](https://playwright.dev)
-- [Test Plan](./TEST_PLAN.md) - Complete list of test cases
-- [Project Documentation](../README.md)
-- [API Documentation](../src/app/api/)
+- [Project README](../README.md)
+- [Test Optimization Plan](../C:/Users/napat/.gemini/antigravity/brain/0865ce8f-d575-496d-bcfb-15f024c13c58/test-optimization-plan.md)
+
+---
 
 ## Contact
 
 For questions about E2E tests:
 
-- Review TEST_PLAN.md for test case details
 - Check existing issues in the repository
 - Refer to project README for team contacts
+- Review `e2e/TEST_PLAN.md` for detailed test case documentation

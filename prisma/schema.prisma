@@ -268,61 +268,80 @@ enum ActivityType {
 }
 
 // ====================
-// Auth.js v5 Models (Prisma Adapter)
-// Required for multi-tenant authentication
-// @see https://authjs.dev/getting-started/adapters/prisma
+// Better Auth Models
+// Required for authentication with better-auth
+// @see https://www.better-auth.com/docs/concepts/database#core-schema
 // ====================
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
+  id            String  @id @default(cuid())
+  name          String
+  email         String  @unique
+  emailVerified Boolean @default(false)
   image         String?
   password      String? // For credential-based login (hashed with bcrypt)
-  role          String    @default("user") // user, teacher, admin
-  accounts      Account[]
-  sessions      Session[]
+
+  // CUSTOM: Preserve existing role field for authorization
+  role String @default("user") // admin or user/guest
+
+  // Admin plugin fields for user management
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
+
+  accounts Account[]
+  sessions Session[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String // Provider's account ID
+  providerId            String // "google", "credentials", etc.
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String? // For credentials provider
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([provider, providerAccountId])
+  @@unique([providerId, accountId])
 }
 
 model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  token     String   @unique // better-auth uses 'token' instead of 'sessionToken'
+  expiresAt DateTime // better-auth uses 'expiresAt' instead of 'expires'
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  ipAddress String?
+  userAgent String?
+
+  // Admin plugin field for impersonation tracking
+  impersonatedBy String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model VerificationToken {
+model Verification {
+  id         String   @id @default(cuid())
   identifier String
-  token      String
-  expires    DateTime
+  value      String
+  expiresAt  DateTime
 
-  @@id([identifier, token])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([identifier, value])
 }

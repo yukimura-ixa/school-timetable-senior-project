@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import {
   Alert,
   Button,
+  Checkbox,
   Container,
   Divider,
+  FormControlLabel,
   Paper,
   Stack,
   TextField,
@@ -18,9 +20,10 @@ import LoginIcon from "@mui/icons-material/Login";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -28,10 +31,10 @@ export default function SignInPage() {
 
   // Redirect logged-in users to dashboard
   useEffect(() => {
-    if (status === "authenticated" && session?.user) {
+    if (session?.user) {
       router.push("/dashboard");
     }
-  }, [status, session, router]);
+  }, [session, router]);
 
   const validate = () => {
     let ok = true;
@@ -57,19 +60,17 @@ export default function SignInPage() {
 
     setSubmitting(true);
     try {
-      // Use redirect: false to capture auth errors and show feedback
-      const res = await signIn("credentials", {
+      const { data, error } = await authClient.signIn.email({
         email,
         password,
-        redirect: false,
+        rememberMe,
+        callbackURL: "/dashboard/select-semester",
       });
-      if (!res) {
-        setFormError("ไม่สามารถเข้าสู่ระบบได้ ขัดข้องทางเครือข่าย");
-      } else if (res.error) {
-        // NextAuth v5 returns error string keys; display a friendly message
+
+      if (error) {
         setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      } else if (res.ok) {
-        // Manual navigation not needed if middleware handles redirect; fallback:
+      } else if (data) {
+        // Success - better-auth handles redirect via callbackURL
         window.location.href = "/dashboard/select-semester";
       }
     } catch (e) {
@@ -79,8 +80,12 @@ export default function SignInPage() {
     }
   };
 
-  const handleGoogleLogin = () =>
-    signIn("google", { callbackUrl: "/dashboard/select-semester" });
+  const handleGoogleLogin = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/dashboard/select-semester",
+    });
+  };
 
   return (
     <Container
@@ -144,6 +149,17 @@ export default function SignInPage() {
               error={Boolean(passwordError)}
               helperText={passwordError ?? ""}
               fullWidth
+            />
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label="จำฉันไว้ในระบบ"
             />
 
             <Button

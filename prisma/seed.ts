@@ -255,7 +255,7 @@ async function main() {
     "🔧 Connection: " + (process.env.DATABASE_URL?.substring(0, 50) + "..."),
   );
 
-  // ===== AUTH.JS USERS =====
+  // ===== BETTER-AUTH USERS =====
   console.log("👤 Creating admin user...");
 
   const adminPassword = await bcrypt.hash("admin123", 10);
@@ -273,7 +273,8 @@ async function main() {
             name: "System Administrator",
             password: adminPassword,
             role: "admin",
-            emailVerified: new Date(),
+            emailVerified: true, // better-auth uses Boolean
+            banned: false,
           },
         }),
       "Create admin user",
@@ -307,15 +308,15 @@ async function main() {
     );
   }
 
-  // Clean existing timetable data (preserve Auth.js tables)
+  // Clean existing timetable data (preserve better-auth tables)
   console.log("🧹 Cleaning existing data...");
 
-  // Clean NextAuth sessions and tokens for test mode to prevent stale auth conflicts
+  // Clean better-auth sessions and verification tokens for test mode to prevent stale auth conflicts
   if (isTestMode) {
     console.log("🔐 Cleaning auth sessions for test mode...");
     await withRetry(() => prisma.session.deleteMany({}), "Delete sessions");
     await withRetry(
-      () => prisma.verificationToken.deleteMany({}),
+      () => prisma.verification.deleteMany({}),
       "Delete verification tokens",
     );
     console.log("✅ Auth sessions cleaned");
@@ -342,7 +343,7 @@ async function main() {
   await withRetry(() => prisma.program.deleteMany({}), "Delete program");
   await withRetry(() => prisma.teacher.deleteMany({}), "Delete teacher");
   await withRetry(() => prisma.room.deleteMany({}), "Delete room");
-  console.log("✅ Timetable data cleaned (Auth.js tables preserved)");
+  console.log("✅ Timetable data cleaned (better-auth tables preserved)");
 
   // ===== SUBJECTS (MOE 8 Learning Areas) =====
   console.log("📚 Creating subjects with MOE 8 Learning Areas...");

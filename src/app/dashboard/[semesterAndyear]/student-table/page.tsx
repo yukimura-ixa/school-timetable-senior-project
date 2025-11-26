@@ -2,7 +2,7 @@
 import { useParams } from "next/navigation";
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import useSWR from "swr";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { useReactToPrint } from "react-to-print";
 import {
@@ -76,7 +76,7 @@ function StudentTablePage() {
   const { semester, academicYear } = useSemesterSync(
     params.semesterAndyear as string,
   );
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);

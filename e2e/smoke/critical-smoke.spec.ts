@@ -26,9 +26,9 @@ test.describe("Critical Path Smoke Tests", () => {
       // Navigate to login page
       await page.goto("/auth/signin");
 
-      // Fill in credentials (using seeded admin account)
-      await page.fill('input[name="email"]', "admin@test.com");
-      await page.fill('input[name="password"]', "Admin@123");
+      // Fill in credentials (using seeded admin account from seed.ts)
+      await page.fill('input[name="email"]', "admin@school.local");
+      await page.fill('input[name="password"]', "admin123");
 
       // Submit login form
       await page.click('button[type="submit"]');
@@ -71,6 +71,54 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/auth\/signin/, { timeout: 10000 });
 
       await context.close();
+    });
+
+    test("Admin can log out successfully", async ({ page }) => {
+      await page.goto("/dashboard");
+
+      // Wait for page to load
+      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
+
+      // Click logout button (Thai: "ออกจากระบบ" or English: "Logout")
+      const logoutButton = page.locator(
+        'button:has-text("ออกจากระบบ"), button:has-text("Logout"), a:has-text("ออกจากระบบ"), a:has-text("Logout")',
+      );
+      await expect(logoutButton.first()).toBeVisible({ timeout: 5000 });
+      await logoutButton.first().click();
+
+      // Should redirect to sign-in page
+      await expect(page).toHaveURL(/\/(signin|auth\/signin)/, {
+        timeout: 10000,
+      });
+
+      // Verify logged out state by trying to access protected route
+      await page.goto("/management/teachers");
+      await expect(page).toHaveURL(/\/(signin|auth\/signin)/, {
+        timeout: 10000,
+      });
+    });
+
+    test("Admin role is correctly assigned and verified", async ({ page }) => {
+      await page.goto("/dashboard");
+
+      // Wait for page to load
+      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
+
+      // Verify admin has access to management section
+      const managementLink = page.locator(
+        'a[href*="/management"], a:has-text("จัดการ"), a:has-text("Management")',
+      );
+      await expect(managementLink.first()).toBeVisible({ timeout: 5000 });
+
+      // Navigate to management page to confirm access
+      await page.goto("/management/teachers");
+      await expect(page).toHaveURL(/\/management\/teachers/);
+
+      // Should not redirect to unauthorized page
+      await expect(page).not.toHaveURL(/\/(signin|auth\/signin|unauthorized)/);
+
+      // Page should render successfully (not error boundary)
+      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
     });
   });
 
