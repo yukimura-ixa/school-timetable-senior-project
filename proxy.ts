@@ -1,28 +1,32 @@
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const proxy = auth((req) => {
-  const token = req.auth;
+export async function proxy(req: NextRequest) {
+  const session = await auth.api.getSession({
+    headers: req.headers,
+    asResponse: false,
+  });
 
   const pathname = req.nextUrl.pathname;
 
   // Check if user is authenticated
-  if (!token) {
-    console.log("[PROXY] No token found, redirecting to /");
+  if (!session || !session.user) {
+    console.log("[PROXY] No session found, redirecting to /");
     const signInUrl = new URL("/", req.url);
     return NextResponse.redirect(signInUrl);
   }
 
-  console.log("[PROXY] User role:", token?.user?.role);
+  const role = session.user.role;
+  console.log("[PROXY] User role:", role);
   console.log("[PROXY] Pathname:", pathname);
 
   // Admin: allow access to everything
-  if (token?.user?.role === "admin") {
+  if (role === "admin") {
     return NextResponse.next();
   }
 
   // Teacher: allow access to schedule, teacher-table, student-table, and select-semester
-  if (token?.user?.role === "teacher") {
+  if (role === "teacher") {
     const allowedPaths =
       pathname.includes("/schedule/") ||
       pathname.endsWith("/teacher-table") ||
@@ -37,7 +41,7 @@ export const proxy = auth((req) => {
   }
 
   // Student: restrict to student-table and select-semester only
-  if (token?.user?.role === "student") {
+  if (role === "student") {
     const allowedPaths =
       pathname.endsWith("/student-table") ||
       pathname.endsWith("/select-semester");
@@ -50,9 +54,10 @@ export const proxy = auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
+  runtime: "nodejs",
   matcher: [
     "/schedule/:path*",
     "/management/:path*",
