@@ -79,6 +79,29 @@ jobs:
           cp .env.test .env.production
           echo "✅ Environment files configured"
 
+      - name: Validate environment configuration
+        run: |
+          echo "🔍 Validating .env.test configuration..."
+          if [ -f .env.test ]; then
+            echo "✅ .env.test exists"
+            if grep -q "DATABASE_URL" .env.test; then
+              echo "✅ DATABASE_URL is set"
+            else
+              echo "❌ DATABASE_URL is missing"
+              exit 1
+            fi
+            if grep -q "AUTH_SECRET" .env.test; then
+              echo "✅ AUTH_SECRET is set"
+            else
+              echo "❌ AUTH_SECRET is missing"
+              exit 1
+            fi
+            echo "✅ All required environment variables are configured"
+          else
+            echo "❌ .env.test not found"
+            exit 1
+          fi
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
