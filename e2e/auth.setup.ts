@@ -38,7 +38,7 @@ setup("authenticate as admin", async ({ page }) => {
 
   // Navigate to custom sign-in page
   // Increased timeout to 60s for initial page load/compilation
-  await page.goto("http://localhost:3000/signin", {
+  await page.goto("/signin", {
     timeout: 60000,
     waitUntil: "domcontentloaded",
   });
@@ -52,7 +52,7 @@ setup("authenticate as admin", async ({ page }) => {
     console.log("[AUTH SETUP] Already authenticated, skipping login");
 
     // Navigate to semester-specific dashboard
-    await page.goto("http://localhost:3000/dashboard/1-2567", {
+    await page.goto("/dashboard/1-2567", {
       waitUntil: "domcontentloaded",
       timeout: 60000,
     });
@@ -62,9 +62,7 @@ setup("authenticate as admin", async ({ page }) => {
     await expect
       .poll(
         async () => {
-          const response = await page.request.get(
-            "http://localhost:3000/api/auth/session",
-          );
+          const response = await page.request.get("/api/auth/session");
           if (!response.ok()) return null;
           const body = await response.json().catch(() => null);
           return body?.user?.role ?? null;
