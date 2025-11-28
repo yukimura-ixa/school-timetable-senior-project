@@ -75,7 +75,7 @@ export default defineConfig({
         command:
           process.env.CI === "true"
             ? "pnpm exec next start -p 3000"
-            : "pnpm dev:e2e",
+            : "pnpm dev:test:local",
         url: "http://localhost:3000",
         reuseExistingServer: true, // ✅ Always reuse - prevents port conflicts
         timeout: 120 * 1000,
@@ -86,10 +86,10 @@ export default defineConfig({
           NODE_ENV:
             process.env.CI === "true"
               ? "production"
-              : process.env.NODE_ENV ?? "development",
+              : (process.env.NODE_ENV ?? "development"),
         },
       },
 
-/* Test output directories */
+  /* Test output directories */
   outputDir: "test-results/artifacts",
 });

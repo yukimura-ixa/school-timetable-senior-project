@@ -279,7 +279,7 @@ pnpm start
 
 ### Development Scripts
 
-```bash
+````bash
 # Development
 pnpm dev                    # Start dev server
 pnpm lint                   # Run ESLint
@@ -287,23 +287,130 @@ pnpm lint:fix               # Auto-fix linting issues
 pnpm format                 # Format with Prettier
 
 # Testing
+
+This project uses a **hybrid testing strategy** that optimizes for both speed (local testing) and production validation (smoke tests).
+
+## Test Types
+
+### Unit Tests (Jest)
+```bash
 pnpm test                   # Run unit tests
 pnpm test:watch             # Watch mode
-pnpm test:e2e               # Run E2E tests
-pnpm test:e2e:ui            # E2E tests with UI
-pnpm test:report            # View test report
+````
+
+### E2E Tests - Local Environment (Fast ⚡)
+
+Uses local Prisma Accelerate extension or Docker PostgreSQL for fast test execution.
+
+```bash
+# Recommended: Full E2E suite with automated DB management
+pnpm test:e2e               # Auto-manages local test DB
+
+# Manual DB control (for testing specific scenarios)
+pnpm test:db:up             # Start local test database
+pnpm test:db:migrate        # Run migrations
+pnpm test:db:seed           # Seed test data
+pnpm test:e2e:manual        # Run tests without DB auto-management
+
+# Interactive testing
+pnpm test:e2e:ui            # Playwright UI mode
+pnpm test:e2e:headed        # Run in headed browser
+pnpm test:e2e:debug         # Debug mode
+```
+
+**Configuration**: Uses `.env.test.local` (gitignored) with local database
+
+### Smoke Tests - Production Environment (Slow 🐢)
+
+Validates critical paths against production-like database.
+
+```bash
+pnpm test:smoke             # Run all smoke tests
+pnpm test:smoke:critical    # Critical path only
+pnpm test:smoke:crud        # CRUD operations only
+```
+
+**Configuration**: Uses `.env.test` (in repo, placeholders only) with production database URL
+
+### View Test Results
+
+```bash
+pnpm test:report            # Open Playwright HTML report
+```
+
+## Environment Setup
+
+### Local Testing (.env.test.local)
+
+Create this file (gitignored) for local E2E testing:
+
+```env
+# Local Prisma Accelerate Extension (recommended)
+DATABASE_URL="prisma+postgres://localhost:51213/..."
+
+# OR Docker PostgreSQL (alternative)
+DATABASE_URL="postgresql://test_user:test_password@localhost:5433/test_timetable"
+
+# Auth credentials
+AUTH_SECRET="your-local-secret"
+AUTH_GOOGLE_ID="your-google-client-id"
+AUTH_GOOGLE_SECRET="your-google-client-secret"
+```
+
+### Production Smoke Tests (.env.test)
+
+Uses placeholders in repo. Actual values injected via:
+
+- **CI**: GitHub Secrets
+- **Local**: Copy from `.env` or set environment variables
+
+## CI/CD Testing
+
+### GitHub Actions Workflows
+
+- **E2E Tests** (`e2e-tests.yml`): Full test suite on every push to `main`
+  - Uses PostgreSQL service container
+  - Parallel execution with sharding (4 shards)
+  - ~15-20 minutes
+
+- **Smoke Tests** (`smoke-tests.yml`): Critical paths on PRs and pushes
+  - Uses local PostgreSQL for fast feedback
+  - Sequential execution
+  - ~10-15 minutes
+
+### Required GitHub Secrets
+
+For smoke tests against production:
+
+- `DATABASE_URL` - Prisma Accelerate production URL
+- `AUTH_SECRET` - Production auth secret
+- `AUTH_GOOGLE_ID` - Google OAuth client ID
+- `AUTH_GOOGLE_SECRET` - Google OAuth secret
+- `SEED_SECRET` - API secret for seed endpoint
+- `E2E_ADMIN_EMAIL` - Test admin email
+- `E2E_ADMIN_PASSWORD` - Test admin password
+
+## Documentation
+
+For detailed implementation guide, see:
+
+- **[Hybrid Testing Implementation](docs/HYBRID_TESTING_IMPLEMENTATION.md)** - Complete setup guide
+- **[E2E Test Failure Analysis](docs/E2E_TEST_FAILURE_ANALYSIS.md)** - Troubleshooting guide
 
 # Database
-pnpm db:migrate             # Run migrations (dev)
-pnpm db:deploy              # Deploy migrations (prod)
-pnpm db:seed                # Seed database
-pnpm db:seed:clean          # Clean seed
-pnpm db:studio              # Open Prisma Studio
+
+pnpm db:migrate # Run migrations (dev)
+pnpm db:deploy # Deploy migrations (prod)
+pnpm db:seed # Seed database
+pnpm db:seed:clean # Clean seed
+pnpm db:studio # Open Prisma Studio
 
 # Admin tools
-pnpm admin:create           # Create admin user
-pnpm admin:verify           # Verify admin access
-```
+
+pnpm admin:create # Create admin user
+pnpm admin:verify # Verify admin access
+
+````
 
 ### ⚠️ Known Issues
 
@@ -334,9 +441,9 @@ For more details, see the `nextjs_16_jest_stack_overflow_issue` memory file.
    pnpm db:seed:clean    # Populate sample data (clean mode)
    # OR
    pnpm db:seed          # Create admin only (safe - no data deletion)
-   ```
+````
 
-   📚 See details: [docs/SEED_SAFETY_GUIDE.md](docs/SEED_SAFETY_GUIDE.md)
+📚 See details: [docs/SEED_SAFETY_GUIDE.md](docs/SEED_SAFETY_GUIDE.md)
 
 2. **Login**:
    - **Admin**: `admin@school.local` / `admin123` (change password in production!)
