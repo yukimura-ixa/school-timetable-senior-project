@@ -171,9 +171,7 @@ setup("authenticate as admin", async ({ page }) => {
   await expect
     .poll(
       async () => {
-        const response = await page.request.get(
-          "http://localhost:3000/api/auth/session",
-        );
+        const response = await page.request.get("/api/auth/session");
         if (!response.ok()) return null;
         const body = await response.json().catch(() => null);
         return body?.user?.role ?? null;
@@ -191,7 +189,7 @@ setup("authenticate as admin", async ({ page }) => {
   console.log(
     "[AUTH SETUP] Pre-selecting semester (1-2567) via URL navigation...",
   );
-  await page.goto("http://localhost:3000/dashboard/1-2567", {
+  await page.goto("/dashboard/1-2567", {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });

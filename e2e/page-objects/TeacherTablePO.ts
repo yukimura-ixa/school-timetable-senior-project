@@ -27,7 +27,7 @@ export class TeacherTablePO extends BasePage {
   readonly teacherTable: Locator;
   readonly teacherRows: Locator;
 
-  constructor(page: Page, baseUrl: string = "http://localhost:3000") {
+  constructor(page: Page, baseUrl: string = "") {
     super(page, baseUrl);
 
     // Page title

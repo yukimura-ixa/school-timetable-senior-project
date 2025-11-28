@@ -48,8 +48,8 @@ test.describe("Home Page Tests", () => {
       await expect(async () => {
         const url = page.url();
         // Check if redirected to home page (base URL with optional trailing slash)
-        const isHome =
-          url === "http://localhost:3000/" || url === "http://localhost:3000";
+        const pathname = new URL(url).pathname;
+        const isHome = pathname === "/" || pathname === "";
         expect(isHome).toBe(true);
       }).toPass({ timeout: 5000 });
 

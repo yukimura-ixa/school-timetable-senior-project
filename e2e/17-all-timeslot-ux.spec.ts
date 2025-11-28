@@ -44,9 +44,7 @@ test.describe("All Timeslot Page UX", () => {
     });
     const page = await context.newPage();
 
-    await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/all-timeslot`,
-    );
+    await page.goto(`/dashboard/${testSemester}/all-timeslot`);
 
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 

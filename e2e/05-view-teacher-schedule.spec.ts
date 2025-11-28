@@ -24,7 +24,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -44,7 +44,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -77,7 +77,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -119,7 +119,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -152,7 +152,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -184,7 +184,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -221,7 +221,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     // For this test, we need to login as a teacher
     // This requires a teacher account with proper credentials
 
-    await page.goto("http://localhost:3000");
+    await page.goto("");
     await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
 
     // Check if dev bypass is available
@@ -240,7 +240,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
 
     // Navigate directly to teacher-table
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -252,7 +252,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
   }) => {
     // This test verifies role-based UI restrictions
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -284,7 +284,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
   test.setTimeout(120_000);
 
   const visitTeacherTable = async (page: Page) => {
-    const url = `http://localhost:3000/dashboard/${testSemester}/teacher-table`;
+    const url = `/dashboard/${testSemester}/teacher-table`;
     let lastError: unknown;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
@@ -306,7 +306,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
@@ -457,7 +457,7 @@ test.describe("TC-017: Export Functionality", () => {
   test.setTimeout(120_000);
 
   const visitTeacherTable = async (page: Page) => {
-    const url = `http://localhost:3000/dashboard/${testSemester}/teacher-table`;
+    const url = `/dashboard/${testSemester}/teacher-table`;
     let lastError: unknown;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
@@ -541,7 +541,7 @@ test.describe("TC-017: Export Functionality", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `http://localhost:3000/dashboard/${testSemester}/teacher-table`,
+      `/dashboard/${testSemester}/teacher-table`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 

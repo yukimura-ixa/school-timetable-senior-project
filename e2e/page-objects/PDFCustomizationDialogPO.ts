@@ -48,7 +48,7 @@ export class PDFCustomizationDialogPO extends BasePage {
   // Preview summary
   readonly previewText: Locator;
 
-  constructor(page: Page, baseUrl: string = "http://localhost:3000") {
+  constructor(page: Page, baseUrl: string = "") {
     super(page, baseUrl);
 
     // Dialog

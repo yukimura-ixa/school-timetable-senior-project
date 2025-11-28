@@ -25,7 +25,7 @@ export class BasePage {
   readonly semesterButtonWithText: Locator;
   readonly semesterSelectButton: Locator;
 
-  constructor(page: Page, baseUrl: string = "http://localhost:3000") {
+  constructor(page: Page, baseUrl: string = "") {
     this.page = page;
     this.baseUrl = baseUrl;
 

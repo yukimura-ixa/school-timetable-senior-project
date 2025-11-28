@@ -26,7 +26,7 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`);
 
     // Wait for page load
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
@@ -49,7 +49,7 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     // Wait for data to load
@@ -79,7 +79,7 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     // Wait for loading
@@ -128,7 +128,7 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     // Wait for data load
@@ -155,7 +155,7 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     const resetButton = page.getByRole("button", { name: "คืนค่าเริ่มต้น" });
@@ -176,7 +176,7 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     // Clone link only visible if not configured
@@ -203,7 +203,7 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
   test("TC-009-01: Assignment page loads", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/assign`);
+    await page.goto(`/schedule/${testSemester}/assign`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     // Verify URL contains assign
@@ -223,7 +223,7 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`http://localhost:3000/schedule/${testSemester}/assign`);
+    await page.goto(`/schedule/${testSemester}/assign`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
     // Wait for content to load
