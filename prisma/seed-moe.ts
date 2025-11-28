@@ -20,7 +20,16 @@ import {
   ActivityType,
   subject_credit,
 } from "../prisma/generated/client";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${derivedKey.toString("hex")}`;
+}
 
 const prisma = new PrismaClient();
 
@@ -46,7 +55,7 @@ async function main() {
   });
 
   if (!existingAdmin) {
-    const adminPassword = await bcrypt.hash("admin123", 10);
+    const adminPassword = await hashPassword("admin123");
     await prisma.user.create({
       data: {
         email: "admin@school.local",

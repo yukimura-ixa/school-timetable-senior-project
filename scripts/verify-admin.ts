@@ -4,7 +4,20 @@
  */
 
 import prisma from "../src/lib/prisma";
-import bcrypt from "bcryptjs";
+import { scrypt } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
+  const [salt, key] = hash.split(":");
+  if (!salt || !key) return false;
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  return key === derivedKey.toString("hex");
+}
 
 async function main() {
   console.log("🔍 Checking admin user...\n");
@@ -29,7 +42,7 @@ async function main() {
   // Test password verification
   if (admin.password) {
     console.log("\n🧪 Testing password verification...");
-    const isValid = await bcrypt.compare("admin123", admin.password);
+    const isValid = await verifyPassword("admin123", admin.password);
 
     if (isValid) {
       console.log("✅ Password verification successful!");

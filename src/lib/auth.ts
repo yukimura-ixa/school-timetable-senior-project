@@ -3,7 +3,7 @@
  *
  * Migration from Next Auth.js v5 to better-auth
  * Provides:
- * - Email/Password authentication
+ * - Email/Password authentication with scrypt hashing
  * - Google OAuth
  * - Database-backed sessions with Prisma
  * - Custom role field for authorization (admin, guest/user)
@@ -16,7 +16,10 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 import prisma from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -24,15 +27,19 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    // CRITICAL: Configure bcrypt to match seed.ts password hashing
-    // seed.ts uses bcrypt.hash(password, 10) to create admin user
-    // better-auth defaults to scrypt, causing password verification to fail
+    // Use Node's native scrypt for password hashing
+    // More secure than bcrypt and built into Node (no dependencies)
     password: {
       hash: async (password) => {
-        return await bcrypt.hash(password, 10);
+        const salt = randomBytes(16).toString("hex");
+        const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+        return `${salt}:${derivedKey.toString("hex")}`;
       },
       verify: async ({ hash, password }) => {
-        return await bcrypt.compare(password, hash);
+        const [salt, key] = hash.split(":");
+        if (!salt || !key) return false;
+        const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+        return key === derivedKey.toString("hex");
       },
     },
   },

@@ -4,13 +4,22 @@
  */
 
 import prisma from "../src/lib/prisma";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${derivedKey.toString("hex")}`;
+}
 
 async function main() {
   console.log("👤 Creating admin user...\n");
 
-  // Hash password
-  const adminPassword = await bcrypt.hash("admin123", 10);
+  // Hash password using scrypt (matches auth.ts)
+  const adminPassword = await hashPassword("admin123");
 
   // Check if admin already exists
   const existingAdmin = await prisma.user.findUnique({

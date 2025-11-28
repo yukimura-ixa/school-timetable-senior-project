@@ -1,13 +1,21 @@
 import { PrismaClient } from "./prisma/generated/client";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 
+const scryptAsync = promisify(scrypt);
 const prisma = new PrismaClient();
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${derivedKey.toString("hex")}`;
+}
 
 async function main() {
   console.log("Connecting to DB...");
   try {
     const teacherEmail = "debug-teacher@school.local";
-    const hashedPassword = await bcrypt.hash("password123", 10);
+    const hashedPassword = await hashPassword("password123");
 
     console.log("Creating user...");
     await prisma.user.upsert({

@@ -43,9 +43,12 @@ import {
   LearningArea,
   ActivityType,
 } from "../prisma/generated/client";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
+
+const scryptAsync = promisify(scrypt);
 
 const connectionString = process.env.DATABASE_URL!;
 const isAccelerate = connectionString.startsWith("prisma+");
@@ -97,6 +100,13 @@ async function withRetry<T>(
     }
   }
   throw lastError!;
+}
+
+// Helper: Hash password using Node's crypto.scrypt (matches auth.ts)
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${derivedKey.toString("hex")}`;
 }
 
 // Thai teacher prefixes and names for realistic data
@@ -258,7 +268,7 @@ async function main() {
   // ===== BETTER-AUTH USERS =====
   console.log("👤 Creating admin user...");
 
-  const adminPassword = await bcrypt.hash("admin123", 10);
+  const adminPassword = await hashPassword("admin123");
   const existingAdmin = await withRetry(
     () => prisma.user.findUnique({ where: { email: "admin@school.local" } }),
     "Check existing admin",

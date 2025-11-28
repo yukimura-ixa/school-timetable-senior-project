@@ -4,13 +4,22 @@
  */
 
 import prisma from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+import { scrypt, randomBytes } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${salt}:${derivedKey.toString("hex")}`;
+}
 
 async function main() {
   console.log("Creating test admin user...");
 
-  // Hash password using bcrypt (better-auth uses bcrypt for passwords)
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  // Hash password using scrypt (matches auth.ts)
+  const hashedPassword = await hashPassword("admin123");
 
   // Create or update admin user
   const admin = await prisma.user.upsert({
