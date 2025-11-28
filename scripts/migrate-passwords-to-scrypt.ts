@@ -61,11 +61,9 @@ function isBcryptHash(hash: string): boolean {
  * Check if a password hash is scrypt format
  */
 function isScryptHash(hash: string): boolean {
-  return (
-    hash.includes(":") &&
-    hash.split(":").length === 2 &&
-    hash.split(":")[0].length === 32
-  );
+  const [salt, derivedKey] = hash.split(":");
+  if (!salt || !derivedKey) return false;
+  return salt.length === 32;
 }
 
 /**

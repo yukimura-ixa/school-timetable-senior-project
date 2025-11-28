@@ -21,14 +21,21 @@ test.describe("Admin Authentication Flow", () => {
   test("should display sign-in page with all authentication options", async ({
     page,
   }) => {
-    await expect(page.getByLabel("อีเมล")).toBeVisible();
-    await expect(page.getByLabel("รหัสผ่าน")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "เข้าสู่ระบบ", exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /เข้าสู่ระบบด้วย Google/i }),
-    ).toBeVisible();
+    const emailInput = page.getByLabel("อีเมล");
+    const passwordInput = page.getByLabel("รหัสผ่าน");
+    const rememberMeCheckbox = page.getByLabel("จำฉันไว้ในระบบ");
+    const credentialButton = page.getByRole("button", {
+      name: "เข้าสู่ระบบ",
+      exact: true,
+    });
+    const googleButton = page.getByTestId("google-signin-button");
+
+    await expect(emailInput).toBeVisible();
+    await expect(passwordInput).toBeVisible();
+    await expect(rememberMeCheckbox).toBeVisible();
+    await expect(credentialButton).toBeVisible();
+    await expect(googleButton).toBeVisible();
+    await expect(googleButton).toHaveText(/Google/i);
   });
 
   test("should successfully sign in with admin credentials", async ({
@@ -39,12 +46,12 @@ test.describe("Admin Authentication Flow", () => {
     await page.locator('input[type="password"]').fill("admin123");
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
 
-    await Promise.race([
-      page.waitForURL("**/dashboard/**", { timeout: 20000 }),
-      page.waitForSelector("text=/เลือกภาคเรียน/i", { timeout: 20000 }),
-    ]);
-
-    expect(page.url()).toContain("/dashboard");
+    await expect(page).toHaveURL(/\/dashboard\/select-semester/, {
+      timeout: 20000,
+    });
+    await expect(page.getByText(/เลือกภาคเรียน/i)).toBeVisible({
+      timeout: 20000,
+    });
   });
 
   test("should show error for invalid credentials", async ({ page }) => {
@@ -67,7 +74,12 @@ test.describe("Admin Dashboard Pages", () => {
     await page.locator('input[type="email"]').fill("admin@school.local");
     await page.locator('input[type="password"]').fill("admin123");
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
-    await page.waitForURL("**/dashboard/**", { timeout: 10000 });
+    await page.waitForURL("**/dashboard/select-semester**", {
+      timeout: 20000,
+    });
+    await expect(page.getByText(/เลือกภาคเรียน/i)).toBeVisible({
+      timeout: 20000,
+    });
   });
 
   test("should access semester selection page", async ({ page }) => {
@@ -113,7 +125,12 @@ test.describe("Visual UI Checks", () => {
     await page.locator('input[type="email"]').fill("admin@school.local");
     await page.locator('input[type="password"]').fill("admin123");
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
-    await page.waitForURL("**/dashboard/**", { timeout: 10000 });
+    await page.waitForURL("**/dashboard/select-semester**", {
+      timeout: 20000,
+    });
+    await expect(page.getByText(/เลือกภาคเรียน/i)).toBeVisible({
+      timeout: 20000,
+    });
   });
 
   test("[visual] dashboard pages have no console errors", async ({ page }) => {
