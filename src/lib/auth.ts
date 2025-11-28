@@ -16,6 +16,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -23,6 +24,17 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    // CRITICAL: Configure bcrypt to match seed.ts password hashing
+    // seed.ts uses bcrypt.hash(password, 10) to create admin user
+    // better-auth defaults to scrypt, causing password verification to fail
+    password: {
+      hash: async (password) => {
+        return await bcrypt.hash(password, 10);
+      },
+      verify: async ({ hash, password }) => {
+        return await bcrypt.compare(password, hash);
+      },
+    },
   },
   socialProviders: {
     google: {
