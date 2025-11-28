@@ -50,6 +50,8 @@
     "db:deploy": "prisma migrate deploy",
     "admin:create": "tsx scripts/create-admin.ts",
     "admin:verify": "tsx scripts/verify-admin.ts",
+    "migrate:check-passwords": "tsx scripts/migrate-passwords-to-scrypt.ts",
+    "migrate:reset-prod-admin": "tsx scripts/reset-production-admin.ts",
     "seed:prod": "pwsh -File scripts/seed-production.ps1",
     "seed:setup": "pwsh -File scripts/add-seed-secret.ps1"
   },
