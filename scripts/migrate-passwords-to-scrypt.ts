@@ -23,7 +23,11 @@ import prisma from "../src/lib/prisma";
 import { scrypt, randomBytes } from "crypto";
 import { promisify } from "util";
 
-const scryptAsync = promisify(scrypt);
+const scryptAsync: (
+  password: string,
+  salt: string | Buffer,
+  keylen: number,
+) => Promise<Buffer> = promisify(scrypt);
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -192,7 +196,7 @@ async function main() {
       console.log(`\n✅ Restored ${restored} users to bcrypt hashes`);
     } else {
       console.log("\nDry run - would restore:");
-      backups.forEach((b) => console.log(`  - ${b.user_email}`));
+      backups.forEach(({ user_email }) => console.log(`  - ${user_email}`));
     }
 
     return;
