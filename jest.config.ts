@@ -89,6 +89,10 @@ const config: Config = {
 
   // Detect async operations that prevent Jest from exiting cleanly
   detectOpenHandles: true,
+
+  // Recycle workers that exceed 20% of system memory
+  // Helps prevent memory leaks in long-running test suites (CI environments)
+  workerIdleMemoryLimit: 0.2,
 };
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

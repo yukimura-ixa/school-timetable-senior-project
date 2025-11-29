@@ -137,9 +137,10 @@ jobs:
       - name: Run Jest unit tests
         # Lightweight unit/regression suites only.
         # Heavy teaching-assignment + Playwright flows run in .github/workflows/e2e-tests.yml.
-        run: pnpm exec jest
+        run: pnpm test
         env:
           NODE_ENV: test
+          NODE_OPTIONS: --max_old_space_size=4096
 
       - name: Upload coverage reports
         if: always()
