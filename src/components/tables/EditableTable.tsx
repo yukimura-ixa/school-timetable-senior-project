@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-misused-promises */
+ 
 import React, { useState, useEffect, type ReactNode } from "react";
 import {
   Table as MuiTable,

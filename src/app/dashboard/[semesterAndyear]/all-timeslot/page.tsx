@@ -21,7 +21,7 @@ const parseSemesterParam = (
     throw new Error("Invalid semester path segment");
   }
 
-  return { semester: semesterNum as 1 | 2, year: yearNum };
+  return { semester: semesterNum, year: yearNum };
 };
 
 export default async function AllTimeslotPage({

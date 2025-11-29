@@ -4,9 +4,9 @@
 // Mock Next.js Cache Components APIs
 // These are only called in tests; production code uses real implementations
 declare global {
-  // eslint-disable-next-line no-var
+   
   var cacheTag: jest.Mock;
-  // eslint-disable-next-line no-var
+   
   var cacheLife: jest.Mock;
 }
 

@@ -147,6 +147,17 @@ async function main() {
   try {
     log("\n🚀 E2E Test Runner with Automatic Database Management\n", "cyan");
 
+    // Kill any existing dev server
+    log("🔄 Killing any existing dev server on port 3000...", "cyan");
+    try {
+      execSync("node scripts/kill-dev-server.mjs", {
+        stdio: "inherit",
+        cwd: projectRoot,
+      });
+    } catch (error) {
+      log("⚠️  Could not kill existing server (may not be running)", "yellow");
+    }
+
     // Check Docker availability
     if (!isDockerAvailable()) {
       log("⚠️  Docker not available", "yellow");

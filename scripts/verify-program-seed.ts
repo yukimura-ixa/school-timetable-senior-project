@@ -39,7 +39,7 @@ async function verifyProgramSeed() {
 
   // Display grouped data
   for (const [year, yearPrograms] of (
-    Object.entries(groupedByYear) as [string, program[]][]
+    Object.entries(groupedByYear)
   ).sort((a, b) => Number(a[0]) - Number(b[0]))) {
     console.warn(`\n📅 Year ม.${year} (${yearPrograms.length} programs)`);
     console.warn("-".repeat(80));

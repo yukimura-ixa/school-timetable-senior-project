@@ -77,12 +77,17 @@ export default defineConfig({
             ? "pnpm exec next start -p 3000"
             : "pnpm dev:test:local",
         url: "http://localhost:3000",
-        reuseExistingServer: true, // ✅ Always reuse - prevents port conflicts
+        reuseExistingServer: !!process.env.CI, // ✅ Fresh server locally, reuse in CI
         timeout: 120 * 1000,
         stdout: "pipe", // Changed from 'ignore' to see startup logs
         stderr: "pipe",
         env: {
           ...process.env,
+          // ✅ CRITICAL: Force dev server to use test database
+          // This ensures the server reads from the same database that E2E setup seeds
+          DATABASE_URL:
+            process.env.DATABASE_URL ||
+            "postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public&connection_limit=10",
           NODE_ENV:
             process.env.CI === "true"
               ? "production"

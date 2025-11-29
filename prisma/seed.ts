@@ -43,12 +43,8 @@ import {
   LearningArea,
   ActivityType,
 } from "../prisma/generated/client";
-import { scrypt, randomBytes } from "crypto";
-import { promisify } from "util";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
-
-const scryptAsync = promisify(scrypt);
 
 const connectionString = process.env.DATABASE_URL!;
 const isAccelerate = connectionString.startsWith("prisma+");
@@ -100,13 +96,6 @@ async function withRetry<T>(
     }
   }
   throw lastError!;
-}
-
-// Helper: Hash password using Node's crypto.scrypt (matches auth.ts)
-async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString("hex");
-  const derivedKey = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${salt}:${derivedKey.toString("hex")}`;
 }
 
 // Thai teacher prefixes and names for realistic data
@@ -268,29 +257,43 @@ async function main() {
   // ===== BETTER-AUTH USERS =====
   console.log("👤 Creating admin user...");
 
-  const adminPassword = await hashPassword("admin123");
   const existingAdmin = await withRetry(
     () => prisma.user.findUnique({ where: { email: "admin@school.local" } }),
     "Check existing admin",
   );
 
   if (!existingAdmin) {
+    // Use better-auth's API to create user with proper password hashing
+    // This ensures password is hashed correctly and Account record is created automatically
+    const { auth } = await import("../src/lib/auth.js");
+
+    const signUpResult = await auth.api.signUpEmail({
+      body: {
+        email: "admin@school.local",
+        password: "admin123",
+        name: "System Administrator",
+      },
+    });
+
+    if (!signUpResult || !signUpResult.user) {
+      throw new Error("Failed to create admin user via better-auth API");
+    }
+
+    // Update role to admin (can't be set during signup)
     await withRetry(
       () =>
-        prisma.user.create({
+        prisma.user.update({
+          where: { id: signUpResult.user.id },
           data: {
-            email: "admin@school.local",
-            name: "System Administrator",
-            password: adminPassword,
             role: "admin",
-            emailVerified: true, // better-auth uses Boolean
-            banned: false,
+            emailVerified: true,
           },
         }),
-      "Create admin user",
+      "Update admin user role",
     );
+
     console.log(
-      "✅ Admin user created (email: admin@school.local, password: admin123)",
+      "✅ Admin user created via better-auth API (email: admin@school.local, password: admin123)",
     );
   } else {
     console.log("ℹ️  Admin user already exists");

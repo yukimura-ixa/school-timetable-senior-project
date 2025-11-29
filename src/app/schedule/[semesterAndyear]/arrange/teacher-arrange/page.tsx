@@ -487,7 +487,7 @@ export default function TeacherArrangePageRefactored() {
     // Determine which grade's conflicts to display
     const selectedGradeID = !isSelectedToChange
       ? storeSelectedSubject!.gradeID
-      : changeTimeSlotSubject!.gradeID;
+      : changeTimeSlotSubject.gradeID;
 
     if (!checkConflictData.data) return;
 

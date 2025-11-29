@@ -13,7 +13,7 @@ function createPrismaClient() {
   // Avoid logging raw secrets; only log protocol + host
   const safeConnection =
     connectionString.split("?")[0]?.replace(/:[^:@]+@/, ":****@") ?? "unknown";
-  console.log("[PRISMA] Connecting to DB:", safeConnection);
+  console.warn("[PRISMA] Connecting to DB:", safeConnection);
 
   // Use Prisma Accelerate (Data Proxy) when prisma+ protocol is provided
   if (isAccelerate) {

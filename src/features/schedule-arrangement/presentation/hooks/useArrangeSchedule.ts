@@ -62,19 +62,16 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
     timeSlotData,
 
     // Actions
-    setSelectedSubject,
-    setSubjectData,
     setScheduledSubjects,
     setSubjectPayload,
     updateTimeslotSubject,
     addSubjectToData,
-    removeSubjectFromData,
     openModal,
     closeModal,
     clearSelectedSubject,
     setChangeTimeSlotSubject,
     setTimeslotIDtoChange,
-    setIsClickToChangeSubject, // Fixed typo: was setIsCilckToChangeSubject
+    setIsClickToChangeSubject,
     setDestinationSubject,
     setYearSelected,
   } = useArrangementUIStore();

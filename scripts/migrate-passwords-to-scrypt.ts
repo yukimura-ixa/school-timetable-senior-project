@@ -64,7 +64,7 @@ function isScryptHash(hash: string): boolean {
   return (
     hash.includes(":") &&
     hash.split(":").length === 2 &&
-    hash.split(":")[0].length === 32
+    hash.split(":")[0]?.length === 32
   );
 }
 
@@ -194,7 +194,9 @@ async function main() {
       console.log(`\n✅ Restored ${restored} users to bcrypt hashes`);
     } else {
       console.log("\nDry run - would restore:");
-      backups.forEach((b) => console.log(`  - ${b.user_email}`));
+      backups.forEach((b: { user_email: string }) =>
+        console.log(`  - ${b.user_email}`),
+      );
     }
 
     return;
