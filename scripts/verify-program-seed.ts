@@ -6,6 +6,13 @@
 import prisma from "../src/lib/prisma";
 import type { program } from "../prisma/generated/client";
 
+// Type for program with _count field from include
+type ProgramWithCount = program & {
+  _count: {
+    gradelevel: number;
+  };
+};
+
 async function verifyProgramSeed() {
   console.warn("🔍 Verifying Program Seed Data\n");
   console.warn("=".repeat(80));
@@ -26,7 +33,7 @@ async function verifyProgramSeed() {
 
   // Group by Year (1..6)
   const groupedByYear = programs.reduce(
-    (acc: Record<number, program[]>, program: program) => {
+    (acc: Record<number, ProgramWithCount[]>, program: ProgramWithCount) => {
       const year = program.Year;
       if (!acc[year]) {
         acc[year] = [];
@@ -34,30 +41,33 @@ async function verifyProgramSeed() {
       acc[year].push(program);
       return acc;
     },
-    {} as Record<number, program[]>,
+    {} as Record<number, ProgramWithCount[]>,
   );
 
   // Display grouped data
   for (const [year, yearPrograms] of (
-    Object.entries(groupedByYear)
+    Object.entries(groupedByYear) as [string, ProgramWithCount[]][]
   ).sort((a, b) => Number(a[0]) - Number(b[0]))) {
     console.warn(`\n📅 Year ม.${year} (${yearPrograms.length} programs)`);
     console.warn("-".repeat(80));
 
     const groupedByTrack = yearPrograms.reduce(
-      (acc: Record<string, program[]>, p: program) => {
-        const list = acc[p.Track] ?? (acc[p.Track] = [] as program[]);
+      (acc: Record<string, ProgramWithCount[]>, p: ProgramWithCount) => {
+        const list = acc[p.Track] ?? (acc[p.Track] = [] as ProgramWithCount[]);
         list.push(p);
         return acc;
       },
-      {} as Record<string, program[]>,
+      {} as Record<string, ProgramWithCount[]>,
     );
 
-    for (const [track, list] of Object.entries(groupedByTrack)) {
+    for (const [track, list] of Object.entries(groupedByTrack) as [
+      string,
+      ProgramWithCount[],
+    ][]) {
       console.warn(`\n  📖 Track: ${track}`);
-      list.forEach((p: any) => {
+      list.forEach((p: ProgramWithCount) => {
         console.warn(
-          `    • ${p.ProgramCode.padEnd(14)} ${p.ProgramName.padEnd(40)} (${p._count?.gradelevel ?? 0} grade levels)`,
+          `    • ${p.ProgramCode.padEnd(14)} ${p.ProgramName.padEnd(40)} (${p._count.gradelevel} grade levels)`,
         );
       });
     }
