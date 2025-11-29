@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import type { Page } from "@playwright/test";
 import { NavigationHelper } from "./helpers/navigation";
 
 /**
@@ -21,7 +22,7 @@ test.describe("Data Management - Teacher CRUD", () => {
   });
 
   const createTeacherViaModal = async (
-    page: typeof authenticatedAdmin.page,
+    page: Page,
     teacher: ReturnType<typeof buildTeacher>,
   ) => {
     await page.getByTestId("add-teacher-button").click();
