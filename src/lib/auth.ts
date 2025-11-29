@@ -41,6 +41,16 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
   ],
+  // Configure rate limiting to prevent 429 errors during E2E tests
+  // The useSession hook on client makes frequent requests to /api/auth/session
+  // Default: 10s window, 100 max requests
+  // Increased to handle multiple simultaneous E2E test shards
+  rateLimit: {
+    enabled: true,
+    window: 60, // 60 seconds
+    max: 500, // 500 requests per minute (up from default 100/10s)
+    storage: "database", // Persist rate limit state across server restarts
+  },
   // Enable experimental joins for 2-3x performance improvement
   experimental: {
     joins: true,
