@@ -149,6 +149,25 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
           NODE_ENV: production
 
+      - name: Start Next.js production server
+        run: pnpm start &
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+          AUTH_SECRET: ci-test-secret-e2e-playwright
+          AUTH_GOOGLE_ID: dummy-client-id
+          AUTH_GOOGLE_SECRET: dummy-client-secret
+          NEXT_TELEMETRY_DISABLED: "1"
+          PORT: 3000
+
+      - name: Wait for server to be ready
+        run: |
+          echo "Waiting for Next.js server to start on http://localhost:3000..."
+          timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do 
+            echo "Server not ready yet, retrying in 2s..."
+            sleep 2
+          done'
+          echo "✅ Server is ready!"
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
