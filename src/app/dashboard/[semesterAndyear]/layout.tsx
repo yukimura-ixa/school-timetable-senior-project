@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 
 // NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
@@ -25,6 +27,15 @@ export default async function DashboardSemesterLayout({
   children: ReactNode;
   params: Promise<{ semesterAndyear: string }>;
 }) {
+  // Server-side authentication check
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/signin");
+  }
+
   const { semesterAndyear } = await params;
   const { semester, year } = parseParam(semesterAndyear);
 
