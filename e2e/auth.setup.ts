@@ -167,17 +167,66 @@ setup("authenticate as admin", async ({ page }) => {
   await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
   console.log("[AUTH SETUP] Page loaded");
 
+  // ===== CI DEBUGGING: Step 1 - Cookie inspection =====
+  const cookies = await page.context().cookies();
+  console.log("[DEBUG] Cookies after login:", {
+    count: cookies.length,
+    domains: [...new Set(cookies.map((c) => c.domain))],
+    names: cookies.map((c) => c.name),
+    authCookies: cookies.filter((c) => c.name.toLowerCase().includes("auth"))
+      .length,
+    details: cookies.map((c) => ({
+      name: c.name,
+      domain: c.domain,
+      secure: c.secure,
+      httpOnly: c.httpOnly,
+      sameSite: c.sameSite,
+    })),
+  });
+
+  // ===== CI DEBUGGING: Step 4 - Add timing buffer =====
+  // CI is slower than local; give session time to propagate
+  console.log("[DEBUG] Waiting 2s for session to propagate...");
+  await page.waitForTimeout(2000);
+
   // Verify authentication via session API (less flaky than UI visibility checks)
+  // INCREASED TIMEOUT: 15s → 30s for CI slowness
   await expect
     .poll(
       async () => {
         const response = await page.request.get("/api/auth/session");
-        if (!response.ok()) return null;
-        const body = await response.json().catch(() => null);
+
+        // ===== CI DEBUGGING: Log full response =====
+        console.log("[DEBUG] Session API response:", {
+          status: response.status(),
+          ok: response.ok(),
+          headers: Object.fromEntries(
+            Object.entries(response.headers()).filter(([k]) =>
+              ["content-type", "set-cookie", "cache-control"].includes(k),
+            ),
+          ),
+        });
+
+        if (!response.ok()) {
+          console.log("[DEBUG] Session API not OK, status:", response.status());
+          return null;
+        }
+
+        const body = await response.json().catch((e) => {
+          console.log("[DEBUG] Failed to parse session JSON:", e.message);
+          return null;
+        });
+
+        console.log("[DEBUG] Session API body:", {
+          hasUser: !!body?.user,
+          role: body?.user?.role ?? null,
+          email: body?.user?.email ?? null,
+        });
+
         return body?.user?.role ?? null;
       },
       {
-        timeout: 15000,
+        timeout: 30000, // Increased from 15s to 30s
         message: "[AUTH SETUP] Waiting for admin session to be ready",
       },
     )
