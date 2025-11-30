@@ -39,15 +39,15 @@ export default function SignInPage() {
   const validate = () => {
     let ok = true;
     if (!email) {
-      setEmailError("เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธญเธตเน€เธกเธฅ");
+      setEmailError("กรุณากรอกอีเมล");
       ok = false;
     } else if (!email.includes("@")) {
-      setEmailError("เธญเธตเน€เธกเธฅเนเธกเนเธ–เธนเธเธ•เนเธญเธ");
+      setEmailError("อีเมลไม่ถูกต้อง");
       ok = false;
     } else setEmailError(null);
 
     if (!password) {
-      setPasswordError("เธเธฃเธธเธ“เธฒเธเธฃเธญเธเธฃเธซเธฑเธชเธเนเธฒเธ");
+      setPasswordError("กรุณากรอกรหัสผ่าน");
       ok = false;
     } else setPasswordError(null);
 
@@ -68,17 +68,13 @@ export default function SignInPage() {
       });
 
       if (error) {
-        setFormError(
-          "เธญเธตเน€เธกเธฅเธซเธฃเธทเธญเธฃเธซเธฑเธชเธเนเธฒเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ",
-        );
+        setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
       } else if (data) {
         // Success - better-auth handles redirect via callbackURL
-        router.push("/dashboard");
+        window.location.href = "/dashboard/select-semester";
       }
     } catch (e) {
-      setFormError(
-        "เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เนเธเธเธฒเธฃเน€เธเธทเนเธญเธกเธ•เนเธญเน€เธเธฃเธทเธญเธเนเธฒเธข",
-      );
+      setFormError("เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย");
     } finally {
       setSubmitting(false);
     }
@@ -117,25 +113,24 @@ export default function SignInPage() {
             School Timetable Management System
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            เธฃเธฐเธเธเธเธฑเธ”เธ•เธฒเธฃเธฒเธเน€เธฃเธตเธขเธเธ•เธฒเธฃเธฒเธเธชเธญเธเธชเธณเธซเธฃเธฑเธเนเธฃเธเน€เธฃเธตเธขเธ
-            (เธกเธฑเธเธขเธก)
+            ระบบจัดตารางเรียนตารางสอนสำหรับโรงเรียน (มัธยม)
           </Typography>
         </Paper>
         <Paper sx={{ flex: 1, p: 4 }}>
           <Stack spacing={3}>
             <div>
               <Typography variant="h5" fontWeight={600}>
-                เน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ
+                เข้าสู่ระบบ
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                เธฃเธฐเธเธเธเธฑเธ”เธ•เธฒเธฃเธฒเธเน€เธฃเธตเธขเธเธ•เธฒเธฃเธฒเธเธชเธญเธเธชเธณเธซเธฃเธฑเธเนเธฃเธเน€เธฃเธตเธขเธ
+                ระบบจัดตารางเรียนตารางสอนสำหรับโรงเรียน
               </Typography>
             </div>
 
             {formError && <Alert severity="error">{formError}</Alert>}
 
             <TextField
-              label="เธญเธตเน€เธกเธฅ"
+              label="อีเมล"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -146,7 +141,7 @@ export default function SignInPage() {
             />
 
             <TextField
-              label="เธฃเธซเธฑเธชเธเนเธฒเธ"
+              label="รหัสผ่าน"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -164,7 +159,7 @@ export default function SignInPage() {
                   color="primary"
                 />
               }
-              label="เธเธณเธเธฑเธเนเธงเนเนเธเธฃเธฐเธเธ"
+              label="จำฉันไว้ในระบบ"
             />
 
             <Button
@@ -173,22 +168,6 @@ export default function SignInPage() {
               onClick={handleEmailPassSignIn}
               disabled={submitting}
             >
-              {submitting
-                ? "เธเธณเธฅเธฑเธเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ..."
-                : "เน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ"}
-            </Button>
-
-            <Divider>เธซเธฃเธทเธญ</Divider>
-
-            <Button
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              onClick={handleGoogleLogin}
-              fullWidth
-              data-testid="google-signin-button"
-            >
-              เน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธเธ”เนเธงเธข Google
-            </Button>
               {submitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </Button>
 
