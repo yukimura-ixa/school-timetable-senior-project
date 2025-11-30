@@ -137,6 +137,8 @@ jobs:
         run: pnpm db:seed:clean
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
       - name: Project build flow (Next.js production build)
