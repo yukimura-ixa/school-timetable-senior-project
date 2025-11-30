@@ -69,10 +69,8 @@ export default function SignInPage() {
 
       if (error) {
         setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      } else if (data) {
-        // Success - better-auth handles redirect via callbackURL
-        window.location.href = "/dashboard/select-semester";
       }
+      // Let better-auth handle redirect via callbackURL (preserves session cookies)
     } catch (e) {
       setFormError("เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย");
     } finally {
