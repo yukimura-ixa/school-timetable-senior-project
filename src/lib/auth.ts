@@ -18,6 +18,7 @@ import { admin } from "better-auth/plugins";
 import prisma from "@/lib/prisma";
 
 export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET,
   baseURL:
     process.env.AUTH_URL ||
     process.env.BETTER_AUTH_URL ||
