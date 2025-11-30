@@ -63,20 +63,6 @@ export default function SignInPage() {
       const { data, error } = await authClient.signIn.email({
         email,
         password,
-        rememberMe,
-        callbackURL: "/dashboard/select-semester",
-      });
-
-      if (error) {
-        setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-      }
-      // Let better-auth handle redirect via callbackURL (preserves session cookies)
-    } catch (e) {
-      setFormError("เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
