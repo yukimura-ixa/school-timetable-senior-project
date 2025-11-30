@@ -257,47 +257,60 @@ async function main() {
   // ===== BETTER-AUTH USERS =====
   console.log("👤 Creating admin user...");
 
+  // FORCE DELETE existing admin user and associated auth records
+  // This ensures CI always has fresh credentials with correct password hash
   const existingAdmin = await withRetry(
     () => prisma.user.findUnique({ where: { email: "admin@school.local" } }),
     "Check existing admin",
   );
 
-  if (!existingAdmin) {
-    // Use better-auth's API to create user with proper password hashing
-    // This ensures password is hashed correctly and Account record is created automatically
-    const { auth } = await import("../src/lib/auth.js");
-
-    const signUpResult = await auth.api.signUpEmail({
-      body: {
-        email: "admin@school.local",
-        password: "admin123",
-        name: "System Administrator",
-      },
-    });
-
-    if (!signUpResult || !signUpResult.user) {
-      throw new Error("Failed to create admin user via better-auth API");
-    }
-
-    // Update role to admin (can't be set during signup)
+  if (existingAdmin) {
+    console.log("🗑️  Deleting existing admin user and auth data...");
+    // Delete associated Account records first (foreign key constraint)
     await withRetry(
-      () =>
-        prisma.user.update({
-          where: { id: signUpResult.user.id },
-          data: {
-            role: "admin",
-            emailVerified: true,
-          },
-        }),
-      "Update admin user role",
+      () => prisma.account.deleteMany({ where: { userId: existingAdmin.id } }),
+      "Delete admin accounts",
     );
-
-    console.log(
-      "✅ Admin user created via better-auth API (email: admin@school.local, password: admin123)",
+    // Delete the user
+    await withRetry(
+      () => prisma.user.delete({ where: { id: existingAdmin.id } }),
+      "Delete admin user",
     );
-  } else {
-    console.log("ℹ️  Admin user already exists");
+    console.log("✅ Existing admin user deleted");
   }
+
+  // Use better-auth's API to create user with proper password hashing
+  // This ensures password is hashed correctly and Account record is created automatically
+  const { auth } = await import("../src/lib/auth.js");
+
+  const signUpResult = await auth.api.signUpEmail({
+    body: {
+      email: "admin@school.local",
+      password: "admin123",
+      name: "System Administrator",
+    },
+  });
+
+  if (!signUpResult || !signUpResult.user) {
+    throw new Error("Failed to create admin user via better-auth API");
+  }
+
+  // Update role to admin (can't be set during signup)
+  await withRetry(
+    () =>
+      prisma.user.update({
+        where: { id: signUpResult.user.id },
+        data: {
+          role: "admin",
+          emailVerified: true,
+        },
+      }),
+    "Update admin user role",
+  );
+
+  console.log(
+    "✅ Admin user created via better-auth API (email: admin@school.local, password: admin123)",
+  );
 
   // Check if we should clean existing data
   const shouldCleanData =
