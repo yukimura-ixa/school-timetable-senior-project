@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -63,6 +63,22 @@ export default function SignInPage() {
       const { data, error } = await authClient.signIn.email({
         email,
         password,
+        rememberMe,
+        callbackURL: "/dashboard/select-semester",
+      });
+
+      if (error) {
+        setFormError("เธญเธตเน€เธกเธฅเธซเธฃเธทเธญเธฃเธซเธฑเธชเธเนเธฒเธเนเธกเนเธ–เธนเธเธ•เนเธญเธ");
+      } else if (data) {
+        // Success - better-auth handles redirect via callbackURL
+        window.location.href = "/dashboard/select-semester";
+      }
+    } catch (e) {
+      setFormError("เน€เธเธดเธ”เธเนเธญเธเธดเธ”เธเธฅเธฒเธ”เนเธเธเธฒเธฃเน€เธเธทเนเธญเธกเธ•เนเธญเน€เธเธฃเธทเธญเธเนเธฒเธข");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
