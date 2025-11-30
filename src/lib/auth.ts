@@ -17,8 +17,17 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 import prisma from "@/lib/prisma";
 
+// Ensure we have a valid auth secret
+const authSecret = process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET;
+
+if (!authSecret) {
+  throw new Error(
+    "Missing auth secret! Set BETTER_AUTH_SECRET or AUTH_SECRET environment variable.",
+  );
+}
+
 export const auth = betterAuth({
-  secret: process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET,
+  secret: authSecret,
   baseURL:
     process.env.AUTH_URL ||
     process.env.BETTER_AUTH_URL ||
