@@ -91,7 +91,8 @@ jobs:
           # Write all required env files so dev server + build share the same config
           cat > .env.test << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
-          AUTH_SECRET=ci-test-secret-e2e-playwright
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_FOR_TESTS=true
@@ -102,7 +103,8 @@ jobs:
           EOF
           cat > .env.test.local << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
-          AUTH_SECRET=ci-test-secret-e2e-playwright
+          BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL=${{ vars.BETTER_AUTH_URL }}
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_FOR_TESTS=true
@@ -141,7 +143,8 @@ jobs:
         run: pnpm build
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-          AUTH_SECRET: ci-test-secret-e2e-playwright
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           SEED_FOR_TESTS: "true"
@@ -153,7 +156,8 @@ jobs:
         run: pnpm start &
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-          AUTH_SECRET: ci-test-secret-e2e-playwright
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           NEXT_TELEMETRY_DISABLED: "1"
@@ -175,9 +179,8 @@ jobs:
         run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-          # Better-auth requires AUTH_SECRET for session management and cookie signing
-          # Using a fixed secret for CI to ensure consistency across seeding and test execution
-          AUTH_SECRET: ci-test-secret-e2e-playwright
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           NEXT_TELEMETRY_DISABLED: "1"
