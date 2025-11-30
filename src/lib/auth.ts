@@ -49,7 +49,7 @@ export const auth = betterAuth({
     enabled: true,
     window: 60, // 60 seconds
     max: 500, // 500 requests per minute (up from default 100/10s)
-    storage: "database", // Persist rate limit state across server restarts
+    storage: "memory", // Using memory storage (database requires rateLimit table)
   },
   // Enable experimental joins for 2-3x performance improvement
   experimental: {
