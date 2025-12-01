@@ -8,6 +8,8 @@
 # testing
 /coverage
 /test-results/
+/test-results-ci/
+/merged-results.json
 /playwright-report/
 /playwright/.cache/
 /playwright/.auth/
