@@ -55,8 +55,8 @@ test.describe("TC-007: Semester Configuration", () => {
     // Wait for data to load
     await page.waitForTimeout(1000);
 
-    // Check if already configured
-    const saveButton = page.getByRole("button", { name: "ตั้งค่า" });
+    // Check if already configured - use exact match to avoid matching "ตั้งค่าตาราง" buttons
+    const saveButton = page.getByRole("button", { name: "ตั้งค่า", exact: true });
     const isConfigured = await saveButton.isDisabled();
 
     if (!isConfigured) {
@@ -85,7 +85,8 @@ test.describe("TC-007: Semester Configuration", () => {
     // Wait for loading
     await page.waitForTimeout(1000);
 
-    const saveButton = page.getByRole("button", { name: "ตั้งค่า" });
+    // Use exact match to avoid matching "ตั้งค่าตาราง" buttons
+    const saveButton = page.getByRole("button", { name: "ตั้งค่า", exact: true });
     const isConfigured = await saveButton.isDisabled();
 
     if (isConfigured) {
@@ -135,8 +136,8 @@ test.describe("TC-007: Semester Configuration", () => {
     await page.waitForTimeout(1000);
 
     // Configuration should be displayed as read-only
-    // When configured, the save/reset buttons are disabled
-    await expect(page.getByRole("button", { name: "ตั้งค่า" })).toBeDisabled();
+    // When configured, the save/reset buttons are disabled - use exact match
+    await expect(page.getByRole("button", { name: "ตั้งค่า", exact: true })).toBeDisabled();
     await expect(
       page.getByRole("button", { name: "คืนค่าเริ่มต้น" }),
     ).toBeDisabled();
