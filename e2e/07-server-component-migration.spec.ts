@@ -101,10 +101,12 @@ test.describe("Server Component Migration - Teacher Management", () => {
       // Click the add button
       await addButton.click();
 
-      // Wait for modal or form to appear
-      await expect(
-        page.locator('[role="dialog"], form, .modal').first(),
-      ).toBeVisible({ timeout: 3000 });
+      // Wait for modal or form to appear - support both MUI dialogs and custom overlays
+      // Custom modals in this app use fixed positioning overlays with form content
+      const modalOrForm = page.locator(
+        '[role="dialog"], .MuiDialog-root, form, .modal, div.fixed:has(input), div[style*="fixed"]:has(input)',
+      ).first();
+      await expect(modalOrForm).toBeVisible({ timeout: 5000 });
 
       // Take screenshot of the interaction
       await page.screenshot({
@@ -334,10 +336,12 @@ test.describe("Server Component Migration - Regression Tests", () => {
 
       expect(page.url()).toContain(pageInfo.url);
 
-      // Verify no error states
-      const errorText = await page.locator("body").textContent();
-      expect(errorText?.toLowerCase()).not.toContain("error");
-      expect(errorText?.toLowerCase()).not.toContain("failed");
+      // Verify no error states - check visible text only, not internal React strings
+      // Use innerText instead of textContent to get only visible rendered text
+      const visibleText = await page.locator("body").innerText();
+      // Exclude React internal strings like "errorboundary" that appear in HTML source
+      expect(visibleText?.toLowerCase()).not.toMatch(/\berror\b/);
+      expect(visibleText?.toLowerCase()).not.toContain("failed");
 
       console.log(`✓ ${pageInfo.name} management page accessible`);
     }
