@@ -15,7 +15,7 @@ import { NavigationHelper } from "./helpers/navigation";
 
 test.describe("TC-007: Semester Configuration", () => {
   let nav: NavigationHelper;
-  const testSemester = "SEMESTER_1-2567";
+  const testSemester = "1-2567";
 
   test.beforeEach(async ({ page }) => {
     nav = new NavigationHelper(page);
@@ -195,7 +195,7 @@ test.describe("TC-007: Semester Configuration", () => {
 
 test.describe("TC-009: Schedule Assignment Interface", () => {
   let nav: NavigationHelper;
-  const testSemester = "SEMESTER_1-2567";
+  const testSemester = "1-2567";
 
   test.beforeEach(async ({ page }) => {
     nav = new NavigationHelper(page);

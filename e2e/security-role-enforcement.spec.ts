@@ -7,7 +7,7 @@ test.describe("Security Role Enforcement", () => {
 
     test("Guest cannot view teacher schedule", async ({ page }) => {
       // Navigate to teacher table without logging in
-      await page.goto("/dashboard/SEMESTER_1-2567/teacher-table");
+      await page.goto("/dashboard/1-2567/teacher-table");
 
       // Should see error or redirect
       // Since we are guest, the server action might fail or the page might show an error.
@@ -42,7 +42,7 @@ test.describe("Security Role Enforcement", () => {
 
     test("Admin can select any teacher", async ({ page }) => {
       // Already logged in as Admin via storageState
-      await page.goto("/dashboard/SEMESTER_1-2567/teacher-table");
+      await page.goto("/dashboard/1-2567/teacher-table");
 
       // Selector should be enabled
       const selector = page.getByLabel("เลือกครู");
