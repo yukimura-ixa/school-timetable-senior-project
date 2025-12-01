@@ -2,6 +2,42 @@ import { NextResponse } from "next/server";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 import prisma from "@/lib/prisma";
 import { day_of_week, semester, breaktime } from "@/prisma/generated/client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+// Issue #158: Extract magic numbers to named constants
+// Thai school timetable standard configuration
+const TIMETABLE_CONFIG = {
+  /** Number of periods per day (MOE standard: 8 periods) */
+  PERIODS_PER_DAY: 8,
+  /** Period duration in minutes */
+  PERIOD_DURATION_MINUTES: 50,
+  /** School start time (24-hour format) */
+  START_TIME: "08:30",
+  /** Lunch break duration in minutes */
+  LUNCH_BREAK_DURATION: 60,
+  /** Period number after which lunch break occurs for junior high (M.1-3) */
+  JUNIOR_LUNCH_AFTER_PERIOD: 4,
+  /** Period number after which lunch break occurs for senior high (M.4-6) */
+  SENIOR_LUNCH_AFTER_PERIOD: 5,
+  /** School days (Monday to Friday) */
+  SCHOOL_DAYS: ["MON", "TUE", "WED", "THU", "FRI"] as day_of_week[],
+  /** Valid academic year range */
+  MIN_ACADEMIC_YEAR: 2000,
+  MAX_ACADEMIC_YEAR: 3000,
+} as const;
+
+/** Standard 8-period school day schedule */
+const STANDARD_PERIODS = [
+  { start: "08:30", end: "09:20", break: "NOT_BREAK" },
+  { start: "09:20", end: "10:10", break: "NOT_BREAK" },
+  { start: "10:10", end: "11:00", break: "NOT_BREAK" },
+  { start: "11:00", end: "11:50", break: "NOT_BREAK" },
+  { start: "12:50", end: "13:40", break: "BREAK_JUNIOR" }, // Lunch break before
+  { start: "13:40", end: "14:30", break: "BREAK_SENIOR" },
+  { start: "14:30", end: "15:20", break: "NOT_BREAK" },
+  { start: "15:20", end: "16:10", break: "NOT_BREAK" },
+] as const;
 
 function parseYearsParam(param?: string): number[] {
   if (!param) return [];
@@ -10,7 +46,12 @@ function parseYearsParam(param?: string): number[] {
     .map((s) => s.trim())
     .filter(Boolean)
     .map((s) => Number(s))
-    .filter((n) => Number.isInteger(n) && n > 2000 && n < 3000);
+    .filter(
+      (n) =>
+        Number.isInteger(n) &&
+        n > TIMETABLE_CONFIG.MIN_ACADEMIC_YEAR &&
+        n < TIMETABLE_CONFIG.MAX_ACADEMIC_YEAR,
+    );
 }
 
 /**
@@ -29,24 +70,12 @@ async function seedTimeslots(
     return existing; // Already seeded
   }
 
-  const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
-  const periods = [
-    { start: "08:30", end: "09:20", break: "NOT_BREAK" },
-    { start: "09:20", end: "10:10", break: "NOT_BREAK" },
-    { start: "10:10", end: "11:00", break: "NOT_BREAK" },
-    { start: "11:00", end: "11:50", break: "NOT_BREAK" },
-    { start: "12:50", end: "13:40", break: "BREAK_JUNIOR" }, // Lunch break before
-    { start: "13:40", end: "14:30", break: "BREAK_SENIOR" },
-    { start: "14:30", end: "15:20", break: "NOT_BREAK" },
-    { start: "15:20", end: "16:10", break: "NOT_BREAK" },
-  ];
-
   const semesterNum = sem === "SEMESTER_1" ? 1 : 2;
 
   const timeslots = [];
-  for (const day of days) {
-    for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
-      const period = periods[periodNum - 1];
+  for (const day of TIMETABLE_CONFIG.SCHOOL_DAYS) {
+    for (let periodNum = 1; periodNum <= STANDARD_PERIODS.length; periodNum++) {
+      const period = STANDARD_PERIODS[periodNum - 1];
       if (!period) continue;
       timeslots.push({
         TimeslotID: `${semesterNum}-${academicYear}-${day}${periodNum}`,
@@ -76,14 +105,17 @@ async function seedTableConfig(
   const configId = `${semesterNum}-${academicYear}`;
 
   const config = {
-    periodsPerDay: 8,
-    startTime: "08:30",
-    periodDuration: 50,
-    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
-    lunchBreak: { after: 4, duration: 60 },
+    periodsPerDay: TIMETABLE_CONFIG.PERIODS_PER_DAY,
+    startTime: TIMETABLE_CONFIG.START_TIME,
+    periodDuration: TIMETABLE_CONFIG.PERIOD_DURATION_MINUTES,
+    schoolDays: TIMETABLE_CONFIG.SCHOOL_DAYS,
+    lunchBreak: {
+      after: TIMETABLE_CONFIG.JUNIOR_LUNCH_AFTER_PERIOD,
+      duration: TIMETABLE_CONFIG.LUNCH_BREAK_DURATION,
+    },
     breakTimes: {
-      junior: { after: 4 },
-      senior: { after: 5 },
+      junior: { after: TIMETABLE_CONFIG.JUNIOR_LUNCH_AFTER_PERIOD },
+      senior: { after: TIMETABLE_CONFIG.SENIOR_LUNCH_AFTER_PERIOD },
     },
   };
 
@@ -116,6 +148,22 @@ export async function POST(req: Request) {
         { ok: false, error: "Unauthorized" },
         { status: 401 },
       );
+    }
+
+    // Issue #153: Additional admin session verification in production
+    // In production, require both secret AND admin session for extra security
+    if (process.env.NODE_ENV === "production") {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (!session?.user || session.user.role !== "admin") {
+        return NextResponse.json(
+          { ok: false, error: "Admin session required" },
+          { status: 403 },
+        );
+      }
+    }
     }
 
     const years = parseYearsParam(yearsParam);

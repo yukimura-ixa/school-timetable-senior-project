@@ -51,10 +51,13 @@ export const auth = betterAuth({
       adminRoles: ["admin"],
     }),
   ],
-  // Rate limiting disabled for E2E tests (Issue #143)
-  // Even with 500/60s limit, tests still hit 429 errors
+  // Rate limiting configuration (Issue #150)
+  // Enabled in production to prevent brute-force attacks
+  // Disabled in development/test for E2E test compatibility
   rateLimit: {
-    enabled: false,
+    enabled: process.env.NODE_ENV === "production",
+    window: 60, // 60 second window
+    max: process.env.CI ? 500 : 10, // 10 attempts in production, 500 in CI
   },
   // Enable experimental joins for 2-3x performance improvement
   experimental: {

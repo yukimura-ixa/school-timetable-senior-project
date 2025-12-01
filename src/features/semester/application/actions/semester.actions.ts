@@ -8,7 +8,7 @@
 import * as v from "valibot";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
 import { Prisma } from "@/prisma/generated/client";
-import type { semester } from "@/prisma/generated/client";
+import type { semester, table_config, timeslot } from "@/prisma/generated/client";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   type SemesterFilter,
@@ -50,7 +50,7 @@ export async function getSemestersAction(
 
     // Enrich with statistics
     const enrichedSemesters = await Promise.all(
-      semesters.map(async (semester: any) => {
+      semesters.map(async (semester: table_config) => {
         const stats = await semesterRepository.getStatistics(semester.ConfigID);
         return {
           configId: semester.ConfigID,
@@ -90,7 +90,7 @@ export async function getRecentSemestersAction(
     const semesters = await semesterRepository.findRecent(limit);
 
     const enrichedSemesters = await Promise.all(
-      semesters.map(async (semester: any) => {
+      semesters.map(async (semester: table_config) => {
         const stats = await semesterRepository.getStatistics(semester.ConfigID);
         return {
           configId: semester.ConfigID,
@@ -130,7 +130,7 @@ export async function getPinnedSemestersAction(): Promise<
     const semesters = await semesterRepository.findPinned();
 
     const enrichedSemesters = await Promise.all(
-      semesters.map(async (semester: any) => {
+      semesters.map(async (semester: table_config) => {
         const stats = await semesterRepository.getStatistics(semester.ConfigID);
         return {
           configId: semester.ConfigID,
@@ -388,7 +388,7 @@ export async function createSemesterWithTimeslotsAction(input: {
             const targetSemesterNum = input.semester;
 
             await tx.timeslot.createMany({
-              data: timeslots.map((ts: any) => ({
+              data: timeslots.map((ts: timeslot) => ({
                 TimeslotID: ts.TimeslotID.replace(
                   `${sourceSemesterNum}-${sourceYear}`,
                   `${targetSemesterNum}-${input.academicYear}`,
