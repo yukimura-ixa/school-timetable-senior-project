@@ -1,5 +1,4 @@
 import { test, expect } from "./fixtures/admin.fixture";
-import { NavigationHelper } from "./helpers/navigation";
 
 /**
  * TC-007 & TC-008: Timetable Configuration Tests
@@ -14,12 +13,7 @@ import { NavigationHelper } from "./helpers/navigation";
  */
 
 test.describe("TC-007: Semester Configuration", () => {
-  let nav: NavigationHelper;
   const testSemester = "1-2567";
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
 
   test("TC-007-01: Navigate to configuration page", async ({
     authenticatedAdmin,
@@ -194,12 +188,7 @@ test.describe("TC-007: Semester Configuration", () => {
 });
 
 test.describe("TC-009: Schedule Assignment Interface", () => {
-  let nav: NavigationHelper;
   const testSemester = "1-2567";
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
 
   test("TC-009-01: Assignment page loads", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;

@@ -16,18 +16,13 @@ import { test, expect } from "./fixtures/admin.fixture";
  */
 
 test.describe.skip("Program Management Workflow", () => {
-  test.beforeEach(async ({ page }) => {
-    // Navigate to the program management page
-    await page.goto("/management/program");
-
-    // Wait for page content to load
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
-  });
-
   test("should create a new program and assign subjects", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    // Navigate to the program management page
+    await page.goto("/management/program");
+    
     // Step 1: Create a new program
     await test.step("Create new program", async () => {
       const addButton = page.getByRole("button", { name: /add/i });
@@ -183,6 +178,8 @@ test.describe.skip("Program Management Workflow", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program");
+    
     await test.step("Create program and navigate to subject assignment", async () => {
       // Quick create a program
       const addButton = page.getByRole("button", { name: /add/i });
@@ -237,6 +234,8 @@ test.describe.skip("Program Management Workflow", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program");
+    
     await test.step("Navigate to existing program", async () => {
       // Find an existing program row
       const existingProgram = page.locator("tbody tr").first();
@@ -280,17 +279,15 @@ test.describe.skip("Program Management Workflow", () => {
  * Re-enable when /management/subject page includes Activity management tab/section.
  */
 test.describe.skip("Activity Management Workflow", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/management/subject");
-    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
   test("should create and manage activity subjects", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    
     await test.step("Navigate to activity management", async () => {
       // Look for activity management section or tab
       const activitySection = page.getByText(/activity management/i);
@@ -362,6 +359,11 @@ test.describe.skip("Activity Management Workflow", () => {
 
   test("should validate activity creation", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    
     await test.step("Attempt to create activity without required fields", async () => {
       const addButton = page.getByRole("button", { name: /add activity/i });
       await addButton.click();

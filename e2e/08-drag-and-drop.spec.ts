@@ -154,20 +154,16 @@ async function dragAndDrop(
 }
 
 test.describe("Drag and Drop - Subject List to Timeslot", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-
-    // Navigate to teacher arrange page
-    await nav.goToTeacherArrange(TEST_SEMESTER);
-    await waitForDndReady(page);
-  });
+  // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-001-01: Subject items are draggable", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Look for draggable subject items
     const subjectItems = page
       .locator('[data-sortable-id*="SubjectCode"]')
@@ -204,6 +200,10 @@ test.describe("Drag and Drop - Subject List to Timeslot", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const subjectItems = page
       .locator('[data-sortable-id*="SubjectCode"]')
       .or(
@@ -249,6 +249,10 @@ test.describe("Drag and Drop - Subject List to Timeslot", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Find a subject to drag
     const subjectItems = page
       .locator('[data-sortable-id*="SubjectCode"]')
@@ -354,6 +358,10 @@ test.describe("Drag and Drop - Subject List to Timeslot", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const subjectItems = page
       .locator('[data-sortable-id*="SubjectCode"]')
       .or(page.locator(".subject-item").first());
@@ -403,18 +411,16 @@ test.describe("Drag and Drop - Subject List to Timeslot", () => {
 });
 
 test.describe("Drag and Drop - Between Timeslots", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-    await nav.goToTeacherArrange(TEST_SEMESTER);
-    await waitForDndReady(page);
-  });
+  // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-002-01: Identify filled timeslots", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Find timeslots that have subjects
     const filledSlots = page.locator("td, .timeslot-cell").filter({
       has: page.locator("text=/ค|พ|ส|ง|ว|ENG|MAT|SCI/i"),
@@ -446,6 +452,10 @@ test.describe("Drag and Drop - Between Timeslots", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Find filled slots that can be dragged
     const draggableSlots = page.locator('[data-sortable-id*="Slot"]').or(
       page.locator("td, .timeslot-cell").filter({
@@ -545,6 +555,10 @@ test.describe("Drag and Drop - Between Timeslots", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Look for change/swap buttons or icons
     const changeIcons = page.locator(
       'svg[data-testid*="Change"], button:has-text("เปลี่ยน"), [title*="change"]',
@@ -586,18 +600,16 @@ test.describe("Drag and Drop - Between Timeslots", () => {
 });
 
 test.describe("Drag and Drop - Conflict Detection", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-    await nav.goToTeacherArrange(TEST_SEMESTER);
-    await waitForDndReady(page);
-  });
+  // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-003-01: Detect error indicators", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Look for error icons, messages, or red borders
     const errorIndicators = page.locator(
       '[data-testid*="Error"], svg.text-red, .error, .conflict, .border-red',
@@ -642,6 +654,10 @@ test.describe("Drag and Drop - Conflict Detection", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const filledSlots = page.locator('[data-sortable-id*="Slot"]').filter({
       has: page.locator("text=/ค|พ/"),
     });
@@ -699,6 +715,10 @@ test.describe("Drag and Drop - Conflict Detection", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const subjects = page.locator('[data-sortable-id*="SubjectCode"]').first();
     const occupiedSlots = page.locator("td, .timeslot-cell").filter({
       has: page.locator("text=/ค|พ/"),
@@ -776,18 +796,16 @@ test.describe("Drag and Drop - Conflict Detection", () => {
 });
 
 test.describe("Drag and Drop - Lock State Behavior", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-    await nav.goToTeacherArrange(TEST_SEMESTER);
-    await waitForDndReady(page);
-  });
+  // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-004-01: Identify locked timeslots", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Look for lock icons or locked indicators
     const lockIcons = page.locator(
       'svg[data-testid*="Lock"], svg[data-testid*="Https"], .locked, [title*="lock"]',
@@ -818,6 +836,10 @@ test.describe("Drag and Drop - Lock State Behavior", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const subjects = page.locator('[data-sortable-id*="SubjectCode"]').first();
     const lockedSlots = page.locator("td, .timeslot-cell").filter({
       has: page.locator('svg[data-testid*="Lock"]'),
@@ -895,6 +917,10 @@ test.describe("Drag and Drop - Lock State Behavior", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const lockedSlots = page.locator("td, .timeslot-cell").filter({
       has: page.locator('svg[data-testid*="Lock"]'),
     });
@@ -945,18 +971,16 @@ test.describe("Drag and Drop - Lock State Behavior", () => {
 });
 
 test.describe("Drag and Drop - Student Arrange Page", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-    await nav.goToStudentArrange(TEST_SEMESTER);
-    await waitForDndReady(page);
-  });
+  // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-006-01: Student page drag functionality", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToStudentArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     await page.screenshot({
       path: `${SCREENSHOT_DIR}/50-student-arrange.png`,
       fullPage: true,
@@ -983,6 +1007,10 @@ test.describe("Drag and Drop - Student Arrange Page", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToStudentArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     // Look for class selector
     const classSelector = page.locator('select, [role="combobox"]').first();
 
@@ -1038,18 +1066,16 @@ test.describe("Drag and Drop - Student Arrange Page", () => {
 });
 
 test.describe("Drag and Drop - Performance & Edge Cases", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-    await nav.goToTeacherArrange(TEST_SEMESTER);
-    await waitForDndReady(page);
-  });
+  // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-007-01: Multiple rapid drags", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const subjects = page.locator('[data-sortable-id*="SubjectCode"]');
     const count = await subjects.count();
 
@@ -1096,6 +1122,10 @@ test.describe("Drag and Drop - Performance & Edge Cases", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
+    await waitForDndReady(page);
+
     const subjects = page.locator('[data-sortable-id*="SubjectCode"]').first();
     const count = await subjects.count();
 

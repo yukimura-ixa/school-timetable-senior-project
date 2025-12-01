@@ -17,19 +17,16 @@ import { StudentTablePO } from "./page-objects/StudentTablePO";
 
 test.describe("PDF Customization - Teacher Table", () => {
   const SEMESTER = "1-2567";
-  let teacherTablePO: TeacherTablePO;
-  let pdfDialogPO: PDFCustomizationDialogPO;
 
-  test.beforeEach(async ({ page }) => {
-    teacherTablePO = new TeacherTablePO(page);
-    pdfDialogPO = new PDFCustomizationDialogPO(page);
+  test("TC-099-01: Open PDF customization dialog from teacher table", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
 
     // Navigate to teacher table page
     await teacherTablePO.goto(SEMESTER);
     await teacherTablePO.assertPageLoaded();
-  });
 
-  test("TC-099-01: Open PDF customization dialog from teacher table", async () => {
     // Select first 2 teachers
     await teacherTablePO.selectTeachers([0, 1]);
 
@@ -46,7 +43,13 @@ test.describe("PDF Customization - Teacher Table", () => {
     await pdfDialogPO.takeScreenshot("pdf-dialog-teacher-defaults");
   });
 
-  test("TC-099-02: Export teacher PDFs with A3 landscape, 2 tables/page", async () => {
+  test("TC-099-02: Export teacher PDFs with A3 landscape, 2 tables/page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await teacherTablePO.goto(SEMESTER);
+    await teacherTablePO.assertPageLoaded();
+
     // Select teachers
     await teacherTablePO.selectTeachers([0, 1]);
     await teacherTablePO.clickCustomPdfExport();
@@ -78,7 +81,13 @@ test.describe("PDF Customization - Teacher Table", () => {
     // await pdfDialogPO.assertSuccessNotification();
   });
 
-  test("TC-099-03: Export teacher PDFs with Letter portrait, 4 tables/page", async () => {
+  test("TC-099-03: Export teacher PDFs with Letter portrait, 4 tables/page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await teacherTablePO.goto(SEMESTER);
+    await teacherTablePO.assertPageLoaded();
+
     await teacherTablePO.selectTeachers([0, 1, 2]);
     await teacherTablePO.clickCustomPdfExport();
 
@@ -99,7 +108,13 @@ test.describe("PDF Customization - Teacher Table", () => {
     await pdfDialogPO.assertDialogClosed();
   });
 
-  test("TC-099-04: Test all paper sizes for teacher export", async () => {
+  test("TC-099-04: Test all paper sizes for teacher export", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await teacherTablePO.goto(SEMESTER);
+    await teacherTablePO.assertPageLoaded();
+
     const paperSizes: Array<"A4" | "A3" | "Letter" | "Legal" | "Tabloid"> = [
       "A4",
       "A3",
@@ -130,7 +145,13 @@ test.describe("PDF Customization - Teacher Table", () => {
     }
   });
 
-  test("TC-099-05: Reset teacher PDF options to defaults", async () => {
+  test("TC-099-05: Reset teacher PDF options to defaults", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await teacherTablePO.goto(SEMESTER);
+    await teacherTablePO.assertPageLoaded();
+
     await teacherTablePO.selectTeachers([0]);
     await teacherTablePO.clickCustomPdfExport();
 
@@ -154,7 +175,13 @@ test.describe("PDF Customization - Teacher Table", () => {
     await pdfDialogPO.takeScreenshot("pdf-dialog-teacher-after-reset");
   });
 
-  test("TC-099-06: Cancel teacher PDF export", async () => {
+  test("TC-099-06: Cancel teacher PDF export", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await teacherTablePO.goto(SEMESTER);
+    await teacherTablePO.assertPageLoaded();
+
     await teacherTablePO.selectTeachers([0]);
     await teacherTablePO.clickCustomPdfExport();
 
@@ -175,7 +202,13 @@ test.describe("PDF Customization - Teacher Table", () => {
     await pdfDialogPO.assertDefaultValues();
   });
 
-  test("TC-099-07: Test extreme slider values for teachers", async () => {
+  test("TC-099-07: Test extreme slider values for teachers", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const teacherTablePO = new TeacherTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await teacherTablePO.goto(SEMESTER);
+    await teacherTablePO.assertPageLoaded();
+
     await teacherTablePO.selectTeachers([0]);
     await teacherTablePO.clickCustomPdfExport();
 
@@ -200,19 +233,14 @@ test.describe("PDF Customization - Teacher Table", () => {
 
 test.describe("PDF Customization - Student Table", () => {
   const SEMESTER = "1-2567";
-  let studentTablePO: StudentTablePO;
-  let pdfDialogPO: PDFCustomizationDialogPO;
 
-  test.beforeEach(async ({ page }) => {
-    studentTablePO = new StudentTablePO(page);
-    pdfDialogPO = new PDFCustomizationDialogPO(page);
-
-    // Navigate to student table page
+  test("TC-099-08: Open PDF customization dialog from student table", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
     await studentTablePO.goto(SEMESTER);
     await studentTablePO.assertPageLoaded();
-  });
 
-  test("TC-099-08: Open PDF customization dialog from student table", async () => {
     // Select first 2 classes
     await studentTablePO.selectClasses([0, 1]);
 
@@ -228,7 +256,13 @@ test.describe("PDF Customization - Student Table", () => {
     await pdfDialogPO.takeScreenshot("pdf-dialog-student-defaults");
   });
 
-  test("TC-099-09: Export student PDFs with A4 portrait, 3 tables/page", async () => {
+  test("TC-099-09: Export student PDFs with A4 portrait, 3 tables/page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await studentTablePO.goto(SEMESTER);
+    await studentTablePO.assertPageLoaded();
+
     await studentTablePO.selectClasses([0, 1, 2]);
     await studentTablePO.clickCustomPdfExport();
 
@@ -249,7 +283,13 @@ test.describe("PDF Customization - Student Table", () => {
     await pdfDialogPO.assertDialogClosed();
   });
 
-  test("TC-099-10: Export student PDFs with Legal landscape, 6 tables/page", async () => {
+  test("TC-099-10: Export student PDFs with Legal landscape, 6 tables/page", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await studentTablePO.goto(SEMESTER);
+    await studentTablePO.assertPageLoaded();
+
     await studentTablePO.selectClasses([0, 1, 2, 3]);
     await studentTablePO.clickCustomPdfExport();
 
@@ -270,7 +310,13 @@ test.describe("PDF Customization - Student Table", () => {
     await pdfDialogPO.assertDialogClosed();
   });
 
-  test("TC-099-11: Test all orientations for student export", async () => {
+  test("TC-099-11: Test all orientations for student export", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await studentTablePO.goto(SEMESTER);
+    await studentTablePO.assertPageLoaded();
+
     const orientations: Array<"portrait" | "landscape"> = [
       "portrait",
       "landscape",
@@ -292,7 +338,13 @@ test.describe("PDF Customization - Student Table", () => {
     }
   });
 
-  test("TC-099-12: Reset student PDF options to defaults", async () => {
+  test("TC-099-12: Reset student PDF options to defaults", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await studentTablePO.goto(SEMESTER);
+    await studentTablePO.assertPageLoaded();
+
     await studentTablePO.selectClasses([0]);
     await studentTablePO.clickCustomPdfExport();
 
@@ -316,7 +368,13 @@ test.describe("PDF Customization - Student Table", () => {
     await pdfDialogPO.takeScreenshot("pdf-dialog-student-after-reset");
   });
 
-  test("TC-099-13: Cancel student PDF export", async () => {
+  test("TC-099-13: Cancel student PDF export", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await studentTablePO.goto(SEMESTER);
+    await studentTablePO.assertPageLoaded();
+
     await studentTablePO.selectClasses([0]);
     await studentTablePO.clickCustomPdfExport();
 
@@ -333,7 +391,13 @@ test.describe("PDF Customization - Student Table", () => {
     await pdfDialogPO.assertDefaultValues();
   });
 
-  test("TC-099-14: Test toggle switches for students", async () => {
+  test("TC-099-14: Test toggle switches for students", async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    const studentTablePO = new StudentTablePO(page);
+    const pdfDialogPO = new PDFCustomizationDialogPO(page);
+    await studentTablePO.goto(SEMESTER);
+    await studentTablePO.assertPageLoaded();
+
     await studentTablePO.selectClasses([0]);
     await studentTablePO.clickCustomPdfExport();
 

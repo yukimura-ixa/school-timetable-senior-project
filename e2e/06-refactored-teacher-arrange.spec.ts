@@ -1,6 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import { Page, ConsoleMessage } from "@playwright/test";
-import { NavigationHelper } from "./helpers/navigation";
 
 /**
  * Week 5.3 - Refactored TeacherArrangePage E2E Tests
@@ -17,18 +16,11 @@ import { NavigationHelper } from "./helpers/navigation";
  */
 
 test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
-  let nav: NavigationHelper;
   const SEMESTER = "1-2567";
   const TEACHER_ID = "1"; // Adjust based on your test data
 
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-
-    // Set longer timeout for complex interactions
-    test.setTimeout(60000);
-  });
-
   test("E2E-001: Page loads without errors", async ({ authenticatedAdmin }) => {
+    test.setTimeout(60000);
     const { page } = authenticatedAdmin;
     // Navigate to teacher arrange page with teacher ID
     await page.goto(
@@ -423,18 +415,13 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 });
 
 test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
-  let nav: NavigationHelper;
   const SEMESTER = "1-2567";
   const TEACHER_ID = "1";
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-    test.setTimeout(60000);
-  });
 
   test("E2E-011: Locked timeslot indicators", async ({
     authenticatedAdmin,
   }) => {
+    test.setTimeout(60000);
     const { page } = authenticatedAdmin;
     await page.goto(
       `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,

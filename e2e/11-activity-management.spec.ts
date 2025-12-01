@@ -29,17 +29,14 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
     isGraded: false,
   };
 
-  test.beforeEach(async ({ page }) => {
-    // Navigate to subject management page
-    await page.goto("/management/subject");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
-    await expect(page.locator("body")).toBeVisible();
-  });
-
   test("TC-ACT-001: Create new activity subject", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    // Navigate to subject management page
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     await test.step("Open activity creation modal", async () => {
       // Look for "Add Activity" button
       const addButton = page.getByRole("button", { name: /add.*activity/i });
@@ -99,6 +96,9 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
 
   test("TC-ACT-002: Edit existing activity", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     await test.step("Create activity first", async () => {
       // Quick create for editing test
       const addButton = page.getByRole("button", { name: /add.*activity/i });
@@ -176,6 +176,9 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     await test.step("Create activity to delete", async () => {
       const addButton = page.getByRole("button", { name: /add.*activity/i });
       await addButton.click();
@@ -232,6 +235,9 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
 
   test("TC-ACT-004: Cancel deletion", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     await test.step("Create activity", async () => {
       const addButton = page.getByRole("button", { name: /add.*activity/i });
       await addButton.click();
@@ -272,6 +278,9 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     await test.step("Open creation modal", async () => {
       const addButton = page.getByRole("button", { name: /add.*activity/i });
       await addButton.click();
@@ -315,6 +324,9 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     const activityTypes = [
       { code: "ACT-CLUB", name: "Test Club", type: "CLUB" },
       { code: "ACT-SCOUT", name: "Test Scout", type: "SCOUT" },
@@ -361,6 +373,9 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/subject");
+    await expect(page.locator("body")).toBeVisible();
+    
     await test.step("Count initial activities", async () => {
       const rows = page.locator("tbody tr");
       const initialCount = await rows.count();

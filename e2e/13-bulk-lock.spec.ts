@@ -6,11 +6,6 @@
 import { test, expect } from "./fixtures/admin.fixture";
 
 test.describe("Bulk Lock Operations", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
-  });
-
   test("should display bulk lock button on lock page", async ({
     authenticatedAdmin,
   }) => {

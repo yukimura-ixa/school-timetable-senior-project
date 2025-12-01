@@ -12,16 +12,11 @@ import { NavigationHelper } from "./helpers/navigation";
  */
 
 test.describe("Server Component Migration - Teacher Management", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
-
   test("TC-007-01: Teacher page renders with server data (no loading spinner)", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     // Navigate to teacher management
     await nav.goToTeacherManagement();
 
@@ -49,6 +44,7 @@ test.describe("Server Component Migration - Teacher Management", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     // This test verifies that teacher data is in the initial HTML response
     // (Server-Side Rendered), not fetched client-side
 
@@ -89,6 +85,7 @@ test.describe("Server Component Migration - Teacher Management", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     await nav.goToTeacherManagement();
 
     // Look for interactive buttons (Add, Edit, Delete, etc.) - Context7: auto-wait
@@ -122,16 +119,11 @@ test.describe("Server Component Migration - Teacher Management", () => {
 });
 
 test.describe("Server Component Migration - Other Management Pages", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
-
   test("TC-007-04: Rooms page renders with server data", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     await nav.goToRoomManagement();
 
     // Check for table/list - Context7: web-first assertion auto-waits
@@ -151,6 +143,7 @@ test.describe("Server Component Migration - Other Management Pages", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     await nav.goToSubjectManagement();
 
     // Check for table/list - Context7: web-first assertion auto-waits
@@ -170,6 +163,7 @@ test.describe("Server Component Migration - Other Management Pages", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     await nav.goToGradeLevelManagement();
 
     // Check for table/list - Context7: web-first assertion auto-waits
@@ -187,16 +181,11 @@ test.describe("Server Component Migration - Other Management Pages", () => {
 });
 
 test.describe("Server Component Migration - Performance", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
-
   test("TC-007-07: Teacher page loads faster (no client-side data fetch delay)", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     // Measure time to first meaningful content
     const startTime = Date.now();
 
@@ -226,6 +215,7 @@ test.describe("Server Component Migration - Performance", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     // Track network requests
     const apiRequests: string[] = [];
 
@@ -293,16 +283,11 @@ test.describe("Server Component Migration - Dashboard Header", () => {
 });
 
 test.describe("Server Component Migration - Regression Tests", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
-
   test("TC-007-10: All management pages still accessible", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     const pages = [
       {
         name: "Teacher",
@@ -351,6 +336,7 @@ test.describe("Server Component Migration - Regression Tests", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     await nav.goToTeacherManagement();
 
     // Look for search input
@@ -399,6 +385,7 @@ test.describe("Server Component Migration - Regression Tests", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    const nav = new NavigationHelper(page);
     await nav.goToTeacherManagement();
 
     // Look for pagination controls

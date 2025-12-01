@@ -1,5 +1,4 @@
 import { test, expect } from "./fixtures/admin.fixture";
-import { NavigationHelper } from "./helpers/navigation";
 
 /**
  * E2E Tests for Program Management with Year-Level Filtering
@@ -22,12 +21,6 @@ import { NavigationHelper } from "./helpers/navigation";
  */
 
 test.describe("Program Management - Navigation by Year", () => {
-  let nav: NavigationHelper;
-
-  test.beforeEach(async ({ page }) => {
-    nav = new NavigationHelper(page);
-  });
-
   test("TC-PROG-001: Navigate to M.1 programs", async ({
     authenticatedAdmin,
   }) => {
@@ -73,20 +66,15 @@ test.describe("Program Management - Navigation by Year", () => {
 });
 
 test.describe("Program Management - Filtering", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/management/program/1");
-
-    // Wait for table to load
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
-    await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
-      .catch(() => {});
-  });
-
   test("TC-PROG-010: Semester filter displays correct options", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Look for semester filter dropdown
     const semesterFilter = page
       .locator('select, [role="combobox"]')
@@ -115,6 +103,11 @@ test.describe("Program Management - Filtering", () => {
 
   test("TC-PROG-011: Filter by Semester 1", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Find and click semester filter
     const semesterSelect = page
       .locator("select")
@@ -158,6 +151,11 @@ test.describe("Program Management - Filtering", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Find academic year filter
     const yearSelect = page
       .locator("select")
@@ -202,6 +200,11 @@ test.describe("Program Management - Filtering", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Apply both filters
     const semesterSelect = page
       .locator("select")
@@ -269,6 +272,11 @@ test.describe("Program Management - Filtering", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Find search input
     const searchInput = page
       .locator('input[type="text"]')
@@ -319,20 +327,15 @@ test.describe("Program Management - Filtering", () => {
 });
 
 test.describe("Program Management - CRUD Operations", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/management/program/1");
-
-    // Wait for table or buttons to be ready
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
-    await expect(page.locator("table, button").first())
-      .toBeVisible({ timeout: 5000 })
-      .catch(() => {});
-  });
-
   test("TC-PROG-020: Open Add Program modal", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table, button").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Find add button - try multiple patterns
     const addButton = page
       .locator("button")
@@ -373,6 +376,11 @@ test.describe("Program Management - CRUD Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table, button").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Try to create a program that already exists (should fail)
     const addButton = page
       .locator("button")
@@ -456,6 +464,11 @@ test.describe("Program Management - CRUD Operations", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table, button").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     const addButton = page
       .locator("button")
       .filter({
@@ -538,6 +551,11 @@ test.describe("Program Management - CRUD Operations", () => {
 
   test("TC-PROG-023: Inline edit program", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table, button").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Find first editable row
     const firstRow = page.locator("table tbody tr").first();
 
@@ -597,6 +615,11 @@ test.describe("Program Management - CRUD Operations", () => {
 
   test("TC-PROG-024: Delete program", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator("table, button").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Create a test program first, then delete it
     const addButton = page
       .locator("button")
@@ -700,7 +723,10 @@ test.describe("Program Management - CRUD Operations", () => {
 });
 
 test.describe("Program Management - Data Validation", () => {
-  test.beforeEach(async ({ page }) => {
+  test("TC-PROG-030: Verify seeded data across academic years", async ({
+    authenticatedAdmin,
+  }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
@@ -708,12 +734,7 @@ test.describe("Program Management - Data Validation", () => {
     await expect(page.locator("table").first())
       .toBeVisible({ timeout: 5000 })
       .catch(() => {});
-  });
-
-  test("TC-PROG-030: Verify seeded data across academic years", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
+    
     // Check for programs from different academic years
     const yearSelect = page
       .locator("select")
@@ -761,6 +782,14 @@ test.describe("Program Management - Data Validation", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     const semesterSelect = page
       .locator("select")
       .filter({
@@ -804,6 +833,14 @@ test.describe("Program Management - Data Validation", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     const table = page.locator("table").first();
 
     if ((await table.count()) > 0) {
@@ -834,7 +871,10 @@ test.describe("Program Management - Data Validation", () => {
 });
 
 test.describe("Program Management - Pagination", () => {
-  test.beforeEach(async ({ page }) => {
+  test("TC-PROG-040: Pagination controls exist", async ({
+    authenticatedAdmin,
+  }) => {
+    const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
@@ -842,12 +882,7 @@ test.describe("Program Management - Pagination", () => {
     await expect(page.locator("table").first())
       .toBeVisible({ timeout: 5000 })
       .catch(() => {});
-  });
-
-  test("TC-PROG-040: Pagination controls exist", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
+    
     // Look for pagination controls
     const pagination = page
       .locator('[role="navigation"], .pagination, [class*="Pagination"]')
@@ -874,6 +909,14 @@ test.describe("Program Management - Pagination", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.locator("table").first())
+      .toBeVisible({ timeout: 5000 })
+      .catch(() => {});
+    
     // Look for next page button
     const nextButton = page
       .locator("button, a")
@@ -916,17 +959,15 @@ test.describe("Program Management - Pagination", () => {
 });
 
 test.describe("Program Management - Accessibility", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/management/program/1");
-    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
-    });
-  });
-
   test("TC-PROG-050: Page has proper heading structure", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    
     const h1 = await page.locator("h1").count();
     const h2 = await page.locator("h2").count();
 
@@ -941,6 +982,11 @@ test.describe("Program Management - Accessibility", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
+    await page.goto("/management/program/1");
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      timeout: 10000,
+    });
+    
     // Test tab navigation
     await page.keyboard.press("Tab");
     // Wait for focus to settle
