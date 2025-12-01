@@ -24,17 +24,17 @@ test.describe("Critical Path Smoke Tests", () => {
   test.describe("1. Authentication Flow", () => {
     test("Admin can log in via credentials", async ({ page }) => {
       // Navigate to login page
-      await page.goto("/auth/signin");
+      await page.goto("/signin");
 
       // Fill in credentials (using seeded admin account from seed.ts)
-      await page.fill('input[name="email"]', "admin@school.local");
-      await page.fill('input[name="password"]', "admin123");
+      await page.fill('input[type="email"]', "admin@school.local");
+      await page.fill('input[type="password"]', "admin123");
 
       // Submit login form
       await page.click('button[type="submit"]');
 
-      // Wait for redirect to dashboard or home
-      await page.waitForURL(/\/(dashboard|management)/, { timeout: 10000 });
+      // Wait for redirect to dashboard
+      await page.waitForURL(/\/dashboard/, { timeout: 10000 });
 
       // Verify logged in state (check for logout button or user menu)
       const userMenu = page.locator(
@@ -44,16 +44,16 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Session persists across page reloads", async ({ page }) => {
-      await page.goto("/management/teachers");
+      await page.goto("/management/teacher");
 
       // Verify we're logged in
-      await expect(page).toHaveURL(/\/management\/teachers/);
+      await expect(page).toHaveURL(/\/management\/teacher/);
 
       // Reload page
       await page.reload();
 
       // Should still be on the same page (not redirected to login)
-      await expect(page).toHaveURL(/\/management\/teachers/);
+      await expect(page).toHaveURL(/\/management\/teacher/);
 
       // Page should render (not error boundary)
       await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
@@ -65,10 +65,10 @@ test.describe("Critical Path Smoke Tests", () => {
       const page = await context.newPage();
 
       // Try to access protected route
-      await page.goto("/management/teachers");
+      await page.goto("/management/teacher");
 
       // Should redirect to sign-in page
-      await expect(page).toHaveURL(/\/auth\/signin/, { timeout: 10000 });
+      await expect(page).toHaveURL(/\/signin/, { timeout: 10000 });
 
       await context.close();
     });
@@ -87,13 +87,13 @@ test.describe("Critical Path Smoke Tests", () => {
       await logoutButton.first().click();
 
       // Should redirect to sign-in page
-      await expect(page).toHaveURL(/\/(signin|auth\/signin)/, {
+      await expect(page).toHaveURL(/\/signin/, {
         timeout: 10000,
       });
 
       // Verify logged out state by trying to access protected route
-      await page.goto("/management/teachers");
-      await expect(page).toHaveURL(/\/(signin|auth\/signin)/, {
+      await page.goto("/management/teacher");
+      await expect(page).toHaveURL(/\/signin/, {
         timeout: 10000,
       });
     });
@@ -111,11 +111,11 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(managementLink.first()).toBeVisible({ timeout: 5000 });
 
       // Navigate to management page to confirm access
-      await page.goto("/management/teachers");
-      await expect(page).toHaveURL(/\/management\/teachers/);
+      await page.goto("/management/teacher");
+      await expect(page).toHaveURL(/\/management\/teacher/);
 
       // Should not redirect to unauthorized page
-      await expect(page).not.toHaveURL(/\/(signin|auth\/signin|unauthorized)/);
+      await expect(page).not.toHaveURL(/\/signin|unauthorized/);
 
       // Page should render successfully (not error boundary)
       await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
@@ -124,7 +124,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
   test.describe("2. Data Management - Teachers", () => {
     test("Create new teacher with required fields", async ({ page }) => {
-      await page.goto("/management/teachers");
+      await page.goto("/management/teacher");
 
       // Click "Add Teacher" button (Thai: "เพิ่มครู")
       const addButton = page.locator(
@@ -169,7 +169,7 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Edit existing teacher", async ({ page }) => {
-      await page.goto("/management/teachers");
+      await page.goto("/management/teacher");
 
       // Wait for table to load
       await page.waitForSelector("table tbody tr", { timeout: 10000 });
@@ -204,7 +204,7 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Verify teacher appears in list with pagination", async ({ page }) => {
-      await page.goto("/management/teachers");
+      await page.goto("/management/teacher");
 
       // Wait for table to load
       await page.waitForSelector("table tbody tr", { timeout: 10000 });
@@ -362,17 +362,17 @@ test.describe("Critical Path Smoke Tests", () => {
 
   test.describe("5. Timetable Creation - Teacher Arrange", () => {
     test("Access teacher arrange page", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Verify page loads
-      await expect(page).toHaveURL(/\/arrange\/teacher/);
+      await expect(page).toHaveURL(/\/arrange\/teacher-arrange/);
 
       // Wait for main content
       await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
     });
 
     test("Select a teacher and view their subjects", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Wait for teacher dropdown/selector
       await page.waitForSelector(
@@ -407,7 +407,7 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Drag subject to timeslot (visual verification)", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // This is a simplified smoke test
       // Full drag-and-drop testing is covered in e2e/08-drag-and-drop.spec.ts
@@ -429,7 +429,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
   test.describe("6. Conflict Detection", () => {
     test("Verify conflict warnings display", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Wait for page to load
       await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
@@ -446,7 +446,7 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Verify locked timeslots are indicated", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Wait for page load
       await page.waitForSelector('main, [role="main"]', { timeout: 10000 });

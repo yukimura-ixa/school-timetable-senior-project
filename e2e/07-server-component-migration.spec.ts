@@ -265,8 +265,8 @@ test.describe("Server Component Migration - Dashboard Header", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    // Navigate to dashboard
-    await page.goto("/dashboard/select-semester");
+    // Navigate to dashboard (semester selection page)
+    await page.goto("/dashboard");
 
     // Select a semester to navigate to a dashboard page with [semesterAndyear] param - Context7: auto-wait
     const semesterLink = page.locator('a[href*="/dashboard/"]').first();

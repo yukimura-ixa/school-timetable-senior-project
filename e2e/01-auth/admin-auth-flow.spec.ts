@@ -9,6 +9,15 @@ test.use({ storageState: { cookies: [], origins: [] } });
  * ⚠️ IMPORTANT: This file intentionally uses MANUAL authentication flows
  * because it's specifically testing the authentication functionality itself.
  * Most other E2E tests rely on storageState from auth.setup.ts.
+ *
+ * URL Structure Reference:
+ * - /dashboard - Semester selection page (root)
+ * - /dashboard/[semesterAndYear]/student-table - Student timetables
+ * - /dashboard/[semesterAndYear]/teacher-table - Teacher timetables
+ * - /management/teacher - Teacher management (CRUD)
+ * - /management/subject - Subject management (CRUD)
+ * - /management/rooms - Room management (CRUD)
+ * - /management/gradelevel - Grade level management (CRUD)
  */
 
 test.describe("Admin Authentication Flow", () => {
@@ -46,10 +55,11 @@ test.describe("Admin Authentication Flow", () => {
     await page.locator('input[type="password"]').fill("admin123");
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
 
-    await expect(page).toHaveURL(/\/dashboard\/select-semester/, {
+    // After login, redirects to /dashboard (semester selection page)
+    await expect(page).toHaveURL(/\/dashboard/, {
       timeout: 20000,
     });
-    await expect(page.getByText(/เลือกภาคเรียน/i)).toBeVisible({
+    await expect(page.getByText(/เลือกปีการศึกษาและภาคเรียน/i)).toBeVisible({
       timeout: 20000,
     });
   });
@@ -74,39 +84,44 @@ test.describe("Admin Dashboard Pages", () => {
     await page.locator('input[type="email"]').fill("admin@school.local");
     await page.locator('input[type="password"]').fill("admin123");
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
-    await page.waitForURL("**/dashboard/select-semester**", {
+    // After login, redirects to /dashboard (semester selection page)
+    await page.waitForURL("**/dashboard", {
       timeout: 20000,
     });
-    await expect(page.getByText(/เลือกภาคเรียน/i)).toBeVisible({
+    await expect(page.getByText(/เลือกปีการศึกษาและภาคเรียน/i)).toBeVisible({
       timeout: 20000,
     });
   });
 
   test("should access semester selection page", async ({ page }) => {
-    expect(page.url()).toContain("/dashboard/select-semester");
-    await page.waitForSelector("body", { state: "visible" });
-  });
-
-  test("should navigate to timetable management", async ({ page }) => {
-    await page.goto("/dashboard/timetable");
-    await expect(page).toHaveURL(/\/dashboard\/timetable/);
+    // /dashboard is the semester selection page
+    expect(page.url()).toMatch(/\/dashboard$/);
     await page.waitForSelector("body", { state: "visible" });
   });
 
   test("should navigate to teacher management", async ({ page }) => {
-    await page.goto("/dashboard/teachers");
-    await expect(page).toHaveURL(/\/dashboard\/teachers/);
+    // Teacher management is at /management/teacher (not /dashboard/teachers)
+    await page.goto("/management/teacher");
+    await expect(page).toHaveURL(/\/management\/teacher/);
     await page.waitForSelector("body", { state: "visible" });
   });
 
-  test("should navigate to class management", async ({ page }) => {
-    await page.goto("/dashboard/classes");
-    await expect(page).toHaveURL(/\/dashboard\/classes/);
+  test("should navigate to subject management", async ({ page }) => {
+    // Subject management is at /management/subject
+    await page.goto("/management/subject");
+    await expect(page).toHaveURL(/\/management\/subject/);
+    await page.waitForSelector("body", { state: "visible" });
+  });
+
+  test("should navigate to room management", async ({ page }) => {
+    // Room management is at /management/rooms
+    await page.goto("/management/rooms");
+    await expect(page).toHaveURL(/\/management\/rooms/);
     await page.waitForSelector("body", { state: "visible" });
   });
 
   test("should sign out successfully", async ({ page }) => {
-    await page.goto("/dashboard/select-semester");
+    await page.goto("/dashboard");
     const signOutButton = page
       .locator('button:has-text("ออกจากระบบ"), a:has-text("ออกจากระบบ")')
       .first();
@@ -125,10 +140,11 @@ test.describe("Visual UI Checks", () => {
     await page.locator('input[type="email"]').fill("admin@school.local");
     await page.locator('input[type="password"]').fill("admin123");
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
-    await page.waitForURL("**/dashboard/select-semester**", {
+    // After login, redirects to /dashboard (semester selection page)
+    await page.waitForURL("**/dashboard", {
       timeout: 20000,
     });
-    await expect(page.getByText(/เลือกภาคเรียน/i)).toBeVisible({
+    await expect(page.getByText(/เลือกปีการศึกษาและภาคเรียน/i)).toBeVisible({
       timeout: 20000,
     });
   });
@@ -139,11 +155,12 @@ test.describe("Visual UI Checks", () => {
       if (msg.type() === "error") consoleErrors.push(msg.text());
     });
 
+    // Use actual app routes - /dashboard for semester selection, /management/* for CRUD
     const pages = [
-      "/dashboard/select-semester",
-      "/dashboard/timetable",
-      "/dashboard/teachers",
-      "/dashboard/classes",
+      "/dashboard",
+      "/management/teacher",
+      "/management/subject",
+      "/management/rooms",
     ];
 
     for (const pagePath of pages) {
@@ -162,11 +179,12 @@ test.describe("Visual UI Checks", () => {
   });
 
   test("[visual] screenshots of main dashboard pages", async ({ page }) => {
+    // Use actual app routes
     const pages = [
-      { path: "/dashboard/select-semester", name: "semester-selection" },
-      { path: "/dashboard/timetable", name: "timetable-management" },
-      { path: "/dashboard/teachers", name: "teacher-management" },
-      { path: "/dashboard/classes", name: "class-management" },
+      { path: "/dashboard", name: "semester-selection" },
+      { path: "/management/teacher", name: "teacher-management" },
+      { path: "/management/subject", name: "subject-management" },
+      { path: "/management/rooms", name: "room-management" },
     ];
 
     for (const { path, name } of pages) {

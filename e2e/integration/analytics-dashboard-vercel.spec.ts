@@ -13,8 +13,8 @@ import { test, expect } from "@playwright/test";
 test.describe("Analytics Dashboard - Vercel Integration", () => {
   // Helper to check if we can access authenticated pages
   test.beforeEach(async ({ page }) => {
-    // Try to access the semester selection page
-    await page.goto("/dashboard/select-semester");
+    // Try to access the semester selection page (/dashboard is the root)
+    await page.goto("/dashboard");
 
     // Check if we're redirected to login or have access
     const currentUrl = page.url();
@@ -29,7 +29,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
     test("should display analytics dashboard when semesters exist", async ({
       page,
     }) => {
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });
@@ -61,7 +61,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
         errors.push(error.message);
       });
 
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });
@@ -73,7 +73,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
 
   test.describe("Dashboard Statistics (if visible)", () => {
     test("statistics should be valid numbers", async ({ page }) => {
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });
@@ -103,7 +103,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
     });
 
     test("percentages should be in valid range", async ({ page }) => {
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });
@@ -132,7 +132,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
     test("should load within reasonable time on Vercel", async ({ page }) => {
       const startTime = Date.now();
 
-      await page.goto("/dashboard/select-semester", {
+      await page.goto("/dashboard", {
         waitUntil: "domcontentloaded",
       });
 
@@ -144,14 +144,14 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
 
     test("should use Vercel edge caching effectively", async ({ page }) => {
       // First visit
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });
 
       // Second visit (should hit edge cache)
       const startTime = Date.now();
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await page.waitForLoadState("domcontentloaded");
       const cachedLoadTime = Date.now() - startTime;
 
@@ -168,7 +168,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
         route.continue();
       });
 
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
 
       // Should show loading state
       const loadingVisible = await page
@@ -185,7 +185,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
         route.abort("failed");
       });
 
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await page.waitForLoadState("domcontentloaded");
 
       // Should show error message or empty state
@@ -199,7 +199,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
 
   test.describe("Vercel-Specific Features", () => {
     test("should have correct Vercel headers", async ({ page }) => {
-      const response = await page.goto("/dashboard/select-semester");
+      const response = await page.goto("/dashboard");
 
       if (response) {
         const headers = response.headers();
@@ -232,7 +232,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
         }
       });
 
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });
@@ -246,7 +246,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
 
   test.describe("Data Validation", () => {
     test("semester data should be valid if present", async ({ page }) => {
-      await page.goto("/dashboard/select-semester");
+      await page.goto("/dashboard");
       await expect(page.locator('main, [role="main"], body')).toBeVisible({
         timeout: 15000,
       });

@@ -36,21 +36,23 @@ test.describe("Home Page Tests", () => {
   });
 
   test("TC-HOME-003: Protected routes redirect to signin", async ({ page }) => {
-    // Test without authentication
-    const protectedRoutes = ["/dashboard", "/management/teacher", "/schedule"];
+    // Test without authentication (clear any existing state)
+    await page.context().clearCookies();
+    
+    const protectedRoutes = ["/dashboard", "/management/teacher"];
 
     for (const route of protectedRoutes) {
       // Navigate to protected route
       await page.goto(route);
 
       // ✅ IMPROVED: Use web-first assertion instead of waitForTimeout
-      // Middleware redirects unauthenticated users to home page ("/")
+      // Middleware redirects unauthenticated users to signin page
       await expect(async () => {
         const url = page.url();
-        // Check if redirected to home page (base URL with optional trailing slash)
         const pathname = new URL(url).pathname;
-        const isHome = pathname === "/" || pathname === "";
-        expect(isHome).toBe(true);
+        // Check if redirected to signin page
+        const isSignin = pathname === "/signin" || pathname.includes("signin");
+        expect(isSignin).toBe(true);
       }).toPass({ timeout: 5000 });
 
       // Take screenshot
