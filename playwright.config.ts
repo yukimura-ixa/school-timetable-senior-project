@@ -29,11 +29,18 @@ export default defineConfig({
   globalSetup: path.resolve(__dirname, "playwright.global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "playwright.global-teardown.ts"),
 
-  reporter: [
-    ["list"],
-    ["json", { outputFile: "test-results/results.json" }],
-    ["junit", { outputFile: junitOutput }],
-  ],
+  reporter: process.env.CI
+    ? [
+        ["list"],
+        ["json", { outputFile: "test-results/results.json" }],
+        ["junit", { outputFile: junitOutput }],
+        ["html", { outputFolder: "playwright-report", open: "never" }],
+      ]
+    : [
+        ["list"],
+        ["json", { outputFile: "test-results/results.json" }],
+        ["html", { open: "on-failure" }],
+      ],
 
   use: {
     baseURL: process.env.BASE_URL || "http://localhost:3000",

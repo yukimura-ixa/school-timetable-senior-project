@@ -203,6 +203,14 @@ jobs:
             artifacts/
           retention-days: 14
 
+      - name: Upload Playwright HTML report (per shard)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-shard-${{ matrix.shard }}
+          path: playwright-report/
+          retention-days: 14
+
   # Merge reports from all shards
   merge-reports:
     if: always()
@@ -233,6 +241,23 @@ jobs:
         with:
           path: merged-results
           pattern: test-results-shard-*
+
+      - name: Download HTML report shards
+        uses: actions/download-artifact@v4
+        with:
+          path: html-shards
+          pattern: playwright-html-shard-*
+
+      - name: Install Playwright for report merge
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Merge HTML reports
+        run: |
+          mkdir -p playwright-report
+          # Use Playwright's built-in merge if multiple shards exist
+          if [ -d "html-shards" ] && [ "$(ls -A html-shards)" ]; then
+            pnpm exec playwright merge-reports --reporter=html html-shards/*
+          fi
 
       - name: Combine JSON results (simple concat)
         run: |
@@ -266,6 +291,14 @@ jobs:
         with:
           name: playwright-junit
           path: playwright-report/junit
+          retention-days: 30
+
+      - name: Upload merged HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report/
           retention-days: 30
 # Temporary database is automatically destroyed after job completes
 # Test sharding: 4 parallel jobs by default, customizable via workflow_dispatch
