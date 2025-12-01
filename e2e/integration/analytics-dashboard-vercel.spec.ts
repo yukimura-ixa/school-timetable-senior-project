@@ -30,7 +30,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       page,
     }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -62,7 +62,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       });
 
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -74,7 +74,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
   test.describe("Dashboard Statistics (if visible)", () => {
     test("statistics should be valid numbers", async ({ page }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -104,7 +104,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
 
     test("percentages should be in valid range", async ({ page }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -145,7 +145,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
     test("should use Vercel edge caching effectively", async ({ page }) => {
       // First visit
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -233,7 +233,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       });
 
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -247,7 +247,7 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
   test.describe("Data Validation", () => {
     test("semester data should be valid if present", async ({ page }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 

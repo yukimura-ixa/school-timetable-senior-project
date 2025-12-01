@@ -577,7 +577,7 @@ test.describe("Program Management - CRUD Operations", () => {
             });
 
             await saveButton.click();
-            await expect(page.locator('main, [role="main"], body')).toBeVisible(
+            await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
               { timeout: 10000 },
             );
           }
@@ -638,7 +638,7 @@ test.describe("Program Management - CRUD Operations", () => {
       const submitButton = page.locator('button[type="submit"]').first();
       if ((await submitButton.count()) > 0) {
         await submitButton.click();
-        await expect(page.locator('main, [role="main"], body')).toBeVisible({
+        await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
           timeout: 10000,
         });
       }
@@ -684,7 +684,7 @@ test.describe("Program Management - CRUD Operations", () => {
             });
 
             await confirmButton.click();
-            await expect(page.locator('main, [role="main"], body')).toBeVisible(
+            await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
               { timeout: 10000 },
             );
 
@@ -702,7 +702,7 @@ test.describe("Program Management - CRUD Operations", () => {
 test.describe("Program Management - Data Validation", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/management/program/1");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
     await expect(page.locator("table").first())
@@ -725,7 +725,7 @@ test.describe("Program Management - Data Validation", () => {
     if ((await yearSelect.count()) > 0) {
       // Test Year 2567
       await yearSelect.selectOption({ label: /2567/ });
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
       const rows2567 = await page.locator("table tbody tr").count();
@@ -733,7 +733,7 @@ test.describe("Program Management - Data Validation", () => {
 
       // Test Year 2568
       await yearSelect.selectOption({ label: /2568/ });
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
       const rows2568 = await page.locator("table tbody tr").count();
@@ -741,7 +741,7 @@ test.describe("Program Management - Data Validation", () => {
 
       // Test Year 2569
       await yearSelect.selectOption({ label: /2569/ });
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
       const rows2569 = await page.locator("table tbody tr").count();
@@ -771,21 +771,21 @@ test.describe("Program Management - Data Validation", () => {
     if ((await semesterSelect.count()) > 0) {
       // All semesters
       await semesterSelect.selectOption({ index: 0 });
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
       const allRows = await page.locator("table tbody tr").count();
 
       // Semester 1 only
       await semesterSelect.selectOption({ label: /ภาคเรียนที่ 1|SEMESTER_1/ });
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
       const sem1Rows = await page.locator("table tbody tr").count();
 
       // Semester 2 only
       await semesterSelect.selectOption({ label: /ภาคเรียนที่ 2|SEMESTER_2/ });
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
       const sem2Rows = await page.locator("table tbody tr").count();
@@ -836,7 +836,7 @@ test.describe("Program Management - Data Validation", () => {
 test.describe("Program Management - Pagination", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/management/program/1");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
     await expect(page.locator("table").first())
@@ -893,7 +893,7 @@ test.describe("Program Management - Pagination", () => {
 
         // Click next
         await nextButton.click();
-        await expect(page.locator('main, [role="main"], body')).toBeVisible({
+        await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
           timeout: 10000,
         });
 
@@ -918,7 +918,7 @@ test.describe("Program Management - Pagination", () => {
 test.describe("Program Management - Accessibility", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/management/program/1");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
   });

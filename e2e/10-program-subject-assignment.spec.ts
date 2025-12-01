@@ -282,7 +282,7 @@ test.describe.skip("Program Management Workflow", () => {
 test.describe.skip("Activity Management Workflow", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/management/subject");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
   });

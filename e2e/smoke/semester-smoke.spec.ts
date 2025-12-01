@@ -62,7 +62,7 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       });
 
       await page.goto(`/schedule/${term.label}/config`);
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -121,7 +121,7 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
       });
 
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 15000,
       });
 

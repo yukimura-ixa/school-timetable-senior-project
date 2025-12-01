@@ -42,7 +42,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     // Wait for main content to be visible (Next.js streams; no networkidle)
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -70,7 +70,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -95,7 +95,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -126,7 +126,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -146,7 +146,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -186,7 +186,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -202,7 +202,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -214,7 +214,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
     // Click back button
     await backButton.first().click();
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -228,7 +228,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -270,7 +270,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -286,7 +286,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -308,7 +308,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -333,7 +333,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -358,7 +358,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     // Start on class schedule
     await page.goto("/classes/101/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -369,7 +369,7 @@ test.describe("Public Class Schedule Page", () => {
     if (hasTeacherLinks) {
       // Click teacher link
       await teacherLink.click();
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
 
@@ -387,7 +387,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -405,7 +405,7 @@ test.describe("Public Class Schedule Page", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
 
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -427,7 +427,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -447,7 +447,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -469,7 +469,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto("/teachers/1/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -492,7 +492,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     await page.setViewportSize({ width: 768, height: 1024 });
 
     await page.goto("/classes/101/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -508,7 +508,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const startTime = Date.now();
 
     await page.goto("/teachers/1/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -523,7 +523,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -543,7 +543,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 

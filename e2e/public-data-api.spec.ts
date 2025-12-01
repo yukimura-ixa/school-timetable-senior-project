@@ -168,7 +168,7 @@ test.describe("Public Teachers Data API", () => {
 
     if (await teacherLink.isVisible()) {
       await teacherLink.click();
-      await expect(page.locator('main, [role="main"], body')).toBeVisible({
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
         timeout: 10000,
       });
 
@@ -281,7 +281,7 @@ test.describe("Public Statistics API", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -305,7 +305,7 @@ test.describe("Public Statistics API", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -324,7 +324,7 @@ test.describe("Public Statistics API", () => {
     const { page } = authenticatedAdmin;
     // Navigate to analytics dashboard (adjust path if needed)
     await page.goto("/dashboard/1-2567/analytics");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -350,7 +350,7 @@ test.describe("Public Statistics API", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567/analytics");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -373,7 +373,7 @@ test.describe("Public Statistics API", () => {
   test("should show room occupancy data", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567/analytics");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -437,7 +437,7 @@ test.describe("Security & Privacy Checks", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -461,7 +461,7 @@ test.describe("Security & Privacy Checks", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -485,7 +485,7 @@ test.describe("Security & Privacy Checks", () => {
   test("no API keys or secrets in HTML", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -567,7 +567,7 @@ test.describe("Data Validation & Integrity", () => {
   test("statistics should be non-negative", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
@@ -592,7 +592,7 @@ test.describe("Performance & Caching", () => {
     const startTime = Date.now();
 
     await page.goto("/");
-    await expect(page.locator('main, [role="main"], body')).toBeVisible({
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 10000,
     });
 
