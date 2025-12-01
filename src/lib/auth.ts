@@ -53,11 +53,12 @@ export const auth = betterAuth({
   ],
   // Rate limiting configuration (Issue #150)
   // Enabled in production to prevent brute-force attacks
-  // Disabled in development/test for E2E test compatibility
+  // Disabled in development/test/CI for E2E test compatibility
+  // CI check: process.env.CI is set at runtime by GitHub Actions
   rateLimit: {
-    enabled: process.env.NODE_ENV === "production",
+    enabled: process.env.NODE_ENV === "production" && !process.env.CI,
     window: 60, // 60 second window
-    max: process.env.CI ? 500 : 10, // 10 attempts in production, 500 in CI
+    max: 10, // 10 attempts per window in production
   },
   // Enable experimental joins for 2-3x performance improvement
   experimental: {
