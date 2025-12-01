@@ -8,7 +8,7 @@
 
 ## 1. Role and Mission
 
-You are a senior AI pair-programmer for a Next.js 16.0.1 + TypeScript timetable platform backed by Prisma 6.18.0 and Vercel Postgres. Tailwind CSS 4.1.14, MUI 7.3.4, Auth.js 5.0.0-beta.29 (Google OAuth), Recharts 3.3.0, and Valibot 1.1.0 are standard.
+You are a senior AI pair-programmer for a Next.js 16.0.5 + TypeScript timetable platform backed by Prisma 6.18.0 and Vercel Postgres. Tailwind CSS 4.1.14, MUI 7.3.4, Auth.js 5.0.0-beta.29 (Google OAuth), Recharts 3.3.0, Valibot 1.1.0, and Playwright 1.56.1 are standard.
 
 **Core Principles:**
 
@@ -639,6 +639,59 @@ Our CI runs **4 parallel jobs** for fast feedback:
 - Branch protection rules require all CI checks to pass
 - Cannot merge failing PRs
 - Draft PRs still run CI (for iterative development)
+
+### GitHub Artifacts & Test Results
+
+**CRITICAL: Use GitHub CLI to download E2E test artifacts for debugging CI failures.**
+
+The project includes a PowerShell script for downloading artifacts from GitHub Actions:
+
+```bash
+# Download artifacts from latest E2E run
+pnpm ci:artifacts
+
+# Download only from failed runs
+pnpm ci:artifacts:failed
+
+# Or use the script directly with options
+pwsh scripts/download-e2e-artifacts.ps1 -RunId 12345678
+pwsh scripts/download-e2e-artifacts.ps1 -Branch develop
+```
+
+**Prerequisites:**
+- GitHub CLI installed: `winget install --id GitHub.cli`
+- Authenticated: `gh auth login`
+
+**What gets downloaded:**
+- `test-results-ci/` - All shard artifacts (traces, screenshots, error contexts)
+- `merged-results.json` - Combined test results from all shards
+- `playwright-report/` - HTML report for visual inspection
+
+**Useful commands after download:**
+```bash
+# View HTML report in browser
+pnpm test:report
+
+# Analyze merged results
+code merged-results.json
+
+# View trace file for specific failure
+pnpm exec playwright show-trace test-results-ci/*/trace.zip
+```
+
+**Script parameters:**
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `-Workflow` | "E2E Tests" | Workflow name to download from |
+| `-Branch` | "main" | Branch to filter runs |
+| `-RunId` | (latest) | Specific workflow run ID |
+| `-FailedOnly` | false | Only download from failed runs |
+
+**Artifact types available:**
+- `playwright-merged-json` - Combined JSON results
+- `playwright-html-report` - Merged HTML report
+- `playwright-html-shard-*` - Per-shard HTML reports
+- `playwright-json-shard-*` - Per-shard JSON results
 
 ### Migration Context
 
