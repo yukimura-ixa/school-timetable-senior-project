@@ -76,54 +76,28 @@ setup("authenticate as admin", async ({ page }) => {
       )
       .toBe("admin");
 
-    // Wait for useSemesterSync hook to execute by checking localStorage
+    // Set localStorage directly - /dashboard/1-2567 is a Server Component,
+    // so useSemesterSync hook never runs. Direct localStorage is faster and reliable.
     console.log(
-      "[AUTH SETUP] Waiting for semester sync (already authenticated path)...",
+      "[AUTH SETUP] Setting semester-selection directly (already authenticated path)...",
     );
-    try {
-      await page.waitForFunction(
-        () => window.localStorage.getItem("semester-selection") !== null,
-        { timeout: 20000 },
+    await page.evaluate(() => {
+      window.localStorage.setItem(
+        "semester-selection",
+        JSON.stringify({
+          state: {
+            selectedSemester: "1-2567",
+            academicYear: 2567,
+            semester: 1,
+          },
+          version: 0,
+        }),
       );
-      const storageValue = await page.evaluate(() =>
-        window.localStorage.getItem("semester-selection"),
-      );
-      console.log(
-        "[AUTH SETUP] Semester synced to localStorage:",
-        storageValue,
-      );
-    } catch (error) {
-      console.warn("[AUTH SETUP] Timeout waiting for semester-selection");
-      if (!page.isClosed()) {
-        const storageValue = await page.evaluate(() =>
-          window.localStorage.getItem("semester-selection"),
-        );
-        console.log("[AUTH SETUP] Current storage value:", storageValue);
-
-        if (!storageValue) {
-          console.log(
-            "[AUTH SETUP] Manually setting semester-selection as fallback",
-          );
-          await page.evaluate(() => {
-            window.localStorage.setItem(
-              "semester-selection",
-              JSON.stringify({
-                state: { semester: "1-2567" },
-                version: 0,
-              }),
-            );
-          });
-          const verifyStorage = await page.evaluate(() =>
-            window.localStorage.getItem("semester-selection"),
-          );
-          console.log("[AUTH SETUP] Verified semester storage:", verifyStorage);
-        }
-      } else {
-        console.warn(
-          "[AUTH SETUP] Page already closed; skipping semester-selection inspection",
-        );
-      }
-    }
+    });
+    const storageValue = await page.evaluate(() =>
+      window.localStorage.getItem("semester-selection"),
+    );
+    console.log("[AUTH SETUP] Semester set in localStorage:", storageValue);
 
     // Save state and exit
     await page.context().storageState({ path: authFile });
@@ -249,71 +223,26 @@ setup("authenticate as admin", async ({ page }) => {
   // Wait for page to finish loading and semester to sync
   await page.waitForLoadState("domcontentloaded", { timeout: 20000 });
 
-  // Wait for useSemesterSync hook to execute by checking localStorage
-  console.log("[AUTH SETUP] Waiting for semester sync...");
-  try {
-    await page.waitForFunction(
-      () => window.localStorage.getItem("semester-selection") !== null,
-      { timeout: 20000 }, // Increased to 20s to account for HMR/Fast Refresh delays
+  // Set localStorage directly - /dashboard/1-2567 is a Server Component,
+  // so useSemesterSync hook never runs. Direct localStorage is faster and reliable.
+  console.log("[AUTH SETUP] Setting semester-selection directly...");
+  await page.evaluate(() => {
+    window.localStorage.setItem(
+      "semester-selection",
+      JSON.stringify({
+        state: {
+          selectedSemester: "1-2567",
+          academicYear: 2567,
+          semester: 1,
+        },
+        version: 0,
+      }),
     );
-    const storageValue = await page.evaluate(() =>
-      window.localStorage.getItem("semester-selection"),
-    );
-    console.log("[AUTH SETUP] Semester synced to localStorage:", storageValue);
-  } catch (error) {
-    console.warn(
-      "[AUTH SETUP] Timeout waiting for semester-selection after 20s",
-    );
-
-    // Check if page is still loading or if there are errors
-    const currentUrl = page.url();
-    const pageTitle = await page.title().catch(() => "unknown");
-    console.log("[AUTH SETUP] Current URL:", currentUrl);
-    console.log("[AUTH SETUP] Page title:", pageTitle);
-
-    // Check current localStorage state
-    const allStorage = await page.evaluate(() => {
-      const storage: Record<string, string | null> = {};
-      for (let i = 0; i < window.localStorage.length; i++) {
-        const key = window.localStorage.key(i);
-        if (key) storage[key] = window.localStorage.getItem(key);
-      }
-      return storage;
-    });
-    console.log("[AUTH SETUP] All localStorage keys:", Object.keys(allStorage));
-
-    const storageValue = allStorage["semester-selection"];
-    if (!storageValue) {
-      console.log(
-        "[AUTH SETUP] Manually setting semester-selection as fallback...",
-      );
-      await page.evaluate(() => {
-        const semesterData = {
-          state: { semester: "1-2567" },
-          version: 0,
-        };
-        window.localStorage.setItem(
-          "semester-selection",
-          JSON.stringify(semesterData),
-        );
-        console.log("[BROWSER] Manually set semester-selection:", semesterData);
-      });
-
-      // Verify it was set
-      const verifyStorage = await page.evaluate(() =>
-        window.localStorage.getItem("semester-selection"),
-      );
-      console.log(
-        "[AUTH SETUP] Verified semester storage after manual set:",
-        verifyStorage,
-      );
-    } else {
-      console.log(
-        "[AUTH SETUP] Semester storage already exists:",
-        storageValue,
-      );
-    }
-  }
+  });
+  const storageValue = await page.evaluate(() =>
+    window.localStorage.getItem("semester-selection"),
+  );
+  console.log("[AUTH SETUP] Semester set in localStorage:", storageValue);
 
   // (Disabled) Pre-warm teacher-table route — adds 15s flake due to hidden buttons.
   // Keeping the hook for future use; no-op for speed and stability.
