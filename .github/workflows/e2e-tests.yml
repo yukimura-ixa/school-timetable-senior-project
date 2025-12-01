@@ -153,6 +153,8 @@ jobs:
           SEED_CLEAN_DATA: "true"
           NEXT_TELEMETRY_DISABLED: "1"
           NODE_ENV: production
+          # Sentry source map upload (optional - builds succeed without it)
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Start Next.js production server
         run: pnpm start &
