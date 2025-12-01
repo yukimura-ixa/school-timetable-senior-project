@@ -1,0 +1,53 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "ระบบจัดตารางเรียนตารางสอน" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - heading "ระบบจัดตารางเรียนตารางสอน" [level=1] [ref=e6]
+        - list [ref=e7]:
+          - listitem [ref=e8]:
+            - link "สรุปข้อมูล" [ref=e9] [cursor=pointer]:
+              - /url: /dashboard/select-semester
+              - paragraph [ref=e10]: สรุปข้อมูล
+      - generic [ref=e12]:
+        - img "profile_pic" [ref=e14] [cursor=pointer]
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: นักเรียน
+          - paragraph [ref=e19]: ไม่ระบุบทบาท
+  - generic [ref=e21]:
+    - complementary [ref=e22]:
+      - generic [ref=e23]:
+        - paragraph [ref=e24]: แสดงข้อมูล
+        - link "แสดงตารางครู" [ref=e25] [cursor=pointer]:
+          - /url: teacher-table
+          - img [ref=e26]
+          - paragraph [ref=e28]: แสดงตารางครู
+        - link "แสดงตารางนักเรียน" [ref=e29] [cursor=pointer]:
+          - /url: student-table
+          - img [ref=e30]
+          - paragraph [ref=e32]: แสดงตารางนักเรียน
+        - link "แสดงตารางรวมครู" [ref=e33] [cursor=pointer]:
+          - /url: all-timeslot
+          - img [ref=e34]
+          - paragraph [ref=e36]: แสดงตารางรวมครู
+        - link "แสดงข้อมูลหลักสูตร" [ref=e37] [cursor=pointer]:
+          - /url: all-program
+          - img [ref=e38]
+          - paragraph [ref=e40]: แสดงข้อมูลหลักสูตร
+    - generic [ref=e43]:
+      - generic:
+        - paragraph: เลือกครู
+        - generic:
+          - combobox:
+            - generic: ตัวเลือก
+            - img
+      - generic [ref=e44]:
+        - img [ref=e45]
+        - heading "กรุณาเลือกครู" [level=6] [ref=e47]
+        - paragraph [ref=e48]: เลือกครูจากรายการด้านบนเพื่อดูตารางสอน
+  - alert [ref=e49]
+```

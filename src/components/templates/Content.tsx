@@ -9,11 +9,15 @@ type Props = {
 
 function Content(props: Props) {
   const pathName = usePathname();
+  // /dashboard is the semester selection page (full width)
+  // /dashboard/[semesterAndYear]/* are dashboard sub-pages (with menu)
+  const isSemesterSelectionPage = pathName === "/dashboard";
+  
   return (
     <>
       <div
         className={`flex justify-center ${
-          pathName.match("/dashboard/select-semester")
+          isSemesterSelectionPage
             ? "w-full"
             : pathName === "/"
               ? "w-full"
@@ -26,7 +30,7 @@ function Content(props: Props) {
           <span className="w-full h-auto">{props.children}</span>
         ) : pathName.match("/dashboard") ? (
           <>
-            {!pathName.match("/select-semester") ? (
+            {!isSemesterSelectionPage ? (
               <>
                 <DashboardMenubar />
                 <span className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2">

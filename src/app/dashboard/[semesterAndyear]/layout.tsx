@@ -41,14 +41,14 @@ export default async function DashboardSemesterLayout({
 
   // Validate format
   if (!semester || !year) {
-    return redirect("/dashboard/select-semester");
+    return redirect("/dashboard");
   }
 
   // Validate existence in DB (table_config)
   const exists = await semesterRepository.findByYearAndSemester(year, semester);
 
   if (!exists) {
-    return redirect("/dashboard/select-semester");
+    return redirect("/dashboard");
   }
 
   return <>{children}</>;

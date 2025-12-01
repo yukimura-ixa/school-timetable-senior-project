@@ -66,7 +66,7 @@ export default function Error({
 
           <PrimaryButton
             startIcon={<HomeIcon />}
-            onClick={() => router.push("/dashboard/select-semester")}
+            onClick={() => router.push("/dashboard")}
             variant="outlined"
           >
             กลับหน้าหลัก

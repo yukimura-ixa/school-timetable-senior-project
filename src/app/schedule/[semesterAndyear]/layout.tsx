@@ -41,7 +41,7 @@ export default async function ScheduleSemesterLayout({
 
   // Validate format
   if (!semester || !year) {
-    return redirect("/dashboard/select-semester");
+    return redirect("/dashboard");
   }
 
   // Validate existence in DB (table_config)
@@ -50,7 +50,7 @@ export default async function ScheduleSemesterLayout({
 
   if (!exists) {
     // Semester doesn't exist at all - redirect to selection
-    return redirect("/dashboard/select-semester");
+    return redirect("/dashboard");
   }
 
   // Semester exists (configured or not) - allow access

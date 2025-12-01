@@ -31,20 +31,20 @@ export async function proxy(req: NextRequest) {
       pathname.includes("/schedule/") ||
       pathname.endsWith("/teacher-table") ||
       pathname.endsWith("/student-table") ||
-      pathname.endsWith("/select-semester");
+      pathname === "/dashboard";
 
     if (!allowedPaths) {
-      const dashboardUrl = new URL("/dashboard/select-semester", req.url);
+      const dashboardUrl = new URL("/dashboard", req.url);
       return NextResponse.redirect(dashboardUrl);
     }
     return NextResponse.next();
   }
 
-  // Student: restrict to student-table and select-semester only
+  // Student: restrict to student-table and dashboard only
   if (role === "student") {
     const allowedPaths =
       pathname.endsWith("/student-table") ||
-      pathname.endsWith("/select-semester");
+      pathname === "/dashboard";
 
     if (!allowedPaths) {
       const signInUrl = new URL("/", req.url);

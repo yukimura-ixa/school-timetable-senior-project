@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
  * Legacy redirect page for schedule/select-semester
  *
  * This page has been replaced with the modern semester selection interface
- * at /dashboard/select-semester which includes:
+ * at /dashboard which includes:
  * - Card-based semester display
  * - Advanced filtering and search
  * - Analytics dashboard
@@ -20,7 +20,7 @@ export default function SelectYearAndSemester() {
 
   useEffect(() => {
     // Immediate redirect to modern semester selection page
-    router.replace("/dashboard/select-semester");
+    router.replace("/dashboard");
   }, [router]);
 
   // Fallback UI in case redirect takes time

@@ -78,7 +78,7 @@ function Menubar() {
               const linkHref =
                 item.dynamicLink && currentSemester
                   ? `/schedule/${currentSemester}/arrange/teacher-arrange`
-                  : item.link || "/dashboard/select-semester";
+                  : item.link || "/dashboard";
 
               const isSelected = linkHref === linkSelected;
 

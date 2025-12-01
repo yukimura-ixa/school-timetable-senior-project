@@ -1,0 +1,77 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "ระบบจัดตารางเรียนตารางสอน" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - heading "ระบบจัดตารางเรียนตารางสอน" [level=1] [ref=e6]
+        - list [ref=e7]:
+          - listitem [ref=e8]:
+            - link "จัดการ" [ref=e9] [cursor=pointer]:
+              - /url: /management
+              - paragraph [ref=e10]: จัดการ
+          - listitem [ref=e11]:
+            - link "สรุปข้อมูล" [ref=e12] [cursor=pointer]:
+              - /url: /dashboard/select-semester
+              - paragraph [ref=e13]: สรุปข้อมูล
+      - generic [ref=e14]:
+        - button "ภาคเรียน 1/2567" [ref=e16] [cursor=pointer]:
+          - img [ref=e18]
+          - generic [ref=e20]:
+            - generic [ref=e21]: ภาคเรียน
+            - paragraph [ref=e22]: 1/2567
+          - img [ref=e24]
+        - generic [ref=e26]:
+          - img "profile_pic" [ref=e28] [cursor=pointer]
+          - generic [ref=e29]:
+            - paragraph [ref=e30]: System Administrator
+            - paragraph [ref=e33]: ผู้ดูแลระบบ
+          - button "ออกจากระบบ" [ref=e34]:
+            - img [ref=e35]
+  - generic [ref=e38]:
+    - complementary [ref=e39]:
+      - generic [ref=e40]:
+        - paragraph [ref=e41]: การจัดการข้อมูล
+        - link "ข้อมูลครู" [ref=e42] [cursor=pointer]:
+          - /url: /management/teacher
+          - img [ref=e43]
+          - paragraph [ref=e45]: ข้อมูลครู
+        - link "ข้อมูลวิชา" [ref=e46] [cursor=pointer]:
+          - /url: /management/subject
+          - img [ref=e47]
+          - paragraph [ref=e49]: ข้อมูลวิชา
+        - link "ข้อมูลสถานที่เรียน" [ref=e50] [cursor=pointer]:
+          - /url: /management/rooms
+          - img [ref=e51]
+          - paragraph [ref=e54]: ข้อมูลสถานที่เรียน
+        - link "ข้อมูลชั้นเรียน" [ref=e55] [cursor=pointer]:
+          - /url: /management/gradelevel
+          - img [ref=e56]
+          - paragraph [ref=e58]: ข้อมูลชั้นเรียน
+        - link "ข้อมูลหลักสูตร" [ref=e59] [cursor=pointer]:
+          - /url: /management/program
+          - img [ref=e60]
+          - paragraph [ref=e64]: ข้อมูลหลักสูตร
+      - generic [ref=e65]:
+        - paragraph [ref=e66]: ตารางสอน
+        - link "จัดตารางสอน" [ref=e67] [cursor=pointer]:
+          - /url: /schedule/1-2567/arrange/teacher-arrange
+          - img [ref=e68]
+          - paragraph [ref=e70]: จัดตารางสอน
+    - generic [ref=e73]:
+      - paragraph [ref=e74]: ผิดพลาด
+      - heading "เกิดข้อผิดพลาด" [level=1] [ref=e75]
+      - paragraph [ref=e76]: ไม่พบภาคเรียน 1/2567 ในระบบ หรือยังไม่ได้ตั้งค่า
+      - paragraph [ref=e77]: กรุณาตรวจสอบว่าภาคเรียนและปีการศึกษามีอยู่ในระบบ
+      - generic [ref=e78]:
+        - button "ลองอีกครั้ง" [ref=e79] [cursor=pointer]:
+          - img [ref=e81]
+          - text: ลองอีกครั้ง
+        - button "กลับหน้าหลัก" [ref=e83] [cursor=pointer]:
+          - img [ref=e85]
+          - text: กลับหน้าหลัก
+  - alert [ref=e87]
+```

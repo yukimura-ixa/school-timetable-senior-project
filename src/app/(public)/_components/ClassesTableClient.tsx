@@ -116,7 +116,7 @@ export function ClassesTableClient({
                     href={
                       configId
                         ? `/classes/${toNumericGradeId(cls.gradeId)}/${configId}`
-                        : `/dashboard/select-semester`
+                        : `/dashboard`
                     }
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                   >

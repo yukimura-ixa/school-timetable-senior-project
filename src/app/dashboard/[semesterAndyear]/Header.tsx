@@ -16,7 +16,7 @@ export default async function Header({ params }: Props) {
       </h1>
       <Link
         className="flex gap-3 items-center justify-between cursor-pointer"
-        href={"/dashboard/select-semester"}
+        href={"/dashboard"}
       >
         <KeyboardBackspaceIcon className="fill-gray-500" />
         <p className="select-none text-gray-500 text-sm">เปลี่ยนภาคเรียน</p>

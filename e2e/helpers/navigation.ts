@@ -54,10 +54,10 @@ export class NavigationHelper {
 
   /**
    * Navigate to schedule section
-   * Note: Redirects to dashboard/select-semester (modernized UI)
+   * Note: Redirects to dashboard (semester selection page)
    */
   async goToScheduleSelector() {
-    await this.gotoAndReady("/dashboard/select-semester");
+    await this.gotoAndReady("/dashboard");
   }
 
   async goToSchedule(semesterAndYear: string) {
@@ -92,7 +92,7 @@ export class NavigationHelper {
    * Navigate to dashboard
    */
   async goToDashboardSelector() {
-    await this.gotoAndReady("/dashboard/select-semester");
+    await this.gotoAndReady("/dashboard");
   }
 
   async goToTeacherTable(semesterAndYear: string) {

@@ -1,0 +1,269 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "ระบบจัดตารางเรียนตารางสอน" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - heading "ระบบจัดตารางเรียนตารางสอน" [level=1] [ref=e6]
+        - list [ref=e7]:
+          - listitem [ref=e8]:
+            - link "จัดการ" [ref=e9] [cursor=pointer]:
+              - /url: /management
+              - paragraph [ref=e10]: จัดการ
+          - listitem [ref=e11]:
+            - link "สรุปข้อมูล" [ref=e12] [cursor=pointer]:
+              - /url: /dashboard/select-semester
+              - paragraph [ref=e13]: สรุปข้อมูล
+      - generic [ref=e14]:
+        - button "เลือกภาคเรียน" [ref=e15] [cursor=pointer]:
+          - img [ref=e17]
+          - text: เลือกภาคเรียน
+        - generic [ref=e19]:
+          - img "profile_pic" [ref=e21] [cursor=pointer]
+          - generic [ref=e22]:
+            - paragraph [ref=e23]: System Administrator
+            - paragraph [ref=e26]: ผู้ดูแลระบบ
+          - button "ออกจากระบบ" [ref=e27]:
+            - img [ref=e28]
+  - generic [ref=e31]:
+    - complementary [ref=e32]:
+      - generic [ref=e33]:
+        - paragraph [ref=e34]: การจัดการข้อมูล
+        - link "ข้อมูลครู" [ref=e35] [cursor=pointer]:
+          - /url: /management/teacher
+          - img [ref=e36]
+          - paragraph [ref=e38]: ข้อมูลครู
+        - link "ข้อมูลวิชา" [ref=e39] [cursor=pointer]:
+          - /url: /management/subject
+          - img [ref=e40]
+          - paragraph [ref=e42]: ข้อมูลวิชา
+        - link "ข้อมูลสถานที่เรียน" [ref=e43] [cursor=pointer]:
+          - /url: /management/rooms
+          - img [ref=e44]
+          - paragraph [ref=e47]: ข้อมูลสถานที่เรียน
+        - link "ข้อมูลชั้นเรียน" [ref=e48] [cursor=pointer]:
+          - /url: /management/gradelevel
+          - img [ref=e49]
+          - paragraph [ref=e51]: ข้อมูลชั้นเรียน
+        - link "ข้อมูลหลักสูตร" [ref=e52] [cursor=pointer]:
+          - /url: /management/program
+          - img [ref=e53]
+          - paragraph [ref=e57]: ข้อมูลหลักสูตร
+      - generic [ref=e58]:
+        - paragraph [ref=e59]: ตารางสอน
+        - link "จัดตารางสอน" [ref=e60] [cursor=pointer]:
+          - /url: /dashboard/select-semester
+          - img [ref=e61]
+          - paragraph [ref=e63]: จัดตารางสอน
+    - generic [ref=e64]:
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - paragraph [ref=e68]: เพิ่มรายชื่อครู
+          - img [ref=e69] [cursor=pointer]
+        - paragraph [ref=e74] [cursor=pointer]: เพิ่มรายการ
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - paragraph [ref=e78]: รายการที่
+            - paragraph [ref=e79]: "1"
+          - generic [ref=e80]:
+            - generic [ref=e81]: "คำนำหน้าชื่อ (Prefix):"
+            - combobox [ref=e83] [cursor=pointer]:
+              - generic [ref=e84]: นาย
+              - img [ref=e85]
+          - generic [ref=e88]:
+            - generic: "ชื่อ (Firstname) :"
+            - generic [ref=e89]:
+              - textbox "ชื่อ (Firstname) :" [ref=e90]:
+                - /placeholder: ex. อเนก
+              - group:
+                - generic: "ชื่อ (Firstname) :"
+          - generic [ref=e92]:
+            - generic: "นามสกุล (Lastname) :"
+            - generic [ref=e93]:
+              - textbox "นามสกุล (Lastname) :" [ref=e94]:
+                - /placeholder: ex. ประสงค์
+              - group:
+                - generic: "นามสกุล (Lastname) :"
+          - generic [ref=e95]:
+            - generic [ref=e96]: "กลุ่มสาระ (Department):"
+            - combobox [ref=e98] [cursor=pointer]:
+              - generic [ref=e99]: คณิตศาสตร์
+              - img [ref=e100]
+          - generic [ref=e103]:
+            - generic [ref=e104]: "อีเมล (Email) :"
+            - generic [ref=e105]:
+              - textbox "อีเมล (Email) :" [ref=e106]:
+                - /placeholder: ex. example@example.com
+                - text: new_teacher_ea7ee36c-bd26-4428-8b8e-c83369ba9bca@school.local
+              - group:
+                - generic: "อีเมล (Email) :"
+        - generic [ref=e107]:
+          - button "ยกเลิก" [ref=e108] [cursor=pointer]:
+            - img [ref=e110]
+            - text: ยกเลิก
+          - button "ยืนยัน" [ref=e112] [cursor=pointer]:
+            - img [ref=e114]
+            - text: ยืนยัน
+      - button "เพิ่มข้อมูลครู" [active] [ref=e117] [cursor=pointer]: เพิ่มข้อมูลครู
+      - generic [ref=e118]:
+        - generic [ref=e119]: จัดการข้อมูลครู
+        - generic [ref=e121]:
+          - textbox "ค้นหาชื่อ นามสกุล กลุ่มสาระ หรืออีเมล" [ref=e122]
+          - group
+        - button "edit" [disabled]:
+          - img
+        - button "delete" [disabled]:
+          - img
+      - generic [ref=e123]:
+        - table [ref=e124]:
+          - rowgroup [ref=e125]:
+            - row "select all ID คำนำหน้าชื่อ ชื่อ นามสกุล กลุ่มสาระ อีเมล บทบาท" [ref=e126]:
+              - columnheader "select all" [ref=e127]:
+                - generic [ref=e128] [cursor=pointer]:
+                  - checkbox "select all" [ref=e129]
+                  - img [ref=e130]
+              - columnheader "ID" [ref=e132]
+              - columnheader "คำนำหน้าชื่อ" [ref=e133]
+              - columnheader "ชื่อ" [ref=e134]
+              - columnheader "นามสกุล" [ref=e135]
+              - columnheader "กลุ่มสาระ" [ref=e136]
+              - columnheader "อีเมล" [ref=e137]
+              - columnheader "บทบาท" [ref=e138]
+          - rowgroup [ref=e139]:
+            - row "81 นาย TestTeacher_create_1764582047310 Automated คณิตศาสตร์ teacher_create_1764582047310@test.local teacher" [ref=e140]:
+              - cell [ref=e141]:
+                - generic [ref=e142] [cursor=pointer]:
+                  - checkbox [ref=e143]
+                  - img [ref=e144]
+              - cell "81" [ref=e146]
+              - cell "นาย" [ref=e147]
+              - cell "TestTeacher_create_1764582047310" [ref=e148]
+              - cell "Automated" [ref=e149]
+              - cell "คณิตศาสตร์" [ref=e150]
+              - cell "teacher_create_1764582047310@test.local" [ref=e151]
+              - cell "teacher" [ref=e152]
+            - row "83 นาย TestTeacher_edit_1764582050464_Edited Automated คณิตศาสตร์ teacher_edit_1764582050465@test.local teacher" [ref=e153]:
+              - cell [ref=e154]:
+                - generic [ref=e155] [cursor=pointer]:
+                  - checkbox [ref=e156]
+                  - img [ref=e157]
+              - cell "83" [ref=e159]
+              - cell "นาย" [ref=e160]
+              - cell "TestTeacher_edit_1764582050464_Edited" [ref=e161]
+              - cell "Automated" [ref=e162]
+              - cell "คณิตศาสตร์" [ref=e163]
+              - cell "teacher_edit_1764582050465@test.local" [ref=e164]
+              - cell "teacher" [ref=e165]
+            - row "65 นางสาว กมล สุขใจ ภาษาต่างประเทศ teacher25@school.ac.th teacher" [ref=e166]:
+              - cell [ref=e167]:
+                - generic [ref=e168] [cursor=pointer]:
+                  - checkbox [ref=e169]
+                  - img [ref=e170]
+              - cell "65" [ref=e172]
+              - cell "นางสาว" [ref=e173]
+              - cell "กมล" [ref=e174]
+              - cell "สุขใจ" [ref=e175]
+              - cell "ภาษาต่างประเทศ" [ref=e176]
+              - cell "teacher25@school.ac.th" [ref=e177]
+              - cell "teacher" [ref=e178]
+            - row "55 นาง กิตติ อมรรัตน์ วิทยาศาสตร์และเทคโนโลยี teacher15@school.ac.th teacher" [ref=e179]:
+              - cell [ref=e180]:
+                - generic [ref=e181] [cursor=pointer]:
+                  - checkbox [ref=e182]
+                  - img [ref=e183]
+              - cell "55" [ref=e185]
+              - cell "นาง" [ref=e186]
+              - cell "กิตติ" [ref=e187]
+              - cell "อมรรัตน์" [ref=e188]
+              - cell "วิทยาศาสตร์และเทคโนโลยี" [ref=e189]
+              - cell "teacher15@school.ac.th" [ref=e190]
+              - cell "teacher" [ref=e191]
+            - row "64 นางสาว กิตติ เจริญรัตน์ ภาษาต่างประเทศ teacher24@school.ac.th teacher" [ref=e192]:
+              - cell [ref=e193]:
+                - generic [ref=e194] [cursor=pointer]:
+                  - checkbox [ref=e195]
+                  - img [ref=e196]
+              - cell "64" [ref=e198]
+              - cell "นางสาว" [ref=e199]
+              - cell "กิตติ" [ref=e200]
+              - cell "เจริญรัตน์" [ref=e201]
+              - cell "ภาษาต่างประเทศ" [ref=e202]
+              - cell "teacher24@school.ac.th" [ref=e203]
+              - cell "teacher" [ref=e204]
+            - row "53 นางสาว กิตติ ทองดี วิทยาศาสตร์และเทคโนโลยี teacher13@school.ac.th teacher" [ref=e205]:
+              - cell [ref=e206]:
+                - generic [ref=e207] [cursor=pointer]:
+                  - checkbox [ref=e208]
+                  - img [ref=e209]
+              - cell "53" [ref=e211]
+              - cell "นางสาว" [ref=e212]
+              - cell "กิตติ" [ref=e213]
+              - cell "ทองดี" [ref=e214]
+              - cell "วิทยาศาสตร์และเทคโนโลยี" [ref=e215]
+              - cell "teacher13@school.ac.th" [ref=e216]
+              - cell "teacher" [ref=e217]
+            - row "50 อาจารย์ จารุวรรณ สมานมิตร คณิตศาสตร์ teacher10@school.ac.th teacher" [ref=e218]:
+              - cell [ref=e219]:
+                - generic [ref=e220] [cursor=pointer]:
+                  - checkbox [ref=e221]
+                  - img [ref=e222]
+              - cell "50" [ref=e224]
+              - cell "อาจารย์" [ref=e225]
+              - cell "จารุวรรณ" [ref=e226]
+              - cell "สมานมิตร" [ref=e227]
+              - cell "คณิตศาสตร์" [ref=e228]
+              - cell "teacher10@school.ac.th" [ref=e229]
+              - cell "teacher" [ref=e230]
+            - row "62 อาจารย์ จินตนา วิริยะ ภาษาต่างประเทศ teacher22@school.ac.th teacher" [ref=e231]:
+              - cell [ref=e232]:
+                - generic [ref=e233] [cursor=pointer]:
+                  - checkbox [ref=e234]
+                  - img [ref=e235]
+              - cell "62" [ref=e237]
+              - cell "อาจารย์" [ref=e238]
+              - cell "จินตนา" [ref=e239]
+              - cell "วิริยะ" [ref=e240]
+              - cell "ภาษาต่างประเทศ" [ref=e241]
+              - cell "teacher22@school.ac.th" [ref=e242]
+              - cell "teacher" [ref=e243]
+            - row "42 ครู จินตนา ภูมิใจ ภาษาไทย teacher2@school.ac.th teacher" [ref=e244]:
+              - cell [ref=e245]:
+                - generic [ref=e246] [cursor=pointer]:
+                  - checkbox [ref=e247]
+                  - img [ref=e248]
+              - cell "42" [ref=e250]
+              - cell "ครู" [ref=e251]
+              - cell "จินตนา" [ref=e252]
+              - cell "ภูมิใจ" [ref=e253]
+              - cell "ภาษาไทย" [ref=e254]
+              - cell "teacher2@school.ac.th" [ref=e255]
+              - cell "teacher" [ref=e256]
+            - row "67 นาง ชญาน์นันท์ เจริญรัตน์ สุขศึกษาและพลศึกษา teacher27@school.ac.th teacher" [ref=e257]:
+              - cell [ref=e258]:
+                - generic [ref=e259] [cursor=pointer]:
+                  - checkbox [ref=e260]
+                  - img [ref=e261]
+              - cell "67" [ref=e263]
+              - cell "นาง" [ref=e264]
+              - cell "ชญาน์นันท์" [ref=e265]
+              - cell "เจริญรัตน์" [ref=e266]
+              - cell "สุขศึกษาและพลศึกษา" [ref=e267]
+              - cell "teacher27@school.ac.th" [ref=e268]
+              - cell "teacher" [ref=e269]
+        - generic [ref=e271]:
+          - paragraph [ref=e272]: "Rows per page:"
+          - generic [ref=e273]:
+            - 'combobox "Rows per page: 10" [ref=e274] [cursor=pointer]': "10"
+            - textbox: "10"
+            - img
+          - paragraph [ref=e275]: 1–10 of 42
+          - generic [ref=e276]:
+            - button "Go to previous page" [disabled]:
+              - img
+            - button "Go to next page" [ref=e277] [cursor=pointer]:
+              - img [ref=e278]
+  - alert [ref=e280]
+```

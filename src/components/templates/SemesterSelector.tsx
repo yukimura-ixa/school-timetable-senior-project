@@ -67,7 +67,7 @@ export function SemesterSelector() {
 
   const handleManageSemesters = () => {
     handleClose();
-    router.push("/dashboard/select-semester");
+    router.push("/dashboard");
   };
 
   if (!selectedSemester) {

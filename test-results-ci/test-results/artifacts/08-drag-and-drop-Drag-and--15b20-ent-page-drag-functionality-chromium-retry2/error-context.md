@@ -1,0 +1,63 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "ระบบจัดตารางเรียนตารางสอน" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - heading "ระบบจัดตารางเรียนตารางสอน" [level=1] [ref=e6]
+        - list [ref=e7]:
+          - listitem [ref=e8]:
+            - link "จัดการ" [ref=e9] [cursor=pointer]:
+              - /url: /management
+              - paragraph [ref=e10]: จัดการ
+          - listitem [ref=e11]:
+            - link "สรุปข้อมูล" [ref=e12] [cursor=pointer]:
+              - /url: /dashboard/select-semester
+              - paragraph [ref=e13]: สรุปข้อมูล
+      - generic [ref=e14]:
+        - button "เลือกภาคเรียน" [ref=e15] [cursor=pointer]:
+          - img [ref=e17]
+          - text: เลือกภาคเรียน
+        - generic [ref=e19]:
+          - img "profile_pic" [ref=e21] [cursor=pointer]
+          - generic [ref=e22]:
+            - paragraph [ref=e23]: System Administrator
+            - paragraph [ref=e26]: ผู้ดูแลระบบ
+          - button "ออกจากระบบ" [ref=e27]:
+            - img [ref=e28]
+  - generic [ref=e31]:
+    - complementary [ref=e32]:
+      - generic [ref=e33]:
+        - paragraph [ref=e34]: การจัดการข้อมูล
+        - link "ข้อมูลครู" [ref=e35] [cursor=pointer]:
+          - /url: /management/teacher
+          - img [ref=e36]
+          - paragraph [ref=e38]: ข้อมูลครู
+        - link "ข้อมูลวิชา" [ref=e39] [cursor=pointer]:
+          - /url: /management/subject
+          - img [ref=e40]
+          - paragraph [ref=e42]: ข้อมูลวิชา
+        - link "ข้อมูลสถานที่เรียน" [ref=e43] [cursor=pointer]:
+          - /url: /management/rooms
+          - img [ref=e44]
+          - paragraph [ref=e47]: ข้อมูลสถานที่เรียน
+        - link "ข้อมูลชั้นเรียน" [ref=e48] [cursor=pointer]:
+          - /url: /management/gradelevel
+          - img [ref=e49]
+          - paragraph [ref=e51]: ข้อมูลชั้นเรียน
+        - link "ข้อมูลหลักสูตร" [ref=e52] [cursor=pointer]:
+          - /url: /management/program
+          - img [ref=e53]
+          - paragraph [ref=e57]: ข้อมูลหลักสูตร
+      - generic [ref=e58]:
+        - paragraph [ref=e59]: ตารางสอน
+        - link "จัดตารางสอน" [ref=e60] [cursor=pointer]:
+          - /url: /schedule/1-2567/arrange/teacher-arrange
+          - img [ref=e61]
+          - paragraph [ref=e63]: จัดตารางสอน
+    - generic [ref=e65]: page
+  - alert [ref=e66]
+```

@@ -165,7 +165,7 @@ export const createTimeslotsAction = createAction(
     });
 
     // Revalidate paths to ensure UI sees fresh data (Next.js 16 cache invalidation)
-    revalidatePath("/dashboard/select-semester");
+    revalidatePath("/dashboard");
     revalidatePath(`/schedule/${configId}`);
 
     return {

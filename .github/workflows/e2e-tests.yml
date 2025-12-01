@@ -254,9 +254,14 @@ jobs:
       - name: Merge HTML reports
         run: |
           mkdir -p playwright-report
-          # Use Playwright's built-in merge if multiple shards exist
-          if [ -d "html-shards" ] && [ "$(ls -A html-shards)" ]; then
-            pnpm exec playwright merge-reports --reporter=html html-shards/*
+          # Merge all shard blob reports into a single HTML report
+          # The merge-reports command expects blob files (.zip), not HTML folders
+          # First, check if we have any blob files to merge
+          if ls html-shards/*/report.zip 1> /dev/null 2>&1; then
+            pnpm exec playwright merge-reports --reporter=html "html-shards/*"
+          elif [ -d "html-shards" ] && [ "$(ls -A html-shards)" ]; then
+            # Fallback: copy first shard's HTML report if no blobs
+            cp -r html-shards/playwright-html-shard-1/* playwright-report/ 2>/dev/null || true
           fi
 
       - name: Combine JSON results (simple concat)

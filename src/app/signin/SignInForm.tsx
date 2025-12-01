@@ -60,14 +60,14 @@ export default function SignInForm() {
         email,
         password,
         rememberMe,
-        callbackURL: "/dashboard/select-semester",
+        callbackURL: "/dashboard",
       });
 
       if (error) {
         setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
       } else if (data) {
         // Success - better-auth handles redirect via callbackURL
-        window.location.href = "/dashboard/select-semester";
+        window.location.href = "/dashboard";
       }
     } catch (e) {
       setFormError("เกิดข้อผิดพลาด");
@@ -79,7 +79,7 @@ export default function SignInForm() {
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard/select-semester",
+      callbackURL: "/dashboard",
     });
   };
 

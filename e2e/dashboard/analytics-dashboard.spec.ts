@@ -14,7 +14,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Analytics Dashboard", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to semester selection page (auth bypass enabled in .env.test)
-    await page.goto("/dashboard/select-semester", {
+    await page.goto("/dashboard", {
       waitUntil: "domcontentloaded",
     });
 
@@ -554,12 +554,12 @@ test.describe("Analytics Dashboard", () => {
   test.describe("Loading States", () => {
     test("should show skeleton during initial load", async ({ page }) => {
       // Navigate and intercept to slow down response
-      await page.route("/dashboard/select-semester", async (route) => {
+      await page.route("/dashboard", async (route) => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         route.continue();
       });
 
-      const navigation = page.goto("/dashboard/select-semester");
+      const navigation = page.goto("/dashboard");
 
       // Check for skeleton components
       const skeleton = page.locator('[class*="Skeleton"]').first();
@@ -628,7 +628,7 @@ test.describe("Analytics Dashboard", () => {
     test("dashboard should render within 2 seconds", async ({ page }) => {
       const startTime = Date.now();
 
-      await page.goto("/dashboard/select-semester", {
+      await page.goto("/dashboard", {
         waitUntil: "domcontentloaded",
       });
 
@@ -670,7 +670,7 @@ test.describe("Analytics Dashboard", () => {
 
     test("should not cause layout shifts", async ({ page }) => {
       // Measure layout shifts (basic check)
-      await page.goto("/dashboard/select-semester", {
+      await page.goto("/dashboard", {
         waitUntil: "domcontentloaded",
       });
 

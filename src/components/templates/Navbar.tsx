@@ -40,7 +40,7 @@ function Navbar() {
                   </li>
                 ) : null}
                 <li className="relative py-2 px-3 group">
-                  <Link href={"/dashboard/select-semester"}>
+                  <Link href={"/dashboard"}>
                     <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
                       สรุปข้อมูล
                     </p>

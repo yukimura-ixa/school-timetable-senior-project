@@ -66,7 +66,7 @@ function Schedule() {
             cursor: "pointer",
             textDecoration: "none",
           }}
-          href="/dashboard/select-semester"
+          href="/dashboard"
         >
           <KeyboardBackspaceIcon sx={{ color: "text.secondary" }} />
           <Box
