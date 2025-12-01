@@ -27,8 +27,8 @@ test.describe("Production Smoke Test - Authentication", () => {
     // Should redirect to dashboard
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
 
-    // Verify admin session
-    const response = await page.request.get("/api/auth/session");
+    // Verify admin session (better-auth uses /api/auth/get-session)
+    const response = await page.request.get("/api/auth/get-session");
     expect(response.ok()).toBeTruthy();
 
     const session = await response.json();

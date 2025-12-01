@@ -59,10 +59,11 @@ setup("authenticate as admin", async ({ page }) => {
     await page.waitForLoadState("domcontentloaded", { timeout: 20000 });
 
     // Double-check session is still admin before proceeding
+    // Note: better-auth uses /api/auth/get-session, not /api/auth/session
     await expect
       .poll(
         async () => {
-          const response = await page.request.get("/api/auth/session");
+          const response = await page.request.get("/api/auth/get-session");
           if (!response.ok()) return null;
           const body = await response.json().catch(() => null);
           return body?.user?.role ?? null;
@@ -191,10 +192,11 @@ setup("authenticate as admin", async ({ page }) => {
 
   // Verify authentication via session API (less flaky than UI visibility checks)
   // INCREASED TIMEOUT: 15s → 30s for CI slowness
+  // Note: better-auth uses /api/auth/get-session, not /api/auth/session
   await expect
     .poll(
       async () => {
-        const response = await page.request.get("/api/auth/session");
+        const response = await page.request.get("/api/auth/get-session");
 
         // ===== CI DEBUGGING: Log full response =====
         console.log("[DEBUG] Session API response:", {
