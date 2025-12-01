@@ -161,7 +161,8 @@ setup("authenticate as admin", async ({ page }) => {
 
   // Click and wait for client-side route change (Next.js uses SPA navigation)
   await loginButton.click();
-  await expect(page).toHaveURL(/\/dashboard\//, { timeout: 60000 });
+  // Match /dashboard with or without trailing slash/path segment
+  await expect(page).toHaveURL(/\/dashboard(\/|$)/, { timeout: 60000 });
   console.log("[AUTH SETUP] Clicked login button and navigated");
 
   // Wait for page to be stable
