@@ -164,7 +164,6 @@ export async function POST(req: Request) {
         );
       }
     }
-    }
 
     const years = parseYearsParam(yearsParam);
     const targetYears = years.length > 0 ? years : [2567, 2568];

@@ -15,7 +15,9 @@ const nextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
+// Sentry configuration - only upload source maps when auth token is available
+// This allows builds to succeed in CI/E2E environments without SENTRY_AUTH_TOKEN
+const sentryConfig = {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -24,6 +26,10 @@ export default withSentryConfig(nextConfig, {
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
+
+  // Pass the auth token (required for source map uploads)
+  // If not set, source maps won't be uploaded but build will still succeed
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
@@ -45,4 +51,12 @@ export default withSentryConfig(nextConfig, {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
-});
+
+  // Skip source map upload if no auth token is provided
+  // This prevents build failures in CI/E2E environments
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+};
+
+export default withSentryConfig(nextConfig, sentryConfig);
