@@ -73,10 +73,9 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     await page.goto("/management/subject");
     await page.waitForSelector("table", { timeout: 15000 });
 
-    // Subject uses EditableTable with Add button (has AddIcon)
-    // Look for button with AddIcon aria-label or text "เพิ่ม"
-    const addButton = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') }).first()
-      .or(page.locator('button[aria-label*="add"], button[aria-label*="เพิ่ม"]').first());
+    // Subject uses EditableTable with Add button - button contains text "เพิ่ม"
+    // The button has startIcon={<AddIcon />} and text content "เพิ่ม"
+    const addButton = page.getByRole('button', { name: 'เพิ่ม' });
     
     // Wait for table to fully load before clicking add
     await page.waitForLoadState("networkidle");
@@ -104,9 +103,8 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
       await subjectNameInput.fill(subjectName);
     }
 
-    // Save using the toolbar save button (SaveIcon)
-    const saveButton = page.locator('button').filter({ has: page.locator('svg[data-testid="SaveIcon"]') }).first()
-      .or(page.locator('button[aria-label*="save"], button[aria-label*="บันทึก"]').first());
+    // Save using the toolbar save button - IconButton with aria-label="save"
+    const saveButton = page.locator('button[aria-label="save"]');
     await expect(saveButton).toBeVisible({ timeout: 5000 });
     await saveButton.click();
 
@@ -124,9 +122,8 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     await page.goto("/management/rooms");
     await page.waitForSelector("table", { timeout: 15000 });
 
-    // Room uses EditableTable with Add button
-    const addButton = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') }).first()
-      .or(page.locator('button[aria-label*="add"], button[aria-label*="เพิ่ม"]').first());
+    // Room uses EditableTable with Add button - button contains text "เพิ่ม"
+    const addButton = page.getByRole('button', { name: 'เพิ่ม' });
     
     await page.waitForLoadState("networkidle");
     await expect(addButton).toBeVisible({ timeout: 10000 });
@@ -156,9 +153,8 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
       await floorInput.fill(floor);
     }
 
-    // Save using toolbar save button
-    const saveButton = page.locator('button').filter({ has: page.locator('svg[data-testid="SaveIcon"]') }).first()
-      .or(page.locator('button[aria-label*="save"], button[aria-label*="บันทึก"]').first());
+    // Save using toolbar save button - IconButton with aria-label="save"
+    const saveButton = page.locator('button[aria-label="save"]');
     await expect(saveButton).toBeVisible({ timeout: 5000 });
     await saveButton.click();
 

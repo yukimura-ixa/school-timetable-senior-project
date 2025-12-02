@@ -4,7 +4,7 @@
  */
 
 import Link from "next/link";
-import { Typography, Button, Paper, Container } from "@mui/material";
+import { Typography, Paper, Container, Box } from "@mui/material";
 import { Error as ErrorIcon, Home as HomeIcon } from "@mui/icons-material";
 
 export default function NotFound() {
@@ -37,16 +37,26 @@ export default function NotFound() {
           The semester you&apos;re looking for doesn&apos;t exist or hasn&apos;t
           been created yet.
         </Typography>
-        <Button
-          component={Link}
-          href="/dashboard"
-          variant="contained"
-          color="primary"
-          size="large"
-          startIcon={<HomeIcon />}
-        >
-          กลับหน้าหลัก
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Link
+            href="/schedule"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "12px 24px",
+              backgroundColor: "#1976d2",
+              color: "white",
+              borderRadius: "8px",
+              textDecoration: "none",
+              fontWeight: 500,
+              fontSize: "0.9375rem",
+            }}
+          >
+            <HomeIcon />
+            กลับหน้าหลัก
+          </Link>
+        </Box>
       </Paper>
     </Container>
   );
