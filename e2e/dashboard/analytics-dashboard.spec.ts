@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/admin.fixture";
 
 /**
  * Analytics Dashboard E2E Tests
@@ -10,13 +10,10 @@ import { test, expect } from "@playwright/test";
  * - Responsive layout
  * - Loading states
  *
- * FIXME: These tests are skipped because they don't use auth fixture.
- * The dashboard page requires authentication but these tests rely on
- * dev bypass which is disabled in CI. Need to migrate to use admin fixture.
- * See: https://github.com/yukimura-ixa/school-timetable-senior-project/issues/162
+ * Uses admin fixture for authentication (no dev bypass).
  */
 
-test.describe.skip("Analytics Dashboard", () => {
+test.describe("Analytics Dashboard", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to semester selection page (auth bypass enabled in .env.test)
     await page.goto("/dashboard", {

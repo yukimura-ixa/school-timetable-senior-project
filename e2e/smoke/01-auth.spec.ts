@@ -3,6 +3,9 @@
  *
  * Minimal critical path test for production environment.
  * Verifies admin can log in using production database.
+ *
+ * Note: This test intentionally uses @playwright/test directly (not admin.fixture)
+ * because it tests the authentication flow itself, starting from unauthenticated state.
  */
 
 import { test, expect } from "@playwright/test";

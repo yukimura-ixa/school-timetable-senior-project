@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/admin.fixture";
 import { NavigationHelper } from "../helpers/navigation";
 
 /**
@@ -10,6 +10,7 @@ import { NavigationHelper } from "../helpers/navigation";
  *  - All timeslots view
  *  - Presence of export/print controls
  *
+ * Uses admin fixture for authentication (no dev bypass).
  * Original TC references: TC-017 – TC-024
  */
 

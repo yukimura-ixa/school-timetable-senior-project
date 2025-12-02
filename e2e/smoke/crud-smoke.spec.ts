@@ -2,11 +2,13 @@
  * @file crud-smoke.spec.ts
  * @description CRUD smoke tests - validates Create operations work
  *
+ * Uses admin fixture for authentication (no dev bypass).
+ *
  * Note: Subject validation currently only accepts [A-Z0-9] codes
  * Thai MOE codes with Thai letters will require validation update
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/admin.fixture";
 
 const timestamp = Date.now();
 const seqNum = (timestamp % 10) + 90;
