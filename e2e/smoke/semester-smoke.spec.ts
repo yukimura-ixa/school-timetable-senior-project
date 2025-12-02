@@ -30,28 +30,27 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       expect(response?.status()).toBe(200);
     });
 
-    test(`/schedule/${term.label}/config renders teacher table`, async ({
+    test(`/schedule/${term.label}/config renders config form`, async ({
       page,
     }) => {
       await page.goto(`/schedule/${term.label}/config`);
 
-      // Wait for table to load
-      await page.waitForSelector("table", { timeout: 15000 });
-
-      // Check for pagination text (Thai: "แสดง X ถึง Y จาก Z รายการ")
-      const paginationText = page.locator("text=/แสดง.*ถึง.*จาก.*รายการ/");
-      await expect(paginationText).toBeVisible();
+      // Config page is a form with configuration options, not a table
+      // Wait for config form elements to load
+      // Thai: "กำหนดคาบต่อวัน" (Set periods per day)
+      const configLabel = page.locator("text=/กำหนดคาบต่อวัน|กำหนดระยะเวลาต่อคาบ/");
+      await expect(configLabel.first()).toBeVisible({ timeout: 15000 });
     });
 
-    test(`/schedule/${term.label}/config has metric cards`, async ({
+    test(`/schedule/${term.label}/config has configuration options`, async ({
       page,
     }) => {
       await page.goto(`/schedule/${term.label}/config`);
 
-      // Check for common metric card labels
-      // Thai: "ครูทั้งหมด" (All Teachers), "ห้องเรียน" (Classrooms), etc.
-      const hasMetrics = page.locator("text=/ครูทั้งหมด|ห้องเรียน|รายวิชา/");
-      await expect(hasMetrics.first()).toBeVisible({ timeout: 15000 });
+      // Check for config form labels (not metric cards - those are on dashboard)
+      // Thai: "กำหนดเวลาเริ่มคาบแรก" (Set first period start time), "กำหนดคาบพักเที่ยง" (Set lunch break)
+      const hasConfigOptions = page.locator("text=/กำหนดเวลาเริ่มคาบแรก|กำหนดคาบพักเที่ยง|กำหนดวันในตารางสอน/");
+      await expect(hasConfigOptions.first()).toBeVisible({ timeout: 15000 });
     });
 
     test(`/schedule/${term.label}/config has no console errors`, async ({
@@ -65,7 +64,8 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       });
 
       await page.goto(`/schedule/${term.label}/config`);
-      await expect(page.locator('table, [class*="Skeleton"], body').first()).toBeVisible({
+      // Wait for config form elements or skeleton
+      await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"], body').first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -172,8 +172,8 @@ test.describe("Cross-Term Navigation", () => {
     await page.goto("/schedule/1-2567/config");
     await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
 
-    // Verify page renders
-    await page.waitForSelector("table", { timeout: 15000 });
+    // Verify config page renders (config form, not table)
+    await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
 
     // Navigate to dashboard
     await page.goto("/dashboard/1-2567/all-timeslot");
@@ -201,13 +201,14 @@ test.describe("Multi-Semester Scenarios", () => {
     await page.goto("/schedule/1-2567/config");
     await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
-    await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+    // Config page has config form, not table
+    await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"]').first()).toBeVisible({ timeout: 15000 });
 
     // Navigate to semester 2
     await page.goto("/schedule/2-2567/config");
     await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
-    await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+    await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"]').first()).toBeVisible({ timeout: 15000 });
   });
 
   test("TC-MS-02: Both semesters load schedule config successfully", async ({
@@ -218,8 +219,8 @@ test.describe("Multi-Semester Scenarios", () => {
       const response = await page.goto(`/schedule/${term.label}/config`);
       expect(response?.status()).toBe(200);
 
-      // Verify content loads (table or skeleton)
-      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+      // Verify config form loads (config page uses form elements, not tables)
+      await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"]').first()).toBeVisible({ timeout: 15000 });
     }
   });
 
@@ -257,19 +258,19 @@ test.describe("Multi-Semester Scenarios", () => {
   test("TC-MS-05: Cross-semester navigation preserves page structure", async ({
     page,
   }) => {
-    // Load semester 1 config
+    // Load semester 1 config - config page has form elements
     await page.goto("/schedule/1-2567/config");
     await page.waitForLoadState("networkidle");
-    const sem1HasTable = await page.locator("table").count();
+    const sem1HasConfig = await page.locator("text=/กำหนดคาบต่อวัน/").count();
 
     // Load semester 2 config
     await page.goto("/schedule/2-2567/config");
     await page.waitForLoadState("networkidle");
-    const sem2HasTable = await page.locator("table").count();
+    const sem2HasConfig = await page.locator("text=/กำหนดคาบต่อวัน/").count();
 
-    // Both should have the same page structure (table present)
-    expect(sem1HasTable).toBeGreaterThan(0);
-    expect(sem2HasTable).toBeGreaterThan(0);
+    // Both should have the same page structure (config form present)
+    expect(sem1HasConfig).toBeGreaterThan(0);
+    expect(sem2HasConfig).toBeGreaterThan(0);
   });
 
   test("TC-MS-06: Rapid semester switching doesn't cause errors", async ({

@@ -291,37 +291,36 @@ test.describe("Critical Path Smoke Tests", () => {
       // Verify page loads successfully - wait for any fetch response
       await page.waitForLoadState("networkidle");
 
-      // Verify main content renders (table or loading skeleton)
-      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+      // Config page is a form with configuration options, not a table
+      // Wait for config form elements to render
+      await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"]').first()).toBeVisible({ timeout: 15000 });
     });
 
-    test("Verify default data loads (teachers, subjects, rooms)", async ({
+    test("Verify config form loads with options", async ({
       page,
     }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
       await page.waitForLoadState("networkidle");
 
-      // Wait for table to load
-      await page.waitForSelector("table", { timeout: 15000 });
-
-      // Verify table has data rows
-      const rows = page.locator("table tbody tr");
-      const rowCount = await rows.count();
-      expect(rowCount).toBeGreaterThan(0);
+      // Wait for config form to load - check for config labels
+      // Thai: "กำหนดคาบต่อวัน" (Set periods per day), "กำหนดระยะเวลาต่อคาบ" (Set duration per period)
+      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
+      await expect(page.locator("text=/กำหนดระยะเวลาต่อคาบ/")).toBeVisible({ timeout: 15000 });
     });
 
-    test("Metric cards display correct counts", async ({ page }) => {
+    test("Config form displays current settings", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
       await page.waitForLoadState("networkidle");
 
-      // Look for metric cards with Thai labels
-      const metricsLocator = page.locator(
-        "text=/ครูทั้งหมด|ห้องเรียน|รายวิชา|All Teachers|Classrooms|Subjects/i",
+      // Look for config labels that show current values (Thai text)
+      // "กำหนดเวลาเริ่มคาบแรก" (Set first period start time), "กำหนดคาบพักเที่ยง" (Set lunch break)
+      const configLabels = page.locator(
+        "text=/กำหนดเวลาเริ่มคาบแรก|กำหนดคาบพักเที่ยง|กำหนดวันในตารางสอน/i",
       );
-      await expect(metricsLocator.first()).toBeVisible({ timeout: 15000 });
+      await expect(configLabels.first()).toBeVisible({ timeout: 15000 });
 
-      // Verify at least one metric card shows a number
-      const numberPattern = page.locator("text=/\\d+/");
+      // Verify at least one value is displayed (numbers for periods/minutes)
+      const numberPattern = page.locator("text=/\\d+.*คาบ|\\d+.*นาที/");
       await expect(numberPattern.first()).toBeVisible();
     });
 
@@ -330,16 +329,16 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/schedule/1-2567/config`);
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
-      await page.waitForSelector("table", { timeout: 15000 });
+      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
 
       // Navigate to second semester
       await page.goto(`/schedule/2-2567/config`);
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
-      await page.waitForSelector("table", { timeout: 15000 });
+      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
 
-      // Both should load successfully - verify table rendered
-      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+      // Both should load successfully - verify config form rendered
+      await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"]').first()).toBeVisible({ timeout: 15000 });
     });
   });
 
