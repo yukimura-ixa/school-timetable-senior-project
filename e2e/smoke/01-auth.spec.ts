@@ -4,11 +4,14 @@
  * Minimal critical path test for production environment.
  * Verifies admin can log in using production database.
  *
- * Note: This test intentionally uses @playwright/test directly (not admin.fixture)
- * because it tests the authentication flow itself, starting from unauthenticated state.
+ * IMPORTANT: Uses `storageState: undefined` to override project-level auth
+ * so the test starts from an unauthenticated state.
  */
 
 import { test, expect } from "@playwright/test";
+
+// Override project-level storageState to test actual login flow
+test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe("Production Smoke Test - Authentication", () => {
   test("admin can log in to production", async ({ page }) => {
@@ -39,13 +42,28 @@ test.describe("Production Smoke Test - Authentication", () => {
     expect(session?.user?.email).toBe("admin@school.local");
   });
 
-  test("can access management pages", async ({ page }) => {
-    // Should already be authenticated from previous test
+  test("can access management pages after login", async ({ page }) => {
+    // Login first (tests are isolated, so we need to authenticate again)
+    await page.goto("/signin");
+    await page.fill('input[type="email"]', "admin@school.local");
+    await page.fill('input[type="password"]', "admin123");
+
+    const loginButton = page
+      .locator('button:not([data-testid="google-signin-button"])', {
+        hasText: /เข้าสู่ระบบ|sign in|login/i,
+      })
+      .first();
+    await loginButton.click();
+
+    // Wait for login to complete
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
+
+    // Now navigate to management page
     await page.goto("/management/teacher");
     await expect(page).toHaveURL("/management/teacher");
 
-    // Verify page loaded
-    await expect(page.getByRole("heading", { name: /teacher/i })).toBeVisible({
+    // Verify page loaded - wait for table or content
+    await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
       timeout: 10000,
     });
   });

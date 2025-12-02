@@ -23,41 +23,66 @@ const TEST_SEMESTER = "1-2567";
 
 test.describe("Critical Path Smoke Tests", () => {
   test.describe("1. Authentication Flow", () => {
-    test("Admin can log in via credentials", async ({ page }) => {
+    test("Admin can log in via credentials", async ({ browser }) => {
+      // Create a fresh unauthenticated context for login testing
+      const context = await browser.newContext({ storageState: undefined });
+      const page = await context.newPage();
+
       // Navigate to login page
       await page.goto("/signin");
+
+      // Wait for signin page to fully load
+      await page.waitForLoadState("domcontentloaded");
 
       // Fill in credentials (using seeded admin account from seed.ts)
       await page.fill('input[type="email"]', "admin@school.local");
       await page.fill('input[type="password"]', "admin123");
 
-      // Submit login form
-      await page.click('button[type="submit"]');
+      // Submit login form - look for credentials submit button (exclude Google)
+      const submitButton = page
+        .locator('button:not([data-testid="google-signin-button"])', {
+          hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
+        })
+        .first();
+      await submitButton.click();
 
       // Wait for redirect to dashboard
-      await page.waitForURL(/\/dashboard/, { timeout: 10000 });
+      await page.waitForURL(/\/dashboard/, { timeout: 15000 });
 
-      // Verify logged in state (check for logout button or user menu)
-      const userMenu = page.locator(
-        '[aria-label*="account"], [aria-label*="user"], text=/ออกจากระบบ|Logout/i',
-      );
-      await expect(userMenu.first()).toBeVisible({ timeout: 5000 });
+      // Verify logged in state via session API
+      const response = await page.request.get("/api/auth/get-session");
+      expect(response.ok()).toBeTruthy();
+      const session = await response.json();
+      expect(session?.user?.role).toBe("admin");
+      expect(session?.user?.email).toBe("admin@school.local");
+
+      await context.close();
     });
 
     test("Session persists across page reloads", async ({ page }) => {
       await page.goto("/management/teacher");
+      await page.waitForLoadState("domcontentloaded");
 
-      // Verify we're logged in
+      // Verify we're logged in (not redirected to /signin)
       await expect(page).toHaveURL(/\/management\/teacher/);
+
+      // Wait for page content to load (table, loading skeleton, or empty state)
+      await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
+        timeout: 10000,
+      });
 
       // Reload page
       await page.reload();
+      await page.waitForLoadState("domcontentloaded");
 
       // Should still be on the same page (not redirected to login)
       await expect(page).toHaveURL(/\/management\/teacher/);
 
-      // Page should render (not error boundary)
-      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
+      // Verify auth persisted via session API
+      const response = await page.request.get("/api/auth/get-session");
+      expect(response.ok()).toBeTruthy();
+      const session = await response.json();
+      expect(session?.user?.role).toBe("admin");
     });
 
     test("Unauthorized access redirects to login", async ({ browser }) => {
@@ -74,52 +99,84 @@ test.describe("Critical Path Smoke Tests", () => {
       await context.close();
     });
 
-    test("Admin can log out successfully", async ({ page }) => {
-      await page.goto("/dashboard");
+    test("Admin can log out successfully", async ({ browser }) => {
+      // Use a fresh authenticated context so logout doesn't affect other tests
+      const context = await browser.newContext();
+      const page = await context.newPage();
 
-      // Wait for page to load
-      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
+      // Login first
+      await page.goto("/signin");
+      await page.waitForLoadState("domcontentloaded");
+      await page.fill('input[type="email"]', "admin@school.local");
+      await page.fill('input[type="password"]', "admin123");
+      const submitButton = page
+        .locator('button:not([data-testid="google-signin-button"])', {
+          hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
+        })
+        .first();
+      await submitButton.click();
+      await page.waitForURL(/\/dashboard/, { timeout: 15000 });
 
-      // Click logout button (Thai: "ออกจากระบบ" or English: "Logout")
-      const logoutButton = page.locator(
+      // Verify logged in
+      const session = await page.request.get("/api/auth/get-session");
+      expect(session.ok()).toBeTruthy();
+
+      // Find and click logout - look for it in user menu/dropdown
+      // First try to find visible logout button
+      let logoutButton = page.locator(
         'button:has-text("ออกจากระบบ"), button:has-text("Logout"), a:has-text("ออกจากระบบ"), a:has-text("Logout")',
-      );
-      await expect(logoutButton.first()).toBeVisible({ timeout: 5000 });
-      await logoutButton.first().click();
+      ).first();
+
+      // If not visible, might need to open a user menu first
+      if (!(await logoutButton.isVisible())) {
+        // Try to find and click user menu/avatar
+        const userMenu = page.locator(
+          '[aria-label*="account"], [aria-label*="user"], [data-testid*="user"], button:has(svg[data-testid*="Person"]):visible',
+        ).first();
+        if (await userMenu.isVisible()) {
+          await userMenu.click();
+          await page.waitForTimeout(500); // Allow menu to open
+        }
+      }
+
+      // Click logout
+      logoutButton = page.locator(
+        'button:has-text("ออกจากระบบ"), button:has-text("Logout"), a:has-text("ออกจากระบบ"), a:has-text("Logout"), [role="menuitem"]:has-text("ออกจากระบบ"), [role="menuitem"]:has-text("Logout")',
+      ).first();
+      await expect(logoutButton).toBeVisible({ timeout: 5000 });
+      await logoutButton.click();
 
       // Should redirect to sign-in page
-      await expect(page).toHaveURL(/\/signin/, {
-        timeout: 10000,
-      });
+      await expect(page).toHaveURL(/\/signin/, { timeout: 10000 });
 
-      // Verify logged out state by trying to access protected route
-      await page.goto("/management/teacher");
-      await expect(page).toHaveURL(/\/signin/, {
-        timeout: 10000,
-      });
+      // Verify logged out - session should be null/empty
+      const postLogoutSession = await page.request.get("/api/auth/get-session");
+      const sessionData = await postLogoutSession.json();
+      expect(sessionData?.user).toBeFalsy();
+
+      await context.close();
     });
 
     test("Admin role is correctly assigned and verified", async ({ page }) => {
-      await page.goto("/dashboard");
-
-      // Wait for page to load
-      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
-
-      // Verify admin has access to management section
-      const managementLink = page.locator(
-        'a[href*="/management"], a:has-text("จัดการ"), a:has-text("Management")',
-      );
-      await expect(managementLink.first()).toBeVisible({ timeout: 5000 });
+      // Verify admin role via session API
+      const response = await page.request.get("/api/auth/get-session");
+      expect(response.ok()).toBeTruthy();
+      const session = await response.json();
+      expect(session?.user?.role).toBe("admin");
+      expect(session?.user?.email).toBe("admin@school.local");
 
       // Navigate to management page to confirm access
       await page.goto("/management/teacher");
-      await expect(page).toHaveURL(/\/management\/teacher/);
-
+      await page.waitForLoadState("domcontentloaded");
+      
       // Should not redirect to unauthorized page
+      await expect(page).toHaveURL(/\/management\/teacher/);
       await expect(page).not.toHaveURL(/\/signin|unauthorized/);
 
-      // Page should render successfully (not error boundary)
-      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
+      // Page should render successfully - wait for table or empty state
+      await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
+        timeout: 10000,
+      });
     });
   });
 
@@ -238,7 +295,7 @@ test.describe("Critical Path Smoke Tests", () => {
       expect(response.ok()).toBeTruthy();
 
       // Verify main content renders
-      await page.waitForSelector('main, [role="main"]', { timeout: 5000 });
+      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 5000 });
     });
 
     test("Verify default data loads (teachers, subjects, rooms)", async ({
@@ -280,9 +337,8 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
       await page.waitForSelector("table", { timeout: 10000 });
 
-      // Both should load successfully
-      const mainContent = page.locator('main, [role="main"]');
-      await expect(mainContent).toBeVisible();
+      // Both should load successfully - verify table rendered
+      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 5000 });
     });
   });
 
@@ -296,7 +352,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
 
       // Wait for content to render
-      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      await page.waitForSelector('table, [role="table"], [class*="Skeleton"]', { timeout: 10000 });
     });
 
     test("Assign a subject to a teacher", async ({ page }) => {
@@ -331,8 +387,8 @@ test.describe("Critical Path Smoke Tests", () => {
         }
       }
 
-      // Verify page doesn't error
-      await expect(page.locator('main, [role="main"]')).toBeVisible();
+      // Verify page doesn't error - table should still be visible
+      await expect(page.locator('table, [role="table"]').first()).toBeVisible();
     });
 
     test("Verify assignment persists after refresh", async ({ page }) => {
@@ -368,8 +424,8 @@ test.describe("Critical Path Smoke Tests", () => {
       // Verify page loads
       await expect(page).toHaveURL(/\/arrange\/teacher-arrange/);
 
-      // Wait for main content
-      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      // Wait for timetable grid to render
+      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 10000 });
     });
 
     test("Select a teacher and view their subjects", async ({ page }) => {
@@ -404,7 +460,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.waitForTimeout(1000);
 
       // Verify page renders without error
-      await expect(page.locator('main, [role="main"]')).toBeVisible();
+      await expect(page.locator('[draggable="true"], table').first()).toBeVisible();
     });
 
     test("Drag subject to timeslot (visual verification)", async ({ page }) => {
@@ -424,7 +480,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(timeslotGrid.first()).toBeVisible({ timeout: 5000 });
 
       // Basic smoke check: page renders correctly
-      await expect(page.locator('main, [role="main"]')).toBeVisible();
+      await expect(page.locator('[draggable="true"]').first()).toBeVisible();
     });
   });
 
@@ -432,8 +488,8 @@ test.describe("Critical Path Smoke Tests", () => {
     test("Verify conflict warnings display", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
-      // Wait for page to load
-      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      // Wait for timetable grid to load
+      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 10000 });
 
       // Look for conflict indicators (red borders, warning icons, etc.)
       // This is a smoke test - detailed conflict testing in e2e/04-conflict-prevention.spec.ts
@@ -443,14 +499,14 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Just verify the page can render conflict states
       // May or may not have actual conflicts in seeded data
-      await expect(page.locator('main, [role="main"]')).toBeVisible();
+      await expect(page.locator('[draggable="true"], table').first()).toBeVisible();
     });
 
     test("Verify locked timeslots are indicated", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
-      // Wait for page load
-      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      // Wait for timetable grid to load
+      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 10000 });
 
       // Look for lock icons or locked state indicators
       const lockIndicators = page.locator(
@@ -458,7 +514,7 @@ test.describe("Critical Path Smoke Tests", () => {
       );
 
       // Verify page renders (may or may not have locked slots in seeded data)
-      await expect(page.locator('main, [role="main"]')).toBeVisible();
+      await expect(page.locator('[draggable="true"], table').first()).toBeVisible();
     });
   });
 
@@ -469,8 +525,8 @@ test.describe("Critical Path Smoke Tests", () => {
       // Verify page loads
       await expect(page).toHaveURL(/\/view\/teacher/);
 
-      // Wait for content
-      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      // Wait for content - teacher selector or table
+      await page.waitForSelector('select, [role="combobox"], table, [class*="Skeleton"]', { timeout: 10000 });
     });
 
     test("Select teacher and verify schedule renders", async ({ page }) => {
@@ -504,7 +560,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/export/);
 
       // Wait for export options
-      await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+      await page.waitForSelector('button:has-text("Excel"), button:has-text("ส่งออก"), [class*="Skeleton"]', { timeout: 10000 });
     });
 
     test("Trigger Excel export and verify download", async ({ page }) => {
