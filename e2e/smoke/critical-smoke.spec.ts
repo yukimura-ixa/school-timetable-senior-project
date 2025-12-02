@@ -101,38 +101,18 @@ test.describe("Critical Path Smoke Tests", () => {
 
     test("Admin can log out successfully", async ({ browser }) => {
       // Use a fresh authenticated context so logout doesn't affect other tests
+      // Note: browser.newContext() without storageState: undefined will use the default
+      // authenticated state from auth.setup.ts
       const context = await browser.newContext();
       const page = await context.newPage();
 
-      // Login first - need to handle case where previous session might exist
-      await page.goto("/signin");
-      await page.waitForLoadState("domcontentloaded");
-      
-      // Check if we got redirected to dashboard (meaning session exists)
-      const currentUrl = page.url();
-      if (currentUrl.includes("/dashboard")) {
-        // Already logged in, skip login step
-        console.log("[Logout Test] Already logged in, skipping login");
-      } else {
-        // Need to login
-        await page.fill('input[type="email"]', "admin@school.local");
-        await page.fill('input[type="password"]', "admin123");
-        const submitButton = page
-          .locator('button:not([data-testid="google-signin-button"])', {
-            hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
-          })
-          .first();
-        await submitButton.click();
-        await page.waitForURL(/\/dashboard/, { timeout: 15000 });
-      }
+      // Since this context inherits the authenticated session, just go directly to dashboard
+      await page.goto("/dashboard");
+      await page.waitForLoadState("networkidle");
 
       // Verify logged in
       const session = await page.request.get("/api/auth/get-session");
       expect(session.ok()).toBeTruthy();
-
-      // Navigate to dashboard to ensure we're on a page with navbar
-      await page.goto("/dashboard");
-      await page.waitForLoadState("domcontentloaded");
 
       // Find logout button - it has aria-label="ออกจากระบบ"
       const logoutButton = page.locator('button[aria-label="ออกจากระบบ"]');
@@ -140,7 +120,6 @@ test.describe("Critical Path Smoke Tests", () => {
       await logoutButton.click();
 
       // After logout with our fix, should redirect to /signin
-      // Wait for URL to change to signin
       await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
 
       // Verify logged out - session should be null/empty
