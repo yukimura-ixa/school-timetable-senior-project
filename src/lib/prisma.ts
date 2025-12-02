@@ -10,10 +10,13 @@ function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL!;
   const isAccelerate = connectionString.startsWith("prisma+");
 
-  // Avoid logging raw secrets; only log protocol + host
-  const safeConnection =
-    connectionString.split("?")[0]?.replace(/:[^:@]+@/, ":****@") ?? "unknown";
-  console.warn("[PRISMA] Connecting to DB:", safeConnection);
+  // Only log connection info in development (avoid production noise on cold starts)
+  if (process.env.NODE_ENV !== "production") {
+    // Avoid logging raw secrets; only log protocol + host
+    const safeConnection =
+      connectionString.split("?")[0]?.replace(/:[^:@]+@/, ":****@") ?? "unknown";
+    console.warn("[PRISMA] Connecting to DB:", safeConnection);
+  }
 
   // Use Prisma Accelerate (Data Proxy) when prisma+ protocol is provided
   if (isAccelerate) {
