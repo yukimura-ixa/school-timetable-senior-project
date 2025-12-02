@@ -79,7 +79,8 @@ jobs:
         run: |
           cat > .env.test << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
-          AUTH_SECRET=ci-test-secret-smoke-tests
+          BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_FOR_TESTS=true
@@ -103,10 +104,10 @@ jobs:
               echo "❌ DATABASE_URL is missing"
               exit 1
             fi
-            if grep -q "AUTH_SECRET" .env.test; then
-              echo "✅ AUTH_SECRET is set"
+            if grep -q "BETTER_AUTH_SECRET" .env.test; then
+              echo "✅ BETTER_AUTH_SECRET is set"
             else
-              echo "❌ AUTH_SECRET is missing"
+              echo "❌ BETTER_AUTH_SECRET is missing"
               exit 1
             fi
             echo "✅ All required environment variables are configured"
@@ -128,8 +129,9 @@ jobs:
         run: pnpm db:seed:clean
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-          # better-auth requires AUTH_SECRET even during seeding (for password hashing)
-          AUTH_SECRET: ci-test-secret-smoke-tests
+          # better-auth requires BETTER_AUTH_SECRET even during seeding (for password hashing)
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
 
@@ -137,7 +139,8 @@ jobs:
         run: pnpm build
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-          AUTH_SECRET: ci-test-secret-smoke-tests
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           SEED_FOR_TESTS: "true"
@@ -152,8 +155,9 @@ jobs:
         run: pnpm test:smoke
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-          # Better-auth requires AUTH_SECRET for session management and cookie signing
-          AUTH_SECRET: ci-test-secret-smoke-tests
+          # Better-auth requires BETTER_AUTH_SECRET for session management and cookie signing
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           NEXT_TELEMETRY_DISABLED: "1"
