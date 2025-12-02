@@ -14,11 +14,15 @@
 
 import { test, expect } from "../fixtures/admin.fixture";
 
+// Only 3 semesters are seeded in prisma/create-semesters.ts:
+// - 1-2567 (PUBLISHED)
+// - 2-2567 (DRAFT)
+// - 1-2568 (DRAFT)
+// Note: 2-2568 is NOT seeded
 const SEEDED_TERMS = [
   { semester: 1, year: 2567, label: "1-2567" },
   { semester: 2, year: 2567, label: "2-2567" },
   { semester: 1, year: 2568, label: "1-2568" },
-  { semester: 2, year: 2568, label: "2-2568" },
 ];
 
 test.describe("Semester Smoke Tests - Schedule Config", () => {
@@ -168,9 +172,9 @@ test.describe("Cross-Term Navigation", () => {
     await page.goto("/schedule/1-2567/config");
     await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
 
-    // Navigate to term 2-2568
-    await page.goto("/schedule/2-2568/config");
-    await expect(page).toHaveURL(/\/schedule\/2-2568\/config/);
+    // Navigate to term 1-2568 (note: 2-2568 is not seeded)
+    await page.goto("/schedule/1-2568/config");
+    await expect(page).toHaveURL(/\/schedule\/1-2568\/config/);
 
     // Both should render successfully
     await page.waitForSelector("table", { timeout: 10000 });
@@ -183,7 +187,7 @@ test.describe("Cross-Term Navigation", () => {
     await page.goto("/dashboard/1-2567/all-timeslot");
     const content1 = await page.textContent("body");
 
-    await page.goto("/dashboard/2-2568/all-timeslot");
+    await page.goto("/dashboard/2-2567/all-timeslot");
     const content2 = await page.textContent("body");
 
     // Content should be present in both
