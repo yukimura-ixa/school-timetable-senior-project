@@ -104,49 +104,43 @@ test.describe("Critical Path Smoke Tests", () => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
-      // Login first
+      // Login first - need to handle case where previous session might exist
       await page.goto("/signin");
       await page.waitForLoadState("domcontentloaded");
-      await page.fill('input[type="email"]', "admin@school.local");
-      await page.fill('input[type="password"]', "admin123");
-      const submitButton = page
-        .locator('button:not([data-testid="google-signin-button"])', {
-          hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
-        })
-        .first();
-      await submitButton.click();
-      await page.waitForURL(/\/dashboard/, { timeout: 15000 });
+      
+      // Check if we got redirected to dashboard (meaning session exists)
+      const currentUrl = page.url();
+      if (currentUrl.includes("/dashboard")) {
+        // Already logged in, skip login step
+        console.log("[Logout Test] Already logged in, skipping login");
+      } else {
+        // Need to login
+        await page.fill('input[type="email"]', "admin@school.local");
+        await page.fill('input[type="password"]', "admin123");
+        const submitButton = page
+          .locator('button:not([data-testid="google-signin-button"])', {
+            hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
+          })
+          .first();
+        await submitButton.click();
+        await page.waitForURL(/\/dashboard/, { timeout: 15000 });
+      }
 
       // Verify logged in
       const session = await page.request.get("/api/auth/get-session");
       expect(session.ok()).toBeTruthy();
 
-      // Find and click logout - look for it in user menu/dropdown
-      // First try to find visible logout button
-      let logoutButton = page.locator(
-        'button:has-text("ออกจากระบบ"), button:has-text("Logout"), a:has-text("ออกจากระบบ"), a:has-text("Logout")',
-      ).first();
+      // Navigate to dashboard to ensure we're on a page with navbar
+      await page.goto("/dashboard");
+      await page.waitForLoadState("domcontentloaded");
 
-      // If not visible, might need to open a user menu first
-      if (!(await logoutButton.isVisible())) {
-        // Try to find and click user menu/avatar
-        const userMenu = page.locator(
-          '[aria-label*="account"], [aria-label*="user"], [data-testid*="user"], button:has(svg[data-testid*="Person"]):visible',
-        ).first();
-        if (await userMenu.isVisible()) {
-          await userMenu.click();
-          await page.waitForTimeout(500); // Allow menu to open
-        }
-      }
-
-      // Click logout
-      logoutButton = page.locator(
-        'button:has-text("ออกจากระบบ"), button:has-text("Logout"), a:has-text("ออกจากระบบ"), a:has-text("Logout"), [role="menuitem"]:has-text("ออกจากระบบ"), [role="menuitem"]:has-text("Logout")',
-      ).first();
+      // Find logout button - it has aria-label="ออกจากระบบ"
+      const logoutButton = page.locator('button[aria-label="ออกจากระบบ"]');
       await expect(logoutButton).toBeVisible({ timeout: 15000 });
       await logoutButton.click();
 
-      // Should redirect to sign-in page
+      // After logout with our fix, should redirect to /signin
+      // Wait for URL to change to signin
       await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
 
       // Verify logged out - session should be null/empty
