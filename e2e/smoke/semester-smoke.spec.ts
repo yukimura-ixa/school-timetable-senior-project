@@ -9,9 +9,10 @@
  * - No runtime errors in console
  *
  * Runs against production OR local depending on PLAYWRIGHT_BASE_URL
+ * Uses admin fixture for authentication (no dev bypass).
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/admin.fixture";
 
 const SEEDED_TERMS = [
   { semester: 1, year: 2567, label: "1-2567" },

@@ -13,9 +13,10 @@
  * 8. Export to Excel
  *
  * Expected execution time: ~10-15 minutes
+ * Uses admin fixture for authentication (no dev bypass).
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures/admin.fixture";
 
 // Use first seeded semester for all tests
 const TEST_SEMESTER = "1-2567";
