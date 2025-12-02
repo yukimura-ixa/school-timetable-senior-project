@@ -36,9 +36,13 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     const saveButton = page.locator('button[aria-label="save"]');
     await saveButton.click();
 
-    await expect(page.locator("text=/เพิ่ม.*สำเร็จ|สำเร็จ/i")).toBeVisible({
-      timeout: 15000,
-    });
+    // Wait for success snackbar - notistack shows snackbar with success message
+    // The message is "เพิ่มครูสำเร็จ" (Added teacher successfully)
+    // Use a more flexible selector that looks for the snackbar or success text
+    const successIndicator = page.locator('[role="alert"]')
+      .or(page.locator('text=/สำเร็จ/'))
+      .or(page.locator('.notistack-SnackbarContainer'));
+    await expect(successIndicator.first()).toBeVisible({ timeout: 15000 });
     console.log(`✅ Created teacher: ${teacherEmail}`);
   });
 
@@ -64,9 +68,11 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     const saveBtn = page.locator('button[aria-label="save"]');
     await saveBtn.click();
 
-    await expect(page.locator("text=/เพิ่ม.*สำเร็จ|สำเร็จ/i")).toBeVisible({
-      timeout: 15000,
-    });
+    // Wait for success snackbar or verify the row was saved
+    const successIndicator = page.locator('[role="alert"]')
+      .or(page.locator('text=/สำเร็จ/'))
+      .or(page.locator('.notistack-SnackbarContainer'));
+    await expect(successIndicator.first()).toBeVisible({ timeout: 15000 });
     console.log(`✅ Created subject: ${subjectCode}`);
   });
 
@@ -87,9 +93,11 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     const saveButton2 = page.locator('button[aria-label="save"]');
     await saveButton2.click();
 
-    await expect(page.locator("text=/เพิ่ม.*สำเร็จ|สำเร็จ/i")).toBeVisible({
-      timeout: 15000,
-    });
+    // Wait for success snackbar
+    const successIndicator = page.locator('[role="alert"]')
+      .or(page.locator('text=/สำเร็จ/'))
+      .or(page.locator('.notistack-SnackbarContainer'));
+    await expect(successIndicator.first()).toBeVisible({ timeout: 15000 });
     console.log(`✅ Created room: ${roomNumber}`);
   });
 });

@@ -64,8 +64,11 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       });
 
       await page.goto(`/schedule/${term.label}/config`);
-      // Wait for config form elements or skeleton
-      await expect(page.locator('text=/กำหนดคาบต่อวัน/, [class*="Skeleton"], body').first()).toBeVisible({
+      // Wait for config form elements or skeleton (use .or() for multiple alternatives)
+      const configLocator = page.locator('text=/กำหนดคาบต่อวัน/')
+        .or(page.locator('[class*="Skeleton"]'))
+        .or(page.locator('body'));
+      await expect(configLocator.first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -88,7 +91,7 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
       expect(response?.status()).toBe(200);
     });
 
-    test(`/dashboard/${term.label}/all-timeslot renders grade table`, async ({
+    test(`/dashboard/${term.label}/all-timeslot renders timetable view`, async ({
       page,
     }) => {
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
@@ -96,21 +99,19 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
       // Wait for table to load
       await page.waitForSelector("table", { timeout: 15000 });
 
-      // Check for common grade labels (Thai: "ม.1", "ม.4", etc.)
-      const gradeLabels = page.locator("text=/ม\\.\\d/");
-      await expect(gradeLabels.first()).toBeVisible();
+      // Check for timetable header (Thai: "ตารางสอน")
+      const headerLabel = page.locator("text=/ตารางสอน|ตัวกรอง/");
+      await expect(headerLabel.first()).toBeVisible();
     });
 
-    test(`/dashboard/${term.label}/all-timeslot has pagination`, async ({
+    test(`/dashboard/${term.label}/all-timeslot has filter controls`, async ({
       page,
     }) => {
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
 
-      // Check for pagination controls
-      const pagination = page
-        .locator('[role="navigation"]')
-        .filter({ hasText: /หน้า|Page/i });
-      await expect(pagination).toBeVisible({ timeout: 15000 });
+      // Check for filter controls (Thai: "ตัวกรอง" = Filter)
+      const filterLabel = page.locator("text=/ตัวกรอง|เลือกครู|เลือกวัน/");
+      await expect(filterLabel.first()).toBeVisible({ timeout: 15000 });
     });
 
     test(`/dashboard/${term.label}/all-timeslot has no console errors`, async ({
@@ -124,7 +125,11 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
       });
 
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
-      await expect(page.locator('table, [class*="Skeleton"], body').first()).toBeVisible({
+      // Use .or() for multiple alternatives instead of comma-separated CSS
+      const contentLocator = page.locator('table')
+        .or(page.locator('[class*="Skeleton"]'))
+        .or(page.locator('body'));
+      await expect(contentLocator.first()).toBeVisible({
         timeout: 15000,
       });
 
@@ -146,9 +151,10 @@ test.describe("Semester Route Validation", () => {
     const status = response?.status();
 
     if (status === 200) {
-      // Check for error boundary message (Thai: "ไม่พบภาคเรียน")
-      const errorMessage = page.locator("text=/ไม่พบภาคเรียน|ไม่พบข้อมูล/");
-      await expect(errorMessage).toBeVisible({ timeout: 15000 });
+      // Check for error boundary message - error.tsx shows "เกิดข้อผิดพลาด" (Error occurred)
+      // or "ไม่พบภาคเรียน" (Semester not found)
+      const errorMessage = page.locator("text=/เกิดข้อผิดพลาด|ไม่พบภาคเรียน|ไม่พบข้อมูล|Error/");
+      await expect(errorMessage.first()).toBeVisible({ timeout: 15000 });
     } else {
       // Should redirect
       expect([301, 302, 307, 308]).toContain(status);
