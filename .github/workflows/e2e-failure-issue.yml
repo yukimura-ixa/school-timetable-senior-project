@@ -75,9 +75,17 @@ jobs:
       - name: Create failure issue
         if: steps.check-issue.outputs.existing_issue == ''
         uses: actions/github-script@v7
+        env:
+          RUN_URL: ${{ steps.run-details.outputs.run_url }}
+          COMMIT_SHA: ${{ steps.run-details.outputs.commit_sha }}
+          BRANCH: ${{ steps.run-details.outputs.branch }}
+          FAILED_JOBS: ${{ steps.run-details.outputs.failed_jobs }}
+          RUN_ID: ${{ steps.run-details.outputs.run_id }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
         with:
           script: |
             const today = new Date().toISOString().split('T')[0];
+            const { RUN_URL, COMMIT_SHA, BRANCH, FAILED_JOBS, RUN_ID, WORKFLOW_RUN_ID } = process.env;
             
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
@@ -85,13 +93,13 @@ jobs:
               title: `🔴 E2E Test Failure - ${today}`,
               body: `## E2E Test Failure Report
             
-            **Workflow Run:** [${{ github.event.workflow_run.id }}](${{ steps.run-details.outputs.run_url }})
-            **Branch:** \`${{ steps.run-details.outputs.branch }}\`
-            **Commit:** \`${{ steps.run-details.outputs.commit_sha }}\`
+            **Workflow Run:** [${WORKFLOW_RUN_ID}](${RUN_URL})
+            **Branch:** \`${BRANCH}\`
+            **Commit:** \`${COMMIT_SHA}\`
             **Status:** Failed ❌
             
             ### Failed Jobs
-            ${{ steps.run-details.outputs.failed_jobs }}
+            ${FAILED_JOBS}
             
             ### Quick Debug Steps
             
@@ -101,7 +109,7 @@ jobs:
                pnpm ci:artifacts
                
                # Or specify run ID
-               .\\scripts\\download-e2e-artifacts.ps1 -RunId ${{ steps.run-details.outputs.run_id }}
+               .\\scripts\\download-e2e-artifacts.ps1 -RunId ${RUN_ID}
                \`\`\`
             
             2. **View HTML report:**
@@ -120,7 +128,7 @@ jobs:
                \`\`\`
             
             ### Artifacts
-            - [Download artifacts](${{ steps.run-details.outputs.run_url }}#artifacts)
+            - [Download artifacts](${RUN_URL}#artifacts)
             
             ---
             *This issue was automatically created by the E2E Failure Issue Creator workflow.*
@@ -133,22 +141,31 @@ jobs:
       - name: Add comment to existing issue
         if: steps.check-issue.outputs.existing_issue != ''
         uses: actions/github-script@v7
+        env:
+          RUN_URL: ${{ steps.run-details.outputs.run_url }}
+          COMMIT_SHA: ${{ steps.run-details.outputs.commit_sha }}
+          BRANCH: ${{ steps.run-details.outputs.branch }}
+          FAILED_JOBS: ${{ steps.run-details.outputs.failed_jobs }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          EXISTING_ISSUE: ${{ steps.check-issue.outputs.existing_issue }}
         with:
           script: |
+            const { RUN_URL, COMMIT_SHA, BRANCH, FAILED_JOBS, WORKFLOW_RUN_ID, EXISTING_ISSUE } = process.env;
+            
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: ${{ steps.check-issue.outputs.existing_issue }},
+              issue_number: parseInt(EXISTING_ISSUE),
               body: `## Additional E2E Failure
             
-            **Workflow Run:** [${{ github.event.workflow_run.id }}](${{ steps.run-details.outputs.run_url }})
-            **Branch:** \`${{ steps.run-details.outputs.branch }}\`
-            **Commit:** \`${{ steps.run-details.outputs.commit_sha }}\`
+            **Workflow Run:** [${WORKFLOW_RUN_ID}](${RUN_URL})
+            **Branch:** \`${BRANCH}\`
+            **Commit:** \`${COMMIT_SHA}\`
             
             ### Failed Jobs
-            ${{ steps.run-details.outputs.failed_jobs }}
+            ${FAILED_JOBS}
             
-            [View run details](${{ steps.run-details.outputs.run_url }})`
+            [View run details](${RUN_URL})`
             });
             
-            console.log(`Added comment to issue #${{ steps.check-issue.outputs.existing_issue }}`);
+            console.log(`Added comment to issue #${EXISTING_ISSUE}`);
