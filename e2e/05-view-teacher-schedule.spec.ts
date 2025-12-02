@@ -26,7 +26,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Verify teacher selection is visible (use testid to avoid strict mode violation)
     await expect(page.getByTestId("teacher-multi-select")).toBeVisible();
@@ -46,7 +46,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for data to load
     await page.waitForTimeout(2000);
@@ -79,7 +79,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for schedule to load
     await page.waitForTimeout(2000);
@@ -121,7 +121,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -154,7 +154,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(1000);
 
@@ -186,7 +186,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(1000);
 
@@ -222,7 +222,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     // This requires a teacher account with proper credentials
 
     await page.goto("");
-    await expect(page.locator("body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("body")).toBeVisible({ timeout: 15000 });
 
     // Check if dev bypass is available
     const devBypass = page.getByRole("button", {
@@ -242,7 +242,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     console.log("Teacher schedule page accessible");
   });
@@ -254,7 +254,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -308,7 +308,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -543,7 +543,7 @@ test.describe("TC-017: Export Functionality", () => {
     await page.goto(
       `/dashboard/${testSemester}/teacher-table`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(1000);
 

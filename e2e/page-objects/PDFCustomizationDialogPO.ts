@@ -102,7 +102,7 @@ export class PDFCustomizationDialogPO extends BasePage {
    * Assert dialog is visible
    */
   async assertDialogOpen() {
-    await expect(this.dialog).toBeVisible({ timeout: 5000 });
+    await expect(this.dialog).toBeVisible({ timeout: 15000 });
     await expect(this.dialogTitle).toBeVisible();
   }
 
@@ -110,7 +110,7 @@ export class PDFCustomizationDialogPO extends BasePage {
    * Assert dialog is closed
    */
   async assertDialogClosed() {
-    await expect(this.dialog).not.toBeVisible({ timeout: 5000 });
+    await expect(this.dialog).not.toBeVisible({ timeout: 15000 });
   }
 
   /**

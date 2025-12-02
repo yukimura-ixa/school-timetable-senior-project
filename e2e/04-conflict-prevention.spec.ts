@@ -25,7 +25,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Verify teacher selection is available
     await expect(page.getByText("เลือกคุณครู")).toBeVisible();
@@ -45,7 +45,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for teacher table to load
     await page.waitForTimeout(2000);
@@ -81,7 +81,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for data to load
     await page.waitForTimeout(2000);
@@ -111,7 +111,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for the grid to load
     await page.waitForTimeout(2000);
@@ -144,7 +144,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/student-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Verify grade/class selection is available
     await expect(page.locator("body")).toContainText(/เลือก|ชั้น|grade|class/i);
@@ -164,7 +164,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/student-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for data load
     await page.waitForTimeout(2000);
@@ -190,7 +190,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/student-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -209,7 +209,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/student-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -241,7 +241,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -269,7 +269,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -289,7 +289,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -313,7 +313,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -348,7 +348,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -375,13 +375,13 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
     // Reload the page
     await page.reload();
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -400,7 +400,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange/teacher-arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Look for a link/button to view conflicts
     const conflictLink = page

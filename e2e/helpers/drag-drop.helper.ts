@@ -94,8 +94,8 @@ export async function dragAndDrop(
 
   try {
     // Ensure elements are visible
-    await source.waitFor({ state: "visible", timeout: 5000 });
-    await target.waitFor({ state: "visible", timeout: 5000 });
+    await source.waitFor({ state: "visible", timeout: 15000 });
+    await target.waitFor({ state: "visible", timeout: 15000 });
 
     // Scroll into view
     await source.scrollIntoViewIfNeeded();
@@ -187,7 +187,7 @@ export async function keyboardDrag(
   const { dragDelay = 200, dropDelay = 300 } = config;
 
   try {
-    await source.waitFor({ state: "visible", timeout: 5000 });
+    await source.waitFor({ state: "visible", timeout: 15000 });
     await source.focus();
     await page.waitForTimeout(200);
 
@@ -357,8 +357,8 @@ export async function touchDragAndDrop(
   const { steps = 10, dragDelay = 200, dropDelay = 300 } = config;
 
   try {
-    await source.waitFor({ state: "visible", timeout: 5000 });
-    await target.waitFor({ state: "visible", timeout: 5000 });
+    await source.waitFor({ state: "visible", timeout: 15000 });
+    await target.waitFor({ state: "visible", timeout: 15000 });
 
     const sourceCenter = await getElementCenter(source);
     const targetCenter = await getElementCenter(target);

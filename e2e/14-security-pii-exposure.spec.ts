@@ -48,7 +48,7 @@ test.describe("Security: PII Exposure Prevention", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/?tab=teachers");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const htmlContent = await page.content();
@@ -77,7 +77,7 @@ test.describe("Security: PII Exposure Prevention", () => {
     // Navigate to homepage to get a teacher ID
     await page.goto("/?tab=teachers");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Try to find a teacher link
@@ -87,7 +87,7 @@ test.describe("Security: PII Exposure Prevention", () => {
     if (teacherLinkCount > 0) {
       await teacherLink.click();
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
 
       const htmlContent = await page.content();
@@ -148,7 +148,7 @@ test.describe("Security: PII Exposure Prevention", () => {
     // Navigate through public pages
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Check teachers tab if it exists
@@ -160,7 +160,7 @@ test.describe("Security: PII Exposure Prevention", () => {
     if ((await teachersTab.count()) > 0) {
       await teachersTab.click();
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
     }
 

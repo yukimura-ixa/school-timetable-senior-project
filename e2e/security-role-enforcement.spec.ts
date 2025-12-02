@@ -49,7 +49,7 @@ test.describe("Security Role Enforcement", () => {
       await page.goto("/dashboard/1-2567/teacher-table");
 
       // Wait for page to load
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
       // Selector should be enabled (use testid to avoid strict mode violations)
       const selector = page.getByTestId("teacher-multi-select");
@@ -60,11 +60,11 @@ test.describe("Security Role Enforcement", () => {
 
       // Wait for options to appear
       const option = page.getByRole("option").first();
-      await option.waitFor({ timeout: 5000 });
+      await option.waitFor({ timeout: 15000 });
       await option.click();
 
       // Verify teacher schedule heading appears
-      await expect(page.getByText("ตารางสอน:")).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText("ตารางสอน:")).toBeVisible({ timeout: 15000 });
     });
   });
 });

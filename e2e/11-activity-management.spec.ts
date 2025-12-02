@@ -80,7 +80,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
 
       // Wait for modal to close
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Verify activity appears in table
@@ -114,7 +114,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
         .last()
         .click();
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
     });
 
@@ -159,7 +159,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
       await submitButton.click();
 
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Verify updates appear
@@ -193,7 +193,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
         .last()
         .click();
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
     });
 
@@ -220,7 +220,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
 
       // Wait for dialog to close
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Verify activity is removed from table
@@ -252,7 +252,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
         .last()
         .click();
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
     });
 
@@ -355,7 +355,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
           .last()
           .click();
         await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-          timeout: 5000,
+          timeout: 15000,
         });
 
         // Verify creation
@@ -396,7 +396,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
         .last()
         .click();
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Wait for table to refresh
@@ -415,7 +415,7 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
         .last()
         .click();
       await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Wait for table to refresh

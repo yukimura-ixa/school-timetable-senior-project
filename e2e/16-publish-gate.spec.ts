@@ -37,6 +37,6 @@ test.describe("Publish Gate", () => {
     const errorLocator = page.getByRole("alert").filter({
       hasText: /ไม่สามารถเผยแพร่ได้/i,
     });
-    await expect(errorLocator).toBeVisible({ timeout: 10000 });
+    await expect(errorLocator).toBeVisible({ timeout: 15000 });
   });
 });

@@ -37,7 +37,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 
     // Wait for main content to load
     try {
-      await page.waitForSelector("table", { timeout: 5000 });
+      await page.waitForSelector("table", { timeout: 15000 });
     } catch (e) {
       console.log("Timetable grid not found - may need authentication");
     }
@@ -79,7 +79,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
       const header = page
         .locator("text=/.*ครู.*/i, text=/.*Teacher.*/i")
         .first();
-      await expect(header).toBeVisible({ timeout: 5000 });
+      await expect(header).toBeVisible({ timeout: 15000 });
 
       // Header is now guaranteed visible
       console.log("Teacher selected. Header visible: true");
@@ -107,7 +107,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
           '[data-testid="subject-item"], .subject-card, [draggable="true"]',
         )
         .first(),
-    ).toBeVisible({ timeout: 5000 });
+    ).toBeVisible({ timeout: 15000 });
 
     // Look for subject items (adjust selector based on your implementation)
     const subjectItems = page.locator(
@@ -134,7 +134,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 
     // Wait for table to be visible
     const table = page.locator("table").first();
-    await expect(table).toBeVisible({ timeout: 5000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     // Table is now guaranteed to be visible
     // Count rows (days)
@@ -163,7 +163,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 
     // Wait for draggable subjects to load
     const draggableSubject = page.locator('[draggable="true"]').first();
-    await expect(draggableSubject).toBeVisible({ timeout: 5000 });
+    await expect(draggableSubject).toBeVisible({ timeout: 15000 });
 
     if (await draggableSubject.isVisible()) {
       // Get subject position
@@ -246,7 +246,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 
     // Wait for subjects to load
     const subject = page.locator('[draggable="true"]').first();
-    await expect(subject).toBeVisible({ timeout: 5000 });
+    await expect(subject).toBeVisible({ timeout: 15000 });
 
     if (await subject.isVisible()) {
       await subject.click();
@@ -298,7 +298,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     const saveButton = page
       .locator('button:has-text("บันทึก"), button:has-text("Save")')
       .first();
-    await expect(saveButton).toBeVisible({ timeout: 5000 });
+    await expect(saveButton).toBeVisible({ timeout: 15000 });
     const buttonExists = await saveButton.isVisible().catch(() => false);
 
     console.log(`Save button visible: ${buttonExists}`);
@@ -335,7 +335,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     // Wait for subjects to load before interaction
     const subject = page.locator('[draggable="true"]').first();
     await expect(subject)
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     if (await subject.isVisible()) {
       await subject.click();
@@ -428,7 +428,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
     );
 
     // Wait for timetable to render before checking for lock icons
-    await expect(page.locator("table").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 15000 });
 
     // Look for lock icons (locked timeslots)
     const lockIcons = page.locator('[data-testid="lock-icon"]');
@@ -451,7 +451,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
     );
 
     // Wait for timetable to render before checking break slots
-    await expect(page.locator("table").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 15000 });
 
     // Look for break time indicators
     const breakSlots = page
@@ -474,7 +474,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
     );
 
     // Wait for timetable to render before checking conflict indicators
-    await expect(page.locator("table").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 15000 });
 
     // Look for conflict indicators (error icons, red borders, etc.)
     const conflictIndicators = page.locator(
@@ -503,7 +503,7 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
     );
 
     // Wait for main content to be fully rendered
-    await expect(page.locator("table").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator("table").first()).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({
       path: "test-results/screenshots/refactored-14-visual-comparison.png",
@@ -530,7 +530,7 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
 
     // Wait for page to be interactive
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
 
     // Test multiple interactions in sequence

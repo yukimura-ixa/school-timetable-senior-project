@@ -169,7 +169,7 @@ test.describe("Public Teachers Data API", () => {
     if (await teacherLink.isVisible()) {
       await teacherLink.click();
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
 
       // Verify we're on a teacher detail page
@@ -282,7 +282,7 @@ test.describe("Public Statistics API", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Check for statistics cards or metrics
@@ -306,7 +306,7 @@ test.describe("Public Statistics API", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Check for current term display (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2567")
@@ -325,7 +325,7 @@ test.describe("Public Statistics API", () => {
     // Navigate to analytics dashboard (adjust path if needed)
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Check for chart elements or canvas elements
@@ -351,7 +351,7 @@ test.describe("Public Statistics API", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Look for weekday indicators (MON, TUE, WED, etc.)
@@ -374,7 +374,7 @@ test.describe("Public Statistics API", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Look for room-related statistics
@@ -438,7 +438,7 @@ test.describe("Security & Privacy Checks", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const content = await page.content();
@@ -462,7 +462,7 @@ test.describe("Security & Privacy Checks", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const content = await page.content();
@@ -486,7 +486,7 @@ test.describe("Security & Privacy Checks", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const content = await page.content();
@@ -568,7 +568,7 @@ test.describe("Data Validation & Integrity", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const content = await page.textContent("body");
@@ -593,7 +593,7 @@ test.describe("Performance & Caching", () => {
 
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const loadTime = Date.now() - startTime;

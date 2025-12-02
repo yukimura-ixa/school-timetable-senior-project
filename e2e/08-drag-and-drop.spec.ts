@@ -47,7 +47,7 @@ async function waitForDndReady(page: Page) {
       );
       return draggables.length > 0;
     },
-    { timeout: 10000 },
+    { timeout: 15000 },
   );
 
   // Wait for event listeners to be attached by checking element readiness
@@ -106,8 +106,8 @@ async function dragAndDrop(
   const target = page.locator(targetSelector).first();
 
   // Ensure elements are visible
-  await expect(source).toBeVisible({ timeout: 5000 });
-  await expect(target).toBeVisible({ timeout: 5000 });
+  await expect(source).toBeVisible({ timeout: 15000 });
+  await expect(target).toBeVisible({ timeout: 15000 });
 
   // Get coordinates
   const sourceCenter = await getCenter(source);

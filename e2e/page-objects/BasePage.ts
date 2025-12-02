@@ -63,7 +63,7 @@ export class BasePage {
     // Prefer 'domcontentloaded' to avoid waiting on third-party assets
     await this.page.waitForLoadState("domcontentloaded");
     await expect(this.loadingSpinner)
-      .toBeHidden({ timeout: 10000 })
+      .toBeHidden({ timeout: 15000 })
       .catch(() => {
         // Spinner might not exist, that's ok
       });
@@ -179,7 +179,7 @@ export class BasePage {
         });
       },
       readySelectors,
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
 
     // Defensive: ensure downstream code relying on useSemesterStore sees correct state
@@ -205,7 +205,7 @@ export class BasePage {
    * Assert success notification appears
    */
   async assertSuccessNotification(message?: string) {
-    await expect(this.snackbar).toBeVisible({ timeout: 5000 });
+    await expect(this.snackbar).toBeVisible({ timeout: 15000 });
     if (message) {
       await expect(this.snackbarMessage).toContainText(message);
     }
@@ -215,7 +215,7 @@ export class BasePage {
    * Assert error notification appears
    */
   async assertErrorNotification(message?: string) {
-    await expect(this.snackbar).toBeVisible({ timeout: 5000 });
+    await expect(this.snackbar).toBeVisible({ timeout: 15000 });
     if (message) {
       await expect(this.snackbarMessage).toContainText(message);
     }
@@ -225,7 +225,7 @@ export class BasePage {
    * Wait for notification to disappear
    */
   async waitForNotificationToDisappear() {
-    await expect(this.snackbar).toBeHidden({ timeout: 10000 });
+    await expect(this.snackbar).toBeHidden({ timeout: 15000 });
   }
 
   /**

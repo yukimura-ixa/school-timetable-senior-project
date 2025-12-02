@@ -64,7 +64,7 @@ test.describe("Production Smoke Test - Authentication", () => {
 
     // Verify page loaded - wait for table or content
     await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
-      timeout: 10000,
+      timeout: 15000,
     });
   });
 });

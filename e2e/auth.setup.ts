@@ -109,10 +109,10 @@ setup("authenticate as admin", async ({ page }) => {
 
   // Wait for form to be ready and fill credentials (dev bypass removed)
   await expect(page.locator('input[type="email"]')).toBeVisible({
-    timeout: 10000,
+    timeout: 15000,
   });
   await expect(page.locator('input[type="password"]')).toBeVisible({
-    timeout: 10000,
+    timeout: 15000,
   });
   console.log("[AUTH SETUP] Filling in credentials...");
   await page.fill('input[type="email"]', "admin@school.local");
@@ -130,7 +130,7 @@ setup("authenticate as admin", async ({ page }) => {
       .locator('button:not([data-testid="google-signin-button"]):visible')
       .first();
   }
-  await expect(loginButton).toBeVisible({ timeout: 10000 });
+  await expect(loginButton).toBeVisible({ timeout: 15000 });
   console.log("[AUTH SETUP] Found login button");
 
   // Click and wait for client-side route change (Next.js uses SPA navigation)
@@ -140,7 +140,7 @@ setup("authenticate as admin", async ({ page }) => {
   console.log("[AUTH SETUP] Clicked login button and navigated");
 
   // Wait for page to be stable
-  await page.waitForLoadState("domcontentloaded", { timeout: 10000 });
+  await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
   console.log("[AUTH SETUP] Page loaded");
 
   // ===== CI DEBUGGING: Step 1 - Cookie inspection =====

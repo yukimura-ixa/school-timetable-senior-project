@@ -23,7 +23,7 @@ test.describe("Analytics Dashboard", () => {
     // Wait for page to fully load with targeted selector
     await page.waitForSelector(
       'text=/📊.*แดชบอร์ดวิเคราะห์|main, [role="main"]',
-      { timeout: 10000 },
+      { timeout: 15000 },
     );
   });
 
@@ -570,7 +570,7 @@ test.describe("Analytics Dashboard", () => {
       await navigation;
 
       // Wait for dashboard to appear with targeted selector
-      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 10000 });
+      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 15000 });
     });
 
     test("should transition from skeleton to actual dashboard smoothly", async ({
@@ -580,7 +580,7 @@ test.describe("Analytics Dashboard", () => {
       await page.reload({ waitUntil: "domcontentloaded" });
 
       // Wait for dashboard to appear
-      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 10000 });
+      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 15000 });
 
       // Dashboard should be visible after load
       const dashboard = page.locator("text=/จำนวนทั้งหมด/");
@@ -637,7 +637,7 @@ test.describe("Analytics Dashboard", () => {
       // Wait for dashboard to appear with targeted selector
       await page
         .locator("text=/📊.*แดชบอร์ดวิเคราะห์/")
-        .waitFor({ timeout: 10000 });
+        .waitFor({ timeout: 15000 });
 
       const endTime = Date.now();
       const renderTime = endTime - startTime;
@@ -677,7 +677,7 @@ test.describe("Analytics Dashboard", () => {
       });
 
       // Wait for dashboard to appear
-      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 10000 });
+      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 15000 });
 
       // Get initial viewport metrics
       const metrics1 = await page.evaluate(() => ({

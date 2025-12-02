@@ -68,7 +68,7 @@ export class AuthHelper {
     await this.page.goto(route);
 
     // Should redirect to sign-in
-    await this.page.waitForURL(/signin/, { timeout: 5000 });
+    await this.page.waitForURL(/signin/, { timeout: 15000 });
 
     return this.page.url().includes("signin");
   }

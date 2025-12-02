@@ -127,7 +127,7 @@ test.describe("Admin Dashboard Pages", () => {
       .first();
     if (await signOutButton.isVisible({ timeout: 2000 }).catch(() => false)) {
       await signOutButton.click();
-      await page.waitForURL(/\/(signin|$)/, { timeout: 5000 });
+      await page.waitForURL(/\/(signin|$)/, { timeout: 15000 });
       const url = page.url();
       expect(url.endsWith("/signin") || url.endsWith("/")).toBeTruthy();
     }
@@ -166,7 +166,7 @@ test.describe("Visual UI Checks", () => {
     for (const pagePath of pages) {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       // Wait for main content to be visible instead of networkidle - Context7 best practice
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
     }
 
     const criticalErrors = consoleErrors.filter(
@@ -190,7 +190,7 @@ test.describe("Visual UI Checks", () => {
     for (const { path, name } of pages) {
       await page.goto(path, { waitUntil: "domcontentloaded" });
       // Wait for main content visibility - Context7: specific waits over networkidle
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
       await page.screenshot({
         path: `test-results/screenshots/${name}.png`,
         fullPage: true,

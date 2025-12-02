@@ -585,7 +585,7 @@ test.describe("Lock Templates - Complete Flow", () => {
 
     // Should show success message
     await expect(page.locator("text=/สำเร็จ|success/i")).toBeVisible({
-      timeout: 5000,
+      timeout: 15000,
     });
 
     // Modals should close

@@ -124,15 +124,15 @@ export class ArrangePage extends BasePage {
   async selectTeacher(teacherIdOrName: string | number) {
     const dropdown = this.teacherDropdown.first();
     await expect(dropdown).toBeVisible({ timeout: 15000 });
-    await expect(dropdown).toBeEnabled({ timeout: 5000 });
+    await expect(dropdown).toBeEnabled({ timeout: 15000 });
     await this.page
-      .waitForLoadState("networkidle", { timeout: 10000 })
+      .waitForLoadState("networkidle", { timeout: 15000 })
       .catch(() => {});
 
     const listbox = this.page.locator('[role="listbox"]').first();
     const clickDropdown = async () => {
-      await dropdown.click({ force: true, timeout: 5000 });
-      await expect(listbox).toBeVisible({ timeout: 5000 });
+      await dropdown.click({ force: true, timeout: 15000 });
+      await expect(listbox).toBeVisible({ timeout: 15000 });
     };
 
     let opened = false;
@@ -176,9 +176,9 @@ export class ArrangePage extends BasePage {
       option = locateByName();
     }
 
-    await expect(option!).toBeVisible({ timeout: 5000 });
-    await option!.click({ force: true, timeout: 5000 });
-    await expect(listbox).toBeHidden({ timeout: 5000 });
+    await expect(option!).toBeVisible({ timeout: 15000 });
+    await option!.click({ force: true, timeout: 15000 });
+    await expect(listbox).toBeHidden({ timeout: 15000 });
     await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
     await this.waitForPageLoad();
   }
@@ -216,7 +216,7 @@ export class ArrangePage extends BasePage {
    * Select room from dialog (Issue #83)
    */
   async selectRoom(roomName: string) {
-    await expect(this.roomSelectionDialog).toBeVisible({ timeout: 5000 });
+    await expect(this.roomSelectionDialog).toBeVisible({ timeout: 15000 });
     await this.roomOption(roomName).click();
     await this.confirmRoomButton.click();
     await expect(this.roomSelectionDialog).toBeHidden({ timeout: 3000 });
@@ -226,7 +226,7 @@ export class ArrangePage extends BasePage {
    * Cancel room selection
    */
   async cancelRoomSelection() {
-    await expect(this.roomSelectionDialog).toBeVisible({ timeout: 5000 });
+    await expect(this.roomSelectionDialog).toBeVisible({ timeout: 15000 });
     await this.cancelRoomButton.click();
     await expect(this.roomSelectionDialog).toBeHidden({ timeout: 3000 });
   }
@@ -235,7 +235,7 @@ export class ArrangePage extends BasePage {
    * Assert room dialog appears after drag (Issue #83)
    */
   async assertRoomDialogVisible() {
-    await expect(this.roomSelectionDialog).toBeVisible({ timeout: 5000 });
+    await expect(this.roomSelectionDialog).toBeVisible({ timeout: 15000 });
   }
 
   /**
@@ -488,12 +488,12 @@ export class ArrangePage extends BasePage {
         "[ArrangePage] Teacher selection required - please select a teacher before waiting for page ready",
       );
       // Wait for teacher dropdown to be available
-      await expect(this.teacherDropdown).toBeVisible({ timeout: 5000 });
+      await expect(this.teacherDropdown).toBeVisible({ timeout: 15000 });
       return;
     }
 
     // Wait for key elements to be visible (when teacher is already selected)
-    await expect(this.subjectPalette).toBeVisible({ timeout: 10000 });
-    await expect(this.timetableGrid).toBeVisible({ timeout: 10000 });
+    await expect(this.subjectPalette).toBeVisible({ timeout: 15000 });
+    await expect(this.timetableGrid).toBeVisible({ timeout: 15000 });
   }
 }

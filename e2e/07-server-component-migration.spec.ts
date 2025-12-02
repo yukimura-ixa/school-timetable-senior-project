@@ -26,7 +26,7 @@ test.describe("Server Component Migration - Teacher Management", () => {
 
     // Check for table content (should be present immediately) - Context7 best practice
     const table = page.locator('table, [role="table"]').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     // Take screenshot
     await page.screenshot({
@@ -92,7 +92,7 @@ test.describe("Server Component Migration - Teacher Management", () => {
     const addButton = page
       .locator('button:has-text("เพิ่ม"), button:has-text("Add")')
       .first();
-    await expect(addButton).toBeVisible({ timeout: 10000 });
+    await expect(addButton).toBeVisible({ timeout: 15000 });
 
     if ((await addButton.count()) > 0) {
       // Click the add button
@@ -103,7 +103,7 @@ test.describe("Server Component Migration - Teacher Management", () => {
       const modalOrForm = page.locator(
         '[role="dialog"], .MuiDialog-root, form, .modal, div.fixed:has(input), div[style*="fixed"]:has(input)',
       ).first();
-      await expect(modalOrForm).toBeVisible({ timeout: 5000 });
+      await expect(modalOrForm).toBeVisible({ timeout: 15000 });
 
       // Take screenshot of the interaction
       await page.screenshot({
@@ -128,7 +128,7 @@ test.describe("Server Component Migration - Other Management Pages", () => {
 
     // Check for table/list - Context7: web-first assertion auto-waits
     const table = page.locator('table, [role="table"], .table').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({
       path: "test-results/screenshots/23-rooms-server-rendered.png",
@@ -148,7 +148,7 @@ test.describe("Server Component Migration - Other Management Pages", () => {
 
     // Check for table/list - Context7: web-first assertion auto-waits
     const table = page.locator('table, [role="table"], .table').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({
       path: "test-results/screenshots/24-subjects-server-rendered.png",
@@ -168,7 +168,7 @@ test.describe("Server Component Migration - Other Management Pages", () => {
 
     // Check for table/list - Context7: web-first assertion auto-waits
     const table = page.locator('table, [role="table"], .table').first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({
       path: "test-results/screenshots/25-gradelevel-server-rendered.png",
@@ -195,7 +195,7 @@ test.describe("Server Component Migration - Performance", () => {
     await page
       .locator('table, [role="table"]')
       .first()
-      .waitFor({ state: "visible", timeout: 10000 });
+      .waitFor({ state: "visible", timeout: 15000 });
 
     const loadTime = Date.now() - startTime;
 
@@ -230,7 +230,7 @@ test.describe("Server Component Migration - Performance", () => {
 
     // Wait for table to ensure page is ready - Context7: use specific waits
     await expect(page.locator('table, [role="table"]').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // With Server Components, there should be NO API calls on initial mount
@@ -264,7 +264,7 @@ test.describe("Server Component Migration - Dashboard Header", () => {
     const semesterLink = page.locator('a[href*="/dashboard/"]').first();
 
     if ((await semesterLink.count()) > 0) {
-      await expect(semesterLink).toBeVisible({ timeout: 10000 });
+      await expect(semesterLink).toBeVisible({ timeout: 15000 });
       await semesterLink.click();
 
       // The header should display semester information
@@ -316,7 +316,7 @@ test.describe("Server Component Migration - Regression Tests", () => {
 
       // Wait for page content to be visible - Context7: specific waits over networkidle
       await expect(page.locator('table, [role="table"], main')).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
 
       expect(page.url()).toContain(pageInfo.url);

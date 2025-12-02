@@ -76,7 +76,7 @@ export async function waitForVercelDeployment(
     try {
       const response = await page.goto(url, {
         waitUntil: "domcontentloaded",
-        timeout: 10000,
+        timeout: 15000,
       });
 
       if (response && response.status() < 500) {

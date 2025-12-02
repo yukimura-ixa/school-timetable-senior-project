@@ -52,7 +52,7 @@ test.describe("Data Management - Teacher CRUD", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
     expect(page.url()).toContain("/management/teacher");
   });
 

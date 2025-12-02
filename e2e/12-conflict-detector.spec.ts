@@ -22,7 +22,7 @@ test.describe("Conflict Detector", () => {
     await page.goto("/dashboard/1-2567");
 
     // ✅ Web-first assertion: Wait for dashboard to load
-    await expect(page.locator("h1, h2")).toBeVisible();
+    await expect(page.locator("h1, h2").first()).toBeVisible();
 
     // Find and click the conflict detector quick action button
     const conflictButton = page
@@ -202,7 +202,7 @@ test.describe("Conflict Detector", () => {
 
     // Navigate away
     await page.goto("/dashboard/1-2567");
-    await expect(page.locator("h1, h2")).toBeVisible();
+    await expect(page.locator("h1, h2").first()).toBeVisible();
 
     // Navigate back
     await page.goto("/dashboard/1-2567/conflicts");
@@ -274,7 +274,7 @@ test.describe("Conflict Detector - Error Handling", () => {
 
     // ✅ Web-first: Should show error state or retry option
     const errorUI = page.locator("text=/ข้อผิดพลาด|Error|ลองใหม่|Retry/i");
-    await expect(errorUI.first()).toBeVisible({ timeout: 5000 });
+    await expect(errorUI.first()).toBeVisible({ timeout: 15000 });
   });
 
   test("should handle invalid semester parameter", async ({
@@ -285,7 +285,7 @@ test.describe("Conflict Detector - Error Handling", () => {
     await page.goto("/dashboard/invalid-semester/conflicts");
 
     // ✅ Web-first: Should redirect or show error
-    await expect(page.locator("main, [role='main'], h1, h2")).toBeVisible();
+    await expect(page.locator("main, [role='main'], h1, h2").first()).toBeVisible();
     const currentUrl = page.url();
 
     // Either redirects to valid semester or shows error

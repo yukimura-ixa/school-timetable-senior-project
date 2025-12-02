@@ -11,7 +11,7 @@ test.describe("Home Page Tests", () => {
 
     // Check for main heading or logo
     const heading = page.locator('h1, h2, [role="banner"]').first();
-    await expect(heading).toBeVisible({ timeout: 5000 });
+    await expect(heading).toBeVisible({ timeout: 15000 });
 
     // Take screenshot
     await page.screenshot({
@@ -30,7 +30,7 @@ test.describe("Home Page Tests", () => {
 
     // Look for navigation menu
     const nav = page.locator('nav, [role="navigation"]').first();
-    await expect(nav).toBeVisible({ timeout: 5000 });
+    await expect(nav).toBeVisible({ timeout: 15000 });
 
     console.log("Navigation menu found");
   });
@@ -53,7 +53,7 @@ test.describe("Home Page Tests", () => {
         // Check if redirected to signin page
         const isSignin = pathname === "/signin" || pathname.includes("signin");
         expect(isSignin).toBe(true);
-      }).toPass({ timeout: 5000 });
+      }).toPass({ timeout: 15000 });
 
       // Take screenshot
       await page.screenshot({

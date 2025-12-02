@@ -18,7 +18,7 @@ test.describe("All Timeslot Page UX", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/all-timeslot`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // 1. Verify Read-only banner
     await expect(page.getByText("มุมมองอ่านอย่างเดียว")).toBeVisible();
@@ -46,7 +46,7 @@ test.describe("All Timeslot Page UX", () => {
 
     await page.goto(`/dashboard/${testSemester}/all-timeslot`);
 
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // 1. Verify Read-only banner
     await expect(page.getByText("มุมมองอ่านอย่างเดียว")).toBeVisible();

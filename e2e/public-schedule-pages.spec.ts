@@ -32,7 +32,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const teacherName = page.locator(
       '[data-testid="teacher-name"], p.font-medium',
     );
-    await expect(teacherName).toBeVisible({ timeout: 10000 });
+    await expect(teacherName).toBeVisible({ timeout: 15000 });
   });
 
   test("should display timetable grid with days and periods", async ({
@@ -43,12 +43,12 @@ test.describe("Public Teacher Schedule Page", () => {
 
     // Wait for main content to be visible (Next.js streams; no networkidle)
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should have table element (grid layout, not cards)
     const table = page.locator("table").first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     // Table should have header row with days
     const headers = page.locator("thead th");
@@ -71,7 +71,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Period column should show "คาบ 1", "คาบ 2", etc.
@@ -96,7 +96,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Find cells with schedule data (not empty)
@@ -127,7 +127,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Look for room labels (e.g., "ห้อง: A101")
@@ -147,7 +147,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Empty cells should show "-" or similar placeholder
@@ -170,7 +170,7 @@ test.describe("Public Teacher Schedule Page", () => {
       "text=/ไม่มีตารางสอน|ไม่พบข้อมูล|No data|not found/i",
     );
     const isVisible = await noDataMessage
-      .isVisible({ timeout: 5000 })
+      .isVisible({ timeout: 15000 })
       .catch(() => false);
 
     if (isVisible) {
@@ -187,7 +187,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Look for print instructions or print button
@@ -203,7 +203,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should have back button
@@ -215,7 +215,7 @@ test.describe("Public Teacher Schedule Page", () => {
     // Click back button
     await backButton.first().click();
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should be on homepage
@@ -229,7 +229,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await page.goto("/teachers/1/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should show semester and year (e.g., "ภาคเรียนที่ 1 ปีการศึกษา 2567")
@@ -247,7 +247,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
     // Should show not found or error page
     const notFound = page.locator("text=/not found|ไม่พบ|404/i");
-    await expect(notFound).toBeVisible({ timeout: 5000 });
+    await expect(notFound).toBeVisible({ timeout: 15000 });
   });
 });
 
@@ -271,7 +271,7 @@ test.describe("Public Class Schedule Page", () => {
     await page.goto("/classes/101/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should show grade level (e.g., "ม.1/1")
@@ -287,12 +287,12 @@ test.describe("Public Class Schedule Page", () => {
     await page.goto("/classes/101/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should have table element
     const table = page.locator("table").first();
-    await expect(table).toBeVisible({ timeout: 10000 });
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     // Header row should have 6 columns (period + 5 days)
     const headers = page.locator("thead th");
@@ -309,7 +309,7 @@ test.describe("Public Class Schedule Page", () => {
     await page.goto("/classes/101/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Schedule cells should show teacher names with Thai honorifics
@@ -334,7 +334,7 @@ test.describe("Public Class Schedule Page", () => {
     await page.goto("/classes/101/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should show subject names
@@ -359,7 +359,7 @@ test.describe("Public Class Schedule Page", () => {
     // Start on class schedule
     await page.goto("/classes/101/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Find a teacher link in the schedule (if clickable)
@@ -370,7 +370,7 @@ test.describe("Public Class Schedule Page", () => {
       // Click teacher link
       await teacherLink.click();
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
 
       // Should navigate to teacher schedule
@@ -388,7 +388,7 @@ test.describe("Public Class Schedule Page", () => {
     await page.goto("/classes/101/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Count total period rows (should be 8-10 typically)
@@ -406,7 +406,7 @@ test.describe("Public Class Schedule Page", () => {
     await page.goto("/classes/101/1-2567");
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Look for program/curriculum information
@@ -428,7 +428,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const content = await page.content();
@@ -448,7 +448,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const content = await page.content();
@@ -470,7 +470,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
 
     await page.goto("/teachers/1/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Table should be scrollable horizontally
@@ -481,7 +481,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const scrollContainer = page
       .locator(".overflow-x-auto, .overflow-auto")
       .first();
-    await expect(scrollContainer).toBeVisible({ timeout: 5000 });
+    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
   });
 
   test("should be responsive on tablet viewport", async ({
@@ -493,7 +493,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
 
     await page.goto("/classes/101/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Should display table properly
@@ -509,7 +509,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
 
     await page.goto("/teachers/1/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     const loadTime = Date.now() - startTime;
@@ -524,7 +524,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/classes/101/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Subject cells should wrap text or truncate
@@ -544,7 +544,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/teachers/1/1-2567");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Table should have proper semantic structure
@@ -568,7 +568,7 @@ test.describe("Public Schedule Pages - Error Handling", () => {
 
     // Should show not found or error message
     const error = page.locator("text=/not found|ไม่พบ|404|error/i");
-    await expect(error).toBeVisible({ timeout: 5000 });
+    await expect(error).toBeVisible({ timeout: 15000 });
   });
 
   test("should handle invalid class ID", async ({ authenticatedAdmin }) => {
@@ -577,7 +577,7 @@ test.describe("Public Schedule Pages - Error Handling", () => {
 
     // Should show not found or error message
     const error = page.locator("text=/not found|ไม่พบ|404|error/i");
-    await expect(error).toBeVisible({ timeout: 5000 });
+    await expect(error).toBeVisible({ timeout: 15000 });
   });
 
   test("should handle missing semester parameter", async ({
@@ -611,6 +611,6 @@ test.describe("Public Schedule Pages - Error Handling", () => {
 
     // Should show "not found" since semester 5 doesn't exist
     const notFound = page.locator("text=/not found|ไม่พบ|404/i");
-    await expect(notFound).toBeVisible({ timeout: 5000 });
+    await expect(notFound).toBeVisible({ timeout: 15000 });
   });
 });

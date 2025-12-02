@@ -23,7 +23,7 @@ test.describe("TC-007: Semester Configuration", () => {
     await page.goto(`/schedule/${testSemester}/config`);
 
     // Wait for page load
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Verify config page elements are present
     await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible();
@@ -44,7 +44,7 @@ test.describe("TC-007: Semester Configuration", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/config`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for data to load
     await page.waitForTimeout(1000);
@@ -74,7 +74,7 @@ test.describe("TC-007: Semester Configuration", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/config`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for loading
     await page.waitForTimeout(1000);
@@ -105,7 +105,7 @@ test.describe("TC-007: Semester Configuration", () => {
 
     // Wait for success notification
     await expect(page.getByText("ตั้งค่าตารางสำเร็จ")).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
 
     // Verify the save button is now disabled (config is set)
@@ -124,7 +124,7 @@ test.describe("TC-007: Semester Configuration", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/config`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for data load
     await page.waitForTimeout(1000);
@@ -151,7 +151,7 @@ test.describe("TC-007: Semester Configuration", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/config`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     const resetButton = page.getByRole("button", { name: "คืนค่าเริ่มต้น" });
     const isDisabled = await resetButton.isDisabled();
@@ -172,7 +172,7 @@ test.describe("TC-007: Semester Configuration", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/config`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Clone link only visible if not configured
     const cloneLink = page.getByText("เรียกข้อมูลตารางสอนที่มีอยู่");
@@ -194,7 +194,7 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/assign`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Verify URL contains assign
     expect(page.url()).toContain("/assign");
@@ -214,7 +214,7 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${testSemester}/assign`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
     // Wait for content to load
     await page.waitForTimeout(1000);

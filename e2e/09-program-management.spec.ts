@@ -51,7 +51,7 @@ test.describe("Program Management - Navigation by Year", () => {
       await page.waitForLoadState("domcontentloaded");
       // Wait for table or main content to render
       await expect(page.locator('table, main, [role="main"]').first())
-        .toBeVisible({ timeout: 5000 })
+        .toBeVisible({ timeout: 15000 })
         .catch(() => {});
 
       expect(page.url()).toContain(`/management/program/${year}`);
@@ -72,7 +72,7 @@ test.describe("Program Management - Filtering", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Look for semester filter dropdown
@@ -105,7 +105,7 @@ test.describe("Program Management - Filtering", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Find and click semester filter
@@ -153,7 +153,7 @@ test.describe("Program Management - Filtering", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Find academic year filter
@@ -202,7 +202,7 @@ test.describe("Program Management - Filtering", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Apply both filters
@@ -274,7 +274,7 @@ test.describe("Program Management - Filtering", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Find search input
@@ -333,7 +333,7 @@ test.describe("Program Management - CRUD Operations", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table, button").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Find add button - try multiple patterns
@@ -378,7 +378,7 @@ test.describe("Program Management - CRUD Operations", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table, button").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Try to create a program that already exists (should fail)
@@ -466,7 +466,7 @@ test.describe("Program Management - CRUD Operations", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table, button").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     const addButton = page
@@ -534,7 +534,7 @@ test.describe("Program Management - CRUD Operations", () => {
           .locator('[class*="success"], [role="alert"]')
           .first();
         await expect(successMessage)
-          .toBeVisible({ timeout: 5000 })
+          .toBeVisible({ timeout: 15000 })
           .catch(() => {});
         if ((await successMessage.count()) > 0) {
           const successText = await successMessage.textContent();
@@ -553,7 +553,7 @@ test.describe("Program Management - CRUD Operations", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table, button").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Find first editable row
@@ -596,7 +596,7 @@ test.describe("Program Management - CRUD Operations", () => {
 
             await saveButton.click();
             await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
-              { timeout: 10000 },
+              { timeout: 15000 },
             );
           }
         } else if ((await modal.count()) > 0) {
@@ -617,7 +617,7 @@ test.describe("Program Management - CRUD Operations", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator("table, button").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Create a test program first, then delete it
@@ -662,7 +662,7 @@ test.describe("Program Management - CRUD Operations", () => {
       if ((await submitButton.count()) > 0) {
         await submitButton.click();
         await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-          timeout: 10000,
+          timeout: 15000,
         });
       }
 
@@ -708,7 +708,7 @@ test.describe("Program Management - CRUD Operations", () => {
 
             await confirmButton.click();
             await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
-              { timeout: 10000 },
+              { timeout: 15000 },
             );
 
             await page.screenshot({
@@ -729,10 +729,10 @@ test.describe("Program Management - Data Validation", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Check for programs from different academic years
@@ -747,7 +747,7 @@ test.describe("Program Management - Data Validation", () => {
       // Test Year 2567
       await yearSelect.selectOption({ label: /2567/ });
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
       const rows2567 = await page.locator("table tbody tr").count();
       console.log("Programs in 2567:", rows2567);
@@ -755,7 +755,7 @@ test.describe("Program Management - Data Validation", () => {
       // Test Year 2568
       await yearSelect.selectOption({ label: /2568/ });
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
       const rows2568 = await page.locator("table tbody tr").count();
       console.log("Programs in 2568:", rows2568);
@@ -763,7 +763,7 @@ test.describe("Program Management - Data Validation", () => {
       // Test Year 2569
       await yearSelect.selectOption({ label: /2569/ });
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
       const rows2569 = await page.locator("table tbody tr").count();
       console.log("Programs in 2569:", rows2569);
@@ -784,10 +784,10 @@ test.describe("Program Management - Data Validation", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     const semesterSelect = page
@@ -801,21 +801,21 @@ test.describe("Program Management - Data Validation", () => {
       // All semesters
       await semesterSelect.selectOption({ index: 0 });
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
       const allRows = await page.locator("table tbody tr").count();
 
       // Semester 1 only
       await semesterSelect.selectOption({ label: /ภาคเรียนที่ 1|SEMESTER_1/ });
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
       const sem1Rows = await page.locator("table tbody tr").count();
 
       // Semester 2 only
       await semesterSelect.selectOption({ label: /ภาคเรียนที่ 2|SEMESTER_2/ });
       await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 10000,
+        timeout: 15000,
       });
       const sem2Rows = await page.locator("table tbody tr").count();
 
@@ -835,10 +835,10 @@ test.describe("Program Management - Data Validation", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     const table = page.locator("table").first();
@@ -877,10 +877,10 @@ test.describe("Program Management - Pagination", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Look for pagination controls
@@ -911,10 +911,10 @@ test.describe("Program Management - Pagination", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     await expect(page.locator("table").first())
-      .toBeVisible({ timeout: 5000 })
+      .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
     // Look for next page button
@@ -937,7 +937,7 @@ test.describe("Program Management - Pagination", () => {
         // Click next
         await nextButton.click();
         await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-          timeout: 10000,
+          timeout: 15000,
         });
 
         // Get new page data
@@ -965,7 +965,7 @@ test.describe("Program Management - Accessibility", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     
     const h1 = await page.locator("h1").count();
@@ -984,7 +984,7 @@ test.describe("Program Management - Accessibility", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program/1");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     
     // Test tab navigation

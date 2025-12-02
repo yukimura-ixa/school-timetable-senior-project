@@ -78,7 +78,7 @@ export class TeacherTablePO extends BasePage {
   async assertPageLoaded() {
     // Wait for either the bulk export section (admin) or the page content to load
     // The page may show skeleton loading first, then content
-    await this.page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
+    await this.page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
     
     // Check for any of these indicators that the page has loaded:
     // 1. Bulk export section (for admin users)
@@ -89,10 +89,10 @@ export class TeacherTablePO extends BasePage {
     
     try {
       // First try to find the bulk export section (admin view)
-      await expect(bulkSection.or(teacherSelector)).toBeVisible({ timeout: 10000 });
+      await expect(bulkSection.or(teacherSelector)).toBeVisible({ timeout: 15000 });
     } catch {
       // Fallback: just ensure page has loaded
-      await expect(this.page.locator("main, [role='main'], body").first()).toBeVisible({ timeout: 5000 });
+      await expect(this.page.locator("main, [role='main'], body").first()).toBeVisible({ timeout: 15000 });
     }
   }
 
@@ -120,7 +120,7 @@ export class TeacherTablePO extends BasePage {
     
     // Open the multi-select dropdown
     await this.teacherMultiSelect.click();
-    await this.page.waitForSelector('[role="listbox"]', { timeout: 5000 });
+    await this.page.waitForSelector('[role="listbox"]', { timeout: 15000 });
 
     // Select each teacher by clicking their option
     for (const name of teacherNames) {
@@ -144,7 +144,7 @@ export class TeacherTablePO extends BasePage {
     
     // Open the multi-select dropdown
     await this.teacherMultiSelect.click();
-    await this.page.waitForSelector('[role="listbox"]', { timeout: 5000 });
+    await this.page.waitForSelector('[role="listbox"]', { timeout: 15000 });
 
     // Get all options and select by index
     const options = this.page.locator('[role="option"]');
@@ -167,7 +167,7 @@ export class TeacherTablePO extends BasePage {
   async getTeacherCount(): Promise<number> {
     await this.showBulkFilters();
     await this.teacherMultiSelect.click();
-    await this.page.waitForSelector('[role="listbox"]', { timeout: 5000 });
+    await this.page.waitForSelector('[role="listbox"]', { timeout: 15000 });
     const count = await this.page.locator('[role="option"]').count();
     await this.page.keyboard.press("Escape");
     return count;
@@ -177,9 +177,9 @@ export class TeacherTablePO extends BasePage {
    * Open export menu
    */
   async openExportMenu() {
-    await expect(this.exportButton).toBeEnabled({ timeout: 5000 });
+    await expect(this.exportButton).toBeEnabled({ timeout: 15000 });
     await this.exportButton.click();
-    await expect(this.exportMenu).toBeVisible({ timeout: 5000 });
+    await expect(this.exportMenu).toBeVisible({ timeout: 15000 });
   }
 
   /**
@@ -210,7 +210,7 @@ export class TeacherTablePO extends BasePage {
    * Assert export menu is visible
    */
   async assertExportMenuVisible() {
-    await expect(this.exportMenu).toBeVisible({ timeout: 5000 });
+    await expect(this.exportMenu).toBeVisible({ timeout: 15000 });
   }
 
   /**

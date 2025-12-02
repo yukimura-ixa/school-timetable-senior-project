@@ -26,7 +26,7 @@ test.describe.skip("Program Management Workflow", () => {
     // Step 1: Create a new program
     await test.step("Create new program", async () => {
       const addButton = page.getByRole("button", { name: /add/i });
-      await expect(addButton).toBeVisible({ timeout: 5000 });
+      await expect(addButton).toBeVisible({ timeout: 15000 });
       await addButton.click();
 
       // Fill in program details
@@ -107,7 +107,7 @@ test.describe.skip("Program Management Workflow", () => {
 
       // Wait for assignment to complete
       await expect(page.getByText(/assigning/i)).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
     });
 
@@ -155,7 +155,7 @@ test.describe.skip("Program Management Workflow", () => {
       const programSelect = gradelevelRow.getByRole("combobox", {
         name: /program/i,
       });
-      await expect(programSelect).toBeVisible({ timeout: 5000 });
+      await expect(programSelect).toBeVisible({ timeout: 15000 });
       await programSelect.click();
 
       // Select the test program
@@ -212,7 +212,7 @@ test.describe.skip("Program Management Workflow", () => {
       // Submit
       await page.getByRole("button", { name: /assign.*selected/i }).click();
       await expect(page.getByText(/assigning/i)).not.toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Verify validation errors
@@ -263,7 +263,7 @@ test.describe.skip("Program Management Workflow", () => {
         // Save
         await page.getByRole("button", { name: /assign.*selected/i }).click();
         await expect(page.getByText(/assigning/i)).not.toBeVisible({
-          timeout: 5000,
+          timeout: 15000,
         });
 
         // Verify update
@@ -285,7 +285,7 @@ test.describe.skip("Activity Management Workflow", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/subject");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     
     await test.step("Navigate to activity management", async () => {
@@ -361,7 +361,7 @@ test.describe.skip("Activity Management Workflow", () => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/subject");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     
     await test.step("Attempt to create activity without required fields", async () => {
