@@ -51,10 +51,18 @@ The main smoke test suite covering 8 critical user journeys:
 
 Tests for semester-specific routes and navigation:
 
-- Schedule config pages return 200 OK for all seeded terms
-- Dashboard pages render correctly
+- Schedule config pages return 200 OK for all seeded terms (1-2567, 2-2567)
+- Dashboard pages render correctly for both semesters
 - Route validation and error handling
 - Cross-term navigation
+- **Multi-Semester Scenarios:**
+  - TC-MS-01: Can navigate between semesters via URL
+  - TC-MS-02: Both semesters load schedule config successfully
+  - TC-MS-03: Both semesters load dashboard successfully
+  - TC-MS-04: URL patterns are consistent across semesters
+  - TC-MS-05: Cross-semester navigation preserves page structure
+  - TC-MS-06: Rapid semester switching doesn't cause errors
+  - TC-MS-07: Arrange page loads for both semesters
 
 ## Running Smoke Tests
 
@@ -120,9 +128,9 @@ Smoke tests use the seeded test data from `pnpm db:seed:clean`:
 - 56 teachers
 - 82 subjects
 - Multiple classrooms and rooms
-- 4 semesters (1-2567, 2-2567, 1-2568, 2-2568)
+- 2 semesters with table_config: `1-2567` (PUBLISHED), `2-2567` (DRAFT)
 
-**Important**: Smoke tests do NOT create or destroy data. They verify that existing seeded data works correctly.
+**Important**: Smoke tests do NOT create or destroy data. They verify that existing seeded data works correctly across multiple semesters.
 
 ## When to Run Smoke Tests vs Full E2E
 

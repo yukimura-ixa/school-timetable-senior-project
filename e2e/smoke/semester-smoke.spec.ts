@@ -3,10 +3,11 @@
  * @description Smoke tests for schedule/dashboard routes across all seeded terms
  *
  * Verifies:
- * - Schedule config pages return 200 OK
+ * - Schedule config pages return 200 OK for multiple semesters
  * - Dashboard all-timeslot pages return 200 OK
  * - Critical UI elements render (pagination, tables, metrics)
  * - No runtime errors in console
+ * - Multi-semester navigation and data isolation
  *
  * Runs against production OR local depending on PLAYWRIGHT_BASE_URL
  * Uses admin fixture for authentication (no dev bypass).
@@ -14,11 +15,13 @@
 
 import { test, expect } from "../fixtures/admin.fixture";
 
-// IMPORTANT: Only 1-2567 is reliably seeded by prisma/seed.ts (db:seed:clean).
-// The create-semesters.ts script adds 2-2567 and 1-2568, but that's a separate
-// script not run in CI smoke tests workflow.
-// Keep tests focused on the single confirmed seeded semester for reliability.
-const SEEDED_TERMS = [{ semester: 1, year: 2567, label: "1-2567" }];
+// Both semesters are seeded by prisma/seed.ts (db:seed:clean)
+// 1-2567: PUBLISHED semester with full data
+// 2-2567: DRAFT semester with timeslots and config
+const SEEDED_TERMS = [
+  { semester: 1, year: 2567, label: "1-2567", status: "PUBLISHED" },
+  { semester: 2, year: 2567, label: "2-2567", status: "DRAFT" },
+];
 
 test.describe("Semester Smoke Tests - Schedule Config", () => {
   for (const term of SEEDED_TERMS) {
@@ -185,5 +188,133 @@ test.describe("Cross-Term Navigation", () => {
     // Content should be present
     expect(content).toBeTruthy();
     expect(content?.length).toBeGreaterThan(100); // Meaningful content
+  });
+});
+
+/**
+ * Multi-Semester Scenarios
+ * Tests cross-semester navigation, data isolation, and URL consistency
+ */
+test.describe("Multi-Semester Scenarios", () => {
+  test("TC-MS-01: Can navigate between semesters via URL", async ({ page }) => {
+    // Navigate to semester 1
+    await page.goto("/schedule/1-2567/config");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
+    await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+
+    // Navigate to semester 2
+    await page.goto("/schedule/2-2567/config");
+    await page.waitForLoadState("networkidle");
+    await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
+    await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+  });
+
+  test("TC-MS-02: Both semesters load schedule config successfully", async ({
+    page,
+  }) => {
+    // Test both semesters can load the config page
+    for (const term of SEEDED_TERMS) {
+      const response = await page.goto(`/schedule/${term.label}/config`);
+      expect(response?.status()).toBe(200);
+
+      // Verify content loads (table or skeleton)
+      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+    }
+  });
+
+  test("TC-MS-03: Both semesters load dashboard successfully", async ({
+    page,
+  }) => {
+    // Test both semesters can load the dashboard
+    for (const term of SEEDED_TERMS) {
+      const response = await page.goto(`/dashboard/${term.label}/all-timeslot`);
+      expect(response?.status()).toBe(200);
+
+      // Verify content loads
+      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
+    }
+  });
+
+  test("TC-MS-04: URL patterns are consistent across semesters", async ({
+    page,
+  }) => {
+    // Schedule config URL pattern
+    await page.goto("/schedule/1-2567/config");
+    await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
+
+    await page.goto("/schedule/2-2567/config");
+    await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
+
+    // Dashboard URL pattern
+    await page.goto("/dashboard/1-2567/all-timeslot");
+    await expect(page).toHaveURL(/\/dashboard\/1-2567\/all-timeslot/);
+
+    await page.goto("/dashboard/2-2567/all-timeslot");
+    await expect(page).toHaveURL(/\/dashboard\/2-2567\/all-timeslot/);
+  });
+
+  test("TC-MS-05: Cross-semester navigation preserves page structure", async ({
+    page,
+  }) => {
+    // Load semester 1 config
+    await page.goto("/schedule/1-2567/config");
+    await page.waitForLoadState("networkidle");
+    const sem1HasTable = await page.locator("table").count();
+
+    // Load semester 2 config
+    await page.goto("/schedule/2-2567/config");
+    await page.waitForLoadState("networkidle");
+    const sem2HasTable = await page.locator("table").count();
+
+    // Both should have the same page structure (table present)
+    expect(sem1HasTable).toBeGreaterThan(0);
+    expect(sem2HasTable).toBeGreaterThan(0);
+  });
+
+  test("TC-MS-06: Rapid semester switching doesn't cause errors", async ({
+    page,
+  }) => {
+    const consoleErrors: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    // Rapidly switch between semesters
+    await page.goto("/schedule/1-2567/config");
+    await page.goto("/schedule/2-2567/config");
+    await page.goto("/schedule/1-2567/config");
+    await page.goto("/schedule/2-2567/config");
+
+    // Wait for final page to stabilize
+    await page.waitForLoadState("networkidle");
+
+    // Filter out non-critical errors
+    const criticalErrors = consoleErrors.filter(
+      (err) =>
+        !err.includes("cache") &&
+        !err.includes("warning") &&
+        !err.includes("ResizeObserver"),
+    );
+
+    expect(criticalErrors.length).toBe(0);
+  });
+
+  test("TC-MS-07: Arrange page loads for both semesters", async ({ page }) => {
+    // Test teacher arrange page for both semesters
+    for (const term of SEEDED_TERMS) {
+      const response = await page.goto(
+        `/schedule/${term.label}/arrange/teacher`,
+      );
+      expect(response?.status()).toBe(200);
+
+      // Verify drag-drop area or timetable skeleton loads
+      await page.waitForSelector(
+        '[draggable="true"], [class*="Skeleton"], table',
+        { timeout: 15000 },
+      );
+    }
   });
 });

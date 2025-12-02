@@ -1209,7 +1209,34 @@ async function main() {
       }),
     "Create table config",
   );
-  console.log("✅ Created timetable configuration");
+  console.log("✅ Created timetable configuration for 1-2567");
+
+  // ===== TABLE CONFIG FOR SEMESTER 2 =====
+  console.log("⚙️  Creating timetable configuration for Semester 2...");
+  await withRetry(
+    () =>
+      prisma.table_config.create({
+        data: {
+          ConfigID: `${semesterNumber2}-${academicYear}`,
+          AcademicYear: academicYear,
+          Semester: "SEMESTER_2",
+          Config: {
+            periodsPerDay: 8,
+            startTime: "08:30",
+            periodDuration: 50,
+            schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+            lunchBreak: { after: 4, duration: 60 },
+            breakTimes: {
+              junior: { after: 4 },
+              senior: { after: 5 },
+            },
+          },
+          status: "DRAFT",
+        },
+      }),
+    "Create table config for Semester 2",
+  );
+  console.log("✅ Created timetable configuration for 2-2567");
 
   // ===== PROGRAM-SUBJECT ASSIGNMENTS (Example for M.1 programs) =====
   console.log("🔗 Assigning subjects to M.1 programs...");
