@@ -100,15 +100,26 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Admin can log out successfully", async ({ browser }) => {
-      // Use a fresh authenticated context so logout doesn't affect other tests
-      // Note: browser.newContext() without storageState: undefined will use the default
-      // authenticated state from auth.setup.ts
-      const context = await browser.newContext();
+      // CRITICAL: Use storageState: undefined to create a FRESH session
+      // If we use the shared session from auth.setup.ts and logout, we destroy
+      // the session that ALL other parallel tests depend on!
+      const context = await browser.newContext({ storageState: undefined });
       const page = await context.newPage();
 
-      // Since this context inherits the authenticated session, just go directly to dashboard
-      await page.goto("/dashboard");
-      await page.waitForLoadState("networkidle");
+      // Login fresh - this creates a NEW session that only this test uses
+      await page.goto("/signin");
+      await page.waitForLoadState("domcontentloaded");
+      
+      // Fill credentials and login
+      await page.fill('input[type="email"]', "admin@school.local");
+      await page.fill('input[type="password"]', "admin123");
+      const submitButton = page
+        .locator('button:not([data-testid="google-signin-button"])', {
+          hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
+        })
+        .first();
+      await submitButton.click();
+      await page.waitForURL(/\/dashboard/, { timeout: 15000 });
 
       // Verify logged in
       const session = await page.request.get("/api/auth/get-session");
