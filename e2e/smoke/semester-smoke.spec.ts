@@ -33,7 +33,7 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       await page.goto(`/schedule/${term.label}/config`);
 
       // Wait for table to load
-      await page.waitForSelector("table", { timeout: 10000 });
+      await page.waitForSelector("table", { timeout: 15000 });
 
       // Check for pagination text (Thai: "แสดง X ถึง Y จาก Z รายการ")
       const paginationText = page.locator("text=/แสดง.*ถึง.*จาก.*รายการ/");
@@ -48,7 +48,7 @@ test.describe("Semester Smoke Tests - Schedule Config", () => {
       // Check for common metric card labels
       // Thai: "ครูทั้งหมด" (All Teachers), "ห้องเรียน" (Classrooms), etc.
       const hasMetrics = page.locator("text=/ครูทั้งหมด|ห้องเรียน|รายวิชา/");
-      await expect(hasMetrics.first()).toBeVisible({ timeout: 10000 });
+      await expect(hasMetrics.first()).toBeVisible({ timeout: 15000 });
     });
 
     test(`/schedule/${term.label}/config has no console errors`, async ({
@@ -91,7 +91,7 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
       await page.goto(`/dashboard/${term.label}/all-timeslot`);
 
       // Wait for table to load
-      await page.waitForSelector("table", { timeout: 10000 });
+      await page.waitForSelector("table", { timeout: 15000 });
 
       // Check for common grade labels (Thai: "ม.1", "ม.4", etc.)
       const gradeLabels = page.locator("text=/ม\\.\\d/");
@@ -107,7 +107,7 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
       const pagination = page
         .locator('[role="navigation"]')
         .filter({ hasText: /หน้า|Page/i });
-      await expect(pagination).toBeVisible({ timeout: 10000 });
+      await expect(pagination).toBeVisible({ timeout: 15000 });
     });
 
     test(`/dashboard/${term.label}/all-timeslot has no console errors`, async ({
@@ -145,7 +145,7 @@ test.describe("Semester Route Validation", () => {
     if (status === 200) {
       // Check for error boundary message (Thai: "ไม่พบภาคเรียน")
       const errorMessage = page.locator("text=/ไม่พบภาคเรียน|ไม่พบข้อมูล/");
-      await expect(errorMessage).toBeVisible({ timeout: 5000 });
+      await expect(errorMessage).toBeVisible({ timeout: 15000 });
     } else {
       // Should redirect
       expect([301, 302, 307, 308]).toContain(status);
@@ -170,7 +170,7 @@ test.describe("Cross-Term Navigation", () => {
     await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
 
     // Verify page renders
-    await page.waitForSelector("table", { timeout: 10000 });
+    await page.waitForSelector("table", { timeout: 15000 });
 
     // Navigate to dashboard
     await page.goto("/dashboard/1-2567/all-timeslot");

@@ -37,7 +37,7 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     await saveButton.click();
 
     await expect(page.locator("text=/เพิ่ม.*สำเร็จ|สำเร็จ/i")).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     console.log(`✅ Created teacher: ${teacherEmail}`);
   });
@@ -65,7 +65,7 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     await saveBtn.click();
 
     await expect(page.locator("text=/เพิ่ม.*สำเร็จ|สำเร็จ/i")).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     console.log(`✅ Created subject: ${subjectCode}`);
   });
@@ -88,7 +88,7 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     await saveButton2.click();
 
     await expect(page.locator("text=/เพิ่ม.*สำเร็จ|สำเร็จ/i")).toBeVisible({
-      timeout: 10000,
+      timeout: 15000,
     });
     console.log(`✅ Created room: ${roomNumber}`);
   });

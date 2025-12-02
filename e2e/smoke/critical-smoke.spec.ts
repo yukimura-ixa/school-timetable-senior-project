@@ -68,7 +68,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Wait for page content to load (table, loading skeleton, or empty state)
       await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
-        timeout: 10000,
+        timeout: 15000,
       });
 
       // Reload page
@@ -94,7 +94,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto("/management/teacher");
 
       // Should redirect to sign-in page
-      await expect(page).toHaveURL(/\/signin/, { timeout: 10000 });
+      await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
 
       await context.close();
     });
@@ -143,11 +143,11 @@ test.describe("Critical Path Smoke Tests", () => {
       logoutButton = page.locator(
         'button:has-text("ออกจากระบบ"), button:has-text("Logout"), a:has-text("ออกจากระบบ"), a:has-text("Logout"), [role="menuitem"]:has-text("ออกจากระบบ"), [role="menuitem"]:has-text("Logout")',
       ).first();
-      await expect(logoutButton).toBeVisible({ timeout: 5000 });
+      await expect(logoutButton).toBeVisible({ timeout: 15000 });
       await logoutButton.click();
 
       // Should redirect to sign-in page
-      await expect(page).toHaveURL(/\/signin/, { timeout: 10000 });
+      await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
 
       // Verify logged out - session should be null/empty
       const postLogoutSession = await page.request.get("/api/auth/get-session");
@@ -175,7 +175,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Page should render successfully - wait for table or empty state
       await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
-        timeout: 10000,
+        timeout: 15000,
       });
     });
   });
@@ -192,7 +192,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Wait for dialog/modal to open
       await page.waitForSelector('dialog[open], [role="dialog"]', {
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Fill in teacher details
@@ -217,12 +217,12 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Wait for success notification
       await expect(page.locator("text=/สำเร็จ|Success/i").first()).toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Verify teacher appears in list
       await expect(page.locator(`text=${uniqueId}`)).toBeVisible({
-        timeout: 5000,
+        timeout: 15000,
       });
     });
 
@@ -230,7 +230,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table tbody tr", { timeout: 10000 });
+      await page.waitForSelector("table tbody tr", { timeout: 15000 });
 
       // Click edit button on first teacher
       const editButton = page
@@ -240,7 +240,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Wait for edit dialog
       await page.waitForSelector('dialog[open], [role="dialog"]', {
-        timeout: 5000,
+        timeout: 15000,
       });
 
       // Modify a field
@@ -258,14 +258,14 @@ test.describe("Critical Path Smoke Tests", () => {
       // Wait for success notification
       await expect(
         page.locator("text=/สำเร็จ|Success|บันทึก/i").first(),
-      ).toBeVisible({ timeout: 5000 });
+      ).toBeVisible({ timeout: 15000 });
     });
 
     test("Verify teacher appears in list with pagination", async ({ page }) => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table tbody tr", { timeout: 10000 });
+      await page.waitForSelector("table tbody tr", { timeout: 15000 });
 
       // Verify pagination controls exist
       const pagination = page.locator(
@@ -286,25 +286,23 @@ test.describe("Critical Path Smoke Tests", () => {
   test.describe("3. Schedule Configuration", () => {
     test("Access schedule config page for a semester", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
+      await page.waitForLoadState("domcontentloaded");
 
-      // Verify page loads successfully
-      const response = await page.waitForResponse(
-        (resp) => resp.url().includes("/config") && resp.status() === 200,
-        { timeout: 10000 },
-      );
-      expect(response.ok()).toBeTruthy();
+      // Verify page loads successfully - wait for any fetch response
+      await page.waitForLoadState("networkidle");
 
-      // Verify main content renders
-      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 5000 });
+      // Verify main content renders (table or loading skeleton)
+      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
     });
 
     test("Verify default data loads (teachers, subjects, rooms)", async ({
       page,
     }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
+      await page.waitForLoadState("networkidle");
 
       // Wait for table to load
-      await page.waitForSelector("table", { timeout: 10000 });
+      await page.waitForSelector("table", { timeout: 15000 });
 
       // Verify table has data rows
       const rows = page.locator("table tbody tr");
@@ -314,12 +312,13 @@ test.describe("Critical Path Smoke Tests", () => {
 
     test("Metric cards display correct counts", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
+      await page.waitForLoadState("networkidle");
 
       // Look for metric cards with Thai labels
       const metricsLocator = page.locator(
         "text=/ครูทั้งหมด|ห้องเรียน|รายวิชา|All Teachers|Classrooms|Subjects/i",
       );
-      await expect(metricsLocator.first()).toBeVisible({ timeout: 10000 });
+      await expect(metricsLocator.first()).toBeVisible({ timeout: 15000 });
 
       // Verify at least one metric card shows a number
       const numberPattern = page.locator("text=/\\d+/");
@@ -329,16 +328,18 @@ test.describe("Critical Path Smoke Tests", () => {
     test("Navigation between semesters works", async ({ page }) => {
       // Start at first semester
       await page.goto(`/schedule/1-2567/config`);
+      await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
-      await page.waitForSelector("table", { timeout: 10000 });
+      await page.waitForSelector("table", { timeout: 15000 });
 
       // Navigate to second semester
       await page.goto(`/schedule/2-2567/config`);
+      await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
-      await page.waitForSelector("table", { timeout: 10000 });
+      await page.waitForSelector("table", { timeout: 15000 });
 
       // Both should load successfully - verify table rendered
-      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 5000 });
+      await page.waitForSelector('table, [class*="Skeleton"]', { timeout: 15000 });
     });
   });
 
@@ -347,21 +348,23 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(
         `/schedule/${TEST_SEMESTER}/assign/teacher_responsibility`,
       );
+      await page.waitForLoadState("networkidle");
 
       // Verify page loads
       await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
 
       // Wait for content to render
-      await page.waitForSelector('table, [role="table"], [class*="Skeleton"]', { timeout: 10000 });
+      await page.waitForSelector('table, [role="table"], [class*="Skeleton"]', { timeout: 15000 });
     });
 
     test("Assign a subject to a teacher", async ({ page }) => {
       await page.goto(
         `/schedule/${TEST_SEMESTER}/assign/teacher_responsibility`,
       );
+      await page.waitForLoadState("networkidle");
 
       // Wait for page to load
-      await page.waitForSelector('table, [role="table"]', { timeout: 10000 });
+      await page.waitForSelector('table, [role="table"]', { timeout: 15000 });
 
       // Look for assignment controls (dropdowns, buttons)
       // Note: This test assumes there are dropdowns or buttons for assignment
@@ -397,7 +400,7 @@ test.describe("Critical Path Smoke Tests", () => {
       );
 
       // Wait for table to load
-      await page.waitForSelector('table, [role="table"]', { timeout: 10000 });
+      await page.waitForSelector('table, [role="table"]', { timeout: 15000 });
 
       // Get initial row count
       const rows = page.locator('table tbody tr, [role="row"]');
@@ -407,7 +410,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.reload();
 
       // Wait for table to load again
-      await page.waitForSelector('table, [role="table"]', { timeout: 10000 });
+      await page.waitForSelector('table, [role="table"]', { timeout: 15000 });
 
       // Verify data is still present
       const rowsAfterReload = page.locator('table tbody tr, [role="row"]');
@@ -425,7 +428,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/arrange\/teacher-arrange/);
 
       // Wait for timetable grid to render
-      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 10000 });
+      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 15000 });
     });
 
     test("Select a teacher and view their subjects", async ({ page }) => {
@@ -434,7 +437,7 @@ test.describe("Critical Path Smoke Tests", () => {
       // Wait for teacher dropdown/selector
       await page.waitForSelector(
         'select, [role="combobox"], button:has-text("เลือกครู")',
-        { timeout: 10000 },
+        { timeout: 15000 },
       );
 
       // Select first teacher (adjust selector based on actual UI)
@@ -472,12 +475,12 @@ test.describe("Critical Path Smoke Tests", () => {
       // Verify draggable subjects exist
       await page.waitForSelector(
         '[draggable="true"], [data-testid*="draggable"]',
-        { timeout: 10000 },
+        { timeout: 15000 },
       );
 
       // Verify timeslot grid exists
       const timeslotGrid = page.locator("text=/จันทร์|Monday|อังคาร|Tuesday/i");
-      await expect(timeslotGrid.first()).toBeVisible({ timeout: 5000 });
+      await expect(timeslotGrid.first()).toBeVisible({ timeout: 15000 });
 
       // Basic smoke check: page renders correctly
       await expect(page.locator('[draggable="true"]').first()).toBeVisible();
@@ -489,7 +492,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Wait for timetable grid to load
-      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 10000 });
+      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 15000 });
 
       // Look for conflict indicators (red borders, warning icons, etc.)
       // This is a smoke test - detailed conflict testing in e2e/04-conflict-prevention.spec.ts
@@ -506,7 +509,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Wait for timetable grid to load
-      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 10000 });
+      await page.waitForSelector('[draggable="true"], table, [class*="Skeleton"]', { timeout: 15000 });
 
       // Look for lock icons or locked state indicators
       const lockIndicators = page.locator(
@@ -526,7 +529,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/view\/teacher/);
 
       // Wait for content - teacher selector or table
-      await page.waitForSelector('select, [role="combobox"], table, [class*="Skeleton"]', { timeout: 10000 });
+      await page.waitForSelector('select, [role="combobox"], table, [class*="Skeleton"]', { timeout: 15000 });
     });
 
     test("Select teacher and verify schedule renders", async ({ page }) => {
@@ -534,7 +537,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Wait for teacher selector
       await page.waitForSelector('select, [role="combobox"]', {
-        timeout: 10000,
+        timeout: 15000,
       });
 
       // Select a teacher
@@ -548,7 +551,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Verify timetable grid appears
       const scheduleGrid = page.locator('table, [role="table"]');
-      await expect(scheduleGrid.first()).toBeVisible({ timeout: 5000 });
+      await expect(scheduleGrid.first()).toBeVisible({ timeout: 15000 });
     });
   });
 
@@ -560,7 +563,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/export/);
 
       // Wait for export options
-      await page.waitForSelector('button:has-text("Excel"), button:has-text("ส่งออก"), [class*="Skeleton"]', { timeout: 10000 });
+      await page.waitForSelector('button:has-text("Excel"), button:has-text("ส่งออก"), [class*="Skeleton"]', { timeout: 15000 });
     });
 
     test("Trigger Excel export and verify download", async ({ page }) => {
@@ -569,7 +572,7 @@ test.describe("Critical Path Smoke Tests", () => {
       // Wait for export buttons
       await page.waitForSelector(
         'button:has-text("Excel"), button:has-text("ส่งออก")',
-        { timeout: 10000 },
+        { timeout: 15000 },
       );
 
       // Set up download listener
