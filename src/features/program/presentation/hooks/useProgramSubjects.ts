@@ -60,7 +60,7 @@ export function useProgramSubjects(programId: number) {
     error: subjectsError,
     mutate: mutateSubjects,
     isLoading: isSubjectsLoading,
-  } = useSWR("subjects-all", async () => await getSubjectsAction(), {
+  } = useSWR("subjects-all", async () => await getSubjectsAction({}), {
     revalidateOnFocus: false,
     dedupingInterval: 60000, // Cache for 1 minute
   });

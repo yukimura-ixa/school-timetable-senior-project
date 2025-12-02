@@ -9,12 +9,7 @@
 "use server";
 
 import { createAction } from "@/shared/lib/action-wrapper";
-import type {
-  table_config,
-  timeslot,
-  teachers_responsibility,
-} from "@/prisma/generated/client";
-import { Prisma } from "@/prisma/generated/client";
+import type { table_config } from "@/prisma/generated/client";
 import * as v from "valibot";
 import * as configRepository from "../../infrastructure/repositories/config.repository";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
@@ -22,10 +17,8 @@ import {
   validateConfigExists,
   validateNoDuplicateConfig,
   validateCopyInput,
-  parseConfigID,
-  replaceConfigIDInString,
-  parseSemesterEnum,
 } from "../../domain/services/config-validation.service";
+import { copyConfig } from "../../domain/services/copy-config.service";
 import type { ConfigData } from "../../domain/types/config-data.types";
 import {
   getConfigByTermSchema,
@@ -162,7 +155,8 @@ export const deleteConfigAction = createAction(
  * 4. Optionally: locked class_schedule (lock flag)
  * 5. Optionally: non-locked class_schedule (timetable flag)
  *
- * Uses Prisma transaction for atomicity
+ * Uses Prisma transaction for atomicity.
+ * Business logic delegated to copy-config.service.ts
  */
 export const copyConfigAction = createAction(
   copyConfigSchema,
@@ -173,267 +167,18 @@ export const copyConfigAction = createAction(
       throw new Error(copyError);
     }
 
-    // Parse ConfigIDs
-    const fromParsed = parseConfigID(input.from);
-    const toParsed = parseConfigID(input.to);
-
-    const fromSemester = parseSemesterEnum(fromParsed.semester);
-    const toSemester = parseSemesterEnum(toParsed.semester);
-
-    // Execute copy operation in transaction
+    // Delegate to domain service within transaction
     const result = await withPrismaTransaction(async (tx) => {
-      // 1. Copy table_config
-      const fromConfig: table_config | null = await tx.table_config.findUnique({
-        where: { ConfigID: input.from },
-      });
-
-      if (!fromConfig) {
-        throw new Error(`ไม่พบการตั้งค่าต้นทาง (${input.from})`);
-      }
-
-      const newConfig: table_config = await tx.table_config.create({
-        data: {
-          ConfigID: input.to,
-          Semester: toSemester,
-          AcademicYear: toParsed.academicYear,
-          Config: (fromConfig.Config ??
-            Prisma.JsonNull) as Prisma.InputJsonValue,
+      return copyConfig(
+        input.from,
+        input.to,
+        {
+          assign: input.assign ?? false,
+          lock: input.lock ?? false,
+          timetable: input.timetable ?? false,
         },
-      });
-
-      // 2. Copy timeslots
-      const fromSlots: timeslot[] = await tx.timeslot.findMany({
-        where: {
-          AcademicYear: fromParsed.academicYear,
-          Semester: fromSemester,
-        },
-      });
-
-      const toSlots = fromSlots.map((slot) => ({
-        TimeslotID: replaceConfigIDInString(
-          slot.TimeslotID,
-          input.from,
-          input.to,
-        ),
-        DayOfWeek: slot.DayOfWeek,
-        AcademicYear: toParsed.academicYear,
-        Semester: toSemester,
-        StartTime: slot.StartTime,
-        EndTime: slot.EndTime,
-        Breaktime: slot.Breaktime,
-      }));
-
-      await tx.timeslot.createMany({
-        data: toSlots,
-        skipDuplicates: true,
-      });
-
-      let copiedAssignments = 0;
-      let copiedLocks = 0;
-      let copiedTimetables = 0;
-
-      // 3. Copy teachers_responsibility (if assign flag is true)
-      if (input.assign) {
-        const fromResp: teachers_responsibility[] =
-          await tx.teachers_responsibility.findMany({
-            where: {
-              AcademicYear: fromParsed.academicYear,
-              Semester: fromSemester,
-            },
-          });
-
-        const toResp = fromResp.map((resp) => ({
-          TeacherID: resp.TeacherID,
-          GradeID: resp.GradeID,
-          SubjectCode: resp.SubjectCode,
-          TeachHour: resp.TeachHour,
-          AcademicYear: toParsed.academicYear,
-          Semester: toSemester,
-        }));
-
-        // Use skipDuplicates instead of manual checking - idempotent operation
-        const created = await tx.teachers_responsibility.createMany({
-          data: toResp,
-          skipDuplicates: true,
-        });
-
-        copiedAssignments = created.count;
-
-        // Get new responsibilities for class_schedule connections
-        const newResp: teachers_responsibility[] =
-          await tx.teachers_responsibility.findMany({
-            where: {
-              AcademicYear: toParsed.academicYear,
-              Semester: toSemester,
-            },
-          });
-
-        // 4. Copy locked class_schedule (if lock flag is true)
-        if (input.lock) {
-          const fromLock: Array<{
-            ClassID: string;
-            TimeslotID: string;
-            SubjectCode: string;
-            RoomID: number | null;
-            GradeID: string;
-            IsLocked: boolean;
-            teachers_responsibility: teachers_responsibility[];
-          }> = await tx.class_schedule.findMany({
-            where: {
-              IsLocked: true,
-              timeslot: {
-                AcademicYear: fromParsed.academicYear,
-                Semester: fromSemester,
-              },
-            },
-            include: {
-              teachers_responsibility: true,
-            },
-          });
-
-          // Build responsibility lookup map for O(1) access
-          const respLookupMap = new Map<string, number[]>();
-          for (const resp of newResp) {
-            if (resp.Semester === toSemester) {
-              const key = `${resp.GradeID}|${resp.SubjectCode}`;
-              if (!respLookupMap.has(key)) {
-                respLookupMap.set(key, []);
-              }
-              respLookupMap.get(key)!.push(resp.RespID);
-            }
-          }
-
-          // Parallel creates for better performance
-          const lockCreatePromises = fromLock.map(async (lock) => {
-            const newTimeslotID = replaceConfigIDInString(
-              lock.TimeslotID,
-              input.from,
-              input.to,
-            );
-            const newClassID = replaceConfigIDInString(
-              lock.ClassID,
-              input.from,
-              input.to,
-            );
-
-            // Use lookup map instead of filtering
-            const key = `${lock.GradeID}|${lock.SubjectCode}`;
-            const newRespIDs = respLookupMap.get(key) || [];
-
-            try {
-              await tx.class_schedule.create({
-                data: {
-                  ClassID: newClassID,
-                  TimeslotID: newTimeslotID,
-                  SubjectCode: lock.SubjectCode,
-                  RoomID: lock.RoomID,
-                  GradeID: lock.GradeID,
-                  IsLocked: true,
-                  teachers_responsibility: {
-                    connect: newRespIDs.map((id) => ({ RespID: id })),
-                  },
-                },
-              });
-              return true;
-            } catch (error) {
-              // Skip if already exists or error (idempotent)
-              console.error("Error copying locked schedule:", error);
-              return false;
-            }
-          });
-
-          const lockResults = await Promise.all(lockCreatePromises);
-          copiedLocks = lockResults.filter(Boolean).length;
-        }
-
-        // 5. Copy non-locked class_schedule (if timetable flag is true)
-        if (input.timetable) {
-          const fromTimetable: Array<{
-            ClassID: string;
-            TimeslotID: string;
-            SubjectCode: string;
-            RoomID: number | null;
-            GradeID: string;
-            IsLocked: boolean;
-            teachers_responsibility: teachers_responsibility[];
-          }> = await tx.class_schedule.findMany({
-            where: {
-              IsLocked: false,
-              timeslot: {
-                AcademicYear: fromParsed.academicYear,
-                Semester: fromSemester,
-              },
-            },
-            include: {
-              teachers_responsibility: true,
-            },
-          });
-
-          // Build responsibility lookup map for O(1) access (reuse if lock was copied)
-          const respLookupMap = new Map<string, number[]>();
-          for (const resp of newResp) {
-            if (resp.Semester === toSemester) {
-              const key = `${resp.GradeID}|${resp.SubjectCode}`;
-              if (!respLookupMap.has(key)) {
-                respLookupMap.set(key, []);
-              }
-              respLookupMap.get(key)!.push(resp.RespID);
-            }
-          }
-
-          // Parallel creates for better performance
-          const timetableCreatePromises = fromTimetable.map(
-            async (schedule) => {
-              const newTimeslotID = replaceConfigIDInString(
-                schedule.TimeslotID,
-                input.from,
-                input.to,
-              );
-              const newClassID = replaceConfigIDInString(
-                schedule.ClassID,
-                input.from,
-                input.to,
-              );
-
-              // Use lookup map instead of filtering
-              const key = `${schedule.GradeID}|${schedule.SubjectCode}`;
-              const newRespIDs = respLookupMap.get(key) || [];
-
-              try {
-                await tx.class_schedule.create({
-                  data: {
-                    ClassID: newClassID,
-                    TimeslotID: newTimeslotID,
-                    SubjectCode: schedule.SubjectCode,
-                    RoomID: schedule.RoomID,
-                    GradeID: schedule.GradeID,
-                    IsLocked: false,
-                    teachers_responsibility: {
-                      connect: newRespIDs.map((id) => ({ RespID: id })),
-                    },
-                  },
-                });
-                return true;
-              } catch (error) {
-                // Skip if already exists or error (idempotent)
-                console.error("Error copying timetable schedule:", error);
-                return false;
-              }
-            },
-          );
-
-          const timetableResults = await Promise.all(timetableCreatePromises);
-          copiedTimetables = timetableResults.filter(Boolean).length;
-        }
-      }
-
-      return {
-        config: newConfig,
-        timeslots: toSlots.length,
-        assignments: copiedAssignments,
-        locks: copiedLocks,
-        timetables: copiedTimetables,
-      };
+        tx,
+      );
     });
 
     return result;

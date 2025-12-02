@@ -58,13 +58,17 @@ export function TeacherSelector({
       setIsLoading(true);
 
       try {
-        const teachersData = await getTeachersWithWorkload(
+        const result = await getTeachersWithWorkload({
           semester,
           academicYear,
-        );
+        });
+
+        if (!result.success || !result.data) {
+          throw new Error(result.error?.message ?? "Failed to fetch teachers");
+        }
 
         // Map server action response to component state
-        const teachersWithWorkload: TeacherOption[] = teachersData.map(
+        const teachersWithWorkload: TeacherOption[] = result.data.map(
           (teacher: any) => ({
             id: teacher.TeacherID,
             name: teacher.TeacherName,

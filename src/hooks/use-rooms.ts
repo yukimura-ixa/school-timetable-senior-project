@@ -14,7 +14,7 @@ import { getRoomsAction } from "@/features/room/application/actions/room.actions
  */
 export const useRooms = () => {
   const { data, error, mutate } = useSWR<room[]>("rooms", async () => {
-    const result = await getRoomsAction();
+    const result = await getRoomsAction({});
     return result.success ? result.data : [];
   });
 

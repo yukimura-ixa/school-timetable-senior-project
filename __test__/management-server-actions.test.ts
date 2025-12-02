@@ -36,7 +36,7 @@ describe("Teacher Management Server Actions", () => {
       }
     } else {
       expect(result).toHaveProperty("error");
-      expect(typeof result.error).toBe("string");
+      expect(typeof result.error?.message).toBe("string");
     }
   });
 
@@ -93,7 +93,7 @@ describe("Room Management Server Actions", () => {
       }
     } else {
       expect(result).toHaveProperty("error");
-      expect(typeof result.error).toBe("string");
+      expect(typeof result.error?.message).toBe("string");
     }
   });
 
@@ -133,7 +133,7 @@ describe("Subject Management Server Actions", () => {
       }
     } else {
       expect(result).toHaveProperty("error");
-      expect(typeof result.error).toBe("string");
+      expect(typeof result.error?.message).toBe("string");
     }
   });
 
@@ -185,7 +185,7 @@ describe("GradeLevel Management Server Actions", () => {
       }
     } else {
       expect(result).toHaveProperty("error");
-      expect(typeof result.error).toBe("string");
+      expect(typeof result.error?.message).toBe("string");
     }
   });
 
@@ -235,8 +235,8 @@ describe("Error Handling", () => {
       // If not successful, should have error message
       if (!result.success) {
         expect(result).toHaveProperty("error");
-        expect(typeof result.error).toBe("string");
-        expect(result.error.length).toBeGreaterThan(0);
+        expect(typeof result.error?.message).toBe("string");
+        expect(result.error?.message.length).toBeGreaterThan(0);
       }
     });
   });

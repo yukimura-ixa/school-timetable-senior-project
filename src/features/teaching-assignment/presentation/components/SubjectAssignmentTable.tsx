@@ -68,16 +68,20 @@ export function SubjectAssignmentTable({
 
       try {
         // Fetch subjects with assignments using Server Action
-        const subjectsWithAssignments = await getSubjectsWithAssignments(
+        const result = await getSubjectsWithAssignments({
           gradeId,
           semester,
           academicYear,
-        );
+        });
+
+        if (!result.success || !result.data) {
+          throw new Error(result.error?.message ?? "Failed to fetch data");
+        }
 
         console.warn(
-          `[SubjectAssignmentTable] Received ${subjectsWithAssignments.length} subjects`,
+          `[SubjectAssignmentTable] Received ${result.data.length} subjects`,
         );
-        setSubjects(subjectsWithAssignments);
+        setSubjects(result.data);
       } catch (err) {
         console.error("Failed to fetch assignment data:", err);
         setError("ไม่สามารถโหลดข้อมูลได้");

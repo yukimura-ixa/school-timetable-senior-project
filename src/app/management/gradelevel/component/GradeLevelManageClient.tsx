@@ -27,7 +27,7 @@ export function GradeLevelManageClient({
   // Mutation callback - refetch data after mutations
   const handleMutate = async () => {
     setIsRefreshing(true);
-    const result = await getGradeLevelsAction();
+    const result = await getGradeLevelsAction({});
     if (result.success) {
       setGradelevels(result.data);
     }

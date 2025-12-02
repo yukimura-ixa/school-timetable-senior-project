@@ -5,6 +5,7 @@
  * Server Actions for managing config status and completeness
  */
 
+import { createAction } from "@/shared/lib/action-wrapper";
 import * as configRepository from "../../infrastructure/repositories/config.repository";
 import {
   UpdateConfigStatusSchema,
@@ -21,24 +22,19 @@ type ConfigStatus = "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
 /**
  * Update config status with validation
  */
-export async function updateConfigStatusAction(input: {
-  configId: string;
-  status: string;
-  force?: boolean; // Allow overriding the publish gate
-  reason?: string;
-}) {
-  try {
-    // Validate input
-    const validated = v.parse(UpdateConfigStatusSchema, input);
-
+export const updateConfigStatusAction = createAction(
+  UpdateConfigStatusSchema,
+  async (input: {
+    configId: string;
+    status: string;
+    force?: boolean;
+    reason?: string;
+  }) => {
     // Get current config
-    const config = await configRepository.findByConfigId(validated.configId);
+    const config = await configRepository.findByConfigId(input.configId);
 
     if (!config) {
-      return {
-        success: false,
-        error: "ไม่พบการตั้งค่านี้",
-      };
+      throw new Error("ไม่พบการตั้งค่านี้");
     }
 
     const isPublishing =
@@ -46,65 +42,53 @@ export async function updateConfigStatusAction(input: {
       (input.status as ConfigStatus) === "PUBLISHED";
 
     // If publishing, check for readiness unless force flag is set
-    if (isPublishing && !validated.force) {
-      const readiness = await getPublishReadiness(validated.configId);
+    if (isPublishing && !input.force) {
+      const readiness = await getPublishReadiness(input.configId);
 
       if (readiness && readiness.status !== "ready") {
         const errorMessages = [
           "ไม่สามารถเผยแพร่ได้ เนื่องจาก:",
           ...readiness.issues,
         ];
-        return {
-          success: false,
-          error: errorMessages.join("\n- "),
-        };
+        throw new Error(errorMessages.join("\n- "));
       }
     }
 
     // Check if transition is allowed
     const canTransition = canTransitionStatus(
       config.status as ConfigStatus,
-      validated.status as ConfigStatus,
+      input.status as ConfigStatus,
       config.configCompleteness,
     );
 
     if (!canTransition.allowed) {
-      return {
-        success: false,
-        error: canTransition.reason || "ไม่สามารถเปลี่ยนสถานะได้",
-      };
+      throw new Error(canTransition.reason || "ไม่สามารถเปลี่ยนสถานะได้");
     }
 
     // Update status
     const updated = await configRepository.updateStatus(
-      validated.configId,
-      validated.status as ConfigStatus,
-      validated.status === "PUBLISHED"
+      input.configId,
+      input.status as ConfigStatus,
+      input.status === "PUBLISHED"
         ? new Date()
         : config.publishedAt || undefined,
     );
 
-    return {
-      success: true,
-      data: updated,
-    };
-  } catch (error) {
-    console.error("updateConfigStatusAction error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "เกิดข้อผิดพลาด",
-    };
-  }
-}
+    return updated;
+  },
+);
 
 /**
  * Calculate and update config completeness
  */
-export async function updateConfigCompletenessAction(input: {
-  academicYear: number;
-  semester: "SEMESTER_1" | "SEMESTER_2";
-}) {
-  try {
+const UpdateConfigCompletenessSchema = v.object({
+  academicYear: v.number(),
+  semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+});
+
+export const updateConfigCompletenessAction = createAction(
+  UpdateConfigCompletenessSchema,
+  async (input: { academicYear: number; semester: "SEMESTER_1" | "SEMESTER_2" }) => {
     // Convert SEMESTER_1 to "1", SEMESTER_2 to "2"
     const semesterNum =
       input.semester === "SEMESTER_1"
@@ -133,35 +117,24 @@ export async function updateConfigCompletenessAction(input: {
     await configRepository.updateCompleteness(configId, completeness);
 
     return {
-      success: true,
-      data: {
-        completeness,
-        counts: {
-          timeslots: counts.timeslotCount,
-          teachers: counts.teacherCount,
-          subjects: counts.subjectCount,
-          classes: counts.classCount,
-          rooms: counts.roomCount,
-        },
+      completeness,
+      counts: {
+        timeslots: counts.timeslotCount,
+        teachers: counts.teacherCount,
+        subjects: counts.subjectCount,
+        classes: counts.classCount,
+        rooms: counts.roomCount,
       },
     };
-  } catch (error) {
-    console.error("updateConfigCompletenessAction error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "เกิดข้อผิดพลาด",
-    };
-  }
-}
+  },
+);
 
 /**
  * Get config with completeness info
  */
-export async function getConfigWithCompletenessAction(input: {
-  academicYear: number;
-  semester: "SEMESTER_1" | "SEMESTER_2";
-}) {
-  try {
+export const getConfigWithCompletenessAction = createAction(
+  UpdateConfigCompletenessSchema,
+  async (input: { academicYear: number; semester: "SEMESTER_1" | "SEMESTER_2" }) => {
     // Convert SEMESTER_1 to "1", SEMESTER_2 to "2"
     const semesterNum =
       input.semester === "SEMESTER_1"
@@ -178,22 +151,6 @@ export async function getConfigWithCompletenessAction(input: {
       input.semester,
     );
 
-    if (!configWithCounts) {
-      return {
-        success: true,
-        data: null,
-      };
-    }
-
-    return {
-      success: true,
-      data: configWithCounts,
-    };
-  } catch (error) {
-    console.error("getConfigWithCompletenessAction error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "เกิดข้อผิดพลาด",
-    };
-  }
-}
+    return configWithCounts;
+  },
+);

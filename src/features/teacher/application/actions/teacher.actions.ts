@@ -9,15 +9,18 @@
 
 "use server";
 
+import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
+import type { teacher } from "@/prisma/generated/client";
 import { teacherRepository } from "../../infrastructure/repositories/teacher.repository";
 import {
   checkDuplicateTeacher,
   checkEmailConflict,
 } from "../../domain/services/teacher-validation.service";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   createTeacherSchema,
   createTeachersSchema,
@@ -48,18 +51,13 @@ import {
  * }
  * ```
  */
-export async function getTeachersAction() {
-  try {
-    const teachers = await teacherRepository.findAll();
-    return { success: true as const, data: teachers };
-  } catch (error) {
-    console.error("[TeacherActions] getTeachersAction failed:", error);
-    return {
-      success: false as const,
-      error: "ไม่สามารถดึงข้อมูลครูได้",
-    };
-  }
-}
+
+export const getTeachersAction = createAction(
+  v.object({}),
+  async () => {
+    return await teacherRepository.findAll();
+  },
+);
 
 /**
  * Get a single teacher by ID
@@ -163,6 +161,8 @@ export const createTeacherAction = createAction(
  * - No duplicate teacher
  * - Unique email
  *
+ * Uses Prisma transaction for atomicity - all succeed or all fail.
+ *
  * @param input - Array of teacher data
  * @returns Array of created teacher IDs
  *
@@ -181,43 +181,81 @@ export const createTeacherAction = createAction(
 export const createTeachersAction = createAction(
   createTeachersSchema,
   async (input: CreateTeachersInput) => {
-    const createdTeachers = await Promise.all(
-      input.map(async (teacherData) => {
-        // 1. Check for duplicate teacher
-        const existingTeacher =
-          await teacherRepository.findDuplicate(teacherData);
+    // Use transaction for atomicity - all succeed or all fail
+    return await withPrismaTransaction(async (tx) => {
+      // Phase 1: Validate ALL teachers before creating any
+      const validationErrors: string[] = [];
+      const emailsInBatch = new Set<string>();
+
+      for (const teacherData of input) {
+        // Check for duplicate email within the batch
+        if (emailsInBatch.has(teacherData.Email)) {
+          validationErrors.push(
+            `อีเมล ${teacherData.Email} ซ้ำกันในรายการที่อัปโหลด`,
+          );
+          continue;
+        }
+        emailsInBatch.add(teacherData.Email);
+
+        // Check for duplicate teacher in database
+        const existingTeacher = await tx.teacher.findFirst({
+          where: {
+            Prefix: teacherData.Prefix,
+            Firstname: teacherData.Firstname,
+            Lastname: teacherData.Lastname,
+            Email: teacherData.Email,
+            Department: teacherData.Department,
+          },
+        });
+
         const duplicateCheck = checkDuplicateTeacher(
           teacherData,
           existingTeacher,
         );
 
-        if (duplicateCheck.isDuplicate) {
-          throw new Error(duplicateCheck.reason);
+        if (duplicateCheck.isDuplicate && duplicateCheck.reason) {
+          validationErrors.push(duplicateCheck.reason);
+          continue;
         }
 
-        // 2. Check for email conflict
-        const teacherWithEmail = await teacherRepository.findByEmail(
-          teacherData.Email,
-        );
+        // Check for email conflict in database
+        const teacherWithEmail = await tx.teacher.findFirst({
+          where: { Email: teacherData.Email },
+        });
+
         const emailCheck = checkEmailConflict(
           teacherData.Email,
           teacherWithEmail,
         );
 
-        if (emailCheck.isDuplicate) {
-          throw new Error(emailCheck.reason);
+        if (emailCheck.isDuplicate && emailCheck.reason) {
+          validationErrors.push(emailCheck.reason);
         }
+      }
 
-        // 3. Create teacher
-        return await teacherRepository.create(teacherData);
-      }),
-    );
+      // If any validation errors, throw before creating anything
+      if (validationErrors.length > 0) {
+        throw new Error(validationErrors.join("; "));
+      }
 
-    // 4. Revalidate cache (optional - for future cache optimization)
-    // revalidateTag('teachers');
+      // Phase 2: Create all teachers within the transaction
+      const createdTeachers = await Promise.all(
+        input.map(async (teacherData) => {
+          return await tx.teacher.create({
+            data: {
+              Prefix: teacherData.Prefix,
+              Firstname: teacherData.Firstname,
+              Lastname: teacherData.Lastname,
+              Department: teacherData.Department,
+              Email: teacherData.Email,
+            },
+          });
+        }),
+      );
 
-    // Return array of IDs
-    return createdTeachers.map((t: any) => t.TeacherID);
+      // Return array of IDs
+      return createdTeachers.map((t: teacher) => t.TeacherID);
+    });
   },
 );
 
@@ -288,6 +326,8 @@ export const updateTeacherAction = createAction(
 /**
  * Update multiple teachers (bulk operation)
  *
+ * Uses Prisma transaction for atomicity - all succeed or all fail.
+ *
  * @param input - Array of updated teacher data
  * @returns Array of updated teacher IDs
  *
@@ -302,47 +342,78 @@ export const updateTeacherAction = createAction(
 export const updateTeachersAction = createAction(
   updateTeachersSchema,
   async (input: UpdateTeachersInput) => {
-    const updatedTeachers = await Promise.all(
-      input.map(async (teacherData) => {
-        // 1. Check if teacher exists
-        const existingTeacher = await teacherRepository.findById(
-          teacherData.TeacherID,
-        );
+    // Use transaction for atomicity - all succeed or all fail
+    return await withPrismaTransaction(async (tx) => {
+      // Phase 1: Validate ALL teachers before updating any
+      const validationErrors: string[] = [];
+      const emailsInBatch = new Map<string, number>(); // email -> TeacherID using it
+
+      for (const teacherData of input) {
+        // Track emails within batch to detect conflicts
+        const existingInBatch = emailsInBatch.get(teacherData.Email);
+        if (
+          existingInBatch !== undefined &&
+          existingInBatch !== teacherData.TeacherID
+        ) {
+          validationErrors.push(
+            `อีเมล ${teacherData.Email} ซ้ำกันในรายการที่อัปเดต`,
+          );
+          continue;
+        }
+        emailsInBatch.set(teacherData.Email, teacherData.TeacherID);
+
+        // Check if teacher exists
+        const existingTeacher = await tx.teacher.findUnique({
+          where: { TeacherID: teacherData.TeacherID },
+        });
 
         if (!existingTeacher) {
-          throw new Error("ไม่พบข้อมูลของครูท่านนี้");
+          validationErrors.push(
+            `ไม่พบข้อมูลของครู ID ${teacherData.TeacherID}`,
+          );
+          continue;
         }
 
-        // 2. Check for email conflict
-        const teacherWithEmail = await teacherRepository.findByEmail(
-          teacherData.Email,
-        );
+        // Check for email conflict in database (excluding current teacher)
+        const teacherWithEmail = await tx.teacher.findFirst({
+          where: { Email: teacherData.Email },
+        });
+
         const emailCheck = checkEmailConflict(
           teacherData.Email,
           teacherWithEmail,
           teacherData.TeacherID,
         );
 
-        if (emailCheck.isDuplicate) {
-          throw new Error(emailCheck.reason);
+        if (emailCheck.isDuplicate && emailCheck.reason) {
+          validationErrors.push(emailCheck.reason);
         }
+      }
 
-        // 3. Update teacher
-        return await teacherRepository.update(teacherData.TeacherID, {
-          Prefix: teacherData.Prefix,
-          Firstname: teacherData.Firstname,
-          Lastname: teacherData.Lastname,
-          Email: teacherData.Email,
-          Department: teacherData.Department,
-        });
-      }),
-    );
+      // If any validation errors, throw before updating anything
+      if (validationErrors.length > 0) {
+        throw new Error(validationErrors.join("; "));
+      }
 
-    // 4. Revalidate cache (optional - for future cache optimization)
-    // revalidateTag('teachers');
+      // Phase 2: Update all teachers within the transaction
+      const updatedTeachers = await Promise.all(
+        input.map(async (teacherData) => {
+          return await tx.teacher.update({
+            where: { TeacherID: teacherData.TeacherID },
+            data: {
+              Prefix: teacherData.Prefix,
+              Firstname: teacherData.Firstname,
+              Lastname: teacherData.Lastname,
+              Department: teacherData.Department,
+              Email: teacherData.Email,
+            },
+          });
+        }),
+      );
 
-    // Return array of IDs
-    return updatedTeachers.map((t: any) => t.TeacherID);
+      // Return array of IDs
+      return updatedTeachers.map((t: teacher) => t.TeacherID);
+    });
   },
 );
 

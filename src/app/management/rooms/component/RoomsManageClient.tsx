@@ -23,7 +23,7 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
   // Mutation callback - refetch data after mutations
   const handleMutate = async () => {
     setIsRefreshing(true);
-    const result = await getRoomsAction();
+    const result = await getRoomsAction({});
     if (result.success) {
       setRooms(result.data);
     }

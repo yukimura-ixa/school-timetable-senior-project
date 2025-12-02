@@ -133,10 +133,10 @@ export default function ArrangementPage() {
   // ============================================================================
   useEffect(() => {
     const fetchConfig = async () => {
-      const result = await getTimetableConfigAction(
-        parseInt(academicYear),
-        `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
-      );
+      const result = await getTimetableConfigAction({
+        academicYear: parseInt(academicYear),
+        semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+      });
       if (result.success && result.data) {
         setTimetableConfig(result.data);
       }
@@ -214,7 +214,7 @@ export default function ArrangementPage() {
   const { data: allTeachers, isLoading: isLoadingTeachers } = useSWR(
     "teachers",
     async () => {
-      const result = await getTeachersAction();
+      const result = await getTeachersAction({});
       if (!result || !result.success) return [];
       return result.data || [];
     },
@@ -226,7 +226,7 @@ export default function ArrangementPage() {
   const { data: gradeLevels } = useSWR(
     `gradelevels-${academicYear}-${semester}`,
     async () => {
-      const result = await getGradeLevelsAction();
+      const result = await getGradeLevelsAction({});
       if (!result || !result.success) return [];
       return result.data || [];
     },

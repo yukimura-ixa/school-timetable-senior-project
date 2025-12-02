@@ -102,7 +102,7 @@ export function CreateSemesterWizard({
       });
 
       if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to create semester");
+        throw new Error(result.error?.message || "Failed to create semester");
       }
 
       enqueueSnackbar("สร้างภาคเรียนสำเร็จ", { variant: "success" });

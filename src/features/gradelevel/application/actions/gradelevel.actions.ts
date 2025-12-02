@@ -9,6 +9,7 @@
 
 "use server";
 
+import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
 import { gradeLevelRepository } from "../../infrastructure/repositories/gradelevel.repository";
 import {
@@ -46,17 +47,12 @@ import {
  * }
  * ```
  */
-export async function getGradeLevelsAction() {
-  try {
-    const gradelevels = await gradeLevelRepository.findAll();
-    return { success: true as const, data: gradelevels };
-  } catch {
-    return {
-      success: false as const,
-      error: "ไม่สามารถดึงข้อมูลชั้นเรียนได้",
-    };
-  }
-}
+export const getGradeLevelsAction = createAction(
+  v.object({}),
+  async () => {
+    return await gradeLevelRepository.findAll();
+  },
+);
 
 /**
  * Create a single gradelevel with duplicate validation
@@ -259,14 +255,10 @@ export const getGradeLevelsForLockAction = createAction(
  * }
  * ```
  */
-export async function getGradeLevelCountAction() {
-  try {
+export const getGradeLevelCountAction = createAction(
+  v.object({}),
+  async () => {
     const count = await gradeLevelRepository.count();
-    return { success: true as const, data: { count } };
-  } catch {
-    return {
-      success: false as const,
-      error: "ไม่สามารถนับจำนวนชั้นเรียนได้",
-    };
-  }
-}
+    return { count };
+  },
+);

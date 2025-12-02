@@ -9,6 +9,7 @@
 
 "use server";
 
+import * as v from "valibot";
 import { revalidatePath } from "next/cache";
 import { createAction } from "@/shared/lib/action-wrapper";
 import prisma from "@/lib/prisma";
@@ -279,57 +280,56 @@ export const clearAllAssignmentsAction = createAction(
  * @param academicYear - Academic year (e.g., 2567)
  * @returns Subjects with assignment data
  */
-export async function getSubjectsWithAssignments(
-  gradeId: string,
-  semester: "SEMESTER_1" | "SEMESTER_2",
-  academicYear: number,
-) {
-  "use server";
+const getSubjectsWithAssignmentsSchema = v.object({
+  gradeId: v.string(),
+  semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+  academicYear: v.number(),
+});
 
-  console.warn("[getSubjectsWithAssignments] Called with:", {
-    gradeId,
-    semester,
-    academicYear,
-  });
+export const getSubjectsWithAssignments = createAction(
+  getSubjectsWithAssignmentsSchema,
+  async (input: { gradeId: string; semester: "SEMESTER_1" | "SEMESTER_2"; academicYear: number }) => {
+    console.warn("[getSubjectsWithAssignments] Called with:", input);
 
-  const subjectsData =
-    await teachingAssignmentRepository.findSubjectsByGrade(gradeId);
-  console.warn(
-    `[getSubjectsWithAssignments] Found ${subjectsData.length} subjects for grade ${gradeId}`,
-  );
-
-  const assignments =
-    await teachingAssignmentRepository.findAssignmentsByContext(
-      gradeId,
-      semester,
-      academicYear,
-    );
-  console.warn(
-    `[getSubjectsWithAssignments] Found ${assignments.length} assignments`,
-  );
-
-  return subjectsData.map((subjectData: any) => {
-    const assignment = assignments.find(
-      (a: any) => a.SubjectCode === subjectData.SubjectCode,
+    const subjectsData =
+      await teachingAssignmentRepository.findSubjectsByGrade(input.gradeId);
+    console.warn(
+      `[getSubjectsWithAssignments] Found ${subjectsData.length} subjects for grade ${input.gradeId}`,
     );
 
-    return {
-      SubjectCode: subjectData.SubjectCode,
-      SubjectName: subjectData.subject.SubjectName,
-      Credit: subjectData.subject.Credit,
-      assignedTeacher: assignment
-        ? {
-            RespID: assignment.RespID,
-            TeacherID: assignment.TeacherID,
-            TeachHour: assignment.TeachHour,
-            TeacherName: assignment.teacher
-              ? `${assignment.teacher.Prefix}${assignment.teacher.Firstname} ${assignment.teacher.Lastname}`
-              : "ไม่ทราบชื่อ",
-          }
-        : undefined,
-    };
-  });
-}
+    const assignments =
+      await teachingAssignmentRepository.findAssignmentsByContext(
+        input.gradeId,
+        input.semester,
+        input.academicYear,
+      );
+    console.warn(
+      `[getSubjectsWithAssignments] Found ${assignments.length} assignments`,
+    );
+
+    return subjectsData.map((subjectData: any) => {
+      const assignment = assignments.find(
+        (a: any) => a.SubjectCode === subjectData.SubjectCode,
+      );
+
+      return {
+        SubjectCode: subjectData.SubjectCode,
+        SubjectName: subjectData.subject.SubjectName,
+        Credit: subjectData.subject.Credit,
+        assignedTeacher: assignment
+          ? {
+              RespID: assignment.RespID,
+              TeacherID: assignment.TeacherID,
+              TeachHour: assignment.TeachHour,
+              TeacherName: assignment.teacher
+                ? `${assignment.teacher.Prefix}${assignment.teacher.Firstname} ${assignment.teacher.Lastname}`
+                : "ไม่ทราบชื่อ",
+            }
+          : undefined,
+      };
+    });
+  },
+);
 
 /**
  * Fetch all teachers for dropdown selection
@@ -339,58 +339,66 @@ export async function getSubjectsWithAssignments(
  * @param academicYear - Academic year to calculate workload for
  * @returns Teachers with workload data
  */
-export async function getTeachersWithWorkload(
-  semester: "SEMESTER_1" | "SEMESTER_2",
-  academicYear: number,
-) {
-  "use server";
+type GetTeachersWithWorkloadInput = {
+  semester: "SEMESTER_1" | "SEMESTER_2";
+  academicYear: number;
+};
 
-  const teachers = await prisma.teacher.findMany({
-    select: {
-      TeacherID: true,
-      Prefix: true,
-      Firstname: true,
-      Lastname: true,
-    },
-    orderBy: [{ Prefix: "asc" }, { Firstname: "asc" }],
-  });
+const getTeachersWithWorkloadSchema = v.object({
+  semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+  academicYear: v.number(),
+});
 
-  // Calculate workload for each teacher
-  const teachersWithWorkload = await Promise.all(
-    teachers.map(async (teacher: any) => {
-      // Get teacher's workload from repository
-      const assignments =
-        await teachingAssignmentRepository.findTeacherWorkload(
-          teacher.TeacherID,
-          semester,
-          academicYear,
+export const getTeachersWithWorkload = createAction(
+  getTeachersWithWorkloadSchema,
+  async (input: GetTeachersWithWorkloadInput) => {
+    const teachers = await prisma.teacher.findMany({
+      select: {
+        TeacherID: true,
+        Prefix: true,
+        Firstname: true,
+        Lastname: true,
+      },
+      orderBy: [{ Prefix: "asc" }, { Firstname: "asc" }],
+    });
+
+    // Calculate workload for each teacher
+    const teachersWithWorkload = await Promise.all(
+      teachers.map(async (teacher: any) => {
+        // Get teacher's workload from repository
+        const assignments =
+          await teachingAssignmentRepository.findTeacherWorkload(
+            teacher.TeacherID,
+            input.semester,
+            input.academicYear,
+          );
+
+        // Calculate total hours and determine status
+        const totalHours = assignments.reduce(
+          (sum: any, a: any) => sum + a.TeachHour,
+          0,
         );
+        let status: "ok" | "warning" | "overload";
+        if (totalHours >= 25) {
+          status = "overload";
+        } else if (totalHours >= 20) {
+          status = "warning";
+        } else {
+          status = "ok";
+        }
 
-      // Calculate total hours and determine status
-      const totalHours = assignments.reduce(
-        (sum: any, a: any) => sum + a.TeachHour,
-        0,
-      );
-      let status: "ok" | "warning" | "overload";
-      if (totalHours >= 25) {
-        status = "overload";
-      } else if (totalHours >= 20) {
-        status = "warning";
-      } else {
-        status = "ok";
-      }
+        return {
+          TeacherID: teacher.TeacherID,
+          TeacherName: `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`,
+          currentWorkload: {
+            totalHours,
+            status,
+            assignments: assignments.length,
+          },
+        };
+      }),
+    );
 
-      return {
-        TeacherID: teacher.TeacherID,
-        TeacherName: `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname}`,
-        currentWorkload: {
-          totalHours,
-          status,
-          assignments: assignments.length,
-        },
-      };
-    }),
-  );
-
-  return teachersWithWorkload;
-}
+    return teachersWithWorkload;
+  },
+);

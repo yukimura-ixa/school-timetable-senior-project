@@ -74,8 +74,8 @@ export default function SelectSemesterPage() {
       router.refresh();
 
       const [recentResult, pinnedResult, allResult] = await Promise.all([
-        getRecentSemestersAction(5),
-        getPinnedSemestersAction(),
+        getRecentSemestersAction({ limit: 5 }),
+        getPinnedSemestersAction({}),
         getSemestersAction(filters),
       ]);
 

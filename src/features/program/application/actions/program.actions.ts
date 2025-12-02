@@ -9,6 +9,7 @@
 
 "use server";
 
+import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
 import { programRepository } from "../../infrastructure/repositories/program.repository";
 import {
@@ -20,7 +21,6 @@ import {
 } from "../../domain/services/program-validation.service";
 import { validateProgramMOECredits } from "../../domain/services/moe-validation.service";
 import type {
-  ProgramTrack,
   program_subject,
   subject,
 } from "@/prisma/generated/client";
@@ -56,17 +56,12 @@ import {
  * }
  * ```
  */
-export async function getProgramsAction() {
-  try {
-    const programs = await programRepository.findAll();
-    return { success: true as const, data: programs };
-  } catch {
-    return {
-      success: false as const,
-      error: "ไม่สามารถดึงข้อมูลหลักสูตรได้",
-    };
-  }
-}
+export const getProgramsAction = createAction(
+  v.object({}),
+  async () => {
+    return await programRepository.findAll();
+  },
+);
 
 /**
  * Get programs by Year (optional), Track (optional), IsActive (optional)
@@ -361,21 +356,17 @@ export const deleteProgramAction = createAction(
  * }
  * ```
  */
-export async function getProgramCountAction(filters?: {
-  Year?: number;
-  Track?: ProgramTrack;
-  IsActive?: boolean;
-}) {
-  try {
-    const count = await programRepository.count(filters ?? {});
-    return { success: true as const, data: { count } };
-  } catch {
-    return {
-      success: false as const,
-      error: "ไม่สามารถนับจำนวนหลักสูตรได้",
-    };
-  }
-}
+export const getProgramCountAction = createAction(
+  getProgramsByYearSchema,
+  async (input: GetProgramsByYearInput) => {
+    const count = await programRepository.count({
+      Year: input.Year,
+      Track: input.Track,
+      IsActive: input.IsActive,
+    });
+    return { count };
+  },
+);
 
 /**
  * Get programs grouped by Year (for management page)
@@ -390,14 +381,9 @@ export async function getProgramCountAction(filters?: {
  * }
  * ```
  */
-export async function getProgramsGroupedByYearAction() {
-  try {
-    const grouped = await programRepository.findGroupedByYear();
-    return { success: true as const, data: grouped };
-  } catch {
-    return {
-      success: false as const,
-      error: "ไม่สามารถดึงข้อมูลหลักสูตรได้",
-    };
-  }
-}
+export const getProgramsGroupedByYearAction = createAction(
+  v.object({}),
+  async () => {
+    return await programRepository.findGroupedByYear();
+  },
+);

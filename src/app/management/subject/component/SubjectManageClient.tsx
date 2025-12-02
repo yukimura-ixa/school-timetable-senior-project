@@ -26,7 +26,7 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
   // Mutation callback - refetch data after mutations
   const handleMutate = async () => {
     setIsRefreshing(true);
-    const result = await getSubjectsAction();
+    const result = await getSubjectsAction({});
     if (result.success) {
       setSubjects(result.data);
     }

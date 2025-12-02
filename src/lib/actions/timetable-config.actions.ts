@@ -6,13 +6,13 @@
 
 "use server";
 
+import * as v from "valibot";
 import {
   getTimetableConfig,
   getDefaultTimetableConfig,
-  type TimetableConfig,
 } from "@/lib/timetable-config";
 import type { semester } from "@/prisma/generated/client";
-import { ActionResult } from "@/shared/lib/action-wrapper";
+import { createAction, createPublicAction } from "@/shared/lib/action-wrapper";
 
 /**
  * Get timetable configuration for a specific semester (Server Action)
@@ -21,37 +21,37 @@ import { ActionResult } from "@/shared/lib/action-wrapper";
  * @param semester - Semester
  * @returns Action result with configuration
  */
-export async function getTimetableConfigAction(
-  academicYear: number,
-  semester: semester,
-): Promise<ActionResult<TimetableConfig>> {
-  try {
-    const config = await getTimetableConfig(academicYear, semester);
 
-    return {
-      success: true,
-      data: config,
-    };
-  } catch (error) {
-    console.error("Error in getTimetableConfigAction:", error);
+export type GetTimetableConfigInput = {
+  academicYear: number;
+  semester: semester;
+};
 
-    // Return default config on error
-    return {
-      success: true,
-      data: getDefaultTimetableConfig(),
-    };
-  }
-}
+const getTimetableConfigSchema = v.object({
+  academicYear: v.number(),
+  semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
+});
+
+export const getTimetableConfigAction = createAction(
+  getTimetableConfigSchema,
+  async (input: GetTimetableConfigInput) => {
+    try {
+      return await getTimetableConfig(input.academicYear, input.semester);
+    } catch (error) {
+      console.error("Error in getTimetableConfigAction:", error);
+      // Return default config on error
+      return getDefaultTimetableConfig();
+    }
+  },
+);
 
 /**
  * Get default configuration (doesn't require DB access)
+ * Public action - no auth required
  */
-export async function getDefaultTimetableConfigAction(): Promise<
-  ActionResult<TimetableConfig>
-> {
-  const config = await Promise.resolve(getDefaultTimetableConfig());
-  return {
-    success: true,
-    data: config,
-  };
-}
+export const getDefaultTimetableConfigAction = createPublicAction(
+  v.object({}),
+  async () => {
+    return getDefaultTimetableConfig();
+  },
+);

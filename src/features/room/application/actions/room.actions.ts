@@ -9,6 +9,7 @@
 
 "use server";
 
+import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
 import { roomRepository } from "../../infrastructure/repositories/room.repository";
 import { checkDuplicateRoom } from "../../domain/services/room-validation.service";
@@ -46,18 +47,12 @@ import {
  * }
  * ```
  */
-export async function getRoomsAction() {
-  try {
-    const rooms = await roomRepository.findAll();
-    return { success: true as const, data: rooms };
-  } catch (error) {
-    console.error("[RoomActions] getRoomsAction failed:", error);
-    return {
-      success: false as const,
-      error: "ไม่สามารถดึงข้อมูลห้องได้",
-    };
-  }
-}
+export const getRoomsAction = createAction(
+  v.object({}),
+  async () => {
+    return await roomRepository.findAll();
+  },
+);
 
 /**
  * Get a single room by ID

@@ -103,7 +103,7 @@ describe("updateConfigStatusAction", () => {
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
     // Reason from canTransitionStatus: must set timeslots first
-    expect(result.error).toContain("ตั้งค่าคาบเรียน");
+    expect(result.error?.message).toContain("ตั้งค่าคาบเรียน");
     expect(mockPrisma.table_config.update).not.toHaveBeenCalled();
   });
 
@@ -143,7 +143,7 @@ describe("updateConfigStatusAction", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("ไม่พบการตั้งค่านี้");
+    expect(result.error?.message).toContain("ไม่พบการตั้งค่านี้");
     expect(mockPrisma.table_config.update).not.toHaveBeenCalled();
   });
 

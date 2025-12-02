@@ -26,7 +26,7 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
   // Mutation callback - refetch data after mutations
   const handleMutate = async () => {
     setIsRefreshing(true);
-    const result = await getTeachersAction();
+    const result = await getTeachersAction({});
     if (result.success) {
       setTeachers(result.data);
     }

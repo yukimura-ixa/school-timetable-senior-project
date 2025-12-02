@@ -229,43 +229,38 @@ export type ParsedConfig = {
   configId: string;
 };
 
+// Re-export thresholds from centralized config for backward compatibility
+import {
+  WORKLOAD_ANALYTICS_THRESHOLDS,
+  ROOM_UTILIZATION_THRESHOLDS as ROOM_UTIL_THRESHOLDS,
+  COMPLETION_THRESHOLDS as COMPLETION_THRESH,
+  SCHOOL_DAYS,
+} from "@/config/business-rules";
+
 /**
+ * @deprecated Use WORKLOAD_ANALYTICS_THRESHOLDS from @/config/business-rules instead
  * Workload status thresholds (hours)
  */
 export const WORKLOAD_THRESHOLDS = {
-  UNDERUTILIZED_MAX: 20,
-  OPTIMAL_MIN: 21,
-  OPTIMAL_MAX: 30,
-  HIGH_MIN: 31,
-  HIGH_MAX: 35,
-  OVERLOADED_MIN: 36,
+  UNDERUTILIZED_MAX: WORKLOAD_ANALYTICS_THRESHOLDS.UNDERUTILIZED_MAX,
+  OPTIMAL_MIN: WORKLOAD_ANALYTICS_THRESHOLDS.OPTIMAL_MIN,
+  OPTIMAL_MAX: WORKLOAD_ANALYTICS_THRESHOLDS.OPTIMAL_MAX,
+  HIGH_MIN: WORKLOAD_ANALYTICS_THRESHOLDS.HIGH_MIN,
+  HIGH_MAX: WORKLOAD_ANALYTICS_THRESHOLDS.HIGH_MAX,
+  OVERLOADED_MIN: WORKLOAD_ANALYTICS_THRESHOLDS.OVERLOADED_MIN,
 } as const;
 
 /**
+ * @deprecated Use ROOM_UTILIZATION_THRESHOLDS from @/config/business-rules instead
  * Room utilization status thresholds (percentage)
  */
-export const ROOM_UTILIZATION_THRESHOLDS = {
-  RARELY_USED_MAX: 20,
-  LIGHT_MIN: 20,
-  LIGHT_MAX: 40,
-  MODERATE_MIN: 40,
-  MODERATE_MAX: 60,
-  WELL_USED_MIN: 60,
-  WELL_USED_MAX: 90,
-  OVER_UTILIZED_MIN: 90,
-} as const;
+export const ROOM_UTILIZATION_THRESHOLDS = ROOM_UTIL_THRESHOLDS;
 
 /**
+ * @deprecated Use COMPLETION_THRESHOLDS from @/config/business-rules instead
  * Completion progress thresholds (percentage)
  */
-export const COMPLETION_THRESHOLDS = {
-  NOT_STARTED_MAX: 10,
-  IN_PROGRESS_MIN: 10,
-  IN_PROGRESS_MAX: 70,
-  NEAR_COMPLETE_MIN: 70,
-  NEAR_COMPLETE_MAX: 95,
-  COMPLETE_MIN: 95,
-} as const;
+export const COMPLETION_THRESHOLDS = COMPLETION_THRESH;
 
 /**
  * Days of week with Thai labels
@@ -275,11 +270,11 @@ export const DAYS_OF_WEEK: {
   label: string;
   index: number;
 }[] = [
-  { value: "MON", label: "จันทร์", index: 0 },
-  { value: "TUE", label: "อังคาร", index: 1 },
-  { value: "WED", label: "พุธ", index: 2 },
-  { value: "THU", label: "พฤหัสบดี", index: 3 },
-  { value: "FRI", label: "ศุกร์", index: 4 },
+  { value: "MON", label: SCHOOL_DAYS.LABELS.MON, index: 0 },
+  { value: "TUE", label: SCHOOL_DAYS.LABELS.TUE, index: 1 },
+  { value: "WED", label: SCHOOL_DAYS.LABELS.WED, index: 2 },
+  { value: "THU", label: SCHOOL_DAYS.LABELS.THU, index: 3 },
+  { value: "FRI", label: SCHOOL_DAYS.LABELS.FRI, index: 4 },
 ];
 
 /**

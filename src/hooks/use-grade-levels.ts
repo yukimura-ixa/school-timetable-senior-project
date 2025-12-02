@@ -16,7 +16,7 @@ export const useGradeLevels = () => {
   const { data, error, mutate } = useSWR<gradelevel[]>(
     "grade-levels",
     async () => {
-      const result = await getGradeLevelsAction();
+      const result = await getGradeLevelsAction({});
       return result.success ? result.data : [];
     },
   );

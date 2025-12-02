@@ -64,7 +64,7 @@ function ClassroomResponsibility() {
     () => (searchTeacherID ? `teacher-${searchTeacherID}` : null),
     async () => {
       if (!searchTeacherID) return null;
-      const result = await getTeachersAction();
+      const result = await getTeachersAction({});
       if (!result || typeof result !== "object" || !("success" in result)) {
         return null;
       }

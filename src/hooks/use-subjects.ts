@@ -14,7 +14,7 @@ import { getSubjectsAction } from "@/features/subject/application/actions/subjec
  */
 export const useSubjects = () => {
   const { data, error, mutate } = useSWR<subject[]>("subjects", async () => {
-    const result = await getSubjectsAction();
+    const result = await getSubjectsAction({});
     return result.success ? result.data : [];
   });
 

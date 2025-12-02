@@ -147,48 +147,40 @@ export interface TeacherOption {
 }
 
 // ============================================================================
-// Business Rule Constants
+// Business Rule Constants (Re-exported from centralized config)
 // ============================================================================
 
-export const WORKLOAD_LIMITS = {
-  MAX_WEEKLY_HOURS: 20, // Hard limit
-  RECOMMENDED_HOURS: 16, // Soft limit (warning threshold)
-  MIN_REST_HOURS: 2, // Between classes (future use)
-} as const;
+// Import centralized business rules
+import {
+  TEACHER_WORKLOAD,
+  getTeacherWorkloadStatus,
+  getStatusColor as getStatusColorFromConfig,
+  getWorkloadLabel as getWorkloadLabelFromConfig,
+} from "@/config/business-rules";
+
+/**
+ * @deprecated Use TEACHER_WORKLOAD from @/config/business-rules instead
+ * Keeping for backward compatibility
+ */
+export const WORKLOAD_LIMITS = TEACHER_WORKLOAD;
 
 /**
  * Calculate workload status based on hours
  */
 export function getWorkloadStatus(hours: number): WorkloadStatus {
-  if (hours > WORKLOAD_LIMITS.MAX_WEEKLY_HOURS) return "overload";
-  if (hours > WORKLOAD_LIMITS.RECOMMENDED_HOURS) return "warning";
-  return "ok";
+  return getTeacherWorkloadStatus(hours);
 }
 
 /**
  * Get status color for UI
  */
 export function getWorkloadColor(status: WorkloadStatus): string {
-  switch (status) {
-    case "ok":
-      return "success";
-    case "warning":
-      return "warning";
-    case "overload":
-      return "error";
-  }
+  return getStatusColorFromConfig(status);
 }
 
 /**
  * Get status label in Thai
  */
 export function getWorkloadLabel(status: WorkloadStatus): string {
-  switch (status) {
-    case "ok":
-      return "ปกติ";
-    case "warning":
-      return "เตือน";
-    case "overload":
-      return "เกินภาระ";
-  }
+  return getWorkloadLabelFromConfig(status);
 }

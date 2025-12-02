@@ -23,6 +23,7 @@ import { useSemesterStore } from "@/stores/semesterStore";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { getSemestersAction } from "@/features/semester/application/actions/semester.actions";
+import type { SemesterDTO } from "@/features/semester/application/schemas/semester.schemas";
 
 export function SemesterSelector() {
   const router = useRouter();
@@ -32,11 +33,11 @@ export function SemesterSelector() {
   const open = Boolean(anchorEl);
 
   // Fetch available semesters
-  const { data: semestersData } = useSWR(
+  const { data: semestersData } = useSWR<SemesterDTO[]>(
     "semesters-list",
     async () => {
       const result = await getSemestersAction({});
-      return result.success ? result.data : [];
+      return result.success ? result.data ?? [] : [];
     },
     {
       revalidateOnFocus: false,

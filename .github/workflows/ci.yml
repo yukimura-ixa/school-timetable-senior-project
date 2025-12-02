@@ -19,6 +19,11 @@ on:
       - "LICENSE"
       - ".gitignore"
 
+# Cancel in-progress runs when a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint & Type Check
@@ -66,8 +71,8 @@ jobs:
       - name: Generate Prisma Client
         run: pnpm prisma generate
 
-      - name: Run targeted ESLint
-        run: pnpm exec eslint --ext .ts,.tsx src/features/*/domain src/features/*/application src/features/*/infrastructure
+      - name: Run ESLint
+        run: pnpm exec eslint --ext .ts,.tsx src/
 
       - name: Run TypeScript type check
         run: pnpm typecheck
@@ -145,6 +150,7 @@ jobs:
       AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       AUTH_GOOGLE_ID: dummy-client-id
       AUTH_GOOGLE_SECRET: dummy-client-secret
+      BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
       NEXT_TELEMETRY_DISABLED: 1
 
     steps:

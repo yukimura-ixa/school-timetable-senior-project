@@ -16,7 +16,7 @@ export const useTeachers = () => {
   const { data, error, mutate, isLoading, isValidating } = useSWR<teacher[]>(
     "teachers",
     async () => {
-      const result = await getTeachersAction();
+      const result = await getTeachersAction({});
       return result.success ? result.data : [];
     },
   );

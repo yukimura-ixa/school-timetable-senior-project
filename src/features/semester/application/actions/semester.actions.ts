@@ -6,6 +6,7 @@
  */
 
 import * as v from "valibot";
+import { createAction, type ActionResult } from "@/shared/lib/action-wrapper";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
 import { Prisma } from "@/prisma/generated/client";
 import type { semester, table_config, timeslot } from "@/prisma/generated/client";
@@ -28,148 +29,72 @@ import {
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 
-type ActionResult<T = unknown> = {
-  success: boolean;
-  data?: T;
-  error?: string;
-};
+/**
+ * Helper to enrich semester with statistics
+ */
+async function enrichSemester(semester: table_config): Promise<SemesterDTO> {
+  const stats = await semesterRepository.getStatistics(semester.ConfigID);
+  return {
+    configId: semester.ConfigID,
+    academicYear: semester.AcademicYear,
+    semester: semester.Semester === "SEMESTER_1" ? 1 : 2,
+    status: semester.status,
+    isPinned: semester.isPinned,
+    configCompleteness: semester.configCompleteness,
+    lastAccessedAt: semester.lastAccessedAt ?? undefined,
+    publishedAt: semester.publishedAt ?? undefined,
+    createdAt: semester.createdAt,
+    updatedAt: semester.updatedAt,
+    classCount: stats?.classCount || 0,
+    teacherCount: stats?.teacherCount || 0,
+    roomCount: stats?.roomCount || 0,
+    subjectCount: stats?.subjectCount || 0,
+  };
+}
 
 /**
  * Get all semesters with filtering
  */
-export async function getSemestersAction(
-  filter?: SemesterFilter,
-): Promise<ActionResult<SemesterDTO[]>> {
-  try {
-    // Validate filter
-    if (filter) {
-      v.parse(SemesterFilterSchema, filter);
-    }
-
+export const getSemestersAction = createAction(
+  SemesterFilterSchema,
+  async (filter: SemesterFilter) => {
     const semesters = await semesterRepository.findMany(filter);
-
-    // Enrich with statistics
-    const enrichedSemesters = await Promise.all(
-      semesters.map(async (semester: table_config) => {
-        const stats = await semesterRepository.getStatistics(semester.ConfigID);
-        return {
-          configId: semester.ConfigID,
-          academicYear: semester.AcademicYear,
-          semester: semester.Semester === "SEMESTER_1" ? 1 : 2,
-          status: semester.status,
-          isPinned: semester.isPinned,
-          configCompleteness: semester.configCompleteness,
-          lastAccessedAt: semester.lastAccessedAt,
-          publishedAt: semester.publishedAt,
-          createdAt: semester.createdAt,
-          updatedAt: semester.updatedAt,
-          classCount: stats?.classCount || 0,
-          teacherCount: stats?.teacherCount || 0,
-          roomCount: stats?.roomCount || 0,
-          subjectCount: stats?.subjectCount || 0,
-        } as SemesterDTO;
-      }),
-    );
-
-    return { success: true, data: enrichedSemesters };
-  } catch (err: unknown) {
-    console.error("[getSemestersAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to fetch semesters";
-    return { success: false, error: message };
-  }
-}
+    return await Promise.all(semesters.map(enrichSemester));
+  },
+);
 
 /**
  * Get recent semesters
  */
-export async function getRecentSemestersAction(
-  limit = 2,
-): Promise<ActionResult<SemesterDTO[]>> {
-  try {
-    const semesters = await semesterRepository.findRecent(limit);
+const getRecentSemestersSchema = v.object({
+  limit: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(10)), 2),
+});
 
-    const enrichedSemesters = await Promise.all(
-      semesters.map(async (semester: table_config) => {
-        const stats = await semesterRepository.getStatistics(semester.ConfigID);
-        return {
-          configId: semester.ConfigID,
-          academicYear: semester.AcademicYear,
-          semester: semester.Semester === "SEMESTER_1" ? 1 : 2,
-          status: semester.status,
-          isPinned: semester.isPinned,
-          configCompleteness: semester.configCompleteness,
-          lastAccessedAt: semester.lastAccessedAt,
-          publishedAt: semester.publishedAt,
-          createdAt: semester.createdAt,
-          updatedAt: semester.updatedAt,
-          classCount: stats?.classCount || 0,
-          teacherCount: stats?.teacherCount || 0,
-          roomCount: 0,
-          subjectCount: stats?.subjectCount || 0,
-        } as SemesterDTO;
-      }),
-    );
-
-    return { success: true, data: enrichedSemesters };
-  } catch (err: unknown) {
-    console.error("[getRecentSemestersAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to fetch recent semesters";
-    return { success: false, error: message };
-  }
-}
+export const getRecentSemestersAction = createAction(
+  getRecentSemestersSchema,
+  async (input: { limit?: number }) => {
+    const semesters = await semesterRepository.findRecent(input.limit ?? 2);
+    return await Promise.all(semesters.map(enrichSemester));
+  },
+);
 
 /**
  * Get pinned semesters
  */
-export async function getPinnedSemestersAction(): Promise<
-  ActionResult<SemesterDTO[]>
-> {
-  try {
+export const getPinnedSemestersAction = createAction(
+  v.object({}),
+  async () => {
     const semesters = await semesterRepository.findPinned();
-
-    const enrichedSemesters = await Promise.all(
-      semesters.map(async (semester: table_config) => {
-        const stats = await semesterRepository.getStatistics(semester.ConfigID);
-        return {
-          configId: semester.ConfigID,
-          academicYear: semester.AcademicYear,
-          semester: semester.Semester === "SEMESTER_1" ? 1 : 2,
-          status: semester.status,
-          isPinned: semester.isPinned,
-          configCompleteness: semester.configCompleteness,
-          lastAccessedAt: semester.lastAccessedAt,
-          publishedAt: semester.publishedAt,
-          createdAt: semester.createdAt,
-          updatedAt: semester.updatedAt,
-          classCount: stats?.classCount || 0,
-          teacherCount: stats?.teacherCount || 0,
-          roomCount: 0,
-          subjectCount: stats?.subjectCount || 0,
-        } as SemesterDTO;
-      }),
-    );
-
-    return { success: true, data: enrichedSemesters };
-  } catch (err: unknown) {
-    console.error("[getPinnedSemestersAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to fetch pinned semesters";
-    return { success: false, error: message };
-  }
-}
+    return await Promise.all(semesters.map(enrichSemester));
+  },
+);
 
 /**
  * Create a new semester
  */
-export async function createSemesterAction(
-  input: CreateSemester,
-): Promise<ActionResult<SemesterDTO>> {
-  try {
-    // Validate input
-    v.parse(CreateSemesterSchema, input);
-
+export const createSemesterAction = createAction(
+  CreateSemesterSchema,
+  async (input: CreateSemester) => {
     // Check if semester already exists
     const existing = await semesterRepository.findByYearAndSemester(
       input.academicYear,
@@ -177,10 +102,7 @@ export async function createSemesterAction(
     );
 
     if (existing) {
-      return {
-        success: false,
-        error: `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
-      };
+      throw new Error(`ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`);
     }
 
     // Copy config from source if requested
@@ -224,34 +146,9 @@ export async function createSemesterAction(
       }
     }
 
-    const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
-
-    return {
-      success: true,
-      data: {
-        configId: newSemester.ConfigID,
-        academicYear: newSemester.AcademicYear,
-        semester: newSemester.Semester === "SEMESTER_1" ? 1 : 2,
-        status: newSemester.status,
-        isPinned: newSemester.isPinned,
-        configCompleteness: newSemester.configCompleteness,
-        lastAccessedAt: newSemester.lastAccessedAt,
-        publishedAt: newSemester.publishedAt,
-        createdAt: newSemester.createdAt,
-        updatedAt: newSemester.updatedAt,
-        classCount: stats?.classCount || 0,
-        teacherCount: stats?.teacherCount || 0,
-        roomCount: 0,
-        subjectCount: stats?.subjectCount || 0,
-      } as SemesterDTO,
-    };
-  } catch (err: unknown) {
-    console.error("[createSemesterAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to create semester";
-    return { success: false, error: message };
-  }
-}
+    return await enrichSemester(newSemester);
+  },
+);
 
 /**
  * Create semester with timeslots in one atomic transaction
@@ -286,7 +183,10 @@ export async function createSemesterWithTimeslotsAction(input: {
     if (input.semester !== 1 && input.semester !== 2) {
       return {
         success: false,
-        error: "ภาคเรียนต้องเป็น 1 หรือ 2 เท่านั้น",
+        error: {
+          message: "ภาคเรียนต้องเป็น 1 หรือ 2 เท่านั้น",
+          code: "VALIDATION_ERROR",
+        },
       };
     }
 
@@ -299,7 +199,10 @@ export async function createSemesterWithTimeslotsAction(input: {
     if (existing) {
       return {
         success: false,
-        error: `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
+        error: {
+          message: `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
+          code: "CONFLICT",
+        },
       };
     }
 
@@ -443,79 +346,55 @@ export async function createSemesterWithTimeslotsAction(input: {
       err instanceof Error
         ? err.message
         : "Failed to create semester with timeslots";
-    return { success: false, error: message };
+    return {
+      success: false,
+      error: {
+        message,
+        code: "INTERNAL_ERROR",
+      },
+    };
   }
 }
 
 /**
  * Update semester status
  */
-export async function updateSemesterStatusAction(
-  input: UpdateSemesterStatus,
-): Promise<ActionResult> {
-  try {
-    v.parse(UpdateSemesterStatusSchema, input);
-
+export const updateSemesterStatusAction = createAction(
+  UpdateSemesterStatusSchema,
+  async (input: UpdateSemesterStatus) => {
     await semesterRepository.updateStatus(input.configId, input.status);
-
     return { success: true };
-  } catch (err: unknown) {
-    console.error("[updateSemesterStatusAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to update semester status";
-    return { success: false, error: message };
-  }
-}
+  },
+);
 
 /**
  * Toggle pin status
  */
-export async function pinSemesterAction(
-  input: PinSemester,
-): Promise<ActionResult> {
-  try {
-    v.parse(PinSemesterSchema, input);
-
+export const pinSemesterAction = createAction(
+  PinSemesterSchema,
+  async (input: PinSemester) => {
     await semesterRepository.togglePin(input.configId, input.isPinned);
-
     return { success: true };
-  } catch (err: unknown) {
-    console.error("[pinSemesterAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to pin semester";
-    return { success: false, error: message };
-  }
-}
+  },
+);
 
 /**
  * Track semester access
  */
-export async function trackSemesterAccessAction(
-  input: TrackSemesterAccess,
-): Promise<ActionResult> {
-  try {
-    v.parse(TrackSemesterAccessSchema, input);
-
+export const trackSemesterAccessAction = createAction(
+  TrackSemesterAccessSchema,
+  async (input: TrackSemesterAccess) => {
     await semesterRepository.trackAccess(input.configId);
-
     return { success: true };
-  } catch (err: unknown) {
-    console.error("[trackSemesterAccessAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to track semester access";
-    return { success: false, error: message };
-  }
-}
+  },
+);
 
 /**
  * Copy semester (duplicate with new year/semester)
  */
-export async function copySemesterAction(
-  input: CopySemester,
-): Promise<ActionResult<SemesterDTO>> {
-  try {
-    v.parse(CopySemesterSchema, input);
-
+export const copySemesterAction = createAction(
+  CopySemesterSchema,
+  async (input: CopySemester) => {
     // Check if target already exists
     const existing = await semesterRepository.findByYearAndSemester(
       input.targetAcademicYear,
@@ -523,16 +402,13 @@ export async function copySemesterAction(
     );
 
     if (existing) {
-      return {
-        success: false,
-        error: `ภาคเรียนที่ ${input.targetSemester}/${input.targetAcademicYear} มีอยู่ในระบบแล้ว`,
-      };
+      throw new Error(`ภาคเรียนที่ ${input.targetSemester}/${input.targetAcademicYear} มีอยู่ในระบบแล้ว`);
     }
 
     // Get source semester
     const source = await semesterRepository.findById(input.sourceConfigId);
     if (!source) {
-      return { success: false, error: "ไม่พบภาคเรียนต้นทาง" };
+      throw new Error("ไม่พบภาคเรียนต้นทาง");
     }
 
     // Create new semester with copied data
@@ -560,31 +436,6 @@ export async function copySemesterAction(
       );
     }
 
-    const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
-
-    return {
-      success: true,
-      data: {
-        configId: newSemester.ConfigID,
-        academicYear: newSemester.AcademicYear,
-        semester: newSemester.Semester === "SEMESTER_1" ? 1 : 2,
-        status: newSemester.status,
-        isPinned: newSemester.isPinned,
-        configCompleteness: newSemester.configCompleteness,
-        lastAccessedAt: newSemester.lastAccessedAt,
-        publishedAt: newSemester.publishedAt,
-        createdAt: newSemester.createdAt,
-        updatedAt: newSemester.updatedAt,
-        classCount: stats?.classCount || 0,
-        teacherCount: stats?.teacherCount || 0,
-        roomCount: 0,
-        subjectCount: stats?.subjectCount || 0,
-      } as SemesterDTO,
-    };
-  } catch (err: unknown) {
-    console.error("[copySemesterAction] Error:", err);
-    const message =
-      err instanceof Error ? err.message : "Failed to copy semester";
-    return { success: false, error: message };
-  }
-}
+    return await enrichSemester(newSemester);
+  },
+);

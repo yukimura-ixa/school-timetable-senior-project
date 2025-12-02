@@ -49,7 +49,7 @@ export default function ActivityTable() {
 
   const fetchActivities = async () => {
     setLoading(true);
-    const res = await getSubjectsAction();
+    const res = await getSubjectsAction({});
     setActivities(
       (res.data ?? [])
         .filter((s: subject) => s.Category === SubjectCategory.ACTIVITY)

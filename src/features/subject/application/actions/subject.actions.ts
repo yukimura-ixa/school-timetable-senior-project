@@ -9,15 +9,15 @@
 
 "use server";
 
+import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import { subjectRepository } from "../../infrastructure/repositories/subject.repository";
 import {
   trimSubjectCode,
   validateNoDuplicateSubjectCode,
   validateNoDuplicateSubjectName,
   validateSubjectExists,
-  validateBulkCreateSubjects,
-  validateBulkUpdateSubjects,
 } from "../../domain/services/subject-validation.service";
 import {
   createSubjectSchema,
@@ -51,18 +51,12 @@ import {
  * }
  * ```
  */
-export async function getSubjectsAction() {
-  try {
-    const subjects = await subjectRepository.findAll();
-    return { success: true as const, data: subjects };
-  } catch (error) {
-    console.error("[SubjectActions] getSubjectsAction failed:", error);
-    return {
-      success: false as const,
-      error: "ไม่สามารถดึงข้อมูลวิชาได้",
-    };
-  }
-}
+export const getSubjectsAction = createAction(
+  v.object({}),
+  async () => {
+    return await subjectRepository.findAll();
+  },
+);
 
 /**
  * Get a single subject by SubjectCode
@@ -159,6 +153,7 @@ export const createSubjectAction = createAction(
 /**
  * Create multiple subjects (bulk operation)
  * Validates all subjects before creating any
+ * Uses Prisma transaction for atomicity - all succeed or all fail.
  *
  * @param input - Array of subjects
  * @returns Array of created subjects
@@ -174,24 +169,91 @@ export const createSubjectAction = createAction(
 export const createSubjectsAction = createAction(
   createSubjectsSchema,
   async (input: CreateSubjectsInput) => {
-    // Trim all SubjectCodes
-    const trimmedInputs = input.map((subject) => ({
-      ...subject,
-      SubjectCode: trimSubjectCode(subject.SubjectCode),
-    }));
+    // Use transaction for atomicity - all succeed or all fail
+    return await withPrismaTransaction(async (tx) => {
+      // Phase 1: Validate ALL subjects before creating any
+      const errors: string[] = [];
+      const seenCodes = new Map<string, number>();
+      const seenNames = new Map<string, number>();
 
-    // Validate all subjects
-    const errors = await validateBulkCreateSubjects(trimmedInputs);
-    if (errors.length > 0) {
-      throw new Error(errors.join(", "));
-    }
+      // Trim all SubjectCodes first
+      const trimmedInputs = input.map((subject) => ({
+        ...subject,
+        SubjectCode: trimSubjectCode(subject.SubjectCode),
+      }));
 
-    // Create all subjects
-    const created = await Promise.all(
-      trimmedInputs.map((data) => subjectRepository.create(data)),
-    );
+      for (let i = 0; i < trimmedInputs.length; i++) {
+        const subject = trimmedInputs[i];
+        if (!subject) continue;
 
-    return created;
+        const trimmedCode = subject.SubjectCode;
+
+        // Check internal SubjectCode duplicates
+        if (seenCodes.has(trimmedCode)) {
+          errors.push(
+            `รายการที่ ${i + 1}: รหัสวิชาซ้ำกับรายการที่ ${seenCodes.get(trimmedCode)! + 1} (${trimmedCode})`,
+          );
+        } else {
+          seenCodes.set(trimmedCode, i);
+
+          // Check database SubjectCode duplicates using transaction client
+          const existingByCode = await tx.subject.findUnique({
+            where: { SubjectCode: trimmedCode },
+          });
+
+          if (existingByCode) {
+            errors.push(
+              `รายการที่ ${i + 1}: มีวิชานี้อยู่แล้ว กรุณาตรวจสอบอีกครั้ง`,
+            );
+          }
+        }
+
+        // Check internal SubjectName duplicates
+        if (seenNames.has(subject.SubjectName)) {
+          errors.push(
+            `รายการที่ ${i + 1}: ชื่อวิชาซ้ำกับรายการที่ ${seenNames.get(subject.SubjectName)! + 1} (${subject.SubjectName})`,
+          );
+        } else {
+          seenNames.set(subject.SubjectName, i);
+
+          // Check database SubjectName duplicates using transaction client
+          const existingByName = await tx.subject.findFirst({
+            where: { SubjectName: subject.SubjectName },
+          });
+
+          if (existingByName) {
+            errors.push(
+              `รายการที่ ${i + 1}: มีชื่อวิชานี้อยู่แล้ว กรุณาตรวจสอบอีกครั้ง`,
+            );
+          }
+        }
+      }
+
+      // If any validation errors, throw before creating anything
+      if (errors.length > 0) {
+        throw new Error(errors.join(", "));
+      }
+
+      // Phase 2: Create all subjects within the transaction
+      const created = await Promise.all(
+        trimmedInputs.map((data) =>
+          tx.subject.create({
+            data: {
+              SubjectCode: data.SubjectCode,
+              SubjectName: data.SubjectName,
+              Credit: data.Credit,
+              Category: data.Category,
+              LearningArea: data.LearningArea,
+              ActivityType: data.ActivityType,
+              IsGraded: data.IsGraded,
+              Description: data.Description,
+            },
+          }),
+        ),
+      );
+
+      return created;
+    });
   },
 );
 
@@ -238,6 +300,7 @@ export const updateSubjectAction = createAction(
 /**
  * Update multiple subjects (bulk operation)
  * Validates all subjects exist before updating any
+ * Uses Prisma transaction for atomicity - all succeed or all fail.
  *
  * @param input - Array of subjects
  * @returns Array of updated subjects
@@ -253,24 +316,51 @@ export const updateSubjectAction = createAction(
 export const updateSubjectsAction = createAction(
   updateSubjectsSchema,
   async (input: UpdateSubjectsInput) => {
-    // Validate all subjects exist
-    const errors = await validateBulkUpdateSubjects(input);
-    if (errors.length > 0) {
-      throw new Error(errors.join(", "));
-    }
+    // Use transaction for atomicity - all succeed or all fail
+    return await withPrismaTransaction(async (tx) => {
+      // Phase 1: Validate ALL subjects exist before updating any
+      const errors: string[] = [];
 
-    // Update all subjects
-    const updated = await Promise.all(
-      input.map((data) => {
-        const trimmedCode = trimSubjectCode(data.SubjectCode);
-        return subjectRepository.update(data.SubjectCode, {
-          ...data,
-          SubjectCode: trimmedCode,
+      for (let i = 0; i < input.length; i++) {
+        const subject = input[i];
+        if (!subject) continue;
+
+        const existing = await tx.subject.findUnique({
+          where: { SubjectCode: subject.SubjectCode },
         });
-      }),
-    );
 
-    return updated;
+        if (!existing) {
+          errors.push(`รายการที่ ${i + 1}: ไม่พบวิชานี้ กรุณาตรวจสอบอีกครั้ง`);
+        }
+      }
+
+      // If any validation errors, throw before updating anything
+      if (errors.length > 0) {
+        throw new Error(errors.join(", "));
+      }
+
+      // Phase 2: Update all subjects within the transaction
+      const updated = await Promise.all(
+        input.map((data) => {
+          const trimmedCode = trimSubjectCode(data.SubjectCode);
+          return tx.subject.update({
+            where: { SubjectCode: data.SubjectCode },
+            data: {
+              SubjectCode: trimmedCode,
+              SubjectName: data.SubjectName,
+              Credit: data.Credit,
+              Category: data.Category,
+              LearningArea: data.LearningArea,
+              ActivityType: data.ActivityType,
+              IsGraded: data.IsGraded,
+              Description: data.Description,
+            },
+          });
+        }),
+      );
+
+      return updated;
+    });
   },
 );
 
@@ -313,14 +403,10 @@ export const deleteSubjectsAction = createAction(
  * }
  * ```
  */
-export async function getSubjectCountAction() {
-  try {
+export const getSubjectCountAction = createAction(
+  v.object({}),
+  async () => {
     const count = await subjectRepository.count();
-    return { success: true as const, data: { count } };
-  } catch {
-    return {
-      success: false as const,
-      error: "ไม่สามารถนับจำนวนวิชาได้",
-    };
-  }
-}
+    return { count };
+  },
+);

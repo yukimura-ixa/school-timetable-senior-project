@@ -61,7 +61,7 @@ export function CopySemesterModal({
       });
 
       if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to copy semester");
+        throw new Error(result.error?.message || "Failed to copy semester");
       }
 
       enqueueSnackbar("คัดลอกภาคเรียนสำเร็จ", { variant: "success" });

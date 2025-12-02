@@ -12,7 +12,7 @@ export default async function RoomsManagePage() {
   // Force dynamic rendering for Next.js 16
   await cookies();
 
-  const result = await getRoomsAction();
+  const result = await getRoomsAction({});
 
   // Error state
   if (!result.success) {

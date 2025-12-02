@@ -15,7 +15,7 @@ export default async function TeacherManagePage() {
   // Force dynamic rendering for Next.js 16
   await cookies();
 
-  const result = await getTeachersAction();
+  const result = await getTeachersAction({});
 
   // Error state
   if (!result.success) {

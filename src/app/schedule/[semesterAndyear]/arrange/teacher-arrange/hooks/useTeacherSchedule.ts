@@ -144,7 +144,7 @@ export function useTeacherSchedule({
     async () => {
       if (!teacherID) return null;
 
-      const result = await getTeachersAction();
+      const result = await getTeachersAction({});
       if (!result || !result.success || !result.data) {
         return null;
       }

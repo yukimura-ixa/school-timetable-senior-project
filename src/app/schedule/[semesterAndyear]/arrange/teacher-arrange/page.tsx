@@ -313,7 +313,7 @@ export default function TeacherArrangePageRefactored() {
     currentTeacherID ? `teacher-${currentTeacherID}` : null,
     async (): Promise<teacher | null> => {
       if (!currentTeacherID) return null;
-      const result = (await getTeachersAction()) as ActionResult<teacher[]>;
+      const result = (await getTeachersAction({})) as ActionResult<teacher[]>;
 
       if (!result.success || !result.data) return null;
 
