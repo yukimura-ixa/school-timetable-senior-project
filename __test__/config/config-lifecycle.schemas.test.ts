@@ -3,7 +3,7 @@
  * Unit tests for validation schemas and helper functions
  */
 
-import { describe, it, expect } from "@jest/globals";
+// Vitest globals are available via globals: true in vitest.config.ts
 import * as v from "valibot";
 import {
   ConfigStatusSchema,

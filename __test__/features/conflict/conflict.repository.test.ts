@@ -1,15 +1,16 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Conflict Detection Repository
  * Tests all conflict detection logic including teacher, room, class, and unassigned conflicts
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  */
 
 import { conflictRepository } from "@/features/conflict/infrastructure/repositories/conflict.repository";
 import prisma from "@/lib/prisma";
 
 // Get reference to the mocked Prisma client
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Conflict Detection Repository", () => {
   /**
@@ -20,7 +21,7 @@ describe("Conflict Detection Repository", () => {
    */
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   /**
@@ -105,7 +106,7 @@ describe("Conflict Detection Repository", () => {
 
   describe("findAllConflicts", () => {
     it("should return empty arrays when no schedules exist", async () => {
-      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockPrisma.class_schedule.findMany = vi.fn(() => Promise.resolve([]));
 
       const result = await conflictRepository.findAllConflicts(2567, "1");
 
@@ -162,7 +163,7 @@ describe("Conflict Detection Repository", () => {
         }),
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -223,7 +224,7 @@ describe("Conflict Detection Repository", () => {
         }),
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -284,7 +285,7 @@ describe("Conflict Detection Repository", () => {
         }),
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -337,7 +338,7 @@ describe("Conflict Detection Repository", () => {
         }),
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -458,7 +459,7 @@ describe("Conflict Detection Repository", () => {
         }),
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -513,7 +514,7 @@ describe("Conflict Detection Repository", () => {
         }),
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -526,12 +527,12 @@ describe("Conflict Detection Repository", () => {
     });
 
     it("should correctly filter by academic year and semester", async () => {
-      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockPrisma.class_schedule.findMany = vi.fn(() => Promise.resolve([]));
 
       await conflictRepository.findAllConflicts(2567, "2");
 
       expect(
-        mockPrisma.class_schedule.findMany as jest.Mock,
+        mockPrisma.class_schedule.findMany as Mock,
       ).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
@@ -576,7 +577,7 @@ describe("Conflict Detection Repository", () => {
         DayOfWeek: "MON",
       });
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve([mockConflictingSchedule] as any),
       );
 
@@ -617,7 +618,7 @@ describe("Conflict Detection Repository", () => {
 
     it("should return no conflict when teacher is free", async () => {
       // Arrange - No conflicting schedule
-      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockPrisma.class_schedule.findMany = vi.fn(() => Promise.resolve([]));
 
       // Act
       const result = await conflictRepository.checkTeacherConflict(
@@ -633,7 +634,7 @@ describe("Conflict Detection Repository", () => {
 
     it("should return no conflict when teacher is scheduled at different timeslot", async () => {
       // Arrange - Teacher busy at different time
-      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockPrisma.class_schedule.findMany = vi.fn(() => Promise.resolve([]));
 
       // Act
       const result = await conflictRepository.checkTeacherConflict(
@@ -682,7 +683,7 @@ describe("Conflict Detection Repository", () => {
           expectedConflict,
         }) => {
           it(`should handle ${description}`, async () => {
-            mockPrisma.class_schedule.findMany = jest.fn(() =>
+            mockPrisma.class_schedule.findMany = vi.fn(() =>
               Promise.resolve(mockResult),
             );
 
@@ -725,7 +726,7 @@ describe("Conflict Detection Repository", () => {
         DayOfWeek: "MON",
       });
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve([mockConflictingSchedule] as any),
       );
 
@@ -762,7 +763,7 @@ describe("Conflict Detection Repository", () => {
 
     it("should return no conflict when room is available", async () => {
       // Arrange - No occupying schedule
-      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockPrisma.class_schedule.findMany = vi.fn(() => Promise.resolve([]));
 
       // Act
       const result = await conflictRepository.checkRoomConflict(
@@ -778,7 +779,7 @@ describe("Conflict Detection Repository", () => {
 
     it("should return no conflict when room is occupied at different timeslot", async () => {
       // Arrange - Room occupied at different time
-      mockPrisma.class_schedule.findMany = jest.fn(() => Promise.resolve([]));
+      mockPrisma.class_schedule.findMany = vi.fn(() => Promise.resolve([]));
 
       // Act
       const result = await conflictRepository.checkRoomConflict(
@@ -821,7 +822,7 @@ describe("Conflict Detection Repository", () => {
       testCases.forEach(
         ({ description, roomId, timeslotId, mockResult, expectedConflict }) => {
           it(`should handle ${description}`, async () => {
-            mockPrisma.class_schedule.findMany = jest.fn(() =>
+            mockPrisma.class_schedule.findMany = vi.fn(() =>
               Promise.resolve(mockResult),
             );
 
@@ -841,7 +842,7 @@ describe("Conflict Detection Repository", () => {
     it("should handle database errors in checkTeacherConflict", async () => {
       // Arrange
       const dbError = new Error("Database connection failed");
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.reject(dbError),
       );
 
@@ -855,7 +856,7 @@ describe("Conflict Detection Repository", () => {
     it("should handle database errors in checkRoomConflict", async () => {
       // Arrange
       const dbError = new Error("Database connection failed");
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.reject(dbError),
       );
 

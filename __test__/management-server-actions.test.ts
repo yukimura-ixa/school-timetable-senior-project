@@ -8,7 +8,7 @@
  * - Repository integration works
  */
 
-// Jest globals are available without import in Jest 29
+// Vitest globals are available without import in Vitest
 import {
   getTeachersAction,
   getTeacherByIdAction,

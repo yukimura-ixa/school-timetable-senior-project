@@ -1,31 +1,32 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Timeslot Repository
  * Tests new transaction wrapper method
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  */
 
 import { timeslotRepository } from "@/features/timeslot/infrastructure/repositories/timeslot.repository";
 import prisma from "@/lib/prisma";
 
 // Get reference to the mocked Prisma client
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Timeslot Repository - Transaction Method", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { created: 5 };
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue({ ConfigID: "1-2567" }),
+            create: vi.fn().mockResolvedValue({ ConfigID: "1-2567" }),
           },
           timeslot: {
-            createMany: jest.fn().mockResolvedValue({ count: 5 }),
+            createMany: vi.fn().mockResolvedValue({ count: 5 }),
           },
         };
         return callback(mockTx);
@@ -48,13 +49,13 @@ describe("Timeslot Repository - Transaction Method", () => {
         Semester: "SEMESTER_1",
       };
 
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue(mockConfig),
+            create: vi.fn().mockResolvedValue(mockConfig),
           },
           timeslot: {
-            createMany: jest.fn().mockResolvedValue({ count: 30 }),
+            createMany: vi.fn().mockResolvedValue({ count: 30 }),
           },
         };
         return callback(mockTx);
@@ -78,7 +79,7 @@ describe("Timeslot Repository - Transaction Method", () => {
 
     it("should rollback transaction on error", async () => {
       const error = new Error("Database constraint violation");
-      mockPrisma.$transaction = jest.fn(() => Promise.reject(error));
+      mockPrisma.$transaction = vi.fn(() => Promise.reject(error));
 
       await expect(
         timeslotRepository.transaction(async (tx) => {

@@ -72,86 +72,65 @@ jobs:
       - name: Run TypeScript type check
         run: pnpm typecheck
 
-  # TEMPORARILY DISABLED: Jest crashes in CI with Next.js 16 compatibility issues
-  # See: https://github.com/yukimura-ixa/school-timetable-senior-project/issues/141
-  # Re-enable after Jest + Next.js 16 memory issues are resolved
-  # unit-tests:
-  #   name: Unit Tests
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 15
-  #
-  #   env:
-  #     DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-  #
-  #   services:
-  #     postgres:
-  #       image: postgres:16
-  #       env:
-  #         POSTGRES_USER: dummy
-  #         POSTGRES_PASSWORD: dummy
-  #         POSTGRES_DB: dummy
-  #       ports:
-  #         - 5432:5432
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-  #
-  #     - name: Setup pnpm
-  #       uses: pnpm/action-setup@v4
-  #
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: "20"
-  #         cache: "pnpm"
-  #
-  #     - name: Cache Prisma Client
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: node_modules/.prisma
-  #         key: ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('prisma/schema.prisma') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-
-  #           ${{ runner.os }}-prisma-
-  #
-  #     - name: Cache Jest
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           .jest-cache
-  #           coverage
-  #         key: ${{ runner.os }}-jest-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.test.ts', '**/*.test.tsx') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-jest-${{ hashFiles('**/pnpm-lock.yaml') }}-
-  #           ${{ runner.os }}-jest-
-  #
-  #     - name: Install dependencies
-  #       run: pnpm install --frozen-lockfile
-  #
-  #     - name: Generate Prisma Client
-  #       run: pnpm prisma generate
-  #
-  #     - name: Run Jest unit tests
-  #       # Lightweight unit/regression suites only.
-  #       # Heavy teaching-assignment + Playwright flows run in .github/workflows/e2e-tests.yml.
-  #       run: pnpm test
-  #       env:
-  #         NODE_ENV: test
-  #         NODE_OPTIONS: --max_old_space_size=4096
-  #
-  #     - name: Upload coverage reports
-  #       if: always()
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: coverage-report
-  #         path: coverage/
-  #         retention-days: 30
+  unit-tests:
+    name: Unit Tests (Vitest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Cache Prisma Client
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.prisma
+          key: ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('prisma/schema.prisma') }}
+          restore-keys: |
+            ${{ runner.os }}-prisma-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-prisma-
+
+      - name: Cache Vitest
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.vite
+            coverage
+          key: ${{ runner.os }}-vitest-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.test.ts', '**/*.test.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-vitest-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-vitest-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm prisma generate
+
+      - name: Run Vitest unit tests
+        run: pnpm test
+        env:
+          NODE_ENV: test
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
 
   build:
     name: Build
@@ -209,7 +188,7 @@ jobs:
   # Trigger E2E tests only if all other checks pass
   trigger-e2e:
     name: Trigger E2E Tests
-    needs: [lint, build] # unit-tests temporarily disabled
+    needs: [lint, unit-tests, build]
     runs-on: ubuntu-latest
 
     steps:

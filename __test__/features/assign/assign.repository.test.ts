@@ -1,19 +1,20 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Assign Repository
  * Tests new repository methods for responsibility management
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  */
 
 import * as assignRepository from "@/features/assign/infrastructure/repositories/assign.repository";
 import prisma from "@/lib/prisma";
 
 // Get reference to the mocked Prisma client
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Assign Repository - New Methods", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("findByRespId", () => {
@@ -42,8 +43,7 @@ describe("Assign Repository - New Methods", () => {
         },
       };
 
-      mockPrisma.teachers_responsibility.findUnique = jest
-        .fn()
+      mockPrisma.teachers_responsibility.findUnique = vi        .fn()
         .mockResolvedValue(mockResp);
 
       const result = await assignRepository.findByRespId(123);
@@ -62,8 +62,7 @@ describe("Assign Repository - New Methods", () => {
     });
 
     it("should return null when responsibility not found", async () => {
-      mockPrisma.teachers_responsibility.findUnique = jest
-        .fn()
+      mockPrisma.teachers_responsibility.findUnique = vi        .fn()
         .mockResolvedValue(null);
 
       const result = await assignRepository.findByRespId(999);
@@ -75,11 +74,11 @@ describe("Assign Repository - New Methods", () => {
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { deleted: 1, created: 2 };
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           teachers_responsibility: {
-            delete: jest.fn().mockResolvedValue({ RespID: 1 }),
-            create: jest.fn().mockResolvedValue({ RespID: 2 }),
+            delete: vi.fn().mockResolvedValue({ RespID: 1 }),
+            create: vi.fn().mockResolvedValue({ RespID: 2 }),
           },
         };
         return callback(mockTx);
@@ -97,7 +96,7 @@ describe("Assign Repository - New Methods", () => {
 
     it("should rollback transaction on error", async () => {
       const error = new Error("Transaction failed");
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         return Promise.reject(error);
       });
 

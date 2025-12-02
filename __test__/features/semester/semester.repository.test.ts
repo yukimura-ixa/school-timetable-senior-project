@@ -1,8 +1,9 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Semester Repository
  * Tests new repository methods added for timeslot operations
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  */
 
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
@@ -10,11 +11,11 @@ import prisma from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 
 // Get reference to the mocked Prisma client
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Semester Repository - Timeslot Methods", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("findTimeslots", () => {
@@ -38,7 +39,7 @@ describe("Semester Repository - Timeslot Methods", () => {
         },
       ];
 
-      mockPrisma.timeslot.findMany = jest.fn().mockResolvedValue(mockTimeslots);
+      mockPrisma.timeslot.findMany = vi.fn().mockResolvedValue(mockTimeslots);
 
       const result = await semesterRepository.findTimeslots(
         2567,
@@ -78,11 +79,9 @@ describe("Semester Repository - Timeslot Methods", () => {
         },
       ];
 
-      mockPrisma.timeslot.findMany = jest
-        .fn()
+      mockPrisma.timeslot.findMany = vi        .fn()
         .mockResolvedValue(sourceTimeslots);
-      mockPrisma.timeslot.createMany = jest
-        .fn()
+      mockPrisma.timeslot.createMany = vi        .fn()
         .mockResolvedValue({ count: 2 });
 
       const result = await semesterRepository.copyTimeslots(
@@ -121,7 +120,7 @@ describe("Semester Repository - Timeslot Methods", () => {
     });
 
     it("should return empty array when no timeslots to copy", async () => {
-      mockPrisma.timeslot.findMany = jest.fn().mockResolvedValue([]);
+      mockPrisma.timeslot.findMany = vi.fn().mockResolvedValue([]);
 
       const result = await semesterRepository.copyTimeslots(
         2566,
@@ -160,8 +159,7 @@ describe("Semester Repository - Timeslot Methods", () => {
         },
       ];
 
-      mockPrisma.timeslot.createMany = jest
-        .fn()
+      mockPrisma.timeslot.createMany = vi        .fn()
         .mockResolvedValue({ count: 2 });
 
       await semesterRepository.createTimeslots(timeslotsToCreate);
@@ -196,14 +194,14 @@ describe("Semester Repository - Timeslot Methods", () => {
       ];
 
       // Mock transaction to execute callback with mock tx
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue(mockSemester),
-            update: jest.fn().mockResolvedValue(mockSemester),
+            create: vi.fn().mockResolvedValue(mockSemester),
+            update: vi.fn().mockResolvedValue(mockSemester),
           },
           timeslot: {
-            createMany: jest.fn().mockResolvedValue({ count: 1 }),
+            createMany: vi.fn().mockResolvedValue({ count: 1 }),
           },
         };
         return callback(mockTx);
@@ -230,10 +228,10 @@ describe("Semester Repository - Timeslot Methods", () => {
         configCompleteness: 0,
       };
 
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue(mockSemester),
+            create: vi.fn().mockResolvedValue(mockSemester),
           },
         };
         return callback(mockTx);
@@ -253,10 +251,10 @@ describe("Semester Repository - Timeslot Methods", () => {
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { success: true };
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue({ ConfigID: "1-2567" }),
+            create: vi.fn().mockResolvedValue({ ConfigID: "1-2567" }),
           },
         };
         return callback(mockTx);

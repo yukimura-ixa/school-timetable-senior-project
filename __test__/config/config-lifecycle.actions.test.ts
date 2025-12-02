@@ -1,9 +1,10 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Config Lifecycle Actions Tests
  * Unit tests for Server Actions with mocked Prisma
  *
- * Note: Prisma is mocked globally in jest.setup.js
- * Jest globals (describe, it, expect, jest, beforeEach) are available globally
+ * Note: Prisma is mocked globally in vitest.setup.ts
+ * Vitest globals (describe, it, expect, jest, beforeEach) are available globally
  */
 
 import {
@@ -15,16 +16,16 @@ import prisma from "@/lib/prisma";
 import { getPublishReadiness } from "@/features/config/application/services/publish-readiness-query.service";
 import type { PublishReadinessResult } from "@/features/config/domain/types/publish-readiness-types";
 
-jest.mock(
+vi.mock(
   "@/features/config/application/services/publish-readiness-query.service",
   () => ({
-    getPublishReadiness: jest.fn(),
+    getPublishReadiness: vi.fn(),
   }),
 );
 
 // Cast to mocked type for access to mock methods
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
-const mockedGetPublishReadiness = jest.mocked(getPublishReadiness);
+const mockPrisma = prisma as MockedObject<typeof prisma>;
+const mockedGetPublishReadiness = vi.mocked(getPublishReadiness);
 
 const defaultPublishReadinessResult: PublishReadinessResult = {
   status: "ready",
@@ -35,18 +36,18 @@ const defaultPublishReadinessResult: PublishReadinessResult = {
   },
 };
 
-// Global cleanup to prevent Jest from hanging
+// Global cleanup to prevent Vitest from hanging
 afterAll(async () => {
   // Clear all timers and pending async operations
-  jest.clearAllTimers();
-  jest.clearAllMocks();
+  vi.clearAllTimers();
+  vi.clearAllMocks();
   // Allow pending microtasks to complete
   await new Promise((resolve) => setImmediate(resolve));
 });
 
 describe("updateConfigStatusAction", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedGetPublishReadiness.mockResolvedValue(defaultPublishReadinessResult);
   });
 
@@ -59,10 +60,10 @@ describe("updateConfigStatusAction", () => {
     };
 
     // Use direct assignment to replace pre-configured mock functions
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         ...mockConfig,
         status: "PUBLISHED",
@@ -90,7 +91,7 @@ describe("updateConfigStatusAction", () => {
       publishedAt: null,
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
 
@@ -114,10 +115,10 @@ describe("updateConfigStatusAction", () => {
       publishedAt: new Date(),
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         ...mockConfig,
         status: "LOCKED",
@@ -134,7 +135,7 @@ describe("updateConfigStatusAction", () => {
   });
 
   it("should fail when config is not found", async () => {
-    mockPrisma.table_config.findUnique = jest.fn(() => Promise.resolve(null));
+    mockPrisma.table_config.findUnique = vi.fn(() => Promise.resolve(null));
 
     const result = await updateConfigStatusAction({
       configId: "NONEXISTENT",
@@ -154,7 +155,7 @@ describe("updateConfigStatusAction", () => {
       publishedAt: null,
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
 
@@ -190,10 +191,10 @@ describe("updateConfigStatusAction", () => {
       publishedAt: new Date(),
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         ...mockConfig,
         status: "LOCKED",
@@ -212,18 +213,18 @@ describe("updateConfigStatusAction", () => {
 
 describe("updateConfigCompletenessAction", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should calculate 0% completeness when no data exists", async () => {
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(0),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.gradelevel.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.room.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.gradelevel.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.room.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 0,
       } as any),
@@ -239,14 +240,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should calculate 100% completeness when all data exists", async () => {
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(15),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(12));
-    mockPrisma.gradelevel.count = jest.fn(() => Promise.resolve(20));
-    mockPrisma.room.count = jest.fn(() => Promise.resolve(10));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(12));
+    mockPrisma.gradelevel.count = vi.fn(() => Promise.resolve(20));
+    mockPrisma.room.count = vi.fn(() => Promise.resolve(10));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 100,
       } as any),
@@ -262,14 +263,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should calculate 30% completeness when only timeslots exist", async () => {
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(0),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.gradelevel.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.room.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.gradelevel.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.room.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 30,
       } as any),
@@ -285,14 +286,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should use Promise.all for parallel counting", async () => {
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(15),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(12));
-    mockPrisma.gradelevel.count = jest.fn(() => Promise.resolve(20));
-    mockPrisma.room.count = jest.fn(() => Promise.resolve(10));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(12));
+    mockPrisma.gradelevel.count = vi.fn(() => Promise.resolve(20));
+    mockPrisma.room.count = vi.fn(() => Promise.resolve(10));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 100,
       } as any),
@@ -327,14 +328,14 @@ describe("updateConfigCompletenessAction", () => {
   });
 
   it("should update config with correct configId format", async () => {
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(15),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(12));
-    mockPrisma.gradelevel.count = jest.fn(() => Promise.resolve(20));
-    mockPrisma.room.count = jest.fn(() => Promise.resolve(10));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(12));
+    mockPrisma.gradelevel.count = vi.fn(() => Promise.resolve(20));
+    mockPrisma.room.count = vi.fn(() => Promise.resolve(10));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 100,
       } as any),
@@ -356,11 +357,11 @@ describe("updateConfigCompletenessAction", () => {
 
 describe("getConfigWithCompletenessAction", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should return null data when config does not exist", async () => {
-    mockPrisma.table_config.findUnique = jest.fn(() => Promise.resolve(null));
+    mockPrisma.table_config.findUnique = vi.fn(() => Promise.resolve(null));
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -384,14 +385,14 @@ describe("getConfigWithCompletenessAction", () => {
       },
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(15),
     );
-    mockPrisma.class_schedule.count = jest.fn(() => Promise.resolve(20));
+    mockPrisma.class_schedule.count = vi.fn(() => Promise.resolve(20));
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -422,7 +423,7 @@ describe("getConfigWithCompletenessAction", () => {
   });
 
   it("should construct correct configId", async () => {
-    mockPrisma.table_config.findUnique = jest.fn(() => Promise.resolve(null));
+    mockPrisma.table_config.findUnique = vi.fn(() => Promise.resolve(null));
 
     await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -441,14 +442,14 @@ describe("getConfigWithCompletenessAction", () => {
       configCompleteness: 0,
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(0),
     );
-    mockPrisma.class_schedule.count = jest.fn(() => Promise.resolve(0));
+    mockPrisma.class_schedule.count = vi.fn(() => Promise.resolve(0));
 
     const result = await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -469,14 +470,14 @@ describe("getConfigWithCompletenessAction", () => {
       configCompleteness: 0,
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockConfig as any),
     );
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(15),
     );
-    mockPrisma.class_schedule.count = jest.fn(() => Promise.resolve(20));
+    mockPrisma.class_schedule.count = vi.fn(() => Promise.resolve(20));
 
     await getConfigWithCompletenessAction({
       academicYear: 2024,
@@ -501,7 +502,7 @@ describe("getConfigWithCompletenessAction", () => {
 
 describe("Integration scenarios", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedGetPublishReadiness.mockResolvedValue(defaultPublishReadinessResult);
   });
 
@@ -515,10 +516,10 @@ describe("Integration scenarios", () => {
     };
 
     // Step 2: Publish
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockDraftConfig as any),
     );
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         ...mockDraftConfig,
         status: "PUBLISHED",
@@ -540,10 +541,10 @@ describe("Integration scenarios", () => {
       publishedAt: new Date(),
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockPublishedConfig as any),
     );
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         ...mockPublishedConfig,
         status: "LOCKED",
@@ -563,10 +564,10 @@ describe("Integration scenarios", () => {
       status: "LOCKED",
     };
 
-    mockPrisma.table_config.findUnique = jest.fn(() =>
+    mockPrisma.table_config.findUnique = vi.fn(() =>
       Promise.resolve(mockLockedConfig as any),
     );
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         ...mockLockedConfig,
         status: "ARCHIVED",
@@ -583,14 +584,14 @@ describe("Integration scenarios", () => {
 
   it("should update completeness as data is added", async () => {
     // Initially no data
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(0),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.gradelevel.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.room.count = jest.fn(() => Promise.resolve(0));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.gradelevel.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.room.count = vi.fn(() => Promise.resolve(0));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 0,
       } as any),
@@ -604,8 +605,8 @@ describe("Integration scenarios", () => {
     expect(result1.data?.completeness).toBe(0);
 
     // Add timeslots
-    mockPrisma.timeslot.count = jest.fn(() => Promise.resolve(8));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.timeslot.count = vi.fn(() => Promise.resolve(8));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 30,
       } as any),
@@ -619,11 +620,11 @@ describe("Integration scenarios", () => {
     expect(result2.data?.completeness).toBe(30);
 
     // Add teachers and subjects
-    mockPrisma.teachers_responsibility.count = jest.fn(() =>
+    mockPrisma.teachers_responsibility.count = vi.fn(() =>
       Promise.resolve(15),
     );
-    mockPrisma.subject.count = jest.fn(() => Promise.resolve(12));
-    mockPrisma.table_config.update = jest.fn(() =>
+    mockPrisma.subject.count = vi.fn(() => Promise.resolve(12));
+    mockPrisma.table_config.update = vi.fn(() =>
       Promise.resolve({
         configCompleteness: 70,
       } as any),

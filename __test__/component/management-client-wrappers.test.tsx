@@ -1,5 +1,6 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
- * @jest-environment jsdom
+ * @vitest-environment happy-dom
  *
  * Unit Tests for Management Client Wrappers
  *
@@ -10,8 +11,7 @@
  * - Empty states render when needed
  */
 
-import "@testing-library/jest-dom";
-// Jest globals are available without import
+// Vitest globals are available without import
 import { render, screen, waitFor } from "@testing-library/react";
 import { TeacherManageClient } from "@/app/management/teacher/component/TeacherManageClient";
 import { RoomsManageClient } from "@/app/management/rooms/component/RoomsManageClient";
@@ -25,30 +25,30 @@ import type {
 } from "@/prisma/generated/client";
 
 // Mock Next.js router
-jest.mock("next/navigation", () => ({
+vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    refresh: jest.fn(),
+    push: vi.fn(),
+    refresh: vi.fn(),
   }),
 }));
 
 // Mock Server Actions
-jest.mock("@/features/teacher/application/actions/teacher.actions", () => ({
-  getTeachersAction: jest.fn(),
+vi.mock("@/features/teacher/application/actions/teacher.actions", () => ({
+  getTeachersAction: vi.fn(),
 }));
 
-jest.mock("@/features/room/application/actions/room.actions", () => ({
-  getRoomsAction: jest.fn(),
+vi.mock("@/features/room/application/actions/room.actions", () => ({
+  getRoomsAction: vi.fn(),
 }));
 
-jest.mock("@/features/subject/application/actions/subject.actions", () => ({
-  getSubjectsAction: jest.fn(),
+vi.mock("@/features/subject/application/actions/subject.actions", () => ({
+  getSubjectsAction: vi.fn(),
 }));
 
-jest.mock(
+vi.mock(
   "@/features/gradelevel/application/actions/gradelevel.actions",
   () => ({
-    getGradeLevelsAction: jest.fn(),
+    getGradeLevelsAction: vi.fn(),
   }),
 );
 

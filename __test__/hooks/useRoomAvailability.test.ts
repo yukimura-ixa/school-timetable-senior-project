@@ -1,19 +1,20 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit tests for Room Availability Logic
  * Tests computeAvailability helper function with various conflict scenarios
  *
- * @jest-environment jsdom
+ * @vitest-environment happy-dom
  */
 
 import { computeAvailability } from "@/hooks/roomAvailabilityUtils";
 import type { class_schedule } from "@/prisma/generated/client";
 
 // Mock the hook module to avoid importing server actions
-jest.mock("@/hooks/useRoomAvailability", () => {
-  const originalModule = jest.requireActual("@/hooks/useRoomAvailability");
+vi.mock("@/hooks/useRoomAvailability", () => {
+  const originalModule = vi.importActual("@/hooks/useRoomAvailability");
   return {
     ...originalModule,
-    useRoomAvailability: jest.fn(),
+    useRoomAvailability: vi.fn(),
   };
 });
 

@@ -1,8 +1,9 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Config Repository
  * Tests new repository methods added for lifecycle management
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  */
 
 import * as configRepository from "@/features/config/infrastructure/repositories/config.repository";
@@ -10,11 +11,11 @@ import prisma from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 
 // Get reference to the mocked Prisma client
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Config Repository - Lifecycle Methods", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("updateStatus", () => {
@@ -26,7 +27,7 @@ describe("Config Repository - Lifecycle Methods", () => {
         updatedAt: new Date(),
       };
 
-      mockPrisma.table_config.update = jest.fn().mockResolvedValue(mockConfig);
+      mockPrisma.table_config.update = vi.fn().mockResolvedValue(mockConfig);
 
       const result = await configRepository.updateStatus(
         "1-2567",
@@ -52,7 +53,7 @@ describe("Config Repository - Lifecycle Methods", () => {
         updatedAt: new Date(),
       };
 
-      mockPrisma.table_config.update = jest.fn().mockResolvedValue(mockConfig);
+      mockPrisma.table_config.update = vi.fn().mockResolvedValue(mockConfig);
 
       const result = await configRepository.updateStatus("1-2567", "DRAFT");
 
@@ -74,7 +75,7 @@ describe("Config Repository - Lifecycle Methods", () => {
         updatedAt: new Date(),
       };
 
-      mockPrisma.table_config.update = jest.fn().mockResolvedValue(mockConfig);
+      mockPrisma.table_config.update = vi.fn().mockResolvedValue(mockConfig);
 
       const result = await configRepository.updateCompleteness("1-2567", 75);
 
@@ -90,13 +91,12 @@ describe("Config Repository - Lifecycle Methods", () => {
 
   describe("countEntitiesForCompleteness", () => {
     it("should count all entities for completeness calculation", async () => {
-      mockPrisma.timeslot.count = jest.fn().mockResolvedValue(30);
-      mockPrisma.teachers_responsibility.count = jest
-        .fn()
+      mockPrisma.timeslot.count = vi.fn().mockResolvedValue(30);
+      mockPrisma.teachers_responsibility.count = vi        .fn()
         .mockResolvedValue(50);
-      mockPrisma.subject.count = jest.fn().mockResolvedValue(25);
-      mockPrisma.gradelevel.count = jest.fn().mockResolvedValue(12);
-      mockPrisma.room.count = jest.fn().mockResolvedValue(20);
+      mockPrisma.subject.count = vi.fn().mockResolvedValue(25);
+      mockPrisma.gradelevel.count = vi.fn().mockResolvedValue(12);
+      mockPrisma.room.count = vi.fn().mockResolvedValue(20);
 
       const result = await configRepository.countEntitiesForCompleteness(
         2567,
@@ -136,14 +136,12 @@ describe("Config Repository - Lifecycle Methods", () => {
         configCompleteness: 100,
       };
 
-      mockPrisma.table_config.findUnique = jest
-        .fn()
+      mockPrisma.table_config.findUnique = vi        .fn()
         .mockResolvedValue(mockConfig);
-      mockPrisma.timeslot.count = jest.fn().mockResolvedValue(30);
-      mockPrisma.teachers_responsibility.count = jest
-        .fn()
+      mockPrisma.timeslot.count = vi.fn().mockResolvedValue(30);
+      mockPrisma.teachers_responsibility.count = vi        .fn()
         .mockResolvedValue(50);
-      mockPrisma.class_schedule.count = jest.fn().mockResolvedValue(120);
+      mockPrisma.class_schedule.count = vi.fn().mockResolvedValue(120);
 
       const result = await configRepository.findByIdWithCounts(
         "1-2567",
@@ -162,7 +160,7 @@ describe("Config Repository - Lifecycle Methods", () => {
     });
 
     it("should return null when config not found", async () => {
-      mockPrisma.table_config.findUnique = jest.fn().mockResolvedValue(null);
+      mockPrisma.table_config.findUnique = vi.fn().mockResolvedValue(null);
 
       const result = await configRepository.findByIdWithCounts(
         "1-2567",
@@ -177,10 +175,10 @@ describe("Config Repository - Lifecycle Methods", () => {
   describe("transaction", () => {
     it("should execute callback in transaction", async () => {
       const mockResult = { success: true };
-      mockPrisma.$transaction = jest.fn((callback) => {
+      mockPrisma.$transaction = vi.fn((callback) => {
         const mockTx = {
           table_config: {
-            create: jest.fn().mockResolvedValue({ ConfigID: "1-2567" }),
+            create: vi.fn().mockResolvedValue({ ConfigID: "1-2567" }),
           },
         };
         return callback(mockTx);

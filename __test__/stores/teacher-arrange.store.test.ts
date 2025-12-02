@@ -1,5 +1,5 @@
 /**
- * @jest-environment jsdom
+ * @vitest-environment happy-dom
  */
 
 /**
@@ -8,7 +8,7 @@
  * Comprehensive test suite for the Context7-powered Zustand store.
  * Tests all actions, selectors, history operations, and persistence.
  *
- * Pattern: Jest + @testing-library/react hooks
+ * Pattern: Vitest + @testing-library/react hooks
  * Related: teacher-arrange.store.ts, Phase 4.1
  */
 

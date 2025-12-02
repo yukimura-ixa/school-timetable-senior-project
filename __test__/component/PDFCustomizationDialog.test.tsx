@@ -1,14 +1,14 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit tests for PDFCustomizationDialog component
  * Tests all PDF export customization options and user interactions
  *
- * @jest-environment jsdom
+ * @vitest-environment happy-dom
  */
 
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import "@testing-library/jest-dom";
 import { PDFCustomizationDialog } from "@/app/dashboard/[semesterAndyear]/shared/PDFCustomizationDialog";
 import {
   DEFAULT_PDF_OPTIONS,
@@ -18,8 +18,8 @@ import type { BatchPDFOptions } from "@/app/dashboard/[semesterAndyear]/shared/b
 
 // Skipped due to Next.js 16 + Jest stack overflow (Issue #46). Re-enable after upstream fix.
 describe.skip("PDFCustomizationDialog", () => {
-  const mockOnClose = jest.fn();
-  const mockOnExport = jest.fn();
+  const mockOnClose = vi.fn();
+  const mockOnExport = vi.fn();
 
   const defaultProps = {
     open: true,
@@ -39,7 +39,7 @@ describe.skip("PDFCustomizationDialog", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("Dialog Rendering", () => {

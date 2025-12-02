@@ -1,3 +1,4 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit tests for Program Validation Service
  *
@@ -7,7 +8,7 @@
  * - Existence check by ProgramID
  * - Thai error messages
  *
- * Jest globals (describe, test, expect, beforeEach, jest) are available globally
+ * Vitest globals (describe, test, expect, beforeEach, vi) are available globally
  */
 
 import {
@@ -23,12 +24,12 @@ describe("Program Validation Service", () => {
   const track: "GENERAL" | "MINI_ENGLISH" = "GENERAL";
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("validateNoDuplicateProgram (create)", () => {
     test("returns null when no duplicate exists", async () => {
-      jest
+      vi
         .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue(null as any);
 
@@ -42,7 +43,7 @@ describe("Program Validation Service", () => {
     });
 
     test("returns Thai error message when duplicate exists", async () => {
-      jest.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
+      vi.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
         ProgramID: 101,
         Year: year,
         Track: track,
@@ -58,7 +59,7 @@ describe("Program Validation Service", () => {
 
   describe("validateNoDuplicateProgramForUpdate (update)", () => {
     test("returns null when no duplicate exists", async () => {
-      jest
+      vi
         .spyOn(programRepository, "findByYearAndTrack")
         .mockResolvedValue(null as any);
 
@@ -71,7 +72,7 @@ describe("Program Validation Service", () => {
     });
 
     test("returns null when existing record is the same ProgramID", async () => {
-      jest.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
+      vi.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
         ProgramID: 101,
         Year: year,
         Track: track,
@@ -86,7 +87,7 @@ describe("Program Validation Service", () => {
     });
 
     test("returns Thai error message when another program has same year/track", async () => {
-      jest.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
+      vi.spyOn(programRepository, "findByYearAndTrack").mockResolvedValue({
         ProgramID: 202, // different program
         Year: year,
         Track: track,
@@ -105,7 +106,7 @@ describe("Program Validation Service", () => {
 
   describe("validateProgramExists", () => {
     test("returns null when program exists", async () => {
-      jest
+      vi
         .spyOn(programRepository, "findById")
         .mockResolvedValue({ ProgramID: 1 } as any);
 
@@ -115,7 +116,7 @@ describe("Program Validation Service", () => {
     });
 
     test("returns Thai error message when program not found", async () => {
-      jest.spyOn(programRepository, "findById").mockResolvedValue(null as any);
+      vi.spyOn(programRepository, "findById").mockResolvedValue(null as any);
 
       const result = await validateProgramExists(999);
       expect(result).toBe("ไม่พบหลักสูตรที่ระบุ");

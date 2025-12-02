@@ -1,8 +1,9 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Lock Repository
  * Tests new repository methods added for multi-entity queries
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  */
 
 import * as lockRepository from "@/features/lock/infrastructure/repositories/lock.repository";
@@ -10,11 +11,11 @@ import prisma from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 
 // Get reference to the mocked Prisma client
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Lock Repository - Multi-Entity Query Methods", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("findAllGradeLevels", () => {
@@ -25,7 +26,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
         { GradeID: "M21", Year: 2, Number: 1 },
       ];
 
-      mockPrisma.gradelevel.findMany = jest.fn().mockResolvedValue(mockGrades);
+      mockPrisma.gradelevel.findMany = vi.fn().mockResolvedValue(mockGrades);
 
       const result = await lockRepository.findAllGradeLevels();
 
@@ -55,7 +56,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
         },
       ];
 
-      mockPrisma.timeslot.findMany = jest.fn().mockResolvedValue(mockTimeslots);
+      mockPrisma.timeslot.findMany = vi.fn().mockResolvedValue(mockTimeslots);
 
       const result = await lockRepository.findTimeslotsByTerm(
         2567,
@@ -81,7 +82,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
         { RoomID: 201, RoomName: "ห้อง 201", Building: "B" },
       ];
 
-      mockPrisma.room.findMany = jest.fn().mockResolvedValue(mockRooms);
+      mockPrisma.room.findMany = vi.fn().mockResolvedValue(mockRooms);
 
       const result = await lockRepository.findAllRooms();
 
@@ -100,7 +101,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
         { SubjectCode: "TH101", SubjectName: "ภาษาไทย 1", Credit: "1.0" },
       ];
 
-      mockPrisma.subject.findMany = jest.fn().mockResolvedValue(mockSubjects);
+      mockPrisma.subject.findMany = vi.fn().mockResolvedValue(mockSubjects);
 
       const result = await lockRepository.findAllSubjects();
 
@@ -144,8 +145,7 @@ describe("Lock Repository - Multi-Entity Query Methods", () => {
         },
       ];
 
-      mockPrisma.teachers_responsibility.findMany = jest
-        .fn()
+      mockPrisma.teachers_responsibility.findMany = vi        .fn()
         .mockResolvedValue(mockResponsibilities);
 
       const result = await lockRepository.findTeacherResponsibilitiesByTerm(

@@ -1,3 +1,4 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Feature Flags Service
  *
@@ -17,15 +18,15 @@ import {
 import { get } from "@vercel/edge-config";
 
 // Mock @vercel/edge-config
-jest.mock("@vercel/edge-config", () => ({
-  get: jest.fn(),
+vi.mock("@vercel/edge-config", () => ({
+  get: vi.fn(),
 }));
 
-const mockGet = get as jest.MockedFunction<typeof get>;
+const mockGet = get as Mock<typeof get>;
 
 describe("Feature Flags Service", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("isFeatureEnabled", () => {
@@ -312,8 +313,7 @@ describe("Feature Flags Service", () => {
       });
 
       it("logs error when Edge Config fails", async () => {
-        const consoleErrorSpy = jest
-          .spyOn(console, "error")
+        const consoleErrorSpy = vi          .spyOn(console, "error")
           .mockImplementation();
         mockGet.mockRejectedValue(new Error("Network error"));
 

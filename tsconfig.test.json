@@ -5,13 +5,14 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
-    "types": ["jest", "node", "@testing-library/jest-dom"],
+    "types": ["vitest/globals", "node", "@testing-library/jest-dom"],
     "noEmit": true
   },
   "include": [
     "__test__/**/*.ts",
     "__test__/**/*.tsx",
-    "jest.setup.js",
+    "vitest.setup.ts",
+    "vitest.config.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "prisma/**/*.ts",

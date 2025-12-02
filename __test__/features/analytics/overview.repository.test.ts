@@ -1,13 +1,23 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests for Analytics Overview Repository
  * Tests conflict detection integration (Issue #107)
  *
- * @jest-environment node
+ * @vitest-environment node
  */
 
-// Mock conflict repository FIRST
-const mockFindAllConflicts = jest.fn();
-jest.mock(
+// Declare mock functions with vi.hoisted() to avoid hoisting issues
+const { mockFindAllConflicts, mockPrismaCount, mockPrismaFindMany, mockPrismaGradeLevelCount, mockPrismaRoomCount, mockPrismaTimeslotFindMany } = vi.hoisted(() => ({
+  mockFindAllConflicts: vi.fn(),
+  mockPrismaCount: vi.fn(),
+  mockPrismaFindMany: vi.fn(),
+  mockPrismaGradeLevelCount: vi.fn(),
+  mockPrismaRoomCount: vi.fn(),
+  mockPrismaTimeslotFindMany: vi.fn(),
+}));
+
+// Mock conflict repository
+vi.mock(
   "@/features/conflict/infrastructure/repositories/conflict.repository",
   () => ({
     conflictRepository: {
@@ -17,13 +27,8 @@ jest.mock(
 );
 
 // Mock Prisma client
-const mockPrismaCount = jest.fn();
-const mockPrismaFindMany = jest.fn();
-const mockPrismaGradeLevelCount = jest.fn();
-const mockPrismaRoomCount = jest.fn();
-
-jest.mock("@/lib/prisma", () => ({
-  prisma: {
+vi.mock("@/lib/prisma", () => ({
+  default: {
     class_schedule: {
       count: mockPrismaCount,
       findMany: mockPrismaFindMany,
@@ -32,7 +37,7 @@ jest.mock("@/lib/prisma", () => ({
       count: mockPrismaGradeLevelCount,
     },
     timeslot: {
-      findMany: jest.fn(),
+      findMany: mockPrismaTimeslotFindMany,
     },
     room: {
       count: mockPrismaRoomCount,
@@ -41,17 +46,16 @@ jest.mock("@/lib/prisma", () => ({
 }));
 
 import { overviewRepository } from "@/features/analytics/infrastructure/repositories/overview.repository";
-import { prisma } from "@/lib/prisma";
 
 describe("Analytics Overview Repository - Issue #107", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe.skip("getOverviewStats", () => {
     // TODO: Fix mock setup for dynamic imports in repository
     // Tests temporarily skipped to keep CI green while implementation is verified
-    // Implementation is complete and functional - just needs proper Jest mock configuration
+    // Implementation is complete and functional - just needs proper Vitest mock configuration
     it("should integrate conflict detection from conflictRepository", async () => {
       // Arrange
       const configId = "1-2567";
@@ -59,7 +63,7 @@ describe("Analytics Overview Repository - Issue #107", () => {
       // Mock Prisma responses
       mockPrismaCount.mockResolvedValue(120); // totalScheduled
       mockPrismaGradeLevelCount.mockResolvedValue(12); // totalGrades
-      (prisma.timeslot.findMany as jest.Mock).mockResolvedValue(
+      mockPrismaTimeslotFindMany.mockResolvedValue(
         Array(40)
           .fill(null)
           .map((_, i) => ({ TimeslotID: `1-2567-MON${i + 1}` })),
@@ -112,7 +116,7 @@ describe("Analytics Overview Repository - Issue #107", () => {
 
       mockPrismaCount.mockResolvedValue(150);
       mockPrismaGradeLevelCount.mockResolvedValue(12);
-      (prisma.timeslot.findMany as jest.Mock).mockResolvedValue(
+      mockPrismaTimeslotFindMany.mockResolvedValue(
         Array(40)
           .fill(null)
           .map((_, i) => ({ TimeslotID: `2-2567-MON${i + 1}` })),
@@ -149,7 +153,7 @@ describe("Analytics Overview Repository - Issue #107", () => {
 
       mockPrismaCount.mockResolvedValue(200);
       mockPrismaGradeLevelCount.mockResolvedValue(12);
-      (prisma.timeslot.findMany as jest.Mock).mockResolvedValue(
+      mockPrismaTimeslotFindMany.mockResolvedValue(
         Array(40)
           .fill(null)
           .map((_, i) => ({ TimeslotID: `1-2567-MON${i + 1}` })),
@@ -185,7 +189,7 @@ describe("Analytics Overview Repository - Issue #107", () => {
 
       mockPrismaCount.mockResolvedValue(240); // 50% completion
       mockPrismaGradeLevelCount.mockResolvedValue(12);
-      (prisma.timeslot.findMany as jest.Mock).mockResolvedValue(
+      mockPrismaTimeslotFindMany.mockResolvedValue(
         Array(40)
           .fill(null)
           .map((_, i) => ({ TimeslotID: `1-2567-MON${i + 1}` })),

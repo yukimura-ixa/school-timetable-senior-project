@@ -1,9 +1,10 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit Tests: Room Repository - findAvailableForTimeslot & findOccupiedForTimeslot
  *
  * Tests room availability filtering logic (Issue #83)
  *
- * Note: Prisma is mocked globally in jest.setup.js
+ * Note: Prisma is mocked globally in vitest.setup.ts
  *
  * @module __test__/features/room/room.repository.test
  */
@@ -11,12 +12,12 @@
 import { roomRepository } from "@/features/room/infrastructure/repositories/room.repository";
 import prisma from "@/lib/prisma";
 
-// Get reference to the mocked Prisma client (globally mocked in jest.setup.js)
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+// Get reference to the mocked Prisma client (globally mocked in vitest.setup.ts)
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 describe("Room Repository - Availability Logic", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("findAvailableForTimeslot", () => {
@@ -29,7 +30,7 @@ describe("Room Repository - Availability Logic", () => {
         { RoomID: 3, RoomName: "B201", Building: "B", Floor: "2" },
       ];
 
-      mockPrisma.room.findMany = jest.fn(() =>
+      mockPrisma.room.findMany = vi.fn(() =>
         Promise.resolve(mockRooms as any),
       );
 
@@ -62,7 +63,7 @@ describe("Room Repository - Availability Logic", () => {
         { RoomID: 3, RoomName: "B201", Building: "B", Floor: "2" },
       ];
 
-      mockPrisma.room.findMany = jest.fn(() =>
+      mockPrisma.room.findMany = vi.fn(() =>
         Promise.resolve(mockAvailableRooms as any),
       );
 
@@ -79,7 +80,7 @@ describe("Room Repository - Availability Logic", () => {
       // Arrange
       const timeslotId = "WED-3";
 
-      mockPrisma.room.findMany = jest.fn(() => Promise.resolve([] as any));
+      mockPrisma.room.findMany = vi.fn(() => Promise.resolve([] as any));
 
       // Act
       const result = await roomRepository.findAvailableForTimeslot(timeslotId);
@@ -97,7 +98,7 @@ describe("Room Repository - Availability Logic", () => {
         { RoomID: 2, RoomName: "B201", Building: "B", Floor: "2" },
       ];
 
-      mockPrisma.room.findMany = jest.fn(() =>
+      mockPrisma.room.findMany = vi.fn(() =>
         Promise.resolve(mockRooms as any),
       );
 
@@ -119,7 +120,7 @@ describe("Room Repository - Availability Logic", () => {
       const timeslotId = "MON-1";
       const mockSchedules = [{ RoomID: 1 }, { RoomID: 3 }, { RoomID: 5 }];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -146,7 +147,7 @@ describe("Room Repository - Availability Logic", () => {
       // Arrange
       const timeslotId = "TUE-2";
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve([] as any),
       );
 
@@ -167,7 +168,7 @@ describe("Room Repository - Availability Logic", () => {
         { RoomID: null },
       ];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -185,7 +186,7 @@ describe("Room Repository - Availability Logic", () => {
       // Distinct is handled by Prisma query, so mock should only return unique IDs
       const mockSchedules = [{ RoomID: 1 }, { RoomID: 2 }, { RoomID: 3 }];
 
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockSchedules as any),
       );
 
@@ -215,10 +216,10 @@ describe("Room Repository - Availability Logic", () => {
       const mockOccupiedSchedules = [{ RoomID: 1 }, { RoomID: 3 }];
 
       // Setup mocks
-      mockPrisma.room.findMany = jest.fn(() =>
+      mockPrisma.room.findMany = vi.fn(() =>
         Promise.resolve(mockAvailableRooms as any),
       );
-      mockPrisma.class_schedule.findMany = jest.fn(() =>
+      mockPrisma.class_schedule.findMany = vi.fn(() =>
         Promise.resolve(mockOccupiedSchedules as any),
       );
 
@@ -252,7 +253,7 @@ describe("Room Repository - Availability Logic", () => {
         { RoomID: 1, RoomName: "Library", Building: "Main", Floor: "1" },
       ];
 
-      mockPrisma.room.findMany = jest.fn(() =>
+      mockPrisma.room.findMany = vi.fn(() =>
         Promise.resolve(mockRooms as any),
       );
 
@@ -268,7 +269,7 @@ describe("Room Repository - Availability Logic", () => {
       const timeslotId = "MON-1";
       const dbError = new Error("Database connection failed");
 
-      mockPrisma.room.findMany = jest.fn(() => Promise.reject(dbError));
+      mockPrisma.room.findMany = vi.fn(() => Promise.reject(dbError));
 
       // Act & Assert
       await expect(

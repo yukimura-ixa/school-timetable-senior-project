@@ -1,5 +1,6 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
- * @jest-environment jsdom
+ * @vitest-environment happy-dom
  */
 import { fireEvent, render, screen } from "@testing-library/react";
 import Button from "@/components/elements/static/Button";
@@ -18,7 +19,7 @@ describe("Button component", () => {
   });
 
   it("calls the provided click handler when clicked", () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(
       <Button icon="/icon.svg" title="Clickable" handleClick={handleClick} />,
     );
@@ -29,7 +30,7 @@ describe("Button component", () => {
   });
 
   it("does not call the click handler when disabled", () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(
       <Button
         icon="/icon.svg"
@@ -56,7 +57,7 @@ describe("Button component", () => {
   });
 
   it("supports native onClick when handleClick is not supplied", () => {
-    const onClick = jest.fn();
+    const onClick = vi.fn();
     render(<Button icon="/icon.svg" title="Native" onClick={onClick} />);
 
     fireEvent.click(screen.getByRole("button", { name: /Native/ }));

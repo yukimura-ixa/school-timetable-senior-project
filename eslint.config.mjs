@@ -6,7 +6,6 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
-import jestPlugin from "eslint-plugin-jest";
 
 const eslintConfig = [
   // Ignore non-source folders (matches .gitignore patterns)
@@ -118,31 +117,31 @@ const eslintConfig = [
     ...tseslint.configs.disableTypeChecked,
   },
 
-  // Jest test files - add Jest globals and recommended rules
+  // Vitest test files - add Vitest globals and relaxed rules
   {
     files: [
       "**/__test__/**/*.{ts,tsx,js,jsx}",
       "**/*.{test,spec}.{ts,tsx,js,jsx}",
     ],
-    plugins: {
-      jest: jestPlugin,
-    },
     languageOptions: {
       globals: {
-        ...globals.jest,
+        // Vitest globals
+        describe: "readonly",
+        it: "readonly",
+        test: "readonly",
+        expect: "readonly",
+        vi: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        beforeAll: "readonly",
+        afterAll: "readonly",
       },
     },
     rules: {
-      ...jestPlugin.configs.recommended.rules,
       // Testing code can use flexible types safely
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
       "@typescript-eslint/no-empty-object-type": "off",
-      // Override or customize Jest rules as needed
-      "jest/expect-expect": "warn",
-      "jest/no-disabled-tests": "warn",
-      "jest/no-focused-tests": "error",
-      "jest/valid-expect": "error",
     },
   },
 

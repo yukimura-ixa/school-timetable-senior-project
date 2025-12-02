@@ -1,11 +1,12 @@
+import { vi, MockedObject, Mock } from "vitest";
 /**
  * Unit tests for Public Data Repository
  *
  * Tests all repository methods using mocked Prisma Client.
- * Uses global Prisma mock from jest.setup.js.
+ * Uses global Prisma mock from vitest.setup.ts.
  */
 
-import { describe, test, expect, beforeEach } from "@jest/globals";
+// Vitest globals are available via globals: true in vitest.config.ts
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type {
   PublicTeacherFilters,
@@ -14,12 +15,12 @@ import type {
 import { semester } from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
 
-// Use the globally mocked Prisma Client (from jest.setup.js)
-const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+// Use the globally mocked Prisma Client (from vitest.setup.ts)
+const mockPrisma = prisma as MockedObject<typeof prisma>;
 
 // Reset mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 // ===========================================================================
@@ -45,8 +46,7 @@ describe("publicDataRepository - Teachers", () => {
         },
       ];
 
-      mockPrisma.teacher.findMany = jest
-        .fn()
+      mockPrisma.teacher.findMany = vi        .fn()
         .mockResolvedValue(mockTeachers as any);
 
       const filters: PublicTeacherFilters = {
@@ -73,7 +73,7 @@ describe("publicDataRepository - Teachers", () => {
     });
 
     test("should filter teachers by search query", async () => {
-      mockPrisma.teacher.findMany = jest.fn().mockResolvedValue([]);
+      mockPrisma.teacher.findMany = vi.fn().mockResolvedValue([]);
 
       const filters: PublicTeacherFilters = {
         academicYear: 2567,
@@ -97,7 +97,7 @@ describe("publicDataRepository - Teachers", () => {
 
   describe("countTeachers", () => {
     test("should return total count of teachers", async () => {
-      mockPrisma.teacher.count = jest.fn().mockResolvedValue(42);
+      mockPrisma.teacher.count = vi.fn().mockResolvedValue(42);
 
       const count = await publicDataRepository.countTeachers();
 
@@ -119,15 +119,14 @@ describe("publicDataRepository - Statistics", () => {
         updatedAt: new Date("2024-01-15"),
       };
 
-      mockPrisma.table_config.findFirst = jest
-        .fn()
+      mockPrisma.table_config.findFirst = vi        .fn()
         .mockResolvedValue(mockConfig as any);
-      mockPrisma.teacher.count = jest.fn().mockResolvedValue(50);
-      mockPrisma.gradelevel.count = jest.fn().mockResolvedValue(15);
-      mockPrisma.room.count = jest.fn().mockResolvedValue(20);
-      mockPrisma.subject.count = jest.fn().mockResolvedValue(30);
-      mockPrisma.program.count = jest.fn().mockResolvedValue(5);
-      mockPrisma.timeslot.count = jest.fn().mockResolvedValue(8);
+      mockPrisma.teacher.count = vi.fn().mockResolvedValue(50);
+      mockPrisma.gradelevel.count = vi.fn().mockResolvedValue(15);
+      mockPrisma.room.count = vi.fn().mockResolvedValue(20);
+      mockPrisma.subject.count = vi.fn().mockResolvedValue(30);
+      mockPrisma.program.count = vi.fn().mockResolvedValue(5);
+      mockPrisma.timeslot.count = vi.fn().mockResolvedValue(8);
 
       const result = await publicDataRepository.getQuickStats();
 
@@ -138,7 +137,7 @@ describe("publicDataRepository - Statistics", () => {
     });
 
     test("should handle missing config gracefully", async () => {
-      mockPrisma.table_config.findFirst = jest.fn().mockResolvedValue(null);
+      mockPrisma.table_config.findFirst = vi.fn().mockResolvedValue(null);
 
       const result = await publicDataRepository.getQuickStats();
 
@@ -149,13 +148,12 @@ describe("publicDataRepository - Statistics", () => {
 
   describe("getPeriodLoad", () => {
     test("should return period load for weekdays", async () => {
-      mockPrisma.table_config.findFirst = jest.fn().mockResolvedValue({
+      mockPrisma.table_config.findFirst = vi.fn().mockResolvedValue({
         AcademicYear: 2567,
         Semester: semester.SEMESTER_1,
       } as any);
 
-      mockPrisma.class_schedule.count = jest
-        .fn()
+      mockPrisma.class_schedule.count = vi        .fn()
         .mockResolvedValueOnce(50)
         .mockResolvedValueOnce(48)
         .mockResolvedValueOnce(52)
@@ -174,18 +172,16 @@ describe("publicDataRepository - Statistics", () => {
 
   describe("getRoomOccupancy", () => {
     test("should calculate room occupancy", async () => {
-      mockPrisma.table_config.findFirst = jest.fn().mockResolvedValue({
+      mockPrisma.table_config.findFirst = vi.fn().mockResolvedValue({
         AcademicYear: 2567,
         Semester: semester.SEMESTER_1,
       } as any);
-      mockPrisma.room.count = jest.fn().mockResolvedValue(20);
-      mockPrisma.timeslot.findMany = jest
-        .fn()
+      mockPrisma.room.count = vi.fn().mockResolvedValue(20);
+      mockPrisma.timeslot.findMany = vi        .fn()
         .mockResolvedValue([
           { TimeslotID: "T1", DayOfWeek: "MON", Period: 1 },
         ] as any);
-      mockPrisma.class_schedule.findMany = jest
-        .fn()
+      mockPrisma.class_schedule.findMany = vi        .fn()
         .mockResolvedValue([{ RoomID: "R1", TimeslotID: "T1" }] as any);
 
       const result = await publicDataRepository.getRoomOccupancy(
@@ -223,8 +219,7 @@ describe("publicDataRepository - Grade Levels", () => {
         },
       ];
 
-      mockPrisma.gradelevel.findMany = jest
-        .fn()
+      mockPrisma.gradelevel.findMany = vi        .fn()
         .mockResolvedValue(mockGradeLevels as any);
 
       const filters: PublicGradeLevelFilters = {
@@ -243,7 +238,7 @@ describe("publicDataRepository - Grade Levels", () => {
 
   describe("countGradeLevels", () => {
     test("should return grade level count", async () => {
-      mockPrisma.gradelevel.count = jest.fn().mockResolvedValue(24);
+      mockPrisma.gradelevel.count = vi.fn().mockResolvedValue(24);
 
       const result = await publicDataRepository.countGradeLevels();
 
@@ -258,8 +253,7 @@ describe("publicDataRepository - Grade Levels", () => {
 
 describe("publicDataRepository - Error Handling", () => {
   test("should handle database errors in findPublicTeachers", async () => {
-    mockPrisma.teacher.findMany = jest
-      .fn()
+    mockPrisma.teacher.findMany = vi      .fn()
       .mockRejectedValue(new Error("DB error"));
 
     const filters: PublicTeacherFilters = {
