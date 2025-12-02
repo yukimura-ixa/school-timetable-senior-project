@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
@@ -49,8 +49,8 @@ export default async function ScheduleSemesterLayout({
   const exists = await semesterRepository.findByYearAndSemester(year, semester);
 
   if (!exists) {
-    // Semester doesn't exist at all - redirect to selection
-    return redirect("/dashboard");
+    // Semester doesn't exist at all - show 404 not-found page
+    notFound();
   }
 
   // Semester exists (configured or not) - allow access

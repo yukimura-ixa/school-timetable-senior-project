@@ -143,20 +143,24 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
 });
 
 test.describe("Semester Route Validation", () => {
-  test("Invalid semester route redirects or shows error", async ({ page }) => {
+  test("Invalid semester route shows not-found page", async ({ page }) => {
     // Try accessing a non-existent term
     const response = await page.goto("/dashboard/99-9999/all-timeslot");
 
-    // Should either redirect (3xx) or show error boundary (200 with error message)
+    // Should return 404 and show not-found page with error message
     const status = response?.status();
 
-    if (status === 200) {
-      // Check for error boundary message - error.tsx shows "เกิดข้อผิดพลาด" (Error occurred)
+    if (status === 404) {
+      // Not found page shows "ไม่พบภาคเรียน" (Semester not found)
+      const notFoundMessage = page.locator("text=/ไม่พบภาคเรียน|Not Found|404/");
+      await expect(notFoundMessage.first()).toBeVisible({ timeout: 15000 });
+    } else if (status === 200) {
+      // Fallback: Check for error boundary message - error.tsx shows "เกิดข้อผิดพลาด" (Error occurred)
       // or "ไม่พบภาคเรียน" (Semester not found)
       const errorMessage = page.locator("text=/เกิดข้อผิดพลาด|ไม่พบภาคเรียน|ไม่พบข้อมูล|Error/");
       await expect(errorMessage.first()).toBeVisible({ timeout: 15000 });
     } else {
-      // Should redirect
+      // Accept redirects as well (3xx status)
       expect([301, 302, 307, 308]).toContain(status);
     }
   });
