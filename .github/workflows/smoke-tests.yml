@@ -128,6 +128,8 @@ jobs:
         run: pnpm db:seed:clean
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+          # better-auth requires AUTH_SECRET even during seeding (for password hashing)
+          AUTH_SECRET: ci-test-secret-smoke-tests
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
 
