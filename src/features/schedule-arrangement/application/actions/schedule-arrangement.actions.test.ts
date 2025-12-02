@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from "vitest";
 /**
  * Integration Tests: Schedule Arrangement Server Actions
  *
@@ -5,10 +6,30 @@
  * Verifies input validation, conflict detection, and database operations.
  *
  * @module schedule-arrangement.actions.test
+ * @vitest-environment node
  */
 
-// Mock ESM-only Auth adapter so Jest doesn't try to parse it
-jest.mock("@auth/prisma-adapter", () => ({ PrismaAdapter: jest.fn(() => ({})) }));
+// Mock ESM-only Auth adapter so Vitest doesn't try to parse it
+vi.mock("@auth/prisma-adapter", () => ({ PrismaAdapter: vi.fn(() => ({})) }));
+
+// Mock Next.js headers for server action tests
+vi.mock("next/headers", () => ({
+  headers: vi.fn(() => Promise.resolve(new Headers())),
+  cookies: vi.fn(() => Promise.resolve({ get: vi.fn(), set: vi.fn() })),
+}));
+
+// Mock auth for server action tests - provide a mock session
+vi.mock("@/lib/auth", () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(() =>
+        Promise.resolve({
+          user: { id: "test-user-id", email: "test@example.com", role: "admin" },
+        }),
+      ),
+    },
+  },
+}));
 
 import {
   arrangeScheduleAction,
@@ -18,7 +39,7 @@ import {
 } from "./schedule-arrangement.actions";
 import prisma from "@/lib/prisma";
 
-// Prisma is already mocked globally in jest.setup.js
+// Prisma is already mocked globally in vitest.setup.ts
 // Get typed mock references
 // Get typed mock references
 const mockClassSchedule = prisma.class_schedule;
@@ -26,7 +47,7 @@ const mockTeachersResp = prisma.teachers_responsibility;
 
 describe("Schedule Arrangement Actions", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("arrangeScheduleAction", () => {
@@ -43,8 +64,8 @@ describe("Schedule Arrangement Actions", () => {
         isLocked: false,
       };
 
-      mockClassSchedule.findMany = jest.fn(() => Promise.resolve([])) as any;
-      mockTeachersResp.findMany = jest.fn(() =>
+      mockClassSchedule.findMany = vi.fn(() => Promise.resolve([])) as any;
+      mockTeachersResp.findMany = vi.fn(() =>
         Promise.resolve([
           {
             RespID: 1,
@@ -57,13 +78,13 @@ describe("Schedule Arrangement Actions", () => {
           },
         ]),
       ) as any;
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve(null),
       ) as any; // No existing schedule
-      mockClassSchedule.create = jest.fn(() =>
+      mockClassSchedule.create = vi.fn(() =>
         Promise.resolve({} as any),
       ) as any;
-      mockTeachersResp.update = jest.fn(() =>
+      mockTeachersResp.update = vi.fn(() =>
         Promise.resolve({} as any),
       ) as any;
 
@@ -87,7 +108,7 @@ describe("Schedule Arrangement Actions", () => {
         isLocked: false,
       };
 
-      mockClassSchedule.findMany = jest.fn(() =>
+      mockClassSchedule.findMany = vi.fn(() =>
         Promise.resolve([
           {
             ClassID: "C_M2-1_T1_ENG101",
@@ -117,7 +138,7 @@ describe("Schedule Arrangement Actions", () => {
           },
         ] as any),
       ) as any;
-      mockTeachersResp.findMany = jest.fn(() =>
+      mockTeachersResp.findMany = vi.fn(() =>
         Promise.resolve([
           {
             RespID: 1,
@@ -160,13 +181,13 @@ describe("Schedule Arrangement Actions", () => {
     it("should delete schedule when not locked", async () => {
       const input = { classId: "C_M1-1_T1_MATH101" };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
           ClassID: input.classId,
           IsLocked: false,
         } as any),
       ) as any;
-      mockClassSchedule.delete = jest.fn(() =>
+      mockClassSchedule.delete = vi.fn(() =>
         Promise.resolve({} as any),
       ) as any;
 
@@ -179,7 +200,7 @@ describe("Schedule Arrangement Actions", () => {
     it("should throw error when schedule is locked", async () => {
       const input = { classId: "C_M1-1_T1_MATH101" };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
           ClassID: input.classId,
           IsLocked: true,
@@ -195,7 +216,7 @@ describe("Schedule Arrangement Actions", () => {
     it("should throw error when schedule not found", async () => {
       const input = { classId: "C_M1-1_T1_MATH101" };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve(null),
       ) as any;
 
@@ -213,7 +234,7 @@ describe("Schedule Arrangement Actions", () => {
         semester: "SEMESTER_1" as const,
       };
 
-      mockClassSchedule.findMany = jest.fn(() =>
+      mockClassSchedule.findMany = vi.fn(() =>
         Promise.resolve([
           {
             ClassID: "C_M1-1_T1_MATH101",
@@ -256,7 +277,7 @@ describe("Schedule Arrangement Actions", () => {
         semester: "SEMESTER_1" as const,
       };
 
-      mockClassSchedule.findMany = jest.fn(() => Promise.resolve([])) as any;
+      mockClassSchedule.findMany = vi.fn(() => Promise.resolve([])) as any;
 
       const result = await getSchedulesByTermAction(input);
 
@@ -272,13 +293,13 @@ describe("Schedule Arrangement Actions", () => {
         isLocked: true,
       };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
           ClassID: input.classId,
           IsLocked: false,
         } as any),
       ) as any;
-      mockClassSchedule.update = jest.fn(() =>
+      mockClassSchedule.update = vi.fn(() =>
         Promise.resolve({} as any),
       ) as any;
 
@@ -294,13 +315,13 @@ describe("Schedule Arrangement Actions", () => {
         isLocked: false,
       };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
           ClassID: input.classId,
           IsLocked: true,
         } as any),
       ) as any;
-      mockClassSchedule.update = jest.fn(() =>
+      mockClassSchedule.update = vi.fn(() =>
         Promise.resolve({} as any),
       ) as any;
 
@@ -316,7 +337,7 @@ describe("Schedule Arrangement Actions", () => {
         isLocked: true,
       };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve(null),
       ) as any;
 

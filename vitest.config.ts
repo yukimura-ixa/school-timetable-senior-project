@@ -12,7 +12,7 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   "**/__test__/component/PDFCustomizationDialog.test.tsx", // Skipped: Next 16 + Jest recursion
   "**/__test__/features/conflict/**",
   "**/__test__/features/program/**",
-  "**/src/features/schedule-arrangement/**",
+  // Note: src/features/schedule-arrangement tests are now included
   "**/__test__/moe-standards/**",
   "**/__test__/features/dashboard/**",
   "**/__test__/features/lock/**",
@@ -37,7 +37,10 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
 
     // Include test files
-    include: ["__test__/**/*.{test,spec}.{ts,tsx}"],
+    include: [
+      "__test__/**/*.{test,spec}.{ts,tsx}",
+      "src/**/*.{test,spec}.{ts,tsx}",
+    ],
 
     // Exclude patterns (same as Jest testPathIgnorePatterns)
     exclude: TEST_PATH_IGNORE_PATTERNS,

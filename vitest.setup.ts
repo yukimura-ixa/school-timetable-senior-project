@@ -4,6 +4,10 @@ import { vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import React from "react";
 
+// Set required environment variables for tests
+process.env.AUTH_SECRET = "test-secret-at-least-32-characters-long-for-testing";
+process.env.BETTER_AUTH_SECRET = "test-secret-at-least-32-characters-long-for-testing";
+
 // Mock Next.js Cache Components APIs
 // These are only called in tests; production code uses real implementations
 declare global {

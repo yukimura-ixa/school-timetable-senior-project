@@ -1,8 +1,11 @@
+import { vi, describe, it, expect, beforeEach } from "vitest";
 /**
  * Integration Tests: Schedule Repository
  *
  * Tests for the schedule repository data access layer.
  * These tests verify Prisma queries and data transformations.
+ *
+ * @vitest-environment node
  */
 
 import { ScheduleRepository } from "./schedule.repository";
@@ -22,7 +25,7 @@ describe("ScheduleRepository", () => {
 
   beforeEach(() => {
     repository = new ScheduleRepository();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("findSchedulesByTerm", () => {
@@ -52,7 +55,7 @@ describe("ScheduleRepository", () => {
         },
       ];
 
-      mockClassSchedule.findMany = jest.fn(() =>
+      mockClassSchedule.findMany = vi.fn(() =>
         Promise.resolve(mockPrismaData as any),
       ) as any;
 
@@ -100,7 +103,7 @@ describe("ScheduleRepository", () => {
         },
       ];
 
-      mockClassSchedule.findMany = jest.fn(() =>
+      mockClassSchedule.findMany = vi.fn(() =>
         Promise.resolve(mockPrismaData),
       ) as any;
 
@@ -128,7 +131,7 @@ describe("ScheduleRepository", () => {
         },
       ];
 
-      mockTeachersResp.findMany = jest.fn(() =>
+      mockTeachersResp.findMany = vi.fn(() =>
         Promise.resolve(mockPrismaData),
       ) as any;
 
@@ -172,7 +175,7 @@ describe("ScheduleRepository", () => {
         timeslot: {},
       };
 
-      mockClassSchedule.create = jest.fn(() =>
+      mockClassSchedule.create = vi.fn(() =>
         Promise.resolve(mockCreated),
       ) as any;
 
@@ -202,7 +205,7 @@ describe("ScheduleRepository", () => {
         IsLocked: true,
       };
 
-      mockClassSchedule.update = jest.fn(() =>
+      mockClassSchedule.update = vi.fn(() =>
         Promise.resolve(mockUpdated),
       ) as any;
 
@@ -225,7 +228,7 @@ describe("ScheduleRepository", () => {
     it("should delete a schedule", async () => {
       const mockDeleted = { ClassID: "C1" };
 
-      mockClassSchedule.delete = jest.fn(() =>
+      mockClassSchedule.delete = vi.fn(() =>
         Promise.resolve(mockDeleted),
       ) as any;
 
@@ -249,7 +252,7 @@ describe("ScheduleRepository", () => {
         teachers_responsibility: [],
       };
 
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve(mockSchedule),
       ) as any;
 
@@ -264,7 +267,7 @@ describe("ScheduleRepository", () => {
     });
 
     it("should return null if schedule not found", async () => {
-      mockClassSchedule.findUnique = jest.fn(() =>
+      mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve(null),
       ) as any;
 
@@ -278,7 +281,7 @@ describe("ScheduleRepository", () => {
     it("should link a teacher to a schedule", async () => {
       const mockLinked = { RespID: 1 };
 
-      mockTeachersResp.update = jest.fn(() =>
+      mockTeachersResp.update = vi.fn(() =>
         Promise.resolve(mockLinked),
       ) as any;
 
@@ -299,7 +302,7 @@ describe("ScheduleRepository", () => {
     it("should unlink a teacher from a schedule", async () => {
       const mockUnlinked = { RespID: 1 };
 
-      mockTeachersResp.update = jest.fn(() =>
+      mockTeachersResp.update = vi.fn(() =>
         Promise.resolve(mockUnlinked),
       ) as any;
 

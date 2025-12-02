@@ -1,8 +1,11 @@
+import { describe, it, expect } from "vitest";
 /**
  * Tests for Conflict Detection Service
  *
  * Table-driven tests for all conflict detection scenarios.
  * Target: 100% coverage for critical business logic.
+ *
+ * @vitest-environment node
  */
 
 import {
