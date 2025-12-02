@@ -33,8 +33,8 @@ test.describe("Bulk Lock Operations", () => {
       .filter({ hasText: /ล็อกหลายคาบ/ });
     await bulkLockButton.click();
 
-    // Modal should be visible
-    const modal = page.locator("[role='dialog'], [class*='MuiDialog']");
+    // Modal should be visible (use getByRole to target actual dialog element)
+    const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 3000 });
     await expect(page.locator("text=/ล็อกหลายคาบ/")).toBeVisible();
   });
@@ -51,7 +51,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    const modal = page.locator("[role='dialog'], [class*='MuiDialog']");
+    const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 3000 });
 
     // Check for essential components
@@ -72,7 +72,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    const modal = page.locator("[role='dialog']");
+    const modal = page.getByRole("dialog");
     await expect(modal).toBeVisible({ timeout: 3000 });
 
     // Check for "Select All" buttons
@@ -94,7 +94,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -117,7 +117,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -140,7 +140,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -177,7 +177,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -203,7 +203,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -230,20 +230,18 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
-    // Click cancel button
-    const cancelButton = page
-      .locator("button")
-      .filter({ hasText: /ยกเลิก|ปิด/ });
+    // Click cancel button (use exact match to avoid matching 'ยกเลิกทั้งหมด')
+    const cancelButton = page.getByRole("button", { name: "ยกเลิก", exact: true });
     await cancelButton.click();
 
     // Modal should be closed
-    const modal = page.locator("[role='dialog']");
+    const modal = page.getByRole("dialog");
     await expect(modal).toBeHidden({ timeout: 2000 });
-    const modalVisible = await page.locator("[role='dialog']").isVisible();
+    const modalVisible = await page.getByRole("dialog").isVisible();
     expect(modalVisible).toBe(false);
   });
 
@@ -258,7 +256,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -289,7 +287,7 @@ test.describe("Bulk Lock Operations", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -312,7 +310,7 @@ test.describe("Bulk Lock Operations", () => {
       .click();
 
     // Modal should be visible and functional on mobile
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
   });
@@ -331,7 +329,7 @@ test.describe("Bulk Lock - Complete Flow", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -388,7 +386,7 @@ test.describe("Bulk Lock - Complete Flow", () => {
     });
 
     // Modal should close
-    await expect(page.locator("[role='dialog']")).toBeHidden({ timeout: 3000 });
+    await expect(page.getByRole("dialog")).toBeHidden({ timeout: 3000 });
   });
 });
 
@@ -404,7 +402,7 @@ test.describe("Bulk Lock - Error Handling", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -438,7 +436,7 @@ test.describe("Bulk Lock - Error Handling", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']"))
+    await expect(page.getByRole("dialog"))
       .toBeVisible({ timeout: 3000 })
       .catch(() => {});
 
@@ -462,7 +460,7 @@ test.describe("Bulk Lock - Accessibility", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 
@@ -485,7 +483,7 @@ test.describe("Bulk Lock - Accessibility", () => {
       .locator("button")
       .filter({ hasText: /ล็อกหลายคาบ/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible({
+    await expect(page.getByRole("dialog")).toBeVisible({
       timeout: 3000,
     });
 

@@ -21,8 +21,8 @@ test.describe("Conflict Detector", () => {
     // Start from dashboard (already authenticated via fixture)
     await page.goto("/dashboard/1-2567");
 
-    // ✅ Web-first assertion: Wait for dashboard to load
-    await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 15000 });
+    // ✅ Web-first assertion: Wait for dashboard to load (use specific heading)
+    await expect(page.getByRole("heading", { name: /Dashboard/i }).first()).toBeVisible({ timeout: 15000 });
 
     // Find and click the conflict detector quick action button (handles both old and new text)
     const conflictButton = page

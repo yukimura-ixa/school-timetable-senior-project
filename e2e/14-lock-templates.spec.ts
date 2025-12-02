@@ -33,15 +33,9 @@ test.describe("Lock Templates", () => {
       .filter({ hasText: /ใช้เทมเพลต|เทมเพลต/ });
     await templatesButton.click();
 
-    // Wait for modal to appear
-    await expect(
-      page.locator("[role='dialog'], [class*='MuiDialog']"),
-    ).toBeVisible();
-
-    // Modal should be visible
-    await expect(
-      page.locator("[role='dialog'], [class*='MuiDialog']"),
-    ).toBeVisible();
+    // Wait for modal to appear (use getByRole for actual dialog element)
+    const modal = page.getByRole("dialog");
+    await expect(modal).toBeVisible();
     await expect(page.locator("text=/เทมเพลต|Templates/i")).toBeVisible();
   });
 
@@ -54,7 +48,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Check for category headers
     const hasLunchCategory =
@@ -79,7 +73,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Check for template cards (buttons or clickable elements)
     const templateCards = page
@@ -98,7 +92,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Look for lunch-related templates
     const juniorLunch = page.locator(
@@ -122,7 +116,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Look for activity-related templates
     const activityTemplates = page.locator("text=/กิจกรรม|Activity/i");
@@ -139,7 +133,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Templates should have descriptions
     const descriptions = page.locator(
@@ -160,7 +154,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click first template card
     const firstTemplate = page
@@ -177,7 +171,7 @@ test.describe("Lock Templates", () => {
 
     // Should open preview/confirmation dialog
     const hasPreviewDialog =
-      (await page.locator("[role='dialog']").count()) > 1 ||
+      (await page.getByRole("dialog").count()) > 1 ||
       (await page.locator("text=/ตัวอย่าง|Preview|ยืนยัน/i").count()) > 0;
     expect(hasPreviewDialog).toBe(true);
   });
@@ -193,7 +187,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click first template
     const firstTemplate = page
@@ -227,7 +221,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click template
     const template = page
@@ -261,7 +255,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click template
     const template = page
@@ -297,7 +291,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click template
     const template = page
@@ -332,7 +326,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click template
     const template = page
@@ -367,7 +361,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click template
     const template = page
@@ -396,7 +390,7 @@ test.describe("Lock Templates", () => {
         .catch(() => {});
 
       // Preview should be closed, but main modal still open
-      const dialogCount = await page.locator("[role='dialog']").count();
+      const dialogCount = await page.getByRole("dialog").count();
       expect(dialogCount).toBeGreaterThanOrEqual(1);
     }
   });
@@ -412,7 +406,7 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click close button (X or cancel)
     const closeButton = page
@@ -430,7 +424,7 @@ test.describe("Lock Templates", () => {
       .catch(() => {});
 
     // All modals should be closed
-    const modalVisible = await page.locator("[role='dialog']").isVisible();
+    const modalVisible = await page.getByRole("dialog").isVisible();
     expect(modalVisible).toBe(false);
   });
 
@@ -444,10 +438,10 @@ test.describe("Lock Templates", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Modal should be visible and functional on mobile
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
   });
 });
 
@@ -463,7 +457,7 @@ test.describe("Lock Templates - Template Coverage", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Count template cards
     const templates = page.locator("button, [role='button']").filter({
@@ -486,7 +480,7 @@ test.describe("Lock Templates - Template Coverage", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     const juniorLunch = page.locator(
       "text=/พักกลางวัน.*ม\.ต้น|lunch.*junior/i",
@@ -506,7 +500,7 @@ test.describe("Lock Templates - Template Coverage", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     const seniorLunch = page.locator(
       "text=/พักกลางวัน.*ม\.ปลาย|lunch.*senior/i",
@@ -524,7 +518,7 @@ test.describe("Lock Templates - Template Coverage", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Activity templates: morning, club, homeroom
     const activityTemplates = page.locator("text=/กิจกรรม|Activity/i");
@@ -541,7 +535,7 @@ test.describe("Lock Templates - Template Coverage", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     const assemblyTemplates = page.locator("text=/เข้าแถว|ชุมนุม|Assembly/i");
     const count = await assemblyTemplates.count();
@@ -562,7 +556,7 @@ test.describe("Lock Templates - Complete Flow", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Click a template
     const template = page
@@ -597,7 +591,7 @@ test.describe("Lock Templates - Complete Flow", () => {
         { timeout: 3000 },
       )
       .catch(() => {});
-    const modalVisible = await page.locator("[role='dialog']").isVisible();
+    const modalVisible = await page.getByRole("dialog").isVisible();
     expect(modalVisible).toBe(false);
   });
 
@@ -610,7 +604,7 @@ test.describe("Lock Templates - Complete Flow", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Find template that might have warnings (e.g., exam period)
     const examTemplate = page
@@ -662,7 +656,7 @@ test.describe("Lock Templates - Error Handling", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Should show error or empty state
     const hasErrorOrEmpty =
@@ -686,7 +680,7 @@ test.describe("Lock Templates - Error Handling", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Setup error response for apply action
     await page.route("**/api/**", (route) => {
@@ -736,10 +730,10 @@ test.describe("Lock Templates - Accessibility", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Dialog should have role
-    const dialog = page.locator("[role='dialog']");
+    const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
   });
 
@@ -752,7 +746,7 @@ test.describe("Lock Templates - Accessibility", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Should be able to tab through templates
     await page.keyboard.press("Tab");
@@ -775,7 +769,7 @@ test.describe("Lock Templates - Accessibility", () => {
       .catch(() => {});
 
     // Some content should change or preview should open
-    const hasChange = (await page.locator("[role='dialog']").count()) > 0;
+    const hasChange = (await page.getByRole("dialog").count()) > 0;
     expect(hasChange).toBe(true);
   });
 
@@ -790,7 +784,7 @@ test.describe("Lock Templates - Accessibility", () => {
       .locator("button")
       .filter({ hasText: /ใช้เทมเพลต/ })
       .click();
-    await expect(page.locator("[role='dialog']")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
 
     // Press Escape
     await page.keyboard.press("Escape");
@@ -804,7 +798,7 @@ test.describe("Lock Templates - Accessibility", () => {
       .catch(() => {});
 
     // Modal should close
-    const modalVisible = await page.locator("[role='dialog']").isVisible();
+    const modalVisible = await page.getByRole("dialog").isVisible();
     expect(modalVisible).toBe(false);
   });
 });
