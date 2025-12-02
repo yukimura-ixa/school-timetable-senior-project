@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { authClient } from "@/lib/auth-client";
 import { normalizeAppRole } from "@/lib/authz";
@@ -14,6 +14,7 @@ import { SemesterSelector } from "./SemesterSelector";
 function Navbar() {
   const { data: session, isPending } = authClient.useSession();
   const pathName = usePathname();
+  const router = useRouter();
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
   const appRole = normalizeAppRole(session?.user?.role);
   return (
@@ -100,7 +101,15 @@ function Navbar() {
                 {/* Logout Button */}
                 {session && (
                   <button
-                    onClick={async () => await authClient.signOut()}
+                    onClick={async () => {
+                      await authClient.signOut({
+                        fetchOptions: {
+                          onSuccess: () => {
+                            router.push("/signin");
+                          },
+                        },
+                      });
+                    }}
                     className="ml-2 p-2 rounded-full hover:bg-red-50 transition-colors group"
                     aria-label="ออกจากระบบ"
                   >

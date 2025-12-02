@@ -103,6 +103,16 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
       await subjectNameInput.fill(subjectName);
     }
 
+    // CRITICAL: Select LearningArea for CORE subjects (required by MOE compliance validation)
+    // The default empty row has Category: "CORE" and LearningArea: null, which fails validation
+    // Find and click the LearningArea select dropdown in the editing row
+    const learningAreaSelect = editingRow.locator('[role="combobox"]').nth(2); // 3rd select: Credit, Category, LearningArea
+    if (await learningAreaSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await learningAreaSelect.click();
+      // Select "ภาษาไทย" (THAI) from dropdown
+      await page.locator('[role="option"]:has-text("ภาษาไทย")').click();
+    }
+
     // Save using the toolbar save button - IconButton with aria-label="save"
     const saveButton = page.locator('button[aria-label="save"]');
     await expect(saveButton).toBeVisible({ timeout: 5000 });
