@@ -104,17 +104,16 @@ test.describe("Critical Path Smoke Tests", () => {
       const context = await browser.newContext();
       const page = await context.newPage();
 
-      // Login first - need to handle case where previous session might exist
-      await page.goto("/signin");
-      await page.waitForLoadState("domcontentloaded");
+      // Go directly to dashboard - if not logged in, we'll be redirected to signin
+      await page.goto("/dashboard");
       
-      // Check if we got redirected to dashboard (meaning session exists)
+      // Wait for navigation to settle - could be on dashboard (logged in) or signin (logged out)
+      await page.waitForLoadState("networkidle");
+      
+      // Check where we ended up
       const currentUrl = page.url();
-      if (currentUrl.includes("/dashboard")) {
-        // Already logged in, skip login step
-        console.log("[Logout Test] Already logged in, skipping login");
-      } else {
-        // Need to login
+      if (currentUrl.includes("/signin")) {
+        // Need to login first
         await page.fill('input[type="email"]', "admin@school.local");
         await page.fill('input[type="password"]', "admin123");
         const submitButton = page
@@ -125,6 +124,7 @@ test.describe("Critical Path Smoke Tests", () => {
         await submitButton.click();
         await page.waitForURL(/\/dashboard/, { timeout: 15000 });
       }
+      // If already on dashboard, we're logged in - proceed to logout
 
       // Verify logged in
       const session = await page.request.get("/api/auth/get-session");
