@@ -4,6 +4,11 @@
  *
  * Uses admin fixture for authentication (no dev bypass).
  *
+ * UI Patterns:
+ * - Teacher: Uses dedicated AddModalForm (modal-based)
+ * - Subject: Uses EditableTable inline editing
+ * - Room: Uses EditableTable inline editing
+ *
  * Note: Subject validation currently only accepts [A-Z0-9] codes
  * Thai MOE codes with Thai letters will require validation update
  */
@@ -11,121 +16,155 @@
 import { test, expect } from "../fixtures/admin.fixture";
 
 const timestamp = Date.now();
-const seqNum = (timestamp % 10) + 90;
+const seqNum = (timestamp % 100) + 1; // 1-100 range for cleaner codes
 
 test.describe("CRUD Smoke Tests - Create Operations", () => {
-  test("✅ Create Teacher", async ({ page }) => {
-    const teacherEmail = `SMOKE_TEST_${timestamp}@test.local`;
+  test("✅ Create Teacher (Modal Flow)", async ({ page }) => {
     const teacherFirstName = "ทดสอบ";
-    const teacherLastName = `ครู${seqNum}`;
+    const teacherLastName = `สโมค${seqNum}`;
 
     await page.goto("/management/teacher");
     await page.waitForSelector("table", { timeout: 15000 });
 
-    // Teacher management uses MODAL for adding (button: "เพิ่มข้อมูลครู")
-    const addButton = page.locator('[data-testid="add-teacher-button"], button:has-text("เพิ่มข้อมูลครู")').first();
+    // Teacher management uses dedicated button with data-testid
+    const addButton = page.locator('[data-testid="add-teacher-button"]');
     await expect(addButton).toBeVisible({ timeout: 10000 });
     await addButton.click();
 
-    // Wait for modal to appear
-    await page.waitForSelector('[data-testid="firstname-0"], input[placeholder*="อเนก"]', { timeout: 10000 });
+    // Wait for the modal to appear - modal has "เพิ่มรายชื่อครู" title
+    const modalTitle = page.locator('text=เพิ่มรายชื่อครู');
+    await expect(modalTitle).toBeVisible({ timeout: 10000 });
 
     // Fill in the modal form fields using data-testid
-    await page.locator('[data-testid="firstname-0"]').fill(teacherFirstName);
-    await page.locator('[data-testid="lastname-0"]').fill(teacherLastName);
-    
-    // Email field - may have a different testid pattern
-    const emailInput = page.locator('[data-testid="email-0"]')
-      .or(page.locator('input[placeholder*="school.local"]'));
-    if (await emailInput.first().isVisible({ timeout: 2000 }).catch(() => false)) {
-      await emailInput.first().fill(teacherEmail);
+    // First name field
+    const firstnameInput = page.locator('[data-testid="firstname-0"]');
+    await expect(firstnameInput).toBeVisible({ timeout: 5000 });
+    await firstnameInput.fill(teacherFirstName);
+
+    // Last name field
+    const lastnameInput = page.locator('[data-testid="lastname-0"]');
+    await expect(lastnameInput).toBeVisible({ timeout: 5000 });
+    await lastnameInput.fill(teacherLastName);
+
+    // Email field (pre-filled with UUID but can be changed)
+    const emailInput = page.locator('[data-testid="email-0"]');
+    if (await emailInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      // Clear and fill with custom email
+      await emailInput.clear();
+      await emailInput.fill(`smoke_${seqNum}@test.local`);
     }
 
-    // Submit the form - look for submit button in modal
-    const submitButton = page.locator('button:has-text("ยืนยัน"), button:has-text("บันทึก"), button:has-text("เพิ่ม")')
-      .and(page.locator(':visible'));
-    await submitButton.last().click();
+    // Submit the form - button has data-testid="add-teacher-submit"
+    const submitButton = page.locator('[data-testid="add-teacher-submit"]');
+    await expect(submitButton).toBeVisible({ timeout: 5000 });
+    await submitButton.click();
 
-    // Wait for success snackbar - notistack shows snackbar with success message
-    // The message is "เพิ่มข้อมูลครูสำเร็จ" (Added teacher successfully)
-    const successIndicator = page.locator('[role="alert"]')
-      .or(page.locator('text=/สำเร็จ/'))
-      .or(page.locator('.notistack-SnackbarContainer'));
-    await expect(successIndicator.first()).toBeVisible({ timeout: 15000 });
-    console.log(`✅ Created teacher: ${teacherEmail}`);
+    // Wait for success snackbar - message is "เพิ่มข้อมูลครูสำเร็จ"
+    const successSnackbar = page.locator('.notistack-SnackbarContainer').locator('text=/สำเร็จ/');
+    await expect(successSnackbar).toBeVisible({ timeout: 15000 });
+    console.log(`✅ Created teacher: ${teacherFirstName} ${teacherLastName}`);
   });
 
-  test("✅ Create Subject (English Code)", async ({ page }) => {
-    const subjectCode = `TS${seqNum}`;
+  test("✅ Create Subject (Inline Editing)", async ({ page }) => {
+    // Subject code must be uppercase A-Z and 0-9 only
+    const subjectCode = `TEST${seqNum}`;
     const subjectName = `วิชาทดสอบ ${seqNum}`;
 
     await page.goto("/management/subject");
     await page.waitForSelector("table", { timeout: 15000 });
 
-    // Subject uses EditableTable with inline editing (button text: "เพิ่ม")
-    const addBtn = page.locator('button:has-text("เพิ่ม")').first();
-    await expect(addBtn).toBeVisible({ timeout: 10000 });
-    await addBtn.click();
+    // Subject uses EditableTable with Add button (has AddIcon)
+    // Look for button with AddIcon aria-label or text "เพิ่ม"
+    const addButton = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') }).first()
+      .or(page.locator('button[aria-label*="add"], button[aria-label*="เพิ่ม"]').first());
+    
+    // Wait for table to fully load before clicking add
+    await page.waitForLoadState("networkidle");
+    await expect(addButton).toBeVisible({ timeout: 10000 });
+    await addButton.click();
 
-    // Wait for inline editing mode - new row should appear with inputs
-    await page.waitForSelector('tbody tr input, tbody tr [contenteditable]', { timeout: 10000 });
+    // Wait for new row with input fields to appear
+    // The new row is added at the top and has input fields
+    await page.waitForSelector('tbody tr input[type="text"]', { timeout: 10000 });
 
-    // Fill the first row's inputs (SubjectCode, SubjectName)
-    const row = page.locator("tbody tr").first();
-    const textInputs = row.locator('input').filter({ hasNot: page.locator('[type="checkbox"]') });
+    // Find the row that has editable inputs (the new row being created)
+    const editingRow = page.locator('tbody tr').filter({ has: page.locator('input[type="text"]') }).first();
+    
+    // Get all text inputs in the new row (excluding checkboxes)
+    const textInputs = editingRow.locator('input[type="text"]');
+    
+    // SubjectCode is the first editable column (after the checkbox column)
+    const subjectCodeInput = textInputs.first();
+    await expect(subjectCodeInput).toBeVisible({ timeout: 5000 });
+    await subjectCodeInput.fill(subjectCode);
 
-    // SubjectCode (first text input)
-    if (await textInputs.nth(0).isVisible({ timeout: 2000 }).catch(() => false)) {
-      await textInputs.nth(0).fill(subjectCode);
+    // SubjectName is the second text input
+    const subjectNameInput = textInputs.nth(1);
+    if (await subjectNameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await subjectNameInput.fill(subjectName);
     }
-    // SubjectName (second text input) 
-    if (await textInputs.nth(1).isVisible({ timeout: 2000 }).catch(() => false)) {
-      await textInputs.nth(1).fill(subjectName);
-    }
 
-    // Save using toolbar save button
-    const saveBtn = page.locator('button[aria-label="save"]').first();
-    await expect(saveBtn).toBeVisible({ timeout: 5000 });
-    await saveBtn.click();
+    // Save using the toolbar save button (SaveIcon)
+    const saveButton = page.locator('button').filter({ has: page.locator('svg[data-testid="SaveIcon"]') }).first()
+      .or(page.locator('button[aria-label*="save"], button[aria-label*="บันทึก"]').first());
+    await expect(saveButton).toBeVisible({ timeout: 5000 });
+    await saveButton.click();
 
-    // Wait for success snackbar or verify the row was saved
-    const successIndicator = page.locator('[role="alert"]')
-      .or(page.locator('text=/สำเร็จ/'))
-      .or(page.locator('.notistack-SnackbarContainer'));
-    await expect(successIndicator.first()).toBeVisible({ timeout: 15000 });
+    // Wait for success snackbar
+    const successSnackbar = page.locator('.notistack-SnackbarContainer').locator('text=/สำเร็จ/');
+    await expect(successSnackbar).toBeVisible({ timeout: 15000 });
     console.log(`✅ Created subject: ${subjectCode}`);
   });
 
-  test("✅ Create Room", async ({ page }) => {
-    const roomNumber = `TEST-${seqNum}`;
+  test("✅ Create Room (Inline Editing)", async ({ page }) => {
+    const roomName = `TEST${seqNum}`;
+    const building = "อาคาร1";
+    const floor = "1";
 
     await page.goto("/management/rooms");
     await page.waitForSelector("table", { timeout: 15000 });
 
-    // Room uses EditableTable with inline editing (button text: "เพิ่ม")
-    const addButton2 = page.locator('button:has-text("เพิ่ม")').first();
-    await expect(addButton2).toBeVisible({ timeout: 10000 });
-    await addButton2.click();
+    // Room uses EditableTable with Add button
+    const addButton = page.locator('button').filter({ has: page.locator('svg[data-testid="AddIcon"]') }).first()
+      .or(page.locator('button[aria-label*="add"], button[aria-label*="เพิ่ม"]').first());
+    
+    await page.waitForLoadState("networkidle");
+    await expect(addButton).toBeVisible({ timeout: 10000 });
+    await addButton.click();
 
-    // Wait for inline editing mode
-    await page.waitForSelector('tbody tr input', { timeout: 10000 });
+    // Wait for new row with input fields
+    await page.waitForSelector('tbody tr input[type="text"]', { timeout: 10000 });
 
-    const newRow2 = page.locator("tbody tr").first();
-    const inputs2 = newRow2.locator('input').filter({ hasNot: page.locator('[type="checkbox"]') });
-    if (await inputs2.first().isVisible({ timeout: 2000 }).catch(() => false)) {
-      await inputs2.first().fill(roomNumber);
+    // Find the editing row
+    const editingRow = page.locator('tbody tr').filter({ has: page.locator('input[type="text"]') }).first();
+    const textInputs = editingRow.locator('input[type="text"]');
+
+    // RoomName is the first editable field
+    const roomNameInput = textInputs.first();
+    await expect(roomNameInput).toBeVisible({ timeout: 5000 });
+    await roomNameInput.fill(roomName);
+
+    // Building is the second field
+    const buildingInput = textInputs.nth(1);
+    if (await buildingInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await buildingInput.fill(building);
+    }
+
+    // Floor is the third field
+    const floorInput = textInputs.nth(2);
+    if (await floorInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await floorInput.fill(floor);
     }
 
     // Save using toolbar save button
-    const saveButton2 = page.locator('button[aria-label="save"]').first();
-    await expect(saveButton2).toBeVisible({ timeout: 5000 });
-    await saveButton2.click();
+    const saveButton = page.locator('button').filter({ has: page.locator('svg[data-testid="SaveIcon"]') }).first()
+      .or(page.locator('button[aria-label*="save"], button[aria-label*="บันทึก"]').first());
+    await expect(saveButton).toBeVisible({ timeout: 5000 });
+    await saveButton.click();
 
     // Wait for success snackbar
-    const successIndicator = page.locator('[role="alert"]')
-      .or(page.locator('text=/สำเร็จ/'))
-      .or(page.locator('.notistack-SnackbarContainer'));
-    await expect(successIndicator.first()).toBeVisible({ timeout: 15000 });
-    console.log(`✅ Created room: ${roomNumber}`);
+    const successSnackbar = page.locator('.notistack-SnackbarContainer').locator('text=/สำเร็จ/');
+    await expect(successSnackbar).toBeVisible({ timeout: 15000 });
+    console.log(`✅ Created room: ${roomName}`);
   });
 });
