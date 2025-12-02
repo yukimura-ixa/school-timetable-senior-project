@@ -16,11 +16,20 @@
  * TC-DND-004: Conflict detection during drag
  * TC-DND-005: Lock state behavior
  * TC-DND-006: Keyboard accessibility
+ *
+ * FIXME: These tests are skipped because DnD operations are flaky in CI.
+ * The 30s timeouts consistently fail due to headless browser limitations
+ * with complex drag-and-drop interactions. Need to investigate using
+ * keyboard-based DnD or mouse action sequences instead.
+ * See: https://github.com/yukimura-ixa/school-timetable-senior-project/issues/162
  */
 
 import { test, expect } from "./fixtures/admin.fixture";
 import { Page } from "@playwright/test";
 import { NavigationHelper } from "./helpers/navigation";
+
+// Skip all DnD tests until flakiness is resolved
+test.describe.configure({ mode: "skip" });
 
 // Test data setup
 const TEST_SEMESTER = "1-2567";

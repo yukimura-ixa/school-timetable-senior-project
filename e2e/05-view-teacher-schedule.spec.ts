@@ -28,8 +28,8 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 10000 });
 
-    // Verify teacher selection is visible
-    await expect(page.getByText("เลือกครู")).toBeVisible();
+    // Verify teacher selection is visible (use testid to avoid strict mode violation)
+    await expect(page.getByTestId("teacher-multi-select")).toBeVisible();
 
     // Take screenshot
     await page.screenshot({
@@ -53,7 +53,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
 
     // Verify teacher selector is enabled (not disabled for admin)
     const teacherSelectorContainer = page
-      .locator("div", { has: page.getByText("เลือกครู") })
+      .getByTestId("teacher-multi-select")
       .first();
 
     // Check if the selector is interactive (not disabled via opacity/pointer-events)
@@ -261,7 +261,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     // For a teacher user, the selector should be disabled
     // We can verify this by checking the disabled prop implementation
     const teacherSelector = page
-      .locator("div", { has: page.getByText("เลือกครู") })
+      .getByTestId("teacher-multi-select")
       .first();
 
     // Check visual disabled state (opacity 0.6, pointer-events none)
@@ -410,8 +410,8 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 
     await page.waitForTimeout(2000);
 
-    // Verify page is usable on mobile
-    await expect(page.getByText("เลือกครู")).toBeVisible();
+    // Verify page is usable on mobile (use testid to avoid strict mode violation)
+    await expect(page.getByTestId("teacher-multi-select")).toBeVisible();
 
     // Take screenshot
     await page.screenshot({
