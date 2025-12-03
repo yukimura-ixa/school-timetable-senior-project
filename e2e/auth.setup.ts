@@ -16,14 +16,17 @@
  */
 
 import { test as setup, expect } from "@playwright/test";
-import path from "path";
+import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const authFile = path.join(__dirname, "../playwright/.auth/admin.json");
+const authFile =
+  process.env.PLAYWRIGHT_AUTH_FILE ??
+  path.join(__dirname, "../playwright/.auth/admin.json");
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@school.local";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
 // Increase setup timeout to accommodate initial compile/HMR and seeding
 setup.setTimeout(60_000);
@@ -115,8 +118,8 @@ setup("authenticate as admin", async ({ page }) => {
     timeout: 15000,
   });
   console.log("[AUTH SETUP] Filling in credentials...");
-  await page.fill('input[type="email"]', "admin@school.local");
-  await page.fill('input[type="password"]', "admin123");
+  await page.fill('input[type="email"]', ADMIN_EMAIL);
+  await page.fill('input[type="password"]', ADMIN_PASSWORD);
 
   // Locate the credentials submit button (exclude Google button)
   let loginButton = page

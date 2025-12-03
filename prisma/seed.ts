@@ -1,19 +1,40 @@
 /**
  * Prisma Seed File for School Timetable System
- * MOE-Compliant with Comprehensive Test Data
+ * MOE-Compliant with Comprehensive Test/Demo Data
  *
  * This seed creates a comprehensive mock database based on Thai Ministry of Education
  * Basic Education Core Curriculum B.E. 2551 (2008) standards.
  *
- * Data Scale (Medium-sized Thai School):
- * - 60+ Teachers across 8 departments (aligned with MOE 8 learning areas)
+ * SEEDING MODES:
+ * ==============================================================================
+ * 1. Default (no env vars):
+ *    - Creates admin user only
+ *    - Safe for production initialization
+ *
+ * 2. SEED_DEMO_DATA=true (pnpm db:seed:demo):
+ *    - Creates minimal demo data for production preview
+ *    - Includes: 3 semesters, 10 teachers, 3 grades, core subjects, schedules
+ *    - Idempotent: safe to run multiple times
+ *    - NO data cleanup (additive only)
+ *
+ * 3. SEED_CLEAN_DATA=true (pnpm db:seed:clean):
+ *    - Full E2E test data with cleanup
+ *    - 40 teachers, 18 grades, 70+ subjects, 80+ timeslots
+ *
+ * 4. SEED_FOR_TESTS=true (pnpm test:db:seed):
+ *    - Same as SEED_CLEAN_DATA + auth session cleanup
+ *    - Used by CI/CD pipeline
+ * ==============================================================================
+ *
+ * Data Scale (Full Test Mode):
+ * - 40+ Teachers across 8 departments (aligned with MOE 8 learning areas)
  * - 40 Classrooms (3 buildings)
  * - 18 Grade levels (M.1-M.6, 3 sections each)
  * - 3 Program tracks: วิทย์-คณิต, ศิลป์-คำนวณ, ศิลป์-ภาษา
  * - MOE 8 Learning Areas with proper credit allocation
- * - 80+ Subjects (Thai curriculum: core + additional + activities)
+ * - 70+ Subjects (Thai curriculum: core + additional + activities)
  * - 8 Periods per day, 5 days per week (MON-FRI)
- * - Academic Year 2567 (2024), Semester 1
+ * - 3 Semesters: 1-2567, 2-2567, 1-2568
  *
  * Features:
  * - ✅ Retry logic for transient database connection errors (Docker Desktop compatibility)
@@ -22,14 +43,16 @@
  * - ✅ Three program tracks with proper subject assignments
  * - ✅ Teachers with realistic workload distribution (1-3 subjects per Ministry standard)
  * - ✅ Locked timeslots for school-wide activities
+ * - ✅ Sample class schedules for visual testing
  * - ✅ Different break times for junior/senior levels
- * - ✅ Room and teacher conflict scenarios
  * - ✅ Mixed credit subjects (0.5 to 2.0 credits)
  * - ✅ Department-based teacher distribution
  *
  * Usage:
- *   pnpm run test:db:seed
- *   or: SEED_CLEAN_DATA=true pnpm run db:seed:clean
+ *   pnpm db:seed              # Admin user only
+ *   pnpm db:seed:demo         # Demo data for production
+ *   pnpm db:seed:clean        # Full test data
+ *   pnpm test:db:seed         # CI/CD test mode
  */
 
 import {
@@ -97,6 +120,469 @@ async function withRetry<T>(
   }
   throw lastError!;
 }
+
+// ============================================================================
+// DEMO DATA SEEDING FUNCTION
+// Creates minimal but complete data for production demos
+// ============================================================================
+async function seedDemoData() {
+  console.log("🌐 Starting demo data seed (idempotent, additive)...");
+
+  const academicYear = 2567;
+  const semesters: { semester: semester; number: number }[] = [
+    { semester: "SEMESTER_1", number: 1 },
+    { semester: "SEMESTER_2", number: 2 },
+  ];
+
+  // Add semester 1-2568 for future testing
+  const nextYearSemesters: { semester: semester; number: number; year: number }[] = [
+    { semester: "SEMESTER_1", number: 1, year: 2568 },
+  ];
+
+  const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
+  const periods = [
+    { start: "08:30", end: "09:20", break: "NOT_BREAK" as breaktime },
+    { start: "09:20", end: "10:10", break: "NOT_BREAK" as breaktime },
+    { start: "10:10", end: "11:00", break: "NOT_BREAK" as breaktime },
+    { start: "11:00", end: "11:50", break: "NOT_BREAK" as breaktime },
+    { start: "12:50", end: "13:40", break: "BREAK_JUNIOR" as breaktime },
+    { start: "13:40", end: "14:30", break: "BREAK_SENIOR" as breaktime },
+    { start: "14:30", end: "15:20", break: "NOT_BREAK" as breaktime },
+    { start: "15:20", end: "16:10", break: "NOT_BREAK" as breaktime },
+  ];
+
+  // ===== DEMO SUBJECTS (10 core subjects) =====
+  console.log("📚 Creating demo subjects...");
+
+  // Demo subjects using MOE format (ม.1 subjects for demo purposes)
+  const demoSubjects = [
+    { code: "ท21101", name: "ภาษาไทย พื้นฐาน 1", credit: "CREDIT_15" as subject_credit, learningArea: "THAI" as LearningArea },
+    { code: "ค21101", name: "คณิตศาสตร์ พื้นฐาน 1", credit: "CREDIT_15" as subject_credit, learningArea: "MATHEMATICS" as LearningArea },
+    { code: "ว21101", name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 1", credit: "CREDIT_15" as subject_credit, learningArea: "SCIENCE" as LearningArea },
+    { code: "ส21101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม 1", credit: "CREDIT_10" as subject_credit, learningArea: "SOCIAL" as LearningArea },
+    { code: "พ21101", name: "สุขศึกษาและพลศึกษา 1", credit: "CREDIT_10" as subject_credit, learningArea: "HEALTH_PE" as LearningArea },
+    { code: "ศ21101", name: "ศิลปะ พื้นฐาน 1", credit: "CREDIT_10" as subject_credit, learningArea: "ARTS" as LearningArea },
+    { code: "ง21101", name: "การงานอาชีพ พื้นฐาน 1", credit: "CREDIT_10" as subject_credit, learningArea: "CAREER" as LearningArea },
+    { code: "อ21101", name: "ภาษาอังกฤษ พื้นฐาน 1", credit: "CREDIT_10" as subject_credit, learningArea: "FOREIGN_LANGUAGE" as LearningArea },
+    { code: "ACT-CLUB", name: "ชุมนุม", credit: "CREDIT_10" as subject_credit, learningArea: null, activityType: "CLUB" as ActivityType },
+    { code: "ACT-GUIDE", name: "แนะแนว", credit: "CREDIT_10" as subject_credit, learningArea: null, activityType: "GUIDANCE" as ActivityType },
+  ];
+
+  for (const subject of demoSubjects) {
+    await withRetry(
+      () =>
+        prisma.subject.upsert({
+          where: { SubjectCode: subject.code },
+          update: {},
+          create: {
+            SubjectCode: subject.code,
+            SubjectName: subject.name,
+            Credit: subject.credit,
+            Category: subject.activityType ? "ACTIVITY" : "CORE",
+            LearningArea: subject.learningArea,
+            ActivityType: subject.activityType,
+            IsGraded: !subject.activityType,
+          },
+        }),
+      `Upsert demo subject ${subject.code}`,
+    );
+  }
+  console.log(`✅ Created ${demoSubjects.length} demo subjects`);
+
+  // ===== DEMO PROGRAM =====
+  console.log("🎓 Creating demo program...");
+  const demoProgram = await withRetry(
+    () =>
+      prisma.program.upsert({
+        where: { ProgramCode: "M1-SCI" },
+        update: {},
+        create: {
+          ProgramCode: "M1-SCI",
+          ProgramName: "หลักสูตรวิทย์-คณิต ม.1",
+          Year: 1,
+          Track: "SCIENCE_MATH" as ProgramTrack,
+          MinTotalCredits: 43,
+          Description: "หลักสูตรเน้นวิทยาศาสตร์และคณิตศาสตร์สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ 1",
+        },
+      }),
+    "Upsert demo program M1-SCI",
+  );
+  console.log(`✅ Created demo program: ${demoProgram.ProgramName}`);
+
+  // ===== DEMO GRADE LEVELS (3 sections of M.1) =====
+  console.log("🏫 Creating demo grade levels...");
+  const demoGrades = [
+    { id: "M1-1", year: 1, number: 1 },
+    { id: "M1-2", year: 1, number: 2 },
+    { id: "M1-3", year: 1, number: 3 },
+  ];
+
+  const gradeLevels = [];
+  for (const grade of demoGrades) {
+    const gradeLevel = await withRetry(
+      () =>
+        prisma.gradelevel.upsert({
+          where: { GradeID: grade.id },
+          update: {},
+          create: {
+            GradeID: grade.id,
+            Year: grade.year,
+            Number: grade.number,
+            StudentCount: 35,
+            ProgramID: demoProgram.ProgramID,
+          },
+        }),
+      `Upsert demo grade ${grade.id}`,
+    );
+    gradeLevels.push(gradeLevel);
+  }
+  console.log(`✅ Created ${demoGrades.length} demo grade levels`);
+
+  // ===== DEMO ROOMS (5 rooms) =====
+  console.log("🚪 Creating demo rooms...");
+  const demoRooms = [
+    { name: "ห้อง 111", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 112", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 113", building: "อาคาร 1", floor: "ชั้น 1" },
+    { name: "ห้อง 211", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 1" },
+    { name: "ห้อง 212", building: "อาคารวิทยาศาสตร์", floor: "ชั้น 1" },
+  ];
+
+  const rooms = [];
+  for (const room of demoRooms) {
+    const createdRoom = await withRetry(
+      () =>
+        prisma.room.upsert({
+          where: { RoomName: room.name },
+          update: {},
+          create: {
+            RoomName: room.name,
+            Building: room.building,
+            Floor: room.floor,
+          },
+        }),
+      `Upsert demo room ${room.name}`,
+    );
+    rooms.push(createdRoom);
+  }
+  console.log(`✅ Created ${demoRooms.length} demo rooms`);
+
+  // ===== DEMO TEACHERS (8 teachers, 1 per department) =====
+  console.log("👨‍🏫 Creating demo teachers...");
+  const demoTeachers = [
+    { prefix: "ครู", firstname: "สมชาย", lastname: "ทองดี", dept: "ภาษาไทย", email: "teacher1@school.ac.th" },
+    { prefix: "ครู", firstname: "สมหญิง", lastname: "ใจดี", dept: "คณิตศาสตร์", email: "teacher2@school.ac.th" },
+    { prefix: "ครู", firstname: "วิชัย", lastname: "เก่งมาก", dept: "วิทยาศาสตร์และเทคโนโลยี", email: "teacher3@school.ac.th" },
+    { prefix: "ครู", firstname: "สุดา", lastname: "รักเรียน", dept: "สังคมศึกษา", email: "teacher4@school.ac.th" },
+    { prefix: "ครู", firstname: "ประสิทธิ์", lastname: "แข็งแรง", dept: "สุขศึกษาและพลศึกษา", email: "teacher5@school.ac.th" },
+    { prefix: "ครู", firstname: "ศิริพร", lastname: "ศิลป์งาม", dept: "ศิลปะ", email: "teacher6@school.ac.th" },
+    { prefix: "ครู", firstname: "บุญส่ง", lastname: "อาชีพดี", dept: "การงานอาชีพ", email: "teacher7@school.ac.th" },
+    { prefix: "ครู", firstname: "จอห์น", lastname: "สมิธ", dept: "ภาษาต่างประเทศ", email: "teacher8@school.ac.th" },
+  ];
+
+  const teachers = [];
+  for (const teacher of demoTeachers) {
+    const createdTeacher = await withRetry(
+      () =>
+        prisma.teacher.upsert({
+          where: { Email: teacher.email },
+          update: {},
+          create: {
+            Prefix: teacher.prefix,
+            Firstname: teacher.firstname,
+            Lastname: teacher.lastname,
+            Department: teacher.dept,
+            Email: teacher.email,
+            Role: "teacher",
+          },
+        }),
+      `Upsert demo teacher ${teacher.email}`,
+    );
+    teachers.push(createdTeacher);
+  }
+  console.log(`✅ Created ${teachers.length} demo teachers`);
+
+  // ===== DEMO TIMESLOTS (for all 3 semesters) =====
+  console.log("⏰ Creating demo timeslots...");
+  let timeslotCount = 0;
+
+  // Semesters for 2567
+  for (const sem of semesters) {
+    for (const day of days) {
+      for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
+        const period = periods[periodNum - 1];
+        const timeslotId = `${sem.number}-${academicYear}-${day}-${periodNum}`;
+
+        await withRetry(
+          () =>
+            prisma.timeslot.upsert({
+              where: { TimeslotID: timeslotId },
+              update: {},
+              create: {
+                TimeslotID: timeslotId,
+                AcademicYear: academicYear,
+                Semester: sem.semester,
+                StartTime: new Date(`2024-01-01T${period.start}:00`),
+                EndTime: new Date(`2024-01-01T${period.end}:00`),
+                Breaktime: period.break,
+                DayOfWeek: day,
+              },
+            }),
+          `Upsert timeslot ${timeslotId}`,
+        );
+        timeslotCount++;
+      }
+    }
+  }
+
+  // Semester 1-2568
+  for (const sem of nextYearSemesters) {
+    for (const day of days) {
+      for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
+        const period = periods[periodNum - 1];
+        const timeslotId = `${sem.number}-${sem.year}-${day}-${periodNum}`;
+
+        await withRetry(
+          () =>
+            prisma.timeslot.upsert({
+              where: { TimeslotID: timeslotId },
+              update: {},
+              create: {
+                TimeslotID: timeslotId,
+                AcademicYear: sem.year,
+                Semester: sem.semester,
+                StartTime: new Date(`2024-01-01T${period.start}:00`),
+                EndTime: new Date(`2024-01-01T${period.end}:00`),
+                Breaktime: period.break,
+                DayOfWeek: day,
+              },
+            }),
+          `Upsert timeslot ${timeslotId}`,
+        );
+        timeslotCount++;
+      }
+    }
+  }
+  console.log(`✅ Created ${timeslotCount} demo timeslots`);
+
+  // ===== DEMO TABLE CONFIGS =====
+  console.log("⚙️  Creating demo table configurations...");
+  const configTemplate = {
+    periodsPerDay: 8,
+    startTime: "08:30",
+    periodDuration: 50,
+    schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+    lunchBreak: { after: 4, duration: 60 },
+    breakTimes: { junior: { after: 4 }, senior: { after: 5 } },
+  };
+
+  await withRetry(
+    () =>
+      prisma.table_config.upsert({
+        where: { ConfigID: `1-${academicYear}` },
+        update: {},
+        create: {
+          ConfigID: `1-${academicYear}`,
+          AcademicYear: academicYear,
+          Semester: "SEMESTER_1",
+          Config: configTemplate,
+        },
+      }),
+    "Upsert table config 1-2567",
+  );
+
+  await withRetry(
+    () =>
+      prisma.table_config.upsert({
+        where: { ConfigID: `2-${academicYear}` },
+        update: {},
+        create: {
+          ConfigID: `2-${academicYear}`,
+          AcademicYear: academicYear,
+          Semester: "SEMESTER_2",
+          Config: configTemplate,
+          status: "DRAFT",
+        },
+      }),
+    "Upsert table config 2-2567",
+  );
+
+  await withRetry(
+    () =>
+      prisma.table_config.upsert({
+        where: { ConfigID: "1-2568" },
+        update: {},
+        create: {
+          ConfigID: "1-2568",
+          AcademicYear: 2568,
+          Semester: "SEMESTER_1",
+          Config: configTemplate,
+          status: "DRAFT",
+        },
+      }),
+    "Upsert table config 1-2568",
+  );
+  console.log("✅ Created 3 demo table configurations (1-2567, 2-2567, 1-2568)");
+
+  // ===== DEMO TEACHER RESPONSIBILITIES =====
+  console.log("📝 Creating demo teacher responsibilities...");
+  const responsibilities = [];
+
+  // Map MOE subject codes to teachers (by index matching departments)
+  const subjectTeacherMap = [
+    { subjectCode: "ท21101", teacherIndex: 0 }, // Thai teacher
+    { subjectCode: "ค21101", teacherIndex: 1 }, // Math teacher
+    { subjectCode: "ว21101", teacherIndex: 2 }, // Science teacher
+    { subjectCode: "ส21101", teacherIndex: 3 }, // Social teacher
+    { subjectCode: "พ21101", teacherIndex: 4 }, // PE teacher
+    { subjectCode: "ศ21101", teacherIndex: 5 }, // Art teacher
+    { subjectCode: "ง21101", teacherIndex: 6 }, // Career teacher
+    { subjectCode: "อ21101", teacherIndex: 7 }, // English teacher
+  ];
+
+  // Create responsibilities for all 3 grades with each subject/teacher
+  for (const grade of gradeLevels) {
+    for (const mapping of subjectTeacherMap) {
+      const teacher = teachers[mapping.teacherIndex];
+      const respId = `${teacher.TeacherID}-${grade.GradeID}-${mapping.subjectCode}-1-2567`;
+
+      const resp = await withRetry(
+        () =>
+          prisma.teachers_responsibility.upsert({
+            where: { RespID: parseInt(respId.replace(/\D/g, "").slice(0, 9)) || undefined },
+            update: {},
+            create: {
+              TeacherID: teacher.TeacherID,
+              GradeID: grade.GradeID,
+              SubjectCode: mapping.subjectCode,
+              AcademicYear: 2567,
+              Semester: "SEMESTER_1",
+              TeachHour: 2,
+            },
+          }),
+        `Upsert responsibility ${mapping.subjectCode} for ${grade.GradeID}`,
+      ).catch(async () => {
+        // If upsert fails due to no unique constraint, try findFirst + create
+        const existing = await prisma.teachers_responsibility.findFirst({
+          where: {
+            TeacherID: teacher.TeacherID,
+            GradeID: grade.GradeID,
+            SubjectCode: mapping.subjectCode,
+            AcademicYear: 2567,
+            Semester: "SEMESTER_1",
+          },
+        });
+        if (existing) return existing;
+
+        return prisma.teachers_responsibility.create({
+          data: {
+            TeacherID: teacher.TeacherID,
+            GradeID: grade.GradeID,
+            SubjectCode: mapping.subjectCode,
+            AcademicYear: 2567,
+            Semester: "SEMESTER_1",
+            TeachHour: 2,
+          },
+        });
+      });
+      responsibilities.push(resp);
+    }
+  }
+  console.log(`✅ Created ${responsibilities.length} demo teacher responsibilities`);
+
+  // ===== DEMO CLASS SCHEDULES =====
+  console.log("📅 Creating demo class schedules...");
+  let scheduleCount = 0;
+
+  // Create 3 schedules per grade (showing populated timetables for visual tests)
+  // Each grade gets TH, MA, EN on different days/periods
+  // Sample class schedule template using MOE subject codes for M.1 (ม.1)
+  const scheduleTemplate = [
+    { day: "MON", period: 1, subjectCode: "ท21101", teacherIndex: 0 },  // ภาษาไทย
+    { day: "MON", period: 2, subjectCode: "ค21101", teacherIndex: 1 },  // คณิตศาสตร์
+    { day: "MON", period: 3, subjectCode: "อ21101", teacherIndex: 7 },  // ภาษาอังกฤษ
+    { day: "TUE", period: 1, subjectCode: "ว21101", teacherIndex: 2 },  // วิทยาศาสตร์
+    { day: "TUE", period: 2, subjectCode: "ส21101", teacherIndex: 3 },  // สังคมศึกษา
+    { day: "TUE", period: 3, subjectCode: "พ21101", teacherIndex: 4 },  // พลศึกษา
+    { day: "WED", period: 1, subjectCode: "ศ21101", teacherIndex: 5 },  // ศิลปะ
+    { day: "WED", period: 2, subjectCode: "ง21101", teacherIndex: 6 },  // การงานอาชีพ
+    { day: "THU", period: 1, subjectCode: "ท21101", teacherIndex: 0 },  // ภาษาไทย (คาบที่ 2)
+    { day: "THU", period: 2, subjectCode: "ค21101", teacherIndex: 1 },  // คณิตศาสตร์ (คาบที่ 2)
+    { day: "FRI", period: 1, subjectCode: "อ21101", teacherIndex: 7 },  // ภาษาอังกฤษ (คาบที่ 2)
+    { day: "FRI", period: 2, subjectCode: "ว21101", teacherIndex: 2 },  // วิทยาศาสตร์ (คาบที่ 2)
+  ];
+
+  for (const grade of gradeLevels) {
+    for (const schedule of scheduleTemplate) {
+      const timeslotId = `1-${academicYear}-${schedule.day}-${schedule.period}`;
+      const classId = `${timeslotId}-${schedule.subjectCode}-${grade.GradeID}`;
+      const teacher = teachers[schedule.teacherIndex];
+      const room = rooms[schedule.period % rooms.length];
+
+      // Find the responsibility for this teacher/grade/subject
+      const resp = responsibilities.find(
+        (r) =>
+          r.TeacherID === teacher.TeacherID &&
+          r.GradeID === grade.GradeID &&
+          r.SubjectCode === schedule.subjectCode,
+      );
+
+      if (resp) {
+        try {
+          await withRetry(
+            () =>
+              prisma.class_schedule.upsert({
+                where: { ClassID: classId },
+                update: {},
+                create: {
+                  ClassID: classId,
+                  TimeslotID: timeslotId,
+                  SubjectCode: schedule.subjectCode,
+                  GradeID: grade.GradeID,
+                  RoomID: room.RoomID,
+                  IsLocked: false,
+                  teachers_responsibility: {
+                    connect: [{ RespID: resp.RespID }],
+                  },
+                },
+              }),
+            `Upsert schedule ${classId}`,
+          );
+          scheduleCount++;
+        } catch (error: any) {
+          // Skip if already exists or constraint violation
+          if (!error.message?.includes("Unique constraint")) {
+            console.warn(`⚠️  Skipping schedule ${classId}: ${error.message}`);
+          }
+        }
+      }
+    }
+  }
+  console.log(`✅ Created ${scheduleCount} demo class schedules`);
+
+  // ===== DEMO SUMMARY =====
+  console.log("\n" + "=".repeat(70));
+  console.log("🌐 Demo Data Seed Completed Successfully!");
+  console.log("=".repeat(70));
+  console.log("📊 Demo Data Summary:");
+  console.log(`   • Subjects: ${demoSubjects.length}`);
+  console.log(`   • Program: 1 (${demoProgram.ProgramName})`);
+  console.log(`   • Grade Levels: ${demoGrades.length} (M.1/1-3)`);
+  console.log(`   • Rooms: ${demoRooms.length}`);
+  console.log(`   • Teachers: ${teachers.length}`);
+  console.log(`   • Timeslots: ${timeslotCount} (3 semesters)`);
+  console.log(`   • Table Configurations: 3 (1-2567, 2-2567, 1-2568)`);
+  console.log(`   • Teacher Responsibilities: ${responsibilities.length}`);
+  console.log(`   • Class Schedules: ${scheduleCount}`);
+  console.log("=".repeat(70));
+  console.log("\n✨ Demo data ready for production preview!");
+  console.log("💡 Teacher schedules will show populated timetables.");
+  console.log("=".repeat(70));
+}
+
+// ============================================================================
+// FULL TEST DATA CONSTANTS
+// ============================================================================
 
 // Thai teacher prefixes and names for realistic data
 const THAI_PREFIXES = ["นาย", "นางสาว", "นาง", "ครู", "อาจารย์"];
@@ -312,20 +798,26 @@ async function main() {
     "✅ Admin user created via better-auth API (email: admin@school.local, password: admin123)",
   );
 
-  // Check if we should clean existing data
+  // ===== SEEDING MODE SELECTION =====
+  const isDemoMode = process.env.SEED_DEMO_DATA === "true";
+  const isTestMode = process.env.SEED_FOR_TESTS === "true";
   const shouldCleanData =
-    process.env.SEED_CLEAN_DATA === "true" ||
-    process.env.SEED_FOR_TESTS === "true";
+    process.env.SEED_CLEAN_DATA === "true" || isTestMode;
 
-  if (!shouldCleanData) {
+  if (!shouldCleanData && !isDemoMode) {
     console.log(
-      "ℹ️  Skipping data cleanup (set SEED_CLEAN_DATA=true or SEED_FOR_TESTS=true to enable)",
+      "ℹ️  Skipping data seeding (set SEED_DEMO_DATA=true for demo or SEED_CLEAN_DATA=true for full test data)",
     );
     console.log("✅ Seed completed - admin user ready");
     return;
   }
 
-  const isTestMode = process.env.SEED_FOR_TESTS === "true";
+  if (isDemoMode) {
+    console.log("🌐 Demo mode enabled - Seeding production demo data...");
+    await seedDemoData();
+    return;
+  }
+
   if (isTestMode) {
     console.log("🧪 Test mode enabled - Seeding E2E test data...");
   } else {
@@ -374,483 +866,623 @@ async function main() {
   // ===== SUBJECTS (MOE 8 Learning Areas) =====
   console.log("📚 Creating subjects with MOE 8 Learning Areas...");
 
+  // ========================================================================
+  // MOE Subject Code Format (Thai Ministry of Education Standard)
+  // ========================================================================
+  // Format: [Area][Level][Year][Type][Sequence] (6 characters)
+  //
+  // Position 1 - Learning Area Code:
+  //   ท = Thai (ภาษาไทย)
+  //   ค = Mathematics (คณิตศาสตร์)
+  //   ว = Science (วิทยาศาสตร์และเทคโนโลยี)
+  //   ส = Social Studies (สังคมศึกษา ศาสนา และวัฒนธรรม)
+  //   พ = Health & PE (สุขศึกษาและพลศึกษา)
+  //   ศ = Arts (ศิลปะ)
+  //   ง = Career (การงานอาชีพ)
+  //   อ = English (ภาษาอังกฤษ)
+  //   จ = Chinese (ภาษาจีน)
+  //   ญ = Japanese (ภาษาญี่ปุ่น)
+  //
+  // Position 2 - Education Level:
+  //   2 = Lower Secondary (มัธยมศึกษาตอนต้น - ม.1-3)
+  //   3 = Upper Secondary (มัธยมศึกษาตอนปลาย - ม.4-6)
+  //
+  // Position 3 - Year within Level:
+  //   1 = Year 1 (ม.1 or ม.4)
+  //   2 = Year 2 (ม.2 or ม.5)
+  //   3 = Year 3 (ม.3 or ม.6)
+  //   0 = Any year (electives)
+  //
+  // Position 4 - Subject Type:
+  //   1 = Core/Required (รายวิชาพื้นฐาน)
+  //   2 = Elective/Additional (รายวิชาเพิ่มเติม)
+  //
+  // Positions 5-6 - Sequence Number (01-99)
+  //
+  // Examples:
+  //   ท21101 = Thai Language, M.1, Core, Subject 01
+  //   ค31201 = Mathematics, M.4, Elective, Subject 01
+  // ========================================================================
+
   const coreSubjects = [
-    // 1. ภาษาไทย (Thai Language)
+    // 1. ภาษาไทย (Thai Language) - รหัส: ท
+    // มัธยมศึกษาตอนต้น (ม.1-3): 1.5 หน่วยกิต/ภาคเรียน = 3 คาบ/สัปดาห์
+    // มัธยมศึกษาตอนปลาย (ม.4-6): 1.0 หน่วยกิต/ภาคเรียน = 2 คาบ/สัปดาห์
     {
-      code: "TH101",
-      name: "ภาษาไทย 1",
+      code: "ท21101",
+      name: "ภาษาไทย พื้นฐาน 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
     {
-      code: "TH201",
-      name: "ภาษาไทย 2",
+      code: "ท22101",
+      name: "ภาษาไทย พื้นฐาน 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
     {
-      code: "TH301",
-      name: "ภาษาไทย 3",
+      code: "ท23101",
+      name: "ภาษาไทย พื้นฐาน 3",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
     {
-      code: "TH401",
-      name: "ภาษาไทย 4",
+      code: "ท31101",
+      name: "ภาษาไทย พื้นฐาน 4",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
     {
-      code: "TH501",
-      name: "ภาษาไทย 5",
+      code: "ท32101",
+      name: "ภาษาไทย พื้นฐาน 5",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
     {
-      code: "TH601",
-      name: "ภาษาไทย 6",
+      code: "ท33101",
+      name: "ภาษาไทย พื้นฐาน 6",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
 
-    // 2. คณิตศาสตร์ (Mathematics)
+    // 2. คณิตศาสตร์ (Mathematics) - รหัส: ค
+    // มัธยมศึกษาตอนต้น (ม.1-3): 1.5 หน่วยกิต/ภาคเรียน = 3 คาบ/สัปดาห์
+    // มัธยมศึกษาตอนปลาย (ม.4-6): 1.0 หน่วยกิต/ภาคเรียน = 2 คาบ/สัปดาห์
     {
-      code: "MA101",
-      name: "คณิตศาสตร์ 1",
+      code: "ค21101",
+      name: "คณิตศาสตร์ พื้นฐาน 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA201",
-      name: "คณิตศาสตร์ 2",
+      code: "ค22101",
+      name: "คณิตศาสตร์ พื้นฐาน 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA301",
-      name: "คณิตศาสตร์ 3",
+      code: "ค23101",
+      name: "คณิตศาสตร์ พื้นฐาน 3",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA401",
-      name: "คณิตศาสตร์ 4",
+      code: "ค31101",
+      name: "คณิตศาสตร์ พื้นฐาน 4",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA501",
-      name: "คณิตศาสตร์ 5",
+      code: "ค32101",
+      name: "คณิตศาสตร์ พื้นฐาน 5",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA601",
-      name: "คณิตศาสตร์ 6",
+      code: "ค33101",
+      name: "คณิตศาสตร์ พื้นฐาน 6",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
 
-    // 3. วิทยาศาสตร์และเทคโนโลยี (Science & Technology)
+    // 3. วิทยาศาสตร์และเทคโนโลยี (Science & Technology) - รหัส: ว
+    // มัธยมศึกษาตอนต้น (ม.1-3): 1.5 หน่วยกิต/ภาคเรียน = 3 คาบ/สัปดาห์
+    // มัธยมศึกษาตอนปลาย (ม.4-6): 1.0 หน่วยกิต/ภาคเรียน = 2 คาบ/สัปดาห์
     {
-      code: "SC101",
-      name: "วิทยาศาสตร์ 1",
+      code: "ว21101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC201",
-      name: "วิทยาศาสตร์ 2",
+      code: "ว22101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC301",
-      name: "วิทยาศาสตร์ 3",
+      code: "ว23101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 3",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC401",
-      name: "วิทยาศาสตร์ 4",
+      code: "ว31101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 4",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC501",
-      name: "วิทยาศาสตร์ 5",
+      code: "ว32101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 5",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC601",
-      name: "วิทยาศาสตร์ 6",
+      code: "ว33101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 6",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
 
-    // 4. สังคมศึกษา ศาสนา และวัฒนธรรม (Social Studies, Religion & Culture)
+    // 4. สังคมศึกษา ศาสนา และวัฒนธรรม (Social Studies, Religion & Culture) - รหัส: ส
+    // มัธยมศึกษาตอนต้น (ม.1-3): ประวัติศาสตร์ 0.5 + สังคม 1.0 = 1.5 หน่วยกิต/ภาคเรียน
+    // มัธยมศึกษาตอนปลาย (ม.4-6): ประวัติศาสตร์ 0.5 + สังคม 0.5 = 1.0 หน่วยกิต/ภาคเรียน
     {
-      code: "SO101",
-      name: "สังคมศึกษา 1",
+      code: "ส21101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
     {
-      code: "SO201",
-      name: "สังคมศึกษา 2",
+      code: "ส22101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
     {
-      code: "SO301",
-      name: "สังคมศึกษา 3",
+      code: "ส23101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
     {
-      code: "SO401",
-      name: "สังคมศึกษา 4",
+      code: "ส31101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 4",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
     {
-      code: "SO501",
-      name: "สังคมศึกษา 5",
+      code: "ส32101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 5",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
     {
-      code: "SO601",
-      name: "สังคมศึกษา 6",
+      code: "ส33101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 6",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
 
-    // 5. สุขศึกษาและพลศึกษา (Health & Physical Education)
+    // 5. สุขศึกษาและพลศึกษา (Health & Physical Education) - รหัส: พ
+    // ทุกระดับชั้น: 0.5-1.0 หน่วยกิต/ภาคเรียน = 1-2 คาบ/สัปดาห์
     {
-      code: "PE101",
-      name: "พลศึกษา 1",
+      code: "พ21101",
+      name: "สุขศึกษาและพลศึกษา 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "HEALTH_PE" as LearningArea,
     },
     {
-      code: "PE201",
-      name: "พลศึกษา 2",
+      code: "พ22101",
+      name: "สุขศึกษาและพลศึกษา 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "HEALTH_PE" as LearningArea,
     },
     {
-      code: "PE301",
-      name: "พลศึกษา 3",
+      code: "พ23101",
+      name: "สุขศึกษาและพลศึกษา 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "HEALTH_PE" as LearningArea,
     },
     {
-      code: "PE401",
-      name: "พลศึกษา 4",
+      code: "พ31101",
+      name: "สุขศึกษาและพลศึกษา 4",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "HEALTH_PE" as LearningArea,
     },
     {
-      code: "PE501",
-      name: "พลศึกษา 5",
+      code: "พ32101",
+      name: "สุขศึกษาและพลศึกษา 5",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "HEALTH_PE" as LearningArea,
     },
     {
-      code: "PE601",
-      name: "พลศึกษา 6",
+      code: "พ33101",
+      name: "สุขศึกษาและพลศึกษา 6",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "HEALTH_PE" as LearningArea,
     },
 
-    // 6. ศิลปะ (Arts)
+    // 6. ศิลปะ (Arts) - รหัส: ศ
+    // มัธยมศึกษาตอนต้น (ม.1-3): 1.0 หน่วยกิต/ภาคเรียน = 2 คาบ/สัปดาห์
+    // มัธยมศึกษาตอนปลาย (ม.4-6): 0.5 หน่วยกิต/ภาคเรียน = 1 คาบ/สัปดาห์
     {
-      code: "AR101",
-      name: "ศิลปะ 1",
+      code: "ศ21101",
+      name: "ศิลปะ พื้นฐาน 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "ARTS" as LearningArea,
     },
     {
-      code: "AR201",
-      name: "ศิลปะ 2",
+      code: "ศ22101",
+      name: "ศิลปะ พื้นฐาน 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "ARTS" as LearningArea,
     },
     {
-      code: "AR301",
-      name: "ศิลปะ 3",
+      code: "ศ23101",
+      name: "ศิลปะ พื้นฐาน 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "ARTS" as LearningArea,
     },
     {
-      code: "AR401",
-      name: "ศิลปะ 4",
+      code: "ศ31101",
+      name: "ศิลปะ พื้นฐาน 4",
       credit: "CREDIT_05" as subject_credit,
       learningArea: "ARTS" as LearningArea,
     },
     {
-      code: "AR501",
-      name: "ศิลปะ 5",
+      code: "ศ32101",
+      name: "ศิลปะ พื้นฐาน 5",
       credit: "CREDIT_05" as subject_credit,
       learningArea: "ARTS" as LearningArea,
     },
     {
-      code: "AR601",
-      name: "ศิลปะ 6",
+      code: "ศ33101",
+      name: "ศิลปะ พื้นฐาน 6",
       credit: "CREDIT_05" as subject_credit,
       learningArea: "ARTS" as LearningArea,
     },
 
-    // 7. การงานอาชีพ (Career & Technology)
+    // 7. การงานอาชีพ (Career & Technology) - รหัส: ง
+    // มัธยมศึกษาตอนต้น (ม.1-3): 1.0 หน่วยกิต/ภาคเรียน = 2 คาบ/สัปดาห์
+    // มัธยมศึกษาตอนปลาย (ม.4-6): 0.5 หน่วยกิต/ภาคเรียน = 1 คาบ/สัปดาห์
     {
-      code: "CA101",
-      name: "การงานอาชีพ 1",
+      code: "ง21101",
+      name: "การงานอาชีพ พื้นฐาน 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "CAREER" as LearningArea,
     },
     {
-      code: "CA201",
-      name: "การงานอาชีพ 2",
+      code: "ง22101",
+      name: "การงานอาชีพ พื้นฐาน 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "CAREER" as LearningArea,
     },
     {
-      code: "CA301",
-      name: "การงานอาชีพ 3",
+      code: "ง23101",
+      name: "การงานอาชีพ พื้นฐาน 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "CAREER" as LearningArea,
     },
     {
-      code: "CA401",
-      name: "การงานอาชีพ 4",
+      code: "ง31101",
+      name: "การงานอาชีพ พื้นฐาน 4",
       credit: "CREDIT_05" as subject_credit,
       learningArea: "CAREER" as LearningArea,
     },
     {
-      code: "CA501",
-      name: "การงานอาชีพ 5",
+      code: "ง32101",
+      name: "การงานอาชีพ พื้นฐาน 5",
       credit: "CREDIT_05" as subject_credit,
       learningArea: "CAREER" as LearningArea,
     },
     {
-      code: "CA601",
-      name: "การงานอาชีพ 6",
+      code: "ง33101",
+      name: "การงานอาชีพ พื้นฐาน 6",
       credit: "CREDIT_05" as subject_credit,
       learningArea: "CAREER" as LearningArea,
     },
 
-    // 8. ภาษาต่างประเทศ (Foreign Language - English)
+    // 8. ภาษาต่างประเทศ (Foreign Language - English) - รหัส: อ
+    // ทุกระดับชั้น: 1.0-1.5 หน่วยกิต/ภาคเรียน = 2-3 คาบ/สัปดาห์
     {
-      code: "EN101",
-      name: "ภาษาอังกฤษ 1",
+      code: "อ21101",
+      name: "ภาษาอังกฤษ พื้นฐาน 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN201",
-      name: "ภาษาอังกฤษ 2",
+      code: "อ22101",
+      name: "ภาษาอังกฤษ พื้นฐาน 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN301",
-      name: "ภาษาอังกฤษ 3",
+      code: "อ23101",
+      name: "ภาษาอังกฤษ พื้นฐาน 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN401",
-      name: "ภาษาอังกฤษ 4",
+      code: "อ31101",
+      name: "ภาษาอังกฤษ พื้นฐาน 4",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN501",
-      name: "ภาษาอังกฤษ 5",
+      code: "อ32101",
+      name: "ภาษาอังกฤษ พื้นฐาน 5",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN601",
-      name: "ภาษาอังกฤษ 6",
+      code: "อ33101",
+      name: "ภาษาอังกฤษ พื้นฐาน 6",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
   ];
 
+  // ========================================================================
+  // รายวิชาเพิ่มเติม (Elective Subjects) - รหัสแบบ [Area][Level][0][2][Sequence]
+  // Type = 2 (เพิ่มเติม), Year = 0 (any year in level)
+  // ========================================================================
   const additionalSubjects = [
-    // วิทย์-คณิต Track Additional Subjects
+    // ========================================================================
+    // วิทย์-คณิต Track - รายวิชาเพิ่มเติม (Science-Math Track Electives)
+    // ========================================================================
+
+    // คณิตศาสตร์เพิ่มเติม (ม.1-3)
     {
-      code: "MA102",
+      code: "ค21201",
       name: "คณิตศาสตร์เพิ่มเติม 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA202",
+      code: "ค22201",
       name: "คณิตศาสตร์เพิ่มเติม 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA302",
+      code: "ค23201",
       name: "คณิตศาสตร์เพิ่มเติม 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
+
+    // วิทยาศาสตร์เพิ่มเติม (ม.1-3)
     {
-      code: "SC102",
+      code: "ว21201",
       name: "วิทยาศาสตร์เพิ่มเติม 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC202",
+      code: "ว22201",
       name: "วิทยาศาสตร์เพิ่มเติม 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC302",
+      code: "ว23201",
       name: "วิทยาศาสตร์เพิ่มเติม 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
+
+    // คณิตศาสตร์เพิ่มเติม (ม.4-6) - แคลคูลัส
     {
-      code: "MA402",
+      code: "ค31201",
       name: "แคลคูลัส 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
     {
-      code: "MA502",
+      code: "ค32201",
       name: "แคลคูลัส 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "MATHEMATICS" as LearningArea,
     },
+
+    // ฟิสิกส์ (ม.4-6)
     {
-      code: "SC402",
+      code: "ว31201",
       name: "ฟิสิกส์ 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC502",
+      code: "ว32201",
       name: "ฟิสิกส์ 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
+
+    // เคมี (ม.4-6)
     {
-      code: "SC403",
+      code: "ว31202",
       name: "เคมี 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC503",
+      code: "ว32202",
       name: "เคมี 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
+
+    // ชีววิทยา (ม.4-6)
     {
-      code: "SC404",
+      code: "ว31203",
       name: "ชีววิทยา 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
     {
-      code: "SC504",
+      code: "ว32203",
       name: "ชีววิทยา 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "SCIENCE" as LearningArea,
     },
 
-    // ศิลป์-ภาษา Track Additional Subjects
+    // ========================================================================
+    // ศิลป์-ภาษา Track - รายวิชาเพิ่มเติม (Arts-Language Track Electives)
+    // ========================================================================
+
+    // ภาษาไทยเพิ่มเติม (วรรณคดี, การเขียน)
     {
-      code: "TH102",
+      code: "ท20201",
       name: "วรรณคดีไทย",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
     {
-      code: "TH202",
+      code: "ท20202",
       name: "การเขียนเชิงสร้างสรรค์",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "THAI" as LearningArea,
     },
+
+    // ภาษาอังกฤษเพิ่มเติม (ม.1-3)
     {
-      code: "EN102",
+      code: "อ21201",
       name: "ภาษาอังกฤษเพิ่มเติม 1",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN202",
+      code: "อ22201",
       name: "ภาษาอังกฤษเพิ่มเติม 2",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN302",
+      code: "อ23201",
       name: "ภาษาอังกฤษเพิ่มเติม 3",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
+
+    // ภาษาอังกฤษเพิ่มเติม (ม.4-6) - English Communication
     {
-      code: "EN402",
-      name: "English Communication 1",
+      code: "อ31201",
+      name: "ภาษาอังกฤษเพื่อการสื่อสาร 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "EN502",
-      name: "English Communication 2",
+      code: "อ32201",
+      name: "ภาษาอังกฤษเพื่อการสื่อสาร 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
+
+    // ภาษาจีน (ม.4-6) - รหัส: จ
     {
-      code: "CH401",
+      code: "จ31201",
       name: "ภาษาจีน 1",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
     {
-      code: "CH501",
+      code: "จ32201",
       name: "ภาษาจีน 2",
       credit: "CREDIT_15" as subject_credit,
       learningArea: "FOREIGN_LANGUAGE" as LearningArea,
     },
+
+    // สังคมศึกษาเพิ่มเติม (ม.4-6)
     {
-      code: "SO402",
+      code: "ส31201",
       name: "ประวัติศาสตร์สากล",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
     {
-      code: "SO502",
+      code: "ส32201",
       name: "เศรษฐศาสตร์เบื้องต้น",
       credit: "CREDIT_10" as subject_credit,
       learningArea: "SOCIAL" as LearningArea,
     },
   ];
 
+  // ========================================================================
+  // กิจกรรมพัฒนาผู้เรียน (Student Development Activities)
+  // ========================================================================
+  // ตามหลักสูตรแกนกลาง พ.ศ. 2551 กิจกรรมพัฒนาผู้เรียนประกอบด้วย 4 ประเภท:
+  // 1. กิจกรรมแนะแนว (Guidance) - 1 คาบ/สัปดาห์
+  // 2. กิจกรรมนักเรียน (Student Activities):
+  //    - ลูกเสือ/เนตรนารี/ยุวกาชาด (Scout/Guide/Red Cross) - 1 คาบ/สัปดาห์
+  //    - ชุมนุม (Clubs) - 1-2 คาบ/สัปดาห์
+  // 3. กิจกรรมเพื่อสังคมและสาธารณประโยชน์ (Social Service) - บูรณาการ
+  // ========================================================================
   const activitySubjects = [
-    { code: "ACT-CLUB", name: "ชุมนุม", activityType: "CLUB" as ActivityType },
+    // ========================================================================
+    // 1. กิจกรรมแนะแนว (Guidance Activities) - ActivityType: GUIDANCE
+    // ========================================================================
+    {
+      code: "ACT-GUIDE",
+      name: "แนะแนว",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE-M1",
+      name: "แนะแนว ม.1",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE-M2",
+      name: "แนะแนว ม.2",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE-M3",
+      name: "แนะแนว ม.3",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE-M4",
+      name: "แนะแนว ม.4",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE-M5",
+      name: "แนะแนว ม.5",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE-M6",
+      name: "แนะแนว ม.6",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+    {
+      code: "ACT-HOMEROOM",
+      name: "โฮมรูม/ชั่วโมงพบครูที่ปรึกษา",
+      activityType: "GUIDANCE" as ActivityType,
+    },
+
+    // ========================================================================
+    // 2a. ลูกเสือ (Boy Scout) - ActivityType: SCOUT
+    // มัธยมศึกษาตอนต้น: ลูกเสือสามัญรุ่นใหญ่
+    // มัธยมศึกษาตอนปลาย: ลูกเสือวิสามัญ
+    // ========================================================================
     {
       code: "ACT-SCOUT-M1",
-      name: "ลูกเสือ ม.1",
+      name: "ลูกเสือสามัญรุ่นใหญ่ ม.1",
       activityType: "SCOUT" as ActivityType,
     },
     {
       code: "ACT-SCOUT-M2",
-      name: "ลูกเสือ ม.2",
+      name: "ลูกเสือสามัญรุ่นใหญ่ ม.2",
       activityType: "SCOUT" as ActivityType,
     },
     {
       code: "ACT-SCOUT-M3",
-      name: "ลูกเสือ ม.3",
+      name: "ลูกเสือสามัญรุ่นใหญ่ ม.3",
       activityType: "SCOUT" as ActivityType,
     },
     {
@@ -868,14 +1500,241 @@ async function main() {
       name: "ลูกเสือวิสามัญ ม.6",
       activityType: "SCOUT" as ActivityType,
     },
+
+    // ========================================================================
+    // 2b. เนตรนารี (Girl Guide) - ActivityType: SCOUT
+    // มัธยมศึกษาตอนต้น: เนตรนารีสามัญรุ่นใหญ่
+    // มัธยมศึกษาตอนปลาย: ผู้บำเพ็ญประโยชน์
+    // ========================================================================
     {
-      code: "ACT-GUIDE",
-      name: "แนะแนว",
-      activityType: "GUIDANCE" as ActivityType,
+      code: "ACT-GIRLGUIDE-M1",
+      name: "เนตรนารีสามัญรุ่นใหญ่ ม.1",
+      activityType: "SCOUT" as ActivityType,
     },
+    {
+      code: "ACT-GIRLGUIDE-M2",
+      name: "เนตรนารีสามัญรุ่นใหญ่ ม.2",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-GIRLGUIDE-M3",
+      name: "เนตรนารีสามัญรุ่นใหญ่ ม.3",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-GIRLGUIDE-M4",
+      name: "ผู้บำเพ็ญประโยชน์ ม.4",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-GIRLGUIDE-M5",
+      name: "ผู้บำเพ็ญประโยชน์ ม.5",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-GIRLGUIDE-M6",
+      name: "ผู้บำเพ็ญประโยชน์ ม.6",
+      activityType: "SCOUT" as ActivityType,
+    },
+
+    // ========================================================================
+    // 2c. ยุวกาชาด (Red Cross Youth) - ActivityType: SCOUT
+    // มัธยมศึกษาตอนต้น: ยุวกาชาด
+    // มัธยมศึกษาตอนปลาย: อาสายุวกาชาด
+    // ========================================================================
+    {
+      code: "ACT-REDCROSS-M1",
+      name: "ยุวกาชาด ม.1",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-REDCROSS-M2",
+      name: "ยุวกาชาด ม.2",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-REDCROSS-M3",
+      name: "ยุวกาชาด ม.3",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-REDCROSS-M4",
+      name: "อาสายุวกาชาด ม.4",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-REDCROSS-M5",
+      name: "อาสายุวกาชาด ม.5",
+      activityType: "SCOUT" as ActivityType,
+    },
+    {
+      code: "ACT-REDCROSS-M6",
+      name: "อาสายุวกาชาด ม.6",
+      activityType: "SCOUT" as ActivityType,
+    },
+
+    // ========================================================================
+    // 2d. ชุมนุม (Club Activities) - ActivityType: CLUB
+    // นักเรียนเลือกตามความสนใจ
+    // ========================================================================
+    // ชุมนุมทั่วไป
+    {
+      code: "ACT-CLUB",
+      name: "ชุมนุม",
+      activityType: "CLUB" as ActivityType,
+    },
+    // ชุมนุมวิชาการ
+    {
+      code: "ACT-CLUB-ACADEMIC",
+      name: "ชุมนุมวิชาการ",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-SCIENCE",
+      name: "ชุมนุมวิทยาศาสตร์",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-MATH",
+      name: "ชุมนุมคณิตศาสตร์",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-THAI",
+      name: "ชุมนุมภาษาไทย",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-ENGLISH",
+      name: "ชุมนุมภาษาอังกฤษ",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-CHINESE",
+      name: "ชุมนุมภาษาจีน",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-JAPANESE",
+      name: "ชุมนุมภาษาญี่ปุ่น",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-SOCIAL",
+      name: "ชุมนุมสังคมศึกษา",
+      activityType: "CLUB" as ActivityType,
+    },
+    // ชุมนุมศิลปะและดนตรี
+    {
+      code: "ACT-CLUB-ARTS",
+      name: "ชุมนุมศิลปะ",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-MUSIC",
+      name: "ชุมนุมดนตรี",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-DRAMA",
+      name: "ชุมนุมละคร/การแสดง",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-PHOTO",
+      name: "ชุมนุมถ่ายภาพ",
+      activityType: "CLUB" as ActivityType,
+    },
+    // ชุมนุมกีฬา
+    {
+      code: "ACT-CLUB-SPORTS",
+      name: "ชุมนุมกีฬา",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-FOOTBALL",
+      name: "ชุมนุมฟุตบอล",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-BASKETBALL",
+      name: "ชุมนุมบาสเกตบอล",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-VOLLEYBALL",
+      name: "ชุมนุมวอลเลย์บอล",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-BADMINTON",
+      name: "ชุมนุมแบดมินตัน",
+      activityType: "CLUB" as ActivityType,
+    },
+    // ชุมนุมเทคโนโลยี
+    {
+      code: "ACT-CLUB-TECH",
+      name: "ชุมนุมคอมพิวเตอร์และเทคโนโลยี",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-ROBOT",
+      name: "ชุมนุมหุ่นยนต์",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-CODING",
+      name: "ชุมนุมโค้ดดิ้ง/การเขียนโปรแกรม",
+      activityType: "CLUB" as ActivityType,
+    },
+    // ชุมนุมอาชีพ
+    {
+      code: "ACT-CLUB-COOKING",
+      name: "ชุมนุมอาหารและโภชนาการ",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-GARDEN",
+      name: "ชุมนุมเกษตรกรรม",
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-CLUB-BUSINESS",
+      name: "ชุมนุมธุรกิจ/การขาย",
+      activityType: "CLUB" as ActivityType,
+    },
+
+    // ========================================================================
+    // 3. กิจกรรมเพื่อสังคมและสาธารณประโยชน์ (Social Service) - ActivityType: SOCIAL_SERVICE
+    // ========================================================================
     {
       code: "ACT-SERVICE",
       name: "กิจกรรมเพื่อสังคมและสาธารณประโยชน์",
+      activityType: "SOCIAL_SERVICE" as ActivityType,
+    },
+    {
+      code: "ACT-SERVICE-SCHOOL",
+      name: "กิจกรรมจิตอาสาในโรงเรียน",
+      activityType: "SOCIAL_SERVICE" as ActivityType,
+    },
+    {
+      code: "ACT-SERVICE-COMMUNITY",
+      name: "กิจกรรมจิตอาสาชุมชน",
+      activityType: "SOCIAL_SERVICE" as ActivityType,
+    },
+    {
+      code: "ACT-SERVICE-ENV",
+      name: "กิจกรรมอนุรักษ์สิ่งแวดล้อม",
+      activityType: "SOCIAL_SERVICE" as ActivityType,
+    },
+    {
+      code: "ACT-SERVICE-ELDERLY",
+      name: "กิจกรรมดูแลผู้สูงอายุ",
+      activityType: "SOCIAL_SERVICE" as ActivityType,
+    },
+    {
+      code: "ACT-SERVICE-TEMPLE",
+      name: "กิจกรรมทำนุบำรุงศาสนา",
       activityType: "SOCIAL_SERVICE" as ActivityType,
     },
   ];
@@ -1185,6 +2044,36 @@ async function main() {
     `✅ Created ${timeslotsSem2.length} timeslots for Semester 2 (5 days × 8 periods)`,
   );
 
+  // ===== TIMESLOTS (SEMESTER 1-2568) =====
+  console.log("⏰ Creating timeslots for Semester 1-2568...");
+  const academicYear2568 = 2568;
+  const timeslotsSem1_2568: any[] = [];
+  for (const day of days) {
+    for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
+      const period = periods[periodNum - 1];
+      timeslotsSem1_2568.push(
+        await withRetry(
+          () =>
+            prisma.timeslot.create({
+              data: {
+                TimeslotID: `1-${academicYear2568}-${day}-${periodNum}`,
+                AcademicYear: academicYear2568,
+                Semester: "SEMESTER_1",
+                StartTime: new Date(`2024-01-01T${period.start}:00`),
+                EndTime: new Date(`2024-01-01T${period.end}:00`),
+                Breaktime: period.break as breaktime,
+                DayOfWeek: day,
+              },
+            }),
+          `Create timeslot S1-2568 ${day}-${periodNum}`,
+        ),
+      );
+    }
+  }
+  console.log(
+    `✅ Created ${timeslotsSem1_2568.length} timeslots for Semester 1-2568 (5 days × 8 periods)`,
+  );
+
   // ===== TABLE CONFIG =====
   console.log("⚙️  Creating timetable configuration...");
   await withRetry(
@@ -1238,6 +2127,33 @@ async function main() {
   );
   console.log("✅ Created timetable configuration for 2-2567");
 
+  // ===== TABLE CONFIG FOR SEMESTER 1-2568 =====
+  console.log("⚙️  Creating timetable configuration for Semester 1-2568...");
+  await withRetry(
+    () =>
+      prisma.table_config.create({
+        data: {
+          ConfigID: "1-2568",
+          AcademicYear: 2568,
+          Semester: "SEMESTER_1",
+          Config: {
+            periodsPerDay: 8,
+            startTime: "08:30",
+            periodDuration: 50,
+            schoolDays: ["MON", "TUE", "WED", "THU", "FRI"],
+            lunchBreak: { after: 4, duration: 60 },
+            breakTimes: {
+              junior: { after: 4 },
+              senior: { after: 5 },
+            },
+          },
+          status: "DRAFT",
+        },
+      }),
+    "Create table config for Semester 1-2568",
+  );
+  console.log("✅ Created timetable configuration for 1-2568");
+
   // ===== PROGRAM-SUBJECT ASSIGNMENTS (Example for M.1 programs) =====
   console.log("🔗 Assigning subjects to M.1 programs...");
 
@@ -1263,18 +2179,18 @@ async function main() {
     }
   };
 
-  // M.1 Science-Math program subjects
+  // M.1 Science-Math program subjects using MOE codes
   const m1SciSubjects = [
-    { code: "TH101", category: "CORE" as SubjectCategory },
-    { code: "MA101", category: "CORE" as SubjectCategory },
-    { code: "SC101", category: "CORE" as SubjectCategory },
-    { code: "SO101", category: "CORE" as SubjectCategory },
-    { code: "PE101", category: "CORE" as SubjectCategory },
-    { code: "AR101", category: "CORE" as SubjectCategory },
-    { code: "CA101", category: "CORE" as SubjectCategory },
-    { code: "EN101", category: "CORE" as SubjectCategory },
-    { code: "MA102", category: "ADDITIONAL" as SubjectCategory },
-    { code: "SC102", category: "ADDITIONAL" as SubjectCategory },
+    { code: "ท21101", category: "CORE" as SubjectCategory },
+    { code: "ค21101", category: "CORE" as SubjectCategory },
+    { code: "ว21101", category: "CORE" as SubjectCategory },
+    { code: "ส21101", category: "CORE" as SubjectCategory },
+    { code: "พ21101", category: "CORE" as SubjectCategory },
+    { code: "ศ21101", category: "CORE" as SubjectCategory },
+    { code: "ง21101", category: "CORE" as SubjectCategory },
+    { code: "อ21101", category: "CORE" as SubjectCategory },
+    { code: "ค21201", category: "ADDITIONAL" as SubjectCategory },
+    { code: "ว21201", category: "ADDITIONAL" as SubjectCategory },
     { code: "ACT-CLUB", category: "ACTIVITY" as SubjectCategory },
     { code: "ACT-SCOUT-M1", category: "ACTIVITY" as SubjectCategory },
     { code: "ACT-GUIDE", category: "ACTIVITY" as SubjectCategory },
@@ -1438,11 +2354,79 @@ async function main() {
     `✅ Created ${responsibilities.length} sample teacher responsibilities`,
   );
 
-  // ===== SAMPLE LOCKED SCHEDULES =====
-  console.log("📅 Creating sample locked schedules for activities...");
+  // ===== SAMPLE CLASS SCHEDULES =====
+  console.log("📅 Creating sample class schedules...");
   const classSchedules: any[] = [];
 
-  // Lock Monday Period 8 for ชุมนุม (all M.1 grades)
+  // Create regular class schedules for M.1 grades (first 3 grades)
+  // This ensures teacher timetables show populated data for visual tests
+  // Sample class schedule template using MOE subject codes for M.1 (ม.1)
+  // รายวิชาพื้นฐานทั้ง 8 กลุ่มสาระ พร้อมคาบเพิ่มเติมตามมาตรฐาน กสพท.
+  const scheduleTemplate = [
+    { day: "MON", period: 1, subjectCode: "ท21101" },  // ภาษาไทย
+    { day: "MON", period: 2, subjectCode: "ค21101" },  // คณิตศาสตร์
+    { day: "MON", period: 3, subjectCode: "อ21101" },  // ภาษาอังกฤษ
+    { day: "TUE", period: 1, subjectCode: "ว21101" },  // วิทยาศาสตร์
+    { day: "TUE", period: 2, subjectCode: "ส21101" },  // สังคมศึกษา
+    { day: "TUE", period: 3, subjectCode: "พ21101" },  // พลศึกษา
+    { day: "WED", period: 1, subjectCode: "ศ21101" },  // ศิลปะ
+    { day: "WED", period: 2, subjectCode: "ง21101" },  // การงานอาชีพ
+    { day: "WED", period: 3, subjectCode: "ท21101" },  // ภาษาไทย (คาบที่ 2)
+    { day: "THU", period: 1, subjectCode: "ค21101" },  // คณิตศาสตร์ (คาบที่ 2)
+    { day: "THU", period: 2, subjectCode: "ว21101" },  // วิทยาศาสตร์ (คาบที่ 2)
+    { day: "THU", period: 3, subjectCode: "อ21101" },  // ภาษาอังกฤษ (คาบที่ 2)
+    { day: "FRI", period: 1, subjectCode: "ส21101" },  // สังคมศึกษา (คาบที่ 2)
+    { day: "FRI", period: 2, subjectCode: "พ21101" },  // พลศึกษา (คาบที่ 2)
+    { day: "FRI", period: 3, subjectCode: "ศ21101" },  // ศิลปะ (คาบที่ 2)
+  ];
+
+  for (let i = 0; i < 3; i++) {
+    const gradeLevel = gradeLevels[i];
+    const room = rooms[i % rooms.length];
+
+    for (const schedule of scheduleTemplate) {
+      const timeslot = timeslots.find(
+        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-${schedule.day}-${schedule.period}`,
+      );
+
+      if (timeslot) {
+        const resp = responsibilities.find(
+          (r) => r.GradeID === gradeLevel.GradeID && r.SubjectCode === schedule.subjectCode,
+        );
+
+        if (resp) {
+          try {
+            classSchedules.push(
+              await withRetry(
+                () =>
+                  prisma.class_schedule.create({
+                    data: {
+                      ClassID: `${timeslot.TimeslotID}-${schedule.subjectCode}-${gradeLevel.GradeID}`,
+                      TimeslotID: timeslot.TimeslotID,
+                      SubjectCode: schedule.subjectCode,
+                      GradeID: gradeLevel.GradeID,
+                      RoomID: room.RoomID,
+                      IsLocked: false,
+                      teachers_responsibility: {
+                        connect: [{ RespID: resp.RespID }],
+                      },
+                    },
+                  }),
+                `Create schedule for ${schedule.subjectCode} in ${gradeLevel.GradeID}`,
+              ),
+            );
+          } catch (error: any) {
+            // Skip if constraint violation (subject may not match responsibility)
+            if (!error.message?.includes("constraint")) {
+              console.warn(`⚠️  Skipping schedule: ${error.message}`);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Also create locked schedules for activities (ชุมนุม)
   const clubSubject = activitySubjects.find((s) => s.code === "ACT-CLUB");
   if (clubSubject) {
     for (let i = 0; i < 3; i++) {
@@ -1482,7 +2466,7 @@ async function main() {
     }
   }
 
-  console.log(`✅ Created ${classSchedules.length} sample locked schedules`);
+  console.log(`✅ Created ${classSchedules.length} sample class schedules (including locked activities)`);
 
   // ===== SUMMARY =====
   console.log("\n" + "=".repeat(70));
@@ -1505,13 +2489,14 @@ async function main() {
   console.log(`     - Activities (MOE-compliant): ${activitySubjects.length}`);
   const totalTimeslots =
     timeslots.length +
-    (typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0);
+    (typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0) +
+    (typeof timeslotsSem1_2568 !== "undefined" ? timeslotsSem1_2568.length : 0);
   console.log(
-    `   • Timeslots: ${totalTimeslots} (Semester 1: ${timeslots.length}, Semester 2: ${typeof timeslotsSem2 !== "undefined" ? timeslotsSem2.length : 0})`,
+    `   • Timeslots: ${totalTimeslots} (3 semesters: 1-2567, 2-2567, 1-2568)`,
   );
   console.log(`   • Teacher Responsibilities: ${responsibilities.length}`);
-  console.log(`   • Sample Locked Schedules: ${classSchedules.length}`);
-  console.log(`   • Table Configurations: 1`);
+  console.log(`   • Class Schedules: ${classSchedules.length}`);
+  console.log(`   • Table Configurations: 3`);
   console.log("=".repeat(70));
   console.log("\n✨ Your MOE-compliant database is ready!");
   console.log("💡 Features included:");
@@ -1526,8 +2511,10 @@ async function main() {
   console.log(
     "   - ✅ Realistic teacher workload (1-3 subjects per Ministry standard)",
   );
+  console.log("   - ✅ Sample class schedules for visual testing");
   console.log("   - ✅ Locked timeslots for school-wide activities");
   console.log("   - ✅ Grade-program assignments");
+  console.log("   - ✅ 3 semesters: 1-2567, 2-2567, 1-2568");
   console.log("=".repeat(70));
 }
 

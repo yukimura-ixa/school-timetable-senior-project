@@ -11,6 +11,7 @@
 /test-results-ci/
 /merged-results.json
 /playwright-report/
+/playwright-report-prod/
 /playwright/.cache/
 /playwright/.auth/
 
