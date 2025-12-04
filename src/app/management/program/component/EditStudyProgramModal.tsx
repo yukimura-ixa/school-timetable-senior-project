@@ -12,11 +12,13 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { updateProgramAction } from "@/features/program/application/actions/program.actions";
 
 // Extended program type with relations for form data
+// NOTE: Semester and AcademicYear are optional because the Prisma program model
+// doesn't have these fields - they were legacy form fields that are no longer used
 type ProgramFormData = {
   ProgramID: number;
   ProgramName: string;
-  Semester: semester;
-  AcademicYear: number;
+  Semester?: semester;
+  AcademicYear?: number;
   gradelevel: Array<{ GradeID: string; [key: string]: unknown }>;
   subject: subject[];
 };
@@ -28,10 +30,11 @@ type Props = {
 };
 
 function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
-  // Ensure AcademicYear exists in editData
+  // Ensure AcademicYear and Semester have defaults (these fields are optional/legacy)
   const currentThaiYear = new Date().getFullYear() + 543;
   const [newProgramData, setNewProgramData] = useState({
     ...editData,
+    Semester: editData?.Semester || semester.First,
     AcademicYear: editData?.AcademicYear || currentThaiYear,
   });
   const editProgram = async (program: ProgramFormData) => {
@@ -43,17 +46,12 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     closeModal();
 
     try {
+      // NOTE: updateProgramAction only accepts ProgramID and ProgramName
+      // Semester, AcademicYear, gradelevel, and subject are not persisted to the program model
+      // They may have been legacy fields or are handled elsewhere
       const result = await updateProgramAction({
         ProgramID: program.ProgramID,
         ProgramName: program.ProgramName,
-        Semester: program.Semester,
-        AcademicYear: program.AcademicYear,
-        gradelevel: program.gradelevel.map((g: { GradeID: string }) => ({
-          GradeID: g.GradeID,
-        })),
-        subject: program.subject.map((s: subject) => ({
-          SubjectCode: s.SubjectCode,
-        })),
       });
 
       if (!result.success) {
