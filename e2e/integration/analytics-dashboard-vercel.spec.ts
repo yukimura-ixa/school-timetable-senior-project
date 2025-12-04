@@ -152,7 +152,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       // Second visit (should hit edge cache)
       const startTime = Date.now();
       await page.goto("/dashboard");
-      await page.waitForLoadState("domcontentloaded");
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+        timeout: 15000,
+      });
       const cachedLoadTime = Date.now() - startTime;
 
       // Cached load should be faster
@@ -186,7 +188,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       });
 
       await page.goto("/dashboard");
-      await page.waitForLoadState("domcontentloaded");
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+        timeout: 15000,
+      });
 
       // Should show error message or empty state
       const hasErrorOrEmpty = await page

@@ -2280,15 +2280,20 @@ async function main() {
   const careerTeachers = getTeachersByDept("การงานอาชีพ");
 
   // Assign core subjects to first 3 grades as sample
+  // MOE subject codes use Thai characters: ท=Thai, ค=Math, ว=Science, อ=English,
+  // ส=Social, พ=PE, ศ=Art, ง=Career
+  // Format: {Thai letter}{grade level}{subject number} e.g., ท21101 = Thai M.1 Subject 1
   for (let i = 0; i < 3; i++) {
     const gradeLevel = gradeLevels[i];
     const year = gradeLevel.Year;
+    // Grade level indicator: M.1=21, M.2=22, M.3=23, M.4=31, M.5=32, M.6=33
+    const gradeIndicator = year <= 3 ? `2${year}` : `3${year - 3}`;
 
     if (thaiTeachers.length > 0) {
       await assignResponsibility(
         thaiTeachers[i % thaiTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `TH${year}01`,
+        `ท${gradeIndicator}101`, // Thai core subject
         3,
       );
     }
@@ -2296,7 +2301,7 @@ async function main() {
       await assignResponsibility(
         mathTeachers[i % mathTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `MA${year}01`,
+        `ค${gradeIndicator}101`, // Math core subject
         3,
       );
     }
@@ -2304,7 +2309,7 @@ async function main() {
       await assignResponsibility(
         scienceTeachers[i % scienceTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `SC${year}01`,
+        `ว${gradeIndicator}101`, // Science core subject
         3,
       );
     }
@@ -2312,7 +2317,7 @@ async function main() {
       await assignResponsibility(
         englishTeachers[i % englishTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `EN${year}01`,
+        `อ${gradeIndicator}101`, // English core subject
         2,
       );
     }
@@ -2320,7 +2325,7 @@ async function main() {
       await assignResponsibility(
         socialTeachers[i % socialTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `SO${year}01`,
+        `ส${gradeIndicator}101`, // Social core subject
         2,
       );
     }
@@ -2328,7 +2333,7 @@ async function main() {
       await assignResponsibility(
         peTeachers[i % peTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `PE${year}01`,
+        `พ${gradeIndicator}101`, // PE core subject
         1,
       );
     }
@@ -2336,7 +2341,7 @@ async function main() {
       await assignResponsibility(
         artsTeachers[i % artsTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `AR${year}01`,
+        `ศ${gradeIndicator}101`, // Arts core subject
         1,
       );
     }
@@ -2344,7 +2349,7 @@ async function main() {
       await assignResponsibility(
         careerTeachers[i % careerTeachers.length].TeacherID,
         gradeLevel.GradeID,
-        `CA${year}01`,
+        `ง${gradeIndicator}101`, // Career core subject
         1,
       );
     }

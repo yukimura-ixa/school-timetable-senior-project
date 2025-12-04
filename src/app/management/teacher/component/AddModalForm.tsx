@@ -27,8 +27,8 @@ type TeacherFormState = {
 };
 
 type props = {
-  closeModal: any;
-  mutate: Function;
+  closeModal: () => void;
+  mutate: () => void | Promise<void>;
 };
 function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);

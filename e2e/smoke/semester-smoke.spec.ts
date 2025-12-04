@@ -160,7 +160,7 @@ test.describe("Semester Route Validation", () => {
     expect(status).toBeLessThan(500);
     
     // Page should not be blank - either redirected dashboard, error page, or not-found
-    await page.waitForLoadState("domcontentloaded");
+    await expect(page.locator('body')).toBeVisible({ timeout: 15000 });
     
     // Check the final URL - should either be redirected or showing error
     const finalUrl = page.url();
@@ -222,7 +222,6 @@ test.describe("Multi-Semester Scenarios", () => {
   test("TC-MS-01: Can navigate between semesters via URL", async ({ page }) => {
     // Navigate to semester 1
     await page.goto("/schedule/1-2567/config");
-    await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
     // Config page has config form, not table
     const configLocator1 = page.locator('text=/กำหนดคาบต่อวัน/')
@@ -231,7 +230,6 @@ test.describe("Multi-Semester Scenarios", () => {
 
     // Navigate to semester 2
     await page.goto("/schedule/2-2567/config");
-    await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
     const configLocator2 = page.locator('text=/กำหนดคาบต่อวัน/')
       .or(page.locator('[class*="Skeleton"]'));
@@ -289,12 +287,16 @@ test.describe("Multi-Semester Scenarios", () => {
   }) => {
     // Load semester 1 config - config page has form elements
     await page.goto("/schedule/1-2567/config");
-    await page.waitForLoadState("networkidle");
+    const configLocator1 = page.locator('text=/กำหนดคาบต่อวัน/')
+      .or(page.locator('[class*="Skeleton"]'));
+    await expect(configLocator1.first()).toBeVisible({ timeout: 15000 });
     const sem1HasConfig = await page.locator("text=/กำหนดคาบต่อวัน/").count();
 
     // Load semester 2 config
     await page.goto("/schedule/2-2567/config");
-    await page.waitForLoadState("networkidle");
+    const configLocator2 = page.locator('text=/กำหนดคาบต่อวัน/')
+      .or(page.locator('[class*="Skeleton"]'));
+    await expect(configLocator2.first()).toBeVisible({ timeout: 15000 });
     const sem2HasConfig = await page.locator("text=/กำหนดคาบต่อวัน/").count();
 
     // Both should have the same page structure (config form present)
@@ -318,8 +320,11 @@ test.describe("Multi-Semester Scenarios", () => {
     await page.goto("/schedule/1-2567/config");
     await page.goto("/schedule/2-2567/config");
 
-    // Wait for final page to stabilize
-    await page.waitForLoadState("networkidle");
+    // Wait for final page to stabilize - use web-first assertion
+    const configLocator = page.locator('text=/กำหนดคาบต่อวัน/')
+      .or(page.locator('[class*="Skeleton"]'))
+      .or(page.locator('body'));
+    await expect(configLocator.first()).toBeVisible({ timeout: 15000 });
 
     // Filter out non-critical errors - be lenient with transient navigation errors
     const criticalErrors = consoleErrors.filter(

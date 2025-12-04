@@ -10,6 +10,12 @@ import type { OverviewStats } from "../../domain/types/analytics.types";
 import { parseConfigId } from "../../domain/services/calculation.service";
 import { cacheTag } from "next/cache";
 
+// Prisma payload types for overview queries
+type TimeslotId = { TimeslotID: number };
+type ScheduleWithResponsibility = {
+  teachers_responsibility: { TeacherID: number }[];
+};
+
 export const overviewRepository = {
   /**
    * Get overview statistics for dashboard
@@ -31,7 +37,7 @@ export const overviewRepository = {
       },
     });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+    const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
     // Step 2: Parallel queries for better performance
     const [totalScheduled, totalGrades, activeTeachersResult, totalRooms] =
@@ -64,11 +70,11 @@ export const overviewRepository = {
               },
             },
           })
-          .then((schedules: any) => {
+          .then((schedules: ScheduleWithResponsibility[]) => {
             // Extract unique teacher IDs
             const teacherIds = new Set<number>();
-            schedules.forEach((schedule: any) => {
-              schedule.teachers_responsibility.forEach((resp: any) => {
+            schedules.forEach((schedule: ScheduleWithResponsibility) => {
+              schedule.teachers_responsibility.forEach((resp: { TeacherID: number }) => {
                 teacherIds.add(resp.TeacherID);
               });
             });
@@ -127,7 +133,7 @@ export const overviewRepository = {
       },
     });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+    const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
     const [scheduledCount, gradeInfo] = await Promise.all([
       prisma.class_schedule.count({
@@ -187,7 +193,7 @@ export const overviewRepository = {
       },
     });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+    const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
     const [locked, unlocked] = await Promise.all([
       prisma.class_schedule.count({
@@ -240,7 +246,7 @@ export const overviewRepository = {
       },
     });
 
-    const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+    const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
     const [totalScheduled, locked, unlocked, totalGrades] = await Promise.all([
       prisma.class_schedule.count({

@@ -22,9 +22,9 @@ type ProgramFormData = {
 };
 
 type Props = {
-  closeModal: any;
-  mutate: Function;
-  editData: any;
+  closeModal: () => void;
+  mutate: () => void | Promise<void>;
+  editData: ProgramFormData;
 };
 
 function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {

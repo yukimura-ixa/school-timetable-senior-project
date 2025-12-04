@@ -6,8 +6,8 @@ type Props = {
   required: boolean;
   semester: semester | string;
   year?: number;
-  handleSemesterChange: any;
-  handleYearChange?: any;
+  handleSemesterChange: (semester: semester) => void;
+  handleYearChange?: (year: number) => void;
 };
 
 const YearSemester = (props: Props) => {

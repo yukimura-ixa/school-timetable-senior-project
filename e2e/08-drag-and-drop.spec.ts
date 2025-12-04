@@ -36,7 +36,8 @@ const SCREENSHOT_DIR = "test-results/screenshots/drag-drop";
  * Helper: Wait for page hydration and dnd-kit initialization
  */
 async function waitForDndReady(page: Page) {
-  await page.waitForLoadState("domcontentloaded");
+  // Wait for DndContext to be ready by looking for main content
+  await expect(page.locator('main, [role="main"], [data-sortable-id]').first()).toBeVisible({ timeout: 15000 });
 
   // Wait for DndContext to be ready
   await page.waitForFunction(

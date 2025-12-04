@@ -6,10 +6,16 @@ import StudyProgramLabel from "./StudyProgramLabel";
 import type { program, subject } from "@/prisma/generated/client";
 import { updateProgramAction } from "@/features/program/application/actions/program.actions";
 
+// Legacy form data type (program with relations)
+type LegacyProgramData = program & {
+  gradelevel?: Array<{ GradeID: string }>;
+  subject?: subject[];
+};
+
 type Props = {
-  data: any;
-  closeModal: any;
-  mutate: any;
+  data: LegacyProgramData;
+  closeModal: () => void;
+  mutate: () => void | Promise<void>;
 };
 
 function EditStudyProgramModal({ data, closeModal, mutate }: Props) {

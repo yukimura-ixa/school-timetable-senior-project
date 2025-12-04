@@ -6,6 +6,7 @@
  */
 
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@/prisma/generated/client";
 import type {
   ProgramCompliance,
   CategoryCredits,
@@ -15,6 +16,42 @@ import {
   parseConfigId,
   sumCategoryCredits,
 } from "../../domain/services/calculation.service";
+
+// Prisma payload types for compliance queries
+type TimeslotId = { TimeslotID: number };
+
+type ProgramWithRelations = Prisma.programGetPayload<{
+  include: {
+    gradelevel: {
+      include: {
+        class_schedule: {
+          include: {
+            subject: {
+              select: {
+                SubjectCode: true;
+                Category: true;
+                Credit: true;
+              };
+            };
+          };
+        };
+      };
+    };
+    program_subject: {
+      include: {
+        subject: {
+          select: {
+            SubjectName: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+type GradeWithSchedules = ProgramWithRelations["gradelevel"][number];
+type ClassScheduleWithSubject = GradeWithSchedules["class_schedule"][number];
+type ProgramSubjectWithName = ProgramWithRelations["program_subject"][number];
 
 /**
  * Get program compliance data
@@ -35,7 +72,7 @@ async function getProgramCompliance(
     },
   });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+  const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
   // Get all programs with their gradelevels
   const programs = await prisma.program.findMany({
@@ -76,15 +113,15 @@ async function getProgramCompliance(
   });
 
   // Transform to compliance data
-  return programs.map((program: any) => {
+  return programs.map((program: ProgramWithRelations) => {
     // Collect all scheduled subjects for this program
     const scheduledSubjects = new Map<
       string,
       { category: string; credits: number }
     >();
 
-    program.gradelevel.forEach((grade: any) => {
-      grade.class_schedule.forEach((schedule: any) => {
+    program.gradelevel.forEach((grade: GradeWithSchedules) => {
+      grade.class_schedule.forEach((schedule: ClassScheduleWithSubject) => {
         if (schedule.subject) {
           if (!scheduledSubjects.has(schedule.subject.SubjectCode)) {
             // Parse credit value
@@ -138,7 +175,7 @@ async function getProgramCompliance(
     };
 
     // Calculate required credits per category from program_subject
-    program.program_subject.forEach((ps: any) => {
+    program.program_subject.forEach((ps: ProgramSubjectWithName) => {
       switch (ps.Category) {
         case "CORE":
           requiredCredits.core += ps.MinCredits;
@@ -184,10 +221,10 @@ async function getProgramCompliance(
     const missingMandatorySubjects: MandatorySubjectInfo[] =
       program.program_subject
         .filter(
-          (ps: any) =>
+          (ps: ProgramSubjectWithName) =>
             ps.IsMandatory && !scheduledSubjectCodes.has(ps.SubjectCode),
         )
-        .map((ps: any) => ({
+        .map((ps: ProgramSubjectWithName) => ({
           subjectCode: ps.SubjectCode,
           subjectName: ps.subject?.SubjectName || ps.SubjectCode,
           category: ps.Category,

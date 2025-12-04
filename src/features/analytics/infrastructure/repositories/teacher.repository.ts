@@ -6,6 +6,7 @@
  */
 
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@/prisma/generated/client";
 import type {
   TeacherWorkload,
   DepartmentWorkload,
@@ -15,6 +16,22 @@ import {
   getWorkloadStatus,
   calculateDepartmentWorkload,
 } from "../../domain/services/calculation.service";
+
+// Prisma payload types for teacher queries
+type TimeslotId = { TimeslotID: number };
+type ScheduleWithTeachers = Prisma.class_scheduleGetPayload<{
+  select: {
+    ClassID: true;
+    GradeID: true;
+    TimeslotID: true;
+    teachers_responsibility: {
+      include: {
+        teacher: true;
+      };
+    };
+  };
+}>;
+type ResponsibilityWithTeacher = ScheduleWithTeachers["teachers_responsibility"][number];
 
 /**
  * Get workload data for all teachers
@@ -35,7 +52,7 @@ async function getTeacherWorkloads(
     },
   });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+  const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
   const totalAvailableHours = timeslots.length;
 
   // Get all class schedules with teacher responsibilities for this semester
@@ -67,8 +84,8 @@ async function getTeacherWorkloads(
     }
   >();
 
-  schedules.forEach((schedule: any) => {
-    schedule.teachers_responsibility.forEach((resp: any) => {
+  schedules.forEach((schedule: ScheduleWithTeachers) => {
+    schedule.teachers_responsibility.forEach((resp: ResponsibilityWithTeacher) => {
       if (!teacherMap.has(resp.TeacherID)) {
         teacherMap.set(resp.TeacherID, {
           teacher: resp.teacher,

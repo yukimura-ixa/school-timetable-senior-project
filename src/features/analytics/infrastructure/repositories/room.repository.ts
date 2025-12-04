@@ -20,7 +20,12 @@ import {
   formatPeriodTime,
 } from "../../domain/services/calculation.service";
 import { DAYS_OF_WEEK } from "../../domain/types/analytics.types";
-import type { day_of_week } from "@/prisma/generated/client";
+import type { day_of_week, room, timeslot } from "@/prisma/generated/client";
+
+// Prisma payload types for room queries
+type TimeslotWithDay = { TimeslotID: number; DayOfWeek: day_of_week };
+type ScheduleRoomTimeslot = { RoomID: number | null; TimeslotID: number };
+type RoomSelect = Pick<room, "RoomID" | "RoomName" | "Building">;
 
 /**
  * Get room occupancy data for all rooms
@@ -40,7 +45,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     },
   });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+  const timeslotIds = timeslots.map((t: TimeslotWithDay) => t.TimeslotID);
   const totalAvailableSlots = timeslotIds.length;
 
   // Get all rooms
@@ -72,7 +77,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
   const roomOccupancyMap = new Map<number, Set<string>>();
   const roomDayOccupancy = new Map<number, Map<string, number>>();
 
-  schedules.forEach((schedule: any) => {
+  schedules.forEach((schedule: ScheduleRoomTimeslot) => {
     if (!schedule.RoomID) return;
 
     // Track total occupancy
@@ -123,7 +128,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
   });
 
   // Build detailed occupancy map
-  detailedSchedules.forEach((schedule: any) => {
+  detailedSchedules.forEach((schedule: ScheduleRoomTimeslot) => {
     if (!schedule.RoomID) return;
 
     const day = extractDayFromTimeslotId(schedule.TimeslotID);
@@ -151,7 +156,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
 
   // Calculate periods per day for this semester
   const periodsPerDayMap = new Map<day_of_week, number>();
-  timeslots.forEach((ts: any) => {
+  timeslots.forEach((ts: TimeslotWithDay) => {
     periodsPerDayMap.set(
       ts.DayOfWeek,
       (periodsPerDayMap.get(ts.DayOfWeek) || 0) + 1,
@@ -160,7 +165,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
   const periodsPerDay = Math.max(...Array.from(periodsPerDayMap.values()));
 
   // Transform to RoomOccupancy data
-  return rooms.map((room: any) => {
+  return rooms.map((room: RoomSelect) => {
     const occupiedSlots = roomOccupancyMap.get(room.RoomID)?.size || 0;
     const totalSlots = totalAvailableSlots;
     const emptySlots = totalSlots - occupiedSlots;

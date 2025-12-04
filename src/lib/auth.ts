@@ -58,7 +58,7 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: process.env.NODE_ENV === "production" && !process.env.CI,
     window: 60, // 60 second window
-    max: 10, // 10 attempts per window in production
+    max: 50, // 50 attempts per window in production (increased from 10 for visual testing)
   },
   // Enable experimental joins for 2-3x performance improvement
   experimental: {

@@ -12,8 +12,8 @@ import { closeSnackbar, enqueueSnackbar } from "notistack";
 import { createProgramAction } from "@/features/program/application/actions/program.actions";
 
 type Props = {
-  closeModal: any;
-  mutate: Function;
+  closeModal: () => void;
+  mutate: () => void | Promise<void>;
 };
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {

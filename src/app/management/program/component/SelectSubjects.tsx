@@ -10,11 +10,11 @@ import useSWR from "swr";
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
 type Props = {
-  subjectSelected: any;
-  addSubjectFunction: any;
-  removeSubjectFunction: any;
+  subjectSelected: subject[];
+  addSubjectFunction: (subjectCode: string) => void;
+  removeSubjectFunction: (subjectCode: string) => void;
   required: boolean;
-  searchHandleSubject?: any;
+  searchHandleSubject?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   searchTextSubject?: string;
 };
 

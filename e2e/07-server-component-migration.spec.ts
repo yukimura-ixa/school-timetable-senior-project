@@ -65,7 +65,8 @@ test.describe("Server Component Migration - Teacher Management", () => {
     });
 
     await nav.goToTeacherManagement();
-    await page.waitForLoadState("domcontentloaded");
+    // Wait for table to be visible (server-rendered content)
+    await expect(page.locator('table, [role="table"]').first()).toBeVisible({ timeout: 15000 });
 
     // The initial HTML should contain table elements
     // (This proves data was rendered on the server)

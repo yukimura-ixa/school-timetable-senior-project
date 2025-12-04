@@ -16,6 +16,10 @@ import {
 import { DAYS_OF_WEEK } from "../../domain/types/analytics.types";
 import type { day_of_week } from "@/prisma/generated/client";
 
+// Prisma payload types for time queries
+type TimeslotId = { TimeslotID: number };
+type ScheduleTimeslot = { TimeslotID: number };
+
 /**
  * Period distribution type
  */
@@ -55,7 +59,7 @@ async function getPeriodDistribution(
     },
   });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+  const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
   // Get all schedules
   const schedules = await prisma.class_schedule.findMany({
@@ -71,7 +75,7 @@ async function getPeriodDistribution(
 
   // Count by period
   const periodCounts = new Map<number, number>();
-  schedules.forEach((schedule: any) => {
+  schedules.forEach((schedule: ScheduleTimeslot) => {
     const period = extractPeriodFromTimeslotId(schedule.TimeslotID);
     if (period !== null) {
       periodCounts.set(period, (periodCounts.get(period) || 0) + 1);
@@ -123,7 +127,7 @@ async function getDayDistribution(
     },
   });
 
-  const timeslotIds = timeslots.map((t: any) => t.TimeslotID);
+  const timeslotIds = timeslots.map((t: TimeslotId) => t.TimeslotID);
 
   // Get all schedules
   const schedules = await prisma.class_schedule.findMany({
@@ -139,7 +143,7 @@ async function getDayDistribution(
 
   // Count by day
   const dayCounts = new Map<string, number>();
-  schedules.forEach((schedule: any) => {
+  schedules.forEach((schedule: ScheduleTimeslot) => {
     const day = extractDayFromTimeslotId(schedule.TimeslotID);
     if (day !== null) {
       dayCounts.set(day, (dayCounts.get(day) || 0) + 1);

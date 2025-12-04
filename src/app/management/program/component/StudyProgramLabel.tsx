@@ -1,7 +1,7 @@
 import TextField from "@/components/mui/TextField";
 import { BsInfo } from "react-icons/bs";
 
-type Props = { required: boolean; title: string; handleChange: any };
+type Props = { required: boolean; title: string; handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void };
 
 const StudyProgramLabel = (props: Props) => {
   return (

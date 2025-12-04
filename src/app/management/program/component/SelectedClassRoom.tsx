@@ -3,9 +3,12 @@ import React, { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 import { useGradeLevels } from "@/hooks";
 
+// GradeLevel selection type
+type GradeSelection = Array<{ GradeID: string; Year?: number; Number?: number }>;
+
 type Props = {
-  Grade: any;
-  classRoomHandleChange: any;
+  Grade: GradeSelection;
+  classRoomHandleChange: (gradeId: string) => void;
   required: boolean;
 };
 

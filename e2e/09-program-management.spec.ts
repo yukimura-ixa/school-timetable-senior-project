@@ -28,7 +28,7 @@ test.describe("Program Management - Navigation by Year", () => {
     await page.goto("/management/program/1");
 
     // Wait for main content to load
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
+    await expect(page.locator('table, main, [role="main"]').first()).toBeVisible({ timeout: 15000 });
 
     expect(page.url()).toContain("/management/program/1");
 
@@ -48,7 +48,6 @@ test.describe("Program Management - Navigation by Year", () => {
     const { page } = authenticatedAdmin;
     for (let year = 1; year <= 6; year++) {
       await page.goto(`/management/program/${year}`);
-      await page.waitForLoadState("domcontentloaded");
       // Wait for table or main content to render
       await expect(page.locator('table, main, [role="main"]').first())
         .toBeVisible({ timeout: 15000 })
