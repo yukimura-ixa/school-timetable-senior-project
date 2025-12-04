@@ -227,7 +227,7 @@ export default function ProgramTable({
         <EditStudyProgramModal
           closeModal={() => setEditOpen(false)}
           mutate={mutate}
-          editData={rows.find((r) => r.ProgramID === selected[0])}
+          editData={rows.find((r) => r.ProgramID === selected[0])!}
         />
       )}
 
