@@ -34,7 +34,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const currentThaiYear = new Date().getFullYear() + 543;
   const [newProgramData, setNewProgramData] = useState({
     ...editData,
-    Semester: editData?.Semester || semester.First,
+    Semester: editData?.Semester || semester.SEMESTER_1,
     AcademicYear: editData?.AcademicYear || currentThaiYear,
   });
   const editProgram = async (program: ProgramFormData) => {
