@@ -6,9 +6,15 @@ import { useGradeLevels } from "@/hooks";
 // GradeLevel selection type
 type GradeSelection = Array<{ GradeID: string; Year?: number; Number?: number }>;
 
+// Classroom type for the callback
+type ClassroomValue = {
+  GradeID: string;
+  [key: string]: unknown;
+};
+
 type Props = {
   Grade: GradeSelection;
-  classRoomHandleChange: (gradeId: string) => void;
+  classRoomHandleChange: (classroom: ClassroomValue) => void;
   required: boolean;
 };
 
