@@ -19,7 +19,8 @@ type ProgramFormData = {
   ProgramName: string;
   Semester?: semester;
   AcademicYear?: number;
-  gradelevel: Array<{ GradeID: string; [key: string]: unknown }>;
+  // GradeID can be string or number from Prisma model
+  gradelevel: Array<{ GradeID: string | number; [key: string]: unknown }>;
   subject: subject[];
 };
 
@@ -92,18 +93,18 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     }));
   };
   const classRoomHandleChange = (value: {
-    GradeID: string;
+    GradeID: string | number;
     [key: string]: unknown;
   }) => {
     const removeDulpItem = newProgramData.gradelevel.filter(
-      (item: { GradeID: string; [key: string]: unknown }) =>
+      (item: { GradeID: string | number; [key: string]: unknown }) =>
         item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
       ...newProgramData,
       gradelevel:
         newProgramData.gradelevel.filter(
-          (item: { GradeID: string; [key: string]: unknown }) =>
+          (item: { GradeID: string | number; [key: string]: unknown }) =>
             item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...newProgramData.gradelevel, value]
