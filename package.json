@@ -81,7 +81,6 @@
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.0.1",
     "@prisma/extension-accelerate": "^2.0.2",
-    "@sentry/nextjs": "^10.27.0",
     "@vercel/edge-config": "^1.4.3",
     "@vercel/speed-insights": "^1.2.0",
     "axios": "^1.13.2",
