@@ -87,7 +87,8 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const validateData = () => {
     setIsEmptyData(() => ({
       ProgramName: newProgramData.ProgramName.length == 0,
-      Semester: newProgramData.Semester == "",
+      // Semester is always valid in edit mode (comes from existing program data)
+      Semester: false,
       gradelevel: newProgramData.gradelevel.length == 0,
       subject: newProgramData.subject.length == 0,
     }));
