@@ -11,8 +11,8 @@ import { getSubjectsAction } from "@/features/subject/application/actions/subjec
 
 type Props = {
   subjectSelected: subject[];
-  addSubjectFunction: (subjectCode: string) => void;
-  removeSubjectFunction: (subjectCode: string) => void;
+  addSubjectFunction: (subject: subject) => void;
+  removeSubjectFunction: (index: number) => void;
   required: boolean;
   searchHandleSubject?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   searchTextSubject?: string;
