@@ -25,6 +25,13 @@ import type { day_of_week, room, timeslot } from "@/prisma/generated/client";
 // Prisma payload types for room queries
 type TimeslotWithDay = { TimeslotID: number; DayOfWeek: day_of_week };
 type ScheduleRoomTimeslot = { RoomID: number | null; TimeslotID: number };
+type ScheduleRoomTimeslotDetailed = {
+  RoomID: number | null;
+  TimeslotID: number;
+  ClassID: number;
+  GradeID: number | null;
+  subject: { SubjectCode: string } | null;
+};
 type RoomSelect = Pick<room, "RoomID" | "RoomName" | "Building">;
 
 /**
@@ -87,7 +94,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     roomOccupancyMap.get(schedule.RoomID)?.add(schedule.TimeslotID);
 
     // Track day-by-day occupancy
-    const day = extractDayFromTimeslotId(schedule.TimeslotID);
+    const day = extractDayFromTimeslotId(String(schedule.TimeslotID));
     if (!day) return; // Skip invalid timeslots
     if (!roomDayOccupancy.has(schedule.RoomID)) {
       roomDayOccupancy.set(schedule.RoomID, new Map());
@@ -103,7 +110,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     number,
     Map<
       day_of_week,
-      Map<number, { classId: string; subjectCode?: string; gradeId?: string }>
+      Map<number, { classId: number; subjectCode?: string; gradeId?: number }>
     >
   >();
 
@@ -128,11 +135,11 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
   });
 
   // Build detailed occupancy map
-  detailedSchedules.forEach((schedule: ScheduleRoomTimeslot) => {
+  detailedSchedules.forEach((schedule: ScheduleRoomTimeslotDetailed) => {
     if (!schedule.RoomID) return;
 
-    const day = extractDayFromTimeslotId(schedule.TimeslotID);
-    const period = extractPeriodFromTimeslotId(schedule.TimeslotID);
+    const day = extractDayFromTimeslotId(String(schedule.TimeslotID));
+    const period = extractPeriodFromTimeslotId(String(schedule.TimeslotID));
 
     if (!day || period === null) return; // Skip invalid timeslots
 
@@ -184,9 +191,9 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
           period: p,
           periodLabel: formatPeriodTime(p),
           isOccupied: !!periodData,
-          classId: periodData?.classId,
+          classId: periodData?.classId ? String(periodData.classId) : undefined,
           subjectCode: periodData?.subjectCode,
-          gradeId: periodData?.gradeId,
+          gradeId: periodData?.gradeId ? String(periodData.gradeId) : undefined,
         });
       }
 

@@ -76,7 +76,7 @@ async function getPeriodDistribution(
   // Count by period
   const periodCounts = new Map<number, number>();
   schedules.forEach((schedule: ScheduleTimeslot) => {
-    const period = extractPeriodFromTimeslotId(schedule.TimeslotID);
+    const period = extractPeriodFromTimeslotId(String(schedule.TimeslotID));
     if (period !== null) {
       periodCounts.set(period, (periodCounts.get(period) || 0) + 1);
     }
@@ -144,7 +144,7 @@ async function getDayDistribution(
   // Count by day
   const dayCounts = new Map<string, number>();
   schedules.forEach((schedule: ScheduleTimeslot) => {
-    const day = extractDayFromTimeslotId(schedule.TimeslotID);
+    const day = extractDayFromTimeslotId(String(schedule.TimeslotID));
     if (day !== null) {
       dayCounts.set(day, (dayCounts.get(day) || 0) + 1);
     }
