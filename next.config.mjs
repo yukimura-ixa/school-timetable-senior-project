@@ -13,6 +13,16 @@ const nextConfig = {
       },
     ],
   },
+
+  // Explicitly mark packages that should not be bundled by Turbopack
+  // These packages use dynamic requires/imports incompatible with bundling
+  // Required for Sentry/OpenTelemetry auto-instrumentation to work properly
+  // See: https://nextjs.org/docs/app/api-reference/config/next-config-js/serverExternalPackages
+  serverExternalPackages: [
+    "@opentelemetry/instrumentation",
+    "import-in-the-middle",
+    "require-in-the-middle",
+  ],
 };
 
 // Sentry configuration - only upload source maps when auth token is available
