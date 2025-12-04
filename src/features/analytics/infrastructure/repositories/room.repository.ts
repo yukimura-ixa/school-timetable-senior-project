@@ -74,7 +74,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
   });
 
   // Build room occupancy map
-  const roomOccupancyMap = new Map<number, Set<string>>();
+  const roomOccupancyMap = new Map<number, Set<number>>();
   const roomDayOccupancy = new Map<number, Map<string, number>>();
 
   schedules.forEach((schedule: ScheduleRoomTimeslot) => {
