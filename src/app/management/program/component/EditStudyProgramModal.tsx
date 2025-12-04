@@ -141,9 +141,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     setNewProgramData(() => ({
       ...newProgramData,
       subject: [
-        ...newProgramData.subject.filter(
-          (item: subject, ind: number) => ind != index,
-        ),
+        ...newProgramData.subject.filter((_item, ind) => ind != index),
       ],
     }));
   };
