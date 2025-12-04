@@ -198,7 +198,10 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
               required={isEmptyData.subject}
             />
             <SelectedClassRoom
-              Grade={newProgramData.gradelevel}
+              Grade={newProgramData.gradelevel.map((g) => ({
+                ...g,
+                GradeID: String(g.GradeID),
+              }))}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.gradelevel}
             />
