@@ -21,7 +21,8 @@ type ProgramFormData = {
   AcademicYear?: number;
   // GradeID can be string or number from Prisma model
   gradelevel: Array<{ GradeID: string | number; [key: string]: unknown }>;
-  subject: subject[];
+  // Subject can be partial (just SubjectCode from ProgramRow) or full subject
+  subject: Array<{ SubjectCode: string } & Partial<Omit<subject, "SubjectCode">>>;
 };
 
 type Props = {

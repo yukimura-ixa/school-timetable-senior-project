@@ -10,7 +10,8 @@ import useSWR from "swr";
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 
 type Props = {
-  subjectSelected: subject[];
+  // Subject can be partial (just SubjectCode from ProgramRow) or full subject from API
+  subjectSelected: Array<{ SubjectCode: string } & Partial<Omit<subject, "SubjectCode">>>;
   addSubjectFunction: (subject: subject) => void;
   removeSubjectFunction: (index: number) => void;
   required: boolean;
