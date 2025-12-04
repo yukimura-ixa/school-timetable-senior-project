@@ -54,24 +54,25 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
     searchSubject(text);
   };
   const classRoomHandleChange = (value: any) => {
-    const removeDulpItem = programData.gradelevel.filter(
+    const gradelevelArr = programData.gradelevel || [];
+    const removeDulpItem = gradelevelArr.filter(
       (item: any) => item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setProgramData(() => ({
       ...programData,
       gradelevel:
-        programData.gradelevel.filter(
+        gradelevelArr.filter(
           (item: any) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
-          ? [...programData.gradelevel, value]
+          ? [...gradelevelArr, value]
           : [...removeDulpItem],
     }));
   };
   const validateData = () => {
     setIsEmptyData(() => ({
       ProgramName: programData.ProgramName.length == 0,
-      gradelevel: programData.gradelevel.length == 0,
-      subject: programData.subject.length == 0,
+      gradelevel: (programData.gradelevel || []).length == 0,
+      subject: (programData.subject || []).length == 0,
     }));
   };
   useEffect(() => {
@@ -114,7 +115,7 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
     setProgramData(() => ({
       ...programData,
       subject: [
-        ...programData.subject.filter(
+        ...(programData.subject || []).filter(
           (_item: any, ind: number) => ind != index,
         ),
       ],
@@ -123,7 +124,7 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
   const handleAddSubjectList = (subject: subject) => {
     setProgramData(() => ({
       ...programData,
-      subject: [...programData.subject, subject],
+      subject: [...(programData.subject || []), subject],
     }));
     setSearchTextSubject("");
   };
@@ -154,13 +155,13 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
               }}
             />
             <SelectSubjects
-              subjectSelected={programData.subject}
+              subjectSelected={programData.subject || []}
               addSubjectFunction={handleAddSubjectList}
               removeSubjectFunction={removeSubjectFromList}
               required={isEmptyData.subject}
             />
             <SelectedClassRoom
-              Grade={programData.gradelevel}
+              Grade={programData.gradelevel || []}
               classRoomHandleChange={classRoomHandleChange}
               required={isEmptyData.gradelevel}
             />
