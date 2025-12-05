@@ -163,11 +163,15 @@ test("05 teacher arrange board", async ({ page }) => {
   const emptyState = page.locator("[data-testid='schedule-empty'], text=/ไม่มีตาราง/i");
   const hasEmpty = await emptyState.isVisible({ timeout: 3000 }).catch(() => false);
   // Check for initial "select teacher" prompt (valid state when no teacher selected)
-  const selectPrompt = page.locator("text=/เลือกครูเพื่อเริ่มจัดตาราง|เลือกคุณครู/i");
+  // Using getByRole for better reliability with Thai text
+  const selectPrompt = page.getByRole("heading", { name: "เลือกครูเพื่อเริ่มจัดตาราง" });
   const hasPrompt = await selectPrompt.isVisible({ timeout: 3000 }).catch(() => false);
-  const hasValidState = hasGrid || hasEmpty || hasPrompt;
+  // Also check for the teacher dropdown label as alternate indicator
+  const teacherDropdown = page.locator("text='เลือกคุณครู'");
+  const hasDropdown = await teacherDropdown.isVisible({ timeout: 1000 }).catch(() => false);
+  const hasValidState = hasGrid || hasEmpty || hasPrompt || hasDropdown;
   if (!hasValidState) {
-    trace("05", `No valid state (hasGrid=${hasGrid}, hasEmpty=${hasEmpty}, hasPrompt=${hasPrompt}) - page may be slow`);
+    trace("05", `No valid state (hasGrid=${hasGrid}, hasEmpty=${hasEmpty}, hasPrompt=${hasPrompt}, hasDropdown=${hasDropdown}) - page may be slow`);
   }
   // Use soft assertion: report but don't fail visual smoke test
   expect.soft(hasValidState, "Expected timeslot grid, empty state, or teacher selection prompt").toBe(true);
