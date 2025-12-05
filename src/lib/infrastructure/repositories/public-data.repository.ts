@@ -387,6 +387,63 @@ export const publicDataRepository = {
     return responsibilities as ResponsibilityWithSchedules[];
   },
 
+  /**
+   * Find class schedule for a given grade and term
+   * Public-safe: joins only public fields
+   */
+  async findClassSchedule(
+    gradeId: string,
+    academicYear: number,
+    semester: semester,
+  ) {
+    return await prisma.class_schedule.findMany({
+      where: {
+        GradeID: gradeId,
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: semester,
+        },
+      },
+      include: {
+        timeslot: true,
+        subject: {
+          select: {
+            SubjectCode: true,
+            SubjectName: true,
+          },
+        },
+        room: {
+          select: {
+            RoomName: true,
+            Building: true,
+          },
+        },
+        gradelevel: {
+          select: {
+            GradeID: true,
+            Year: true,
+            Number: true,
+          },
+        },
+        teachers_responsibility: {
+          select: {
+            teacher: {
+              select: {
+                Prefix: true,
+                Firstname: true,
+                Lastname: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [
+        { timeslot: { DayOfWeek: "asc" } },
+        { timeslot: { StartTime: "asc" } },
+      ],
+    });
+  },
+
   // ==========================================================================
   // Statistics
   // ==========================================================================

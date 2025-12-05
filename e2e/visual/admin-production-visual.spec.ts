@@ -162,11 +162,15 @@ test("05 teacher arrange board", async ({ page }) => {
   const hasGrid = await grid.isVisible({ timeout: 30_000 }).catch(() => false);
   const emptyState = page.locator("[data-testid='schedule-empty'], text=/ไม่มีตาราง/i");
   const hasEmpty = await emptyState.isVisible({ timeout: 3000 }).catch(() => false);
-  if (!hasGrid && !hasEmpty) {
-    trace("05", `Grid not found (hasGrid=${hasGrid}, hasEmpty=${hasEmpty}) - page may be slow or empty`);
+  // Check for initial "select teacher" prompt (valid state when no teacher selected)
+  const selectPrompt = page.locator("text=/เลือกครูเพื่อเริ่มจัดตาราง|เลือกคุณครู/i");
+  const hasPrompt = await selectPrompt.isVisible({ timeout: 3000 }).catch(() => false);
+  const hasValidState = hasGrid || hasEmpty || hasPrompt;
+  if (!hasValidState) {
+    trace("05", `No valid state (hasGrid=${hasGrid}, hasEmpty=${hasEmpty}, hasPrompt=${hasPrompt}) - page may be slow`);
   }
-  // Use soft assertion: report but don't fail visual smoke test for missing grid
-  expect.soft(hasGrid || hasEmpty, "Expected timeslot grid or empty state").toBe(true);
+  // Use soft assertion: report but don't fail visual smoke test
+  expect.soft(hasValidState, "Expected timeslot grid, empty state, or teacher selection prompt").toBe(true);
   await snap(page, "05-teacher-arrange", {
     mask: [page.locator("[data-testid='toast']")],
   });

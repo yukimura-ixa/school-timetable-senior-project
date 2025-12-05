@@ -171,32 +171,40 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         </div>
 
         {/* Schedule Table */}
-        {schedules.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 md:p-12 text-center">
-            <p className="text-gray-500 text-base md:text-lg">
-              ไม่มีตารางเรียนในภาคเรียนนี้
-            </p>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto print:shadow-none">
-            <table className="min-w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 w-20 md:w-24">
-                    คาบ/วัน
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto print:shadow-none">
+          <table
+            className="min-w-full border-collapse"
+            data-testid="schedule-grid"
+            role="table"
+          >
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 w-20 md:w-24">
+                  คาบ/วัน
+                </th>
+                {dayOrder.map((day) => (
+                  <th
+                    key={day}
+                    className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-white bg-green-600"
+                  >
+                    {dayNames[day]}
                   </th>
-                  {dayOrder.map((day) => (
-                    <th
-                      key={day}
-                      className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-white bg-green-600"
-                    >
-                      {dayNames[day]}
-                    </th>
-                  ))}
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {slotNumbers.length === 0 ? (
+                <tr>
+                  <td
+                    className="border border-gray-200 px-4 py-6 text-center text-sm md:text-base text-gray-500"
+                    colSpan={dayOrder.length + 1}
+                    data-testid="schedule-empty"
+                  >
+                    ไม่มีตารางเรียนในภาคเรียนนี้
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {slotNumbers.map((slotNum: number) => {
+              ) : (
+                slotNumbers.map((slotNum: number) => {
                   const timeRange = slotTimeRanges.get(slotNum);
                   return (
                     <tr key={slotNum} className="hover:bg-gray-50">
@@ -252,11 +260,11 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
                       })}
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Print Button */}
         <div className="mt-4 md:mt-6 flex justify-center print:hidden">

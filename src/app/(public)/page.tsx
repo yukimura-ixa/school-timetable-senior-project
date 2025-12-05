@@ -65,24 +65,36 @@ export default async function HomePage() {
   return (
     // Responsive width layout: container with max-width, centered
     <main className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-4">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-14">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
+          <div className="@container flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-4">
+              <h1 className="text-3xl font-bold leading-tight md:text-4xl">
                 ระบบตารางเรียนตารางสอน
               </h1>
+              <p className="text-lg text-blue-100">
+                ????????????????????????????????????????????????????
+              </p>
               {/* Show current semester badge if one is selected */}
               <CurrentSemesterBadge />
             </div>
-            <Link
-              href="/signin"
-              prefetch={false}
-              data-testid="sign-in-button"
-              className="mt-1 inline-flex items-center rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-sm ring-1 ring-white/30 hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
-            >
-              Admin Login
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/signin"
+                prefetch={false}
+                data-testid="sign-in-button"
+                className="inline-flex items-center justify-center rounded-md bg-white text-blue-800 px-4 py-2 text-sm font-semibold shadow-sm transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
+              >
+                Admin Login
+              </Link>
+              <Link
+                href="/teachers/1-2567"
+                prefetch={false}
+                className="inline-flex items-center justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
+              >
+                ดูตารางสอนตัวอย่าง
+              </Link>
+            </div>
           </div>
           <p className="text-xl text-blue-100">
             ค้นหาและดูตารางเรียนของครูผู้สอนและชั้นเรียนได้ทันที

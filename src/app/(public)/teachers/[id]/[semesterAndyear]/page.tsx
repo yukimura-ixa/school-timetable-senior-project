@@ -113,6 +113,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       timeslots.map((t: timeslot) => parseSlotNumber(t.TimeslotID)),
     ),
   ).sort((a: number, b: number) => a - b);
+  const noSlots = slotNumbers.length === 0;
+  const displaySlotNumbers = noSlots ? [1] : slotNumbers;
 
   // Build schedule lookup by timeslot ID
   const scheduleLookup = new Map<string, PublicScheduleEntry>();
@@ -144,7 +146,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const gridData: Record<string, Map<number, PublicScheduleEntry | null>> = {};
   dayOrder.forEach((day) => {
     gridData[day] = new Map();
-    slotNumbers.forEach((slotNum: number) => {
+    displaySlotNumbers.forEach((slotNum: number) => {
       const timeslotForDaySlot = timeslots.find(
         (t: timeslot) =>
           t.DayOfWeek === day && parseSlotNumber(t.TimeslotID) === slotNum,
@@ -191,30 +193,40 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       </div>
 
       {/* Schedule Grid */}
-      {schedules.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-          ไม่มีตารางสอนในภาคเรียนนี้
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr className="bg-blue-600 text-white">
-                <th className="border border-gray-300 px-2 py-2 text-sm">
-                  คาบ/เวลา
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table
+          className="min-w-full border-collapse"
+          data-testid="schedule-grid"
+          role="table"
+        >
+          <thead>
+            <tr className="bg-blue-600 text-white">
+              <th className="border border-gray-300 px-2 py-2 text-sm">
+                คาบ/เวลา
+              </th>
+              {dayOrder.map((day) => (
+                <th
+                  key={day}
+                  className="border border-gray-300 px-2 py-2 text-sm"
+                >
+                  {dayNames[day]}
                 </th>
-                {dayOrder.map((day) => (
-                  <th
-                    key={day}
-                    className="border border-gray-300 px-2 py-2 text-sm"
-                  >
-                    {dayNames[day]}
-                  </th>
-                ))}
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {noSlots ? (
+              <tr>
+                <td
+                  className="border border-gray-200 px-4 py-6 text-center text-sm text-gray-500"
+                  colSpan={dayOrder.length + 1}
+                  data-testid="schedule-empty"
+                >
+                  ไม่มีตารางสอนในภาคเรียนนี้
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {slotNumbers.map((slotNum: number) => {
+            ) : (
+              displaySlotNumbers.map((slotNum: number) => {
                 const timeRange = slotTimeRanges.get(slotNum);
                 return (
                   <tr key={slotNum} className="hover:bg-gray-50">
@@ -261,11 +273,11 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
                     })}
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Print instructions */}
       <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">

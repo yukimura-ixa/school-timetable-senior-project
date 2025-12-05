@@ -9,6 +9,7 @@
 import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
+import type { timeslot } from "@/prisma/generated/client";
 
 // Legacy type for backward compatibility
 export type PublicClass = {
@@ -189,5 +190,48 @@ export async function getClassCount() {
       (err as Error).message,
     );
     return 0;
+  }
+}
+
+/**
+ * Get schedule for a specific class/grade for the current term
+ */
+export async function getClassSchedule(gradeId: string) {
+  try {
+    const termInfo = await getCurrentTermInfo();
+
+    if (!termInfo) return [];
+
+    const schedules = await publicDataRepository.findClassSchedule(
+      gradeId,
+      termInfo.academicYear,
+      termInfo.semester,
+    );
+
+    type Schedule = (typeof schedules)[number];
+
+    // Normalize and sort (defensive: Prisma already ordered)
+    return schedules.sort((a: Schedule, b: Schedule) => {
+      const dayOrder: Record<(timeslot["DayOfWeek"]), number> = {
+        MON: 0,
+        TUE: 1,
+        WED: 2,
+        THU: 3,
+        FRI: 4,
+        SAT: 5,
+        SUN: 6,
+      };
+      const dayDiff =
+        (dayOrder[a.timeslot.DayOfWeek] ?? 0) -
+        (dayOrder[b.timeslot.DayOfWeek] ?? 0);
+      if (dayDiff !== 0) return dayDiff;
+      return a.timeslot.StartTime < b.timeslot.StartTime ? -1 : 1;
+    });
+  } catch (err) {
+    console.warn(
+      "[PublicClasses] getClassSchedule error:",
+      (err as Error).message,
+    );
+    return [];
   }
 }
