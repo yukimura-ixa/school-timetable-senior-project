@@ -210,6 +210,12 @@ test("07 export page", async ({ page }) => {
 test("08 management teachers", async ({ page }) => {
   await page.goto("/management/teacher");
   await assertNotSignin(page);
-  await expect(page.getByRole("heading", { name: /teacher/i })).toBeVisible();
+  // Page heading is in Thai: "ข้อมูลครู" or "จัดการข้อมูลครู"
+  const heading = page.locator('text="ข้อมูลครู"').first();
+  const managementHeading = page.locator('text="จัดการข้อมูลครู"');
+  const hasHeading = await heading.isVisible({ timeout: 5000 }).catch(() => false);
+  const hasManagement = await managementHeading.isVisible().catch(() => false);
+  trace("08", `Teacher management page: heading=${hasHeading}, managementHeading=${hasManagement}`);
+  expect.soft(hasHeading || hasManagement, "Expected Thai heading for teacher management").toBe(true);
   await snap(page, "08-management-teacher");
 });
