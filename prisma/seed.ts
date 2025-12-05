@@ -122,6 +122,33 @@ async function withRetry<T>(
 }
 
 // ============================================================================
+// DEPARTMENT TO MOE LEARNING AREA MAPPING
+// Maps Thai department names to official MOE 8 Learning Areas
+// ============================================================================
+const DEPT_TO_LEARNING_AREA: Record<string, LearningArea> = {
+  "ภาษาไทย": "THAI",
+  "คณิตศาสตร์": "MATHEMATICS",
+  "วิทยาศาสตร์และเทคโนโลยี": "SCIENCE",
+  "สังคมศึกษา": "SOCIAL",
+  "สุขศึกษาและพลศึกษา": "HEALTH_PE",
+  "ศิลปะ": "ARTS",
+  "การงานอาชีพ": "CAREER",
+  "ภาษาต่างประเทศ": "FOREIGN_LANGUAGE",
+};
+
+// Subject code prefix to department mapping (for reverse lookup)
+const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
+  "ท": "ภาษาไทย",
+  "ค": "คณิตศาสตร์",
+  "ว": "วิทยาศาสตร์และเทคโนโลยี",
+  "ส": "สังคมศึกษา",
+  "พ": "สุขศึกษาและพลศึกษา",
+  "ศ": "ศิลปะ",
+  "ง": "การงานอาชีพ",
+  "อ": "ภาษาต่างประเทศ",
+};
+
+// ============================================================================
 // DEMO DATA SEEDING FUNCTION
 // Creates minimal but complete data for production demos
 // ============================================================================
@@ -208,6 +235,64 @@ async function seedDemoData() {
     "Upsert demo program M1-SCI",
   );
   console.log(`✅ Created demo program: ${demoProgram.ProgramName}`);
+
+  // ===== DEMO PROGRAM_SUBJECT RELATIONSHIPS =====
+  console.log("🔗 Creating demo program-subject relationships...");
+  let programSubjectCount = 0;
+
+  // Define category mapping for demo subjects
+  const subjectCategoryMap: Record<string, SubjectCategory> = {
+    "ท21101": "CORE",
+    "ค21101": "CORE",
+    "ว21101": "CORE",
+    "ส21101": "CORE",
+    "พ21101": "CORE",
+    "ศ21101": "CORE",
+    "ง21101": "CORE",
+    "อ21101": "CORE",
+    "ACT-CLUB": "ACTIVITY",
+    "ACT-GUIDE": "ACTIVITY",
+  };
+
+  // Credit to number helper
+  const creditToNum = (credit: subject_credit): number => {
+    switch (credit) {
+      case "CREDIT_05": return 0.5;
+      case "CREDIT_10": return 1.0;
+      case "CREDIT_15": return 1.5;
+      case "CREDIT_20": return 2.0;
+      default: return 1.0;
+    }
+  };
+
+  for (let i = 0; i < demoSubjects.length; i++) {
+    const subject = demoSubjects[i];
+    const category = subjectCategoryMap[subject.code] || "CORE";
+
+    await withRetry(
+      () =>
+        prisma.program_subject.upsert({
+          where: {
+            ProgramID_SubjectCode: {
+              ProgramID: demoProgram.ProgramID,
+              SubjectCode: subject.code,
+            },
+          },
+          update: {},
+          create: {
+            ProgramID: demoProgram.ProgramID,
+            SubjectCode: subject.code,
+            Category: category,
+            IsMandatory: category !== "ACTIVITY",
+            MinCredits: creditToNum(subject.credit),
+            SortOrder: i + 1,
+          },
+        }),
+      `Link subject ${subject.code} to M1-SCI program`,
+    );
+    programSubjectCount++;
+  }
+  console.log(`✅ Created ${programSubjectCount} program-subject relationships`);
 
   // ===== DEMO GRADE LEVELS (3 sections of M.1) =====
   console.log("🏫 Creating demo grade levels...");
@@ -426,69 +511,73 @@ async function seedDemoData() {
 
   // ===== DEMO TEACHER RESPONSIBILITIES =====
   console.log("📝 Creating demo teacher responsibilities...");
-  const responsibilities = [];
+  const responsibilities: Awaited<ReturnType<typeof prisma.teachers_responsibility.create>>[] = [];
 
   // Map MOE subject codes to teachers (by index matching departments)
+  // Teachers are aligned with their department's learning area
   const subjectTeacherMap = [
-    { subjectCode: "ท21101", teacherIndex: 0 }, // Thai teacher
-    { subjectCode: "ค21101", teacherIndex: 1 }, // Math teacher
-    { subjectCode: "ว21101", teacherIndex: 2 }, // Science teacher
-    { subjectCode: "ส21101", teacherIndex: 3 }, // Social teacher
-    { subjectCode: "พ21101", teacherIndex: 4 }, // PE teacher
-    { subjectCode: "ศ21101", teacherIndex: 5 }, // Art teacher
-    { subjectCode: "ง21101", teacherIndex: 6 }, // Career teacher
-    { subjectCode: "อ21101", teacherIndex: 7 }, // English teacher
+    { subjectCode: "ท21101", teacherIndex: 0, dept: "ภาษาไทย" },       // Thai teacher
+    { subjectCode: "ค21101", teacherIndex: 1, dept: "คณิตศาสตร์" },    // Math teacher
+    { subjectCode: "ว21101", teacherIndex: 2, dept: "วิทยาศาสตร์และเทคโนโลยี" },  // Science teacher
+    { subjectCode: "ส21101", teacherIndex: 3, dept: "สังคมศึกษา" },    // Social teacher
+    { subjectCode: "พ21101", teacherIndex: 4, dept: "สุขศึกษาและพลศึกษา" },  // PE teacher
+    { subjectCode: "ศ21101", teacherIndex: 5, dept: "ศิลปะ" },         // Art teacher
+    { subjectCode: "ง21101", teacherIndex: 6, dept: "การงานอาชีพ" },  // Career teacher
+    { subjectCode: "อ21101", teacherIndex: 7, dept: "ภาษาต่างประเทศ" },  // English teacher
   ];
 
-  // Create responsibilities for all 3 grades with each subject/teacher
-  for (const grade of gradeLevels) {
-    for (const mapping of subjectTeacherMap) {
-      const teacher = teachers[mapping.teacherIndex];
-      const respId = `${teacher.TeacherID}-${grade.GradeID}-${mapping.subjectCode}-1-2567`;
+  // All semester configurations for responsibilities
+  const semesterConfigs = [
+    { year: 2567, semester: "SEMESTER_1" as semester, configId: "1-2567" },
+    { year: 2567, semester: "SEMESTER_2" as semester, configId: "2-2567" },
+    { year: 2568, semester: "SEMESTER_1" as semester, configId: "1-2568" },
+  ];
 
-      const resp = await withRetry(
-        () =>
-          prisma.teachers_responsibility.upsert({
-            where: { RespID: parseInt(respId.replace(/\D/g, "").slice(0, 9)) || undefined },
-            update: {},
-            create: {
+  // Create responsibilities for ALL 3 semesters, all 3 grades, each subject/teacher
+  for (const semConfig of semesterConfigs) {
+    for (const grade of gradeLevels) {
+      for (const mapping of subjectTeacherMap) {
+        const teacher = teachers[mapping.teacherIndex];
+
+        // Validate teacher department matches subject learning area
+        const expectedDept = SUBJECT_PREFIX_TO_DEPT[mapping.subjectCode.charAt(0)];
+        if (teacher.Department !== expectedDept) {
+          console.warn(`⚠️  Teacher ${teacher.Firstname} (${teacher.Department}) assigned to ${mapping.subjectCode} but expected ${expectedDept}`);
+        }
+
+        const resp = await withRetry(
+          () =>
+            prisma.teachers_responsibility.findFirst({
+              where: {
+                TeacherID: teacher.TeacherID,
+                GradeID: grade.GradeID,
+                SubjectCode: mapping.subjectCode,
+                AcademicYear: semConfig.year,
+                Semester: semConfig.semester,
+              },
+            }),
+          `Check existing responsibility ${mapping.subjectCode} for ${grade.GradeID} in ${semConfig.configId}`,
+        ).then(async (existing) => {
+          if (existing) return existing;
+
+          // Create new responsibility
+          return prisma.teachers_responsibility.create({
+            data: {
               TeacherID: teacher.TeacherID,
               GradeID: grade.GradeID,
               SubjectCode: mapping.subjectCode,
-              AcademicYear: 2567,
-              Semester: "SEMESTER_1",
+              AcademicYear: semConfig.year,
+              Semester: semConfig.semester,
               TeachHour: 2,
             },
-          }),
-        `Upsert responsibility ${mapping.subjectCode} for ${grade.GradeID}`,
-      ).catch(async () => {
-        // If upsert fails due to no unique constraint, try findFirst + create
-        const existing = await prisma.teachers_responsibility.findFirst({
-          where: {
-            TeacherID: teacher.TeacherID,
-            GradeID: grade.GradeID,
-            SubjectCode: mapping.subjectCode,
-            AcademicYear: 2567,
-            Semester: "SEMESTER_1",
-          },
+          });
         });
-        if (existing) return existing;
 
-        return prisma.teachers_responsibility.create({
-          data: {
-            TeacherID: teacher.TeacherID,
-            GradeID: grade.GradeID,
-            SubjectCode: mapping.subjectCode,
-            AcademicYear: 2567,
-            Semester: "SEMESTER_1",
-            TeachHour: 2,
-          },
-        });
-      });
-      responsibilities.push(resp);
+        responsibilities.push(resp);
+      }
     }
   }
-  console.log(`✅ Created ${responsibilities.length} demo teacher responsibilities`);
+  console.log(`✅ Created ${responsibilities.length} demo teacher responsibilities (${semesterConfigs.length} semesters × ${gradeLevels.length} grades × ${subjectTeacherMap.length} subjects)`);
 
   // ===== DEMO CLASS SCHEDULES =====
   console.log("📅 Creating demo class schedules...");
@@ -519,12 +608,14 @@ async function seedDemoData() {
       const teacher = teachers[schedule.teacherIndex];
       const room = rooms[schedule.period % rooms.length];
 
-      // Find the responsibility for this teacher/grade/subject
+      // Find the responsibility for this teacher/grade/subject for semester 1-2567
       const resp = responsibilities.find(
         (r) =>
           r.TeacherID === teacher.TeacherID &&
           r.GradeID === grade.GradeID &&
-          r.SubjectCode === schedule.subjectCode,
+          r.SubjectCode === schedule.subjectCode &&
+          r.AcademicYear === academicYear &&
+          r.Semester === "SEMESTER_1",
       );
 
       if (resp) {
@@ -567,16 +658,19 @@ async function seedDemoData() {
   console.log("📊 Demo Data Summary:");
   console.log(`   • Subjects: ${demoSubjects.length}`);
   console.log(`   • Program: 1 (${demoProgram.ProgramName})`);
+  console.log(`   • Program-Subject Links: ${programSubjectCount}`);
   console.log(`   • Grade Levels: ${demoGrades.length} (M.1/1-3)`);
   console.log(`   • Rooms: ${demoRooms.length}`);
   console.log(`   • Teachers: ${teachers.length}`);
   console.log(`   • Timeslots: ${timeslotCount} (3 semesters)`);
   console.log(`   • Table Configurations: 3 (1-2567, 2-2567, 1-2568)`);
-  console.log(`   • Teacher Responsibilities: ${responsibilities.length}`);
+  console.log(`   • Teacher Responsibilities: ${responsibilities.length} (all 3 semesters)`);
   console.log(`   • Class Schedules: ${scheduleCount}`);
   console.log("=".repeat(70));
   console.log("\n✨ Demo data ready for production preview!");
   console.log("💡 Teacher schedules will show populated timetables.");
+  console.log("💡 Program-subject relationships defined for curriculum validation.");
+  console.log("💡 Teacher responsibilities available for all 3 semesters.");
   console.log("=".repeat(70));
 }
 
