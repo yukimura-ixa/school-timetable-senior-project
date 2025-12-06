@@ -7,6 +7,7 @@ import {
   getPublicTeacherById,
   getTeacherSchedule,
 } from "@/lib/public/teachers";
+import { PrintButton } from "../../_components/PrintButton";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -246,12 +247,7 @@ async function TeacherScheduleContent({
 
         {/* Print Button */}
         <div className="mt-6 flex justify-center print:hidden">
-          <button
-            onClick={() => window.print()}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            พิมพ์ตารางสอน
-          </button>
+          <PrintButton />
         </div>
       </div>
     </main>
@@ -288,3 +284,5 @@ function TeacherScheduleFallback() {
     </main>
   );
 }
+
+
