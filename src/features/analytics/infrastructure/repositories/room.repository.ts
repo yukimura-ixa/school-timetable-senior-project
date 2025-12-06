@@ -20,7 +20,7 @@ import {
   formatPeriodTime,
 } from "../../domain/services/calculation.service";
 import { DAYS_OF_WEEK } from "../../domain/types/analytics.types";
-import type { day_of_week, room, timeslot } from "@/prisma/generated/client";
+import type { day_of_week, room } from "@/prisma/generated/client";
 
 // Prisma payload types for room queries
 type TimeslotWithDay = { TimeslotID: number; DayOfWeek: day_of_week };

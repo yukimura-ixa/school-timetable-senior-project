@@ -14,7 +14,6 @@ import {
 } from "../schemas/config-lifecycle.schemas";
 import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 import { getPublishReadiness } from "../services/publish-readiness-query.service";
-import type { semester } from "@/prisma/generated/client";
 import * as v from "valibot";
 
 type ConfigStatus = "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
@@ -88,7 +87,10 @@ const UpdateConfigCompletenessSchema = v.object({
 
 export const updateConfigCompletenessAction = createAction(
   UpdateConfigCompletenessSchema,
-  async (input: { academicYear: number; semester: "SEMESTER_1" | "SEMESTER_2" }) => {
+  async (input: {
+    academicYear: number;
+    semester: "SEMESTER_1" | "SEMESTER_2";
+  }) => {
     // Convert SEMESTER_1 to "1", SEMESTER_2 to "2"
     const semesterNum =
       input.semester === "SEMESTER_1"
@@ -134,7 +136,10 @@ export const updateConfigCompletenessAction = createAction(
  */
 export const getConfigWithCompletenessAction = createAction(
   UpdateConfigCompletenessSchema,
-  async (input: { academicYear: number; semester: "SEMESTER_1" | "SEMESTER_2" }) => {
+  async (input: {
+    academicYear: number;
+    semester: "SEMESTER_1" | "SEMESTER_2";
+  }) => {
     // Convert SEMESTER_1 to "1", SEMESTER_2 to "2"
     const semesterNum =
       input.semester === "SEMESTER_1"

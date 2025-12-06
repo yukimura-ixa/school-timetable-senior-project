@@ -66,13 +66,7 @@ export interface ConflictValidationOperations {
  */
 export function useConflictValidation(): ConflictValidationOperations {
   // Get store state
-  const {
-    timeSlotData,
-    lockData,
-    currentTeacherID,
-    showErrorMsgByTimeslotID,
-    showLockDataMsgByTimeslotID,
-  } = useArrangementUIStore();
+  const { timeSlotData, lockData, currentTeacherID } = useArrangementUIStore();
 
   /**
    * Get set of locked timeslot IDs

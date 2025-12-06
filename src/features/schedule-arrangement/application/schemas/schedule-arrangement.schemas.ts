@@ -11,7 +11,6 @@ import * as v from "valibot";
 import {
   academicYearSchema,
   semesterSchema,
-  nonEmptyStringSchema,
 } from "@/shared/schemas/common.schemas";
 
 /**

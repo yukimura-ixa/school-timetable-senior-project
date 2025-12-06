@@ -132,12 +132,12 @@ export function DroppableTimeslot({
    * - isSaving: Save operation state
    * - Store actions: setShowErrorMsg, setIsSaving
    */
-  const timeSlotData = useTimeslotData(); // Selector hook
+  const _timeSlotData = useTimeslotData(); // Selector hook - available for future use
   const isSaving = useSaveState(); // Returns boolean directly
-  const setShowErrorMsg = useArrangementUIStore(
+  const _setShowErrorMsg = useArrangementUIStore(
     (state) => state.setShowErrorMsg,
   );
-  const setIsSaving = useArrangementUIStore((state) => state.setIsSaving);
+  const _setIsSaving = useArrangementUIStore((state) => state.setIsSaving);
 
   /**
    * Check if this specific timeslot has conflicts

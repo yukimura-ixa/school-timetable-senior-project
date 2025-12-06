@@ -11,7 +11,6 @@ import {
   getMOEStandards,
   validateTotalLessons,
   getMinCoreLessons,
-  getMaxCoreLessons,
 } from "@/config/moe-standards";
 
 /**

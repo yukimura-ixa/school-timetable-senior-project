@@ -12,10 +12,7 @@ import type {
   PublishReadinessResult,
   PublishReadinessStatus,
 } from "../types/publish-readiness-types";
-import {
-  findIncompletGrades,
-  type GradeCompletion,
-} from "@/features/dashboard/domain/services/dashboard-stats.service";
+import { findIncompletGrades } from "@/features/dashboard/domain/services/dashboard-stats.service";
 import {
   validateProgramMOECredits,
   type ProgramValidationResult,

@@ -9,7 +9,6 @@
 import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
-import type { timeslot } from "@/prisma/generated/client";
 
 // Legacy type for backward compatibility
 export type PublicClass = {

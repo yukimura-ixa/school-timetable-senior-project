@@ -57,7 +57,6 @@ export function useArrangeSchedule(): ArrangeScheduleOperations {
     selectedSubject,
     scheduledSubjects,
     subjectPayload,
-    changeTimeSlotSubject,
     timeslotIDtoChange,
     timeSlotData,
 

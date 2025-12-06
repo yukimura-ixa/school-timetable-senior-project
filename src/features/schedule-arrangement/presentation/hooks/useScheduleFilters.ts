@@ -58,8 +58,7 @@ export interface ScheduleFiltersOperations {
  */
 export function useScheduleFilters(): ScheduleFiltersOperations {
   // Get store state
-  const { subjectData, yearSelected, scheduledSubjects } =
-    useArrangementUIStore();
+  const { subjectData, yearSelected } = useArrangementUIStore();
 
   /**
    * Extract unique grade levels from subjects
