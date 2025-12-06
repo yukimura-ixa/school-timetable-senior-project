@@ -274,9 +274,9 @@ export const getClassScheduleCountAction = createAction(undefined, async () => {
  */
 export const getClassScheduleByIdAction = createAction(
   v.object({
-    ClassID: v.pipe(v.string(), v.minLength(1)),
+    ClassID: v.pipe(v.number(), v.integer(), v.minValue(1)),
   }),
-  async (input: { ClassID: string }) => {
+  async (input: { ClassID: number }) => {
     const schedule = await classRepository.findByClassId(input.ClassID);
 
     if (!schedule) {

@@ -215,7 +215,7 @@ export async function findSummary(
 /**
  * Find a single class schedule by ClassID
  */
-export async function findByClassId(classId: string) {
+export async function findByClassId(classId: number) {
   return prisma.class_schedule.findUnique({
     where: {
       ClassID: classId,
@@ -247,7 +247,7 @@ export async function create(data: Prisma.class_scheduleCreateInput) {
  * Update a class schedule
  */
 export async function update(
-  classId: string,
+  classId: number,
   data: Prisma.class_scheduleUpdateInput,
 ) {
   return prisma.class_schedule.update({
@@ -261,7 +261,7 @@ export async function update(
 /**
  * Delete a class schedule
  */
-export async function deleteById(classId: string) {
+export async function deleteById(classId: number) {
   return prisma.class_schedule.delete({
     where: {
       ClassID: classId,

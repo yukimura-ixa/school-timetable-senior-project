@@ -13,7 +13,6 @@ import * as lockRepository from "../../infrastructure/repositories/lock.reposito
 import { semester } from "@/prisma/generated/client";
 import type { Prisma, class_schedule } from "@/prisma/generated/client";
 import {
-  generateClassID,
   groupSchedulesBySubject,
   validateLockInput,
 } from "../../domain/services/lock-validation.service";

@@ -41,18 +41,6 @@ export type GroupedLockedSchedule = {
 };
 
 /**
- * Generate ClassID using pattern: TimeslotID-SubjectCode-GradeID
- * Pure function for deterministic ClassID generation
- */
-export function generateClassID(
-  timeslotId: string,
-  subjectCode: string,
-  gradeId: string,
-): string {
-  return `${timeslotId}-${subjectCode}-${gradeId}`;
-}
-
-/**
  * Group raw locked schedules by SubjectCode
  * Pure function for complex data transformation
  *

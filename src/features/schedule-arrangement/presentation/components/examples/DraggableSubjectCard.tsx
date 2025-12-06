@@ -231,8 +231,16 @@ export function DraggableSubjectCard({
       setIsDeleting(true);
 
       // Call Server Action for actual deletion
+      // Note: id prop may be a composite string (legacy) or numeric ClassID
+      const numericClassId = parseInt(classId, 10);
+      if (isNaN(numericClassId)) {
+        enqueueSnackbar("รูปแบบ ClassID ไม่ถูกต้อง", { variant: "error" });
+        setIsDeleting(false);
+        return;
+      }
+
       const result = await deleteClassScheduleAction({
-        ClassID: classId,
+        ClassID: numericClassId,
       });
 
       // Type guard for result
