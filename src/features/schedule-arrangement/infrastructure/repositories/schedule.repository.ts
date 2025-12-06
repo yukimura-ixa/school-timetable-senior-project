@@ -140,7 +140,6 @@ export class ScheduleRepository {
    * ```
    */
   async createSchedule(data: {
-    ClassID: string;
     TimeslotID: string;
     SubjectCode: string;
     RoomID?: number | null;
@@ -174,7 +173,7 @@ export class ScheduleRepository {
    * ```
    */
   async updateSchedule(
-    classId: string,
+    classId: number,
     data: {
       TimeslotID?: string;
       SubjectCode?: string;
@@ -206,7 +205,7 @@ export class ScheduleRepository {
    * await repo.deleteSchedule('C_001');
    * ```
    */
-  async deleteSchedule(classId: string) {
+  async deleteSchedule(classId: number) {
     return await prisma.class_schedule.delete({
       where: { ClassID: classId },
     });
@@ -218,7 +217,7 @@ export class ScheduleRepository {
    * @param classId - Class ID to find
    * @returns Schedule or null if not found
    */
-  async findScheduleById(classId: string) {
+  async findScheduleById(classId: number) {
     return await prisma.class_schedule.findUnique({
       where: { ClassID: classId },
       include: {
@@ -242,7 +241,7 @@ export class ScheduleRepository {
    * @param classId - Class schedule ID
    * @param respId - Teacher responsibility ID
    */
-  async linkTeacherToSchedule(classId: string, respId: number) {
+  async linkTeacherToSchedule(classId: number, respId: number) {
     // This updates the many-to-many relation
     return await prisma.teachers_responsibility.update({
       where: { RespID: respId },
@@ -260,7 +259,7 @@ export class ScheduleRepository {
    * @param classId - Class schedule ID
    * @param respId - Teacher responsibility ID
    */
-  async unlinkTeacherFromSchedule(classId: string, respId: number) {
+  async unlinkTeacherFromSchedule(classId: number, respId: number) {
     return await prisma.teachers_responsibility.update({
       where: { RespID: respId },
       data: {

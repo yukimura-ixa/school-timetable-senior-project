@@ -36,9 +36,8 @@ export type SyncTeacherScheduleResult =
   | {
       success: true;
       data: {
-        deleted: Array<{ ClassID: string }>;
+        deleted: Array<{ ClassID: number }>;
         added: Array<{
-          ClassID: string;
           TimeslotID: string;
           SubjectCode: string;
           GradeID: string;
@@ -152,7 +151,6 @@ export const syncTeacherScheduleAction = createAction<
       changes.added.map(async (item) => {
         try {
           await arrangeRepository.create({
-            ClassID: item.ClassID,
             TimeslotID: item.TimeslotID,
             SubjectCode: item.SubjectCode,
             GradeID: item.GradeID,
@@ -161,7 +159,7 @@ export const syncTeacherScheduleAction = createAction<
           });
           return item;
         } catch (error) {
-          console.warn(`Failed to create schedule ${item.ClassID}:`, error);
+          console.warn(`Failed to create schedule`, error);
           return null;
         }
       }),
@@ -171,7 +169,7 @@ export const syncTeacherScheduleAction = createAction<
     const successfulDeletes = deletedResults.filter(
       (r) => r !== null,
     ) as Array<{
-      ClassID: string;
+      ClassID: number;
     }>;
     const successfulAdds = addedResults.filter((r) => r !== null);
 

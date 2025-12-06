@@ -182,7 +182,6 @@ export const createClassScheduleAction = createAction(
   createClassScheduleSchema,
   async (input: CreateClassScheduleInput) => {
     const schedule = await classRepository.create({
-      ClassID: input.ClassID,
       IsLocked: input.IsLocked ?? false,
       timeslot: {
         connect: { TimeslotID: input.TimeslotID },

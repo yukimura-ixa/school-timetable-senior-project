@@ -108,7 +108,6 @@ export class ArrangeRepository {
    * @returns The created schedule
    */
   async create(data: {
-    ClassID: string;
     TimeslotID: string;
     SubjectCode: string;
     GradeID: string;
@@ -119,7 +118,6 @@ export class ArrangeRepository {
   > {
     return prisma.class_schedule.create({
       data: {
-        ClassID: data.ClassID,
         TimeslotID: data.TimeslotID,
         SubjectCode: data.SubjectCode,
         GradeID: data.GradeID,
@@ -141,7 +139,7 @@ export class ArrangeRepository {
    * @returns The deleted schedule
    */
   async deleteById(
-    classId: string,
+    classId: number,
   ): Promise<
     Prisma.class_scheduleGetPayload<Prisma.class_scheduleDefaultArgs>
   > {

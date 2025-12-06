@@ -212,7 +212,7 @@ export async function getClassSchedule(gradeId: string) {
 
     // Normalize and sort (defensive: Prisma already ordered)
     return schedules.sort((a: Schedule, b: Schedule) => {
-      const dayOrder: Record<(timeslot["DayOfWeek"]), number> = {
+      const dayOrder: Record<string, number> = {
         MON: 0,
         TUE: 1,
         WED: 2,

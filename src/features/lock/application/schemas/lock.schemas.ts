@@ -68,7 +68,7 @@ export type CreateLockInput = v.InferOutput<typeof createLockSchema>;
  * Input: Array of ClassID strings
  */
 export const deleteLocksSchema = v.pipe(
-  v.array(v.string("ClassID ต้องเป็นข้อความ"), "ClassIDs ต้องเป็น array"),
+  v.array(v.pipe(v.number("ClassID ต้องเป็นตัวเลข"), v.integer("ClassID ต้องเป็นจำนวนเต็ม")), "ClassIDs ต้องเป็น array"),
   v.minLength(1, "ต้องระบุ ClassID อย่างน้อย 1 รายการ"),
 );
 

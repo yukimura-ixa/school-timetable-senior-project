@@ -27,7 +27,7 @@ describe("Conflict Detection Service", () => {
   // Test data fixtures
   const mockExistingSchedules: ExistingSchedule[] = [
     {
-      classId: "C1",
+      classId: 1,
       timeslotId: "T1",
       subjectCode: "MATH101",
       subjectName: "Mathematics 101",
@@ -39,7 +39,7 @@ describe("Conflict Detection Service", () => {
       teacherName: "John Doe",
     },
     {
-      classId: "C2",
+      classId: 2,
       timeslotId: "T2",
       subjectCode: "ENG101",
       subjectName: "English 101",
@@ -51,7 +51,7 @@ describe("Conflict Detection Service", () => {
       teacherName: "Jane Smith",
     },
     {
-      classId: "C3",
+      classId: 3,
       timeslotId: "T3",
       subjectCode: "ASSEMBLY",
       subjectName: "School Assembly",
@@ -96,7 +96,7 @@ describe("Conflict Detection Service", () => {
   describe("checkTeacherConflict", () => {
     it("should detect teacher conflict when teacher is already scheduled", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1", // Same time as C1
         subjectCode: "MATH101",
         roomId: 103,
@@ -117,7 +117,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow scheduling when teacher is not conflicted", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4", // Different time
         subjectCode: "MATH101",
         roomId: 103,
@@ -135,7 +135,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow updating same schedule (same classId)", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C1", // Same classId - updating existing schedule
+        classId: 1, // Same classId - updating existing schedule
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 103,
@@ -153,7 +153,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return no conflict when no teacher is assigned", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 103,
@@ -173,7 +173,7 @@ describe("Conflict Detection Service", () => {
   describe("checkClassConflict", () => {
     it("should detect class conflict when class already has another subject", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1", // Same time as C1
         subjectCode: "ENG101",
         roomId: 103,
@@ -194,7 +194,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow scheduling when class is not conflicted", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4", // Different time
         subjectCode: "ENG101",
         roomId: 103,
@@ -212,7 +212,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow updating same schedule", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C1", // Same classId
+        classId: 1, // Same classId
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 101,
@@ -231,7 +231,7 @@ describe("Conflict Detection Service", () => {
   describe("checkRoomConflict", () => {
     it("should detect room conflict when room is already occupied", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1", // Same time as C1
         subjectCode: "ENG101",
         roomId: 101, // Same room as C1
@@ -252,7 +252,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow scheduling when room is not conflicted", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1",
         subjectCode: "ENG101",
         roomId: 999, // Different room
@@ -270,7 +270,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return no conflict when no room is assigned", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1",
         subjectCode: "ENG101",
         roomId: null, // No room
@@ -288,7 +288,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow updating same schedule", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C1", // Same classId
+        classId: 1, // Same classId
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 101,
@@ -307,7 +307,7 @@ describe("Conflict Detection Service", () => {
   describe("checkLockedTimeslot", () => {
     it("should detect locked timeslot conflict", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T3", // Locked timeslot
         subjectCode: "MATH101",
         roomId: 101,
@@ -328,7 +328,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow scheduling when timeslot is not locked", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1", // Not locked
         subjectCode: "MATH101",
         roomId: 103,
@@ -345,7 +345,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow updating same locked schedule", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C3", // Same locked schedule
+        classId: 3, // Same locked schedule
         timeslotId: "T3",
         subjectCode: "ASSEMBLY",
         roomId: null,
@@ -364,7 +364,7 @@ describe("Conflict Detection Service", () => {
   describe("checkTeacherAssignment", () => {
     it("should detect when teacher is not assigned to subject/grade", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "SCIENCE101", // Not assigned
         roomId: 103,
@@ -384,7 +384,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow when teacher is properly assigned", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "MATH101", // Teacher 1 is assigned to this
         roomId: 103,
@@ -402,7 +402,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return no conflict when no teacher is assigned", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "MATH101",
         roomId: 103,
@@ -420,7 +420,7 @@ describe("Conflict Detection Service", () => {
 
     it("should check academic year and semester match", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "MATH101",
         roomId: 103,
@@ -440,7 +440,7 @@ describe("Conflict Detection Service", () => {
   describe("checkAllConflicts", () => {
     it("should return first conflict in priority order: locked timeslot", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T3", // Locked
         subjectCode: "MATH101",
         roomId: 101, // Would also conflict
@@ -462,7 +462,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return teacher not assigned if no locked conflict", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "SCIENCE101", // Not assigned
         roomId: 103,
@@ -484,7 +484,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return class conflict if higher priority checks pass", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1", // M1-1 already has MATH101
         subjectCode: "MATH101",
         roomId: 103,
@@ -506,7 +506,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return teacher conflict if class check passes", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1", // Teacher 1 teaching M1-1
         subjectCode: "MATH101",
         roomId: 103,
@@ -528,7 +528,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return room conflict as lowest priority", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T2", // Teacher 2 teaching M1-2 in Room 102
         subjectCode: "MATH101",
         roomId: 102, // Room conflict only
@@ -550,7 +550,7 @@ describe("Conflict Detection Service", () => {
 
     it("should return no conflict when all checks pass", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4", // Empty timeslot
         subjectCode: "MATH101",
         roomId: 999, // Empty room
@@ -573,7 +573,7 @@ describe("Conflict Detection Service", () => {
 
     it("should allow scheduling without teacher or room", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "MATH101",
         roomId: undefined,
@@ -597,7 +597,7 @@ describe("Conflict Detection Service", () => {
   describe("Edge Cases", () => {
     it("should handle empty existing schedules - still checks teacher assignment", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C1",
+        classId: 1,
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 101,
@@ -616,7 +616,7 @@ describe("Conflict Detection Service", () => {
 
     it("should handle empty responsibilities", () => {
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T4",
         subjectCode: "MATH101",
         roomId: 103,
@@ -635,7 +635,7 @@ describe("Conflict Detection Service", () => {
     it("should handle schedule with null roomId and undefined teacherId", () => {
       const schedules: ExistingSchedule[] = [
         {
-          classId: "C1",
+          classId: 1,
           timeslotId: "T1",
           subjectCode: "ASSEMBLY",
           subjectName: "Assembly",
@@ -647,7 +647,7 @@ describe("Conflict Detection Service", () => {
       ];
 
       const input: ScheduleArrangementInput = {
-        classId: "C_NEW",
+        classId: 99,
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: null,

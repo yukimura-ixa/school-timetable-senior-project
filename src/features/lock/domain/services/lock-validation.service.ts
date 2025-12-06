@@ -37,7 +37,7 @@ export type GroupedLockedSchedule = {
     EndTime: Date;
     BreakTime: string;
   }>;
-  ClassIDs: string[];
+  ClassIDs: number[];
 };
 
 /**

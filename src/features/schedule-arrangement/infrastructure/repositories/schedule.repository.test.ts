@@ -32,8 +32,7 @@ describe("ScheduleRepository", () => {
     it("should fetch and transform schedules for a term", async () => {
       const mockPrismaData = [
         {
-          ClassID: "C1",
-          TimeslotID: "T1",
+            TimeslotID: "T1",
           SubjectCode: "MATH101",
           RoomID: 101,
           GradeID: "M1-1",
@@ -73,7 +72,6 @@ describe("ScheduleRepository", () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
-        classId: "C1",
         timeslotId: "T1",
         subjectCode: "MATH101",
         subjectName: "Mathematics 101",
@@ -89,8 +87,7 @@ describe("ScheduleRepository", () => {
     it("should handle schedules without teachers", async () => {
       const mockPrismaData = [
         {
-          ClassID: "C2",
-          TimeslotID: "T2",
+            TimeslotID: "T2",
           SubjectCode: "ASSEMBLY",
           RoomID: null,
           GradeID: "M1-1",
@@ -163,7 +160,6 @@ describe("ScheduleRepository", () => {
   describe("createSchedule", () => {
     it("should create a new schedule", async () => {
       const mockCreated = {
-        ClassID: "C_NEW",
         TimeslotID: "T1",
         SubjectCode: "MATH101",
         RoomID: 101,
@@ -180,7 +176,6 @@ describe("ScheduleRepository", () => {
       ) as any;
 
       const result = await repository.createSchedule({
-        ClassID: "C_NEW",
         TimeslotID: "T1",
         SubjectCode: "MATH101",
         RoomID: 101,
@@ -200,7 +195,6 @@ describe("ScheduleRepository", () => {
   describe("updateSchedule", () => {
     it("should update an existing schedule", async () => {
       const mockUpdated = {
-        ClassID: "C1",
         RoomID: 102,
         IsLocked: true,
       };
@@ -209,13 +203,13 @@ describe("ScheduleRepository", () => {
         Promise.resolve(mockUpdated),
       ) as any;
 
-      const result = await repository.updateSchedule("C1", {
+      const result = await repository.updateSchedule(1, {
         RoomID: 102,
         IsLocked: true,
       });
 
       expect(prisma.class_schedule.update).toHaveBeenCalledWith({
-        where: { ClassID: "C1" },
+        where: { ClassID: 1 },
         data: { RoomID: 102, IsLocked: true },
         include: expect.any(Object),
       });
@@ -226,16 +220,16 @@ describe("ScheduleRepository", () => {
 
   describe("deleteSchedule", () => {
     it("should delete a schedule", async () => {
-      const mockDeleted = { ClassID: "C1" };
+      const mockDeleted = { ClassID: 1 };
 
       mockClassSchedule.delete = vi.fn(() =>
         Promise.resolve(mockDeleted),
       ) as any;
 
-      await repository.deleteSchedule("C1");
+      await repository.deleteSchedule(1);
 
       expect(prisma.class_schedule.delete).toHaveBeenCalledWith({
-        where: { ClassID: "C1" },
+        where: { ClassID: 1 },
       });
     });
   });
@@ -243,7 +237,6 @@ describe("ScheduleRepository", () => {
   describe("findScheduleById", () => {
     it("should find a schedule by ID", async () => {
       const mockSchedule = {
-        ClassID: "C1",
         TimeslotID: "T1",
         subject: {},
         room: {},
@@ -256,10 +249,10 @@ describe("ScheduleRepository", () => {
         Promise.resolve(mockSchedule),
       ) as any;
 
-      const result = await repository.findScheduleById("C1");
+      const result = await repository.findScheduleById(1);
 
       expect(prisma.class_schedule.findUnique).toHaveBeenCalledWith({
-        where: { ClassID: "C1" },
+        where: { ClassID: 1 },
         include: expect.any(Object),
       });
 
@@ -271,7 +264,7 @@ describe("ScheduleRepository", () => {
         Promise.resolve(null),
       ) as any;
 
-      const result = await repository.findScheduleById("NONEXISTENT");
+      const result = await repository.findScheduleById(999);
 
       expect(result).toBeNull();
     });
@@ -285,13 +278,13 @@ describe("ScheduleRepository", () => {
         Promise.resolve(mockLinked),
       ) as any;
 
-      await repository.linkTeacherToSchedule("C1", 1);
+      await repository.linkTeacherToSchedule(1, 1);
 
       expect(prisma.teachers_responsibility.update).toHaveBeenCalledWith({
         where: { RespID: 1 },
         data: {
           class_schedule: {
-            connect: { ClassID: "C1" },
+            connect: { ClassID: 1 },
           },
         },
       });
@@ -306,13 +299,13 @@ describe("ScheduleRepository", () => {
         Promise.resolve(mockUnlinked),
       ) as any;
 
-      await repository.unlinkTeacherFromSchedule("C1", 1);
+      await repository.unlinkTeacherFromSchedule(1, 1);
 
       expect(prisma.teachers_responsibility.update).toHaveBeenCalledWith({
         where: { RespID: 1 },
         data: {
           class_schedule: {
-            disconnect: { ClassID: "C1" },
+            disconnect: { ClassID: 1 },
           },
         },
       });

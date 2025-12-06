@@ -15,7 +15,7 @@ import type { SyncTeacherScheduleOutput } from "../../application/schemas/arrang
  * Basic schedule from repository
  */
 export interface BasicSchedule {
-  ClassID: string;
+  ClassID: number;
   TimeslotID: string;
 }
 
@@ -36,9 +36,8 @@ export type SubjectData = Exclude<
  * Result of schedule sync operation
  */
 export interface ScheduleSyncResult {
-  deleted: Array<{ ClassID: string }>;
+  deleted: Array<{ ClassID: number }>;
   added: Array<{
-    ClassID: string;
     TimeslotID: string;
     SubjectCode: string;
     GradeID: string;
@@ -236,7 +235,6 @@ export function calculateScheduleChanges(
         subject.GradeID!,
       );
       result.added.push({
-        ClassID: newClassID,
         TimeslotID: slot.TimeslotID,
         SubjectCode: subject.SubjectCode!,
         GradeID: subject.GradeID!,
@@ -260,7 +258,6 @@ export function calculateScheduleChanges(
         subject.GradeID!,
       );
       result.added.push({
-        ClassID: newClassID,
         TimeslotID: slot.TimeslotID,
         SubjectCode: subject.SubjectCode!,
         GradeID: subject.GradeID!,

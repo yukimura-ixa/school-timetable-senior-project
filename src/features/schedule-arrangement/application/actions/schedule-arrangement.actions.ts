@@ -98,7 +98,7 @@ export const arrangeScheduleAction = createAction(
         conflictResult.conflictType,
         conflictResult.message,
         {
-          classId: schedule?.classId || "",
+          classId: schedule?.classId,
           subjectCode: schedule?.subjectCode || "",
           subjectName: schedule?.subjectName || "",
           gradeId: schedule?.gradeId || "",
@@ -112,11 +112,12 @@ export const arrangeScheduleAction = createAction(
     }
 
     // 4. Check if schedule already exists (update) or create new
-    const existingSchedule = await scheduleRepository.findScheduleById(
-      input.classId,
-    );
+    let scheduleId: number;
+    const existingSchedule = input.classId
+      ? await scheduleRepository.findScheduleById(input.classId)
+      : null;
 
-    if (existingSchedule) {
+    if (existingSchedule && input.classId) {
       // Update existing schedule
       await scheduleRepository.updateSchedule(input.classId, {
         TimeslotID: input.timeslotId,
@@ -125,16 +126,17 @@ export const arrangeScheduleAction = createAction(
         GradeID: input.gradeId,
         IsLocked: input.isLocked,
       });
+      scheduleId = input.classId;
     } else {
-      // Create new schedule
-      await scheduleRepository.createSchedule({
-        ClassID: input.classId,
+      // Create new schedule (ClassID is auto-generated)
+      const created = await scheduleRepository.createSchedule({
         TimeslotID: input.timeslotId,
         SubjectCode: input.subjectCode,
         RoomID: input.roomId,
         GradeID: input.gradeId,
         IsLocked: input.isLocked,
       });
+      scheduleId = created.ClassID;
     }
 
     // 5. Link teacher to schedule if teacherId provided
@@ -151,7 +153,7 @@ export const arrangeScheduleAction = createAction(
 
       if (responsibility) {
         await scheduleRepository.linkTeacherToSchedule(
-          input.classId,
+          scheduleId,
           responsibility.respId,
         );
       }
@@ -159,7 +161,7 @@ export const arrangeScheduleAction = createAction(
 
     // Return data directly - action wrapper will wrap in { success: true, data }
     return {
-      classId: input.classId,
+      classId: scheduleId,
       created: !existingSchedule,
     };
   },

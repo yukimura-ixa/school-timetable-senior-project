@@ -73,12 +73,9 @@ export const createLockAction = createAction(
     for (const timeslotId of input.timeslots) {
       for (const gradeId of input.GradeIDs) {
         // Generate ClassID using domain service
-        const classId = generateClassID(timeslotId, input.SubjectCode, gradeId);
 
         // Create single locked schedule
-
         const schedule: class_schedule = await lockRepository.createLock({
-          ClassID: classId,
           IsLocked: true,
           SubjectCode: input.SubjectCode,
           TimeslotID: timeslotId,
@@ -159,14 +156,7 @@ export const createBulkLocksAction = createAction(
 
     // Use transaction for atomicity
     for (const lock of input.locks) {
-      const classId = generateClassID(
-        lock.TimeslotID,
-        lock.SubjectCode,
-        lock.GradeID,
-      );
-
       const schedule: class_schedule = await lockRepository.createLock({
-        ClassID: classId,
         IsLocked: true,
         SubjectCode: lock.SubjectCode,
         TimeslotID: lock.TimeslotID,
@@ -304,14 +294,7 @@ export const applyLockTemplateAction = createAction(
     // Create locks using bulk action
     const created: class_schedule[] = [];
     for (const lock of locks) {
-      const classId = generateClassID(
-        lock.TimeslotID,
-        lock.SubjectCode,
-        lock.GradeID,
-      );
-
       const schedule: class_schedule = await lockRepository.createLock({
-        ClassID: classId,
         IsLocked: true,
         SubjectCode: lock.SubjectCode,
         TimeslotID: lock.TimeslotID,

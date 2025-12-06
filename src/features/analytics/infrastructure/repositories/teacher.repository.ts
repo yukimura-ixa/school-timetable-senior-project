@@ -31,7 +31,8 @@ type ScheduleWithTeachers = Prisma.class_scheduleGetPayload<{
     };
   };
 }>;
-type ResponsibilityWithTeacher = ScheduleWithTeachers["teachers_responsibility"][number];
+type ResponsibilityWithTeacher =
+  ScheduleWithTeachers["teachers_responsibility"][number];
 
 /**
  * Get workload data for all teachers
@@ -79,26 +80,28 @@ async function getTeacherWorkloads(
     number,
     {
       teacher: (typeof schedules)[0]["teachers_responsibility"][0]["teacher"];
-      hours: Set<string>;
+      hours: Set<number>;
       grades: Set<string>;
     }
   >();
 
   schedules.forEach((schedule: ScheduleWithTeachers) => {
-    schedule.teachers_responsibility.forEach((resp: ResponsibilityWithTeacher) => {
-      if (!teacherMap.has(resp.TeacherID)) {
-        teacherMap.set(resp.TeacherID, {
-          teacher: resp.teacher,
-          hours: new Set(),
-          grades: new Set(),
-        });
-      }
-      const data = teacherMap.get(resp.TeacherID);
-      if (data) {
-        data.hours.add(schedule.ClassID); // Each ClassID represents a period
-        data.grades.add(schedule.GradeID);
-      }
-    });
+    schedule.teachers_responsibility.forEach(
+      (resp: ResponsibilityWithTeacher) => {
+        if (!teacherMap.has(resp.TeacherID)) {
+          teacherMap.set(resp.TeacherID, {
+            teacher: resp.teacher,
+            hours: new Set(),
+            grades: new Set(),
+          });
+        }
+        const data = teacherMap.get(resp.TeacherID);
+        if (data) {
+          data.hours.add(schedule.ClassID); // Each ClassID represents a period
+          data.grades.add(schedule.GradeID);
+        }
+      },
+    );
   });
 
   // Transform to workload data

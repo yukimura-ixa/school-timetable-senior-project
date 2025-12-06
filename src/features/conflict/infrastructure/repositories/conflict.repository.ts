@@ -70,7 +70,7 @@ export interface TeacherConflict {
   day: string;
   periodStart: number;
   conflicts: Array<{
-    scheduleId: string;
+    scheduleId: number;
     gradeId: string;
     gradeName: string;
     subjectCode: string;
@@ -88,7 +88,7 @@ export interface RoomConflict {
   day: string;
   periodStart: number;
   conflicts: Array<{
-    scheduleId: string;
+    scheduleId: number;
     gradeId: string;
     gradeName: string;
     subjectCode: string;
@@ -106,7 +106,7 @@ export interface ClassConflict {
   day: string;
   periodStart: number;
   conflicts: Array<{
-    scheduleId: string;
+    scheduleId: number;
     subjectCode: string;
     subjectName: string;
     teacherId: number;
@@ -118,7 +118,7 @@ export interface ClassConflict {
 
 export interface UnassignedSchedule {
   type: "UNASSIGNED";
-  scheduleId: string;
+  scheduleId: number;
   gradeId: string;
   gradeName: string;
   subjectCode: string;

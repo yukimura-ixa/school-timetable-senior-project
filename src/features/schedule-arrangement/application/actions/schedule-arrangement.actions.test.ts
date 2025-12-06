@@ -53,7 +53,7 @@ describe("Schedule Arrangement Actions", () => {
   describe("arrangeScheduleAction", () => {
     it("should create new schedule when no conflicts exist", async () => {
       const input = {
-        classId: "C_M1-1_T1_MATH101",
+        classId: 1,
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 101,
@@ -82,7 +82,7 @@ describe("Schedule Arrangement Actions", () => {
         Promise.resolve(null),
       ) as any; // No existing schedule
       mockClassSchedule.create = vi.fn(() =>
-        Promise.resolve({} as any),
+        Promise.resolve({ ClassID: 1 } as any),
       ) as any;
       mockTeachersResp.update = vi.fn(() =>
         Promise.resolve({} as any),
@@ -91,13 +91,13 @@ describe("Schedule Arrangement Actions", () => {
       const result = await arrangeScheduleAction(input);
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ classId: input.classId, created: true });
+      expect(result.data).toEqual({ classId: 1, created: true });
       expect(prisma.class_schedule.create).toHaveBeenCalled();
     });
 
     it("should throw error when teacher conflict exists", async () => {
       const input = {
-        classId: "C_M1-1_T1_MATH101",
+        classId: 1,
         timeslotId: "T1",
         subjectCode: "MATH101",
         roomId: 101,
@@ -111,7 +111,7 @@ describe("Schedule Arrangement Actions", () => {
       mockClassSchedule.findMany = vi.fn(() =>
         Promise.resolve([
           {
-            ClassID: "C_M2-1_T1_ENG101",
+            classId: 2,
             TimeslotID: "T1",
             SubjectCode: "ENG101",
             RoomID: 102,
@@ -161,9 +161,8 @@ describe("Schedule Arrangement Actions", () => {
 
     it("should reject invalid input", async () => {
       const invalidInput = {
-        classId: "",
         timeslotId: "T1",
-        subjectCode: "MATH101",
+        subjectCode: "",
         roomId: 101,
         gradeId: "M1-1",
         academicYear: 2566,
@@ -179,11 +178,11 @@ describe("Schedule Arrangement Actions", () => {
 
   describe("deleteScheduleAction", () => {
     it("should delete schedule when not locked", async () => {
-      const input = { classId: "C_M1-1_T1_MATH101" };
+      const input = { classId: 1 };
 
       mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
-          ClassID: input.classId,
+          ClassID: 1,
           IsLocked: false,
         } as any),
       ) as any;
@@ -194,15 +193,15 @@ describe("Schedule Arrangement Actions", () => {
       const result = await deleteScheduleAction(input);
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ classId: input.classId, deleted: true });
+      expect(result.data).toEqual({ classId: 1, deleted: true });
     });
 
     it("should throw error when schedule is locked", async () => {
-      const input = { classId: "C_M1-1_T1_MATH101" };
+      const input = { classId: 1 };
 
       mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
-          ClassID: input.classId,
+          ClassID: 1,
           IsLocked: true,
         } as any),
       ) as any;
@@ -214,7 +213,7 @@ describe("Schedule Arrangement Actions", () => {
     });
 
     it("should throw error when schedule not found", async () => {
-      const input = { classId: "C_M1-1_T1_MATH101" };
+      const input = { classId: 1 };
 
       mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve(null),
@@ -237,7 +236,7 @@ describe("Schedule Arrangement Actions", () => {
       mockClassSchedule.findMany = vi.fn(() =>
         Promise.resolve([
           {
-            ClassID: "C_M1-1_T1_MATH101",
+            classId: 1,
             TimeslotID: "T1",
             SubjectCode: "MATH101",
             RoomID: 101,
@@ -289,13 +288,13 @@ describe("Schedule Arrangement Actions", () => {
   describe("updateScheduleLockAction", () => {
     it("should lock schedule", async () => {
       const input = {
-        classId: "C_M1-1_T1_MATH101",
+        classId: 1,
         isLocked: true,
       };
 
       mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
-          ClassID: input.classId,
+          ClassID: 1,
           IsLocked: false,
         } as any),
       ) as any;
@@ -306,18 +305,18 @@ describe("Schedule Arrangement Actions", () => {
       const result = await updateScheduleLockAction(input);
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ classId: input.classId, locked: true });
+      expect(result.data).toEqual({ classId: 1, locked: true });
     });
 
     it("should unlock schedule", async () => {
       const input = {
-        classId: "C_M1-1_T1_MATH101",
+        classId: 1,
         isLocked: false,
       };
 
       mockClassSchedule.findUnique = vi.fn(() =>
         Promise.resolve({
-          ClassID: input.classId,
+          ClassID: 1,
           IsLocked: true,
         } as any),
       ) as any;
@@ -328,12 +327,12 @@ describe("Schedule Arrangement Actions", () => {
       const result = await updateScheduleLockAction(input);
 
       expect(result.success).toBe(true);
-      expect(result.data).toEqual({ classId: input.classId, locked: false });
+      expect(result.data).toEqual({ classId: 1, locked: false });
     });
 
     it("should throw error when schedule not found", async () => {
       const input = {
-        classId: "C_M1-1_T1_MATH101",
+        classId: 1,
         isLocked: true,
       };
 

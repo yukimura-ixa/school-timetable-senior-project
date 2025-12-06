@@ -531,7 +531,7 @@ export default function TeacherArrangePageRefactored() {
           // Add scheduled slot as subject if found, otherwise keep null
           if (matchedSlot) {
             const subjectData: SubjectData = {
-              itemID: parseInt(matchedSlot.ClassID),
+              itemID: matchedSlot.ClassID,
               subjectCode: matchedSlot.SubjectCode,
               subjectName:
                 matchedSlot.SubjectName || matchedSlot.subject.SubjectName,
@@ -731,7 +731,7 @@ export default function TeacherArrangePageRefactored() {
     // SubjectData has both PascalCase and camelCase fields for backward compatibility
     const mappedScheduledSubjects: SubjectData[] = concatClassData.map(
       (item) => ({
-        itemID: parseInt(item.ClassID),
+        itemID: item.ClassID,
         subjectCode: item.SubjectCode,
         subjectName: item.SubjectName,
         gradeID: Array.isArray(item.GradeID)
@@ -784,7 +784,7 @@ export default function TeacherArrangePageRefactored() {
         // Convert matched subject to SubjectData format
         if (matchedSubject) {
           const subjectData: SubjectData = {
-            itemID: parseInt(matchedSubject.ClassID),
+            itemID: matchedSubject.ClassID,
             subjectCode: matchedSubject.SubjectCode,
             subjectName: matchedSubject.SubjectName,
             gradeID: Array.isArray(matchedSubject.GradeID)

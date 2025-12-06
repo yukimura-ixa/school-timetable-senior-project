@@ -50,7 +50,7 @@ export interface ConflictResult {
  */
 export interface ConflictingScheduleDetails {
   /** The class ID of the conflicting schedule */
-  classId?: string;
+  classId?: number;
 
   /** The subject code of the conflicting schedule */
   subjectCode?: string;
@@ -82,8 +82,8 @@ export interface ConflictingScheduleDetails {
  * This represents what the user wants to schedule
  */
 export interface ScheduleArrangementInput {
-  /** Unique identifier for the class period */
-  classId: string;
+  /** Unique identifier for the class period (auto-generated for new schedules) */
+  classId?: number;
 
   /** The timeslot to schedule in */
   timeslotId: string;
@@ -112,7 +112,7 @@ export interface ScheduleArrangementInput {
  * This represents schedules already in the database
  */
 export interface ExistingSchedule {
-  classId: string;
+  classId: number;
   timeslotId: string;
   subjectCode: string;
   subjectName: string;

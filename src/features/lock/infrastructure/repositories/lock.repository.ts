@@ -13,7 +13,7 @@ import { semester } from "@/prisma/generated/client";
  * Includes all relations needed for grouping
  */
 export type RawLockedSchedule = {
-  ClassID: string;
+  ClassID: number;
   TimeslotID: string;
   SubjectCode: string;
   RoomID: number | null;
@@ -89,7 +89,6 @@ export async function findLockedSchedules(
  * Type for creating a single locked class schedule
  */
 export type CreateLockData = {
-  ClassID: string;
   IsLocked: boolean;
   SubjectCode: string;
   TimeslotID: string;
@@ -105,7 +104,6 @@ export type CreateLockData = {
 export async function createLock(data: CreateLockData) {
   return await prisma.class_schedule.create({
     data: {
-      ClassID: data.ClassID,
       IsLocked: data.IsLocked,
       teachers_responsibility: {
         connect: data.RespIDs,
@@ -137,7 +135,7 @@ export async function createLock(data: CreateLockData) {
 /**
  * Delete multiple locked schedules by ClassIDs
  */
-export async function deleteMany(classIds: string[]) {
+export async function deleteMany(classIds: number[]) {
   return await prisma.class_schedule.deleteMany({
     where: {
       ClassID: {
