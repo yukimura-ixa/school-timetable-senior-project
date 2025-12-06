@@ -22,7 +22,7 @@ export type { ConflictType } from "@/features/schedule-arrangement/domain/models
  * Based on domain model but with required fields for error reporting
  */
 export interface ConflictingSchedule {
-  classId: string;
+  classId: number;
   subjectCode: string;
   subjectName: string;
   gradeId: string;

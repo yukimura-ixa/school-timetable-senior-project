@@ -61,7 +61,7 @@ export interface SubjectData {
   room?: room | null;
 
   // Class context
-  classID?: string;
+  classID?: number;
 
   // Related data
   gradelevel?: {

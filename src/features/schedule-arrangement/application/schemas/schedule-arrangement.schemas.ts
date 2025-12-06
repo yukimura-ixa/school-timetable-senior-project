@@ -20,7 +20,7 @@ import {
  * @example
  * ```ts
  * const result = v.safeParse(arrangeScheduleSchema, {
- *   classId: 'C_M1-1_T1_MATH101',
+ *   classId: 123,
  *   timeslotId: 'T1',
  *   subjectCode: 'MATH101',
  *   roomId: 101,
@@ -32,10 +32,12 @@ import {
  * ```
  */
 export const arrangeScheduleSchema = v.object({
-  classId: v.pipe(
-    v.string("Class ID must be a string"),
-    v.nonEmpty("Class ID is required"),
-    v.maxLength(255, "Class ID must not exceed 255 characters"),
+  classId: v.optional(
+    v.pipe(
+      v.number("Class ID must be a number"),
+      v.integer("Class ID must be an integer"),
+      v.minValue(1, "Class ID must be positive"),
+    ),
   ),
   timeslotId: v.pipe(
     v.string("Timeslot ID must be a string"),
@@ -80,7 +82,11 @@ export type ArrangeScheduleInput = v.InferOutput<typeof arrangeScheduleSchema>;
  * Schema for deleting a schedule
  */
 export const deleteScheduleSchema = v.object({
-  classId: nonEmptyStringSchema,
+  classId: v.pipe(
+    v.number("Class ID must be a number"),
+    v.integer("Class ID must be an integer"),
+    v.minValue(1, "Class ID must be positive"),
+  ),
 });
 
 /**
@@ -107,7 +113,11 @@ export type GetSchedulesByTermInput = v.InferOutput<
  * Schema for updating schedule lock status
  */
 export const updateScheduleLockSchema = v.object({
-  classId: nonEmptyStringSchema,
+  classId: v.pipe(
+    v.number("Class ID must be a number"),
+    v.integer("Class ID must be an integer"),
+    v.minValue(1, "Class ID must be positive"),
+  ),
   isLocked: v.boolean("Is locked must be a boolean"),
 });
 

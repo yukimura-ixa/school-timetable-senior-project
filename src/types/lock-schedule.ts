@@ -81,7 +81,7 @@ export type LockSchedule = class_schedule & {
 export interface LockScheduleExtended {
   SubjectCode: string;
   GradeID: string;
-  ClassID: string;
+  ClassID: number;
   TimeslotID: string;
   RoomID: number | null;
   IsLocked: boolean;
@@ -98,7 +98,7 @@ export interface LockScheduleExtended {
  * Simplified lock schedule for list display
  */
 export interface LockScheduleListItem {
-  ClassID: string;
+  ClassID: number;
   TimeslotID: string;
   SubjectCode: string;
   SubjectName: string;

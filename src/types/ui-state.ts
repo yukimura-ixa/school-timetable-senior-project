@@ -50,7 +50,7 @@ export interface SubjectData {
   RoomName?: string | null;
   RoomID?: number | null;
   room?: room | null;
-  ClassID?: string;
+  ClassID?: number;
   teacherID?: number;
   Category?: "CORE" | "ADDITIONAL" | "ACTIVITY";
   gradelevel?: {

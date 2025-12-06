@@ -8,7 +8,7 @@ datasource db {
 }
 
 model class_schedule {
-  ClassID                 String                    @id
+  ClassID                 Int                       @id @default(autoincrement())
   TimeslotID              String
   SubjectCode             String
   RoomID                  Int?
@@ -33,6 +33,7 @@ model gradelevel {
   GradeID                 String                    @id
   Year                    Int
   Number                  Int
+  DisplayID               String                    @unique
   StudentCount            Int                       @default(0)
   ProgramID               Int?
   class_schedule          class_schedule[]

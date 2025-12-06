@@ -313,6 +313,7 @@ async function seedDemoData() {
             GradeID: grade.id,
             Year: grade.year,
             Number: grade.number,
+            DisplayID: String((grade.year * 100) + grade.number), // Auto-generated: "101", "102", "103"
             StudentCount: 35,
             ProgramID: demoProgram.ProgramID,
           },
@@ -604,7 +605,6 @@ async function seedDemoData() {
   for (const grade of gradeLevels) {
     for (const schedule of scheduleTemplate) {
       const timeslotId = `1-${academicYear}-${schedule.day}${schedule.period}`;
-      const classId = `${timeslotId}-${schedule.subjectCode}-${grade.GradeID}`;
       const teacher = teachers[schedule.teacherIndex];
       const room = rooms[schedule.period % rooms.length];
 
@@ -622,11 +622,8 @@ async function seedDemoData() {
         try {
           await withRetry(
             () =>
-              prisma.class_schedule.upsert({
-                where: { ClassID: classId },
-                update: {},
-                create: {
-                  ClassID: classId,
+              prisma.class_schedule.create({
+                data: {
                   TimeslotID: timeslotId,
                   SubjectCode: schedule.subjectCode,
                   GradeID: grade.GradeID,
@@ -637,7 +634,7 @@ async function seedDemoData() {
                   },
                 },
               }),
-            `Upsert schedule ${classId}`,
+            `Create schedule for ${grade.GradeID} - ${schedule.subjectCode}`,
           );
           scheduleCount++;
         } catch (error: any) {
@@ -1977,6 +1974,7 @@ async function main() {
                 GradeID: gradeId,
                 Year: year,
                 Number: number,
+                DisplayID: String((year * 100) + number), // Auto-generated DisplayID
                 StudentCount: 35 + Math.floor(Math.random() * 10),
                 ProgramID: program?.ProgramID,
               },
