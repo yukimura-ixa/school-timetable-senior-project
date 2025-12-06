@@ -18,33 +18,30 @@ model class_schedule {
   room                    room?                     @relation(fields: [RoomID], references: [RoomID], map: "fk_class_schedule_room")
   subject                 subject                   @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_class_schedule_subject")
   timeslot                timeslot                  @relation(fields: [TimeslotID], references: [TimeslotID], onDelete: Cascade, map: "fk_class_schedule_timeslot")
-  teachers_responsibility teachers_responsibility[]
+  teachers_responsibility teachers_responsibility[] @relation("class_scheduleToteachers_responsibility")
 
-  @@index([GradeID], map: "class_schedule_GradeID_idx")
-  @@index([RoomID], map: "class_schedule_RoomID_idx")
-  @@index([SubjectCode], map: "class_schedule_SubjectCode_idx")
-  @@index([TimeslotID], map: "class_schedule_TimeslotID_idx")
-  // Performance indexes for conflict detection
-  @@index([TimeslotID, GradeID], map: "class_schedule_timeslot_grade_idx")
-  @@index([TimeslotID, RoomID], map: "class_schedule_timeslot_room_idx")
+  @@unique([TimeslotID, GradeID], map: "class_schedule_timeslot_grade_unique")
+  @@unique([TimeslotID, RoomID], map: "class_schedule_timeslot_room_unique")
+  @@index([GradeID])
+  @@index([RoomID])
+  @@index([SubjectCode])
+  @@index([TimeslotID])
   @@index([GradeID, IsLocked], map: "class_schedule_grade_locked_idx")
 }
 
 model gradelevel {
-  GradeID      String @id
-  Year         Int
-  Number       Int
-  StudentCount Int    @default(0)
-
-  ProgramID Int?
-  program   program? @relation(fields: [ProgramID], references: [ProgramID], onDelete: SetNull, map: "fk_gradelevel_program")
-
+  GradeID                 String                    @id
+  Year                    Int
+  Number                  Int
+  StudentCount            Int                       @default(0)
+  ProgramID               Int?
   class_schedule          class_schedule[]
+  program                 program?                  @relation(fields: [ProgramID], references: [ProgramID], map: "fk_gradelevel_program")
   teachers_responsibility teachers_responsibility[]
 
   @@unique([Year, Number], map: "gradelevel_year_number_unique")
-  @@index([ProgramID], map: "gradelevel_ProgramID_idx")
-  @@index([Year], map: "gradelevel_Year_idx")
+  @@index([ProgramID])
+  @@index([Year])
 }
 
 model room {
@@ -56,62 +53,57 @@ model room {
 }
 
 model subject {
-  SubjectCode String         @id
-  SubjectName String
-  Credit      subject_credit
-
-  // MOE Curriculum Fields
-  Category     SubjectCategory @default(CORE)
-  LearningArea LearningArea?
-  ActivityType ActivityType?
-  IsGraded     Boolean         @default(true)
-  Description  String?
-
+  SubjectCode             String                    @id
+  SubjectName             String
+  Credit                  subject_credit
+  ActivityType            ActivityType?
+  Description             String?
+  IsGraded                Boolean                   @default(true)
+  LearningArea            LearningArea?
+  Category                SubjectCategory           @default(CORE)
   class_schedule          class_schedule[]
-  teachers_responsibility teachers_responsibility[]
   program_subject         program_subject[]
+  teachers_responsibility teachers_responsibility[]
 
-  @@index([Category], map: "subject_Category_idx")
-  @@index([LearningArea], map: "subject_LearningArea_idx")
-  @@index([ActivityType], map: "subject_ActivityType_idx")
+  @@index([Category])
+  @@index([LearningArea])
+  @@index([ActivityType])
 }
 
 model program {
-  ProgramID       Int          @id @default(autoincrement())
-  ProgramCode     String       @unique
+  ProgramID       Int               @id @default(autoincrement())
   ProgramName     String
-  Year            Int
-  Track           ProgramTrack
   Description     String?
-  MinTotalCredits Float        @default(0)
-  IsActive        Boolean      @default(true)
-
+  IsActive        Boolean           @default(true)
+  MinTotalCredits Float             @default(0)
+  ProgramCode     String            @unique
+  Track           ProgramTrack
+  Year            Int
   gradelevel      gradelevel[]
   program_subject program_subject[]
 
   @@unique([Year, Track], map: "program_year_track_unique")
-  @@index([Year], map: "program_Year_idx")
-  @@index([IsActive], map: "program_IsActive_idx")
+  @@index([Year])
+  @@index([IsActive])
 }
 
 model program_subject {
-  ProgramSubjectID Int    @id @default(autoincrement())
+  ProgramSubjectID Int             @id @default(autoincrement())
   ProgramID        Int
   SubjectCode      String
-
-  Category    SubjectCategory
-  IsMandatory Boolean         @default(true)
-  MinCredits  Float
-  MaxCredits  Float?
-  SortOrder   Int             @default(0)
-
-  program program @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, map: "fk_program_subject_program")
-  subject subject @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_program_subject_subject")
+  Category         SubjectCategory
+  IsMandatory      Boolean         @default(true)
+  MinCredits       Float
+  MaxCredits       Float?
+  SortOrder        Int             @default(0)
+  program          program         @relation(fields: [ProgramID], references: [ProgramID], onDelete: Cascade, map: "fk_program_subject_program")
+  subject          subject         @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_program_subject_subject")
 
   @@unique([ProgramID, SubjectCode], map: "program_subject_unique")
-  @@index([ProgramID], map: "program_subject_ProgramID_idx")
-  @@index([SubjectCode], map: "program_subject_SubjectCode_idx")
-  @@index([Category], map: "program_subject_Category_idx")
+  @@index([ProgramID])
+  @@index([SubjectCode])
+  @@index([Category])
+  @@index([IsMandatory])
 }
 
 model teacher {
@@ -123,6 +115,8 @@ model teacher {
   Email                   String                    @unique
   Role                    String                    @default("teacher")
   teachers_responsibility teachers_responsibility[]
+
+  @@index([Department])
 }
 
 model timeslot {
@@ -135,7 +129,6 @@ model timeslot {
   DayOfWeek      day_of_week
   class_schedule class_schedule[]
 
-  // Performance index for finding timeslots by term and day
   @@index([AcademicYear, Semester, DayOfWeek], map: "timeslot_term_day_idx")
 }
 
@@ -150,35 +143,91 @@ model teachers_responsibility {
   gradelevel     gradelevel       @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade, map: "fk_teachers_responsibility_grade")
   subject        subject          @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_teachers_responsibility_subject")
   teacher        teacher          @relation(fields: [TeacherID], references: [TeacherID], onDelete: Cascade, map: "fk_teachers_responsibility_teacher")
-  class_schedule class_schedule[]
+  class_schedule class_schedule[] @relation("class_scheduleToteachers_responsibility")
 
-  @@index([TeacherID], map: "teachers_responsibility_TeacherID_idx")
-  @@index([GradeID], map: "teachers_responsibility_GradeID_idx")
-  @@index([SubjectCode], map: "teachers_responsibility_SubjectCode_idx")
-  // Performance indexes for finding teacher assignments
+  @@unique([TeacherID, GradeID, SubjectCode, AcademicYear, Semester], map: "teachers_responsibility_unique")
+  @@index([TeacherID])
+  @@index([GradeID])
+  @@index([SubjectCode])
   @@index([TeacherID, AcademicYear, Semester], map: "teachers_responsibility_teacher_term_idx")
-  @@index([GradeID, SubjectCode, AcademicYear, Semester], map: "teachers_responsibility_grade_subject_term_idx")
 }
 
 model table_config {
-  ConfigID     String   @id
-  AcademicYear Int
-  Semester     semester
-  Config       Json
-
-  // New fields for semester status and metadata
-  status             SemesterStatus @default(DRAFT)
-  publishedAt        DateTime?
+  ConfigID           String         @id
+  AcademicYear       Int
+  Semester           semester
+  Config             Json
+  configCompleteness Int            @default(0)
+  createdAt          DateTime       @default(now())
   isPinned           Boolean        @default(false)
   lastAccessedAt     DateTime       @default(now())
-  configCompleteness Int            @default(0) // 0-100%
+  publishedAt        DateTime?
+  status             SemesterStatus @default(DRAFT)
+  updatedAt          DateTime       @default(now()) @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@index([status], map: "table_config_status_idx")
+  @@index([status])
   @@index([isPinned], map: "table_config_pinned_idx")
   @@index([lastAccessedAt], map: "table_config_accessed_idx")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  image         String?
+  password      String?
+  role          String    @default("user")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  banExpires    DateTime?
+  banReason     String?
+  banned        Boolean?  @default(false)
+  emailVerified Boolean   @default(false)
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  userId                String
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  accessToken           String?
+  accessTokenExpiresAt  DateTime?
+  accountId             String
+  id                    String    @id @default(cuid())
+  idToken               String?
+  password              String?
+  providerId            String
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+}
+
+model Session {
+  userId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  impersonatedBy String?
+  expiresAt      DateTime
+  id             String   @id @default(cuid())
+  ipAddress      String?
+  token          String   @unique
+  userAgent      String?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
 }
 
 enum SemesterStatus {
@@ -217,131 +266,33 @@ enum breaktime {
   NOT_BREAK
 }
 
-// ====================
-// MOE Curriculum Enums
-// ====================
-
 enum ProgramTrack {
-  SCIENCE_MATH // วิทย์-คณิต
-  LANGUAGE_MATH // ศิลป์-คำนวณ
-  LANGUAGE_ARTS // ศิลป์-ภาษา
-  GENERAL // ทั่วไป
+  SCIENCE_MATH
+  LANGUAGE_MATH
+  LANGUAGE_ARTS
+  GENERAL
 }
 
 enum SubjectCategory {
-  CORE // รายวิชาพื้นฐาน (graded, mandatory)
-  ADDITIONAL // รายวิชาเพิ่มเติม (graded, may be elective)
-  ACTIVITY // กิจกรรมพัฒนาผู้เรียน (non-graded)
+  CORE
+  ADDITIONAL
+  ACTIVITY
 }
 
 enum LearningArea {
-  THAI // ภาษาไทย
-  MATHEMATICS // คณิตศาสตร์
-  SCIENCE // วิทยาศาสตร์และเทคโนโลยี
-  SOCIAL // สังคมศึกษา ศาสนา และวัฒนธรรม
-  HEALTH_PE // สุขศึกษาและพลศึกษา
-  ARTS // ศิลปะ
-  CAREER // การงานอาชีพ
-  FOREIGN_LANGUAGE // ภาษาต่างประเทศ
+  THAI
+  MATHEMATICS
+  SCIENCE
+  SOCIAL
+  HEALTH_PE
+  ARTS
+  CAREER
+  FOREIGN_LANGUAGE
 }
-
-// =============================================
-// Standardized MOE Department Display Names (2025)
-// ใช้ในฟิลด์ teacher.Department ของข้อมูล seed:
-//  - ภาษาไทย
-//  - คณิตศาสตร์
-//  - วิทยาศาสตร์และเทคโนโลยี
-//  - สังคมศึกษา
-//  - ภาษาต่างประเทศ
-//  - สุขศึกษาและพลศึกษา
-//  - ศิลปะ
-//  - การงานอาชีพ
-// หมายเหตุ: "วิทยาศาสตร์" ปรับเป็น "วิทยาศาสตร์และเทคโนโลยี" ตามมาตรฐานใหม่
-//          และคงชื่อ "การงานอาชีพ" (ไม่ใช้ "การงานอาชีพและเทคโนโลยี")
-// =============================================
 
 enum ActivityType {
-  CLUB // ชุมนุม
-  SCOUT // ลูกเสือ/เนตรนารี
-  GUIDANCE // แนะแนว
-  SOCIAL_SERVICE // กิจกรรมเพื่อสังคมและสาธารณประโยชน์
-}
-
-// ====================
-// Better Auth Models
-// Required for authentication with better-auth
-// @see https://www.better-auth.com/docs/concepts/database#core-schema
-// ====================
-
-model User {
-  id            String  @id @default(cuid())
-  name          String
-  email         String  @unique
-  emailVerified Boolean @default(false)
-  image         String?
-  password      String? // For credential-based login (hashed with bcrypt)
-
-  // CUSTOM: Preserve existing role field for authorization
-  role String @default("user") // admin or user/guest
-
-  // Admin plugin fields for user management
-  banned     Boolean?  @default(false)
-  banReason  String?
-  banExpires DateTime?
-
-  accounts Account[]
-  sessions Session[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Account {
-  id                    String    @id @default(cuid())
-  userId                String
-  accountId             String // Provider's account ID
-  providerId            String // "google", "credentials", etc.
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String? // For credentials provider
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([providerId, accountId])
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  token     String   @unique // better-auth uses 'token' instead of 'sessionToken'
-  expiresAt DateTime // better-auth uses 'expiresAt' instead of 'expires'
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  ipAddress String?
-  userAgent String?
-
-  // Admin plugin field for impersonation tracking
-  impersonatedBy String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([identifier, value])
+  CLUB
+  SCOUT
+  GUIDANCE
+  SOCIAL_SERVICE
 }

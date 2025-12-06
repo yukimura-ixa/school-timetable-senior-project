@@ -396,7 +396,7 @@ async function seedDemoData() {
     for (const day of days) {
       for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
         const period = periods[periodNum - 1];
-        const timeslotId = `${sem.number}-${academicYear}-${day}-${periodNum}`;
+        const timeslotId = `${sem.number}-${academicYear}-${day}${periodNum}`;
 
         await withRetry(
           () =>
@@ -425,7 +425,7 @@ async function seedDemoData() {
     for (const day of days) {
       for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
         const period = periods[periodNum - 1];
-        const timeslotId = `${sem.number}-${sem.year}-${day}-${periodNum}`;
+        const timeslotId = `${sem.number}-${sem.year}-${day}${periodNum}`;
 
         await withRetry(
           () =>
@@ -603,7 +603,7 @@ async function seedDemoData() {
 
   for (const grade of gradeLevels) {
     for (const schedule of scheduleTemplate) {
-      const timeslotId = `1-${academicYear}-${schedule.day}-${schedule.period}`;
+      const timeslotId = `1-${academicYear}-${schedule.day}${schedule.period}`;
       const classId = `${timeslotId}-${schedule.subjectCode}-${grade.GradeID}`;
       const teacher = teachers[schedule.teacherIndex];
       const room = rooms[schedule.period % rooms.length];
@@ -2088,7 +2088,7 @@ async function main() {
           () =>
             prisma.timeslot.create({
               data: {
-                TimeslotID: `${semesterNumber}-${academicYear}-${day}-${periodNum}`,
+                TimeslotID: `${semesterNumber}-${academicYear}-${day}${periodNum}`,
                 AcademicYear: academicYear,
                 Semester: sem,
                 StartTime: new Date(`2024-01-01T${period.start}:00`),
@@ -2097,7 +2097,7 @@ async function main() {
                 DayOfWeek: day,
               },
             }),
-          `Create timeslot ${day}-${periodNum}`,
+          `Create timeslot ${day}${periodNum}`,
         ),
       );
     }
@@ -2120,7 +2120,7 @@ async function main() {
           () =>
             prisma.timeslot.create({
               data: {
-                TimeslotID: `${semesterNumber2}-${academicYear}-${day}-${periodNum}`,
+                TimeslotID: `${semesterNumber2}-${academicYear}-${day}${periodNum}`,
                 AcademicYear: academicYear,
                 Semester: sem2,
                 StartTime: new Date(`2024-01-01T${period.start}:00`),
@@ -2129,7 +2129,7 @@ async function main() {
                 DayOfWeek: day,
               },
             }),
-          `Create timeslot S2 ${day}-${periodNum}`,
+          `Create timeslot S2 ${day}${periodNum}`,
         ),
       );
     }
@@ -2150,7 +2150,7 @@ async function main() {
           () =>
             prisma.timeslot.create({
               data: {
-                TimeslotID: `1-${academicYear2568}-${day}-${periodNum}`,
+                TimeslotID: `1-${academicYear2568}-${day}${periodNum}`,
                 AcademicYear: academicYear2568,
                 Semester: "SEMESTER_1",
                 StartTime: new Date(`2024-01-01T${period.start}:00`),
@@ -2159,7 +2159,7 @@ async function main() {
                 DayOfWeek: day,
               },
             }),
-          `Create timeslot S1-2568 ${day}-${periodNum}`,
+          `Create timeslot S1-2568 ${day}${periodNum}`,
         ),
       );
     }
@@ -2485,7 +2485,7 @@ async function main() {
 
     for (const schedule of scheduleTemplate) {
       const timeslot = timeslots.find(
-        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-${schedule.day}-${schedule.period}`,
+        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-${schedule.day}${schedule.period}`,
       );
 
       if (timeslot) {
@@ -2531,7 +2531,7 @@ async function main() {
     for (let i = 0; i < 3; i++) {
       const gradeLevel = gradeLevels[i];
       const timeslot = timeslots.find(
-        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-MON-8`,
+        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-MON8`,
       );
 
       if (timeslot) {
