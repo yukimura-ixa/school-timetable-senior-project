@@ -85,10 +85,10 @@ jobs:
             ~/.cache/pnpm
             ~/.local/share/pnpm
             .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          key: ${{ runner.os }}-nextjs-v2-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
-            ${{ runner.os }}-nextjs-
+            ${{ runner.os }}-nextjs-v2-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-v2-
 
       # Setup environment variables for E2E testing
       - name: Setup environment variables
@@ -193,7 +193,7 @@ jobs:
           max_attempts=30
           attempt=1
           wait_time=2
-          
+
           while [ $attempt -le $max_attempts ]; do
             echo "⏳ Attempt $attempt/$max_attempts - Checking database health..."
             
