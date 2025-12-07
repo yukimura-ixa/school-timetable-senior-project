@@ -184,6 +184,49 @@ jobs:
           done'
           echo "✅ Server is ready!"
 
+      # Verify database is fully seeded before running E2E tests
+      # Prevents race conditions where tests start before data is available
+      # Related: Issue #172, Commit 50f6861
+      - name: Verify database is ready for tests
+        run: |
+          echo "🔍 Verifying database seed status..."
+          max_attempts=30
+          attempt=1
+          wait_time=2
+          
+          while [ $attempt -le $max_attempts ]; do
+            echo "⏳ Attempt $attempt/$max_attempts - Checking database health..."
+            
+            # Check if health endpoint responds and database is ready
+            if curl -f http://localhost:3000/api/health/db 2>/dev/null | jq -e '.ready == true' > /dev/null 2>&1; then
+              echo "✅ Database is ready!"
+              echo "📊 Database health status:"
+              curl -s http://localhost:3000/api/health/db | jq .
+              break
+            fi
+            
+            if [ $attempt -eq $max_attempts ]; then
+              echo "❌ Database failed to be ready after $max_attempts attempts"
+              echo "📊 Final health check response:"
+              curl -s http://localhost:3000/api/health/db 2>/dev/null | jq . || echo "Health endpoint not responding"
+              echo ""
+              echo "🔍 Diagnostic Information:"
+              echo "Expected minimum counts: teachers=8, schedules=30, timeslots=80"
+              echo ""
+              echo "💡 This usually means:"
+              echo "   1. Database seed did not complete successfully"
+              echo "   2. Application is not connecting to the correct database"
+              echo "   3. Prisma migrations were not applied"
+              exit 1
+            fi
+            
+            echo "   Not ready yet, waiting ${wait_time}s..."
+            sleep $wait_time
+            attempt=$((attempt + 1))
+          done
+        env:
+          NODE_ENV: test
+
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 

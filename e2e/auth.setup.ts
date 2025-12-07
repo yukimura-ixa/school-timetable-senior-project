@@ -31,7 +31,68 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 // Increase setup timeout to accommodate initial compile/HMR and seeding
 setup.setTimeout(60_000);
 
+/**
+ * Ensures database is fully seeded before proceeding with tests
+ * Prevents race conditions where tests start before data is available
+ *
+ * Related: Issue #172, Commit 50f6861
+ *
+ * @throws Error if database is not ready after maximum attempts
+ */
+async function ensureDatabaseReady(): Promise<void> {
+  const maxAttempts = 10;
+  const baseUrl =
+    process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
+
+  console.log("[DB HEALTH] Verifying database is ready...");
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const response = await fetch(`${baseUrl}/api/health/db`);
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.ready) {
+          console.log("[DB HEALTH] ✅ Database verified ready");
+          console.log("[DB HEALTH] Record counts:", data.counts);
+          return;
+        }
+
+        console.log(
+          `[DB HEALTH] ⏳ Database not ready (attempt ${attempt}/${maxAttempts})`,
+        );
+        console.log("[DB HEALTH] Current counts:", data.counts);
+        console.log("[DB HEALTH] Required minimums:", data.minExpected);
+      } else {
+        console.log(
+          `[DB HEALTH] ⚠️ Health endpoint returned ${response.status} (attempt ${attempt}/${maxAttempts})`,
+        );
+      }
+    } catch (error) {
+      console.log(
+        `[DB HEALTH] ❌ Health check failed (attempt ${attempt}/${maxAttempts}):`,
+        error instanceof Error ? error.message : "Unknown error",
+      );
+    }
+
+    if (attempt < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+
+  throw new Error(
+    "[DB HEALTH] Database not ready after maximum attempts. " +
+      "Ensure database is seeded with demo or test data before running E2E tests. " +
+      "Run: pnpm db:seed:demo or pnpm db:seed:clean",
+  );
+}
+
 setup("authenticate as admin", async ({ page }) => {
+  // Verify database is ready BEFORE attempting authentication
+  // This prevents test failures due to missing seed data
+  await ensureDatabaseReady();
+
   console.log("[AUTH SETUP] Starting authentication flow...");
 
   // Listen to console logs from the browser
