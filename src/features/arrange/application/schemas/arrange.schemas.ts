@@ -46,7 +46,7 @@ export const scheduleSlotSchema = v.object({
     v.object({
       SubjectCode: v.optional(v.string()),
       GradeID: v.optional(v.string()),
-      ClassID: v.optional(v.string()),
+      ClassID: v.optional(v.number()),
       RespID: v.optional(v.number()),
       IsLocked: v.optional(v.boolean()),
       room: v.optional(

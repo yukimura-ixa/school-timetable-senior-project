@@ -6,7 +6,7 @@ import { enqueueSnackbar } from "notistack";
 import type { ModalCloseHandler } from "@/types/events";
 
 type DeleteLockScheduleData = {
-  ClassIDs: string[];
+  ClassIDs: number[];
   SubjectCode: string;
   SubjectName: string;
 };

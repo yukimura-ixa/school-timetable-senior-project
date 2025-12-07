@@ -65,10 +65,16 @@ export type CreateLockInput = v.InferOutput<typeof createLockSchema>;
 
 /**
  * Schema for deleting locked schedules
- * Input: Array of ClassID strings
+ * Input: Array of ClassID integers
  */
 export const deleteLocksSchema = v.pipe(
-  v.array(v.pipe(v.number("ClassID ต้องเป็นตัวเลข"), v.integer("ClassID ต้องเป็นจำนวนเต็ม")), "ClassIDs ต้องเป็น array"),
+  v.array(
+    v.pipe(
+      v.number("ClassID ต้องเป็นตัวเลข"),
+      v.integer("ClassID ต้องเป็นจำนวนเต็ม"),
+    ),
+    "ClassIDs ต้องเป็น array",
+  ),
   v.minLength(1, "ต้องระบุ ClassID อย่างน้อย 1 รายการ"),
 );
 

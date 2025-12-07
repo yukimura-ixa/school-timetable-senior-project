@@ -63,7 +63,7 @@ export interface CopyConfigResult {
  * Class schedule with responsibility relationship
  */
 interface ClassScheduleWithResponsibility {
-  ClassID: string;
+  ClassID: number;
   TimeslotID: string;
   SubjectCode: string;
   RoomID: number | null;
@@ -362,7 +362,7 @@ async function createScheduleEntry(
   tx: TransactionClient,
 ): Promise<boolean> {
   const newTimeslotID = replaceConfigIDInString(schedule.TimeslotID, from, to);
-  const newClassID = replaceConfigIDInString(schedule.ClassID, from, to);
+  // ClassID is now autoincrement - will be auto-generated, don't set manually
 
   // Use lookup map for O(1) access
   const key = `${schedule.GradeID}|${schedule.SubjectCode}`;
@@ -371,7 +371,7 @@ async function createScheduleEntry(
   try {
     await tx.class_schedule.create({
       data: {
-        ClassID: newClassID,
+        // ClassID removed - autoincrement field cannot be set manually
         TimeslotID: newTimeslotID,
         SubjectCode: schedule.SubjectCode,
         RoomID: schedule.RoomID,

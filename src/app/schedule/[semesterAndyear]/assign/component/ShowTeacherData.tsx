@@ -16,7 +16,7 @@ interface ResponsibilityWithSubject extends teachers_responsibility {
     Category?: string;
     SubjectName?: string;
   };
-  ClassID?: string;
+  ClassID?: number;
 }
 import Loading from "@/app/loading";
 import {
@@ -101,7 +101,7 @@ function ShowTeacherData() {
     }
 
     const uniqueClasses = new Set(
-      data.map((item) => item.ClassID).filter((id): id is string => !!id),
+      data.map((item) => item.ClassID).filter((id): id is number => !!id),
     );
 
     return {
