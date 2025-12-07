@@ -2626,7 +2626,6 @@ async function main() {
                 () =>
                   prisma.class_schedule.create({
                     data: {
-                      ClassID: `${timeslot.TimeslotID}-${schedule.subjectCode}-${gradeLevel.GradeID}`,
                       TimeslotID: timeslot.TimeslotID,
                       SubjectCode: schedule.subjectCode,
                       GradeID: gradeLevel.GradeID,
@@ -2672,7 +2671,6 @@ async function main() {
               () =>
                 prisma.class_schedule.create({
                   data: {
-                    ClassID: `${timeslot.TimeslotID}-${clubSubject.code}-${gradeLevel.GradeID}`,
                     TimeslotID: timeslot.TimeslotID,
                     SubjectCode: clubSubject.code,
                     GradeID: gradeLevel.GradeID,
