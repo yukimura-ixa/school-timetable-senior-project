@@ -126,26 +126,26 @@ async function withRetry<T>(
 // Maps Thai department names to official MOE 8 Learning Areas
 // ============================================================================
 const DEPT_TO_LEARNING_AREA: Record<string, LearningArea> = {
-  "ภาษาไทย": "THAI",
-  "คณิตศาสตร์": "MATHEMATICS",
-  "วิทยาศาสตร์และเทคโนโลยี": "SCIENCE",
-  "สังคมศึกษา": "SOCIAL",
-  "สุขศึกษาและพลศึกษา": "HEALTH_PE",
-  "ศิลปะ": "ARTS",
-  "การงานอาชีพ": "CAREER",
-  "ภาษาต่างประเทศ": "FOREIGN_LANGUAGE",
+  ภาษาไทย: "THAI",
+  คณิตศาสตร์: "MATHEMATICS",
+  วิทยาศาสตร์และเทคโนโลยี: "SCIENCE",
+  สังคมศึกษา: "SOCIAL",
+  สุขศึกษาและพลศึกษา: "HEALTH_PE",
+  ศิลปะ: "ARTS",
+  การงานอาชีพ: "CAREER",
+  ภาษาต่างประเทศ: "FOREIGN_LANGUAGE",
 };
 
 // Subject code prefix to department mapping (for reverse lookup)
 const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
-  "ท": "ภาษาไทย",
-  "ค": "คณิตศาสตร์",
-  "ว": "วิทยาศาสตร์และเทคโนโลยี",
-  "ส": "สังคมศึกษา",
-  "พ": "สุขศึกษาและพลศึกษา",
-  "ศ": "ศิลปะ",
-  "ง": "การงานอาชีพ",
-  "อ": "ภาษาต่างประเทศ",
+  ท: "ภาษาไทย",
+  ค: "คณิตศาสตร์",
+  ว: "วิทยาศาสตร์และเทคโนโลยี",
+  ส: "สังคมศึกษา",
+  พ: "สุขศึกษาและพลศึกษา",
+  ศ: "ศิลปะ",
+  ง: "การงานอาชีพ",
+  อ: "ภาษาต่างประเทศ",
 };
 
 // ============================================================================
@@ -162,9 +162,11 @@ async function seedDemoData() {
   ];
 
   // Add semester 1-2568 for future testing
-  const nextYearSemesters: { semester: semester; number: number; year: number }[] = [
-    { semester: "SEMESTER_1", number: 1, year: 2568 },
-  ];
+  const nextYearSemesters: {
+    semester: semester;
+    number: number;
+    year: number;
+  }[] = [{ semester: "SEMESTER_1", number: 1, year: 2568 }];
 
   const days: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
   const periods = [
@@ -183,16 +185,68 @@ async function seedDemoData() {
 
   // Demo subjects using MOE format (ม.1 subjects for demo purposes)
   const demoSubjects = [
-    { code: "ท21101", name: "ภาษาไทย พื้นฐาน 1", credit: "CREDIT_15" as subject_credit, learningArea: "THAI" as LearningArea },
-    { code: "ค21101", name: "คณิตศาสตร์ พื้นฐาน 1", credit: "CREDIT_15" as subject_credit, learningArea: "MATHEMATICS" as LearningArea },
-    { code: "ว21101", name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 1", credit: "CREDIT_15" as subject_credit, learningArea: "SCIENCE" as LearningArea },
-    { code: "ส21101", name: "สังคมศึกษา ศาสนาและวัฒนธรรม 1", credit: "CREDIT_10" as subject_credit, learningArea: "SOCIAL" as LearningArea },
-    { code: "พ21101", name: "สุขศึกษาและพลศึกษา 1", credit: "CREDIT_10" as subject_credit, learningArea: "HEALTH_PE" as LearningArea },
-    { code: "ศ21101", name: "ศิลปะ พื้นฐาน 1", credit: "CREDIT_10" as subject_credit, learningArea: "ARTS" as LearningArea },
-    { code: "ง21101", name: "การงานอาชีพ พื้นฐาน 1", credit: "CREDIT_10" as subject_credit, learningArea: "CAREER" as LearningArea },
-    { code: "อ21101", name: "ภาษาอังกฤษ พื้นฐาน 1", credit: "CREDIT_10" as subject_credit, learningArea: "FOREIGN_LANGUAGE" as LearningArea },
-    { code: "ACT-CLUB", name: "ชุมนุม", credit: "CREDIT_10" as subject_credit, learningArea: null, activityType: "CLUB" as ActivityType },
-    { code: "ACT-GUIDE", name: "แนะแนว", credit: "CREDIT_10" as subject_credit, learningArea: null, activityType: "GUIDANCE" as ActivityType },
+    {
+      code: "ท21101",
+      name: "ภาษาไทย พื้นฐาน 1",
+      credit: "CREDIT_15" as subject_credit,
+      learningArea: "THAI" as LearningArea,
+    },
+    {
+      code: "ค21101",
+      name: "คณิตศาสตร์ พื้นฐาน 1",
+      credit: "CREDIT_15" as subject_credit,
+      learningArea: "MATHEMATICS" as LearningArea,
+    },
+    {
+      code: "ว21101",
+      name: "วิทยาศาสตร์และเทคโนโลยี พื้นฐาน 1",
+      credit: "CREDIT_15" as subject_credit,
+      learningArea: "SCIENCE" as LearningArea,
+    },
+    {
+      code: "ส21101",
+      name: "สังคมศึกษา ศาสนาและวัฒนธรรม 1",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: "SOCIAL" as LearningArea,
+    },
+    {
+      code: "พ21101",
+      name: "สุขศึกษาและพลศึกษา 1",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: "HEALTH_PE" as LearningArea,
+    },
+    {
+      code: "ศ21101",
+      name: "ศิลปะ พื้นฐาน 1",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: "ARTS" as LearningArea,
+    },
+    {
+      code: "ง21101",
+      name: "การงานอาชีพ พื้นฐาน 1",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: "CAREER" as LearningArea,
+    },
+    {
+      code: "อ21101",
+      name: "ภาษาอังกฤษ พื้นฐาน 1",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: "FOREIGN_LANGUAGE" as LearningArea,
+    },
+    {
+      code: "ACT-CLUB",
+      name: "ชุมนุม",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: null,
+      activityType: "CLUB" as ActivityType,
+    },
+    {
+      code: "ACT-GUIDE",
+      name: "แนะแนว",
+      credit: "CREDIT_10" as subject_credit,
+      learningArea: null,
+      activityType: "GUIDANCE" as ActivityType,
+    },
   ];
 
   for (const subject of demoSubjects) {
@@ -229,7 +283,8 @@ async function seedDemoData() {
           Year: 1,
           Track: "SCIENCE_MATH" as ProgramTrack,
           MinTotalCredits: 43,
-          Description: "หลักสูตรเน้นวิทยาศาสตร์และคณิตศาสตร์สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ 1",
+          Description:
+            "หลักสูตรเน้นวิทยาศาสตร์และคณิตศาสตร์สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ 1",
         },
       }),
     "Upsert demo program M1-SCI",
@@ -242,14 +297,14 @@ async function seedDemoData() {
 
   // Define category mapping for demo subjects
   const subjectCategoryMap: Record<string, SubjectCategory> = {
-    "ท21101": "CORE",
-    "ค21101": "CORE",
-    "ว21101": "CORE",
-    "ส21101": "CORE",
-    "พ21101": "CORE",
-    "ศ21101": "CORE",
-    "ง21101": "CORE",
-    "อ21101": "CORE",
+    ท21101: "CORE",
+    ค21101: "CORE",
+    ว21101: "CORE",
+    ส21101: "CORE",
+    พ21101: "CORE",
+    ศ21101: "CORE",
+    ง21101: "CORE",
+    อ21101: "CORE",
     "ACT-CLUB": "ACTIVITY",
     "ACT-GUIDE": "ACTIVITY",
   };
@@ -257,11 +312,16 @@ async function seedDemoData() {
   // Credit to number helper
   const creditToNum = (credit: subject_credit): number => {
     switch (credit) {
-      case "CREDIT_05": return 0.5;
-      case "CREDIT_10": return 1.0;
-      case "CREDIT_15": return 1.5;
-      case "CREDIT_20": return 2.0;
-      default: return 1.0;
+      case "CREDIT_05":
+        return 0.5;
+      case "CREDIT_10":
+        return 1.0;
+      case "CREDIT_15":
+        return 1.5;
+      case "CREDIT_20":
+        return 2.0;
+      default:
+        return 1.0;
     }
   };
 
@@ -292,7 +352,9 @@ async function seedDemoData() {
     );
     programSubjectCount++;
   }
-  console.log(`✅ Created ${programSubjectCount} program-subject relationships`);
+  console.log(
+    `✅ Created ${programSubjectCount} program-subject relationships`,
+  );
 
   // ===== DEMO GRADE LEVELS (3 sections of M.1) =====
   console.log("🏫 Creating demo grade levels...");
@@ -313,7 +375,7 @@ async function seedDemoData() {
             GradeID: grade.id,
             Year: grade.year,
             Number: grade.number,
-            DisplayID: String((grade.year * 100) + grade.number), // Auto-generated: "101", "102", "103"
+            DisplayID: String(grade.year * 100 + grade.number), // Auto-generated: "101", "102", "103"
             StudentCount: 35,
             ProgramID: demoProgram.ProgramID,
           },
@@ -356,14 +418,62 @@ async function seedDemoData() {
   // ===== DEMO TEACHERS (8 teachers, 1 per department) =====
   console.log("👨‍🏫 Creating demo teachers...");
   const demoTeachers = [
-    { prefix: "ครู", firstname: "สมชาย", lastname: "ทองดี", dept: "ภาษาไทย", email: "teacher1@school.ac.th" },
-    { prefix: "ครู", firstname: "สมหญิง", lastname: "ใจดี", dept: "คณิตศาสตร์", email: "teacher2@school.ac.th" },
-    { prefix: "ครู", firstname: "วิชัย", lastname: "เก่งมาก", dept: "วิทยาศาสตร์และเทคโนโลยี", email: "teacher3@school.ac.th" },
-    { prefix: "ครู", firstname: "สุดา", lastname: "รักเรียน", dept: "สังคมศึกษา", email: "teacher4@school.ac.th" },
-    { prefix: "ครู", firstname: "ประสิทธิ์", lastname: "แข็งแรง", dept: "สุขศึกษาและพลศึกษา", email: "teacher5@school.ac.th" },
-    { prefix: "ครู", firstname: "ศิริพร", lastname: "ศิลป์งาม", dept: "ศิลปะ", email: "teacher6@school.ac.th" },
-    { prefix: "ครู", firstname: "บุญส่ง", lastname: "อาชีพดี", dept: "การงานอาชีพ", email: "teacher7@school.ac.th" },
-    { prefix: "ครู", firstname: "จอห์น", lastname: "สมิธ", dept: "ภาษาต่างประเทศ", email: "teacher8@school.ac.th" },
+    {
+      prefix: "ครู",
+      firstname: "สมชาย",
+      lastname: "ทองดี",
+      dept: "ภาษาไทย",
+      email: "teacher1@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "สมหญิง",
+      lastname: "ใจดี",
+      dept: "คณิตศาสตร์",
+      email: "teacher2@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "วิชัย",
+      lastname: "เก่งมาก",
+      dept: "วิทยาศาสตร์และเทคโนโลยี",
+      email: "teacher3@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "สุดา",
+      lastname: "รักเรียน",
+      dept: "สังคมศึกษา",
+      email: "teacher4@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "ประสิทธิ์",
+      lastname: "แข็งแรง",
+      dept: "สุขศึกษาและพลศึกษา",
+      email: "teacher5@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "ศิริพร",
+      lastname: "ศิลป์งาม",
+      dept: "ศิลปะ",
+      email: "teacher6@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "บุญส่ง",
+      lastname: "อาชีพดี",
+      dept: "การงานอาชีพ",
+      email: "teacher7@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "จอห์น",
+      lastname: "สมิธ",
+      dept: "ภาษาต่างประเทศ",
+      email: "teacher8@school.ac.th",
+    },
   ];
 
   const teachers = [];
@@ -508,23 +618,27 @@ async function seedDemoData() {
       }),
     "Upsert table config 1-2568",
   );
-  console.log("✅ Created 3 demo table configurations (1-2567, 2-2567, 1-2568)");
+  console.log(
+    "✅ Created 3 demo table configurations (1-2567, 2-2567, 1-2568)",
+  );
 
   // ===== DEMO TEACHER RESPONSIBILITIES =====
   console.log("📝 Creating demo teacher responsibilities...");
-  const responsibilities: Awaited<ReturnType<typeof prisma.teachers_responsibility.create>>[] = [];
+  const responsibilities: Awaited<
+    ReturnType<typeof prisma.teachers_responsibility.create>
+  >[] = [];
 
   // Map MOE subject codes to teachers (by index matching departments)
   // Teachers are aligned with their department's learning area
   const subjectTeacherMap = [
-    { subjectCode: "ท21101", teacherIndex: 0, dept: "ภาษาไทย" },       // Thai teacher
-    { subjectCode: "ค21101", teacherIndex: 1, dept: "คณิตศาสตร์" },    // Math teacher
-    { subjectCode: "ว21101", teacherIndex: 2, dept: "วิทยาศาสตร์และเทคโนโลยี" },  // Science teacher
-    { subjectCode: "ส21101", teacherIndex: 3, dept: "สังคมศึกษา" },    // Social teacher
-    { subjectCode: "พ21101", teacherIndex: 4, dept: "สุขศึกษาและพลศึกษา" },  // PE teacher
-    { subjectCode: "ศ21101", teacherIndex: 5, dept: "ศิลปะ" },         // Art teacher
-    { subjectCode: "ง21101", teacherIndex: 6, dept: "การงานอาชีพ" },  // Career teacher
-    { subjectCode: "อ21101", teacherIndex: 7, dept: "ภาษาต่างประเทศ" },  // English teacher
+    { subjectCode: "ท21101", teacherIndex: 0, dept: "ภาษาไทย" }, // Thai teacher
+    { subjectCode: "ค21101", teacherIndex: 1, dept: "คณิตศาสตร์" }, // Math teacher
+    { subjectCode: "ว21101", teacherIndex: 2, dept: "วิทยาศาสตร์และเทคโนโลยี" }, // Science teacher
+    { subjectCode: "ส21101", teacherIndex: 3, dept: "สังคมศึกษา" }, // Social teacher
+    { subjectCode: "พ21101", teacherIndex: 4, dept: "สุขศึกษาและพลศึกษา" }, // PE teacher
+    { subjectCode: "ศ21101", teacherIndex: 5, dept: "ศิลปะ" }, // Art teacher
+    { subjectCode: "ง21101", teacherIndex: 6, dept: "การงานอาชีพ" }, // Career teacher
+    { subjectCode: "อ21101", teacherIndex: 7, dept: "ภาษาต่างประเทศ" }, // English teacher
   ];
 
   // All semester configurations for responsibilities
@@ -541,9 +655,12 @@ async function seedDemoData() {
         const teacher = teachers[mapping.teacherIndex];
 
         // Validate teacher department matches subject learning area
-        const expectedDept = SUBJECT_PREFIX_TO_DEPT[mapping.subjectCode.charAt(0)];
+        const expectedDept =
+          SUBJECT_PREFIX_TO_DEPT[mapping.subjectCode.charAt(0)];
         if (teacher.Department !== expectedDept) {
-          console.warn(`⚠️  Teacher ${teacher.Firstname} (${teacher.Department}) assigned to ${mapping.subjectCode} but expected ${expectedDept}`);
+          console.warn(
+            `⚠️  Teacher ${teacher.Firstname} (${teacher.Department}) assigned to ${mapping.subjectCode} but expected ${expectedDept}`,
+          );
         }
 
         const resp = await withRetry(
@@ -578,7 +695,9 @@ async function seedDemoData() {
       }
     }
   }
-  console.log(`✅ Created ${responsibilities.length} demo teacher responsibilities (${semesterConfigs.length} semesters × ${gradeLevels.length} grades × ${subjectTeacherMap.length} subjects)`);
+  console.log(
+    `✅ Created ${responsibilities.length} demo teacher responsibilities (${semesterConfigs.length} semesters × ${gradeLevels.length} grades × ${subjectTeacherMap.length} subjects)`,
+  );
 
   // ===== DEMO CLASS SCHEDULES =====
   console.log("📅 Creating demo class schedules...");
@@ -588,18 +707,18 @@ async function seedDemoData() {
   // Each grade gets TH, MA, EN on different days/periods
   // Sample class schedule template using MOE subject codes for M.1 (ม.1)
   const scheduleTemplate = [
-    { day: "MON", period: 1, subjectCode: "ท21101", teacherIndex: 0 },  // ภาษาไทย
-    { day: "MON", period: 2, subjectCode: "ค21101", teacherIndex: 1 },  // คณิตศาสตร์
-    { day: "MON", period: 3, subjectCode: "อ21101", teacherIndex: 7 },  // ภาษาอังกฤษ
-    { day: "TUE", period: 1, subjectCode: "ว21101", teacherIndex: 2 },  // วิทยาศาสตร์
-    { day: "TUE", period: 2, subjectCode: "ส21101", teacherIndex: 3 },  // สังคมศึกษา
-    { day: "TUE", period: 3, subjectCode: "พ21101", teacherIndex: 4 },  // พลศึกษา
-    { day: "WED", period: 1, subjectCode: "ศ21101", teacherIndex: 5 },  // ศิลปะ
-    { day: "WED", period: 2, subjectCode: "ง21101", teacherIndex: 6 },  // การงานอาชีพ
-    { day: "THU", period: 1, subjectCode: "ท21101", teacherIndex: 0 },  // ภาษาไทย (คาบที่ 2)
-    { day: "THU", period: 2, subjectCode: "ค21101", teacherIndex: 1 },  // คณิตศาสตร์ (คาบที่ 2)
-    { day: "FRI", period: 1, subjectCode: "อ21101", teacherIndex: 7 },  // ภาษาอังกฤษ (คาบที่ 2)
-    { day: "FRI", period: 2, subjectCode: "ว21101", teacherIndex: 2 },  // วิทยาศาสตร์ (คาบที่ 2)
+    { day: "MON", period: 1, subjectCode: "ท21101", teacherIndex: 0 }, // ภาษาไทย
+    { day: "MON", period: 2, subjectCode: "ค21101", teacherIndex: 1 }, // คณิตศาสตร์
+    { day: "MON", period: 3, subjectCode: "อ21101", teacherIndex: 7 }, // ภาษาอังกฤษ
+    { day: "TUE", period: 1, subjectCode: "ว21101", teacherIndex: 2 }, // วิทยาศาสตร์
+    { day: "TUE", period: 2, subjectCode: "ส21101", teacherIndex: 3 }, // สังคมศึกษา
+    { day: "TUE", period: 3, subjectCode: "พ21101", teacherIndex: 4 }, // พลศึกษา
+    { day: "WED", period: 1, subjectCode: "ศ21101", teacherIndex: 5 }, // ศิลปะ
+    { day: "WED", period: 2, subjectCode: "ง21101", teacherIndex: 6 }, // การงานอาชีพ
+    { day: "THU", period: 1, subjectCode: "ท21101", teacherIndex: 0 }, // ภาษาไทย (คาบที่ 2)
+    { day: "THU", period: 2, subjectCode: "ค21101", teacherIndex: 1 }, // คณิตศาสตร์ (คาบที่ 2)
+    { day: "FRI", period: 1, subjectCode: "อ21101", teacherIndex: 7 }, // ภาษาอังกฤษ (คาบที่ 2)
+    { day: "FRI", period: 2, subjectCode: "ว21101", teacherIndex: 2 }, // วิทยาศาสตร์ (คาบที่ 2)
   ];
 
   for (const grade of gradeLevels) {
@@ -640,7 +759,9 @@ async function seedDemoData() {
         } catch (error: any) {
           // Skip if already exists or constraint violation
           if (!error.message?.includes("Unique constraint")) {
-            console.warn(`⚠️  Skipping schedule ${classId}: ${error.message}`);
+            console.warn(
+              `⚠️  Skipping schedule for ${grade.GradeID} - ${schedule.subjectCode}: ${error.message}`,
+            );
           }
         }
       }
@@ -661,12 +782,16 @@ async function seedDemoData() {
   console.log(`   • Teachers: ${teachers.length}`);
   console.log(`   • Timeslots: ${timeslotCount} (3 semesters)`);
   console.log(`   • Table Configurations: 3 (1-2567, 2-2567, 1-2568)`);
-  console.log(`   • Teacher Responsibilities: ${responsibilities.length} (all 3 semesters)`);
+  console.log(
+    `   • Teacher Responsibilities: ${responsibilities.length} (all 3 semesters)`,
+  );
   console.log(`   • Class Schedules: ${scheduleCount}`);
   console.log("=".repeat(70));
   console.log("\n✨ Demo data ready for production preview!");
   console.log("💡 Teacher schedules will show populated timetables.");
-  console.log("💡 Program-subject relationships defined for curriculum validation.");
+  console.log(
+    "💡 Program-subject relationships defined for curriculum validation.",
+  );
   console.log("💡 Teacher responsibilities available for all 3 semesters.");
   console.log("=".repeat(70));
 }
@@ -892,8 +1017,7 @@ async function main() {
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
   const isTestMode = process.env.SEED_FOR_TESTS === "true";
-  const shouldCleanData =
-    process.env.SEED_CLEAN_DATA === "true" || isTestMode;
+  const shouldCleanData = process.env.SEED_CLEAN_DATA === "true" || isTestMode;
 
   if (!shouldCleanData && !isDemoMode) {
     console.log(
@@ -1974,7 +2098,7 @@ async function main() {
                 GradeID: gradeId,
                 Year: year,
                 Number: number,
-                DisplayID: String((year * 100) + number), // Auto-generated DisplayID
+                DisplayID: String(year * 100 + number), // Auto-generated DisplayID
                 StudentCount: 35 + Math.floor(Math.random() * 10),
                 ProgramID: program?.ProgramID,
               },
@@ -2460,21 +2584,21 @@ async function main() {
   // Sample class schedule template using MOE subject codes for M.1 (ม.1)
   // รายวิชาพื้นฐานทั้ง 8 กลุ่มสาระ พร้อมคาบเพิ่มเติมตามมาตรฐาน กสพท.
   const scheduleTemplate = [
-    { day: "MON", period: 1, subjectCode: "ท21101" },  // ภาษาไทย
-    { day: "MON", period: 2, subjectCode: "ค21101" },  // คณิตศาสตร์
-    { day: "MON", period: 3, subjectCode: "อ21101" },  // ภาษาอังกฤษ
-    { day: "TUE", period: 1, subjectCode: "ว21101" },  // วิทยาศาสตร์
-    { day: "TUE", period: 2, subjectCode: "ส21101" },  // สังคมศึกษา
-    { day: "TUE", period: 3, subjectCode: "พ21101" },  // พลศึกษา
-    { day: "WED", period: 1, subjectCode: "ศ21101" },  // ศิลปะ
-    { day: "WED", period: 2, subjectCode: "ง21101" },  // การงานอาชีพ
-    { day: "WED", period: 3, subjectCode: "ท21101" },  // ภาษาไทย (คาบที่ 2)
-    { day: "THU", period: 1, subjectCode: "ค21101" },  // คณิตศาสตร์ (คาบที่ 2)
-    { day: "THU", period: 2, subjectCode: "ว21101" },  // วิทยาศาสตร์ (คาบที่ 2)
-    { day: "THU", period: 3, subjectCode: "อ21101" },  // ภาษาอังกฤษ (คาบที่ 2)
-    { day: "FRI", period: 1, subjectCode: "ส21101" },  // สังคมศึกษา (คาบที่ 2)
-    { day: "FRI", period: 2, subjectCode: "พ21101" },  // พลศึกษา (คาบที่ 2)
-    { day: "FRI", period: 3, subjectCode: "ศ21101" },  // ศิลปะ (คาบที่ 2)
+    { day: "MON", period: 1, subjectCode: "ท21101" }, // ภาษาไทย
+    { day: "MON", period: 2, subjectCode: "ค21101" }, // คณิตศาสตร์
+    { day: "MON", period: 3, subjectCode: "อ21101" }, // ภาษาอังกฤษ
+    { day: "TUE", period: 1, subjectCode: "ว21101" }, // วิทยาศาสตร์
+    { day: "TUE", period: 2, subjectCode: "ส21101" }, // สังคมศึกษา
+    { day: "TUE", period: 3, subjectCode: "พ21101" }, // พลศึกษา
+    { day: "WED", period: 1, subjectCode: "ศ21101" }, // ศิลปะ
+    { day: "WED", period: 2, subjectCode: "ง21101" }, // การงานอาชีพ
+    { day: "WED", period: 3, subjectCode: "ท21101" }, // ภาษาไทย (คาบที่ 2)
+    { day: "THU", period: 1, subjectCode: "ค21101" }, // คณิตศาสตร์ (คาบที่ 2)
+    { day: "THU", period: 2, subjectCode: "ว21101" }, // วิทยาศาสตร์ (คาบที่ 2)
+    { day: "THU", period: 3, subjectCode: "อ21101" }, // ภาษาอังกฤษ (คาบที่ 2)
+    { day: "FRI", period: 1, subjectCode: "ส21101" }, // สังคมศึกษา (คาบที่ 2)
+    { day: "FRI", period: 2, subjectCode: "พ21101" }, // พลศึกษา (คาบที่ 2)
+    { day: "FRI", period: 3, subjectCode: "ศ21101" }, // ศิลปะ (คาบที่ 2)
   ];
 
   for (let i = 0; i < 3; i++) {
@@ -2483,12 +2607,16 @@ async function main() {
 
     for (const schedule of scheduleTemplate) {
       const timeslot = timeslots.find(
-        (t) => t.TimeslotID === `${semesterNumber}-${academicYear}-${schedule.day}${schedule.period}`,
+        (t) =>
+          t.TimeslotID ===
+          `${semesterNumber}-${academicYear}-${schedule.day}${schedule.period}`,
       );
 
       if (timeslot) {
         const resp = responsibilities.find(
-          (r) => r.GradeID === gradeLevel.GradeID && r.SubjectCode === schedule.subjectCode,
+          (r) =>
+            r.GradeID === gradeLevel.GradeID &&
+            r.SubjectCode === schedule.subjectCode,
         );
 
         if (resp) {
@@ -2563,7 +2691,9 @@ async function main() {
     }
   }
 
-  console.log(`✅ Created ${classSchedules.length} sample class schedules (including locked activities)`);
+  console.log(
+    `✅ Created ${classSchedules.length} sample class schedules (including locked activities)`,
+  );
 
   // ===== SUMMARY =====
   console.log("\n" + "=".repeat(70));
