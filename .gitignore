@@ -40,7 +40,7 @@ pnpm-debug.log*
 tsconfig.tsbuildinfo
 .turbo/
 .swc/
-
+/ci-analysis/
 # local env files
 .env
 .env.local

@@ -1,6 +1,9 @@
 import { PrismaClient } from "@/prisma/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { withAccelerate } from "@prisma/extension-accelerate";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("Prisma");
 
 const globalForPrisma = global as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;
@@ -10,13 +13,13 @@ function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL!;
   const isAccelerate = connectionString.startsWith("prisma+");
 
-  // Only log connection info in development (avoid production noise on cold starts)
-  if (process.env.NODE_ENV !== "production") {
-    // Avoid logging raw secrets; only log protocol + host
-    const safeConnection =
-      connectionString.split("?")[0]?.replace(/:[^:@]+@/, ":****@") ?? "unknown";
-    console.warn("[PRISMA] Connecting to DB:", safeConnection);
-  }
+  // Log connection info in dev/debug mode
+  const safeConnection =
+    connectionString.split("?")[0]?.replace(/:[^:@]+@/, ":****@") ?? "unknown";
+  log.debug("Initializing database connection", {
+    protocol: isAccelerate ? "prisma+postgres" : "direct",
+    masked: safeConnection.substring(0, 50),
+  });
 
   // Use Prisma Accelerate (Data Proxy) when prisma+ protocol is provided
   if (isAccelerate) {

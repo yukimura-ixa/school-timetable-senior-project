@@ -19,6 +19,16 @@ import { test as setup, expect } from "@playwright/test";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 
+// E2E test logger helper
+const log = {
+  info: (msg: string, ctx?: Record<string, unknown>) =>
+    console.log(`[AUTH SETUP] ${msg}`, ctx || ""),
+  debug: (msg: string, ctx?: Record<string, unknown>) =>
+    console.log(`[AUTH SETUP] ${msg}`, ctx || ""),
+  error: (msg: string, ctx?: Record<string, unknown>) =>
+    console.error(`[AUTH SETUP] ${msg}`, ctx || ""),
+};
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -44,7 +54,7 @@ async function ensureDatabaseReady(): Promise<void> {
   const baseUrl =
     process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
 
-  console.log("[DB HEALTH] Verifying database is ready...");
+  log.info("Verifying database is ready...");
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -54,25 +64,25 @@ async function ensureDatabaseReady(): Promise<void> {
         const data = await response.json();
 
         if (data.ready) {
-          console.log("[DB HEALTH] ✅ Database verified ready");
-          console.log("[DB HEALTH] Record counts:", data.counts);
+          log.info("✅ Database verified ready");
+          log.debug("Record counts", data.counts);
           return;
         }
 
-        console.log(
-          `[DB HEALTH] ⏳ Database not ready (attempt ${attempt}/${maxAttempts})`,
+        log.info(
+          `⏳ Database not ready (attempt ${attempt}/${maxAttempts})`,
         );
-        console.log("[DB HEALTH] Current counts:", data.counts);
-        console.log("[DB HEALTH] Required minimums:", data.minExpected);
+        log.debug("Current counts", data.counts);
+        log.debug("Required minimums", data.minExpected);
       } else {
-        console.log(
-          `[DB HEALTH] ⚠️ Health endpoint returned ${response.status} (attempt ${attempt}/${maxAttempts})`,
+        log.info(
+          `⚠️ Health endpoint returned ${response.status} (attempt ${attempt}/${maxAttempts})`,
         );
       }
     } catch (error) {
-      console.log(
-        `[DB HEALTH] ❌ Health check failed (attempt ${attempt}/${maxAttempts}):`,
-        error instanceof Error ? error.message : "Unknown error",
+      log.error(
+        `❌ Health check failed (attempt ${attempt}/${maxAttempts})`,
+        { error: error instanceof Error ? error.message : "Unknown error" },
       );
     }
 
@@ -93,7 +103,7 @@ setup("authenticate as admin", async ({ page }) => {
   // This prevents test failures due to missing seed data
   await ensureDatabaseReady();
 
-  console.log("[AUTH SETUP] Starting authentication flow...");
+  log.info("Starting authentication flow...");
 
   // Listen to console logs from the browser
   page.on("console", (msg) =>
@@ -178,7 +188,15 @@ setup("authenticate as admin", async ({ page }) => {
   await expect(page.locator('input[type="password"]')).toBeVisible({
     timeout: 15000,
   });
-  console.log("[AUTH SETUP] Filling in credentials...");
+  
+  // CRITICAL: Wait for HMR/Fast Refresh to complete before interacting
+  // Dev server triggers 2-3 Fast Refresh cycles that re-mount React components
+  // If we click before hydration completes, event handlers won't be attached
+  log.info("Waiting for HMR/Fast Refresh to complete...");
+  await page.waitForLoadState("networkidle", { timeout: 30000 });
+  log.info("Network idle - hydration should be complete");
+
+  log.info("Filling in credentials...");
   await page.fill('input[type="email"]', ADMIN_EMAIL);
   await page.fill('input[type="password"]', ADMIN_PASSWORD);
 
@@ -195,21 +213,23 @@ setup("authenticate as admin", async ({ page }) => {
       .first();
   }
   await expect(loginButton).toBeVisible({ timeout: 15000 });
-  console.log("[AUTH SETUP] Found login button");
+  log.info("Found login button");
 
   // Click and wait for client-side route change (Next.js uses SPA navigation)
+  log.info("Clicking login button...");
   await loginButton.click();
+  log.info("Click completed, waiting for navigation...");
   // Match /dashboard with or without trailing slash/path segment
   await expect(page).toHaveURL(/\/dashboard(\/|$)/, { timeout: 60000 });
-  console.log("[AUTH SETUP] Clicked login button and navigated");
+  log.info("Clicked login button and navigated");
 
   // Wait for page to be stable
   await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
-  console.log("[AUTH SETUP] Page loaded");
+  log.debug("Page loaded");
 
   // ===== CI DEBUGGING: Step 1 - Cookie inspection =====
   const cookies = await page.context().cookies();
-  console.log("[DEBUG] Cookies after login:", {
+  log.debug("Cookies after login", {
     count: cookies.length,
     domains: [...new Set(cookies.map((c) => c.domain))],
     names: cookies.map((c) => c.name),

@@ -69,7 +69,7 @@ export default function SignInForm() {
         // Success - better-auth handles redirect via callbackURL
         window.location.href = "/dashboard";
       }
-    } catch (e) {
+    } catch {
       setFormError("เกิดข้อผิดพลาด");
     } finally {
       setSubmitting(false);
