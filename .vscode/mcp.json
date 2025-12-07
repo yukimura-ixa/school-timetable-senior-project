@@ -52,16 +52,12 @@
       "args": ["-y", "prisma", "mcp"],
       "type": "stdio"
     },
-    "prisma-postgres": {
-      "url": "https://mcp.prisma.io/mcp",
-      "type": "http"
+    "Prisma-Remote": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.prisma.io/mcp"]
     },
     "Vercel": {
       "url": "https://mcp.vercel.com",
-      "type": "http"
-    },
-    "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp/yukimura-ixa/phrasongsa-timetable",
       "type": "http"
     }
   }

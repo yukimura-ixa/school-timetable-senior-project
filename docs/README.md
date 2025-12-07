@@ -1,8 +1,8 @@
 # Documentation Index
 
-> **Last Updated:** November 12, 2025  
-> **Total Active Docs:** 24 files  
-> **Archived:** See `ARCHIVE_2025_COMPREHENSIVE.md` for 91 historical docs
+> **Last Updated:** December 7, 2025  
+> **Total Active Docs:** 27 files (added security & launch docs)
+> **Archived:** See `ARCHIVE_2025_COMPREHENSIVE.md` for 91+ historical docs
 
 ---
 
@@ -12,7 +12,8 @@
 
 - **Project Overview** - `../README.md` (root)
 - **AI Agent Instructions** - `../AGENTS.md` (root)
-- **Deployment Guide** - `../DEPLOYMENT.md` (root)
+- **Pre-Launch Checklist** - `PRE_LAUNCH_CHECKLIST.md` ⭐ **Ready to deploy?**
+- **Launch Documentation Index** - `LAUNCH_DOCUMENTATION_INDEX.md` ⭐ **Deployment hub**
 
 ### 🧪 Testing & E2E
 
@@ -23,6 +24,12 @@
 - **E2E Database Lifecycle** - `E2E_DATABASE_LIFECYCLE_MANAGEMENT.md` ⭐ DB management
 - **WaitForTimeout Refactor Research** - `PHASE_A_WAITFORTIMEOUT_REFACTOR_RESEARCH.md`
 - **Schedule Assignment Test Strategy** - `SCHEDULE_ASSIGNMENT_TEST_STRATEGY_COMPARISON.md`
+
+### 🔐 Security & Compliance
+
+- **Security Code Review** - `SECURITY_CODE_REVIEW_2025-12-07.md` ⭐ Comprehensive audit (A- rating)
+- **Security Review Summary** - `SECURITY_REVIEW_SUMMARY.md` ⭐ Quick reference
+- **Security Improvements** - `SECURITY_IMPROVEMENTS_IMPLEMENTATION.md` ⭐ 7 priority fixes
 
 ### 🗄️ Database & Seeding
 
@@ -56,18 +63,26 @@
 
 ## 🎯 Document Categories
 
-| Category               | Count | Files                                   |
-| ---------------------- | ----- | --------------------------------------- |
-| **Testing & E2E**      | 7     | E2E guides, coverage, progress tracking |
-| **Database & Seeding** | 4     | Seed guide, MOE standards, ConfigId     |
-| **UI/UX**              | 3     | Loading states, user flows              |
-| **Features & Roadmap** | 7     | Feature flags, improvements, analysis   |
-| **Project Management** | 2     | Issues, archive                         |
-| **Index**              | 1     | This file                               |
+| Category               | Count | Files                                               |
+| ---------------------- | ----- | --------------------------------------------------- |
+| **Launch & Deploy**    | 3     | Pre-launch checklist, index, documentation hub      |
+| **Security**           | 3     | Code review, summary, implementation guide         |
+| **Testing & E2E**      | 7     | E2E guides, coverage, progress tracking            |
+| **Database & Seeding** | 4     | Seed guide, MOE standards, ConfigId                |
+| **UI/UX**              | 3     | Loading states, user flows                         |
+| **Features & Roadmap** | 7     | Feature flags, improvements, analysis              |
+| **Project Management** | 2     | Issues, archive                                    |
+| **Index**              | 1     | This file                                          |
 
 ---
 
 ## ⭐ Essential Files (Use These First)
+
+### For Deployment
+
+1. `PRE_LAUNCH_CHECKLIST.md` - 4-phase launch verification (30 min)
+2. `LAUNCH_DOCUMENTATION_INDEX.md` - Deployment hub and navigation
+3. `SECURITY_REVIEW_SUMMARY.md` - Security gates and A- rating
 
 ### For Development
 

@@ -1,9 +1,9 @@
 # Comprehensive Project Archive - 2025
 
-> **Archive Date:** November 12, 2025  
-> **Archived Items:** 91 documentation files + 25 Serena memory files  
+> **Archive Date:** November 12, 2025 | **Updated:** December 7, 2025
+> **Archived Items:** 105 documentation files + 25 Serena memory files  
 > **Purpose:** Historical preservation of completed migrations, features, and resolved issues  
-> **Repository Impact:** ~2.5MB reduction, improved navigation, faster Serena queries
+> **Repository Impact:** ~2.8MB reduction, improved navigation, faster Serena queries
 
 ---
 
@@ -27,6 +27,10 @@
 | ------------------------ | -------------------------------------- | -------------- |
 | **Project Overview**     | `README.md`                            | Root directory |
 | **Agent Instructions**   | `AGENTS.md`                            | Root directory |
+| **Pre-Launch Checklist** | `PRE_LAUNCH_CHECKLIST.md`              | `docs/`        |
+| **Launch Hub**           | `LAUNCH_DOCUMENTATION_INDEX.md`        | `docs/`        |
+| **Security Review**      | `SECURITY_CODE_REVIEW_2025-12-07.md`  | `docs/`        |
+| **Security Summary**     | `SECURITY_REVIEW_SUMMARY.md`           | `docs/`        |
 | **Database Setup**       | `SEED_README.md`                       | `docs/`        |
 | **E2E Testing**          | `E2E_RELIABILITY_GUIDE.md`             | `docs/`        |
 | **E2E Coverage**         | `E2E_COVERAGE_MATRIX.md`               | `docs/`        |
@@ -795,42 +799,64 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 | Category                | Count   | Size (KB)     |
 | ----------------------- | ------- | ------------- |
 | Migrations              | 47      | ~650          |
-| Weekly Progress         | 15      | ~185          |
+| Weekly Progress         | 15+3    | ~195          |
 | Implementation Complete | 12      | ~140          |
 | Summaries               | 17      | ~145          |
-| Guides (Outdated)       | 13      | ~95           |
-| Test Documents          | 7       | ~75           |
+| Guides (Outdated)       | 13+8    | ~140          |
+| Test Documents          | 7+9     | ~120          |
 | Reference (Redundant)   | 10      | ~160          |
 | Investigation/Debug     | 6       | ~60           |
 | Miscellaneous           | 4       | ~35           |
-| **Total Docs**          | **91**  | **~1,545**    |
+| **Total Docs**          | **105** | **~1,645**    |
 | Serena Memories         | 25      | ~600          |
-| **Grand Total**         | **116** | **~2,145 KB** |
+| **Grand Total**         | **130** | **~2,245 KB** |
 
 ---
 
+**📝 Updated December 7, 2025:**
+- Added 14 newly archived files (session summaries, old GitHub issues, duplicate dev bypass docs, database setup)
+- Added 3 new active documentation files (PRE_LAUNCH_CHECKLIST, LAUNCH_DOCUMENTATION_INDEX, SECURITY_CODE_REVIEW & SUMMARY & IMPROVEMENTS)
+- Total reduction: ~2.8MB from repository
+
 ## ✅ What Remains Active
 
-### Essential Documentation (18 files in docs/)
+### Essential Documentation (24 files in docs/)
 
-1. `README.md` - Project overview
-2. `E2E_RELIABILITY_GUIDE.md` - Current best practices
-3. `E2E_COVERAGE_MATRIX.md` - Test coverage tracking
-4. `E2E_PHASE1_PROGRESS.md` - Current progress
-5. `E2E_LOCAL_POSTGRESQL_SETUP.md` - Local setup guide
-6. `E2E_DATABASE_LIFECYCLE_MANAGEMENT.md` - DB management
-7. `SEED_README.md` - Seeding guide
-8. `MOE_STANDARDS_IMPLEMENTATION.md` - MOE compliance
-9. `CONFIGID_QUICK_REF.md` - ConfigId format reference
-10. `LOADING_STATES_IMPLEMENTATION.md` - Loading patterns
-11. `FEATURE_FLAGS.md` - Feature flag management
-12. `GITHUB_ISSUES_HIGH_PRIORITY.md` - Issue tracking
-13. `ADVANCED_IMPROVEMENTS.md` - Future enhancements
-14. `ALLDATA_STRUCTURE_ANALYSIS.md` - AllData type analysis
-15. `ARRANGE_ASSIGN_ANALYSIS_IMPROVEMENT_PLAN.md` - Improvement roadmap
-16. `REPOSITORY_CONFLICT_ROADMAP.md` - Conflict resolution plan
-17. `PHASE_A_WAITFORTIMEOUT_REFACTOR_RESEARCH.md` - E2E reliability research
-18. `SCHEDULE_ASSIGNMENT_TEST_STRATEGY_COMPARISON.md` - Test strategy analysis
+**Deployment & Launch (NEW - 3 files)**:
+1. `PRE_LAUNCH_CHECKLIST.md` - 4-phase launch verification
+2. `LAUNCH_DOCUMENTATION_INDEX.md` - Deployment hub and navigation
+3. `SECURITY_CODE_REVIEW_2025-12-07.md` - Comprehensive security audit
+
+**Security (3 files)**:
+4. `SECURITY_REVIEW_SUMMARY.md` - Quick reference
+5. `SECURITY_IMPROVEMENTS_IMPLEMENTATION.md` - 7 priority improvements
+
+**Testing & E2E (5 files)**:
+6. `E2E_RELIABILITY_GUIDE.md` - Current best practices
+7. `E2E_COVERAGE_MATRIX.md` - Test coverage tracking
+8. `E2E_PHASE1_PROGRESS.md` - Current progress
+9. `E2E_LOCAL_POSTGRESQL_SETUP.md` - Local setup guide
+10. `E2E_DATABASE_LIFECYCLE_MANAGEMENT.md` - DB management
+
+**Database & Configuration (4 files)**:
+11. `SEED_README.md` - Seeding guide
+12. `MOE_STANDARDS_IMPLEMENTATION.md` - MOE compliance
+13. `CONFIGID_QUICK_REF.md` - ConfigId format reference
+14. `THAI_MOE_PROGRAM_MODEL.md` - MOE program model
+
+**UI/UX & Features (4 files)**:
+15. `LOADING_STATES_IMPLEMENTATION.md` - Loading patterns
+16. `LOADING_STATES_VISUAL_COMPARISON.md` - UI comparison
+17. `USER_FLOWS_VISUAL_SUMMARY.md` - User flows
+18. `FEATURE_FLAGS.md` - Feature flag management
+
+**Project Planning (6 files)**:
+19. `GITHUB_ISSUES_HIGH_PRIORITY.md` - Issue tracking
+20. `ADVANCED_IMPROVEMENTS.md` - Future enhancements
+21. `ALLDATA_STRUCTURE_ANALYSIS.md` - AllData type analysis
+22. `ARRANGE_ASSIGN_ANALYSIS_IMPROVEMENT_PLAN.md` - Improvement roadmap
+23. `REPOSITORY_CONFLICT_ROADMAP.md` - Conflict resolution plan
+24. `PHASE_A_WAITFORTIMEOUT_REFACTOR_RESEARCH.md` - E2E reliability research
 
 ### Project Root Documentation
 
@@ -876,9 +902,42 @@ _ARCHIVED_MEMORIES_2025.md (superseded by this comprehensive archive)
 
 ---
 
+## 🧹 Recent Cleanup Operations (December 7, 2025)
+
+### Root-Level Documentation Reorganization
+
+**Removed** 12 operational/debug files from root directory:
+- `auth-test-output.txt`, `auth-test-output2.txt` - Old auth testing logs
+- `ci_fail*.txt`, `ci_failure_log.txt` - Archived CI failure reports
+- `e2e-auth-final-test.txt` - E2E testing log
+- `failed.txt`, `failure_report.txt` - Test failure reports
+- `full-test-output.txt` - Comprehensive test output
+- `lint-*.txt` - Lint checking results
+- `local_test_fail.txt` - Local testing logs
+- `merged-results.json` - Test results aggregation
+- `temp_signin.txt` - Temporary authentication testing
+- `test-output.txt` - General test output
+- `typecheck-errors.txt`, `typecheck_errors.txt` - TypeScript checking logs
+
+**Reasoning:**
+- These were intermediate debugging artifacts from development/CI iterations
+- Information captured in git history if needed
+- Cleaner root directory improves workspace navigation
+- Tools like Serena benefit from reduced noise
+
+**Created** `docs/CLEANUP_LOG_2025-12-07.md` to track cleanup operations.
+
+### Documentation & Operational Status
+
+**Active Count:** 24 essential docs remain in `docs/` directory  
+**Archive Preserved:** 105 historical documents in archive sections  
+**Memory Files:** 25 Serena memory files (feature snapshots, decisions, roadmaps)
+
+---
+
 ## 📅 Maintenance Notes
 
-**Last Updated:** November 12, 2025  
+**Last Updated:** December 7, 2025  
 **Next Review:** March 2026 (quarterly)  
 **Archive Policy:** Archive completed work after 3 months of no updates
 
