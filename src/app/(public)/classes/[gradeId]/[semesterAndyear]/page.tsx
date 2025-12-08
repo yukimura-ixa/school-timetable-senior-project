@@ -70,7 +70,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
       ? SemesterEnum.SEMESTER_1
       : SemesterEnum.SEMESTER_2;
   const schedules = await classRepository.findByGrade(
-    gradeId,
+    gradeLevel.GradeID,
     academicYear,
     semesterValue,
   );
