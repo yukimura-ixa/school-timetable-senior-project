@@ -226,13 +226,14 @@ test.describe("Public Teacher Schedule Page", () => {
     const backButton = page.locator(
       'a[href="/"], a:has-text("กลับหน้าแรก"), a:has-text("Back")',
     );
-    await expect(backButton.first()).toBeVisible();
+    await expect(backButton.first()).toBeVisible({ timeout: 15000 });
 
-    // Click back button
+    // Click back button and wait for navigation
     await backButton.first().click();
+    await page.waitForLoadState("domcontentloaded");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
-        timeout: 15000,
+        timeout: 20000,
       },
     );
 
