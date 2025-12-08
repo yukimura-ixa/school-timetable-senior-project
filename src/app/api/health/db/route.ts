@@ -12,6 +12,9 @@
 
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("HealthDb");
 
 export const dynamic = "force-dynamic";
 
@@ -104,7 +107,7 @@ export async function GET(): Promise<
       },
     );
   } catch (error) {
-    console.error("[DB HEALTH] Database health check failed:", error);
+    log.logError(error, { route: "health/db" });
 
     return NextResponse.json<ErrorResponse>(
       {

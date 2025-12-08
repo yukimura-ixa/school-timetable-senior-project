@@ -29,6 +29,9 @@ import {
   isLockedScheduleError,
   type ServerActionError,
 } from "@/types";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ActionWrapper");
 
 /**
  * Standard result shape for all Server Actions
@@ -126,7 +129,7 @@ export function createAction<TInput, TOutput>(
       };
     } catch (error) {
       // 5. Error handling
-      console.error("[Server Action Error]:", error);
+      log.logError(error, { action: "serverAction" });
 
       // Handle known error types with type guards
       if (isConflictError(error)) {
@@ -258,7 +261,7 @@ export function createPublicAction<TInput, TOutput>(
       };
     } catch (error) {
       // 4. Error handling (same as createAction)
-      console.error("[Public Action Error]:", error);
+      log.logError(error, { action: "publicAction" });
 
       if (error instanceof Error) {
         return {

@@ -23,6 +23,9 @@ import {
   calculateScheduleChanges,
   countChanges,
 } from "../../domain/services/arrange-validation.service";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ArrangeActions");
 
 // ============================================================================
 // Action Results
@@ -80,7 +83,10 @@ export const getTeacherScheduleAction = createAction<
       data: schedules,
     };
   } catch (error) {
-    console.error("[getTeacherScheduleAction] Error:", error);
+    log.logError(error, {
+      action: "getTeacherSchedule",
+      teacherId: input.TeacherID,
+    });
     return {
       success: false,
       error:
@@ -140,7 +146,10 @@ export const syncTeacherScheduleAction = createAction<
           await arrangeRepository.deleteById(item.ClassID);
           return { ClassID: item.ClassID };
         } catch (error) {
-          console.warn(`Failed to delete schedule ${item.ClassID}:`, error);
+          log.warn("Failed to delete schedule", {
+            classId: item.ClassID,
+            error: error instanceof Error ? error.message : String(error),
+          });
           return null;
         }
       }),
@@ -159,7 +168,10 @@ export const syncTeacherScheduleAction = createAction<
           });
           return item;
         } catch (error) {
-          console.warn(`Failed to create schedule`, error);
+          log.warn("Failed to create schedule", {
+            item,
+            error: error instanceof Error ? error.message : String(error),
+          });
           return null;
         }
       }),
@@ -178,9 +190,12 @@ export const syncTeacherScheduleAction = createAction<
       added: successfulAdds,
     });
 
-    console.warn(
-      `[syncTeacherScheduleAction] Teacher ${input.TeacherID}: ${totalChanges} changes (${successfulDeletes.length} deleted, ${successfulAdds.length} added)`,
-    );
+    log.info("Sync completed", {
+      teacherId: input.TeacherID,
+      totalChanges,
+      deleted: successfulDeletes.length,
+      added: successfulAdds.length,
+    });
 
     return {
       success: true,
@@ -191,7 +206,10 @@ export const syncTeacherScheduleAction = createAction<
       },
     };
   } catch (error) {
-    console.error("[syncTeacherScheduleAction] Error:", error);
+    log.logError(error, {
+      action: "syncTeacherSchedule",
+      teacherId: input.TeacherID,
+    });
     return {
       success: false,
       error:
@@ -220,7 +238,10 @@ export const getTeacherScheduleCountAction = createAction<
       data: count,
     };
   } catch (error) {
-    console.error("[getTeacherScheduleCountAction] Error:", error);
+    log.logError(error, {
+      action: "getTeacherScheduleCount",
+      teacherId: input.TeacherID,
+    });
     return {
       success: false,
       error:

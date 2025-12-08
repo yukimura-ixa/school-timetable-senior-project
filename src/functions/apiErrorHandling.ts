@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ApiErrorHandling");
 
 /**
  * Standard error response format for API routes.
@@ -23,7 +26,7 @@ export function createErrorResponse(
   defaultMessage: string = "An unexpected error occurred",
   status: number = 500,
 ): NextResponse<ApiErrorResponse> {
-  console.error(error);
+  log.logError(error, { context: "createErrorResponse" });
 
   let message = defaultMessage;
 

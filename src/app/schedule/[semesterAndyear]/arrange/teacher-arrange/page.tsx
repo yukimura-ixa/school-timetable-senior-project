@@ -36,6 +36,11 @@ import {
   NetworkErrorEmptyState,
 } from "@/components/feedback";
 
+// Client Logger
+import { createClientLogger } from "@/lib/client-logger";
+
+const log = createClientLogger("TeacherArrangePage");
+
 // Server Actions (Clean Architecture)
 import {
   getTeacherScheduleAction,
@@ -847,7 +852,7 @@ export default function TeacherArrangePageRefactored() {
         );
       }
     } catch (error) {
-      console.error(error);
+      log.logError(error, { action: "save" });
       closeSnackbar(savingSnackbar);
       enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึกข้อมูล", { variant: "error" });
     } finally {
@@ -1105,7 +1110,7 @@ export default function TeacherArrangePageRefactored() {
       );
 
       if (!sourceSlot?.subject) {
-        console.warn("No subject found in source timeslot", sourceID);
+        log.warn("No subject found in source timeslot", { sourceID });
         return;
       }
 
@@ -1314,7 +1319,7 @@ export default function TeacherArrangePageRefactored() {
         // Display error message using setShowErrorMsg
         if (timeslotIDtoChange.source) {
           actions.setShowErrorMsg(timeslotIDtoChange.source, true);
-          console.error("Schedule change error:", error);
+          log.error("Schedule change error", { error });
 
           // Auto-hide error after 5 seconds
           setTimeout(() => {

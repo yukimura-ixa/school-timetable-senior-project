@@ -9,7 +9,11 @@ import * as v from "valibot";
 import { createAction, type ActionResult } from "@/shared/lib/action-wrapper";
 import { semesterRepository } from "../../infrastructure/repositories/semester.repository";
 import { Prisma } from "@/prisma/generated/client";
-import type { semester, table_config, timeslot } from "@/prisma/generated/client";
+import type {
+  semester,
+  table_config,
+  timeslot,
+} from "@/prisma/generated/client";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   type SemesterFilter,
@@ -28,6 +32,9 @@ import {
 } from "../schemas/semester.schemas";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("SemesterActions");
 
 /**
  * Helper to enrich semester with statistics
@@ -81,13 +88,10 @@ export const getRecentSemestersAction = createAction(
 /**
  * Get pinned semesters
  */
-export const getPinnedSemestersAction = createAction(
-  v.object({}),
-  async () => {
-    const semesters = await semesterRepository.findPinned();
-    return await Promise.all(semesters.map(enrichSemester));
-  },
-);
+export const getPinnedSemestersAction = createAction(v.object({}), async () => {
+  const semesters = await semesterRepository.findPinned();
+  return await Promise.all(semesters.map(enrichSemester));
+});
 
 /**
  * Create a new semester
@@ -102,7 +106,9 @@ export const createSemesterAction = createAction(
     );
 
     if (existing) {
-      throw new Error(`ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`);
+      throw new Error(
+        `ภาคเรียนที่ ${input.semester}/${input.academicYear} มีอยู่ในระบบแล้ว`,
+      );
     }
 
     // Copy config from source if requested
@@ -341,7 +347,7 @@ export async function createSemesterWithTimeslotsAction(input: {
       } as SemesterDTO,
     };
   } catch (err: unknown) {
-    console.error("[createSemesterWithTimeslotsAction] Error:", err);
+    log.logError(err, { action: "createSemesterWithTimeslots" });
     const message =
       err instanceof Error
         ? err.message
@@ -402,7 +408,9 @@ export const copySemesterAction = createAction(
     );
 
     if (existing) {
-      throw new Error(`ภาคเรียนที่ ${input.targetSemester}/${input.targetAcademicYear} มีอยู่ในระบบแล้ว`);
+      throw new Error(
+        `ภาคเรียนที่ ${input.targetSemester}/${input.targetAcademicYear} มีอยู่ในระบบแล้ว`,
+      );
     }
 
     // Get source semester

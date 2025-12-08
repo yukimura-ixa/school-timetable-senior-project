@@ -7,6 +7,9 @@
 
 import { safeParse } from "valibot";
 import { cache } from "react";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("AnalyticsActions");
 
 // Repositories
 import { overviewRepository } from "../../infrastructure/repositories/overview.repository";
@@ -71,7 +74,7 @@ async function handleAction<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
     const data = await fn();
     return { success: true, data };
   } catch (error) {
-    console.error("Analytics action error:", error);
+    log.logError(error, { context: "handleAction" });
     return {
       success: false,
       error:
@@ -137,9 +140,7 @@ export const getGradeStats = cache(
 /**
  * Get lock status summary
  */
-export async function getLockStatusSummary(
-  input: unknown,
-): Promise<
+export async function getLockStatusSummary(input: unknown): Promise<
   ActionResult<{
     locked: number;
     unlocked: number;

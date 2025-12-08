@@ -99,6 +99,11 @@ import {
   NetworkErrorEmptyState,
 } from "@/components/feedback";
 
+// Client Logger
+import { createClientLogger } from "@/lib/client-logger";
+
+const log = createClientLogger("ArrangementPage");
+
 /**
  * Main Arrangement Page Component
  */
@@ -593,7 +598,7 @@ export default function ArrangementPage() {
         });
       }
     } catch (error) {
-      console.error("Save error:", error);
+      log.logError(error, { action: "save" });
       enqueueSnackbar("❌ เกิดข้อผิดพลาดในการบันทึก", { variant: "error" });
     } finally {
       setIsSaving(false);
@@ -690,7 +695,7 @@ export default function ArrangementPage() {
             setSelectedTimeslotForRoom(timeslotID);
             setRoomDialogOpen(true);
           } catch (error) {
-            console.error("Teacher conflict check error:", error);
+            log.logError(error, { action: "teacherConflictCheck" });
             enqueueSnackbar("⚠️ ไม่สามารถตรวจสอบข้อขัดแย้งของครูได้", {
               variant: "warning",
             });
@@ -785,7 +790,7 @@ export default function ArrangementPage() {
           enqueueSnackbar("✅ จัดตารางสอนสำเร็จ", { variant: "success" });
         }
       } catch (error) {
-        console.error("Schedule creation error:", error);
+        log.logError(error, { action: "scheduleCreation" });
         const errorMsg =
           error instanceof Error ? error.message : "ไม่ทราบสาเหตุ";
         enqueueSnackbar(`❌ เกิดข้อผิดพลาด: ${errorMsg}`, { variant: "error" });
@@ -838,7 +843,7 @@ export default function ArrangementPage() {
           });
         }
       } catch (error) {
-        console.error("Clear all error:", error);
+        log.logError(error, { action: "clearAll" });
         enqueueSnackbar("❌ เกิดข้อผิดพลาดในการล้างตาราง", {
           variant: "error",
         });
@@ -943,7 +948,7 @@ export default function ArrangementPage() {
             });
           }
         } catch (error) {
-          console.error("Clear day error:", error);
+          log.logError(error, { action: "clearDay" });
           enqueueSnackbar("❌ เกิดข้อผิดพลาดในการล้างตาราง", {
             variant: "error",
           });
@@ -1124,7 +1129,7 @@ export default function ArrangementPage() {
             });
           }
         } catch (error) {
-          console.error("Copy day error:", error);
+          log.logError(error, { action: "copyDay" });
           enqueueSnackbar("❌ เกิดข้อผิดพลาดในการคัดลอกตาราง", {
             variant: "error",
           });
@@ -1161,7 +1166,7 @@ export default function ArrangementPage() {
         setIsDirty(true);
         enqueueSnackbar("↩️ ย้อนกลับสำเร็จ", { variant: "success" });
       } catch (error) {
-        console.error("Undo error:", error);
+        log.logError(error, { action: "undo" });
         enqueueSnackbar("❌ เกิดข้อผิดพลาดในการย้อนกลับ", { variant: "error" });
       }
     })();
@@ -1184,7 +1189,7 @@ export default function ArrangementPage() {
         setIsDirty(true);
         enqueueSnackbar("↪️ ทำซ้ำสำเร็จ", { variant: "success" });
       } catch (error) {
-        console.error("Redo error:", error);
+        log.logError(error, { action: "redo" });
         enqueueSnackbar("❌ เกิดข้อผิดพลาดในการทำซ้ำ", { variant: "error" });
       }
     })();
@@ -1250,10 +1255,7 @@ export default function ArrangementPage() {
             schedule: Array.isArray(result.data) ? result.data : [],
           };
         } catch (error) {
-          console.error(
-            `Error fetching schedule for teacher ${teacherId}:`,
-            error,
-          );
+          log.logError(error, { action: "fetchTeacherSchedule", teacherId });
           return null;
         }
       });

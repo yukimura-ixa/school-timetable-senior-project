@@ -4,6 +4,9 @@ import prisma from "@/lib/prisma";
 import { day_of_week, semester, breaktime } from "@/prisma/generated/client";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("SeedSemesters");
 
 // Issue #158: Extract magic numbers to named constants
 // Thai school timetable standard configuration
@@ -226,7 +229,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true, results });
   } catch (err: unknown) {
-    console.error("[seed-semesters] error", err);
+    log.logError(err, { route: "admin/seed-semesters" });
     let message: string;
     if (err instanceof Error) message = err.message;
     else if (typeof err === "string") message = err;

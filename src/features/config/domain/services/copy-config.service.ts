@@ -26,6 +26,9 @@ import {
   replaceConfigIDInString,
   parseSemesterEnum,
 } from "./config-validation.service";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("CopyConfigService");
 
 // ============================================================================
 // Types
@@ -385,10 +388,7 @@ async function createScheduleEntry(
     return true;
   } catch (error) {
     // Skip if already exists or error (idempotent)
-    console.error(
-      `Error copying ${isLocked ? "locked" : "timetable"} schedule:`,
-      error,
-    );
+    log.logError(error, { method: "createScheduleEntry", isLocked });
     return false;
   }
 }

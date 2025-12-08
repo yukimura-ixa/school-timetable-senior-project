@@ -44,6 +44,9 @@
 
 import prisma from "@/lib/prisma";
 import { Prisma } from "@/prisma/generated/client";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ConflictRepository");
 
 // Type for schedule with all relations
 type ScheduleWithRelations = Prisma.class_scheduleGetPayload<{
@@ -439,7 +442,11 @@ export const conflictRepository = {
           existingSchedules[0] as unknown as ScheduleWithRelations,
       };
     } catch (error) {
-      console.error("Error checking teacher conflict:", error);
+      log.logError(error, {
+        method: "checkTeacherConflict",
+        teacherId,
+        timeslotId,
+      });
       return null;
     }
   },
@@ -489,7 +496,7 @@ export const conflictRepository = {
           existingSchedules[0] as unknown as ScheduleWithRelations,
       };
     } catch (error) {
-      console.error("Error checking room conflict:", error);
+      log.logError(error, { method: "checkRoomConflict", roomId, timeslotId });
       return null;
     }
   },

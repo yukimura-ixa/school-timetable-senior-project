@@ -20,10 +20,7 @@ import {
   validateUniqueProgramCodeForUpdate,
 } from "../../domain/services/program-validation.service";
 import { validateProgramMOECredits } from "../../domain/services/moe-validation.service";
-import type {
-  program_subject,
-  subject,
-} from "@/prisma/generated/client";
+import type { program_subject, subject } from "@/prisma/generated/client";
 import {
   createProgramSchema,
   updateProgramSchema,
@@ -40,6 +37,9 @@ import {
   type GetProgramsByYearInput,
   type AssignSubjectsToProgramInput,
 } from "../schemas/program.schemas";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ProgramActions");
 
 /**
  * Get all programs with gradelevel and subject relations
@@ -56,12 +56,9 @@ import {
  * }
  * ```
  */
-export const getProgramsAction = createAction(
-  v.object({}),
-  async () => {
-    return await programRepository.findAll();
-  },
-);
+export const getProgramsAction = createAction(v.object({}), async () => {
+  return await programRepository.findAll();
+});
 
 /**
  * Get programs by Year (optional), Track (optional), IsActive (optional)
@@ -300,7 +297,9 @@ export const assignSubjectsToProgramAction = createAction(
 
     // Log warnings if not fully compliant (could display in UI)
     if (!validationResult.isValid && validationResult.warnings.length > 0) {
-      console.warn("MOE Validation Warnings:", validationResult.warnings);
+      log.warn("MOE Validation Warnings", {
+        warnings: validationResult.warnings,
+      });
     }
 
     return {

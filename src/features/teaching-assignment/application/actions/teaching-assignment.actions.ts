@@ -30,6 +30,9 @@ import {
   type CopyAssignmentsInput,
   type ClearAssignmentsInput,
 } from "../schemas/teaching-assignment.schemas";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("TeachingAssignment");
 
 /**
  * Assign a teacher to a subject
@@ -288,14 +291,20 @@ const getSubjectsWithAssignmentsSchema = v.object({
 
 export const getSubjectsWithAssignments = createAction(
   getSubjectsWithAssignmentsSchema,
-  async (input: { gradeId: string; semester: "SEMESTER_1" | "SEMESTER_2"; academicYear: number }) => {
-    console.warn("[getSubjectsWithAssignments] Called with:", input);
+  async (input: {
+    gradeId: string;
+    semester: "SEMESTER_1" | "SEMESTER_2";
+    academicYear: number;
+  }) => {
+    log.debug("getSubjectsWithAssignments called", input);
 
-    const subjectsData =
-      await teachingAssignmentRepository.findSubjectsByGrade(input.gradeId);
-    console.warn(
-      `[getSubjectsWithAssignments] Found ${subjectsData.length} subjects for grade ${input.gradeId}`,
+    const subjectsData = await teachingAssignmentRepository.findSubjectsByGrade(
+      input.gradeId,
     );
+    log.debug("Found subjects", {
+      count: subjectsData.length,
+      gradeId: input.gradeId,
+    });
 
     const assignments =
       await teachingAssignmentRepository.findAssignmentsByContext(
@@ -303,9 +312,7 @@ export const getSubjectsWithAssignments = createAction(
         input.semester,
         input.academicYear,
       );
-    console.warn(
-      `[getSubjectsWithAssignments] Found ${assignments.length} assignments`,
-    );
+    log.debug("Found assignments", { count: assignments.length });
 
     return subjectsData.map((subjectData: any) => {
       const assignment = assignments.find(

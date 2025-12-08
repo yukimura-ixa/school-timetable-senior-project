@@ -53,10 +53,13 @@ class Logger {
   constructor(context: LogContext = {}, config?: Partial<LoggerConfig>) {
     const isDev = process.env.NODE_ENV !== "production";
     const debugMode = process.env.DEBUG_MODE === "true";
+    const envLevel = process.env.LOG_LEVEL as LogLevel | undefined;
+    const validEnvLevel =
+      envLevel && LOG_LEVELS[envLevel] !== undefined ? envLevel : undefined;
 
     this.context = context;
     this.config = {
-      minLevel: isDev ? "debug" : "info",
+      minLevel: validEnvLevel ?? (isDev ? "debug" : "info"),
       enableDebug: isDev || debugMode,
       enableTimestamp: true,
       prettyPrint: isDev,
@@ -65,10 +68,22 @@ class Logger {
   }
 
   /**
-   * Create a child logger with additional context
+   * Generate a short trace ID for request correlation
    */
-  child(childContext: LogContext): Logger {
-    return new Logger({ ...this.context, ...childContext }, this.config);
+  private generateTraceId(): string {
+    return Math.random().toString(36).substring(2, 10);
+  }
+
+  /**
+   * Create a child logger with additional context
+   * @param childContext - Additional context to merge
+   * @param withTraceId - If true, generates a unique trace ID for request correlation
+   */
+  child(childContext: LogContext, withTraceId = false): Logger {
+    const context = withTraceId
+      ? { traceId: this.generateTraceId(), ...this.context, ...childContext }
+      : { ...this.context, ...childContext };
+    return new Logger(context, this.config);
   }
 
   /**
@@ -149,15 +164,15 @@ class Logger {
 
       return `${timestamp} ${levelTag} ${message}${contextStr}`;
     } else {
-      // Structured JSON for production
-      return {
+      // Structured JSON for production (stringified for proper console output)
+      return JSON.stringify({
         timestamp: this.config.enableTimestamp
           ? new Date().toISOString()
           : undefined,
         level,
         message,
         ...mergedContext,
-      };
+      });
     }
   }
 
@@ -196,7 +211,8 @@ class Logger {
         error: {
           name: error.name,
           message: error.message,
-          stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
+          stack:
+            process.env.NODE_ENV !== "production" ? error.stack : undefined,
         },
       });
     } else {

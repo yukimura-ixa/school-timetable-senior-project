@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("TelemetryLoadingStuck");
 
 type LoadingStuckEvent = {
   event: "loading_stuck_banner_shown";
@@ -18,11 +21,11 @@ export async function POST(request: Request) {
       );
     }
 
-    console.info("[telemetry] loading-stuck", body);
+    log.info("Loading stuck telemetry", body);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[telemetry] loading-stuck failed", error);
+    log.logError(error, { route: "telemetry/loading-stuck" });
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
