@@ -26,9 +26,12 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
-    // Verify teacher selection is visible (use testid to avoid strict mode violation)
-    await page.waitForLoadState("domcontentloaded");
-    await expect(page.getByTestId("teacher-multi-select")).toBeVisible({
+    // Wait for page to fully hydrate and data to load
+    await page.waitForLoadState("networkidle");
+
+    // Verify bulk export section is visible (always visible for admins)
+    // Note: teacher-multi-select is inside a collapsed section by default
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({
       timeout: 20000,
     });
 
