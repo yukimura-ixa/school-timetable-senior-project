@@ -72,23 +72,22 @@ import "dotenv/config";
 const connectionString = process.env.DATABASE_URL!;
 const isAccelerate = connectionString.startsWith("prisma+");
 
-const prisma = new PrismaClient({
-  log: ["error", "warn"],
-  errorFormat: "minimal",
-  ...(isAccelerate
-    ? {
-        // Prisma Accelerate / Data Proxy path (no pg adapter)
-        accelerateUrl: connectionString,
-      }
-    : {
-        // Direct Postgres connection via pg adapter
-        adapter: new PrismaPg({
-          connectionString,
-        }),
+// Create PrismaClient conditionally to avoid union type issues
+// TypeScript cannot reconcile { accelerateUrl } | { adapter } as a single options type
+const prisma = isAccelerate
+  ? new PrismaClient({
+      log: ["error", "warn"],
+      errorFormat: "minimal",
+      // Prisma Accelerate / Data Proxy path (no pg adapter needed)
+    })
+  : new PrismaClient({
+      log: ["error", "warn"],
+      errorFormat: "minimal",
+      // Direct Postgres connection via pg adapter
+      adapter: new PrismaPg({
+        connectionString,
       }),
-  // Connection pooling settings for Docker Desktop on Windows
-  // Helps with connection stability when Docker network isn't in host mode
-});
+    });
 
 // Helper: Retry logic for transient database errors
 async function withRetry<T>(
