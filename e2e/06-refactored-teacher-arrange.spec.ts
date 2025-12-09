@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
-import { Page, ConsoleMessage, APIRequestContext } from "@playwright/test";
+import { Page, ConsoleMessage, Browser } from "@playwright/test";
 
 // Shared semester constant
 const SEMESTER = "1-2567";
@@ -8,35 +8,42 @@ const SEMESTER = "1-2567";
 let TEACHER_ID = "1"; // Default fallback
 
 /**
- * Fetch a valid teacher ID that has responsibilities for the test semester.
- * Uses the teachers API endpoint to find a teacher with assigned subjects.
+ * Fetch a valid teacher ID by extracting from the Teacher Arrange page UI.
+ * Navigates to the page, selects first teacher from dropdown, extracts ID from URL.
+ * This is more reliable than API calls since /api/teachers doesn't exist.
  */
-async function fetchValidTeacherID(
-  request: APIRequestContext,
-): Promise<string> {
+async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
   try {
-    // Fetch all teachers from the API
-    const response = await request.get("/api/teachers");
-    if (!response.ok()) {
-      console.log("Failed to fetch teachers, using default ID=1");
-      return "1";
-    }
+    // Navigate to teacher arrange page without TeacherID param
+    await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
 
-    const data = await response.json();
-    const teachers = data?.data || data;
+    // Wait for teacher dropdown to be visible
+    const teacherSelect = page.locator("select").first();
+    await teacherSelect.waitFor({ state: "visible", timeout: 15000 });
 
-    if (Array.isArray(teachers) && teachers.length > 0) {
-      // Return first teacher's ID
-      const firstTeacher = teachers[0];
-      const teacherId = String(
-        firstTeacher.TeacherID || firstTeacher.id || "1",
-      );
-      console.log(`Using dynamic TeacherID: ${teacherId}`);
-      return teacherId;
+    // Get all options
+    const options = await teacherSelect.locator("option").all();
+    console.log(`Found ${options.length} teachers in dropdown`);
+
+    if (options.length > 1) {
+      // Select second option (first is usually placeholder like "เลือกครู")
+      await teacherSelect.selectOption({ index: 1 });
+
+      // Wait for URL to update with TeacherID parameter
+      await page.waitForURL(/TeacherID=\d+/, { timeout: 10000 });
+
+      // Extract TeacherID from URL
+      const url = page.url();
+      const match = url.match(/TeacherID=(\d+)/);
+      if (match) {
+        console.log(`Extracted TeacherID from UI: ${match[1]}`);
+        return match[1];
+      }
     }
   } catch (e) {
-    console.log("Error fetching teachers:", e);
+    console.log("Could not extract TeacherID from UI:", e);
   }
+  console.log("Falling back to default TeacherID=1");
   return "1";
 }
 
@@ -57,8 +64,15 @@ async function fetchValidTeacherID(
 test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   // Use shared SEMESTER and TEACHER_ID from module scope
 
-  test.beforeAll(async ({ request }) => {
-    TEACHER_ID = await fetchValidTeacherID(request);
+  test.beforeAll(async ({ browser }) => {
+    // Create a temporary page to extract TeacherID from UI
+    const context = await browser.newContext();
+    const setupPage = await context.newPage();
+    try {
+      TEACHER_ID = await fetchValidTeacherIDFromUI(setupPage);
+    } finally {
+      await context.close();
+    }
   });
 
   test("E2E-001: Page loads without errors", async ({ authenticatedAdmin }) => {
