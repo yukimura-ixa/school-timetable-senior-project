@@ -1,5 +1,44 @@
 import { test, expect } from "./fixtures/admin.fixture";
-import { Page, ConsoleMessage } from "@playwright/test";
+import { Page, ConsoleMessage, APIRequestContext } from "@playwright/test";
+
+// Shared semester constant
+const SEMESTER = "1-2567";
+
+// Dynamic TeacherID - fetched from first teacher with responsibilities
+let TEACHER_ID = "1"; // Default fallback
+
+/**
+ * Fetch a valid teacher ID that has responsibilities for the test semester.
+ * Uses the teachers API endpoint to find a teacher with assigned subjects.
+ */
+async function fetchValidTeacherID(
+  request: APIRequestContext,
+): Promise<string> {
+  try {
+    // Fetch all teachers from the API
+    const response = await request.get("/api/teachers");
+    if (!response.ok()) {
+      console.log("Failed to fetch teachers, using default ID=1");
+      return "1";
+    }
+
+    const data = await response.json();
+    const teachers = data?.data || data;
+
+    if (Array.isArray(teachers) && teachers.length > 0) {
+      // Return first teacher's ID
+      const firstTeacher = teachers[0];
+      const teacherId = String(
+        firstTeacher.TeacherID || firstTeacher.id || "1",
+      );
+      console.log(`Using dynamic TeacherID: ${teacherId}`);
+      return teacherId;
+    }
+  } catch (e) {
+    console.log("Error fetching teachers:", e);
+  }
+  return "1";
+}
 
 /**
  * Week 5.3 - Refactored TeacherArrangePage E2E Tests
@@ -16,8 +55,11 @@ import { Page, ConsoleMessage } from "@playwright/test";
  */
 
 test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
-  const SEMESTER = "1-2567";
-  const TEACHER_ID = "1"; // Adjust based on your test data
+  // Use shared SEMESTER and TEACHER_ID from module scope
+
+  test.beforeAll(async ({ request }) => {
+    TEACHER_ID = await fetchValidTeacherID(request);
+  });
 
   test("E2E-001: Page loads without errors", async ({ authenticatedAdmin }) => {
     test.setTimeout(60000);
@@ -415,8 +457,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 });
 
 test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
-  const SEMESTER = "1-2567";
-  const TEACHER_ID = "1";
+  // Use shared SEMESTER and TEACHER_ID from module scope
 
   test("E2E-011: Locked timeslot indicators", async ({
     authenticatedAdmin,
@@ -492,8 +533,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
 });
 
 test.describe("Refactored TeacherArrangePage - Comparison with Original", () => {
-  const SEMESTER = "1-2567";
-  const TEACHER_ID = "1";
+  // Use shared SEMESTER and TEACHER_ID from module scope
 
   test("E2E-014: Visual regression check", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
