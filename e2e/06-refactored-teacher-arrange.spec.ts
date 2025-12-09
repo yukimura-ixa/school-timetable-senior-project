@@ -8,11 +8,21 @@ const SEMESTER = "1-2567";
 let TEACHER_ID = "1"; // Default fallback
 
 /**
- * Fetch a valid teacher ID by extracting from the Teacher Arrange page UI.
- * Navigates to the page, selects first teacher from dropdown, extracts ID from URL.
- * This is more reliable than API calls since /api/teachers doesn't exist.
+ * Fetch a valid teacher ID by iterating through dropdown options.
+ * Selects each teacher and checks if draggable subjects appear.
+ * Returns the first teacher ID that has visible subjects to arrange.
+ *
+ * Uses Playwright patterns from Context7:
+ * - selectOption({ index }) for dropdown selection
+ * - waitFor() with short timeout for quick visibility check
+ * - Iteration through options until finding valid teacher
  */
 async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
+  const DRAGGABLE_SELECTOR =
+    '[data-testid="subject-item"], .subject-card, [draggable="true"]';
+  const CHECK_TIMEOUT = 5000; // 5 seconds per teacher check
+  const MAX_TEACHERS_TO_TRY = 10; // Don't try more than 10 teachers
+
   try {
     // Navigate to teacher arrange page without TeacherID param
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
@@ -23,26 +33,67 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
 
     // Get all options
     const options = await teacherSelect.locator("option").all();
-    console.log(`Found ${options.length} teachers in dropdown`);
+    const optionCount = options.length;
+    console.log(`Found ${optionCount} teachers in dropdown`);
 
-    if (options.length > 1) {
-      // Select second option (first is usually placeholder like "เลือกครู")
-      await teacherSelect.selectOption({ index: 1 });
+    // Iterate through teachers (skip index 0 which is usually placeholder)
+    const maxIndex = Math.min(optionCount, MAX_TEACHERS_TO_TRY + 1);
 
-      // Wait for URL to update with TeacherID parameter
-      await page.waitForURL(/TeacherID=\d+/, { timeout: 10000 });
+    for (let i = 1; i < maxIndex; i++) {
+      try {
+        console.log(`Trying teacher at dropdown index ${i}...`);
 
-      // Extract TeacherID from URL
-      const url = page.url();
-      const match = url.match(/TeacherID=(\d+)/);
-      if (match) {
-        console.log(`Extracted TeacherID from UI: ${match[1]}`);
-        return match[1];
+        // Select teacher by index
+        await teacherSelect.selectOption({ index: i });
+
+        // Wait for URL to update with TeacherID parameter
+        await page.waitForURL(/TeacherID=\d+/, { timeout: 5000 });
+
+        // Extract TeacherID from URL
+        const url = page.url();
+        const match = url.match(/TeacherID=(\d+)/);
+        const teacherId = match ? match[1] : null;
+
+        if (!teacherId) {
+          console.log(`No TeacherID in URL for index ${i}, skipping...`);
+          continue;
+        }
+
+        console.log(
+          `Checking TeacherID=${teacherId} for draggable subjects...`,
+        );
+
+        // Wait for page to load and check for draggable subjects
+        // Use short timeout - if subjects exist, they appear quickly
+        const draggableSubjects = page.locator(DRAGGABLE_SELECTOR).first();
+
+        try {
+          await draggableSubjects.waitFor({
+            state: "visible",
+            timeout: CHECK_TIMEOUT,
+          });
+
+          // Found a teacher with visible subjects!
+          console.log(`✅ Found teacher with subjects: TeacherID=${teacherId}`);
+          return teacherId;
+        } catch {
+          // No draggable subjects found for this teacher, try next
+          console.log(
+            `❌ TeacherID=${teacherId} has no draggable subjects, trying next...`,
+          );
+        }
+      } catch (e) {
+        console.log(`Error checking teacher at index ${i}:`, e);
       }
     }
+
+    console.log(
+      "No teacher found with draggable subjects after checking all options",
+    );
   } catch (e) {
     console.log("Could not extract TeacherID from UI:", e);
   }
+
   console.log("Falling back to default TeacherID=1");
   return "1";
 }
