@@ -116,8 +116,11 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   // Use shared SEMESTER and TEACHER_ID from module scope
 
   test.beforeAll(async ({ browser }) => {
-    // Create a temporary page to extract TeacherID from UI
-    const context = await browser.newContext();
+    // Create a temporary page with authenticated context (storageState from Playwright config)
+    // Without this, the page redirects to login and no dropdown is visible
+    const context = await browser.newContext({
+      storageState: "playwright/.auth/admin.json",
+    });
     const setupPage = await context.newPage();
     try {
       TEACHER_ID = await fetchValidTeacherIDFromUI(setupPage);
