@@ -2491,7 +2491,7 @@ async function main() {
   const scienceTeachers = getTeachersByDept("วิทยาศาสตร์และเทคโนโลยี");
   const englishTeachers = getTeachersByDept("ภาษาต่างประเทศ");
   const socialTeachers = getTeachersByDept("สังคมศึกษา");
-  const peTeachers = getTeachersByDept("สุขศึกษา-พลศึกษา");
+  const peTeachers = getTeachersByDept("สุขศึกษาและพลศึกษา");
   const artsTeachers = getTeachersByDept("ศิลปะ");
   const careerTeachers = getTeachersByDept("การงานอาชีพ");
 
