@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { createClientLogger } from "@/lib/client-logger";
 import {
   Alert,
   Button,
@@ -16,6 +17,8 @@ import {
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import LoginIcon from "@mui/icons-material/Login";
+
+const log = createClientLogger("SignInForm");
 
 /**
  * SignInForm - Client Component
@@ -53,17 +56,16 @@ export default function SignInForm() {
   };
 
   const handleEmailPassSignIn = async () => {
-    console.log("[SIGNIN] handleEmailPassSignIn called");
+    log.debug("Email/password signin initiated");
     setFormError(null);
     if (!validate()) {
-      console.log("[SIGNIN] Validation failed");
+      log.debug("Validation failed");
       return;
     }
 
-    console.log("[SIGNIN] Setting submitting=true");
+    log.debug("Submitting authentication request");
     setSubmitting(true);
     try {
-      console.log("[SIGNIN] Calling authClient.signIn.email...");
       await authClient.signIn.email(
         {
           email,
@@ -72,20 +74,20 @@ export default function SignInForm() {
         },
         {
           onSuccess: () => {
-            console.log("[SIGNIN] Auth successful, navigating to /dashboard");
+            log.info("Authentication successful, navigating to dashboard");
             // Use Next.js router for client-side navigation
             // onSuccess ensures auth is complete and cookies are set before this runs
             router.push("/dashboard");
           },
           onError: (ctx) => {
-            console.error("[SIGNIN] Auth error:", ctx.error);
+            log.error("Authentication failed", { error: ctx.error.message });
             setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             setSubmitting(false);
           },
         },
       );
     } catch (err) {
-      console.error("[SIGNIN] Exception during signin:", err);
+      log.logError(err, { action: "signin" });
       setFormError("เกิดข้อผิดพลาด");
       setSubmitting(false);
     }
