@@ -9,7 +9,10 @@
 /coverage
 /test-results/
 /test-results-ci/
+/e2e-artifacts/
+/e2e-artifacts-*/
 /merged-results.json
+/test_output.json
 /playwright-report/
 /playwright-report-prod/
 /playwright-report-vercel/
