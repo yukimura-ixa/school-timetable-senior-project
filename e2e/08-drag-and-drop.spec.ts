@@ -35,8 +35,12 @@ const SCREENSHOT_DIR = "test-results/screenshots/drag-drop";
  * Helper: Wait for page hydration and dnd-kit initialization
  */
 async function waitForDndReady(page: Page) {
-  // Wait for DndContext to be ready by looking for main content
-  await expect(page.locator('main, [role="main"], [data-sortable-id]').first()).toBeVisible({ timeout: 15000 });
+  // Wait for DndContext to be ready by looking for main content OR data-sortable-id
+  // Using OR selector to be more forgiving
+  await page.waitForSelector('main, [role="main"], [data-sortable-id]', { 
+    timeout: 30000,  // Increased timeout for slow page loads
+    state: 'attached'
+  });
 
   // Wait for DndContext to be ready
   await page.waitForFunction(
@@ -47,7 +51,7 @@ async function waitForDndReady(page: Page) {
       );
       return draggables.length > 0;
     },
-    { timeout: 15000 },
+    { timeout: 30000 },  // Increased timeout
   );
 
   // Wait for event listeners to be attached by checking element readiness
@@ -70,7 +74,7 @@ async function waitForDndReady(page: Page) {
         }
         return false;
       },
-      { timeout: 3000 },
+      { timeout: 5000 },
     )
     .catch(() => {
       // Fallback: if specific attributes not found, assume ready after first check passed

@@ -72,9 +72,9 @@ export class NavigationHelper {
     await this.gotoAndReady(`/schedule/${semesterAndYear}/assign`);
   }
 
-  async goToTeacherArrange(semesterAndYear: string) {
+  async goToTeacherArrange(semesterAndYear: string, teacherId = "1") {
     await this.gotoAndReady(
-      `/schedule/${semesterAndYear}/arrange/teacher-arrange`,
+      `/schedule/${semesterAndYear}/arrange/teacher-arrange?TeacherID=${teacherId}`,
     );
   }
 

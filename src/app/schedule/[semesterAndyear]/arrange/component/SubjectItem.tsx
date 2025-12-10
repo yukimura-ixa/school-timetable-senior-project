@@ -34,6 +34,9 @@ function SubjectItem({
   clickOrDragToSelectSubject,
   dropOutOfZone,
 }: ISubjectItemProps) {
+  // Generate consistent ID for both useSortable and HTML attribute
+  const sortableId = `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`;
+
   // @dnd-kit sortable hook
   const {
     attributes,
@@ -43,7 +46,7 @@ function SubjectItem({
     transition,
     isDragging,
   } = useSortable({
-    id: `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`,
+    id: sortableId,
     data: {
       type: "subject",
       item,
@@ -66,6 +69,7 @@ function SubjectItem({
     <div
       ref={setNodeRef}
       style={style}
+      data-sortable-id={sortableId}
       {...attributes}
       {...listeners}
       className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-pointer ${
