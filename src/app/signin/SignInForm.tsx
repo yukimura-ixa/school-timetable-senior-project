@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import {
   Alert,
@@ -24,6 +25,7 @@ import LoginIcon from "@mui/icons-material/Login";
  * Marked as "use client" to enable React hooks and browser APIs.
  */
 export default function SignInForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -60,23 +62,25 @@ export default function SignInForm() {
         email,
         password,
         rememberMe,
-        callbackURL: "/dashboard",
       });
 
       if (error) {
         setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+        setSubmitting(false);
       } else if (data) {
-        // Success - better-auth handles redirect via callbackURL
-        window.location.href = "/dashboard";
+        // Success - use Next.js router for proper client-side navigation
+        // This ensures proper navigation in both browser and E2E tests
+        router.push("/dashboard");
+        // Keep submitting=true to prevent double-submit during navigation
       }
     } catch {
       setFormError("เกิดข้อผิดพลาด");
-    } finally {
       setSubmitting(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    // Better Auth handles Google OAuth flow and redirect
     await authClient.signIn.social({
       provider: "google",
       callbackURL: "/dashboard",
