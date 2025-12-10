@@ -17,10 +17,9 @@
  * TC-DND-005: Lock state behavior
  * TC-DND-006: Keyboard accessibility
  *
- * FIXME: These tests are skipped because DnD operations are flaky in CI.
- * The 30s timeouts consistently fail due to headless browser limitations
- * with complex drag-and-drop interactions. Need to investigate using
- * keyboard-based DnD or mouse action sequences instead.
+ * NOTE: These tests have been re-enabled with improved reliability.
+ * Using Playwright's official locator.dragTo() method and @dnd-kit best practices.
+ * Previous CI flakiness was due to manual mouse event handling.
  * See: https://github.com/yukimura-ixa/school-timetable-senior-project/issues/162
  */
 
@@ -394,7 +393,7 @@ test.describe("Drag and Drop - Subject List to Timeslot", () => {
   });
 });
 
-test.describe.skip("Drag and Drop - Between Timeslots", () => {
+test.describe("Drag and Drop - Between Timeslots", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-002-01: Identify filled timeslots", async ({
@@ -583,7 +582,7 @@ test.describe.skip("Drag and Drop - Between Timeslots", () => {
   });
 });
 
-test.describe.skip("Drag and Drop - Conflict Detection", () => {
+test.describe("Drag and Drop - Conflict Detection", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-003-01: Detect error indicators", async ({
@@ -779,7 +778,7 @@ test.describe.skip("Drag and Drop - Conflict Detection", () => {
   });
 });
 
-test.describe.skip("Drag and Drop - Lock State Behavior", () => {
+test.describe("Drag and Drop - Lock State Behavior", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-004-01: Identify locked timeslots", async ({
@@ -954,7 +953,7 @@ test.describe.skip("Drag and Drop - Lock State Behavior", () => {
   });
 });
 
-test.describe.skip("Drag and Drop - Student Arrange Page", () => {
+test.describe("Drag and Drop - Student Arrange Page", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-006-01: Student page drag functionality", async ({
@@ -1049,7 +1048,7 @@ test.describe.skip("Drag and Drop - Student Arrange Page", () => {
   });
 });
 
-test.describe.skip("Drag and Drop - Performance & Edge Cases", () => {
+test.describe("Drag and Drop - Performance & Edge Cases", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-007-01: Multiple rapid drags", async ({
