@@ -96,7 +96,13 @@ async function getCenter(locator: any) {
 }
 
 /**
- * Helper: Perform drag and drop operation with visual feedback checks
+ * Helper: Perform drag and drop operation using Playwright's built-in dragTo method
+ * This is more reliable than manual mouse events, especially for @dnd-kit.
+ * 
+ * Best practice from Playwright docs:
+ * - Use locator.dragTo() for high-level drag-and-drop
+ * - More reliable than manual mouse events
+ * - Automatically handles intermediate steps
  */
 async function dragAndDrop(
   page: Page,
@@ -110,57 +116,28 @@ async function dragAndDrop(
   await expect(source).toBeVisible({ timeout: 15000 });
   await expect(target).toBeVisible({ timeout: 15000 });
 
-  // Get coordinates
-  const sourceCenter = await getCenter(source);
-  const targetCenter = await getCenter(target);
-
-  // Perform drag operation
-  await page.mouse.move(sourceCenter.x, sourceCenter.y);
-  await page.mouse.down();
-
-  // Wait for drag state to activate (check for visual feedback like cursor change or overlay)
-  await page
-    .waitForFunction(
-      () => {
-        // Check if drag is active by looking for common drag indicators
-        return (
-          document.body.style.cursor === "grabbing" ||
-          document.body.classList.contains("dragging") ||
-          document.querySelector('[data-dragging="true"]') !== null ||
-          document.querySelector(".drag-overlay, .dragging") !== null
-        );
-      },
-      { timeout: 1000 },
-    )
-    .catch(() => {
-      // Fallback: if no visual indicator found, just proceed
-      console.log("⚠️ No drag visual feedback detected, proceeding anyway");
+  try {
+    // Use Playwright's high-level dragTo method (recommended approach)
+    await source.dragTo(target, {
+      force: false, // Don't force if not interactable
+      timeout: 10000,
+      trial: false, // Actually perform the drag
     });
-
-  // Move to target with smooth steps
-  await page.mouse.move(targetCenter.x, targetCenter.y, { steps: 10 });
-
-  // Drop and wait for drop animation/feedback
-  await page.mouse.up();
-
-  // Wait for drop to complete - check for UI updates instead of fixed timeout
-  await page
-    .waitForFunction(
-      () => {
-        // Drag should be completed (no more drag indicators)
-        return (
-          document.body.style.cursor !== "grabbing" &&
-          !document.body.classList.contains("dragging")
-        );
-      },
-      { timeout: 1000 },
-    )
-    .catch(() => {
-      // Fallback if no drag indicators were present
-    });
+  } catch (error) {
+    // Fallback to manual drag using hover + mouse events if dragTo fails
+    console.warn('⚠️ dragTo failed, trying manual approach:', error);
+    
+    await source.hover();
+    await page.mouse.down();
+    await target.hover();
+    await page.mouse.up();
+  }
+  
+  // Wait a bit for any drop animations to complete
+  await page.waitForTimeout(500);
 }
 
-test.describe.skip("Drag and Drop - Subject List to Timeslot", () => {
+test.describe("Drag and Drop - Subject List to Timeslot", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-001-01: Subject items are draggable", async ({

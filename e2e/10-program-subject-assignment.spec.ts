@@ -4,30 +4,50 @@ import { test, expect } from "./fixtures/admin.fixture";
  * E2E Tests for MOE-Compliant Program Management Workflow
  *
  * Tests the complete workflow:
- * 1. Create a new program
- * 2. Assign subjects to the program with custom credits/mandatory settings
- * 3. Assign program to gradelevel
- * 4. Validate MOE requirements
+ * 1. Navigate to program management by grade year
+ * 2. Create/view/edit programs for specific grade levels
+ * 3. Assign subjects to programs with credits
+ * 4. Validate MOE compliance requirements
  *
- * NOTE: These tests are SKIPPED because the UI they test is not yet implemented.
- * The Program Management page uses Thai button text "เพิ่มหลักสูตร" and doesn't
- * have the subject assignment workflow described here yet.
- * Re-enable when the feature is implemented.
+ * IMPLEMENTATION STATUS: The program management feature exists at /management/program
+ * with year-based navigation (/management/program/year/1 through /year/6).
+ * Tests updated to match actual implementation with Thai UI.
  */
 
-test.describe.skip("Program Management Workflow", () => {
-  test("should create a new program and assign subjects", async ({
+test.describe("Program Management Workflow", () => {
+  test("should navigate to program management by year", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    // Navigate to the program management page
+    // Navigate to the program management landing page
     await page.goto("/management/program");
     
-    // Step 1: Create a new program
-    await test.step("Create new program", async () => {
-      const addButton = page.getByRole("button", { name: /add/i });
-      await expect(addButton).toBeVisible({ timeout: 15000 });
-      await addButton.click();
+    // Step 1: Verify year-based navigation cards are visible
+    await test.step("Verify program year navigation", async () => {
+      // Should see heading "หลักสูตรทั้งหมด"
+      await expect(page.getByText("หลักสูตรทั้งหมด")).toBeVisible({ timeout: 15000 });
+      
+      // Should see links for all 6 grade years
+      for (let year = 1; year <= 6; year++) {
+        const yearLink = page.getByRole("link", { 
+          name: new RegExp(`หลักสูตรชั้นมัธยมศึกษาปีที่ ${year}`) 
+        });
+        await expect(yearLink).toBeVisible();
+      }
+    });
+    
+    // Step 2: Navigate to a specific year's program
+    await test.step("Navigate to year 1 programs", async () => {
+      const year1Link = page.getByRole("link", { 
+        name: /หลักสูตรชั้นมัธยมศึกษาปีที่ 1/ 
+      });
+      await year1Link.click();
+      
+      // Wait for navigation to year-specific page
+      await page.waitForURL(/\/management\/program\/year\/1/);
+      
+      // Page should load successfully
+      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({ timeout: 15000 });
 
       // Fill in program details
       await page.getByLabel(/program code/i).fill("M1-TEST");

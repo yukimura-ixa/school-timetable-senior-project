@@ -4,7 +4,7 @@ import { test, expect } from "./fixtures/admin.fixture";
  * E2E Tests for Activity Subject Management (ชุมนุม, ลูกเสือ, กิจกรรม)
  *
  * Tests the complete CRUD workflow for activity subjects:
- * - Creating new activities (Club, Scout, Guidance, Social Service)
+ * - Creating new activities (using subject creation with Category='กิจกรรม')
  * - Editing existing activities
  * - Deleting activities with confirmation
  * - Form validation
@@ -14,14 +14,12 @@ import { test, expect } from "./fixtures/admin.fixture";
  * - Dev server running on http://localhost:3000
  * - Authentication bypassed or admin user logged in
  *
- * NOTE: These tests are SKIPPED because the Activity Management UI
- * (ActivityTable component) exists but is not integrated into any route.
- * The /management/subject page uses SubjectTable which doesn't have
- * the "Add Activity" button these tests expect.
- * Re-enable when Activity management is added to the app.
+ * IMPLEMENTATION STATUS: Activities are managed through /management/subject
+ * as regular subjects with Category='กิจกรรม' (Activity).
+ * Tests updated to match SubjectManageClient implementation.
  */
 
-test.describe.skip("Activity Management - CRUD Operations", () => {
+test.describe("Activity Management - CRUD Operations", () => {
   const TEST_ACTIVITY = {
     code: "ACT-E2E-001",
     name: "E2E Test Science Club",
@@ -37,10 +35,10 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
     await page.goto("/management/subject");
     await expect(page.locator("body")).toBeVisible();
     
-    await test.step("Open activity creation modal", async () => {
-      // Look for "Add Activity" button
-      const addButton = page.getByRole("button", { name: /add.*activity/i });
-      await expect(addButton).toBeVisible();
+    await test.step("Open subject creation modal", async () => {
+      // Look for "เพิ่มวิชา" (Add Subject) button - Thai UI
+      const addButton = page.getByRole("button", { name: /เพิ่มวิชา|add.*subject/i });
+      await expect(addButton).toBeVisible({ timeout: 15000 });
       await addButton.click();
 
       // Modal should open
@@ -48,27 +46,27 @@ test.describe.skip("Activity Management - CRUD Operations", () => {
       await expect(modal).toBeVisible();
     });
 
-    await test.step("Fill in activity details", async () => {
+    await test.step("Fill in activity details as subject", async () => {
       // Fill SubjectCode
-      const codeInput = page.getByLabel(/subject.*code/i);
+      const codeInput = page.getByLabel(/รหัสวิชา|subject.*code/i);
       await codeInput.fill(TEST_ACTIVITY.code);
 
-      // Fill SubjectName
-      const nameInput = page.getByLabel(/subject.*name/i);
-      await nameInput.fill(TEST_ACTIVITY.name);
+      // Fill SubjectName (Thai)
+      const nameThInput = page.getByLabel(/ชื่อวิชา.*ไทย|subject.*name.*thai/i);
+      await nameThInput.fill(TEST_ACTIVITY.name);
+      
+      // Fill SubjectName (English) - optional but good practice
+      const nameEnInput = page.getByLabel(/ชื่อวิชา.*อังกฤษ|subject.*name.*english/i);
+      await nameEnInput.fill("E2E Test Science Club");
 
-      // Select ActivityType
-      const typeSelect = page.getByLabel(/activity.*type/i);
-      await typeSelect.click();
-      await page
-        .getByRole("option", { name: new RegExp(TEST_ACTIVITY.type, "i") })
-        .click();
-
-      // Ensure IsGraded is unchecked
-      const gradedCheckbox = page.getByLabel(/is.*graded|ให้เกรด/i);
-      if (await gradedCheckbox.isChecked()) {
-        await gradedCheckbox.uncheck();
-      }
+      // Select Category as 'กิจกรรม' (Activity)
+      const categorySelect = page.getByLabel(/ประเภท|category/i);
+      await categorySelect.click();
+      await page.getByRole("option", { name: /กิจกรรม|activity/i }).click();
+      
+      // Set Credits (activities typically 1 credit)
+      const creditsInput = page.getByLabel(/หน่วยกิต|credits/i);
+      await creditsInput.fill("1");
     });
 
     await test.step("Submit and verify creation", async () => {
