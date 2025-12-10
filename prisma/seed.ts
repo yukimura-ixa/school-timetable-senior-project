@@ -121,31 +121,86 @@ async function withRetry<T>(
 }
 
 // ============================================================================
-// DEPARTMENT TO MOE LEARNING AREA MAPPING
-// Maps Thai department names to official MOE 8 Learning Areas
+// MOE LEARNING AREAS REFERENCE DATA
+// Canonical mapping from docs/agents/THAI_MOE_CURRICULUM_RULES.md
+// Thailand MOE Basic Education Core Curriculum B.E. 2551 (2008)
 // ============================================================================
-const DEPT_TO_LEARNING_AREA: Record<string, LearningArea> = {
-  ภาษาไทย: "THAI",
-  คณิตศาสตร์: "MATHEMATICS",
-  วิทยาศาสตร์และเทคโนโลยี: "SCIENCE",
-  สังคมศึกษา: "SOCIAL",
-  สุขศึกษาและพลศึกษา: "HEALTH_PE",
-  ศิลปะ: "ARTS",
-  การงานอาชีพ: "CAREER",
-  ภาษาต่างประเทศ: "FOREIGN_LANGUAGE",
-};
 
-// Subject code prefix to department mapping (for reverse lookup)
-const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
-  ท: "ภาษาไทย",
-  ค: "คณิตศาสตร์",
-  ว: "วิทยาศาสตร์และเทคโนโลยี",
-  ส: "สังคมศึกษา",
-  พ: "สุขศึกษาและพลศึกษา",
-  ศ: "ศิลปะ",
-  ง: "การงานอาชีพ",
-  อ: "ภาษาต่างประเทศ",
-};
+/**
+ * MOE 8 Learning Areas with Thai letter codes
+ * Maps Thai letter → LearningArea enum and department name
+ *
+ * Subject Code Format: [Thai Letter][Level][Year][Type][Sequence]
+ * - Level 1 = Primary (ป.), Level 2 = Lower Secondary (ม.1-3), Level 3 = Upper Secondary (ม.4-6)
+ * - Type 1 = Core (พื้นฐาน), Type 2 = Elective (เพิ่มเติม)
+ * - Example: ท21101 = Thai, Lower Secondary (2), Year 1, Core (1), Subject 01
+ */
+const MOE_LEARNING_AREAS = {
+  ท: { enum: "THAI" as LearningArea, name: "ภาษาไทย", nameEn: "Thai Language" },
+  ค: {
+    enum: "MATHEMATICS" as LearningArea,
+    name: "คณิตศาสตร์",
+    nameEn: "Mathematics",
+  },
+  ว: {
+    enum: "SCIENCE" as LearningArea,
+    name: "วิทยาศาสตร์และเทคโนโลยี",
+    nameEn: "Science & Technology",
+  },
+  ส: {
+    enum: "SOCIAL" as LearningArea,
+    name: "สังคมศึกษา",
+    nameEn: "Social Studies",
+  },
+  พ: {
+    enum: "HEALTH_PE" as LearningArea,
+    name: "สุขศึกษาและพลศึกษา",
+    nameEn: "Health & PE",
+  },
+  ศ: { enum: "ARTS" as LearningArea, name: "ศิลปะ", nameEn: "Arts" },
+  ง: {
+    enum: "CAREER" as LearningArea,
+    name: "การงานอาชีพ",
+    nameEn: "Career & Technology",
+  },
+  อ: {
+    enum: "FOREIGN_LANGUAGE" as LearningArea,
+    name: "ภาษาต่างประเทศ",
+    nameEn: "Foreign Languages",
+  },
+} as const;
+
+/**
+ * MOE Subject Code Pattern (รหัสวิชา)
+ * Format: [Thai Letter][Level 1-3][Year 0-3][Type 1-2][Sequence 01-99]
+ * Matches: ท21101, ค31201, ว22101, etc.
+ */
+const MOE_SUBJECT_CODE_PATTERN = /^[ทควสพศงอ][1-3][0-3][12]\d{2}$/;
+
+/**
+ * Validate subject code against MOE pattern
+ */
+function isValidMOESubjectCode(code: string): boolean {
+  return MOE_SUBJECT_CODE_PATTERN.test(code);
+}
+
+/**
+ * Extract learning area from MOE subject code
+ */
+function getLearningAreaFromCode(code: string): LearningArea | null {
+  const letter = code.charAt(0) as keyof typeof MOE_LEARNING_AREAS;
+  return MOE_LEARNING_AREAS[letter]?.enum ?? null;
+}
+
+// Department name → LearningArea mapping (derived from MOE_LEARNING_AREAS)
+const DEPT_TO_LEARNING_AREA: Record<string, LearningArea> = Object.fromEntries(
+  Object.values(MOE_LEARNING_AREAS).map((v) => [v.name, v.enum]),
+);
+
+// Subject code prefix → department name (derived from MOE_LEARNING_AREAS)
+const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = Object.fromEntries(
+  Object.entries(MOE_LEARNING_AREAS).map(([letter, v]) => [letter, v.name]),
+);
 
 // ============================================================================
 // DEMO DATA SEEDING FUNCTION
