@@ -340,7 +340,7 @@ export const publicDataRepository = {
   async findPublicTeacherById(
     teacherId: number,
     academicYear: number,
-    semester: string,
+    semesterValue: semester,
   ): Promise<PublicTeacher | null> {
     const teacher = await prisma.teacher.findUnique({
       where: { TeacherID: teacherId },
@@ -354,7 +354,7 @@ export const publicDataRepository = {
         teachers_responsibility: {
           where: {
             AcademicYear: academicYear,
-            Semester: toSemesterEnum(semester),
+            Semester: semesterValue,
           },
           select: {
             SubjectCode: true,
@@ -372,13 +372,13 @@ export const publicDataRepository = {
   async findTeacherResponsibilities(
     teacherId: number,
     academicYear: number,
-    semester: string,
+    semesterValue: semester,
   ): Promise<ResponsibilityWithSchedules[]> {
     const responsibilities = await prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: teacherId,
         AcademicYear: academicYear,
-        Semester: toSemesterEnum(semester),
+        Semester: semesterValue,
       },
       include: teacherResponsibilityInclude,
       orderBy: [{ gradelevel: { Year: "asc" } }, { SubjectCode: "asc" }],

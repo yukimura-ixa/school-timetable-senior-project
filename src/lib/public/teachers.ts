@@ -181,10 +181,14 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
       return null;
     }
 
+    // Convert semester string to enum
+    const semesterEnum =
+      termInfo.semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
+
     const teacher = await publicDataRepository.findPublicTeacherById(
       teacherId,
       termInfo.academicYear,
-      termInfo.semester,
+      semesterEnum,
     );
 
     if (!teacher) return null;
@@ -217,12 +221,16 @@ export async function getTeacherSchedule(teacherId: number) {
       return [];
     }
 
+    // Convert semester string to enum
+    const semesterEnum =
+      termInfo.semester === "1" ? "SEMESTER_1" : "SEMESTER_2";
+
     // Get teacher's responsibilities for this term
     const responsibilities =
       await publicDataRepository.findTeacherResponsibilities(
         teacherId,
         termInfo.academicYear,
-        termInfo.semester,
+        semesterEnum,
       );
 
     type ResponsibilityWithSchedules = Awaited<
