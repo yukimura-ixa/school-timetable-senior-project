@@ -53,27 +53,39 @@ export default function SignInForm() {
   };
 
   const handleEmailPassSignIn = async () => {
+    console.log("[SIGNIN] handleEmailPassSignIn called");
     setFormError(null);
-    if (!validate()) return;
+    if (!validate()) {
+      console.log("[SIGNIN] Validation failed");
+      return;
+    }
 
+    console.log("[SIGNIN] Setting submitting=true");
     setSubmitting(true);
     try {
-      const { data, error } = await authClient.signIn.email({
-        email,
-        password,
-        rememberMe,
-      });
-
-      if (error) {
-        setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-        setSubmitting(false);
-      } else if (data) {
-        // Success - use Next.js router for proper client-side navigation
-        // This ensures proper navigation in both browser and E2E tests
-        router.push("/dashboard");
-        // Keep submitting=true to prevent double-submit during navigation
-      }
-    } catch {
+      console.log("[SIGNIN] Calling authClient.signIn.email...");
+      await authClient.signIn.email(
+        {
+          email,
+          password,
+          rememberMe,
+        },
+        {
+          onSuccess: () => {
+            console.log("[SIGNIN] Auth successful, navigating to /dashboard");
+            // Use Next.js router for client-side navigation
+            // onSuccess ensures auth is complete and cookies are set before this runs
+            router.push("/dashboard");
+          },
+          onError: (ctx) => {
+            console.error("[SIGNIN] Auth error:", ctx.error);
+            setFormError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+            setSubmitting(false);
+          },
+        },
+      );
+    } catch (err) {
+      console.error("[SIGNIN] Exception during signin:", err);
       setFormError("เกิดข้อผิดพลาด");
       setSubmitting(false);
     }
