@@ -476,8 +476,8 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const emailPattern = /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
     expect(emailPattern.test(content)).toBe(false);
 
-    // Should NOT contain phone number patterns
-    const phonePattern = /\d{3}-\d{3}-\d{4}|\d{10}/;
+    // Should NOT contain phone number patterns (exclude year patterns like 1-2567)
+    const phonePattern = /(?<!\d-)\d{3}-\d{3}-\d{4}(?!-)|(?<!-)\d{10}(?!-)/;
     expect(phonePattern.test(content)).toBe(false);
   });
 
@@ -614,41 +614,32 @@ test.describe("Public Schedule Pages - Common Features", () => {
 test.describe("Public Schedule Pages - Error Handling", () => {
   test("should handle invalid teacher ID", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/teachers/invalid-id/1-2567");
+    const response = await page.goto("/teachers/invalid-id/1-2567");
 
-    // Should show not found or error message
-    const error = page.locator("text=/not found|ไม่พบ|404|error/i");
-    await expect(error).toBeVisible({ timeout: 15000 });
+    // Next.js notFound() returns 404 status
+    expect(response?.status()).toBe(404);
   });
 
   test("should handle invalid class ID", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/classes/999999/1-2567");
+    const response = await page.goto("/classes/999999/1-2567");
 
-    // Should show not found or error message
-    const error = page.locator("text=/not found|ไม่พบ|404|error/i");
-    await expect(error).toBeVisible({ timeout: 15000 });
+    // Next.js notFound() returns 404 status
+    expect(response?.status()).toBe(404);
   });
 
   test("should handle missing semester parameter", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    // Try accessing without semester parameter (if route allows)
+    // Try accessing without semester parameter
     const response = await page
-      .goto("/teachers/1/", { waitUntil: "networkidle" })
+      .goto("/teachers/1/", { waitUntil: "domcontentloaded" })
       .catch(() => null);
 
+    // Next.js routing will return 404 for missing required params
     if (response) {
-      // Should either show error or redirect to valid route
-      const isError =
-        page.url().includes("404") || page.url().includes("error");
-      const hasErrorMessage = await page
-        .locator("text=/error|not found|ไม่พบ/i")
-        .isVisible()
-        .catch(() => false);
-
-      expect(isError || hasErrorMessage).toBe(true);
+      expect(response.status()).toBe(404);
     }
   });
 
@@ -657,10 +648,9 @@ test.describe("Public Schedule Pages - Error Handling", () => {
   }) => {
     const { page } = authenticatedAdmin;
     // Try accessing semester that doesn't exist (e.g., semester 5)
-    await page.goto("/teachers/1/5-2567");
+    const response = await page.goto("/teachers/1/5-2567");
 
-    // Should show "not found" since semester 5 doesn't exist
-    const notFound = page.locator("text=/not found|ไม่พบ|404/i");
-    await expect(notFound).toBeVisible({ timeout: 15000 });
+    // parseConfigId returns null for invalid semester, triggering notFound()
+    expect(response?.status()).toBe(404);
   });
 });

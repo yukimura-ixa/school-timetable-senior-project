@@ -193,12 +193,13 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
       </div>
 
       {/* Schedule Grid */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table
-          className="min-w-full border-collapse"
-          data-testid="schedule-grid"
-          role="table"
-        >
+      <div className="bg-white rounded-lg shadow">
+        <div className="overflow-x-auto">
+          <table
+            className="min-w-full border-collapse"
+            data-testid="schedule-grid"
+            role="table"
+          >
           <thead>
             <tr className="bg-blue-600 text-white">
               <th className="border border-gray-300 px-2 py-2 text-sm">
@@ -277,6 +278,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Print instructions */}

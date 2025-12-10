@@ -31,8 +31,14 @@ export async function generateMetadata({
   const parsed = parseConfigId(semesterAndyear);
   if (!parsed) return { title: "ไม่พบข้อมูล" };
 
-  const gradeLevel = await prisma.gradelevel.findUnique({
-    where: { GradeID: gradeId },
+  // Support both GradeID (M1-1) and DisplayID (101)
+  const gradeLevel = await prisma.gradelevel.findFirst({
+    where: {
+      OR: [
+        { GradeID: gradeId },
+        { DisplayID: gradeId },
+      ],
+    },
   });
   if (!gradeLevel) return { title: "ไม่พบข้อมูล" };
 
@@ -58,9 +64,14 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   if (!parsed) notFound();
   const { academicYear, semesterEnum } = parsed;
 
-  // Fetch grade level info
-  const gradeLevel = await prisma.gradelevel.findUnique({
-    where: { GradeID: gradeId },
+  // Fetch grade level info - support both GradeID (M1-1) and DisplayID (101)
+  const gradeLevel = await prisma.gradelevel.findFirst({
+    where: {
+      OR: [
+        { GradeID: gradeId },
+        { DisplayID: gradeId },
+      ],
+    },
   });
   if (!gradeLevel) notFound();
 
@@ -171,12 +182,13 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         </div>
 
         {/* Schedule Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto print:shadow-none">
-          <table
-            className="min-w-full border-collapse"
-            data-testid="schedule-grid"
-            role="table"
-          >
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none">
+          <div className="overflow-x-auto">
+            <table
+              className="min-w-full border-collapse"
+              data-testid="schedule-grid"
+              role="table"
+            >
             <thead>
               <tr className="bg-gray-50">
                 <th className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 w-20 md:w-24">
@@ -264,6 +276,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Print Button */}
