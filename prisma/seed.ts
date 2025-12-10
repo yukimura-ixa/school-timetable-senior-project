@@ -67,6 +67,7 @@ import {
   ActivityType,
 } from "../prisma/generated/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { withAccelerate } from "@prisma/extension-accelerate";
 import "dotenv/config";
 
 const connectionString = process.env.DATABASE_URL!;
@@ -74,20 +75,24 @@ const isAccelerate = connectionString.startsWith("prisma+");
 
 // Create PrismaClient conditionally to avoid union type issues
 // TypeScript cannot reconcile { accelerateUrl } | { adapter } as a single options type
-const prisma = isAccelerate
-  ? new PrismaClient({
-      log: ["error", "warn"],
-      errorFormat: "minimal",
-      // Prisma Accelerate / Data Proxy path (no pg adapter needed)
-    })
-  : new PrismaClient({
-      log: ["error", "warn"],
-      errorFormat: "minimal",
-      // Direct Postgres connection via pg adapter
-      adapter: new PrismaPg({
-        connectionString,
-      }),
-    });
+let prisma: PrismaClient;
+
+if (isAccelerate) {
+  // Prisma Accelerate / Data Proxy path - use accelerateUrl and withAccelerate extension
+  prisma = new PrismaClient({
+    log: ["error", "warn"],
+    errorFormat: "minimal",
+    accelerateUrl: connectionString,
+  }).$extends(withAccelerate()) as unknown as PrismaClient;
+} else {
+  // Direct Postgres connection via pg adapter (Prisma v6.6.0+ syntax)
+  const adapter = new PrismaPg({ connectionString });
+  prisma = new PrismaClient({
+    log: ["error", "warn"],
+    errorFormat: "minimal",
+    adapter,
+  });
+}
 
 // Helper: Retry logic for transient database errors
 async function withRetry<T>(
