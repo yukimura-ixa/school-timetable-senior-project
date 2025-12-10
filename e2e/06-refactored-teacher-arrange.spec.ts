@@ -113,16 +113,6 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
  */
 
 test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
-  // FIXME: Skip these tests until seed data fixture is fixed (Issue #TBD)
-  // Root cause: CI seed doesn't reliably create teachers with responsibilities
-  // visible in the Teacher Arrange page. The seed creates teachers_responsibility
-  // records, but the first teacher in dropdown may not have assigned subjects.
-  // Tracked via multiple fix attempts in commits: 692a82b, e8fab96, fb7d0d2, 31569ad
-  test.skip(
-    true,
-    "Seed data fixture needs rework - teachers lack visible responsibilities in CI",
-  );
-
   // Use shared SEMESTER and TEACHER_ID from module scope
 
   test.beforeAll(async ({ browser }) => {
@@ -535,12 +525,6 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 });
 
 test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
-  // Skip until seed data fixture is fixed (same issue as Core Functionality tests)
-  test.skip(
-    true,
-    "Seed data fixture needs rework - teachers lack visible responsibilities in CI",
-  );
-
   // Use shared SEMESTER and TEACHER_ID from module scope
 
   test("E2E-011: Locked timeslot indicators", async ({
@@ -617,12 +601,6 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
 });
 
 test.describe("Refactored TeacherArrangePage - Comparison with Original", () => {
-  // Skip until seed data fixture is fixed (same issue as Core Functionality tests)
-  test.skip(
-    true,
-    "Seed data fixture needs rework - teachers lack visible responsibilities in CI",
-  );
-
   // Use shared SEMESTER and TEACHER_ID from module scope
 
   test("E2E-014: Visual regression check", async ({ authenticatedAdmin }) => {
