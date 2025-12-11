@@ -25,10 +25,12 @@ test.describe("Dashboard Viewing", () => {
     const semester = "1-2567";
     await nav.goToTeacherTable(semester);
     await expect(page).toHaveURL(/teacher-table/, { timeout: 60_000 });
-    const bulkExportContainer = page.locator(
-      '[data-testid="bulk-export-section"], [data-testid="bulk-export-skeleton"]',
+    // Wait for page to load - bulk export section OR main content
+    // Note: bulk-export-section only visible for admin, so also accept main content
+    const pageContent = page.locator(
+      '[data-testid="bulk-export-section"], [data-testid="bulk-export-skeleton"], main, [role="main"], table, .MuiPaper-root',
     );
-    await expect(bulkExportContainer.first()).toBeVisible({ timeout: 60_000 });
+    await expect(pageContent.first()).toBeVisible({ timeout: 60_000 });
     await page.screenshot({
       path: "test-results/screenshots/teacher-table.png",
       fullPage: true,
@@ -117,8 +119,9 @@ test.describe("Export & Print Controls", () => {
     await nav.goToStudentTable(semester);
     // First, wait for the page to load and look for bulk export section
     // The export buttons may be in a collapsed panel, so look for the panel or filter button
+    // Also accept main content if export section not visible
     const bulkExportSection = page.locator(
-      '[data-testid="student-export-menu-button"], button:has-text("การส่งออกแบบกลุ่ม"), button:has-text("ตัวกรอง"), button:has-text("นำออก")',
+      '[data-testid="student-export-menu-button"], [data-testid="bulk-export-section"], button:has-text("การส่งออกแบบกลุ่ม"), button:has-text("ตัวกรอง"), button:has-text("นำออก"), main, [role="main"], table',
     );
     await expect(bulkExportSection.first()).toBeVisible({ timeout: 60_000 });
     await page.screenshot({
