@@ -3,10 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
-import {
-  semester as SemesterEnum,
-  type timeslot,
-} from "@/prisma/generated/client";
+import type { timeslot, semester } from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
@@ -90,10 +87,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   );
 
   // Get all timeslots for this term to build grid structure
-  const semesterValue =
-    semesterEnum === "SEMESTER_1"
-      ? SemesterEnum.SEMESTER_1
-      : SemesterEnum.SEMESTER_2;
+  // Note: semesterEnum is already typed as "SEMESTER_1" | "SEMESTER_2" from parseConfigId
+  const semesterValue: semester = semesterEnum;
   const timeslots = await prisma.timeslot.findMany({
     where: {
       AcademicYear: academicYear,

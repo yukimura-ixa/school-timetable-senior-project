@@ -2,10 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import {
-  semester as SemesterEnum,
-  type timeslot,
-} from "@/prisma/generated/client";
+import type { timeslot, semester } from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 
@@ -76,10 +73,8 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   if (!gradeLevel) notFound();
 
   // Fetch class schedules for this grade and term
-  const semesterValue =
-    semesterEnum === "SEMESTER_1"
-      ? SemesterEnum.SEMESTER_1
-      : SemesterEnum.SEMESTER_2;
+  // Note: semesterEnum is already typed as "SEMESTER_1" | "SEMESTER_2" from parseConfigId
+  const semesterValue: semester = semesterEnum;
   const schedules = await classRepository.findByGrade(
     gradeLevel.GradeID,
     academicYear,
