@@ -1,15 +1,15 @@
 import { ReactNode } from "react";
-import { redirect } from "next/navigation";
+import { redirect, forbidden } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 
 /**
  * Management Layout - Server Component
  *
  * Protects all management routes with server-side authentication.
  * Redirects unauthenticated users to the signin page.
- *
- * Note: Additional role-based checks are handled by middleware (proxy.ts)
+ * Only allows admin role access (403 for non-admin).
  */
 export default async function ManagementLayout({
   children,
@@ -23,6 +23,12 @@ export default async function ManagementLayout({
 
   if (!session) {
     redirect("/signin");
+  }
+
+  // Admin-only access
+  const userRole = normalizeAppRole(session.user?.role);
+  if (!isAdminRole(userRole)) {
+    forbidden();
   }
 
   return <>{children}</>;

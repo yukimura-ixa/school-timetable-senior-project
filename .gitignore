@@ -16,6 +16,8 @@
 /playwright-report/
 /playwright-report-prod/
 /playwright-report-vercel/
+/playwright-html-report/
+/playwright-*/
 /playwright/.cache/
 /playwright/.auth/
 

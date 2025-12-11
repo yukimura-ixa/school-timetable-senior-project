@@ -20,40 +20,17 @@ export async function proxy(req: NextRequest) {
   console.log("[PROXY] User role:", role);
   console.log("[PROXY] Pathname:", pathname);
 
-  // Admin: allow access to everything
+  // Admin-only: only admins can access protected routes
   if (role === "admin") {
+    console.log("[PROXY] Admin access granted");
     return NextResponse.next();
   }
 
-  // Teacher: allow access to schedule, teacher-table, student-table, and select-semester
-  if (role === "teacher") {
-    const allowedPaths =
-      pathname.includes("/schedule/") ||
-      pathname.endsWith("/teacher-table") ||
-      pathname.endsWith("/student-table") ||
-      pathname === "/dashboard";
-
-    if (!allowedPaths) {
-      const dashboardUrl = new URL("/dashboard", req.url);
-      return NextResponse.redirect(dashboardUrl);
-    }
-    return NextResponse.next();
-  }
-
-  // Student: restrict to student-table and dashboard only
-  if (role === "student") {
-    const allowedPaths =
-      pathname.endsWith("/student-table") ||
-      pathname === "/dashboard";
-
-    if (!allowedPaths) {
-      const signInUrl = new URL("/", req.url);
-      return NextResponse.redirect(signInUrl);
-    }
-    return NextResponse.next();
-  }
-
-  return NextResponse.next();
+  // Non-admin authenticated users (teacher/student) are treated as guests
+  // Redirect them to homepage
+  console.log("[PROXY] Non-admin user, redirecting to /");
+  const homeUrl = new URL("/", req.url);
+  return NextResponse.redirect(homeUrl);
 }
 
 export const config = {

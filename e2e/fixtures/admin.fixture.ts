@@ -61,8 +61,9 @@ export const test = base.extend<AdminFixtures>({
   authenticatedAdmin: async ({ page }, use) => {
     // Page is already authenticated via storageState from auth.setup.ts
     // Just verify we're not on the signin page
-    await page.goto("/dashboard/1-2567");
-    await page.waitForLoadState("networkidle");
+    // Increased timeout for dev server slow compilation
+    await page.goto("/dashboard/1-2567", { timeout: 60000 });
+    await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
 
     // Use the authenticated page
     await use({

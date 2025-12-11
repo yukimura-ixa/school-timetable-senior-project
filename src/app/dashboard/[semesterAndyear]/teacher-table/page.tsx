@@ -1,11 +1,11 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import useSWR from "swr";
-import { useReactToPrint } from "react-to-print";
+// Removed react-to-print - using server-side PDF generation
 import {
   Container,
   Paper,
@@ -234,9 +234,6 @@ function TeacherTablePage() {
     errors.push("ไม่สามารถโหลดข้อมูลครูที่เลือกได้");
   }
 
-  const ref = useRef<HTMLDivElement>(null);
-  const [isPDFExport, setIsPDFExport] = useState(false);
-
   const teacherName = useMemo(() => {
     if (
       teacherResponse &&
@@ -249,53 +246,77 @@ function TeacherTablePage() {
     return "";
   }, [teacherResponse]);
 
-  const generatePDF = useReactToPrint({
-    contentRef: ref,
-    documentTitle: `ตารางสอน${teacherName ? teacherName : ""} ${semester}-${academicYear}`,
-  });
+  // Server-side PDF export handler
+  const handleExportPDF = async () => {
+    if (!selectedTeacherId || !semester || !academicYear) return;
 
-  const handleExportPDF = () => {
-    setIsPDFExport(true);
-    setTimeout(() => {
-      generatePDF();
-      setIsPDFExport(false);
-    }, 1);
+    try {
+      // Transform timeSlotData to required format
+      const timeslots = timeSlotData.AllData.map((slot) => ({
+        timeslotId: slot.TimeslotID,
+        dayOfWeek: slot.DayOfWeek,
+        startTime: slot.StartTime,
+        endTime: slot.EndTime,
+        breaktime: slot.Breaktime,
+      }));
+
+      // Calculate totals from classData
+      const totalCredits = classData.reduce((sum, cls) => {
+        const credits = (cls as any).subject?.Credit ?? 0;
+        return sum + credits;
+      }, 0);
+
+      const totalHours = classData.reduce((sum, cls) => {
+        const hours = (cls as any).subject?.TotalHours ?? 0;
+        return sum + hours;
+      }, 0);
+
+      // Build request payload
+      const payload = {
+        teacherId: selectedTeacherId,
+        teacherName,
+        semester: semester.toString(),
+        academicYear: academicYear.toString(),
+        timeslots,
+        scheduleEntries: classData.map((entry) => ({
+          timeslotId: entry.TimeslotID,
+          gradeLevel: entry.gradelevel?.GradeID ?? entry.GradeID ?? "",
+          subjectCode: (entry as any).subject?.SubjectCode ?? "",
+          subjectName: (entry as any).subject?.SubjectName ?? "",
+          roomName: entry.room?.RoomName ?? "",
+        })),
+        totalCredits,
+        totalHours,
+      };
+
+      // Call PDF API
+      const response = await fetch("/api/export/teacher-timetable/pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDF generation failed: ${response.statusText}`);
+      }
+
+      // Download the PDF
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `teacher-${selectedTeacherId}-${semester}-${academicYear}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF export error:", error);
+      alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
+    }
   };
-
-  // Add print styles
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      @media print {
-        .no-print {
-          display: none !important;
-        }
-        .printable-table {
-          display: block !important;
-        }
-        .page-break {
-          page-break-after: always;
-        }
-        @page {
-          size: landscape;
-          margin: 1cm;
-        }
-        body {
-          print-color-adjust: exact;
-          -webkit-print-color-adjust: exact;
-        }
-      }
-      @media (max-width: 768px) {
-        .printable-table {
-          padding: 8px;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
 
   // Bulk export handlers
   const handleExportMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -682,23 +703,6 @@ function TeacherTablePage() {
                   <TimeSlot timeSlotData={timeSlotData} />
                 </Paper>
               )}
-
-              {/* Hidden PDF Export */}
-              <div
-                ref={ref}
-                className="printFont mt-5 flex flex-col items-center justify-center p-10"
-                style={{ display: isPDFExport ? "flex" : "none" }}
-              >
-                <div className="mb-8 flex gap-10">
-                  <p>ตารางสอน {teacherName}</p>
-                  <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
-                </div>
-                <TimeSlot timeSlotData={timeSlotData} />
-                <div className="mt-8 flex gap-2">
-                  <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
-                  <p>ลงชื่อ..............................ผู้อำนวยการ</p>
-                </div>
-              </div>
             </Stack>
           )}
       </Stack>

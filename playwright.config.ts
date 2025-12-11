@@ -24,6 +24,8 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 4 : undefined, // ✅ 4 parallel workers in CI, all cores locally
+  // Increase test timeout for dev mode (default 30s isn't enough for slow page compilation)
+  timeout: process.env.CI ? 30000 : 60000,
 
   /* Global setup/teardown - manages test database lifecycle */
   globalSetup: path.resolve(__dirname, "playwright.global-setup.ts"),
@@ -48,8 +50,8 @@ export default defineConfig({
     // Optimize CI artifacts: disable videos in CI, keep screenshots only on failure
     screenshot: process.env.CI ? "only-on-failure" : "only-on-failure",
     video: process.env.CI ? "off" : "retain-on-failure",
-    actionTimeout: 10000, // Reduced from 15s → 10s (actions should be faster)
-    navigationTimeout: 20000, // Reduced from 30s → 20s (pages should load faster)
+    actionTimeout: 15000, // Allow more time for actions in dev mode
+    navigationTimeout: 60000, // Increased for dev server slow compilation (20s wasn't enough)
   },
 
   projects: [

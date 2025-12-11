@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
-import { redirect, notFound } from "next/navigation";
+import { redirect, notFound, forbidden } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 
 // NOTE: Cannot export segment configs (dynamic, runtime, etc.) in Next.js 16
@@ -34,6 +35,12 @@ export default async function ScheduleSemesterLayout({
 
   if (!session) {
     redirect("/signin");
+  }
+
+  // Admin-only access
+  const userRole = normalizeAppRole(session.user?.role);
+  if (!isAdminRole(userRole)) {
+    forbidden();
   }
 
   const { semesterAndyear } = await params;

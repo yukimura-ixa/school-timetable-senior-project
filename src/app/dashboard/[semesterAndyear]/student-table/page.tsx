@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState, useEffect } from "react";
 import useSWR from "swr";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
-import { useReactToPrint } from "react-to-print";
+// Removed react-to-print - using server-side PDF generation
 import {
   Container,
   Paper,
@@ -179,17 +179,89 @@ function StudentTablePage() {
   const ref = useRef<HTMLDivElement>(null);
   const [isPDFExport, setIsPDFExport] = useState(false);
 
-  const generatePDF = useReactToPrint({
-    contentRef: ref,
-    documentTitle: `ตารางเรียน${selectedGradeId ?? ""} ${semester}-${academicYear}`,
-  });
+  // Server-side PDF export handler (admin only)
+  const handleExportPDF = async () => {
+    if (!selectedGradeId || !semester || !academicYear) return;
 
-  const handleExportPDF = () => {
-    setIsPDFExport(true);
-    setTimeout(() => {
-      generatePDF();
-      setIsPDFExport(false);
-    }, 1);
+    try {
+      // Get selected grade info
+      const selectedGrade = gradeLevelData.data?.find(
+        (g) => g.GradeID === selectedGradeId
+      );
+      if (!selectedGrade) {
+        throw new Error("Selected grade not found");
+      }
+
+      // Transform timeSlotData to required format
+      const timeslots = timeSlotData.AllData.map((slot) => ({
+        timeslotId: slot.TimeslotID,
+        dayOfWeek: slot.DayOfWeek,
+        startTime: slot.StartTime,
+        endTime: slot.EndTime,
+        breaktime: slot.Breaktime,
+      }));
+
+      // Calculate totals from classData
+      const totalCredits = classData.reduce((sum, cls) => {
+        const credits = (cls as any).subject?.Credit ?? 0;
+        return sum + credits;
+      }, 0);
+
+      const totalHours = classData.reduce((sum, cls) => {
+        const hours = (cls as any).subject?.TotalHours ?? 0;
+        return sum + hours;
+      }, 0);
+
+      // Build request payload
+      const payload = {
+        gradeId: selectedGradeId,
+        gradeName: selectedGrade.GradeID,
+        semester: semester.toString(),
+        academicYear: academicYear.toString(),
+        timeslots,
+        scheduleEntries: classData.map((entry) => ({
+          timeslotId: entry.TimeslotID,
+          subjectCode: (entry as any).subject?.SubjectCode ?? "",
+          subjectName: (entry as any).subject?.SubjectName ?? "",
+          teacherName:
+            (entry as any).teacher?.Prefix ||
+            (entry as any).teacher?.Firstname ||
+            (entry as any).teacher?.Lastname
+              ? `${(entry as any).teacher?.Prefix ?? ""} ${(entry as any).teacher?.Firstname ?? ""} ${(entry as any).teacher?.Lastname ?? ""}`.trim()
+              : undefined,
+          roomName: entry.room?.RoomName ?? "",
+        })),
+        totalCredits,
+        totalHours,
+      };
+
+      // Call PDF API
+      const response = await fetch("/api/export/student-timetable/pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDF generation failed: ${response.statusText}`);
+      }
+
+      // Download the PDF
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `student-${selectedGradeId}-${semester}-${academicYear}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF export error:", error);
+      alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
+    }
   };
 
   // Add print styles

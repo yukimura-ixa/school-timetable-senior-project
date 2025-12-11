@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { createClientLogger } from "@/lib/client-logger";
 import {
@@ -28,7 +27,6 @@ const log = createClientLogger("SignInForm");
  * Marked as "use client" to enable React hooks and browser APIs.
  */
 export default function SignInForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -73,11 +71,42 @@ export default function SignInForm() {
           rememberMe,
         },
         {
-          onSuccess: () => {
-            log.info("Authentication successful, navigating to dashboard");
-            // Use Next.js router for client-side navigation
-            // onSuccess ensures auth is complete and cookies are set before this runs
-            router.push("/dashboard");
+          onSuccess: async () => {
+            log.info("Authentication successful, verifying session and role...");
+            
+            // Wait for session to be established and verify admin role
+            let attempts = 0;
+            const maxAttempts = 10;
+            while (attempts < maxAttempts) {
+              try {
+                const session = await authClient.getSession();
+                if (session?.data?.user) {
+                  const userRole = session.data.user.role;
+                  
+                  // Admin-only: block non-admin login
+                  if (userRole !== "admin") {
+                    log.warn("Non-admin user attempted login", { role: userRole });
+                    // Sign out the non-admin user
+                    await authClient.signOut();
+                    setFormError("เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถเข้าสู่ระบบได้");
+                    setSubmitting(false);
+                    return;
+                  }
+                  
+                  log.info("Admin session verified, navigating to dashboard");
+                  window.location.href = "/dashboard";
+                  return;
+                }
+              } catch {
+                // Session not ready yet
+              }
+              attempts++;
+              await new Promise((resolve) => setTimeout(resolve, 200));
+            }
+            
+            // Fallback: navigate anyway after timeout
+            log.warn("Session verification timed out, navigating anyway");
+            window.location.href = "/dashboard";
           },
           onError: (ctx) => {
             log.error("Authentication failed", { error: ctx.error.message });

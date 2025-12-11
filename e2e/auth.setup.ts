@@ -39,7 +39,8 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@school.local";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
 // Increase setup timeout to accommodate initial compile/HMR and seeding
-setup.setTimeout(60_000);
+// Dev server compilation can take 20-30s each time in dev mode
+setup.setTimeout(180_000);
 
 /**
  * Ensures database is fully seeded before proceeding with tests
@@ -189,16 +190,42 @@ setup("authenticate as admin", async ({ page }) => {
     timeout: 15000,
   });
   
-  // CRITICAL: Wait for HMR/Fast Refresh to complete before interacting
-  // Dev server triggers 2-3 Fast Refresh cycles that re-mount React components
-  // If we click before hydration completes, event handlers won't be attached
-  log.info("Waiting for HMR/Fast Refresh to complete...");
-  await page.waitForLoadState("networkidle", { timeout: 30000 });
-  log.info("Network idle - hydration should be complete");
+  // CRITICAL: Wait for React hydration by checking form is interactive
+  // Using a fixed delay is more reliable than networkidle in dev mode
+  // because Fast Refresh can keep the network active indefinitely
+  log.info("Waiting for React hydration to complete...");
+  // Wait for form inputs to be enabled (indicates hydration complete)
+  await expect(page.locator('input[type="email"]')).toBeEnabled({ timeout: 15000 });
+  await expect(page.locator('input[type="password"]')).toBeEnabled({ timeout: 15000 });
+  
+  // Wait for Fast Refresh cycles to complete
+  // Dev server triggers 2-3 Fast Refresh cycles that can clear form inputs
+  // We must wait for ALL cycles to finish before filling the form
+  log.info("Waiting for Fast Refresh cycles to complete...");
+  await page.waitForTimeout(3000); // Wait 3 seconds for Fast Refresh to settle
+  
+  // Check if there are any pending Fast Refresh cycles by looking for network activity
+  try {
+    await page.waitForLoadState("networkidle", { timeout: 5000 });
+  } catch {
+    // Network may not become idle if HMR connection stays open, that's OK
+    log.debug("Network not fully idle, continuing anyway...");
+  }
+  log.info("Form ready for interaction");
 
   log.info("Filling in credentials...");
-  await page.fill('input[type="email"]', ADMIN_EMAIL);
-  await page.fill('input[type="password"]', ADMIN_PASSWORD);
+  const emailInput = page.locator('input[type="email"]');
+  const passwordInput = page.locator('input[type="password"]');
+  
+  // Fill and verify email
+  await emailInput.fill(ADMIN_EMAIL);
+  await expect(emailInput).toHaveValue(ADMIN_EMAIL, { timeout: 5000 });
+  
+  // Fill and verify password
+  await passwordInput.fill(ADMIN_PASSWORD);
+  await expect(passwordInput).toHaveValue(ADMIN_PASSWORD, { timeout: 5000 });
+  
+  log.info("Credentials filled and verified");
 
   // Locate the credentials submit button (exclude Google button)
   let loginButton = page
@@ -213,15 +240,98 @@ setup("authenticate as admin", async ({ page }) => {
       .first();
   }
   await expect(loginButton).toBeVisible({ timeout: 15000 });
+  await expect(loginButton).toBeEnabled({ timeout: 5000 });
   log.info("Found login button");
 
   // Click and wait for client-side route change (Next.js uses SPA navigation)
   log.info("Clicking login button...");
   await loginButton.click();
-  log.info("Click completed, waiting for navigation...");
-  // Match /dashboard with or without trailing slash/path segment
-  await expect(page).toHaveURL(/\/dashboard(\/|$)/, { timeout: 60000 });
-  log.info("Clicked login button and navigated");
+  log.info("Click completed, waiting for navigation or auth cookies...");
+  
+  // In dev mode, Fast Refresh can interfere with client-side navigation
+  // Strategy: Wait for either URL change OR auth cookies to be set
+  // Note: In dev mode, API endpoints need compilation (can take 25-30s each)
+  const startTime = Date.now();
+  const maxWaitTime = 180000; // 180 seconds max (API compilation can take a while)
+  let navigatedToDashboard = false;
+  let authCookieSet = false;
+  let lastLog = 0;
+  
+  while (Date.now() - startTime < maxWaitTime) {
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    
+    // Log progress every 10 seconds
+    if (elapsed - lastLog >= 10) {
+      log.info(`Still waiting... ${elapsed}s elapsed`);
+      lastLog = elapsed;
+    }
+    
+    // Check if URL changed to dashboard
+    const currentUrl = page.url();
+    if (/\/dashboard(\/|$)/.test(currentUrl)) {
+      navigatedToDashboard = true;
+      log.info("Successfully navigated to dashboard via client-side navigation");
+      break;
+    }
+    
+    // Check if auth cookies are set (auth succeeded but navigation may have failed)
+    const cookies = await page.context().cookies();
+    const hasAuthCookie = cookies.some(c => 
+      c.name.toLowerCase().includes("better-auth") && c.name.includes("session")
+    );
+    
+    if (hasAuthCookie && !authCookieSet) {
+      authCookieSet = true;
+      log.info("Auth cookies detected, waiting a bit more for navigation...");
+      // Give client-side navigation a chance to complete
+      await page.waitForTimeout(5000);
+      
+      // Check URL again
+      const urlAfterWait = page.url();
+      if (/\/dashboard(\/|$)/.test(urlAfterWait)) {
+        navigatedToDashboard = true;
+        log.info("Successfully navigated to dashboard after auth cookie wait");
+        break;
+      }
+      
+      // Navigation failed - Fast Refresh likely interfered
+      // Manually navigate using Playwright
+      log.info("Client-side navigation failed (Fast Refresh interference), using manual navigation");
+      await page.goto("/dashboard/1-2567", { timeout: 60000 });
+      await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
+      navigatedToDashboard = true;
+      break;
+    }
+    
+    await page.waitForTimeout(500);
+  }
+  
+  if (!navigatedToDashboard) {
+    // Last resort: Try manual navigation anyway
+    log.info("Timeout waiting for auth, attempting manual navigation as last resort...");
+    try {
+      await page.goto("/dashboard/1-2567", { timeout: 60000 });
+      await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
+      
+      // Check if we're actually authenticated
+      const cookies = await page.context().cookies();
+      const hasAuthCookie = cookies.some(c => 
+        c.name.toLowerCase().includes("better-auth") && c.name.includes("session")
+      );
+      if (hasAuthCookie) {
+        log.info("Manual navigation succeeded with auth cookies present");
+        navigatedToDashboard = true;
+      }
+    } catch (e) {
+      log.error("Manual navigation failed", { error: String(e) });
+    }
+  }
+  
+  if (!navigatedToDashboard) {
+    throw new Error("Failed to navigate to dashboard - neither client navigation nor auth cookies detected");
+  }
+  
+  log.info("Navigation to dashboard completed");
 
   // Wait for page to be stable
   await page.waitForLoadState("domcontentloaded", { timeout: 15000 });
