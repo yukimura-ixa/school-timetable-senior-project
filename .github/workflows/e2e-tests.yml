@@ -41,8 +41,6 @@ jobs:
       DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
       # Disable Playwright global-setup Docker compose in CI; we use GitHub service container
       AUTO_MANAGE_TEST_DB: "false"
-      # Disable Playwright global-setup seed in CI; we seed via workflow step before server starts
-      SKIP_DB_SEED: "true"
 
     # Test sharding: Split tests across parallel jobs
     strategy:
@@ -245,6 +243,8 @@ jobs:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: test-results/results-${{ matrix.shard }}.xml
           # Ensure global-setup respects CI-provided Postgres service
           AUTO_MANAGE_TEST_DB: "false"
+          # Skip Playwright global-setup seed; database already seeded by workflow
+          SKIP_DB_SEED: "true"
 
       - name: Upload Playwright JSON results and artifacts
         if: always()
