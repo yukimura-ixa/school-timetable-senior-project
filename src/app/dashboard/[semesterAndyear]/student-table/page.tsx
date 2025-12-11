@@ -52,11 +52,6 @@ import {
   type ClassScheduleWithSummary,
 } from "./function/ExportStudentTable";
 import {
-  generateStudentBatchPDF,
-  type BatchPDFOptions,
-} from "../shared/batchPdfGenerator";
-import { PDFCustomizationDialog } from "../shared/PDFCustomizationDialog";
-import {
   createTimeSlotTableData,
   type TimeSlotTableData,
 } from "../shared/timeSlot";
@@ -87,9 +82,6 @@ function StudentTablePage() {
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
-
-  // PDF customization dialog state
-  const [showPdfCustomization, setShowPdfCustomization] = useState(false);
 
   // Responsive hooks
   const theme = useTheme();
@@ -265,63 +257,6 @@ function StudentTablePage() {
   const handleBulkPrint = () => {
     handleExportMenuClose();
     window.print();
-  };
-
-  // Open PDF customization dialog
-  const handleOpenPdfCustomization = () => {
-    if (selectedGradeIds.length === 0) return;
-    handleExportMenuClose();
-    setShowPdfCustomization(true);
-  };
-
-  // Generate PDF with custom options
-  const handleBulkPDFGeneration = async (
-    customOptions?: Partial<BatchPDFOptions>,
-  ) => {
-    if (selectedGradeIds.length === 0 || !gradeLevelData.data) return;
-
-    // Get selected grades
-    const selectedGrades = gradeLevelData.data.filter((g) =>
-      selectedGradeIds.includes(g.GradeID),
-    );
-
-    // For simplification, we'll use a single element approach
-    const elements: HTMLElement[] = [];
-    const labels: string[] = [];
-
-    for (const grade of selectedGrades) {
-      const gradeLabel = getGradeLabel(grade.GradeID);
-      labels.push(gradeLabel);
-
-      // Create a temporary div with the timetable
-      const tempDiv = document.createElement("div");
-      tempDiv.style.position = "absolute";
-      tempDiv.style.left = "-9999px";
-      tempDiv.style.top = "0";
-      tempDiv.style.width = "1200px";
-      tempDiv.innerHTML = `
-        <div style="padding: 20px; background: white;">
-          <h2>ตารางเรียน: ${gradeLabel}</h2>
-          <p>ภาคเรียนที่ ${semester}/${academicYear}</p>
-          <div id="temp-table-${grade.GradeID}"></div>
-        </div>
-      `;
-      document.body.appendChild(tempDiv);
-      elements.push(tempDiv);
-    }
-
-    try {
-      await generateStudentBatchPDF(
-        elements,
-        labels,
-        semester,
-        academicYear,
-        customOptions,
-      );
-    } finally {
-      // Clean up temporary elements
-      elements.forEach((el) => el.remove());
-    }
   };
 
   const handleSelectGrade = (gradeId: string | null) => {
@@ -502,23 +437,7 @@ function StudentTablePage() {
                   <PrintIcon sx={{ mr: 1 }} />
                   พิมพ์ทั้งหมด
                 </MenuItem>
-                <MenuItem
-                  onClick={handleOpenPdfCustomization}
-                  data-testid="export-custom-pdf-option"
-                >
-                  <PictureAsPdfIcon sx={{ mr: 1 }} />
-                  สร้าง PDF (กำหนดค่าเอง)
-                </MenuItem>
               </Menu>
-
-              {/* PDF Customization Dialog */}
-              <PDFCustomizationDialog
-                open={showPdfCustomization}
-                onClose={() => setShowPdfCustomization(false)}
-                onExport={(options) => void handleBulkPDFGeneration(options)}
-                title="กำหนดค่าการส่งออก PDF ตารางเรียนนักเรียน"
-                maxTablesPerPage={6}
-              />
 
               {/* Selection Summary */}
               {selectedGradeIds.length > 0 && (

@@ -48,11 +48,6 @@ import { getTeacherByIdAction } from "@/features/teacher/application/actions/tea
 
 import SelectTeacher from "./component/SelectTeacher";
 import {
-  generateTeacherBatchPDF,
-  type BatchPDFOptions,
-} from "../shared/batchPdfGenerator";
-import { PDFCustomizationDialog } from "../shared/PDFCustomizationDialog";
-import {
   ExportTeacherTable,
   type ExportTimeslotData,
 } from "@/features/export/teacher-timetable-excel";
@@ -119,9 +114,6 @@ function TeacherTablePage() {
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
-
-  // PDF customization dialog state
-  const [showPdfCustomization, setShowPdfCustomization] = useState(false);
 
   // Responsive hooks
   const theme = useTheme();
@@ -336,64 +328,6 @@ function TeacherTablePage() {
   const handleBulkPrint = () => {
     handleExportMenuClose();
     window.print();
-  };
-
-  // Open PDF customization dialog
-  const handleOpenPdfCustomization = () => {
-    if (selectedTeacherIds.length === 0) return;
-    handleExportMenuClose();
-    setShowPdfCustomization(true);
-  };
-
-  // Generate PDF with custom options
-  const handleBulkPDFGeneration = async (
-    customOptions?: Partial<BatchPDFOptions>,
-  ) => {
-    if (selectedTeacherIds.length === 0 || !allTeachers.data) return;
-
-    // Get selected teachers
-    const selectedTeachers = allTeachers.data.filter((t) =>
-      selectedTeacherIds.includes(t.TeacherID),
-    );
-
-    // For simplification, we'll use a single element approach
-    // In production, you'd need to fetch data for each teacher and render separate tables
-    const elements: HTMLElement[] = [];
-    const names: string[] = [];
-
-    for (const teacher of selectedTeachers) {
-      const teacherName = formatTeacherName(teacher);
-      names.push(teacherName);
-
-      // Create a temporary div with the timetable
-      const tempDiv = document.createElement("div");
-      tempDiv.style.position = "absolute";
-      tempDiv.style.left = "-9999px";
-      tempDiv.style.top = "0";
-      tempDiv.style.width = "1200px";
-      tempDiv.innerHTML = `
-        <div style="padding: 20px; background: white;">
-          <h2>ตารางสอน: ${teacherName}</h2>
-          <p>ภาคเรียนที่ ${semester}/${academicYear}</p>
-          <div id="temp-table-${teacher.TeacherID}"></div>
-        </div>
-      `;
-      document.body.appendChild(tempDiv);
-      elements.push(tempDiv);
-    }
-
-    try {
-      await generateTeacherBatchPDF(
-        elements,
-        names,
-        semester,
-        academicYear,
-        customOptions,
-      );
-    } finally {
-      // Clean up temporary elements
-      elements.forEach((el) => el.remove());
-    }
   };
 
   const handleSelectTeacher = (teacherId: number | null) => {
@@ -614,23 +548,7 @@ function TeacherTablePage() {
                     <PrintIcon sx={{ mr: 1 }} />
                     พิมพ์ทั้งหมด
                   </MenuItem>
-                  <MenuItem
-                    onClick={handleOpenPdfCustomization}
-                    data-testid="export-custom-pdf-option"
-                  >
-                    <PictureAsPdfIcon sx={{ mr: 1 }} />
-                    สร้าง PDF (กำหนดค่าเอง)
-                  </MenuItem>
                 </Menu>
-
-                {/* PDF Customization Dialog */}
-                <PDFCustomizationDialog
-                  open={showPdfCustomization}
-                  onClose={() => setShowPdfCustomization(false)}
-                  onExport={(options) => void handleBulkPDFGeneration(options)}
-                  title="กำหนดค่าการส่งออก PDF ตารางสอนครู"
-                  maxTablesPerPage={4}
-                />
 
                 {/* Selection Summary */}
                 {selectedTeacherIds.length > 0 && (

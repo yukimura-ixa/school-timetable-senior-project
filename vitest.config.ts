@@ -9,7 +9,6 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   "**/__test__/integration/**", // Skip until converted to E2E tests (Issue #55)
   "**/__test__/features/teaching-assignment/teaching-assignment.repository.test.ts", // Covered by heavy Playwright regression workflow
   "**/__test__/features/teaching-assignment/teacher-validation.service.test.ts", // Duplicated by dedicated heavy suite run
-  "**/__test__/component/PDFCustomizationDialog.test.tsx", // Skipped: Next 16 + Jest recursion
   "**/__test__/features/conflict/**",
   "**/__test__/features/program/**",
   // Note: src/features/schedule-arrangement tests are now included
