@@ -28,62 +28,110 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
 
     // Wait for teacher dropdown to be visible
-    const teacherSelect = page.locator("select").first();
+    // Support both native select AND custom Dropdown component (role="combobox")
+    const teacherSelect = page
+      .locator('select, [role="combobox"]')
+      .first();
     await teacherSelect.waitFor({ state: "visible", timeout: 15000 });
 
-    // Get all options
-    const options = await teacherSelect.locator("option").all();
-    const optionCount = options.length;
-    console.log(`Found ${optionCount} teachers in dropdown`);
+    // Check if it's a native select or custom dropdown
+    const isNativeSelect = (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) === "select";
 
-    // Iterate through teachers (skip index 0 which is usually placeholder)
-    const maxIndex = Math.min(optionCount, MAX_TEACHERS_TO_TRY + 1);
+    if (isNativeSelect) {
+      // Handle native select element
+      const options = await teacherSelect.locator("option").all();
+      const optionCount = options.length;
+      console.log(`Found ${optionCount} teachers in native dropdown`);
 
-    for (let i = 1; i < maxIndex; i++) {
-      try {
-        console.log(`Trying teacher at dropdown index ${i}...`);
+      const maxIndex = Math.min(optionCount, MAX_TEACHERS_TO_TRY + 1);
 
-        // Select teacher by index
-        await teacherSelect.selectOption({ index: i });
-
-        // Wait for URL to update with TeacherID parameter
-        await page.waitForURL(/TeacherID=\d+/, { timeout: 5000 });
-
-        // Extract TeacherID from URL
-        const url = page.url();
-        const match = url.match(/TeacherID=(\d+)/);
-        const teacherId = match ? match[1] : null;
-
-        if (!teacherId) {
-          console.log(`No TeacherID in URL for index ${i}, skipping...`);
-          continue;
-        }
-
-        console.log(
-          `Checking TeacherID=${teacherId} for draggable subjects...`,
-        );
-
-        // Wait for page to load and check for draggable subjects
-        // Use short timeout - if subjects exist, they appear quickly
-        const draggableSubjects = page.locator(DRAGGABLE_SELECTOR).first();
-
+      for (let i = 1; i < maxIndex; i++) {
         try {
-          await draggableSubjects.waitFor({
-            state: "visible",
-            timeout: CHECK_TIMEOUT,
-          });
+          console.log(`Trying teacher at dropdown index ${i}...`);
+          await teacherSelect.selectOption({ index: i });
+          await page.waitForURL(/TeacherID=\d+/, { timeout: 5000 });
 
-          // Found a teacher with visible subjects!
-          console.log(`✅ Found teacher with subjects: TeacherID=${teacherId}`);
-          return teacherId;
-        } catch {
-          // No draggable subjects found for this teacher, try next
-          console.log(
-            `❌ TeacherID=${teacherId} has no draggable subjects, trying next...`,
-          );
+          const url = page.url();
+          const match = url.match(/TeacherID=(\d+)/);
+          const teacherId = match ? match[1] : null;
+
+          if (!teacherId) {
+            console.log(`No TeacherID in URL for index ${i}, skipping...`);
+            continue;
+          }
+
+          console.log(`Checking TeacherID=${teacherId} for draggable subjects...`);
+          const draggableSubjects = page.locator(DRAGGABLE_SELECTOR).first();
+
+          try {
+            await draggableSubjects.waitFor({ state: "visible", timeout: CHECK_TIMEOUT });
+            console.log(`✅ Found teacher with subjects: TeacherID=${teacherId}`);
+            return teacherId;
+          } catch {
+            console.log(`❌ TeacherID=${teacherId} has no draggable subjects, trying next...`);
+          }
+        } catch (e) {
+          console.log(`Error checking teacher at index ${i}:`, e);
         }
-      } catch (e) {
-        console.log(`Error checking teacher at index ${i}:`, e);
+      }
+    } else {
+      // Handle custom Dropdown component (role="combobox")
+      console.log("Using custom dropdown (role=combobox) for teacher selection");
+
+      // Click to open the dropdown
+      await teacherSelect.click();
+
+      // Wait for the listbox options to appear
+      const listbox = page.locator('[role="listbox"]');
+      await listbox.waitFor({ state: "visible", timeout: 5000 });
+
+      // Get all options in the listbox
+      const options = await listbox.locator('[role="option"]').all();
+      const optionCount = options.length;
+      console.log(`Found ${optionCount} teachers in custom dropdown`);
+
+      // Close dropdown first
+      await teacherSelect.click();
+
+      const maxIndex = Math.min(optionCount, MAX_TEACHERS_TO_TRY);
+
+      for (let i = 0; i < maxIndex; i++) {
+        try {
+          console.log(`Trying teacher at dropdown index ${i}...`);
+
+          // Re-open dropdown and click the option
+          await teacherSelect.click();
+          await listbox.waitFor({ state: "visible", timeout: 3000 });
+          const currentOptions = await listbox.locator('[role="option"]').all();
+          if (i >= currentOptions.length) break;
+
+          await currentOptions[i].click();
+
+          // Wait for URL to update with TeacherID parameter
+          await page.waitForURL(/TeacherID=\d+/, { timeout: 5000 });
+
+          const url = page.url();
+          const match = url.match(/TeacherID=(\d+)/);
+          const teacherId = match ? match[1] : null;
+
+          if (!teacherId) {
+            console.log(`No TeacherID in URL for index ${i}, skipping...`);
+            continue;
+          }
+
+          console.log(`Checking TeacherID=${teacherId} for draggable subjects...`);
+          const draggableSubjects = page.locator(DRAGGABLE_SELECTOR).first();
+
+          try {
+            await draggableSubjects.waitFor({ state: "visible", timeout: CHECK_TIMEOUT });
+            console.log(`✅ Found teacher with subjects: TeacherID=${teacherId}`);
+            return teacherId;
+          } catch {
+            console.log(`❌ TeacherID=${teacherId} has no draggable subjects, trying next...`);
+          }
+        } catch (e) {
+          console.log(`Error checking teacher at index ${i}:`, e);
+        }
       }
     }
 
@@ -178,12 +226,24 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     const { page } = authenticatedAdmin;
     await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
 
-    // Look for teacher selection dropdown
-    const teacherSelect = page.locator("select").first();
+    // Look for teacher selection dropdown (native select OR custom dropdown)
+    const teacherSelect = page.locator('select, [role="combobox"]').first();
 
     if (await teacherSelect.isVisible()) {
-      // Select a teacher
-      await teacherSelect.selectOption({ index: 1 });
+      // Check if it's a native select or custom dropdown
+      const isNativeSelect = (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) === "select";
+
+      if (isNativeSelect) {
+        // Select a teacher using native select
+        await teacherSelect.selectOption({ index: 1 });
+      } else {
+        // Click custom dropdown and select first option
+        await teacherSelect.click();
+        const listbox = page.locator('[role="listbox"]');
+        await listbox.waitFor({ state: "visible", timeout: 5000 });
+        const firstOption = listbox.locator('[role="option"]').first();
+        await firstOption.click();
+      }
 
       // Wait for teacher data to load by checking header update
       const header = page
@@ -644,10 +704,21 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
     // Test multiple interactions in sequence
     const interactions: string[] = [];
 
-    // 1. Select teacher
-    const teacherSelect = page.locator("select").first();
+    // 1. Select teacher (native select OR custom dropdown)
+    const teacherSelect = page.locator('select, [role="combobox"]').first();
     if (await teacherSelect.isVisible()) {
-      await teacherSelect.selectOption({ index: 1 });
+      const isNativeSelect = (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) === "select";
+      if (isNativeSelect) {
+        await teacherSelect.selectOption({ index: 1 });
+      } else {
+        await teacherSelect.click();
+        const listbox = page.locator('[role="listbox"]');
+        await listbox.waitFor({ state: "visible", timeout: 3000 }).catch(() => {});
+        const firstOption = listbox.locator('[role="option"]').first();
+        if (await firstOption.isVisible()) {
+          await firstOption.click();
+        }
+      }
       // Wait for teacher data to load
       await expect(page.locator("text=/.*ครู.*/i, text=/.*Teacher.*/i").first())
         .toBeVisible({ timeout: 3000 })
