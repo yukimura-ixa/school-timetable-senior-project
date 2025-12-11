@@ -41,7 +41,8 @@ test.describe("Dashboard Viewing", () => {
     await nav.goToStudentTable(semester);
     await expect(page).toHaveURL(/student-table/, { timeout: 60_000 });
     // Wait for main content to appear - more resilient than specific elements
-    await expect(page.locator("main")).toBeVisible({ timeout: 60_000 });
+    // Note: App uses <span> wrappers instead of <main>, so use fallback selectors
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({ timeout: 60_000 });
     await page.screenshot({
       path: "test-results/screenshots/student-table.png",
       fullPage: true,
@@ -89,7 +90,8 @@ test.describe("Export & Print Controls", () => {
     const semester = "1-2567";
     await nav.goToTeacherTable(semester);
     // Wait for main content to load first
-    await expect(page.locator("main")).toBeVisible({ timeout: 60_000 });
+    // Note: App uses <span> wrappers instead of <main>, so use fallback selectors
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({ timeout: 60_000 });
     // Check for any export-related button or section
     const exportIndicator = page.locator(
       '[data-testid*="export"], button:has-text("ส่งออก"), button:has-text("Excel"), button:has-text("นำออก")',
@@ -133,7 +135,8 @@ test.describe("Export & Print Controls", () => {
     const semester = "1-2567";
     await nav.goToTeacherTable(semester);
     // Wait for main content first
-    await expect(page.locator("main")).toBeVisible({ timeout: 60_000 });
+    // Note: App uses <span> wrappers instead of <main>, so use fallback selectors
+    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({ timeout: 60_000 });
     // Print button may be in collapsed panel - check if any print-related element exists
     const printIndicator = page.locator(
       '[data-testid*="print"], button:has-text("พิมพ์"), button:has-text("print")',
