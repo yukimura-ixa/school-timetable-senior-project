@@ -156,7 +156,7 @@ test.describe("Analytics Dashboard", () => {
       await toggleButton.click();
       await expect(async () => {
         const isVisible = await page
-          .locator("text=/จำนวนทั้งหมด/")
+          .locator("text=/ภาคเรียนทั้งหมด/")
           .isVisible()
           .catch(() => false);
         expect(isVisible).toBe(false);
@@ -166,7 +166,7 @@ test.describe("Analytics Dashboard", () => {
       await toggleButton.click();
       await expect(async () => {
         const isVisible = await page
-          .locator("text=/จำนวนทั้งหมด/")
+          .locator("text=/ภาคเรียนทั้งหมด/")
           .isVisible()
           .catch(() => true);
         expect(isVisible).toBe(true);
@@ -192,7 +192,7 @@ test.describe("Analytics Dashboard", () => {
       // Animation should complete - verify with assertion polling
       await expect(async () => {
         const isVisible = await page
-          .locator("text=/จำนวนทั้งหมด/")
+          .locator("text=/ภาคเรียนทั้งหมด/")
           .isVisible()
           .catch(() => false);
         expect(isVisible).toBe(false);
@@ -204,7 +204,7 @@ test.describe("Analytics Dashboard", () => {
       // Animation should complete
       await expect(async () => {
         const isVisible = await page
-          .locator("text=/จำนวนทั้งหมด/")
+          .locator("text=/ภาคเรียนทั้งหมด/")
           .isVisible()
           .catch(() => true);
         expect(isVisible).toBe(true);
@@ -375,7 +375,7 @@ test.describe("Analytics Dashboard", () => {
       page,
     }) => {
       // Find all percentage texts in status section
-      const statusSection = page.locator("text=/กระจายตามสถานะ/").locator("..");
+      const statusSection = page.locator("text=/สถานะภาคเรียน/").locator("..");
       const percentages = await statusSection
         .locator("text=/%/")
         .allTextContents();
@@ -518,13 +518,13 @@ test.describe("Analytics Dashboard", () => {
 
   test.describe("Academic Year Distribution Section", () => {
     test("should display academic year section", async ({ page }) => {
-      const yearSection = page.locator("text=/กระจายตามปีการศึกษา/");
+      const yearSection = page.locator("text=/ปีการศึกษา/");
       await expect(yearSection).toBeVisible();
     });
 
     test("should show top 5 academic years maximum", async ({ page }) => {
       const yearSection = page
-        .locator("text=/กระจายตามปีการศึกษา/")
+        .locator("text=/ปีการศึกษา/")
         .locator("..");
 
       // Count year entries (numbers like "2567", "2568")
@@ -540,7 +540,7 @@ test.describe("Analytics Dashboard", () => {
       page,
     }) => {
       const yearSection = page
-        .locator("text=/กระจายตามปีการศึกษา/")
+        .locator("text=/ปีการศึกษา/")
         .locator("..");
       const progressBars = await yearSection
         .locator('[role="progressbar"], [class*="LinearProgress"]')
@@ -552,7 +552,7 @@ test.describe("Analytics Dashboard", () => {
 
     test("should show percentages for each year", async ({ page }) => {
       const yearSection = page
-        .locator("text=/กระจายตามปีการศึกษา/")
+        .locator("text=/ปีการศึกษา/")
         .locator("..");
       const percentages = await yearSection.locator("text=/%/").count();
 
@@ -562,7 +562,7 @@ test.describe("Analytics Dashboard", () => {
 
     test("years should be sorted by count (descending)", async ({ page }) => {
       const yearSection = page
-        .locator("text=/กระจายตามปีการศึกษา/")
+        .locator("text=/ปีการศึกษา/")
         .locator("..");
       const percentages = await yearSection
         .locator("text=/%/")
@@ -604,7 +604,7 @@ test.describe("Analytics Dashboard", () => {
       await navigation;
 
       // Wait for dashboard to appear with targeted selector
-      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 15000 });
+      await page.waitForSelector("text=/ภาคเรียนทั้งหมด/", { timeout: 15000 });
     });
 
     test("should transition from skeleton to actual dashboard smoothly", async ({
@@ -614,10 +614,10 @@ test.describe("Analytics Dashboard", () => {
       await page.reload({ waitUntil: "domcontentloaded" });
 
       // Wait for dashboard to appear
-      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 15000 });
+      await page.waitForSelector("text=/ภาคเรียนทั้งหมด/", { timeout: 15000 });
 
       // Dashboard should be visible after load
-      const dashboard = page.locator("text=/จำนวนทั้งหมด/");
+      const dashboard = page.locator("text=/ภาคเรียนทั้งหมด/");
       await expect(dashboard).toBeVisible();
     });
   });
@@ -625,7 +625,7 @@ test.describe("Analytics Dashboard", () => {
   test.describe("Data Accuracy", () => {
     test("total semesters should match semester count", async ({ page }) => {
       // Get total from analytics dashboard
-      const totalCard = page.locator("text=/จำนวนทั้งหมด/").locator("..");
+      const totalCard = page.locator("text=/ภาคเรียนทั้งหมด/").locator("..");
       const totalText = await totalCard.textContent();
       const totalMatch = totalText?.match(/(\d+)/);
 
@@ -692,7 +692,7 @@ test.describe("Analytics Dashboard", () => {
 
       // Wait for collapse animation to complete with assertion
       await expect(async () => {
-        const stats = page.locator("text=/จำนวนทั้งหมด/");
+        const stats = page.locator("text=/ภาคเรียนทั้งหมด/");
         const isVisible = await stats.isVisible().catch(() => false);
         expect(isVisible).toBe(false);
       }).toPass({ timeout: 1500 });
@@ -711,7 +711,7 @@ test.describe("Analytics Dashboard", () => {
       });
 
       // Wait for dashboard to appear
-      await page.waitForSelector("text=/จำนวนทั้งหมด/", { timeout: 15000 });
+      await page.waitForSelector("text=/ภาคเรียนทั้งหมด/", { timeout: 15000 });
 
       // Get initial viewport metrics
       const metrics1 = await page.evaluate(() => ({
@@ -753,7 +753,7 @@ test.describe("Analytics Dashboard", () => {
 
       // If visible, should show zeros
       if (isVisible) {
-        const totalCard = page.locator("text=/จำนวนทั้งหมด/").locator("..");
+        const totalCard = page.locator("text=/ภาคเรียนทั้งหมด/").locator("..");
         const totalText = await totalCard.textContent();
         expect(totalText).toBeTruthy();
       }
@@ -761,7 +761,7 @@ test.describe("Analytics Dashboard", () => {
 
     test("should handle all semesters with same status", async ({ page }) => {
       // If all semesters have the same status, one bar should show 100%
-      const statusSection = page.locator("text=/กระจายตามสถานะ/").locator("..");
+      const statusSection = page.locator("text=/สถานะภาคเรียน/").locator("..");
       const percentages = await statusSection
         .locator("text=/%/")
         .allTextContents();
