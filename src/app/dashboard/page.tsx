@@ -154,7 +154,7 @@ export default function SelectSemesterPage() {
 
       {/* Analytics Dashboard */}
       {allSemesters.length > 0 && (
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 4 }} data-testid="analytics-dashboard">
           <Box
             sx={{
               display: "flex",

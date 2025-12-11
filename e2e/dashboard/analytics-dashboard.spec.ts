@@ -15,16 +15,28 @@ import { test, expect } from "../fixtures/admin.fixture";
 
 test.describe("Analytics Dashboard", () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to semester selection page (auth bypass enabled in .env.test)
+    // Navigate to semester selection page
     await page.goto("/dashboard", {
       waitUntil: "domcontentloaded",
     });
 
-    // Wait for page to fully load with targeted selector
-    await page.waitForSelector(
-      'text=/📊.*แดชบอร์ดวิเคราะห์|main, [role="main"]',
-      { timeout: 15000 },
+    // Wait for initial data loading to complete
+    // Page shows skeleton loaders while loading, then either dashboard or error
+    await page.waitForLoadState("networkidle", { timeout: 45000 });
+
+    // Wait for loading skeletons to disappear (indicates data fetch completed)
+    // Skeleton has class containing 'MuiSkeleton' or look for testid
+    const skeleton = page.locator('[class*="MuiSkeleton"]').first();
+    if (await skeleton.isVisible().catch(() => false)) {
+      await skeleton.waitFor({ state: "hidden", timeout: 30000 });
+    }
+
+    // Dashboard only renders when allSemesters.length > 0
+    // Wait for either dashboard OR error alert to appear
+    const dashboardOrError = page.locator(
+      '[data-testid="analytics-dashboard"], [role="alert"]',
     );
+    await expect(dashboardOrError.first()).toBeVisible({ timeout: 10000 });
   });
 
   test.describe("Dashboard Visibility", () => {
