@@ -179,11 +179,23 @@ export function SemesterAnalyticsDashboard({ semesters }: Props) {
   };
 
   if (semesters.length === 0) {
-    return null;
+    return (
+      <Paper sx={{ p: 3, mb: 4 }} data-testid="analytics-dashboard-empty">
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+          <AssessmentIcon color="primary" />
+          <Typography variant="h6" fontWeight="bold">
+            สถิติภาพรวม
+          </Typography>
+        </Box>
+        <Typography color="text.secondary">
+          ยังไม่มีข้อมูลภาคเรียนในระบบ
+        </Typography>
+      </Paper>
+    );
   }
 
   return (
-    <Paper sx={{ p: 3, mb: 4 }}>
+    <Paper sx={{ p: 3, mb: 4 }} data-testid="analytics-dashboard-content">
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
         <AssessmentIcon color="primary" />
         <Typography variant="h6" fontWeight="bold">

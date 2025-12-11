@@ -41,6 +41,8 @@ jobs:
       DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
       # Disable Playwright global-setup Docker compose in CI; we use GitHub service container
       AUTO_MANAGE_TEST_DB: "false"
+      # Disable Playwright global-setup seed in CI; we seed via workflow step before server starts
+      SKIP_DB_SEED: "true"
 
     # Test sharding: Split tests across parallel jobs
     strategy:

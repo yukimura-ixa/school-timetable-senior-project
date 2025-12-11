@@ -37,6 +37,28 @@ test.describe("Analytics Dashboard", () => {
       '[data-testid="analytics-dashboard"], [role="alert"]',
     );
     await expect(dashboardOrError.first()).toBeVisible({ timeout: 10000 });
+
+    // CRITICAL: Wait for actual dashboard content to load
+    // If analytics-dashboard-content exists, data is loaded
+    // If analytics-dashboard-empty exists, no semesters (expected in some tests)
+    // If neither, something is wrong
+    const dashboardContent = page.locator(
+      '[data-testid="analytics-dashboard-content"], [data-testid="analytics-dashboard-empty"]',
+    );
+    await expect(dashboardContent.first()).toBeVisible({ timeout: 10000 });
+
+    // Additional safety: if content dashboard, wait for stats to render
+    const hasContent = await page
+      .locator('[data-testid="analytics-dashboard-content"]')
+      .isVisible()
+      .catch(() => false);
+
+    if (hasContent) {
+      // Wait for at least one stat card to appear (indicates data rendered)
+      await expect(
+        page.locator("text=/ภาคเรียนทั้งหมด|ความสมบูรณ์เฉลี่ย/").first(),
+      ).toBeVisible({ timeout: 5000 });
+    }
   });
 
   test.describe("Dashboard Visibility", () => {
