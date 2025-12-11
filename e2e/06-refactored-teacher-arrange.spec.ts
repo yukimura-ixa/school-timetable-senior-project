@@ -19,7 +19,7 @@ let TEACHER_ID = "1"; // Default fallback
  */
 async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
   const DRAGGABLE_SELECTOR =
-    '[data-testid="subject-item"], .subject-card, [draggable="true"]';
+    '[data-testid="subject-item"], [data-testid="subject-card"], [data-sortable-id]';
   const CHECK_TIMEOUT = 3000; // 3 seconds per teacher check (reduced from 5)
   const MAX_TEACHERS_TO_TRY = 5; // Only try first 5 teachers (reduced from 10)
 
@@ -282,14 +282,14 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     await expect(
       page
         .locator(
-          '[data-testid="subject-item"], .subject-card, [draggable="true"]',
+          '[data-testid="subject-item"], [data-testid="subject-card"], [data-sortable-id]',
         )
         .first(),
     ).toBeVisible({ timeout: 15000 });
 
     // Look for subject items (adjust selector based on your implementation)
     const subjectItems = page.locator(
-      '[data-testid="subject-item"], .subject-card, [draggable="true"]',
+      '[data-testid="subject-item"], [data-testid="subject-card"], [data-sortable-id]',
     );
     const count = await subjectItems.count();
 

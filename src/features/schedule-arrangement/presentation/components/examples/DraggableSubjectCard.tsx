@@ -279,6 +279,7 @@ export function DraggableSubjectCard({
     <Card
       ref={setNodeRef}
       style={style}
+      data-testid="subject-card"
       sx={{
         mb: 1,
         border: isSelected ? "2px solid primary.main" : "1px solid",

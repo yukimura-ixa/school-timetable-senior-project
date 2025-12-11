@@ -70,6 +70,7 @@ function SubjectItem({
       ref={setNodeRef}
       style={style}
       data-sortable-id={sortableId}
+      data-testid="subject-item"
       {...attributes}
       {...listeners}
       className={`w-[85%] h-fit flex flex-col my-1 py-1 border rounded cursor-pointer ${
