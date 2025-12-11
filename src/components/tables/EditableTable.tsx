@@ -409,6 +409,7 @@ export function EditableTable<T extends Record<string, any>>({
         <FormControl fullWidth size="small" error={hasError}>
           <Select
             value={draftValue}
+            data-testid={`select-${String(column.key)}`}
             onChange={(e) => {
               setDrafts((d) => {
                 const updated = { ...d };
@@ -421,7 +422,7 @@ export function EditableTable<T extends Record<string, any>>({
             }}
           >
             {column.options.map((opt) => (
-              <MenuItem key={opt.value} value={opt.value}>
+              <MenuItem key={opt.value} value={opt.value} data-testid={`option-${String(column.key)}-${opt.value}`}>
                 {opt.label}
               </MenuItem>
             ))}

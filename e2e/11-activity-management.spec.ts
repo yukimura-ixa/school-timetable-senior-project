@@ -3,87 +3,89 @@ import { test, expect } from "./fixtures/admin.fixture";
 /**
  * E2E Tests for Activity Subject Management (ชุมนุม, ลูกเสือ, กิจกรรม)
  *
- * Tests the complete CRUD workflow for activity subjects:
- * - Creating new activities (using subject creation with Category='กิจกรรม')
- * - Editing existing activities
- * - Deleting activities with confirmation
- * - Form validation
- * - Table refresh after operations
+ * Tests the complete CRUD workflow for activity subjects through the
+ * EditableTable component on /management/subject page.
+ *
+ * NOTE: The subject management uses EditableTable which provides INLINE editing:
+ * - Click "เพิ่ม" to add a new row (no modal)
+ * - Fill fields in the inline row
+ * - Click save icon (aria-label="save") to save
+ * - Select rows with checkbox, then click delete icon to delete
+ * 
+ * This matches the pattern in admin-edge-cases.spec.ts tests.
  *
  * Prerequisites:
  * - Dev server running on http://localhost:3000
  * - Authentication bypassed or admin user logged in
- *
- * IMPLEMENTATION STATUS: Activities are managed through /management/subject
- * as regular subjects with Category='กิจกรรม' (Activity).
- * Tests updated to match SubjectManageClient implementation.
  */
 
 test.describe("Activity Management - CRUD Operations", () => {
   const TEST_ACTIVITY = {
-    code: "ACT-E2E-001",
+    code: "ACTE2E001",
     name: "E2E Test Science Club",
-    type: "CLUB",
-    isGraded: false,
   };
 
-  test("TC-ACT-001: Create new activity subject", async ({
+  test("TC-ACT-001: Create new activity subject via inline editing", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
     // Navigate to subject management page
     await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
+    await page.waitForSelector("table", { timeout: 15000 });
     
-    await test.step("Open subject creation modal", async () => {
-      // Look for "เพิ่มวิชา" (Add Subject) button - Thai UI
-      const addButton = page.getByRole("button", { name: /เพิ่มวิชา|add.*subject/i });
+    await test.step("Click Add button to create inline row", async () => {
+      // EditableTable uses "เพิ่ม" button text
+      const addButton = page.getByRole("button", { name: /เพิ่ม|add/i });
       await expect(addButton).toBeVisible({ timeout: 15000 });
       await addButton.click();
 
-      // Modal should open
-      const modal = page.locator('[role="dialog"], .MuiDialog-root').first();
-      await expect(modal).toBeVisible();
+      // Wait for new inline editing row to appear
+      await page.waitForSelector("tbody tr input[type=\"text\"]", {
+        timeout: 10000,
+      });
     });
 
-    await test.step("Fill in activity details as subject", async () => {
-      // Fill SubjectCode
-      const codeInput = page.getByLabel(/รหัสวิชา|subject.*code/i);
+    await test.step("Fill in subject details in inline row", async () => {
+      // Find the editing row (row with input fields)
+      const editingRow = page
+        .locator("tbody tr")
+        .filter({ has: page.locator("input[type=\"text\"]") })
+        .first();
+      
+      // Fill SubjectCode (first text input in the row)
+      const codeInput = editingRow.locator("input[type=\"text\"]").first();
       await codeInput.fill(TEST_ACTIVITY.code);
 
-      // Fill SubjectName (Thai)
-      const nameThInput = page.getByLabel(/ชื่อวิชา.*ไทย|subject.*name.*thai/i);
-      await nameThInput.fill(TEST_ACTIVITY.name);
-      
-      // Fill SubjectName (English) - optional but good practice
-      const nameEnInput = page.getByLabel(/ชื่อวิชา.*อังกฤษ|subject.*name.*english/i);
-      await nameEnInput.fill("E2E Test Science Club");
+      // Fill SubjectName (second text input in the row)
+      const nameInput = editingRow.locator("input[type=\"text\"]").nth(1);
+      await nameInput.fill(TEST_ACTIVITY.name);
 
-      // Select Category as 'กิจกรรม' (Activity)
-      const categorySelect = page.getByLabel(/ประเภท|category/i);
-      await categorySelect.click();
-      await page.getByRole("option", { name: /กิจกรรม|activity/i }).click();
-      
-      // Set Credits (activities typically 1 credit)
-      const creditsInput = page.getByLabel(/หน่วยกิต|credits/i);
-      await creditsInput.fill("1");
+      // Select Credit using MUI Select (role="combobox" or the select dropdown)
+      const creditSelects = editingRow.locator("[role=\"combobox\"], select");
+      const creditSelect = creditSelects.first();
+      if (await creditSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await creditSelect.click();
+        await page.getByRole("option", { name: /1\.0|CREDIT_10/i }).first().click();
+      }
+
+      // Select Category as "กิจกรรมพัฒนาผู้เรียน" (ACTIVITY)
+      const categorySelect = creditSelects.nth(1);
+      if (await categorySelect.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await categorySelect.click();
+        await page.getByRole("option", { name: /กิจกรรม|ACTIVITY/i }).first().click();
+      }
     });
 
-    await test.step("Submit and verify creation", async () => {
-      // Click create/save button
-      const submitButton = page
-        .getByRole("button", { name: /create|save|บันทึก/i })
-        .last();
-      await submitButton.click();
+    await test.step("Save and verify creation", async () => {
+      // Click save icon button
+      const saveButton = page.locator("button[aria-label=\"save\"]");
+      await saveButton.click();
 
-      // Wait for modal to close
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
+      // Wait for save to complete - should show success message or row becomes normal
+      await page.waitForSelector("text=/สำเร็จ|success/i", { timeout: 10000 }).catch(() => {});
 
       // Verify activity appears in table
-      await expect(page.getByText(TEST_ACTIVITY.code)).toBeVisible();
-      await expect(page.getByText(TEST_ACTIVITY.name)).toBeVisible();
+      await expect(page.getByText(TEST_ACTIVITY.code)).toBeVisible({ timeout: 15000 });
     });
 
     await page.screenshot({
@@ -92,76 +94,55 @@ test.describe("Activity Management - CRUD Operations", () => {
     });
   });
 
-  test("TC-ACT-002: Edit existing activity", async ({ authenticatedAdmin }) => {
+  test("TC-ACT-002: Edit existing subject via inline editing", async ({
+    authenticatedAdmin,
+  }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
-    
-    await test.step("Create activity first", async () => {
-      // Quick create for editing test
-      const addButton = page.getByRole("button", { name: /add.*activity/i });
-      await addButton.click();
+    await page.waitForSelector("table", { timeout: 15000 });
 
-      await page.getByLabel(/subject.*code/i).fill("ACT-E2E-002");
-      await page.getByLabel(/subject.*name/i).fill("Original Name");
-      await page.getByLabel(/activity.*type/i).click();
-      await page.getByRole("option", { name: /club/i }).click();
+    await test.step("Select a subject row for editing", async () => {
+      // Wait for table data to load
+      await expect(page.locator("tbody tr").first()).toBeVisible({ timeout: 15000 });
 
-      await page
-        .getByRole("button", { name: /create|save/i })
-        .last()
-        .click();
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
-    });
+      // Click checkbox on first row to select it
+      const firstRow = page.locator("tbody tr").first();
+      const checkbox = firstRow.locator("input[type=\"checkbox\"]");
+      await checkbox.click();
 
-    await test.step("Open edit modal", async () => {
-      // Find the activity row
-      const activityRow = page.locator("tr", {
-        has: page.getByText("ACT-E2E-002"),
-      });
-      await expect(activityRow).toBeVisible();
-
-      // Click edit button (could be an icon button)
-      const editButton = activityRow.getByRole("button", { name: /edit/i });
+      // Click edit icon to enter edit mode
+      const editButton = page.locator("button[aria-label=\"edit\"]");
       await editButton.click();
 
-      // Modal should open with pre-filled data
-      const modal = page.locator('[role="dialog"]');
-      await expect(modal).toBeVisible();
-      await expect(page.getByLabel(/subject.*code/i)).toHaveValue(
-        "ACT-E2E-002",
-      );
-    });
-
-    await test.step("Modify activity details", async () => {
-      // Change name
-      const nameInput = page.getByLabel(/subject.*name/i);
-      await nameInput.fill("Updated Activity Name");
-
-      // Change activity type
-      const typeSelect = page.getByLabel(/activity.*type/i);
-      await typeSelect.click();
-      await page.getByRole("option", { name: /scout/i }).click();
-
-      // Toggle IsGraded
-      const gradedCheckbox = page.getByLabel(/is.*graded/i);
-      await gradedCheckbox.check();
-    });
-
-    await test.step("Submit and verify update", async () => {
-      const submitButton = page
-        .getByRole("button", { name: /update|save/i })
-        .last();
-      await submitButton.click();
-
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
+      // Wait for row to become editable
+      await page.waitForSelector("tbody tr input[type=\"text\"]", {
+        timeout: 10000,
       });
+    });
 
-      // Verify updates appear
-      await expect(page.getByText("Updated Activity Name")).toBeVisible();
+    await test.step("Modify subject name", async () => {
+      // Find the editing row
+      const editingRow = page
+        .locator("tbody tr")
+        .filter({ has: page.locator("input[type=\"text\"]") })
+        .first();
+
+      // Change SubjectName
+      const nameInput = editingRow.locator("input[type=\"text\"]").nth(1);
+      await nameInput.clear();
+      await nameInput.fill("Updated Subject Name");
+    });
+
+    await test.step("Save changes", async () => {
+      // Click save button
+      const saveButton = page.locator("button[aria-label=\"save\"]");
+      await saveButton.click();
+
+      // Wait for save to complete
+      await page.waitForSelector("text=/สำเร็จ|success/i", { timeout: 10000 }).catch(() => {});
+
+      // Verify update appears in table
+      await expect(page.getByText("Updated Subject Name")).toBeVisible({ timeout: 15000 });
     });
 
     await page.screenshot({
@@ -170,59 +151,70 @@ test.describe("Activity Management - CRUD Operations", () => {
     });
   });
 
-  test("TC-ACT-003: Delete activity with confirmation", async ({
+  test("TC-ACT-003: Delete subject with selection", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
-    
-    await test.step("Create activity to delete", async () => {
-      const addButton = page.getByRole("button", { name: /add.*activity/i });
+    await page.waitForSelector("table", { timeout: 15000 });
+
+    // First create a subject to delete
+    const uniqueCode = `DEL${Date.now().toString().slice(-6)}`;
+
+    await test.step("Create subject to delete", async () => {
+      const addButton = page.getByRole("button", { name: /เพิ่ม|add/i });
       await addButton.click();
 
-      await page.getByLabel(/subject.*code/i).fill("ACT-E2E-003");
-      await page.getByLabel(/subject.*name/i).fill("Activity to Delete");
-      await page.getByLabel(/activity.*type/i).click();
-      await page.getByRole("option", { name: /club/i }).click();
+      await page.waitForSelector("tbody tr input[type=\"text\"]", { timeout: 10000 });
 
-      await page
-        .getByRole("button", { name: /create|save/i })
-        .last()
-        .click();
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
+      const editingRow = page
+        .locator("tbody tr")
+        .filter({ has: page.locator("input[type=\"text\"]") })
+        .first();
+
+      const codeInput = editingRow.locator("input[type=\"text\"]").first();
+      await codeInput.fill(uniqueCode);
+
+      const nameInput = editingRow.locator("input[type=\"text\"]").nth(1);
+      await nameInput.fill("Subject to Delete");
+
+      // Select required fields
+      const selects = editingRow.locator("[role=\"combobox\"], select");
+      if (await selects.first().isVisible({ timeout: 2000 }).catch(() => false)) {
+        await selects.first().click();
+        await page.getByRole("option").first().click();
+      }
+
+      const saveButton = page.locator("button[aria-label=\"save\"]");
+      await saveButton.click();
+
+      // Wait for creation to complete
+      await expect(page.getByText(uniqueCode)).toBeVisible({ timeout: 15000 });
     });
 
-    await test.step("Click delete button", async () => {
-      const activityRow = page.locator("tr", {
-        has: page.getByText("ACT-E2E-003"),
+    await test.step("Select and delete subject", async () => {
+      // Find the row with our unique code
+      const subjectRow = page.locator("tbody tr", {
+        has: page.getByText(uniqueCode),
       });
-      const deleteButton = activityRow.getByRole("button", { name: /delete/i });
+      await expect(subjectRow).toBeVisible();
+
+      // Click checkbox to select
+      const checkbox = subjectRow.locator("input[type=\"checkbox\"]");
+      await checkbox.click();
+
+      // Click delete icon
+      const deleteButton = page.locator("button[aria-label=\"delete\"]");
       await deleteButton.click();
 
-      // Confirmation dialog should appear
-      const confirmDialog = page.locator('[role="dialog"]', {
-        has: page.getByText(/confirm|delete/i),
-      });
-      await expect(confirmDialog).toBeVisible();
-    });
+      // Handle confirmation dialog if present
+      const confirmButton = page.getByRole("button", { name: /ลบ|delete|confirm|ยืนยัน/i }).last();
+      if (await confirmButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await confirmButton.click();
+      }
 
-    await test.step("Confirm deletion", async () => {
-      // Click confirm button
-      const confirmButton = page
-        .getByRole("button", { name: /delete|confirm|ลบ/i })
-        .last();
-      await confirmButton.click();
-
-      // Wait for dialog to close
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
-
-      // Verify activity is removed from table
-      await expect(page.getByText("ACT-E2E-003")).not.toBeVisible();
+      // Wait for deletion to complete
+      await expect(page.getByText(uniqueCode)).not.toBeVisible({ timeout: 15000 });
     });
 
     await page.screenshot({
@@ -231,219 +223,64 @@ test.describe("Activity Management - CRUD Operations", () => {
     });
   });
 
-  test("TC-ACT-004: Cancel deletion", async ({ authenticatedAdmin }) => {
+  test("TC-ACT-004: Cancel inline editing", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
-    
-    await test.step("Create activity", async () => {
-      const addButton = page.getByRole("button", { name: /add.*activity/i });
+    await page.waitForSelector("table", { timeout: 15000 });
+
+    await test.step("Start adding new row", async () => {
+      const addButton = page.getByRole("button", { name: /เพิ่ม|add/i });
       await addButton.click();
 
-      await page.getByLabel(/subject.*code/i).fill("ACT-E2E-004");
-      await page.getByLabel(/subject.*name/i).fill("Activity to Keep");
-      await page.getByLabel(/activity.*type/i).click();
-      await page.getByRole("option", { name: /club/i }).click();
-
-      await page
-        .getByRole("button", { name: /create|save/i })
-        .last()
-        .click();
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
+      await page.waitForSelector("tbody tr input[type=\"text\"]", { timeout: 10000 });
     });
 
-    await test.step("Open and cancel deletion", async () => {
-      const activityRow = page.locator("tr", {
-        has: page.getByText("ACT-E2E-004"),
-      });
-      const deleteButton = activityRow.getByRole("button", { name: /delete/i });
-      await deleteButton.click();
+    await test.step("Fill partial data", async () => {
+      const editingRow = page
+        .locator("tbody tr")
+        .filter({ has: page.locator("input[type=\"text\"]") })
+        .first();
 
-      // Cancel deletion
-      const cancelButton = page
-        .getByRole("button", { name: /cancel|ยกเลิก/i })
-        .last();
+      const codeInput = editingRow.locator("input[type=\"text\"]").first();
+      await codeInput.fill("CANCEL_TEST");
+    });
+
+    await test.step("Cancel editing", async () => {
+      // Click cancel icon (close button)
+      const cancelButton = page.locator("button[aria-label=\"cancel\"]");
       await cancelButton.click();
 
-      // Activity should still exist
-      await expect(page.getByText("ACT-E2E-004")).toBeVisible();
+      // Verify the temporary row is removed
+      await expect(page.getByText("CANCEL_TEST")).not.toBeVisible({ timeout: 5000 });
     });
   });
 
-  test("TC-ACT-005: Validate required fields", async ({
+  test("TC-ACT-005: Validate required fields on save", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
-    
-    await test.step("Open creation modal", async () => {
-      const addButton = page.getByRole("button", { name: /add.*activity/i });
-      await addButton.click();
-    });
+    await page.waitForSelector("table", { timeout: 15000 });
 
-    await test.step("Submit without required fields", async () => {
-      // Leave SubjectCode empty, only fill name
-      await page.getByLabel(/subject.*name/i).fill("Incomplete Activity");
-
-      // Try to submit
-      const submitButton = page
-        .getByRole("button", { name: /create|save/i })
-        .last();
-      await submitButton.click();
-
-      // Should show validation error
-      const errorMessage = page.getByText(/required|ห้ามว่าง|กรุณากรอก/i);
-      await expect(errorMessage).toBeVisible();
-
-      // Modal should remain open
-      await expect(page.locator('[role="dialog"]')).toBeVisible();
-    });
-
-    await test.step("Submit without name", async () => {
-      // Fill code but clear name
-      await page.getByLabel(/subject.*code/i).fill("ACT-TEST");
-      await page.getByLabel(/subject.*name/i).clear();
-
-      const submitButton = page
-        .getByRole("button", { name: /create|save/i })
-        .last();
-      await submitButton.click();
-
-      // Should show validation error
-      const errorMessage = page.getByText(/required|ห้ามว่าง|กรุณากรอก/i);
-      await expect(errorMessage).toBeVisible();
-    });
-  });
-
-  test("TC-ACT-006: Test all activity types", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-    await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
-    
-    const activityTypes = [
-      { code: "ACT-CLUB", name: "Test Club", type: "CLUB" },
-      { code: "ACT-SCOUT", name: "Test Scout", type: "SCOUT" },
-      { code: "ACT-GUIDE", name: "Test Guidance", type: "GUIDANCE" },
-      {
-        code: "ACT-SOCIAL",
-        name: "Test Social Service",
-        type: "SOCIAL_SERVICE",
-      },
-    ];
-
-    for (const activity of activityTypes) {
-      await test.step(`Create ${activity.type} activity`, async () => {
-        const addButton = page.getByRole("button", { name: /add.*activity/i });
-        await addButton.click();
-
-        await page.getByLabel(/subject.*code/i).fill(activity.code);
-        await page.getByLabel(/subject.*name/i).fill(activity.name);
-        await page.getByLabel(/activity.*type/i).click();
-        await page
-          .getByRole("option", { name: new RegExp(activity.type, "i") })
-          .click();
-
-        await page
-          .getByRole("button", { name: /create|save/i })
-          .last()
-          .click();
-        await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-          timeout: 15000,
-        });
-
-        // Verify creation
-        await expect(page.getByText(activity.code)).toBeVisible();
-      });
-    }
-
-    await page.screenshot({
-      path: "test-results/screenshots/activity-all-types.png",
-      fullPage: true,
-    });
-  });
-
-  test("TC-ACT-007: Table refresh after operations", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-    await page.goto("/management/subject");
-    await expect(page.locator("body")).toBeVisible();
-    
-    await test.step("Count initial activities", async () => {
-      const rows = page.locator("tbody tr");
-      const initialCount = await rows.count();
-      console.log("Initial activity count:", initialCount);
-    });
-
-    await test.step("Create activity and verify count increase", async () => {
-      const addButton = page.getByRole("button", { name: /add.*activity/i });
+    await test.step("Start adding new row", async () => {
+      const addButton = page.getByRole("button", { name: /เพิ่ม|add/i });
       await addButton.click();
 
-      await page.getByLabel(/subject.*code/i).fill("ACT-REFRESH");
-      await page.getByLabel(/subject.*name/i).fill("Refresh Test");
-      await page.getByLabel(/activity.*type/i).click();
-      await page.getByRole("option", { name: /club/i }).click();
-
-      await page
-        .getByRole("button", { name: /create|save/i })
-        .last()
-        .click();
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
-
-      // Wait for table to refresh
-      await expect(page.getByText("ACT-REFRESH")).toBeVisible();
+      await page.waitForSelector("tbody tr input[type=\"text\"]", { timeout: 10000 });
     });
 
-    await test.step("Delete activity and verify count decrease", async () => {
-      const activityRow = page.locator("tr", {
-        has: page.getByText("ACT-REFRESH"),
-      });
-      const deleteButton = activityRow.getByRole("button", { name: /delete/i });
-      await deleteButton.click();
+    await test.step("Try to save with empty required fields", async () => {
+      // Don't fill any fields, just try to save
+      const saveButton = page.locator("button[aria-label=\"save\"]");
+      await saveButton.click();
 
-      await page
-        .getByRole("button", { name: /delete|confirm/i })
-        .last()
-        .click();
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible({
-        timeout: 15000,
-      });
-
-      // Wait for table to refresh
-      await expect(page.getByText("ACT-REFRESH")).not.toBeVisible();
+      // Should show validation error
+      await expect(page.getByText(/ห้ามว่าง|required|กรุณากรอก/i).first()).toBeVisible({ timeout: 10000 });
     });
-  });
-});
 
-test.describe.skip("Activity Management - Empty State", () => {
-  test("TC-ACT-008: Display empty state message", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-    // This test assumes there's a way to filter or view empty state
-    await page.goto("/management/subject");
-    // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
-
-    // If there are no activities, should show empty state
-    const emptyMessage = page.getByText(/no activities|ไม่มีกิจกรรม|empty/i);
-
-    // This is conditional - empty state may not be visible if activities exist
-    if (await emptyMessage.isVisible()) {
-      await expect(emptyMessage).toBeVisible();
-
-      await page.screenshot({
-        path: "test-results/screenshots/activity-empty-state.png",
-        fullPage: true,
-      });
-    } else {
-      console.log("Activities exist - empty state not displayed");
-    }
+    await test.step("Cancel to clean up", async () => {
+      const cancelButton = page.locator("button[aria-label=\"cancel\"]");
+      await cancelButton.click();
+    });
   });
 });

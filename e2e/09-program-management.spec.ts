@@ -107,9 +107,9 @@ test.describe("Program Management - Filtering", () => {
       .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
-    // Find and click semester filter
+    // Find and click semester filter (MUI Select uses role="combobox")
     const semesterSelect = page
-      .locator("select")
+      .locator('select, [role="combobox"], [class*="MuiSelect"]')
       .filter({
         hasText: /ทั้งหมด|SEMESTER/,
       })
@@ -155,9 +155,9 @@ test.describe("Program Management - Filtering", () => {
       .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
-    // Find academic year filter
+    // Find academic year filter (MUI Select uses role="combobox")
     const yearSelect = page
-      .locator("select")
+      .locator('select, [role="combobox"], [class*="MuiSelect"]')
       .filter({
         hasText: /256/,
       })
@@ -204,15 +204,15 @@ test.describe("Program Management - Filtering", () => {
       .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
-    // Apply both filters
+    // Apply both filters (MUI Select uses role="combobox")
     const semesterSelect = page
-      .locator("select")
+      .locator('select, [role="combobox"], [class*="MuiSelect"]')
       .filter({
         hasText: /ทั้งหมด|SEMESTER/,
       })
       .first();
     const yearSelect = page
-      .locator("select")
+      .locator('select, [role="combobox"], [class*="MuiSelect"]')
       .filter({
         hasText: /256/,
       })
@@ -403,9 +403,9 @@ test.describe("Program Management - CRUD Operations", () => {
         await nameInput.fill("หลักสูตรแกนกลาง ม.ต้น");
       }
 
-      // Select Semester 1
+      // Select Semester 1 (MUI Select uses role="combobox")
       const semesterSelect = page
-        .locator("select")
+        .locator('select, [role="combobox"], [class*="MuiSelect"]')
         .filter({
           hasText: /ภาคเรียน|Semester/,
         })
@@ -491,9 +491,9 @@ test.describe("Program Management - CRUD Operations", () => {
         await nameInput.fill(uniqueName);
       }
 
-      // Select Semester 2
+      // Select Semester 2 (MUI Select uses role="combobox")
       const semesterSelect = page
-        .locator("select")
+        .locator('select, [role="combobox"], [class*="MuiSelect"]')
         .filter({
           hasText: /ภาคเรียน|Semester/,
         })
@@ -643,7 +643,7 @@ test.describe("Program Management - CRUD Operations", () => {
       }
 
       const semesterSelect = page
-        .locator("select")
+        .locator('select, [role="combobox"], [class*="MuiSelect"]')
         .filter({
           hasText: /ภาคเรียน/,
         })
@@ -734,9 +734,9 @@ test.describe("Program Management - Data Validation", () => {
       .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
-    // Check for programs from different academic years
+    // Check for programs from different academic years (MUI Select uses role="combobox")
     const yearSelect = page
-      .locator("select")
+      .locator('select, [role="combobox"], [class*="MuiSelect"]')
       .filter({
         hasText: /256/,
       })
@@ -789,8 +789,9 @@ test.describe("Program Management - Data Validation", () => {
       .toBeVisible({ timeout: 15000 })
       .catch(() => {});
     
+    // Semester filter (MUI Select uses role="combobox")
     const semesterSelect = page
-      .locator("select")
+      .locator('select, [role="combobox"], [class*="MuiSelect"]')
       .filter({
         hasText: /ทั้งหมด|SEMESTER/,
       })
