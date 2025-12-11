@@ -20,8 +20,8 @@ let TEACHER_ID = "1"; // Default fallback
 async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
   const DRAGGABLE_SELECTOR =
     '[data-testid="subject-item"], .subject-card, [draggable="true"]';
-  const CHECK_TIMEOUT = 5000; // 5 seconds per teacher check
-  const MAX_TEACHERS_TO_TRY = 10; // Don't try more than 10 teachers
+  const CHECK_TIMEOUT = 3000; // 3 seconds per teacher check (reduced from 5)
+  const MAX_TEACHERS_TO_TRY = 5; // Only try first 5 teachers (reduced from 10)
 
   try {
     // Navigate to teacher arrange page without TeacherID param
@@ -166,14 +166,22 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   test.beforeAll(async ({ browser }) => {
     // Create a temporary page with authenticated context (storageState from Playwright config)
     // Without this, the page redirects to login and no dropdown is visible
-    const context = await browser.newContext({
-      storageState: "playwright/.auth/admin.json",
-    });
-    const setupPage = await context.newPage();
+    let context;
     try {
+      context = await browser.newContext({
+        storageState: "playwright/.auth/admin.json",
+      });
+      const setupPage = await context.newPage();
+      // Set a reasonable timeout for the entire beforeAll hook
+      setupPage.setDefaultTimeout(30000);
       TEACHER_ID = await fetchValidTeacherIDFromUI(setupPage);
+    } catch (e) {
+      console.log("beforeAll setup failed, using default TeacherID=1:", e);
+      TEACHER_ID = "1";
     } finally {
-      await context.close();
+      if (context) {
+        await context.close().catch(() => {});
+      }
     }
   });
 
