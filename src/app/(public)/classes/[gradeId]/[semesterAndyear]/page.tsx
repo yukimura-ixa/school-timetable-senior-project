@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import type { timeslot, semester } from "@/prisma/generated/client";
+import { PrintButton } from "@/app/(public)/_components/PrintButton";
 import prisma from "@/lib/prisma";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 
@@ -276,12 +277,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
 
         {/* Print Button */}
         <div className="mt-4 md:mt-6 flex justify-center print:hidden">
-          <button
-            onClick={() => window.print()}
-            className="bg-green-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm md:text-base"
-          >
-            พิมพ์ตารางเรียน
-          </button>
+          <PrintButton />
         </div>
       </div>
     </main>

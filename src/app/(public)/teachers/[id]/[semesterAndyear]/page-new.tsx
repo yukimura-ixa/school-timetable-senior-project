@@ -5,6 +5,7 @@ import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { timeslot, semester } from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
+import { PrintButton } from "@/app/(public)/_components/PrintButton";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
 function parseConfigId(
@@ -260,12 +261,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
 
         {/* Print Button */}
         <div className="mt-4 md:mt-6 flex justify-center print:hidden">
-          <button
-            onClick={() => window.print()}
-            className="bg-blue-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm md:text-base"
-          >
-            พิมพ์ตารางสอน
-          </button>
+          <PrintButton />
         </div>
       </div>
     </main>
