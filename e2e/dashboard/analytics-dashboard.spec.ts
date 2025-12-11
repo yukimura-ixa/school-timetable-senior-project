@@ -93,7 +93,7 @@ test.describe("Analytics Dashboard", () => {
     test("should be expanded by default", async ({ page }) => {
       // Check that dashboard content is visible (overview stats section)
       const overviewStats = page
-        .locator("text=/จำนวนทั้งหมด|ความสมบูรณ์เฉลี่ย/")
+        .locator("text=/ภาคเรียนทั้งหมด|ความสมบูรณ์เฉลี่ย/")
         .first();
       await expect(overviewStats).toBeVisible();
     });
@@ -124,7 +124,7 @@ test.describe("Analytics Dashboard", () => {
         .first();
 
       // Verify dashboard is initially expanded
-      const statsBeforeCollapse = page.locator("text=/จำนวนทั้งหมด/");
+      const statsBeforeCollapse = page.locator("text=/ภาคเรียนทั้งหมด/");
       await expect(statsBeforeCollapse).toBeVisible();
 
       // Click to collapse
@@ -173,7 +173,7 @@ test.describe("Analytics Dashboard", () => {
       }).toPass({ timeout: 2000 });
 
       // Verify dashboard content is visible again
-      const statsAfterExpand = page.locator("text=/จำนวนทั้งหมด/");
+      const statsAfterExpand = page.locator("text=/ภาคเรียนทั้งหมด/");
       await expect(statsAfterExpand).toBeVisible();
     });
 
@@ -211,7 +211,7 @@ test.describe("Analytics Dashboard", () => {
       }).toPass({ timeout: 2000 });
 
       // Content should be visible after animation
-      const stats = page.locator("text=/จำนวนทั้งหมด/");
+      const stats = page.locator("text=/ภาคเรียนทั้งหมด/");
       await expect(stats).toBeVisible();
     });
 
@@ -257,10 +257,10 @@ test.describe("Analytics Dashboard", () => {
   test.describe("Overview Statistics Cards", () => {
     test("should display all 4 overview stat cards", async ({ page }) => {
       // Check for all 4 stat card titles
-      const totalStat = page.locator("text=/จำนวนทั้งหมด/");
+      const totalStat = page.locator("text=/ภาคเรียนทั้งหมด/");
       const avgCompletenessStat = page.locator("text=/ความสมบูรณ์เฉลี่ย/");
       const pinnedStat = page.locator("text=/ปักหมุด/");
-      const recentStat = page.locator("text=/เข้าถึงล่าสุด/");
+      const recentStat = page.locator("text=/เข้าถึง.*วันล่าสุด/");
 
       await expect(totalStat).toBeVisible();
       await expect(avgCompletenessStat).toBeVisible();
@@ -271,7 +271,7 @@ test.describe("Analytics Dashboard", () => {
     test("should show numeric values for each stat", async ({ page }) => {
       // Each stat card should have a number
       const statCards = page.locator(
-        "text=/จำนวนทั้งหมด|ความสมบูรณ์เฉลี่ย|ปักหมุด|เข้าถึงล่าสุด/",
+        "text=/ภาคเรียนทั้งหมด|ความสมบูรณ์เฉลี่ย|ปักหมุด|เข้าถึง.*วันล่าสุด/",
       );
       const count = await statCards.count();
 
@@ -301,7 +301,7 @@ test.describe("Analytics Dashboard", () => {
 
     test("should show tooltips on hover (if implemented)", async ({ page }) => {
       // Hover over first stat card
-      const firstCard = page.locator("text=/จำนวนทั้งหมด/").locator("..");
+      const firstCard = page.locator("text=/ภาคเรียนทั้งหมด/").locator("..");
       await expect(firstCard).toBeVisible();
       await firstCard.hover();
 
@@ -344,7 +344,7 @@ test.describe("Analytics Dashboard", () => {
 
   test.describe("Status Distribution Section", () => {
     test("should display status distribution section", async ({ page }) => {
-      const statusSection = page.locator("text=/กระจายตามสถานะ/");
+      const statusSection = page.locator("text=/สถานะภาคเรียน/");
       await expect(statusSection).toBeVisible();
     });
 
@@ -356,7 +356,7 @@ test.describe("Analytics Dashboard", () => {
       const archivedStatus = page.locator("text=/เก็บถาวร/").first();
 
       // At least status section title should be visible
-      const statusTitle = page.locator("text=/กระจายตามสถานะ/");
+      const statusTitle = page.locator("text=/สถานะภาคเรียน/");
       await expect(statusTitle).toBeVisible();
     });
 
@@ -403,7 +403,7 @@ test.describe("Analytics Dashboard", () => {
     test("should display completeness distribution section", async ({
       page,
     }) => {
-      const completenessSection = page.locator("text=/กระจายตามความสมบูรณ์/");
+      const completenessSection = page.locator("text=/การกระจายความสมบูรณ์/");
       await expect(completenessSection).toBeVisible();
     });
 
@@ -413,13 +413,13 @@ test.describe("Analytics Dashboard", () => {
       const highRange = page.locator("text=/สูง.*80/");
 
       // At least the section title should be visible
-      const title = page.locator("text=/กระจายตามความสมบูรณ์/");
+      const title = page.locator("text=/การกระจายความสมบูรณ์/");
       await expect(title).toBeVisible();
     });
 
     test("should use color coding (red/orange/green)", async ({ page }) => {
       const completenessSection = page
-        .locator("text=/กระจายตามความสมบูรณ์/")
+        .locator("text=/การกระจายความสมบูรณ์/")
         .locator("..");
 
       // Check for colored elements (progress bars or chips)
@@ -434,7 +434,7 @@ test.describe("Analytics Dashboard", () => {
 
     test("completeness percentages should add up to 100%", async ({ page }) => {
       const completenessSection = page
-        .locator("text=/กระจายตามความสมบูรณ์/")
+        .locator("text=/การกระจายความสมบูรณ์/")
         .locator("..");
       const percentages = await completenessSection
         .locator("text=/%/")
@@ -459,7 +459,7 @@ test.describe("Analytics Dashboard", () => {
 
   test.describe("Resource Totals Section", () => {
     test("should display resource totals section", async ({ page }) => {
-      const resourceSection = page.locator("text=/ทรัพยากรทั้งหมด/");
+      const resourceSection = page.locator("text=/ข้อมูลทรัพยากรรวม/");
       await expect(resourceSection).toBeVisible();
     });
 
@@ -471,7 +471,7 @@ test.describe("Analytics Dashboard", () => {
       const rooms = page.locator("text=/ห้อง/");
 
       // At least the section title should be visible
-      const title = page.locator("text=/ทรัพยากรทั้งหมด/");
+      const title = page.locator("text=/ข้อมูลทรัพยากรรวม/");
       await expect(title).toBeVisible();
     });
 
@@ -479,7 +479,7 @@ test.describe("Analytics Dashboard", () => {
       page,
     }) => {
       const resourceSection = page
-        .locator("text=/ทรัพยากรทั้งหมด/")
+        .locator("text=/ข้อมูลทรัพยากรรวม/")
         .locator("..");
 
       // Should have multiple numbers displayed
@@ -490,7 +490,7 @@ test.describe("Analytics Dashboard", () => {
     test("should show icons for each resource type", async ({ page }) => {
       // Resource icons: ClassIcon, PersonIcon, SchoolIcon, RoomIcon
       const resourceSection = page
-        .locator("text=/ทรัพยากรทั้งหมด/")
+        .locator("text=/ข้อมูลทรัพยากรรวม/")
         .locator("..");
       const icons = await resourceSection.locator("svg").count();
 
@@ -505,7 +505,7 @@ test.describe("Analytics Dashboard", () => {
       await page.setViewportSize({ width: 1280, height: 720 });
 
       const resourceSection = page
-        .locator("text=/ทรัพยากรทั้งหมด/")
+        .locator("text=/ข้อมูลทรัพยากรรวม/")
         .locator("..");
 
       // Check grid layout (should be 4 columns on desktop)
