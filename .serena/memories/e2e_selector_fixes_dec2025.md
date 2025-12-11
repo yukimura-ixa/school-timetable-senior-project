@@ -103,6 +103,8 @@ This fix targeted the ~43 failures in Shard 3 which were all from analytics-dash
 |--------|--------------|--------------|-----------|
 | 20131100604 | 116 | 338 | 74.4% |
 | 20131700088 | 105 | 348 | 76.8% |
+| 20132570867 | 101 | 354 | 77.8% |
+| 20133492278 | 93 | 360 | 79.5% |
 
 **Shard 3 improved the most: 43 → 32 failures** (analytics dashboard fixes worked!)
 
