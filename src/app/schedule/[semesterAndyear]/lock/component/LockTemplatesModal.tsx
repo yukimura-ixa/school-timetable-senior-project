@@ -164,6 +164,7 @@ export default function LockTemplatesModal({
         onClose={onClose}
         maxWidth="md"
         fullWidth
+        data-testid="lock-templates-modal"
       >
         <DialogTitle>
           <Stack direction="row" spacing={1} alignItems="center">
@@ -254,6 +255,7 @@ export default function LockTemplatesModal({
           onClose={handleClosePreview}
           maxWidth="sm"
           fullWidth
+          data-testid="lock-template-preview-modal"
         >
           <DialogTitle>
             <Stack direction="row" spacing={1} alignItems="center">

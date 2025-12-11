@@ -276,7 +276,13 @@ export default function BulkLockModal({
     selectedGrades.size > 0;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="lg"
+      fullWidth
+      data-testid="bulk-lock-modal"
+    >
       <DialogTitle>
         <Stack direction="row" spacing={1} alignItems="center">
           <LockIcon />
