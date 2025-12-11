@@ -106,7 +106,7 @@ export class ArrangePage extends BasePage {
   }
 
   /**
-   * Navigate to arrange page for specific semester/year
+   * Navigate to arrange page for a specific semester
    */
   async navigateTo(semester: string, year: string) {
     await this.goto(`/schedule/${semester}-${year}/arrange`);
@@ -114,6 +114,28 @@ export class ArrangePage extends BasePage {
 
     // Wait for semester to sync with global state
     await this.waitForSemesterSync(`${semester}/${year}`);
+
+    // Wait for initial data loading (teachers, timeslots) to complete
+    // The page shows skeleton loaders while fetching data
+    await this.waitForDataLoad();
+  }
+
+  /**
+   * Wait for arrange page data to load (teachers, timeslots)
+   * Waits for skeleton loaders to disappear, indicating data is ready
+   */
+  async waitForDataLoad() {
+    // Wait for network requests to complete (SWR data fetching)
+    await this.page.waitForLoadState("networkidle", { timeout: 45000 });
+
+    // Wait for MUI skeleton loaders to disappear (indicates data loaded)
+    const skeleton = this.page.locator('[class*="MuiSkeleton"]').first();
+    if (await skeleton.isVisible().catch(() => false)) {
+      await skeleton.waitFor({ state: "hidden", timeout: 30000 });
+    }
+
+    // Give a small buffer for React to re-render with data
+    await this.page.waitForTimeout(500);
   }
 
   /**
