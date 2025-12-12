@@ -93,8 +93,9 @@ test.describe("Activity Management - CRUD Operations", () => {
       }
 
       // Select ActivityType (required for ACTIVITY category per MOE compliance)
-      // ActivityType is the 4th combobox (Credit=0, Category=1, LearningArea=2, ActivityType=3)
-      const activityTypeSelect = creditSelects.nth(3);
+      // Re-query comboboxes to ensure we have the latest state
+      const updatedSelects = editingRow.locator("[role=\"combobox\"], select");
+      const activityTypeSelect = updatedSelects.nth(3);
       if (await activityTypeSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
         await activityTypeSelect.click();
         await page.getByRole("option", { name: /ชุมนุม|CLUB/i }).first().click();
