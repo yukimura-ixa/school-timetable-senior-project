@@ -15,6 +15,7 @@
  */
 
 import { useMemo } from "react";
+import type { SubjectData } from "@/types/schedule.types"; // Added import
 
 // ============================================================================
 // TYPE GUARDS FOR SERVER ACTION RESPONSES
@@ -77,7 +78,7 @@ export interface UseTeacherScheduleResult {
   teacher: teacher | null;
 
   // Subject responsibilities
-  responsibilities: teachers_responsibility[];
+  responsibilities: SubjectData[]; // Changed type here
 
   // Timeslots configuration
   timeslots: timeslot[];
@@ -159,7 +160,7 @@ export function useTeacherSchedule({
   // ============================================================================
   // AVAILABLE RESPONSIBILITIES (SUBJECTS)
   // ============================================================================
-  const responsibilitiesQuery = useSWR<teachers_responsibility[]>(
+  const responsibilitiesQuery = useSWR<SubjectData[]>( // Changed type here
     teacherID
       ? `available-resp-${academicYear}-${semester}-${teacherID}`
       : null,
@@ -176,7 +177,7 @@ export function useTeacherSchedule({
         return [];
       }
 
-      return result.data as teachers_responsibility[];
+      return result.data as SubjectData[]; // Changed type here
     },
     { revalidateOnFocus: false },
   );

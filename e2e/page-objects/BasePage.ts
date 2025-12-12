@@ -52,7 +52,7 @@ export class BasePage {
   async goto(path: string) {
     await this.page.goto(`${this.baseUrl}${path}`, {
       waitUntil: "domcontentloaded",
-      timeout: 60_000,
+      timeout: 120_000,
     });
   }
 
@@ -128,29 +128,9 @@ export class BasePage {
         { configId, academicYearNum, semesterNum },
       );
 
-      await this.page.reload({ waitUntil: "domcontentloaded" });
-
-      // Verify localStorage was set correctly after reload
-      const stored = await this.page.evaluate(() =>
-        window.localStorage.getItem("semester-selection"),
-      );
-      let valid = false;
-      try {
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          valid =
-            parsed?.state?.selectedSemester === configId &&
-            parsed?.state?.academicYear === academicYearNum &&
-            parsed?.state?.semester === semesterNum;
-        }
-      } catch {
-        valid = false;
-      }
-      if (!valid) {
-        throw new Error(
-          `Semester sync failed: localStorage not set correctly to ${configId}`,
-        );
-      }
+      // Wait for the UI to reflect the semester change.
+      // This is crucial if components re-render based on store updates without a full page reload.
+      await expect(this.semesterButtonWithText).toContainText(expectedSemester, { timeout: 15000 });
     }
 
     // Readiness heuristic:

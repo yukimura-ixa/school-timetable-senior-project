@@ -5,8 +5,29 @@
  * No side effects, no database access - only business rules.
  */
 
-import { teachers_responsibility } from "@/prisma/generated/client";
+import { teachers_responsibility, semester, SubjectCategory, subject_credit } from "@/prisma/generated/client"; // Added imports
 import { ResponsibilityOutput } from "../../application/schemas/assign.schemas";
+
+type ExpandedSlot = {
+  AcademicYear: number;
+  GradeID: string;
+  RespID: number;
+  Semester: semester;
+  SubjectCode: string;
+  TeachHour: number;
+  TeacherID: number;
+  subject: {
+    SubjectName: string;
+    Credit: subject_credit;
+    Category: SubjectCategory;
+  };
+  gradelevel?: {
+    Year: number;
+    Number: number;
+  };
+  SubjectName: string;
+  itemID: number;
+};
 
 /**
  * Credit to teaching hours mapping
@@ -123,18 +144,41 @@ export function expandAvailableSlots<
   T extends {
     TeachHour: number;
     class_schedule: unknown[];
-    subject: { SubjectName: string };
+    subject: { SubjectName: string; Credit: subject_credit; Category: SubjectCategory };
+    AcademicYear: number;
+    GradeID: string;
+    RespID: number;
+    Semester: semester;
+    SubjectCode: string;
+    TeacherID: number;
+    gradelevel?: { Year: number; Number: number };
   },
->(responsibilities: T[]): Array<T & { SubjectName: string; itemID: number }> {
-  const slots: Array<T & { SubjectName: string; itemID: number }> = [];
+>(responsibilities: T[]): ExpandedSlot[] { // Changed return type here
+  const slots: ExpandedSlot[] = []; // Changed type here
 
   for (const resp of responsibilities) {
     const availableSlots = resp.TeachHour - resp.class_schedule.length;
 
     // Expand this responsibility into N available slots
     for (let i = 0; i < availableSlots; i++) {
+      // Explicitly construct ExpandedSlot
       slots.push({
-        ...resp,
+        AcademicYear: resp.AcademicYear,
+        GradeID: resp.GradeID,
+        RespID: resp.RespID,
+        Semester: resp.Semester,
+        SubjectCode: resp.SubjectCode,
+        TeachHour: resp.TeachHour,
+        TeacherID: resp.TeacherID,
+        subject: {
+          SubjectName: resp.subject.SubjectName,
+          Credit: resp.subject.Credit,
+          Category: resp.subject.Category,
+        },
+        gradelevel: resp.gradelevel ? {
+          Year: resp.gradelevel.Year,
+          Number: resp.gradelevel.Number
+        } : undefined,
         SubjectName: resp.subject.SubjectName,
         itemID: slots.length + 1, // 1-based index
       });

@@ -707,9 +707,12 @@ async function seedDemoData() {
     { year: 2568, semester: "SEMESTER_1" as semester, configId: "1-2568" },
   ];
 
-  // Create responsibilities for ALL 3 semesters, all 3 grades, each subject/teacher
-  for (const semConfig of semesterConfigs) {
-    for (const grade of gradeLevels) {
+  // Create responsibilities for a limited set of grades and semesters in test mode to speed up E2E tests
+  const testSemesterConfigs = isTestMode ? [semesterConfigs[0]] : semesterConfigs;
+  const testGradeLevels = isTestMode ? gradeLevels.slice(0, 3) : gradeLevels; // Only M.1 grades for tests
+
+  for (const semConfig of testSemesterConfigs) {
+    for (const grade of testGradeLevels) {
       for (const mapping of subjectTeacherMap) {
         const teacher = teachers[mapping.teacherIndex];
 

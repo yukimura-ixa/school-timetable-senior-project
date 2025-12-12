@@ -147,71 +147,7 @@ type EnrichedTimeslot = timeslot & {
   subject: SubjectData | null;
 };
 
-/**
- * Type: Expanded teacher responsibility from getAvailableRespsAction
- * This is the actual structure returned after expandAvailableSlots()
- */
-type ExpandedResponsibility = {
-  RespID: number;
-  SubjectCode: string;
-  SubjectName: string;
-  GradeID: string;
-  TeacherID: number;
-  TeachHour: number;
-  AcademicYear: number;
-  Semester: string;
-  itemID: number;
-  subject: {
-    SubjectCode: string;
-    SubjectName: string;
-    Credit: string;
-    Category: string;
-  };
-  gradelevel: {
-    GradeID: string;
-    GradeLevel: string;
-    Year: number;
-    Number: number;
-    ClassSection: string;
-  };
-  teacher: {
-    TeacherID: number;
-    Prefix: string;
-    Firstname: string;
-    Lastname: string;
-    Email: string | null;
-    Department: string | null;
-  };
-  class_schedule: unknown[];
-};
 
-/**
- * Helper function to map teachers_responsibility data to SubjectData format
- * Transforms the expanded responsibility slots into the format expected by the store
- */
-function mapResponsibilityToSubjectData(
-  responsibilities: ExpandedResponsibility[],
-): SubjectData[] {
-  return responsibilities.map((resp) => ({
-    itemID: resp.itemID,
-    subjectCode: resp.SubjectCode,
-    subjectName: resp.SubjectName,
-    gradeID: resp.GradeID,
-    teacherID: resp.TeacherID,
-    category: resp.subject.Category as SubjectCategory,
-    credit: parseFloat(resp.subject.Credit),
-    teachHour: resp.TeachHour,
-    remainingHours: resp.TeachHour,
-    scheduled: false,
-    room: null,
-    roomID: null,
-    roomName: null,
-    gradelevel: {
-      year: resp.gradelevel.Year,
-      number: resp.gradelevel.Number,
-    },
-  }));
-}
 
 /**
  * Main Teacher Arrange Page Component (Refactored)
@@ -332,17 +268,17 @@ export default function TeacherArrangePageRefactored() {
     { revalidateOnFocus: false },
   );
 
-  const fetchResp = useSWR<ExpandedResponsibility[]>(
+  const fetchResp = useSWR<SubjectData[]>(
     currentTeacherID
       ? `available-resp-${academicYear}-${semester}-${currentTeacherID}`
       : null,
-    async (): Promise<ExpandedResponsibility[]> => {
+    async (): Promise<SubjectData[]> => {
       if (!currentTeacherID) return [];
       const result = (await getAvailableRespsAction({
         AcademicYear: parseInt(academicYear ?? "0"),
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
-      })) as ActionResult<ExpandedResponsibility[]>;
+      })) as ActionResult<SubjectData[]>;
       if (!result.success || !result.data) return [];
       return result.data;
     },
@@ -423,9 +359,8 @@ export default function TeacherArrangePageRefactored() {
       !!currentTeacherID &&
       !fetchResp.isValidating
     ) {
-      // Transform teachers_responsibility data to SubjectData format
-      const transformedData = mapResponsibilityToSubjectData(fetchResp.data);
-      actions.setSubjectData(transformedData);
+      // Directly set subject data (already in correct format)
+      actions.setSubjectData(fetchResp.data);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchResp.data, fetchResp.isValidating]);

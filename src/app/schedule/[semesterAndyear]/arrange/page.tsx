@@ -258,7 +258,7 @@ export default function ArrangementPage() {
   // ============================================================================
   // DATA FETCHING - Available Subjects (for Teacher)
   // ============================================================================
-  const { data: availableSubjects } = useSWR(
+  const { data: availableSubjects } = useSWR<SubjectData[]>(
     currentTeacherID
       ? `available-subjects-${academicYear}-${semester}-${currentTeacherID}`
       : null,
@@ -1468,81 +1468,153 @@ export default function ArrangementPage() {
                     />
                   </Box>
 
-                  {/* Main Content */}
-                  <Box sx={{ flex: 1 }}>
-                    <Stack spacing={2}>
-                      {/* Action Toolbar - Phase 2 Enhanced */}
-                      <ScheduleActionToolbar
-                        onClearDay={handleClearDay}
-                        onClearAll={handleClearAll}
-                        onCopyDay={handleCopyDay}
-                        onUndo={handleUndo}
-                        onRedo={handleRedo}
-                        onAutoArrange={handleAutoArrange}
-                        canUndo={canUndo()}
-                        canRedo={canRedo()}
-                        hasChanges={isDirty}
-                        totalSlots={timeslots?.length || 0}
-                        filledSlots={scheduledSubjects.length}
-                      />
+                                              {/* Main Content */}
 
-                      {/* Progress Indicators - Phase 2 Enhanced */}
-                      <ScheduleProgressIndicators
-                        overallProgress={overallProgress}
-                        teacherProgress={teacherProgressData}
-                        classProgress={classProgressData}
-                      />
+                                              <Box sx={{ flex: 1 }}>
 
-                      {/* Timetable Grid */}
-                      {isLoadingSchedule ? (
-                        <TimetableGridSkeleton />
-                      ) : (
-                        <TimetableGrid
-                          timeslots={timeslots || []}
-                          periodsPerDay={timetableConfig.periodsPerDay}
-                          breakSlots={timetableConfig.breakSlots}
-                          getConflicts={(timeslotID) => {
-                            // Use conflict validation hook for real-time checks
-                            const conflictInfo =
-                              conflictValidation.conflictsByTimeslot.get(
-                                timeslotID,
-                              );
-                            if (conflictInfo && conflictInfo.type !== "none") {
-                              return {
-                                hasConflict: true,
-                                message: conflictInfo.message,
-                                severity: conflictInfo.severity,
-                              };
-                            }
+                                                <Stack spacing={2}>
 
-                            // Fallback to API conflicts if hook doesn't have info
-                            const apiConflict = conflicts?.find(
-                              (c: unknown) => {
-                                const conflictData = c as {
-                                  TimeslotID?: string;
-                                  message?: string;
-                                };
-                                return conflictData.TimeslotID === timeslotID;
-                              },
-                            );
-                            const conflictData = apiConflict as
-                              | { message?: string }
-                              | undefined;
-                            return {
-                              hasConflict: !!apiConflict,
-                              message: conflictData?.message,
-                              severity: apiConflict
-                                ? ("error" as const)
-                                : undefined,
-                            };
-                          }}
-                          lockedTimeslots={conflictValidation.lockedTimeslots}
-                          selectedTimeslotID={selectedTimeslotForRoom}
-                        />
-                      )}
-                    </Stack>
-                  </Box>
-                </Stack>
+                                                  {/* Action Toolbar - Phase 2 Enhanced */}
+
+                                                  <ScheduleActionToolbar
+
+                                                    onClearDay={handleClearDay}
+
+                                                    onClearAll={handleClearAll}
+
+                                                    onCopyDay={handleCopyDay}
+
+                                                    onUndo={handleUndo}
+
+                                                    onRedo={handleRedo}
+
+                                                    onAutoArrange={handleAutoArrange}
+
+                                                    canUndo={canUndo()}
+
+                                                    canRedo={canRedo()}
+
+                                                    hasChanges={isDirty}
+
+                                                    totalSlots={timeslots?.length || 0}
+
+                                                    filledSlots={scheduledSubjects.length}
+
+                                                  />
+
+                            
+
+                                                  {/* Progress Indicators - Phase 2 Enhanced */}
+
+                                                  <ScheduleProgressIndicators
+
+                                                    overallProgress={overallProgress}
+
+                                                    teacherProgress={teacherProgressData}
+
+                                                    classProgress={classProgressData}
+
+                                                  />
+
+                            
+
+                                                  {/* Timetable Grid */}
+
+                                                  {isLoadingSchedule ? (
+
+                                                    <TimetableGridSkeleton />
+
+                                                  ) : (
+
+                                                    <TimetableGrid
+
+                                                      timeslots={timeslots || []}
+
+                                                      periodsPerDay={timetableConfig.periodsPerDay}
+
+                                                      breakSlots={timetableConfig.breakSlots}
+
+                                                      getConflicts={(timeslotID) => {
+
+                                                        // Use conflict validation hook for real-time checks
+
+                                                        const conflictInfo =
+
+                                                          conflictValidation.conflictsByTimeslot.get(
+
+                                                            timeslotID,
+
+                                                          );
+
+                                                        if (conflictInfo && conflictInfo.type !== "none") {
+
+                                                          return {
+
+                                                            hasConflict: true,
+
+                                                            message: conflictInfo.message,
+
+                                                            severity: conflictInfo.severity,
+
+                                                          };
+
+                                                        }
+
+                            
+
+                                                        // Fallback to API conflicts if hook doesn't have info
+
+                                                        const apiConflict = conflicts?.find(
+
+                                                          (c: unknown) => {
+
+                                                            const conflictData = c as {
+
+                                                              TimeslotID?: string;
+
+                                                              message?: string;
+
+                                                            };
+
+                                                            return conflictData.TimeslotID === timeslotID;
+
+                                                          },
+
+                                                        );
+
+                                                        const conflictData = apiConflict as
+
+                                                          | { message?: string }
+
+                                                          | undefined;
+
+                                                        return {
+
+                                                          hasConflict: !!apiConflict,
+
+                                                          message: conflictData?.message,
+
+                                                          severity: apiConflict
+
+                                                            ? ("error" as const)
+
+                                                            : undefined,
+
+                                                        };
+
+                                                      }}
+
+                                                      lockedTimeslots={conflictValidation.lockedTimeslots}
+
+                                                      selectedTimeslotID={selectedTimeslotForRoom}
+
+                                                    />
+
+                                                  )}
+
+                                                </Stack>
+
+                                              </Box>                </Stack>
               )}
             </>
           )}

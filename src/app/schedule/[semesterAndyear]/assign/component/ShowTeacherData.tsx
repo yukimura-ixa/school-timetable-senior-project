@@ -9,6 +9,7 @@ import type {
 import useSWR from "swr";
 import { getAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
 import QuickAssignmentPanel from "./QuickAssignmentPanel";
+import type { ActionResult } from "@/shared/lib/action-wrapper";
 
 // Type for responsibility data with subject relation
 interface ResponsibilityWithSubject extends teachers_responsibility {
@@ -77,7 +78,7 @@ function ShowTeacherData() {
   useEffect(() => {
     if (responsibilityData.data) {
       let sumTeachHour = 0;
-      const data = responsibilityData.data as ResponsibilityWithSubject[];
+      const data = (responsibilityData.data as ActionResult<ResponsibilityWithSubject[]>).data || [];
       data.forEach((item) => {
         sumTeachHour += item.TeachHour;
       });
@@ -412,9 +413,7 @@ function ShowTeacherData() {
               grades={gradesData.data || []}
               currentAssignments={
                 (
-                  responsibilityData.data as
-                    | ResponsibilityWithSubject[]
-                    | undefined
+                  (responsibilityData.data as ActionResult<ResponsibilityWithSubject[]>)?.data || []
                 )?.map((item) => ({
                   RespID: item.RespID.toString(),
                   SubjectCode: item.SubjectCode,

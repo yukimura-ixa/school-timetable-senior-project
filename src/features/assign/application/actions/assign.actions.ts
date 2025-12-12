@@ -281,7 +281,7 @@ export const deleteAssignmentAction = createAction(
 /**
  * Get count of all assignments
  */
-export const getAssignmentCountAction = createAction(undefined, async () => {
+export const getAssignmentCountAction = createAction(v.object({}), async () => {
   const count = await assignRepository.count();
   return { count };
 });

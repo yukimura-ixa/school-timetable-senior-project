@@ -66,17 +66,22 @@ export class ArrangePage extends BasePage {
             .first(),
         );
 
-    this.timetableGrid = page
-      .locator('[data-testid="timetable-grid"]')
-      .or(
-        page
-          .locator("table")
-          .filter({ has: page.locator('th:has-text("จันทร์")') }),
-      );
+    this.timetableGrid = page.getByTestId("timetable-grid");
+
+    // Update timeslotCell to match MUI Grid structure
+    // Structure: [data-testid="timetable-grid"] -> Box (p=2) -> Stack -> Grid (Row) -> Grid (Col)
+    // Row: nth-child(row) corresponds to the period index (1-based)
+    // Col: nth-child(col + 1) because the first column is the period label
     this.timeslotCell = (row: number, col: number) =>
-      this.timetableGrid.locator(
-        `tbody tr:nth-child(${row}) td:nth-child(${col})`,
-      );
+      this.timetableGrid
+        .locator(".MuiStack-root > div") // Direct children of Stack (Rows)
+        .filter({
+          has: page.locator(`.MuiChip-root`, {
+            hasText: new RegExp(`^${row}$`),
+          }),
+        })
+        .locator("> div") // Direct children of Row (Columns)
+        .nth(col); // 0=Period Label, 1=MON...
 
     this.roomSelectionDialog = page.locator('[role="dialog"]', {
       hasText: "เลือกห้องเรียน",
