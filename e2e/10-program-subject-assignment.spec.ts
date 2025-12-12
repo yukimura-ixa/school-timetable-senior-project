@@ -75,32 +75,33 @@ test.describe("Program Management Workflow", () => {
     });
   });
 
-  // SKIPPED: These tests use form-based selectors (getByLabel) but the actual UI
-  // uses EditableTable with inline editing. Needs rewrite to match actual UI pattern.
+  /**
+   * TODO: Implement these tests to match actual gradelevel/program UI.
+   * The UI uses EditableTable with inline editing, not forms.
+   * Reference: e2e/11-activity-management.spec.ts for EditableTable patterns.
+   */
   test.skip("should assign program to gradelevel", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/gradelevel");
-    // Test skipped: requires matching actual gradelevel UI implementation
+    // Test stub: requires full implementation matching actual EditableTable UI
   });
 
-  // SKIPPED: Form-based test doesn't match EditableTable inline editing pattern
   test.skip("should validate subject assignment with invalid credits", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program");
-    // Test skipped: requires matching actual UI implementation
+    // Test stub: requires full implementation matching actual EditableTable UI
   });
 
-  // SKIPPED: Form-based test doesn't match EditableTable inline editing pattern
   test.skip("should update existing subject assignments", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/management/program");
-    // Test skipped: requires matching actual UI implementation
+    // Test stub: requires full implementation matching actual EditableTable UI
   });
 });
 
