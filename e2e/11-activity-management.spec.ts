@@ -91,6 +91,14 @@ test.describe("Activity Management - CRUD Operations", () => {
         await categorySelect.click();
         await page.getByRole("option", { name: /กิจกรรม|ACTIVITY/i }).first().click();
       }
+
+      // Select ActivityType (required for ACTIVITY category per MOE compliance)
+      // ActivityType is the 6th combobox (after LearningArea which is 5th)
+      const activityTypeSelect = creditSelects.nth(5);
+      if (await activityTypeSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await activityTypeSelect.click();
+        await page.getByRole("option", { name: /ชุมนุม|CLUB/i }).first().click();
+      }
     });
 
     await test.step("Save and verify creation", async () => {
