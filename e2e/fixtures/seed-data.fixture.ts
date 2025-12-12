@@ -8,7 +8,7 @@
  *   import { testSemester, testTeacher, testSubject } from './fixtures/seed-data.fixture';
  */
 
-import { semester, day_of_week } from "@/prisma/generated/client";
+import { semester, day_of_week } from "../../prisma/generated/client";
 
 /**
  * Test Semester Data
