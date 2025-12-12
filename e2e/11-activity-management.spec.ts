@@ -18,15 +18,12 @@ import { test, expect } from "./fixtures/admin.fixture";
  * - Dev server running on http://localhost:3000
  * - Authentication bypassed or admin user logged in
  * 
- * TODO: Re-enable these tests once the following are addressed:
- * 1. EditableTable inline CRUD operations persist correctly in CI
- * 2. Save action actually commits data to database in test environment
- * 
- * Currently skipped due to CRUD save not persisting - tests timeout waiting
- * for saved items that never appear. See CI run 20133492278 for details.
+ * Note: Tests passed in CI on 2025-12-10 (run 426, commit 8d526db).
+ * Re-enabled after confirming local tests pass (1.5m runtime).
+ * If flakiness persists, add page.waitForLoadState('networkidle') after saves.
  */
 
-test.describe.skip("Activity Management - CRUD Operations", () => {
+test.describe("Activity Management - CRUD Operations", () => {
   const TEST_ACTIVITY = {
     code: "ACTE2E001",
     name: "E2E Test Science Club",
