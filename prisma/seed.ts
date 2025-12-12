@@ -1113,28 +1113,52 @@ async function main() {
     );
     console.log("✅ Auth sessions cleaned");
   }
-  await withRetry(
-    () => prisma.class_schedule.deleteMany({}),
-    "Delete class_schedule",
-  );
-  await withRetry(
-    () => prisma.teachers_responsibility.deleteMany({}),
-    "Delete teachers_responsibility",
-  );
-  await withRetry(
-    () => prisma.program_subject.deleteMany({}),
-    "Delete program_subject",
-  );
-  await withRetry(() => prisma.timeslot.deleteMany({}), "Delete timeslot");
-  await withRetry(
-    () => prisma.table_config.deleteMany({}),
-    "Delete table_config",
-  );
-  await withRetry(() => prisma.gradelevel.deleteMany({}), "Delete gradelevel");
-  await withRetry(() => prisma.subject.deleteMany({}), "Delete subject");
-  await withRetry(() => prisma.program.deleteMany({}), "Delete program");
-  await withRetry(() => prisma.teacher.deleteMany({}), "Delete teacher");
-  await withRetry(() => prisma.room.deleteMany({}), "Delete room");
+
+  // CI/E2E stability: Postgres sequences keep incrementing after deleteMany().
+  // In test/clean seed modes, reset identity columns so fixtures that assume
+  // TeacherID/RoomID/etc start from 1 remain valid across runs.
+  let didTruncateTimetableTables = false;
+  if (shouldCleanData && !isAccelerate) {
+    const truncateSql =
+      'TRUNCATE TABLE "class_schedule", "teachers_responsibility", "program_subject", "timeslot", "table_config", "gradelevel", "subject", "program", "teacher", "room" RESTART IDENTITY CASCADE;';
+    await withRetry(
+      () => prisma.$executeRawUnsafe(truncateSql),
+      "Truncate timetable tables (RESTART IDENTITY)",
+    );
+    didTruncateTimetableTables = true;
+  } else if (shouldCleanData && isAccelerate) {
+    console.warn(
+      "⚠️  Skipping TRUNCATE ... RESTART IDENTITY because Prisma Accelerate/Data Proxy is in use; falling back to deleteMany() cleanup.",
+    );
+  }
+
+  if (!didTruncateTimetableTables) {
+    await withRetry(
+      () => prisma.class_schedule.deleteMany({}),
+      "Delete class_schedule",
+    );
+    await withRetry(
+      () => prisma.teachers_responsibility.deleteMany({}),
+      "Delete teachers_responsibility",
+    );
+    await withRetry(
+      () => prisma.program_subject.deleteMany({}),
+      "Delete program_subject",
+    );
+    await withRetry(() => prisma.timeslot.deleteMany({}), "Delete timeslot");
+    await withRetry(
+      () => prisma.table_config.deleteMany({}),
+      "Delete table_config",
+    );
+    await withRetry(
+      () => prisma.gradelevel.deleteMany({}),
+      "Delete gradelevel",
+    );
+    await withRetry(() => prisma.subject.deleteMany({}), "Delete subject");
+    await withRetry(() => prisma.program.deleteMany({}), "Delete program");
+    await withRetry(() => prisma.teacher.deleteMany({}), "Delete teacher");
+    await withRetry(() => prisma.room.deleteMany({}), "Delete room");
+  }
   console.log("✅ Timetable data cleaned (better-auth tables preserved)");
 
   // ===== SUBJECTS (MOE 8 Learning Areas) =====
@@ -2209,14 +2233,25 @@ async function main() {
   const TOTAL_TEACHERS = 40;
   const teachersPerDept = Math.floor(TOTAL_TEACHERS / DEPARTMENTS.length); // 5 each for 8 departments
 
+  // CI/E2E stability: avoid non-deterministic `Math.random()` in test/clean seed modes.
+  // Tests and fixtures rely on predictable teacher names across runs.
+  const deterministicSeed =
+    process.env.SEED_FOR_TESTS === "true" || process.env.SEED_CLEAN_DATA === "true";
+  const pick = <T,>(values: T[], index: number) =>
+    values[(index % values.length + values.length) % values.length];
+
   for (const dept of DEPARTMENTS) {
     for (let i = 0; i < teachersPerDept; i++) {
-      const prefix =
-        THAI_PREFIXES[Math.floor(Math.random() * THAI_PREFIXES.length)];
-      const firstname =
-        THAI_FIRSTNAMES[Math.floor(Math.random() * THAI_FIRSTNAMES.length)];
-      const lastname =
-        THAI_LASTNAMES[Math.floor(Math.random() * THAI_LASTNAMES.length)];
+      const ordinal = teacherEmailCount - 1;
+      const prefix = deterministicSeed
+        ? pick(THAI_PREFIXES, ordinal)
+        : THAI_PREFIXES[Math.floor(Math.random() * THAI_PREFIXES.length)];
+      const firstname = deterministicSeed
+        ? pick(THAI_FIRSTNAMES, ordinal)
+        : THAI_FIRSTNAMES[Math.floor(Math.random() * THAI_FIRSTNAMES.length)];
+      const lastname = deterministicSeed
+        ? pick(THAI_LASTNAMES, ordinal)
+        : THAI_LASTNAMES[Math.floor(Math.random() * THAI_LASTNAMES.length)];
 
       teachers.push(
         await withRetry(

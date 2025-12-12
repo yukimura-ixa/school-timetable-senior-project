@@ -102,3 +102,5 @@ buttons_dump.json
 results-*.xml
 *.spec.js.map
 .tsbuildinfo.typecheck
+
+ci-trace-analysis*/

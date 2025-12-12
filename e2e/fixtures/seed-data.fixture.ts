@@ -92,7 +92,7 @@ export const testTeacher = testTeachers.mathTeacher;
 export const testSubjects = {
   // Core Math subject
   math101: {
-    SubjectCode: "TH21101",
+    SubjectCode: "ค21101",
     SubjectName: "คณิตศาสตร์ 1",
     SubjectGroup: "คณิตศาสตร์",
     Credit: 1.0,
@@ -100,7 +100,7 @@ export const testSubjects = {
   },
   // Core Science subject
   science101: {
-    SubjectCode: "TH22101",
+    SubjectCode: "ว21101",
     SubjectName: "วิทยาศาสตร์ 1",
     SubjectGroup: "วิทยาศาสตร์",
     Credit: 1.5,
@@ -108,7 +108,7 @@ export const testSubjects = {
   },
   // Core Thai language
   thai101: {
-    SubjectCode: "TH20101",
+    SubjectCode: "ท21101",
     SubjectName: "ภาษาไทย 1",
     SubjectGroup: "ภาษาไทย",
     Credit: 1.5,
@@ -116,7 +116,7 @@ export const testSubjects = {
   },
   // English language
   english101: {
-    SubjectCode: "TH23101",
+    SubjectCode: "อ21101",
     SubjectName: "ภาษาอังกฤษ 1",
     SubjectGroup: "ภาษาต่างประเทศ",
     Credit: 1.0,
@@ -124,7 +124,7 @@ export const testSubjects = {
   },
   // Elective subject (lower credit)
   artElective: {
-    SubjectCode: "TH26201",
+    SubjectCode: "ศ21101",
     SubjectName: "ทัศนศิลป์",
     SubjectGroup: "ศิลปะ",
     Credit: 0.5,
@@ -135,7 +135,7 @@ export const testSubjects = {
 /**
  * Default subject for most tests
  */
-export const testSubject = testSubjects.math101;
+export const testSubject = testSubjects.thai101;
 
 /**
  * Test Grade Level Data
@@ -144,7 +144,7 @@ export const testSubject = testSubjects.math101;
 export const testGradeLevels = {
   // M.1/1 (Grade 7, Section 1)
   m1_1: {
-    GradeID: 1,
+    GradeID: "M1-1",
     GradeLevel: 1, // M.1
     Section: 1,
     DisplayName: "ม.1/1",
@@ -152,7 +152,7 @@ export const testGradeLevels = {
   },
   // M.1/2 (Grade 7, Section 2)
   m1_2: {
-    GradeID: 2,
+    GradeID: "M1-2",
     GradeLevel: 1, // M.1
     Section: 2,
     DisplayName: "ม.1/2",
@@ -160,7 +160,7 @@ export const testGradeLevels = {
   },
   // M.4/1 (Grade 10, Section 1) - Science-Math track
   m4_1: {
-    GradeID: 10,
+    GradeID: "M4-1",
     GradeLevel: 4, // M.4
     Section: 1,
     DisplayName: "ม.4/1",
@@ -264,19 +264,18 @@ export const testAdmin = {
  * Helper function to construct timeslot identifier
  */
 export function getTimeslotId(
-  semester: string,
-  gradeId: number,
+  configId: string,
   day: day_of_week,
   period: number,
 ): string {
-  return `${semester}-${gradeId}-${day}-${period}`;
+  return `${configId}-${day}${period}`;
 }
 
 /**
  * Helper function to construct table config ID
  */
-export function getTableConfigId(semester: string, gradeId: number): string {
-  return `${semester}-${gradeId}`;
+export function getTableConfigId(configId: string): string {
+  return configId;
 }
 
 /**

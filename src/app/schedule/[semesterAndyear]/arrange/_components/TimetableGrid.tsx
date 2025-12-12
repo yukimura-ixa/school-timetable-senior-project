@@ -107,7 +107,7 @@ export function TimetableGrid({
 
   return (
     <Box sx={{ width: "100%", overflowX: "auto" }}>
-      <Paper elevation={2} sx={{ minWidth: 800 }}>
+      <Paper elevation={2} sx={{ minWidth: 800 }} data-testid="timetable-grid">
         {/* Header Row - Days of Week */}
         <Box
           sx={{

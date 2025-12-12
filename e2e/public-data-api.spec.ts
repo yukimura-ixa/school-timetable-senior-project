@@ -20,11 +20,15 @@ import { test, expect } from "./fixtures/admin.fixture";
  * - Security (no sensitive data leakage)
  */
 
+// These are public pages/endpoints; they should run unauthenticated.
+// Use the `guestPage` fixture to avoid mixing unauth storageState with the
+// `authenticatedAdmin` fixture (which navigates to /dashboard).
+
 test.describe("Public Teachers Data API", () => {
   test("should load homepage with teachers data", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     // Navigate to homepage
     await page.goto("/");
 
@@ -44,9 +48,9 @@ test.describe("Public Teachers Data API", () => {
   });
 
   test("should not expose email addresses (PII protection)", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     // Navigate to homepage and switch to teachers tab
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
@@ -67,29 +71,24 @@ test.describe("Public Teachers Data API", () => {
   });
 
   test("should display teacher name and department", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 
-    // Verify table headers exist
-    await expect(
-      page
-        .getByTestId("teacher-list")
-        .locator('th:has-text("ชื่อ"), th:has-text("Name")'),
-    ).toBeVisible();
-    await expect(
-      page
-        .getByTestId("teacher-list")
-        .locator('th:has-text("แผนก"), th:has-text("Department")'),
-    ).toBeVisible();
+    const firstRow = page.getByTestId("teacher-list").locator("tbody tr").first();
+    await expect(firstRow).toBeVisible({ timeout: 15000 });
+
+    const cells = firstRow.locator("td");
+    await expect(cells.nth(0)).toHaveText(/\S+/); // teacher name
+    await expect(cells.nth(1)).toHaveText(/\S+|-/); // department (or placeholder)
   });
 
   test("should support pagination for teachers", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 
@@ -126,9 +125,9 @@ test.describe("Public Teachers Data API", () => {
   });
 
   test("should support search functionality for teachers", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 
@@ -152,9 +151,9 @@ test.describe("Public Teachers Data API", () => {
   });
 
   test("should load individual teacher detail page", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     // This test assumes teachers have detail pages at /teachers/{id}
     // Navigate to homepage and switch to teachers tab
     await page.goto("/");
@@ -168,27 +167,22 @@ test.describe("Public Teachers Data API", () => {
 
     if (await teacherLink.isVisible()) {
       await teacherLink.click();
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-        timeout: 15000,
-      });
+      await expect(page).toHaveURL(/\/teachers\//, { timeout: 15000 });
 
       // Verify we're on a teacher detail page
       expect(page.url()).toContain("/teachers/");
 
-      // Check for teacher details (should have more info than list view)
-      const hasDetailContent = await page
-        .locator("text=/schedule|teaching|subject|ตาราง|สอน|วิชา/i")
-        .count();
-      expect(hasDetailContent).toBeGreaterThan(0);
+      // Public teacher schedule uses a grid table
+      await expect(page.getByTestId("schedule-grid")).toBeVisible({ timeout: 15000 });
     }
   });
 });
 
 test.describe("Public Classes Data API", () => {
   test("should load homepage with classes data", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
 
     // Check if classes tab exists and click it
@@ -207,9 +201,9 @@ test.describe("Public Classes Data API", () => {
   });
 
   test("should not expose individual student data", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("classes-tab").click();
 
@@ -226,22 +220,25 @@ test.describe("Public Classes Data API", () => {
   });
 
   test("should display grade level information", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("classes-tab").click();
 
-    // Check for grade level indicators (M.1, M.2, etc.)
-    await expect(
-      page.getByTestId("class-list").locator("text=/M\\.[1-6]|ม\\.[1-6]/"),
-    ).toBeVisible();
+    const firstRow = page.getByTestId("class-list").locator("tbody tr").first();
+    await expect(firstRow).toBeVisible({ timeout: 15000 });
+
+    // Grade may render as "ม.1/1", "M1-1", or a numeric display id like "101"
+    await expect(firstRow.locator("td").first()).toHaveText(
+      /(ม\.[1-6]\/\d+|M[1-6][-/]\d+|[1-6]\d{2})/,
+    );
   });
 
   test("should support pagination for classes", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("classes-tab").click();
 
@@ -277,9 +274,9 @@ test.describe("Public Classes Data API", () => {
 
 test.describe("Public Statistics API", () => {
   test("should display quick stats on homepage", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -301,9 +298,9 @@ test.describe("Public Statistics API", () => {
   });
 
   test("should show valid current term information", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -319,9 +316,9 @@ test.describe("Public Statistics API", () => {
   });
 
   test("should display analytics dashboard with charts", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     // Navigate to analytics dashboard (adjust path if needed)
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
@@ -346,9 +343,9 @@ test.describe("Public Statistics API", () => {
   });
 
   test("should show period load data (weekly schedule intensity)", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -370,8 +367,8 @@ test.describe("Public Statistics API", () => {
     }
   });
 
-  test("should show room occupancy data", async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
+  test("should show room occupancy data", async ({ guestPage }) => {
+    const page = guestPage;
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -395,9 +392,9 @@ test.describe("Public Statistics API", () => {
 
 test.describe("Security & Privacy Checks", () => {
   test("no PII (email) in homepage teachers section", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 
@@ -418,8 +415,8 @@ test.describe("Security & Privacy Checks", () => {
     }
   });
 
-  test("no PII (email) in classes section", async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
+  test("no PII (email) in classes section", async ({ guestPage }) => {
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("classes-tab").click();
 
@@ -433,9 +430,9 @@ test.describe("Security & Privacy Checks", () => {
   });
 
   test("no PII (phone numbers) in public pages", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -457,9 +454,9 @@ test.describe("Security & Privacy Checks", () => {
   });
 
   test("no database connection strings in HTML", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -482,8 +479,8 @@ test.describe("Security & Privacy Checks", () => {
     expect(hasDbString).toBe(false);
   });
 
-  test("no API keys or secrets in HTML", async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
+  test("no API keys or secrets in HTML", async ({ guestPage }) => {
+    const page = guestPage;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -508,9 +505,9 @@ test.describe("Security & Privacy Checks", () => {
 
 test.describe("Data Validation & Integrity", () => {
   test("teacher utilization should be between 0-150%", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 
@@ -529,43 +526,20 @@ test.describe("Data Validation & Integrity", () => {
   });
 
   test("grade levels should follow Thai education system (M.1-M.6)", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("classes-tab").click();
 
     const content = await page.textContent("body");
 
-    // Check for valid grade levels
-    const validGrades = [
-      "M.1",
-      "M.2",
-      "M.3",
-      "M.4",
-      "M.5",
-      "M.6",
-      "ม.1",
-      "ม.2",
-      "ม.3",
-      "ม.4",
-      "ม.5",
-      "ม.6",
-    ];
-
-    let hasValidGrade = false;
-    for (const grade of validGrades) {
-      if (content?.includes(grade)) {
-        hasValidGrade = true;
-        break;
-      }
-    }
-
-    expect(hasValidGrade).toBe(true);
+    // Accept common public formats: Thai "ม.1/1" or English-ish "M1-1".
+    expect(content ?? "").toMatch(/(ม\.[1-6]\/\d+|M[1-6][-/]\d+)/);
   });
 
-  test("statistics should be non-negative", async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
+  test("statistics should be non-negative", async ({ guestPage }) => {
+    const page = guestPage;
     await page.goto("/");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
@@ -586,9 +560,9 @@ test.describe("Data Validation & Integrity", () => {
 
 test.describe("Performance & Caching", () => {
   test("homepage should load within 5 seconds", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     const startTime = Date.now();
 
     await page.goto("/");
@@ -603,9 +577,9 @@ test.describe("Performance & Caching", () => {
   });
 
   test("switching tabs should not require full page reload", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 
@@ -633,9 +607,9 @@ test.describe("Performance & Caching", () => {
   });
 
   test("pagination should be fast (client-side)", async ({
-    authenticatedAdmin,
+    guestPage,
   }) => {
-    const { page } = authenticatedAdmin;
+    const page = guestPage;
     await page.goto("/");
     await page.getByTestId("teachers-tab").click();
 

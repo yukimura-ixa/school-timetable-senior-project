@@ -58,6 +58,18 @@ export function SearchableSubjectPalette({
   const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [yearFilter, setYearFilter] = useState<number[]>([]);
 
+  const extractYearFromGradeId = (gradeId: string): number | null => {
+    // Thai UI format: "ม.1/1"
+    const thaiMatch = gradeId.match(/ม\.(\d)/);
+    if (thaiMatch?.[1]) return Number.parseInt(thaiMatch[1], 10);
+
+    // Internal ID format: "M1-1"
+    const englishMatch = gradeId.match(/M(\d)/i);
+    if (englishMatch?.[1]) return Number.parseInt(englishMatch[1], 10);
+
+    return null;
+  };
+
   // ============================================================================
   // FILTERING LOGIC
   // ============================================================================
@@ -90,11 +102,8 @@ export function SearchableSubjectPalette({
     if (yearFilter.length > 0) {
       filtered = filtered.filter((item) => {
         if (!item.gradeID) return false;
-        // Extract year from gradeID format "ม.1/1"
-        const match = item.gradeID?.match(/ม\.(\d)/);
-        if (!match || !match[1]) return false;
-        const year = parseInt(match[1]);
-        return yearFilter.includes(year);
+        const year = extractYearFromGradeId(item.gradeID);
+        return year !== null && yearFilter.includes(year);
       });
     }
 

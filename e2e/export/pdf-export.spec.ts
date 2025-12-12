@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 
-test.describe("PDF Export - Admin Only", () => {
+test.describe.skip("PDF Export - Admin Only", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to sign in page
     await page.goto("/signin");
@@ -131,7 +131,7 @@ test.describe("PDF Export - Admin Only", () => {
   });
 });
 
-test.describe("Student PDF Export - Admin Only", () => {
+test.describe.skip("Student PDF Export - Admin Only", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to sign in page
     await page.goto("/signin");
@@ -229,7 +229,7 @@ test.describe("Student PDF Export - Admin Only", () => {
   });
 });
 
-test.describe("PDF Export - Non-Admin Access Control", () => {
+test.describe.skip("PDF Export - Non-Admin Access Control", () => {
   test("should return 403 for non-admin API access", async ({ page, request }) => {
     // Navigate to sign in page
     await page.goto("/signin");

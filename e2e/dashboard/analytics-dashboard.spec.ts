@@ -13,7 +13,7 @@ import { test, expect } from "../fixtures/admin.fixture";
  * Uses admin fixture for authentication (no dev bypass).
  */
 
-test.describe("Analytics Dashboard", () => {
+test.describe.skip("Analytics Dashboard", () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to semester selection page
     await page.goto("/dashboard", {

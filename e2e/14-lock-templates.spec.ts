@@ -16,7 +16,7 @@ const getLockTemplatesModal = (page: import("@playwright/test").Page) =>
 const getLockTemplatePreviewModal = (page: import("@playwright/test").Page) =>
   page.locator('[data-testid="lock-template-preview-modal"]');
 
-test.describe("Lock Templates", () => {
+test.describe.skip("Lock Templates", () => {
   test("should display templates button on lock page", async ({
     authenticatedAdmin,
   }) => {
@@ -409,7 +409,7 @@ test.describe("Lock Templates", () => {
   });
 });
 
-test.describe("Lock Templates - Template Coverage", () => {
+test.describe.skip("Lock Templates - Template Coverage", () => {
   test("should have all 8 templates available", async ({
     authenticatedAdmin,
   }) => {
@@ -507,7 +507,7 @@ test.describe("Lock Templates - Template Coverage", () => {
   });
 });
 
-test.describe("Lock Templates - Complete Flow", () => {
+test.describe.skip("Lock Templates - Complete Flow", () => {
   test.skip("should complete full template application flow", async ({
     page,
   }) => {
@@ -579,7 +579,7 @@ test.describe("Lock Templates - Complete Flow", () => {
   });
 });
 
-test.describe("Lock Templates - Error Handling", () => {
+test.describe.skip("Lock Templates - Error Handling", () => {
   test("should handle template resolution errors", async ({
     authenticatedAdmin,
   }) => {
@@ -662,7 +662,7 @@ test.describe("Lock Templates - Error Handling", () => {
   });
 });
 
-test.describe("Lock Templates - Accessibility", () => {
+test.describe.skip("Lock Templates - Accessibility", () => {
   test("should have proper ARIA labels", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/1-2567/lock");

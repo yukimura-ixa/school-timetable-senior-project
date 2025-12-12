@@ -91,6 +91,9 @@ function DraggableSubjectItem({
   return (
     <Paper
       ref={setNodeRef}
+      data-testid="subject-item"
+      data-sortable-id={`subject-${subject.subjectCode}`}
+      data-subject-code={subject.subjectCode}
       style={style}
       elevation={isDragging ? 4 : isSelected ? 2 : 0}
       variant={isSelected ? "elevation" : "outlined"}
@@ -123,7 +126,10 @@ function DraggableSubjectItem({
         />
 
         {/* Subject Info */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box
+          sx={{ flex: 1, minWidth: 0 }}
+          data-testid={`subject-card-${subject.subjectCode}`}
+        >
           <Typography
             variant="body2"
             fontWeight="medium"
@@ -231,6 +237,7 @@ export function SubjectPalette({
   return (
     <Paper
       elevation={2}
+      data-testid="subject-palette"
       sx={{ height: "100%", display: "flex", flexDirection: "column" }}
     >
       {/* Header */}
@@ -317,7 +324,7 @@ export function SubjectPalette({
         </Box>
 
         {/* Subject List */}
-        <Box sx={{ flex: 1, overflowY: "auto", p: 2 }}>
+        <Box sx={{ flex: 1, overflowY: "auto", p: 2 }} data-testid="subject-list">
           {isLoading ? (
             <Typography color="text.secondary" textAlign="center">
               กำลังโหลด...

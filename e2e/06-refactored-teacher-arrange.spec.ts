@@ -19,7 +19,7 @@ let TEACHER_ID = "1"; // Default fallback
  */
 async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
   const DRAGGABLE_SELECTOR =
-    '[data-testid="subject-item"], [data-testid="subject-card"], [data-sortable-id]';
+    '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]';
   const CHECK_TIMEOUT = 3000; // 3 seconds per teacher check (reduced from 5)
   const MAX_TEACHERS_TO_TRY = 5; // Only try first 5 teachers (reduced from 10)
 
@@ -282,14 +282,14 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     await expect(
       page
         .locator(
-          '[data-testid="subject-item"], [data-testid="subject-card"], [data-sortable-id]',
+          '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]',
         )
         .first(),
     ).toBeVisible({ timeout: 15000 });
 
     // Look for subject items (adjust selector based on your implementation)
     const subjectItems = page.locator(
-      '[data-testid="subject-item"], [data-testid="subject-card"], [data-sortable-id]',
+      '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]',
     );
     const count = await subjectItems.count();
 
@@ -340,7 +340,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     );
 
     // Wait for draggable subjects to load
-    const draggableSubject = page.locator('[draggable="true"]').first();
+    const draggableSubject = page.locator(DRAGGABLE_SELECTOR).first();
     await expect(draggableSubject).toBeVisible({ timeout: 15000 });
 
     if (await draggableSubject.isVisible()) {
@@ -423,7 +423,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     );
 
     // Wait for subjects to load
-    const subject = page.locator('[draggable="true"]').first();
+    const subject = page.locator(DRAGGABLE_SELECTOR).first();
     await expect(subject).toBeVisible({ timeout: 15000 });
 
     if (await subject.isVisible()) {

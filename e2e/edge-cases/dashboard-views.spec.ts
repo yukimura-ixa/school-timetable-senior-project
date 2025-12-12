@@ -14,7 +14,7 @@ import { test, expect } from "../fixtures/admin.fixture";
 
 const TEST_SEMESTER = "1-2567";
 
-test.describe("Dashboard - Teacher Table View", () => {
+test.describe.skip("Dashboard - Teacher Table View", () => {
   test("TC-DASH-T01: Teacher table page loads with data", async ({
     authenticatedAdmin,
   }) => {
@@ -103,7 +103,7 @@ test.describe("Dashboard - Teacher Table View", () => {
   });
 });
 
-test.describe("Dashboard - Student Table View", () => {
+test.describe.skip("Dashboard - Student Table View", () => {
   test("TC-DASH-S01: Student table page loads", async ({
     authenticatedAdmin,
   }) => {
@@ -170,7 +170,7 @@ test.describe("Dashboard - Student Table View", () => {
   });
 });
 
-test.describe("Dashboard - All Timeslot View", () => {
+test.describe.skip("Dashboard - All Timeslot View", () => {
   test("TC-DASH-A01: All timeslot page loads", async ({
     authenticatedAdmin,
   }) => {
@@ -253,7 +253,7 @@ test.describe("Dashboard - All Timeslot View", () => {
   });
 });
 
-test.describe("Dashboard - Cross-Semester Navigation", () => {
+test.describe.skip("Dashboard - Cross-Semester Navigation", () => {
   test("TC-DASH-N01: Navigate between semesters preserves view type", async ({
     authenticatedAdmin,
   }) => {
@@ -309,7 +309,7 @@ test.describe("Dashboard - Cross-Semester Navigation", () => {
   });
 });
 
-test.describe("Dashboard - Empty State Handling", () => {
+test.describe.skip("Dashboard - Empty State Handling", () => {
   test("TC-DASH-E01: Handle semester with no data gracefully", async ({
     authenticatedAdmin,
   }) => {

@@ -30,6 +30,12 @@ test.describe("Security Role Enforcement", () => {
         return;
       }
 
+      // If server returned forbidden (admin-only), that's also acceptable.
+      const forbidden = page.locator("text=/\\b403\\b|forbidden/i").first();
+      if (await forbidden.isVisible().catch(() => false)) {
+        return;
+      }
+
       // If not redirected, check for error alert or disabled selector
       const alert = page.getByRole("alert");
       if ((await alert.count()) > 0) {
@@ -50,6 +56,13 @@ test.describe("Security Role Enforcement", () => {
 
       // Wait for page to load
       await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+
+      // Teacher multi-select is behind the bulk filters collapse; open it first.
+      await page
+        .getByRole("button", { name: /ตัวกรอง|filter/i })
+        .first()
+        .click()
+        .catch(() => {});
 
       // Selector should be enabled (use testid to avoid strict mode violations)
       const selector = page.getByTestId("teacher-multi-select");

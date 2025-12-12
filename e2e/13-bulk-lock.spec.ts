@@ -6,10 +6,18 @@
  */
 
 import { test, expect } from "./fixtures/admin.fixture";
+import type { Page } from "@playwright/test";
 
 // Helper: get bulk lock modal by data-testid for stability
-const getBulkLockModal = (page: import("@playwright/test").Page) =>
+const getBulkLockModal = (page: Page) =>
   page.locator('[data-testid="bulk-lock-modal"]');
+
+const openBulkLockModal = async (page: Page) => {
+  await page.getByTestId("bulk-lock-btn").click();
+  const modal = getBulkLockModal(page);
+  await expect(modal).toBeVisible({ timeout: 15000 });
+  return modal;
+};
 
 test.describe("Bulk Lock Operations", () => {
   test("should display bulk lock button on lock page", async ({
@@ -20,9 +28,7 @@ test.describe("Bulk Lock Operations", () => {
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
     // Find bulk lock button
-    const bulkLockButton = page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ });
+    const bulkLockButton = page.getByTestId("bulk-lock-btn");
     await expect(bulkLockButton).toBeVisible();
   });
 
@@ -33,16 +39,9 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    // Click bulk lock button
-    const bulkLockButton = page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ });
-    await bulkLockButton.click();
-
-    // Modal should be visible (use data-testid for stable selector)
-    const modal = getBulkLockModal(page);
-    await expect(modal).toBeVisible({ timeout: 3000 });
-    await expect(page.locator("text=/ล็อกหลายคาบ/")).toBeVisible();
+    const modal = await openBulkLockModal(page);
+    // Prefer dialog accessible name to avoid strict-mode ambiguity between title wrappers.
+    await expect(page.getByRole("dialog", { name: /ล็อกหลายคาบ/ })).toBeVisible();
   });
 
   test("should display modal components correctly", async ({
@@ -52,21 +51,19 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    // Open modal
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    const modal = getBulkLockModal(page);
-    await expect(modal).toBeVisible({ timeout: 3000 });
+    const modal = await openBulkLockModal(page);
 
     // Check for essential components
     await expect(
-      page.locator("text=/เลือกช่วงเวลา|ช่วงเวลา|คาบ/"),
+      modal.getByRole("heading", { name: /เลือกคาบเรียน/ }),
     ).toBeVisible();
-    await expect(page.locator("text=/เลือกชั้น|ชั้นเรียน/")).toBeVisible();
-    await expect(page.locator("text=/วิชา|รายวิชา/")).toBeVisible();
-    await expect(page.locator("text=/ห้อง|ห้องเรียน/")).toBeVisible();
+    await expect(
+      modal.getByRole("heading", { name: /เลือกชั้นเรียน/ }),
+    ).toBeVisible();
+    await expect(modal.getByRole("combobox", { name: /วิชา/ })).toBeVisible();
+    await expect(
+      modal.getByRole("combobox", { name: /ห้องเรียน/ }),
+    ).toBeVisible();
   });
 
   test("should display select all buttons", async ({ authenticatedAdmin }) => {
@@ -74,17 +71,12 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    const modal = getBulkLockModal(page);
-    await expect(modal).toBeVisible({ timeout: 3000 });
+    const modal = await openBulkLockModal(page);
 
-    // Check for "Select All" buttons
-    const selectAllButtons = page
-      .locator("button")
-      .filter({ hasText: /เลือกทั้งหมด|ทั้งหมด/ });
+    // Check for section "clear all" buttons (present in both period + grade sections)
+    const selectAllButtons = modal
+      .getByRole("button", { name: /ยกเลิกทั้งหมด/ })
+      .or(modal.getByRole("button", { name: /เลือกทั้งหมด|ทั้งหมด/ }));
     const count = await selectAllButtons.count();
     expect(count).toBeGreaterThanOrEqual(2); // At least one for timeslots and one for grades
   });
@@ -96,20 +88,13 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
-
+    const modal = await openBulkLockModal(page);
     // Find and check first few timeslot checkboxes
-    const checkboxes = page.locator("input[type='checkbox']").first();
-    await checkboxes.check();
+    const checkbox = modal.getByRole("checkbox").first();
+    await checkbox.check();
 
     // Should be checked
-    await expect(checkboxes).toBeChecked();
+    await expect(checkbox).toBeChecked();
   });
 
   test("should allow selecting multiple grades", async ({
@@ -119,16 +104,12 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
-
-    // Find grade checkboxes (look for text like "ม.1" or grade labels)
-    const gradeCheckbox = page.locator("input[type='checkbox']").nth(5); // Skip timeslot checkboxes
+    const modal = await openBulkLockModal(page);
+    // Prefer grade-labelled checkbox if present (e.g. "ม.1")
+    const gradeCheckbox = modal
+      .getByRole("checkbox", { name: /ม\.\s*\d/i })
+      .first()
+      .or(modal.getByRole("checkbox").nth(1));
     await gradeCheckbox.check();
 
     // Should be checked
@@ -142,19 +123,12 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
-
+    const modal = await openBulkLockModal(page);
     // Initial counter should show 0
-    const counterText = page.locator("text=/จำนวน|ทั้งหมด|รวม/");
+    const counterText = modal.locator("text=/จำนวนคาบล็อกที่จะสร้าง/i");
 
     // Select some items
-    const checkbox1 = page.locator("input[type='checkbox']").first();
+    const checkbox1 = modal.getByRole("checkbox").first();
     await checkbox1.check();
     // Wait for counter to update
     await page
@@ -179,17 +153,11 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
+    const modal = await openBulkLockModal(page);
 
     // Select some checkboxes
-    const checkbox1 = page.locator("input[type='checkbox']").first();
-    const checkbox2 = page.locator("input[type='checkbox']").nth(1);
+    const checkbox1 = modal.getByRole("checkbox").first();
+    const checkbox2 = modal.getByRole("checkbox").nth(1);
     await checkbox1.check();
     await checkbox2.check();
     await expect(checkbox2).toBeChecked();
@@ -205,18 +173,13 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
+    await openBulkLockModal(page);
 
     // Try to submit without selecting subject (should show validation)
-    const submitButton = page
+    const submitButton = getBulkLockModal(page)
       .locator("button")
-      .filter({ hasText: /ยืนยัน|สร้าง|บันทึก/ });
+      .filter({ hasText: /ยืนยัน|สร้าง|บันทึก/ })
+      .first();
 
     if (await submitButton.isVisible()) {
       // Button should be disabled or show error on click
@@ -232,16 +195,13 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
+    await openBulkLockModal(page);
 
     // Click cancel button (use exact match to avoid matching 'ยกเลิกทั้งหมด')
-    const cancelButton = page.getByRole("button", { name: "ยกเลิก", exact: true });
+    const cancelButton = getBulkLockModal(page).getByRole("button", {
+      name: "ยกเลิก",
+      exact: true,
+    });
     await cancelButton.click();
 
     // Modal should be closed

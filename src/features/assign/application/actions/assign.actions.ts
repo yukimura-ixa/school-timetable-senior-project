@@ -11,6 +11,9 @@ import { revalidateTag } from "next/cache";
 import { semester } from "@/prisma/generated/client";
 import type { teachers_responsibility } from "@/prisma/generated/client";
 import * as v from "valibot";
+import { createAction } from "@/shared/lib/action-wrapper";
+import type { SubjectData } from "@/types/schedule.types";
+import { subjectCreditValues } from "@/models/credit-value";
 
 // Schemas
 import {
@@ -37,31 +40,6 @@ import {
   computeResponsibilitiesDiff,
   expandAvailableSlots,
 } from "../../domain/services/assign-validation.service";
-
-/**
- * Helper: Create server action with validation
- */
-function createAction<TInput, TOutput>(
-  schema: v.GenericSchema<TInput, TOutput> | undefined,
-  handler: (input: TOutput) => Promise<unknown>,
-) {
-  return async (input: TInput) => {
-    try {
-      const validated = schema
-        ? v.parse(schema, input)
-        : (input as unknown as TOutput);
-      return await handler(validated);
-    } catch (error) {
-      if (error instanceof v.ValiError) {
-        const errorMessages = error.issues
-          .map((issue) => issue.message)
-          .join(", ");
-        throw new Error(`Validation failed: ${errorMessages}`);
-      }
-      throw error;
-    }
-  };
-}
 
 /**
  * Get assignments by teacher and term
@@ -107,7 +85,23 @@ export const getAvailableRespsAction = createAction(
     // Expand into available slots
     const slots = expandAvailableSlots(data);
 
-    return slots;
+    return slots.map((slot): SubjectData & { RespID: number } => ({
+      RespID: slot.RespID,
+      itemID: slot.itemID,
+      subjectCode: slot.SubjectCode,
+      subjectName: slot.subject.SubjectName,
+      gradeID: slot.GradeID,
+      teacherID: slot.TeacherID,
+      category: slot.subject.Category ?? "CORE",
+      credit:
+        subjectCreditValues[
+          slot.subject.Credit as keyof typeof subjectCreditValues
+        ] ?? 0,
+      teachHour: slot.TeachHour,
+      gradelevel: slot.gradelevel
+        ? { year: slot.gradelevel.Year, number: slot.gradelevel.Number }
+        : undefined,
+    }));
   },
 );
 

@@ -52,7 +52,7 @@ export class BasePage {
   async goto(path: string) {
     await this.page.goto(`${this.baseUrl}${path}`, {
       waitUntil: "domcontentloaded",
-      timeout: 30_000,
+      timeout: 60_000,
     });
   }
 

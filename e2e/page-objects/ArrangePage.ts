@@ -46,11 +46,25 @@ export class ArrangePage extends BasePage {
       .or(page.getByTestId("teacher-select"))
       .or(page.getByRole("combobox", { name: /เลือกครู/ }));
 
-    this.subjectPalette = page
-      .locator('[data-testid="subject-palette"]')
-      .or(page.locator("div").filter({ hasText: "รายวิชาที่สามารถจัด" }));
+    // Prefer stable test id to avoid strict-mode ambiguity.
+    this.subjectPalette = page.getByTestId("subject-palette");
     this.subjectCard = (subjectCode: string) =>
-      page.locator('[data-testid^="subject-card"]', { hasText: subjectCode });
+      this.subjectPalette
+        .locator('[data-testid="subject-item"]')
+        .filter({ hasText: subjectCode })
+        .first()
+        .or(
+          this.subjectPalette
+            .locator('[data-testid^="subject-card"]')
+            .filter({ hasText: subjectCode })
+            .first(),
+        )
+        .or(
+          this.subjectPalette
+            .locator("[data-subject-code]")
+            .filter({ hasText: subjectCode })
+            .first(),
+        );
 
     this.timetableGrid = page
       .locator('[data-testid="timetable-grid"]')
@@ -435,10 +449,49 @@ export class ArrangePage extends BasePage {
    * @returns Array of subject codes
    */
   async getAvailableSubjects(): Promise<string[]> {
-    const subjects = await this.subjectPalette
-      .locator('[data-testid^="subject-card"]')
-      .or(this.subjectPalette.locator("[data-subject-code]"))
-      .all();
+    const subjectCards = this.subjectPalette
+      .locator('[data-testid="subject-item"]')
+      .or(this.subjectPalette.locator('[data-testid^="subject-card"]'))
+      .or(this.subjectPalette.locator("[data-subject-code]"));
+
+    // Some builds require selecting a grade-year filter (ม.1–ม.6) before subjects are shown.
+    // Try to enable any year filter if the palette is empty.
+    if (!(await subjectCards.first().isVisible().catch(() => false))) {
+      const yearLabels = [
+        "ม.1",
+        "ม.2",
+        "ม.3",
+        "ม.4",
+        "ม.5",
+        "ม.6",
+        "?.1",
+        "?.2",
+        "?.3",
+        "?.4",
+        "?.5",
+        "?.6",
+      ];
+      const yearFilterGroup = this.page
+        .getByRole("group", { name: /year filter/i })
+        .first();
+      for (const label of yearLabels) {
+        const yearButton = (await yearFilterGroup
+          .isVisible()
+          .catch(() => false))
+          ? yearFilterGroup.locator("button").filter({ hasText: label }).first()
+          : this.subjectPalette.locator("button").filter({ hasText: label }).first();
+        if (!(await yearButton.isVisible().catch(() => false))) continue;
+
+        await yearButton.click().catch(() => {});
+        await this.page
+          .waitForLoadState("networkidle", { timeout: 15000 })
+          .catch(() => {});
+
+        if (await subjectCards.first().isVisible().catch(() => false)) break;
+      }
+    }
+
+    const subjects = await subjectCards.all();
 
     const codes: string[] = [];
     for (const subject of subjects) {
@@ -449,8 +502,8 @@ export class ArrangePage extends BasePage {
         // Fallback: extract from text content
         const text = await subject.textContent();
         if (text) {
-          // Subject code is typically at the start (e.g., "TH21101 - คณิตศาสตร์")
-          const match = text.match(/^([A-Z]{2}\d{5})/);
+          // Subject code: Thai learning area letter or Latin prefix + 5 digits (e.g., "ท21101", "TH21101")
+          const match = text.match(/([ทควสพศงอ]\d{5}|[A-Z]{2}\d{5})/);
           if (match) codes.push(match[1]);
         }
       }

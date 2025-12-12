@@ -15,7 +15,7 @@
  *   });
  */
 
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
 import { testAdmin, testSemester } from "./seed-data.fixture";
 import { ArrangePage } from "../page-objects/ArrangePage";
 
@@ -28,10 +28,16 @@ type AdminFixtures = {
    * Automatically signs in before each test
    */
   authenticatedAdmin: {
-    page: typeof base.prototype.page;
+    page: Page;
     email: string;
     name: string;
   };
+
+  /**
+   * Unauthenticated page (no storageState)
+   * Use for public pages / auth edge cases.
+   */
+  guestPage: Page;
 
   /**
    * Arrange Page Object Model (for teacher/class arrangement)
@@ -71,6 +77,15 @@ export const test = base.extend<AdminFixtures>({
       email: testAdmin.email,
       name: testAdmin.name,
     });
+  },
+
+  guestPage: async ({ browser }, use) => {
+    const context = await browser.newContext({
+      storageState: { cookies: [], origins: [] },
+    });
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
   },
 
   /**
