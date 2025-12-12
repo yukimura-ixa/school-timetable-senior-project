@@ -81,7 +81,8 @@ export class ArrangePage extends BasePage {
           }),
         })
         .locator("> div") // Direct children of Row (Columns)
-        .nth(col); // 0=Period Label, 1=MON...
+        .nth(col) // 0=Period Label, 1=MON...
+        .locator(".MuiCard-root"); // Target the droppable Card inside the grid item
 
     this.roomSelectionDialog = page.locator('[role="dialog"]', {
       hasText: "เลือกห้องเรียน",
