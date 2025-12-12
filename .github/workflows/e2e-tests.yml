@@ -162,7 +162,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
       - name: Start Next.js production server
-        run: pnpm start &
+        run: pnpm start > server.log 2>&1 &
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
@@ -172,6 +172,7 @@ jobs:
           NEXT_TELEMETRY_DISABLED: "1"
           PORT: 3000
           CI: "true"
+          DEBUG_MODE: "true"
           # Explicitly set NODE_ENV for rate limiting logic in auth.ts
           NODE_ENV: production
 
@@ -245,6 +246,16 @@ jobs:
           AUTO_MANAGE_TEST_DB: "false"
           # Skip Playwright global-setup seed; database already seeded by workflow
           SKIP_DB_SEED: "true"
+
+      - name: Display server logs on failure
+        if: failure()
+        run: |
+          echo "=== Server Logs (Last 200 lines) ==="
+          if [ -f server.log ]; then
+            tail -200 server.log
+          else
+            echo "No server.log file found"
+          fi
 
       - name: Upload Playwright JSON results and artifacts
         if: always()

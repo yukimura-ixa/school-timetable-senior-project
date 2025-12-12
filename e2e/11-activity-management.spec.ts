@@ -29,6 +29,19 @@ test.describe("Activity Management - CRUD Operations", () => {
     name: "E2E Test Science Club",
   };
 
+  // Capture browser console logs for debugging client-side issues
+  test.beforeEach(async ({ authenticatedAdmin }) => {
+    const { page } = authenticatedAdmin;
+    page.on('console', msg => {
+      const type = msg.type();
+      const text = msg.text();
+      // Only log our debug markers and errors
+      if (text.includes('[EDITABLE_TABLE') || text.includes('[E2E_TEST]') || type === 'error') {
+        console.log(`[BROWSER:${type.toUpperCase()}] ${text}`);
+      }
+    });
+  });
+
   test("TC-ACT-001: Create new activity subject via inline editing", async ({
     authenticatedAdmin,
   }) => {
