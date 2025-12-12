@@ -13,6 +13,9 @@ import type {
   CreateSubjectInput,
   UpdateSubjectInput,
 } from "../../application/schemas/subject.schemas";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("SubjectRepository");
 
 export const subjectRepository = {
   /**
@@ -87,18 +90,39 @@ export const subjectRepository = {
    * Note: SubjectCode whitespace is trimmed in domain layer before calling this
    */
   async create(data: CreateSubjectInput) {
-    return prisma.subject.create({
-      data: {
-        SubjectCode: data.SubjectCode,
-        SubjectName: data.SubjectName,
-        Credit: data.Credit,
-        Category: data.Category,
-        LearningArea: data.LearningArea,
-        ActivityType: data.ActivityType,
-        IsGraded: data.IsGraded,
-        Description: data.Description,
-      },
+    log.info("[REPOSITORY_CREATE_START]", {
+      subjectCode: data.SubjectCode,
+      subjectName: data.SubjectName,
+      category: data.Category,
     });
+
+    try {
+      const result = await prisma.subject.create({
+        data: {
+          SubjectCode: data.SubjectCode,
+          SubjectName: data.SubjectName,
+          Credit: data.Credit,
+          Category: data.Category,
+          LearningArea: data.LearningArea,
+          ActivityType: data.ActivityType,
+          IsGraded: data.IsGraded,
+          Description: data.Description,
+        },
+      });
+
+      log.info("[REPOSITORY_CREATE_SUCCESS]", {
+        subjectCode: result.SubjectCode,
+        subjectName: result.SubjectName,
+      });
+
+      return result;
+    } catch (error) {
+      log.error("[REPOSITORY_CREATE_FAILED]", {
+        subjectCode: data.SubjectCode,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
   },
 
   /**

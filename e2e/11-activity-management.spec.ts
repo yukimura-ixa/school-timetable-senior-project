@@ -85,11 +85,25 @@ test.describe("Activity Management - CRUD Operations", () => {
       const saveButton = page.locator("button[aria-label=\"save\"]");
       await saveButton.click();
 
+      console.log("[E2E_TEST] Clicked save button, waiting for network...");
+      // Wait for save to complete - add explicit network idle wait
+      await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {
+        console.log("[E2E_TEST] Network idle timeout, continuing...");
+      });
+
+      console.log("[E2E_TEST] Checking for success message...");
       // Wait for save to complete - should show success message or row becomes normal
-      await page.waitForSelector("text=/สำเร็จ|success/i", { timeout: 10000 }).catch(() => {});
+      await page.waitForSelector("text=/สำเร็จ|success/i", { timeout: 10000 }).catch(() => {
+        console.log("[E2E_TEST] Success message not found, continuing...");
+      });
+
+      // Add extra wait for persistence
+      await page.waitForTimeout(1000);
+      console.log("[E2E_TEST] Waited for persistence, verifying...");
 
       // Verify activity appears in table
       await expect(page.getByText(TEST_ACTIVITY.code)).toBeVisible({ timeout: 15000 });
+      console.log("[E2E_TEST] Subject verified in table");
     });
 
     await page.screenshot({

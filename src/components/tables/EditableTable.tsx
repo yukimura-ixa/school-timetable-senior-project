@@ -197,28 +197,50 @@ export function EditableTable<T extends Record<string, any>>({
       }
     }
 
+    console.log("[EDITABLE_TABLE_SAVE_START]", {
+      title,
+      tempId,
+      data: newRow,
+      env: typeof window !== "undefined" ? "client" : "server",
+    });
+
     const loadbar = enqueueSnackbar(`กำลังเพิ่ม${title}`, {
       variant: "info",
       persist: true,
     });
 
     try {
+      console.log("[EDITABLE_TABLE_ONCREATE_CALL]", { title });
       const result = await onCreate(newRow);
+      console.log("[EDITABLE_TABLE_ONCREATE_RESULT]", {
+        title,
+        success: result.success,
+        hasData: !!result.data,
+        hasError: !!result.error,
+      });
 
       if (!result.success) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
             : result.error?.message || "Unknown error";
+        console.error("[EDITABLE_TABLE_SAVE_FAILED]", {
+          title,
+          error: errorMessage,
+          fullError: result.error,
+        });
         throw new Error(errorMessage);
       }
 
       closeSnackbar(loadbar);
       enqueueSnackbar(`เพิ่ม${title}สำเร็จ`, { variant: "success" });
+      console.log("[EDITABLE_TABLE_SAVE_SUCCESS]", { title });
       setAddMode(false);
       setDrafts({});
       setValidationErrors({});
+      console.log("[EDITABLE_TABLE_ONMUTATE_CALL]", { title });
       await onMutate();
+      console.log("[EDITABLE_TABLE_ONMUTATE_COMPLETE]", { title });
     } catch (error: any) {
       closeSnackbar(loadbar);
       enqueueSnackbar(

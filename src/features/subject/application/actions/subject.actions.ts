@@ -11,6 +11,9 @@
 
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("SubjectActions");
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import { subjectRepository } from "../../infrastructure/repositories/subject.repository";
 import {
@@ -125,25 +128,45 @@ export const getSubjectsByGradeAction = createAction(
 export const createSubjectAction = createAction(
   createSubjectSchema,
   async (input: CreateSubjectInput) => {
+    log.info("[CREATE_SUBJECT_START]", {
+      nodeEnv: process.env.NODE_ENV,
+      originalCode: input.SubjectCode,
+      subjectName: input.SubjectName,
+      category: input.Category,
+    });
+
     // Trim SubjectCode
     const trimmedCode = trimSubjectCode(input.SubjectCode);
+    log.debug("[TRIM_CODE]", { original: input.SubjectCode, trimmed: trimmedCode });
 
     // Validate no duplicate SubjectCode
+    log.debug("[VALIDATE_CODE_START]", { code: trimmedCode });
     const codeError = await validateNoDuplicateSubjectCode(trimmedCode);
     if (codeError) {
+      log.warn("[VALIDATE_CODE_FAILED]", { error: codeError, code: trimmedCode });
       throw new Error(codeError);
     }
+    log.debug("[VALIDATE_CODE_SUCCESS]", { code: trimmedCode });
 
     // Validate no duplicate SubjectName
+    log.debug("[VALIDATE_NAME_START]", { name: input.SubjectName });
     const nameError = await validateNoDuplicateSubjectName(input.SubjectName);
     if (nameError) {
+      log.warn("[VALIDATE_NAME_FAILED]", { error: nameError, name: input.SubjectName });
       throw new Error(nameError);
     }
+    log.debug("[VALIDATE_NAME_SUCCESS]", { name: input.SubjectName });
 
     // Create subject with trimmed code
+    log.debug("[REPOSITORY_CREATE_START]", { trimmedCode });
     const subject = await subjectRepository.create({
       ...input,
       SubjectCode: trimmedCode,
+    });
+    log.info("[CREATE_SUBJECT_SUCCESS]", {
+      subjectCode: subject.SubjectCode,
+      subjectName: subject.SubjectName,
+      category: subject.Category,
     });
 
     return subject;
