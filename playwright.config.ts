@@ -20,10 +20,10 @@ console.log("SKIP_WEBSERVER:", process.env.SKIP_WEBSERVER);
 
 export default defineConfig({
   testDir: "./e2e",
-  fullyParallel: true, // ✅ Run tests in parallel
+  fullyParallel: !process.env.CI, // Sequential in CI for stability, parallel locally
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined, // ✅ 4 parallel workers in CI, all cores locally
+  workers: process.env.CI ? 1 : undefined, // Sequential (1 worker) in CI for stability, all cores locally
   // Increase test timeout for dev mode (default 30s isn't enough for slow page compilation)
   timeout: process.env.CI ? 90000 : 60000,
 
