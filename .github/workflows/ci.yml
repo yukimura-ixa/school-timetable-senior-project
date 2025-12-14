@@ -144,8 +144,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # PostgreSQL service container for static page generation
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_timetable
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d test_timetable"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     env:
-      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+      DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       AUTH_GOOGLE_ID: dummy-client-id
@@ -190,6 +206,15 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm prisma generate
+
+      - name: Apply database migrations
+        run: pnpm prisma migrate deploy
+
+      - name: Seed database for build
+        run: pnpm db:seed:clean
+        env:
+          SEED_FOR_TESTS: "true"
+          SEED_CLEAN_DATA: "true"
 
       - name: Build Next.js application
         run: pnpm build
