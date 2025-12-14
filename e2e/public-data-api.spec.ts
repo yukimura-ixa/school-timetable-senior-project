@@ -139,13 +139,13 @@ test.describe("Public Teachers Data API", () => {
       .first();
 
     if (await searchInput.isVisible()) {
-      // Type a search term
-      await searchInput.fill("Math");
+      // Type a search term (Thai UI/seed uses Thai department names like "คณิตศาสตร์")
+      await searchInput.fill("คณิต");
 
       // Wait for debounced search results to update
       await expect(async () => {
         const content = await page.getByTestId("teacher-list").textContent();
-        expect(content?.toLowerCase()).toContain("math");
+        expect(content || "").toContain("คณิต");
       }).toPass({ timeout: 3000 });
     }
   });
@@ -316,14 +316,15 @@ test.describe("Public Statistics API", () => {
   });
 
   test("should display analytics dashboard with charts", async ({
-    guestPage,
+    authenticatedAdmin,
   }) => {
-    const page = guestPage;
-    // Navigate to analytics dashboard (adjust path if needed)
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
+
+    await expect(page.getByRole("heading", { name: /วิเคราะห์/ })).toBeVisible();
 
     // Check for chart elements or canvas elements
     const hasCharts = await page
@@ -343,9 +344,9 @@ test.describe("Public Statistics API", () => {
   });
 
   test("should show period load data (weekly schedule intensity)", async ({
-    guestPage,
+    authenticatedAdmin,
   }) => {
-    const page = guestPage;
+    const { page } = authenticatedAdmin;
     await page.goto("/dashboard/1-2567/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,

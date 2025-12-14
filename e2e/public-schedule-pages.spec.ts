@@ -29,6 +29,10 @@ const getFirstPublicSchedulePath = async (
 
   const tab = page.getByTestId(opts.tabTestId);
   await expect(tab).toBeVisible({ timeout: 15000 });
+  // Tabs live in a horizontally scrollable container on mobile; ensure the tab is within viewport.
+  await tab.evaluate((el) =>
+    el.scrollIntoView({ block: "center", inline: "center" }),
+  );
   await tab.click();
 
   // Ensure the tab switch has completed (search placeholder changes per-tab).
@@ -379,9 +383,9 @@ test.describe("Public Class Schedule Page", () => {
     );
 
     // Should show grade level (e.g., "ม.1/1")
-    await expect(
-      page.locator('p.font-medium, [data-testid="class-name"]'),
-    ).toContainText(/(ม\.[1-6]\/\d+|M[1-6][-/]\d+)/);
+    await expect(page.getByTestId("class-name")).toContainText(
+      /(ม\.[1-6]\/\d+|M[1-6][-/]\d+)/,
+    );
   });
 
   test("should display timetable grid with correct structure", async ({
@@ -698,7 +702,9 @@ test.describe("Public Schedule Pages - Common Features", () => {
 test.describe("Public Schedule Pages - Error Handling", () => {
   const expectNotFound = async (page: import("@playwright/test").Page) => {
     // Next.js may render a 404 UI with a 200 response in some navigation modes.
-    await expect(page.locator("text=/\\b404\\b|not found|ไม่พบ/i").first()).toBeVisible({
+    await expect(
+      page.locator("text=/\\b404\\b|not found|ไม่พบ/i").first(),
+    ).toBeVisible({
       timeout: 15000,
     });
   };
@@ -721,8 +727,12 @@ test.describe("Public Schedule Pages - Error Handling", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(`/teachers/${testTeacher.TeacherID}/`, { waitUntil: "domcontentloaded" });
-    await expectNotFound(page);
+    // /teachers/[id] is a valid public route (defaults to current schedule),
+    // so missing semester segment should still render.
+    await page.goto(`/teachers/${testTeacher.TeacherID}/`, {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId("schedule-grid")).toBeVisible({ timeout: 15000 });
   });
 
   test("should show meaningful error for non-existent semester", async ({

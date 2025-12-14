@@ -113,6 +113,7 @@ export function ArrangementHeader({
             onClick={onSave}
             disabled={!isDirty || isSaving}
             size="large"
+            data-testid="save-button"
           >
             {isSaving ? "กำลังบันทึก..." : "บันทึกตารางสอน"}
           </Button>

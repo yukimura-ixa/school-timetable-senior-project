@@ -4,6 +4,9 @@ import { Page, ConsoleMessage, Browser } from "@playwright/test";
 // Shared semester constant
 const SEMESTER = "1-2567";
 
+const DRAGGABLE_SELECTOR =
+  '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]';
+
 // Dynamic TeacherID - fetched from first teacher with responsibilities
 let TEACHER_ID = "1"; // Default fallback
 
@@ -18,8 +21,6 @@ let TEACHER_ID = "1"; // Default fallback
  * - Iteration through options until finding valid teacher
  */
 async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
-  const DRAGGABLE_SELECTOR =
-    '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]';
   const CHECK_TIMEOUT = 3000; // 3 seconds per teacher check (reduced from 5)
   const MAX_TEACHERS_TO_TRY = 5; // Only try first 5 teachers (reduced from 10)
 

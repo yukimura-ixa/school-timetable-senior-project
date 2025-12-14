@@ -57,6 +57,8 @@ function SelectTeacher({
       <Dropdown
         width={300}
         data={allTeacher.data}
+        testId="teacher-select"
+        getItemId={(item) => (item as Partial<teacher>).TeacherID ?? ""}
         placeHolder="ตัวเลือก"
         renderItem={({ data }: { data: unknown }) => {
           const t = data as Partial<teacher>;

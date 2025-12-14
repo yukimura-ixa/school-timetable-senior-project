@@ -90,7 +90,8 @@ test.describe("Bulk Lock Operations", () => {
 
     const modal = await openBulkLockModal(page);
     // Find and check first few timeslot checkboxes
-    const checkbox = modal.getByRole("checkbox").first();
+    const checkbox = modal.locator('[data-testid^="bulk-lock-timeslot-"]').first();
+    await expect(checkbox).toBeVisible({ timeout: 15000 });
     await checkbox.check();
 
     // Should be checked
@@ -106,10 +107,8 @@ test.describe("Bulk Lock Operations", () => {
 
     const modal = await openBulkLockModal(page);
     // Prefer grade-labelled checkbox if present (e.g. "ม.1")
-    const gradeCheckbox = modal
-      .getByRole("checkbox", { name: /ม\.\s*\d/i })
-      .first()
-      .or(modal.getByRole("checkbox").nth(1));
+    const gradeCheckbox = modal.locator('[data-testid^="bulk-lock-grade-"]').first();
+    await expect(gradeCheckbox).toBeVisible({ timeout: 15000 });
     await gradeCheckbox.check();
 
     // Should be checked
@@ -128,7 +127,8 @@ test.describe("Bulk Lock Operations", () => {
     const counterText = modal.locator("text=/จำนวนคาบล็อกที่จะสร้าง/i");
 
     // Select some items
-    const checkbox1 = modal.getByRole("checkbox").first();
+    const checkbox1 = modal.locator('[data-testid^="bulk-lock-timeslot-"]').first();
+    await expect(checkbox1).toBeVisible({ timeout: 15000 });
     await checkbox1.check();
     // Wait for counter to update
     await page
@@ -156,8 +156,9 @@ test.describe("Bulk Lock Operations", () => {
     const modal = await openBulkLockModal(page);
 
     // Select some checkboxes
-    const checkbox1 = modal.getByRole("checkbox").first();
-    const checkbox2 = modal.getByRole("checkbox").nth(1);
+    const checkbox1 = modal.locator('[data-testid^="bulk-lock-timeslot-"]').nth(0);
+    const checkbox2 = modal.locator('[data-testid^="bulk-lock-timeslot-"]').nth(1);
+    await expect(checkbox1).toBeVisible({ timeout: 15000 });
     await checkbox1.check();
     await checkbox2.check();
     await expect(checkbox2).toBeChecked();
@@ -218,23 +219,16 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
+    const modal = await openBulkLockModal(page);
 
     // Click "Select All" for timeslots
-    const selectAllButton = page
-      .locator("button")
-      .filter({ hasText: /เลือกทั้งหมด/ })
-      .first();
+    const selectAllButton = modal.getByTestId("bulk-lock-selectall-timeslots");
     await selectAllButton.click();
 
     // Multiple checkboxes should be checked
-    const checkedBoxes = page.locator("input[type='checkbox']:checked");
+    const checkedBoxes = modal.locator(
+      '[data-testid^="bulk-lock-timeslot-"]:checked',
+    );
     await expect(checkedBoxes.first())
       .toBeVisible({ timeout: 2000 })
       .catch(() => {});
@@ -249,18 +243,12 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
-    await expect(getBulkLockModal(page)).toBeVisible({
-      timeout: 3000,
-    });
+    const modal = await openBulkLockModal(page);
 
     // Even if no data, modal should show appropriate message
     const hasContent =
-      (await page.locator("text=/ไม่พบข้อมูล|ไม่มีข้อมูล|loading/i").count()) >
-        0 || (await page.locator("input[type='checkbox']").count()) > 0;
+      (await modal.locator('[data-testid^="bulk-lock-timeslot-"]').count()) > 0 ||
+      (await modal.locator('[data-testid^="bulk-lock-grade-"]').count()) > 0;
     expect(hasContent).toBe(true);
   });
 
@@ -270,10 +258,7 @@ test.describe("Bulk Lock Operations", () => {
     await page.goto("/schedule/1-2567/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
-    await page
-      .locator("button")
-      .filter({ hasText: /ล็อกหลายคาบ/ })
-      .click();
+    await openBulkLockModal(page);
 
     // Modal should be visible and functional on mobile
     await expect(getBulkLockModal(page)).toBeVisible({

@@ -158,6 +158,8 @@ export function TimeslotCard({
   if (isBreak) {
     return (
       <Card
+        data-testid="timeslot-card"
+        data-timeslot-id={timeslot.TimeslotID}
         sx={{
           minHeight: 80,
           bgcolor: getBackgroundColor(),
@@ -192,6 +194,8 @@ export function TimeslotCard({
       <Card
         ref={setDroppableRef}
         onClick={onClick}
+        data-testid="timeslot-card"
+        data-timeslot-id={timeslot.TimeslotID}
         sx={{
           minHeight: 80,
           bgcolor: getBackgroundColor(),
@@ -262,6 +266,9 @@ export function TimeslotCard({
       }}
       style={style}
       onClick={onClick}
+      data-testid="timeslot-card"
+      data-timeslot-id={timeslot.TimeslotID}
+      data-subject-code={subject?.subjectCode}
       sx={{
         minHeight: 80,
         bgcolor: getBackgroundColor(),
@@ -352,6 +359,8 @@ export function TimeslotCard({
               {!isLocked && onRemove && (
                 <IconButton
                   size="small"
+                  aria-label="ลบ"
+                  data-testid="timeslot-remove"
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemove(timeslot.TimeslotID);

@@ -356,7 +356,11 @@ export default function BulkLockModal({
                   mb={2}
                 >
                   <Typography variant="subtitle1">เลือกคาบเรียน</Typography>
-                  <Button size="small" onClick={handleSelectAllTimeslots}>
+                  <Button
+                    size="small"
+                    onClick={handleSelectAllTimeslots}
+                    data-testid="bulk-lock-selectall-timeslots"
+                  >
                     {selectedTimeslots.size === timeslots.length
                       ? "ยกเลิกทั้งหมด"
                       : "เลือกทั้งหมด"}
@@ -368,6 +372,9 @@ export default function BulkLockModal({
                       key={timeslot.TimeslotID}
                       control={
                         <Checkbox
+                          inputProps={{
+                            "data-testid": `bulk-lock-timeslot-${timeslot.TimeslotID}`,
+                          }}
                           checked={selectedTimeslots.has(timeslot.TimeslotID)}
                           onChange={() =>
                             handleTimeslotToggle(timeslot.TimeslotID)
@@ -400,7 +407,11 @@ export default function BulkLockModal({
                   mb={2}
                 >
                   <Typography variant="subtitle1">เลือกชั้นเรียน</Typography>
-                  <Button size="small" onClick={handleSelectAllGrades}>
+                  <Button
+                    size="small"
+                    onClick={handleSelectAllGrades}
+                    data-testid="bulk-lock-selectall-grades"
+                  >
                     {selectedGrades.size === grades.length
                       ? "ยกเลิกทั้งหมด"
                       : "เลือกทั้งหมด"}
@@ -412,6 +423,9 @@ export default function BulkLockModal({
                       key={grade.GradeID}
                       control={
                         <Checkbox
+                          inputProps={{
+                            "data-testid": `bulk-lock-grade-${grade.GradeID}`,
+                          }}
                           checked={selectedGrades.has(grade.GradeID)}
                           onChange={() => handleGradeToggle(grade.GradeID)}
                         />

@@ -18,6 +18,7 @@ export class BasePage {
 
   // Common UI elements
   readonly loadingSpinner: Locator;
+  readonly globalLoadingOverlay: Locator;
   readonly snackbar: Locator;
   readonly snackbarMessage: Locator;
 
@@ -31,6 +32,10 @@ export class BasePage {
 
     // Common selectors
     this.loadingSpinner = page.locator('[role="progressbar"]');
+    // Global loading overlay from loading.tsx (contains "โปรดรอสักครู่")
+    // Global loading overlay from loading.tsx (contains "โปรดรอสักครู่")
+    // Use regex for robust matching across lines/spacing
+    this.globalLoadingOverlay = page.getByText(/โปรดรอสักครู่/);
     this.snackbar = page.locator('.notistack-Snackbar, [role="alert"]');
     this.snackbarMessage = this.snackbar.locator(
       ".notistack-MuiContent-default, .MuiAlert-message",
@@ -62,11 +67,22 @@ export class BasePage {
   async waitForPageLoad() {
     // Prefer 'domcontentloaded' to avoid waiting on third-party assets
     await this.page.waitForLoadState("domcontentloaded");
-    await expect(this.loadingSpinner)
-      .toBeHidden({ timeout: 15000 })
-      .catch(() => {
-        // Spinner might not exist, that's ok
+
+    // Wait for global loading overlay to disappear
+    if (await this.globalLoadingOverlay.isVisible().catch(() => false)) {
+      await this.globalLoadingOverlay
+        .waitFor({ state: "hidden", timeout: 30_000 })
+        .catch(() => {});
+    }
+
+    const spinner = this.loadingSpinner.first();
+    const spinnerVisible = await spinner.isVisible().catch(() => false);
+    if (spinnerVisible) {
+      await spinner.waitFor({ state: "hidden", timeout: 15_000 }).catch(() => {
+        // Some environments render persistent progress indicators (e.g. dev overlays).
+        // Page objects should wait for their own stable anchors (testids) when needed.
       });
+    }
   }
 
   /**
@@ -130,7 +146,10 @@ export class BasePage {
 
       // Wait for the UI to reflect the semester change.
       // This is crucial if components re-render based on store updates without a full page reload.
-      await expect(this.semesterButtonWithText).toContainText(expectedSemester, { timeout: 15000 });
+      await expect(this.semesterButtonWithText).toContainText(
+        expectedSemester,
+        { timeout: 15000 },
+      );
     }
 
     // Readiness heuristic:
