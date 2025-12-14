@@ -43,24 +43,42 @@ test.describe("Health Endpoints", () => {
 });
 
 test.describe("PDF Export Endpoints", () => {
-  test("GET /api/export/teacher-timetable/pdf requires auth", async ({
+  test("POST /api/export/teacher-timetable/pdf requires auth", async ({
     guestPage,
   }) => {
-    const response = await guestPage.request.get(
-      "/api/export/teacher-timetable/pdf?semesterAndYear=1-2567&teacherId=1",
+    const response = await guestPage.request.post(
+      "/api/export/teacher-timetable/pdf",
+      {
+        data: {
+          teacherId: 1,
+          teacherName: "Test Teacher",
+          semester: 1,
+          academicYear: 2567,
+          schedule: [],
+        },
+      },
     );
 
-    // Should redirect to signin or return 401/403
-    expect([200, 302, 401, 403]).toContain(response.status());
+    // Should return 401/403 for unauthorized
+    expect([401, 403]).toContain(response.status());
   });
 
-  test("GET /api/export/teacher-timetable/pdf returns PDF for admin", async ({
+  test("POST /api/export/teacher-timetable/pdf returns PDF for admin", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
 
-    const response = await page.request.get(
-      "/api/export/teacher-timetable/pdf?semesterAndYear=1-2567&teacherId=1",
+    const response = await page.request.post(
+      "/api/export/teacher-timetable/pdf",
+      {
+        data: {
+          teacherId: 1,
+          teacherName: "Test Teacher",
+          semester: 1,
+          academicYear: 2567,
+          schedule: [],
+        },
+      },
     );
 
     // If endpoint exists and works, should return PDF
@@ -68,19 +86,28 @@ test.describe("PDF Export Endpoints", () => {
       const contentType = response.headers()["content-type"];
       expect(contentType).toContain("application/pdf");
     } else {
-      // Endpoint may require different params - just verify no 500 error
+      // May require valid data - verify no 500 error
       expect(response.status()).toBeLessThan(500);
     }
   });
 
-  test("GET /api/export/student-timetable/pdf requires auth", async ({
+  test("POST /api/export/student-timetable/pdf requires auth", async ({
     guestPage,
   }) => {
-    const response = await guestPage.request.get(
-      "/api/export/student-timetable/pdf?semesterAndYear=1-2567&classId=1",
+    const response = await guestPage.request.post(
+      "/api/export/student-timetable/pdf",
+      {
+        data: {
+          classId: 1,
+          className: "M.1/1",
+          semester: 1,
+          academicYear: 2567,
+          schedule: [],
+        },
+      },
     );
 
-    expect([200, 302, 401, 403]).toContain(response.status());
+    expect([401, 403]).toContain(response.status());
   });
 });
 
