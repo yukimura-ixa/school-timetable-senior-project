@@ -620,7 +620,7 @@ export default function ArrangementPage() {
       const { active } = event;
       const activeId = String(active.id);
       const subjectCode = (activeId.replace(/^subject-/, "").split("-Grade-")[0] ??
-        activeId) as string;
+        activeId);
       const subject = availableSubjects?.find((s: unknown) => {
         const subj = s as { subjectCode?: string; SubjectCode?: string };
         return subj.subjectCode === subjectCode || subj.SubjectCode === subjectCode;
@@ -642,7 +642,7 @@ export default function ArrangementPage() {
 
       const activeId = String(active.id);
       const subjectCode = (activeId.replace(/^subject-/, "").split("-Grade-")[0] ??
-        activeId) as string;
+        activeId);
       const draggedSubject = availableSubjects?.find((s: unknown) => {
         const subj = s as { subjectCode?: string; SubjectCode?: string };
         return subj.subjectCode === subjectCode || subj.SubjectCode === subjectCode;
