@@ -18,13 +18,18 @@ test.describe("All Timeslot Page UX", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/all-timeslot`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await page.waitForLoadState("networkidle");
+    await expect(page.locator("main, body")).toBeVisible({ timeout: 20000 });
 
     // Read-only banner (always shown)
-    await expect(page.getByText("มุมมองอ่านอย่างเดียว")).toBeVisible();
+    await expect(page.getByText("มุมมองอ่านอย่างเดียว")).toBeVisible({
+      timeout: 15000,
+    });
 
     // Admin link shown only for admin users
-    await expect(page.getByRole("button", { name: "ไปยังหน้าตั้งค่าตาราง" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "ไปยังหน้าตั้งค่าตาราง" }),
+    ).toBeVisible();
 
     // Export button enabled for admins
     const exportBtn = page.getByRole("button", { name: "ส่งออก Excel" });

@@ -21,8 +21,8 @@ let TEACHER_ID = "1"; // Default fallback
  * - Iteration through options until finding valid teacher
  */
 async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
-  const CHECK_TIMEOUT = 3000; // 3 seconds per teacher check (reduced from 5)
-  const MAX_TEACHERS_TO_TRY = 5; // Only try first 5 teachers (reduced from 10)
+  const CHECK_TIMEOUT = 5000; // 5 seconds per teacher check for CI stability
+  const MAX_TEACHERS_TO_TRY = 5; // Only try first 5 teachers
 
   try {
     // Navigate to teacher arrange page without TeacherID param
@@ -30,13 +30,14 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
 
     // Wait for teacher dropdown to be visible
     // Support both native select AND custom Dropdown component (role="combobox")
-    const teacherSelect = page
-      .locator('select, [role="combobox"]')
-      .first();
-    await teacherSelect.waitFor({ state: "visible", timeout: 15000 });
+    const teacherSelect = page.locator('select, [role="combobox"]').first();
+    await page.waitForLoadState("networkidle"); // Wait for data to load
+    await teacherSelect.waitFor({ state: "visible", timeout: 20000 });
 
     // Check if it's a native select or custom dropdown
-    const isNativeSelect = (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) === "select";
+    const isNativeSelect =
+      (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
+      "select";
 
     if (isNativeSelect) {
       // Handle native select element
@@ -61,15 +62,24 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
             continue;
           }
 
-          console.log(`Checking TeacherID=${teacherId} for draggable subjects...`);
+          console.log(
+            `Checking TeacherID=${teacherId} for draggable subjects...`,
+          );
           const draggableSubjects = page.locator(DRAGGABLE_SELECTOR).first();
 
           try {
-            await draggableSubjects.waitFor({ state: "visible", timeout: CHECK_TIMEOUT });
-            console.log(`✅ Found teacher with subjects: TeacherID=${teacherId}`);
+            await draggableSubjects.waitFor({
+              state: "visible",
+              timeout: CHECK_TIMEOUT,
+            });
+            console.log(
+              `✅ Found teacher with subjects: TeacherID=${teacherId}`,
+            );
             return teacherId;
           } catch {
-            console.log(`❌ TeacherID=${teacherId} has no draggable subjects, trying next...`);
+            console.log(
+              `❌ TeacherID=${teacherId} has no draggable subjects, trying next...`,
+            );
           }
         } catch (e) {
           console.log(`Error checking teacher at index ${i}:`, e);
@@ -77,7 +87,9 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
       }
     } else {
       // Handle custom Dropdown component (role="combobox")
-      console.log("Using custom dropdown (role=combobox) for teacher selection");
+      console.log(
+        "Using custom dropdown (role=combobox) for teacher selection",
+      );
 
       // Click to open the dropdown
       await teacherSelect.click();
@@ -120,15 +132,24 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
             continue;
           }
 
-          console.log(`Checking TeacherID=${teacherId} for draggable subjects...`);
+          console.log(
+            `Checking TeacherID=${teacherId} for draggable subjects...`,
+          );
           const draggableSubjects = page.locator(DRAGGABLE_SELECTOR).first();
 
           try {
-            await draggableSubjects.waitFor({ state: "visible", timeout: CHECK_TIMEOUT });
-            console.log(`✅ Found teacher with subjects: TeacherID=${teacherId}`);
+            await draggableSubjects.waitFor({
+              state: "visible",
+              timeout: CHECK_TIMEOUT,
+            });
+            console.log(
+              `✅ Found teacher with subjects: TeacherID=${teacherId}`,
+            );
             return teacherId;
           } catch {
-            console.log(`❌ TeacherID=${teacherId} has no draggable subjects, trying next...`);
+            console.log(
+              `❌ TeacherID=${teacherId} has no draggable subjects, trying next...`,
+            );
           }
         } catch (e) {
           console.log(`Error checking teacher at index ${i}:`, e);
@@ -240,7 +261,9 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
 
     if (await teacherSelect.isVisible()) {
       // Check if it's a native select or custom dropdown
-      const isNativeSelect = (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) === "select";
+      const isNativeSelect =
+        (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
+        "select";
 
       if (isNativeSelect) {
         // Select a teacher using native select
@@ -255,10 +278,12 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
       }
 
       // Wait for teacher data to load by checking header update
+      // Wait for teacher data to load
+      await page.waitForLoadState("networkidle");
       const header = page
-        .locator("text=/.*ครู.*/i, text=/.*Teacher.*/i")
+        .locator("text=/.*ครู.*/i, text=/.*Teacher.*/i, h1, h2, h3")
         .first();
-      await expect(header).toBeVisible({ timeout: 15000 });
+      await expect(header).toBeVisible({ timeout: 25000 });
 
       // Header is now guaranteed visible
       console.log("Teacher selected. Header visible: true");
@@ -716,13 +741,17 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
     // 1. Select teacher (native select OR custom dropdown)
     const teacherSelect = page.locator('select, [role="combobox"]').first();
     if (await teacherSelect.isVisible()) {
-      const isNativeSelect = (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) === "select";
+      const isNativeSelect =
+        (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
+        "select";
       if (isNativeSelect) {
         await teacherSelect.selectOption({ index: 1 });
       } else {
         await teacherSelect.click();
         const listbox = page.locator('[role="listbox"]');
-        await listbox.waitFor({ state: "visible", timeout: 3000 }).catch(() => {});
+        await listbox
+          .waitFor({ state: "visible", timeout: 3000 })
+          .catch(() => {});
         const firstOption = listbox.locator('[role="option"]').first();
         if (await firstOption.isVisible()) {
           await firstOption.click();

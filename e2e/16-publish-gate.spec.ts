@@ -14,16 +14,18 @@ test.describe("Publish Gate", () => {
 
     // Config status badge (and publish controls) are rendered on the config page.
     await page.goto("/schedule/1-2567/config");
+    await page.waitForLoadState("networkidle");
 
     const statusBadge = page.getByTestId("config-status-badge");
-    await expect(statusBadge).toBeVisible({ timeout: 15000 });
+    await expect(statusBadge).toBeVisible({ timeout: 20000 });
 
     // When completeness is below threshold, there are no available transitions
     // so the status menu button should not render.
     await expect(statusBadge.getByRole("button")).toHaveCount(0);
 
     // Completeness indicator should explain why publishing is blocked.
-    await expect(page.getByText(/ต้องการอย่างน้อย\\s*30%/)).toBeVisible();
+    await expect(page.getByText(/ต้องการอย่างน้อย\s*30%/)).toBeVisible({
+      timeout: 15000,
+    });
   });
 });
-

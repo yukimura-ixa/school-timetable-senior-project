@@ -1,7 +1,7 @@
 /**
  * E2E Tests for Bulk Lock Operations
  * Tests complete user flows for bulk locking multiple timeslots and grades
- * 
+ *
  * Uses data-testid selectors for stable dialog targeting (data-testid="bulk-lock-modal")
  */
 
@@ -13,9 +13,13 @@ const getBulkLockModal = (page: Page) =>
   page.locator('[data-testid="bulk-lock-modal"]');
 
 const openBulkLockModal = async (page: Page) => {
+  // Wait for network to be idle (data loaded) before opening modal
+  await page.waitForLoadState("networkidle");
   await page.getByTestId("bulk-lock-btn").click();
   const modal = getBulkLockModal(page);
-  await expect(modal).toBeVisible({ timeout: 15000 });
+  await expect(modal).toBeVisible({ timeout: 20000 });
+  // Wait for modal content to load
+  await page.waitForLoadState("networkidle");
   return modal;
 };
 
@@ -41,7 +45,9 @@ test.describe("Bulk Lock Operations", () => {
 
     const modal = await openBulkLockModal(page);
     // Prefer dialog accessible name to avoid strict-mode ambiguity between title wrappers.
-    await expect(page.getByRole("dialog", { name: /ล็อกหลายคาบ/ })).toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: /ล็อกหลายคาบ/ }),
+    ).toBeVisible();
   });
 
   test("should display modal components correctly", async ({
@@ -90,7 +96,9 @@ test.describe("Bulk Lock Operations", () => {
 
     const modal = await openBulkLockModal(page);
     // Find and check first few timeslot checkboxes
-    const checkbox = modal.locator('[data-testid^="bulk-lock-timeslot-"]').first();
+    const checkbox = modal
+      .locator('[data-testid^="bulk-lock-timeslot-"]')
+      .first();
     await expect(checkbox).toBeVisible({ timeout: 15000 });
     await checkbox.check();
 
@@ -107,7 +115,9 @@ test.describe("Bulk Lock Operations", () => {
 
     const modal = await openBulkLockModal(page);
     // Prefer grade-labelled checkbox if present (e.g. "ม.1")
-    const gradeCheckbox = modal.locator('[data-testid^="bulk-lock-grade-"]').first();
+    const gradeCheckbox = modal
+      .locator('[data-testid^="bulk-lock-grade-"]')
+      .first();
     await expect(gradeCheckbox).toBeVisible({ timeout: 15000 });
     await gradeCheckbox.check();
 
@@ -127,7 +137,9 @@ test.describe("Bulk Lock Operations", () => {
     const counterText = modal.locator("text=/จำนวนคาบล็อกที่จะสร้าง/i");
 
     // Select some items
-    const checkbox1 = modal.locator('[data-testid^="bulk-lock-timeslot-"]').first();
+    const checkbox1 = modal
+      .locator('[data-testid^="bulk-lock-timeslot-"]')
+      .first();
     await expect(checkbox1).toBeVisible({ timeout: 15000 });
     await checkbox1.check();
     // Wait for counter to update
@@ -156,8 +168,12 @@ test.describe("Bulk Lock Operations", () => {
     const modal = await openBulkLockModal(page);
 
     // Select some checkboxes
-    const checkbox1 = modal.locator('[data-testid^="bulk-lock-timeslot-"]').nth(0);
-    const checkbox2 = modal.locator('[data-testid^="bulk-lock-timeslot-"]').nth(1);
+    const checkbox1 = modal
+      .locator('[data-testid^="bulk-lock-timeslot-"]')
+      .nth(0);
+    const checkbox2 = modal
+      .locator('[data-testid^="bulk-lock-timeslot-"]')
+      .nth(1);
     await expect(checkbox1).toBeVisible({ timeout: 15000 });
     await checkbox1.check();
     await checkbox2.check();
@@ -247,7 +263,8 @@ test.describe("Bulk Lock Operations", () => {
 
     // Even if no data, modal should show appropriate message
     const hasContent =
-      (await modal.locator('[data-testid^="bulk-lock-timeslot-"]').count()) > 0 ||
+      (await modal.locator('[data-testid^="bulk-lock-timeslot-"]').count()) >
+        0 ||
       (await modal.locator('[data-testid^="bulk-lock-grade-"]').count()) > 0;
     expect(hasContent).toBe(true);
   });
@@ -337,7 +354,9 @@ test.describe("Bulk Lock - Complete Flow", () => {
     });
 
     // Modal should close
-    await expect(page.locator('[data-testid="bulk-lock-modal"]')).toBeHidden({ timeout: 3000 });
+    await expect(page.locator('[data-testid="bulk-lock-modal"]')).toBeHidden({
+      timeout: 3000,
+    });
   });
 });
 

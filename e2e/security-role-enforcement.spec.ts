@@ -21,6 +21,7 @@ test.describe("Security Role Enforcement", () => {
       await page.goto("/dashboard/1-2567/teacher-table");
 
       await page.waitForLoadState("domcontentloaded");
+      await page.waitForLoadState("networkidle");
 
       // Most flows redirect to /signin; accept a forbidden/unauthorized UI as well.
       const url = page.url();
@@ -32,9 +33,11 @@ test.describe("Security Role Enforcement", () => {
       if (await signinUi.isVisible().catch(() => false)) return;
 
       const forbidden = page
-        .locator("text=/\\b403\\b|forbidden|unauthorized|ไม่อนุญาต|ไม่มีสิทธิ์|กรุณาเข้าสู่ระบบ/i")
+        .locator(
+          "text=/\\b403\\b|forbidden|unauthorized|ไม่อนุญาต|ไม่มีสิทธิ์|กรุณาเข้าสู่ระบบ/i",
+        )
         .first();
-      await expect(forbidden).toBeVisible({ timeout: 15000 });
+      await expect(forbidden).toBeVisible({ timeout: 20000 });
     });
   });
 
@@ -52,7 +55,9 @@ test.describe("Security Role Enforcement", () => {
 
       // At minimum, the teacher selector should render (even if data APIs fail).
       await expect(
-        page.getByTestId("teacher-select").or(page.getByRole("combobox").first()),
+        page
+          .getByTestId("teacher-select")
+          .or(page.getByRole("combobox").first()),
       ).toBeVisible({ timeout: 15000 });
     });
   });

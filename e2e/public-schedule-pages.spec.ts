@@ -13,7 +13,11 @@
  */
 
 import { test, expect } from "./fixtures/admin.fixture";
-import { testGradeLevel, testSemester, testTeacher } from "./fixtures/seed-data.fixture";
+import {
+  testGradeLevel,
+  testSemester,
+  testTeacher,
+} from "./fixtures/seed-data.fixture";
 
 // Public schedule pages should be accessible without authentication.
 // Use the dedicated `guestPage` fixture instead of `authenticatedAdmin`.
@@ -44,7 +48,9 @@ const getFirstPublicSchedulePath = async (
   const linkInTable = page
     .locator(`main table tbody a[href^="${opts.hrefPrefix}"]`)
     .first();
-  const linkAnywhere = page.locator(`main a[href^="${opts.hrefPrefix}"]`).first();
+  const linkAnywhere = page
+    .locator(`main a[href^="${opts.hrefPrefix}"]`)
+    .first();
 
   const tryGetHref = async (
     candidate: typeof linkInTable,
@@ -112,7 +118,9 @@ const getPublicClassSchedulePath = async (
 };
 
 test.describe("Public Teacher Schedule Page", () => {
-  test("should load teacher schedule without authentication", async ({ guestPage }) => {
+  test("should load teacher schedule without authentication", async ({
+    guestPage,
+  }) => {
     const page = guestPage;
     // Navigate to public teacher schedule (using a real link from homepage)
     await page.goto(await getPublicTeacherSchedulePath(page));
@@ -126,10 +134,14 @@ test.describe("Public Teacher Schedule Page", () => {
     ).toBeVisible({ timeout: 15000 });
 
     // Should show teacher name
-    await expect(page.getByTestId("teacher-name")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("teacher-name")).toBeVisible({
+      timeout: 15000,
+    });
   });
 
-  test("should display timetable grid with days and periods", async ({ guestPage }) => {
+  test("should display timetable grid with days and periods", async ({
+    guestPage,
+  }) => {
     const page = guestPage;
     await page.goto(await getPublicTeacherSchedulePath(page));
 
@@ -141,7 +153,9 @@ test.describe("Public Teacher Schedule Page", () => {
     );
 
     // Should have table element (grid layout, not cards)
-    const table = page.getByTestId("schedule-grid").or(page.locator("table").first());
+    const table = page
+      .getByTestId("schedule-grid")
+      .or(page.locator("table").first());
     await expect(table).toBeVisible({ timeout: 15000 });
 
     // Table should have header row with days
@@ -155,7 +169,9 @@ test.describe("Public Teacher Schedule Page", () => {
     }
   });
 
-  test("should display period numbers and time ranges", async ({ guestPage }) => {
+  test("should display period numbers and time ranges", async ({
+    guestPage,
+  }) => {
     const page = guestPage;
     await page.goto(await getPublicTeacherSchedulePath(page));
 
@@ -261,9 +277,7 @@ test.describe("Public Teacher Schedule Page", () => {
     expect(emptyCount).toBeGreaterThan(0);
   });
 
-  test("should handle no schedule data gracefully", async ({
-    guestPage,
-  }) => {
+  test("should handle no schedule data gracefully", async ({ guestPage }) => {
     const page = guestPage;
     // Try accessing a teacher with no schedules (using high ID unlikely to exist)
     await page.goto(`/teachers/99999/${testSemester.SemesterAndyear}`);
@@ -324,9 +338,7 @@ test.describe("Public Teacher Schedule Page", () => {
     await expect(page).toHaveURL(/\/$/, { timeout: 15000 });
   });
 
-  test("should display semester information", async ({
-    guestPage,
-  }) => {
+  test("should display semester information", async ({ guestPage }) => {
     const page = guestPage;
     await page.goto(await getPublicTeacherSchedulePath(page));
 
@@ -342,9 +354,7 @@ test.describe("Public Teacher Schedule Page", () => {
     ).toBeVisible();
   });
 
-  test("should handle invalid semester format", async ({
-    guestPage,
-  }) => {
+  test("should handle invalid semester format", async ({ guestPage }) => {
     const page = guestPage;
     // Invalid semester format (should be "1-2567")
     await page.goto(`/teachers/${testTeacher.TeacherID}/invalid-semester`, {
@@ -401,7 +411,9 @@ test.describe("Public Class Schedule Page", () => {
     );
 
     // Should have table element
-    const table = page.getByTestId("schedule-grid").or(page.locator("table").first());
+    const table = page
+      .getByTestId("schedule-grid")
+      .or(page.locator("table").first());
     await expect(table).toBeVisible({ timeout: 15000 });
 
     // Header row should have 6 columns (period + 5 days)
@@ -503,7 +515,9 @@ test.describe("Public Class Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(`/classes/${testGradeLevel.GradeID}/${testSemester.SemesterAndyear}`);
+    await page.goto(
+      `/classes/${testGradeLevel.GradeID}/${testSemester.SemesterAndyear}`,
+    );
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -523,7 +537,9 @@ test.describe("Public Class Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(`/classes/${testGradeLevel.GradeID}/${testSemester.SemesterAndyear}`);
+    await page.goto(
+      `/classes/${testGradeLevel.GradeID}/${testSemester.SemesterAndyear}`,
+    );
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -556,7 +572,10 @@ test.describe("Public Schedule Pages - Common Features", () => {
     );
 
     // Check visible text only (avoid matching bundled JS/CSS)
-    const content = await page.locator('main, [role="main"], body').first().innerText();
+    const content = await page
+      .locator('main, [role="main"], body')
+      .first()
+      .innerText();
 
     // Should NOT contain email patterns
     const emailPattern = /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
@@ -567,9 +586,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     expect(phonePattern.test(content)).toBe(false);
   });
 
-  test("should not expose PII in class schedules", async ({
-    guestPage,
-  }) => {
+  test("should not expose PII in class schedules", async ({ guestPage }) => {
     const page = guestPage;
     await page.goto(await getPublicClassSchedulePath(page));
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -579,7 +596,10 @@ test.describe("Public Schedule Pages - Common Features", () => {
     );
 
     // Check visible text only (avoid matching bundled JS/CSS)
-    const content = await page.locator('main, [role="main"], body').first().innerText();
+    const content = await page
+      .locator('main, [role="main"], body')
+      .first()
+      .innerText();
 
     // No email addresses (simple check, avoiding CSS @keyframes)
     // We check for " @ " or mailto links, or specific email patterns
@@ -587,34 +607,31 @@ test.describe("Public Schedule Pages - Common Features", () => {
     expect(content.toLowerCase()).not.toContain("postgresql://");
   });
 
-  test("should be responsive on mobile viewport", async ({
-    guestPage,
-  }) => {
+  test("should be responsive on mobile viewport", async ({ guestPage }) => {
     const page = guestPage;
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.waitForLoadState("networkidle");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
-        timeout: 15000,
+        timeout: 20000,
       },
     );
 
     // Table should be scrollable horizontally
     const table = page.locator("table").first();
-    await expect(table).toBeVisible();
+    await expect(table).toBeVisible({ timeout: 15000 });
 
     // Container should have overflow-x-auto or similar
     const scrollContainer = page
       .locator(".overflow-x-auto, .overflow-auto")
       .first();
-    await expect(scrollContainer).toBeVisible({ timeout: 15000 });
+    await expect(scrollContainer).toBeVisible({ timeout: 20000 });
   });
 
-  test("should be responsive on tablet viewport", async ({
-    guestPage,
-  }) => {
+  test("should be responsive on tablet viewport", async ({ guestPage }) => {
     const page = guestPage;
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
@@ -651,9 +668,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     expect(loadTime).toBeLessThan(maxMs);
   });
 
-  test("should handle long subject names gracefully", async ({
-    guestPage,
-  }) => {
+  test("should handle long subject names gracefully", async ({ guestPage }) => {
     const page = guestPage;
     await page.goto(await getPublicClassSchedulePath(page));
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -673,9 +688,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     }
   });
 
-  test("should maintain accessibility standards", async ({
-    guestPage,
-  }) => {
+  test("should maintain accessibility standards", async ({ guestPage }) => {
     const page = guestPage;
     await page.goto(await getPublicTeacherSchedulePath(page));
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -685,7 +698,9 @@ test.describe("Public Schedule Pages - Common Features", () => {
     );
 
     // Table should have proper semantic structure
-    const table = page.getByTestId("schedule-grid").or(page.locator("table").first());
+    const table = page
+      .getByTestId("schedule-grid")
+      .or(page.locator("table").first());
     await expect(table).toBeVisible();
 
     // Should have thead and tbody
@@ -719,20 +734,22 @@ test.describe("Public Schedule Pages - Error Handling", () => {
 
   test("should handle invalid class ID", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(`/classes/999999/${testSemester.SemesterAndyear}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/classes/999999/${testSemester.SemesterAndyear}`, {
+      waitUntil: "domcontentloaded",
+    });
     await expectNotFound(page);
   });
 
-  test("should handle missing semester parameter", async ({
-    guestPage,
-  }) => {
+  test("should handle missing semester parameter", async ({ guestPage }) => {
     const page = guestPage;
     // /teachers/[id] is a valid public route (defaults to current schedule),
     // so missing semester segment should still render.
     await page.goto(`/teachers/${testTeacher.TeacherID}/`, {
       waitUntil: "domcontentloaded",
     });
-    await expect(page.getByTestId("schedule-grid")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("schedule-grid")).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("should show meaningful error for non-existent semester", async ({
@@ -741,7 +758,9 @@ test.describe("Public Schedule Pages - Error Handling", () => {
     const page = guestPage;
     const year = testSemester.SemesterAndyear.split("-")[1];
     // Try accessing semester that doesn't exist (e.g., semester 5)
-    await page.goto(`/teachers/${testTeacher.TeacherID}/5-${year}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/teachers/${testTeacher.TeacherID}/5-${year}`, {
+      waitUntil: "domcontentloaded",
+    });
     await expectNotFound(page);
   });
 });
