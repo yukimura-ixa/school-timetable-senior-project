@@ -42,11 +42,11 @@ jobs:
       # Disable Playwright global-setup Docker compose in CI; we use GitHub service container
       AUTO_MANAGE_TEST_DB: "false"
 
-    # Test sharding: Split tests across parallel jobs
+    # Test sharding: Disabled for sequential stability - run all tests in single job
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1]  # Single shard for stability (was [1, 2, 3, 4])
 
     # Temporary PostgreSQL service container
     services:
