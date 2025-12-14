@@ -372,9 +372,11 @@ export default function BulkLockModal({
                       key={timeslot.TimeslotID}
                       control={
                         <Checkbox
-                          inputProps={{
-                            "data-testid": `bulk-lock-timeslot-${timeslot.TimeslotID}`,
-                          }}
+                          inputProps={
+                            {
+                              "data-testid": `bulk-lock-timeslot-${timeslot.TimeslotID}`,
+                            } as React.InputHTMLAttributes<HTMLInputElement>
+                          }
                           checked={selectedTimeslots.has(timeslot.TimeslotID)}
                           onChange={() =>
                             handleTimeslotToggle(timeslot.TimeslotID)
@@ -423,9 +425,11 @@ export default function BulkLockModal({
                       key={grade.GradeID}
                       control={
                         <Checkbox
-                          inputProps={{
-                            "data-testid": `bulk-lock-grade-${grade.GradeID}`,
-                          }}
+                          inputProps={
+                            {
+                              "data-testid": `bulk-lock-grade-${grade.GradeID}`,
+                            } as React.InputHTMLAttributes<HTMLInputElement>
+                          }
                           checked={selectedGrades.has(grade.GradeID)}
                           onChange={() => handleGradeToggle(grade.GradeID)}
                         />
