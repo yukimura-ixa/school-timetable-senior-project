@@ -84,11 +84,14 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
     // Don't wait for page ready yet - tests will select teacher first
   });
 
-  // Skip: Drag-drop timing + SWR revalidation causes flakiness in CI
-  // TODO: Refactor to use more reliable assertions after room selection
-  test.skip("should successfully assign subject to empty timeslot", async ({
+  // Flaky in CI due to drag-drop timing + SWR revalidation - runs locally for UX validation
+  test("should successfully assign subject to empty timeslot", async ({
     arrangePage,
   }) => {
+    test.skip(
+      !!process.env.CI,
+      "Drag-drop timing flaky in CI - run locally for UX testing",
+    );
     // Arrange
     const teacherName = `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`;
     await arrangePage.selectTeacher(teacherName);
