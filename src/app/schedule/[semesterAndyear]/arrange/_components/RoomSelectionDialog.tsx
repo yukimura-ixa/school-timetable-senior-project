@@ -74,6 +74,7 @@ export function RoomSelectionDialog({
 }: RoomSelectionDialogProps) {
   const [selectedRoom, setSelectedRoom] = useState<room | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isConfirming, setIsConfirming] = useState(false);
 
   // Filter rooms by search
   const filteredRooms = React.useMemo(() => {
@@ -101,11 +102,16 @@ export function RoomSelectionDialog({
     return groups;
   }, [filteredRooms]);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedRoom) {
-      void onSelect(selectedRoom); // Explicitly mark as fire-and-forget
-      setSelectedRoom(null);
-      setSearchQuery("");
+      setIsConfirming(true);
+      try {
+        await onSelect(selectedRoom);
+      } finally {
+        setIsConfirming(false);
+        setSelectedRoom(null);
+        setSearchQuery("");
+      }
     }
   };
 
@@ -125,6 +131,7 @@ export function RoomSelectionDialog({
       onClose={handleCancel}
       maxWidth="sm"
       fullWidth
+      data-testid="room-selection-dialog"
       PaperProps={{
         sx: { minHeight: 500 },
       }}
@@ -223,6 +230,8 @@ export function RoomSelectionDialog({
                                 selected={isSelected}
                                 onClick={() => setSelectedRoom(room)}
                                 disabled={isOccupied}
+                                data-testid={`room-option-${room.RoomID}`}
+                                data-room-name={room.RoomName}
                               >
                                 <ListItemIcon>
                                   <Radio
@@ -271,18 +280,21 @@ export function RoomSelectionDialog({
 
       <DialogActions>
         <Button
+          data-testid="room-cancel"
           onClick={handleCancel}
           startIcon={<CloseIcon />}
           color="inherit"
+          disabled={isConfirming}
         >
           ยกเลิก
         </Button>
         <Button
-          onClick={handleConfirm}
+          data-testid="room-confirm"
+          onClick={() => void handleConfirm()}
           variant="contained"
-          disabled={!selectedRoom}
+          disabled={!selectedRoom || isConfirming}
         >
-          ยืนยัน
+          {isConfirming ? "กำลังบันทึก..." : "ยืนยัน"}
         </Button>
       </DialogActions>
     </Dialog>
