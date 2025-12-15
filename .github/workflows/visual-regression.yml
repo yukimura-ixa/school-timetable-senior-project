@@ -1,90 +1,91 @@
 name: Visual Regression (Playwright)
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+    pull_request:
+    push:
+        branches: [main]
 
 # Cancel in-progress runs for the same PR
 concurrency:
-  group: visual-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+    group: visual-${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
 
 jobs:
-  visual:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    visual:
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
 
-    services:
-      postgres:
-        image: postgres:15
+        services:
+            postgres:
+                image: postgres:15
+                env:
+                    POSTGRES_USER: test_user
+                    POSTGRES_PASSWORD: test_password
+                    POSTGRES_DB: test_timetable
+                ports:
+                    - 5433:5432
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
         env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: test_timetable
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+            DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public&connection_limit=10
+            BETTER_AUTH_SECRET: "e2e-test-secret-32-chars-minimum!"
+            CI: true
 
-    env:
-      DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public&connection_limit=10
-      BETTER_AUTH_SECRET: "e2e-test-secret-32-chars-minimum!"
-      CI: true
+        steps:
+            - uses: actions/checkout@v4
 
-    steps:
-      - uses: actions/checkout@v4
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.11.0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.11.0
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+            - name: Install Playwright browsers
+              run: pnpm exec playwright install --with-deps chromium
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+            - name: Generate Prisma client
+              run: pnpm exec prisma generate
 
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate
+            - name: Run database migrations
+              run: pnpm exec prisma migrate deploy
 
-      - name: Run database migrations
-        run: pnpm exec prisma migrate deploy
+            - name: Seed database
+              run: pnpm exec prisma db seed
 
-      - name: Seed database
-        run: pnpm exec prisma db seed
+            - name: Build Next.js
+              run: pnpm build
 
-      - name: Build Next.js
-        run: pnpm build
+            - name: Run visual tests
+              # TODO: Remove --update-snapshots after first successful run and baselines are committed
+              run: pnpm exec playwright test --project=visual --update-snapshots
 
-      - name: Run visual tests
-        run: pnpm exec playwright test --project=visual
+            - name: Upload visual diffs on failure
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: visual-regression-diffs
+                  path: |
+                      playwright-report/**
+                      test-results/**
+                      e2e/visual/*-snapshots/**
+                  retention-days: 7
 
-      - name: Upload visual diffs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-regression-diffs
-          path: |
-            playwright-report/**
-            test-results/**
-            e2e/visual/*-snapshots/**
-          retention-days: 7
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-regression-report
-          path: playwright-report/
-          retention-days: 7
+            - name: Upload Playwright report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: visual-regression-report
+                  path: playwright-report/
+                  retention-days: 7
