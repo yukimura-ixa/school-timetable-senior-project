@@ -46,7 +46,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1]  # Single shard for stability (was [1, 2, 3, 4])
+        shard: [1] # Single shard for stability (was [1, 2, 3, 4])
 
     # Temporary PostgreSQL service container
     services:
@@ -277,7 +277,8 @@ jobs:
 
   # Merge reports from all shards
   merge-reports:
-    if: always()
+    # Skip if test job was cancelled (no artifacts to merge)
+    if: always() && needs.test.result != 'cancelled'
     needs: [test]
     runs-on: ubuntu-latest
 
@@ -331,6 +332,12 @@ jobs:
       - name: Combine JSON results (simple concat)
         run: |
           mkdir -p playwright-report
+          # Gracefully handle missing/empty directories (e.g., when tests were canceled)
+          if [ ! -d "merged-results" ] || [ -z "$(ls -A merged-results 2>/dev/null)" ]; then
+            echo "No test results found (tests may have been canceled)"
+            echo '[]' > playwright-report/merged-results.json
+            exit 0
+          fi
           node -e "const fs=require('fs');const path='merged-results';const files=fs.readdirSync(path).flatMap(d=>{const p=path+'/'+d+'/test-results/results.json';return fs.existsSync(p)?[p]:[]});const all=files.map(f=>JSON.parse(fs.readFileSync(f,'utf8')));fs.writeFileSync('playwright-report/merged-results.json', JSON.stringify(all,null,2));"
 
       - name: Collect Playwright JUnit XML results
