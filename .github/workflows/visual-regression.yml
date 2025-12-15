@@ -68,8 +68,7 @@ jobs:
               run: pnpm build
 
             - name: Run visual tests
-              # TODO: Remove --update-snapshots after first successful run and baselines are committed
-              run: pnpm exec playwright test --project=visual --update-snapshots
+              run: pnpm exec playwright test --project=visual
 
             - name: Upload visual diffs on failure
               if: failure()
