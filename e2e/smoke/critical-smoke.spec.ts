@@ -18,6 +18,9 @@
 
 import { test, expect } from "../fixtures/admin.fixture";
 
+// Admin password from environment, defaulting to seeded value for dev/CI
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+
 // Use first seeded semester for all tests
 const TEST_SEMESTER = "1-2567";
 
@@ -36,7 +39,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Fill in credentials (using seeded admin account from seed.ts)
       await page.fill('input[type="email"]', "admin@school.local");
-      await page.fill('input[type="password"]', "admin123");
+      await page.fill('input[type="password"]', ADMIN_PASSWORD);
 
       // Submit login form - look for credentials submit button (exclude Google)
       const submitButton = page
@@ -67,9 +70,12 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/management\/teacher/);
 
       // Wait for page content to load (table, loading skeleton, or empty state)
-      await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
-        timeout: 15000,
-      });
+      await page.waitForSelector(
+        'table, [class*="Skeleton"], [class*="Empty"]',
+        {
+          timeout: 15000,
+        },
+      );
 
       // Reload page
       await page.reload();
@@ -109,10 +115,10 @@ test.describe("Critical Path Smoke Tests", () => {
       // Login fresh - this creates a NEW session that only this test uses
       await page.goto("/signin");
       await page.waitForLoadState("domcontentloaded");
-      
+
       // Fill credentials and login
       await page.fill('input[type="email"]', "admin@school.local");
-      await page.fill('input[type="password"]', "admin123");
+      await page.fill('input[type="password"]', ADMIN_PASSWORD);
       const submitButton = page
         .locator('button:not([data-testid="google-signin-button"])', {
           hasText: /เข้าสู่ระบบ|sign in|login|submit/i,
@@ -152,15 +158,18 @@ test.describe("Critical Path Smoke Tests", () => {
       // Navigate to management page to confirm access
       await page.goto("/management/teacher");
       await page.waitForLoadState("domcontentloaded");
-      
+
       // Should not redirect to unauthorized page
       await expect(page).toHaveURL(/\/management\/teacher/);
       await expect(page).not.toHaveURL(/\/signin|unauthorized/);
 
       // Page should render successfully - wait for table or empty state
-      await page.waitForSelector('table, [class*="Skeleton"], [class*="Empty"]', {
-        timeout: 15000,
-      });
+      await page.waitForSelector(
+        'table, [class*="Skeleton"], [class*="Empty"]',
+        {
+          timeout: 15000,
+        },
+      );
     });
   });
 
@@ -169,15 +178,24 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table, [class*='Skeleton']", { timeout: 15000 });
+      await page.waitForSelector("table, [class*='Skeleton']", {
+        timeout: 15000,
+      });
 
       // Teacher management uses MODAL for adding (button: "เพิ่มข้อมูลครู")
-      const addButton = page.locator('[data-testid="add-teacher-button"], button:has-text("เพิ่มข้อมูลครู")').first();
+      const addButton = page
+        .locator(
+          '[data-testid="add-teacher-button"], button:has-text("เพิ่มข้อมูลครู")',
+        )
+        .first();
       await expect(addButton).toBeVisible({ timeout: 10000 });
       await addButton.click();
 
       // Wait for modal to appear with input fields
-      await page.waitForSelector('[data-testid="firstname-0"], input[placeholder*="อเนก"]', { timeout: 10000 });
+      await page.waitForSelector(
+        '[data-testid="firstname-0"], input[placeholder*="อเนก"]',
+        { timeout: 10000 },
+      );
 
       // Fill in the modal form fields using data-testid
       const uniqueId = `SMK${Date.now().toString().slice(-6)}`;
@@ -185,8 +203,9 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.locator('[data-testid="lastname-0"]').fill(`Smoke${uniqueId}`);
 
       // Submit the form - look for submit button in modal (ยืนยัน or บันทึก)
-      const submitButton = page.locator('button:has-text("ยืนยัน"), button:has-text("บันทึก")')
-        .and(page.locator(':visible'));
+      const submitButton = page
+        .locator('button:has-text("ยืนยัน"), button:has-text("บันทึก")')
+        .and(page.locator(":visible"));
       await submitButton.last().click();
 
       // Wait for success notification
@@ -207,20 +226,27 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // This page uses EditableTable with inline editing
       // First select a row, then click edit button in toolbar
-      const firstCheckbox = page.locator('table tbody tr input[type="checkbox"]').first();
+      const firstCheckbox = page
+        .locator('table tbody tr input[type="checkbox"]')
+        .first();
       if (await firstCheckbox.isVisible({ timeout: 5000 }).catch(() => false)) {
         await firstCheckbox.check();
-        
+
         // Click edit button in toolbar
         const editButton = page.locator('button[aria-label="edit"]').first();
         if (await editButton.isVisible({ timeout: 5000 }).catch(() => false)) {
           await editButton.click();
 
           // Wait for editing mode (inputs appear in row)
-          await page.waitForSelector('table tbody input:not([type="checkbox"])', { timeout: 10000 });
+          await page.waitForSelector(
+            'table tbody input:not([type="checkbox"])',
+            { timeout: 10000 },
+          );
 
           // Modify a visible input field
-          const visibleInput = page.locator('table tbody input:not([type="checkbox"]):visible').first();
+          const visibleInput = page
+            .locator('table tbody input:not([type="checkbox"]):visible')
+            .first();
           if (await visibleInput.isVisible()) {
             const originalValue = await visibleInput.inputValue();
             await visibleInput.fill(`${originalValue}x`);
@@ -250,17 +276,26 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table, [class*='Skeleton']", { timeout: 15000 });
+      await page.waitForSelector("table, [class*='Skeleton']", {
+        timeout: 15000,
+      });
 
       // Verify pagination controls exist (MUI TablePagination)
       const pagination = page.locator(
         ".MuiTablePagination-root, text=/แสดง.*ถึง.*จาก|Showing.*to.*of|Rows per page|แถวต่อหน้า/i",
       );
-      
+
       // Either pagination visible or at least table with data
-      const hasPagination = await pagination.first().isVisible({ timeout: 5000 }).catch(() => false);
-      const hasTable = await page.locator("table tbody tr").first().isVisible({ timeout: 5000 }).catch(() => false);
-      
+      const hasPagination = await pagination
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
+      const hasTable = await page
+        .locator("table tbody tr")
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
+
       // Pass if either condition is met (small datasets may not show pagination)
       expect(hasPagination || hasTable).toBe(true);
     });
@@ -276,20 +311,24 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Config page is a form with configuration options, not a table
       // Wait for config form elements to render
-      const configContent = page.locator('text=/กำหนดคาบต่อวัน/').or(page.locator('[class*="Skeleton"]'));
+      const configContent = page
+        .locator("text=/กำหนดคาบต่อวัน/")
+        .or(page.locator('[class*="Skeleton"]'));
       await expect(configContent.first()).toBeVisible({ timeout: 15000 });
     });
 
-    test("Verify config form loads with options", async ({
-      page,
-    }) => {
+    test("Verify config form loads with options", async ({ page }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/config`);
       await page.waitForLoadState("networkidle");
 
       // Wait for config form to load - check for config labels
       // Thai: "กำหนดคาบต่อวัน" (Set periods per day), "กำหนดระยะเวลาต่อคาบ" (Set duration per period)
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
-      await expect(page.locator("text=/กำหนดระยะเวลาต่อคาบ/")).toBeVisible({ timeout: 15000 });
+      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(page.locator("text=/กำหนดระยะเวลาต่อคาบ/")).toBeVisible({
+        timeout: 15000,
+      });
     });
 
     test("Config form displays current settings", async ({ page }) => {
@@ -313,16 +352,22 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/schedule/1-2567/config`);
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
+      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
+        timeout: 15000,
+      });
 
       // Navigate to second semester
       await page.goto(`/schedule/2-2567/config`);
       await page.waitForLoadState("networkidle");
       await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
-      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({ timeout: 15000 });
+      await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
+        timeout: 15000,
+      });
 
       // Both should load successfully - verify config form rendered
-      const finalConfig = page.locator('text=/กำหนดคาบต่อวัน/').or(page.locator('[class*="Skeleton"]'));
+      const finalConfig = page
+        .locator("text=/กำหนดคาบต่อวัน/")
+        .or(page.locator('[class*="Skeleton"]'));
       await expect(finalConfig.first()).toBeVisible({ timeout: 15000 });
     });
   });
@@ -337,27 +382,32 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/assign/);
 
       // Wait for page content to render - could be a table, list, or selector
-      const pageContent = page.locator('table')
+      const pageContent = page
+        .locator("table")
         .or(page.locator('[class*="Skeleton"]'))
-        .or(page.locator('text=/กำหนด|ครู|Teacher|รับผิดชอบ/'));
+        .or(page.locator("text=/กำหนด|ครู|Teacher|รับผิดชอบ/"));
       await expect(pageContent.first()).toBeVisible({ timeout: 15000 });
     });
 
-    test("Assign page renders teachers list or teacher selector", async ({ page }) => {
+    test("Assign page renders teachers list or teacher selector", async ({
+      page,
+    }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/assign`);
       await page.waitForLoadState("networkidle");
 
       // Wait for page content - should show some way to select/assign teachers
-      const pageContent = page.locator('body');
+      const pageContent = page.locator("body");
       await expect(pageContent).toBeVisible({ timeout: 15000 });
-      
+
       // Verify meaningful content
       const content = await page.textContent("body");
       expect(content).toBeTruthy();
       expect(content?.length).toBeGreaterThan(100);
     });
 
-    test("Navigate to teacher responsibility page with query param", async ({ page }) => {
+    test("Navigate to teacher responsibility page with query param", async ({
+      page,
+    }) => {
       // First go to assign page to find a teacher
       await page.goto(`/schedule/${TEST_SEMESTER}/assign`);
       await page.waitForLoadState("networkidle");
@@ -370,16 +420,18 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // The page should load (but may show loading or specific teacher data)
       await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
-      
+
       // Page should render without server error
-      const pageContent = page.locator('body');
+      const pageContent = page.locator("body");
       await expect(pageContent).toBeVisible({ timeout: 15000 });
     });
   });
 
   test.describe("5. Timetable Creation - Teacher Arrange", () => {
     test("Access teacher arrange page", async ({ page }) => {
-      const response = await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+      const response = await page.goto(
+        `/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`,
+      );
 
       // Verify page loads (may be 200 or redirect)
       expect(response?.status()).toBeLessThan(500);
@@ -388,7 +440,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/arrange\/teacher-arrange|\/schedule/);
 
       // Wait for page content - look for skeleton, any meaningful content, or body
-      const pageContent = page.locator('body');
+      const pageContent = page.locator("body");
       await expect(pageContent).toBeVisible({ timeout: 20000 });
 
       // Verify page has meaningful content (not empty)
@@ -404,25 +456,33 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.waitForLoadState("networkidle");
 
       // Try to find teacher selector (may be dropdown, combobox, or list)
-      const teacherSelect = page.locator("select").first()
+      const teacherSelect = page
+        .locator("select")
+        .first()
         .or(page.locator('[role="combobox"]').first())
         .or(page.locator('button:has-text("เลือกครู")').first());
 
       if (await teacherSelect.isVisible({ timeout: 5000 }).catch(() => false)) {
         // If using native select
         const nativeSelect = page.locator("select").first();
-        if (await nativeSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
+        if (
+          await nativeSelect.isVisible({ timeout: 2000 }).catch(() => false)
+        ) {
           await nativeSelect.selectOption({ index: 1 }); // Select first non-empty option
         } else {
           // If using autocomplete/combobox
-          const combobox = page.locator('[role="combobox"]').first()
+          const combobox = page
+            .locator('[role="combobox"]')
+            .first()
             .or(page.locator('button:has-text("เลือกครู")').first());
           if (await combobox.isVisible({ timeout: 2000 }).catch(() => false)) {
             await combobox.click();
             await page.waitForTimeout(500);
             // Click first option
             const firstOption = page.locator('[role="option"]').first();
-            if (await firstOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+            if (
+              await firstOption.isVisible({ timeout: 2000 }).catch(() => false)
+            ) {
               await firstOption.click();
             }
           }
@@ -437,7 +497,9 @@ test.describe("Critical Path Smoke Tests", () => {
       expect(content).toBeTruthy();
     });
 
-    test("Page renders header content (visual verification)", async ({ page }) => {
+    test("Page renders header content (visual verification)", async ({
+      page,
+    }) => {
       await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
 
       // Wait for page to load
@@ -445,11 +507,16 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Look for page header content - legends like "คาบว่าง", "คาบพัก", "คาบล็อก"
       // These are rendered in PageHeader component
-      const legendContent = page.locator("text=/คาบว่าง|คาบพัก|คาบล็อก|ตารางสอนของ/");
-      
+      const legendContent = page.locator(
+        "text=/คาบว่าง|คาบพัก|คาบล็อก|ตารางสอนของ/",
+      );
+
       // Pass if we find legends OR the page just loads without error
-      const legendVisible = await legendContent.first().isVisible({ timeout: 10000 }).catch(() => false);
-      
+      const legendVisible = await legendContent
+        .first()
+        .isVisible({ timeout: 10000 })
+        .catch(() => false);
+
       if (!legendVisible) {
         // Fallback: just verify page rendered some content
         const content = await page.textContent("body");
@@ -484,8 +551,11 @@ test.describe("Critical Path Smoke Tests", () => {
       const lockLegend = page.locator("text=/คาบล็อก|ล็อก|lock/i");
 
       // Pass if we find lock legend OR page just renders without error
-      const legendVisible = await lockLegend.first().isVisible({ timeout: 10000 }).catch(() => false);
-      
+      const legendVisible = await lockLegend
+        .first()
+        .isVisible({ timeout: 10000 })
+        .catch(() => false);
+
       if (!legendVisible) {
         // Fallback: just verify page rendered
         const content = await page.textContent("body");
@@ -505,9 +575,10 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/teacher-table/);
 
       // Wait for content - table, filter controls, or skeleton
-      const pageContent = page.locator('table')
+      const pageContent = page
+        .locator("table")
         .or(page.locator('[class*="Skeleton"]'))
-        .or(page.locator('text=/ครู|Teacher|ตารางสอน/'));
+        .or(page.locator("text=/ครู|Teacher|ตารางสอน/"));
       await expect(pageContent.first()).toBeVisible({ timeout: 15000 });
     });
 
@@ -515,9 +586,10 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/dashboard/${TEST_SEMESTER}/teacher-table`);
 
       // Wait for table or content to load
-      const tableOrContent = page.locator('table')
+      const tableOrContent = page
+        .locator("table")
         .or(page.locator('[class*="Skeleton"]'))
-        .or(page.locator('text=/ครู/'));
+        .or(page.locator("text=/ครู/"));
       await expect(tableOrContent.first()).toBeVisible({ timeout: 15000 });
 
       // Verify page content has loaded (look for common UI elements)
@@ -536,9 +608,10 @@ test.describe("Critical Path Smoke Tests", () => {
       await expect(page).toHaveURL(/\/all-timeslot/);
 
       // Wait for page content and export button - Thai: "ส่งออก Excel"
-      const pageContent = page.locator('table')
+      const pageContent = page
+        .locator("table")
         .or(page.locator('[class*="Skeleton"]'))
-        .or(page.locator('text=/ตารางสอน|ตัวกรอง/'));
+        .or(page.locator("text=/ตารางสอน|ตัวกรอง/"));
       await expect(pageContent.first()).toBeVisible({ timeout: 15000 });
     });
 
@@ -546,24 +619,27 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto(`/dashboard/${TEST_SEMESTER}/all-timeslot`);
 
       // Wait for page to load
-      const pageContent = page.locator('table')
+      const pageContent = page
+        .locator("table")
         .or(page.locator('[class*="Skeleton"]'));
       await expect(pageContent.first()).toBeVisible({ timeout: 15000 });
 
       // Look for export buttons (Thai: "ส่งออก Excel" or "Excel")
       // These may be disabled for non-admin users
-      const exportButton = page.locator('button:has-text("ส่งออก"), button:has-text("Excel")');
-      
+      const exportButton = page.locator(
+        'button:has-text("ส่งออก"), button:has-text("Excel")',
+      );
+
       // Verify at least one export-related element exists
       const buttonCount = await exportButton.count();
-      
+
       // If buttons exist, verify they're visible
       // Note: Buttons may be disabled for non-admin users
       if (buttonCount > 0) {
         await expect(exportButton.first()).toBeVisible();
       } else {
         // Page should still have loaded correctly
-        await expect(page.locator('body')).toBeVisible();
+        await expect(page.locator("body")).toBeVisible();
       }
     });
   });

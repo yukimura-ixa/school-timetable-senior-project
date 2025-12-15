@@ -708,7 +708,9 @@ async function seedDemoData() {
   ];
 
   // Create responsibilities for a limited set of grades and semesters in test mode to speed up E2E tests
-  const testSemesterConfigs = isTestMode ? [semesterConfigs[0]] : semesterConfigs;
+  const testSemesterConfigs = isTestMode
+    ? [semesterConfigs[0]]
+    : semesterConfigs;
   const testGradeLevels = isTestMode ? gradeLevels.slice(0, 3) : gradeLevels; // Only M.1 grades for tests
 
   for (const semConfig of testSemesterConfigs) {
@@ -1021,6 +1023,23 @@ async function main() {
   // ===== BETTER-AUTH USERS =====
   console.log("👤 Creating admin user...");
 
+  // Admin password configuration:
+  // - Default: "admin123" for development/testing convenience
+  // - Production: MUST set SEED_ADMIN_PASSWORD to a strong password
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "admin123";
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // Security guard: Block weak passwords in production seeding
+  if (
+    isProduction &&
+    (!process.env.SEED_ADMIN_PASSWORD || adminPassword === "admin123")
+  ) {
+    throw new Error(
+      "🔒 SECURITY: SEED_ADMIN_PASSWORD must be set to a strong password in production. " +
+        "Do not use the default 'admin123' password in production environments.",
+    );
+  }
+
   // FORCE DELETE existing admin user and associated auth records
   // This ensures CI always has fresh credentials with correct password hash
   const existingAdmin = await withRetry(
@@ -1050,7 +1069,7 @@ async function main() {
   const signUpResult = await auth.api.signUpEmail({
     body: {
       email: "admin@school.local",
-      password: "admin123",
+      password: adminPassword,
       name: "System Administrator",
     },
   });
@@ -1072,9 +1091,16 @@ async function main() {
     "Update admin user role",
   );
 
-  console.log(
-    "✅ Admin user created via better-auth API (email: admin@school.local, password: admin123)",
-  );
+  // Log success (don't reveal password in production logs)
+  if (isProduction) {
+    console.log(
+      "✅ Admin user created via better-auth API (email: admin@school.local)",
+    );
+  } else {
+    console.log(
+      `✅ Admin user created via better-auth API (email: admin@school.local, password: ${adminPassword})`,
+    );
+  }
 
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
@@ -2239,9 +2265,10 @@ async function main() {
   // CI/E2E stability: avoid non-deterministic `Math.random()` in test/clean seed modes.
   // Tests and fixtures rely on predictable teacher names across runs.
   const deterministicSeed =
-    process.env.SEED_FOR_TESTS === "true" || process.env.SEED_CLEAN_DATA === "true";
-  const pick = <T,>(values: T[], index: number) =>
-    values[(index % values.length + values.length) % values.length];
+    process.env.SEED_FOR_TESTS === "true" ||
+    process.env.SEED_CLEAN_DATA === "true";
+  const pick = <T>(values: T[], index: number) =>
+    values[((index % values.length) + values.length) % values.length];
 
   for (const dept of DEPARTMENTS) {
     for (let i = 0; i < teachersPerDept; i++) {

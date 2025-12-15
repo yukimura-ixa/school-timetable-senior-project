@@ -10,6 +10,9 @@
 
 import { test, expect } from "@playwright/test";
 
+// Admin password from environment, defaulting to seeded value for dev/CI
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+
 // Override project-level storageState to test actual login flow
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -20,7 +23,7 @@ test.describe("Production Smoke Test - Authentication", () => {
 
     // Fill credentials
     await page.fill('input[type="email"]', "admin@school.local");
-    await page.fill('input[type="password"]', "admin123");
+    await page.fill('input[type="password"]', ADMIN_PASSWORD);
 
     // Click login
     const loginButton = page
@@ -46,7 +49,7 @@ test.describe("Production Smoke Test - Authentication", () => {
     // Login first (tests are isolated, so we need to authenticate again)
     await page.goto("/signin");
     await page.fill('input[type="email"]', "admin@school.local");
-    await page.fill('input[type="password"]', "admin123");
+    await page.fill('input[type="password"]', ADMIN_PASSWORD);
 
     const loginButton = page
       .locator('button:not([data-testid="google-signin-button"])', {

@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 
+// Admin password from environment, defaulting to seeded value for dev/CI
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+
 // Override global storageState so these tests start unauthenticated
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -52,7 +55,7 @@ test.describe("Admin Authentication Flow", () => {
   }) => {
     await expect(page).toHaveURL(/\/signin/);
     await page.locator('input[type="email"]').fill("admin@school.local");
-    await page.locator('input[type="password"]').fill("admin123");
+    await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
 
     // After login, redirects to /dashboard (semester selection page)
@@ -82,7 +85,7 @@ test.describe("Admin Dashboard Pages", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/signin");
     await page.locator('input[type="email"]').fill("admin@school.local");
-    await page.locator('input[type="password"]').fill("admin123");
+    await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
     // After login, redirects to /dashboard (semester selection page)
     await page.waitForURL("**/dashboard", {
@@ -138,7 +141,7 @@ test.describe("Visual UI Checks", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/signin");
     await page.locator('input[type="email"]').fill("admin@school.local");
-    await page.locator('input[type="password"]').fill("admin123");
+    await page.locator('input[type="password"]').fill(ADMIN_PASSWORD);
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
     // After login, redirects to /dashboard (semester selection page)
     await page.waitForURL("**/dashboard", {

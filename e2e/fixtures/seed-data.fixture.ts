@@ -252,10 +252,11 @@ export const testPeriods = {
 
 /**
  * Admin user credentials from seed.ts
+ * Password comes from ADMIN_PASSWORD env var, defaulting to "admin123" for dev/CI
  */
 export const testAdmin = {
   email: "admin@school.local",
-  password: "admin123",
+  password: process.env.ADMIN_PASSWORD || "admin123",
   name: "System Administrator",
   role: "admin" as const,
 };
