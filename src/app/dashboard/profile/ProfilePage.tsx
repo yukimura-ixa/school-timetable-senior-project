@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Alert,
+  Avatar,
   Box,
   Button,
   Card,
@@ -151,6 +152,11 @@ function ProfileSection({
   const [image, setImage] = useState(currentImage);
   const [saving, setSaving] = useState(false);
 
+  // Check if user has a Google OAuth avatar (typically from googleusercontent.com or lh3.google.com)
+  const isGoogleAvatar =
+    currentImage?.includes("googleusercontent.com") ||
+    currentImage?.includes("lh3.google.com");
+
   const handleSave = async () => {
     if (!name.trim()) {
       onError("กรุณากรอกชื่อ");
@@ -178,6 +184,9 @@ function ProfileSection({
 
   const hasChanges = name !== currentName || image !== currentImage;
 
+  // Display avatar URL - use current image or the edited value
+  const displayAvatar = image || currentImage;
+
   return (
     <Card>
       <CardHeader
@@ -192,6 +201,34 @@ function ProfileSection({
       <Divider />
       <CardContent>
         <Stack spacing={3}>
+          {/* Avatar Display */}
+          <Box display="flex" alignItems="center" gap={3}>
+            <Avatar
+              src={displayAvatar}
+              alt={name || "User"}
+              sx={{
+                width: 80,
+                height: 80,
+                fontSize: 32,
+                bgcolor: displayAvatar ? undefined : "primary.main",
+              }}
+            >
+              {!displayAvatar && <PersonIcon sx={{ fontSize: 40 }} />}
+            </Avatar>
+            <Box>
+              <Typography variant="body1" fontWeight={500}>
+                รูปโปรไฟล์
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {isGoogleAvatar
+                  ? "ใช้รูปจาก Google Account"
+                  : displayAvatar
+                    ? "ใช้รูปจาก URL ที่กำหนด"
+                    : "ไม่มีรูปโปรไฟล์ (ใช้ไอคอนแทน)"}
+              </Typography>
+            </Box>
+          </Box>
+
           <TextField
             label="ชื่อ-นามสกุล"
             value={name}
@@ -206,7 +243,11 @@ function ProfileSection({
             onChange={(e) => setImage(e.target.value)}
             fullWidth
             placeholder="https://example.com/avatar.jpg"
-            helperText="ใส่ URL ของรูปภาพ (ไม่บังคับ)"
+            helperText={
+              isGoogleAvatar
+                ? "รูปปัจจุบันมาจาก Google - สามารถเปลี่ยนเป็น URL อื่นได้"
+                : "ใส่ URL ของรูปภาพ (ไม่บังคับ)"
+            }
           />
           <Box display="flex" justifyContent="flex-end">
             <Button
