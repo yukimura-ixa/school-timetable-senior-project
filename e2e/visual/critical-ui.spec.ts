@@ -4,7 +4,7 @@ import { test, expect } from "../fixtures/admin.fixture";
  * Visual Tests for Critical Admin UI Components
  *
  * Uses Playwright's toHaveScreenshot() for visual regression testing.
- * Only runs on main branch (CI-configured).
+ * Run via: pnpm exec playwright test --project=visual
  *
  * Critical paths tested:
  * 1. Semester Configuration
@@ -12,13 +12,7 @@ import { test, expect } from "../fixtures/admin.fixture";
  * 3. Teacher Arrangement Table
  */
 
-// Skip visual tests in local development (only run in CI on main)
-const shouldRunVisualTests =
-  process.env.CI === "true" || process.env.RUN_VISUAL_TESTS === "true";
-
 test.describe("Critical Admin UI - Visual Tests", () => {
-  test.skip(!shouldRunVisualTests, "Visual tests only run on main branch CI");
-
   test.describe("Semester Configuration", () => {
     test("schedule config page renders correctly", async ({
       authenticatedAdmin,
@@ -176,8 +170,6 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 });
 
 test.describe("UI Component Consistency", () => {
-  test.skip(!shouldRunVisualTests, "Visual tests only run on main branch CI");
-
   test("navigation header is consistent across pages", async ({
     authenticatedAdmin,
   }) => {

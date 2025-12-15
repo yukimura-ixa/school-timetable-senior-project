@@ -44,6 +44,14 @@ export default defineConfig({
         ["html", { open: "on-failure" }],
       ],
 
+  /* Visual testing configuration */
+  expect: {
+    toHaveScreenshot: {
+      animations: "disabled",
+      maxDiffPixels: 200,
+    },
+  },
+
   use: {
     baseURL: process.env.BASE_URL || "http://localhost:3000",
     trace: "on-first-retry",
@@ -69,6 +77,17 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         // Use saved authentication state from setup project
         // This eliminates repeated login steps in every test
+        storageState: "playwright/.auth/admin.json",
+      },
+      dependencies: ["setup"],
+    },
+
+    // Visual regression testing project
+    {
+      name: "visual",
+      testMatch: /visual\/.*\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
         storageState: "playwright/.auth/admin.json",
       },
       dependencies: ["setup"],
