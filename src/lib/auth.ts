@@ -39,6 +39,28 @@ export const auth = betterAuth({
     enabled: true,
     // Using better-auth's default scrypt hashing
   },
+  // User profile configuration
+  user: {
+    changeEmail: {
+      enabled: true,
+    },
+  },
+  // Email verification for email change flow
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      // TODO: Integrate with email service (Resend, SendGrid) in production
+      // For now, log to console in development
+      console.log(`📧 [Email Verification] To: ${user.email}`);
+      console.log(`📧 [Email Verification] URL: ${url}`);
+
+      // In production, you would send an actual email:
+      // await sendEmail({
+      //   to: user.email,
+      //   subject: "ยืนยันอีเมลของคุณ",
+      //   html: `<a href="${url}">คลิกที่นี่เพื่อยืนยันอีเมล</a>`
+      // });
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.AUTH_GOOGLE_ID || "",

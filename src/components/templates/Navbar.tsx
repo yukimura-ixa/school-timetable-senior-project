@@ -55,49 +55,55 @@ function Navbar() {
               {/* Semester Selector */}
               {session && <SemesterSelector />}
 
-              {/* User Info Card */}
+              {/* User Info Card - Clickable to go to profile */}
               <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200">
-                <div
-                  className="rounded-full relative cursor-pointer ring-2 ring-blue-200 hover:ring-blue-300 transition-all"
-                  onMouseEnter={() => setIsHoverPhoto(true)}
-                  onMouseLeave={() => setIsHoverPhoto(false)}
+                <Link
+                  href="/dashboard/profile"
+                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  title="ไปยังหน้าโปรไฟล์"
                 >
-                  <Image
-                    className={`${
-                      isHoverPhoto ? "opacity-75" : "opacity-100"
-                    } rounded-full transition-opacity`}
-                    width={44}
-                    height={44}
-                    src={session?.user?.image ?? FALLBACK_USER_ICON}
-                    alt="profile_pic"
-                    priority
-                  />
-                </div>
-                <div className="flex flex-col min-w-[100px]">
-                  <p className="font-semibold text-sm text-gray-800 truncate max-w-[150px]">
-                    {!session || isPending ? "นักเรียน" : session?.user?.name}
-                  </p>
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`inline-block w-2 h-2 rounded-full ${
-                        appRole === "admin"
-                          ? "bg-purple-500"
-                          : appRole === "teacher"
-                            ? "bg-blue-500"
-                            : "bg-green-500"
-                      }`}
+                  <div
+                    className="rounded-full relative ring-2 ring-blue-200 hover:ring-blue-300 transition-all"
+                    onMouseEnter={() => setIsHoverPhoto(true)}
+                    onMouseLeave={() => setIsHoverPhoto(false)}
+                  >
+                    <Image
+                      className={`${
+                        isHoverPhoto ? "opacity-75" : "opacity-100"
+                      } rounded-full transition-opacity`}
+                      width={44}
+                      height={44}
+                      src={session?.user?.image ?? FALLBACK_USER_ICON}
+                      alt="profile_pic"
+                      priority
                     />
-                    <p className="text-xs font-medium text-slate-600">
-                      {session && appRole
-                        ? appRole === "admin"
-                          ? "ผู้ดูแลระบบ"
-                          : appRole === "teacher"
-                            ? "คุณครู"
-                            : "นักเรียน"
-                        : "ไม่ระบุบทบาท"}
-                    </p>
                   </div>
-                </div>
+                  <div className="flex flex-col min-w-[100px]">
+                    <p className="font-semibold text-sm text-gray-800 truncate max-w-[150px]">
+                      {!session || isPending ? "นักเรียน" : session?.user?.name}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${
+                          appRole === "admin"
+                            ? "bg-purple-500"
+                            : appRole === "teacher"
+                              ? "bg-blue-500"
+                              : "bg-green-500"
+                        }`}
+                      />
+                      <p className="text-xs font-medium text-slate-600">
+                        {session && appRole
+                          ? appRole === "admin"
+                            ? "ผู้ดูแลระบบ"
+                            : appRole === "teacher"
+                              ? "คุณครู"
+                              : "นักเรียน"
+                          : "ไม่ระบุบทบาท"}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
                 {/* Logout Button */}
                 {session && (
                   <button
