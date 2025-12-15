@@ -149,7 +149,6 @@ function ProfileSection({
   onError,
 }: ProfileSectionProps) {
   const [name, setName] = useState(currentName);
-  const [image, setImage] = useState(currentImage);
   const [saving, setSaving] = useState(false);
 
   // Check if user has a Google OAuth avatar (typically from googleusercontent.com or lh3.google.com)
@@ -167,7 +166,6 @@ function ProfileSection({
     try {
       const result = await authClient.updateUser({
         name: name.trim(),
-        image: image.trim() || undefined,
       });
 
       if (result.error) {
@@ -182,10 +180,7 @@ function ProfileSection({
     }
   };
 
-  const hasChanges = name !== currentName || image !== currentImage;
-
-  // Display avatar URL - use current image or the edited value
-  const displayAvatar = image || currentImage;
+  const hasChanges = name !== currentName;
 
   return (
     <Card>
@@ -196,7 +191,7 @@ function ProfileSection({
             ข้อมูลส่วนตัว
           </Typography>
         }
-        subheader="แก้ไขชื่อและรูปโปรไฟล์"
+        subheader="แก้ไขชื่อ"
       />
       <Divider />
       <CardContent>
@@ -204,16 +199,16 @@ function ProfileSection({
           {/* Avatar Display */}
           <Box display="flex" alignItems="center" gap={3}>
             <Avatar
-              src={displayAvatar}
+              src={currentImage}
               alt={name || "User"}
               sx={{
                 width: 80,
                 height: 80,
                 fontSize: 32,
-                bgcolor: displayAvatar ? undefined : "primary.main",
+                bgcolor: currentImage ? undefined : "primary.main",
               }}
             >
-              {!displayAvatar && <PersonIcon sx={{ fontSize: 40 }} />}
+              {!currentImage && <PersonIcon sx={{ fontSize: 40 }} />}
             </Avatar>
             <Box>
               <Typography variant="body1" fontWeight={500}>
@@ -222,9 +217,9 @@ function ProfileSection({
               <Typography variant="body2" color="text.secondary">
                 {isGoogleAvatar
                   ? "ใช้รูปจาก Google Account"
-                  : displayAvatar
-                    ? "ใช้รูปจาก URL ที่กำหนด"
-                    : "ไม่มีรูปโปรไฟล์ (ใช้ไอคอนแทน)"}
+                  : currentImage
+                    ? "รูปโปรไฟล์ปัจจุบัน"
+                    : "ไม่มีรูปโปรไฟล์"}
               </Typography>
             </Box>
           </Box>
@@ -236,18 +231,6 @@ function ProfileSection({
             fullWidth
             placeholder="เช่น นายสมชาย ใจดี"
             helperText="ชื่อที่จะแสดงในระบบ"
-          />
-          <TextField
-            label="URL รูปโปรไฟล์"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            fullWidth
-            placeholder="https://example.com/avatar.jpg"
-            helperText={
-              isGoogleAvatar
-                ? "รูปปัจจุบันมาจาก Google - สามารถเปลี่ยนเป็น URL อื่นได้"
-                : "ใส่ URL ของรูปภาพ (ไม่บังคับ)"
-            }
           />
           <Box display="flex" justifyContent="flex-end">
             <Button
