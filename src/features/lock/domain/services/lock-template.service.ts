@@ -21,7 +21,7 @@ export interface ApplyTemplateInput {
   availableTimeslots: Array<{
     TimeslotID: string;
     Day: string;
-    PeriodStart: number;
+    StartTime: Date; // DateTime object for time comparison
   }>;
   availableRooms: Array<{
     RoomID: number;
@@ -102,8 +102,16 @@ export function resolveTemplate(input: ApplyTemplateInput): {
   // Step 2: Filter timeslots based on template criteria
   const targetTimeslots = availableTimeslots.filter((t) => {
     const dayMatch = config.timeslotFilter.days.includes(t.Day);
-    const periodMatch = config.timeslotFilter.periods.includes(t.PeriodStart);
-    return dayMatch && periodMatch;
+    
+    // Match by start time (HH:mm:ss format)
+    const timeMatch = config.timeslotFilter.startTimes.some(timeStr => {
+      const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+      return t.StartTime.getHours() === hours && 
+             t.StartTime.getMinutes() === minutes && 
+             (seconds === undefined || t.StartTime.getSeconds() === seconds);
+    });
+    
+    return dayMatch && timeMatch;
   });
 
   if (targetTimeslots.length === 0) {

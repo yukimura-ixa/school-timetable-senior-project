@@ -44,7 +44,7 @@ interface BulkLockModalProps {
   onClose: () => void;
   // configId may be wired later; keep but mark unused to satisfy lint
   _configId?: string;
-  timeslots?: Array<{ TimeslotID: string; Day: string; PeriodStart: number }>;
+  timeslots?: Array<{ TimeslotID: string; Day: string; StartTime: Date }>;
   grades?: Array<{ GradeID: string; GradeName: string }>;
   subjects?: Array<{
     SubjectCode: string;

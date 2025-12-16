@@ -260,7 +260,7 @@ export const applyLockTemplateAction = createAction(
     const transformedTimeslots = timeslots.map((t: any) => ({
       TimeslotID: t.TimeslotID,
       Day: t.DayOfWeek,
-      PeriodStart: t.StartTime.getHours() * 60 + t.StartTime.getMinutes(),
+      StartTime: t.StartTime, // Pass DateTime directly for time comparison
     }));
 
     const transformedRooms = rooms.map((r: any) => ({
