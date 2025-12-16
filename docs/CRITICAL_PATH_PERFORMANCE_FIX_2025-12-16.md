@@ -162,10 +162,74 @@ Background revalidation (optional)
 - **CP-03.9**: Template datetime matching (LK-01 fix) - 22.6s
 
 ### ⏳ Pending (Feature-Dependent)
-- **CP-03.2-7**: Template tests require teacher data in 1-2568 semester
-  - Error: "ไม่พบข้อมูลครูในระบบ" (No teacher data found)
+- **CP-03.2-7**: Template tests require teacher responsibility data in 1-2568 semester
+  - **Error**: `"ไม่พบข้อมูลครูในระบบ"` (No teacher data found)
+  - **Root Cause**: Lock templates require `teachers_responsibility` records for the target semester
+    - Templates create locked schedules that need `RespID` (teacher-subject-grade assignment)
+    - Seed data only populates teacher responsibilities for semester 1-2567
+    - Semester 1-2568 has timeslots but no teacher assignments yet
+    - File: [lock-template.service.ts](../src/features/lock/domain/services/lock-template.service.ts#L164-L172)
+  - **Impact**: Template features cannot be tested in 1-2568 semester context
+  - **Fix Options**:
+    1. **Seed teacher responsibilities for 1-2568** (recommended)
+       - Add teacher assignments in `prisma/seed.ts` or separate `seed-2568.ts`
+       - Mirror at least core subjects from 1-2567 structure
+    2. **Template fallback logic** (alternative)
+       - Allow templates to work without specific teacher, use placeholder
+       - Higher risk, may create invalid schedule state
   - **Status**: Separate feature task (not a critical path blocker)
   - **Priority**: P3 - Can be addressed after core paths stabilize
+
+### Technical Details: Template Error Flow
+
+When a lock template is applied, the system follows this sequence:
+
+1. **Template Selection** ([LockTemplatesModal.tsx](../src/app/schedule/[semesterAndyear]/lock/component/LockTemplatesModal.tsx#L100-L143))
+   - User selects template (e.g., "Junior Lunch" or "Senior Lunch")
+   - Calls `applyLockTemplateAction` with `templateId`, `academicYear`, `semester`, `configId`
+
+2. **Data Fetching** ([lock.actions.ts](../src/features/lock/application/actions/lock.actions.ts#L235-L247))
+   ```typescript
+   const [grades, timeslots, rooms, subjects, responsibilities] = await Promise.all([
+     lockRepo.findAllGradeLevels(),
+     lockRepo.findTimeslotsByTerm(academicYear, semester),
+     lockRepo.findAllRooms(),
+     lockRepo.findAllSubjects(),
+     lockRepo.findTeacherResponsibilitiesByTerm(academicYear, semester), // ← KEY QUERY
+   ]);
+   ```
+
+3. **Template Resolution** ([lock-template.service.ts](../src/features/lock/domain/services/lock-template.service.ts#L155-L172))
+   ```typescript
+   // Step 5: Get responsibility (teacher assignment)
+   const resp = availableResponsibilities.find(
+     (r) => r.SubjectCode === config.subjectCode,
+   );
+   
+   if (resp) {
+     respId = resp.RespID;
+   } else {
+     // Fallback: Use first available responsibility
+     if (availableResponsibilities.length > 0) {
+       respId = availableResponsibilities[0].RespID;
+       warnings.push(`ไม่พบครูที่สอนวิชา "${config.subjectCode}" ใช้ครูคนแรกแทน`);
+     } else {
+       errors.push("ไม่พบข้อมูลครูในระบบ"); // ← ERROR THROWN HERE
+       return { locks, warnings, errors };
+     }
+   }
+   ```
+
+4. **Why 1-2568 Fails**:
+   - Query: `findTeacherResponsibilitiesByTerm(2568, "SEMESTER_1")`
+   - Returns: `[]` (empty array)
+   - Reason: No `teachers_responsibility` records exist for academic year 2568
+   - Result: Template resolution fails immediately at Step 5
+
+5. **Why 1-2567 Works**:
+   - Seed data includes teacher responsibilities for 2567 ([seed.ts](../prisma/seed.ts#L717-L790))
+   - Query returns populated array with teacher assignments
+   - Template can map subjects to teachers successfully
 
 ### Key Achievements
 1. ✅ Eliminated 30-60s timeouts through RSC optimization
