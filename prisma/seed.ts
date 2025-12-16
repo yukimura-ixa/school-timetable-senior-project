@@ -2387,10 +2387,21 @@ async function main() {
   // ===== TIMESLOTS (SEMESTER 1-2568) =====
   console.log("⏰ Creating timeslots for Semester 1-2568...");
   const academicYear2568 = 2568;
+  // Use template-compatible times for 1-2568 (10:40 junior, 10:55 senior lunch)
+  const periods2568 = [
+    { start: "08:00", end: "08:50", break: "NOT_BREAK" },
+    { start: "08:50", end: "09:40", break: "NOT_BREAK" },
+    { start: "09:50", end: "10:40", break: "NOT_BREAK" }, // 10 min break after period 3
+    { start: "10:40", end: "10:55", break: "BREAK_JUNIOR" }, // Template expects this
+    { start: "10:55", end: "11:10", break: "BREAK_SENIOR" }, // Template expects this
+    { start: "11:10", end: "12:00", break: "NOT_BREAK" },
+    { start: "12:00", end: "12:50", break: "NOT_BREAK" },
+    { start: "12:50", end: "13:40", break: "NOT_BREAK" },
+  ];
   const timeslotsSem1_2568: any[] = [];
   for (const day of days) {
-    for (let periodNum = 1; periodNum <= periods.length; periodNum++) {
-      const period = periods[periodNum - 1];
+    for (let periodNum = 1; periodNum <= periods2568.length; periodNum++) {
+      const period = periods2568[periodNum - 1];
       timeslotsSem1_2568.push(
         await withRetry(
           () =>
