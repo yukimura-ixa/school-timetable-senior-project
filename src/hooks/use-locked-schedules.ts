@@ -6,15 +6,20 @@ import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock
 
 /**
  * React hook for fetching locked schedules by academic term.
- * Uses SWR for caching and revalidation.
+ * Uses SWR for caching and revalidation with server-provided fallback data.
  *
  * @param academicYear - Academic year (e.g., 2567)
  * @param semester - Semester number (1 or 2)
+ * @param fallbackData - Initial data from server (optional)
  * @returns {Object} Locked schedules data with loading/error states
  * @example
- * const { data, isLoading, error, mutate } = useLockedSchedules(2567, 1)
+ * const { data, isLoading, error, mutate } = useLockedSchedules(2567, 1, initialData)
  */
-export const useLockedSchedules = (academicYear: number, semester: number) => {
+export const useLockedSchedules = (
+  academicYear: number,
+  semester: number,
+  fallbackData?: GroupedLockedSchedule[],
+) => {
   const fetcher: any = async () => {
     const result = await getLockedSchedulesAction({
       AcademicYear: academicYear,
@@ -26,11 +31,15 @@ export const useLockedSchedules = (academicYear: number, semester: number) => {
   const { data, error, mutate } = useSWR<GroupedLockedSchedule[]>(
     `locked-schedules-${academicYear}-${semester}`,
     fetcher,
+    {
+      fallbackData, // Use server data as fallback
+      revalidateOnMount: !fallbackData, // Only revalidate if no fallback data
+    },
   );
 
   return {
-    data: data ?? [],
-    isLoading: !error && !data,
+    data: data ?? fallbackData ?? [],
+    isLoading: !error && !data && !fallbackData,
     error,
     mutate,
   };

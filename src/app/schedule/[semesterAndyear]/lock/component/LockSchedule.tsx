@@ -3,9 +3,8 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import React, { Fragment, useEffect, useState } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { TbTrash } from "react-icons/tb";
-import { useParams } from "next/navigation";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import { useLockedSchedules, useSemesterSync } from "@/hooks";
+import { useLockedSchedules } from "@/hooks";
 import LockScheduleForm from "./LockScheduleForm";
 import { useConfirmDialog } from "@/components/dialogs";
 import type { GroupedLockedSchedule } from "@/features/lock/domain/services/lock-validation.service";
@@ -36,7 +35,13 @@ import LockTemplatesModal from "./LockTemplatesModal";
 
 type ViewMode = "list" | "calendar";
 
-function LockSchedule() {
+type LockScheduleProps = {
+  initialData: GroupedLockedSchedule[];
+  semester: number;
+  academicYear: number;
+};
+
+function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps) {
   const [lockScheduleFormActive, setLockScheduleFormActive] =
     useState<boolean>(false);
   const [bulkLockModalOpen, setBulkLockModalOpen] = useState<boolean>(false);
@@ -55,16 +60,12 @@ function LockSchedule() {
   const [showMoreteachherData, setShowMoreteacherData] = useState<
     number | null
   >(null); //index
-  const params = useParams();
 
-  // Sync URL params with global store
-  const { semester, academicYear } = useSemesterSync(
-    params.semesterAndyear as string,
-  );
-
+  // Use SWR with server-provided initial data for revalidation
   const lockData = useLockedSchedules(
-    parseInt(academicYear),
-    parseInt(semester),
+    academicYear,
+    semester,
+    initialData, // Pass initial data from server
   );
 
   // Derive ConfigID from semesterAndyear params
@@ -213,8 +214,8 @@ function LockSchedule() {
       {hasData && viewMode === "calendar" && (
         <LockCalendarView
           lockData={lockData.data}
-          academicYear={parseInt(academicYear)}
-          semester={parseInt(semester)}
+          academicYear={academicYear}
+          semester={semester}
           onEditLock={(lock) => {
             const index = lockData.data.findIndex(
               (item) => item.SubjectCode === lock.SubjectCode,
@@ -419,8 +420,8 @@ function LockSchedule() {
       <LockTemplatesModal
         open={templatesModalOpen}
         onClose={() => setTemplatesModalOpen(false)}
-        academicYear={parseInt(academicYear)}
-        semester={parseInt(semester)}
+        academicYear={academicYear}
+        semester={semester}
         configId={configId}
         onSuccess={() => {
           void lockData.mutate();
