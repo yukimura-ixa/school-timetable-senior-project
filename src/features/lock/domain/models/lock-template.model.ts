@@ -216,7 +216,7 @@ export const LOCK_TEMPLATES: LockTemplate[] = [
       },
       timeslotFilter: {
         days: ["MON", "TUE", "WED", "THU", "FRI"],
-        periods: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        startTimes: ["08:00:00", "08:50:00", "09:50:00", "10:40:00", "10:55:00", "11:10:00", "12:00:00", "12:50:00", "13:40:00", "14:30:00"],
         allDay: true,
       },
     },
