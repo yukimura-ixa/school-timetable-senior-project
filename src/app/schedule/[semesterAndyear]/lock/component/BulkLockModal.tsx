@@ -383,7 +383,7 @@ export default function BulkLockModal({
                           }
                         />
                       }
-                      label={`${DAY_NAMES[timeslot.Day]} คาบ ${timeslot.PeriodStart}`}
+                      label={`${DAY_NAMES[timeslot.Day]} ${timeslot.StartTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`}
                     />
                   ))}
                 </FormGroup>
