@@ -316,7 +316,9 @@ export default function LockTemplatesModal({
                   secondary={
                     selectedTemplate.config.timeslotFilter.allDay
                       ? "ทั้งวัน"
-                      : `คาบ ${selectedTemplate.config.timeslotFilter.periods.join(", ")}`
+                      : selectedTemplate.config.timeslotFilter.startTimes
+                          .map((time) => time.substring(0, 5))
+                          .join(", ")
                   }
                 />
               </ListItem>
