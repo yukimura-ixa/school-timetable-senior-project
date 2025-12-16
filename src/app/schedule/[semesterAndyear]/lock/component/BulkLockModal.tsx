@@ -186,7 +186,7 @@ export default function BulkLockModal({
 
         if (timeslot && grade && subject && room) {
           preview.push({
-            timeslot: `${DAY_NAMES[timeslot.Day]} คาบ ${timeslot.PeriodStart}`,
+            timeslot: `${DAY_NAMES[timeslot.Day]} ${timeslot.StartTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`,
             grade: grade.GradeName,
             subject: subject.SubjectName,
             room: room.RoomName,
