@@ -243,6 +243,7 @@ When a lock template is applied, the system follows this sequence:
 - Lock page performance fix via RSC pattern ✅
 - CP-02/CP-03 core test reliability ✅
 - CI validation via GitHub Actions ✅
+- Teacher arrange test maintenance ✅
 
 **Near-term** (P2):
 - Consider RSC pattern for teacher-arrange page (1536-line client component)
