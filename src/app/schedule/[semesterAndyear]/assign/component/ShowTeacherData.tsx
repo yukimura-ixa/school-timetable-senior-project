@@ -123,6 +123,49 @@ function ShowTeacherData() {
     return <Loading />;
   }
 
+  // Empty state when no teachers exist
+  if (!teacherData.data || teacherData.data.length === 0) {
+    return (
+      <Box
+        component="div"
+        sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+      >
+        <Paper
+          sx={{
+            p: 6,
+            textAlign: "center",
+            bgcolor: "background.default",
+            border: "2px dashed",
+            borderColor: "divider",
+          }}
+        >
+          <PersonSearchIcon
+            sx={{ fontSize: 80, color: "text.disabled", mb: 3 }}
+          />
+          <Typography variant="h5" color="text.primary" gutterBottom>
+            ยังไม่มีข้อมูลครูผู้สอน
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 3, maxWidth: 600, mx: "auto" }}
+          >
+            ระบบยังไม่พบข้อมูลครูผู้สอนในภาคเรียนนี้
+            กรุณาเพิ่มข้อมูลครูผู้สอนก่อนทำการมอบหมายวิชา
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<PersonSearchIcon />}
+            onClick={() => router.push("/management/teacher")}
+            size="large"
+          >
+            ไปที่หน้าจัดการข้อมูลครู
+          </Button>
+        </Paper>
+      </Box>
+    );
+  }
+
   // Modern Teacher Selection - MUI 7 TypeScript inference limitation with nested Autocomplete (Known Issue #59)
   return (
     <Box
