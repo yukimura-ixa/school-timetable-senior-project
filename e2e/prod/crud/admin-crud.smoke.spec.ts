@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { expectAdminSession } from "../helpers/session";
 import { goToRooms, goToSubjects, goToTeachers } from "../helpers/navigation";
 
@@ -73,20 +73,28 @@ async function cancelEditingIfPresent(page: Page) {
   await confirmDialogIfPresent(page);
 }
 
+async function findFirstVisibleLocator(locators: Locator[]): Promise<Locator> {
+  for (const locator of locators) {
+    if (await locator.isVisible({ timeout: 800 }).catch(() => false)) {
+      return locator;
+    }
+  }
+  throw new Error("[PROD E2E] Unable to find a visible search input");
+}
+
 async function fillSearch(page: Page, value: string) {
   const candidates = [
+    page.getByRole("textbox", { name: "ค้นหารหัสวิชา หรือชื่อวิชา" }).first(),
     page.getByRole("textbox", { name: /ค้นหารหัสวิชา|ค้นหา/i }).first(),
     page.getByRole("textbox", { name: /ค้นหาชื่อ|ค้นหา/i }).first(),
     page.getByRole("textbox", { name: /ค้นหา/i }).first(),
     page.locator("input[type='search']").first(),
     page.locator("input[placeholder*='ค้นหา']").first(),
   ];
-  for (const candidate of candidates) {
-    if (await candidate.isVisible({ timeout: 800 }).catch(() => false)) {
-      await candidate.fill(value);
-      return;
-    }
-  }
+  const input = await findFirstVisibleLocator(candidates);
+  await input.fill(value);
+  await expect(input).toHaveValue(value);
+  await page.waitForTimeout(300);
 }
 
 test.describe("CRUD (mutating) – Teachers", () => {
@@ -222,9 +230,8 @@ test.describe("CRUD (mutating) – Subjects", () => {
 
     // Filter to ensure the new row is visible even if it's not on the first page.
     await fillSearch(page, subjectCode);
-    await expect(page.getByText(subjectCode).first()).toBeVisible({
-      timeout: 60_000,
-    });
+    const createdRow = page.locator("tbody tr").filter({ hasText: subjectCode }).first();
+    await expect(createdRow).toBeVisible({ timeout: 60_000 });
 
     // Edit
     await selectRowByText(page, subjectCode);
