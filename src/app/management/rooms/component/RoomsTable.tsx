@@ -6,6 +6,7 @@ import {
   type ValidationFn,
 } from "@/components/tables";
 import {
+  createRoomsAction,
   deleteRoomsAction,
   updateRoomsAction,
 } from "@/features/room/application/actions/room.actions";
@@ -79,7 +80,7 @@ const createEmptyRoom = (): Partial<room> => ({
 
 // Wrapper for create action (maps to update with no ID)
 const handleCreate = async (newRoom: Partial<room>) => {
-  return await updateRoomsAction([
+  return await createRoomsAction([
     {
       RoomName: newRoom.RoomName?.trim() || "",
       Building: newRoom.Building?.trim() || "-",
