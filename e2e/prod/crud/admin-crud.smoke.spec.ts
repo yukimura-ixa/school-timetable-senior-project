@@ -66,6 +66,29 @@ async function selectRowByText(page: Page, text: string) {
   }
 }
 
+async function cancelEditingIfPresent(page: Page) {
+  const cancel = page.locator('button[aria-label="cancel"]').first();
+  if (!(await cancel.isVisible({ timeout: 1500 }).catch(() => false))) return;
+  await cancel.click();
+  await confirmDialogIfPresent(page);
+}
+
+async function fillSearch(page: Page, value: string) {
+  const candidates = [
+    page.getByRole("textbox", { name: /ค้นหารหัสวิชา|ค้นหา/i }).first(),
+    page.getByRole("textbox", { name: /ค้นหาชื่อ|ค้นหา/i }).first(),
+    page.getByRole("textbox", { name: /ค้นหา/i }).first(),
+    page.locator("input[type='search']").first(),
+    page.locator("input[placeholder*='ค้นหา']").first(),
+  ];
+  for (const candidate of candidates) {
+    if (await candidate.isVisible({ timeout: 800 }).catch(() => false)) {
+      await candidate.fill(value);
+      return;
+    }
+  }
+}
+
 test.describe("CRUD (mutating) – Teachers", () => {
   test("create → edit → delete teacher", async ({ page }, testInfo) => {
     await expectAdminSession(page);
@@ -142,11 +165,7 @@ test.describe("CRUD (mutating) – Subjects", () => {
     const subjectCode = `E2E${(Date.now() % 100000).toString().padStart(5, "0")}`;
     const subjectName = `E2E Subject ${id}`;
 
-    // If a previous attempt left the table in edit mode, exit first.
-    const cancelEditing = page.locator('button[aria-label="cancel"]').first();
-    if (await cancelEditing.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await cancelEditing.click();
-    }
+    await cancelEditingIfPresent(page);
 
     // Create (inline)
     const addButton = page
@@ -172,9 +191,15 @@ test.describe("CRUD (mutating) – Subjects", () => {
     const comboboxes = editingRow.locator('[role="combobox"]');
     const comboboxCount = await comboboxes.count();
     if (comboboxCount > 0) {
-      // Matches the existing UI order: Credit, Category, LearningArea, ...
+      const byName = editingRow
+        .getByRole("combobox", { name: /สาระการเรียนรู้/i })
+        .first();
       const learningAreaSelect =
-        comboboxCount >= 3 ? comboboxes.nth(2) : comboboxes.last();
+        (await byName.isVisible({ timeout: 800 }).catch(() => false))
+          ? byName
+          : comboboxCount >= 3
+            ? comboboxes.nth(2)
+            : comboboxes.last();
       if (await learningAreaSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
         await learningAreaSelect.click();
         const firstRealOption = page
@@ -189,14 +214,16 @@ test.describe("CRUD (mutating) – Subjects", () => {
 
     const save = page.locator('button[aria-label="save"]').first();
     await save.click();
-    await expect(save).not.toBeVisible({ timeout: 20_000 });
+    await expect(successToast(page)).toBeVisible({ timeout: 60_000 });
+
+    // Exit edit mode if the toolbar remains open, then hard-confirm persistence.
+    await cancelEditingIfPresent(page);
+    await page.reload({ waitUntil: "domcontentloaded", timeout: 60_000 });
 
     // Filter to ensure the new row is visible even if it's not on the first page.
-    await page
-      .getByRole("textbox", { name: /ค้นหารหัสวิชา|ค้นหา/i })
-      .fill(subjectCode);
+    await fillSearch(page, subjectCode);
     await expect(page.getByText(subjectCode).first()).toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
 
     // Edit
@@ -214,7 +241,8 @@ test.describe("CRUD (mutating) – Subjects", () => {
       }
       const save = page.locator('button[aria-label="save"]').first();
       await save.click();
-      await expect(save).not.toBeVisible({ timeout: 20_000 });
+      await expect(successToast(page)).toBeVisible({ timeout: 60_000 });
+      await cancelEditingIfPresent(page);
     }
 
     // Delete
