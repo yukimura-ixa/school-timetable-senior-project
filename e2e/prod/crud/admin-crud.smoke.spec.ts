@@ -11,14 +11,9 @@ test.skip(
 
 const successToast = (page: Page) =>
   page
-    .locator(
-      [
-        ".notistack-SnackbarContainer [role='alert']",
-        ".notistack-SnackbarContainer .MuiAlert-root",
-        ".notistack-SnackbarContainer .notistack-MuiContent",
-        ".MuiSnackbar-root [role='alert']",
-      ].join(","),
-    )
+    .locator(".notistack-SnackbarContainer, .MuiSnackbar-root")
+    .locator("[role='alert'], .MuiAlert-root, .notistack-MuiContent")
+    .filter({ hasText: /สำเร็จ|เรียบร้อย|success/i })
     .first();
 
 async function confirmDialogIfPresent(page: Page) {
@@ -75,7 +70,7 @@ async function cancelEditingIfPresent(page: Page) {
 
 async function findFirstVisibleLocator(locators: Locator[]): Promise<Locator> {
   for (const locator of locators) {
-    if (await locator.isVisible({ timeout: 800 }).catch(() => false)) {
+    if (await locator.isVisible({ timeout: 5000 }).catch(() => false)) {
       return locator;
     }
   }
@@ -83,6 +78,12 @@ async function findFirstVisibleLocator(locators: Locator[]): Promise<Locator> {
 }
 
 async function fillSearch(page: Page, value: string) {
+  await page
+    .locator("table")
+    .first()
+    .waitFor({ state: "visible", timeout: 20_000 })
+    .catch(() => {});
+
   const candidates = [
     page.getByRole("textbox", { name: "ค้นหารหัสวิชา หรือชื่อวิชา" }).first(),
     page.getByRole("textbox", { name: /ค้นหารหัสวิชา|ค้นหา/i }).first(),
@@ -226,7 +227,7 @@ test.describe("CRUD (mutating) – Subjects", () => {
 
     // Exit edit mode if the toolbar remains open, then hard-confirm persistence.
     await cancelEditingIfPresent(page);
-    await page.reload({ waitUntil: "domcontentloaded", timeout: 60_000 });
+    await goToSubjects(page);
 
     // Filter to ensure the new row is visible even if it's not on the first page.
     await fillSearch(page, subjectCode);
