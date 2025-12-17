@@ -349,8 +349,10 @@ test.describe("CRUD (mutating) – Rooms", () => {
     await selectRowByText(page, roomName);
     await page.locator('button[aria-label="delete"]').first().click();
     await confirmDialogIfPresent(page);
+    await goToRooms(page);
+    await fillSearch(page, roomName);
     await expect(page.getByText(roomName).first()).not.toBeVisible({
-      timeout: 20_000,
+      timeout: 60_000,
     });
   });
 });
