@@ -42,6 +42,8 @@
     "test:prod:visual": "playwright test --config=playwright.config.prod.ts",
     "test:prod:visual:ui": "playwright test --config=playwright.config.prod.ts --ui",
     "test:prod:visual:update": "playwright test --config=playwright.config.prod.ts --update-snapshots",
+    "test:prod:scheduling": "playwright test --config=playwright.config.prod.ts e2e/prod/scheduling",
+    "test:prod:crud": "playwright test --config=playwright.config.prod.ts --project=prod-desktop-admin-crud",
     "test:prod:visual:report": "playwright show-report playwright-report-prod",
     "test:report": "playwright show-report",
     "test:e2e:ci-mode": "pnpm build && CI=true pnpm test:e2e:manual",
