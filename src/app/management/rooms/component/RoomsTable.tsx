@@ -103,7 +103,7 @@ const handleUpdate = async (rooms: Partial<room>[]) => {
 
 // Wrapper for delete action
 const handleDelete = async (ids: (string | number)[]) => {
-  return await deleteRoomsAction({ roomIds: ids as number[] });
+  return await deleteRoomsAction(ids as number[]);
 };
 
 export default function RoomsTable({ tableData, mutate }: RoomsTableProps) {
