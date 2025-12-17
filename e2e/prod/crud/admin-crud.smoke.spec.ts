@@ -142,11 +142,18 @@ test.describe("CRUD (mutating) – Subjects", () => {
     const subjectCode = `E2E${(Date.now() % 100000).toString().padStart(5, "0")}`;
     const subjectName = `E2E Subject ${id}`;
 
+    // If a previous attempt left the table in edit mode, exit first.
+    const cancelEditing = page.locator('button[aria-label="cancel"]').first();
+    if (await cancelEditing.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await cancelEditing.click();
+    }
+
     // Create (inline)
     const addButton = page
       .getByRole("button", { name: /เพิ่ม|add/i })
       .first();
     await expect(addButton).toBeVisible({ timeout: 20_000 });
+    await expect(addButton).toBeEnabled({ timeout: 20_000 });
     await addButton.click();
 
     const editingRow = page
@@ -165,18 +172,29 @@ test.describe("CRUD (mutating) – Subjects", () => {
     const comboboxes = editingRow.locator('[role="combobox"]');
     const comboboxCount = await comboboxes.count();
     if (comboboxCount > 0) {
-      const learningAreaSelect = comboboxes.nth(Math.max(0, comboboxCount - 1));
+      // Matches the existing UI order: Credit, Category, LearningArea, ...
+      const learningAreaSelect =
+        comboboxCount >= 3 ? comboboxes.nth(2) : comboboxes.last();
       if (await learningAreaSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
         await learningAreaSelect.click();
-        const firstOption = page.getByRole("option").first();
-        if (await firstOption.isVisible({ timeout: 2000 }).catch(() => false)) {
-          await firstOption.click();
+        const firstRealOption = page
+          .getByRole("option")
+          .filter({ hasText: /^(?!-).+/ })
+          .first();
+        if (await firstRealOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await firstRealOption.click();
         }
       }
     }
 
-    await page.locator('button[aria-label="save"]').first().click();
-    await expect(successToast(page)).toBeVisible({ timeout: 20_000 });
+    const save = page.locator('button[aria-label="save"]').first();
+    await save.click();
+    await expect(save).not.toBeVisible({ timeout: 20_000 });
+
+    // Filter to ensure the new row is visible even if it's not on the first page.
+    await page
+      .getByRole("textbox", { name: /ค้นหารหัสวิชา|ค้นหา/i })
+      .fill(subjectCode);
     await expect(page.getByText(subjectCode).first()).toBeVisible({
       timeout: 20_000,
     });
@@ -194,8 +212,9 @@ test.describe("CRUD (mutating) – Subjects", () => {
       if ((await inputs.count()) > 1) {
         await inputs.nth(1).fill(`${subjectName} (Edited)`);
       }
-      await page.locator('button[aria-label="save"]').first().click();
-      await expect(successToast(page)).toBeVisible({ timeout: 20_000 });
+      const save = page.locator('button[aria-label="save"]').first();
+      await save.click();
+      await expect(save).not.toBeVisible({ timeout: 20_000 });
     }
 
     // Delete
