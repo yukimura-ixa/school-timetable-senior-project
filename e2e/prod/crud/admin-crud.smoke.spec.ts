@@ -293,7 +293,7 @@ test.describe("CRUD (mutating) – Rooms", () => {
     await goToRooms(page);
 
     const id = `${Date.now()}-${testInfo.retry}`;
-    const roomName = `E2E${(Date.now() % 100000).toString().padStart(5, "0")}`;
+    const roomName = `E2E${Date.now().toString().slice(-8)}${testInfo.retry}`;
     const building = `E2E-Building-${(Date.now() % 1000).toString().padStart(3, "0")}`;
     const floor = "1";
 
@@ -321,11 +321,12 @@ test.describe("CRUD (mutating) – Rooms", () => {
 
     await page.locator('button[aria-label="save"]').first().click();
     await expect(successToast(page)).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(roomName).first()).toBeVisible({
-      timeout: 20_000,
-    });
+    await goToRooms(page);
+    await fillSearch(page, roomName);
+    await expect(page.getByText(roomName).first()).toBeVisible({ timeout: 60_000 });
 
     // Edit (optional; depends on EditableTable columns)
+    await fillSearch(page, roomName);
     await selectRowByText(page, roomName);
     const editButton = page.locator('button[aria-label="edit"]').first();
     if (await editButton.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -343,6 +344,8 @@ test.describe("CRUD (mutating) – Rooms", () => {
     }
 
     // Delete
+    await goToRooms(page);
+    await fillSearch(page, roomName);
     await selectRowByText(page, roomName);
     await page.locator('button[aria-label="delete"]').first().click();
     await confirmDialogIfPresent(page);
