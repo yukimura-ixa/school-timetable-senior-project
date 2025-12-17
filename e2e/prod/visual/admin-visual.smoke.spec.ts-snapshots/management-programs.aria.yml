@@ -1,0 +1,31 @@
+- heading "หลักสูตรทั้งหมด" [level=1]
+- link "หลักสูตรชั้นมัธยมศึกษาปีที่ 1":
+  - /url: /management/program/year/1
+  - paragraph:
+    - text: หลักสูตรชั้นมัธยมศึกษาปีที่ 1
+    - img
+- link "หลักสูตรชั้นมัธยมศึกษาปีที่ 2":
+  - /url: /management/program/year/2
+  - paragraph:
+    - text: หลักสูตรชั้นมัธยมศึกษาปีที่ 2
+    - img
+- link "หลักสูตรชั้นมัธยมศึกษาปีที่ 3":
+  - /url: /management/program/year/3
+  - paragraph:
+    - text: หลักสูตรชั้นมัธยมศึกษาปีที่ 3
+    - img
+- link "หลักสูตรชั้นมัธยมศึกษาปีที่ 4":
+  - /url: /management/program/year/4
+  - paragraph:
+    - text: หลักสูตรชั้นมัธยมศึกษาปีที่ 4
+    - img
+- link "หลักสูตรชั้นมัธยมศึกษาปีที่ 5":
+  - /url: /management/program/year/5
+  - paragraph:
+    - text: หลักสูตรชั้นมัธยมศึกษาปีที่ 5
+    - img
+- link "หลักสูตรชั้นมัธยมศึกษาปีที่ 6":
+  - /url: /management/program/year/6
+  - paragraph:
+    - text: หลักสูตรชั้นมัธยมศึกษาปีที่ 6
+    - img

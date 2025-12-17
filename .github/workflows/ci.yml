@@ -224,6 +224,9 @@ jobs:
     name: Trigger E2E Tests
     needs: [lint, unit-tests, build]
     runs-on: ubuntu-latest
+    # createWorkflowDispatch ref must be a branch/tag. On pull_request events, context.ref is a PR ref
+    # (e.g. refs/pull/123/merge) which causes the dispatch to fail and makes the whole CI red.
+    if: github.event_name == 'push'
 
     steps:
       - name: Checkout repository

@@ -27,18 +27,26 @@ function Content(props: Props) {
         {pathName === "/" ? (
           props.children
         ) : pathName === "/signin" ? (
-          <span className="w-full h-auto">{props.children}</span>
+          <span className="w-full h-auto" data-testid="app-content">
+            {props.children}
+          </span>
         ) : pathName.match("/dashboard") ? (
           <>
             {!isSemesterSelectionPage ? (
               <>
                 <DashboardMenubar />
-                <span className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2">
+                <span
+                  className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2"
+                  data-testid="app-content"
+                >
                   {props.children}
                 </span>
               </>
             ) : (
-              <span className="flex flex-col w-full min-[1440px]:w-[1440px] h-auto px-5 py-2">
+              <span
+                className="flex flex-col w-full min-[1440px]:w-[1440px] h-auto px-5 py-2"
+                data-testid="app-content"
+              >
                 {props.children}
               </span>
             )}
@@ -49,14 +57,20 @@ function Content(props: Props) {
           pathName.match("/config") ? (
           <>
             <Menubar />
-            <span className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2">
+            <span
+              className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2"
+              data-testid="app-content"
+            >
               {props.children}
             </span>
           </>
         ) : (
           <>
             <Menubar />
-            <span className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2">
+            <span
+              className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2"
+              data-testid="app-content"
+            >
               {props.children}
             </span>
           </>

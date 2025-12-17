@@ -1,0 +1,101 @@
+- text: จัดการระดับชั้น
+- textbox "ค้นหารหัสระดับชั้น (เช่น M1-1)"
+- button "เพิ่ม"
+- button "edit" [disabled]
+- button "delete" [disabled]
+- table:
+  - rowgroup:
+    - row "select all รหัส ชั้นปี (ม.) ห้อง หลักสูตร จำนวนนักเรียน":
+      - columnheader "select all":
+        - checkbox "select all"
+      - columnheader "รหัส"
+      - columnheader "ชั้นปี (ม.)"
+      - columnheader "ห้อง"
+      - columnheader "หลักสูตร"
+      - columnheader "จำนวนนักเรียน"
+  - rowgroup:
+    - row /\d+-1-\d+ ม\.\d+ 1 หลักสูตรแกนกลาง ม\.ปลาย วิทย์-คณิต \d+/:
+      - cell:
+        - checkbox
+      - cell /\d+-1-\d+/
+      - cell /ม\.\d+/
+      - cell "1"
+      - cell "หลักสูตรแกนกลาง ม.ปลาย วิทย์-คณิต"
+      - cell /\d+/
+    - row /7-1-\d+ ม\.7 1 หลักสูตรแกนกลาง ม\.ต้น \d+/:
+      - cell:
+        - checkbox
+      - cell /7-1-\d+/
+      - cell "ม.7"
+      - cell "1"
+      - cell "หลักสูตรแกนกลาง ม.ต้น"
+      - cell /\d+/
+    - row /7-2-\d+ ม\.7 2 หลักสูตรแกนกลาง ม\.ต้น \d+/:
+      - cell:
+        - checkbox
+      - cell /7-2-\d+/
+      - cell "ม.7"
+      - cell "2"
+      - cell "หลักสูตรแกนกลาง ม.ต้น"
+      - cell /\d+/
+    - row /7-3-\d+ ม\.7 3 หลักสูตรแกนกลาง ม\.ต้น \d+/:
+      - cell:
+        - checkbox
+      - cell /7-3-\d+/
+      - cell "ม.7"
+      - cell "3"
+      - cell "หลักสูตรแกนกลาง ม.ต้น"
+      - cell /\d+/
+    - row /M1-1 ม\.1 1 หลักสูตรวิทย์-คณิต ม\.1 \d+/:
+      - cell:
+        - checkbox
+      - cell "M1-1"
+      - cell "ม.1"
+      - cell "1"
+      - cell "หลักสูตรวิทย์-คณิต ม.1"
+      - cell /\d+/
+    - row /M1-2 ม\.1 2 หลักสูตรศิลป์-คำนวณ ม\.1 \d+/:
+      - cell:
+        - checkbox
+      - cell "M1-2"
+      - cell "ม.1"
+      - cell "2"
+      - cell "หลักสูตรศิลป์-คำนวณ ม.1"
+      - cell /\d+/
+    - row /M1-3 ม\.1 3 หลักสูตรศิลป์-ภาษา ม\.1 \d+/:
+      - cell:
+        - checkbox
+      - cell "M1-3"
+      - cell "ม.1"
+      - cell "3"
+      - cell "หลักสูตรศิลป์-ภาษา ม.1"
+      - cell /\d+/
+    - row /M2-1 ม\.2 1 หลักสูตรวิทย์-คณิต ม\.2 \d+/:
+      - cell:
+        - checkbox
+      - cell "M2-1"
+      - cell "ม.2"
+      - cell "1"
+      - cell "หลักสูตรวิทย์-คณิต ม.2"
+      - cell /\d+/
+    - row /M2-2 ม\.2 2 หลักสูตรศิลป์-คำนวณ ม\.2 \d+/:
+      - cell:
+        - checkbox
+      - cell "M2-2"
+      - cell "ม.2"
+      - cell "2"
+      - cell "หลักสูตรศิลป์-คำนวณ ม.2"
+      - cell /\d+/
+    - row /M2-3 ม\.2 3 หลักสูตรศิลป์-ภาษา ม\.2 \d+/:
+      - cell:
+        - checkbox
+      - cell "M2-3"
+      - cell "ม.2"
+      - cell "3"
+      - cell "หลักสูตรศิลป์-ภาษา ม.2"
+      - cell /\d+/
+- paragraph: "Rows per page:"
+- 'combobox /Rows per page: \d+/'
+- paragraph: /1–\d+ of \d+/
+- button "Go to previous page" [disabled]
+- button "Go to next page"

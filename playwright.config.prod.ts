@@ -1,42 +1,50 @@
 import { defineConfig, devices } from "@playwright/test";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-
-// ES module equivalent of __dirname
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Load production environment variables
-dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 /**
- * Production Visual Test Configuration
+ * Production Visual Smoke Configuration
  *
- * Runs visual tests against production deployment with multi-viewport support.
- * Supports desktop, tablet, and mobile viewports for both authenticated (admin)
- * and public pages.
+ * Runs a conservative visual smoke suite against a deployed URL (default) or a
+ * locally-started server (opt-in).
  *
  * Usage:
- *   pnpm test:prod:visual              # Run all visual tests
- *   pnpm test:prod:visual:ui           # Interactive mode
- *   pnpm test:prod:visual -- --project=mobile-admin  # Mobile only
- *   pnpm test:prod:visual -- --project=public-*      # Public pages only
+ *   pnpm test:prod:visual
+ *   pnpm test:prod:visual:ui
  *
  * Environment:
- *   BASE_URL=https://phrasongsa-timetable.vercel.app
- *   ADMIN_EMAIL=admin@school.local
- *   ADMIN_PASSWORD=admin123
- *   SEMESTER_ID=1-2567
+ *   E2E_BASE_URL=https://phrasongsa-timetable.vercel.app   (or BASE_URL legacy)
+ *   E2E_ADMIN_EMAIL=...
+ *   E2E_ADMIN_PASSWORD=...
+ *   E2E_SEMESTER_ID=1-2567                                 (or SEMESTER_ID legacy)
+ *
+ * Security:
+ * - Never record secrets in traces/screenshots: the auth setup project disables
+ *   trace/video/screenshot because it types credentials.
  */
 
+const baseURL =
+  process.env.E2E_BASE_URL ??
+  process.env.BASE_URL ??
+  "https://phrasongsa-timetable.vercel.app";
+
+const shouldStartWebServer =
+  process.env.E2E_START_WEBSERVER === "true" ||
+  (() => {
+    try {
+      const host = new URL(baseURL).hostname;
+      return host === "localhost" || host === "127.0.0.1";
+    } catch {
+      return false;
+    }
+  })();
+
 export default defineConfig({
-  testDir: "./e2e",
-  // Match both smoke tests and visual tests
-  testMatch: ["**/smoke/**/*.spec.ts", "**/visual/**/*.spec.ts"],
-  fullyParallel: false, // Sequential for production safety
-  forbidOnly: true, // Never allow .only() in production tests
-  retries: 2, // Retry flaky tests in production
-  workers: 1, // Single worker to avoid race conditions
+  testDir: "./e2e/prod",
+  testMatch: ["**/*.spec.ts", "**/*.setup.ts"],
+
+  fullyParallel: false,
+  forbidOnly: true,
+  retries: 2,
+  workers: 1,
 
   reporter: [
     ["list"],
@@ -45,121 +53,53 @@ export default defineConfig({
     ["html", { outputFolder: "playwright-report-prod", open: "never" }],
   ],
 
+  expect: {
+    toHaveScreenshot: {
+      animations: "disabled",
+      caret: "hide",
+      maxDiffPixels: 200,
+    },
+  },
+
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
-    actionTimeout: 15000,
-    navigationTimeout: 30000,
+    actionTimeout: 15_000,
+    navigationTimeout: 30_000,
+
+    viewport: { width: 1440, height: 900 },
+    timezoneId: "Asia/Bangkok",
+    locale: "th-TH",
+    colorScheme: "light",
+    reducedMotion: "reduce",
   },
 
   projects: [
-    // ===========================================
-    // Auth Setup (runs once before admin tests)
-    // ===========================================
     {
       name: "prod-setup",
-      testMatch: /auth\.setup\.ts/,
+      testMatch: /prod-auth\.setup\.ts/,
+      use: {
+        trace: "off",
+        screenshot: "off",
+        video: "off",
+      },
     },
-
-    // ===========================================
-    // Admin Pages - Desktop (1440×900)
-    // ===========================================
     {
-      name: "desktop-admin",
+      name: "prod-desktop-admin",
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },
-        storageState: "playwright/.auth/admin.json",
+        storageState: "playwright/.auth/prod-admin.json",
       },
-      testMatch: ["**/visual/admin-*.spec.ts", "**/smoke/**/*.spec.ts"],
-      dependencies: ["prod-setup"],
-    },
-
-    // ===========================================
-    // Admin Pages - Tablet (768×1024 iPad)
-    // ===========================================
-    {
-      name: "tablet-admin",
-      use: {
-        ...devices["iPad Pro"],
-        viewport: { width: 768, height: 1024 },
-        storageState: "playwright/.auth/admin.json",
-      },
-      testMatch: "**/visual/admin-*.spec.ts",
-      dependencies: ["prod-setup"],
-    },
-
-    // ===========================================
-    // Admin Pages - Mobile (390×844 iPhone 14)
-    // ===========================================
-    {
-      name: "mobile-admin",
-      use: {
-        ...devices["iPhone 14"],
-        viewport: { width: 390, height: 844 },
-        storageState: "playwright/.auth/admin.json",
-      },
-      testMatch: "**/visual/admin-*.spec.ts",
-      dependencies: ["prod-setup"],
-    },
-
-    // ===========================================
-    // Public Pages - Desktop (no auth required)
-    // ===========================================
-    {
-      name: "public-desktop",
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 1440, height: 900 },
-        // No storageState - public pages don't need auth
-      },
-      testMatch: "**/visual/public-*.spec.ts",
-    },
-
-    // ===========================================
-    // Public Pages - Tablet (no auth required)
-    // ===========================================
-    {
-      name: "public-tablet",
-      use: {
-        ...devices["iPad Pro"],
-        viewport: { width: 768, height: 1024 },
-      },
-      testMatch: "**/visual/public-*.spec.ts",
-    },
-
-    // ===========================================
-    // Public Pages - Mobile (no auth required)
-    // ===========================================
-    {
-      name: "public-mobile",
-      use: {
-        ...devices["iPhone 14"],
-        viewport: { width: 390, height: 844 },
-      },
-      testMatch: "**/visual/public-*.spec.ts",
-    },
-
-    // ===========================================
-    // Legacy: Original chromium project (backward compat)
-    // ===========================================
-    {
-      name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-        storageState: "playwright/.auth/admin.json",
-      },
-      testMatch: "**/smoke/**/*.spec.ts",
+      testMatch: ["**/visual/**/*.spec.ts"],
       dependencies: ["prod-setup"],
     },
   ],
 
-  /* Run dev server with production database */
-  webServer: process.env.SKIP_WEBSERVER
-    ? undefined
-    : {
+  webServer: shouldStartWebServer
+    ? {
         command: "pnpm dev",
         url: "http://localhost:3000",
         reuseExistingServer: true,
@@ -168,11 +108,11 @@ export default defineConfig({
         stderr: "pipe",
         env: {
           ...process.env,
-          // ✅ Use production database from .env (Prisma Accelerate)
-          // DATABASE_URL is loaded from .env by dotenv above
           NODE_ENV: "development",
         },
-      },
+      }
+    : undefined,
 
   outputDir: "test-results/prod-artifacts",
 });
+
