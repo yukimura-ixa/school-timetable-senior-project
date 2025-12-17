@@ -11,6 +11,7 @@ import {
 } from "@/components/tables";
 import {
   deleteSubjectsAction,
+  createSubjectsAction,
   updateSubjectsAction,
 } from "@/features/subject/application/actions/subject.actions";
 
@@ -222,7 +223,7 @@ const createEmptySubject = (): Partial<subject> => ({
 
 // Wrapper for create action
 const handleCreate = async (newSubject: Partial<subject>) => {
-  return await updateSubjectsAction([
+  return await createSubjectsAction([
     {
       SubjectCode: newSubject.SubjectCode?.trim().toUpperCase() || "",
       SubjectName: newSubject.SubjectName?.trim() || "",
