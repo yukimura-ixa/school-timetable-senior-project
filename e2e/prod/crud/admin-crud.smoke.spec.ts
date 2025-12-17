@@ -257,6 +257,7 @@ test.describe("CRUD (mutating) – Subjects", () => {
     await expect(createdRow).toBeVisible({ timeout: 60_000 });
 
     // Edit
+    await fillSearch(page, subjectCode);
     await selectRowByText(page, subjectCode);
     const editButton = page.locator('button[aria-label="edit"]').first();
     if (await editButton.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -275,6 +276,8 @@ test.describe("CRUD (mutating) – Subjects", () => {
     }
 
     // Delete
+    await goToSubjects(page);
+    await fillSearch(page, subjectCode);
     await selectRowByText(page, subjectCode);
     await page.locator('button[aria-label="delete"]').first().click();
     await confirmDialogIfPresent(page);
