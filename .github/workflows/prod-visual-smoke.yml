@@ -29,6 +29,8 @@ jobs:
 
     env:
       CI: "true"
+      # Required for `prisma generate` during pnpm postinstall (prisma.config.ts uses env("DATABASE_URL")).
+      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
       E2E_BASE_URL: ${{ github.event.inputs.base_url || vars.E2E_BASE_URL || 'https://phrasongsa-timetable.vercel.app' }}
       E2E_SEMESTER_ID: ${{ github.event.inputs.semester_id || vars.E2E_SEMESTER_ID || '1-2568' }}
       E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
