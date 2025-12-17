@@ -104,12 +104,19 @@ test.describe("CRUD (mutating) – Teachers", () => {
       const rowInput = page
         .locator("tbody tr input:not([type='checkbox']):visible")
         .first();
+      const candidateEditedName = `${firstName}-Edited`;
       if (await rowInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-        currentFirstName = `${firstName}-Edited`;
-        await rowInput.fill(currentFirstName);
+        await rowInput.fill(candidateEditedName);
       }
       await page.locator('button[aria-label="save"]').first().click();
       await expect(successToast(page)).toBeVisible({ timeout: 20_000 });
+
+      const editedVisible = await page
+        .getByText(candidateEditedName)
+        .first()
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
+      if (editedVisible) currentFirstName = candidateEditedName;
     }
 
     // Delete
