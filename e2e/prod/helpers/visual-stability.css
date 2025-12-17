@@ -1,0 +1,20 @@
+/* Deterministic rendering helpers for screenshot-based smoke tests */
+
+/* Disable animations/transitions globally for pixel stability */
+*,
+*::before,
+*::after {
+  animation: none !important;
+  transition: none !important;
+  caret-color: transparent !important;
+}
+
+/* Hide transient UI */
+[data-testid="toast"],
+.MuiSnackbar-root,
+.MuiSnackbarContent-root,
+[aria-live="polite"],
+[aria-live="assertive"] {
+  visibility: hidden !important;
+}
+
