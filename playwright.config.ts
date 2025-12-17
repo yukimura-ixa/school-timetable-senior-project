@@ -20,6 +20,10 @@ console.log("SKIP_WEBSERVER:", process.env.SKIP_WEBSERVER);
 
 export default defineConfig({
   testDir: "./e2e",
+  // Keep production (deployed) smoke suite isolated; it runs with playwright.config.prod.ts.
+  // Without this, *.setup.ts files under e2e/prod can be picked up by the default 'setup' project,
+  // breaking CI smoke/visual runs that don't provide E2E_* secrets.
+  testIgnore: ["**/prod/**"],
   fullyParallel: !process.env.CI, // Sequential in CI for stability, parallel locally
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
