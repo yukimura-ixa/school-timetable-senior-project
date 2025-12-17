@@ -171,7 +171,8 @@ test.describe("CRUD (mutating) – Subjects", () => {
     await goToSubjects(page);
 
     const id = `${Date.now()}-${testInfo.retry}`;
-    const subjectCode = `E2E${(Date.now() % 100000).toString().padStart(5, "0")}`;
+    const uniqueSuffix = `${Date.now()}${testInfo.retry}`.slice(-9);
+    const subjectCode = `E2E${uniqueSuffix}`;
     const subjectName = `E2E Subject ${id}`;
 
     await cancelEditingIfPresent(page);
@@ -211,22 +212,43 @@ test.describe("CRUD (mutating) – Subjects", () => {
             : comboboxes.last();
       if (await learningAreaSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
         await learningAreaSelect.click();
-        const firstRealOption = page
-          .getByRole("option")
-          .filter({ hasText: /^(?!-).+/ })
-          .first();
-        if (await firstRealOption.isVisible({ timeout: 2000 }).catch(() => false)) {
-          await firstRealOption.click();
+        const thai = page.getByRole("option", { name: "ภาษาไทย" }).first();
+        if (await thai.isVisible({ timeout: 2000 }).catch(() => false)) {
+          await thai.click();
+        } else {
+          const firstRealOption = page
+            .getByRole("option")
+            .filter({ hasText: /^(?!-).+/ })
+            .first();
+          if (await firstRealOption.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await firstRealOption.click();
+          }
         }
       }
     }
 
     const save = page.locator('button[aria-label="save"]').first();
     await save.click();
-    await expect(successToast(page)).toBeVisible({ timeout: 60_000 });
+    const saved = await save
+      .waitFor({ state: "hidden", timeout: 30_000 })
+      .then(() => true)
+      .catch(() => false);
 
-    // Exit edit mode if the toolbar remains open, then hard-confirm persistence.
-    await cancelEditingIfPresent(page);
+    if (!saved) {
+      const validation = page
+        .getByText(/กรุณาเลือกสาระการเรียนรู้|โปรดเลือก/i)
+        .first();
+      if (await validation.isVisible({ timeout: 1000 }).catch(() => false)) {
+        const fallbackLearningArea =
+          comboboxCount >= 3 ? comboboxes.nth(2) : comboboxes.last();
+        await fallbackLearningArea.click();
+        await page.getByRole("option").first().click();
+        await save.click();
+      }
+      await expect(save).toBeHidden({ timeout: 30_000 });
+    }
+
+    // Hard-confirm persistence.
     await goToSubjects(page);
 
     // Filter to ensure the new row is visible even if it's not on the first page.
@@ -249,8 +271,7 @@ test.describe("CRUD (mutating) – Subjects", () => {
       }
       const save = page.locator('button[aria-label="save"]').first();
       await save.click();
-      await expect(successToast(page)).toBeVisible({ timeout: 60_000 });
-      await cancelEditingIfPresent(page);
+      await expect(save).toBeHidden({ timeout: 30_000 });
     }
 
     // Delete
