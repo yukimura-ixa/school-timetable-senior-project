@@ -45,6 +45,11 @@ export async function goToScheduleConfig(page: Page) {
   await gotoAndReady(page, `/schedule/${semester}/config`);
 }
 
+export async function goToScheduleAssign(page: Page) {
+  const semester = getSemesterId();
+  await gotoAndReady(page, `/schedule/${semester}/assign`);
+}
+
 export async function goToTeacherArrange(page: Page) {
   const semester = getSemesterId();
   await gotoAndReady(page, `/schedule/${semester}/arrange/teacher-arrange`);
@@ -53,6 +58,11 @@ export async function goToTeacherArrange(page: Page) {
 export async function goToLockOverview(page: Page) {
   const semester = getSemesterId();
   await gotoAndReady(page, `/schedule/${semester}/lock`);
+}
+
+export async function goToConflictDetector(page: Page) {
+  const semester = getSemesterId();
+  await gotoAndReady(page, `/dashboard/${semester}/conflicts`);
 }
 
 export async function goToExportEntry(page: Page) {

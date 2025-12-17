@@ -37,6 +37,8 @@ const shouldStartWebServer =
     }
   })();
 
+const allowMutations = process.env.E2E_ALLOW_MUTATIONS === "true";
+
 export default defineConfig({
   testDir: "./e2e/prod",
   testMatch: ["**/*.spec.ts", "**/*.setup.ts"],
@@ -93,9 +95,23 @@ export default defineConfig({
         viewport: { width: 1440, height: 900 },
         storageState: "playwright/.auth/prod-admin.json",
       },
-      testMatch: ["**/visual/**/*.spec.ts"],
+      testMatch: ["**/visual/**/*.spec.ts", "**/smoke/**/*.spec.ts", "**/scheduling/**/*.spec.ts"],
       dependencies: ["prod-setup"],
     },
+    ...(allowMutations
+      ? [
+          {
+            name: "prod-desktop-admin-crud",
+            use: {
+              ...devices["Desktop Chrome"],
+              viewport: { width: 1440, height: 900 },
+              storageState: "playwright/.auth/prod-admin.json",
+            },
+            testMatch: ["**/crud/**/*.spec.ts"],
+            dependencies: ["prod-setup"],
+          },
+        ]
+      : []),
   ],
 
   webServer: shouldStartWebServer
