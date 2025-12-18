@@ -182,7 +182,7 @@ const handleUpdate = async (grades: Partial<gradelevel>[]) => {
 
 // Wrapper for delete action
 const handleDelete = async (ids: (string | number)[]) => {
-  return await deleteGradeLevelsAction({ gradeIds: ids as string[] });
+  return await deleteGradeLevelsAction(ids as string[]);
 };
 
 export default function GradeLevelTable({
