@@ -50,6 +50,15 @@ export const managementMenu = [
     link: "/management/program",
     roles: ["admin"],
   },
+  {
+    id: "email-outbox",
+    IconStyle: {
+      Icon: BiSolidFileFind,
+    },
+    title: "Email Outbox",
+    link: "/management/email-outbox",
+    roles: ["admin"],
+  },
 ];
 export const scheduleMenu = [
   // {

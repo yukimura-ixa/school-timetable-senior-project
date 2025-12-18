@@ -6,6 +6,7 @@ import ClassIcon from "@mui/icons-material/Class";
 import SchoolIcon from "@mui/icons-material/School";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import EmailIcon from "@mui/icons-material/Email";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -63,6 +64,13 @@ const managementPages: ManagementCard[] = [
     href: "/management/rooms",
     icon: <MeetingRoomIcon sx={{ fontSize: 48 }} />,
     color: "from-pink-500 to-pink-600",
+  },
+  {
+    title: "Email Outbox",
+    description: "ตรวจสอบลิงก์ยืนยันอีเมล (Admin เท่านั้น)",
+    href: "/management/email-outbox",
+    icon: <EmailIcon sx={{ fontSize: 48 }} />,
+    color: "from-slate-500 to-slate-600",
   },
 ];
 

@@ -16,6 +16,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { admin } from "better-auth/plugins";
 import prisma from "@/lib/prisma";
+import { sendEmail } from "@/lib/mailer";
 
 // Ensure we have a valid auth secret
 const authSecret = process.env.BETTER_AUTH_SECRET || process.env.AUTH_SECRET;
@@ -60,18 +61,86 @@ export const auth = betterAuth({
   },
   // Email verification for email change flow
   emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
-      // TODO: Integrate with email service (Resend, SendGrid) in production
-      // For now, log to console in development
-      console.log(`📧 [Email Verification] To: ${user.email}`);
-      console.log(`📧 [Email Verification] URL: ${url}`);
+    expiresIn: 60 * 60, // seconds
+    sendVerificationEmail: async ({ user, url }, request) => {
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
-      // In production, you would send an actual email:
-      // await sendEmail({
-      //   to: user.email,
-      //   subject: "ยืนยันอีเมลของคุณ",
-      //   html: `<a href="${url}">คลิกที่นี่เพื่อยืนยันอีเมล</a>`
-      // });
+      // Persist to outbox for admin-only visibility (do not log URL/token).
+      let outbox;
+      try {
+        outbox = await prisma.emailOutbox.create({
+          data: {
+            kind: "EMAIL_VERIFICATION",
+            userId: user.id,
+            toEmail: user.email,
+            subject: "ยืนยันอีเมลของคุณ",
+            verificationUrl: url,
+            expiresAt,
+          },
+        });
+      } catch (err) {
+        console.error("[Auth] Failed to create email outbox entry:", err);
+        // Continue anyway - email will still be sent if SMTP is configured
+        return;
+      }
+
+      const text =
+        `กรุณาคลิกลิงก์เพื่อยืนยันอีเมลของคุณ:\n\n${url}\n\n` +
+        `ลิงก์นี้จะหมดอายุภายใน 1 ชั่วโมง`;
+      const html =
+        `<p>กรุณาคลิกลิงก์เพื่อยืนยันอีเมลของคุณ:</p>` +
+        `<p><a href="${url}">ยืนยันอีเมล</a></p>` +
+        `<p>ลิงก์นี้จะหมดอายุภายใน 1 ชั่วโมง</p>`;
+
+      const sendPromise = (async () => {
+        if (!outbox) return; // Outbox creation failed, skip email send
+
+        const res = await sendEmail({
+          to: user.email,
+          subject: "ยืนยันอีเมลของคุณ",
+          text,
+          html,
+        });
+
+        if (res.success) {
+          try {
+            await prisma.emailOutbox.update({
+              where: { id: outbox.id },
+              data: {
+                status: "SENT",
+                providerMessageId: res.messageId ?? null,
+                lastError: null,
+              },
+            });
+          } catch (err) {
+            console.error("[Auth] Failed to update outbox status (SENT):", err);
+          }
+          return;
+        }
+
+        const status =
+          res.error.includes("not configured") ? "SKIPPED" : "FAILED";
+        try {
+          await prisma.emailOutbox.update({
+            where: { id: outbox.id },
+            data: {
+              status,
+              lastError: res.error.slice(0, 500),
+            },
+          });
+        } catch (err) {
+          console.error("[Auth] Failed to update outbox status (FAILED/SKIPPED):", err);
+        }
+      })();
+
+      const maybeWaitUntil = (
+        request as unknown as { waitUntil?: (p: Promise<unknown>) => void }
+      )?.waitUntil;
+      if (typeof maybeWaitUntil === "function") {
+        maybeWaitUntil(sendPromise);
+      } else {
+        void sendPromise;
+      }
     },
   },
   socialProviders: {

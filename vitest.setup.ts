@@ -92,6 +92,12 @@ vi.mock("@/lib/prisma", () => {
       findUnique: vi.fn(),
       count: vi.fn(),
     },
+    emailOutbox: {
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      count: vi.fn(),
+    },
     $transaction: vi.fn((callback: (tx: unknown) => unknown) => {
       // For transaction mocks, individual tests should override this
       return callback({});
