@@ -26,11 +26,24 @@ if (!authSecret) {
   );
 }
 
+const vercelUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : undefined;
+
 export const auth = betterAuth({
   secret: authSecret,
+  // Keep a strict, explicit origin list to avoid "Invalid origin" errors
+  // in Vercel preview/production. Order of precedence:
+  // 1) AUTH_URL (manual override)
+  // 2) BETTER_AUTH_URL (better-auth recommended env)
+  // 3) NEXTAUTH_URL (legacy env used elsewhere)
+  // 4) VERCEL_URL (auto-set by Vercel, needs https:// prefix)
+  // 5) localhost fallback for local dev
   baseURL:
     process.env.AUTH_URL ||
     process.env.BETTER_AUTH_URL ||
+    process.env.NEXTAUTH_URL ||
+    vercelUrl ||
     "http://localhost:3000",
   database: prismaAdapter(prisma, {
     provider: "postgresql",
