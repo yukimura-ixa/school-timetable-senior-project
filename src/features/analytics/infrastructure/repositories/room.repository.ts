@@ -141,7 +141,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     const day = extractDayFromTimeslotId(String(schedule.TimeslotID));
     const period = extractPeriodFromTimeslotId(String(schedule.TimeslotID));
 
-    if (!day || period === null) return; // Skip invalid timeslots
+    if (!day || period === 0) return; // Skip invalid timeslots
 
     if (!dayOccupancyDetails.has(schedule.RoomID)) {
       dayOccupancyDetails.set(schedule.RoomID, new Map());

@@ -5,6 +5,7 @@ import ArrowBack from "@mui/icons-material/ArrowBack";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { timeslot, semester } from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
 function parseConfigId(
@@ -98,10 +99,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   });
 
   // Extract slot numbers and create mapping
-  const parseSlotNumber = (timeslotId: string): number => {
-    const rawNumber = Number.parseInt(timeslotId.substring(10), 10);
-    return Number.isNaN(rawNumber) ? 0 : rawNumber;
-  };
+  const parseSlotNumber = extractPeriodFromTimeslotId;
 
   const slotNumbers = Array.from(
     new Set<number>(
@@ -197,84 +195,84 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
             data-testid="schedule-grid"
             role="table"
           >
-          <thead>
-            <tr className="bg-blue-600 text-white">
-              <th className="border border-gray-300 px-2 py-2 text-sm">
-                คาบ/เวลา
-              </th>
-              {dayOrder.map((day) => (
-                <th
-                  key={day}
-                  className="border border-gray-300 px-2 py-2 text-sm"
-                >
-                  {dayNames[day]}
+            <thead>
+              <tr className="bg-blue-600 text-white">
+                <th className="border border-gray-300 px-2 py-2 text-sm">
+                  คาบ/เวลา
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {noSlots ? (
-              <tr>
-                <td
-                  className="border border-gray-200 px-4 py-6 text-center text-sm text-gray-500"
-                  colSpan={dayOrder.length + 1}
-                  data-testid="schedule-empty"
-                >
-                  ไม่มีตารางสอนในภาคเรียนนี้
-                </td>
+                {dayOrder.map((day) => (
+                  <th
+                    key={day}
+                    className="border border-gray-300 px-2 py-2 text-sm"
+                  >
+                    {dayNames[day]}
+                  </th>
+                ))}
               </tr>
-            ) : (
-              displaySlotNumbers.map((slotNum: number) => {
-                const timeRange = slotTimeRanges.get(slotNum);
-                return (
-                  <tr key={slotNum} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-2 py-2 text-center text-sm font-medium whitespace-nowrap">
-                      คาบ {slotNum}
-                      {timeRange && (
-                        <div className="text-xs text-gray-500">
-                          {timeRange.start} - {timeRange.end}
-                        </div>
-                      )}
-                    </td>
-                    {dayOrder.map((day) => {
-                      const schedule = gridData[day]!.get(slotNum);
-                      return (
-                        <td
-                          key={day}
-                          className="border border-gray-300 px-2 py-2 text-sm align-top"
-                        >
-                          {schedule ? (
-                            <div className="space-y-1">
-                              <div className="font-medium text-gray-900">
-                                {schedule.subject.SubjectName}
-                              </div>
-                              <div className="text-xs text-gray-600">
-                                ({schedule.subject.SubjectCode})
-                              </div>
-                              <div className="text-xs text-gray-600">
-                                ม.{schedule.gradelevel.Year}/
-                                {schedule.gradelevel.Number}
-                              </div>
-                              {schedule.room && (
-                                <div className="text-xs text-gray-500">
-                                  ห้อง: {schedule.room.RoomName}
+            </thead>
+            <tbody>
+              {noSlots ? (
+                <tr>
+                  <td
+                    className="border border-gray-200 px-4 py-6 text-center text-sm text-gray-500"
+                    colSpan={dayOrder.length + 1}
+                    data-testid="schedule-empty"
+                  >
+                    ไม่มีตารางสอนในภาคเรียนนี้
+                  </td>
+                </tr>
+              ) : (
+                displaySlotNumbers.map((slotNum: number) => {
+                  const timeRange = slotTimeRanges.get(slotNum);
+                  return (
+                    <tr key={slotNum} className="hover:bg-gray-50">
+                      <td className="border border-gray-300 px-2 py-2 text-center text-sm font-medium whitespace-nowrap">
+                        คาบ {slotNum}
+                        {timeRange && (
+                          <div className="text-xs text-gray-500">
+                            {timeRange.start} - {timeRange.end}
+                          </div>
+                        )}
+                      </td>
+                      {dayOrder.map((day) => {
+                        const schedule = gridData[day]!.get(slotNum);
+                        return (
+                          <td
+                            key={day}
+                            className="border border-gray-300 px-2 py-2 text-sm align-top"
+                          >
+                            {schedule ? (
+                              <div className="space-y-1">
+                                <div className="font-medium text-gray-900">
+                                  {schedule.subject.SubjectName}
                                 </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="text-xs text-gray-400 text-center">
-                              -
-                            </div>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                                <div className="text-xs text-gray-600">
+                                  ({schedule.subject.SubjectCode})
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                  ม.{schedule.gradelevel.Year}/
+                                  {schedule.gradelevel.Number}
+                                </div>
+                                {schedule.room && (
+                                  <div className="text-xs text-gray-500">
+                                    ห้อง: {schedule.room.RoomName}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-gray-400 text-center">
+                                -
+                              </div>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

@@ -2,17 +2,20 @@
 
 import ExcelJS from "exceljs";
 import type { teacher } from "@/prisma/generated/client";
-import type {
-  ClassScheduleWithSummary,
-} from "@/features/class/infrastructure/repositories/class.repository";
+import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 import type { TimeSlotTableData } from "@/app/dashboard/[semesterAndyear]/shared/timeSlot";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 export type ExportTimeslotData = {
   AllData: TimeSlotTableData["AllData"];
   SlotAmount: number[];
   DayOfWeek: Array<{ Day: string; TextColor: string; BgColor: string }>;
-  BreakSlot?: Array<{ TimeslotID: string; Breaktime: string; SlotNumber: number }>;
+  BreakSlot?: Array<{
+    TimeslotID: string;
+    Breaktime: string;
+    SlotNumber: number;
+  }>;
 };
 
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
@@ -23,7 +26,7 @@ const findTimeslotId = (
   slotNumber: number,
 ): string | undefined => {
   return data.AllData.find((t) => {
-    const num = Number.parseInt(t.TimeslotID.substring(10), 10);
+    const num = extractPeriodFromTimeslotId(t.TimeslotID);
     return t.DayOfWeek === dayCode && num === slotNumber;
   })?.TimeslotID;
 };
@@ -55,9 +58,7 @@ export async function ExportTeacherTable(
 
   const dayCodes = Array.from(
     new Set(timeSlotData.AllData.map((t) => t.DayOfWeek)),
-  ).sort(
-    (a, b) => DAY_ORDER.indexOf(a as any) - DAY_ORDER.indexOf(b as any),
-  );
+  ).sort((a, b) => DAY_ORDER.indexOf(a as any) - DAY_ORDER.indexOf(b as any));
   const days = dayCodes.map((code) => dayOfWeekThai[code] ?? code);
   const slots = timeSlotData.SlotAmount;
 
@@ -112,7 +113,11 @@ export async function ExportTeacherTable(
     sheet.getRow(2).font = { size: 12 };
     sheet.eachRow((row, rowNumber) => {
       row.eachCell((cell) => {
-        cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+        cell.alignment = {
+          vertical: "middle",
+          horizontal: "center",
+          wrapText: true,
+        };
         if (rowNumber > 3) {
           cell.border = {
             top: { style: "thin" },

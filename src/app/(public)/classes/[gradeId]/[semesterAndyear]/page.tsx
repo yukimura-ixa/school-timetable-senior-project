@@ -6,6 +6,7 @@ import type { timeslot, semester } from "@/prisma/generated/client";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
 import prisma from "@/lib/prisma";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
 function parseConfigId(
@@ -101,10 +102,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   });
 
   // Extract slot numbers and create mapping
-  const parseSlotNumber = (timeslotId: string): number => {
-    const rawNumber = Number.parseInt(timeslotId.substring(10), 10);
-    return Number.isNaN(rawNumber) ? 0 : rawNumber;
-  };
+  const parseSlotNumber = extractPeriodFromTimeslotId;
 
   const slotNumbers = Array.from(
     new Set<number>(
@@ -196,93 +194,93 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
               data-testid="schedule-grid"
               role="table"
             >
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 w-20 md:w-24">
-                  คาบ/วัน
-                </th>
-                {dayOrder.map((day) => (
-                  <th
-                    key={day}
-                    className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-white bg-green-600"
-                  >
-                    {dayNames[day]}
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-gray-700 w-20 md:w-24">
+                    คาบ/วัน
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {slotNumbers.length === 0 ? (
-                <tr>
-                  <td
-                    className="border border-gray-200 px-4 py-6 text-center text-sm md:text-base text-gray-500"
-                    colSpan={dayOrder.length + 1}
-                    data-testid="schedule-empty"
-                  >
-                    ไม่มีตารางเรียนในภาคเรียนนี้
-                  </td>
+                  {dayOrder.map((day) => (
+                    <th
+                      key={day}
+                      className="border border-gray-300 px-2 md:px-4 py-2 text-xs md:text-sm font-semibold text-white bg-green-600"
+                    >
+                      {dayNames[day]}
+                    </th>
+                  ))}
                 </tr>
-              ) : (
-                slotNumbers.map((slotNum: number) => {
-                  const timeRange = slotTimeRanges.get(slotNum);
-                  return (
-                    <tr key={slotNum} className="hover:bg-gray-50">
-                      <td className="border border-gray-300 px-2 md:px-3 py-2 text-center bg-gray-50">
-                        <div className="text-xs md:text-sm font-semibold text-gray-900">
-                          คาบ {slotNum}
-                        </div>
-                        {timeRange && (
-                          <div className="text-[10px] md:text-xs text-gray-600 mt-1">
-                            {timeRange.start}-{timeRange.end}
+              </thead>
+              <tbody>
+                {slotNumbers.length === 0 ? (
+                  <tr>
+                    <td
+                      className="border border-gray-200 px-4 py-6 text-center text-sm md:text-base text-gray-500"
+                      colSpan={dayOrder.length + 1}
+                      data-testid="schedule-empty"
+                    >
+                      ไม่มีตารางเรียนในภาคเรียนนี้
+                    </td>
+                  </tr>
+                ) : (
+                  slotNumbers.map((slotNum: number) => {
+                    const timeRange = slotTimeRanges.get(slotNum);
+                    return (
+                      <tr key={slotNum} className="hover:bg-gray-50">
+                        <td className="border border-gray-300 px-2 md:px-3 py-2 text-center bg-gray-50">
+                          <div className="text-xs md:text-sm font-semibold text-gray-900">
+                            คาบ {slotNum}
                           </div>
-                        )}
-                      </td>
-                      {dayOrder.map((day) => {
-                        const schedule = gridData[day]!.get(slotNum);
-                        return (
-                          <td
-                            key={`${day}-${slotNum}`}
-                            className="border border-gray-300 px-2 md:px-3 py-2 align-top"
-                          >
-                            {schedule ? (
-                              <div className="text-xs md:text-sm">
-                                <div className="font-semibold text-gray-900 mb-1">
-                                  {schedule.subject.SubjectName}
-                                </div>
-                                <div className="text-gray-600">
-                                  {schedule.subject.SubjectCode}
-                                </div>
-                                {schedule.room && (
-                                  <div className="text-gray-500 mt-1">
-                                    ห้อง {schedule.room.RoomName}
+                          {timeRange && (
+                            <div className="text-[10px] md:text-xs text-gray-600 mt-1">
+                              {timeRange.start}-{timeRange.end}
+                            </div>
+                          )}
+                        </td>
+                        {dayOrder.map((day) => {
+                          const schedule = gridData[day]!.get(slotNum);
+                          return (
+                            <td
+                              key={`${day}-${slotNum}`}
+                              className="border border-gray-300 px-2 md:px-3 py-2 align-top"
+                            >
+                              {schedule ? (
+                                <div className="text-xs md:text-sm">
+                                  <div className="font-semibold text-gray-900 mb-1">
+                                    {schedule.subject.SubjectName}
                                   </div>
-                                )}
-                                {schedule.teachers_responsibility.length >
-                                  0 && (
-                                  <div className="text-gray-500 mt-1 text-[10px] md:text-xs">
-                                    {schedule.teachers_responsibility
-                                      .map(
-                                        (tr) =>
-                                          `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
-                                      )
-                                      .join(", ")}
+                                  <div className="text-gray-600">
+                                    {schedule.subject.SubjectCode}
                                   </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="text-xs md:text-sm text-gray-400 text-center">
-                                -
-                              </div>
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                                  {schedule.room && (
+                                    <div className="text-gray-500 mt-1">
+                                      ห้อง {schedule.room.RoomName}
+                                    </div>
+                                  )}
+                                  {schedule.teachers_responsibility.length >
+                                    0 && (
+                                    <div className="text-gray-500 mt-1 text-[10px] md:text-xs">
+                                      {schedule.teachers_responsibility
+                                        .map(
+                                          (tr) =>
+                                            `${tr.teacher.Prefix}${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
+                                        )
+                                        .join(", ")}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="text-xs md:text-sm text-gray-400 text-center">
+                                  -
+                                </div>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

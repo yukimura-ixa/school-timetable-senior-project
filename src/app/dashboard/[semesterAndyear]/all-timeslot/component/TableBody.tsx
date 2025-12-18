@@ -1,6 +1,7 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { teacher } from "@/prisma/generated/client";
 import LockIcon from "@mui/icons-material/Lock";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
@@ -34,7 +35,7 @@ const TableBody = (props: Props) => {
           .map((tid) => tid.TeacherID)
           .includes(TeacherID) &&
         dayOfWeekThai[item.timeslot.DayOfWeek] == Day &&
-        parseInt(item.timeslot.TimeslotID.substring(10)) == SlotNumber,
+        extractPeriodFromTimeslotId(item.timeslot.TimeslotID) == SlotNumber,
     );
     const convertClass = filterClass
       .map((item) => `${item.GradeID[0]}/${item.GradeID[2]}`)

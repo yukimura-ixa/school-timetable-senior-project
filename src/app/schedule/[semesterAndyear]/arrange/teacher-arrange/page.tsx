@@ -39,6 +39,9 @@ import {
 // Client Logger
 import { createClientLogger } from "@/lib/client-logger";
 
+// Utils
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+
 const log = createClientLogger("TeacherArrangePage");
 
 // Server Actions (Clean Architecture)
@@ -146,8 +149,6 @@ type TeacherInfo = teacher;
 type EnrichedTimeslot = timeslot & {
   subject: SubjectData | null;
 };
-
-
 
 /**
  * Main Teacher Arrange Page Component (Refactored)
@@ -571,7 +572,7 @@ export default function TeacherArrangePageRefactored() {
       .map((item: timeslot) => ({
         timeslotID: item.TimeslotID,
         breaktime: item.Breaktime,
-        slotNumber: parseInt(item.TimeslotID.substring(10)),
+        slotNumber: extractPeriodFromTimeslotId(item.TimeslotID),
       }));
 
     // IMPROVED: AllData uses null for empty slots (consistent with type checking throughout)

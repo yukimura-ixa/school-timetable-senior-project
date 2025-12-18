@@ -136,6 +136,13 @@ The system uses a relational database with the following main entities:
 
 **Entity-Relationship Diagram:** See `/database/er-diagram.mwb` for complete schema
 
+**Standard ID Formats:**
+
+- **TimeslotID**: `{SEMESTER}-{YEAR}-{DAY}{PERIOD}` (e.g., `1-2567-MON1`)
+- **ConfigID**: `{SEMESTER}-{YEAR}` (e.g., `1-2567`)
+
+For detailed format specifications and utility functions, see [AGENTS.md Section 4.3](AGENTS.md#43-standard-id-formats).
+
 ---
 
 ## 📖 Documentation

@@ -246,28 +246,26 @@ export function sumCategoryCredits(credits: CategoryCredits): number {
 
 /**
  * Extract period number from TimeslotID
- * Format: "SEMESTER-YEAR-DAY-PERIOD" (e.g., "1-2567-MON-1")
+ * Re-exports from centralized utility for backwards compatibility
+ * Format: "SEMESTER-YEAR-DAYPERIOD" (e.g., "1-2567-MON1")
  * @param timeslotId - Timeslot ID string
  * @returns Period number (1-8), or null if invalid format
  */
-export function extractPeriodFromTimeslotId(timeslotId: string): number | null {
-  const parts = timeslotId.split("-");
-  if (parts.length < 4) return null;
-
-  const period = parseInt(parts[3] || "0", 10);
-  return isNaN(period) ? null : period;
-}
+export { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 /**
  * Extract day from TimeslotID
- * Format: "SEMESTER-YEAR-DAY-PERIOD" (e.g., "1-2567-MON-1")
+ * Format: "SEMESTER-YEAR-DAYPERIOD" (e.g., "1-2567-MON1")
  * @param timeslotId - Timeslot ID string
  * @returns Day string (MON, TUE, etc.), or null if invalid format
  */
 export function extractDayFromTimeslotId(timeslotId: string): string | null {
-  const parts = timeslotId.split("-");
-  if (parts.length < 4) return null;
-  return parts[2] || null;
+  if (!timeslotId || typeof timeslotId !== "string") {
+    return null;
+  }
+  // Match pattern: SEMESTER-YEAR-DAYPERIOD (e.g., 1-2567-MON1)
+  const match = timeslotId.match(/^\d+-\d+-([A-Z]{3})\d+$/);
+  return match?.[1] ?? null;
 }
 
 /**

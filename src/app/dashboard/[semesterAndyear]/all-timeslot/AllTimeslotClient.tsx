@@ -67,6 +67,8 @@ import type { teacher, timeslot } from "@/prisma/generated/client";
 
 import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
 
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+
 type AllTimeslotClientProps = {
   timeslots: timeslot[];
 
@@ -154,7 +156,7 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
 
       Breaktime: item.Breaktime,
 
-      SlotNumber: parseInt(item.TimeslotID.substring(10)),
+      SlotNumber: extractPeriodFromTimeslotId(item.TimeslotID),
     }));
 
   const firstSlot = data[0];

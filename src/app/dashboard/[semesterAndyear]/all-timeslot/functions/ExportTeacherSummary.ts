@@ -2,6 +2,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { teacher } from "@/prisma/generated/client";
 import type { Prisma } from "@/prisma/generated/client";
 import ExcelJS from "exceljs";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 // Type matching ClassScheduleWithSummary from repository
 type ClassScheduleWithSummary = Prisma.class_scheduleGetPayload<{
@@ -122,7 +123,7 @@ export const ExportTeacherSummary = (
                 .map((tid: { TeacherID: number }) => tid.TeacherID)
                 .includes(tch.TeacherID) &&
               dayOfWeekThai[item.timeslot.DayOfWeek] === day.Day &&
-              parseInt(item.timeslot.TimeslotID.substring(10)) === num,
+              extractPeriodFromTimeslotId(item.timeslot.TimeslotID) === num,
           );
           const obj: Record<string, string> = {};
           const keyname = `${day.Day}-${num}`;

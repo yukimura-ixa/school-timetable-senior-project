@@ -171,6 +171,62 @@ When unsure, assume the strictest MOE-compliant interpretation and mark a TODO.
 
 Any change to curriculum structure, credit logic, or validation is **Thoughtbox-mandatory**.
 
+### 4.3 Standard ID Formats
+
+The application uses specific string formats for identifiers. **Always use these formats** when generating or parsing IDs.
+
+#### TimeslotID Format
+
+```
+{SEMESTER}-{YEAR}-{DAY}{PERIOD}
+```
+
+| Component | Description                   | Examples                          |
+| --------- | ----------------------------- | --------------------------------- |
+| SEMESTER  | 1 or 2                        | `1`, `2`                          |
+| YEAR      | Thai Buddhist year (4 digits) | `2567`, `2568`                    |
+| DAY       | 3-letter day code             | `MON`, `TUE`, `WED`, `THU`, `FRI` |
+| PERIOD    | Period number (no separator)  | `1`, `2`, ..., `8`                |
+
+**Examples:**
+
+- `1-2567-MON1` → Semester 1, Year 2567, Monday, Period 1
+- `2-2568-FRI8` → Semester 2, Year 2568, Friday, Period 8
+
+> [!CAUTION]
+> **No hyphen before period number!**  
+> ❌ Wrong: `1-2567-MON-1`  
+> ✅ Correct: `1-2567-MON1`
+
+#### ConfigID Format
+
+```
+{SEMESTER}-{YEAR}
+```
+
+**Examples:**
+
+- `1-2567` → Semester 1, Year 2567
+- `2-2568` → Semester 2, Year 2568
+
+#### Utility Functions
+
+Always use the centralized utilities in `src/utils/timeslot-id.ts`:
+
+```typescript
+import {
+  extractPeriodFromTimeslotId, // "1-2567-MON1" → 1
+  extractDayFromTimeslotId, // "1-2567-MON1" → "MON"
+  extractYearFromTimeslotId, // "1-2567-MON1" → 2567
+  extractSemesterFromTimeslotId, // "1-2567-MON1" → 1
+  generateTimeslotId, // (1, 2567, "MON", 1) → "1-2567-MON1"
+  parseTimeslotId, // Full parsing with validation
+  isValidTimeslotId, // Validation check
+} from "@/utils/timeslot-id";
+```
+
+**Do not** use `substring()` or manual string splitting to parse TimeslotIDs.
+
 ---
 
 ## 5. PNPM & CI-First Policies

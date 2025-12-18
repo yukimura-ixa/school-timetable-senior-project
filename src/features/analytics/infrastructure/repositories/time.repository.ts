@@ -77,7 +77,7 @@ async function getPeriodDistribution(
   const periodCounts = new Map<number, number>();
   schedules.forEach((schedule: ScheduleTimeslot) => {
     const period = extractPeriodFromTimeslotId(String(schedule.TimeslotID));
-    if (period !== null) {
+    if (period > 0) {
       periodCounts.set(period, (periodCounts.get(period) || 0) + 1);
     }
   });

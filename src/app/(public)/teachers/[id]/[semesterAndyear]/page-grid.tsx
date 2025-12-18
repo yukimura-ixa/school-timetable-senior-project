@@ -6,6 +6,7 @@ import { publicDataRepository } from "@/lib/infrastructure/repositories/public-d
 import type { timeslot, semester } from "@/prisma/generated/client";
 import prisma from "@/lib/prisma";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 // Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
 function parseConfigId(
@@ -99,10 +100,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   });
 
   // Extract slot numbers and create mapping
-  const parseSlotNumber = (timeslotId: string): number => {
-    const rawNumber = Number.parseInt(timeslotId.substring(10), 10);
-    return Number.isNaN(rawNumber) ? 0 : rawNumber;
-  };
+  const parseSlotNumber = extractPeriodFromTimeslotId;
 
   const slotNumbers = Array.from(
     new Set<number>(
