@@ -128,10 +128,12 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
         start: startTime.toLocaleTimeString("th-TH", {
           hour: "2-digit",
           minute: "2-digit",
+          timeZone: "Asia/Bangkok",
         }),
         end: endTime.toLocaleTimeString("th-TH", {
           hour: "2-digit",
           minute: "2-digit",
+          timeZone: "Asia/Bangkok",
         }),
       });
     }

@@ -13,18 +13,22 @@ function Content(props: Props) {
   // /dashboard/[semesterAndYear]/* are dashboard sub-pages (with menu)
   const isSemesterSelectionPage = pathName === "/dashboard";
   
+  // Check if current path is a public route (teacher/class schedule)
+  const isPublicRoute =
+    pathName.startsWith("/teachers/") || pathName.startsWith("/classes/");
+
   return (
     <>
       <div
         className={`flex justify-center ${
           isSemesterSelectionPage
             ? "w-full"
-            : pathName === "/"
+            : pathName === "/" || isPublicRoute
               ? "w-full"
               : "w-full max-w-7xl mx-auto"
         } h-auto`}
       >
-        {pathName === "/" ? (
+        {pathName === "/" || isPublicRoute ? (
           props.children
         ) : pathName === "/signin" ? (
           <span className="w-full h-auto" data-testid="app-content">

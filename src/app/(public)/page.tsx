@@ -87,13 +87,15 @@ export default async function HomePage() {
               >
                 Admin Login
               </Link>
-              <Link
-                href="/teachers/1-2567"
-                prefetch={false}
-                className="inline-flex items-center justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
-              >
-                ดูตารางสอนตัวอย่าง
-              </Link>
+              {currentConfigId && (
+                <Link
+                  href={`/teachers/607/${currentConfigId}`}
+                  prefetch={false}
+                  className="inline-flex items-center justify-center rounded-md border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-700"
+                >
+                  ดูตารางสอนตัวอย่าง
+                </Link>
+              )}
             </div>
           </div>
           <p className="text-xl text-blue-100">

@@ -59,12 +59,27 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   if (!parsed) notFound();
   const { academicYear, semesterEnum } = parsed;
 
-  // Fetch grade level info - support GradeID (M1-1) format
-  const gradeLevel = await prisma.gradelevel.findFirst({
+  // Fetch grade level info - support both GradeID (M1-1) and numeric (101) formats
+  let gradeLevel = await prisma.gradelevel.findFirst({
     where: {
       GradeID: gradeId,
     },
   });
+
+  // If not found, try converting numeric ID to GradeID format
+  if (!gradeLevel && /^\d{3}$/.test(gradeId)) {
+    // Convert numeric format (e.g., "101") to GradeID (e.g., "M1-1")
+    const year = Math.floor(parseInt(gradeId, 10) / 100);
+    const section = parseInt(gradeId, 10) % 100;
+    const convertedGradeId = `M${year}-${section}`;
+
+    gradeLevel = await prisma.gradelevel.findFirst({
+      where: {
+        GradeID: convertedGradeId,
+      },
+    });
+  }
+
   if (!gradeLevel) notFound();
 
   // Fetch class schedules for this grade and term
@@ -114,10 +129,12 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
         start: startTime.toLocaleTimeString("th-TH", {
           hour: "2-digit",
           minute: "2-digit",
+          timeZone: "Asia/Bangkok",
         }),
         end: endTime.toLocaleTimeString("th-TH", {
           hour: "2-digit",
           minute: "2-digit",
+          timeZone: "Asia/Bangkok",
         }),
       });
     }
