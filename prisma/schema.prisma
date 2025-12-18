@@ -33,7 +33,6 @@ model gradelevel {
   GradeID                 String                    @id
   Year                    Int
   Number                  Int
-  DisplayID               String                    @unique
   StudentCount            Int                       @default(0)
   ProgramID               Int?
   class_schedule          class_schedule[]
@@ -186,6 +185,7 @@ model User {
   emailVerified Boolean   @default(false)
   accounts      Account[]
   sessions      Session[]
+  emailOutbox   EmailOutbox[]
 }
 
 model Account {
@@ -229,6 +229,30 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@unique([identifier, value])
+}
+
+model EmailOutbox {
+  id              String           @id @default(cuid())
+  kind            EmailOutboxKind
+  userId          String?
+  toEmail         String
+  subject         String
+  verificationUrl String
+  status          EmailOutboxStatus @default(PENDING)
+  providerMessageId String?
+  lastError       String?
+  expiresAt       DateTime
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([status])
+  @@index([kind])
+  @@index([toEmail])
+  @@index([userId])
 }
 
 enum SemesterStatus {
@@ -296,4 +320,16 @@ enum ActivityType {
   SCOUT
   GUIDANCE
   SOCIAL_SERVICE
+}
+
+enum EmailOutboxKind {
+  EMAIL_VERIFICATION
+  CHANGE_EMAIL
+}
+
+enum EmailOutboxStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
 }

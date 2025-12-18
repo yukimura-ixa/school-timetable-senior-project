@@ -29,13 +29,10 @@ export async function generateMetadata({
   const parsed = parseConfigId(semesterAndyear);
   if (!parsed) return { title: "ไม่พบข้อมูล" };
 
-  // Support both GradeID (M1-1) and DisplayID (101)
+  // Support both GradeID (M1-1) format
   const gradeLevel = await prisma.gradelevel.findFirst({
     where: {
-      OR: [
-        { GradeID: gradeId },
-        { DisplayID: gradeId },
-      ],
+      GradeID: gradeId,
     },
   });
   if (!gradeLevel) return { title: "ไม่พบข้อมูล" };
@@ -62,13 +59,10 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   if (!parsed) notFound();
   const { academicYear, semesterEnum } = parsed;
 
-  // Fetch grade level info - support both GradeID (M1-1) and DisplayID (101)
+  // Fetch grade level info - support GradeID (M1-1) format
   const gradeLevel = await prisma.gradelevel.findFirst({
     where: {
-      OR: [
-        { GradeID: gradeId },
-        { DisplayID: gradeId },
-      ],
+      GradeID: gradeId,
     },
   });
   if (!gradeLevel) notFound();

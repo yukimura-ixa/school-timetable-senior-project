@@ -434,7 +434,6 @@ async function seedDemoData() {
             GradeID: grade.id,
             Year: grade.year,
             Number: grade.number,
-            DisplayID: String(grade.year * 100 + grade.number), // Auto-generated: "101", "102", "103"
             StudentCount: 35,
             ProgramID: demoProgram.ProgramID,
           },
@@ -2210,7 +2209,6 @@ async function main() {
                 GradeID: gradeId,
                 Year: year,
                 Number: number,
-                DisplayID: String(year * 100 + number), // Auto-generated DisplayID
                 StudentCount: 35 + Math.floor(Math.random() * 10),
                 ProgramID: program?.ProgramID,
               },
