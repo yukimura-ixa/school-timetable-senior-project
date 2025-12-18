@@ -97,10 +97,13 @@ export const gradeLevelRepository = {
   async create(data: CreateGradeLevelInput) {
     // Generate GradeID in the canonical format: M{Year}-{Number} e.g., M1-1
     const gradeId = `M${data.Year}-${data.Number}`;
+    // DisplayID stored separately in Prisma; keep it aligned with GradeID to satisfy unique constraint
+    const displayId = gradeId;
 
     return prisma.gradelevel.create({
       data: {
         GradeID: gradeId,
+        DisplayID: displayId,
         Year: data.Year,
         Number: data.Number,
         StudentCount: data.StudentCount ?? 0,
@@ -113,6 +116,8 @@ export const gradeLevelRepository = {
    * Update a gradelevel by ID
    */
   async update(gradeId: string, data: Omit<UpdateGradeLevelInput, "GradeID">) {
+    const displayId = `M${data.Year}-${data.Number}`;
+
     return prisma.gradelevel.update({
       where: {
         GradeID: gradeId,
@@ -120,6 +125,7 @@ export const gradeLevelRepository = {
       data: {
         Year: data.Year,
         Number: data.Number,
+        DisplayID: displayId,
         StudentCount: data.StudentCount ?? undefined,
         ProgramID: data.ProgramID ?? undefined,
       },
