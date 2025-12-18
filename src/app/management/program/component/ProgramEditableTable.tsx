@@ -101,18 +101,7 @@ const validateProgram: (year: number) => ValidationFn<program> =
     if (dup) {
       return "รหัสหลักสูตรซ้ำในรายการ";
     }
-    // Only one program per track for the same year (soft check)
-    if (data.Track) {
-      const sameTrack = all.find(
-        (r) =>
-          r.Year === year &&
-          r.Track === data.Track &&
-          r.ProgramID !== data.ProgramID,
-      );
-      if (sameTrack) {
-        return "ปีเดียวกันห้ามมีแผนการเรียนซ้ำ";
-      }
-    }
+    // Note: multiple programs per track/year now allowed (soft check removed)
     return null;
   };
 

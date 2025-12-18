@@ -70,9 +70,6 @@ export default function SelectSemesterPage() {
     setLoading(true);
     setError(null);
     try {
-      // Force refresh from server to get latest data (after config updates)
-      router.refresh();
-
       const [recentResult, pinnedResult, allResult] = await Promise.all([
         getRecentSemestersAction({ limit: 5 }),
         getPinnedSemestersAction({}),
