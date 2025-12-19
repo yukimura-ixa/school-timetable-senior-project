@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { usePathname, useRouter } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -16,7 +16,14 @@ function Navbar() {
   const pathName = usePathname();
   const router = useRouter();
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
-  const appRole = normalizeAppRole(session?.user?.role);
+
+  // Prevent hydration mismatches: session/role can be available immediately on the client
+  // but are not available during SSR for Client Components.
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => setIsHydrated(true), []);
+
+  const hydratedSession = isHydrated ? session : null;
+  const hydratedRole = normalizeAppRole(hydratedSession?.user?.role);
   return (
     <>
       {pathName === "/signin" || pathName === "/" ? null : (
@@ -30,7 +37,7 @@ function Navbar() {
                 </h1>
               </Link>
               <ul className="flex w-fit justify-between gap-6">
-                {appRole === "admin" ? (
+                {hydratedRole === "admin" ? (
                   <li className="relative py-2 px-3 group">
                     <Link href={"/management"}>
                       <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
@@ -53,7 +60,7 @@ function Navbar() {
             {/* Rightside */}
             <div className="flex w-fit justify-between gap-4 items-center mr-10">
               {/* Semester Selector */}
-              {session && <SemesterSelector />}
+              {hydratedSession && <SemesterSelector />}
 
               {/* User Info Card - Clickable to go to profile */}
               <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200">
@@ -80,23 +87,25 @@ function Navbar() {
                   </div>
                   <div className="flex flex-col min-w-[100px]">
                     <p className="font-semibold text-sm text-gray-800 truncate max-w-[150px]">
-                      {!session || isPending ? "นักเรียน" : session?.user?.name}
+                      {!hydratedSession || isPending
+                        ? "นักเรียน"
+                        : hydratedSession.user?.name}
                     </p>
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${
-                          appRole === "admin"
+                          hydratedRole === "admin"
                             ? "bg-purple-500"
-                            : appRole === "teacher"
+                            : hydratedRole === "teacher"
                               ? "bg-blue-500"
                               : "bg-green-500"
                         }`}
                       />
                       <p className="text-xs font-medium text-slate-600">
-                        {session && appRole
-                          ? appRole === "admin"
+                        {hydratedSession && hydratedRole
+                          ? hydratedRole === "admin"
                             ? "ผู้ดูแลระบบ"
-                            : appRole === "teacher"
+                            : hydratedRole === "teacher"
                               ? "คุณครู"
                               : "นักเรียน"
                           : "ไม่ระบุบทบาท"}
@@ -105,7 +114,7 @@ function Navbar() {
                   </div>
                 </Link>
                 {/* Logout Button */}
-                {session && (
+                {hydratedSession && (
                   <button
                     onClick={async () => {
                       await authClient.signOut({

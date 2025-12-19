@@ -3,6 +3,7 @@ import { pdfStyles } from '../styles/pdf-styles';
 import { TimetableHeader } from './components/TimetableHeader';
 import { TimetableGrid } from './components/TimetableGrid';
 import { CreditSummary } from './components/CreditSummary';
+import { formatThaiDateNumericBangkok } from '@/utils/datetime';
 
 export interface TeacherTimetableData {
   teacherId: number;
@@ -48,7 +49,7 @@ export const TeacherTimetablePDF = ({ data }: { data: TeacherTimetableData }) =>
       
       <View style={pdfStyles.footer}>
         <Text>
-          สร้างเมื่อ: {new Date().toLocaleDateString('th-TH')}
+          สร้างเมื่อ: {formatThaiDateNumericBangkok(new Date())}
         </Text>
       </View>
     </Page>

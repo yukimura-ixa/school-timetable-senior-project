@@ -3,6 +3,8 @@
  * Functions for exporting data to CSV, Excel, and PDF formats
  */
 
+import { formatThaiDateTimeBangkok } from "@/utils/datetime";
+
 /**
  * Convert array of objects to CSV string
  */
@@ -89,15 +91,9 @@ export function downloadJSON(
 /**
  * Format Thai date for exports
  */
+
 export function formatThaiDate(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("th-TH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
+  return formatThaiDateTimeBangkok(date);
 }
 
 /**

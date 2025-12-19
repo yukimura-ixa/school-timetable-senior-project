@@ -16,6 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { formatBangkokDateTime } from "@/utils/datetime";
 
 export type EmailOutboxRow = {
   id: string;
@@ -110,7 +111,7 @@ export default function EmailOutboxTable({ rows }: { rows: EmailOutboxRow[] }) {
               filtered.map((r) => (
                 <TableRow key={r.id} hover>
                   <TableCell sx={{ whiteSpace: "nowrap" }}>
-                    {new Date(r.createdAt).toLocaleString()}
+                    {formatBangkokDateTime(r.createdAt)}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -137,7 +138,7 @@ export default function EmailOutboxTable({ rows }: { rows: EmailOutboxRow[] }) {
                     </Stack>
                   </TableCell>
                   <TableCell sx={{ whiteSpace: "nowrap" }}>
-                    {new Date(r.expiresAt).toLocaleString()}
+                    {formatBangkokDateTime(r.expiresAt)}
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
@@ -171,4 +172,3 @@ export default function EmailOutboxTable({ rows }: { rows: EmailOutboxRow[] }) {
     </Stack>
   );
 }
-

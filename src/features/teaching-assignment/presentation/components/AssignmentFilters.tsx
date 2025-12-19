@@ -11,6 +11,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import type { semester, gradelevel } from "@/prisma/generated/client";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 interface AssignmentFiltersProps {
   gradeId: string;
@@ -110,7 +111,7 @@ export function AssignmentFilters({
   };
 
   // Generate year options (current year ± 2)
-  const currentYear = new Date().getFullYear() + 543; // Thai Buddhist year
+  const currentYear = getBangkokThaiBuddhistYear(); // Thai Buddhist year
   const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
   return (
@@ -180,3 +181,4 @@ export function AssignmentFilters({
     </Box>
   );
 }
+

@@ -29,6 +29,7 @@ import type { SemesterDTO } from "@/features/semester/application/schemas/semest
 import { semesterThai } from "@/models/semester-thai";
 import { pinSemesterAction } from "@/features/semester/application/actions/semester.actions";
 import { ConfigureTimeslotsDialog } from "./ConfigureTimeslotsDialog";
+import { formatThaiDateShortBangkok } from "@/utils/datetime";
 
 type Props = {
   semester: SemesterDTO;
@@ -71,11 +72,7 @@ export function SemesterCard({
 
   const formatDate = (date?: Date | null) => {
     if (!date) return "-";
-    return new Intl.DateTimeFormat("th-TH", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
+    return formatThaiDateShortBangkok(date);
   };
 
   const handlePin = async (e: React.MouseEvent) => {

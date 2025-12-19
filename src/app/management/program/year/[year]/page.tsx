@@ -1,82 +1,95 @@
-"use client";
-import React from "react";
+import { Suspense } from "react";
+import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import { ProgramYearPageClient } from "./ProgramYearPageClient";
+import { Box, Paper, Typography, Button, Stack, Skeleton } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import type { program } from "@/prisma/generated/client";
-import useSWR from "swr";
-import { useParams } from "next/navigation";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import Link from "next/link";
-import { Box } from "@mui/material";
-import {
-  CardSkeleton,
-  NoDataEmptyState,
-  NetworkErrorEmptyState,
-} from "@/components/feedback";
-import ProgramEditableTable from "../../component/ProgramEditableTable";
 
-// Server Actions (Clean Architecture)
-import { getProgramsByYearAction } from "@/features/program/application/actions/program.actions";
+interface PageProps {
+  params: Promise<{ year: string }>;
+}
 
-function StudyProgram() {
-  const params = useParams();
-  const yearNum = Number(params.year?.toString() ?? "0");
+// Fetch programs for a specific year
+async function getProgramsByYear(year: number): Promise<program[]> {
+  const programs = await prisma.program.findMany({
+    where: { Year: year },
+    orderBy: { ProgramName: "asc" },
+  });
+  return programs;
+}
 
-  // Fetch programs using Server Action
-  const swr = useSWR<program[]>(
-    ["programs-year", String(yearNum)],
-    async () => {
-      const result = await getProgramsByYearAction({ Year: yearNum });
-      return result?.data ?? [];
-    },
-  );
-
-  const programs = swr.data ?? [];
-
+// Loading skeleton
+function ProgramDataGridSkeleton() {
   return (
-    <>
-      <div className="flex justify-start p-4">
-        <Link href="/management/program">
-          <button className="hover:bg-slate-300 active:bg-slate-400 p-2 rounded bg-slate-100 transition-all duration-200">
-            <KeyboardBackspaceIcon />
-            <span className="ml-2">กลับ</span>
-          </button>
-        </Link>
-      </div>
-      <div className="w-full h-full flex justify-center">
-        <Box className="w-[95%] max-w-[1400px]">
-          <h1 className="text-2xl font-semibold my-4">
-            หลักสูตรทั้งหมด (มัธยมศึกษาปีที่ {yearNum})
-          </h1>
-          {swr.isLoading && <CardSkeleton />}
-
-          {swr.error && (
-            <div className="flex justify-center items-center">
-              <NetworkErrorEmptyState />
-            </div>
-          )}
-
-          {!swr.isLoading && !swr.error && programs.length === 0 && (
-            <div className="flex justify-center items-center">
-              <NoDataEmptyState
-                entityName={`หลักสูตรสำหรับมัธยมศึกษาปีที่ ${yearNum}`}
-              />
-            </div>
-          )}
-
-          {!swr.isLoading && !swr.error && programs.length > 0 && (
-            <div className="my-4">
-              <ProgramEditableTable
-                year={yearNum}
-                rows={programs}
-                mutate={() => {
-                  void swr.mutate();
-                }}
-              />
-            </div>
-          )}
-        </Box>
-      </div>
-    </>
+    <Stack spacing={2}>
+      <Skeleton variant="rectangular" height={56} />
+      <Skeleton variant="rectangular" height={400} />
+    </Stack>
   );
 }
 
-export default StudyProgram;
+// Main content
+async function ProgramYearContent({ year }: { year: number }) {
+  const programs = await getProgramsByYear(year);
+
+  return <ProgramYearPageClient year={year} initialData={programs} />;
+}
+
+// Page component
+export default async function ProgramYearPage({ params }: PageProps) {
+  const { year: yearParam } = await params;
+  const year = parseInt(yearParam, 10);
+
+  // Validate year
+  if (isNaN(year) || year < 1 || year > 6) {
+    notFound();
+  }
+
+  return (
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      {/* Header */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          background: "linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%)",
+        }}
+      >
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          justifyContent="space-between"
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          spacing={2}
+        >
+          <Box>
+            <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+              <Button
+                href="/management/program"
+                startIcon={<ArrowBackIcon />}
+                size="small"
+                color="inherit"
+              >
+                กลับ
+              </Button>
+            </Stack>
+            <Typography variant="h4" fontWeight={700}>
+              หลักสูตรมัธยมศึกษาปีที่ {year}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              จัดการหลักสูตรการศึกษาสำหรับ ม.{year}
+            </Typography>
+          </Box>
+        </Stack>
+      </Paper>
+
+      {/* Content */}
+      <Suspense fallback={<ProgramDataGridSkeleton />}>
+        <ProgramYearContent year={year} />
+      </Suspense>
+    </Box>
+  );
+}

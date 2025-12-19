@@ -46,14 +46,7 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
     useState<boolean>(false);
   const [bulkLockModalOpen, setBulkLockModalOpen] = useState<boolean>(false);
   const [templatesModalOpen, setTemplatesModalOpen] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    // Load preference from localStorage
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("lockScheduleViewMode");
-      return (saved as ViewMode) || "calendar";
-    }
-    return "calendar";
-  });
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 
   const { confirm, dialog } = useConfirmDialog();
 
@@ -73,6 +66,14 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
 
   const [selectedLock, setSelectedLock] =
     useState<GroupedLockedSchedule | null>(null);
+
+  // Load view preference after hydration (avoid SSR/client mismatch)
+  useEffect(() => {
+    const saved = localStorage.getItem("lockScheduleViewMode");
+    if (saved === "list" || saved === "calendar") {
+      setViewMode(saved);
+    }
+  }, []);
 
   // Save view preference
   useEffect(() => {

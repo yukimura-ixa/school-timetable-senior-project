@@ -39,6 +39,7 @@ import {
 } from "@/features/program/application/actions/program.actions";
 import AddStudyProgramModal from "./AddStudyProgramModal";
 import EditStudyProgramModal from "./EditStudyProgramModal";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 // Thai translations for ProgramTrack enum
 const programTrackThai: Record<ProgramTrack, string> = {
@@ -82,7 +83,7 @@ export default function ProgramTable({
     });
     // If no years in data, add current Thai year
     if (years.size === 0) {
-      years.add(new Date().getFullYear() + 543);
+      years.add(getBangkokThaiBuddhistYear());
     }
     return Array.from(years).sort((a, b) => b - a);
   }, [rows]);

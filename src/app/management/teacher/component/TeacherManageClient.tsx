@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { teacher } from "@/prisma/generated/client";
-import TeacherTable from "@/app/management/teacher/component/TeacherTable";
+import { TeacherDataGrid } from "@/app/management/teacher/component/TeacherDataGrid";
 import {
   TeacherListSkeleton,
   NoTeachersEmptyState,
@@ -46,6 +46,6 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
     return <TeacherListSkeleton count={6} />;
   }
 
-  // Success state
-  return <TeacherTable tableData={teachers} mutate={handleMutate} />;
+  // Success state - now using DataGrid
+  return <TeacherDataGrid initialData={teachers} onMutate={handleMutate} />;
 }

@@ -1,4 +1,4 @@
-import React, { useState, Fragment, type JSX } from "react";
+import React, { useEffect, useState, Fragment, type JSX } from "react";
 import TextField from "@/components/mui/TextField";
 import { AiOutlineClose } from "react-icons/ai";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
@@ -33,6 +33,14 @@ type props = {
 function AddModalForm({ closeModal, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const generateTempTeacherEmail = () => {
+    try {
+      return `new_teacher_${crypto.randomUUID()}@school.local`;
+    } catch {
+      return `new_teacher_${Date.now()}@school.local`;
+    }
+  };
   const [teachers, setTeachers] = useState<TeacherFormState[]>([
     {
       TeacherID: null,
@@ -40,10 +48,17 @@ function AddModalForm({ closeModal, mutate }: props) {
       Firstname: "",
       Lastname: "",
       Department: "คณิตศาสตร์",
-      Email: `new_teacher_${crypto.randomUUID()}@school.local`,
+      Email: "",
       Role: "teacher",
     },
   ]);
+
+  useEffect(() => {
+    setTeachers((prev) =>
+      prev.map((t) => (t.Email ? t : { ...t, Email: generateTempTeacherEmail() })),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addData = async (data: TeacherFormState[]) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลครู", {
@@ -92,10 +107,10 @@ function AddModalForm({ closeModal, mutate }: props) {
       Firstname: "",
       Lastname: "",
       Department: "คณิตศาสตร์",
-      Email: `new_teacher_${Date.now()}@school.local`,
+      Email: generateTempTeacherEmail(),
       Role: "teacher",
     };
-    setTeachers(() => [...teachers, newTeacher]);
+    setTeachers((prev) => [...prev, newTeacher]);
   };
   const removeList = (index: number): void => {
     const copyArray = [...teachers];

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { subject } from "@/prisma/generated/client";
-import SubjectTable from "@/app/management/subject/component/SubjectTable";
+import { SubjectDataGrid } from "@/app/management/subject/component/SubjectDataGrid";
 import {
   SubjectListSkeleton,
   NoSubjectsEmptyState,
@@ -46,6 +46,6 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
     return <SubjectListSkeleton count={8} />;
   }
 
-  // Success state
-  return <SubjectTable tableData={subjects} mutate={handleMutate} />;
+  // Success state - now using DataGrid
+  return <SubjectDataGrid initialData={subjects} onMutate={handleMutate} />;
 }

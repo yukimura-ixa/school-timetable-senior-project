@@ -81,7 +81,7 @@ next-env.d.ts
 # VS Code user profiles (not workspace-specific)
 /.vscode/
 
-prompt.md
+# prompt.md
 .gemini/
 gha-creds-*.json
 .py

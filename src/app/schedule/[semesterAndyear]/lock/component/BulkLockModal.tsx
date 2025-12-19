@@ -35,6 +35,7 @@ import {
 import { RoomAutocomplete } from "@/components/room";
 import type { room } from "@/prisma/generated/client";
 import { enqueueSnackbar } from "notistack";
+import { formatBangkokTime } from "@/utils/datetime";
 import { createBulkLocksAction } from "@/features/lock/application/actions/lock.actions";
 import type { semester } from "@/prisma/generated/client";
 import { useRoomAvailability } from "@/hooks/useRoomAvailability";
@@ -186,7 +187,7 @@ export default function BulkLockModal({
 
         if (timeslot && grade && subject && room) {
           preview.push({
-            timeslot: `${DAY_NAMES[timeslot.Day]} ${timeslot.StartTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`,
+            timeslot: `${DAY_NAMES[timeslot.Day]} ${formatBangkokTime(timeslot.StartTime)}`,
             grade: grade.GradeName,
             subject: subject.SubjectName,
             room: room.RoomName,
@@ -383,7 +384,7 @@ export default function BulkLockModal({
                           }
                         />
                       }
-                      label={`${DAY_NAMES[timeslot.Day]} ${timeslot.StartTime.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}`}
+                      label={`${DAY_NAMES[timeslot.Day]} ${formatBangkokTime(timeslot.StartTime)}`}
                     />
                   ))}
                 </FormGroup>

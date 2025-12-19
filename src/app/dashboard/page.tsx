@@ -48,7 +48,9 @@ import type { InferOutput } from "valibot";
 export default function SelectSemesterPage() {
   const router = useRouter();
   const { data: session } = authClient.useSession();
-  const isAdmin = isAdminRole(normalizeAppRole(session?.user?.role));
+  const [isHydrated, setIsHydrated] = useState(false);
+  const isAdmin =
+    isHydrated && isAdminRole(normalizeAppRole(session?.user?.role));
 
   // State
   const [recentSemesters, setRecentSemesters] = useState<SemesterDTO[]>([]);
@@ -96,6 +98,7 @@ export default function SelectSemesterPage() {
 
   // Load initial data
   useEffect(() => {
+    setIsHydrated(true);
     void loadData();
   }, [loadData]);
 

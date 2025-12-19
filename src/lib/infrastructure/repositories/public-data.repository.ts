@@ -13,6 +13,7 @@
 import { cache } from "react";
 import prisma from "@/lib/prisma";
 import type { Prisma, semester } from "@/prisma/generated/client";
+import { formatThaiDateShortBangkok } from "@/utils/datetime";
 
 // ============================================================================
 // Type Definitions
@@ -465,11 +466,7 @@ export const publicDataRepository = {
         totalPrograms: 0,
         periodsPerDay: 0,
         currentTerm: "N/A",
-        lastUpdated: new Date().toLocaleDateString("th-TH", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
+        lastUpdated: formatThaiDateShortBangkok(new Date()),
       };
     }
 
@@ -500,11 +497,7 @@ export const publicDataRepository = {
       config.Semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2";
 
     // Format date in Thai locale (short format: 14 พ.ย. 2568)
-    const formattedDate = config.updatedAt.toLocaleDateString("th-TH", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const formattedDate = formatThaiDateShortBangkok(config.updatedAt);
 
     return {
       totalTeachers: teacherCount,

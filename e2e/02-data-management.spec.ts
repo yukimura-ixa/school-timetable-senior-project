@@ -62,58 +62,67 @@ test.describe("Data Management - Teacher CRUD", () => {
     await createTeacherViaModal(page, teacher);
   });
 
-  test("TC-003-05: Edit teacher", async ({ authenticatedAdmin }) => {
+  test("TC-003-05: Edit teacher via inline DataGrid editing", async ({
+    authenticatedAdmin,
+  }) => {
     const { page } = authenticatedAdmin;
     const teacher = buildTeacher("edit");
 
     await createTeacherViaModal(page, teacher);
 
-    // Search for the teacher we just added
-    await page.getByTestId("teacher-search").fill(teacher.firstname);
-    await page.waitForTimeout(500); // Wait for filter
+    // Wait for DataGrid to render the new teacher
+    await expect(page.getByText(teacher.firstname)).toBeVisible({
+      timeout: 15000,
+    });
 
-    // Select the row (first checkbox in body)
-    await page.locator('tbody input[type="checkbox"]').first().check();
+    // Find the row containing our teacher and click the Edit action
+    const row = page
+      .locator('[role="row"]')
+      .filter({ hasText: teacher.firstname })
+      .first();
+    await row.getByLabel("แก้ไข").click();
 
-    // Click Edit
-    await page.getByLabel("edit").click();
-
-    // Change name
+    // In row edit mode, find the firstname input and change it
     const newName = `${teacher.firstname}_Edited`;
-    await page.getByPlaceholder("ชื่อ *").fill(newName);
+    await row.locator("input").first().fill(newName);
 
-    // Click Save
-    await page.getByLabel("save").click();
+    // Click Save action
+    await row.getByLabel("บันทึก").click();
 
-    // Verify success
-    await expect(page.getByText("บันทึกการแก้ไขสำเร็จ")).toBeVisible();
+    // Verify success snackbar
+    await expect(page.getByText("บันทึกข้อมูลสำเร็จ")).toBeVisible({
+      timeout: 15000,
+    });
 
-    // Verify change
+    // Verify the updated name appears
     await expect(page.getByText(newName)).toBeVisible();
   });
 
-  test("TC-003-06: Delete teacher", async ({ authenticatedAdmin }) => {
+  test("TC-003-06: Delete teacher via DataGrid", async ({
+    authenticatedAdmin,
+  }) => {
     const { page } = authenticatedAdmin;
 
     const teacher = buildTeacher("delete");
     await createTeacherViaModal(page, teacher);
 
-    // Search for the teacher (using the edited name)
-    const searchName = teacher.firstname;
-    await page.getByTestId("teacher-search").fill(searchName);
-    await page.waitForTimeout(500);
+    // Wait for DataGrid to render the new teacher
+    await expect(page.getByText(teacher.firstname)).toBeVisible({
+      timeout: 15000,
+    });
 
-    // Select the row
-    await page.locator('tbody input[type="checkbox"]').first().check();
+    // Find the row and click Delete action
+    const row = page
+      .locator('[role="row"]')
+      .filter({ hasText: teacher.firstname })
+      .first();
+    await row.getByLabel("ลบ").click();
 
-    // Click Delete
-    await page.getByLabel("delete").click();
-
-    // Confirm dialog
+    // Confirm deletion in dialog
     await page.getByRole("button", { name: "ลบ", exact: true }).click();
 
-    // Verify removed
-    await expect(page.getByText(searchName)).not.toBeVisible({
+    // Verify teacher is removed
+    await expect(page.getByText(teacher.firstname)).not.toBeVisible({
       timeout: 15000,
     });
   });

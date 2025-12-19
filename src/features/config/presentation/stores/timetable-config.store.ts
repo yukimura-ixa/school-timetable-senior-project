@@ -15,6 +15,7 @@ import {
   CONFIG_CONSTRAINTS,
   generateTimeslotRange,
 } from "@/features/config/domain/constants/config.constants";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 /**
  * Validation errors keyed by field name
@@ -121,7 +122,7 @@ export const useConfigStore = create<ConfigStoreState>()(
     // Initial state
     config: {
       ...DEFAULT_CONFIG,
-      AcademicYear: new Date().getFullYear() + 543, // Default to current Buddhist year
+      AcademicYear: getBangkokThaiBuddhistYear(), // Default to current Buddhist year
       Semester: "SEMESTER_1",
     },
     mode: "create",

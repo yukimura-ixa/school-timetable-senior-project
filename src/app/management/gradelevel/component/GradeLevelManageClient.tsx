@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { gradelevel, program } from "@/prisma/generated/client";
-import GradeLevelTable from "@/app/management/gradelevel/component/GradeLevelTable";
+import { GradeLevelDataGrid } from "@/app/management/gradelevel/component/GradeLevelDataGrid";
 import { TableSkeleton, NoDataEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
@@ -45,11 +45,11 @@ export function GradeLevelManageClient({
     return <TableSkeleton rows={6} />;
   }
 
-  // Success state
+  // Success state - now using DataGrid
   return (
-    <GradeLevelTable
-      tableData={gradelevels}
-      mutate={handleMutate}
+    <GradeLevelDataGrid
+      initialData={gradelevels}
+      onMutate={handleMutate}
       programsByYear={programsByYear}
     />
   );

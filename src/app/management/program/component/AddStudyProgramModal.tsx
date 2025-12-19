@@ -7,6 +7,7 @@ import type { program, subject } from "@/prisma/generated/client";
 import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 // Server Actions
 import { createProgramAction } from "@/features/program/application/actions/program.actions";
@@ -18,7 +19,7 @@ type Props = {
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
   // Get current Thai Buddhist year as default
-  const currentThaiYear = new Date().getFullYear() + 543;
+  const currentThaiYear = getBangkokThaiBuddhistYear();
 
   const [newProgramData, setNewProgramData] = useState<{
     ProgramName: string;

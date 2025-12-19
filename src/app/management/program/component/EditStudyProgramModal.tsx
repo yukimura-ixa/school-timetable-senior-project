@@ -7,6 +7,7 @@ import type { program, subject } from "@/prisma/generated/client";
 import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 // Server Actions
 import { updateProgramAction } from "@/features/program/application/actions/program.actions";
@@ -33,7 +34,7 @@ type Props = {
 
 function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   // Ensure AcademicYear and Semester have defaults (these fields are optional/legacy)
-  const currentThaiYear = new Date().getFullYear() + 543;
+  const currentThaiYear = getBangkokThaiBuddhistYear();
   const [newProgramData, setNewProgramData] = useState({
     ...editData,
     Semester: editData?.Semester || semester.SEMESTER_1,

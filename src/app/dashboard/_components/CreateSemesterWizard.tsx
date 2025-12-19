@@ -33,6 +33,7 @@ import { createSemesterWithTimeslotsAction } from "@/features/semester/applicati
 import type { SemesterDTO } from "@/features/semester/application/schemas/semester.schemas";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 type Props = {
   open: boolean;
@@ -58,9 +59,7 @@ export function CreateSemesterWizard({
   const [loading, setLoading] = useState(false);
 
   // Step 1: Basic Info
-  const [academicYear, setAcademicYear] = useState(
-    new Date().getFullYear() + 543,
-  );
+  const [academicYear, setAcademicYear] = useState(getBangkokThaiBuddhistYear());
   const [semester, setSemester] = useState(1);
 
   // Step 2: Copy from previous
@@ -83,7 +82,7 @@ export function CreateSemesterWizard({
 
   const handleReset = () => {
     setActiveStep(0);
-    setAcademicYear(new Date().getFullYear() + 543);
+    setAcademicYear(getBangkokThaiBuddhistYear());
     setSemester(1);
     setCopyFrom("");
     setCopyConfig(true);

@@ -11,7 +11,7 @@ import {
   deleteTeachersAction,
   updateTeachersAction,
 } from "@/features/teacher/application/actions/teacher.actions";
-import AddModalForm from "./AddModalForm";
+import { AddTeacherDialog } from "./AddTeacherDialog";
 import { Button, Stack } from "@mui/material";
 
 type TeacherTableProps = {
@@ -171,12 +171,11 @@ export default function TeacherTable({ tableData, mutate }: TeacherTableProps) {
 
   return (
     <>
-      {showAddModal && (
-        <AddModalForm
-          closeModal={() => setShowAddModal(false)}
-          mutate={mutate}
-        />
-      )}
+      <AddTeacherDialog
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={mutate}
+      />
 
       <Stack direction="row" justifyContent="flex-end" mb={1}>
         <Button

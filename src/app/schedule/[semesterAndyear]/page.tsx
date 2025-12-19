@@ -19,6 +19,7 @@ function Schedule() {
   );
 
   const path = pathName.substring(0, 16);
+  const DEFAULT_TAB = "assign";
 
   // Extract current tab from URL path (e.g., "/schedule/1-2567/assign" -> "assign")
   const getCurrentTab = (): string => {
@@ -27,7 +28,7 @@ function Schedule() {
       // Handle nested routes like "arrange/teacher-arrange"
       return parts.slice(3).join("/");
     }
-    return "";
+    return DEFAULT_TAB;
   };
 
   const [tabSelect, setTabSelect] = useState<string>(getCurrentTab());
@@ -36,7 +37,14 @@ function Schedule() {
   useEffect(() => {
     const currentTab = getCurrentTab();
     setTabSelect(currentTab);
-  }, [pathName]);
+
+    // Visiting `/schedule/{semesterAndyear}` should land on a real tab route to avoid
+    // rendering an invalid Tabs value (MUI warning) and to show actual content.
+    const parts = pathName.split("/");
+    if (parts.length <= 3) {
+      router.replace(`${path}/${DEFAULT_TAB}`);
+    }
+  }, [pathName, path, router]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setTabSelect(newValue);

@@ -27,6 +27,7 @@ import {
 import { enqueueSnackbar } from "notistack";
 import { copySemesterAction } from "@/features/semester/application/actions/semester.actions";
 import type { SemesterDTO } from "@/features/semester/application/schemas/semester.schemas";
+import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 type Props = {
   open: boolean;
@@ -41,7 +42,7 @@ export function CopySemesterModal({
   sourceSemester,
   onSuccess,
 }: Props) {
-  const [targetYear, setTargetYear] = useState(new Date().getFullYear() + 543);
+  const [targetYear, setTargetYear] = useState(getBangkokThaiBuddhistYear());
   const [targetSemester, setTargetSemester] = useState(1);
   const [copyConfig, setCopyConfig] = useState(true);
   const [copyTimeslots, setCopyTimeslots] = useState(true);

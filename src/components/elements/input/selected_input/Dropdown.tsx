@@ -37,24 +37,43 @@ function Dropdown({
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
   const listboxId = React.useId(); // Generate unique ID for aria-controls
+
+  // Avoid hydration mismatches caused by multi-line template literals (CRLF/LF whitespace differences)
+  // by constructing className strings deterministically.
+  const triggerClassName =
+    "relative flex justify-between items-center border rounded bg-white px-[15px] py-[10px] cursor-pointer select-none gap-5 hover:bg-slate-100 duration-300";
+  const iconClassName = `duration-300 ${isHidden ? "rotate-180" : ""}`;
+  const listClassName = [
+    "absolute",
+    "flex",
+    "z-20",
+    "flex-col",
+    "justify-left",
+    "border",
+    "cursor-pointer",
+    "overflow-hidden",
+    "select-none",
+    "mt-1",
+    "bg-white",
+    "gap-3",
+    useSearchBar ? "pt-5" : "",
+    "overflow-y-scroll",
+    "duration-300",
+    "transition-all",
+    "ease-out",
+    isHidden ? "" : "scale-y-0 translate-y-[-75px]",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const emptyItemClassName =
+    "w-[100%] bg-white flex justify-center items-center px-[15px] py-[10px] cursor-default";
+  const optionClassName =
+    "w-[100%] h-auto bg-white flex justify-left items-center px-[15px] py-[10px] hover:bg-cyan-50 hover:text-cyan-500";
+
   return (
     <div className="relative">
       <div
-        className="
-        relative
-        flex 
-        justify-between 
-        items-center 
-        border
-        rounded
-        bg-white
-        px-[15px] py-[10px]
-        cursor-pointer
-        select-none
-        gap-5
-        hover:bg-slate-100
-        duration-300
-        "
+        className={triggerClassName}
         //กดเพื่อ set state toggle dropdown
         onClick={() => setIsHidden(!isHidden)} //กดปุ๊ปจะเซ็ทค่าเป็นค่าตรงข้ามกับ boolean ปัจจุบัน ด้วยนิเสธ '!'
         style={{
@@ -90,34 +109,13 @@ function Dropdown({
               : currentValue}
         </div>
         <KeyboardArrowDownIcon
-          className={`
-            duration-300
-            ${isHidden ? "rotate-180" : ""}
-        `}
+          className={iconClassName}
           aria-hidden="true"
         />
       </div>
       {/* ถ้าข้อมูลที่ส่งมามี Array.length เท่ากับ 0 จะไม่แสดง Dropdown List เมื่อกด Dropdown */}
       <div
-        className={`
-            absolute
-            flex
-            z-20
-            flex-col
-            justify-left
-            border
-            cursor-pointer
-            overflow-hidden
-            select-none
-            mt-1
-            bg-white
-            gap-3
-            ${useSearchBar ? "pt-5" : ""}
-            overflow-y-scroll
-            duration-300
-            transition-all ease-out
-            ${isHidden ? "" : `scale-y-0 translate-y-[-75px]`} 
-            `} //เช็คสถานะของ isHidden เพื่อเปิด Dropdown List
+        className={listClassName} //เช็คสถานะของ isHidden เพื่อเปิด Dropdown List
         style={{
           width: width === null ? "fit-content" : width,
           height: data.length < 3 ? "auto" : 150, //ถ้าข้อมูลเกิน 3 ชุด จะสั่งให้ fixed ความสูงไว้ที่ 150 แล้ว scroll เอา
@@ -134,17 +132,7 @@ function Dropdown({
           />
         ) : null}
         {data.length === 0 ? (
-          <div
-            className={`
-            w-[100%]
-            bg-white
-            flex
-            justify-center
-            items-center
-            px-[15px] py-[10px]
-            cursor-default
-          `}
-          >
+          <div className={emptyItemClassName}>
             <p className="text-gray-400 text-sm">ไม่พบข้อมูล</p>
           </div>
         ) : (
@@ -153,17 +141,7 @@ function Dropdown({
               const itemId = getItemId ? getItemId(item) : undefined;
               return (
                 <ul
-                  className={`
-                    w-[100%]
-                    h-auto
-                    bg-white
-                    flex
-                    justify-left
-                    items-center
-                    px-[15px] py-[10px] 
-                    hover:bg-cyan-50
-                    hover:text-cyan-500
-                  `}
+                  className={optionClassName}
                   key={`${String(item)}(${index})`}
                   onClick={() => {
                     setIsHidden(false);
