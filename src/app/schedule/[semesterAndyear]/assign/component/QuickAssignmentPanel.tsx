@@ -305,7 +305,11 @@ function QuickAssignmentPanel({
                   onChange={(_event, newValue) => setSelectedGrades(newValue)}
                   options={grades}
                   getOptionLabel={(option) =>
-                    `ม.${option.GradeID.toString()[0]}/${option.GradeID.toString()[2]}`
+                    `ม.${option.Year}/${option.Number}`
+                  }
+                  getOptionKey={(option) => option.GradeID}
+                  isOptionEqualToValue={(option, value) =>
+                    option.GradeID === value.GradeID
                   }
                   renderInput={(params) => (
                     <TextField
@@ -321,7 +325,7 @@ function QuickAssignmentPanel({
                       return (
                         <Chip
                           key={key}
-                          label={`ม.${option.GradeID.toString()[0]}/${option.GradeID.toString()[2]}`}
+                          label={`ม.${option.Year}/${option.Number}`}
                           size="small"
                           {...otherProps}
                         />
