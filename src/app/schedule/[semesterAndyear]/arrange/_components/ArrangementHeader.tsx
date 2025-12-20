@@ -15,13 +15,11 @@ import {
   Stack,
   Typography,
   Button,
-  Select,
-  MenuItem,
   Chip,
   Paper,
-  FormControl,
-  InputLabel,
   Avatar,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -125,45 +123,61 @@ export function ArrangementHeader({
           spacing={2}
           alignItems={{ xs: "stretch", sm: "center" }}
         >
-          <FormControl sx={{ minWidth: 300, flex: 1 }}>
-            <InputLabel id="teacher-select-label">เลือกครูผู้สอน</InputLabel>
-            <Select
-              labelId="teacher-select-label"
-              id="teacher-select"
-              data-testid="teacher-select"
-              aria-label="เลือกครูผู้สอน"
-              value={teacherData?.TeacherID?.toString() || ""}
-              onChange={(e) => onTeacherChange(e.target.value)}
-              label="เลือกครูผู้สอน"
-              startAdornment={
-                <Avatar
-                  sx={{ width: 32, height: 32, mr: 1, bgcolor: "primary.main" }}
-                >
-                  <PersonIcon fontSize="small" />
-                </Avatar>
+          <Autocomplete
+            id="teacher-autocomplete"
+            options={availableTeachers}
+            getOptionLabel={(option) => getTeacherFullName(option)}
+            value={teacherData}
+            onChange={(_, newValue) => {
+              if (newValue) {
+                onTeacherChange(newValue.TeacherID.toString());
+              } else {
+                onTeacherChange("");
               }
-            >
-              <MenuItem value="">
-                <em>-- กรุณาเลือกครู --</em>
-              </MenuItem>
-              {availableTeachers.map((teacher) => (
-                <MenuItem
-                  key={teacher.TeacherID}
-                  value={teacher.TeacherID?.toString() || ""}
-                >
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography>{getTeacherFullName(teacher)}</Typography>
-                    <Chip
-                      label={teacher.Department}
-                      size="small"
-                      variant="outlined"
-                      sx={{ ml: 1 }}
-                    />
-                  </Stack>
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            }}
+            isOptionEqualToValue={(option, value) =>
+              option.TeacherID === value?.TeacherID
+            }
+            renderOption={(props, option) => (
+              <li {...props} key={option.TeacherID}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography>{getTeacherFullName(option)}</Typography>
+                  <Chip
+                    label={option.Department}
+                    size="small"
+                    variant="outlined"
+                    sx={{ ml: 1 }}
+                  />
+                </Stack>
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="เลือกครูผู้สอน"
+                data-testid="teacher-select"
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 1,
+                          bgcolor: "primary.main",
+                        }}
+                      >
+                        <PersonIcon fontSize="small" />
+                      </Avatar>
+                      {params.InputProps.startAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+            sx={{ minWidth: 300, flex: 1 }}
+          />
 
           {/* Current Teacher Info */}
           {teacherData && teacherData.TeacherID && (

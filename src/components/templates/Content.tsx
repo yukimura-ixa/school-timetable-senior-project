@@ -2,6 +2,7 @@
 import { usePathname } from "next/navigation";
 import Menubar from "./Menubar";
 import DashboardMenubar from "./DashboardMenubar";
+import { useUIStore } from "@/stores/uiStore";
 
 type Props = {
   children: React.ReactNode;
@@ -9,78 +10,61 @@ type Props = {
 
 function Content(props: Props) {
   const pathName = usePathname();
+  const { sidebarOpen } = useUIStore();
+
   // /dashboard is the semester selection page (full width)
-  // /dashboard/[semesterAndYear]/* are dashboard sub-pages (with menu)
   const isSemesterSelectionPage = pathName === "/dashboard";
-  
+
   // Check if current path is a public route (teacher/class schedule)
   const isPublicRoute =
     pathName.startsWith("/teachers/") || pathName.startsWith("/classes/");
 
+  // Pages that don't have a sidebar
+  const isNoSidebarPage =
+    pathName === "/" || isPublicRoute || pathName === "/signin";
+
+  // Pages that use DashboardMenubar
+  const isDashboardSubPage =
+    pathName.startsWith("/dashboard/") && !isSemesterSelectionPage;
+
+  // Pages that use Menubar
+  const isManagementPage =
+    pathName.match("/arrange") ||
+    pathName.match("/assign") ||
+    pathName.match("/lock") ||
+    pathName.match("/config") ||
+    pathName.startsWith("/management");
+
+  const showSidebar = !isNoSidebarPage && !isSemesterSelectionPage;
+  const sidebarComponent = isDashboardSubPage ? (
+    <DashboardMenubar />
+  ) : isManagementPage ? (
+    <Menubar />
+  ) : (
+    <Menubar />
+  );
+
   return (
-    <>
-      <div
-        className={`flex justify-center ${
-          isSemesterSelectionPage
-            ? "w-full"
-            : pathName === "/" || isPublicRoute
-              ? "w-full"
-              : "w-full max-w-7xl mx-auto"
-        } h-auto`}
+    <div className="flex w-full h-auto min-h-screen bg-gray-50/30">
+      {showSidebar && sidebarComponent}
+      <main
+        className={`flex-1 flex flex-col items-center transition-all duration-300 ease-in-out ${
+          showSidebar && sidebarOpen ? "pl-0" : "pl-0"
+        }`}
+        data-testid="app-content-wrapper"
       >
-        {pathName === "/" || isPublicRoute ? (
-          props.children
-        ) : pathName === "/signin" ? (
-          <span className="w-full h-auto" data-testid="app-content">
-            {props.children}
-          </span>
-        ) : pathName.match("/dashboard") ? (
-          <>
-            {!isSemesterSelectionPage ? (
-              <>
-                <DashboardMenubar />
-                <span
-                  className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2"
-                  data-testid="app-content"
-                >
-                  {props.children}
-                </span>
-              </>
-            ) : (
-              <span
-                className="flex flex-col w-full min-[1440px]:w-[1440px] h-auto px-5 py-2"
-                data-testid="app-content"
-              >
-                {props.children}
-              </span>
-            )}
-          </>
-        ) : pathName.match("/arrange") ||
-          pathName.match("/assign") ||
-          pathName.match("/lock") ||
-          pathName.match("/config") ? (
-          <>
-            <Menubar />
-            <span
-              className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2"
-              data-testid="app-content"
-            >
-              {props.children}
-            </span>
-          </>
-        ) : (
-          <>
-            <Menubar />
-            <span
-              className="flex flex-col w-[1024px] min-[1440px]:w-[1190px] h-auto px-16 py-2"
-              data-testid="app-content"
-            >
-              {props.children}
-            </span>
-          </>
-        )}
-      </div>
-    </>
+        <div
+          className={`w-full flex-1 flex flex-col ${
+            isNoSidebarPage || isSemesterSelectionPage
+              ? "w-full"
+              : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+          } py-4 transition-all duration-300 ease-in-out`}
+          data-testid="app-content"
+        >
+          {props.children}
+        </div>
+      </main>
+    </div>
   );
 }
 

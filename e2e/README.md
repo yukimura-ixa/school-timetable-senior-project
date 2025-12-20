@@ -4,9 +4,9 @@
 
 This directory contains end-to-end (E2E) tests for the School Timetable Management System using Playwright.
 
-**Test Suite Size:** 31 E2E test files (optimized from 48)  
+**Test Suite Size:** 33 E2E test files (updated Dec 2025)  
 **Estimated Runtime:** 30-40 minutes (full suite)  
-**Last Optimized:** 2025-11-26
+**Last Updated:** 2025-12-21
 
 ## Quick Start
 
@@ -72,6 +72,8 @@ The test suite is organized into **3 tiers** for optimal coverage and performanc
 - `06-refactored-teacher-arrange.spec.ts` - Teacher scheduling (primary)
 - `08-drag-and-drop.spec.ts` - Comprehensive drag-drop scenarios
 - `05-view-teacher-schedule.spec.ts` - Schedule viewing
+- `20-subject-assignment.spec.ts` - Subject assignment flow **(NEW - Dec 2025)**
+- `21-arrangement-flow.spec.ts` - Arrangement workflow **(NEW - Dec 2025)**
 
 #### Conflicts & Validation
 
@@ -339,6 +341,13 @@ Results stored in:
 - Manual/visual tests (2)
 
 **Backup:** `e2e/.backup_20251126_210906/`
+
+### 2025-12-21: Assignment & Arrangement Flow Tests
+
+- **Added 2 new test files** (14 tests total)
+- `20-subject-assignment.spec.ts` - Teacher/subject assignment workflow
+- `21-arrangement-flow.spec.ts` - Schedule arrangement with drag-drop
+- **Serena Memory:** `e2e_assignment_arrangement_tests_dec2025`
 
 ---
 

@@ -273,7 +273,7 @@ export function GradeClassView({
     return (
       <Alert severity="info" sx={{ mt: 2 }}>
         <AlertTitle>ไม่มีข้อมูลห้องเรียน</AlertTitle>
-        ไม่พบห้องเรียนสำหรับมัธยมศึกษาปีที่ {gradeLevel - 6}
+        ไม่พบห้องเรียนสำหรับมัธยมศึกษาปีที่ {gradeLevel}
       </Alert>
     );
   }
@@ -284,7 +284,7 @@ export function GradeClassView({
       <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: "primary.50" }}>
         <Stack spacing={2}>
           <Typography variant="h5" fontWeight="bold">
-            มัธยมศึกษาปีที่ {gradeLevel - 6}
+            มัธยมศึกษาปีที่ {gradeLevel}
           </Typography>
 
           <Grid container spacing={2}>

@@ -14,6 +14,7 @@ import { Tabs, Tab, Box, Badge } from "@mui/material";
 import {
   Person as PersonIcon,
   School as SchoolIcon,
+  Dashboard as ProgressIcon,
 } from "@mui/icons-material";
 import {
   ARRANGE_TABS,
@@ -78,12 +79,12 @@ export function GradeLevelTabs({
 
         {/* Grade Level Tabs */}
         {[
-          { tab: ARRANGE_TABS.GRADE_1, level: 7 },
-          { tab: ARRANGE_TABS.GRADE_2, level: 8 },
-          { tab: ARRANGE_TABS.GRADE_3, level: 9 },
-          { tab: ARRANGE_TABS.GRADE_4, level: 10 },
-          { tab: ARRANGE_TABS.GRADE_5, level: 11 },
-          { tab: ARRANGE_TABS.GRADE_6, level: 12 },
+          { tab: ARRANGE_TABS.GRADE_1, level: 1 },
+          { tab: ARRANGE_TABS.GRADE_2, level: 2 },
+          { tab: ARRANGE_TABS.GRADE_3, level: 3 },
+          { tab: ARRANGE_TABS.GRADE_4, level: 4 },
+          { tab: ARRANGE_TABS.GRADE_5, level: 5 },
+          { tab: ARRANGE_TABS.GRADE_6, level: 6 },
         ].map(({ tab, level }) => {
           const count = getGradeCount(level);
           return (
@@ -111,6 +112,19 @@ export function GradeLevelTabs({
             />
           );
         })}
+
+        {/* Progress Tab */}
+        <Tab
+          value={ARRANGE_TABS.PROGRESS}
+          label={TAB_LABELS[ARRANGE_TABS.PROGRESS]}
+          icon={<ProgressIcon />}
+          iconPosition="start"
+          sx={{
+            "&.Mui-selected": {
+              bgcolor: "info.50",
+            },
+          }}
+        />
       </Tabs>
     </Box>
   );

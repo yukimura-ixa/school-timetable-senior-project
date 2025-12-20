@@ -7,11 +7,15 @@ import { usePathname, useRouter } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { authClient } from "@/lib/auth-client";
 import { normalizeAppRole } from "@/lib/authz";
+import { useUIStore } from "@/stores/uiStore";
+import MenuIcon from "@mui/icons-material/Menu";
+import { IconButton } from "@mui/material";
 
 const FALLBACK_USER_ICON = "/svg/user/usericon.svg";
 import { SemesterSelector } from "./SemesterSelector";
 
 function Navbar() {
+  const { toggleSidebar } = useUIStore();
   const { data: session, isPending } = authClient.useSession();
   const pathName = usePathname();
   const router = useRouter();
@@ -30,7 +34,15 @@ function Navbar() {
         <nav className="flex w-[1280px] xl:w-full justify-center border-b border-gray-200 shadow-sm bg-white">
           <div className="flex w-full xl:w-[1440px] h-full justify-between bg-white px-6 py-3">
             {/* Leftside */}
-            <span className="flex w-fit justify-between items-center gap-10">
+            <span className="flex w-fit justify-between items-center gap-4">
+              <IconButton
+                onClick={toggleSidebar}
+                edge="start"
+                className="hover:bg-blue-50 transition-colors"
+                aria-label="เมนู"
+              >
+                <MenuIcon className="fill-gray-600" />
+              </IconButton>
               <Link href={"/"} className="group">
                 <h1 className="text-lg font-bold cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-cyan-700 transition-all">
                   ระบบจัดตารางเรียนตารางสอน

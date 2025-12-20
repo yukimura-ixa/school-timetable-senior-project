@@ -14,7 +14,12 @@ import { semester } from "@/prisma/generated/client";
  * Schema for creating a single gradelevel
  */
 export const createGradeLevelSchema = v.object({
-  Year: v.number("ปีต้องเป็นตัวเลข"),
+  Year: v.pipe(
+    v.number("ปีต้องเป็นตัวเลข"),
+    v.integer("ปีต้องเป็นจำนวนเต็ม"),
+    v.minValue(1, "ปีต้องอยู่ระหว่าง 1-6"),
+    v.maxValue(6, "ปีต้องอยู่ระหว่าง 1-6"),
+  ),
   Number: v.number("หมายเลขชั้นต้องเป็นตัวเลข"),
   StudentCount: v.optional(v.number("จำนวนนักเรียนต้องเป็นตัวเลข")),
   // ProgramID can be number or null, and is optional in input
@@ -41,7 +46,12 @@ export type CreateGradeLevelsInput = v.InferOutput<
  */
 export const updateGradeLevelSchema = v.object({
   GradeID: v.pipe(v.string(), v.minLength(1, "รหัสชั้นเรียนห้ามว่าง")),
-  Year: v.number("ปีต้องเป็นตัวเลข"),
+  Year: v.pipe(
+    v.number("ปีต้องเป็นตัวเลข"),
+    v.integer("ปีต้องเป็นจำนวนเต็ม"),
+    v.minValue(1, "ปีต้องอยู่ระหว่าง 1-6"),
+    v.maxValue(6, "ปีต้องอยู่ระหว่าง 1-6"),
+  ),
   Number: v.number("หมายเลขชั้นต้องเป็นตัวเลข"),
   StudentCount: v.optional(v.number("จำนวนนักเรียนต้องเป็นตัวเลข")),
   ProgramID: v.optional(

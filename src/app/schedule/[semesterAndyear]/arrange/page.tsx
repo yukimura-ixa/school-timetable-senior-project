@@ -52,6 +52,7 @@ import {
 // Domain Constants
 import {
   tabToGradeLevel,
+  ARRANGE_TABS,
   type ArrangeTab,
 } from "@/features/schedule-arrangement/domain/constants/arrangement.constants";
 
@@ -1527,14 +1528,6 @@ export default function ArrangementPage() {
                         filledSlots={scheduledSubjects.length}
                       />
 
-                      {/* Progress Indicators - Phase 2 Enhanced */}
-
-                      <ScheduleProgressIndicators
-                        overallProgress={overallProgress}
-                        teacherProgress={teacherProgressData}
-                        classProgress={classProgressData}
-                      />
-
                       {/* Timetable Grid */}
 
                       {isLoadingSchedule ? (
@@ -1601,15 +1594,27 @@ export default function ArrangementPage() {
             </>
           )}
 
-          {/* Grade Level Tab Content */}
-          {currentTab !== "teacher" && (
-            <GradeClassView
-              gradeLevel={selectedGradeLevel || 7}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              classes={gradeClassData as any}
-              isLoading={isLoadingGradeSchedules}
-            />
+          {/* Progress Tab Content */}
+          {currentTab === ARRANGE_TABS.PROGRESS && (
+            <Box sx={{ py: 2 }}>
+              <ScheduleProgressIndicators
+                overallProgress={overallProgress}
+                teacherProgress={teacherProgressData}
+                classProgress={classProgressData}
+              />
+            </Box>
           )}
+
+          {/* Grade Level Tab Content */}
+          {currentTab !== ARRANGE_TABS.TEACHER &&
+            currentTab !== ARRANGE_TABS.PROGRESS && (
+              <GradeClassView
+                gradeLevel={selectedGradeLevel || 1}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                classes={gradeClassData as any}
+                isLoading={isLoadingGradeSchedules}
+              />
+            )}
         </Stack>
 
         {/* Room Selection Dialog */}

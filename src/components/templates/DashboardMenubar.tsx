@@ -4,7 +4,10 @@ import Link from "next/link";
 // @ts-expect-error - JS module without types
 import { showTimetableMenu } from "@/raw-data/menubar-data";
 import { usePathname } from "next/navigation";
+import { useUIStore } from "@/stores/uiStore";
+
 function DashboardMenubar() {
+  const { sidebarOpen } = useUIStore();
   const pathName = usePathname();
   // State placeholders removed: component no longer depends on semester params
 
@@ -16,7 +19,11 @@ function DashboardMenubar() {
   return (
     <>
       {pathName === "/signin" ? null : (
-        <aside className="flex flex-col gap-8 w-[270px] flex-shrink-0 min-h-screen px-5 py-8 bg-gradient-to-b from-gray-50 to-gray-100 border-r border-gray-200 shadow-lg">
+        <aside
+          className={`flex flex-col gap-8 flex-shrink-0 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${
+            sidebarOpen ? "w-[270px] px-5 py-8" : "w-0 px-0 py-8 border-none"
+          }`}
+        >
           {/* management */}
           {/* <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">
             <p className="text-[#4F4F4F] mb-2 font-bold select-none">

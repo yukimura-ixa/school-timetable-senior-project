@@ -15,12 +15,12 @@
  * Thai grade level labels for secondary school (มัธยม)
  */
 export const GRADE_LEVELS = [
-  { level: 7, label: "ม.1", category: "junior" },
-  { level: 8, label: "ม.2", category: "junior" },
-  { level: 9, label: "ม.3", category: "junior" },
-  { level: 10, label: "ม.4", category: "senior" },
-  { level: 11, label: "ม.5", category: "senior" },
-  { level: 12, label: "ม.6", category: "senior" },
+  { level: 1, label: "ม.1", category: "junior" },
+  { level: 2, label: "ม.2", category: "junior" },
+  { level: 3, label: "ม.3", category: "junior" },
+  { level: 4, label: "ม.4", category: "senior" },
+  { level: 5, label: "ม.5", category: "senior" },
+  { level: 6, label: "ม.6", category: "senior" },
 ] as const;
 
 /**
@@ -32,7 +32,7 @@ export type GradeCategory = "junior" | "senior";
  * Get grade category from grade level
  */
 export function getGradeCategory(gradeLevel: number): GradeCategory {
-  return gradeLevel <= 9 ? "junior" : "senior";
+  return gradeLevel <= 3 ? "junior" : "senior";
 }
 
 /**
@@ -40,7 +40,7 @@ export function getGradeCategory(gradeLevel: number): GradeCategory {
  */
 export function getGradeLevelLabel(gradeLevel: number): string {
   const grade = GRADE_LEVELS.find((g) => g.level === gradeLevel);
-  return grade?.label ?? `ม.${gradeLevel - 6}`;
+  return grade?.label ?? `ม.${gradeLevel}`;
 }
 
 // ============================================================================
@@ -258,6 +258,7 @@ export const ARRANGE_TABS = {
   GRADE_4: "grade-4",
   GRADE_5: "grade-5",
   GRADE_6: "grade-6",
+  PROGRESS: "progress",
 } as const;
 
 export type ArrangeTab = (typeof ARRANGE_TABS)[keyof typeof ARRANGE_TABS];
@@ -273,6 +274,7 @@ export const TAB_LABELS: Record<ArrangeTab, string> = {
   [ARRANGE_TABS.GRADE_4]: "ม.4",
   [ARRANGE_TABS.GRADE_5]: "ม.5",
   [ARRANGE_TABS.GRADE_6]: "ม.6",
+  [ARRANGE_TABS.PROGRESS]: "ความคืบหน้า",
 } as const;
 
 /**
@@ -280,12 +282,12 @@ export const TAB_LABELS: Record<ArrangeTab, string> = {
  */
 export function tabToGradeLevel(tab: ArrangeTab): number | null {
   const mapping: Record<string, number> = {
-    [ARRANGE_TABS.GRADE_1]: 7,
-    [ARRANGE_TABS.GRADE_2]: 8,
-    [ARRANGE_TABS.GRADE_3]: 9,
-    [ARRANGE_TABS.GRADE_4]: 10,
-    [ARRANGE_TABS.GRADE_5]: 11,
-    [ARRANGE_TABS.GRADE_6]: 12,
+    [ARRANGE_TABS.GRADE_1]: 1,
+    [ARRANGE_TABS.GRADE_2]: 2,
+    [ARRANGE_TABS.GRADE_3]: 3,
+    [ARRANGE_TABS.GRADE_4]: 4,
+    [ARRANGE_TABS.GRADE_5]: 5,
+    [ARRANGE_TABS.GRADE_6]: 6,
   };
   return mapping[tab] ?? null;
 }
@@ -295,12 +297,12 @@ export function tabToGradeLevel(tab: ArrangeTab): number | null {
  */
 export function gradeLevelToTab(gradeLevel: number): ArrangeTab {
   const mapping: Record<number, ArrangeTab> = {
-    7: ARRANGE_TABS.GRADE_1,
-    8: ARRANGE_TABS.GRADE_2,
-    9: ARRANGE_TABS.GRADE_3,
-    10: ARRANGE_TABS.GRADE_4,
-    11: ARRANGE_TABS.GRADE_5,
-    12: ARRANGE_TABS.GRADE_6,
+    1: ARRANGE_TABS.GRADE_1,
+    2: ARRANGE_TABS.GRADE_2,
+    3: ARRANGE_TABS.GRADE_3,
+    4: ARRANGE_TABS.GRADE_4,
+    5: ARRANGE_TABS.GRADE_5,
+    6: ARRANGE_TABS.GRADE_6,
   };
   return mapping[gradeLevel] ?? ARRANGE_TABS.TEACHER;
 }
