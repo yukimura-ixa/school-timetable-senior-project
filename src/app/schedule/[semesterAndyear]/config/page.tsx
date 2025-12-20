@@ -67,9 +67,12 @@ function TimetableConfigValue() {
   });
 
   useEffect(() => {
-    const checkSetTimeslot = tableConfig.data !== undefined;
-    setIsSetTimeslot(() => checkSetTimeslot);
-    if (tableConfig.data && tableConfig.data.Config) {
+    if (tableConfig.isValidating) return;
+
+    const hasConfig = Boolean(tableConfig.data && tableConfig.data.Config);
+    setIsSetTimeslot(hasConfig);
+
+    if (hasConfig && tableConfig.data) {
       // Map table_config.Config JSON to legacy local state format
       // Config is stored as unstructured JSON, so we need to parse it carefully
       try {
@@ -95,8 +98,30 @@ function TimetableConfigValue() {
       } catch (error) {
         console.error("Error parsing config JSON:", error);
       }
+      return;
     }
-  }, [tableConfig.isValidating, academicYear, semester]);
+
+    if (tableConfig.data === null) {
+      setConfigData({
+        Days: ["MON", "TUE", "WED", "THU", "FRI"],
+        AcademicYear: parseInt(academicYear),
+        Semester: `SEMESTER_${semester}`,
+        StartTime: "08:30",
+        BreakDuration: 50,
+        BreakTimeslots: {
+          Junior: 4,
+          Senior: 5,
+        },
+        Duration: 50,
+        TimeslotPerDay: 8,
+        MiniBreak: {
+          Duration: 10,
+          SlotNumber: 2,
+        },
+        HasMinibreak: false,
+      });
+    }
+  }, [tableConfig.data, tableConfig.isValidating, academicYear, semester]);
   const handleChangeStartTime = (e: any) => {
     const value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));

@@ -55,7 +55,7 @@ export function TimeslotConfigurationStep({
     AcademicYear: academicYear,
     Semester: semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
     Days: initialConfig?.Days || ["MON", "TUE", "WED", "THU", "FRI"],
-    StartTime: initialConfig?.StartTime || "08:00",
+    StartTime: initialConfig?.StartTime || "08:30",
     Duration: initialConfig?.Duration || 50,
     BreakDuration: initialConfig?.BreakDuration || 15,
     TimeslotPerDay: initialConfig?.TimeslotPerDay || 8,
@@ -255,7 +255,7 @@ export function TimeslotConfigurationStep({
             }
             InputLabelProps={{ shrink: true }}
             error={!!errors.startTime}
-            helperText={errors.startTime || "เช่น 08:00"}
+            helperText={errors.startTime || "เช่น 08:30"}
           />
           <TextField
             fullWidth

@@ -371,10 +371,10 @@ test.describe("Multi-Semester Scenarios", () => {
 
   test("TC-MS-07: Arrange page loads for both semesters", async ({ page }) => {
     // Test teacher arrange page for both semesters
-    // Note: The correct route is /arrange/teacher-arrange, not /arrange/teacher
+    // Note: The correct route is /arrange, not /arrange/teacher
     for (const term of SEEDED_TERMS) {
       const response = await page.goto(
-        `/schedule/${term.label}/arrange/teacher-arrange`,
+        `/schedule/${term.label}/arrange`,
       );
       // Accept 200 or non-500 status (may redirect)
       expect(response?.status()).toBeLessThan(500);
@@ -389,3 +389,4 @@ test.describe("Multi-Semester Scenarios", () => {
     }
   });
 });
+

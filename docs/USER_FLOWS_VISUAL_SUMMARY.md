@@ -53,8 +53,7 @@
 └─ 📅 Schedule Operations
     ├─ /schedule/[term]/config - Setup periods/breaks
     ├─ /schedule/[term]/assign - Assign subjects to classes
-    ├─ /schedule/[term]/arrange/student-arrange - Drag-and-drop (class view)
-    ├─ /schedule/[term]/arrange/teacher-arrange - Drag-and-drop (teacher view)
+    ├─ /schedule/[term]/arrange - Drag-and-drop (teacher view)
     └─ /schedule/[term]/lock - Lock timeslots
 ```
 
@@ -654,3 +653,4 @@ pnpm test:vercel    # E2E production
 **Maintained By:** AI Agent + Development Team
 
 For detailed implementation guidance, always refer to memory `comprehensive_user_flows`.
+

@@ -156,7 +156,7 @@ test("04 config page", async ({ page }) => {
 });
 
 test("05 teacher arrange board", async ({ page }) => {
-  await page.goto(`/schedule/${semester}/arrange/teacher-arrange`);
+  await page.goto(`/schedule/${semester}/arrange`);
   await assertNotSignin(page);
   const grid = page.locator("[data-testid='timeslot-grid']").first();
   const hasGrid = await grid.isVisible({ timeout: 30_000 }).catch(() => false);
@@ -219,3 +219,4 @@ test("08 management teachers", async ({ page }) => {
   expect.soft(hasHeading || hasManagement, "Expected Thai heading for teacher management").toBe(true);
   await snap(page, "08-management-teacher");
 });
+

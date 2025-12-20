@@ -112,7 +112,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/arrange/teacher-arrange");
+      await page.goto("/schedule/1-2567/arrange");
       await page.waitForLoadState("networkidle");
 
       // Wait for page to fully render
@@ -134,7 +134,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/arrange/teacher-arrange");
+      await page.goto("/schedule/1-2567/arrange");
       await page.waitForLoadState("networkidle");
 
       const subjectList = page.locator('[data-testid="subject-list"]').first();
@@ -150,7 +150,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     test("timetable grid renders correctly", async ({ authenticatedAdmin }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/arrange/teacher-arrange");
+      await page.goto("/schedule/1-2567/arrange");
       await page.waitForLoadState("networkidle");
 
       const timeslotGrid = page
@@ -195,3 +195,4 @@ test.describe("UI Component Consistency", () => {
     }
   });
 });
+

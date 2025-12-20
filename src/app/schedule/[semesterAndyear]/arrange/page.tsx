@@ -20,6 +20,7 @@ import useSWR from "swr";
 import { enqueueSnackbar } from "notistack";
 import { useSemesterSync } from "@/hooks";
 import { Box, Container, Paper, Stack, Alert, AlertTitle } from "@mui/material";
+import { authClient } from "@/lib/auth-client";
 
 // @dnd-kit
 import {
@@ -120,6 +121,9 @@ export default function ArrangementPage() {
   const { semester, academicYear } = useSemesterSync(
     params.semesterAndyear as string,
   );
+  const { data: session, isPending: isSessionLoading } =
+    authClient.useSession();
+  const canFetch = Boolean(session?.user) && !isSessionLoading;
 
   if (!semester || !academicYear) {
     return (
@@ -136,6 +140,10 @@ export default function ArrangementPage() {
   // TIMETABLE CONFIG
   // ============================================================================
   useEffect(() => {
+    if (!canFetch) {
+      return;
+    }
+
     const fetchConfig = async () => {
       const result = await getTimetableConfigAction({
         academicYear: parseInt(academicYear),
@@ -146,7 +154,7 @@ export default function ArrangementPage() {
       }
     };
     void fetchConfig();
-  }, [academicYear, semester]);
+  }, [academicYear, semester, canFetch]);
 
   // ============================================================================
   // LOCAL STATE
@@ -216,7 +224,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Teachers
   // ============================================================================
   const { data: allTeachers, isLoading: isLoadingTeachers } = useSWR(
-    "teachers",
+    canFetch ? "teachers" : null,
     async () => {
       const result = await getTeachersAction({});
       if (!result || !result.success) return [];
@@ -228,7 +236,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Grade Levels
   // ============================================================================
   const { data: gradeLevels } = useSWR(
-    `gradelevels-${academicYear}-${semester}`,
+    canFetch ? `gradelevels-${academicYear}-${semester}` : null,
     async () => {
       const result = await getGradeLevelsAction({});
       if (!result || !result.success) return [];
@@ -244,7 +252,7 @@ export default function ArrangementPage() {
     mutate: mutateTeacherSchedule,
     isLoading: isLoadingSchedule,
   } = useSWR(
-    currentTeacherID ? `teacher-schedule-${currentTeacherID}` : null,
+    canFetch && currentTeacherID ? `teacher-schedule-${currentTeacherID}` : null,
     async () => {
       if (!currentTeacherID) return null;
       const result = await getTeacherScheduleAction({
@@ -259,7 +267,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Available Subjects (for Teacher)
   // ============================================================================
   const { data: availableSubjects } = useSWR<SubjectData[]>(
-    currentTeacherID
+    canFetch && currentTeacherID
       ? `available-subjects-${academicYear}-${semester}-${currentTeacherID}`
       : null,
     async () => {
@@ -285,7 +293,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Timeslots
   // ============================================================================
   const { data: timeslots, isLoading: isLoadingTimeslots } = useSWR(
-    `timeslots-${academicYear}-${semester}`,
+    canFetch ? `timeslots-${academicYear}-${semester}` : null,
     async () => {
       const result = await getTimeslotsByTermAction({
         AcademicYear: parseInt(academicYear),
@@ -300,7 +308,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Conflicts
   // ============================================================================
   const { data: conflicts, mutate: mutateConflicts } = useSWR(
-    currentTeacherID
+    canFetch && currentTeacherID
       ? `conflicts-${academicYear}-${semester}-${currentTeacherID}`
       : null,
     async () => {
@@ -326,7 +334,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Locked Schedules
   // ============================================================================
   const { data: lockedSchedules } = useSWR(
-    `locked-schedules-${academicYear}-${semester}`,
+    canFetch ? `locked-schedules-${academicYear}-${semester}` : null,
     async () => {
       const result = await getRawLockedSchedulesAction({
         AcademicYear: parseInt(academicYear),
@@ -341,7 +349,7 @@ export default function ArrangementPage() {
   // DATA FETCHING - Room Availability (for Room Dialog)
   // ============================================================================
   const { data: availableRooms } = useSWR(
-    selectedTimeslotForRoom
+    canFetch && selectedTimeslotForRoom
       ? `available-rooms-${selectedTimeslotForRoom}`
       : null,
     async () => {
@@ -362,7 +370,7 @@ export default function ArrangementPage() {
   );
 
   const { data: occupiedRoomIDs } = useSWR(
-    selectedTimeslotForRoom
+    canFetch && selectedTimeslotForRoom
       ? `occupied-rooms-${selectedTimeslotForRoom}`
       : null,
     async () => {
@@ -390,7 +398,7 @@ export default function ArrangementPage() {
   }, [currentTab]);
 
   const { data: gradeSchedules, isLoading: isLoadingGradeSchedules } = useSWR(
-    selectedGradeLevel
+    canFetch && selectedGradeLevel
       ? `grade-schedules-${academicYear}-${semester}-${selectedGradeLevel}`
       : null,
     async () => {
@@ -1253,7 +1261,7 @@ export default function ArrangementPage() {
 
   // Multi-teacher progress calculation - fetch all teachers' schedules
   const { data: allTeacherSchedules } = useSWR(
-    allTeachers && timeslots
+    canFetch && allTeachers && timeslots
       ? `all-teacher-schedules-${academicYear}-${semester}`
       : null,
     async () => {

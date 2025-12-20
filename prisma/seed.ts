@@ -2200,6 +2200,11 @@ async function main() {
       else programCode = `M${year}-LANG`;
 
       const program = programs.find((p) => p.ProgramCode === programCode);
+      if (!program) {
+        throw new Error(
+          `Program not found for grade ${gradeId} (expected ${programCode})`,
+        );
+      }
 
       gradeLevels.push(
         await withRetry(
@@ -2210,7 +2215,7 @@ async function main() {
                 Year: year,
                 Number: number,
                 StudentCount: 35 + Math.floor(Math.random() * 10),
-                ProgramID: program?.ProgramID,
+                ProgramID: program.ProgramID,
               },
             }),
           `Create grade level ${gradeId}`,

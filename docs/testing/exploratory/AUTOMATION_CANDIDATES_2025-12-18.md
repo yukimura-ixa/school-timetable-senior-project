@@ -16,5 +16,6 @@ Prioritized by risk - effort (highest first).
 9) **Visual snapshot: signin form** – Catch layout/font/icon regressions and error-toast styling.
 10) **Visual snapshot: dashboard semester picker** – Detect layout regressions on semester cards and primary actions.
 11) **Visual snapshot: all-timeslot read-only banner + export buttons** – Guard fragile dashboard UI/exports entry points.
-12) **Arrange page load & teacher selector** – Navigate to `/schedule/{semester}/arrange/teacher-arrange`, ensure teacher dropdown populated and grid renders/prompt stable.
+12) **Arrange page load & teacher selector** – Navigate to `/schedule/{semester}/arrange`, ensure teacher dropdown populated and grid renders/prompt stable.
+
 

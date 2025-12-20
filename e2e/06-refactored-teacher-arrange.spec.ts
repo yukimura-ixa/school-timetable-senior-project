@@ -26,7 +26,7 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
 
   try {
     // Navigate to teacher arrange page without TeacherID param
-    await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
+    await page.goto(`/schedule/${SEMESTER}/arrange`);
 
     // Wait for teacher dropdown to be visible
     // Support both native select AND custom Dropdown component (role="combobox")
@@ -212,7 +212,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     const { page } = authenticatedAdmin;
     // Navigate to teacher arrange page with teacher ID
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Check for no console errors (except expected warnings)
@@ -259,7 +259,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
       "Teacher dropdown timing flaky in CI - run locally",
     );
     const { page } = authenticatedAdmin;
-    await page.goto(`/schedule/${SEMESTER}/arrange/teacher-arrange`);
+    await page.goto(`/schedule/${SEMESTER}/arrange`);
 
     // Look for teacher selection dropdown (native select OR custom dropdown)
     const teacherSelect = page.locator('select, [role="combobox"]').first();
@@ -311,7 +311,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     );
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for subject items to appear
@@ -343,7 +343,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   test("E2E-004: Timetable grid renders", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for table to be visible
@@ -372,7 +372,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
     // Wait for all network requests to complete (data loading)
     await page.waitForLoadState("networkidle");
@@ -426,7 +426,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
     // Wait for all network requests to complete (data loading)
     await page.waitForLoadState("networkidle");
@@ -490,7 +490,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     );
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for save button to appear
@@ -528,7 +528,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     });
 
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for subjects to load before interaction
@@ -560,7 +560,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
   }) => {
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Check if Redux DevTools extension is available
@@ -580,7 +580,7 @@ test.describe("Refactored TeacherArrangePage - Core Functionality", () => {
     const { page } = authenticatedAdmin;
     // Measure page load performance
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     const performanceMetrics = await page.evaluate(() => {
@@ -627,7 +627,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
     test.setTimeout(60000);
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Look for locked timeslot indicators
@@ -652,7 +652,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
     test.setTimeout(60000);
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for timetable to render before checking break slots
@@ -680,7 +680,7 @@ test.describe("Refactored TeacherArrangePage - Conflict Detection", () => {
     test.setTimeout(60000);
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for timetable to render before checking conflict indicators
@@ -713,7 +713,7 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
     const { page } = authenticatedAdmin;
     // Test refactored version
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for main content to be fully rendered
@@ -739,7 +739,7 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
   test("E2E-015: Interaction parity check", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto(
-      `/schedule/${SEMESTER}/arrange/teacher-arrange?TeacherID=${TEACHER_ID}`,
+      `/schedule/${SEMESTER}/arrange?TeacherID=${TEACHER_ID}`,
     );
 
     // Wait for page to be interactive
@@ -817,3 +817,4 @@ test.describe("Refactored TeacherArrangePage - Comparison with Original", () => 
     expect(interactions.length).toBeGreaterThanOrEqual(0);
   });
 });
+

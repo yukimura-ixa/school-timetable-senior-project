@@ -41,46 +41,46 @@ export function AssignmentFilters({
   useEffect(() => {
     const fetchGradeLevels = () => {
       try {
-        // FIXED: Updated mock data to match actual seed.ts format (ม.X/Y)
-        // Seed creates: ม.1/1, ม.1/2, ม.1/3, ม.2/1, ม.2/2, ม.2/3, etc.
+        // Mock data aligned with GradeID format: M{Year}-{Number} (e.g., M1-1)
+        // Seed/creation uses the same canonical format.
         const mockGrades: gradelevel[] = [
           {
-            GradeID: "ม.1/1",
+            GradeID: "M1-1",
             Year: 1,
             Number: 1,
             StudentCount: 31,
             ProgramID: null,
           },
           {
-            GradeID: "ม.2/1",
+            GradeID: "M2-1",
             Year: 2,
             Number: 1,
             StudentCount: 31,
             ProgramID: null,
           },
           {
-            GradeID: "ม.3/1",
+            GradeID: "M3-1",
             Year: 3,
             Number: 1,
             StudentCount: 31,
             ProgramID: null,
           },
           {
-            GradeID: "ม.4/1",
+            GradeID: "M4-1",
             Year: 4,
             Number: 1,
             StudentCount: 29,
             ProgramID: null,
           },
           {
-            GradeID: "ม.5/1",
+            GradeID: "M5-1",
             Year: 5,
             Number: 1,
             StudentCount: 29,
             ProgramID: null,
           },
           {
-            GradeID: "ม.6/1",
+            GradeID: "M6-1",
             Year: 6,
             Number: 1,
             StudentCount: 29,
@@ -134,7 +134,7 @@ export function AssignmentFilters({
               </MenuItem>
               {gradeLevels.map((grade) => (
                 <MenuItem key={grade.GradeID} value={grade.GradeID}>
-                  ม.{grade.Number}
+                  ม.{grade.Year}/{grade.Number}
                 </MenuItem>
               ))}
             </Select>

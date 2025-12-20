@@ -156,23 +156,24 @@ async function globalSetup() {
         if (!ready) {
           throw new Error("Database failed to start within timeout period");
         }
-
-        // Run migrations
-        console.log("📦 Running database migrations...");
-        execSync("pnpm prisma migrate deploy", {
-          stdio: "inherit",
-          env: {
-            ...process.env,
-            DATABASE_URL:
-              "postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public",
-          },
-        });
-        console.log("✅ Migrations completed\n");
       } catch (error) {
         console.error("❌ Failed to start test database:", error);
         throw error;
       }
     }
+
+
+    // Run migrations regardless of whether DB was already running
+    console.log("?? Running database migrations...");
+    execSync("pnpm prisma migrate deploy", {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        DATABASE_URL:
+          "postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public",
+      },
+    });
+    console.log("? Migrations completed\n");
   } else if (!isDocker) {
     console.log("⚠️  Docker not available - assuming external database");
     console.log("ℹ️  Skipping automatic database lifecycle management\n");

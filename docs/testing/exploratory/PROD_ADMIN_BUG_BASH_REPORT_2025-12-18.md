@@ -18,7 +18,7 @@ Evidence bundle:
 - Total timebox: ~75 minutes (Session 1 earlier + Session 2 follow-up)
 - Recon: `/signin`, `/dashboard`, semester switcher, navbar/sidebars
 - Admin “Day-0 Setup” mapping (read-only): `/management`, `/management/teacher`, `/management/subject`, `/management/rooms`, `/management/gradelevel`, `/management/program`, `/management/program/year/1`
-- Scheduling surfaces (read-only): `/schedule/1-2567/config`, `/schedule/1-2567/arrange/teacher-arrange`, `/schedule/1-2567/lock`
+- Scheduling surfaces (read-only): `/schedule/1-2567/config`, `/schedule/1-2567/arrange`, `/schedule/1-2567/lock`
 - Dashboard timetable views: `/dashboard/1-2567/all-timeslot`, `/dashboard/1-2567/teacher-table`, `/dashboard/1-2567/student-table`, `/dashboard/1-2567/all-program`
 
 ### Notes (Learning)
@@ -50,7 +50,7 @@ Full details: see the “Bugs” section below.
 ### P0 — Timetable times render in UTC (timezone shift)
 - Impact: Schedules show incorrect period times (e.g., `01:30–02:20` instead of expected local morning times like `08:30–09:20`), undermining trust and potentially causing operational mistakes.
 - Environment/URLs:
-  - `/schedule/1-2567/arrange/teacher-arrange?TeacherID=620`
+  - `/schedule/1-2567/arrange?TeacherID=620`
   - `/dashboard/1-2567/teacher-table` (after selecting a teacher)
   - `/dashboard/1-2567/student-table` (after selecting a class)
 - Repro:
@@ -130,5 +130,6 @@ Visual snapshots to add (stable/deterministic):
 - `/dashboard` semester picker tiles
 - `/dashboard/1-2567/all-timeslot` “read-only” banner + export buttons
 - `/management/teacher` table first page (mask dynamic values if needed)
-- `/schedule/1-2567/arrange/teacher-arrange` “เลือกครูเพื่อเริ่มจัดตาราง” prompt + grid header
+- `/schedule/1-2567/arrange` “เลือกครูเพื่อเริ่มจัดตาราง” prompt + grid header
+
 

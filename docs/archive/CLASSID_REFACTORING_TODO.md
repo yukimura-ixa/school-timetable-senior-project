@@ -42,7 +42,7 @@
 
 ### Category 1: Remove parseInt() Calls ✅ (4 errors)
 
-**File**: `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+**File**: `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
 
 Lines 534, 734, 787: Remove `parseInt()` wrapper since ClassID is now number
 
@@ -486,3 +486,4 @@ If issues arise:
 6. Deploy to production with maintenance window
 
 **Start with**: Category 3 & 4 (Domain Models) to unblock the most errors.
+

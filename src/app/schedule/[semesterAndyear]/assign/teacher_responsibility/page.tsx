@@ -27,6 +27,7 @@ import { getTeachersAction } from "@/features/teacher/application/actions/teache
 function ClassroomResponsibility() {
   const params = useParams();
   const [isApiLoading, setIsApiLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   // Use useSemesterSync to extract and sync semester with global store
   const { semester, academicYear } = useSemesterSync(
@@ -34,6 +35,26 @@ function ClassroomResponsibility() {
   );
 
   const searchTeacherID = useSearchParams().get("TeacherID");
+
+  if (!searchTeacherID) {
+    return (
+      <div className="p-6">
+        <h2 className="text-lg font-semibold">กรุณาเลือกครูผู้สอน</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          เลือกครูจากหน้ามอบหมายวิชาเรียนเพื่อดูชั้นเรียนที่รับผิดชอบ
+        </p>
+        <div className="mt-4">
+          <MiniButton
+            title="ย้อนกลับ"
+            border
+            handleClick={() =>
+              router.replace(`/schedule/${semester}-${academicYear}/assign`)
+            }
+          />
+        </div>
+      </div>
+    );
+  }
 
   // Fetch teacher responsibilities using Server Action
   const responsibilityData = useSWR<any>(
@@ -98,13 +119,16 @@ function ClassroomResponsibility() {
     Subjects: [] as any[],
   });
   useEffect(() => {
+    const responsibilities = Array.isArray(responsibilityData.data)
+      ? responsibilityData.data
+      : [];
     const ClassRoomClassify = (year: number): string[] => {
       //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
       //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
       //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
       //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
-      const filterResData = responsibilityData.data.filter(
+      const filterResData = responsibilities.filter(
         (data: any) => data.gradelevel.Year == year,
       ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
       const mapGradeIDOnly = filterResData.map((data: any) => ({
@@ -123,7 +147,7 @@ function ClassroomResponsibility() {
       //ถ้า fetch ข้อมูลเสร็จแล้ว
       setData(() => ({
         ...data,
-        Subjects: responsibilityData.data,
+        Subjects: responsibilities,
         Grade: data.Grade.map((item) => ({
           //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
           Year: item.Year,
@@ -131,13 +155,12 @@ function ClassroomResponsibility() {
         })),
       }));
     }
-  }, [responsibilityData.isValidating]); //เช็คว่าโหลดเสร็จยัง ถ้าเสร็จแล้วก็ไปทำข้างใน useEffect
+  }, [responsibilityData.isValidating, responsibilityData.data]); //เช็คว่าโหลดเสร็จยัง ถ้าเสร็จแล้วก็ไปทำข้างใน useEffect
   useEffect(() => {
     if (!teacherData.isLoading) {
       setData(() => ({ ...data, Teacher: teacherData.data }));
     }
   }, [teacherData.isLoading]);
-  const router = useRouter();
   const [classRoomModalActive, setClassRoomModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
   const [addSubjectModalActive, setAddSubjectModalActive] =
@@ -521,3 +544,8 @@ function ClassroomResponsibility() {
 }
 
 export default ClassroomResponsibility;
+
+
+
+
+

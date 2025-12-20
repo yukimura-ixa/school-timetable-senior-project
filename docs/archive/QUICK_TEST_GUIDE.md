@@ -15,7 +15,7 @@ The "จัดตารางสอน" (Arrange Timetable) sidebar button was r
 2. Look at left sidebar
 3. Find "จัดตารางสอน" button
 4. Click it
-5. Check URL bar - should show: /schedule/1-2567/arrange/teacher-arrange
+5. Check URL bar - should show: /schedule/1-2567/arrange
 ```
 
 **✅ PASS:** URL stays on schedule page with semester 1-2567  
@@ -47,7 +47,7 @@ Click "จัดตารางสอน" → Always goes to /dashboard/select-s
 ### After:
 
 ```
-Click "จัดตารางสอน" → Goes to /schedule/{current-semester}/arrange/teacher-arrange
+Click "จัดตารางสอน" → Goes to /schedule/{current-semester}/arrange
 ```
 
 ---
@@ -56,8 +56,8 @@ Click "จัดตารางสอน" → Goes to /schedule/{current-semeste
 
 | Starting Page              | Click Button | Expected URL                               |
 | -------------------------- | ------------ | ------------------------------------------ |
-| `/schedule/1-2567/arrange` | จัดตารางสอน  | `/schedule/1-2567/arrange/teacher-arrange` |
-| `/schedule/2-2567/arrange` | จัดตารางสอน  | `/schedule/2-2567/arrange/teacher-arrange` |
+| `/schedule/1-2567/arrange` | จัดตารางสอน  | `/schedule/1-2567/arrange` |
+| `/schedule/2-2567/arrange` | จัดตารางสอน  | `/schedule/2-2567/arrange` |
 | `/management/teacher`      | จัดตารางสอน  | `/dashboard/select-semester`               |
 
 ---
@@ -76,9 +76,10 @@ Click "จัดตารางสอน" → Goes to /schedule/{current-semeste
 The fix works by:
 
 1. Detecting semester in URL (e.g., "1-2567")
-2. Building dynamic link: `/schedule/{semester}/arrange/teacher-arrange`
+2. Building dynamic link: `/schedule/{semester}/arrange`
 3. Falling back to `/dashboard/select-semester` if no semester found
 
 ---
 
 **Full test documentation:** See `docs/REDIRECT_FIX_TEST_RESULTS.md`
+

@@ -25,7 +25,7 @@ function Schedule() {
   const getCurrentTab = (): string => {
     const parts = pathName.split("/");
     if (parts.length > 3) {
-      // Handle nested routes like "arrange/teacher-arrange"
+      // Handle nested routes like "arrange"
       return parts.slice(3).join("/");
     }
     return DEFAULT_TAB;
@@ -148,7 +148,7 @@ function Schedule() {
             icon={<CalendarMonthIcon />}
             iconPosition="start"
             label="จัดตารางสอน"
-            value="arrange/teacher-arrange"
+            value="arrange"
           />
         </Tabs>
       </Box>
@@ -157,3 +157,4 @@ function Schedule() {
 }
 
 export default Schedule;
+

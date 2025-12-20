@@ -118,7 +118,7 @@ Visual checkpoints:
 ### J8 — Timetable arrange surface loads (Happy path)
 
 Steps:
-1. Open `/schedule/{SEMESTER}/arrange/teacher-arrange`
+1. Open `/schedule/{SEMESTER}/arrange`
 
 Expected:
 - Grid renders OR a stable “select teacher / empty schedule” prompt appears
@@ -210,9 +210,10 @@ flowchart TD
   D --> G[Gradelevel /management/gradelevel]
   D --> P[Program/Curriculum /management/program]
   D --> C[Schedule config /schedule/{sem}/config]
-  D --> A1[Arrange /schedule/{sem}/arrange/teacher-arrange]
+  D --> A1[Arrange /schedule/{sem}/arrange]
   D --> L[Lock /schedule/{sem}/lock]
   D --> E[Export entry /dashboard/{sem}/all-program]
   U[Unauth context] -->|Visit protected route| N1[Redirect to /signin]
 ```
+
 

@@ -12,13 +12,21 @@ function TimetableHeader({ timeslot }: ITimetableHeaderProps) {
   const mapSlot = Array.from({ length: slotAmount }, (_, i) => i + 1);
 
   function formatTime(time: string | Date): string {
-    const date = new Date(time);
-    const hoursNum = date.getHours() - 7;
-    const hours = hoursNum < 10 ? `0${hoursNum}` : String(hoursNum);
-    const minutes =
-      date.getMinutes() === 0
-        ? `0${date.getMinutes()}`
-        : String(date.getMinutes());
+    if (typeof time === "string") {
+      const match = time.match(/^(\d{1,2}):(\d{2})/);
+      if (match) {
+        const hours = match[1]?.padStart(2, "0") ?? "00";
+        const minutes = match[2] ?? "00";
+        return `${hours}:${minutes}`;
+      }
+    }
+
+    const date = time instanceof Date ? time : new Date(time);
+    if (Number.isNaN(date.getTime())) {
+      return "";
+    }
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   }
   return (

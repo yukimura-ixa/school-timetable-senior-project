@@ -67,7 +67,7 @@ test.describe("Page Load Performance", () => {
     const { page } = authenticatedAdmin;
     const startTime = Date.now();
 
-    await page.goto("/schedule/1-2567/arrange/teacher-arrange");
+    await page.goto("/schedule/1-2567/arrange");
     await page.waitForLoadState("domcontentloaded");
 
     const loadTime = Date.now() - startTime;
@@ -259,3 +259,4 @@ test.describe("Network Timing Metrics", () => {
     expect(slowRequests.length).toBeLessThanOrEqual(2);
   });
 });
+

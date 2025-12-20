@@ -77,7 +77,7 @@ function Menubar() {
               // For dynamic links (จัดตารางสอน), use current semester if available
               const linkHref =
                 item.dynamicLink && currentSemester
-                  ? `/schedule/${currentSemester}/arrange/teacher-arrange`
+                  ? `/schedule/${currentSemester}/arrange`
                   : item.link || "/dashboard";
 
               const isSelected = linkHref === linkSelected;
@@ -157,3 +157,4 @@ function Menubar() {
 }
 
 export default Menubar;
+

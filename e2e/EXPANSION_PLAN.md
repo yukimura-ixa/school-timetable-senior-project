@@ -120,7 +120,7 @@ export class ScheduleAssignmentPage {
 
   // Actions
   async goto(semester: string) {
-    await this.page.goto(`/schedule/${semester}/arrange/teacher-arrange`);
+    await this.page.goto(`/schedule/${semester}/arrange`);
     await this.page.waitForLoadState("networkidle");
   }
 
@@ -1033,3 +1033,4 @@ pnpm test:e2e
 - All tests passing in CI
 - < 10 minute full suite execution
 - HTML report published and accessible
+

@@ -24,6 +24,20 @@ type Props = {
 };
 
 const TableBody = (props: Props) => {
+  const formatGradeLabel = (gradeId: string) => {
+    const canonicalMatch = /^M(\d+)-(\d+)$/.exec(gradeId);
+    if (canonicalMatch) {
+      return `ม.${canonicalMatch[1]}/${canonicalMatch[2]}`;
+    }
+
+    const legacyMatch = /^ม\.(\d+)\/(\d+)$/.exec(gradeId);
+    if (legacyMatch) {
+      return `ม.${legacyMatch[1]}/${legacyMatch[2]}`;
+    }
+
+    return gradeId;
+  };
+
   function getClassDataByTeacherID(
     TeacherID: number,
     Day: string,
@@ -38,7 +52,7 @@ const TableBody = (props: Props) => {
         extractPeriodFromTimeslotId(item.timeslot.TimeslotID) == SlotNumber,
     );
     const convertClass = filterClass
-      .map((item) => `${item.GradeID[0]}/${item.GradeID[2]}`)
+      .map((item) => formatGradeLabel(item.GradeID))
       .join(",");
     // let convertClass = ["101", "102", "301", "302", "303", "304", "305", "306", "307", "308", "309", "310"].map(item => `${item[0]}/${item[2]}`).join(",")
 
@@ -69,35 +83,37 @@ const TableBody = (props: Props) => {
     );
   }
   return (
-    <tbody>
-      {props.teachers.map((tch, index) => (
-        <tr
-          key={`body-${index}`}
-          className="flex items-center gap-2 mt-[2px] h-fit select-none"
-        >
-          {props.days.map((day) => (
-            <td key={`day-${day.Day}`}>
-              <div className="flex flex-col items-center">
-                <div className="flex gap-2 w-fit">
-                  {props.slotAmount.map((item, index) => (
-                    <div
-                      key={`slot-${index}`}
-                      style={{ borderColor: day.BgColor }}
-                      className={`relative w-14 h-[60px] border-2 flex items-center justify-center rounded overflow-hidden`}
-                    >
-                      <p className="text-xs absolute left-0 top-[-2px] text-gray-300">
-                        {index + 1}
-                      </p>
-                      {getClassDataByTeacherID(tch.TeacherID, day.Day, item)}
-                    </div>
-                  ))}
+    <table className="w-full">
+      <tbody>
+        {props.teachers.map((tch, index) => (
+          <tr
+            key={`body-${index}`}
+            className="flex items-center gap-2 mt-[2px] h-fit select-none"
+          >
+            {props.days.map((day) => (
+              <td key={`day-${day.Day}`}>
+                <div className="flex flex-col items-center">
+                  <div className="flex gap-2 w-fit">
+                    {props.slotAmount.map((item, index) => (
+                      <div
+                        key={`slot-${index}`}
+                        style={{ borderColor: day.BgColor }}
+                        className={`relative w-14 h-[60px] border-2 flex items-center justify-center rounded overflow-hidden`}
+                      >
+                        <p className="text-xs absolute left-0 top-[-2px] text-gray-300">
+                          {index + 1}
+                        </p>
+                        {getClassDataByTeacherID(tch.TeacherID, day.Day, item)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </td>
-          ))}
-        </tr>
-      ))}
-    </tbody>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 };
 

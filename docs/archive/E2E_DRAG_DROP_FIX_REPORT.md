@@ -73,7 +73,7 @@ return (
 ```typescript
 // BEFORE
 async goToTeacherArrange(semesterAndYear: string) {
-  await this.gotoAndReady(`/schedule/${semesterAndYear}/arrange/teacher-arrange`);
+  await this.gotoAndReady(`/schedule/${semesterAndYear}/arrange`);
 }
 ```
 
@@ -84,7 +84,7 @@ Tests navigated to teacher-arrange page without `?TeacherID=X`, causing page to 
 // AFTER
 async goToTeacherArrange(semesterAndYear: string, teacherId = "1") {
   await this.gotoAndReady(
-    `/schedule/${semesterAndYear}/arrange/teacher-arrange?TeacherID=${teacherId}`
+    `/schedule/${semesterAndYear}/arrange?TeacherID=${teacherId}`
   );
 }
 ```
@@ -134,7 +134,7 @@ await page.waitForSelector('main, [role="main"], [data-sortable-id]', {
 
 1. **Server Logs:** Page renders successfully (200 OK)
    ```
-   GET /schedule/1-2567/arrange/teacher-arrange?TeacherID=1 200 in 15.7s
+   GET /schedule/1-2567/arrange?TeacherID=1 200 in 15.7s
    ```
 
 2. **Seed Data:** Confirms semester exists
@@ -162,7 +162,7 @@ The teacher-arrange page performs a **client-side semester lookup** that fails d
 
 ### Investigation Needed
 
-**File:** `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+**File:** `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
 
 Check these areas:
 1. **Line 277-295:** `conflictSWR` fetching logic
@@ -259,3 +259,4 @@ Reason: Page shows error screen instead of content
 **Test fixes are correct** but revealed a deeper application bug where the teacher-arrange page cannot find semester configuration despite database containing correct data. The drag-and-drop functionality itself appears sound once the page loads properly.
 
 **Recommendation:** Fix application error first, then re-run full E2E suite to verify all 29 tests pass.
+

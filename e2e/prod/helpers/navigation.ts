@@ -52,7 +52,7 @@ export async function goToScheduleAssign(page: Page) {
 
 export async function goToTeacherArrange(page: Page) {
   const semester = getSemesterId();
-  await gotoAndReady(page, `/schedule/${semester}/arrange/teacher-arrange`);
+  await gotoAndReady(page, `/schedule/${semester}/arrange`);
 }
 
 export async function goToLockOverview(page: Page) {
@@ -69,4 +69,5 @@ export async function goToExportEntry(page: Page) {
   const semester = getSemesterId();
   await gotoAndReady(page, `/dashboard/${semester}/all-program`);
 }
+
 

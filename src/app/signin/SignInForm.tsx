@@ -130,9 +130,15 @@ export default function SignInForm() {
     });
   };
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void handleEmailPassSignIn();
+  };
+
   return (
     <Paper sx={{ flex: 1, p: 4 }}>
-      <Stack spacing={3}>
+      <form onSubmit={handleSubmit} noValidate>
+        <Stack spacing={3}>
         <div>
           <Typography variant="h5" fontWeight={600}>
             เข้าสู่ระบบ
@@ -178,9 +184,9 @@ export default function SignInForm() {
         />
 
         <Button
+          type="submit"
           variant="contained"
           startIcon={<LoginIcon />}
-          onClick={handleEmailPassSignIn}
           disabled={submitting}
         >
           {submitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
@@ -197,7 +203,8 @@ export default function SignInForm() {
         >
           เข้าสู่ระบบด้วย Google
         </Button>
-      </Stack>
+        </Stack>
+      </form>
     </Paper>
   );
 }

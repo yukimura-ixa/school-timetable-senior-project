@@ -74,13 +74,7 @@ export class NavigationHelper {
 
   async goToTeacherArrange(semesterAndYear: string, teacherId = "1") {
     await this.gotoAndReady(
-      `/schedule/${semesterAndYear}/arrange/teacher-arrange?TeacherID=${teacherId}`,
-    );
-  }
-
-  async goToStudentArrange(semesterAndYear: string) {
-    await this.gotoAndReady(
-      `/schedule/${semesterAndYear}/arrange/student-arrange`,
+      `/schedule/${semesterAndYear}/arrange?TeacherID=${teacherId}`,
     );
   }
 
@@ -118,3 +112,4 @@ export class NavigationHelper {
     await this.page.waitForLoadState("domcontentloaded");
   }
 }
+

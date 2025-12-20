@@ -71,7 +71,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Wait for page content to load (table, loading skeleton, or empty state)
       await page.waitForSelector(
-        'table, [class*="Skeleton"], [class*="Empty"]',
+        '[role="grid"], .MuiDataGrid-root, [class*="Skeleton"], [class*="Empty"]',
         {
           timeout: 15000,
         },
@@ -165,7 +165,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
       // Page should render successfully - wait for table or empty state
       await page.waitForSelector(
-        'table, [class*="Skeleton"], [class*="Empty"]',
+        '[role="grid"], .MuiDataGrid-root, [class*="Skeleton"], [class*="Empty"]',
         {
           timeout: 15000,
         },
@@ -178,7 +178,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table, [class*='Skeleton']", {
+      await page.waitForSelector('[role="grid"], .MuiDataGrid-root, [class*="Skeleton"]', {
         timeout: 15000,
       });
 
@@ -202,50 +202,54 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.locator('[data-testid="firstname-0"]').fill(`Test${uniqueId}`);
       await page.locator('[data-testid="lastname-0"]').fill(`Smoke${uniqueId}`);
 
-      // Submit the form - look for submit button in modal (ยืนยัน or บันทึก)
-      const submitButton = page
-        .locator('button:has-text("ยืนยัน"), button:has-text("บันทึก")')
-        .and(page.locator(":visible"));
-      await submitButton.last().click();
+      // Submit the form using data-testid
+      const submitButton = page.getByTestId("add-teacher-submit");
+      await expect(submitButton).toBeVisible({ timeout: 10000 });
+      await submitButton.click();
 
       // Wait for success notification
-      await expect(page.locator("text=/สำเร็จ|Success/i").first()).toBeVisible({
-        timeout: 20000,
-      });
+      await expect(
+        page.locator("text=/เพิ่มครู|สำเร็จ|Success/i").first(),
+      ).toBeVisible({ timeout: 20000 });
     });
 
     test("Edit existing teacher", async ({ page }) => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table", { timeout: 15000 });
+      await page.waitForSelector("[role=\"grid\"], .MuiDataGrid-root", { timeout: 15000 });
 
       // Wait for table rows to appear
-      const rows = page.locator("table tbody tr");
+      const rows = page.locator('[role="row"][data-id]');
       await expect(rows.first()).toBeVisible({ timeout: 15000 });
 
       // This page uses EditableTable with inline editing
       // First select a row, then click edit button in toolbar
-      const firstCheckbox = page
-        .locator('table tbody tr input[type="checkbox"]')
+      const firstCheckbox = rows
+        .first()
+        .getByRole("checkbox", { name: /Select row/i })
         .first();
       if (await firstCheckbox.isVisible({ timeout: 5000 }).catch(() => false)) {
         await firstCheckbox.check();
 
         // Click edit button in toolbar
-        const editButton = page.locator('button[aria-label="edit"]').first();
+        const editButton = rows
+          .first()
+          .getByRole("button", { name: /แก้ไข|Edit/i })
+          .first();
         if (await editButton.isVisible({ timeout: 5000 }).catch(() => false)) {
           await editButton.click();
 
           // Wait for editing mode (inputs appear in row)
           await page.waitForSelector(
-            'table tbody input:not([type="checkbox"])',
+            'input:not([type="checkbox"])',
             { timeout: 10000 },
           );
 
           // Modify a visible input field
-          const visibleInput = page
-            .locator('table tbody input:not([type="checkbox"]):visible')
+          const visibleInput = rows
+            .first()
+            .locator('input:not([type="checkbox"]):visible')
             .first();
           if (await visibleInput.isVisible()) {
             const originalValue = await visibleInput.inputValue();
@@ -253,7 +257,10 @@ test.describe("Critical Path Smoke Tests", () => {
           }
 
           // Save changes
-          const saveButton = page.locator('button[aria-label="save"]').first();
+          const saveButton = rows
+            .first()
+            .getByRole("button", { name: /บันทึก|Save/i })
+            .first();
           if (await saveButton.isVisible()) {
             await saveButton.click();
           }
@@ -276,7 +283,7 @@ test.describe("Critical Path Smoke Tests", () => {
       await page.goto("/management/teacher");
 
       // Wait for table to load
-      await page.waitForSelector("table, [class*='Skeleton']", {
+      await page.waitForSelector('[role="grid"], .MuiDataGrid-root, [class*="Skeleton"]', {
         timeout: 15000,
       });
 
@@ -291,7 +298,7 @@ test.describe("Critical Path Smoke Tests", () => {
         .isVisible({ timeout: 5000 })
         .catch(() => false);
       const hasTable = await page
-        .locator("table tbody tr")
+        .locator('[role="row"][data-id]')
         .first()
         .isVisible({ timeout: 5000 })
         .catch(() => false);
@@ -425,19 +432,34 @@ test.describe("Critical Path Smoke Tests", () => {
       const pageContent = page.locator("body");
       await expect(pageContent).toBeVisible({ timeout: 15000 });
     });
+
+    test("Teacher responsibility without TeacherID shows empty state", async ({
+      page,
+    }) => {
+      await page.goto(
+        `/schedule/${TEST_SEMESTER}/assign/teacher_responsibility`,
+      );
+      await page.waitForLoadState("networkidle");
+
+      await expect(
+        page.getByText("กรุณาเลือกครูผู้สอน"),
+      ).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText("ย้อนกลับ")).toBeVisible();
+      await expect(page).toHaveURL(/\/assign\/teacher_responsibility/);
+    });
   });
 
   test.describe("5. Timetable Creation - Teacher Arrange", () => {
     test("Access teacher arrange page", async ({ page }) => {
       const response = await page.goto(
-        `/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`,
+        `/schedule/${TEST_SEMESTER}/arrange`,
       );
 
       // Verify page loads (may be 200 or redirect)
       expect(response?.status()).toBeLessThan(500);
 
       // Verify URL pattern
-      await expect(page).toHaveURL(/\/arrange\/teacher-arrange|\/schedule/);
+      await expect(page).toHaveURL(/\/arrange|\/schedule/);
 
       // Wait for page content - look for skeleton, any meaningful content, or body
       const pageContent = page.locator("body");
@@ -450,7 +472,7 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Select a teacher and view their subjects", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
 
       // Wait for page to fully load
       await page.waitForLoadState("networkidle");
@@ -500,7 +522,7 @@ test.describe("Critical Path Smoke Tests", () => {
     test("Page renders header content (visual verification)", async ({
       page,
     }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
 
       // Wait for page to load
       await page.waitForLoadState("networkidle");
@@ -529,7 +551,7 @@ test.describe("Critical Path Smoke Tests", () => {
 
   test.describe("6. Conflict Detection", () => {
     test("Verify page renders conflict detection UI", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
 
       // Wait for page to load
       await page.waitForLoadState("networkidle");
@@ -542,7 +564,7 @@ test.describe("Critical Path Smoke Tests", () => {
     });
 
     test("Verify page can show locked timeslot legend", async ({ page }) => {
-      await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+      await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
 
       // Wait for page to load
       await page.waitForLoadState("networkidle");
@@ -644,3 +666,4 @@ test.describe("Critical Path Smoke Tests", () => {
     });
   });
 });
+

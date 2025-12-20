@@ -414,7 +414,7 @@ test.describe.skip("Conflict Detection Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/schedule/1-2567/arrange/teacher-arrange");
+    await page.goto("/schedule/1-2567/arrange");
     // Wait for arrange page content to load
     await expect(page.locator('[class*="timetable"], table, [class*="grid"]').first()).toBeVisible({ timeout: 15000 });
 
@@ -448,3 +448,4 @@ test.describe.skip("Conflict Detection Edge Cases", () => {
     expect(hasLockUI).toBe(true);
   });
 });
+

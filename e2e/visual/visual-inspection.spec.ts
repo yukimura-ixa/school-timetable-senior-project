@@ -97,7 +97,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
 
   test("07. Teacher Arrangement Interface", async ({ page }) => {
     const semester = "1-2567";
-    await page.goto(`/schedule/${semester}/arrange/teacher-arrange`);
+    await page.goto(`/schedule/${semester}/arrange`);
     await page.waitForLoadState("networkidle");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
@@ -130,7 +130,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
 test.describe("Visual Inspection - Component Test IDs", () => {
   test("Verify presence of key test IDs", async ({ page }) => {
     const semester = "1-2567";
-    await page.goto(`/schedule/${semester}/arrange/teacher-arrange`);
+    await page.goto(`/schedule/${semester}/arrange`);
     await page.waitForLoadState("networkidle");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
@@ -159,3 +159,4 @@ test.describe("Visual Inspection - Component Test IDs", () => {
     await page.waitForTimeout(5000);
   });
 });
+

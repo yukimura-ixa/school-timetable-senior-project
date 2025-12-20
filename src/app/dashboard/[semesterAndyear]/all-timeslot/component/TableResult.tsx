@@ -25,11 +25,13 @@ const TableResult = (props: Props) => {
   return (
     <table className="ml-3">
       <thead>
-        <th className="flex gap-2 bg-white">
-          <td className="w-[50px] h-[60px] flex items-center justify-center bg-slate-100 rounded">
-            <p onClick={() => console.log(props.classData)}>รวมคาบ</p>
-          </td>
-        </th>
+        <tr className="flex gap-2 bg-white">
+          <th className="w-[50px] h-[60px] bg-slate-100 rounded">
+            <div className="h-full flex items-center justify-center">
+              <p onClick={() => console.log(props.classData)}>ผลรวม</p>
+            </div>
+          </th>
+        </tr>
       </thead>
       <tbody>
         {props.teachers.map((tch, index) => (

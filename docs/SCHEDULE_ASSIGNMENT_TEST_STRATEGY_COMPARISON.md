@@ -18,7 +18,7 @@ We need to decide between two approaches to fix the broken `schedule-assignment.
 
 ### Existing Page Structure
 
-- **Page**: `/schedule/[semesterAndyear]/arrange/teacher-arrange`
+- **Page**: `/schedule/[semesterAndyear]/arrange`
 - **Component**: Complex 1425-line React component with Zustand state management
 - **Tech Stack**: @dnd-kit for drag-and-drop, MUI components, Server Actions
 
@@ -536,3 +536,4 @@ await arrangePage.dragSubjectToTimeslot("TH101", row, col);
 - [ArrangePage POM Source](../e2e/page-objects/ArrangePage.ts)
 - [Current Test Suite](../e2e/tests/admin/schedule-assignment.spec.ts)
 - [Issue #70 Discussion](https://github.com/yukimura-ixa/school-timetable-senior-project/issues/70)
+

@@ -946,7 +946,7 @@ test.describe("Drag and Drop - Lock State Behavior", () => {
   });
 });
 
-test.describe("Drag and Drop - Student Arrange Page", () => {
+test.describe("Drag and Drop - Arrange Page", () => {
   // Note: Navigation moved inside each test to use authenticated page context
 
   test("TC-DND-006-01: Student page drag functionality", async ({
@@ -954,11 +954,11 @@ test.describe("Drag and Drop - Student Arrange Page", () => {
   }) => {
     const { page } = authenticatedAdmin;
     const nav = new NavigationHelper(page);
-    await nav.goToStudentArrange(TEST_SEMESTER);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
     await waitForDndReady(page);
 
     await page.screenshot({
-      path: `${SCREENSHOT_DIR}/50-student-arrange.png`,
+      path: `${SCREENSHOT_DIR}/50-arrange.png`,
       fullPage: true,
     });
 
@@ -966,7 +966,7 @@ test.describe("Drag and Drop - Student Arrange Page", () => {
     const draggables = page.locator("[data-sortable-id], .subject-item");
     const count = await draggables.count();
 
-    console.log(`Student arrange draggables: ${count}`);
+    console.log(`Arrange draggables: ${count}`);
 
     if (count > 0) {
       const firstItem = draggables.first();
@@ -984,7 +984,7 @@ test.describe("Drag and Drop - Student Arrange Page", () => {
   }) => {
     const { page } = authenticatedAdmin;
     const nav = new NavigationHelper(page);
-    await nav.goToStudentArrange(TEST_SEMESTER);
+    await nav.goToTeacherArrange(TEST_SEMESTER);
     await waitForDndReady(page);
 
     // Look for class selector
@@ -1164,3 +1164,4 @@ test.describe("Drag and Drop - Performance & Edge Cases", () => {
     }
   });
 });
+

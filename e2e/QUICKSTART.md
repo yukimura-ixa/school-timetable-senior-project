@@ -57,10 +57,10 @@ e2e/
 
 The Page Object Model relies on `data-testid` attributes for reliable element selection.
 
-**Example: Add to teacher-arrange page components**
+**Example: Add to arrange page components**
 
 ```tsx
-// src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx
+// src/app/schedule/[semesterAndyear]/arrange/page.tsx
 
 // Semester selector
 <Select data-testid="semester-selector">
@@ -418,3 +418,4 @@ For questions, see:
 
 - Issue #36: https://github.com/yukimura-ixa/school-timetable-senior-project/issues/36
 - EXPANSION_PLAN.md: Detailed implementation guide
+

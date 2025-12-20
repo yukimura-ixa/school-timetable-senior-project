@@ -23,7 +23,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -43,7 +43,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -79,7 +79,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -109,7 +109,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -142,7 +142,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/student-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -151,7 +151,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
 
     // Take screenshot
     await page.screenshot({
-      path: "test-results/screenshots/33-student-arrange-page.png",
+      path: "test-results/screenshots/33-arrange-page.png",
       fullPage: true,
     });
   });
@@ -162,7 +162,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/student-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -188,7 +188,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/student-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -207,7 +207,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/student-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -239,7 +239,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
 
     // Try teacher arrange (where rooms are assigned)
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -267,7 +267,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -287,7 +287,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -311,7 +311,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -346,7 +346,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -373,7 +373,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -398,7 +398,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(
-      `/schedule/${testSemester}/arrange/teacher-arrange`,
+      `/schedule/${testSemester}/arrange`,
     );
     await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
@@ -426,3 +426,5 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     }
   });
 });
+
+

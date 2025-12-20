@@ -168,7 +168,7 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
 
   test("CP-03.5: Navigate to arrange page with locked slots", async ({ page }) => {
     // Navigate to teacher arrange page
-    await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+    await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
     await page.waitForLoadState("networkidle");
     
     // Verify page loads
@@ -187,7 +187,7 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
 
   test("CP-03.6: Verify locked timeslots prevent drag-drop", async ({ page }) => {
     // Navigate to arrange page
-    await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`);
+    await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
     await page.waitForLoadState("networkidle");
     
     // Try to select a teacher
@@ -380,3 +380,4 @@ test.describe("CP-03: Lock Integration - Validation", () => {
     expect(buttonCount).toBeGreaterThan(0);
   });
 });
+

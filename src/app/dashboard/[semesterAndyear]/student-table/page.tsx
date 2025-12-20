@@ -57,13 +57,25 @@ import {
 } from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
+import type { timeslot } from "@/prisma/generated/client";
+import { NoTimetableEmptyState } from "@/components/feedback";
 
 const getGradeLabel = (gradeId: string | null) => {
   if (!gradeId) {
     return "";
   }
-  const roomNumber = Number.parseInt(gradeId.substring(1), 10);
-  return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
+
+  const canonicalMatch = /^M(\d+)-(\d+)$/.exec(gradeId);
+  if (canonicalMatch) {
+    return `ม.${canonicalMatch[1]}/${canonicalMatch[2]}`;
+  }
+
+  const legacyMatch = /^ม\.(\d+)\/(\d+)$/.exec(gradeId);
+  if (legacyMatch) {
+    return `ม.${legacyMatch[1]}/${legacyMatch[2]}`;
+  }
+
+  return gradeId;
 };
 
 function StudentTablePage() {
@@ -71,7 +83,9 @@ function StudentTablePage() {
   const { semester, academicYear } = useSemesterSync(
     params.semesterAndyear as string,
   );
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+  const isSessionLoading = isPending;
+  const canFetch = Boolean(session?.user) && !isSessionLoading;
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
@@ -92,7 +106,7 @@ function StudentTablePage() {
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
   } = useSWR(
-    semester && academicYear
+    canFetch && semester && academicYear
       ? ["timeslots-by-term", academicYear, semester]
       : null,
     async ([, year, sem]) => {
@@ -109,7 +123,7 @@ function StudentTablePage() {
     isLoading: isClassLoading,
     isValidating: isClassValidating,
   } = useSWR(
-    selectedGradeId && semester && academicYear
+    canFetch && selectedGradeId && semester && academicYear
       ? ["class-schedules-grade", selectedGradeId, academicYear, semester]
       : null,
     async ([, gradeId, year, sem]) => {
@@ -127,11 +141,14 @@ function StudentTablePage() {
 
   const gradeLevelData = useGradeLevels();
 
-  const hasTimeslotError = Boolean(
-    !timeslotResponse ||
-      ("success" in (timeslotResponse as object) &&
-        !(timeslotResponse as ActionResult<unknown>).success),
-  );
+  const timeslotResult = timeslotResponse as
+    | ActionResult<timeslot[]>
+    | undefined;
+  const timeslots =
+    timeslotResult && timeslotResult.success && "data" in timeslotResult
+      ? timeslotResult.data
+      : undefined;
+  const hasTimeslotError = Boolean(timeslotResult && !timeslotResult.success);
   const hasClassError = Boolean(
     classDataResponse &&
       "success" in (classDataResponse as object) &&
@@ -149,27 +166,26 @@ function StudentTablePage() {
   }, [classDataResponse]);
 
   const timeSlotData: TimeSlotTableData = useMemo(() => {
-    const response = timeslotResponse;
-    const timeslots =
-      response &&
-      typeof response === "object" &&
-      "success" in response &&
-      response.success &&
-      "data" in response &&
-      response.data
-        ? response.data
-        : undefined;
-    return createTimeSlotTableData(timeslots, classData);
-  }, [timeslotResponse, classData]);
+    return createTimeSlotTableData(
+      timeslots as timeslot[] | undefined,
+      classData,
+    );
+  }, [timeslots, classData]);
+
+  const hasTimeslots = Array.isArray(timeslots) && timeslots.length > 0;
 
   const showLoadingOverlay =
+    isSessionLoading ||
     gradeLevelData.isLoading ||
     isTimeslotLoading ||
     isTimeslotValidating ||
     (selectedGradeId ? isClassLoading || isClassValidating : false);
 
+  const showNoTimeslots =
+    !showLoadingOverlay && timeslotResult?.success && !hasTimeslots;
+
   const errors: string[] = [];
-  if (hasTimeslotError) {
+  if (!isSessionLoading && hasTimeslotError) {
     errors.push("ไม่สามารถโหลดข้อมูลคาบเรียนได้");
   }
   if (hasClassError) {
@@ -537,8 +553,14 @@ function StudentTablePage() {
           </Stack>
         )}
 
+        {/* Empty State - No Timeslots Configured */}
+        {showNoTimeslots && <NoTimetableEmptyState />}
+
         {/* Empty State - No Class Selected */}
-        {!showLoadingOverlay && !selectedGradeId && errors.length === 0 && (
+        {!showLoadingOverlay &&
+          !selectedGradeId &&
+          errors.length === 0 &&
+          hasTimeslots && (
           <Paper
             elevation={0}
             sx={{
@@ -559,7 +581,10 @@ function StudentTablePage() {
         )}
 
         {/* Timetable Content */}
-        {selectedGradeId && !hasClassError && !hasTimeslotError && (
+        {selectedGradeId &&
+          !hasClassError &&
+          !hasTimeslotError &&
+          hasTimeslots && (
           <Stack spacing={2}>
             {/* Class Info & Export Actions */}
             <Paper elevation={1} sx={{ p: 2 }}>

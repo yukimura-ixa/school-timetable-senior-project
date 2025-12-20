@@ -50,6 +50,15 @@ test.describe("Admin Authentication Flow", () => {
     await expect(googleButton).toHaveText(/Google/i);
   });
 
+  test("password input should be inside a form", async ({ page }) => {
+    const passwordInput = page.locator('input[type="password"]');
+    await expect(passwordInput).toBeVisible();
+    const hasForm = await passwordInput.evaluate((node) =>
+      Boolean(node.closest("form")),
+    );
+    expect(hasForm).toBeTruthy();
+  });
+
   test("should successfully sign in with admin credentials", async ({
     page,
   }) => {

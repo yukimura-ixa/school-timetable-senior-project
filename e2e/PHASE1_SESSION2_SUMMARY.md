@@ -7,7 +7,7 @@
 **Files Modified**:
 
 - `src/app/schedule/[semesterAndyear]/arrange/component/SelectTeacher.tsx`
-- `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+- `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
 
 **Test IDs Added**:
 
@@ -318,7 +318,7 @@ test.describe("Schedule Assignment", () => {
 ### Modified
 
 1. `src/app/schedule/[semesterAndyear]/arrange/component/SelectTeacher.tsx`
-2. `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+2. `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
 3. `e2e/tests/admin/schedule-assignment.spec.ts` (partial)
 
 ### Created
@@ -353,3 +353,4 @@ test.describe("Schedule Assignment", () => {
 ---
 
 Ready to continue with test migration and execution! 🚀
+

@@ -91,6 +91,7 @@ function TeacherTablePage() {
   );
   const { data: session, isPending } = authClient.useSession();
   const isSessionLoading = isPending;
+  const canFetch = Boolean(session?.user) && !isSessionLoading;
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const isTeacher = userRole === "teacher";
@@ -129,7 +130,7 @@ function TeacherTablePage() {
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
   } = useSWR(
-    semester && academicYear
+    canFetch && semester && academicYear
       ? ["timeslots-by-term", academicYear, semester]
       : null,
     async ([, year, sem]) => {
@@ -146,7 +147,7 @@ function TeacherTablePage() {
     isLoading: isClassLoading,
     isValidating: isClassValidating,
   } = useSWR(
-    selectedTeacherId && semester && academicYear
+    canFetch && selectedTeacherId && semester && academicYear
       ? ["class-schedules-teacher", selectedTeacherId, academicYear, semester]
       : null,
     async ([, teacherId, year, sem]) => {
@@ -167,7 +168,7 @@ function TeacherTablePage() {
     isLoading: isTeacherLoading,
     isValidating: isTeacherValidating,
   } = useSWR(
-    selectedTeacherId ? ["teacher-by-id", selectedTeacherId] : null,
+    canFetch && selectedTeacherId ? ["teacher-by-id", selectedTeacherId] : null,
     async ([, teacherId]) => {
       return await getTeacherByIdAction({ TeacherID: teacherId });
     },
@@ -176,10 +177,11 @@ function TeacherTablePage() {
     },
   );
 
-  const hasTimeslotError =
-    !timeslotResponse ||
-    ("success" in (timeslotResponse as object) &&
-      !(timeslotResponse as ActionResult<unknown>).success);
+  const hasTimeslotError = Boolean(
+    timeslotResponse &&
+      "success" in (timeslotResponse as object) &&
+      !(timeslotResponse as ActionResult<unknown>).success,
+  );
   const hasClassError =
     classDataResponse &&
     "success" in (classDataResponse as object) &&
@@ -214,6 +216,7 @@ function TeacherTablePage() {
   }, [timeslotResponse, classData]);
 
   const showLoadingOverlay =
+    isSessionLoading ||
     isTimeslotLoading ||
     isTimeslotValidating ||
     (selectedTeacherId
@@ -224,7 +227,7 @@ function TeacherTablePage() {
       : false);
 
   const errors: string[] = [];
-  if (hasTimeslotError) {
+  if (!isSessionLoading && hasTimeslotError) {
     errors.push("ไม่สามารถโหลดข้อมูลคาบเรียนได้");
   }
   if (hasClassError && selectedTeacherId) {

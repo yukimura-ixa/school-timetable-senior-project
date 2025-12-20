@@ -20,7 +20,7 @@ Consolidated report (includes bug details + evidence + automation candidates):
 - Schedule arrange page `/schedule/1-2568/arrange`: load/selector tabs; no drag/drop performed (read-only observation).
 - Dashboard semester-scoped views: `/dashboard/1-2567/all-timeslot`, `/dashboard/1-2567/teacher-table`, `/dashboard/1-2567/student-table`, `/dashboard/1-2567/all-program`.
 - Schedule config: `/schedule/1-2567/config` (timeslot settings visible).
-- Teacher arrange: `/schedule/1-2567/arrange/teacher-arrange` (selected E2E teacher to load grid/time row).
+- Teacher arrange: `/schedule/1-2567/arrange` (selected E2E teacher to load grid/time row).
 - Lock overview: `/schedule/1-2567/lock` (empty state).
 
 ## Notes & Observations
@@ -55,3 +55,4 @@ Consolidated report (includes bug details + evidence + automation candidates):
 3) Operational Change / Last-Minute Chaos — swap teachers/rooms, verify exports and refresh behavior once logout issue understood.
 4) Fix+verify timetable time rendering uses Asia/Bangkok (no `01:30` time row); add regression coverage.
 5) Fix+verify student table dropdown labels and eliminate 500s; add regression coverage.
+

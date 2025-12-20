@@ -43,13 +43,6 @@ import type {
 // ============================================================================
 
 /**
- * Error display state by timeslot
- * Maps timeslot IDs to boolean flags for error/lock visibility
- * Issue #108: Migrated to TimeslotErrorStateMap from schedule.types.ts
- */
-// export interface ErrorState removed - using TimeslotErrorStateMap from schedule.types.ts
-
-/**
  * Timeslot container structure
  * Groups timeslot data with metadata for rendering
  */
@@ -425,7 +418,6 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
         addSubjectToData: (subject) =>
           set(
             (state) => {
-              // Immer allows direct push()
               state.subjectData.push(subject);
             },
             undefined,
@@ -435,7 +427,6 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
         removeSubjectFromData: (subjectCode) =>
           set(
             (state) => {
-              // Immer allows filter() assignments
               state.subjectData = state.subjectData.filter(
                 (s) => s.subjectCode !== subjectCode,
               );
@@ -451,8 +442,7 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
                 (s) => s.subjectCode === subjectCode,
               );
               if (index !== -1 && state.subjectData[index]) {
-                // Immer allows direct mutation - cast to any to bypass WritableDraft type
-                Object.assign(state.subjectData[index], updates as any);
+                Object.assign(state.subjectData[index], updates);
               }
             },
             undefined,
@@ -466,7 +456,6 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
         setTimeSlotData: (data) =>
           set(
             (state) => {
-              // Immer handles nested spread automatically
               Object.assign(state.timeSlotData, data);
             },
             undefined,
@@ -498,7 +487,6 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
               );
 
               if (sourceSlot && destSlot) {
-                // Immer allows simple swap
                 const tempSubject = sourceSlot.subject;
                 sourceSlot.subject = destSlot.subject;
                 destSlot.subject = tempSubject;
@@ -640,7 +628,7 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
             (state) => {
               state.history.past.push(state.history.present);
               state.history.present = scheduledSubjects;
-              state.history.future = []; // Clear future on new action
+              state.history.future = [];
               state.scheduledSubjects = scheduledSubjects;
             },
             undefined,
@@ -702,7 +690,6 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
         resetOnTeacherChange: () =>
           set(
             (state) => {
-              // Keep teacher context and filters, reset everything else
               state.selectedSubject = null;
               state.draggedSubject = null;
               state.yearSelected = null;
@@ -724,14 +711,13 @@ export const useTeacherArrangeStore = create<TeacherArrangeStore>()(
           ),
       })),
       {
-        name: "teacher-arrange-filters", // localStorage key
-        // Persist only filter preferences (Context7 partialize pattern)
+        name: "teacher-arrange-filters",
         partialize: (state) => ({ filters: state.filters }),
         storage: createJSONStorage(() => localStorage),
         version: 1,
       },
     ),
-    { name: "teacher-arrange-store" }, // DevTools name
+    { name: "teacher-arrange-store" },
   ),
 );
 

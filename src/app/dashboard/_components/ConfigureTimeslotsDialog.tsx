@@ -5,7 +5,7 @@
  * Allows configuring timeslots for existing semesters
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -41,6 +41,14 @@ export function ConfigureTimeslotsDialog({
   const [timeslotConfig, setTimeslotConfig] =
     useState<CreateTimeslotsInput | null>(null);
   const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setLoading(false);
+      setTimeslotConfig(null);
+      setIsValid(false);
+    }
+  }, [open]);
 
   const handleCreate = async () => {
     if (!timeslotConfig) {

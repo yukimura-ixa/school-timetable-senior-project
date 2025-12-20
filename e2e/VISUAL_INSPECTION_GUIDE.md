@@ -13,17 +13,17 @@ These should have **green outlines** in the browser:
 
 2. **`data-testid="subject-list"`**
    - Location: SearchableSubjectPalette component
-   - File: `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx` (line 1307)
+   - File: `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 1307)
    - Function: List of subjects to drag to timeslots
 
 3. **`data-testid="timeslot-grid"`**
    - Location: TimeSlot grid component
-   - File: `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx` (line 1363)
+   - File: `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 1363)
    - Function: Weekly timetable grid (MON-FRI, periods 1-8)
 
 4. **`data-testid="save-button"`**
    - Location: PrimaryButton for saving
-   - File: `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx` (line 1354)
+   - File: `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 1354)
    - Function: Save schedule changes
 
 ---
@@ -76,7 +76,7 @@ These should have **green outlines** in the browser:
 - Break time configuration
 - Copy from previous semester
 
-### 6. Teacher Arrangement (`/schedule/1-2567/arrange/teacher-arrange`)
+### 6. Teacher Arrangement (`/schedule/1-2567/arrange`)
 
 **⭐ MAIN INSPECTION AREA** - This is where we added test IDs!
 
@@ -263,3 +263,4 @@ If issues found:
 - **Verify accessibility** (Lighthouse audit)
 
 Happy inspecting! 🔍✨
+

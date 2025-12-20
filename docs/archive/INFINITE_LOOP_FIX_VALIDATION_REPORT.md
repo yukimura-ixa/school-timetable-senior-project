@@ -130,7 +130,7 @@ useEffect(() => {
 
 ### Files Modified
 
-**File**: `src/app/schedule/[semesterAndyear]/arrange/teacher-arrange/page.tsx`
+**File**: `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
 
 **Changes**: Removed `actions` from 6 dependency arrays
 
@@ -404,3 +404,4 @@ POST ...?TeacherID=1 200 in 65ms   (12th - final)
 
 **Validated by**: GitHub Copilot (Claude Sonnet 4.5)  
 **Approved for**: Production deployment (subject data issue to be fixed separately)
+

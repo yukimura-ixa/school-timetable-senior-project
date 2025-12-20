@@ -9,14 +9,18 @@ const TeacherList = (props: Props) => {
   return (
     <table className="mr-2">
       <thead>
-        <th className="flex gap-2 bg-white">
-          <td className="w-[50px] h-[60px] flex items-center justify-center bg-slate-100 rounded">
-            <p>ลำดับ</p>
-          </td>
-          <td className="w-[250px] h-[60px] flex items-center justify-center bg-slate-100 rounded">
-            <p>ผู้สอน</p>
-          </td>
-        </th>
+        <tr className="flex gap-2 bg-white">
+          <th className="w-[50px] h-[60px] bg-slate-100 rounded">
+            <div className="h-full flex items-center justify-center">
+              <p>ลำดับ</p>
+            </div>
+          </th>
+          <th className="w-[250px] h-[60px] bg-slate-100 rounded">
+            <div className="h-full flex items-center justify-center">
+              <p>ชื่อครู</p>
+            </div>
+          </th>
+        </tr>
       </thead>
       <tbody>
         {props.teachers.map((item, index) => (

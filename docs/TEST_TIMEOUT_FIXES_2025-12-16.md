@@ -34,7 +34,7 @@ Fixed multiple Playwright E2E test timeout issues by adjusting wait strategies a
 
 **Before:**
 ```typescript
-await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`, {
+await page.goto(`/schedule/${TEST_SEMESTER}/arrange`, {
   waitUntil: "domcontentloaded",
 });
 ```
@@ -42,7 +42,7 @@ await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`, {
 **After:**
 ```typescript
 try {
-  await page.goto(`/schedule/${TEST_SEMESTER}/arrange/teacher-arrange`, {
+  await page.goto(`/schedule/${TEST_SEMESTER}/arrange`, {
     waitUntil: "load",
     timeout: 30000,
   });
@@ -105,3 +105,4 @@ pnpm playwright test e2e/critical-path --reporter=html
 - These fixes are **defensive** - they make tests more resilient but don't address root cause of slow page loads
 - Next.js 16 RSC rendering can be slow in development mode; consider profiling with React DevTools
 - Timeout values (30s) are conservative; may be able to reduce once page performance improves
+
