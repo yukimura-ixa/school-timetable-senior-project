@@ -111,7 +111,13 @@ export function createAction<TInput, TOutput>(
           error: {
             message: "Invalid input data",
             code: ActionErrorCode.VALIDATION_ERROR,
-            details: validationResult.issues,
+            details: validationResult.issues.map((issue) => ({
+              ...issue,
+              requirement:
+                issue.requirement instanceof RegExp
+                  ? issue.requirement.toString()
+                  : issue.requirement,
+            })),
           },
         };
       }
@@ -246,7 +252,13 @@ export function createPublicAction<TInput, TOutput>(
           error: {
             message: "Invalid input data",
             code: ActionErrorCode.VALIDATION_ERROR,
-            details: validationResult.issues,
+            details: validationResult.issues.map((issue) => ({
+              ...issue,
+              requirement:
+                issue.requirement instanceof RegExp
+                  ? issue.requirement.toString()
+                  : issue.requirement,
+            })),
           },
         };
       }

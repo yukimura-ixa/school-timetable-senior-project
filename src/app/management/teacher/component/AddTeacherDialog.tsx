@@ -76,7 +76,10 @@ const ROLE_OPTIONS = [
 const INITIAL_TEACHER_ROW_ID = "teacher-0";
 
 function safeRandomUUID(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -222,16 +225,16 @@ export function AddTeacherDialog({
   }, [open]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormDialog
-        open={open}
-        onClose={onClose}
-        title="เพิ่มรายชื่อครู"
-        description={`กำลังเพิ่ม ${teachers.length} รายการ`}
-        size="lg"
-        dirty={isDirty}
-        loading={isSubmitting}
-      >
+    <FormDialog
+      open={open}
+      onClose={onClose}
+      title="เพิ่มรายชื่อครู"
+      description={`กำลังเพิ่ม ${teachers.length} รายการ`}
+      size="lg"
+      dirty={isDirty}
+      loading={isSubmitting}
+    >
+      <form onSubmit={handleSubmit}>
         {/* Add Row Button */}
         <Stack direction="row" justifyContent="flex-end" mb={2}>
           <Button
@@ -408,8 +411,8 @@ export function AddTeacherDialog({
             เพิ่มครู ({teachers.length} คน)
           </SubmitButton>
         </FormDialogActions>
-      </FormDialog>
-    </form>
+      </form>
+    </FormDialog>
   );
 }
 

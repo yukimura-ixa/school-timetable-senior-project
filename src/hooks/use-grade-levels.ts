@@ -13,17 +13,23 @@ import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/
  * const { data, isLoading, error, mutate } = useGradeLevels()
  */
 export const useGradeLevels = () => {
-  const { data, error, mutate } = useSWR<gradelevel[]>(
+  const { data, error, mutate, isLoading } = useSWR<gradelevel[]>(
     "grade-levels",
     async () => {
       const result = await getGradeLevelsAction({});
-      return result.success ? result.data : [];
+      return result.success && result.data ? result.data : [];
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1 minute deduplication
+      keepPreviousData: true,
     },
   );
 
   return {
     data: data ?? [],
-    isLoading: !error && !data,
+    isLoading: isLoading ?? (!error && !data),
     error,
     mutate,
   };

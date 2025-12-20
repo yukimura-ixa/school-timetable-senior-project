@@ -52,7 +52,7 @@ export function AddProgramDialog({
   const currentThaiYear = getBangkokThaiBuddhistYear();
 
   const getDefaultCode = (trackVal: $Enums.ProgramTrack) =>
-    `${trackVal.replace("_", "-")}-M${year}-${currentThaiYear}`;
+    `M${year}-${trackVal.replace("_", "-")}`;
 
   const [formData, setFormData] = useState<ProgramFormData>({
     programCode: getDefaultCode("GENERAL"),
@@ -158,16 +158,16 @@ export function AddProgramDialog({
   }, [open, year]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormDialog
-        open={open}
-        onClose={onClose}
-        title={`เพิ่มหลักสูตร ม.${year}`}
-        description="กรอกข้อมูลหลักสูตรใหม่"
-        size="sm"
-        dirty={isDirty}
-        loading={isSubmitting}
-      >
+    <FormDialog
+      open={open}
+      onClose={onClose}
+      title={`เพิ่มหลักสูตร ม.${year}`}
+      description="กรอกข้อมูลหลักสูตรใหม่"
+      size="sm"
+      dirty={isDirty}
+      loading={isSubmitting}
+    >
+      <form onSubmit={handleSubmit}>
         <Stack spacing={3}>
           {/* Track Selection */}
           <TextField
@@ -180,6 +180,7 @@ export function AddProgramDialog({
             size="small"
             required
             fullWidth
+            inputProps={{ "data-testid": "program-track-select" }}
           >
             {TRACK_OPTIONS.map((opt) => (
               <MenuItem key={opt.value} value={opt.value}>
@@ -203,6 +204,7 @@ export function AddProgramDialog({
             fullWidth
             error={!!errors.programCode}
             helperText={errors.programCode || "เช่น GENERAL-M1-2567"}
+            inputProps={{ "data-testid": "program-code" }}
           />
 
           {/* Program Name */}
@@ -226,6 +228,7 @@ export function AddProgramDialog({
             error={!!errors.programName}
             helperText={errors.programName}
             autoFocus
+            inputProps={{ "data-testid": "program-name" }}
           />
 
           {/* Min Total Credits */}
@@ -284,8 +287,8 @@ export function AddProgramDialog({
             เพิ่มหลักสูตร
           </SubmitButton>
         </FormDialogActions>
-      </FormDialog>
-    </form>
+      </form>
+    </FormDialog>
   );
 }
 

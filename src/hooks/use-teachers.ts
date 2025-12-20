@@ -19,6 +19,12 @@ export const useTeachers = () => {
       const result = await getTeachersAction({});
       return result.success ? result.data : [];
     },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1 minute deduplication
+      keepPreviousData: true,
+    },
   );
 
   return {

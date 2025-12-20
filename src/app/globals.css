@@ -17,6 +17,138 @@
     from 180deg at 50% 50%,
     var(--tw-gradient-stops)
   );
+
+  /* ============================================
+   * DESIGN SYSTEM COLORS
+   * Usage: text-ds-blue, bg-ds-blue-dark, etc.
+   * ============================================ */
+  --color-ds-blue: #3b82f6;
+  --color-ds-blue-dark: #1d4ed8;
+  --color-ds-blue-light: #60a5fa;
+
+  --color-ds-emerald: #10b981;
+  --color-ds-emerald-dark: #059669;
+  --color-ds-emerald-light: #34d399;
+
+  --color-ds-violet: #8b5cf6;
+  --color-ds-violet-dark: #7c3aed;
+  --color-ds-violet-light: #a78bfa;
+
+  --color-ds-amber: #f59e0b;
+  --color-ds-amber-dark: #d97706;
+  --color-ds-amber-light: #fbbf24;
+
+  --color-ds-red: #ef4444;
+  --color-ds-red-dark: #dc2626;
+  --color-ds-red-light: #f87171;
+
+  --color-ds-cyan: #06b6d4;
+  --color-ds-cyan-dark: #0891b2;
+  --color-ds-cyan-light: #22d3ee;
+
+  /* Neutral slate scale */
+  --color-ds-slate-50: #f8fafc;
+  --color-ds-slate-100: #f1f5f9;
+  --color-ds-slate-200: #e2e8f0;
+  --color-ds-slate-600: #475569;
+  --color-ds-slate-700: #334155;
+  --color-ds-slate-800: #1e293b;
+  --color-ds-slate-900: #0f172a;
+
+  /* ============================================
+   * DESIGN SYSTEM ANIMATIONS
+   * Usage: animate-ds-float, animate-ds-shimmer, etc.
+   * ============================================ */
+  --animate-ds-float: ds-float 2s ease-in-out infinite;
+  --animate-ds-pulse: ds-pulse 4s ease-in-out infinite;
+  --animate-ds-shimmer: ds-shimmer 1.5s infinite;
+  --animate-ds-fade-in: ds-fade-in 0.3s ease-out;
+  --animate-ds-scale-in: ds-scale-in 0.3s ease-out;
+
+  /* ============================================
+   * DESIGN SYSTEM SHADOWS (reduced glow)
+   * Usage: shadow-ds-blue, shadow-ds-emerald, etc.
+   * ============================================ */
+  --shadow-ds-blue: 0 6px 18px rgba(59, 130, 246, 0.15);
+  --shadow-ds-emerald: 0 6px 18px rgba(16, 185, 129, 0.15);
+  --shadow-ds-violet: 0 6px 18px rgba(139, 92, 246, 0.15);
+  --shadow-ds-amber: 0 6px 18px rgba(245, 158, 11, 0.15);
+  --shadow-ds-red: 0 6px 18px rgba(239, 68, 68, 0.15);
+  --shadow-ds-cyan: 0 6px 18px rgba(6, 182, 212, 0.15);
+}
+
+/* Design System Keyframe Animations */
+@keyframes ds-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes ds-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ds-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes ds-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ds-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Design System Utility Classes (legacy + new naming) */
+.animate-float,
+.animate-ds-float {
+  animation: var(--animate-ds-float);
+}
+.animate-pulse-subtle,
+.animate-ds-pulse {
+  animation: var(--animate-ds-pulse);
+}
+.animate-shimmer,
+.animate-ds-shimmer {
+  animation: var(--animate-ds-shimmer);
+}
+.animate-fade-in,
+.animate-ds-fade-in {
+  animation: var(--animate-ds-fade-in);
+}
+.animate-scale-in,
+.animate-ds-scale-in {
+  animation: var(--animate-ds-scale-in);
 }
 
 /* @layer base {

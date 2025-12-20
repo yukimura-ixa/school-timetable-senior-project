@@ -94,21 +94,25 @@ function Navbar() {
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${
-                          hydratedRole === "admin"
-                            ? "bg-purple-500"
-                            : hydratedRole === "teacher"
-                              ? "bg-blue-500"
-                              : "bg-green-500"
+                          isPending
+                            ? "bg-gray-300 animate-pulse"
+                            : hydratedRole === "admin"
+                              ? "bg-purple-500"
+                              : hydratedRole === "teacher"
+                                ? "bg-blue-500"
+                                : "bg-green-500"
                         }`}
                       />
                       <p className="text-xs font-medium text-slate-600">
-                        {hydratedSession && hydratedRole
-                          ? hydratedRole === "admin"
-                            ? "ผู้ดูแลระบบ"
-                            : hydratedRole === "teacher"
-                              ? "คุณครู"
-                              : "นักเรียน"
-                          : "ไม่ระบุบทบาท"}
+                        {isPending
+                          ? "กำลังตรวจสอบสิทธิ์..."
+                          : hydratedSession && hydratedRole
+                            ? hydratedRole === "admin"
+                              ? "ผู้ดูแลระบบ"
+                              : hydratedRole === "teacher"
+                                ? "คุณครู"
+                                : "นักเรียน"
+                            : "ไม่ระบุบทบาท"}
                       </p>
                     </div>
                   </div>

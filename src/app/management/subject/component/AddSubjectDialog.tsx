@@ -25,8 +25,11 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { enqueueSnackbar } from "notistack";
 import { FormDialog, FormDialogActions } from "@/components/dialogs/FormDialog";
 import { SubmitButton } from "@/components/buttons/SubmitButton";
-import { createSubjectAction } from "@/features/subject/application/actions/subject.actions";
-import type { subject_credit, SubjectCategory } from "@/prisma/generated/client";
+import { createSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+import type {
+  subject_credit,
+  SubjectCategory,
+} from "@/prisma/generated/client";
 import { subjectCreditTitles } from "@/models/credit-titles";
 
 // ==================== Types ====================
@@ -37,6 +40,7 @@ interface SubjectFormEntry {
   subjectName: string;
   credit: subject_credit | "";
   category: SubjectCategory;
+  learningArea: string; // learning_area | ""
 }
 
 interface AddSubjectDialogProps {
@@ -60,12 +64,26 @@ const CATEGORY_OPTIONS = [
   { value: "ACTIVITY", label: "กิจกรรมพัฒนาผู้เรียน" },
 ];
 
+const LEARNING_AREA_OPTIONS = [
+  { value: "THAI", label: "ภาษาไทย" },
+  { value: "MATHEMATICS", label: "คณิตศาสตร์" },
+  { value: "SCIENCE", label: "วิทยาศาสตร์และเทคโนโลยี" },
+  { value: "SOCIAL", label: "สังคมศึกษาฯ" },
+  { value: "HEALTH_PE", label: "สุขศึกษาและพลศึกษา" },
+  { value: "ARTS", label: "ศิลปะ" },
+  { value: "CAREER", label: "การงานอาชีพ" },
+  { value: "FOREIGN_LANGUAGE", label: "ภาษาต่างประเทศ" },
+];
+
 // ==================== Helpers ====================
 
 const INITIAL_SUBJECT_ROW_ID = "subject-0";
 
 function safeRandomUUID(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -78,6 +96,7 @@ function createEmptySubject(id: string): SubjectFormEntry {
     subjectName: "",
     credit: "",
     category: "CORE",
+    learningArea: "MATHEMATICS",
   };
 }
 
@@ -155,18 +174,25 @@ export function AddSubjectDialog({
 
     setIsSubmitting(true);
     try {
-      const result = await createSubjectAction({
-        subjects: subjects.map((s) => ({
+      const result = await createSubjectsAction(
+        subjects.map((s) => ({
           SubjectCode: s.subjectCode.trim(),
           SubjectName: s.subjectName.trim(),
           Credit: s.credit as subject_credit,
           Category: s.category,
-          LearningArea: null,
+          LearningArea: (s.category !== "ACTIVITY"
+            ? s.learningArea
+            : null) as any,
           ActivityType: null,
           IsGraded: true,
           Description: "",
         })),
-      });
+      );
+
+      console.log(
+        "[AddSubjectDialog] Submission result:",
+        JSON.stringify(result, null, 2),
+      );
 
       if (!result.success) {
         const errorMessage =
@@ -179,6 +205,7 @@ export function AddSubjectDialog({
       enqueueSnackbar(`เพิ่มวิชา ${subjects.length} รายการสำเร็จ`, {
         variant: "success",
       });
+      console.log("[AddSubjectDialog] Calling onSuccess and onClose");
       onSuccess();
       onClose();
     } catch (error) {
@@ -200,16 +227,16 @@ export function AddSubjectDialog({
   }, [open]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormDialog
-        open={open}
-        onClose={onClose}
-        title="เพิ่มรายวิชา"
-        description={`กำลังเพิ่ม ${subjects.length} รายการ`}
-        size="lg"
-        dirty={isDirty}
-        loading={isSubmitting}
-      >
+    <FormDialog
+      open={open}
+      onClose={onClose}
+      title="เพิ่มรายวิชา"
+      description={`กำลังเพิ่ม ${subjects.length} รายการ`}
+      size="lg"
+      dirty={isDirty}
+      loading={isSubmitting}
+    >
+      <form onSubmit={handleSubmit}>
         {/* Add Row Button */}
         <Stack direction="row" justifyContent="flex-end" mb={2}>
           <Button
@@ -335,6 +362,31 @@ export function AddSubjectDialog({
                     </MenuItem>
                   ))}
                 </TextField>
+
+                {/* Learning Area */}
+                {subject.category !== "ACTIVITY" && (
+                  <TextField
+                    select
+                    label="กลุ่มสาระการเรียนรู้"
+                    value={subject.learningArea}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        subject.id,
+                        "learningArea",
+                        e.target.value,
+                      )
+                    }
+                    size="small"
+                    required
+                    sx={{ gridColumn: { sm: "span 2" } }}
+                  >
+                    {LEARNING_AREA_OPTIONS.map((opt) => (
+                      <MenuItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
               </Box>
             </Box>
           ))}
@@ -361,8 +413,8 @@ export function AddSubjectDialog({
             เพิ่มวิชา ({subjects.length} รายการ)
           </SubmitButton>
         </FormDialogActions>
-      </FormDialog>
-    </form>
+      </form>
+    </FormDialog>
   );
 }
 

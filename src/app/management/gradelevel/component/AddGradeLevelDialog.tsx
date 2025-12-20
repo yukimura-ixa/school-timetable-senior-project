@@ -47,7 +47,10 @@ interface AddGradeLevelDialogProps {
 const INITIAL_GRADELEVEL_ROW_ID = "gradelevel-0";
 
 function safeRandomUUID(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+  if (
+    typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+  ) {
     return crypto.randomUUID();
   }
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
@@ -88,7 +91,10 @@ export function AddGradeLevelDialog({
 
   // Add new row
   const handleAddRow = useCallback(() => {
-    setGradeLevels((prev) => [...prev, createEmptyGradeLevel(safeRandomUUID())]);
+    setGradeLevels((prev) => [
+      ...prev,
+      createEmptyGradeLevel(safeRandomUUID()),
+    ]);
   }, []);
 
   // Remove row
@@ -182,16 +188,16 @@ export function AddGradeLevelDialog({
   }, [open]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormDialog
-        open={open}
-        onClose={onClose}
-        title="เพิ่มระดับชั้น"
-        description={`กำลังเพิ่ม ${gradeLevels.length} รายการ`}
-        size="md"
-        dirty={isDirty}
-        loading={isSubmitting}
-      >
+    <FormDialog
+      open={open}
+      onClose={onClose}
+      title="เพิ่มระดับชั้น"
+      description={`กำลังเพิ่ม ${gradeLevels.length} รายการ`}
+      size="md"
+      dirty={isDirty}
+      loading={isSubmitting}
+    >
+      <form onSubmit={handleSubmit}>
         {/* Add Row Button */}
         <Stack direction="row" justifyContent="flex-end" mb={2}>
           <Button
@@ -259,6 +265,7 @@ export function AddGradeLevelDialog({
                   required
                   error={!!errors[`${grade.id}-year`]}
                   helperText={errors[`${grade.id}-year`]}
+                  inputProps={{ "data-testid": `grade-year-${index}` }}
                 >
                   {[1, 2, 3, 4, 5, 6].map((y) => (
                     <MenuItem key={y} value={y}>
@@ -283,7 +290,11 @@ export function AddGradeLevelDialog({
                   required
                   error={!!errors[`${grade.id}-number`]}
                   helperText={errors[`${grade.id}-number`]}
-                  inputProps={{ min: 1, max: 99 }}
+                  inputProps={{
+                    min: 1,
+                    max: 99,
+                    "data-testid": `grade-number-${index}`,
+                  }}
                 />
 
                 {/* StudentCount */}
@@ -301,7 +312,10 @@ export function AddGradeLevelDialog({
                   size="small"
                   error={!!errors[`${grade.id}-studentCount`]}
                   helperText={errors[`${grade.id}-studentCount`]}
-                  inputProps={{ min: 0 }}
+                  inputProps={{
+                    min: 0,
+                    "data-testid": `grade-students-${index}`,
+                  }}
                 />
 
                 {/* Program */}
@@ -317,6 +331,7 @@ export function AddGradeLevelDialog({
                     )
                   }
                   size="small"
+                  inputProps={{ "data-testid": `grade-program-${index}` }}
                 >
                   <MenuItem value="">
                     <em>ไม่ระบุ</em>
@@ -353,8 +368,8 @@ export function AddGradeLevelDialog({
             เพิ่มระดับชั้น ({gradeLevels.length} รายการ)
           </SubmitButton>
         </FormDialogActions>
-      </FormDialog>
-    </form>
+      </form>
+    </FormDialog>
   );
 }
 

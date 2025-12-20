@@ -13,14 +13,23 @@ import { getSubjectsAction } from "@/features/subject/application/actions/subjec
  * const { data, isLoading, error, mutate } = useSubjects()
  */
 export const useSubjects = () => {
-  const { data, error, mutate } = useSWR<subject[]>("subjects", async () => {
-    const result = await getSubjectsAction({});
-    return result.success ? result.data : [];
-  });
+  const { data, error, mutate, isLoading } = useSWR<subject[]>(
+    "subjects",
+    async () => {
+      const result = await getSubjectsAction({});
+      return result.success ? result.data : [];
+    },
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1 minute deduplication
+      keepPreviousData: true,
+    },
+  );
 
   return {
     data: data ?? [],
-    isLoading: !error && !data,
+    isLoading: isLoading ?? (!error && !data),
     error,
     mutate,
   };
