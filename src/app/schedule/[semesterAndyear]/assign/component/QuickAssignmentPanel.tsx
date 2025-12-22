@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -37,6 +37,12 @@ import {
   syncAssignmentsAction,
   deleteAssignmentAction,
 } from "@/features/assign/application/actions/assign.actions";
+import { syncAssignmentsSchema } from "@/features/assign/application/schemas/assign.schemas";
+import * as v from "valibot";
+import { subjectCreditValues } from "@/models/credit-value";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+
+import { getSubjectLevelRange } from "@/utils/subject-level";
 
 interface QuickAssignmentPanelProps {
   teacher: teacher;
@@ -48,7 +54,7 @@ interface QuickAssignmentPanelProps {
     RespID: string;
     SubjectCode: string;
     SubjectName: string;
-    GradeID: number;
+    GradeID: string;
     GradeName: string;
     TeachHour: number;
   }>;
@@ -74,9 +80,40 @@ function QuickAssignmentPanel({
   const [weeklyHours, setWeeklyHours] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Auto-fill weekly hours based on subject credit
+  useEffect(() => {
+    if (selectedSubject) {
+      const rawCredit = selectedSubject.Credit;
+      const creditVal =
+        subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ?? 0;
+      setWeeklyHours(creditVal * 2);
+    } else {
+      setWeeklyHours(0);
+    }
+  }, [selectedSubject]);
+
   // Editing state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingHours, setEditingHours] = useState<number>(0);
+
+  // Check for subject-grade level mismatch (MOE compliance)
+  const gradeLevelMismatch = useMemo(() => {
+    if (!selectedSubject || selectedGrades.length === 0) return null;
+
+    const levelRange = getSubjectLevelRange(selectedSubject.SubjectCode);
+    if (!levelRange) return null;
+
+    const mismatchedGrades = selectedGrades.filter(
+      (g) => g.Year < levelRange.minYear || g.Year > levelRange.maxYear,
+    );
+
+    if (mismatchedGrades.length === 0) return null;
+
+    return {
+      expectedRange: `ม.${levelRange.minYear}-ม.${levelRange.maxYear}`,
+      mismatchedGrades: mismatchedGrades.map((g) => `ม.${g.Year}/${g.Number}`),
+    };
+  }, [selectedSubject, selectedGrades]);
 
   // Filter out subjects already assigned
   const availableSubjects = useMemo(() => {
@@ -106,45 +143,61 @@ function QuickAssignmentPanel({
     }
 
     setIsSubmitting(true);
+    console.log("QuickAssignmentPanel: Starting handleSubmit...");
 
     try {
       // Build new assignments to add
-      const newAssignments = selectedGrades.map((grade) => ({
-        SubjectCode: selectedSubject.SubjectCode,
-        GradeID: grade.GradeID.toString(),
-        Credit: selectedSubject.Credit.toString() as
-          | "0.5"
-          | "1.0"
-          | "1.5"
-          | "2.0"
-          | "2.5"
-          | "3.0",
-      }));
+      const newAssignments = selectedGrades.map((grade) => {
+        const rawCredit = selectedSubject.Credit;
+        const creditVal =
+          subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ??
+          0;
+        const formattedCredit = creditVal.toFixed(1);
+
+        return {
+          SubjectCode: selectedSubject.SubjectCode,
+          GradeID: grade.GradeID,
+          Credit: formattedCredit as any,
+        };
+      });
 
       // Get existing assignments for this teacher/term
-      const existingAssignments = currentAssignments.map((assignment) => ({
-        RespID: parseInt(assignment.RespID),
-        SubjectCode: assignment.SubjectCode,
-        GradeID: assignment.GradeID.toString(),
-        Credit: selectedSubject.Credit.toString() as
-          | "0.5"
-          | "1.0"
-          | "1.5"
-          | "2.0"
-          | "2.5"
-          | "3.0",
-      }));
+      const existingAssignments = currentAssignments.map((assignment) => {
+        const subj = subjects.find(
+          (s) => s.SubjectCode === assignment.SubjectCode,
+        );
+        const rawCredit = subj?.Credit;
+        const creditVal = rawCredit
+          ? (subjectCreditValues[
+              rawCredit as keyof typeof subjectCreditValues
+            ] ?? 1.0)
+          : 1.0;
+        const formattedCredit = creditVal.toFixed(1);
+
+        return {
+          RespID: parseInt(assignment.RespID),
+          SubjectCode: assignment.SubjectCode,
+          GradeID: assignment.GradeID,
+          Credit: formattedCredit as any,
+        };
+      });
 
       // Combine existing + new for sync action
       const allAssignments = [...existingAssignments, ...newAssignments];
 
       // Call server action to sync assignments
-      await syncAssignmentsAction({
+      const actionResult = await syncAssignmentsAction({
         TeacherID: _teacher.TeacherID,
         AcademicYear: _academicYear,
         Semester: _semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
         Resp: allAssignments,
       });
+
+      if (!actionResult?.success) {
+        throw new Error(
+          actionResult?.error?.message || "Failed to sync assignments",
+        );
+      }
 
       enqueueSnackbar(
         `เพิ่มวิชา ${selectedSubject.SubjectCode} สำเร็จ (${selectedGrades.length} ห้อง)`,
@@ -161,6 +214,7 @@ function QuickAssignmentPanel({
         onAssignmentAdded();
       }
     } catch (error) {
+      console.error("QuickAssignmentPanel: Error in handleSubmit:", error);
       enqueueSnackbar(
         `เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : "Unknown error"}`,
         { variant: "error" },
@@ -175,27 +229,97 @@ function QuickAssignmentPanel({
     setEditingHours(assignment.TeachHour);
   };
 
-  const handleSaveEdit = (_respId: string) => {
-    // NOTE: TeachHour editing is not supported in current architecture
-    // TeachHour is automatically calculated from Subject.Credit by calculateTeachHour()
-    // To change TeachHour, the subject's credit value must be modified
-    // For now, this feature is disabled - consider removing edit UI entirely
-
-    enqueueSnackbar(
-      "ไม่สามารถแก้ไขชั่วโมงสอนได้โดยตรง - ชั่วโมงสอนคำนวณจากหน่วยกิตวิชาโดยอัตโนมัติ",
-      { variant: "info" },
+  const handleSaveEdit = async (respId: string) => {
+    const assignmentToEdit = currentAssignments.find(
+      (a) => a.RespID === respId,
     );
+    if (!assignmentToEdit) return;
 
-    setEditingId(null);
-    setEditingHours(0);
+    if (editingHours <= 0 || editingHours > 30) {
+      enqueueSnackbar("กรุณาระบุชั่วโมงสอนที่ถูกต้อง (1-30)", {
+        variant: "warning",
+      });
+      return;
+    }
 
-    // Architecture Note:
-    // The current design calculates TeachHour from Credit automatically in syncAssignmentsAction.
-    // There is no dedicated "update single assignment" server action.
-    // To implement this properly, we would need either:
-    // 1. A new updateResponsibilityAction that directly updates TeachHour (breaks domain rule)
-    // 2. Remove edit functionality and guide users to delete + re-add (current recommendation)
-    // 3. Make TeachHour editable in database but document it overrides credit calculation
+    setIsSubmitting(true);
+    try {
+      // Strategy: "Delete + Create" to update
+      // 1. Keep other assignments as-is (with RespID)
+      // 2. Add edited assignment WITHOUT RespID (treated as new) and with new TeachHour
+      const otherAssignments = currentAssignments
+        .filter((a) => a.RespID !== respId)
+        .map((a) => {
+          // Find subject to get Credit (needed for schema validation)
+          // If subject not found (unlikely), fallback to 1.0 logic
+          let formattedCredit: any = "1.0";
+          const subj = subjects.find((s) => s.SubjectCode === a.SubjectCode);
+          if (subj) {
+            const rawCredit = subj.Credit;
+            const creditVal =
+              subjectCreditValues[
+                rawCredit as keyof typeof subjectCreditValues
+              ] ?? 1.0;
+            formattedCredit = creditVal.toFixed(1);
+          }
+
+          return {
+            RespID: parseInt(a.RespID),
+            SubjectCode: a.SubjectCode,
+            GradeID: a.GradeID,
+            Credit: formattedCredit,
+            TeachHour: a.TeachHour,
+          };
+        });
+
+      // Prepare edited item
+      let editedCredit: any = "1.0";
+      const subj = subjects.find(
+        (s) => s.SubjectCode === assignmentToEdit.SubjectCode,
+      );
+      if (subj) {
+        const rawCredit = subj.Credit;
+        const creditVal =
+          subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ??
+          1.0;
+        editedCredit = creditVal.toFixed(1);
+      }
+
+      const editedItem = {
+        SubjectCode: assignmentToEdit.SubjectCode,
+        GradeID: assignmentToEdit.GradeID,
+        Credit: editedCredit,
+        TeachHour: editingHours, // Pass manual hours
+      };
+
+      // Combine
+      const allAssignments = [...otherAssignments, editedItem];
+
+      const result = await syncAssignmentsAction({
+        TeacherID: _teacher.TeacherID,
+        AcademicYear: _academicYear,
+        Semester: _semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
+        Resp: allAssignments,
+      });
+
+      if (!result?.success) {
+        throw new Error(
+          result?.error?.message || "Failed to update assignment",
+        );
+      }
+
+      enqueueSnackbar("บันทึกการแก้ไขสำเร็จ", { variant: "success" });
+      setEditingId(null);
+      setEditingHours(0);
+
+      // Refresh data
+      if (onAssignmentAdded) onAssignmentAdded();
+    } catch (error) {
+      console.error("Update failed:", error);
+      enqueueSnackbar("เกิดข้อผิดพลาดในการบันทึก", { variant: "error" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -280,6 +404,7 @@ function QuickAssignmentPanel({
               >
                 {/* Subject Autocomplete */}
                 <Autocomplete
+                  data-testid="subject-autocomplete"
                   value={selectedSubject}
                   onChange={(_event, newValue) => setSelectedSubject(newValue)}
                   options={availableSubjects}
@@ -300,6 +425,7 @@ function QuickAssignmentPanel({
 
                 {/* Grade Multi-Select */}
                 <Autocomplete
+                  data-testid="grade-autocomplete"
                   multiple
                   value={selectedGrades}
                   onChange={(_event, newValue) => setSelectedGrades(newValue)}
@@ -337,7 +463,7 @@ function QuickAssignmentPanel({
 
                 {/* Weekly Hours Input */}
                 <TextField
-                  label="ชั่วโมง/สัปดาห์"
+                  label="ชั่วโมง/สัปดาห์ (คำนวณจากหน่วยกิต)"
                   type="number"
                   value={weeklyHours || ""}
                   onChange={(e) =>
@@ -346,6 +472,11 @@ function QuickAssignmentPanel({
                   size="small"
                   inputProps={{ min: 0, max: 20 }}
                   disabled={isSubmitting}
+                  helperText={
+                    selectedSubject
+                      ? `หน่วยกิต: ${subjectCreditValues[selectedSubject.Credit as keyof typeof subjectCreditValues] || 0}`
+                      : ""
+                  }
                 />
 
                 {/* Add Button */}
@@ -367,13 +498,28 @@ function QuickAssignmentPanel({
                 </Button>
               </Box>
 
+              {/* MOE Compliance Warning */}
+              {gradeLevelMismatch && (
+                <Alert
+                  severity="warning"
+                  sx={{ mt: 2 }}
+                  icon={<WarningAmberIcon />}
+                >
+                  <strong>⚠️ ไม่ตรงตามหลักสูตร:</strong> วิชา{" "}
+                  {selectedSubject?.SubjectCode} เป็นวิชาสำหรับ{" "}
+                  {gradeLevelMismatch.expectedRange} แต่เลือกชั้น{" "}
+                  {gradeLevelMismatch.mismatchedGrades.join(", ")}{" "}
+                  ซึ่งอยู่นอกช่วงระดับชั้นที่กำหนด
+                </Alert>
+              )}
+
               {/* Validation Hints */}
               {(selectedSubject ||
                 selectedGrades.length > 0 ||
                 weeklyHours > 0) && (
                 <Alert
-                  severity="info"
-                  sx={{ mt: 2 }}
+                  severity={gradeLevelMismatch ? "warning" : "info"}
+                  sx={{ mt: gradeLevelMismatch ? 1 : 2 }}
                   icon={<CheckCircleIcon />}
                 >
                   {!selectedSubject && "• เลือกวิชาที่ต้องการมอบหมาย"}
@@ -387,7 +533,7 @@ function QuickAssignmentPanel({
                   {selectedSubject &&
                     selectedGrades.length > 0 &&
                     weeklyHours > 0 &&
-                    `✓ พร้อมเพิ่ม: ${selectedSubject.SubjectCode} ให้ ${selectedGrades.length} ห้อง (${weeklyHours} ชม./สัปดาห์)`}
+                    `✓ พร้อมเพิ่ม: ${selectedSubject.SubjectCode} ให้ ${selectedGrades.length} ห้อง ห้องละ ${weeklyHours} ชม. (รวมเพิ่ม ${weeklyHours * selectedGrades.length} ชม.)`}
                 </Alert>
               )}
             </CardContent>

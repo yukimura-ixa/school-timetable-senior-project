@@ -37,7 +37,9 @@ test.describe("Compliance UI Checks", () => {
       .click();
 
     // 2. Select Upper Secondary Subject (Grade 4-6) - ท41101
-    const subjectInput = page.locator('[role="combobox"]').nth(1);
+    const subjectInput = page
+      .getByTestId("subject-autocomplete")
+      .locator("input");
     await subjectInput.click();
     await subjectInput.fill(UPPER_SEC_SUBJECT);
     await page
@@ -45,9 +47,8 @@ test.describe("Compliance UI Checks", () => {
       .filter({ hasText: UPPER_SEC_SUBJECT })
       .click();
 
-    // 3. Select Grade M.1/99 (Outside 4-6 range) via Autocomplete
-    // The grade selector is the 2nd Autocomplete (index 1 is subject, index 2 is grade)
-    const gradeInput = page.locator('[role="combobox"]').nth(2);
+    // 3. Select Grade M.1/99 (Outside 4-6 range) via data-testid
+    const gradeInput = page.getByTestId("grade-autocomplete").locator("input");
     await gradeInput.click();
     await page.locator('[role="option"]').filter({ hasText: "ม.1/99" }).click();
 
@@ -63,12 +64,11 @@ test.describe("Compliance UI Checks", () => {
     });
   });
 
-  // TODO: COMP-02 is currently skipped due to persistent flakiness
-  // Root cause (via MCP debugging):
-  // - Next.js Server Actions don't emit /api/ network requests
-  // - Snackbar timing depends on async Server Action completion + re-render
-  // - MUI Autocomplete nth(2) selector is fragile to DOM changes
-  // The underlying validation logic IS tested via unit tests (teacher-validation.service.test.ts)
+  // COMP-02: All improvements applied but still flaky
+  // ✅ Stable selectors: data-testid="subject-autocomplete" and "grade-autocomplete"
+  // ✅ Context7-documented pattern: waitForResponse with POST method check
+  // ❌ Still fails: Server Action completion doesn't guarantee snackbar render timing
+  // Core validation logic verified via unit tests (teacher-validation.service.test.ts)
   test.skip("COMP-02: Should show specialization warning (Department mismatch)", async ({
     authenticatedAdmin,
   }) => {
@@ -84,7 +84,9 @@ test.describe("Compliance UI Checks", () => {
       .click();
 
     // 2. Select Thai Subject (Thai Learning Area)
-    const subjectInput = page.locator('[role="combobox"]').nth(1);
+    const subjectInput = page
+      .getByTestId("subject-autocomplete")
+      .locator("input");
     await subjectInput.click();
     await subjectInput.fill(THAI_SUBJECT);
     await page
@@ -92,17 +94,26 @@ test.describe("Compliance UI Checks", () => {
       .filter({ hasText: THAI_SUBJECT })
       .click();
 
-    // 3. Select Grade M.1/99 via Autocomplete
-    const gradeInput = page.locator('[role="combobox"]').nth(2);
+    // 3. Select Grade M.1/99 via data-testid
+    const gradeInput = page.getByTestId("grade-autocomplete").locator("input");
     await gradeInput.click();
     await page.locator('[role="option"]').filter({ hasText: "ม.1/99" }).click();
 
-    // 4. Click the Add button and wait for Server Action to complete
+    // 4. Click the Add button and wait for Server Action (POST request)
     const addButton = page.locator("button").filter({ hasText: "เพิ่ม" });
-    await addButton.click();
 
-    // Wait for network to settle (Server Actions don't use /api/ URLs)
-    await page.waitForLoadState("networkidle", { timeout: 15000 });
+    // Per Context7 Playwright docs: wait for POST response (Server Actions use POST)
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" && response.status() === 200,
+      { timeout: 15000 },
+    );
+
+    await addButton.click();
+    await responsePromise;
+
+    // Additional wait for UI update
+    await page.waitForLoadState("networkidle", { timeout: 10000 });
 
     // 5. Verify snackbar appears with retry logic
     await expect(async () => {
@@ -120,21 +131,32 @@ test.describe("Compliance UI Checks", () => {
 
 // Separate describe block for Analytics page tests (no beforeEach navigation)
 test.describe("Compliance Analytics Checks", () => {
-  // TODO: COMP-03 is currently skipped due to persistent flakiness
-  // Root cause (via MCP debugging):
-  // - Analytics page has heavy data processing with multiple async Server Components
-  // - Program compliance cards render asynchronously
-  // - Text locators with Thai characters may have encoding/normalization issues
-  // The underlying compliance repository logic IS tested via integration tests (compliance.repository.test.ts)
+  // COMP-03: All improvements applied but still flaky
+  // ✅ Context7 pattern: waitForResponse with POST + response.ok
+  // ❌ Still fails: Analytics Server Components have complex async rendering
+  // Core compliance logic verified via integration tests (compliance.repository.test.ts)
   test.skip("COMP-03: Should show program compliance errors in Analytics", async ({
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
 
-    // 1. Navigate to Analytics
+    // 1. Navigate to Analytics and wait for Server Component data loading
+    // Per Context7 docs: wait for POST responses (Server Components/Actions)
+    const responsePromise = page.waitForResponse(
+      (response) => response.request().method() === "POST" && response.ok,
+      { timeout: 20000 },
+    );
+
     await page.goto("/dashboard/1-2568/analytics");
 
-    // Wait for all data to load
+    // Wait for first POST to complete (initial data load)
+    try {
+      await responsePromise;
+    } catch (e) {
+      // No POST might mean data is cached - continue anyway
+    }
+
+    // Wait for all network activity
     await page.waitForLoadState("networkidle", { timeout: 20000 });
 
     // 2. Wait for compliance section heading to be present with retry
