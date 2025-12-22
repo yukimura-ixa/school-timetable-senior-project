@@ -303,13 +303,13 @@ export async function findFullConfigData(
   ]);
 
   const requiredSubjects = new Map<string, string[]>();
-  grades.forEach((grade: any) => {
+  grades.forEach((grade) => {
     if (!grade.ProgramID) {
       return;
     }
 
     const gradeProgram = programs.find(
-      (program: any) => program.ProgramID === grade.ProgramID,
+      (program) => program.ProgramID === grade.ProgramID,
     );
 
     if (!gradeProgram) {
@@ -317,8 +317,8 @@ export async function findFullConfigData(
     }
 
     const required = gradeProgram.program_subject
-      .filter((ps: any) => ps.IsMandatory)
-      .map((ps: any) => ps.SubjectCode);
+      .filter((ps) => ps.IsMandatory)
+      .map((ps) => ps.SubjectCode);
 
     requiredSubjects.set(grade.GradeID, required);
   });

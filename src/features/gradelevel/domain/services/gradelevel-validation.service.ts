@@ -128,7 +128,7 @@ export async function findGradeLevelsForLock(
     gradeIdsWithMultipleTeachers,
   );
 
-  return gradelevels.map((g: any) => ({
+  return gradelevels.map((g) => ({
     GradeID: g.GradeID,
     Year: g.Year,
     Number: g.Number,

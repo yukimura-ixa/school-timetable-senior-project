@@ -178,7 +178,7 @@ export const programRepository = {
     // Transform program_subject to subjects array for easier consumption
     const program = {
       ...gradelevel.program,
-      subjects: gradelevel.program.program_subject.map((ps: any) => ({
+      subjects: gradelevel.program.program_subject.map((ps) => ({
         ...ps.subject,
         MinCredits: ps.MinCredits,
         MaxCredits: ps.MaxCredits,
@@ -256,7 +256,7 @@ export const programRepository = {
    * Uses transaction to ensure atomicity
    */
   async assignSubjects(data: AssignSubjectsToProgramInput) {
-    return prisma.$transaction(async (tx: any) => {
+    return prisma.$transaction(async (tx) => {
       await tx.program_subject.deleteMany({
         where: {
           ProgramID: data.ProgramID,
