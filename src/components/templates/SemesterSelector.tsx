@@ -37,7 +37,7 @@ export function SemesterSelector() {
     "semesters-list",
     async () => {
       const result = await getSemestersAction({});
-      return result.success ? result.data ?? [] : [];
+      return result.success ? (result.data ?? []) : [];
     },
     {
       revalidateOnFocus: false,
@@ -74,16 +74,21 @@ export function SemesterSelector() {
   if (!selectedSemester) {
     return (
       <Button
-        variant="outlined"
+        variant="contained"
         size="small"
         startIcon={<CalendarIcon />}
         onClick={handleManageSemesters}
         sx={{
-          borderColor: "warning.main",
-          color: "warning.main",
+          borderRadius: "999px",
+          background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+          color: "white",
+          boxShadow: "0 4px 14px 0 rgba(217, 119, 6, 0.39)",
+          textTransform: "none",
+          fontWeight: 700,
+          px: 2,
           "&:hover": {
-            borderColor: "warning.dark",
-            backgroundColor: "warning.light",
+            background: "linear-gradient(135deg, #d97706 0%, #b45309 100%)",
+            boxShadow: "0 6px 20px rgba(217, 119, 6, 0.23)",
           },
         }}
       >
@@ -95,15 +100,32 @@ export function SemesterSelector() {
   return (
     <Box>
       <Button
-        variant="outlined"
+        variant="text"
         size="small"
-        startIcon={<CalendarIcon />}
-        endIcon={<ArrowDownIcon />}
+        startIcon={
+          <CalendarIcon sx={{ fontSize: 20, color: "primary.main" }} />
+        }
+        endIcon={
+          <ArrowDownIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+        }
         onClick={handleClick}
         sx={{
-          borderColor: "primary.main",
+          bgcolor: "white/40",
+          backdropFilter: "blur(8px)",
+          border: "1px solid",
+          borderColor: "white/60",
+          borderRadius: "999px",
+          px: 2,
+          py: 0.75,
           color: "text.primary",
           textTransform: "none",
+          boxShadow: "0 2px 8px -2px rgba(0,0,0,0.05)",
+          "&:hover": {
+            bgcolor: "white/60",
+            borderColor: "primary.light",
+            boxShadow: "0 4px 12px -2px rgba(0,0,0,0.1)",
+          },
+          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
         <Box
@@ -111,17 +133,30 @@ export function SemesterSelector() {
             display: "flex",
             flexDirection: "column",
             alignItems: "flex-start",
-            mr: 1,
+            mr: 0.5,
           }}
         >
           <Typography
             variant="caption"
-            color="text.secondary"
-            sx={{ lineHeight: 1 }}
+            sx={{
+              lineHeight: 1,
+              fontWeight: 700,
+              fontSize: "10px",
+              color: "text.secondary",
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}
           >
             ภาคเรียน
           </Typography>
-          <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              lineHeight: 1.2,
+              fontWeight: 800,
+              color: "slate.900",
+            }}
+          >
             {semester}/{academicYear}
           </Typography>
         </Box>
@@ -139,67 +174,145 @@ export function SemesterSelector() {
           vertical: "top",
           horizontal: "right",
         }}
-        PaperProps={{
-          sx: {
-            minWidth: 250,
-            maxHeight: 400,
+        slotProps={{
+          paper: {
+            sx: {
+              mt: 1.5,
+              minWidth: 280,
+              borderRadius: "16px",
+              bgcolor: "rgba(255, 255, 255, 0.8)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.3)",
+              boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+              overflow: "hidden",
+            },
           },
         }}
       >
-        <Box sx={{ px: 2, py: 1 }}>
-          <Typography variant="caption" color="text.secondary">
+        <Box sx={{ px: 2.5, py: 1.5 }}>
+          <Typography
+            variant="overline"
+            sx={{ fontWeight: 800, color: "text.secondary", fontSize: "11px" }}
+          >
             เลือกภาคเรียน
           </Typography>
         </Box>
-        <Divider />
+        <Divider sx={{ opacity: 0.5 }} />
 
-        {semesters.length === 0 ? (
-          <MenuItem disabled>
-            <Typography variant="body2" color="text.secondary">
-              ไม่มีภาคเรียน
-            </Typography>
-          </MenuItem>
-        ) : (
-          semesters.map((sem) => (
-            <MenuItem
-              key={sem.configId}
-              selected={sem.configId === selectedSemester}
-              onClick={() =>
-                handleSelectSemester(
-                  sem.configId,
-                  sem.academicYear,
-                  sem.semester,
-                )
-              }
-            >
-              <Box
+        <Box sx={{ maxHeight: 320, overflowY: "auto", py: 0.5 }}>
+          {semesters.length === 0 ? (
+            <MenuItem disabled sx={{ py: 2, justifyContent: "center" }}>
+              <Typography variant="body2" color="text.secondary">
+                ยังไม่มีข้อมูลภาคเรียน
+              </Typography>
+            </MenuItem>
+          ) : (
+            semesters.map((sem) => (
+              <MenuItem
+                key={sem.configId}
+                selected={sem.configId === selectedSemester}
+                onClick={() =>
+                  handleSelectSemester(
+                    sem.configId,
+                    sem.academicYear,
+                    sem.semester,
+                  )
+                }
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  width: "100%",
+                  mx: 1,
+                  my: 0.5,
+                  borderRadius: "10px",
+                  py: 1.25,
+                  transition: "all 0.2s",
+                  "&.Mui-selected": {
+                    bgcolor: "primary.lighter",
+                    "&:hover": { bgcolor: "primary.lighter" },
+                  },
                 }}
               >
-                <Box>
-                  <Typography variant="body2">
-                    ภาคเรียนที่ {sem.semester}/{sem.academicYear}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {sem.classCount || 0} ห้อง · {sem.teacherCount || 0} ครู
-                  </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight:
+                          sem.configId === selectedSemester ? 700 : 500,
+                        color:
+                          sem.configId === selectedSemester
+                            ? "primary.main"
+                            : "text.primary",
+                      }}
+                    >
+                      ภาคเรียนที่ {sem.semester}/{sem.academicYear}
+                    </Typography>
+                    <Box sx={{ display: "flex", gap: 1, mt: 0.5 }}>
+                      <Chip
+                        label={`${sem.classCount || 0} ห้อง`}
+                        size="small"
+                        sx={{
+                          height: 18,
+                          fontSize: "10px",
+                          bgcolor: "slate.100",
+                          color: "slate.600",
+                          fontWeight: 600,
+                        }}
+                      />
+                      <Chip
+                        label={`${sem.teacherCount || 0} ครู`}
+                        size="small"
+                        sx={{
+                          height: 18,
+                          fontSize: "10px",
+                          bgcolor: "slate.100",
+                          color: "slate.600",
+                          fontWeight: 600,
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                  {sem.configId === selectedSemester && (
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: "full",
+                        bgcolor: "primary.main",
+                        boxShadow: "0 0 0 4px rgba(25, 118, 210, 0.1)",
+                      }}
+                    />
+                  )}
                 </Box>
-                {sem.configId === selectedSemester && (
-                  <Chip label="เลือกอยู่" size="small" color="primary" />
-                )}
-              </Box>
-            </MenuItem>
-          ))
-        )}
+              </MenuItem>
+            ))
+          )}
+        </Box>
 
-        <Divider />
-        <MenuItem onClick={handleManageSemesters}>
-          <Typography variant="body2" color="primary" fontWeight={600}>
-            จัดการภาคเรียน...
+        <Divider sx={{ opacity: 0.5 }} />
+        <MenuItem
+          onClick={handleManageSemesters}
+          sx={{
+            py: 1.5,
+            justifyContent: "center",
+            "&:hover": { bgcolor: "transparent" },
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: "primary.main",
+              fontWeight: 800,
+              fontSize: "13px",
+              "&:hover": { textDecoration: "underline" },
+            }}
+          >
+            จัดการภาคเรียนทั้งหมด
           </Typography>
         </MenuItem>
       </Menu>

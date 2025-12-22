@@ -15,138 +15,189 @@ const FALLBACK_USER_ICON = "/svg/user/usericon.svg";
 import { SemesterSelector } from "./SemesterSelector";
 
 function Navbar() {
-  const { toggleSidebar } = useUIStore();
+  const { toggleSidebar, isHydrated, setHydrated } = useUIStore();
   const { data: session, isPending } = authClient.useSession();
   const pathName = usePathname();
   const router = useRouter();
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
 
-  // Prevent hydration mismatches: session/role can be available immediately on the client
-  // but are not available during SSR for Client Components.
-  const [isHydrated, setIsHydrated] = useState(false);
-  useEffect(() => setIsHydrated(true), []);
+  // Cache session to prevent flashing "Loading..." on route changes
+  const [cachedSession, setCachedSession] = useState<typeof session>(null);
 
-  const hydratedSession = isHydrated ? session : null;
+  // Set hydration flag after client mount (shared via Zustand store)
+  useEffect(() => setHydrated(), [setHydrated]);
+
+  // Cache session after first successful fetch
+  useEffect(() => {
+    if (session && !isPending) {
+      setCachedSession(session);
+    }
+  }, [session, isPending]);
+
+  // Use cached session if available, otherwise use live session
+  const displaySession = cachedSession || session;
+  const hydratedSession = isHydrated ? displaySession : null;
   const hydratedRole = normalizeAppRole(hydratedSession?.user?.role);
+
+  // Only show loading on initial mount (no cached session yet)
+  const showLoading = !isHydrated || (!cachedSession && isPending);
   return (
     <>
       {pathName === "/signin" || pathName === "/" ? null : (
-        <nav className="flex w-[1280px] xl:w-full justify-center border-b border-gray-200 shadow-sm bg-white">
-          <div className="flex w-full xl:w-[1440px] h-full justify-between bg-white px-6 py-3">
+        <nav className="sticky top-0 z-50 flex w-full justify-center border-b border-white/20 bg-white/70 backdrop-blur-md shadow-sm transition-all duration-300">
+          <div className="flex w-full xl:w-[1440px] h-full justify-between items-center px-6 py-2.5">
             {/* Leftside */}
-            <span className="flex w-fit justify-between items-center gap-4">
-              <IconButton
-                onClick={toggleSidebar}
-                edge="start"
-                className="hover:bg-blue-50 transition-colors"
-                aria-label="เมนู"
-              >
-                <MenuIcon className="fill-gray-600" />
-              </IconButton>
-              <Link href={"/"} className="group">
-                <h1 className="text-lg font-bold cursor-pointer bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-cyan-700 transition-all">
-                  ระบบจัดตารางเรียนตารางสอน
-                </h1>
-              </Link>
-              <ul className="flex w-fit justify-between gap-6">
-                {hydratedRole === "admin" ? (
-                  <li className="relative py-2 px-3 group">
-                    <Link href={"/management"}>
-                      <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-                        จัดการ
-                      </p>
-                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
+            <span className="flex w-fit items-center gap-6">
+              <div className="flex items-center gap-4">
+                <IconButton
+                  onClick={toggleSidebar}
+                  edge="start"
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                      transform: "scale(1.05)",
+                    },
+                    transition: "all 0.2s",
+                  }}
+                  aria-label="เมนู"
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Link href={"/"} className="group flex items-center gap-2">
+                  <div className="p-1 px-2 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 shadow-sm group-hover:shadow-md transition-all duration-300">
+                    <h1 className="text-sm md:text-base font-bold text-white tracking-tight">
+                      PT
+                    </h1>
+                  </div>
+                  <h1 className="hidden sm:block text-lg font-extrabold cursor-pointer bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-cyan-600 transition-all duration-300">
+                    Phrasongsa Timetable
+                  </h1>
+                </Link>
+              </div>
+
+              <ul className="hidden md:flex items-center gap-2">
+                {hydratedRole === "admin" && (
+                  <li>
+                    <Link
+                      href="/management"
+                      className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                        pathName.startsWith("/management")
+                          ? "bg-blue-600/10 text-blue-600"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      จัดการ
                     </Link>
                   </li>
-                ) : null}
-                <li className="relative py-2 px-3 group">
-                  <Link href={"/dashboard"}>
-                    <p className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-                      สรุปข้อมูล
-                    </p>
-                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300" />
+                )}
+                <li>
+                  <Link
+                    href="/dashboard"
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                      pathName.startsWith("/dashboard") &&
+                      !pathName.includes("/profile")
+                        ? "bg-blue-600/10 text-blue-600"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    }`}
+                  >
+                    สรุปข้อมูล
                   </Link>
                 </li>
               </ul>
             </span>
-            {/* Rightside */}
-            <div className="flex w-fit justify-between gap-4 items-center mr-10">
-              {/* Semester Selector */}
-              {hydratedSession && <SemesterSelector />}
 
-              {/* User Info Card - Clickable to go to profile */}
-              <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100 hover:shadow-md transition-all duration-200">
-                <Link
-                  href="/dashboard/profile"
-                  className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
-                  title="ไปยังหน้าโปรไฟล์"
-                >
-                  <div
-                    className="rounded-full relative ring-2 ring-blue-200 hover:ring-blue-300 transition-all"
-                    onMouseEnter={() => setIsHoverPhoto(true)}
-                    onMouseLeave={() => setIsHoverPhoto(false)}
+            {/* Rightside */}
+            <div className="flex items-center gap-6">
+              {/* Semester Selector */}
+              {hydratedSession && (
+                <div className="hidden sm:block">
+                  <SemesterSelector />
+                </div>
+              )}
+
+              {/* User Info & Actions */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 pl-3 pr-1 py-1 bg-white/40 border border-white/50 backdrop-blur-sm rounded-full shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <Link
+                    href="/dashboard/profile"
+                    className="flex items-center gap-3"
                   >
-                    <Image
-                      className={`${
-                        isHoverPhoto ? "opacity-75" : "opacity-100"
-                      } rounded-full transition-opacity`}
-                      width={44}
-                      height={44}
-                      src={session?.user?.image ?? FALLBACK_USER_ICON}
-                      alt="profile_pic"
-                      priority
-                    />
-                  </div>
-                  <div className="flex flex-col min-w-[100px]">
-                    <p className="font-semibold text-sm text-gray-800 truncate max-w-[150px]">
-                      {!hydratedSession || isPending
-                        ? "นักเรียน"
-                        : hydratedSession.user?.name}
-                    </p>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`inline-block w-2 h-2 rounded-full ${
-                          isPending
-                            ? "bg-gray-300 animate-pulse"
-                            : hydratedRole === "admin"
-                              ? "bg-purple-500"
-                              : hydratedRole === "teacher"
-                                ? "bg-blue-500"
-                                : "bg-green-500"
-                        }`}
-                      />
-                      <p className="text-xs font-medium text-slate-600">
-                        {isPending
-                          ? "กำลังตรวจสอบสิทธิ์..."
+                    <div className="flex flex-col text-right hidden lg:flex">
+                      <p className="font-bold text-xs text-slate-800 leading-tight">
+                        {showLoading
+                          ? "กำลังโหลด..."
+                          : (hydratedSession?.user?.name ?? "ผู้ใช้งาน")}
+                      </p>
+                      <p className="text-[10px] font-medium text-slate-500 flex items-center justify-end gap-1">
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isPending
+                              ? "bg-slate-300 animate-pulse"
+                              : hydratedRole === "admin"
+                                ? "bg-purple-500"
+                                : hydratedRole === "teacher"
+                                  ? "bg-blue-500"
+                                  : "bg-green-500"
+                          }`}
+                        />
+                        {showLoading
+                          ? "..."
                           : hydratedSession && hydratedRole
                             ? hydratedRole === "admin"
                               ? "ผู้ดูแลระบบ"
                               : hydratedRole === "teacher"
                                 ? "คุณครู"
                                 : "นักเรียน"
-                            : "ไม่ระบุบทบาท"}
+                            : "ไม่ระบุ"}
                       </p>
                     </div>
-                  </div>
-                </Link>
-                {/* Logout Button */}
-                {hydratedSession && (
-                  <button
-                    onClick={async () => {
-                      await authClient.signOut({
-                        fetchOptions: {
-                          onSuccess: () => {
-                            router.push("/signin");
+                    <div
+                      className="relative rounded-full ring-2 ring-white shadow-sm group-hover:ring-blue-100 transition-all duration-300 shrink-0"
+                      onMouseEnter={() => setIsHoverPhoto(true)}
+                      onMouseLeave={() => setIsHoverPhoto(false)}
+                    >
+                      <Image
+                        className={`rounded-full ${
+                          isHoverPhoto ? "opacity-85" : "opacity-100"
+                        } transition-opacity duration-300`}
+                        width={36}
+                        height={36}
+                        src={hydratedSession?.user?.image ?? FALLBACK_USER_ICON}
+                        alt="profile_pic"
+                        priority
+                      />
+                    </div>
+                  </Link>
+
+                  {/* Logout Button */}
+                  {hydratedSession && (
+                    <IconButton
+                      onClick={async () => {
+                        await authClient.signOut({
+                          fetchOptions: {
+                            onSuccess: () => {
+                              router.push("/signin");
+                            },
                           },
+                        });
+                      }}
+                      size="small"
+                      sx={{
+                        color: "slate.400",
+                        "&:hover": {
+                          color: "error.main",
+                          bgcolor: "error.lighter",
+                          transform: "rotate(90deg)",
                         },
-                      });
-                    }}
-                    className="ml-2 p-2 rounded-full hover:bg-red-50 transition-colors group"
-                    aria-label="ออกจากระบบ"
-                  >
-                    <LogoutIcon className="w-5 h-5 fill-gray-600 group-hover:fill-red-600 transition-colors" />
-                  </button>
-                )}
+                        transition: "all 0.3s",
+                      }}
+                      aria-label="ออกจากระบบ"
+                    >
+                      <LogoutIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  )}
+                </div>
               </div>
             </div>
           </div>

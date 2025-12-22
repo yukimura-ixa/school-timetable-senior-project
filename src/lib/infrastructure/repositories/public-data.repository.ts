@@ -308,7 +308,7 @@ export const publicDataRepository = {
 
     // Apply sorting if specified
     if (sortBy && sortOrder) {
-      publicTeachers.sort((a: any, b: any) => {
+      publicTeachers.sort((a, b) => {
         const order = sortOrder === "asc" ? 1 : -1;
         switch (sortBy) {
           case "name":

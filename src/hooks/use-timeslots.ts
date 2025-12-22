@@ -15,7 +15,7 @@ import { getTimeslotsByTermAction } from "@/features/timeslot/application/action
  * const { data, isLoading, error, mutate } = useTimeslots(2567, 1)
  */
 export const useTimeslots = (academicYear: number, semester: number) => {
-  const fetcher: any = async () => {
+  const fetcher = async () => {
     const result = await getTimeslotsByTermAction({
       AcademicYear: academicYear,
       Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",

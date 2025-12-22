@@ -11,5 +11,5 @@ export async function withPrismaTransaction<T>(
   fn: (tx: TransactionClient) => Promise<T>,
   options?: Parameters<typeof prisma.$transaction>[1],
 ): Promise<T> {
-  return prisma.$transaction((tx: any) => fn(tx), options);
+  return prisma.$transaction((tx) => fn(tx), options);
 }
