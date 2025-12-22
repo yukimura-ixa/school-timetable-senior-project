@@ -6,6 +6,10 @@
 import prisma from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 import { cache } from "react";
+import type {
+  AssignmentWithRelations,
+  ProgramSubjectWithSubject,
+} from "../../domain/types/assignment.types";
 
 // ============================================================================
 // Query Methods
@@ -103,33 +107,35 @@ export const findTeacherWorkload = cache(
  * Get all subjects for a grade's program
  * Used to display all subjects that need teacher assignment
  */
-export const findSubjectsByGrade = cache(async (gradeId: string) => {
-  // First get the grade's program
-  const grade = await prisma.gradelevel.findUnique({
-    where: { GradeID: gradeId },
-    select: { ProgramID: true },
-  });
+export const findSubjectsByGrade = cache(
+  async (gradeId: string): Promise<ProgramSubjectWithSubject[]> => {
+    // First get the grade's program
+    const grade = await prisma.gradelevel.findUnique({
+      where: { GradeID: gradeId },
+      select: { ProgramID: true },
+    });
 
-  if (!grade?.ProgramID) {
-    return [];
-  }
+    if (!grade?.ProgramID) {
+      return [];
+    }
 
-  // Then get all subjects in that program
-  return prisma.program_subject.findMany({
-    where: { ProgramID: grade.ProgramID },
-    include: {
-      subject: {
-        select: {
-          SubjectCode: true,
-          SubjectName: true,
-          Credit: true,
-          Category: true,
+    // Then get all subjects in that program
+    return prisma.program_subject.findMany({
+      where: { ProgramID: grade.ProgramID },
+      include: {
+        subject: {
+          select: {
+            SubjectCode: true,
+            SubjectName: true,
+            Credit: true,
+            Category: true,
+          },
         },
       },
-    },
-    orderBy: { subject: { SubjectName: "asc" } },
-  });
-});
+      orderBy: { subject: { SubjectName: "asc" } },
+    });
+  },
+);
 
 /**
  * Get all active teachers
@@ -300,7 +306,7 @@ export async function copyAssignmentsFromPreviousSemester(
   // Create target assignments
   const targetAssignments = sourceAssignments.map(
     (
-      assignment: any,
+      assignment: AssignmentWithRelations,
     ): {
       SubjectCode: string;
       GradeID: string;
@@ -361,7 +367,9 @@ export async function getAssignmentStats(
     findAssignmentsByContext(gradeId, semester, academicYear),
   ]);
 
-  const uniqueSubjects = new Set(assignments.map((a: any) => a.SubjectCode));
+  const uniqueSubjects = new Set(
+    assignments.map((a: AssignmentWithRelations) => a.SubjectCode),
+  );
   const assignedCount = uniqueSubjects.size;
 
   return {

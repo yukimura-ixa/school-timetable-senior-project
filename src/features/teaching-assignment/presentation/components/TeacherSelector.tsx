@@ -69,7 +69,7 @@ export function TeacherSelector({
 
         // Map server action response to component state
         const teachersWithWorkload: TeacherOption[] = result.data.map(
-          (teacher: any) => ({
+          (teacher) => ({
             id: teacher.TeacherID,
             name: teacher.TeacherName,
             currentHours: teacher.currentWorkload.totalHours,

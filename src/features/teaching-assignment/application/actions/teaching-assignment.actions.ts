@@ -314,9 +314,9 @@ export const getSubjectsWithAssignments = createAction(
       );
     log.debug("Found assignments", { count: assignments.length });
 
-    return subjectsData.map((subjectData: any) => {
+    return subjectsData.map((subjectData) => {
       const assignment = assignments.find(
-        (a: any) => a.SubjectCode === subjectData.SubjectCode,
+        (a) => a.SubjectCode === subjectData.SubjectCode,
       );
 
       return {
@@ -371,7 +371,7 @@ export const getTeachersWithWorkload = createAction(
 
     // Calculate workload for each teacher
     const teachersWithWorkload = await Promise.all(
-      teachers.map(async (teacher: any) => {
+      teachers.map(async (teacher) => {
         // Get teacher's workload from repository
         const assignments =
           await teachingAssignmentRepository.findTeacherWorkload(
@@ -381,10 +381,7 @@ export const getTeachersWithWorkload = createAction(
           );
 
         // Calculate total hours and determine status
-        const totalHours = assignments.reduce(
-          (sum: any, a: any) => sum + a.TeachHour,
-          0,
-        );
+        const totalHours = assignments.reduce((sum, a) => sum + a.TeachHour, 0);
         let status: "ok" | "warning" | "overload";
         if (totalHours >= 25) {
           status = "overload";
