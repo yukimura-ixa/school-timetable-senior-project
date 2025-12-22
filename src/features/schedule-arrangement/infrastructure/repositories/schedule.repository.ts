@@ -63,7 +63,7 @@ export class ScheduleRepository {
     });
 
     // Transform Prisma types to domain model
-    return schedules.map((schedule: any) => {
+    return schedules.map((schedule) => {
       // Get the first teacher from teachers_responsibility (if any)
       const firstTeacher = schedule.teachers_responsibility[0];
       const teacher = firstTeacher?.teacher;
@@ -110,7 +110,7 @@ export class ScheduleRepository {
       },
     });
 
-    return responsibilities.map((resp: any) => ({
+    return responsibilities.map((resp) => ({
       respId: resp.RespID,
       teacherId: resp.TeacherID,
       gradeId: resp.GradeID,

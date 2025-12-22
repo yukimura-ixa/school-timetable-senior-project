@@ -300,7 +300,7 @@ export class SemesterRepository {
     }
 
     await prisma.timeslot.createMany({
-      data: timeslots.map((ts: any) => ({
+      data: timeslots.map((ts) => ({
         TimeslotID: ts.TimeslotID.replace(
           `${sourceSemesterNum}-${sourceYear}`,
           `${targetSemesterNum}-${targetYear}`,
@@ -338,7 +338,7 @@ export class SemesterRepository {
     config: object;
     timeslots?: Prisma.timeslotCreateManyInput[];
   }) {
-    return await prisma.$transaction(async (tx: any) => {
+    return await prisma.$transaction(async (tx) => {
       // Create semester
       const newSemester = await tx.table_config.create({
         data: {
