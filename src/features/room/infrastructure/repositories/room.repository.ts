@@ -109,8 +109,8 @@ export const roomRepository = {
     });
 
     return occupiedRooms
-      .map((schedule: any) => schedule.RoomID)
-      .filter((id: any): id is number => id !== null);
+      .map((schedule) => schedule.RoomID)
+      .filter((id): id is number => id !== null);
   },
 
   /**

@@ -47,12 +47,9 @@ import {
  * }
  * ```
  */
-export const getRoomsAction = createAction(
-  v.object({}),
-  async () => {
-    return await roomRepository.findAll();
-  },
-);
+export const getRoomsAction = createAction(v.object({}), async () => {
+  return await roomRepository.findAll();
+});
 
 /**
  * Get a single room by ID
@@ -217,7 +214,7 @@ export const createRoomsAction = createAction(
     // revalidateTag('rooms');
 
     // Return array of IDs
-    return createdRooms.map((r: any) => r.RoomID);
+    return createdRooms.map((r) => r.RoomID);
   },
 );
 
@@ -307,7 +304,7 @@ export const updateRoomsAction = createAction(
     // revalidateTag('rooms');
 
     // Return array of IDs
-    return updatedRooms.map((r: any) => r.RoomID);
+    return updatedRooms.map((r) => r.RoomID);
   },
 );
 
