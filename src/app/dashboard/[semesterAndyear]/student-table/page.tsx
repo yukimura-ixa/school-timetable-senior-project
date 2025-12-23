@@ -108,17 +108,38 @@ function StudentTablePage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  type TimeslotKey = readonly ["timeslots-by-term", string, string];
+  type ClassScheduleKey = readonly [
+    "class-schedules-grade",
+    string,
+    string,
+    string,
+  ];
+
+  const timeslotKey: TimeslotKey | null =
+    canFetch && semester && academicYear
+      ? ["timeslots-by-term", String(academicYear), String(semester)]
+      : null;
+
+  const classScheduleKey: ClassScheduleKey | null =
+    canFetch && selectedGradeId && semester && academicYear
+      ? [
+          "class-schedules-grade",
+          selectedGradeId,
+          String(academicYear),
+          String(semester),
+        ]
+      : null;
+
   const {
     data: timeslotResponse,
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
-  } = useSWR<ActionResult<timeslot[]>>(
-    canFetch && semester && academicYear
-      ? ["timeslots-by-term", academicYear, semester]
-      : null,
+  } = useSWR<ActionResult<timeslot[]>, Error, TimeslotKey>(
+    timeslotKey,
     async ([, year, sem]) => {
       return await getTimeslotsByTermAction({
-        AcademicYear: parseInt(year),
+        AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
@@ -129,14 +150,12 @@ function StudentTablePage() {
     data: classDataResponse,
     isLoading: isClassLoading,
     isValidating: isClassValidating,
-  } = useSWR<ActionResult<ScheduleEntry[]>>(
-    canFetch && selectedGradeId && semester && academicYear
-      ? ["class-schedules-grade", selectedGradeId, academicYear, semester]
-      : null,
+  } = useSWR<ActionResult<ScheduleEntry[]>, Error, ClassScheduleKey>(
+    classScheduleKey,
     async ([, gradeId, year, sem]) => {
       return await getClassSchedulesAction({
         GradeID: gradeId,
-        AcademicYear: parseInt(year),
+        AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },

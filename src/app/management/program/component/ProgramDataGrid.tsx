@@ -161,7 +161,7 @@ export function ProgramDataGrid({
           variant: "success",
         });
         setRows((prev) =>
-          prev.filter((row) => !selectedIds.includes(row.ProgramID!)),
+          prev.filter((row) => !selectedIds.includes(row.ProgramID)),
         );
         setRowSelectionModel({ type: "include", ids: new Set<GridRowId>() });
         onMutate();
@@ -187,7 +187,7 @@ export function ProgramDataGrid({
 
       // Call server action
       const result = await updateProgramAction({
-        ProgramID: updated.ProgramID!,
+        ProgramID: updated.ProgramID,
         ProgramCode: updated.ProgramCode.trim(),
         ProgramName: updated.ProgramName.trim(),
         Track: updated.Track,
@@ -375,7 +375,7 @@ export function ProgramDataGrid({
       <DataGrid
         rows={rows}
         columns={columns}
-        getRowId={(row) => row.ProgramID!}
+        getRowId={(row) => row.ProgramID}
         editMode="row"
         rowModesModel={rowModesModel}
         onRowModesModelChange={setRowModesModel}
