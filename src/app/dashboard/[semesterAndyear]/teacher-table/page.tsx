@@ -185,16 +185,16 @@ function TeacherTablePage() {
     isValidating: isClassValidating,
   } = useSWR<ActionResult<ScheduleEntry[]>, Error, ClassScheduleKey | null>(
     classScheduleKey,
-    async (key) => {
+    async (key): Promise<ActionResult<ScheduleEntry[]>> => {
       if (!key) {
         throw new Error("Missing class schedule key");
       }
       const [, teacherId, year, sem] = key;
-      return await getClassSchedulesAction({
+      return (await getClassSchedulesAction({
         TeacherID: teacherId,
         AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-      });
+      })) as ActionResult<ScheduleEntry[]>;
     },
     {
       revalidateOnFocus: false,
