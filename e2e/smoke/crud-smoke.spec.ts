@@ -6,7 +6,7 @@
  *
  * UI Patterns:
  * - Teacher: Uses dedicated AddModalForm (modal-based)
- * - Subject: Uses EditableTable inline editing
+ * - Subject: Uses AddSubjectDialog (modal-based)
  * - Room: Uses EditableTable inline editing
  *
  * Note: Subject validation currently only accepts [A-Z0-9] codes
@@ -24,7 +24,9 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     const teacherLastName = `สโมค${seqNum}`;
 
     await page.goto("/management/teacher");
-    await page.waitForSelector("table", { timeout: 15000 });
+    await page.waitForSelector('[role="grid"], .MuiDataGrid-root', {
+      timeout: 15000,
+    });
 
     // Teacher management uses dedicated button with data-testid
     const addButton = page.locator('[data-testid="add-teacher-button"]');
@@ -65,58 +67,40 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     console.log(`✅ Created teacher: ${teacherFirstName} ${teacherLastName}`);
   });
 
-  test("✅ Create Subject (Inline Editing)", async ({ page }) => {
+  test("✅ Create Subject (Modal Flow)", async ({ page }) => {
     // Subject code must be uppercase A-Z and 0-9 only
     const subjectCode = `TEST${seqNum}`;
     const subjectName = `วิชาทดสอบ ${seqNum}`;
 
     await page.goto("/management/subject");
-    await page.waitForSelector("table", { timeout: 15000 });
+    await page.waitForSelector('[role="grid"], .MuiDataGrid-root', {
+      timeout: 15000,
+    });
 
-    // Subject uses EditableTable with Add button - button contains text "เพิ่ม"
-    // The button has startIcon={<AddIcon />} and text content "เพิ่ม"
-    const addButton = page.getByRole('button', { name: 'เพิ่ม' });
-    
-    // Wait for table to fully load before clicking add
-    await page.waitForLoadState("networkidle");
+    const addButton = page.locator('[data-testid="add-subject-button"]').first();
     await expect(addButton).toBeVisible({ timeout: 10000 });
     await addButton.click();
 
-    // Wait for new row with input fields to appear
-    // The new row is added at the top and has input fields
-    await page.waitForSelector('tbody tr input[type="text"]', { timeout: 10000 });
-
-    // Find the row that has editable inputs (the new row being created)
-    const editingRow = page.locator('tbody tr').filter({ has: page.locator('input[type="text"]') }).first();
-    
-    // Get all text inputs in the new row (excluding checkboxes)
-    const textInputs = editingRow.locator('input[type="text"]');
-    
-    // SubjectCode is the first editable column (after the checkbox column)
-    const subjectCodeInput = textInputs.first();
-    await expect(subjectCodeInput).toBeVisible({ timeout: 5000 });
+    // Wait for modal inputs to appear
+    const subjectCodeInput = page.locator('[data-testid="subject-code-0"]');
+    await expect(subjectCodeInput).toBeVisible({ timeout: 10000 });
     await subjectCodeInput.fill(subjectCode);
 
-    // SubjectName is the second text input
-    const subjectNameInput = textInputs.nth(1);
-    if (await subjectNameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await subjectNameInput.fill(subjectName);
-    }
+    const subjectNameInput = page.locator('[data-testid="subject-name-0"]');
+    await expect(subjectNameInput).toBeVisible({ timeout: 5000 });
+    await subjectNameInput.fill(subjectName);
 
-    // CRITICAL: Select LearningArea for CORE subjects (required by MOE compliance validation)
-    // The default empty row has Category: "CORE" and LearningArea: null, which fails validation
-    // Find and click the LearningArea select dropdown in the editing row
-    const learningAreaSelect = editingRow.locator('[role="combobox"]').nth(2); // 3rd select: Credit, Category, LearningArea
-    if (await learningAreaSelect.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await learningAreaSelect.click();
-      // Select "ภาษาไทย" (THAI) from dropdown
-      await page.locator('[role="option"]:has-text("ภาษาไทย")').click();
-    }
+    // Select credit (required)
+    const creditSelect = page.getByLabel("หน่วยกิต");
+    await creditSelect.click();
+    const creditOption = page
+      .locator('li[role="option"]:not([aria-disabled="true"])')
+      .first();
+    await creditOption.click();
 
-    // Save using the toolbar save button - IconButton with aria-label="save"
-    const saveButton = page.locator('button[aria-label="save"]');
-    await expect(saveButton).toBeVisible({ timeout: 5000 });
-    await saveButton.click();
+    const submitButton = page.locator('[data-testid="add-subject-submit"]');
+    await expect(submitButton).toBeVisible({ timeout: 5000 });
+    await submitButton.click();
 
     // Wait for success snackbar
     const successSnackbar = page.locator('.notistack-SnackbarContainer').locator('text=/สำเร็จ/');

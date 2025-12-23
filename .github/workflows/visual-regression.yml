@@ -33,6 +33,8 @@ jobs:
         env:
             DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public&connection_limit=10
             BETTER_AUTH_SECRET: "e2e-test-secret-32-chars-minimum!"
+            BETTER_AUTH_URL: http://localhost:3005
+            BASE_URL: http://localhost:3005
             CI: true
 
         steps:

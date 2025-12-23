@@ -86,6 +86,8 @@ jobs:
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
           AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL=http://localhost:3005
+          BASE_URL=http://localhost:3005
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_FOR_TESTS=true

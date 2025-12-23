@@ -18,20 +18,21 @@ const waitForNavbarStable = async (page: Page) => {
   const hasHeader = await header.isVisible({ timeout: 5000 }).catch(() => false);
   if (!hasHeader) return;
 
-  await header
-    .locator("text=ภาคเรียน")
-    .first()
-    .waitFor({ state: "visible", timeout: 5000 })
-    .catch(() => undefined);
+  const logoutButton = header.locator('button[aria-label="ออกจากระบบ"]');
+  const semesterLabel = header.locator("text=ภาคเรียน").first();
+  await Promise.race([
+    logoutButton.waitFor({ state: "visible", timeout: 8000 }),
+    semesterLabel.waitFor({ state: "visible", timeout: 8000 }),
+  ]).catch(() => undefined);
 
   await page
     .waitForFunction(
       () => {
         const el = document.querySelector("header, nav");
         if (!el) return true;
-        return el.getBoundingClientRect().height >= 60;
+        return el.getBoundingClientRect().height >= 80;
       },
-      { timeout: 5000 },
+      { timeout: 8000 },
     )
     .catch(() => undefined);
 };

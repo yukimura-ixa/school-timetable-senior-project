@@ -97,7 +97,8 @@ jobs:
           cat > .env.test << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL=${{ vars.BETTER_AUTH_URL }}
+          BETTER_AUTH_URL=http://localhost:3005
+          BASE_URL=http://localhost:3005
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_FOR_TESTS=true
@@ -109,7 +110,8 @@ jobs:
           cat > .env.test.local << EOF
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL=${{ vars.BETTER_AUTH_URL }}
+          BETTER_AUTH_URL=http://localhost:3005
+          BASE_URL=http://localhost:3005
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_FOR_TESTS=true
@@ -143,7 +145,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
+          BETTER_AUTH_URL: http://localhost:3005
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
 
@@ -156,7 +158,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
+          BETTER_AUTH_URL: http://localhost:3005
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           SEED_FOR_TESTS: "true"
@@ -172,7 +174,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: ${{ vars.BETTER_AUTH_URL }}
+          BETTER_AUTH_URL: http://localhost:3005
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           NEXT_TELEMETRY_DISABLED: "1"

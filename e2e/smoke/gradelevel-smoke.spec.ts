@@ -20,8 +20,10 @@ test.describe("GradeLevel CRUD Smoke Tests", () => {
     await page.goto("/management/gradelevel");
     await page.waitForLoadState("networkidle");
 
-    // Wait for page content (table or main element)
-    const mainContent = page.locator("table, .MuiPaper-root, main");
+    // Wait for page content (DataGrid or main element)
+    const mainContent = page.locator(
+      '[role="grid"], .MuiDataGrid-root, .MuiPaper-root, main',
+    );
     await expect(mainContent.first()).toBeVisible({ timeout: 30000 });
 
     // Should NOT be redirected to signin
@@ -39,12 +41,12 @@ test.describe("GradeLevel CRUD Smoke Tests", () => {
     await page.goto("/management/gradelevel");
     await page.waitForLoadState("networkidle");
 
-    // Wait for table to load
-    const table = page.locator("table");
-    await expect(table.first()).toBeVisible({ timeout: 15000 });
+    // Wait for DataGrid to load
+    const grid = page.locator('[role="grid"], .MuiDataGrid-root');
+    await expect(grid.first()).toBeVisible({ timeout: 15000 });
 
     // Check for grade level data (e.g., "ม.1", "M1", grade identifiers)
-    const rows = page.locator("tbody tr");
+    const rows = page.locator('.MuiDataGrid-row, [role="row"][data-id]');
     const rowCount = await rows.count();
 
     console.log(`✅ Found ${rowCount} grade level rows`);
@@ -71,9 +73,9 @@ test.describe("GradeLevel CRUD Smoke Tests", () => {
       timeout: 15000,
     });
 
-    // Look for add button - GradeLevel may use modal or inline add
+    // Look for add button - GradeLevel uses DataGrid toolbar
     const addButton = page.locator(
-      'button:has-text("เพิ่ม"), [data-testid*="add"], button[aria-label="add"]',
+      '[data-testid="add-gradelevel-button"], button:has-text("เพิ่ม"), [data-testid*="add"], button[aria-label="add"]',
     );
 
     const hasAddButton = await addButton
@@ -110,9 +112,9 @@ test.describe("GradeLevel CRUD Smoke Tests", () => {
     await page.goto("/management/gradelevel");
     await page.waitForLoadState("networkidle");
 
-    // Wait for table
-    const table = page.locator("table");
-    await expect(table.first()).toBeVisible({ timeout: 15000 });
+    // Wait for DataGrid
+    const grid = page.locator('[role="grid"], .MuiDataGrid-root');
+    await expect(grid.first()).toBeVisible({ timeout: 15000 });
 
     // Check for program-related columns or data
     const pageContent = await page.textContent("body");
