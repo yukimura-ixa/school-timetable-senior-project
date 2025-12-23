@@ -28,7 +28,7 @@ const TableResult = (props: Props) => {
         <tr className="flex gap-2 bg-white">
           <th className="w-[50px] h-[60px] bg-slate-100 rounded">
             <div className="h-full flex items-center justify-center">
-              <p onClick={() => console.log(props.classData)}>ผลรวม</p>
+              <p>ผลรวม</p>
             </div>
           </th>
         </tr>
