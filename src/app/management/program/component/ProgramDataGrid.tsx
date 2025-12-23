@@ -174,7 +174,7 @@ export function ProgramDataGrid({
   // ==================== Update Handler ====================
 
   const processRowUpdate = useCallback(
-    async (newRow: GridRowModel, oldRow: GridRowModel): Promise<program> => {
+    async (newRow: program, oldRow: program): Promise<program> => {
       const updated = newRow;
 
       // Validate
@@ -372,7 +372,7 @@ export function ProgramDataGrid({
       </Stack>
 
       {/* DataGrid */}
-      <DataGrid
+      <DataGrid<program>
         rows={rows}
         columns={columns}
         getRowId={(row) => row.ProgramID}

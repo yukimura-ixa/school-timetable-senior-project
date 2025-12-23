@@ -62,15 +62,12 @@ import {
 } from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
+import type { teacher, timeslot } from "@/prisma/generated/client";
 import { colors } from "@/shared/design-system";
 
-interface Teacher {
-  Prefix?: string;
-  Firstname?: string;
-  Lastname?: string;
-}
+type Teacher = teacher;
 
-const formatTeacherName = (teacher?: Teacher) => {
+const formatTeacherName = (teacher?: Teacher | null) => {
   if (!teacher) {
     return "";
   }
@@ -129,6 +126,35 @@ function TeacherTablePage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  type TimeslotKey = readonly ["timeslots-by-term", string, string];
+  type ClassScheduleKey = readonly [
+    "class-schedules-teacher",
+    number,
+    string,
+    string,
+  ];
+  type TeacherKey = readonly ["teacher-by-id", number];
+
+  const timeslotKey: TimeslotKey | null =
+    canFetch && semester && academicYear
+      ? ["timeslots-by-term", String(academicYear), String(semester)]
+      : null;
+
+  const classScheduleKey: ClassScheduleKey | null =
+    canFetch && selectedTeacherId != null && semester && academicYear
+      ? [
+          "class-schedules-teacher",
+          selectedTeacherId,
+          String(academicYear),
+          String(semester),
+        ]
+      : null;
+
+  const teacherKey: TeacherKey | null =
+    canFetch && selectedTeacherId != null
+      ? ["teacher-by-id", selectedTeacherId]
+      : null;
+
   // Get all teachers for bulk operations
   const allTeachers = useTeachers();
   const isTeacherListLoading =
@@ -138,13 +164,15 @@ function TeacherTablePage() {
     data: timeslotResponse,
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
-  } = useSWR<ActionResult<timeslot[]>>(
-    canFetch && semester && academicYear
-      ? ["timeslots-by-term", academicYear, semester]
-      : null,
-    async ([, year, sem]) => {
+  } = useSWR<ActionResult<timeslot[]>, Error, TimeslotKey | null>(
+    timeslotKey,
+    async (key) => {
+      if (!key) {
+        throw new Error("Missing timeslot key");
+      }
+      const [, year, sem] = key;
       return await getTimeslotsByTermAction({
-        AcademicYear: parseInt(year),
+        AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
@@ -155,14 +183,16 @@ function TeacherTablePage() {
     data: classDataResponse,
     isLoading: isClassLoading,
     isValidating: isClassValidating,
-  } = useSWR<ActionResult<ScheduleEntry[]>>(
-    canFetch && selectedTeacherId && semester && academicYear
-      ? ["class-schedules-teacher", selectedTeacherId, academicYear, semester]
-      : null,
-    async ([, teacherId, year, sem]) => {
+  } = useSWR<ActionResult<ScheduleEntry[]>, Error, ClassScheduleKey | null>(
+    classScheduleKey,
+    async (key) => {
+      if (!key) {
+        throw new Error("Missing class schedule key");
+      }
+      const [, teacherId, year, sem] = key;
       return await getClassSchedulesAction({
         TeacherID: teacherId,
-        AcademicYear: parseInt(year),
+        AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
       });
     },
@@ -176,9 +206,13 @@ function TeacherTablePage() {
     data: teacherResponse,
     isLoading: isTeacherLoading,
     isValidating: isTeacherValidating,
-  } = useSWR<ActionResult<Teacher>>(
-    canFetch && selectedTeacherId ? ["teacher-by-id", selectedTeacherId] : null,
-    async ([, teacherId]) => {
+  } = useSWR<ActionResult<Teacher | null>, Error, TeacherKey | null>(
+    teacherKey,
+    async (key) => {
+      if (!key) {
+        throw new Error("Missing teacher key");
+      }
+      const [, teacherId] = key;
       return await getTeacherByIdAction({ TeacherID: teacherId });
     },
     {

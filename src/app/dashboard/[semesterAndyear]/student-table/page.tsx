@@ -135,9 +135,13 @@ function StudentTablePage() {
     data: timeslotResponse,
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
-  } = useSWR<ActionResult<timeslot[]>, Error, TimeslotKey>(
+  } = useSWR<ActionResult<timeslot[]>, Error, TimeslotKey | null>(
     timeslotKey,
-    async ([, year, sem]) => {
+    async (key) => {
+      if (!key) {
+        throw new Error("Missing timeslot key");
+      }
+      const [, year, sem] = key;
       return await getTimeslotsByTermAction({
         AcademicYear: parseInt(year, 10),
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
@@ -150,9 +154,13 @@ function StudentTablePage() {
     data: classDataResponse,
     isLoading: isClassLoading,
     isValidating: isClassValidating,
-  } = useSWR<ActionResult<ScheduleEntry[]>, Error, ClassScheduleKey>(
+  } = useSWR<ActionResult<ScheduleEntry[]>, Error, ClassScheduleKey | null>(
     classScheduleKey,
-    async ([, gradeId, year, sem]) => {
+    async (key) => {
+      if (!key) {
+        throw new Error("Missing class schedule key");
+      }
+      const [, gradeId, year, sem] = key;
       return await getClassSchedulesAction({
         GradeID: gradeId,
         AcademicYear: parseInt(year, 10),

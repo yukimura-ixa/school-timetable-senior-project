@@ -134,7 +134,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                   </label>
                   <Dropdown
                     data={["นาย", "นาง", "นางสาว"]}
-                    renderItem={({ data }): JSX.Element => (
+                    renderItem={({ data }) => (
                       <li className="w-full">{data}</li>
                     )}
                     width={150}
@@ -238,11 +238,11 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                         : ""
                     }
                     placeHolder={"ตัวเลือก"}
-                    handleChange={(value: unknown) => {
+                    handleChange={(value) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
-                            ? { ...item, Department: value as string }
+                            ? { ...item, Department: value }
                             : item,
                         ),
                       );
