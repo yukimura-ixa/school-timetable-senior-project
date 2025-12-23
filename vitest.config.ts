@@ -16,11 +16,11 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   "**/__test__/features/dashboard/**",
   "**/__test__/features/lock/**",
   "**/__test__/lib/feature-flags.test.ts",
-  "**/__test__/config/**",
   "**/__test__/seed-validation.test.ts",
-  "**/__test__/features/room/**",
-  "**/__test__/features/semester/**",
   "**/__test__/management-server-actions.test.ts",
+  "**/compliance.repository.test.ts",
+  // Server actions requiring Next.js request context (headers())
+  "**/config-lifecycle.actions.test.ts",
 ];
 
 export default defineConfig({
@@ -56,22 +56,27 @@ export default defineConfig({
       hooks: "list",
     },
 
-    // Parallel execution - use 50% of CPU cores
-    pool: "threads",
-    poolOptions: {
-      threads: {
-        maxThreads: Math.floor(
-          (typeof navigator !== "undefined"
-            ? navigator.hardwareConcurrency
-            : 4) / 2,
-        ),
-      },
-    },
+    // Parallel execution (Vitest 4 uses threads by default)
+    // Note: poolOptions was removed in Vitest 4
 
     // Inline dependencies that need transformation (ESM modules)
     server: {
       deps: {
-        inline: ["next-auth", "@auth/core", "@prisma/client"],
+        inline: [
+          "next-auth",
+          "@auth/core",
+          "@prisma/client",
+          "@mui/x-data-grid", // Has CSS imports
+          // Inline all CSS to avoid extension errors
+          /\.css$/,
+        ],
+      },
+    },
+
+    // CSS handling for component tests
+    css: {
+      modules: {
+        classNameStrategy: "stable",
       },
     },
   },
