@@ -1,6 +1,7 @@
 import { subjectCreditTitles } from "@/models/credit-titles";
 import { subjectCreditValues, subject_credit } from "@/models/credit-value";
 import ExcelJS from "exceljs";
+import { createClientLogger } from "@/lib/client-logger";
 import { isUndefined } from "swr/_internal";
 
 export default function ExportAllProgram(
@@ -9,6 +10,7 @@ export default function ExportAllProgram(
   semester: string,
   academicYear: string,
 ) {
+  const log = createClientLogger("ExportAllProgram");
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("หลักสูตร", {
     pageSetup: { paperSize: 9, orientation: "landscape" },
@@ -206,12 +208,11 @@ export default function ExportAllProgram(
         };
       }
       if (rowNumber > 3) {
-        if (colNumber == 3 || colNumber == 5) {
-          console.log(colNumber);
-          console.log(cell);
+        if (colNumber === 3 || colNumber === 5) {
           row.getCell(colNumber).alignment = {
             vertical: "middle",
             horizontal: "left",
+            wrapText: true,
           };
           row.getCell(colNumber).border = {
             top: { style: "thin" },
@@ -234,14 +235,19 @@ export default function ExportAllProgram(
       }
     });
   });
-  workbook.xlsx.writeBuffer().then((data) => {
-    const blob = new Blob([data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+  workbook.xlsx
+    .writeBuffer()
+    .then((data) => {
+      const blob = new Blob([data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheet.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      ((anchor.href = url), (anchor.download = "หลักสูตร.xlsx"));
+      anchor.click();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch((error) => {
+      log.logError(error, { action: "export" });
     });
-    const url = window.URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    ((anchor.href = url), (anchor.download = "หลักสูตร.xlsx"));
-    anchor.click();
-    window.URL.revokeObjectURL(url);
-  });
 }
