@@ -176,7 +176,7 @@ test("03 student table", async ({ page }) => {
 test("04 config page", async ({ page }) => {
   await page.goto(`/schedule/${semester}/config`);
   await assertNotSignin(page);
-  await expect(page.getByRole("heading")).toBeVisible();
+  await expect(page.getByRole("heading").first()).toBeVisible();
   await snap(page, "04-schedule-config");
 });
 
