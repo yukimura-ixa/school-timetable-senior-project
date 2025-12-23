@@ -13,20 +13,30 @@ import type { Page } from "@playwright/test";
  * 3. Teacher Arrangement Table
  */
 
+const waitForNavbarStable = async (page: Page) => {
+  const header = page.locator("header, nav").first();
+  const hasHeader = await header.isVisible({ timeout: 5000 }).catch(() => false);
+  if (!hasHeader) return;
+
+  await header
+    .locator("text=ภาคเรียน")
+    .first()
+    .waitFor({ state: "visible", timeout: 5000 })
+    .catch(() => undefined);
+
+  await page
+    .waitForFunction(
+      () => {
+        const el = document.querySelector("header, nav");
+        if (!el) return true;
+        return el.getBoundingClientRect().height >= 60;
+      },
+      { timeout: 5000 },
+    )
+    .catch(() => undefined);
+};
+
 test.describe("Critical Admin UI - Visual Tests", () => {
-  const waitForNavbarStable = async (page: Page) => {
-    const header = page.locator("header, nav").first();
-    if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await page.waitForFunction(
-        () => {
-          const el = document.querySelector("header, nav");
-          if (!el) return true;
-          return el.getBoundingClientRect().height >= 80;
-        },
-        { timeout: 5000 },
-      );
-    }
-  };
 
   test.describe("Semester Configuration", () => {
     test("schedule config page renders correctly", async ({

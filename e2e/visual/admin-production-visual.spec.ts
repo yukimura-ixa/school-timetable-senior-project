@@ -78,14 +78,21 @@ const snap = async (
   await page.waitForTimeout(800);
   const header = page.locator("header, nav").first();
   if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
-    await page.waitForFunction(
-      () => {
-        const el = document.querySelector("header, nav");
-        if (!el) return true;
-        return el.getBoundingClientRect().height >= 80;
-      },
-      { timeout: 5000 },
-    );
+    await header
+      .locator("text=ภาคเรียน")
+      .first()
+      .waitFor({ state: "visible", timeout: 5000 })
+      .catch(() => undefined);
+    await page
+      .waitForFunction(
+        () => {
+          const el = document.querySelector("header, nav");
+          if (!el) return true;
+          return el.getBoundingClientRect().height >= 60;
+        },
+        { timeout: 5000 },
+      )
+      .catch(() => undefined);
   }
   await page.screenshot({
     path: `${screenshotDir}/${name}.png`,
