@@ -78,6 +78,11 @@ const snap = async (
   await page.waitForTimeout(800);
   const header = page.locator("header, nav").first();
   if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
+    await page.addStyleTag({
+      content:
+        "header, nav { height: 87px !important; min-height: 87px !important; }" +
+        "header > div, nav > div { height: 100% !important; }",
+    });
     const logoutButton = header.locator('button[aria-label="ออกจากระบบ"]');
     const semesterLabel = header.locator("text=ภาคเรียน").first();
     await Promise.race([
