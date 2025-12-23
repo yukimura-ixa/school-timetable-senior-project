@@ -292,7 +292,7 @@ export const assignSubjectsToProgramAction = createAction(
     // Note: program_subject is already correctly typed via Prisma's include
     const validationResult = validateProgramMOECredits(
       updatedProgram.Year,
-      updatedProgram.program_subject as ProgramSubjectWithSubject[],
+      updatedProgram.program_subject,
     );
 
     // Log warnings if not fully compliant (could display in UI)

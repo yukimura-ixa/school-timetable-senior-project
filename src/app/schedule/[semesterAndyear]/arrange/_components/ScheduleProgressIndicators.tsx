@@ -484,7 +484,7 @@ export function ScheduleProgressIndicators({
                   textAlign="center"
                   sx={{ py: 4 }}
                 >
-                  ไม่พบข้อมูลคุณครูสำหรับการค้นหา "{searchQuery}"
+                  ไม่พบข้อมูลคุณครูสำหรับการค้นหา &quot;{searchQuery}&quot;
                 </Typography>
               </Grid>
             )}
@@ -534,7 +534,7 @@ export function ScheduleProgressIndicators({
                   textAlign="center"
                   sx={{ py: 4 }}
                 >
-                  ไม่พบข้อมูลห้องเรียนสำหรับการค้นหา "{searchQuery}"
+                  ไม่พบข้อมูลห้องเรียนสำหรับการค้นหา &quot;{searchQuery}&quot;
                 </Typography>
               </Grid>
             )}

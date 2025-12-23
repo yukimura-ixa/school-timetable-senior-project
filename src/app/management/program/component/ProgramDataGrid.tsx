@@ -127,7 +127,7 @@ export function ProgramDataGrid({
       });
 
       if (confirmed) {
-        const result = await deleteProgramAction({ ProgramID: id as number });
+        const result = await deleteProgramAction({ ProgramID: Number(id) });
         if (result.success) {
           enqueueSnackbar("ลบหลักสูตรสำเร็จ", { variant: "success" });
           setRows((prev) => prev.filter((row) => row.ProgramID !== id));
@@ -141,7 +141,7 @@ export function ProgramDataGrid({
   );
 
   const handleBulkDelete = useCallback(async () => {
-    const selectedIds = Array.from(rowSelectionModel.ids) as number[];
+    const selectedIds = Array.from(rowSelectionModel.ids).map(Number);
     if (selectedIds.length === 0) return;
 
     const confirmed = await confirm({
@@ -175,7 +175,7 @@ export function ProgramDataGrid({
 
   const processRowUpdate = useCallback(
     async (newRow: GridRowModel, oldRow: GridRowModel): Promise<program> => {
-      const updated = newRow as program;
+      const updated = newRow;
 
       // Validate
       if (!updated.ProgramCode?.trim()) {

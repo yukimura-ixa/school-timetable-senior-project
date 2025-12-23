@@ -45,7 +45,6 @@ const theme = createTheme({
       light: "#60A5FA",
       dark: "#1D4ED8",
       contrastText: "#FFFFFF",
-      // @ts-ignore
       lighter: "#EFF6FF",
     },
     secondary: {
@@ -74,7 +73,6 @@ const theme = createTheme({
       light: "#22D3EE",
       dark: "#0E7490",
     },
-    // @ts-ignore
     slate: {
       50: "#F8FAF8",
       100: "#F1F5F9",
@@ -87,7 +85,6 @@ const theme = createTheme({
       800: "#1E293B",
       900: "#0F172A",
     },
-    // @ts-ignore
     glass: {
       main: "rgba(255, 255, 255, 0.7)",
       light: "rgba(255, 255, 255, 0.4)",

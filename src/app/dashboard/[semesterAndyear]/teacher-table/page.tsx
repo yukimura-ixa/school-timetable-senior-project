@@ -138,7 +138,7 @@ function TeacherTablePage() {
     data: timeslotResponse,
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
-  } = useSWR(
+  } = useSWR<ActionResult<timeslot[]>>(
     canFetch && semester && academicYear
       ? ["timeslots-by-term", academicYear, semester]
       : null,
@@ -155,7 +155,7 @@ function TeacherTablePage() {
     data: classDataResponse,
     isLoading: isClassLoading,
     isValidating: isClassValidating,
-  } = useSWR(
+  } = useSWR<ActionResult<ScheduleEntry[]>>(
     canFetch && selectedTeacherId && semester && academicYear
       ? ["class-schedules-teacher", selectedTeacherId, academicYear, semester]
       : null,
@@ -176,7 +176,7 @@ function TeacherTablePage() {
     data: teacherResponse,
     isLoading: isTeacherLoading,
     isValidating: isTeacherValidating,
-  } = useSWR(
+  } = useSWR<ActionResult<Teacher>>(
     canFetch && selectedTeacherId ? ["teacher-by-id", selectedTeacherId] : null,
     async ([, teacherId]) => {
       return await getTeacherByIdAction({ TeacherID: teacherId });
@@ -187,27 +187,22 @@ function TeacherTablePage() {
   );
 
   const hasTimeslotError = Boolean(
-    timeslotResponse &&
-    "success" in (timeslotResponse as object) &&
-    !(timeslotResponse as ActionResult<unknown>).success,
+    timeslotResponse && !timeslotResponse.success,
   );
-  const hasClassError =
-    classDataResponse &&
-    "success" in (classDataResponse as object) &&
-    !(classDataResponse as ActionResult<unknown>).success;
-  const hasTeacherError =
-    teacherResponse &&
-    "success" in (teacherResponse as object) &&
-    !(teacherResponse as ActionResult<unknown>).success;
+  const hasClassError = Boolean(
+    classDataResponse && !classDataResponse.success,
+  );
+  const hasTeacherError = Boolean(teacherResponse && !teacherResponse.success);
 
   const classData = useMemo((): ScheduleEntry[] => {
-    const response = classDataResponse as
-      | ActionResult<ScheduleEntry[]>
-      | undefined;
-    if (!response || !response.success || !response.data) {
+    if (
+      !classDataResponse ||
+      !classDataResponse.success ||
+      !classDataResponse.data
+    ) {
       return [];
     }
-    return response.data;
+    return classDataResponse.data;
   }, [classDataResponse]);
 
   const timeSlotData: TimeSlotTableData = useMemo(() => {
@@ -287,7 +282,7 @@ function TeacherTablePage() {
           // Replace lab() colors with fallback colors in the cloned document
           const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
-            const computedStyle = window.getComputedStyle(el as Element);
+            const computedStyle = window.getComputedStyle(el);
             const bgColor = computedStyle.backgroundColor;
             const color = computedStyle.color;
             const borderColor = computedStyle.borderColor;

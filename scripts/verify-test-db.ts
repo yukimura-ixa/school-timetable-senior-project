@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/prisma/generated/client";
+import prisma from "../src/lib/prisma";
 
 const minExpected = {
   teachers: 8,
@@ -9,7 +9,6 @@ const minExpected = {
 };
 
 async function verifySeed(): Promise<void> {
-  const prisma = new PrismaClient();
   try {
     const [teachers, schedules, timeslots, grades, subjects] = await Promise.all(
       [

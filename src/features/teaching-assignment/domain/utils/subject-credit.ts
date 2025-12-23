@@ -13,9 +13,10 @@ export function subjectCreditToNumber(credit: subject_credit | string): number {
       return 1.5;
     case "CREDIT_20":
       return 2.0;
-    default:
+    default: {
       // Try to parse if it's already a numeric string
       const parsed = parseFloat(String(credit));
       return isNaN(parsed) ? 0 : parsed;
+    }
   }
 }

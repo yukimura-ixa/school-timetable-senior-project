@@ -30,6 +30,10 @@ vi.mock(
   }),
 );
 
+const mockedTeacherRepository = vi.mocked(teacherRepository);
+const mockedSubjectRepository = vi.mocked(subjectRepository);
+const mockedTeachingAssignmentRepository = vi.mocked(repo);
+
 describe("Teacher Validation Service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,7 +41,7 @@ describe("Teacher Validation Service", () => {
 
   describe("validateAssignment", () => {
     it("should return error if teacher not found", async () => {
-      vi.mocked(teacherRepository.findById).mockResolvedValue(null);
+      mockedTeacherRepository.findById.mockResolvedValue(null);
 
       const result = await validateAssignment({
         teacherId: 999,
@@ -54,7 +58,7 @@ describe("Teacher Validation Service", () => {
 
     it("should return warning for specialization mismatch", async () => {
       // Teacher in Mathematics
-      vi.mocked(teacherRepository.findById).mockResolvedValue({
+      mockedTeacherRepository.findById.mockResolvedValue({
         TeacherID: 1,
         Prefix: "Mr.",
         Firstname: "Math",
@@ -65,7 +69,7 @@ describe("Teacher Validation Service", () => {
       });
 
       // Subject in Thai Language
-      vi.mocked(subjectRepository.findByCode).mockResolvedValue({
+      mockedSubjectRepository.findByCode.mockResolvedValue({
         SubjectCode: "ท21101",
         SubjectName: "ภาษาไทย 1",
         Credit: "CREDIT_15",
@@ -77,7 +81,9 @@ describe("Teacher Validation Service", () => {
       });
 
       // No current workload
-      vi.mocked(repo.findTeacherWorkload).mockResolvedValue([]);
+      mockedTeachingAssignmentRepository.findTeacherWorkload.mockResolvedValue(
+        [],
+      );
 
       const result = await validateAssignment({
         teacherId: 1,
@@ -95,7 +101,7 @@ describe("Teacher Validation Service", () => {
     });
 
     it("should return error for exceeding max workload (20+ hours)", async () => {
-      vi.mocked(teacherRepository.findById).mockResolvedValue({
+      mockedTeacherRepository.findById.mockResolvedValue({
         TeacherID: 1,
         Prefix: "Mr.",
         Firstname: "Busy",
@@ -105,7 +111,7 @@ describe("Teacher Validation Service", () => {
         Role: "teacher",
       });
 
-      vi.mocked(subjectRepository.findByCode).mockResolvedValue({
+      mockedSubjectRepository.findByCode.mockResolvedValue({
         SubjectCode: "ค21101",
         SubjectName: "คณิตศาสตร์ 1",
         Credit: "CREDIT_15",
@@ -117,7 +123,7 @@ describe("Teacher Validation Service", () => {
       });
 
       // Current workload is 18 hours
-      vi.mocked(repo.findTeacherWorkload).mockResolvedValue([
+      mockedTeachingAssignmentRepository.findTeacherWorkload.mockResolvedValue([
         {
           TeachHour: 18,
           SubjectCode: "OLD1",
@@ -149,7 +155,7 @@ describe("Teacher Validation Service", () => {
     });
 
     it("should return warning for exceeding recommended workload (18+ hours)", async () => {
-      vi.mocked(teacherRepository.findById).mockResolvedValue({
+      mockedTeacherRepository.findById.mockResolvedValue({
         TeacherID: 1,
         Prefix: "Mr.",
         Firstname: "Busy",
@@ -159,7 +165,7 @@ describe("Teacher Validation Service", () => {
         Role: "teacher",
       });
 
-      vi.mocked(subjectRepository.findByCode).mockResolvedValue({
+      mockedSubjectRepository.findByCode.mockResolvedValue({
         SubjectCode: "ค21101",
         SubjectName: "คณิตศาสตร์ 1",
         Credit: "CREDIT_15",
@@ -171,7 +177,7 @@ describe("Teacher Validation Service", () => {
       });
 
       // Current workload is 16 hours
-      vi.mocked(repo.findTeacherWorkload).mockResolvedValue([
+      mockedTeachingAssignmentRepository.findTeacherWorkload.mockResolvedValue([
         {
           TeachHour: 16,
           SubjectCode: "OLD1",
@@ -205,7 +211,7 @@ describe("Teacher Validation Service", () => {
     });
 
     it("should return success for valid assignment within limits and same specialization", async () => {
-      vi.mocked(teacherRepository.findById).mockResolvedValue({
+      mockedTeacherRepository.findById.mockResolvedValue({
         TeacherID: 1,
         Prefix: "Mr.",
         Firstname: "Pro",
@@ -215,7 +221,7 @@ describe("Teacher Validation Service", () => {
         Role: "teacher",
       });
 
-      vi.mocked(subjectRepository.findByCode).mockResolvedValue({
+      mockedSubjectRepository.findByCode.mockResolvedValue({
         SubjectCode: "ค21101",
         SubjectName: "คณิตศาสตร์ 1",
         Credit: "CREDIT_15",
@@ -226,7 +232,9 @@ describe("Teacher Validation Service", () => {
         ActivityType: null,
       });
 
-      vi.mocked(repo.findTeacherWorkload).mockResolvedValue([]);
+      mockedTeachingAssignmentRepository.findTeacherWorkload.mockResolvedValue(
+        [],
+      );
 
       const result = await validateAssignment({
         teacherId: 1,

@@ -148,7 +148,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
-                            ? { ...item, Prefix: value as string }
+                            ? { ...item, Prefix: value }
                             : item,
                         ),
                       );
@@ -227,7 +227,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       "สุขศึกษาและพลศึกษา",
                     ]}
                     renderItem={({ data }): JSX.Element => (
-                      <li className="w-full">{data as React.ReactNode}</li>
+                      <li className="w-full">{data}</li>
                     )}
                     width={150}
                     height={40}

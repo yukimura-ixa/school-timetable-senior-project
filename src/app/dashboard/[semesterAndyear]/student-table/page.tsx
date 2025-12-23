@@ -112,7 +112,7 @@ function StudentTablePage() {
     data: timeslotResponse,
     isLoading: isTimeslotLoading,
     isValidating: isTimeslotValidating,
-  } = useSWR(
+  } = useSWR<ActionResult<timeslot[]>>(
     canFetch && semester && academicYear
       ? ["timeslots-by-term", academicYear, semester]
       : null,
@@ -129,7 +129,7 @@ function StudentTablePage() {
     data: classDataResponse,
     isLoading: isClassLoading,
     isValidating: isClassValidating,
-  } = useSWR(
+  } = useSWR<ActionResult<ScheduleEntry[]>>(
     canFetch && selectedGradeId && semester && academicYear
       ? ["class-schedules-grade", selectedGradeId, academicYear, semester]
       : null,
@@ -148,35 +148,29 @@ function StudentTablePage() {
 
   const gradeLevelData = useGradeLevels();
 
-  const timeslotResult = timeslotResponse as
-    | ActionResult<timeslot[]>
-    | undefined;
+  const timeslotResult = timeslotResponse;
   const timeslots =
     timeslotResult && timeslotResult.success && "data" in timeslotResult
       ? timeslotResult.data
       : undefined;
   const hasTimeslotError = Boolean(timeslotResult && !timeslotResult.success);
   const hasClassError = Boolean(
-    classDataResponse &&
-    "success" in (classDataResponse as object) &&
-    !(classDataResponse as ActionResult<unknown>).success,
+    classDataResponse && !classDataResponse.success,
   );
 
   const classData = useMemo((): ScheduleEntry[] => {
-    const response = classDataResponse as
-      | ActionResult<ScheduleEntry[]>
-      | undefined;
-    if (!response || !response.success || !response.data) {
+    if (
+      !classDataResponse ||
+      !classDataResponse.success ||
+      !classDataResponse.data
+    ) {
       return [];
     }
-    return response.data;
+    return classDataResponse.data;
   }, [classDataResponse]);
 
   const timeSlotData: TimeSlotTableData = useMemo(() => {
-    return createTimeSlotTableData(
-      timeslots as timeslot[] | undefined,
-      classData,
-    );
+    return createTimeSlotTableData(timeslots, classData);
   }, [timeslots, classData]);
 
   const hasTimeslots = Array.isArray(timeslots) && timeslots.length > 0;
