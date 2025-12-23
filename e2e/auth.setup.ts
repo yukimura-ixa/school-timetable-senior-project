@@ -53,7 +53,9 @@ setup.setTimeout(180_000);
 async function ensureDatabaseReady(): Promise<void> {
   const maxAttempts = 10;
   const baseUrl =
-    process.env.PLAYWRIGHT_TEST_BASE_URL ?? "http://localhost:3000";
+    process.env.BASE_URL ??
+    process.env.PLAYWRIGHT_TEST_BASE_URL ??
+    "http://localhost:3005";
 
   log.info("Verifying database is ready...");
 
