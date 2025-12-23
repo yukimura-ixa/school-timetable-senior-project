@@ -23,6 +23,9 @@ jobs:
   publish-report:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download Playwright JUnit artifacts
         uses: actions/download-artifact@v4
         with:

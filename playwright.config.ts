@@ -106,8 +106,8 @@ export default defineConfig({
         // and HMR stalls that were causing widespread selector timeouts.
         command:
           process.env.CI === "true"
-            ? "npx exec next start -p 3005"
-            : "npx -y cross-env PORT=3005 NEXT_DIST_DIR=.next-test npx dotenv -e .env.test.local -- next dev",
+            ? "pnpm exec next start -p 3005"
+            : "pnpm exec dotenv -e .env.test.local -- next dev -p 3005",
         url: "http://localhost:3005",
         reuseExistingServer: false,
         timeout: 120 * 1000,
@@ -115,6 +115,9 @@ export default defineConfig({
         stderr: "pipe",
         env: {
           ...process.env,
+          ...(process.env.CI === "true"
+            ? {}
+            : { NEXT_DIST_DIR: process.env.NEXT_DIST_DIR ?? ".next-test" }),
           // ✅ CRITICAL: Force dev server to use test database
           // This ensures the server reads from the same database that E2E setup seeds
           DATABASE_URL:
