@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures/admin.fixture";
+import type { Page } from "@playwright/test";
 
 /**
  * Visual Tests for Critical Admin UI Components
@@ -13,6 +14,20 @@ import { test, expect } from "../fixtures/admin.fixture";
  */
 
 test.describe("Critical Admin UI - Visual Tests", () => {
+  const waitForNavbarStable = async (page: Page) => {
+    const header = page.locator("header, nav").first();
+    if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await page.waitForFunction(
+        () => {
+          const el = document.querySelector("header, nav");
+          if (!el) return true;
+          return el.getBoundingClientRect().height >= 80;
+        },
+        { timeout: 5000 },
+      );
+    }
+  };
+
   test.describe("Semester Configuration", () => {
     test("schedule config page renders correctly", async ({
       authenticatedAdmin,
@@ -26,6 +41,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await expect(page.locator("text=/กำหนดคาบต่อวัน/").first()).toBeVisible({
         timeout: 15000,
       });
+      await waitForNavbarStable(page);
 
       // Take screenshot with tolerance for minor rendering differences
       await expect(page).toHaveScreenshot("config-page.png", {
@@ -48,6 +64,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 
       // Wait for page body to be ready
       await page.waitForTimeout(1000);
+      await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("config-form.png", {
         maxDiffPixels: 200,
@@ -68,6 +85,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 
       // Wait for page to fully render
       await page.waitForTimeout(1000);
+      await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("lock-schedule-page.png", {
         maxDiffPixels: 200,
@@ -117,6 +135,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 
       // Wait for page to fully render
       await page.waitForTimeout(2000);
+      await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("arrange-page.png", {
         maxDiffPixels: 500, // Higher tolerance due to dynamic teacher data
@@ -140,6 +159,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       const subjectList = page.locator('[data-testid="subject-list"]').first();
 
       if (await subjectList.isVisible({ timeout: 10000 }).catch(() => false)) {
+        await waitForNavbarStable(page);
         await expect(subjectList).toHaveScreenshot("subject-list-panel.png", {
           maxDiffPixels: 100,
           animations: "disabled",
@@ -158,6 +178,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
         .first();
 
       if (await timeslotGrid.isVisible({ timeout: 10000 }).catch(() => false)) {
+        await waitForNavbarStable(page);
         await expect(timeslotGrid).toHaveScreenshot("timetable-grid.png", {
           maxDiffPixels: 200,
           animations: "disabled",
@@ -181,6 +202,7 @@ test.describe("UI Component Consistency", () => {
     for (const url of pages) {
       await page.goto(url);
       await page.waitForLoadState("networkidle");
+      await waitForNavbarStable(page);
 
       const header = page.locator("header, nav").first();
       if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
