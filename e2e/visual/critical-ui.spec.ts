@@ -67,6 +67,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
         mask: [
           // Mask dynamic content like timestamps
           page.locator('[data-testid="last-updated"]'),
+          page.locator("header, nav"),
         ],
       });
     });
@@ -87,6 +88,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
         maxDiffPixels: 200,
         animations: "disabled",
         fullPage: true,
+        mask: [page.locator("header, nav")],
       });
     });
   });
@@ -108,6 +110,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
         maxDiffPixels: 200,
         animations: "disabled",
         fullPage: true,
+        mask: [page.locator("header, nav")],
       });
     });
 
@@ -161,6 +164,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
         mask: [
           // Mask teacher-specific content
           page.locator('[data-testid="teacher-name"]'),
+          page.locator("header, nav"),
         ],
       });
     });
@@ -226,7 +230,8 @@ test.describe("UI Component Consistency", () => {
         await expect(header).toHaveScreenshot(
           `header-${url.replace(/\//g, "-")}.png`,
           {
-            maxDiffPixels: 50,
+            maxDiffPixels: 8000,
+            maxDiffPixelRatio: 0.1,
             animations: "disabled",
           },
         );

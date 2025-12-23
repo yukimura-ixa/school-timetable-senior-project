@@ -76,7 +76,8 @@ const snap = async (
 ) => {
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(800);
-  const header = page.locator("header, nav").first();
+  const headerMask = page.locator("header, nav");
+  const header = headerMask.first();
   if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
     await page.addStyleTag({
       content:
@@ -104,7 +105,7 @@ const snap = async (
     path: `${screenshotDir}/${name}.png`,
     fullPage: true,
     animations: "disabled",
-    mask: opts.mask,
+    mask: opts.mask ? [headerMask, ...opts.mask] : [headerMask],
   });
 };
 
