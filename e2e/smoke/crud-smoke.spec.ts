@@ -82,16 +82,17 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
     await addButton.click();
 
     // Wait for modal inputs to appear
-    const subjectCodeInput = page.locator('[data-testid="subject-code-0"]');
+    const dialog = page.locator('[role="dialog"]').first();
+    const subjectCodeInput = dialog.locator('[data-testid="subject-code-0"]');
     await expect(subjectCodeInput).toBeVisible({ timeout: 10000 });
     await subjectCodeInput.fill(subjectCode);
 
-    const subjectNameInput = page.locator('[data-testid="subject-name-0"]');
+    const subjectNameInput = dialog.locator('[data-testid="subject-name-0"]');
     await expect(subjectNameInput).toBeVisible({ timeout: 5000 });
     await subjectNameInput.fill(subjectName);
 
     // Select credit (required)
-    const creditSelect = page.getByLabel("หน่วยกิต");
+    const creditSelect = dialog.getByRole("combobox", { name: "หน่วยกิต" });
     await creditSelect.click();
     const creditOption = page
       .locator('li[role="option"]:not([aria-disabled="true"])')
