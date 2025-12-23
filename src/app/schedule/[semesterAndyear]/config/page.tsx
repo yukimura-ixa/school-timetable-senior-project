@@ -76,7 +76,7 @@ function TimetableConfigValue() {
       // Map table_config.Config JSON to legacy local state format
       // Config is stored as unstructured JSON, so we need to parse it carefully
       try {
-        const config = tableConfig.data.Config as any;
+        const config = tableConfig.data.Config as Record<string, any>;
         setConfigData({
           Days: config.Days || ["MON", "TUE", "WED", "THU", "FRI"],
           AcademicYear: tableConfig.data.AcademicYear,
@@ -122,7 +122,7 @@ function TimetableConfigValue() {
       });
     }
   }, [tableConfig.data, tableConfig.isValidating, academicYear, semester]);
-  const handleChangeStartTime = (e: any) => {
+  const handleChangeStartTime = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));
   };
@@ -164,31 +164,31 @@ function TimetableConfigValue() {
   // const handleChangeBreakDuration = (currentValue: number) => {
   //   setConfigData(() => ({ ...configData, BreakDuration: currentValue }));
   // };
-  const handleChangeBreakTimeJ = (currentValue: unknown) => {
+  const handleChangeBreakTimeJ = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
       BreakTimeslots: {
-        Junior: currentValue as number,
+        Junior: currentValue,
         Senior: configData.BreakTimeslots.Senior,
       },
     }));
   };
 
-  const handleChangeBreakTimeS = (currentValue: unknown) => {
+  const handleChangeBreakTimeS = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
       BreakTimeslots: {
         Junior: configData.BreakTimeslots.Junior,
-        Senior: currentValue as number,
+        Senior: currentValue,
       },
     }));
   };
-  const handleChangeMiniBreak = (currentValue: unknown) => {
+  const handleChangeMiniBreak = (currentValue: number) => {
     setConfigData(() => ({
       ...configData,
       MiniBreak: {
         Duration: configData.MiniBreak.Duration,
-        SlotNumber: currentValue as number,
+        SlotNumber: currentValue,
       },
     }));
   };
@@ -367,9 +367,11 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={String(configData.MiniBreak.SlotNumber)}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }: { data: any }): React.JSX.Element => (
-                    <li className="w-[70px]">{data}</li>
-                  )}
+                  renderItem={({
+                    data,
+                  }: {
+                    data: number;
+                  }): React.JSX.Element => <li className="w-[70px]">{data}</li>}
                   handleChange={handleChangeMiniBreak}
                   searchFunction={undefined}
                 />
@@ -425,9 +427,11 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={String(configData.BreakTimeslots.Senior)}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }: { data: any }): React.JSX.Element => (
-                    <li className="w-[70px]">{data}</li>
-                  )}
+                  renderItem={({
+                    data,
+                  }: {
+                    data: number;
+                  }): React.JSX.Element => <li className="w-[70px]">{data}</li>}
                   handleChange={handleChangeBreakTimeS}
                   searchFunction={undefined}
                 />
@@ -446,9 +450,11 @@ function TimetableConfigValue() {
                   data={breakSlotMap}
                   currentValue={String(configData.BreakTimeslots.Junior)}
                   placeHolder="เลือกคาบ"
-                  renderItem={({ data }: { data: any }): React.JSX.Element => (
-                    <li className="w-[70px]">{data}</li>
-                  )}
+                  renderItem={({
+                    data,
+                  }: {
+                    data: number;
+                  }): React.JSX.Element => <li className="w-[70px]">{data}</li>}
                   handleChange={handleChangeBreakTimeJ}
                   searchFunction={undefined}
                 />

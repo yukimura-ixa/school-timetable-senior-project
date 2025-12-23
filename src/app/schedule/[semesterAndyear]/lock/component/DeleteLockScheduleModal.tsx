@@ -33,9 +33,10 @@ function DeleteLockScheduleModal({ closeModal, deleteData, mutate }: props) {
       await deleteLocksAction(deleteData);
       mutate();
       enqueueSnackbar("ลบข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
-    } catch (error: any) {
+    } catch (error: unknown) {
       enqueueSnackbar(
-        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " + (error.message || "Unknown error"),
+        "ลบข้อมูลคาบล็อกไม่สำเร็จ: " +
+          (error instanceof Error ? error.message : "Unknown error"),
         {
           variant: "error",
         },

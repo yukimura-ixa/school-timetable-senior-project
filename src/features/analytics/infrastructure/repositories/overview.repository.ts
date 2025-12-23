@@ -11,7 +11,7 @@ import { parseConfigId } from "../../domain/services/calculation.service";
 import { cacheTag } from "next/cache";
 
 // Prisma payload types for overview queries
-type TimeslotId = { TimeslotID: number };
+type TimeslotId = { TimeslotID: string };
 type ScheduleWithResponsibility = {
   teachers_responsibility: { TeacherID: number }[];
 };
@@ -74,9 +74,11 @@ export const overviewRepository = {
             // Extract unique teacher IDs
             const teacherIds = new Set<number>();
             schedules.forEach((schedule: ScheduleWithResponsibility) => {
-              schedule.teachers_responsibility.forEach((resp: { TeacherID: number }) => {
-                teacherIds.add(resp.TeacherID);
-              });
+              schedule.teachers_responsibility.forEach(
+                (resp: { TeacherID: number }) => {
+                  teacherIds.add(resp.TeacherID);
+                },
+              );
             });
             return Array.from(teacherIds).map((id) => ({ TeacherID: id }));
           }),
@@ -93,9 +95,8 @@ export const overviewRepository = {
       totalRequiredSlots > 0 ? (totalScheduled / totalRequiredSlots) * 100 : 0;
 
     // Issue #107: Implement conflict detection using conflictRepository
-    const { conflictRepository } = await import(
-      "@/features/conflict/infrastructure/repositories/conflict.repository"
-    );
+    const { conflictRepository } =
+      await import("@/features/conflict/infrastructure/repositories/conflict.repository");
     const conflictData = await conflictRepository.findAllConflicts(
       config.academicYear,
       config.semester,

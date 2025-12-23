@@ -41,8 +41,8 @@ export async function MiniCharts() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Teacher Utilization */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">
           ครูที่มีภาระสอนสูงสุด (Top 5)
         </h3>
         <div className="w-full h-[200px]">
@@ -51,8 +51,8 @@ export async function MiniCharts() {
       </div>
 
       {/* Period Load Sparkline */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">
           จำนวนคาบเรียนต่อวัน
         </h3>
         <div className="w-full h-[80px]">
@@ -61,12 +61,12 @@ export async function MiniCharts() {
       </div>
 
       {/* Room Occupancy Mini Heatmap */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">
           อัตราการใช้ห้องเรียน (%)
         </h3>
         <RoomOccupancyGrid data={roomGridData} days={days} />
-        <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
+        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
           <span>ต่ำ</span>
           <span>สูง</span>
         </div>

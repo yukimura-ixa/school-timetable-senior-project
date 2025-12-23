@@ -4,9 +4,11 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 
+import type { teacher } from "@/prisma/generated/client";
+
 type Props = {
-  setTeacherID: Function;
-  currentTeacher: any;
+  setTeacherID: (id: number) => void;
+  currentTeacher: teacher | Record<string, never>;
   disabled?: boolean;
 };
 
@@ -41,13 +43,13 @@ function SelectTeacher({
           width={300}
           data={allTeacher.data}
           placeHolder="ตัวเลือก"
-          renderItem={({ data }: { data: any }) => (
+          renderItem={({ data }: { data: teacher }) => (
             <li>
               <p>{`${data.Prefix}${data.Firstname} ${data.Lastname}`}</p>
             </li>
           )}
           currentValue={teacher}
-          handleChange={(data: any) => {
+          handleChange={(data: teacher) => {
             if (disabled) return; // Prevent changes when disabled
             setTeacher(`${data.Prefix}${data.Firstname} ${data.Lastname}`);
             setTeacherID(data.TeacherID);
@@ -55,7 +57,7 @@ function SelectTeacher({
           }}
           searchFunction={undefined}
           data-testid="teacher-selector"
-          getItemId={(item: any) => item.TeacherID} // Extract TeacherID for stable E2E selectors
+          getItemId={(item: teacher) => item.TeacherID} // Extract TeacherID for stable E2E selectors
         />
       </div>
     </>

@@ -107,4 +107,39 @@ isOptionEqualToValue={(option, value) => option.GradeID === value.GradeID}
 ---
 
 _Generated: 2025-12-20_  
-_Updated: 2025-12-20 (Local testing session)_
+_Updated: 2025-12-21 (Bug hunting session)_
+
+## Follow-up Session (Dec 21, 2025)
+
+### Re-tested Bugs
+
+| Bug    | Status           | Notes                                                      |
+| ------ | ---------------- | ---------------------------------------------------------- |
+| BUG-19 | **NOT OBSERVED** | No hydration errors in console during testing              |
+| BUG-21 | **MITIGATED**    | Enabled Turbopack filesystem cache (`unstable_buildCache`) |
+| BUG-22 | **FIXED**        | Schedule pages load correctly on local                     |
+| BUG-23 | **FIXED**        | Changed to show 'กำลังโหลด...' during hydration            |
+
+### BUG-23 Root Cause Analysis
+
+The session flashes 'นักเรียน กำลังตรวจสอบสิทธิ์...' (Student checking permissions) on every page navigation before hydrating as the actual admin role. This is a client-side hydration issue where:
+
+1. Server renders with no session (shows default 'Student' role)
+2. Client hydrates and fetches actual session
+3. Session updates UI to show admin
+
+**Fix:** Use `useState` + `useEffect` pattern to delay role-dependent UI until after hydration (similar to BUG-13, BUG-15 fixes).
+
+### Additional Findings (Dec 21, continued)
+
+| Bug         | Route                            | Description                                        |
+| ----------- | -------------------------------- | -------------------------------------------------- |
+| BUG-19      | `/dashboard/[sem]/teacher-table` | Hydration error in TeacherTablePage (**FIXED**)    |
+| MUI Warning | `/dashboard/[sem]/teacher-table` | Disabled button children in MUI Tooltip components |
+| BUG-25      | `/management/email-outbox`       | Async searchParams issue (**FIXED**)               |
+
+**BUG-19 Fix:**
+
+- Added `isHydrated` state with `useEffect` initialization
+- Changed conditional at line 403 to `{isHydrated && isAdmin &&`
+- Prevents admin-only bulk export section from rendering until client hydration completes

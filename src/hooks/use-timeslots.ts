@@ -20,17 +20,18 @@ export const useTimeslots = (academicYear: number, semester: number) => {
       AcademicYear: academicYear,
       Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
     });
-    return result.success ? result.data : [];
+    return result.success && result.data ? result.data : [];
   };
 
-  const { data, error, mutate } = useSWR<timeslot[]>(
+  const { data, error, mutate, isLoading, isValidating } = useSWR<timeslot[]>(
     `timeslots-${academicYear}-${semester}`,
     fetcher,
   );
 
   return {
     data: data ?? [],
-    isLoading: !error && !data,
+    isLoading: isLoading ?? (!error && !data),
+    isValidating: isValidating ?? false,
     error,
     mutate,
   };

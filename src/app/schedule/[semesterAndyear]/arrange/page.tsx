@@ -1493,7 +1493,7 @@ export default function ArrangementPage() {
                       clickOrDragToSelectSubject={(subject) => {
                         setActiveSubject(subject);
                       }}
-                      storeSelectedSubject={activeSubject || {}}
+                      storeSelectedSubject={activeSubject || null}
                       teacher={
                         teacherData ||
                         ({

@@ -6,6 +6,10 @@
  * @see src/lib/infrastructure/repositories/public-data.repository.ts
  */
 
+import {
+  extractDayFromTimeslotId,
+  extractPeriodFromTimeslotId,
+} from "@/utils/timeslot-id";
 import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
@@ -210,7 +214,11 @@ export async function getClassSchedule(gradeId: string) {
     type Schedule = (typeof schedules)[number];
 
     // Normalize and sort (defensive: Prisma already ordered)
-    return schedules.sort((a: Schedule, b: Schedule) => {
+    // Helper to get sort key
+    const getSortKey = (id: string) => {
+      const d = extractDayFromTimeslotId(id);
+      const p = extractPeriodFromTimeslotId(id);
+      if (!d) return 9900 + p;
       const dayOrder: Record<string, number> = {
         MON: 0,
         TUE: 1,
@@ -220,11 +228,12 @@ export async function getClassSchedule(gradeId: string) {
         SAT: 5,
         SUN: 6,
       };
-      const dayDiff =
-        (dayOrder[a.timeslot.DayOfWeek] ?? 0) -
-        (dayOrder[b.timeslot.DayOfWeek] ?? 0);
-      if (dayDiff !== 0) return dayDiff;
-      return a.timeslot.StartTime < b.timeslot.StartTime ? -1 : 1;
+      return (dayOrder[d] ?? 99) * 100 + p;
+    };
+
+    // Normalize and sort (defensive: Prisma already ordered)
+    return schedules.sort((a: Schedule, b: Schedule) => {
+      return getSortKey(a.TimeslotID) - getSortKey(b.TimeslotID);
     });
   } catch (err) {
     console.warn(

@@ -20,7 +20,9 @@ export function GradeLevelManageClient({
   initialData,
   programsByYear,
 }: GradeLevelManageClientProps) {
-  const [gradelevels, setGradelevels] = useState<gradelevel[]>(initialData);
+  const [gradelevels, setGradelevels] = useState<gradelevel[]>(
+    initialData ?? [],
+  );
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
@@ -29,7 +31,7 @@ export function GradeLevelManageClient({
     setIsRefreshing(true);
     const result = await getGradeLevelsAction({});
     if (result.success) {
-      setGradelevels(result.data);
+      setGradelevels(result.data ?? []);
     }
     setIsRefreshing(false);
     router.refresh();

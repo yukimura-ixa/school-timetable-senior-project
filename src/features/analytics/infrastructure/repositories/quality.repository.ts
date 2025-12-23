@@ -12,7 +12,7 @@ import { parseConfigId } from "../../domain/services/calculation.service";
 import { overviewRepository } from "./overview.repository";
 
 // Prisma payload types for quality queries
-type TimeslotId = { TimeslotID: number };
+type TimeslotId = { TimeslotID: string };
 type ScheduleSelect = { GradeID: string };
 
 /**
@@ -101,7 +101,7 @@ async function getGapAnalysis(configId: string): Promise<{
   const gapsByGrade = new Map<string, number>();
   const totalSlotsPerGrade = timeslotIds.length;
 
-  gradelevels.forEach((grade: gradelevel) => {
+  gradelevels.forEach((grade: { GradeID: string }) => {
     const scheduledSlots = schedules.filter(
       (s: ScheduleSelect) => s.GradeID === grade.GradeID,
     ).length;

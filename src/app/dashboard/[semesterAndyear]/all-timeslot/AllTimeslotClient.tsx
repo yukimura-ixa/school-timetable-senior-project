@@ -26,7 +26,9 @@ import {
   Tooltip,
   useMediaQuery,
   useTheme,
+  alpha,
 } from "@mui/material";
+import { colors } from "@/shared/design-system";
 
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
@@ -422,6 +424,18 @@ const AllTimeslotClient = ({
                 size="small"
                 onClick={() => setShowFilters(!showFilters)}
                 variant={showFilters ? "contained" : "outlined"}
+                sx={
+                  showFilters
+                    ? {
+                        bgcolor: colors.emerald.main,
+                        "&:hover": { bgcolor: colors.emerald.dark },
+                      }
+                    : {
+                        color: colors.emerald.main,
+                        borderColor: colors.emerald.main,
+                        "&:hover": { borderColor: colors.emerald.dark },
+                      }
+                }
               >
                 {showFilters ? "ซ่อนตัวกรอง" : "แสดงตัวกรอง"}
               </Button>
@@ -561,6 +575,10 @@ const AllTimeslotClient = ({
                 variant="contained"
                 startIcon={<FilterListIcon />}
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                sx={{
+                  bgcolor: colors.emerald.main,
+                  "&:hover": { bgcolor: colors.emerald.dark },
+                }}
               >
                 ปรับตัวกรอง
               </Button>
@@ -571,6 +589,14 @@ const AllTimeslotClient = ({
                     variant="outlined"
                     startIcon={<SwapVertIcon />}
                     onClick={handleExportExcel}
+                    sx={{
+                      color: colors.emerald.main,
+                      borderColor: colors.emerald.main,
+                      "&:hover": {
+                        borderColor: colors.emerald.dark,
+                        bgcolor: alpha(colors.emerald.main, 0.04),
+                      },
+                    }}
                   >
                     ส่งออก Excel
                   </Button>
@@ -579,6 +605,14 @@ const AllTimeslotClient = ({
                     variant="outlined"
                     startIcon={<SummarizeIcon />}
                     onClick={handleExportSummary}
+                    sx={{
+                      color: colors.violet.main,
+                      borderColor: colors.violet.main,
+                      "&:hover": {
+                        borderColor: colors.violet.dark,
+                        bgcolor: alpha(colors.violet.main, 0.04),
+                      },
+                    }}
                   >
                     สรุปสำหรับครู
                   </Button>
@@ -664,61 +698,64 @@ const AllTimeslotClient = ({
             mt={3}
             sx={{
               overflowX: "auto",
-
               overflowY: "hidden",
-
               border: "1px solid",
-
-              borderColor: "divider",
-
-              borderRadius: 2,
+              borderColor: alpha(theme.palette.divider, 0.1),
+              borderRadius: 3,
+              bgcolor: alpha(theme.palette.background.paper, 0.4),
+              backdropFilter: "blur(12px)",
+              p: 2,
+              boxShadow: theme.shadows[1],
             }}
             className="printable-table"
           >
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 bg-slate-50 min-w-[220px] text-left">
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      <GridOnIcon fontSize="small" />
+            <Stack>
+              {/* Header Row */}
+              <Stack direction="row" sx={{ mb: 1.5 }}>
+                <Box
+                  sx={{
+                    width: 260,
+                    mr: 1,
+                    height: 64,
+                    display: "flex",
+                    alignItems: "center",
+                    px: 2,
+                    borderRadius: 1,
+                    bgcolor: alpha(theme.palette.action.selected, 0.5),
+                    border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <GridOnIcon fontSize="small" color="primary" />
+                    <Typography variant="subtitle2" fontWeight="bold">
+                      ตารางสรุปภาครวม
+                    </Typography>
+                  </Stack>
+                </Box>
+                <Box sx={{ flex: 1, overflowX: "hidden" }}>
+                  <TableHead
+                    days={filteredDays}
+                    slotAmount={timeSlotData.SlotAmount}
+                  />
+                </Box>
+              </Stack>
 
-                      <span>ตารางสอน</span>
-                    </Stack>
-                  </th>
-
-                  <th
-                    colSpan={
-                      timeSlotData.SlotAmount.length * filteredDays.length
-                    }
-                  >
-                    <TableHead
-                      days={filteredDays}
-                      slotAmount={timeSlotData.SlotAmount}
-                    />
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr>
-                  <td className="align-top">
-                    <TeacherList teachers={filteredTeachers} />
-                  </td>
-
-                  <td className="align-top">
-                    <TableBody
-                      teachers={filteredTeachers}
-                      slotAmount={timeSlotData.SlotAmount}
-                      classData={classData}
-                      days={filteredDays}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+              {/* Body Content */}
+              <Stack direction="row">
+                <TeacherList teachers={filteredTeachers} />
+                <Box sx={{ flex: 1, overflowX: "auto", overflowY: "hidden" }}>
+                  <TableBody
+                    teachers={filteredTeachers}
+                    slotAmount={timeSlotData.SlotAmount}
+                    classData={classData}
+                    days={filteredDays}
+                  />
+                </Box>
+              </Stack>
+            </Stack>
           </Box>
 
-          <Box mt={3}>
+          <Box mt={4}>
             <TableResult teachers={filteredTeachers} classData={classData} />
           </Box>
         </Paper>

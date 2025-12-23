@@ -32,16 +32,17 @@ async function verifyProgramSeed() {
   console.warn(`\n📊 Total Programs: ${programs.length}\n`);
 
   // Group by Year (1..6)
-  const groupedByYear = programs.reduce(
-    (acc: Record<number, ProgramWithCount[]>, program: ProgramWithCount) => {
-      const year = program.Year;
+  const groupedByYear = programs.reduce<Record<number, ProgramWithCount[]>>(
+    (acc, program) => {
+      const p = program as ProgramWithCount;
+      const year = p.Year;
       if (!acc[year]) {
         acc[year] = [];
       }
-      acc[year].push(program);
+      acc[year].push(p);
       return acc;
     },
-    {} as Record<number, ProgramWithCount[]>,
+    {},
   );
 
   // Display grouped data

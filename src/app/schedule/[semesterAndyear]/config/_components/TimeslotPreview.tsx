@@ -33,15 +33,17 @@ type Props = {
   config: ConfigData;
 };
 
+type SlotItem = {
+  number: number;
+  start: string;
+  end: string;
+  type: "class" | "break" | "minibreak";
+  breakFor?: "junior" | "senior" | "both";
+};
+
 export function TimeslotPreview({ config }: Props) {
-  const calculateTimeslots = () => {
-    const timeslots: Array<{
-      number: number;
-      start: string;
-      end: string;
-      type: "class" | "break" | "minibreak";
-      breakFor?: "junior" | "senior" | "both";
-    }> = [];
+  const calculateTimeslots = (): SlotItem[] => {
+    const timeslots: SlotItem[] = [];
 
     // Parse start time
     const [hours, minutes] = config.StartTime.split(":").map(Number);
@@ -229,13 +231,25 @@ export function TimeslotPreview({ config }: Props) {
   );
 }
 
-function calculateTotalDuration(slots: any[]): string {
+function calculateTotalDuration(slots: SlotItem[]): string {
   if (slots.length === 0) return "0";
-  const firstStart = slots[0].start;
-  const lastEnd = slots[slots.length - 1].end;
+  const firstSlot = slots[0];
+  const lastSlot = slots[slots.length - 1];
 
-  const [startH, startM] = firstStart.split(":").map(Number);
-  const [endH, endM] = lastEnd.split(":").map(Number);
+  if (!firstSlot || !lastSlot) return "0";
+
+  const firstStart = firstSlot.start;
+  const lastEnd = lastSlot.end;
+
+  const startParts = firstStart.split(":").map(Number);
+  const endParts = lastEnd.split(":").map(Number);
+
+  if (startParts.length < 2 || endParts.length < 2) return "0";
+
+  const startH = startParts[0]!;
+  const startM = startParts[1]!;
+  const endH = endParts[0]!;
+  const endM = endParts[1]!;
 
   const totalMinutes = endH * 60 + endM - (startH * 60 + startM);
   const hours = Math.floor(totalMinutes / 60);

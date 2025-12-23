@@ -55,7 +55,9 @@ function AddModalForm({ closeModal, mutate }: props) {
 
   useEffect(() => {
     setTeachers((prev) =>
-      prev.map((t) => (t.Email ? t : { ...t, Email: generateTempTeacherEmail() })),
+      prev.map((t) =>
+        t.Email ? t : { ...t, Email: generateTempTeacherEmail() },
+      ),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -89,14 +91,13 @@ function AddModalForm({ closeModal, mutate }: props) {
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "เพิ่มข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เพิ่มข้อมูลครูไม่สำเร็จ: " + errorMessage, {
+        variant: "error",
+      });
       console.log(error);
     }
   };
@@ -172,8 +173,8 @@ function AddModalForm({ closeModal, mutate }: props) {
               hoverable={true}
               borderColor="#222222"
               handleClick={addList}
-              width={""}
-              height={""}
+              width={"fit-content"}
+              height={35}
               isSelected={false}
             />
           </div>
@@ -194,15 +195,11 @@ function AddModalForm({ closeModal, mutate }: props) {
                     <label className="text-sm font-bold">
                       คำนำหน้าชื่อ (Prefix):
                     </label>
-                    <Dropdown
+                    <Dropdown<string>
                       testId={`prefix-${index}`}
                       data={["นาย", "นาง", "นางสาว"]}
-                      renderItem={({
-                        data,
-                      }: {
-                        data: unknown;
-                      }): JSX.Element => (
-                        <li className="w-full">{data as string}</li>
+                      renderItem={({ data }: { data: string }): JSX.Element => (
+                        <li className="w-full">{data}</li>
                       )}
                       width={150}
                       height={40}
@@ -213,12 +210,10 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }
                       currentValue={teacher.Prefix}
                       placeHolder={"ตัวเลือก"}
-                      handleChange={(value: unknown) => {
+                      handleChange={(value: string) => {
                         setTeachers(() =>
                           teachers.map((item, ind) =>
-                            index === ind
-                              ? { ...item, Prefix: value as string }
-                              : item,
+                            index === ind ? { ...item, Prefix: value } : item,
                           ),
                         );
                       }}
@@ -243,7 +238,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
@@ -275,7 +272,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>
@@ -296,7 +295,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                     <label className="text-sm font-bold">
                       กลุ่มสาระ (Department):
                     </label>
-                    <Dropdown
+                    <Dropdown<string>
                       testId={`department-${index}`}
                       data={[
                         "คณิตศาสตร์",
@@ -308,12 +307,8 @@ function AddModalForm({ closeModal, mutate }: props) {
                         "สังคมศึกษา ศาสนา และวัฒนธรรม",
                         "สุขศึกษาและพลศึกษา",
                       ]}
-                      renderItem={({
-                        data,
-                      }: {
-                        data: unknown;
-                      }): JSX.Element => (
-                        <li className="w-full">{data as string}</li>
+                      renderItem={({ data }: { data: string }): JSX.Element => (
+                        <li className="w-full">{data}</li>
                       )}
                       width={150}
                       height={40}
@@ -325,11 +320,11 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(value: unknown) => {
+                      handleChange={(value: string) => {
                         setTeachers(() =>
                           teachers.map((item, ind) =>
                             index === ind
-                              ? { ...item, Department: value as string }
+                              ? { ...item, Department: value }
                               : item,
                           ),
                         );
@@ -355,7 +350,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setTeachers(() =>
                           teachers.map((item, ind) =>

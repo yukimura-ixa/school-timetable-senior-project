@@ -3,24 +3,24 @@ import React, { useState, type JSX } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SearchBar from "@/components/elements/input/field/SearchBar";
 
-interface DropdownProps {
-  data: Array<unknown>;
-  renderItem: React.ComponentType<{ data: unknown }>;
+interface DropdownProps<T> {
+  data: T[];
+  renderItem: React.ComponentType<{ data: T }>;
   width?: string | number | null;
   height?: string | number;
   currentValue?: string;
   placeHolder?: string;
-  handleChange: (item: unknown, index: number) => void;
+  handleChange: (item: T, index: number) => void;
   useSearchBar?: boolean;
   searchFunction?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   borderColor?: string;
   /** Optional: Extract unique ID from data item for stable E2E selectors */
-  getItemId?: (item: unknown) => string | number;
+  getItemId?: (item: T) => string | number;
   /** data-testid forwarded to the trigger for E2E reliability */
   testId?: string;
 }
 
-function Dropdown({
+function Dropdown<T>({
   data,
   renderItem: ItemElement, //ทำการ Map ให้เป็นชื่อที่ขึ้นต้นด้วย Capital letter
   width = null,
@@ -33,7 +33,7 @@ function Dropdown({
   borderColor = "",
   getItemId, // Extract ID for stable selectors
   testId,
-}: DropdownProps): JSX.Element {
+}: DropdownProps<T>): JSX.Element {
   //Toggle สำหรับกดเปิด-ปิด Dropdown default is false
   const [isHidden, setIsHidden] = useState(false);
   const listboxId = React.useId(); // Generate unique ID for aria-controls
@@ -108,10 +108,7 @@ function Dropdown({
                 : currentValue
               : currentValue}
         </div>
-        <KeyboardArrowDownIcon
-          className={iconClassName}
-          aria-hidden="true"
-        />
+        <KeyboardArrowDownIcon className={iconClassName} aria-hidden="true" />
       </div>
       {/* ถ้าข้อมูลที่ส่งมามี Array.length เท่ากับ 0 จะไม่แสดง Dropdown List เมื่อกด Dropdown */}
       <div

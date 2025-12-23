@@ -17,7 +17,7 @@ export const useTeachers = () => {
     "teachers",
     async () => {
       const result = await getTeachersAction({});
-      return result.success ? result.data : [];
+      return result.success && result.data ? result.data : [];
     },
     {
       revalidateOnFocus: false,

@@ -30,6 +30,7 @@ import {
   Tooltip,
   Collapse,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ClassIcon from "@mui/icons-material/Class";
@@ -41,6 +42,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { useGradeLevels, useSemesterSync } from "@/hooks";
+import { useUIStore } from "@/stores/uiStore";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 
@@ -59,6 +61,7 @@ import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
 import type { timeslot } from "@/prisma/generated/client";
 import { NoTimetableEmptyState } from "@/components/feedback";
+import { colors } from "@/shared/design-system";
 
 const getGradeLabel = (gradeId: string | null) => {
   if (!gradeId) {
@@ -89,6 +92,10 @@ function StudentTablePage() {
   const userRole = normalizeAppRole(session?.user?.role);
   const isAdmin = isAdminRole(userRole);
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+
+  // Hydration-safe state from shared Zustand store
+  const { isHydrated, setHydrated } = useUIStore();
+  useEffect(() => setHydrated(), [setHydrated]);
 
   // Bulk operation state
   const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>([]);
@@ -151,8 +158,8 @@ function StudentTablePage() {
   const hasTimeslotError = Boolean(timeslotResult && !timeslotResult.success);
   const hasClassError = Boolean(
     classDataResponse &&
-      "success" in (classDataResponse as object) &&
-      !(classDataResponse as ActionResult<unknown>).success,
+    "success" in (classDataResponse as object) &&
+    !(classDataResponse as ActionResult<unknown>).success,
   );
 
   const classData = useMemo((): ScheduleEntry[] => {
@@ -202,7 +209,7 @@ function StudentTablePage() {
     try {
       // Get selected grade info
       const selectedGrade = gradeLevelData.data?.find(
-        (g) => g.GradeID === selectedGradeId
+        (g) => g.GradeID === selectedGradeId,
       );
       if (!selectedGrade) {
         throw new Error("Selected grade not found");
@@ -383,7 +390,7 @@ function StudentTablePage() {
         )}
 
         {/* Bulk Export Filter Section - Admin only (guests hidden) */}
-        {isAdmin && (
+        {isHydrated && isAdmin && (
           <Paper elevation={1} sx={{ p: 2 }} className="no-print">
             <Box
               sx={{
@@ -561,120 +568,135 @@ function StudentTablePage() {
           !selectedGradeId &&
           errors.length === 0 &&
           hasTimeslots && (
-          <Paper
-            elevation={0}
-            sx={{
-              p: 6,
-              textAlign: "center",
-              bgcolor: "action.hover",
-              borderRadius: 2,
-            }}
-          >
-            <ClassIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              กรุณาเลือกห้องเรียน
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              เลือกห้องเรียนจากรายการด้านบนเพื่อดูตารางเรียน
-            </Typography>
-          </Paper>
-        )}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 6,
+                textAlign: "center",
+                border: "1px solid",
+                borderColor: alpha(colors.slate[300], 0.5),
+                borderRadius: 3,
+              }}
+            >
+              <ClassIcon
+                sx={{ fontSize: 64, color: colors.slate[400], mb: 2 }}
+              />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                กรุณาเลือกห้องเรียน
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                เลือกห้องเรียนจากรายการด้านบนเพื่อดูตารางเรียน
+              </Typography>
+            </Paper>
+          )}
 
         {/* Timetable Content */}
         {selectedGradeId &&
           !hasClassError &&
           !hasTimeslotError &&
           hasTimeslots && (
-          <Stack spacing={2}>
-            {/* Class Info & Export Actions */}
-            <Paper elevation={1} sx={{ p: 2 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: 2,
-                }}
-              >
-                <Box>
-                  <Typography variant="h6" gutterBottom>
-                    ตารางเรียน: {getGradeLabel(selectedGradeId)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    ภาคเรียนที่ {semester}/{academicYear}
-                  </Typography>
+            <Stack spacing={2}>
+              {/* Class Info & Export Actions */}
+              <Paper elevation={1} sx={{ p: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 2,
+                  }}
+                >
+                  <Box>
+                    <Typography variant="h6" gutterBottom>
+                      ตารางเรียน: {getGradeLabel(selectedGradeId)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      ภาคเรียนที่ {semester}/{academicYear}
+                    </Typography>
+                  </Box>
+                  {isHydrated && isAdmin && (
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        variant="contained"
+                        startIcon={<DownloadIcon />}
+                        disabled={disableExport}
+                        onClick={() =>
+                          ExportStudentTable(
+                            timeSlotData as unknown as ExportTimeslotData,
+                            selectedGradeInfo,
+                            classData as unknown as ClassScheduleWithSummary[],
+                            semester,
+                            academicYear,
+                          )
+                        }
+                        sx={{
+                          bgcolor: colors.emerald.main,
+                          "&:hover": {
+                            bgcolor: colors.emerald.dark,
+                          },
+                        }}
+                      >
+                        นำออก Excel
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<PictureAsPdfIcon />}
+                        disabled={disableExport}
+                        onClick={handleExportPDF}
+                        sx={{
+                          color: colors.emerald.main,
+                          borderColor: colors.emerald.main,
+                          "&:hover": {
+                            borderColor: colors.emerald.dark,
+                            bgcolor: alpha(colors.emerald.main, 0.04),
+                          },
+                        }}
+                      >
+                        นำออก PDF
+                      </Button>
+                    </Stack>
+                  )}
                 </Box>
-                {isAdmin && (
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      variant="contained"
-                      color="success"
-                      startIcon={<DownloadIcon />}
-                      disabled={disableExport}
-                      onClick={() =>
-                        ExportStudentTable(
-                          timeSlotData as unknown as ExportTimeslotData,
-                          selectedGradeInfo,
-                          classData as unknown as ClassScheduleWithSummary[],
-                          semester,
-                          academicYear,
-                        )
-                      }
-                    >
-                      นำออก Excel
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      startIcon={<PictureAsPdfIcon />}
-                      disabled={disableExport}
-                      onClick={handleExportPDF}
-                    >
-                      นำออก PDF
-                    </Button>
-                  </Stack>
-                )}
-              </Box>
-            </Paper>
+              </Paper>
 
-            {/* Timetable */}
-            {showLoadingOverlay ? (
-              <Skeleton
-                variant="rectangular"
-                height={400}
-                sx={{ borderRadius: 1 }}
-              />
-            ) : (
-              <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
+              {/* Timetable */}
+              {showLoadingOverlay ? (
+                <Skeleton
+                  variant="rectangular"
+                  height={400}
+                  sx={{ borderRadius: 1 }}
+                />
+              ) : (
+                <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
+                  <TimeSlot
+                    searchGradeID={selectedGradeId}
+                    timeSlotData={timeSlotData}
+                  />
+                </Paper>
+              )}
+
+              {/* Hidden PDF Export */}
+              <div
+                ref={ref}
+                className="printFont mt-5 flex flex-col items-center justify-center p-10"
+                style={{ display: isPDFExport ? "flex" : "none" }}
+              >
+                <div className="printFont mb-8 flex gap-10">
+                  <p>ตารางเรียน {getGradeLabel(selectedGradeId)}</p>
+                  <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
+                </div>
                 <TimeSlot
                   searchGradeID={selectedGradeId}
                   timeSlotData={timeSlotData}
                 />
-              </Paper>
-            )}
-
-            {/* Hidden PDF Export */}
-            <div
-              ref={ref}
-              className="printFont mt-5 flex flex-col items-center justify-center p-10"
-              style={{ display: isPDFExport ? "flex" : "none" }}
-            >
-              <div className="printFont mb-8 flex gap-10">
-                <p>ตารางเรียน {getGradeLabel(selectedGradeId)}</p>
-                <p>ภาคเรียนที่ {`${semester}/${academicYear}`}</p>
+                <div className="mt-8 flex gap-2">
+                  <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
+                  <p>ลงชื่อ..............................ผู้อำนวยการ</p>
+                </div>
               </div>
-              <TimeSlot
-                searchGradeID={selectedGradeId}
-                timeSlotData={timeSlotData}
-              />
-              <div className="mt-8 flex gap-2">
-                <p>ลงชื่อ..............................รองผอ.วิชาการ</p>
-                <p>ลงชื่อ..............................ผู้อำนวยการ</p>
-              </div>
-            </div>
-          </Stack>
-        )}
+            </Stack>
+          )}
       </Stack>
     </Container>
   );

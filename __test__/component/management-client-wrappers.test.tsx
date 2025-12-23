@@ -45,12 +45,9 @@ vi.mock("@/features/subject/application/actions/subject.actions", () => ({
   getSubjectsAction: vi.fn(),
 }));
 
-vi.mock(
-  "@/features/gradelevel/application/actions/gradelevel.actions",
-  () => ({
-    getGradeLevelsAction: vi.fn(),
-  }),
-);
+vi.mock("@/features/gradelevel/application/actions/gradelevel.actions", () => ({
+  getGradeLevelsAction: vi.fn(),
+}));
 
 describe("TeacherManageClient", () => {
   const mockTeachers: teacher[] = [
@@ -143,18 +140,32 @@ describe("GradeLevelManageClient", () => {
       GradeID: "101",
       Year: 1,
       Number: 1,
+      StudentCount: 30,
+      ProgramID: null,
     },
   ];
 
+  const mockProgramsByYear: Record<number, []> = {};
+
   test("renders with initial gradelevel data", () => {
-    render(<GradeLevelManageClient initialData={mockGradeLevels} />);
+    render(
+      <GradeLevelManageClient
+        initialData={mockGradeLevels}
+        programsByYear={mockProgramsByYear}
+      />,
+    );
 
     // Should render the gradelevel table
     expect(screen.getByText("101")).toBeInTheDocument();
   });
 
   test("shows empty state when no gradelevels", () => {
-    render(<GradeLevelManageClient initialData={[]} />);
+    render(
+      <GradeLevelManageClient
+        initialData={[]}
+        programsByYear={mockProgramsByYear}
+      />,
+    );
 
     // Should show empty state
     const emptyStateElements = screen.queryAllByText(/ยังไม่มีข้อมูล|No data/i);

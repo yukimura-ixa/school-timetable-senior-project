@@ -174,12 +174,12 @@ export default function ProgramTable({
       setDrafts({});
       setSelected([]);
       await mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "บันทึกการแก้ไขไม่สำเร็จ: " + (error?.message || "Unknown error"),
-        { variant: "error" },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("บันทึกการแก้ไขไม่สำเร็จ: " + message, {
+        variant: "error",
+      });
     }
   };
 
@@ -206,12 +206,10 @@ export default function ProgramTable({
       enqueueSnackbar("ลบหลักสูตรสำเร็จ", { variant: "success" });
       setSelected([]);
       await mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "ลบหลักสูตรไม่สำเร็จ: " + (error?.message || "Unknown error"),
-        { variant: "error" },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("ลบหลักสูตรไม่สำเร็จ: " + message, { variant: "error" });
     }
   };
 

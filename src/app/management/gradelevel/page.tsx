@@ -24,8 +24,12 @@ export default async function GradeLevelManagePage() {
   return (
     <Suspense fallback={<TableSkeleton rows={6} />}>
       <GradeLevelManageClient
-        initialData={result.success ? result.data : []}
-        programsByYear={programsByYear.success && programsByYear.data ? programsByYear.data : {}}
+        initialData={result.success ? (result.data ?? []) : []}
+        programsByYear={
+          programsByYear.success && programsByYear.data
+            ? programsByYear.data
+            : {}
+        }
       />
     </Suspense>
   );

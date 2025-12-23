@@ -3,6 +3,9 @@ const nextConfig = {
   // Next.js 16 optimizations
   reactCompiler: true,
 
+  // Allow custom distDir for parallel dev servers
+  distDir: process.env.NEXT_DIST_DIR || ".next",
+
   images: {
     remotePatterns: [
       {
@@ -14,4 +17,3 @@ const nextConfig = {
 };
 
 export default nextConfig;
-

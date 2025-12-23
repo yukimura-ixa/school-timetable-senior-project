@@ -336,7 +336,7 @@ export function AddGradeLevelDialog({
                   <MenuItem value="">
                     <em>ไม่ระบุ</em>
                   </MenuItem>
-                  {(programsByYear[grade.year] ?? []).map((p) => (
+                  {(programsByYear?.[grade.year] ?? []).map((p) => (
                     <MenuItem key={p.ProgramID} value={p.ProgramID}>
                       {p.ProgramCode} — {p.ProgramName}
                     </MenuItem>

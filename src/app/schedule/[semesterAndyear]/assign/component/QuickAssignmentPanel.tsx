@@ -37,7 +37,10 @@ import {
   syncAssignmentsAction,
   deleteAssignmentAction,
 } from "@/features/assign/application/actions/assign.actions";
-import { syncAssignmentsSchema } from "@/features/assign/application/schemas/assign.schemas";
+import {
+  syncAssignmentsSchema,
+  type ResponsibilityInput,
+} from "@/features/assign/application/schemas/assign.schemas";
 import * as v from "valibot";
 import { subjectCreditValues } from "@/models/credit-value";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -157,7 +160,7 @@ function QuickAssignmentPanel({
         return {
           SubjectCode: selectedSubject.SubjectCode,
           GradeID: grade.GradeID,
-          Credit: formattedCredit as any,
+          Credit: formattedCredit as ResponsibilityInput["Credit"],
         };
       });
 
@@ -178,7 +181,7 @@ function QuickAssignmentPanel({
           RespID: parseInt(assignment.RespID),
           SubjectCode: assignment.SubjectCode,
           GradeID: assignment.GradeID,
-          Credit: formattedCredit as any,
+          Credit: formattedCredit as ResponsibilityInput["Credit"],
         };
       });
 
@@ -252,7 +255,7 @@ function QuickAssignmentPanel({
         .map((a) => {
           // Find subject to get Credit (needed for schema validation)
           // If subject not found (unlikely), fallback to 1.0 logic
-          let formattedCredit: any = "1.0";
+          let formattedCredit: ResponsibilityInput["Credit"] = "1.0";
           const subj = subjects.find((s) => s.SubjectCode === a.SubjectCode);
           if (subj) {
             const rawCredit = subj.Credit;
@@ -260,7 +263,9 @@ function QuickAssignmentPanel({
               subjectCreditValues[
                 rawCredit as keyof typeof subjectCreditValues
               ] ?? 1.0;
-            formattedCredit = creditVal.toFixed(1);
+            formattedCredit = creditVal.toFixed(
+              1,
+            ) as ResponsibilityInput["Credit"];
           }
 
           return {
@@ -273,7 +278,7 @@ function QuickAssignmentPanel({
         });
 
       // Prepare edited item
-      let editedCredit: any = "1.0";
+      let editedCredit: ResponsibilityInput["Credit"] = "1.0";
       const subj = subjects.find(
         (s) => s.SubjectCode === assignmentToEdit.SubjectCode,
       );
@@ -282,10 +287,10 @@ function QuickAssignmentPanel({
         const creditVal =
           subjectCreditValues[rawCredit as keyof typeof subjectCreditValues] ??
           1.0;
-        editedCredit = creditVal.toFixed(1);
+        editedCredit = creditVal.toFixed(1) as ResponsibilityInput["Credit"];
       }
 
-      const editedItem = {
+      const editedItem: ResponsibilityInput = {
         SubjectCode: assignmentToEdit.SubjectCode,
         GradeID: assignmentToEdit.GradeID,
         Credit: editedCredit,

@@ -15,14 +15,14 @@ export function ProgramYearPageClient({
   year,
   initialData,
 }: ProgramYearPageClientProps) {
-  const [programs, setPrograms] = useState<program[]>(initialData);
+  const [programs, setPrograms] = useState<program[]>(initialData ?? []);
   const router = useRouter();
 
   // Mutation callback - refetch data after mutations
   const handleMutate = async () => {
     const result = await getProgramsByYearAction({ Year: year });
     if (result.success) {
-      setPrograms(result.data);
+      setPrograms(result.data ?? []);
     }
     router.refresh();
   };

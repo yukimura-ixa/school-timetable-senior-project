@@ -94,7 +94,7 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
       }
 
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Failed to update program:", error);
       throw error;
     }

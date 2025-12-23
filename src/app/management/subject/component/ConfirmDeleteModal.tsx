@@ -7,13 +7,13 @@ import { subject } from "@/prisma/generated/client";
 import { deleteSubjectsAction } from "@/features/subject/application/actions/subject.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
-  closeModal: any;
-  deleteData?: any;
-  clearCheckList?: any;
+  closeModal: () => void;
+  deleteData?: any; // Redundant but keeping for now if used by parent
+  clearCheckList: () => void;
   dataAmount?: number;
   subjectData: subject[];
-  checkedList: any;
-  mutate: Function;
+  checkedList: string[];
+  mutate: () => void;
 };
 
 function ConfirmDeleteModal({
@@ -59,10 +59,11 @@ function ConfirmDeleteModal({
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลวิชาสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "ลบข้อมูลวิชาไม่สำเร็จ " + (error.message || "Unknown error"),
+        "ลบข้อมูลวิชาไม่สำเร็จ " +
+          (error instanceof Error ? error.message : "Unknown error"),
         {
           variant: "error",
         },

@@ -14,6 +14,7 @@ import type {
   AssignSubjectsToProgramInput,
 } from "../../application/schemas/program.schemas";
 import type { ProgramTrack } from "@/prisma/generated/client";
+import type { ProgramWithRelations } from "../../domain/types/program.types";
 
 export const programRepository = {
   /**
@@ -131,7 +132,7 @@ export const programRepository = {
    * Returns program associated with a specific grade level including subjects
    */
   async findByGrade(gradeId: string, semester?: string, academicYear?: number) {
-    const gradelevel = await prisma.gradelevel.findUnique({
+    const gradelevel: any = await prisma.gradelevel.findUnique({
       where: { GradeID: gradeId },
       include: {
         program: {
@@ -178,7 +179,7 @@ export const programRepository = {
     // Transform program_subject to subjects array for easier consumption
     const program = {
       ...gradelevel.program,
-      subjects: gradelevel.program.program_subject.map((ps) => ({
+      subjects: gradelevel.program.program_subject.map((ps: any) => ({
         ...ps.subject,
         MinCredits: ps.MinCredits,
         MaxCredits: ps.MaxCredits,
@@ -254,8 +255,11 @@ export const programRepository = {
   /**
    * Assign subjects to a program (replaces all existing assignments)
    * Uses transaction to ensure atomicity
+   * Returns ProgramWithRelations for type safety with MOE validation
    */
-  async assignSubjects(data: AssignSubjectsToProgramInput) {
+  async assignSubjects(
+    data: AssignSubjectsToProgramInput,
+  ): Promise<ProgramWithRelations | null> {
     return prisma.$transaction(async (tx) => {
       await tx.program_subject.deleteMany({
         where: {
@@ -275,6 +279,7 @@ export const programRepository = {
         })),
       });
 
+      // Cast required: Prisma transaction doesn't infer include types
       return tx.program.findUnique({
         where: {
           ProgramID: data.ProgramID,
@@ -290,7 +295,7 @@ export const programRepository = {
             },
           },
         },
-      });
+      }) as Promise<ProgramWithRelations | null>;
     });
   },
 

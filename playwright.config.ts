@@ -57,7 +57,7 @@ export default defineConfig({
   },
 
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL: process.env.BASE_URL || "http://localhost:3005",
     trace: "on-first-retry",
     // Optimize CI artifacts: disable videos in CI, keep screenshots only on failure
     screenshot: process.env.CI ? "only-on-failure" : "only-on-failure",
@@ -106,10 +106,10 @@ export default defineConfig({
         // and HMR stalls that were causing widespread selector timeouts.
         command:
           process.env.CI === "true"
-            ? "pnpm exec next start -p 3000"
-            : "pnpm dev:test:local",
-        url: "http://localhost:3000",
-        reuseExistingServer: !!process.env.CI, // ✅ Fresh server locally, reuse in CI
+            ? "npx exec next start -p 3005"
+            : "npx -y cross-env PORT=3005 NEXT_DIST_DIR=.next-test npx dotenv -e .env.test.local -- next dev",
+        url: "http://localhost:3005",
+        reuseExistingServer: false,
         timeout: 120 * 1000,
         stdout: "pipe", // Changed from 'ignore' to see startup logs
         stderr: "pipe",

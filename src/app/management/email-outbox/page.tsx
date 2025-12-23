@@ -2,27 +2,31 @@ import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { Box, Container, Typography } from "@mui/material";
 import type { EmailOutbox } from "@/prisma/generated/client";
-import EmailOutboxTable, { type EmailOutboxRow } from "./_components/EmailOutboxTable";
+import EmailOutboxTable, {
+  type EmailOutboxRow,
+} from "./_components/EmailOutboxTable";
 
 export const metadata: Metadata = {
   title: "Email Outbox - Phrasongsa Timetable",
   description: "Admin-only email outbox for verification links",
 };
 
-type SearchParams = {
+type SearchParams = Promise<{
   q?: string;
   status?: string;
   kind?: string;
-};
+}>;
 
 export default async function EmailOutboxPage({
   searchParams,
 }: {
   searchParams?: SearchParams;
 }) {
-  const q = searchParams?.q?.trim() || undefined;
-  const status = searchParams?.status?.trim() || undefined;
-  const kind = searchParams?.kind?.trim() || undefined;
+  // Next.js 16+: searchParams is now a Promise
+  const params = await searchParams;
+  const q = params?.q?.trim() || undefined;
+  const status = params?.status?.trim() || undefined;
+  const kind = params?.kind?.trim() || undefined;
 
   const rows = (await prisma.emailOutbox.findMany({
     where: {
@@ -61,7 +65,8 @@ export default async function EmailOutboxPage({
           Email Outbox
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Admin-only: verification links and delivery status (SMTP via Nodemailer).
+          Admin-only: verification links and delivery status (SMTP via
+          Nodemailer).
         </Typography>
       </Box>
 

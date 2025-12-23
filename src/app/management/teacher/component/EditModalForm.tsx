@@ -15,10 +15,10 @@ import { CircularProgress } from "@mui/material";
 import { updateTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
 type props = {
-  closeModal: any;
+  closeModal: () => void;
   data: teacher[];
-  clearCheckList: any;
-  mutate: Function;
+  clearCheckList: () => void;
+  mutate: () => void;
 };
 
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
@@ -26,7 +26,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const editMultiData = async (data: any) => {
+  const editMultiData = async (data: teacher[]) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลครู", {
       variant: "info",
       persist: true,
@@ -56,15 +56,13 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       closeSnackbar(loadbar);
       enqueueSnackbar("แก้ไขข้อมูลครูสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "แก้ไขข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
-      console.log(error);
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("แก้ไขข้อมูลครูไม่สำเร็จ: " + message, {
+        variant: "error",
+      });
+      console.error(error);
     }
 
     //clear checkbox
@@ -119,7 +117,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
             <p className="text-lg select-none">แก้ไขข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
-          {editData.map((item: any, index: number) => (
+          {editData.map((item: teacher, index: number) => (
             <React.Fragment key={`Edit${index}`}>
               <div
                 className={`flex flex-row gap-3 items-center ${
@@ -136,7 +134,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                   </label>
                   <Dropdown
                     data={["นาย", "นาง", "นางสาว"]}
-                    renderItem={({ data }: { data: any }): JSX.Element => (
+                    renderItem={({ data }): JSX.Element => (
                       <li className="w-full">{data}</li>
                     )}
                     width={150}
@@ -146,7 +144,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Prefix.length == 0 ? "#F96161" : ""
                     }
                     placeHolder={"ตัวเลือก"}
-                    handleChange={(value: unknown) => {
+                    handleChange={(value) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
@@ -172,7 +170,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.Firstname.length == 0 ? "#F96161" : ""
                     }
-                    handleChange={(e: any) => {
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -197,7 +195,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.Lastname.length == 0 ? "#F96161" : ""
                     }
-                    handleChange={(e: any) => {
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -228,8 +226,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       "สังคมศึกษา ศาสนา และวัฒนธรรม",
                       "สุขศึกษาและพลศึกษา",
                     ]}
-                    renderItem={({ data }: { data: any }): JSX.Element => (
-                      <li className="w-full">{data}</li>
+                    renderItem={({ data }): JSX.Element => (
+                      <li className="w-full">{data as React.ReactNode}</li>
                     )}
                     width={150}
                     height={40}
@@ -267,8 +265,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     borderColor={
                       isEmptyData && item.Email.length == 0 ? "#F96161" : ""
                     }
-                    handleChange={(e: any) => {
-                      const value: string = e.target.value;
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Email: value } : item,

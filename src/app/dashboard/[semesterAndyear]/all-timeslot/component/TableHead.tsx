@@ -1,4 +1,7 @@
+"use client";
 import React from "react";
+import { Box, Typography, Stack, alpha, useTheme } from "@mui/material";
+import { colors } from "@/shared/design-system";
 
 type DayData = {
   Day: string;
@@ -13,38 +16,75 @@ type Props = {
 };
 
 const TableHead = (props: Props) => {
+  const theme = useTheme();
+
   return (
-    <table className="w-full">
-      <thead>
-        <tr className="flex items-center gap-2 h-[60px] select-none">
-          {props.days.map((item, index) => (
-            <th key={index}>
-              <div className="flex flex-col justify-center items-center">
-                <div
-                  style={{
-                    backgroundColor: item.BgColor,
-                    color: item.TextColor,
-                  }}
-                  className="w-full h-[25px] flex items-center justify-center rounded"
+    <Stack
+      direction="row"
+      spacing={0.5}
+      sx={{ height: "64px", userSelect: "none" }}
+    >
+      {props.days.map((item, index) => (
+        <Stack
+          key={item.Day}
+          spacing={0.5}
+          sx={{ flex: 1, minWidth: props.slotAmount.length * 56 }}
+        >
+          {/* Day Label */}
+          <Box
+            sx={{
+              height: 28,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 1,
+              bgcolor: item.BgColor,
+              boxShadow: `0 2px 8px ${alpha(item.BgColor, 0.2)}`,
+            }}
+          >
+            <Typography
+              variant="caption"
+              fontWeight="bold"
+              sx={{ color: item.TextColor, letterSpacing: 0.5 }}
+            >
+              {item.Day}
+            </Typography>
+          </Box>
+
+          {/* Period Labels */}
+          <Stack
+            direction="row"
+            spacing={0.5}
+            justifyContent="center"
+            sx={{ pt: 0.5 }}
+          >
+            {props.slotAmount.map((slot) => (
+              <Box
+                key={slot}
+                sx={{
+                  width: 52,
+                  height: 24,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: alpha(colors.slate[400], 0.15),
+                  borderRadius: 1,
+                  border: `1px solid ${alpha(colors.slate[300], 0.2)}`,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  fontWeight="bold"
+                  sx={{ fontSize: "0.7rem", opacity: 0.7 }}
                 >
-                  <p onClick={() => console.log(item)}>{item.Day}</p>
-                </div>
-                <div className="flex gap-2 pt-1 w-fit h-[25px]">
-                  {props.slotAmount.map((item, slotIndex) => (
-                    <div
-                      key={slotIndex}
-                      className="w-14 h-full items-center flex justify-center bg-slate-100 rounded"
-                    >
-                      <p className="text-sm">{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </th>
-          ))}
-        </tr>
-      </thead>
-    </table>
+                  {slot}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Stack>
+      ))}
+    </Stack>
   );
 };
 

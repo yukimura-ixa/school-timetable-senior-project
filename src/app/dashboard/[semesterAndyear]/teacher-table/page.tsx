@@ -1,7 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import useSWR from "swr";
@@ -31,6 +33,7 @@ import {
   Tooltip,
   Collapse,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import DownloadIcon from "@mui/icons-material/Download";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import SchoolIcon from "@mui/icons-material/School";
@@ -42,6 +45,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 import { useSemesterSync, useTeachers } from "@/hooks";
+import { useUIStore } from "@/stores/uiStore";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
 import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
@@ -58,6 +62,7 @@ import {
 } from "../shared/timeSlot";
 import type { ScheduleEntry } from "../shared/timeSlot";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
+import { colors } from "@/shared/design-system";
 
 interface Teacher {
   Prefix?: string;
@@ -115,6 +120,10 @@ function TeacherTablePage() {
   const [exportMenuAnchor, setExportMenuAnchor] = useState<null | HTMLElement>(
     null,
   );
+
+  // Hydration-safe state from shared Zustand store
+  const { isHydrated, setHydrated } = useUIStore();
+  useEffect(() => setHydrated(), [setHydrated]);
 
   // Responsive hooks
   const theme = useTheme();
@@ -179,8 +188,8 @@ function TeacherTablePage() {
 
   const hasTimeslotError = Boolean(
     timeslotResponse &&
-      "success" in (timeslotResponse as object) &&
-      !(timeslotResponse as ActionResult<unknown>).success,
+    "success" in (timeslotResponse as object) &&
+    !(timeslotResponse as ActionResult<unknown>).success,
   );
   const hasClassError =
     classDataResponse &&
@@ -249,72 +258,102 @@ function TeacherTablePage() {
     return "";
   }, [teacherResponse]);
 
-  // Server-side PDF export handler
+  // Ref for capturing timetable for PDF export
+  const timetableRef = useRef<HTMLDivElement>(null);
+
+  // Client-side PDF export using html2canvas + jspdf
   const handleExportPDF = async () => {
-    if (!selectedTeacherId || !semester || !academicYear) return;
+    if (
+      !timetableRef.current ||
+      !selectedTeacherId ||
+      !semester ||
+      !academicYear
+    )
+      return;
 
     try {
-      // Transform timeSlotData to required format
-      const timeslots = timeSlotData.AllData.map((slot) => ({
-        timeslotId: slot.TimeslotID,
-        dayOfWeek: slot.DayOfWeek,
-        startTime: slot.StartTime,
-        endTime: slot.EndTime,
-        breaktime: slot.Breaktime,
-      }));
+      // Show loading state (optional: could add state for this)
+      const element = timetableRef.current;
 
-      // Calculate totals from classData
-      const totalCredits = classData.reduce((sum, cls) => {
-        const credits = (cls as any).subject?.Credit ?? 0;
-        return sum + credits;
-      }, 0);
+      // Capture the timetable element as canvas
+      // Note: html2canvas doesn't support CSS lab() colors, so we use onclone to convert them
+      const canvas = await html2canvas(element, {
+        scale: 2, // Higher quality
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        // Clone callback to fix unsupported CSS colors before capture
+        onclone: (clonedDoc) => {
+          // Replace lab() colors with fallback colors in the cloned document
+          const allElements = clonedDoc.querySelectorAll("*");
+          allElements.forEach((el) => {
+            const computedStyle = window.getComputedStyle(el as Element);
+            const bgColor = computedStyle.backgroundColor;
+            const color = computedStyle.color;
+            const borderColor = computedStyle.borderColor;
 
-      const totalHours = classData.reduce((sum, cls) => {
-        const hours = (cls as any).subject?.TotalHours ?? 0;
-        return sum + hours;
-      }, 0);
-
-      // Build request payload
-      const payload = {
-        teacherId: selectedTeacherId,
-        teacherName,
-        semester: semester.toString(),
-        academicYear: academicYear.toString(),
-        timeslots,
-        scheduleEntries: classData.map((entry) => ({
-          timeslotId: entry.TimeslotID,
-          gradeLevel: entry.gradelevel?.GradeID ?? entry.GradeID ?? "",
-          subjectCode: (entry as any).subject?.SubjectCode ?? "",
-          subjectName: (entry as any).subject?.SubjectName ?? "",
-          roomName: entry.room?.RoomName ?? "",
-        })),
-        totalCredits,
-        totalHours,
-      };
-
-      // Call PDF API
-      const response = await fetch("/api/export/teacher-timetable/pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+            // If any color contains 'lab(' or 'oklch(', replace with fallback
+            const htmlEl = el as HTMLElement;
+            if (bgColor.includes("lab(") || bgColor.includes("oklch(")) {
+              htmlEl.style.backgroundColor = "#f5f5f5";
+            }
+            if (color.includes("lab(") || color.includes("oklch(")) {
+              htmlEl.style.color = "#000000";
+            }
+            if (
+              borderColor.includes("lab(") ||
+              borderColor.includes("oklch(")
+            ) {
+              htmlEl.style.borderColor = "#cccccc";
+            }
+          });
         },
-        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`PDF generation failed: ${response.statusText}`);
-      }
+      // Calculate PDF dimensions (A4 landscape)
+      const imgWidth = 297; // A4 landscape width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Create PDF in landscape orientation
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Add title header
+      pdf.setFontSize(16);
+      pdf.text(`ตารางสอน: ${teacherName}`, 15, 15);
+      pdf.setFontSize(12);
+      pdf.text(`ภาคเรียนที่ ${semester}/${academicYear}`, 15, 22);
+
+      // Add the captured image
+      const imgData = canvas.toDataURL("image/png");
+      const yOffset = 30; // Space for header
+      const maxHeight = 180; // Max height for content on A4 landscape
+      const scaledHeight = Math.min(imgHeight, maxHeight);
+      const scaledWidth = (scaledHeight * imgWidth) / imgHeight;
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        10,
+        yOffset,
+        scaledWidth > 277 ? 277 : scaledWidth,
+        scaledHeight,
+      );
+
+      // Add footer with generation date
+      pdf.setFontSize(10);
+      const now = new Date();
+      pdf.text(
+        `สร้างเมื่อ: ${now.toLocaleDateString("th-TH")} ${now.toLocaleTimeString("th-TH")}`,
+        15,
+        200,
+      );
 
       // Download the PDF
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `teacher-${selectedTeacherId}-${semester}-${academicYear}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      pdf.save(`teacher-${selectedTeacherId}-${semester}-${academicYear}.pdf`);
     } catch (error) {
       console.error("PDF export error:", error);
       alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
@@ -360,13 +399,13 @@ function TeacherTablePage() {
 
   const disableExport = Boolean(
     isClassLoading ||
-      isClassValidating ||
-      isTeacherLoading ||
-      isTeacherValidating ||
-      !selectedTeacherId ||
-      hasClassError ||
-      hasTimeslotError ||
-      hasTeacherError,
+    isClassValidating ||
+    isTeacherLoading ||
+    isTeacherValidating ||
+    !selectedTeacherId ||
+    hasClassError ||
+    hasTimeslotError ||
+    hasTeacherError,
   );
 
   return (
@@ -393,8 +432,9 @@ function TeacherTablePage() {
           />
         )}
 
-        {/* Bulk Export Filter Section - Admin only */}
-        {isAdmin &&
+        {/* Bulk Export Filter Section - Admin only, hydration-safe */}
+        {isHydrated &&
+          isAdmin &&
           (isSessionLoading || isTeacherListLoading ? (
             <Paper
               elevation={1}
@@ -514,39 +554,45 @@ function TeacherTablePage() {
                       </Button>
                     )}
                     <Tooltip title="ส่งออกครูที่เลือก">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={
-                          selectedTeacherIds.length === 0 || hasTimeslotError
-                        }
-                        onClick={handleBulkExportExcel}
-                        startIcon={<GridOnIcon />}
-                        data-testid="bulk-export-excel-button"
-                      >
-                        {isMobile ? "Excel" : "ส่งออก Excel"}
-                      </Button>
+                      <span>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          disabled={
+                            selectedTeacherIds.length === 0 || hasTimeslotError
+                          }
+                          onClick={handleBulkExportExcel}
+                          startIcon={<GridOnIcon />}
+                          data-testid="bulk-export-excel-button"
+                        >
+                          {isMobile ? "Excel" : "ส่งออก Excel"}
+                        </Button>
+                      </span>
                     </Tooltip>
                     <Tooltip title="พิมพ์ครูที่เลือก">
-                      <IconButton
-                        color="primary"
-                        disabled={
-                          selectedTeacherIds.length === 0 || hasTimeslotError
-                        }
-                        onClick={handleBulkPrint}
-                        data-testid="bulk-export-print-button"
-                      >
-                        <PrintIcon />
-                      </IconButton>
+                      <span>
+                        <IconButton
+                          color="primary"
+                          disabled={
+                            selectedTeacherIds.length === 0 || hasTimeslotError
+                          }
+                          onClick={handleBulkPrint}
+                          data-testid="bulk-export-print-button"
+                        >
+                          <PrintIcon />
+                        </IconButton>
+                      </span>
                     </Tooltip>
                     <Tooltip title="ตัวเลือกเพิ่มเติม">
-                      <IconButton
-                        onClick={handleExportMenuOpen}
-                        disabled={selectedTeacherIds.length === 0}
-                        data-testid="teacher-export-menu-button"
-                      >
-                        <MoreVertIcon />
-                      </IconButton>
+                      <span>
+                        <IconButton
+                          onClick={handleExportMenuOpen}
+                          disabled={selectedTeacherIds.length === 0}
+                          data-testid="teacher-export-menu-button"
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                      </span>
                     </Tooltip>
                   </Stack>
                 </Stack>
@@ -612,11 +658,14 @@ function TeacherTablePage() {
             sx={{
               p: 6,
               textAlign: "center",
-              bgcolor: "action.hover",
-              borderRadius: 2,
+              border: "1px solid",
+              borderColor: alpha(colors.slate[300], 0.5),
+              borderRadius: 3,
             }}
           >
-            <SchoolIcon sx={{ fontSize: 64, color: "text.secondary", mb: 2 }} />
+            <SchoolIcon
+              sx={{ fontSize: 64, color: colors.slate[400], mb: 2 }}
+            />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               กรุณาเลือกครู
             </Typography>
@@ -656,7 +705,6 @@ function TeacherTablePage() {
                     <Stack direction="row" spacing={1}>
                       <Button
                         variant="contained"
-                        color="success"
                         startIcon={<DownloadIcon />}
                         disabled={disableExport}
                         data-testid="teacher-export-excel-button"
@@ -676,16 +724,29 @@ function TeacherTablePage() {
                             );
                           }
                         }}
+                        sx={{
+                          bgcolor: colors.emerald.main,
+                          "&:hover": {
+                            bgcolor: colors.emerald.dark,
+                          },
+                        }}
                       >
                         นำออก Excel
                       </Button>
                       <Button
                         variant="outlined"
-                        color="success"
                         startIcon={<PictureAsPdfIcon />}
                         disabled={disableExport}
                         data-testid="teacher-export-pdf-button"
                         onClick={handleExportPDF}
+                        sx={{
+                          color: colors.emerald.main,
+                          borderColor: colors.emerald.main,
+                          "&:hover": {
+                            borderColor: colors.emerald.dark,
+                            bgcolor: alpha(colors.emerald.main, 0.04),
+                          },
+                        }}
                       >
                         นำออก PDF
                       </Button>
@@ -702,7 +763,11 @@ function TeacherTablePage() {
                   sx={{ borderRadius: 1 }}
                 />
               ) : (
-                <Paper elevation={1} sx={{ p: 2, overflow: "auto" }}>
+                <Paper
+                  elevation={1}
+                  sx={{ p: 2, overflow: "auto" }}
+                  ref={timetableRef}
+                >
                   <TimeSlot timeSlotData={timeSlotData} />
                 </Paper>
               )}

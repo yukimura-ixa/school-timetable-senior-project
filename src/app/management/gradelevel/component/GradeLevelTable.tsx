@@ -66,7 +66,7 @@ const buildGradeLevelColumns = (
     renderEdit: ({ value, row, onChange, hasError }) => {
       const year = row.Year;
       const options = programsByYear[year] ?? [];
-      const selected = value == null || value === "" ? "" : String(value);
+      const selected = value == null ? "" : String(value);
       return (
         <FormControl fullWidth size="small" error={hasError}>
           <Select

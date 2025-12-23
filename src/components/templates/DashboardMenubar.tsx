@@ -67,7 +67,7 @@ function DashboardMenubar() {
             <p className="text-gray-700 mb-3 font-bold text-sm uppercase tracking-wider select-none">
               แสดงข้อมูล
             </p>
-            {showTimetableMenu.map((item, index: number) => {
+            {showTimetableMenu.map((item: any, index: number) => {
               return (
                 <React.Fragment key={item.id}>
                   {makePath(item.link) === linkSelected ? (

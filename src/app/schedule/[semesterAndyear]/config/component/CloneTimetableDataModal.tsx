@@ -112,10 +112,11 @@ function CloneTimetableDataModal({
 
       enqueueSnackbar("เรียกข้อมูลสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log(error);
       enqueueSnackbar(
-        "เกิดข้อผิดพลาดในการเรียกข้อมูล: " + (error.message || "Unknown error"),
+        "เกิดข้อผิดพลาดในการเรียกข้อมูล: " +
+          (error instanceof Error ? error.message : "Unknown error"),
         { variant: "error" },
       );
     } finally {

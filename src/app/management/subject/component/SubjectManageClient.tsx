@@ -19,7 +19,7 @@ type SubjectManageClientProps = {
  * Handles UI state, mutations, and re-fetching
  */
 export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
-  const [subjects, setSubjects] = useState<subject[]>(initialData);
+  const [subjects, setSubjects] = useState<subject[]>(initialData ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
@@ -28,7 +28,7 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
     setIsRefreshing(true);
     const result = await getSubjectsAction({});
     if (result.success) {
-      setSubjects(result.data);
+      setSubjects(result.data ?? []);
     }
     setIsRefreshing(false);
     router.refresh();

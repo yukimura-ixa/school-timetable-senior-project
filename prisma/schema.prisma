@@ -8,12 +8,12 @@ datasource db {
 }
 
 model class_schedule {
-  ClassID                 Int                       @id @default(autoincrement())
   TimeslotID              String
   SubjectCode             String
   RoomID                  Int?
   GradeID                 String
   IsLocked                Boolean                   @default(false)
+  ClassID                 Int                       @id @default(autoincrement())
   gradelevel              gradelevel                @relation(fields: [GradeID], references: [GradeID], onDelete: Cascade, map: "fk_class_schedule_grade")
   room                    room?                     @relation(fields: [RoomID], references: [RoomID], map: "fk_class_schedule_room")
   subject                 subject                   @relation(fields: [SubjectCode], references: [SubjectCode], onDelete: Cascade, map: "fk_class_schedule_subject")
@@ -171,21 +171,21 @@ model table_config {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
-  email         String    @unique
+  email         String        @unique
   image         String?
   password      String?
-  role          String    @default("user")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          String        @default("user")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
   banExpires    DateTime?
   banReason     String?
-  banned        Boolean?  @default(false)
-  emailVerified Boolean   @default(false)
+  banned        Boolean?      @default(false)
+  emailVerified Boolean       @default(false)
   accounts      Account[]
-  sessions      Session[]
   emailOutbox   EmailOutbox[]
+  sessions      Session[]
 }
 
 model Account {
@@ -232,20 +232,19 @@ model Verification {
 }
 
 model EmailOutbox {
-  id              String           @id @default(cuid())
-  kind            EmailOutboxKind
-  userId          String?
-  toEmail         String
-  subject         String
-  verificationUrl String
-  status          EmailOutboxStatus @default(PENDING)
+  id                String            @id @default(cuid())
+  kind              EmailOutboxKind
+  userId            String?
+  toEmail           String
+  subject           String
+  verificationUrl   String
+  status            EmailOutboxStatus @default(PENDING)
   providerMessageId String?
-  lastError       String?
-  expiresAt       DateTime
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  user            User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  lastError         String?
+  expiresAt         DateTime
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  user              User?             @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
   @@index([expiresAt])

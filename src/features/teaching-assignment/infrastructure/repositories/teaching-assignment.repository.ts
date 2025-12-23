@@ -20,7 +20,11 @@ import type {
  * Cached per request using React cache()
  */
 export const findAssignmentsByContext = cache(
-  async (gradeId: string, semester: semester, academicYear: number) => {
+  async (
+    gradeId: string,
+    semester: semester,
+    academicYear: number,
+  ): Promise<AssignmentWithRelations[]> => {
     return prisma.teachers_responsibility.findMany({
       where: {
         GradeID: gradeId,
@@ -54,7 +58,7 @@ export const findAssignmentsByContext = cache(
         },
       },
       orderBy: [{ subject: { SubjectName: "asc" } }],
-    });
+    }) as unknown as Promise<AssignmentWithRelations[]>;
   },
 );
 
@@ -63,7 +67,11 @@ export const findAssignmentsByContext = cache(
  * Used for workload calculation and validation
  */
 export const findTeacherWorkload = cache(
-  async (teacherId: number, semester: semester, academicYear: number) => {
+  async (
+    teacherId: number,
+    semester: semester,
+    academicYear: number,
+  ): Promise<AssignmentWithRelations[]> => {
     return prisma.teachers_responsibility.findMany({
       where: {
         TeacherID: teacherId,
@@ -77,6 +85,7 @@ export const findTeacherWorkload = cache(
             Prefix: true,
             Firstname: true,
             Lastname: true,
+            Department: true,
           },
         },
         subject: {
@@ -99,7 +108,7 @@ export const findTeacherWorkload = cache(
         { gradelevel: { GradeID: "asc" } },
         { subject: { SubjectName: "asc" } },
       ],
-    });
+    }) as unknown as Promise<AssignmentWithRelations[]>;
   },
 );
 
@@ -133,7 +142,7 @@ export const findSubjectsByGrade = cache(
         },
       },
       orderBy: { subject: { SubjectName: "asc" } },
-    });
+    }) as unknown as Promise<ProgramSubjectWithSubject[]>;
   },
 );
 
@@ -305,9 +314,11 @@ export async function copyAssignmentsFromPreviousSemester(
 
   // Create target assignments
   const targetAssignments = sourceAssignments.map(
-    (
-      assignment: AssignmentWithRelations,
-    ): {
+    (assignment: {
+      SubjectCode: string;
+      TeacherID: number;
+      TeachHour: number;
+    }): {
       SubjectCode: string;
       GradeID: string;
       Semester: semester;
@@ -368,7 +379,7 @@ export async function getAssignmentStats(
   ]);
 
   const uniqueSubjects = new Set(
-    assignments.map((a: AssignmentWithRelations) => a.SubjectCode),
+    assignments.map((a: { SubjectCode: string }) => a.SubjectCode),
   );
   const assignedCount = uniqueSubjects.size;
 

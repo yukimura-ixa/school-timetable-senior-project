@@ -19,7 +19,7 @@ type TeacherManageClientProps = {
  * Handles UI state, mutations, and re-fetching
  */
 export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
-  const [teachers, setTeachers] = useState<teacher[]>(initialData);
+  const [teachers, setTeachers] = useState<teacher[]>(initialData ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
@@ -28,7 +28,7 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
     setIsRefreshing(true);
     const result = await getTeachersAction({});
     if (result.success) {
-      setTeachers(result.data);
+      setTeachers(result.data ?? []);
     }
     setIsRefreshing(false);
     router.refresh(); // Refresh Server Component data

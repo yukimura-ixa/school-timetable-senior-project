@@ -16,9 +16,10 @@ import {
   parseConfigId,
   sumCategoryCredits,
 } from "../../domain/services/calculation.service";
+import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 
 // Prisma payload types for compliance queries
-type TimeslotId = { TimeslotID: number };
+type TimeslotId = { TimeslotID: string };
 
 type ProgramWithRelations = Prisma.programGetPayload<{
   include: {
@@ -127,8 +128,7 @@ async function getProgramCompliance(
             // Parse credit value
             let creditValue = 0;
             if (schedule.subject.Credit) {
-              const creditMatch = schedule.subject.Credit.match(/[\d.]+/);
-              creditValue = creditMatch ? parseFloat(creditMatch[0]) : 0;
+              creditValue = subjectCreditToNumber(schedule.subject.Credit);
             }
 
             scheduledSubjects.set(schedule.subject.SubjectCode, {

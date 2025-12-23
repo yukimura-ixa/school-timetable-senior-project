@@ -11,6 +11,7 @@ import {
   type TransactionClient,
 } from "@/lib/prisma-transaction";
 import { semester, Prisma } from "@/prisma/generated/client";
+import type { SemesterStatus } from "@/prisma/generated/client";
 import type { FullConfigData } from "../../types/config-types";
 
 /**
@@ -116,7 +117,7 @@ export async function count(): Promise<number> {
  */
 export async function updateStatus(
   configId: string,
-  status: string,
+  status: SemesterStatus,
   publishedAt?: Date | null,
 ) {
   return await prisma.table_config.update({

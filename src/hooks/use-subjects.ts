@@ -17,7 +17,7 @@ export const useSubjects = () => {
     "subjects",
     async () => {
       const result = await getSubjectsAction({});
-      return result.success ? result.data : [];
+      return result.success && result.data ? result.data : [];
     },
     {
       revalidateOnFocus: false,

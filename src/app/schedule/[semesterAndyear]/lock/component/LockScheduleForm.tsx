@@ -326,11 +326,11 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลคาบล็อกสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
         "เกิดข้อผิดพลาดในการเพิ่มข้อมูลคาบล็อก: " +
-          (error.message || "Unknown error"),
+          (error instanceof Error ? error.message : "Unknown error"),
         {
           variant: "error",
         },

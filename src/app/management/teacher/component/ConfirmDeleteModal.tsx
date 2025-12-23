@@ -9,12 +9,12 @@ import type { teacher } from "@/prisma/generated/client";
 import { deleteTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
 
 type props = {
-  closeModal: any;
+  closeModal: () => void;
   teacherData: teacher[];
-  checkedList: any;
-  clearCheckList: any;
+  checkedList: number[];
+  clearCheckList: () => void;
   dataAmount: number;
-  mutate: Function;
+  mutate: () => void;
 };
 
 function ConfirmDeleteModal({
@@ -36,10 +36,7 @@ function ConfirmDeleteModal({
     closeModal();
   };
   //Function ตัวนี้ใช้ลบข้อมูลหนึ่งตัวพร้อมกันหลายตัวจากการติ๊ก checkbox
-  const removeMultiData = async (
-    data: teacher[],
-    checkedList: (string | number)[],
-  ) => {
+  const removeMultiData = async (data: teacher[], checkedList: number[]) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูลครู", {
       variant: "info",
       persist: true,
@@ -49,29 +46,30 @@ function ConfirmDeleteModal({
       .map((item) => item.TeacherID);
 
     try {
-      const result = await deleteTeachersAction({
-        teacherIds: deleteData,
-      });
+      // Schema expects number[] directly
+      const result = await deleteTeachersAction(deleteData);
 
       if (!result.success) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Unknown error";
+            : typeof result.error === "object" &&
+                result.error !== null &&
+                "message" in result.error
+              ? (result.error as { message: string }).message
+              : "Unknown error";
         throw new Error(errorMessage);
       }
 
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลครูสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "ลบข้อมูลครูไม่สำเร็จ: " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("ลบข้อมูลครูไม่สำเร็จ: " + message, {
+        variant: "error",
+      });
       console.log(error);
     }
     clearCheckList();

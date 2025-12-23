@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import type { semester } from "@/prisma/generated/client";
+import { subjectCreditToNumber } from "../../domain/utils/subject-credit";
 import { TeacherSelector } from "./TeacherSelector";
 import {
   assignTeacherAction,
@@ -219,7 +220,7 @@ export function SubjectAssignmentTable({
                     gradeId={gradeId}
                     semester={semester}
                     academicYear={academicYear}
-                    defaultHours={parseFloat(subject.Credit) * 2}
+                    defaultHours={subjectCreditToNumber(subject.Credit) * 2}
                     onAssign={handleAssign}
                   />
                 )}

@@ -1,5 +1,5 @@
-import { View, Text } from '@react-pdf/renderer';
-import { pdfStyles } from '../../styles/pdf-styles';
+import { View, Text } from "@react-pdf/renderer";
+import { pdfStyles } from "../../styles/pdf-styles";
 
 interface TimeslotData {
   day: string;
@@ -16,12 +16,15 @@ interface TimetableGridProps {
 
 /**
  * PDF Grid Component for Timetable Display
- * 
+ *
  * Renders timetable grid with Thai day names and period slots
  */
-export const TimetableGrid = ({ timeslots, maxPeriods }: TimetableGridProps) => {
-  const days = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์'];
-  
+export const TimetableGrid = ({
+  timeslots,
+  maxPeriods,
+}: TimetableGridProps) => {
+  const days = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์"];
+
   return (
     <View style={pdfStyles.table}>
       {/* Header row */}
@@ -35,7 +38,7 @@ export const TimetableGrid = ({ timeslots, maxPeriods }: TimetableGridProps) => 
           </View>
         ))}
       </View>
-      
+
       {/* Data rows */}
       {Array.from({ length: maxPeriods }, (_, period) => (
         <View key={period} style={pdfStyles.tableRow}>
@@ -44,24 +47,20 @@ export const TimetableGrid = ({ timeslots, maxPeriods }: TimetableGridProps) => 
           </View>
           {days.map((day) => {
             const slot = timeslots.find(
-              (t) => t.day === day && t.period === period
+              (t) => t.day === day && t.period === period + 1,
             );
             return (
               <View key={`${day}-${period}`} style={pdfStyles.tableCol}>
                 {slot ? (
                   <>
-                    <Text style={pdfStyles.tableCellText}>
-                      {slot.subject}
-                    </Text>
+                    <Text style={pdfStyles.tableCellText}>{slot.subject}</Text>
                     {slot.room && (
                       <Text style={pdfStyles.tableCellText}>
                         ห้อง {slot.room}
                       </Text>
                     )}
                     {slot.class && (
-                      <Text style={pdfStyles.tableCellText}>
-                        {slot.class}
-                      </Text>
+                      <Text style={pdfStyles.tableCellText}>{slot.class}</Text>
                     )}
                   </>
                 ) : null}

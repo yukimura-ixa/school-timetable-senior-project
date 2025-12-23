@@ -24,7 +24,9 @@ export default async function TeacherManagePage() {
 
   return (
     <Suspense fallback={<TeacherListSkeleton count={6} />}>
-      <TeacherManageClient initialData={result.success ? result.data : []} />
+      <TeacherManageClient
+        initialData={result.success ? (result.data ?? []) : []}
+      />
     </Suspense>
   );
 }

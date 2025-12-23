@@ -11,10 +11,10 @@ import { updateGradeLevelAction } from "@/features/gradelevel/application/action
 import type { gradelevel } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
-  closeModal: any;
-  data: any;
-  clearCheckList: any;
-  mutate: Function;
+  closeModal: () => void;
+  data: gradelevel[];
+  clearCheckList: () => void;
+  mutate: () => void;
 };
 
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
@@ -71,14 +71,12 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       closeSnackbar(loadbar);
       enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("แก้ไขข้อมูลชั้นเรียนไม่สำเร็จ " + message, {
+        variant: "error",
+      });
       console.error(error);
     }
 

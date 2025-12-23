@@ -4,9 +4,9 @@ import CheckIcon from "@mui/icons-material/Check";
 import { deleteProgramAction } from "@/features/program/application/actions/program.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
-  closeModal: any;
-  deleteData: any;
-  mutate: Function;
+  closeModal: () => void;
+  deleteData: any; // Keep any for now as it comes from a complex grid row
+  mutate: () => void;
 };
 
 function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
@@ -30,21 +30,19 @@ function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Unknown error";
+            : (result.error as unknown as Error)?.message || "Unknown error";
         throw new Error(errorMessage);
       }
 
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "เกิดข้อผิดพลาดในการลบข้อมูล: " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เกิดข้อผิดพลาดในการลบข้อมูล: " + message, {
+        variant: "error",
+      });
       console.error(error);
     }
   };

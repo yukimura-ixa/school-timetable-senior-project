@@ -9,7 +9,7 @@ import Loading from "@/app/loading";
 
 import type { ModalCloseHandler } from "@/types/events";
 
-interface ClassRoomItem {
+export interface ClassRoomItem {
   GradeID: string;
   isSelected?: boolean;
   SubjectCode?: string;

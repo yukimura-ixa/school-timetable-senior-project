@@ -54,11 +54,15 @@ function ConfirmDeleteModal({
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       mutate();
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar("ลบข้อมูลไม่สำเร็จ " + (err.message || "Unknown error"), {
-        variant: "error",
-      });
+      enqueueSnackbar(
+        "ลบข้อมูลไม่สำเร็จ " +
+          (err instanceof Error ? err.message : "Unknown error"),
+        {
+          variant: "error",
+        },
+      );
     }
   };
   return (

@@ -76,22 +76,22 @@ const DesignSystem: React.FC = () => {
         </Typography>
         <Divider sx={{ mb: 3 }} />
         <Grid container spacing={2}>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box className="bg-ds-gradient-primary h-24 rounded-2xl flex items-end p-3">
               <span className="text-white font-bold">DS Primary</span>
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box className="bg-ds-gradient-ocean h-24 rounded-2xl flex items-end p-3">
               <span className="text-white font-bold">DS Ocean</span>
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box className="bg-ds-gradient-sunset h-24 rounded-2xl flex items-end p-3">
               <span className="text-white font-bold">DS Sunset</span>
             </Box>
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={{ xs: 3 }}>
             <Box className="bg-ds-gradient-surface border border-white/40 h-24 rounded-2xl flex items-end p-3">
               <span className="text-slate-900 font-bold">DS Surface</span>
             </Box>
@@ -302,7 +302,7 @@ const DesignSystem: React.FC = () => {
         <Divider sx={{ mb: 3 }} />
         <Grid container spacing={3}>
           {[1, 2, 3].map((i) => (
-            <Grid item xs={4} key={i}>
+            <Grid size={{ xs: 4 }} key={i}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" color="text.primary">

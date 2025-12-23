@@ -24,7 +24,9 @@ export default async function SubjectManagePage() {
 
   return (
     <Suspense fallback={<SubjectListSkeleton count={8} />}>
-      <SubjectManageClient initialData={result.success ? result.data : []} />
+      <SubjectManageClient
+        initialData={result.success ? (result.data ?? []) : []}
+      />
     </Suspense>
   );
 }

@@ -68,8 +68,10 @@ export function CopySemesterModal({
       enqueueSnackbar("คัดลอกภาคเรียนสำเร็จ", { variant: "success" });
       onSuccess(result.data);
       onClose();
-    } catch (error: any) {
-      enqueueSnackbar(error.message || "เกิดข้อผิดพลาดในการคัดลอก", {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการคัดลอก";
+      enqueueSnackbar(errorMessage, {
         variant: "error",
       });
     } finally {

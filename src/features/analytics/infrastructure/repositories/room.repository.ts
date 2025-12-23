@@ -23,13 +23,13 @@ import { DAYS_OF_WEEK } from "../../domain/types/analytics.types";
 import type { day_of_week, room } from "@/prisma/generated/client";
 
 // Prisma payload types for room queries
-type TimeslotWithDay = { TimeslotID: number; DayOfWeek: day_of_week };
-type ScheduleRoomTimeslot = { RoomID: number | null; TimeslotID: number };
+type TimeslotWithDay = { TimeslotID: string; DayOfWeek: day_of_week };
+type ScheduleRoomTimeslot = { RoomID: number | null; TimeslotID: string };
 type ScheduleRoomTimeslotDetailed = {
   RoomID: number | null;
-  TimeslotID: number;
+  TimeslotID: string;
   ClassID: number;
-  GradeID: number | null;
+  GradeID: string | null;
   subject: { SubjectCode: string } | null;
 };
 type RoomSelect = Pick<room, "RoomID" | "RoomName" | "Building">;
@@ -81,7 +81,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
   });
 
   // Build room occupancy map
-  const roomOccupancyMap = new Map<number, Set<number>>();
+  const roomOccupancyMap = new Map<number, Set<string>>();
   const roomDayOccupancy = new Map<number, Map<string, number>>();
 
   schedules.forEach((schedule: ScheduleRoomTimeslot) => {
@@ -110,7 +110,7 @@ async function getRoomOccupancy(configId: string): Promise<RoomOccupancy[]> {
     number,
     Map<
       day_of_week,
-      Map<number, { classId: number; subjectCode?: string; gradeId?: number }>
+      Map<number, { classId: number; subjectCode?: string; gradeId?: string }>
     >
   >();
 

@@ -18,16 +18,18 @@ type Props = {
 };
 function AddModalForm({ closeModal, mutate }: Props) {
   const [isEmptyData, setIsEmptyData] = useState(false);
-  const [gradeLevels, setGradeLevels] = useState<Partial<gradelevel>[]>([
+  const [gradeLevels, setGradeLevels] = useState<
+    { Year: number | null; Number: number | null }[]
+  >([
     {
-      Year: null as unknown as number,
-      Number: null as unknown as number,
+      Year: null,
+      Number: null,
     },
   ]);
   const addList = () => {
-    const struct: Partial<gradelevel> = {
-      Year: null as unknown as number,
-      Number: null as unknown as number,
+    const struct = {
+      Year: null,
+      Number: null,
     };
     setGradeLevels(() => [...gradeLevels, struct]);
   };
@@ -46,7 +48,9 @@ function AddModalForm({ closeModal, mutate }: Props) {
     });
     return isValid;
   };
-  const addData = async (data: Partial<gradelevel>[]) => {
+  const addData = async (
+    data: { Year: number | null; Number: number | null }[],
+  ) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูลชั้นเรียน", {
       variant: "info",
       persist: true,
@@ -68,7 +72,11 @@ function AddModalForm({ closeModal, mutate }: Props) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Unknown error";
+            : typeof result.error === "object" &&
+                result.error !== null &&
+                "message" in result.error
+              ? (result.error as { message: string }).message
+              : "Unknown error";
         throw new Error(errorMessage);
       }
 
@@ -139,25 +147,23 @@ function AddModalForm({ closeModal, mutate }: Props) {
                     <label className="text-sm font-bold">
                       มัธยมปีที่ (Year):
                     </label>
-                    <Dropdown
+                    <Dropdown<number>
                       data={[1, 2, 3, 4, 5, 6]}
-                      renderItem={({
-                        data,
-                      }: {
-                        data: unknown;
-                      }): JSX.Element => {
-                        const year = data as number;
-                        return <li className="w-full">{year}</li>;
+                      renderItem={({ data }: { data: number }): JSX.Element => {
+                        return <li className="w-full">{data}</li>;
                       }}
                       width={150}
                       height={40}
-                      currentValue={String(gradeLevel.Year)}
+                      currentValue={
+                        gradeLevel.Year !== null
+                          ? String(gradeLevel.Year)
+                          : undefined
+                      }
                       placeHolder={"ตัวเลือก"}
-                      handleChange={(value: unknown) => {
-                        const year = value as number;
+                      handleChange={(value: number) => {
                         setGradeLevels(() =>
                           gradeLevels.map((item, ind) =>
-                            index === ind ? { ...item, Year: year } : item,
+                            index === ind ? { ...item, Year: value } : item,
                           ),
                         );
                       }}
@@ -176,7 +182,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                       height="auto"
                       placeHolder="ex. 5"
                       label="ห้องที่ (Number):"
-                      value={gradeLevel.Number}
+                      value={gradeLevel.Number ?? ""}
                       disabled={false}
                       borderColor={
                         isEmptyData &&
@@ -193,7 +199,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                             index === ind
                               ? {
                                   ...item,
-                                  Number: parseInt(value) || undefined,
+                                  Number: parseInt(value) || null,
                                 }
                               : item,
                           ),
@@ -209,7 +215,8 @@ function AddModalForm({ closeModal, mutate }: Props) {
                     ) : null}
                   </div>
 
-                  {!gradeLevel.Year || !gradeLevel.Number ? null : (
+                  {gradeLevel.Year === null ||
+                  gradeLevel.Number === null ? null : (
                     <p className="relative flex flex-col gap-2 mt-7 text-gray-400">
                       ชั้น ม.{gradeLevel.Year + "/" + gradeLevel.Number}
                     </p>

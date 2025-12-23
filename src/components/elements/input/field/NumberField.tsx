@@ -8,7 +8,7 @@ interface INumberFieldProps {
   label?: string;
   value?: number | string;
   borderColor?: string;
-  handleChange?: any;
+  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 function NumberField({
   width = "auto",

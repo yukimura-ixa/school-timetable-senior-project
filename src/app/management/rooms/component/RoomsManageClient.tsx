@@ -16,7 +16,7 @@ type RoomsManageClientProps = {
  * Handles UI state, mutations, and re-fetching
  */
 export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
-  const [rooms, setRooms] = useState<room[]>(initialData);
+  const [rooms, setRooms] = useState<room[]>(initialData ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
@@ -25,7 +25,7 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
     setIsRefreshing(true);
     const result = await getRoomsAction({});
     if (result.success) {
-      setRooms(result.data);
+      setRooms(result.data ?? []);
     }
     setIsRefreshing(false);
     router.refresh();

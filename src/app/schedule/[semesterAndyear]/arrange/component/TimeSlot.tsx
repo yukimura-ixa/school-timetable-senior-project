@@ -23,27 +23,33 @@ import type {
   SetErrorStateCallback,
   DisplayErrorChangeSubjectCallback,
   TimeslotChange,
+  TimeslotWithRelations,
 } from "@/types/schedule.types";
 
 type Props = {
   timeSlotData: {
-    DayOfWeek: any[];
-    AllData: any[];
-    SlotAmount: any[];
+    DayOfWeek: {
+      Day: string;
+      Dayth: string;
+      BgColor: string;
+      TextColor: string;
+    }[];
+    AllData: TimeslotWithRelations[];
+    SlotAmount: number[];
   };
-  mapTime?: Function;
+  mapTime?: (time: string) => string;
   checkBreakTime: CheckBreakTimeCallback;
   isSelectedToAdd: IsSelectedToAddCallback;
   isSelectedToChange: IsSelectedToChangeCallback;
-  checkRelatedYearDuringDragging: Function;
+  checkRelatedYearDuringDragging: (year: number) => boolean;
   timeSlotCssClassName: TimeSlotCssClassNameCallback;
   storeSelectedSubject: SubjectData | null;
   addRoomModal: AddRoomModalCallback;
   changeTimeSlotSubject: SubjectData | null;
   clickOrDragToChangeTimeSlot: ClickOrDragToChangeCallback;
-  isClickToChangeSubject: boolean; // Fixed typo: was isCilckToChangeSubject
+  isClickToChangeSubject: boolean;
   timeslotIDtoChange: TimeslotChange;
-  dropOutOfZone: Function;
+  dropOutOfZone: (item: SubjectData) => void;
   displayErrorChangeSubject: DisplayErrorChangeSubjectCallback;
   showErrorMsgByTimeslotID: string;
   removeSubjectFromSlot: RemoveSubjectCallback;

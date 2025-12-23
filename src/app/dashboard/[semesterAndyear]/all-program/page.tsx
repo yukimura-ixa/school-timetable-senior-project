@@ -27,9 +27,12 @@ import {
   Chip,
   Skeleton,
   Stack,
+  Box,
 } from "@mui/material";
+import { useTheme, alpha } from "@mui/material/styles";
 import DownloadIcon from "@mui/icons-material/Download";
 import SchoolIcon from "@mui/icons-material/School";
+import { colors, pageHeaderSx } from "@/shared/design-system";
 
 type Props = Record<string, never>;
 
@@ -50,6 +53,7 @@ const categoryMap: Record<SubjectCategory, CategoryType> = {
 };
 
 const Page = (_props: Props) => {
+  const theme = useTheme();
   const params = useParams();
   const { semester, academicYear } = useSemesterSync(
     params.semesterAndyear as string,
@@ -124,35 +128,47 @@ const Page = (_props: Props) => {
         <TableCell
           colSpan={5}
           align="center"
-          sx={{ bgcolor: "success.light", fontWeight: "bold", py: 1.5 }}
+          sx={{
+            bgcolor: alpha(theme.palette.success.main, 0.08),
+            fontWeight: "bold",
+            py: 2.5,
+            borderBottom: `2px solid ${alpha(theme.palette.success.main, 0.1)}`,
+            color: "success.dark",
+          }}
         >
-          โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่{" "}
-          {semester} ปีการศึกษา {academicYear}
+          <Typography variant="h6" fontWeight="bold">
+            โครงสร้างหลักสูตร มัธยมศึกษาปีที่ {currentGradeID} ภาคเรียนที่{" "}
+            {semester} ปีการศึกษา {academicYear}
+          </Typography>
         </TableCell>
       </TableRow>
-      <TableRow>
+      <TableRow sx={{ bgcolor: alpha(theme.palette.background.default, 0.5) }}>
         <TableCell
           align="center"
-          sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}
+          sx={{ fontWeight: "bold", color: "text.secondary", py: 1.5 }}
         >
           ลำดับ
         </TableCell>
         <TableCell
           align="center"
-          sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}
+          sx={{ fontWeight: "bold", color: "text.secondary", py: 1.5 }}
         >
           รหัสวิชา
         </TableCell>
-        <TableCell sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+        <TableCell
+          sx={{ fontWeight: "bold", color: "text.secondary", py: 1.5 }}
+        >
           ชื่อวิชา
         </TableCell>
         <TableCell
           align="center"
-          sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}
+          sx={{ fontWeight: "bold", color: "text.secondary", py: 1.5 }}
         >
           หน่วยกิต
         </TableCell>
-        <TableCell sx={{ bgcolor: "success.lighter", fontWeight: "bold" }}>
+        <TableCell
+          sx={{ fontWeight: "bold", color: "text.secondary", py: 1.5 }}
+        >
           ครูผู้สอน
         </TableCell>
       </TableRow>
@@ -162,13 +178,32 @@ const Page = (_props: Props) => {
   const renderCategoryRow = (categoryName: string) => (
     <TableBody key={`category-${categoryName}`}>
       <TableRow>
-        <TableCell />
-        <TableCell />
-        <TableCell sx={{ fontWeight: "bold", bgcolor: "primary.lighter" }}>
-          <Chip label={categoryName} color="primary" variant="outlined" />
+        <TableCell
+          colSpan={5}
+          sx={{
+            py: 1,
+            px: 2,
+            bgcolor: alpha(theme.palette.primary.main, 0.04),
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Box
+              sx={{
+                width: 4,
+                height: 18,
+                borderRadius: 1,
+                bgcolor: "primary.main",
+              }}
+            />
+            <Typography
+              variant="subtitle2"
+              fontWeight="bold"
+              color="primary.main"
+            >
+              {categoryName}
+            </Typography>
+          </Stack>
         </TableCell>
-        <TableCell sx={{ bgcolor: "primary.lighter" }} />
-        <TableCell sx={{ bgcolor: "primary.lighter" }} />
       </TableRow>
     </TableBody>
   );
@@ -179,20 +214,62 @@ const Page = (_props: Props) => {
         <TableRow
           key={`${currentGradeID || "unknown"}-${item.SubjectCode}`}
           hover
-          sx={{ "&:nth-of-type(even)": { bgcolor: "action.hover" } }}
+          sx={{
+            transition: "all 0.2s",
+            "&:hover": { bgcolor: alpha(theme.palette.action.hover, 0.5) },
+            "& td": {
+              py: 1.5,
+              borderColor: alpha(theme.palette.divider, 0.05),
+            },
+          }}
         >
-          <TableCell align="center">{indexStart + index}</TableCell>
-          <TableCell align="center">{item.SubjectCode}</TableCell>
-          <TableCell>{item.SubjectName}</TableCell>
           <TableCell align="center">
-            {item.Category === "กิจกรรมพัฒนาผู้เรียน"
-              ? ""
-              : subjectCreditTitles[item.Credit]}
+            <Typography variant="body2" color="text.secondary">
+              {indexStart + index}
+            </Typography>
+          </TableCell>
+          <TableCell align="center">
+            <Typography
+              variant="body2"
+              fontWeight="bold"
+              sx={{ fontFamily: "monospace", letterSpacing: 0.5 }}
+            >
+              {item.SubjectCode}
+            </Typography>
           </TableCell>
           <TableCell>
-            {item.teachers && item.teachers.length > 0
-              ? item.teachers.map((t) => t.TeacherFullName).join(", ")
-              : "-"}
+            <Typography variant="body2">{item.SubjectName}</Typography>
+          </TableCell>
+          <TableCell align="center">
+            <Typography variant="body2" fontWeight="medium">
+              {item.Category === "กิจกรรมพัฒนาผู้เรียน"
+                ? "-"
+                : subjectCreditTitles[item.Credit]}
+            </Typography>
+          </TableCell>
+          <TableCell>
+            {item.teachers && item.teachers.length > 0 ? (
+              <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                {item.teachers.map((t, idx) => (
+                  <Chip
+                    key={idx}
+                    label={t.TeacherFullName}
+                    size="small"
+                    variant="outlined"
+                    sx={{
+                      fontSize: "0.7rem",
+                      height: 20,
+                      bgcolor: alpha(theme.palette.background.paper, 0.5),
+                      borderColor: alpha(theme.palette.divider, 0.1),
+                    }}
+                  />
+                ))}
+              </Stack>
+            ) : (
+              <Typography variant="caption" color="text.disabled">
+                ไม่ระบุ
+              </Typography>
+            )}
           </TableCell>
         </TableRow>
       ))}
@@ -201,22 +278,33 @@ const Page = (_props: Props) => {
 
   const renderSumRow = (title: string, credit: number) => (
     <TableBody key={`sum-${title}`}>
-      <TableRow sx={{ bgcolor: "info.lighter" }}>
-        <TableCell />
-        <TableCell />
-        <TableCell sx={{ fontWeight: "bold" }}>{title}</TableCell>
-        <TableCell align="center" sx={{ fontWeight: "bold" }}>
-          {credit.toFixed(1)}
+      <TableRow sx={{ bgcolor: alpha(theme.palette.info.main, 0.03) }}>
+        <TableCell colSpan={2} />
+        <TableCell sx={{ fontWeight: "bold", color: "info.dark" }}>
+          <Typography variant="body2" fontWeight="bold">
+            {title}
+          </Typography>
         </TableCell>
-        <TableCell sx={{ fontWeight: "bold" }}>หน่วยกิต</TableCell>
+        <TableCell align="center">
+          <Typography variant="body2" fontWeight="bold" color="info.main">
+            {credit.toFixed(1)}
+          </Typography>
+        </TableCell>
+        <TableCell>
+          <Typography variant="caption" fontWeight="bold" color="info.dark">
+            หน่วยกิต
+          </Typography>
+        </TableCell>
       </TableRow>
     </TableBody>
   );
+
   const getSumCreditValue = () => {
     return subjects
       .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
       .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0);
   };
+
   const sortSubjectCategory = (data: SubjectRow[]) => {
     //ท ค ว ส พ ศ ก อ
     const SubjectCodeVal: Record<string, number> = {
@@ -245,6 +333,7 @@ const Page = (_props: Props) => {
     });
     return sortedData;
   };
+
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
       {programOfGrade.isLoading || gradeLevelData.isLoading ? (
@@ -259,7 +348,28 @@ const Page = (_props: Props) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <FormControl sx={{ minWidth: 300 }}>
+            <FormControl
+              sx={{
+                minWidth: 300,
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: alpha(colors.slate[400], 0.3),
+                  },
+                  "&:hover fieldset": {
+                    borderColor: colors.emerald.main,
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.emerald.main,
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: colors.slate[500],
+                  "&.Mui-focused": {
+                    color: colors.emerald.main,
+                  },
+                },
+              }}
+            >
               <InputLabel id="grade-select-label">เลือกชั้นเรียน</InputLabel>
               <Select
                 labelId="grade-select-label"
@@ -280,7 +390,6 @@ const Page = (_props: Props) => {
             {currentGradeID !== "" && (
               <Button
                 variant="contained"
-                color="info"
                 startIcon={<DownloadIcon />}
                 onClick={() =>
                   ExportAllProgram(
@@ -291,15 +400,29 @@ const Page = (_props: Props) => {
                   )
                 }
                 disabled={programOfGrade.isLoading}
+                sx={{
+                  bgcolor: colors.emerald.main,
+                  "&:hover": {
+                    bgcolor: colors.emerald.dark,
+                  },
+                }}
               >
                 นำออกเป็น Excel
               </Button>
             )}
           </Stack>
           {currentGradeID === "" ? (
-            <Paper sx={{ p: 8, textAlign: "center" }}>
+            <Paper
+              sx={{
+                p: 8,
+                textAlign: "center",
+                border: "1px solid",
+                borderColor: alpha(colors.slate[300], 0.5),
+                borderRadius: 3,
+              }}
+            >
               <SchoolIcon
-                sx={{ fontSize: 64, color: "text.secondary", mb: 2 }}
+                sx={{ fontSize: 64, color: colors.slate[400], mb: 2 }}
               />
               <Typography variant="h6" color="text.secondary" gutterBottom>
                 กรุณาเลือกชั้นเรียน

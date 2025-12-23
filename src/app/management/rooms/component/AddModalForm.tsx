@@ -21,9 +21,9 @@ type RoomFormState = {
 };
 
 type props = {
-  closeModal: any;
-  mutate: Function;
-  openSnackBar?: any;
+  closeModal: () => void;
+  mutate: () => void;
+  openSnackBar?: (message: string, options?: any) => void;
 };
 function AddModalForm({ closeModal, mutate }: props) {
   const addData = async (data: RoomFormState[]) => {
@@ -54,15 +54,12 @@ function AddModalForm({ closeModal, mutate }: props) {
         variant: "success",
       });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " +
-          (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เพิ่มข้อมูลสถานที่เรียนไม่สำเร็จ " + message, {
+        variant: "error",
+      });
       console.error(error);
     }
   };
@@ -164,7 +161,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       disabled={false}
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -193,7 +192,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                           : ""
                       }
                       disabled={false}
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setRooms(() =>
                           rooms.map((item, ind) =>
@@ -218,7 +219,9 @@ function AddModalForm({ closeModal, mutate }: props) {
                       value={room.Floor}
                       borderColor={isEmptyData && !room.Floor ? "#F96161" : ""}
                       disabled={false}
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         const floorValue =
                           value === "" ? undefined : Number(value);

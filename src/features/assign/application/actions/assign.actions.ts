@@ -161,7 +161,8 @@ export const syncAssignmentsAction = createAction(
 
       // 3. Create new responsibilities
       for (const resp of toCreate) {
-        const teachHour = calculateTeachHour(String(resp.Credit));
+        const teachHour =
+          resp.TeachHour ?? calculateTeachHour(String(resp.Credit));
 
         const newResp = await tx.teachers_responsibility.create({
           data: {

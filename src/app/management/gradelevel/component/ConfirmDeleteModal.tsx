@@ -10,8 +10,8 @@ type props = {
   deleteData: any;
   clearCheckList: any;
   dataAmount: number;
-  checkedList: any;
-  mutate: Function;
+  checkedList: string[];
+  mutate: () => void;
 };
 
 function ConfirmDeleteModal({
@@ -43,27 +43,34 @@ function ConfirmDeleteModal({
       .map((item) => item.GradeID);
 
     try {
-      const result = await deleteGradeLevelsAction({ gradeIds: deleteData });
+      // The action expects string[], not { gradeIds: string[] } based on schema
+      // Need to verifying action signature.
+      // createAction wrapper usually takes single input.
+      // deleteGradeLevelsSchema is v.array(v.string())
+      // So input should be string[]
+      const result = await deleteGradeLevelsAction(deleteData);
 
       if (!result.success) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Unknown error";
+            : typeof result.error === "object" &&
+                result.error !== null &&
+                "message" in result.error
+              ? (result.error as { message: string }).message
+              : "Unknown error";
         throw new Error(errorMessage);
       }
 
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลชั้นเรียนสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "ลบข้อมูลชั้นเรียนไม่สำเร็จ " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("ลบข้อมูลชั้นเรียนไม่สำเร็จ " + message, {
+        variant: "error",
+      });
       console.error(error);
     }
 

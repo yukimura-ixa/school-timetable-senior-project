@@ -104,3 +104,8 @@ results-*.xml
 .tsbuildinfo.typecheck
 
 ci-trace-analysis*/
+
+# Temporary directories
+.next-test/
+tmp/
+

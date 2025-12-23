@@ -280,7 +280,7 @@ export const publicDataRepository = {
       : undefined;
 
     // Query teachers with their teaching responsibilities
-    const teachers = await prisma.teacher.findMany({
+    const teachers = (await prisma.teacher.findMany({
       where,
       select: {
         TeacherID: true,
@@ -301,7 +301,7 @@ export const publicDataRepository = {
         },
       },
       orderBy: { Firstname: "asc" },
-    });
+    })) as unknown as PublicTeacherData[];
 
     // Transform to public format
     const publicTeachers = teachers.map(transformTeacherToPublic);

@@ -25,7 +25,7 @@ import {
   GridEventListener,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Button, Stack, alpha } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -39,6 +39,7 @@ import {
 } from "@/features/teacher/application/actions/teacher.actions";
 import { useConfirmDialog } from "@/components/dialogs";
 import { AddTeacherDialog } from "./AddTeacherDialog";
+import { colors } from "@/shared/design-system";
 
 // ==================== Types ====================
 
@@ -337,13 +338,17 @@ export function TeacherDataGrid({
           startIcon={<AddIcon />}
           onClick={() => setShowAddDialog(true)}
           data-testid="add-teacher-button"
+          sx={{
+            bgcolor: colors.emerald.main,
+            "&:hover": { bgcolor: colors.emerald.dark },
+          }}
         >
           เพิ่มข้อมูลครู
         </Button>
       </Stack>
 
       {/* DataGrid */}
-      <DataGrid
+      <DataGrid<teacher>
         rows={rows}
         columns={columns}
         getRowId={(row) => row.TeacherID}
@@ -363,6 +368,21 @@ export function TeacherDataGrid({
         sx={{
           "& .MuiDataGrid-cell:focus": {
             outline: "none",
+          },
+          "& .MuiDataGrid-columnHeader:focus-within": {
+            outline: "none",
+          },
+          "& .MuiDataGrid-row:hover": {
+            bgcolor: alpha(colors.emerald.main, 0.04),
+          },
+          "& .MuiDataGrid-row.Mui-selected": {
+            bgcolor: alpha(colors.emerald.main, 0.08),
+            "&:hover": {
+              bgcolor: alpha(colors.emerald.main, 0.12),
+            },
+          },
+          "& .MuiCheckbox-root.Mui-checked": {
+            color: colors.emerald.main,
           },
         }}
         localeText={{

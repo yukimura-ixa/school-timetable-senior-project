@@ -11,11 +11,11 @@ import type { room } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
 type props = {
-  closeModal: any;
-  data: any;
-  clearCheckList: any;
-  mutate: Function;
-  openSnackBar?: any;
+  closeModal: () => void;
+  data: room[];
+  clearCheckList: () => void;
+  mutate: () => void;
+  openSnackBar?: (message: string, options?: any) => void;
 };
 
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
@@ -43,7 +43,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     }
     closeModal();
   };
-  const editMultiData = async (data: any) => {
+  const editMultiData = async (data: room[]) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลชั้นเรียน", {
       variant: "info",
       persist: true,
@@ -72,15 +72,12 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
         variant: "success",
       });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " +
-          (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนไม่สำเร็จ " + message, {
+        variant: "error",
+      });
       console.error(error);
     }
 
@@ -103,7 +100,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
             <p className="text-lg select-none">แก้ไขข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
-          {editData.map((item: any, index: number) => (
+          {editData.map((item: room, index: number) => (
             <React.Fragment key={`Edit${index}`}>
               <div
                 className={`flex flex-row gap-3 items-center ${
@@ -125,7 +122,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.RoomName.length == 0 ? "#F96161" : ""
                     }
                     disabled={false}
-                    handleChange={(e: any) => {
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -152,7 +149,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       isEmptyData && item.Building.length == 0 ? "#F96161" : ""
                     }
                     disabled={false}
-                    handleChange={(e: any) => {
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
@@ -177,11 +174,13 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     value={item.Floor}
                     borderColor={isEmptyData && !item.Floor ? "#F96161" : ""}
                     disabled={false}
-                    handleChange={(e: any) => {
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind ? { ...item, Floor: value } : item,
+                          index === ind
+                            ? { ...item, Floor: value as any }
+                            : item,
                         ),
                       );
                     }}

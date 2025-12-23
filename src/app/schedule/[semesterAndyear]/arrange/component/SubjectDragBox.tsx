@@ -10,11 +10,13 @@ import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import SubjectItem from "./SubjectItem";
 import type { teacher } from "@/prisma/generated/client";
 
+import { type SubjectData } from "@/types/schedule.types";
+
 type Props = {
-  respData: any[];
-  dropOutOfZone?: Function;
-  clickOrDragToSelectSubject: Function;
-  storeSelectedSubject: any;
+  respData: SubjectData[];
+  dropOutOfZone?: (item: SubjectData) => void;
+  clickOrDragToSelectSubject: (item: SubjectData) => void;
+  storeSelectedSubject: SubjectData | null;
   teacher: teacher;
 };
 
@@ -27,7 +29,7 @@ const SubjectDragBox = ({
 }: Props) => {
   // Generate IDs for SortableContext
   const itemIds = respData.map(
-    (item, index) => `${item.SubjectCode}-Grade-${item.GradeID}-Index-${index}`,
+    (item, index) => `${item.subjectCode}-Grade-${item.gradeID}-Index-${index}`,
   );
 
   return (
@@ -41,7 +43,7 @@ const SubjectDragBox = ({
             <div className="grid w-full h-[125px] text-center grid-cols-8 overflow-y-scroll overflow-x-hidden">
               {respData.map((item, index) => (
                 <SubjectItem
-                  key={`${item.SubjectCode}-${index}`}
+                  key={`${item.subjectCode}-${index}`}
                   item={item}
                   index={index}
                   teacherData={{

@@ -4,6 +4,11 @@
  * A premium, modern design system inspired by the Program Management page.
  * Features glassmorphism, subtle animations, and vibrant gradients.
  *
+ * UNIFIED SOURCE OF TRUTH:
+ * Colors are defined here AND in globals.css as CSS variables (--color-ds-*).
+ * This allows both MUI (via this file) and Tailwind (via globals.css) to use
+ * the same values. Always update both files when changing colors.
+ *
  * @usage
  * import { colors, gradients, animations, cardStyles } from '@/shared/design-system';
  */
@@ -11,61 +16,78 @@
 import { alpha, keyframes, Theme, SxProps } from "@mui/material";
 
 // ============================================================================
-// COLOR PALETTE
+// CSS VARIABLE GETTERS (for runtime access to Tailwind-defined tokens)
 // ============================================================================
 
 /**
- * Primary color palette - vibrant, modern colors
+ * Get a CSS variable value at runtime.
+ * Useful for bridging Tailwind CSS variables to MUI theming.
+ */
+export const getCssVar = (name: string, fallback: string): string => {
+  if (typeof window === "undefined") return fallback;
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
+    fallback
+  );
+};
+
+// ============================================================================
+// COLOR PALETTE (Synced with globals.css --color-ds-* tokens)
+// ============================================================================
+
+/**
+ * Primary color palette - vibrant, modern colors.
+ * These values MUST match the CSS variables in globals.css.
  */
 export const colors = {
   // Primary
   blue: {
-    main: "#3b82f6",
-    dark: "#1d4ed8",
-    light: "#60a5fa",
+    main: "#3b82f6", // --color-ds-blue
+    dark: "#1d4ed8", // --color-ds-blue-dark
+    light: "#60a5fa", // --color-ds-blue-light
   },
   // Success
   emerald: {
-    main: "#10b981",
-    dark: "#059669",
-    light: "#34d399",
+    main: "#10b981", // --color-ds-emerald
+    dark: "#059669", // --color-ds-emerald-dark
+    light: "#34d399", // --color-ds-emerald-light
   },
   // Accent
   violet: {
-    main: "#8b5cf6",
-    dark: "#7c3aed",
-    light: "#a78bfa",
+    main: "#8b5cf6", // --color-ds-violet
+    dark: "#7c3aed", // --color-ds-violet-dark
+    light: "#a78bfa", // --color-ds-violet-light
   },
   // Warning
   amber: {
-    main: "#f59e0b",
-    dark: "#d97706",
-    light: "#fbbf24",
+    main: "#f59e0b", // --color-ds-amber
+    dark: "#d97706", // --color-ds-amber-dark
+    light: "#fbbf24", // --color-ds-amber-light
   },
   // Error
   red: {
-    main: "#ef4444",
-    dark: "#dc2626",
-    light: "#f87171",
+    main: "#ef4444", // --color-ds-red
+    dark: "#dc2626", // --color-ds-red-dark
+    light: "#f87171", // --color-ds-red-light
   },
   // Info
   cyan: {
-    main: "#06b6d4",
-    dark: "#0891b2",
-    light: "#22d3ee",
+    main: "#06b6d4", // --color-ds-cyan
+    dark: "#0891b2", // --color-ds-cyan-dark
+    light: "#22d3ee", // --color-ds-cyan-light
   },
-  // Neutral
+  // Neutral (Synced with --color-ds-slate-*)
   slate: {
-    50: "#f8fafc",
-    100: "#f1f5f9",
-    200: "#e2e8f0",
+    50: "#f8fafc", // --color-ds-slate-50
+    100: "#f1f5f9", // --color-ds-slate-100
+    200: "#e2e8f0", // --color-ds-slate-200
     300: "#cbd5e1",
     400: "#94a3b8",
     500: "#64748b",
-    600: "#475569",
-    700: "#334155",
-    800: "#1e293b",
-    900: "#0f172a",
+    600: "#475569", // --color-ds-slate-600
+    700: "#334155", // --color-ds-slate-700
+    800: "#1e293b", // --color-ds-slate-800
+    900: "#0f172a", // --color-ds-slate-900
   },
 } as const;
 

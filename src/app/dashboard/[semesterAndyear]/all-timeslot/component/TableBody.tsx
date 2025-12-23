@@ -1,3 +1,15 @@
+"use client";
+import React from "react";
+import {
+  Box,
+  Typography,
+  Stack,
+  alpha,
+  useTheme,
+  Tooltip,
+  Paper,
+} from "@mui/material";
+import { colors } from "@/shared/design-system";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { teacher } from "@/prisma/generated/client";
 import LockIcon from "@mui/icons-material/Lock";
@@ -7,6 +19,8 @@ type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
   timeslot: { DayOfWeek: string; TimeslotID: string };
   GradeID: string;
+  IsLocked?: boolean;
+  SubjectCode?: string;
   [key: string]: any;
 };
 
@@ -24,6 +38,8 @@ type Props = {
 };
 
 const TableBody = (props: Props) => {
+  const theme = useTheme();
+
   const formatGradeLabel = (gradeId: string) => {
     const canonicalMatch = /^M(\d+)-(\d+)$/.exec(gradeId);
     if (canonicalMatch) {
@@ -51,69 +67,132 @@ const TableBody = (props: Props) => {
         dayOfWeekThai[item.timeslot.DayOfWeek] == Day &&
         extractPeriodFromTimeslotId(item.timeslot.TimeslotID) == SlotNumber,
     );
-    const convertClass = filterClass
-      .map((item) => formatGradeLabel(item.GradeID))
-      .join(",");
-    // let convertClass = ["101", "102", "301", "302", "303", "304", "305", "306", "307", "308", "309", "310"].map(item => `${item[0]}/${item[2]}`).join(",")
 
     if (filterClass.length === 0) {
       return null;
     }
 
     const firstClass = filterClass[0];
-    if (!firstClass) {
-      return null;
-    }
-
-    const res = firstClass.IsLocked
-      ? `${firstClass.SubjectCode}`
-      : `${convertClass}\n${firstClass.SubjectCode}`;
+    const convertClass = filterClass
+      .map((item) => formatGradeLabel(item.GradeID))
+      .join(", ");
 
     return (
-      <div
-        style={{
-          color: firstClass.IsLocked ? "red" : "black",
-          fontWeight: firstClass.IsLocked ? 600 : 400,
-        }}
-        className="text-xs text-center flex flex-col items-center gap-1"
-      >
-        {firstClass.IsLocked && <LockIcon sx={{ fontSize: 14 }} />}
-        <p className="whitespace-pre-line">{res}</p>
-      </div>
+      <Stack spacing={0.5} alignItems="center" sx={{ width: "100%", px: 0.5 }}>
+        {firstClass?.IsLocked && (
+          <Tooltip title="Locked">
+            <LockIcon sx={{ fontSize: 14, color: theme.palette.error.main }} />
+          </Tooltip>
+        )}
+        <Typography
+          variant="caption"
+          fontWeight={firstClass?.IsLocked ? "bold" : "medium"}
+          sx={{
+            fontSize: "0.75rem",
+            color: firstClass?.IsLocked ? "error.main" : "text.primary",
+            lineHeight: 1.1,
+            textAlign: "center",
+          }}
+        >
+          {firstClass?.IsLocked ? firstClass.SubjectCode : convertClass}
+        </Typography>
+        {!firstClass?.IsLocked && (
+          <Typography
+            variant="caption"
+            sx={{
+              fontSize: "0.65rem",
+              color: "text.secondary",
+              lineHeight: 1,
+              textAlign: "center",
+            }}
+          >
+            {firstClass?.SubjectCode}
+          </Typography>
+        )}
+      </Stack>
     );
   }
+
   return (
-    <table className="w-full">
-      <tbody>
-        {props.teachers.map((tch, index) => (
-          <tr
-            key={`body-${index}`}
-            className="flex items-center gap-2 mt-[2px] h-fit select-none"
-          >
-            {props.days.map((day) => (
-              <td key={`day-${day.Day}`}>
-                <div className="flex flex-col items-center">
-                  <div className="flex gap-2 w-fit">
-                    {props.slotAmount.map((item, index) => (
-                      <div
-                        key={`slot-${index}`}
-                        style={{ borderColor: day.BgColor }}
-                        className={`relative w-14 h-[60px] border-2 flex items-center justify-center rounded overflow-hidden`}
-                      >
-                        <p className="text-xs absolute left-0 top-[-2px] text-gray-300">
-                          {index + 1}
-                        </p>
-                        {getClassDataByTeacherID(tch.TeacherID, day.Day, item)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <Stack spacing={0.25} sx={{ width: "100%" }}>
+      {props.teachers.map((tch, tchIdx) => (
+        <Stack
+          key={`tch-${tch.TeacherID}`}
+          direction="row"
+          spacing={0.5}
+          sx={{
+            py: 0.5,
+            transition: "all 0.2s",
+            "&:hover": {
+              bgcolor: alpha(colors.emerald.main, 0.04),
+            },
+          }}
+        >
+          {props.days.map((day) => (
+            <Stack
+              key={`${tch.TeacherID}-${day.Day}`}
+              direction="row"
+              spacing={0.5}
+              sx={{ flex: 1, minWidth: props.slotAmount.length * 56 }}
+            >
+              {props.slotAmount.map((slot, slotIdx) => {
+                const content = getClassDataByTeacherID(
+                  tch.TeacherID,
+                  day.Day,
+                  slot,
+                );
+                const hasContent = content !== null;
+
+                return (
+                  <Box
+                    key={`slot-${slot}`}
+                    sx={{
+                      width: 52,
+                      height: 60,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 1,
+                      border: `1px solid ${hasContent ? alpha(day.BgColor, 0.5) : alpha(theme.palette.divider, 0.05)}`,
+                      bgcolor: hasContent
+                        ? alpha(day.BgColor, 0.05)
+                        : "transparent",
+                      position: "relative",
+                      transition: "all 0.2s",
+                      "&:hover": hasContent
+                        ? {
+                            bgcolor: alpha(day.BgColor, 0.1),
+                            boxShadow: `0 2px 4px ${alpha(day.BgColor, 0.1)}`,
+                            transform: "translateY(-1px)",
+                            zIndex: 1,
+                          }
+                        : {
+                            bgcolor: alpha(theme.palette.action.hover, 0.3),
+                          },
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        position: "absolute",
+                        left: 2,
+                        top: 0,
+                        fontSize: "0.6rem",
+                        color: alpha(theme.palette.text.disabled, 0.3),
+                        pointerEvents: "none",
+                      }}
+                    >
+                      {slot}
+                    </Typography>
+                    {content}
+                  </Box>
+                );
+              })}
+            </Stack>
+          ))}
+        </Stack>
+      ))}
+    </Stack>
   );
 };
 

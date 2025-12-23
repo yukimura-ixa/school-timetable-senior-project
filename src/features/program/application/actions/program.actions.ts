@@ -21,6 +21,7 @@ import {
 } from "../../domain/services/program-validation.service";
 import { validateProgramMOECredits } from "../../domain/services/moe-validation.service";
 import type { program_subject, subject } from "@/prisma/generated/client";
+import type { ProgramSubjectWithSubject } from "../../domain/types/program.types";
 import {
   createProgramSchema,
   updateProgramSchema,
@@ -288,11 +289,10 @@ export const assignSubjectsToProgramAction = createAction(
     }
 
     // Validate MOE credits using updated assignments (with subject details)
+    // Note: program_subject is already correctly typed via Prisma's include
     const validationResult = validateProgramMOECredits(
       updatedProgram.Year,
-      updatedProgram.program_subject as Array<
-        program_subject & { subject: subject }
-      >,
+      updatedProgram.program_subject as ProgramSubjectWithSubject[],
     );
 
     // Log warnings if not fully compliant (could display in UI)

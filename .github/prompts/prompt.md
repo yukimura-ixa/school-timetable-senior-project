@@ -17,7 +17,7 @@ Base URL: use the project’s known deployment (e.g., the Vercel dev URL shown i
 TOOLS / CONSTRAINTS
 
 - Use Playwright MCP to drive the browser like a user. Capture screenshots/video/trace as evidence.
-- Do NOT use destructive actions that would harm real data. If you must create records, tag them clearly (e.g., “ZZ-TEST-\*”) and clean up afterward if safe.
+- If you must create records, tag them clearly (e.g., “ZZ-TEST-\*”) and clean up afterward if safe.
 - Keep a running session log: Notes, Bugs, Issues, Follow-ups.
 
 SESSION STRUCTURE (pick 75–90 minutes total) 0) 5 min — Setup

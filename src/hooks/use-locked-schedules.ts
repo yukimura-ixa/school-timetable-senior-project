@@ -20,15 +20,15 @@ export const useLockedSchedules = (
   semester: number,
   fallbackData?: GroupedLockedSchedule[],
 ) => {
-  const fetcher: any = async () => {
+  const fetcher = async () => {
     const result = await getLockedSchedulesAction({
       AcademicYear: academicYear,
       Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
     });
-    return result.success ? result.data : [];
+    return result.success && result.data ? result.data : [];
   };
 
-  const { data, error, mutate } = useSWR<GroupedLockedSchedule[]>(
+  const { data, error, mutate, isLoading } = useSWR<GroupedLockedSchedule[]>(
     `locked-schedules-${academicYear}-${semester}`,
     fetcher,
     {
@@ -39,7 +39,7 @@ export const useLockedSchedules = (
 
   return {
     data: data ?? fallbackData ?? [],
-    isLoading: !error && !data && !fallbackData,
+    isLoading: isLoading ?? (!error && !data && !fallbackData),
     error,
     mutate,
   };

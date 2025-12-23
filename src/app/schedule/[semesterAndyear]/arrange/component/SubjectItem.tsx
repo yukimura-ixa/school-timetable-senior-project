@@ -8,22 +8,17 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-interface SubjectItemData {
-  subjectCode: string;
-  subjectName: string;
-  gradeID: string;
-  itemID?: number;
-}
+import { type SubjectData } from "@/types/schedule.types";
 
 interface ISubjectItemProps {
-  item: SubjectItemData;
+  item: SubjectData;
   index: number;
   teacherData: {
     Firstname: string;
   };
-  storeSelectedSubject: any;
-  clickOrDragToSelectSubject: any;
-  dropOutOfZone?: any;
+  storeSelectedSubject: SubjectData | null;
+  clickOrDragToSelectSubject: (item: SubjectData) => void;
+  dropOutOfZone?: (item: SubjectData) => void;
 }
 
 function SubjectItem({

@@ -23,7 +23,9 @@ type ProgramFormData = {
   // GradeID can be string or number from Prisma model
   gradelevel: Array<{ GradeID: string | number; [key: string]: unknown }>;
   // Subject can be partial (just SubjectCode from ProgramRow) or full subject
-  subject: Array<{ SubjectCode: string } & Partial<Omit<subject, "SubjectCode">>>;
+  subject: Array<
+    { SubjectCode: string } & Partial<Omit<subject, "SubjectCode">>
+  >;
 };
 
 type Props = {
@@ -61,20 +63,23 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Unknown error";
+            : typeof result.error === "object" &&
+                result.error !== null &&
+                "message" in result.error
+              ? (result.error as { message: string }).message
+              : "Unknown error";
         throw new Error(errorMessage);
       }
 
       mutate();
       enqueueSnackbar("แก้ไขหลักสูตรสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "เกิดข้อผิดพลาดในการแก้ไขหลักสูตร: " +
-          (error.message || "Unknown error"),
-        { variant: "error" },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("เกิดข้อผิดพลาดในการแก้ไขหลักสูตร: " + message, {
+        variant: "error",
+      });
     }
   };
 
@@ -141,9 +146,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const removeSubjectFromList = (index: number) => {
     setNewProgramData(() => ({
       ...newProgramData,
-      subject: [
-        ...newProgramData.subject.filter((_item, ind) => ind != index),
-      ],
+      subject: [...newProgramData.subject.filter((_item, ind) => ind != index)],
     }));
   };
   const addItemAndCloseModal = () => {

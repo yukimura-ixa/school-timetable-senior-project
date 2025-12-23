@@ -47,7 +47,7 @@ function SelectTeacher({
 
   return (
     <div
-      className="flex h-fit w-full items-center justify-between border border-[#EDEEF3] p-4"
+      className="flex h-fit w-full items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
       style={{
         opacity: disabled ? 0.6 : 1,
         pointerEvents: disabled ? "none" : "auto",

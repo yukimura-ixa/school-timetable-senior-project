@@ -55,17 +55,22 @@ function AddModalForm({ closeModal, mutate }: Props) {
         const errorMessage =
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Unknown error";
+            : typeof result.error === "object" &&
+                result.error !== null &&
+                "message" in result.error
+              ? (result.error as { message: string }).message
+              : "Unknown error";
         throw new Error(errorMessage);
       }
 
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มวิชาสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
-        "เพิ่มวิชาไม่สำเร็จ " + (error.message || "Unknown error"),
+        "เพิ่มวิชาไม่สำเร็จ " +
+          (error instanceof Error ? error.message : "Unknown error"),
         {
           variant: "error",
         },
@@ -175,7 +180,9 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setSubjects(() =>
                           subjects.map((item, ind) =>
@@ -205,7 +212,9 @@ function AddModalForm({ closeModal, mutate }: Props) {
                           ? "#F96161"
                           : ""
                       }
-                      handleChange={(e: any) => {
+                      handleChange={(
+                        e: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
                         const value: string = e.target.value;
                         setSubjects(() =>
                           subjects.map((item, ind) =>
@@ -227,24 +236,30 @@ function AddModalForm({ closeModal, mutate }: Props) {
                     <label className="text-sm font-bold">
                       หน่วยกิต (Credit):
                     </label>
-                    <Dropdown
+                    <Dropdown<subject_credit>
                       data={Object.values(subject_credit)}
-                      renderItem={({ data }: { data: any }): JSX.Element => (
-                        <li className="w-full">{subjectCreditTitles[data]}</li>
-                      )}
+                      renderItem={({
+                        data,
+                      }: {
+                        data: subject_credit;
+                      }): JSX.Element => {
+                        return (
+                          <li className="w-full">
+                            {subjectCreditTitles[data]}
+                          </li>
+                        );
+                      }}
                       width={150}
                       height={40}
-                      currentValue={subject.Credit}
+                      currentValue={subject.Credit || undefined}
                       placeHolder={"ตัวเลือก"}
                       borderColor={
                         isEmptyData && !subject.Credit ? "#F96161" : ""
                       }
-                      handleChange={(value: unknown) => {
+                      handleChange={(value: subject_credit) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
-                            index === ind
-                              ? { ...item, Credit: value as subject_credit }
-                              : item,
+                            index === ind ? { ...item, Credit: value } : item,
                           ),
                         );
                       }}
@@ -260,7 +275,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                     <label className="text-sm font-bold">
                       สาระการเรียนรู้ (Category):
                     </label>
-                    <Dropdown
+                    <Dropdown<SubjectCategory>
                       data={[
                         SubjectCategory.CORE,
                         SubjectCategory.ADDITIONAL,
@@ -269,14 +284,13 @@ function AddModalForm({ closeModal, mutate }: Props) {
                       renderItem={({
                         data,
                       }: {
-                        data: unknown;
+                        data: SubjectCategory;
                       }): JSX.Element => {
-                        const category = data as SubjectCategory;
                         return (
                           <li className="w-full">
-                            {category === SubjectCategory.CORE
+                            {data === SubjectCategory.CORE
                               ? "พื้นฐาน"
-                              : category === SubjectCategory.ADDITIONAL
+                              : data === SubjectCategory.ADDITIONAL
                                 ? "เพิ่มเติม"
                                 : "กิจกรรมพัฒนาผู้เรียน"}
                           </li>
@@ -289,12 +303,10 @@ function AddModalForm({ closeModal, mutate }: Props) {
                         isEmptyData && !subject.Category ? "#F96161" : ""
                       }
                       placeHolder={"ตัวเลือก"}
-                      handleChange={(value: unknown) => {
+                      handleChange={(value: SubjectCategory) => {
                         setSubjects(() =>
                           subjects.map((item, ind) =>
-                            index === ind
-                              ? { ...item, Category: value as SubjectCategory }
-                              : item,
+                            index === ind ? { ...item, Category: value } : item,
                           ),
                         );
                       }}

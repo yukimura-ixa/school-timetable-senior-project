@@ -40,7 +40,7 @@ interface SearchableSubjectPaletteProps {
   respData: SubjectDataType[];
   dropOutOfZone?: (subject: SubjectDataType) => void;
   clickOrDragToSelectSubject: (subject: SubjectDataType) => void;
-  storeSelectedSubject: SubjectDataType | Record<string, never>;
+  storeSelectedSubject: SubjectDataType | null;
   teacher: teacher;
 }
 

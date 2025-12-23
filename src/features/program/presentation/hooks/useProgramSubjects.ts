@@ -66,12 +66,13 @@ export function useProgramSubjects(programId: number) {
   });
 
   // Unwrap ActionResult for program
+  // Note: Cast required - transforms Prisma's ProgramWithRelations to local view-model type
   const program =
     programResponse &&
     "success" in programResponse &&
     programResponse.success &&
     programResponse.data
-      ? (programResponse.data as Program)
+      ? (programResponse.data as unknown as Program)
       : null;
 
   // Unwrap ActionResult for subjects

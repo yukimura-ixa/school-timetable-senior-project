@@ -71,7 +71,7 @@ function ProgramEditComponent(props: ProgramEditProps) {
   const options = programsByYear[year] ?? [];
   const selected = value == null ? "" : String(value);
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleChange = (event: { target: { value: unknown } }) => {
     const newValue =
       event.target.value === "" ? null : Number(event.target.value);
     void apiRef.current.setEditCellValue({
@@ -86,7 +86,7 @@ function ProgramEditComponent(props: ProgramEditProps) {
       <Select
         value={selected}
         displayEmpty
-        onChange={handleChange as any}
+        onChange={handleChange}
         sx={{ height: "100%" }}
       >
         <MenuItem value="">
@@ -300,7 +300,7 @@ export function GradeLevelDataGrid({
         minWidth: 200,
         editable: true,
         valueFormatter: (value: number | null, row) => {
-          const anyRow = row as unknown as { program?: program | null };
+          const anyRow = row as gradelevel & { program?: program | null };
           if (anyRow?.program) {
             return anyRow.program.ProgramName;
           }

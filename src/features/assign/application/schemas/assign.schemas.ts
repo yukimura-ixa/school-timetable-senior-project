@@ -56,8 +56,9 @@ export type GetLockedRespsOutput = v.InferOutput<typeof getLockedRespsSchema>;
 export const responsibilityInputSchema = v.object({
   RespID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
   SubjectCode: v.pipe(v.string(), v.minLength(1), v.maxLength(20)),
-  GradeID: v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/)), // e.g., "10/2566"
+  GradeID: v.pipe(v.string(), v.minLength(1)), // Relaxed validation to allow "M1-1" etc.
   Credit: v.picklist(["0.5", "1.0", "1.5", "2.0", "2.5", "3.0"]),
+  TeachHour: v.optional(v.number()),
 });
 
 export type ResponsibilityInput = v.InferInput<

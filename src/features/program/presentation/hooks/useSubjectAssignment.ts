@@ -143,7 +143,8 @@ export function useSubjectAssignment(
 
       if (result.success && result.data) {
         const moeValidation = result.data.moeValidation as MoeValidation;
-        const updatedProgram = result.data.program as Program;
+        // Note: Cast required - transforms Prisma's ProgramWithRelations to local view-model type
+        const updatedProgram = result.data.program as unknown as Program;
 
         setValidation(moeValidation);
 

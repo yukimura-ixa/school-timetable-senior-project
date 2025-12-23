@@ -62,9 +62,6 @@ describe("Teacher Validation Service", () => {
         Department: "คณิตศาสตร์",
         Email: "math@example.com",
         Role: "teacher",
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
       });
 
       // Subject in Thai Language
@@ -75,9 +72,8 @@ describe("Teacher Validation Service", () => {
         LearningArea: "THAI",
         Category: "CORE",
         IsGraded: true,
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
+        Description: null,
+        ActivityType: null,
       });
 
       // No current workload
@@ -107,9 +103,6 @@ describe("Teacher Validation Service", () => {
         Department: "คณิตศาสตร์",
         Email: "busy@example.com",
         Role: "teacher",
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
       });
 
       vi.mocked(subjectRepository.findByCode).mockResolvedValue({
@@ -119,9 +112,8 @@ describe("Teacher Validation Service", () => {
         LearningArea: "MATHEMATICS",
         Category: "CORE",
         IsGraded: true,
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
+        Description: null,
+        ActivityType: null,
       });
 
       // Current workload is 18 hours
@@ -165,9 +157,6 @@ describe("Teacher Validation Service", () => {
         Department: "คณิตศาสตร์",
         Email: "busy@example.com",
         Role: "teacher",
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
       });
 
       vi.mocked(subjectRepository.findByCode).mockResolvedValue({
@@ -177,9 +166,8 @@ describe("Teacher Validation Service", () => {
         LearningArea: "MATHEMATICS",
         Category: "CORE",
         IsGraded: true,
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
+        Description: null,
+        ActivityType: null,
       });
 
       // Current workload is 16 hours
@@ -225,9 +213,6 @@ describe("Teacher Validation Service", () => {
         Department: "คณิตศาสตร์",
         Email: "pro@example.com",
         Role: "teacher",
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
       });
 
       vi.mocked(subjectRepository.findByCode).mockResolvedValue({
@@ -237,9 +222,8 @@ describe("Teacher Validation Service", () => {
         LearningArea: "MATHEMATICS",
         Category: "CORE",
         IsGraded: true,
-        IsActive: true,
-        CreatedAt: new Date(),
-        UpdatedAt: new Date(),
+        Description: null,
+        ActivityType: null,
       });
 
       vi.mocked(repo.findTeacherWorkload).mockResolvedValue([]);

@@ -131,7 +131,7 @@ export function ScheduleProgressIndicators({
       statusColor === "primary" ? baseColor : theme.palette[statusColor].main;
 
     return (
-      <Grid item xs={12} sm={6} md={4} key={item.id}>
+      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={item.id}>
         <Paper
           elevation={0}
           sx={{
@@ -354,7 +354,7 @@ export function ScheduleProgressIndicators({
               />
 
               <Grid container spacing={2}>
-                <Grid item xs={6} sm={4}>
+                <Grid size={{ xs: 6, sm: 4 }}>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Box
                       sx={{
@@ -379,7 +379,7 @@ export function ScheduleProgressIndicators({
                     </Box>
                   </Stack>
                 </Grid>
-                <Grid item xs={6} sm={4}>
+                <Grid size={{ xs: 6, sm: 4 }}>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Box
                       sx={{
@@ -409,7 +409,7 @@ export function ScheduleProgressIndicators({
                   </Stack>
                 </Grid>
                 {overallProgress.conflictSlots > 0 && (
-                  <Grid item xs={12} sm={4}>
+                  <Grid size={{ xs: 12, sm: 4 }}>
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Box
                         sx={{
@@ -477,7 +477,7 @@ export function ScheduleProgressIndicators({
               ),
             )}
             {filteredTeachers.length === 0 && searchQuery && (
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography
                   variant="body2"
                   color="text.secondary"
@@ -527,7 +527,7 @@ export function ScheduleProgressIndicators({
               ),
             )}
             {filteredClasses.length === 0 && searchQuery && (
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography
                   variant="body2"
                   color="text.secondary"

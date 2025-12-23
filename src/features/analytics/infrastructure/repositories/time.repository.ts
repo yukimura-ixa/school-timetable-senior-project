@@ -17,8 +17,8 @@ import { DAYS_OF_WEEK } from "../../domain/types/analytics.types";
 import type { day_of_week } from "@/prisma/generated/client";
 
 // Prisma payload types for time queries
-type TimeslotId = { TimeslotID: number };
-type ScheduleTimeslot = { TimeslotID: number };
+type TimeslotId = { TimeslotID: string };
+type ScheduleTimeslot = { TimeslotID: string };
 
 /**
  * Period distribution type

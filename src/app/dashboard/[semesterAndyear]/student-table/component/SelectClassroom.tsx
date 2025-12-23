@@ -45,7 +45,7 @@ function SelectClassRoom({
   }
 
   return (
-    <div className="flex w-full items-center justify-between h-fit border border-[#EDEEF3] p-4">
+    <div className="flex w-full items-center justify-between h-fit rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <p>เลือกชั้นเรียน</p>
       <Dropdown
         width={300}

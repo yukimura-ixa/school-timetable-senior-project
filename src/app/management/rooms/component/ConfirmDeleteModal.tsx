@@ -7,13 +7,13 @@ import { deleteRoomsAction } from "@/features/room/application/actions/room.acti
 import { room } from "@/prisma/generated/client";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
-  closeModal: any;
-  deleteData: any;
-  clearCheckList: any;
+  closeModal: () => void;
+  deleteData: room[];
+  clearCheckList: () => void;
   dataAmount: number;
-  checkedList: any;
-  mutate: Function;
-  openSnackBar?: any;
+  checkedList: number[];
+  mutate: () => void;
+  openSnackBar?: (message: string, options?: any) => void;
 };
 
 function ConfirmDeleteModal({
@@ -45,7 +45,8 @@ function ConfirmDeleteModal({
       .map((item) => item.RoomID);
 
     try {
-      const result = await deleteRoomsAction({ roomIds: deleteData });
+      // Schema expects number[] directly
+      const result = await deleteRoomsAction(deleteData);
 
       if (!result.success) {
         const errorMessage =
@@ -58,14 +59,12 @@ function ConfirmDeleteModal({
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
       mutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("ลบข้อมูลสถานที่เรียนไม่สำเร็จ " + message, {
+        variant: "error",
+      });
       console.error(error);
     }
 

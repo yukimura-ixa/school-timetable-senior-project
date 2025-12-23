@@ -18,7 +18,7 @@ import {
 } from "../../domain/services/calculation.service";
 
 // Prisma payload types for teacher queries
-type TimeslotId = { TimeslotID: number };
+type TimeslotId = { TimeslotID: string };
 type ScheduleWithTeachers = Prisma.class_scheduleGetPayload<{
   select: {
     ClassID: true;

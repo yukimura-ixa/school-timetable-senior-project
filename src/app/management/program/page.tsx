@@ -18,7 +18,7 @@ async function getProgramCountsByYear() {
   });
 
   const result: Record<number, number> = {};
-  for (const item of counts) {
+  for (const item of counts as any) {
     result[item.Year] = item._count.ProgramID;
   }
   return result;

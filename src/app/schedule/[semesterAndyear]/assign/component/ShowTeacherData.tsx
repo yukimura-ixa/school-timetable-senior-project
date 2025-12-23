@@ -1,6 +1,11 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useTeachers, useSubjects, useGradeLevels } from "@/hooks";
 import type {
   teacher,
@@ -11,6 +16,8 @@ import type {
 import useSWR from "swr";
 import { getAssignmentsAction } from "@/features/assign/application/actions/assign.actions";
 import QuickAssignmentPanel from "./QuickAssignmentPanel";
+import { LockedScheduleList } from "../components/LockedScheduleList";
+import { useTeacherLockedSchedules } from "../hooks/useTeacherLockedSchedules";
 import type { ActionResult } from "@/shared/lib/action-wrapper";
 
 // Type for responsibility data with subject relation
@@ -18,6 +25,11 @@ interface ResponsibilityWithSubject extends teachers_responsibility {
   subject?: {
     Category?: string;
     SubjectName?: string;
+    Credit?: string;
+  };
+  gradelevel?: {
+    Year: number;
+    Number: number;
   };
   ClassID?: number;
 }
@@ -63,6 +75,7 @@ function ShowTeacherData({
   const router = useRouter();
   const pathName = usePathname();
   const params = useParams();
+  const searchParams = useSearchParams();
 
   // Sync URL params with global store
   const { semester, academicYear } = useSemesterSync(
@@ -84,6 +97,20 @@ function ShowTeacherData({
   const grades =
     gradesData.data.length > 0 ? gradesData.data : initialGradeLevels;
 
+  // Sync teacher from URL on mount/navigation
+  useEffect(() => {
+    const tIdParam = searchParams.get("TeacherID");
+    if (tIdParam && teachers.length > 0) {
+      const tId = parseInt(tIdParam, 10);
+      if (!isNaN(tId)) {
+        const found = teachers.find((t) => t.TeacherID === tId);
+        if (found && found.TeacherID !== teacher?.TeacherID) {
+          setTeacher(found);
+        }
+      }
+    }
+  }, [searchParams, teachers, teacher]);
+
   // Determine loading state - show loading only if both initial and SWR data are empty
   const isLoading =
     initialTeachers.length === 0 &&
@@ -102,6 +129,13 @@ function ShowTeacherData({
       });
     },
   );
+
+  const { lockedSchedules, isLoading: isLockedLoading } =
+    useTeacherLockedSchedules(
+      teacher?.TeacherID,
+      academicYear ? parseInt(academicYear) : undefined,
+      semester,
+    );
 
   const [teachHour, setTeachHour] = useState<number>(0);
   useEffect(() => {
@@ -160,7 +194,9 @@ function ShowTeacherData({
   // Navigate to assign detail
   const handleViewAssignments = () => {
     if (teacher) {
-      router.push(`${pathName}/detail?teacherId=${teacher.TeacherID}`);
+      router.push(
+        `${pathName}/teacher_responsibility?teacherId=${teacher.TeacherID}`,
+      );
     }
   };
 
@@ -172,7 +208,10 @@ function ShowTeacherData({
     setTeacher(value);
     if (value) {
       const newUrl = `${pathName}?TeacherID=${value.TeacherID}`;
-      router.push(newUrl);
+      // Use history.pushState to update URL without triggering server component refresh
+      window.history.pushState(null, "", newUrl);
+    } else {
+      window.history.pushState(null, "", pathName);
     }
   };
 
@@ -334,9 +373,12 @@ function ShowTeacherData({
                 sx={{
                   p: 2,
                   background:
-                    "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                    teachHour > 22
+                      ? "linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)"
+                      : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
                   borderRadius: 2,
                   color: "white",
+                  border: teachHour > 22 ? "2px solid #fff" : "none",
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -345,6 +387,7 @@ function ShowTeacherData({
                 </Box>
                 <Typography variant="h4" sx={{ mt: 1 }}>
                   {teachHour}
+                  {teachHour > 22 ? " !" : ""}
                 </Typography>
                 <LinearProgress
                   variant="determinate"
@@ -421,6 +464,22 @@ function ShowTeacherData({
             </Box>
           </Paper>
 
+          {/* Locked Schedules Section */}
+          {!isLockedLoading && (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 0,
+                borderRadius: 3,
+                border: "1px solid rgba(0,0,0,0.1)",
+                overflow: "hidden",
+                mb: 3,
+              }}
+            >
+              <LockedScheduleList items={lockedSchedules} />
+            </Paper>
+          )}
+
           {/* Quick Assignment Panel */}
           {semester &&
             academicYear &&
@@ -435,11 +494,10 @@ function ShowTeacherData({
                     RespID: item.RespID.toString(),
                     SubjectCode: item.SubjectCode,
                     SubjectName: item.subject?.SubjectName || "Unknown",
-                    GradeID:
-                      typeof item.GradeID === "string"
-                        ? parseInt(item.GradeID)
-                        : (item.GradeID as number),
-                    GradeName: `ม.${item.GradeID.toString()[0]}/${item.GradeID.toString()[2]}`,
+                    GradeID: item.GradeID,
+                    GradeName: item.gradelevel
+                      ? `ม.${item.gradelevel.Year}/${item.gradelevel.Number}`
+                      : item.GradeID,
                     TeachHour: item.TeachHour,
                   }))
                 : [];

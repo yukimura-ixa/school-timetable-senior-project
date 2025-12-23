@@ -1,5 +1,5 @@
 "use client";
- 
+
 import React, { useState, useEffect, type ReactNode } from "react";
 import {
   Table as MuiTable,
@@ -28,26 +28,28 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useConfirmDialog } from "@/components/dialogs";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 
-// Generic column definition
+// Generic column definition using discriminated union for strict type safe render/renderEdit
 export type ColumnDef<T> = {
-  key: keyof T;
-  label: string;
-  editable?: boolean;
-  creatable?: boolean;
-  required?: boolean;
-  type?: "text" | "number" | "select";
-  options?: { value: string | number; label: string }[];
-  width?: number | string;
-  render?: (value: any, row: T) => ReactNode;
-  // Optional custom renderer specifically for edit mode (row-aware editors)
-  // onChange should be called with the new value to update the draft
-  renderEdit?: (params: {
-    value: any;
-    row: T;
-    onChange: (newValue: any) => void;
-    hasError: boolean;
-  }) => ReactNode;
-};
+  [K in keyof T]: {
+    key: K;
+    label: string;
+    editable?: boolean;
+    creatable?: boolean;
+    required?: boolean;
+    type?: "text" | "number" | "select";
+    options?: { value: string | number; label: string }[];
+    width?: number | string;
+    render?: (value: T[K], row: T) => ReactNode;
+    // Optional custom renderer specifically for edit mode (row-aware editors)
+    // onChange should be called with the new value to update the draft
+    renderEdit?: (params: {
+      value: T[K];
+      row: T;
+      onChange: (newValue: T[K]) => void;
+      hasError: boolean;
+    }) => ReactNode;
+  };
+}[keyof T];
 
 // Generic validation function type
 export type ValidationFn<T> = (
@@ -57,7 +59,7 @@ export type ValidationFn<T> = (
 ) => string | null;
 
 // Generic action result
-export type ActionResult<T = any> = {
+export type ActionResult<T = unknown> = {
   success: boolean;
   data?: T;
   error?: string | { message: string };
@@ -241,14 +243,12 @@ export function EditableTable<T extends Record<string, any>>({
       console.log("[EDITABLE_TABLE_ONMUTATE_CALL]", { title });
       await onMutate();
       console.log("[EDITABLE_TABLE_ONMUTATE_COMPLETE]", { title });
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        `เพิ่ม${title}ไม่สำเร็จ: ` + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar(`เพิ่ม${title}ไม่สำเร็จ: ` + message, {
+        variant: "error",
+      });
     }
   };
 
@@ -289,14 +289,12 @@ export function EditableTable<T extends Record<string, any>>({
       enqueueSnackbar(`ลบ${title}สำเร็จ`, { variant: "success" });
       setSelected([]);
       await onMutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        `ลบ${title}ไม่สำเร็จ: ` + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar(`ลบ${title}ไม่สำเร็จ: ` + message, {
+        variant: "error",
+      });
       console.error(error);
     }
   };
@@ -367,14 +365,12 @@ export function EditableTable<T extends Record<string, any>>({
       setSelected([]);
       setValidationErrors({});
       await onMutate();
-    } catch (error: any) {
+    } catch (error: unknown) {
       closeSnackbar(loadbar);
-      enqueueSnackbar(
-        "บันทึกการแก้ไขไม่สำเร็จ: " + (error.message || "Unknown error"),
-        {
-          variant: "error",
-        },
-      );
+      const message = error instanceof Error ? error.message : "Unknown error";
+      enqueueSnackbar("บันทึกการแก้ไขไม่สำเร็จ: " + message, {
+        variant: "error",
+      });
     }
   };
 
@@ -388,7 +384,7 @@ export function EditableTable<T extends Record<string, any>>({
 
     // Use custom render if provided and not editing
     if (!isEditing && column.render) {
-      return column.render(value, row);
+      return (column.render as any)(value, row);
     }
 
     // Check if field should be editable
@@ -409,7 +405,7 @@ export function EditableTable<T extends Record<string, any>>({
 
     // Row-aware custom edit renderer
     if (column.renderEdit) {
-      return column.renderEdit({
+      return (column.renderEdit as any)({
         value: draftValue,
         row,
         hasError,
@@ -444,7 +440,11 @@ export function EditableTable<T extends Record<string, any>>({
             }}
           >
             {column.options.map((opt) => (
-              <MenuItem key={opt.value} value={opt.value} data-testid={`option-${String(column.key)}-${opt.value}`}>
+              <MenuItem
+                key={opt.value}
+                value={opt.value}
+                data-testid={`option-${String(column.key)}-${opt.value}`}
+              >
                 {opt.label}
               </MenuItem>
             ))}
@@ -601,12 +601,12 @@ export function EditableTable<T extends Record<string, any>>({
               return (
                 <MuiTableRow key={String(id)} hover selected={selectedRow}>
                   <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedRow}
-                    onChange={() => toggleOne(id)}
-                    disabled={addMode && disableSelectionDuringCreate}
-                  />
-                </TableCell>
+                    <Checkbox
+                      checked={selectedRow}
+                      onChange={() => toggleOne(id)}
+                      disabled={addMode && disableSelectionDuringCreate}
+                    />
+                  </TableCell>
                   {columns.map((col) => (
                     <TableCell key={String(col.key)}>
                       {renderCell(col, item, isEditing, id)}
