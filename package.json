@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "dev": "next dev",
     "dev:e2e": "dotenv -e .env.test -- next dev -p 3000",
