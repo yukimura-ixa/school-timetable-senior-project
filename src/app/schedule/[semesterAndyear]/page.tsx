@@ -1,6 +1,6 @@
 "use client";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Box, Tabs, Tab, Link } from "@mui/material";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import AssignmentIcon from "@mui/icons-material/Assignment";
@@ -31,13 +31,10 @@ function Schedule() {
     return DEFAULT_TAB;
   };
 
-  const [tabSelect, setTabSelect] = useState<string>(getCurrentTab());
+  const tabSelect = getCurrentTab();
 
-  // Sync tab state with URL changes
+  // Sync tab route when landing on base schedule path
   useEffect(() => {
-    const currentTab = getCurrentTab();
-    setTabSelect(currentTab);
-
     // Visiting `/schedule/{semesterAndyear}` should land on a real tab route to avoid
     // rendering an invalid Tabs value (MUI warning) and to show actual content.
     const parts = pathName.split("/");
@@ -47,7 +44,6 @@ function Schedule() {
   }, [pathName, path, router]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
-    setTabSelect(newValue);
     router.replace(`${path}/${newValue}`);
   };
 

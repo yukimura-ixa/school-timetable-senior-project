@@ -71,6 +71,7 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
   useEffect(() => {
     const saved = localStorage.getItem("lockScheduleViewMode");
     if (saved === "list" || saved === "calendar") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate view mode from storage
       setViewMode(saved);
     }
   }, []);

@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { authClient } from "@/lib/auth-client";
@@ -114,8 +114,7 @@ function TeacherTablePage() {
   );
 
   // Hydration-safe state from shared Zustand store
-  const { isHydrated, setHydrated } = useUIStore();
-  useEffect(() => setHydrated(), [setHydrated]);
+  const { isHydrated } = useUIStore();
 
   // Responsive hooks
   const theme = useTheme();

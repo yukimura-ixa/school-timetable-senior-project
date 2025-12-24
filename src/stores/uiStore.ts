@@ -25,6 +25,9 @@ export const useUIStore = create<UIState>()(
       name: "ui-storage",
       // Don't persist isHydrated - it should always start false on page load
       partialize: (state) => ({ sidebarOpen: state.sidebarOpen }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
     },
   ),
 );

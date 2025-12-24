@@ -1,7 +1,7 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import { CircularProgress } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState, type JSX } from "react";
+import React, { useMemo, useState, type JSX } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
@@ -38,31 +38,23 @@ function SelectSubject(props: Props) {
       revalidateOnMount: true,
     },
   );
-  const [subject, setSubject] = useState<SubjectWithResponsibilities[]>([]);
-  const [subjectFilter, setSubjectFilter] = useState<
-    SubjectWithResponsibilities[]
-  >([]);
-
-  useEffect(() => {
+  const [searchText, setSearchText] = useState("");
+  const subjects = useMemo(() => {
     const result = respData.data as
       | ActionResult<SubjectWithResponsibilities[]>
       | undefined;
-    if (result?.success && result.data) {
-      setSubject(result.data);
-      setSubjectFilter(result.data);
-    }
-  }, [respData.isValidating, respData.data]);
+    return result?.success && result.data ? result.data : [];
+  }, [respData.data]);
+  const filteredSubjects = useMemo(() => {
+    if (!searchText) return subjects;
+    return subjects.filter((item) =>
+      `${item.SubjectCode} ${item.SubjectName}`.match(searchText),
+    );
+  }, [subjects, searchText]);
 
   const searchHandle: InputChangeHandler = (event) => {
     const text = event.target.value;
-    searchName(text);
-  };
-
-  const searchName = (name: string) => {
-    const res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name),
-    );
-    setSubject(res);
+    setSearchText(text);
   };
   return (
     <>
@@ -79,7 +71,7 @@ function SelectSubject(props: Props) {
         </div>
         {!respData.isValidating ? (
           <Dropdown
-            data={subject as unknown[]}
+            data={filteredSubjects as unknown[]}
             renderItem={({ data }: { data: unknown }): JSX.Element => (
               <li className="w-full text-sm">
                 {(data as SubjectWithResponsibilities).SubjectCode}{" "}

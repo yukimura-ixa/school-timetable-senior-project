@@ -2,7 +2,7 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { Skeleton } from "@mui/material";
 import type { subject } from "@/prisma/generated/client";
 import { useParams } from "next/navigation";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useMemo } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
@@ -17,6 +17,15 @@ type Props = {
   classRoomHandleChange: (value: string) => void;
   required?: boolean;
 };
+
+const DEFAULT_CLASS_ROOMS = [
+  { Year: 1, rooms: [] as string[] },
+  { Year: 2, rooms: [] as string[] },
+  { Year: 3, rooms: [] as string[] },
+  { Year: 4, rooms: [] as string[] },
+  { Year: 5, rooms: [] as string[] },
+  { Year: 6, rooms: [] as string[] },
+];
 
 function SelectedClassRoom(props: Props) {
   const params = useParams();
@@ -48,41 +57,24 @@ function SelectedClassRoom(props: Props) {
     },
   );
 
-  const [allClassRoom, setAllClassRoom] = useState([
-    { Year: 1, rooms: [] as string[] },
-    { Year: 2, rooms: [] as string[] },
-    { Year: 3, rooms: [] as string[] },
-    { Year: 4, rooms: [] as string[] },
-    { Year: 5, rooms: [] as string[] },
-    { Year: 6, rooms: [] as string[] },
-  ]);
-
-  useEffect(() => {
+  const allClassRoom = useMemo(() => {
     if (data && "success" in data && data.success && data.data) {
-      const ClassRoomClassify = (year: number): string[] => {
-        //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
-        //รูปแบบข้อมูล จะมาประมาณนี้
-        //{GradeID: '101', Year: 1, Number: 1}
-        //{GradeID: '101', Year: 1, Number: 1}
-        //{GradeID: '102', Year: 1, Number: 2}
-        const grades = data.data as {
-          GradeID: string;
-          Year: number;
-          Number: number;
-        }[];
-        const filterResData = grades
+      const grades = data.data as {
+        GradeID: string;
+        Year: number;
+        Number: number;
+      }[];
+      const classRoomClassify = (year: number): string[] =>
+        grades
           .filter((grade) => grade.Year === year)
           .map((item) => item.GradeID); //เช่น Year === 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
-        return filterResData;
-      };
-      setAllClassRoom((prev) =>
-        prev.map((item) => ({
-          ...item,
-          rooms: ClassRoomClassify(item.Year),
-        })),
-      );
+      return DEFAULT_CLASS_ROOMS.map((item) => ({
+        ...item,
+        rooms: classRoomClassify(item.Year),
+      }));
     }
-  }, [isValidating, data]);
+    return DEFAULT_CLASS_ROOMS.map((item) => ({ ...item, rooms: [] }));
+  }, [data]);
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">

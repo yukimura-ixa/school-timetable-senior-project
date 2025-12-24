@@ -94,8 +94,7 @@ function StudentTablePage() {
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
 
   // Hydration-safe state from shared Zustand store
-  const { isHydrated, setHydrated } = useUIStore();
-  useEffect(() => setHydrated(), [setHydrated]);
+  const { isHydrated } = useUIStore();
 
   // Bulk operation state
   const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>([]);

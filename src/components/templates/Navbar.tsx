@@ -15,7 +15,7 @@ const FALLBACK_USER_ICON = "/svg/user/usericon.svg";
 import { SemesterSelector } from "./SemesterSelector";
 
 function Navbar() {
-  const { toggleSidebar, isHydrated, setHydrated } = useUIStore();
+  const { toggleSidebar, isHydrated } = useUIStore();
   const { data: session, isPending } = authClient.useSession();
   const pathName = usePathname();
   const router = useRouter();
@@ -23,9 +23,6 @@ function Navbar() {
 
   // Cache session to prevent flashing "Loading..." on route changes
   const [cachedSession, setCachedSession] = useState<typeof session>(null);
-
-  // Set hydration flag after client mount (shared via Zustand store)
-  useEffect(() => setHydrated(), [setHydrated]);
 
   // Cache session after first successful fetch
   useEffect(() => {
