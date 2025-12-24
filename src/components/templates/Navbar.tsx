@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 
 import { usePathname, useRouter } from "next/navigation";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -22,22 +22,20 @@ function Navbar() {
   const [isHoverPhoto, setIsHoverPhoto] = useState<boolean>(false);
 
   // Cache session to prevent flashing "Loading..." on route changes
-  const [cachedSession, setCachedSession] = useState<typeof session>(null);
+  const cachedSessionRef = useRef<typeof session>(null);
 
-  // Cache session after first successful fetch
-  useEffect(() => {
-    if (session && !isPending) {
-      setCachedSession(session);
-    }
-  }, [session, isPending]);
+  // Update cached session when a valid session is available
+  if (session && !isPending) {
+    cachedSessionRef.current = session;
+  }
 
   // Use cached session if available, otherwise use live session
-  const displaySession = cachedSession || session;
+  const displaySession = cachedSessionRef.current || session;
   const hydratedSession = isHydrated ? displaySession : null;
   const hydratedRole = normalizeAppRole(hydratedSession?.user?.role);
 
   // Only show loading on initial mount (no cached session yet)
-  const showLoading = !isHydrated || (!cachedSession && isPending);
+  const showLoading = !isHydrated || (!cachedSessionRef.current && isPending);
   return (
     <>
       {pathName === "/signin" || pathName === "/" ? null : (

@@ -1,5 +1,5 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
-import React, { Fragment, useEffect, useState, type JSX } from "react";
+import React, { Fragment, useMemo, useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash } from "react-icons/tb";
 import type { subject } from "@/prisma/generated/client";
@@ -31,8 +31,6 @@ type Props = {
 };
 
 function AddSubjectModal(props: Props) {
-  const [subject, setSubject] = useState<subject[]>([]); //เก็บรายวิชาที่ fetch มา
-  const [subjectFilter, setSubjectFilter] = useState<subject[]>([]); //กรองรายวิชาที่ค้นหาเพื่อนำมาแสดง
   const [searchText, setSearchText] = useState<string>(""); //เก็บtextค้นหารายวิชา
   const [subjectList, setSubjectList] = useState<SubjectAssignment[]>([]); //เก็บวิชาที่เพิ่มใหม่
   const [currentSubject, setCurrentSubject] = useState<SubjectAssignment[]>(
@@ -46,7 +44,7 @@ function AddSubjectModal(props: Props) {
     params.semesterAndyear as string,
   );
 
-  const { data, isLoading, isValidating } = useSWR(
+  const { data, isLoading } = useSWR(
     props.classRoomData?.GradeID
       ? ["subjects-by-grade", props.classRoomData.GradeID]
       : null,
@@ -59,34 +57,14 @@ function AddSubjectModal(props: Props) {
     },
   ); //เรียกข้อมูลวิชาทั้งหมดของชั้นเรียนที่ส่งมา
   const searchTeacherID = useSearchParams().get("TeacherID");
-  useEffect(() => {
-    if (
-      !isValidating &&
-      data &&
-      "success" in data &&
-      data.success &&
-      data.data
-    ) {
-      const subjects = data.data;
-      setSubject(subjects);
-      const filterData = subjects.filter(
-        (item) =>
-          !subjectByGradeID
-            .map((item) => item.SubjectCode)
-            .includes(item.SubjectCode) &&
-          !subjectByGradeID
-            .map((item) => item.SubjectName)
-            .includes(item.SubjectName),
-      ); //filterData มาตอนแรกเลยจะกรองวิชาที่เคยมีแล้วออกไปจาก dropdown โดยเช็คจากชื่อวิชาและรหัสวิชา
-      setSubject(filterData);
-      setSubjectFilter(filterData); //ที่set ทั้งสองตัวแปรเพราะว่าอันนึงไว้แสดง อันนึงไว้ search หาข้อมูลแล้วนำมา set ข้อมูลให้ตัวแปร subject เรื่อยๆ
+  const subjects = useMemo(() => {
+    if (!data || !("success" in data) || !data.success || !data.data) {
+      return [];
     }
-  }, [isValidating]);
-  useEffect(() => {
-    //กรองวิชาที่เคยมีอยู่แล้วออกไปจาก dropdown โดยเช็คจากชื่อวิชาและรหัสวิชา
-    if (!data || !("success" in data) || !data.success || !data.data) return;
-    const subjects = data.data;
-    const filterDataR1 = subjects.filter(
+    return data.data;
+  }, [data]);
+  const filteredSubjects = useMemo(() => {
+    const filteredByGrade = subjects.filter(
       (item) =>
         !subjectByGradeID
           .map((item) => item.SubjectCode)
@@ -95,16 +73,20 @@ function AddSubjectModal(props: Props) {
           .map((item) => item.SubjectName)
           .includes(item.SubjectName),
     );
-    const filterDataR2 = filterDataR1.filter(
+    const filteredByList = filteredByGrade.filter(
       (item) =>
         !subjectList
           .map((item) => item.SubjectCode)
           .includes(item.SubjectCode) &&
         !subjectList.map((item) => item.SubjectName).includes(item.SubjectName),
-    ); //R1 กับ R2 คือไร R1 คือกรองกับวิชาที่เคยเพิ่มอยู่แล้วตั้งแต่แรก R2 คือเมื่อเพิ่มวิชาไปใหม่ก็เอามากรองด้วย ไม่ให้ dropdown มีวิชาซ้ำจากรายวิชาที่แสดงอยู่บน modal
-    setSubjectFilter(filterDataR2);
-    setSubject(filterDataR2);
-  }, [subjectList, currentSubject]); //useEffect นี้จะทำงานก็ต่อเมื่อมีการเพิ่มหรือลบวิชาอะไรซักอันนึง
+    );
+    if (!searchText) {
+      return filteredByList;
+    }
+    return filteredByList.filter((item) =>
+      `${item.SubjectCode} - ${item.SubjectName}`.match(searchText),
+    );
+  }, [subjects, subjectByGradeID, subjectList, searchText]);
   const addSubjectToList = (item: SubjectAssignment) => {
     setSubjectList(() => [...subjectList, item]);
   };
@@ -138,17 +120,9 @@ function AddSubjectModal(props: Props) {
     const findNull = subjectList.map((item) => item.SubjectCode);
     return findNull.includes("");
   };
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    const res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} - ${item.SubjectName}`.match(name),
-    );
-    setSubject(res);
-  };
   const searchHandle: InputChangeHandler = (event) => {
     const text = event.target.value;
     setSearchText(text);
-    searchName(text);
   };
   return (
     <>
@@ -241,7 +215,7 @@ function AddSubjectModal(props: Props) {
                   {/* List วิชาต่างๆ */}
                   <div className="flex justify-between items-center">
                     <Dropdown
-                      data={subject}
+                      data={filteredSubjects}
                       renderItem={({
                         data,
                       }: {

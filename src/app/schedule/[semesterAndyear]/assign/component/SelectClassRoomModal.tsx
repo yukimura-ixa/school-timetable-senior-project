@@ -1,6 +1,6 @@
 import { useTeachers } from "@/hooks";
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useMemo, useState } from "react";
 import type { gradelevel } from "@/prisma/generated/client";
 
 import { AiOutlineClose } from "react-icons/ai";
@@ -30,8 +30,7 @@ function SelectClassRoomModal({
   year,
 }: props) {
   const { data, isLoading, error, mutate } = useGradeLevels();
-  const [classRoomList, setClassRoomList] = useState<ClassRoomItem[]>([]);
-  useEffect(() => {
+  const baseClassRooms = useMemo(() => {
     // ตัวอย่างข้อมูลแบบคร่าวๆ //
     // {GradeID : 101}
     // {GradeID : 201}
@@ -39,34 +38,39 @@ function SelectClassRoomModal({
     // {GradeID : 401}
     // {GradeID : 501}
     // {GradeID : 601}
+    if (!data || data.length === 0) {
+      return [];
+    }
     const filterYear = data.filter((item) => item.Year == year); //filter เอาชั้นปีที่เลือก เช่น กดของมอหนึ่ง ก็จะเอาแค่มอหนึ่งออกมา ก็จะได้แค่ {GradeID: 101}
-    const mapClassRoomData: ClassRoomItem[] = filterYear.map((item, index) => {
+    return filterYear.map((item) => {
       const existingClass = classList.find(
         (gid) => item.GradeID === gid.GradeID,
       );
       return existingClass
-        ? { ...existingClass, isSelected: true } //ถ้ามี ก็ใส่ isSelected: true เพื่อบ่งบอกว่าวิชานี้ได้เคยเลือกไว้ก่อนหน้าแล้ว
-        : ({ GradeID: item.GradeID || "", isSelected: false } as ClassRoomItem); //ถ้าไม่ ก็ map ขึ้นมาให้ใหม่
+        ? { ...existingClass }
+        : ({ GradeID: item.GradeID || "" } as ClassRoomItem);
     }); //ตรงนี่จะ Map ข้อมูลด้วยการเช็คว่า ข้อมูลที่ส่งมานั้นเคยมีแล้วหรือยัง ถ้ามาแล้วจะใส่ isSelected = true ถ้าไม่เคยมีก็ false
     //ทำเพื่ออะไร ? เพื่อตอนกดสลับเลือกห้องเรียนไปมา ข้อมูลของวิชาที่ติดอยู่กับห้องเรียนที่เคยเลือกแล้วจะได้ไม่หายไปไหน ของเก่าเนี่ย ถ้าเรากดลบห้องเรียนแล้วเพิ่มกลับมาใหม่ ข้อมูลวิชาในนั้นจะหายไป
-    setClassRoomList(mapClassRoomData); //นำข้อมูลมา set state
-  }, [isLoading]);
+  }, [data, classList, year]);
+  const [selectedGradeIds, setSelectedGradeIds] = useState<string[]>(
+    () => classList.map((item) => item.GradeID),
+  );
+  const classRoomList = useMemo(
+    () =>
+      baseClassRooms.map((classRoom) => ({
+        ...classRoom,
+        isSelected: selectedGradeIds.includes(classRoom.GradeID),
+      })),
+    [baseClassRooms, selectedGradeIds],
+  );
   const addSelectedList = (item: ClassRoomItem) => {
-    setClassRoomList(() =>
-      classRoomList.map((classRoom) =>
-        classRoom.GradeID == item.GradeID
-          ? { ...classRoom, isSelected: true }
-          : classRoom,
-      ),
+    setSelectedGradeIds((prev) =>
+      prev.includes(item.GradeID) ? prev : [...prev, item.GradeID],
     ); //ถ้ามีการกด Add ห้องเรียนเข้ามาใหม่ ก็จะเปลี่ยนแค่ boolean ของ isSelected ด้วยการเช็คว่า GradeID ไหนต้องการเปลี่ยน
   };
   const removeSelectedList = (item: ClassRoomItem) => {
-    setClassRoomList(() =>
-      classRoomList.map((classRoom) =>
-        classRoom.GradeID == item.GradeID
-          ? { ...classRoom, isSelected: false }
-          : classRoom,
-      ),
+    setSelectedGradeIds((prev) =>
+      prev.filter((gradeId) => gradeId !== item.GradeID),
     ); //เหมือนกับฟังก์ชั่น addSelectedlist
   };
   return (

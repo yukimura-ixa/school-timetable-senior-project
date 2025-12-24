@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
   useParams,
   usePathname,
@@ -81,7 +81,7 @@ function ShowTeacherData({
     params.semesterAndyear as string,
   );
 
-  const [teacher, setTeacher] = useState<teacher | null>(null);
+  const [manualTeacherId, setManualTeacherId] = useState<number | null>(null);
 
   // Use SWR with fallback data from server-side fetch
   const teacherData = useTeachers();
@@ -96,19 +96,29 @@ function ShowTeacherData({
   const grades =
     gradesData.data.length > 0 ? gradesData.data : initialGradeLevels;
 
-  // Sync teacher from URL on mount/navigation
-  useEffect(() => {
+  const paramTeacherId = useMemo(() => {
     const tIdParam = searchParams.get("TeacherID");
-    if (tIdParam && teachers.length > 0) {
-      const tId = parseInt(tIdParam, 10);
-      if (!isNaN(tId)) {
-        const found = teachers.find((t) => t.TeacherID === tId);
-        if (found && found.TeacherID !== teacher?.TeacherID) {
-          setTeacher(found);
-        }
-      }
-    }
-  }, [searchParams, teachers, teacher]);
+    if (!tIdParam) return null;
+    const tId = parseInt(tIdParam, 10);
+    return Number.isNaN(tId) ? null : tId;
+  }, [searchParams]);
+
+  const prevParamTeacherIdRef = useRef<number | null>(paramTeacherId);
+  const manualOverrideRef = useRef(false);
+
+  if (paramTeacherId !== prevParamTeacherIdRef.current) {
+    prevParamTeacherIdRef.current = paramTeacherId;
+    manualOverrideRef.current = false;
+  }
+
+  const effectiveTeacherId = manualOverrideRef.current
+    ? manualTeacherId
+    : paramTeacherId;
+
+  const teacher = useMemo(() => {
+    if (!effectiveTeacherId) return null;
+    return teachers.find((t) => t.TeacherID === effectiveTeacherId) ?? null;
+  }, [effectiveTeacherId, teachers]);
 
   // Determine loading state - show loading only if both initial and SWR data are empty
   const isLoading =
@@ -136,20 +146,11 @@ function ShowTeacherData({
       semester,
     );
 
-  const [teachHour, setTeachHour] = useState<number>(0);
-  useEffect(() => {
-    if (responsibilityData.data) {
-      let sumTeachHour = 0;
-      const result = responsibilityData.data;
-      const data = result?.data;
-
-      if (Array.isArray(data)) {
-        data.forEach((item) => {
-          sumTeachHour += item.TeachHour || 0;
-        });
-      }
-      setTeachHour(sumTeachHour);
-    }
+  const teachHour = useMemo(() => {
+    const result = responsibilityData.data;
+    const data = result?.data;
+    if (!Array.isArray(data)) return 0;
+    return data.reduce((sum, item) => sum + (item.TeachHour || 0), 0);
   }, [responsibilityData.data]);
 
   // Calculate subject statistics
@@ -198,7 +199,8 @@ function ShowTeacherData({
     _event: React.SyntheticEvent,
     value: teacher | null,
   ) => {
-    setTeacher(value);
+    setManualTeacherId(value?.TeacherID ?? null);
+    manualOverrideRef.current = true;
     if (value) {
       const newUrl = `${pathName}?TeacherID=${value.TeacherID}`;
       // Use history.pushState to update URL without triggering server component refresh

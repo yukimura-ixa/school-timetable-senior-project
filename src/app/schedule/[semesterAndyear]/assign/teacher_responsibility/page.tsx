@@ -1,7 +1,7 @@
 "use client";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { useParams, useRouter } from "next/navigation";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { TbArrowBackUp } from "react-icons/tb";
 import { useSearchParams } from "next/navigation";
 import { IoIosArrowDown, IoMdAdd, IoMdAddCircle } from "react-icons/io";
@@ -78,6 +78,27 @@ function ClassroomResponsibility() {
 
   const searchTeacherID = useSearchParams().get("TeacherID");
 
+  // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
+  const [data, setData] = useState<PageState>({
+    Teacher: {
+      //ข้อมูลเปล่า เอาไว้กันแตก
+      TeacherID: null,
+      Prefix: "",
+      Firstname: "",
+      Lastname: "",
+      Department: "",
+    },
+    Grade: [
+      { Year: 1, ClassRooms: [] }, //ClassRooms : [{RespID: 1,GradeID:'101', Subjects:[]}]
+      { Year: 2, ClassRooms: [] },
+      { Year: 3, ClassRooms: [] },
+      { Year: 4, ClassRooms: [] },
+      { Year: 5, ClassRooms: [] },
+      { Year: 6, ClassRooms: [] },
+    ],
+    Subjects: [],
+  });
+
   if (!searchTeacherID) {
     return (
       <div className="p-6">
@@ -119,11 +140,45 @@ function ClassroomResponsibility() {
         return [];
       }
     },
-    { revalidateOnFocus: false },
+    {
+      revalidateOnFocus: false,
+      onSuccess: (result) => {
+        const responsibilities = Array.isArray(result) ? result : [];
+        const classRoomClassify = (year: number): ClassRoomWithSubjects[] => {
+          //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
+          //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
+          //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
+          //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
+          //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
+          const filterResData = responsibilities.filter(
+            (data) => data.gradelevel.Year == year,
+          ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
+          const mapGradeIDOnly = filterResData.map((data) => ({
+            GradeID: data.GradeID,
+            // Subjects: [],
+          })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
+          const removeDulpicateGradeID = mapGradeIDOnly.filter(
+            (obj, index) =>
+              mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
+              index,
+          ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
+          return removeDulpicateGradeID;
+        };
+        setData((prev) => ({
+          ...prev,
+          Subjects: responsibilities,
+          Grade: prev.Grade.map((item) => ({
+            //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
+            Year: item.Year,
+            ClassRooms: classRoomClassify(item.Year), //เรียกใช้ฟังก์ชั่นเพื่อนำเลขห้องเรียนมาใช้
+          })),
+        }));
+      },
+    },
   );
 
   // Fetch teacher data using Server Action
-  const teacherData = useSWR<Teacher | null>(
+  useSWR<Teacher | null>(
     () => (searchTeacherID ? `teacher-${searchTeacherID}` : null),
     async () => {
       if (!searchTeacherID) return null;
@@ -140,80 +195,23 @@ function ClassroomResponsibility() {
       }
       return null;
     },
-  );
-  // นำข้อมูลต่างๆมาแยกย่อยให้ใช้ได้สะดวก
-  const [data, setData] = useState<PageState>({
-    Teacher: {
-      //ข้อมูลเปล่า เอาไว้กันแตก
-      TeacherID: null,
-      Prefix: "",
-      Firstname: "",
-      Lastname: "",
-      Department: "",
+    {
+      onSuccess: (teacher) => {
+        setData((prev) => ({
+          ...prev,
+          Teacher: teacher ?? {
+            TeacherID: null,
+            Prefix: "",
+            Firstname: "",
+            Lastname: "",
+            Department: "",
+            Email: "",
+            Role: "",
+          },
+        }));
+      },
     },
-    Grade: [
-      { Year: 1, ClassRooms: [] }, //ClassRooms : [{RespID: 1,GradeID:'101', Subjects:[]}]
-      { Year: 2, ClassRooms: [] },
-      { Year: 3, ClassRooms: [] },
-      { Year: 4, ClassRooms: [] },
-      { Year: 5, ClassRooms: [] },
-      { Year: 6, ClassRooms: [] },
-    ],
-    Subjects: [],
-  });
-  useEffect(() => {
-    const responsibilities = Array.isArray(responsibilityData.data)
-      ? responsibilityData.data
-      : [];
-    const ClassRoomClassify = (year: number): ClassRoomWithSubjects[] => {
-      //function สำหรับจำแนกชั้นเรียนสำหรับนำข้อมูลไปใช้งานเพื่อแสดงผลบนหน้าเว็บโดยเฉพาะ
-      //รูปแบบข้อมูล จะมาประมาณนี้ (responsibilityData.data variable)
-      //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
-      //{RespID: 1, TeacherID: 1, GradeID: '101', ...}
-      //{RespID: 1, TeacherID: 1, GradeID: '102', ...}
-      const filterResData = responsibilities.filter(
-        (data) => data.gradelevel.Year == year,
-      ); //เช่น Year == 1 ก็จะเอาแต่ข้อมูลของ ม.1 มา
-      const mapGradeIDOnly = filterResData.map((data) => ({
-        GradeID: data.GradeID,
-        // Subjects: [],
-      })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
-      const removeDulpicateGradeID = mapGradeIDOnly.filter(
-        (obj, index) =>
-          mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
-          index,
-      ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
-      return removeDulpicateGradeID;
-    };
-    if (!responsibilityData.isValidating) {
-      //ถ้า fetch ข้อมูลเสร็จแล้ว
-      setData(() => ({
-        ...data,
-        Subjects: responsibilities,
-        Grade: data.Grade.map((item) => ({
-          //set ข้อมูลชั้นเรียน ด้วยการ map ข้อมูลปีและห้องเรียน
-          Year: item.Year,
-          ClassRooms: ClassRoomClassify(item.Year), //เรียกใช้ฟังก์ชั่นเพื่อนำเลขห้องเรียนมาใช้
-        })),
-      }));
-    }
-  }, [responsibilityData.isValidating, responsibilityData.data]); //เช็คว่าโหลดเสร็จยัง ถ้าเสร็จแล้วก็ไปทำข้างใน useEffect
-  useEffect(() => {
-    if (!teacherData.isLoading) {
-      setData(() => ({
-        ...data,
-        Teacher: teacherData.data ?? {
-          TeacherID: null,
-          Prefix: "",
-          Firstname: "",
-          Lastname: "",
-          Department: "",
-          Email: "",
-          Role: "",
-        },
-      }));
-    }
-  }, [teacherData.isLoading]);
+  );
   const [classRoomModalActive, setClassRoomModalActive] =
     useState<boolean>(false); //เปิด modal สำหรับเลือกชั้นเรียนที่รับผิดชอบ
   const [addSubjectModalActive, setAddSubjectModalActive] =
