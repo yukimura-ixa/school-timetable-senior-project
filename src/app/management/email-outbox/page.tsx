@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { Box, Container, Typography } from "@mui/material";
-import type { EmailOutbox } from "@/prisma/generated/client";
 import EmailOutboxTable, {
   type EmailOutboxRow,
 } from "./_components/EmailOutboxTable";
@@ -28,7 +27,7 @@ export default async function EmailOutboxPage({
   const status = params?.status?.trim() || undefined;
   const kind = params?.kind?.trim() || undefined;
 
-  const rows = (await prisma.emailOutbox.findMany({
+  const rows = await prisma.emailOutbox.findMany({
     where: {
       ...(q
         ? {
@@ -43,7 +42,7 @@ export default async function EmailOutboxPage({
     },
     orderBy: { createdAt: "desc" },
     take: 100,
-  })) as EmailOutbox[];
+  });
 
   const data: EmailOutboxRow[] = rows.map((r) => ({
     id: r.id,

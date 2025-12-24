@@ -150,7 +150,7 @@ export function useTeacherSchedule({
         return null;
       }
 
-      const teachers = result.data as teacher[];
+      const teachers = result.data;
       const foundTeacher = teachers.find((t) => t.TeacherID === teacherIDNum);
       return foundTeacher || null;
     },

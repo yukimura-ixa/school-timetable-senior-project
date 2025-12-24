@@ -25,8 +25,17 @@ const prismaClientSingleton = () => {
       }).$extends(withAccelerate()) as unknown as PrismaClient;
     }
 
-    // Fallback: standard Prisma client when Accelerate isn't configured.
-    return new PrismaClient({ log: ["error"] });
+    // Fallback: use adapter with direct database connection.
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error("Missing DATABASE_URL in production");
+    }
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
+    return new PrismaClient({
+      adapter,
+      log: ["error"],
+    });
   } else {
     // Development/Test: Use Driver Adapter (pg) for local Docker/Postgres compatibility
     const connectionString = process.env.DATABASE_URL;
