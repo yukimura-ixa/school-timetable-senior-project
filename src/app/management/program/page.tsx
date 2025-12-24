@@ -9,6 +9,10 @@ import {
   ProgramPageHeader,
 } from "./component/ProgramPageComponents";
 
+// Force dynamic rendering to avoid database queries at build time
+// This prevents Prisma Accelerate rate limit errors during static generation
+export const dynamic = "force-dynamic";
+
 // Fetch program counts per year
 async function getProgramCountsByYear() {
   const counts = await prisma.program.groupBy({

@@ -109,3 +109,6 @@ ci-trace-analysis*/
 .next-test/
 tmp/
 
+*.png
+.artifacts/*
+
