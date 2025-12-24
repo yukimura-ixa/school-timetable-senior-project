@@ -12,11 +12,11 @@
 
 ### P0 - Critical
 
-- **BUG-26**: Production Login 500 Error › Blocks all admin access.
+- **BUG-26**: Production Login 500 Error › **Fixed in Code (Prisma Config)**. Pending production verification (blocked by DB limits).
 
 ### P1 - High
 
-- **BUG-27**: Public Teacher Schedule 404 › Broken link on homepage.
+- **BUG-27**: Public Teacher Schedule 404 › **Verified Locally**. Link generation logic fixed. Needs production deployment.
 
 ---
 
