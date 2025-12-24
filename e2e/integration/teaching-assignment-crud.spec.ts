@@ -75,6 +75,9 @@ async function selectTeacherFromAutocomplete(
 }
 
 test.describe("Teaching Assignment CRUD", () => {
+  // Run CRUD tests sequentially to avoid data conflicts between tests
+  test.describe.configure({ mode: "serial", timeout: 120_000 });
+
   // Warmup: Pre-compile the assign page before tests run
   // This prevents individual tests from timing out during initial SSR compilation
   test.beforeAll(async ({ browser }) => {
