@@ -281,7 +281,7 @@ export const getSubjectDistribution = cache(
       };
     };
 
-    const schedules = (await prisma.class_schedule.groupBy({
+    const schedules = (await (prisma.class_schedule as any).groupBy({
       by: ["SubjectCode"],
       where: {
         timeslot: {

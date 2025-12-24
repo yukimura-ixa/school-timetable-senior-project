@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 // Fetch program counts per year
 async function getProgramCountsByYear() {
-  const counts = await prisma.program.groupBy({
+  const counts = await (prisma.program as any).groupBy({
     by: ["Year"],
     _count: { ProgramID: true },
     where: { IsActive: true },

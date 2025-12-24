@@ -1,44 +1,35 @@
-import { PrismaClient } from "@/prisma/generated/client";
+import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@/prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
-import { createLogger } from "@/lib/logger";
 
-const log = createLogger("Prisma");
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
-const globalForPrisma = global as unknown as {
-  prisma: ReturnType<typeof createPrismaClient> | undefined;
+const prismaClientSingleton = () => {
+  if (process.env.NODE_ENV === "production") {
+    // Production: Use Accelerate Extension (WASM compatible)
+    // The WASM engine requires 'accelerateUrl' in the constructor options.
+    const url = process.env.ACCELERATE_URL || process.env.DATABASE_URL;
+    if (!url)
+      throw new Error("Missing ACCELERATE_URL or DATABASE_URL in production");
+
+    return new PrismaClient({
+      accelerateUrl: url,
+      log: ["error"],
+    }).$extends(withAccelerate()) as unknown as PrismaClient;
+  } else {
+    // Development/Test: Use Driver Adapter (pg) for local Docker/Postgres compatibility
+    const connectionString = process.env.DATABASE_URL;
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
+    return new PrismaClient({
+      adapter,
+      log: ["query", "info", "warn", "error"],
+    });
+  }
 };
 
-function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL!;
-  const isAccelerate = connectionString.startsWith("prisma+");
-
-  // Log connection info in dev/debug mode
-  const safeConnection =
-    connectionString.split("?")[0]?.replace(/:[^:@]+@/, ":****@") ?? "unknown";
-  log.debug("Initializing database connection", {
-    protocol: isAccelerate ? "prisma+postgres" : "direct",
-    masked: safeConnection.substring(0, 50),
-  });
-
-  // Use Prisma Accelerate (Data Proxy) when prisma+ protocol is provided
-  if (isAccelerate) {
-    return new PrismaClient({
-      accelerateUrl: connectionString,
-    }).$extends(withAccelerate());
-  }
-
-  // Fallback to direct Postgres adapter for standard URLs
-  const adapter = new PrismaPg({
-    connectionString,
-  });
-
-  return new PrismaClient({
-    adapter,
-  }).$extends(withAccelerate());
-}
-
-const prisma = globalForPrisma.prisma ?? createPrismaClient();
+export const prisma = globalForPrisma.prisma || prismaClientSingleton();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 

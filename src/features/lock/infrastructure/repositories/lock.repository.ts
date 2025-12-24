@@ -82,7 +82,7 @@ export async function findLockedSchedules(
     },
   });
 
-  return data as RawLockedSchedule[];
+  return data as unknown as RawLockedSchedule[];
 }
 
 /**

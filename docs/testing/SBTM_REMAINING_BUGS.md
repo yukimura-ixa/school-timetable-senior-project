@@ -1,12 +1,22 @@
 # Remaining Bugs from SBTM Session
 
-**Session:** SBTM_SESSION_2025_01_19  
-**Fixed:** 17 bugs (BUG-1, BUG-2, BUG-3, BUG-4, BUG-5, BUG-6, BUG-7, BUG-8, BUG-10, BUG-11, BUG-12, BUG-13, BUG-14, BUG-15, BUG-16, BUG-17, BUG-18)  
-**Investigated:** 1 (BUG-9 - Not a Bug)  
-**Remaining:** 0 bugs ✅  
-**Commit:** 3a3662ed - fix: resolve P0 and P1 bugs from SBTM session (additional fixes applied locally on 2025-12-19)
+**Session:** SBTM_SESSION_2025_12_24
+**Fixed:** 17 bugs (BUG-1...BUG-18)
+**Investigated:** 1 (BUG-9)
+**Remaining:** 2 bugs (BUG-26, BUG-27) 🔴
+**Commit:** 58f34fc1 - test: add serial mode and timeout to integration tests for stability
 
+---
 
+## New Bugs (2025-12-24) 🔴
+
+### P0 - Critical
+
+- **BUG-26**: Production Login 500 Error › Blocks all admin access.
+
+### P1 - High
+
+- **BUG-27**: Public Teacher Schedule 404 › Broken link on homepage.
 
 ---
 

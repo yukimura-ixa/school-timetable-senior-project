@@ -101,7 +101,9 @@ export async function findLockedSubjectsByTerm(
   sem: semester,
 ): Promise<SubjectWithResponsibilities[]> {
   // First, group by SubjectCode to get distinct subjects
-  const groupedSubjects = (await prisma.teachers_responsibility.groupBy({
+  const groupedSubjects = (await (
+    prisma.teachers_responsibility as any
+  ).groupBy({
     by: ["SubjectCode"],
     where: {
       AcademicYear: academicYear,
