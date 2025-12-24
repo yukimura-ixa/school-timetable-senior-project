@@ -41,9 +41,15 @@ import prisma from "@/lib/prisma";
 
 // Prisma is already mocked globally in vitest.setup.ts
 // Get typed mock references
-// Get typed mock references
-const mockClassSchedule = prisma.class_schedule;
-const mockTeachersResp = prisma.teachers_responsibility;
+type MockedFn = ReturnType<typeof vi.fn>;
+const mockClassSchedule = prisma.class_schedule as unknown as Record<
+  string,
+  MockedFn
+>;
+const mockTeachersResp = prisma.teachers_responsibility as unknown as Record<
+  string,
+  MockedFn
+>;
 
 describe("Schedule Arrangement Actions", () => {
   beforeEach(() => {

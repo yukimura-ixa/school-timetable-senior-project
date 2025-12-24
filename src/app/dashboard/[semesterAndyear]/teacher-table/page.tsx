@@ -101,15 +101,10 @@ function TeacherTablePage() {
     isTeacher && session?.user?.id ? parseInt(session.user.id) : null;
 
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
-    currentTeacherId,
+    null,
   );
-
-  // Effect to enforce teacher selection for non-admins
-  useEffect(() => {
-    if (isTeacher && currentTeacherId) {
-      setSelectedTeacherId(currentTeacherId);
-    }
-  }, [isTeacher, currentTeacherId]);
+  const effectiveTeacherId =
+    isTeacher && currentTeacherId ? currentTeacherId : selectedTeacherId;
 
   // Bulk operation state
   const [selectedTeacherIds, setSelectedTeacherIds] = useState<number[]>([]);
@@ -141,18 +136,18 @@ function TeacherTablePage() {
       : null;
 
   const classScheduleKey: ClassScheduleKey | null =
-    canFetch && selectedTeacherId != null && semester && academicYear
+    canFetch && effectiveTeacherId != null && semester && academicYear
       ? [
           "class-schedules-teacher",
-          selectedTeacherId,
+          effectiveTeacherId,
           String(academicYear),
           String(semester),
         ]
       : null;
 
   const teacherKey: TeacherKey | null =
-    canFetch && selectedTeacherId != null
-      ? ["teacher-by-id", selectedTeacherId]
+    canFetch && effectiveTeacherId != null
+      ? ["teacher-by-id", effectiveTeacherId]
       : null;
 
   // Get all teachers for bulk operations
@@ -257,7 +252,7 @@ function TeacherTablePage() {
     isSessionLoading ||
     isTimeslotLoading ||
     isTimeslotValidating ||
-    (selectedTeacherId
+    (effectiveTeacherId
       ? isClassLoading ||
         isClassValidating ||
         isTeacherLoading ||
@@ -268,10 +263,10 @@ function TeacherTablePage() {
   if (!isSessionLoading && hasTimeslotError) {
     errors.push("ไม่สามารถโหลดข้อมูลคาบเรียนได้");
   }
-  if (hasClassError && selectedTeacherId) {
+  if (hasClassError && effectiveTeacherId) {
     errors.push("ไม่สามารถโหลดตารางสอนของครูที่เลือกได้");
   }
-  if (hasTeacherError && selectedTeacherId) {
+  if (hasTeacherError && effectiveTeacherId) {
     errors.push("ไม่สามารถโหลดข้อมูลครูที่เลือกได้");
   }
 
@@ -294,7 +289,7 @@ function TeacherTablePage() {
   const handleExportPDF = async () => {
     if (
       !timetableRef.current ||
-      !selectedTeacherId ||
+      !effectiveTeacherId ||
       !semester ||
       !academicYear
     )
@@ -382,7 +377,9 @@ function TeacherTablePage() {
       );
 
       // Download the PDF
-      pdf.save(`teacher-${selectedTeacherId}-${semester}-${academicYear}.pdf`);
+      pdf.save(
+        `teacher-${effectiveTeacherId}-${semester}-${academicYear}.pdf`,
+      );
     } catch (error) {
       console.error("PDF export error:", error);
       alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
@@ -431,7 +428,7 @@ function TeacherTablePage() {
     isClassValidating ||
     isTeacherLoading ||
     isTeacherValidating ||
-    !selectedTeacherId ||
+    !effectiveTeacherId ||
     hasClassError ||
     hasTimeslotError ||
     hasTeacherError,
@@ -681,7 +678,7 @@ function TeacherTablePage() {
         )}
 
         {/* Empty State - No Teacher Selected */}
-        {!showLoadingOverlay && !selectedTeacherId && errors.length === 0 && (
+        {!showLoadingOverlay && !effectiveTeacherId && errors.length === 0 && (
           <Paper
             elevation={0}
             sx={{
@@ -705,7 +702,7 @@ function TeacherTablePage() {
         )}
 
         {/* Timetable Content */}
-        {selectedTeacherId &&
+        {effectiveTeacherId &&
           teacherResponse &&
           !hasClassError &&
           !hasTimeslotError &&

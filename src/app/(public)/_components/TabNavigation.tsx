@@ -6,7 +6,6 @@
  */
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
 
 type TabValue = "teachers" | "classes";
 
@@ -14,18 +13,11 @@ export function TabNavigation() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<TabValue>("teachers");
-
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab === "teachers" || tab === "classes") {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
+  const activeTab: TabValue =
+    searchParams.get("tab") === "classes" ? "classes" : "teachers";
 
   const handleTabChange = (tab: TabValue) => {
     if (tab === activeTab) return; // no-op if unchanged
-    setActiveTab(tab);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
     params.delete("page"); // Reset pagination

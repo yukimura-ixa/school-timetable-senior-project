@@ -7,7 +7,7 @@
  * Used in CreateSemesterWizard as Step 3
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Box,
   TextField,
@@ -64,10 +64,7 @@ export function TimeslotConfigurationStep({
     BreakTimeslots: initialConfig?.BreakTimeslots || { Junior: 4, Senior: 5 },
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Validate configuration
-  useEffect(() => {
+  const errors = useMemo(() => {
     const newErrors: Record<string, string> = {};
 
     if (config.Days.length === 0) {
@@ -117,15 +114,18 @@ export function TimeslotConfigurationStep({
       newErrors.seniorBreak = "หมายเลขคาบพักม.ปลายไม่ถูกต้อง";
     }
 
-    setErrors(newErrors);
+    return newErrors;
+  }, [config]);
 
-    const isValid = Object.keys(newErrors).length === 0;
+  const isValid = Object.keys(errors).length === 0;
+
+  useEffect(() => {
     onValidationChange?.(isValid);
 
     if (isValid) {
       onChange(config);
     }
-  }, [config, onChange, onValidationChange]);
+  }, [config, isValid, onChange, onValidationChange]);
 
   const handleDayToggle = (day: day_of_week) => {
     setConfig((prev) => ({

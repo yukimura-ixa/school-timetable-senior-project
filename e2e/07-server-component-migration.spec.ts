@@ -132,7 +132,9 @@ test.describe("Server Component Migration - Other Management Pages", () => {
     await nav.goToRoomManagement();
 
     // Check for table/list - Context7: web-first assertion auto-waits
-    const table = page.locator('table, [role="table"], .table').first();
+    const table = page
+      .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
+      .first();
     await expect(table).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({

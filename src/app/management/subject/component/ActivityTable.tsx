@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { SubjectCategory, type subject } from "@/prisma/generated/client";
 import {
-  getSubjectsAction,
   deleteSubjectsAction,
 } from "@/features/subject/application/actions/subject.actions";
+import { useSubjects } from "@/hooks/use-subjects";
 import {
   Button,
   Table,
@@ -28,15 +28,19 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ActivityModal from "./ActivityModal";
 
 export default function ActivityTable() {
-  const [activities, setActivities] = useState<
-    Array<{
-      SubjectCode: string;
-      SubjectName: string;
-      ActivityType: string | null;
-      IsGraded: boolean;
-    }>
-  >([]);
-  const [loading, setLoading] = useState(true);
+  const { data: subjects, isLoading, mutate } = useSubjects();
+  const activities = useMemo(
+    () =>
+      (subjects ?? [])
+        .filter((s: subject) => s.Category === SubjectCategory.ACTIVITY)
+        .map((s: subject) => ({
+          SubjectCode: s.SubjectCode,
+          SubjectName: s.SubjectName,
+          ActivityType: s.ActivityType ?? null,
+          IsGraded: s.IsGraded,
+        })),
+    [subjects],
+  );
   const [modalOpen, setModalOpen] = useState(false);
   const [editActivity, setEditActivity] = useState<{
     SubjectCode?: string;
@@ -47,25 +51,9 @@ export default function ActivityTable() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<string | null>(null);
 
-  const fetchActivities = async () => {
-    setLoading(true);
-    const res = await getSubjectsAction({});
-    setActivities(
-      (res.data ?? [])
-        .filter((s: subject) => s.Category === SubjectCategory.ACTIVITY)
-        .map((s: subject) => ({
-          SubjectCode: s.SubjectCode,
-          SubjectName: s.SubjectName,
-          ActivityType: s.ActivityType ?? null,
-          IsGraded: s.IsGraded,
-        })),
-    );
-    setLoading(false);
+  const refreshActivities = async () => {
+    await mutate();
   };
-
-  useEffect(() => {
-    void fetchActivities();
-  }, []);
 
   const handleAddClick = () => {
     setEditActivity(null);
@@ -89,7 +77,7 @@ export default function ActivityTable() {
       SubjectCodes: [activityToDelete],
     });
     if (res.success) {
-      await fetchActivities();
+      await refreshActivities();
     }
     setDeleteConfirmOpen(false);
     setActivityToDelete(null);
@@ -99,11 +87,11 @@ export default function ActivityTable() {
     setModalOpen(false);
     setEditActivity(null);
     if (shouldRefresh) {
-      await fetchActivities();
+      await refreshActivities();
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", padding: 32 }}>
         <CircularProgress />

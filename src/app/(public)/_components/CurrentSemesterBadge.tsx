@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSemesterStore } from "@/stores/semesterStore";
 
 /**
@@ -13,17 +12,6 @@ import { useSemesterStore } from "@/stores/semesterStore";
  */
 export function CurrentSemesterBadge() {
   const { semester, academicYear } = useSemesterStore();
-  const [mounted, setMounted] = useState(false);
-
-  // Avoid hydration mismatch by waiting for client mount
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Don't render until mounted (localStorage only available client-side)
-  if (!mounted) {
-    return null;
-  }
 
   // Only show badge if semester is selected
   if (!semester || !academicYear) {
