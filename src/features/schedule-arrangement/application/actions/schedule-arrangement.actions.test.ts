@@ -92,7 +92,7 @@ describe("Schedule Arrangement Actions", () => {
 
       expect(result.success).toBe(true);
       expect(result.data).toEqual({ classId: 1, created: true });
-      expect(prisma.class_schedule.create).toHaveBeenCalled();
+      expect(mockClassSchedule.create).toHaveBeenCalled();
     });
 
     it("should throw error when teacher conflict exists", async () => {

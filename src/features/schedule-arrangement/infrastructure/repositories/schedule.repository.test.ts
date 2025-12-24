@@ -60,7 +60,7 @@ describe("ScheduleRepository", () => {
 
       const result = await repository.findSchedulesByTerm(2566, "SEMESTER_1");
 
-      expect(prisma.class_schedule.findMany).toHaveBeenCalledWith({
+      expect(mockClassSchedule.findMany).toHaveBeenCalledWith({
         where: {
           timeslot: {
             AcademicYear: 2566,
@@ -137,7 +137,7 @@ describe("ScheduleRepository", () => {
         "SEMESTER_1",
       );
 
-      expect(prisma.teachers_responsibility.findMany).toHaveBeenCalledWith({
+      expect(mockTeachersResp.findMany).toHaveBeenCalledWith({
         where: {
           AcademicYear: 2566,
           Semester: "SEMESTER_1",
@@ -183,7 +183,7 @@ describe("ScheduleRepository", () => {
         IsLocked: false,
       });
 
-      expect(prisma.class_schedule.create).toHaveBeenCalledWith({
+      expect(mockClassSchedule.create).toHaveBeenCalledWith({
         data: expect.any(Object),
         include: expect.any(Object),
       });
@@ -208,7 +208,7 @@ describe("ScheduleRepository", () => {
         IsLocked: true,
       });
 
-      expect(prisma.class_schedule.update).toHaveBeenCalledWith({
+      expect(mockClassSchedule.update).toHaveBeenCalledWith({
         where: { ClassID: 1 },
         data: { RoomID: 102, IsLocked: true },
         include: expect.any(Object),
@@ -228,7 +228,7 @@ describe("ScheduleRepository", () => {
 
       await repository.deleteSchedule(1);
 
-      expect(prisma.class_schedule.delete).toHaveBeenCalledWith({
+      expect(mockClassSchedule.delete).toHaveBeenCalledWith({
         where: { ClassID: 1 },
       });
     });
@@ -251,7 +251,7 @@ describe("ScheduleRepository", () => {
 
       const result = await repository.findScheduleById(1);
 
-      expect(prisma.class_schedule.findUnique).toHaveBeenCalledWith({
+      expect(mockClassSchedule.findUnique).toHaveBeenCalledWith({
         where: { ClassID: 1 },
         include: expect.any(Object),
       });
@@ -280,7 +280,7 @@ describe("ScheduleRepository", () => {
 
       await repository.linkTeacherToSchedule(1, 1);
 
-      expect(prisma.teachers_responsibility.update).toHaveBeenCalledWith({
+      expect(mockTeachersResp.update).toHaveBeenCalledWith({
         where: { RespID: 1 },
         data: {
           class_schedule: {
@@ -301,7 +301,7 @@ describe("ScheduleRepository", () => {
 
       await repository.unlinkTeacherFromSchedule(1, 1);
 
-      expect(prisma.teachers_responsibility.update).toHaveBeenCalledWith({
+      expect(mockTeachersResp.update).toHaveBeenCalledWith({
         where: { RespID: 1 },
         data: {
           class_schedule: {

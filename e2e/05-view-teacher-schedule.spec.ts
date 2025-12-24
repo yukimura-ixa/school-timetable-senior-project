@@ -24,7 +24,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     // Wait for page to fully hydrate and data to load
     await page.waitForLoadState("networkidle");
@@ -48,7 +48,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     // Wait for data to load
     await page.waitForTimeout(2000);
@@ -79,7 +79,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     // Wait for schedule to load
     await page.waitForTimeout(2000);
@@ -119,7 +119,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -151,7 +151,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(1000);
 
@@ -180,7 +180,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(1000);
 
@@ -234,7 +234,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
 
     // Navigate directly to teacher-table
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     console.log("Teacher schedule page accessible");
   });
@@ -244,7 +244,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
   }) => {
     // This test verifies role-based UI restrictions
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -277,7 +277,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
         await page.goto(url, { timeout: 90_000, waitUntil: "commit" });
-        await expect(page.locator("main, body")).toBeVisible({
+        await expect(page.getByTestId("app-content-wrapper")).toBeVisible({
           timeout: 60_000,
         });
         return;
@@ -299,7 +299,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(2000);
 
@@ -403,7 +403,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     await page.waitForTimeout(3000); // Increased from 2000ms for mobile rendering
 
     // Soft check - page loads on mobile, element may take time to render
-    const mainContent = page.locator("main, body");
+    const mainContent = page.getByTestId("app-content-wrapper");
     await expect(mainContent).toBeVisible({ timeout: 15000 });
 
     // Log presence of teacher-multi-select without failing
@@ -460,7 +460,7 @@ test.describe("TC-017: Export Functionality", () => {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
         await page.goto(url, { timeout: 90_000, waitUntil: "commit" });
-        await expect(page.locator("main, body")).toBeVisible({
+        await expect(page.getByTestId("app-content-wrapper")).toBeVisible({
           timeout: 60_000,
         });
         return;
@@ -544,7 +544,7 @@ test.describe("TC-017: Export Functionality", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
     await page.waitForTimeout(1000);
 

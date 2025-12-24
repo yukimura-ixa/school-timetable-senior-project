@@ -18,7 +18,6 @@ import { getAssignmentsAction } from "@/features/assign/application/actions/assi
 import QuickAssignmentPanel from "./QuickAssignmentPanel";
 import { LockedScheduleList } from "../components/LockedScheduleList";
 import { useTeacherLockedSchedules } from "../hooks/useTeacherLockedSchedules";
-import type { ActionResult } from "@/shared/lib/action-wrapper";
 
 // Type for responsibility data with subject relation
 interface ResponsibilityWithSubject extends teachers_responsibility {
@@ -141,9 +140,7 @@ function ShowTeacherData({
   useEffect(() => {
     if (responsibilityData.data) {
       let sumTeachHour = 0;
-      const result = responsibilityData.data as ActionResult<
-        ResponsibilityWithSubject[]
-      >;
+      const result = responsibilityData.data;
       const data = result?.data;
 
       if (Array.isArray(data)) {
@@ -158,9 +155,7 @@ function ShowTeacherData({
   // Calculate subject statistics
   const subjectStats = useMemo(() => {
     try {
-      const result = responsibilityData.data as
-        | ActionResult<ResponsibilityWithSubject[]>
-        | undefined;
+      const result = responsibilityData.data;
       const data = result?.data;
       if (!Array.isArray(data)) return { total: 0, byCategory: {} };
 
@@ -178,9 +173,7 @@ function ShowTeacherData({
   // Calculate class statistics
   const classStats = useMemo(() => {
     try {
-      const result = responsibilityData.data as
-        | ActionResult<ResponsibilityWithSubject[]>
-        | undefined;
+      const result = responsibilityData.data;
       const data = result?.data;
       if (!Array.isArray(data)) return { total: 0, uniqueClasses: 0 };
 
@@ -485,9 +478,7 @@ function ShowTeacherData({
             academicYear &&
             (() => {
               // Transform responsibility data to currentAssignments format
-              const result = responsibilityData.data as
-                | ActionResult<ResponsibilityWithSubject[]>
-                | undefined;
+              const result = responsibilityData.data;
               const respData = result?.data;
               const currentAssignments = Array.isArray(respData)
                 ? respData.map((item) => ({
