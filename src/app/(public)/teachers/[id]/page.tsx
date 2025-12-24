@@ -54,6 +54,8 @@ type TeacherScheduleContentProps = {
   teacherId: number;
 };
 
+type TeacherSchedule = Awaited<ReturnType<typeof getTeacherSchedule>>[number];
+
 async function TeacherScheduleContent({
   teacherId,
 }: TeacherScheduleContentProps) {
@@ -199,7 +201,7 @@ async function TeacherScheduleContent({
                   {dayNames[day]}
                 </div>
                 <div className="p-2 space-y-2">
-                  {schedulesByDay[day]?.map((schedule: any) => {
+                  {schedulesByDay[day]?.map((schedule: TeacherSchedule) => {
                     const startTime = new Date(schedule.timeslot.StartTime);
                     const endTime = new Date(schedule.timeslot.EndTime);
 

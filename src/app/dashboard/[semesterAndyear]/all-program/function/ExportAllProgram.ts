@@ -3,9 +3,44 @@ import { subjectCreditValues, subject_credit } from "@/models/credit-value";
 import ExcelJS from "exceljs";
 import { createClientLogger } from "@/lib/client-logger";
 import { isUndefined } from "swr/_internal";
+import type { ActionResult } from "@/shared/lib/action-wrapper";
+
+type ProgramTeacher = {
+  TeacherFullName: string;
+};
+
+type ProgramSubject = {
+  SubjectCode: string;
+  SubjectName: string;
+  Credit: subject_credit;
+  Category: string;
+  teachers?: ProgramTeacher[];
+};
+
+type ProgramData = {
+  subjects: ProgramSubject[];
+};
+
+const getProgramSubjects = (
+  programData: ProgramData | ActionResult<ProgramData> | null | undefined,
+): ProgramSubject[] => {
+  if (!programData) return [];
+  if ("subjects" in programData && Array.isArray(programData.subjects)) {
+    return programData.subjects;
+  }
+  if (
+    "data" in programData &&
+    programData.data &&
+    "subjects" in programData.data &&
+    Array.isArray(programData.data.subjects)
+  ) {
+    return programData.data.subjects;
+  }
+  return [];
+};
 
 export default function ExportAllProgram(
-  programData: any,
+  programData: ProgramData | ActionResult<ProgramData> | null | undefined,
   GradeID: string,
   semester: string,
   academicYear: string,
@@ -36,20 +71,21 @@ export default function ExportAllProgram(
     { key: "alt_notes", width: 8.5 },
   ];
   sheet.columns = keyColumn;
+  const subjects = getProgramSubjects(programData);
   const primarySubjectData = () => {
     return sortSubjectCategory(
-      programData.subjects.filter((item: any) => item.Category == "พื้นฐาน"),
+      subjects.filter((item) => item.Category === "พื้นฐาน"),
     );
   };
   const extraSubjectData = () => {
     return sortSubjectCategory(
-      programData.subjects.filter((item: any) => item.Category == "เพิ่มเติม"),
+      subjects.filter((item) => item.Category === "เพิ่มเติม"),
     );
   };
   const activitiesSubjectData = () => {
     return sortSubjectCategory(
-      programData.subjects.filter(
-        (item: any) => item.Category == "กิจกรรมพัฒนาผู้เรียน",
+      subjects.filter(
+        (item) => item.Category === "กิจกรรมพัฒนาผู้เรียน",
       ),
     );
   };
@@ -73,7 +109,7 @@ export default function ExportAllProgram(
       alt_notes: "",
     };
   };
-  const SumCredit = (title: string, credit: any) => {
+  const SumCredit = (title: string, credit: string | number) => {
     return {
       order: "",
       subjectcode: "",
@@ -84,30 +120,27 @@ export default function ExportAllProgram(
     };
   };
   const getSumCreditValue = (CreditType: string) => {
-    if (CreditType == "PRIMARY") {
-      return programData.subjects
-        .filter((item: any) => item.Category == "พื้นฐาน")
+    if (CreditType === "PRIMARY") {
+      return subjects
+        .filter((item) => item.Category === "พื้นฐาน")
         .reduce(
-          (a: number, b: any) =>
-            a + (subjectCreditValues[b.Credit as subject_credit] ?? 0),
+          (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
           0,
         )
         .toFixed(1);
-    } else if (CreditType == "EXTRA") {
-      return programData.subjects
-        .filter((item: any) => item.Category == "เพิ่มเติม")
+    } else if (CreditType === "EXTRA") {
+      return subjects
+        .filter((item) => item.Category === "เพิ่มเติม")
         .reduce(
-          (a: number, b: any) =>
-            a + (subjectCreditValues[b.Credit as subject_credit] ?? 0),
+          (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
           0,
         )
         .toFixed(1);
-    } else if (CreditType == "ALL") {
-      return programData.subjects
-        .filter((item: any) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
+    } else if (CreditType === "ALL") {
+      return subjects
+        .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
         .reduce(
-          (a: number, b: any) =>
-            a + (subjectCreditValues[b.Credit as subject_credit] ?? 0),
+          (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
           0,
         )
         .toFixed(1);
@@ -115,7 +148,7 @@ export default function ExportAllProgram(
       return 0;
     }
   };
-  const sortSubjectCategory = (data: any[]) => {
+  const sortSubjectCategory = (data: ProgramSubject[]) => {
     //ท ค ว ส พ ศ ก อ
     const SubjectCodeVal: Record<string, number> = {
       ท: 1,
@@ -127,7 +160,7 @@ export default function ExportAllProgram(
       ก: 7,
       อ: 8,
     };
-    const sortedData = data.sort((a: any, b: any) => {
+    const sortedData = data.sort((a, b) => {
       const getVal = (sCode: string) => {
         return isUndefined(SubjectCodeVal[sCode]) ? 9 : SubjectCodeVal[sCode];
       };
@@ -143,13 +176,15 @@ export default function ExportAllProgram(
   };
   const jsonData = [
     CategoryObject("สาระการเรียนรู้พื้นฐาน"),
-    ...primarySubjectData().map((item: any, index: number) => ({
+    ...primarySubjectData().map((item: ProgramSubject, index: number) => ({
       order: index + 1,
       subjectcode: item.SubjectCode,
       subjectname: item.SubjectName,
       credit: subjectCreditTitles[item.Credit],
       teacher:
-        item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : "",
+        item.teachers && item.teachers.length !== 0
+          ? item.teachers[0].TeacherFullName
+          : "",
       alt_notes: "",
     })),
     SumCredit(
@@ -158,13 +193,15 @@ export default function ExportAllProgram(
     ),
     blankObject(),
     CategoryObject("สาระการเรียนรู้เพิ่มเติม"),
-    ...extraSubjectData().map((item: any, index: number) => ({
+    ...extraSubjectData().map((item: ProgramSubject, index: number) => ({
       order: primarySubjectData().length + (index + 1),
       subjectcode: item.SubjectCode,
       subjectname: item.SubjectName,
       credit: subjectCreditTitles[item.Credit],
       teacher:
-        item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : "",
+        item.teachers && item.teachers.length !== 0
+          ? item.teachers[0].TeacherFullName
+          : "",
       alt_notes: "",
     })),
     SumCredit(
@@ -173,14 +210,16 @@ export default function ExportAllProgram(
     ),
     blankObject(),
     CategoryObject("กิจกรรมพัฒนาผู้เรียน"),
-    ...activitiesSubjectData().map((item: any, index: number) => ({
+    ...activitiesSubjectData().map((item: ProgramSubject, index: number) => ({
       order:
         primarySubjectData().length + extraSubjectData().length + (index + 1),
       subjectcode: item.SubjectCode,
       subjectname: item.SubjectName,
       credit: "",
       teacher:
-        item.teachers.length !== 0 ? item.teachers[0].TeacherFullName : "",
+        item.teachers && item.teachers.length !== 0
+          ? item.teachers[0].TeacherFullName
+          : "",
       alt_notes: "",
     })),
     SumCredit("รวมหน่วยกิตทั้งหมด", getSumCreditValue("ALL")),

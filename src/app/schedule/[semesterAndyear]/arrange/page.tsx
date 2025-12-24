@@ -480,7 +480,7 @@ export default function ArrangementPage() {
   const transformedTeachers = useMemo(() => {
     if (!allTeachers) return [];
     // ArrangementHeader now expects Prisma's teacher type directly
-    return allTeachers as teacher[];
+    return allTeachers;
   }, [allTeachers]);
 
   // ============================================================================
