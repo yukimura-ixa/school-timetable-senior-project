@@ -18,6 +18,8 @@ import * as fs from "fs";
 const TEST_SEMESTER = "1-2567";
 
 test.describe("Export File Download Validation", () => {
+  // Run export tests sequentially to avoid file system race conditions
+  test.describe.configure({ mode: "serial", timeout: 120_000 });
   test.describe("Teacher Schedule Export", () => {
     test("TC-EXP-01: Can trigger Excel export for teacher schedule", async ({
       page,

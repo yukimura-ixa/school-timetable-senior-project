@@ -11,6 +11,9 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("Analytics Dashboard - Vercel Integration", () => {
+  // Extended timeout for external Vercel service tests
+  test.describe.configure({ timeout: 90_000 });
+
   // Helper to check if we can access authenticated pages
   test.beforeEach(async ({ page }) => {
     // Try to access the semester selection page (/dashboard is the root)
@@ -30,7 +33,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       page,
     }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
@@ -62,7 +67,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       });
 
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
@@ -74,7 +81,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
   test.describe("Dashboard Statistics (if visible)", () => {
     test("statistics should be valid numbers", async ({ page }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
@@ -104,7 +113,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
 
     test("percentages should be in valid range", async ({ page }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
@@ -145,14 +156,18 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
     test("should use Vercel edge caching effectively", async ({ page }) => {
       // First visit
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
       // Second visit (should hit edge cache)
       const startTime = Date.now();
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
       const cachedLoadTime = Date.now() - startTime;
@@ -188,7 +203,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       });
 
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
@@ -237,7 +254,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
       });
 
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
@@ -251,7 +270,9 @@ test.describe("Analytics Dashboard - Vercel Integration", () => {
   test.describe("Data Validation", () => {
     test("semester data should be valid if present", async ({ page }) => {
       await page.goto("/dashboard");
-      await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
+      await expect(
+        page.locator('main, [role="main"], body').first(),
+      ).toBeVisible({
         timeout: 15000,
       });
 
