@@ -84,9 +84,7 @@ export default function ExportAllProgram(
   };
   const activitiesSubjectData = () => {
     return sortSubjectCategory(
-      subjects.filter(
-        (item) => item.Category === "กิจกรรมพัฒนาผู้เรียน",
-      ),
+      subjects.filter((item) => item.Category === "กิจกรรมพัฒนาผู้เรียน"),
     );
   };
   const CategoryObject = (catName: string) => {
@@ -123,26 +121,17 @@ export default function ExportAllProgram(
     if (CreditType === "PRIMARY") {
       return subjects
         .filter((item) => item.Category === "พื้นฐาน")
-        .reduce(
-          (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
-          0,
-        )
+        .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)
         .toFixed(1);
     } else if (CreditType === "EXTRA") {
       return subjects
         .filter((item) => item.Category === "เพิ่มเติม")
-        .reduce(
-          (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
-          0,
-        )
+        .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)
         .toFixed(1);
     } else if (CreditType === "ALL") {
       return subjects
         .filter((item) => item.Category !== "กิจกรรมพัฒนาผู้เรียน")
-        .reduce(
-          (a, b) => a + (subjectCreditValues[b.Credit] ?? 0),
-          0,
-        )
+        .reduce((a, b) => a + (subjectCreditValues[b.Credit] ?? 0), 0)
         .toFixed(1);
     } else {
       return 0;
@@ -183,10 +172,7 @@ export default function ExportAllProgram(
       subjectcode: item.SubjectCode,
       subjectname: item.SubjectName,
       credit: subjectCreditTitles[item.Credit],
-      teacher:
-        item.teachers && item.teachers.length !== 0
-          ? item.teachers[0].TeacherFullName
-          : "",
+      teacher: item.teachers?.[0]?.TeacherFullName ?? "",
       alt_notes: "",
     })),
     SumCredit(
@@ -200,10 +186,7 @@ export default function ExportAllProgram(
       subjectcode: item.SubjectCode,
       subjectname: item.SubjectName,
       credit: subjectCreditTitles[item.Credit],
-      teacher:
-        item.teachers && item.teachers.length !== 0
-          ? item.teachers[0].TeacherFullName
-          : "",
+      teacher: item.teachers?.[0]?.TeacherFullName ?? "",
       alt_notes: "",
     })),
     SumCredit(
@@ -218,10 +201,7 @@ export default function ExportAllProgram(
       subjectcode: item.SubjectCode,
       subjectname: item.SubjectName,
       credit: "",
-      teacher:
-        item.teachers && item.teachers.length !== 0
-          ? item.teachers[0].TeacherFullName
-          : "",
+      teacher: item.teachers?.[0]?.TeacherFullName ?? "",
       alt_notes: "",
     })),
     SumCredit("รวมหน่วยกิตทั้งหมด", getSumCreditValue("ALL")),
