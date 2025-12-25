@@ -20,6 +20,7 @@ import {
   checkDuplicateTeacher,
   checkEmailConflict,
 } from "../../domain/services/teacher-validation.service";
+import { revalidateTag } from "next/cache";
 import { withPrismaTransaction } from "@/lib/prisma-transaction";
 import {
   createTeacherSchema,
@@ -52,12 +53,9 @@ import {
  * ```
  */
 
-export const getTeachersAction = createAction(
-  v.object({}),
-  async () => {
-    return await teacherRepository.findAll();
-  },
-);
+export const getTeachersAction = createAction(v.object({}), async () => {
+  return await teacherRepository.findAll();
+});
 
 /**
  * Get a single teacher by ID
@@ -147,8 +145,8 @@ export const createTeacherAction = createAction(
     // 3. Create teacher
     const newTeacher = await teacherRepository.create(input);
 
-    // 4. Revalidate cache (optional - for future cache optimization)
-    // revalidateTag('teachers');
+    // 4. Revalidate cache
+    revalidateTag("teachers", "max");
 
     return newTeacher;
   },
@@ -316,8 +314,8 @@ export const updateTeacherAction = createAction(
       Department: input.Department,
     });
 
-    // 4. Revalidate cache (optional - for future cache optimization)
-    // revalidateTag('teachers');
+    // 4. Revalidate cache
+    revalidateTag("teachers", "max");
 
     return updatedTeacher;
   },
@@ -436,8 +434,8 @@ export const deleteTeachersAction = createAction(
   async (input: DeleteTeachersInput) => {
     const result = await teacherRepository.deleteMany(input);
 
-    // Revalidate cache (optional - for future cache optimization)
-    // revalidateTag('teachers');
+    // Revalidate cache
+    revalidateTag("teachers", "max");
 
     return result;
   },

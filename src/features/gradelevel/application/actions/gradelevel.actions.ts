@@ -17,6 +17,7 @@ import {
   validateBulkGradeLevels,
   findGradeLevelsForLock,
 } from "../../domain/services/gradelevel-validation.service";
+import { revalidateTag } from "next/cache";
 import {
   createGradeLevelSchema,
   createGradeLevelsSchema,
@@ -47,12 +48,9 @@ import {
  * }
  * ```
  */
-export const getGradeLevelsAction = createAction(
-  v.object({}),
-  async () => {
-    return await gradeLevelRepository.findAll();
-  },
-);
+export const getGradeLevelsAction = createAction(v.object({}), async () => {
+  return await gradeLevelRepository.findAll();
+});
 
 /**
  * Create a single gradelevel with duplicate validation
@@ -84,9 +82,8 @@ export const createGradeLevelAction = createAction(
     // Create gradelevel
     const gradelevel = await gradeLevelRepository.create(input);
 
-    // Note: revalidateTag is optional in Next.js 16
-    // Commented out for now as it requires second parameter
-    // revalidateTag('gradelevels');
+    // Revalidate cache
+    revalidateTag("classes", "max");
 
     return gradelevel;
   },
@@ -152,6 +149,9 @@ export const updateGradeLevelAction = createAction(
       ProgramID: input.ProgramID ?? null,
     });
 
+    // Revalidate cache
+    revalidateTag("classes", "max");
+
     return gradelevel;
   },
 );
@@ -204,6 +204,9 @@ export const deleteGradeLevelsAction = createAction(
   async (input: DeleteGradeLevelsInput) => {
     const result = await gradeLevelRepository.deleteMany(input);
 
+    // Revalidate cache
+    revalidateTag("classes", "max");
+
     return {
       count: result.count,
       message: `ลบข้อมูล ${result.count} ชั้นเรียนสำเร็จ`,
@@ -255,10 +258,7 @@ export const getGradeLevelsForLockAction = createAction(
  * }
  * ```
  */
-export const getGradeLevelCountAction = createAction(
-  v.object({}),
-  async () => {
-    const count = await gradeLevelRepository.count();
-    return { count };
-  },
-);
+export const getGradeLevelCountAction = createAction(v.object({}), async () => {
+  const count = await gradeLevelRepository.count();
+  return { count };
+});
