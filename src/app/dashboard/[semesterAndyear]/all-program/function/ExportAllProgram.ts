@@ -164,10 +164,12 @@ export default function ExportAllProgram(
       const getVal = (sCode: string) => {
         return isUndefined(SubjectCodeVal[sCode]) ? 9 : SubjectCodeVal[sCode];
       };
-      if (getVal(a.SubjectCode[0]) < getVal(b.SubjectCode[0])) {
+      const aCode = a.SubjectCode?.[0] ?? "";
+      const bCode = b.SubjectCode?.[0] ?? "";
+      if (getVal(aCode) < getVal(bCode)) {
         return -1;
       }
-      if (getVal(a.SubjectCode[0]) > getVal(b.SubjectCode[0])) {
+      if (getVal(aCode) > getVal(bCode)) {
         return 1;
       }
       return 0;
