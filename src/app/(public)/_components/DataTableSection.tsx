@@ -122,85 +122,95 @@ export function DataTableSection({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white/40 backdrop-blur-xl rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white/60 overflow-hidden transition-all duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.05)]">
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 bg-white px-6 py-4">
-        <nav className="-mb-px flex space-x-8" role="tablist">
+      <div className="border-b border-slate-200/50 bg-white/30 px-8 pt-6">
+        <nav className="-mb-px flex space-x-12" role="tablist">
           <button
             onClick={() => handleTabChange("teachers")}
             data-testid="teachers-tab"
             className={`
-              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-              transition-colors
+              relative whitespace-nowrap pb-6 px-1 font-bold text-base
+              transition-all duration-300
               ${
                 activeTab === "teachers"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
               }
             `}
             role="tab"
             aria-selected={activeTab === "teachers"}
             aria-controls="teachers-panel"
           >
-            ครู (Teachers)
+            <span>ครู (Teachers)</span>
+            {activeTab === "teachers" && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+            )}
           </button>
           <button
             onClick={() => handleTabChange("classes")}
             data-testid="classes-tab"
             className={`
-              whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-              transition-colors
+              relative whitespace-nowrap pb-6 px-1 font-bold text-base
+              transition-all duration-300
               ${
                 activeTab === "classes"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  ? "text-blue-600"
+                  : "text-slate-400 hover:text-slate-600"
               }
             `}
             role="tab"
             aria-selected={activeTab === "classes"}
             aria-controls="classes-panel"
           >
-            ชั้นเรียน (Classes)
+            <span>ชั้นเรียน (Classes)</span>
+            {activeTab === "classes" && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
+            )}
           </button>
         </nav>
       </div>
 
-      {/* Search Bar */}
-      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-        <TableSearch
-          key={activeTab} // Reset search when tab changes
-          initialValue={searchQuery}
-          onSearch={handleSearch}
-          placeholder={
-            activeTab === "teachers"
-              ? "ค้นหาครู (ชื่อ, ภาควิชา)..."
-              : "ค้นหาชั้นเรียน (เช่น M.1)..."
-          }
-        />
+      {/* Search Bar - Modern styled area */}
+      <div className="px-8 py-8 bg-white/20">
+        <div className="max-w-2xl">
+          <TableSearch
+            key={activeTab} // Reset search when tab changes
+            initialValue={searchQuery}
+            onSearch={handleSearch}
+            placeholder={
+              activeTab === "teachers"
+                ? "ค้นหาครูที่ต้องการ เช่น ชื่อจริง, ภาควิชา..."
+                : "ค้นหาชั้นเรียนที่ต้องการ เช่น M.1/2..."
+            }
+          />
+        </div>
       </div>
 
       {/* Table Content */}
-      <div className="px-6 py-4 min-h-[400px]">
-        {activeTab === "teachers" ? (
-          <TeachersTableClient
-            data={currentTeachers}
-            search={searchQuery}
-            data-testid="teacher-list"
-            configId={currentConfigId}
-          />
-        ) : (
-          <ClassesTableClient
-            data={currentClasses}
-            search={searchQuery}
-            data-testid="class-list"
-            configId={currentConfigId}
-          />
-        )}
+      <div className="px-8 pb-8 min-h-[400px]">
+        <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/60 shadow-sm overflow-hidden">
+          {activeTab === "teachers" ? (
+            <TeachersTableClient
+              data={currentTeachers}
+              search={searchQuery}
+              data-testid="teacher-list"
+              configId={currentConfigId}
+            />
+          ) : (
+            <ClassesTableClient
+              data={currentClasses}
+              search={searchQuery}
+              data-testid="class-list"
+              configId={currentConfigId}
+            />
+          )}
+        </div>
       </div>
 
       {/* Pagination */}
       {actualTotalPages > 1 && (
-        <div className="px-6 py-4 border-t border-gray-200">
+        <div className="px-8 py-6 bg-white/30 border-t border-slate-100">
           <ClientPagination
             currentPage={currentPage}
             totalPages={actualTotalPages}

@@ -63,56 +63,67 @@ export default async function HomePage() {
 
   return (
     // Responsive width layout: container with max-width, centered
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50/50">
       {/* Premium Hero Section with Animated Background */}
-      <section className="relative overflow-hidden min-h-[400px] flex items-center">
+      <section className="relative overflow-hidden min-h-[500px] flex items-center">
         {/* Animated gradient mesh background */}
         <AnimatedHeroBackground />
 
         {/* Glassmorphism overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/20 via-transparent to-slate-50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/10 to-slate-50/50" />
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto max-w-7xl px-4 md:px-6 lg:px-8 py-16">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-6">
-              {/* Main heading with gradient text */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight">
-                <span className="bg-gradient-to-r from-white via-blue-100 to-emerald-200 bg-clip-text text-transparent">
-                  ระบบตารางเรียน
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-emerald-300 via-cyan-200 to-blue-200 bg-clip-text text-transparent">
-                  ตารางสอน
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl text-slate-300 max-w-xl">
-                สร้างและจัดการตารางเรียนตารางสอนสำหรับสถาบันการศึกษา
-                ค้นหาและดูตารางเรียนของครูผู้สอนและชั้นเรียนได้ทันที
-              </p>
+        <div className="relative z-10 container mx-auto max-w-7xl px-4 md:px-6 lg:px-8 py-20 lg:py-32">
+          <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-8 max-w-2xl">
+              {/* Main heading with premium typography and gradient text */}
+              <div className="space-y-4">
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-tight">
+                  <span className="bg-gradient-to-r from-white via-blue-100 to-emerald-200 bg-clip-text text-transparent">
+                    ระบบตารางเรียน
+                  </span>
+                  <br />
+                  <span className="bg-gradient-to-r from-emerald-300 via-cyan-200 to-blue-200 bg-clip-text text-transparent">
+                    ตารางสอน
+                  </span>
+                </h1>
+                <p className="text-xl md:text-2xl text-slate-300/90 font-medium leading-relaxed">
+                  จัดการตารางสอนอย่างมืออาชีพด้วยเทคโนโลยีทันสมัย รวดเร็ว
+                  ถูกต้อง และตรวจสอบได้ทันที
+                </p>
+              </div>
+
               {/* Current semester badge */}
-              <CurrentSemesterBadge />
+              <div className="transform scale-110 origin-left">
+                <CurrentSemesterBadge />
+              </div>
             </div>
 
-            {/* CTA Buttons with glassmorphism */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* CTA Buttons with premium glassmorphism */}
+            <div className="flex flex-col sm:flex-row gap-6">
               <Link
                 href="/signin"
                 prefetch={false}
                 data-testid="sign-in-button"
-                className="group relative inline-flex items-center justify-center rounded-xl px-8 py-4 text-base font-bold transition-all duration-300 bg-white/95 text-slate-900 shadow-lg shadow-white/20 hover:shadow-xl hover:shadow-white/30 hover:scale-105 hover:-translate-y-1"
+                className="group relative inline-flex items-center justify-center rounded-2xl px-10 py-5 text-lg font-bold transition-all duration-500 bg-white text-slate-900 shadow-[0_20px_40px_rgba(255,255,255,0.2)] hover:shadow-[0_25px_50px_rgba(255,255,255,0.3)] hover:scale-105 hover:-translate-y-1 active:scale-95"
               >
-                <span className="mr-2">🔐</span>
-                Admin Login
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative flex items-center">
+                  <span className="mr-3 text-2xl">🔐</span>
+                  เข้าสู่ระบบ Admin
+                </span>
               </Link>
               {currentConfigId && (
                 <Link
                   href={`/teachers/607/${currentConfigId}`}
                   prefetch={false}
-                  className="group relative inline-flex items-center justify-center rounded-xl border-2 border-white/30 backdrop-blur-sm px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:bg-white/10 hover:border-white/50 hover:scale-105 hover:-translate-y-1"
+                  className="group relative inline-flex items-center justify-center rounded-2xl border-2 border-white/20 backdrop-blur-md px-10 py-5 text-lg font-bold text-white transition-all duration-500 hover:bg-white/10 hover:border-white/40 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden"
                 >
-                  <span className="mr-2">📋</span>
-                  ดูตารางสอนตัวอย่าง
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  <span className="relative flex items-center">
+                    <span className="mr-3 text-2xl">📋</span>
+                    ดูตารางสอนตัวอย่าง
+                  </span>
                 </Link>
               )}
             </div>
