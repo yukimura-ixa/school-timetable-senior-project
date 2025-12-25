@@ -51,7 +51,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/config");
+      await page.goto("/schedule/2567/1/config");
       await page.waitForLoadState("networkidle");
 
       // Wait for config form to load
@@ -77,7 +77,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/config");
+      await page.goto("/schedule/2567/1/config");
       await page.waitForLoadState("networkidle");
 
       // Wait for page body to be ready
@@ -99,7 +99,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/lock");
+      await page.goto("/schedule/2567/1/lock");
       await page.waitForLoadState("networkidle");
 
       // Wait for page to fully render
@@ -119,7 +119,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/lock");
+      await page.goto("/schedule/2567/1/lock");
       await page.waitForLoadState("networkidle");
 
       // Try to open bulk lock modal
@@ -150,7 +150,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/arrange");
+      await page.goto("/schedule/2567/1/arrange");
       await page.waitForLoadState("networkidle");
 
       // Wait for page to fully render
@@ -174,7 +174,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/arrange");
+      await page.goto("/schedule/2567/1/arrange");
       await page.waitForLoadState("networkidle");
 
       const subjectList = page.locator('[data-testid="subject-list"]').first();
@@ -191,7 +191,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     test("timetable grid renders correctly", async ({ authenticatedAdmin }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/1-2567/arrange");
+      await page.goto("/schedule/2567/1/arrange");
       await page.waitForLoadState("networkidle");
 
       const timeslotGrid = page
@@ -215,8 +215,8 @@ test.describe("UI Component Consistency", () => {
   }) => {
     const { page } = authenticatedAdmin;
     const pages = [
-      "/dashboard/1-2567/all-timeslot",
-      "/schedule/1-2567/config",
+      "/dashboard/2567/1/all-timeslot",
+      "/schedule/2567/1/config",
       "/management/teacher",
     ];
 

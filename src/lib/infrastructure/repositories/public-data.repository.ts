@@ -332,10 +332,6 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async countTeachers(): Promise<number> {
-    "use cache";
-    cacheLife("hours");
-    cacheTag("teachers");
-
     return await prisma.teacher.count();
   },
 
@@ -459,10 +455,6 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async getQuickStats(): Promise<QuickStats> {
-    "use cache";
-    cacheLife("minutes");
-    cacheTag("stats", "config");
-
     const config = await getCurrentTerm();
 
     if (!config) {
@@ -475,7 +467,7 @@ export const publicDataRepository = {
         totalPrograms: 0,
         periodsPerDay: 0,
         currentTerm: "N/A",
-        lastUpdated: formatThaiDateShortBangkok(new Date()),
+        lastUpdated: "N/A",
       };
     }
 
@@ -694,10 +686,6 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async countGradeLevels(): Promise<number> {
-    "use cache";
-    cacheLife("hours");
-    cacheTag("classes");
-
     return await prisma.gradelevel.count();
   },
 };

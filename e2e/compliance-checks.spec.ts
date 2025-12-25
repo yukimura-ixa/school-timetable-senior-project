@@ -147,7 +147,7 @@ test.describe("Compliance Analytics Checks", () => {
       { timeout: 20000 },
     );
 
-    await page.goto("/dashboard/1-2568/analytics");
+    await page.goto("/dashboard/2568/1/analytics");
 
     // Wait for first POST to complete (initial data load)
     try {

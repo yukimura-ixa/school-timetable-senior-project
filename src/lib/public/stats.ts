@@ -36,7 +36,7 @@ export async function getQuickStats(): Promise<QuickStats> {
       totalPrograms: 0,
       periodsPerDay: 0,
       currentTerm: "N/A",
-      lastUpdated: formatThaiDateShortBangkok(new Date()),
+      lastUpdated: "N/A",
     };
   }
 }

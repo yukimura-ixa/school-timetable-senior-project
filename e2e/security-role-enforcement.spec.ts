@@ -18,7 +18,7 @@ test.describe("Security Role Enforcement", () => {
 
     test("Guest cannot view teacher schedule", async ({ page }) => {
       // Navigate to teacher table without logging in
-      await page.goto("/dashboard/1-2567/teacher-table");
+      await page.goto("/dashboard/2567/1/teacher-table");
 
       await page.waitForLoadState("domcontentloaded");
       await page.waitForLoadState("networkidle");
@@ -45,13 +45,13 @@ test.describe("Security Role Enforcement", () => {
     // Inherits global storageState from playwright.config.ts (Admin)
 
     test("Admin can select any teacher", async ({ page }) => {
-      await page.goto("/dashboard/1-2567/teacher-table");
+      await page.goto("/dashboard/2567/1/teacher-table");
 
       // Wait for page to load
       await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
 
       // Admin should not be redirected to signin.
-      expect(page.url()).toContain("/dashboard/1-2567/teacher-table");
+      expect(page.url()).toContain("/dashboard/2567/1/teacher-table");
 
       // At minimum, the teacher selector should render (even if data APIs fail).
       await expect(

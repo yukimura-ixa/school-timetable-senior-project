@@ -323,6 +323,15 @@ export const getSubjectDistribution = cache(
 );
 
 /**
+ * Get config only (for header)
+ */
+export const getConfig = cache(async function getConfig(configId: string) {
+  return prisma.table_config.findUnique({
+    where: { ConfigID: configId },
+  });
+});
+
+/**
  * Dashboard repository export
  */
 export const dashboardRepository = {
@@ -331,4 +340,5 @@ export const dashboardRepository = {
   getTeachersWithScheduleCounts,
   getGradesWithScheduleCounts,
   getSubjectDistribution,
+  getConfig,
 };

@@ -37,7 +37,7 @@ test.describe("Page Load Performance", () => {
     const { page } = authenticatedAdmin;
     const startTime = Date.now();
 
-    await page.goto("/dashboard/1-2567/all-timeslot");
+    await page.goto("/dashboard/2567/1/all-timeslot");
     await page.waitForLoadState("domcontentloaded");
 
     const loadTime = Date.now() - startTime;
@@ -52,7 +52,7 @@ test.describe("Page Load Performance", () => {
     const { page } = authenticatedAdmin;
     const startTime = Date.now();
 
-    await page.goto("/schedule/1-2567/config");
+    await page.goto("/schedule/2567/1/config");
     await page.waitForLoadState("domcontentloaded");
 
     const loadTime = Date.now() - startTime;
@@ -67,7 +67,7 @@ test.describe("Page Load Performance", () => {
     const { page } = authenticatedAdmin;
     const startTime = Date.now();
 
-    await page.goto("/schedule/1-2567/arrange");
+    await page.goto("/schedule/2567/1/arrange");
     await page.waitForLoadState("domcontentloaded");
 
     const loadTime = Date.now() - startTime;
@@ -241,7 +241,7 @@ test.describe("Network Timing Metrics", () => {
       }
     });
 
-    await page.goto("/schedule/1-2567/config");
+    await page.goto("/schedule/2567/1/config");
     await page.waitForLoadState("networkidle");
 
     // Log timing data

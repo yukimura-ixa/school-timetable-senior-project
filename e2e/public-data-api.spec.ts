@@ -319,7 +319,7 @@ test.describe("Public Statistics API", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/dashboard/1-2567/analytics");
+    await page.goto("/dashboard/2567/1/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -347,7 +347,7 @@ test.describe("Public Statistics API", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/dashboard/1-2567/analytics");
+    await page.goto("/dashboard/2567/1/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -370,7 +370,7 @@ test.describe("Public Statistics API", () => {
 
   test("should show room occupancy data", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto("/dashboard/1-2567/analytics");
+    await page.goto("/dashboard/2567/1/analytics");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });

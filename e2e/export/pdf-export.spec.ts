@@ -20,7 +20,7 @@ test.describe.skip("PDF Export - Admin Only", () => {
     await context.grantPermissions(["downloads"]);
 
     // Navigate to teacher table
-    await page.goto("/dashboard/1-2567/teacher-table");
+    await page.goto("/dashboard/2567/1/teacher-table");
     await page.waitForLoadState("networkidle");
 
     // Select a teacher
@@ -56,7 +56,7 @@ test.describe.skip("PDF Export - Admin Only", () => {
 
   test("should show error for invalid data", async ({ page }) => {
     // Navigate to teacher table without selecting teacher
-    await page.goto("/dashboard/1-2567/teacher-table");
+    await page.goto("/dashboard/2567/1/teacher-table");
     await page.waitForLoadState("networkidle");
 
     // PDF button should be disabled when no teacher is selected
@@ -67,7 +67,7 @@ test.describe.skip("PDF Export - Admin Only", () => {
 
   test("should handle network errors gracefully", async ({ page, context }) => {
     // Navigate to teacher table
-    await page.goto("/dashboard/1-2567/teacher-table");
+    await page.goto("/dashboard/2567/1/teacher-table");
     await page.waitForLoadState("networkidle");
 
     // Select a teacher
@@ -102,7 +102,7 @@ test.describe.skip("PDF Export - Admin Only", () => {
     await context.grantPermissions(["downloads"]);
 
     // Navigate to teacher table
-    await page.goto("/dashboard/1-2567/teacher-table");
+    await page.goto("/dashboard/2567/1/teacher-table");
     await page.waitForLoadState("networkidle");
 
     // Select a teacher
@@ -150,7 +150,7 @@ test.describe.skip("Student PDF Export - Admin Only", () => {
     await context.grantPermissions(["downloads"]);
 
     // Navigate to student table
-    await page.goto("/dashboard/1-2567/student-table");
+    await page.goto("/dashboard/2567/1/student-table");
     await page.waitForLoadState("networkidle");
 
     // Select a grade
@@ -186,7 +186,7 @@ test.describe.skip("Student PDF Export - Admin Only", () => {
 
   test("should show error for invalid student data", async ({ page }) => {
     // Navigate to student table without selecting grade
-    await page.goto("/dashboard/1-2567/student-table");
+    await page.goto("/dashboard/2567/1/student-table");
     await page.waitForLoadState("networkidle");
 
     // PDF button should be disabled when no grade is selected
@@ -197,7 +197,7 @@ test.describe.skip("Student PDF Export - Admin Only", () => {
 
   test("should handle student PDF network errors gracefully", async ({ page }) => {
     // Navigate to student table
-    await page.goto("/dashboard/1-2567/student-table");
+    await page.goto("/dashboard/2567/1/student-table");
     await page.waitForLoadState("networkidle");
 
     // Select a grade
@@ -290,13 +290,13 @@ test.describe.skip("PDF Export - Non-Admin Access Control", () => {
     await page.waitForTimeout(2000);
 
     // Check teacher table - PDF button should not be visible
-    await page.goto("/dashboard/1-2567/teacher-table");
+    await page.goto("/dashboard/2567/1/teacher-table");
     await page.waitForLoadState("networkidle");
     const teacherPdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
     await expect(teacherPdfButton).not.toBeVisible();
 
     // Check student table - PDF button should not be visible
-    await page.goto("/dashboard/1-2567/student-table");
+    await page.goto("/dashboard/2567/1/student-table");
     await page.waitForLoadState("networkidle");
     const studentPdfButton = page.locator('[data-testid="student-export-pdf-button"]');
     await expect(studentPdfButton).not.toBeVisible();

@@ -306,7 +306,7 @@ test.describe.skip("Navigation Edge Cases", () => {
     const { page } = authenticatedAdmin;
 
     // Try non-existent but valid format semester
-    await page.goto("/schedule/9-9999/config");
+    await page.goto("/schedule/9999/9/config");
     // Wait for page content to load (either error state or redirect)
     await expect(page.locator("body")).not.toBeEmpty({ timeout: 10000 });
 
@@ -336,7 +336,7 @@ test.describe.skip("Navigation Edge Cases", () => {
     const page = await context.newPage();
 
     // Try accessing schedule config without auth
-    await page.goto("/schedule/1-2567/config");
+    await page.goto("/schedule/2567/1/config");
 
     // Should redirect to signin
     await expect(page).toHaveURL(/\/signin/, { timeout: 15000 });
@@ -351,7 +351,7 @@ test.describe.skip("Table View Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/1-2567/student-table");
+    await page.goto("/dashboard/2567/1/student-table");
 
     // Should load without errors
     await expect(page).toHaveURL(/\/student-table/);
@@ -370,7 +370,7 @@ test.describe.skip("Table View Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/1-2567/all-timeslot");
+    await page.goto("/dashboard/2567/1/all-timeslot");
 
     // Should load without errors
     await expect(page).toHaveURL(/\/all-timeslot/);
@@ -393,7 +393,7 @@ test.describe.skip("Table View Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/dashboard/1-2567/teacher-table");
+    await page.goto("/dashboard/2567/1/teacher-table");
     // Wait for table or filter controls to be visible
     await expect(page.locator('table, [role="combobox"], input')).toBeVisible({ timeout: 15000 });
 
@@ -414,7 +414,7 @@ test.describe.skip("Conflict Detection Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/schedule/1-2567/arrange");
+    await page.goto("/schedule/2567/1/arrange");
     // Wait for arrange page content to load
     await expect(page.locator('[class*="timetable"], table, [class*="grid"]').first()).toBeVisible({ timeout: 15000 });
 
@@ -432,7 +432,7 @@ test.describe.skip("Conflict Detection Edge Cases", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto("/schedule/1-2567/lock");
+    await page.goto("/schedule/2567/1/lock");
     // Wait for lock page content
     await expect(page.locator('table, [class*="grid"], main')).toBeVisible({ timeout: 15000 });
 

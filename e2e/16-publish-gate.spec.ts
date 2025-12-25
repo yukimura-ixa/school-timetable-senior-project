@@ -13,7 +13,7 @@ test.describe("Publish Gate", () => {
     const { page } = authenticatedAdmin;
 
     // Config status badge (and publish controls) are rendered on the config page.
-    await page.goto("/schedule/1-2567/config");
+    await page.goto("/schedule/2567/1/config");
     await page.waitForLoadState("networkidle");
 
     const statusBadge = page.getByTestId("config-status-badge");

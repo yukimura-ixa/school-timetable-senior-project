@@ -21,9 +21,9 @@ const managementRoutes = [
 ];
 
 const scheduleRoutes = [
-  "/schedule/1-2567/config",
-  "/schedule/1-2567/assign",
-  "/schedule/1-2567/arrange",
+  "/schedule/2567/1/config",
+  "/schedule/2567/1/assign",
+  "/schedule/2567/1/arrange",
 ];
 
 test.describe("Role Access Control - Management Routes", () => {
@@ -60,7 +60,7 @@ test.describe("Role Access Control - Management Routes", () => {
     });
 
     test("TC-RAC-02: Cannot access schedule config", async ({ page }) => {
-      await page.goto("/schedule/1-2567/config");
+      await page.goto("/schedule/2567/1/config");
       await page.waitForLoadState("domcontentloaded");
 
       const url = page.url();
@@ -79,7 +79,7 @@ test.describe("Role Access Control - Management Routes", () => {
     });
 
     test("TC-RAC-03: Cannot access schedule assignment", async ({ page }) => {
-      await page.goto("/schedule/1-2567/assign");
+      await page.goto("/schedule/2567/1/assign");
       await page.waitForLoadState("domcontentloaded");
 
       const url = page.url();

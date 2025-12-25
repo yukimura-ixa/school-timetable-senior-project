@@ -316,7 +316,7 @@ test.describe.skip("Dashboard - Empty State Handling", () => {
     const { page } = authenticatedAdmin;
 
     // Try a future semester that might not have data
-    await page.goto("/dashboard/1-2570/teacher-table");
+    await page.goto("/dashboard/2570/1/teacher-table");
     await page.waitForLoadState("domcontentloaded");
 
     // Should show empty state or appropriate message (not crash)
