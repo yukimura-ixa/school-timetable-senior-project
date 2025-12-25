@@ -38,9 +38,14 @@ export default async function HeaderSlot({
       GradeID: true,
       Year: true,
       Number: true,
-      GradeName: true,
+      // GradeName not in DB, derived
     },
   });
+
+  const formattedGradeLevels = gradeLevels.map((g) => ({
+    ...g,
+    GradeName: `M.${g.Year}/${g.Number}`,
+  }));
 
   // Count classes per grade for tab badges
   const gradeCounts: Record<number, number> = {};
@@ -51,7 +56,7 @@ export default async function HeaderSlot({
   return (
     <HeaderClient
       teachers={teachers}
-      gradeLevels={gradeLevels}
+      gradeLevels={formattedGradeLevels}
       gradeCounts={gradeCounts}
       selectedTeacher={teacher}
       currentTab={tab}

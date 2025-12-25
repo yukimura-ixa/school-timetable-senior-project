@@ -16,7 +16,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { RoomSelectionContent } from "../room-select/_components/RoomSelectionContent";
+import { RoomSelectionContent } from "../../room-select/_components/RoomSelectionContent";
 
 export default function RoomSelectModal() {
   const router = useRouter();

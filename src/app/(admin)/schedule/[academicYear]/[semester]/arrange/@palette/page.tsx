@@ -46,7 +46,8 @@ export default async function PaletteSlot({
         select: {
           SubjectCode: true,
           SubjectName: true,
-          Credits: true,
+          // Credits: false, // Removed invalid false selection
+          Credit: true,
         },
       },
       gradelevel: {
@@ -54,7 +55,7 @@ export default async function PaletteSlot({
           GradeID: true,
           Year: true,
           Number: true,
-          GradeName: true,
+          // GradeName: true, // Removed
         },
       },
     },
@@ -70,9 +71,16 @@ export default async function PaletteSlot({
     RespID: resp.RespID,
     SubjectCode: resp.subject.SubjectCode,
     SubjectName: resp.subject.SubjectName,
-    Credits: resp.subject.Credits,
+    Credits:
+      resp.subject.Credit === "CREDIT_05"
+        ? 0.5
+        : resp.subject.Credit === "CREDIT_10"
+          ? 1.0
+          : resp.subject.Credit === "CREDIT_15"
+            ? 1.5
+            : 2.0, // Map enum to number if needed, or just use string
     GradeID: resp.gradelevel.GradeID,
-    GradeName: resp.gradelevel.GradeName,
+    GradeName: `M.${resp.gradelevel.Year}/${resp.gradelevel.Number}`,
     Year: resp.gradelevel.Year,
   }));
 

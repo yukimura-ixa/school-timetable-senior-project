@@ -13,7 +13,7 @@
  */
 
 import React from "react";
-import { Container, Box, Grid2 as Grid } from "@mui/material";
+import { Container, Box, Grid } from "@mui/material";
 import {
   DndContext,
   closestCenter,

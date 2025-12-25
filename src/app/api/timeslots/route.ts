@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
+import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
 /**
  * GET /api/timeslots
@@ -46,16 +47,21 @@ export async function GET(request: NextRequest) {
         AcademicYear: true,
         Semester: true,
         DayOfWeek: true,
-        Period: true,
+        // Period: true, // Removed, derived from ID
         StartTime: true,
         EndTime: true,
         Breaktime: true,
       },
     });
 
+    const timeslotsWithPeriod = timeslots.map((ts) => ({
+      ...ts,
+      Period: extractPeriodFromTimeslotId(ts.TimeslotID),
+    }));
+
     return NextResponse.json({
       success: true,
-      data: timeslots,
+      data: timeslotsWithPeriod,
     });
   } catch (error) {
     console.error("[API] GET /api/timeslots error:", error);

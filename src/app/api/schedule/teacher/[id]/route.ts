@@ -46,9 +46,11 @@ export async function GET(
     const schedule = await prisma.class_schedule.findMany({
       where: {
         teachers_responsibility: {
-          TeacherID: teacherId,
-          AcademicYear: academicYear,
-          Semester: semesterEnum,
+          some: {
+            TeacherID: teacherId,
+            AcademicYear: academicYear,
+            Semester: semesterEnum,
+          },
         },
       },
       include: {

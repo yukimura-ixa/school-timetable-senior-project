@@ -16,7 +16,7 @@ import type { semester } from "@/prisma/generated/client";
 import {
   PublishReadinessCard,
   ReadinessIssues,
-} from "../../../_components/PublishReadiness";
+} from "@/app/dashboard/_components/PublishReadiness";
 import { CircularProgress, Box } from "@mui/material";
 
 export const metadata: Metadata = {

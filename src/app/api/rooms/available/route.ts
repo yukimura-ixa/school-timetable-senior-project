@@ -44,7 +44,6 @@ export async function GET(request: NextRequest) {
           RoomName: true,
           Building: true,
           Floor: true,
-          Capacity: true,
         },
       }),
       prisma.class_schedule.findMany({

@@ -196,6 +196,9 @@ importers:
       eslint-plugin-testing-library:
         specifier: ^7.15.3
         version: 7.15.3(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      glob:
+        specifier: ^13.0.0
+        version: 13.0.0
       globals:
         specifier: ^16.5.0
         version: 16.5.0

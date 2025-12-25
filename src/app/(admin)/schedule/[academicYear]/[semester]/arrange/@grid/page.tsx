@@ -246,7 +246,10 @@ export default function GridSlot() {
   const grid: Record<string, Record<number, Timeslot>> = {};
   timeslots.forEach((ts) => {
     if (!grid[ts.DayOfWeek]) grid[ts.DayOfWeek] = {};
-    grid[ts.DayOfWeek][ts.Period] = ts;
+    const dayGrid = grid[ts.DayOfWeek];
+    if (dayGrid) {
+      dayGrid[ts.Period] = ts;
+    }
   });
 
   // Group schedule entries by timeslot

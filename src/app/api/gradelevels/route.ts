@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
         GradeID: true,
         Year: true,
         Number: true,
-        Program: true,
-        GradeName: true,
+        program: true,
+        // GradeName: true, // Removed
       },
     });
 
