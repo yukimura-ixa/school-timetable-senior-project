@@ -31,12 +31,11 @@ export async function generateMetadata({
   const academicYear = parseInt(yearStr, 10);
   const semNum = parseInt(semStr, 10);
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
-  const parsed = semesterEnum && !isNaN(academicYear) ? { academicYear, semesterEnum } : null;
-  if (!parsed) return { title: "ไม่พบข้อมูล" };
+  if (!semesterEnum || isNaN(academicYear)) return { title: "ไม่พบข้อมูล" };
   const teacher = await publicDataRepository.findPublicTeacherById(
     teacherId,
-    parsed.academicYear,
-    parsed.semesterEnum,
+    academicYear,
+    semesterEnum,
   );
   if (!teacher) return { title: "ไม่พบข้อมูล" };
   return {
@@ -70,9 +69,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
   const academicYear = parseInt(yearStr, 10);
   const semNum = parseInt(semStr, 10);
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
-  const parsed = semesterEnum && !isNaN(academicYear) ? { academicYear, semesterEnum } : null;
-  if (!parsed) notFound();
-  const { academicYear, semesterEnum } = parsed;
+  if (!semesterEnum || isNaN(academicYear)) notFound();
 
   // Fetch teacher info and schedule data
   const teacher = await publicDataRepository.findPublicTeacherById(
@@ -187,8 +184,8 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
             ภาควิชา: {teacher.department || "-"}
           </p>
           <p className="text-sm text-gray-600">
-            ภาคเรียนที่ {parsed.semesterEnum === "SEMESTER_1" ? "1" : "2"}{" "}
-            ปีการศึกษา {parsed.academicYear}
+            ภาคเรียนที่ {semesterEnum === "SEMESTER_1" ? "1" : "2"}{" "}
+            ปีการศึกษา {academicYear}
           </p>
         </div>
       </div>
