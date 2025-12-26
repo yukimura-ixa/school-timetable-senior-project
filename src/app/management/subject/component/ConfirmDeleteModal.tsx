@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -8,25 +8,25 @@ import { deleteSubjectsAction } from "@/features/subject/application/actions/sub
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
   closeModal: () => void;
-  deleteData?: any; // Redundant but keeping for now if used by parent
+  deleteData?: subject[];
   clearCheckList: () => void;
   dataAmount?: number;
   subjectData: subject[];
   checkedList: string[];
-  mutate: () => void;
+  mutate: () => void | Promise<void>;
 };
 
 function ConfirmDeleteModal({
   closeModal,
-  deleteData,
+  deleteData: _deleteData,
   dataAmount,
   clearCheckList,
   subjectData,
   checkedList,
   mutate,
 }: props) {
-  const confirmed = () => {
-    removeMultiData(subjectData, checkedList);
+  const confirmed = async () => {
+    await removeMultiData(subjectData, checkedList);
     closeModal();
   };
   const cancel = () => {
@@ -42,7 +42,7 @@ function ConfirmDeleteModal({
     });
 
     const deleteData = data
-      .filter((item, index) => checkedList.includes(item.SubjectCode))
+      .filter((item) => checkedList.includes(item.SubjectCode))
       .map((item) => item.SubjectCode);
 
     try {
@@ -58,7 +58,7 @@ function ConfirmDeleteModal({
 
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลวิชาสำเร็จ", { variant: "success" });
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
       enqueueSnackbar(

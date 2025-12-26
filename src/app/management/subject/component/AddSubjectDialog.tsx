@@ -180,18 +180,11 @@ export function AddSubjectDialog({
           SubjectName: s.subjectName.trim(),
           Credit: s.credit as subject_credit,
           Category: s.category,
-          LearningArea: (s.category !== "ACTIVITY"
-            ? s.learningArea
-            : null) as any,
+          LearningArea: s.category !== "ACTIVITY" ? s.learningArea : null,
           ActivityType: null,
           IsGraded: true,
           Description: "",
         })),
-      );
-
-      console.log(
-        "[AddSubjectDialog] Submission result:",
-        JSON.stringify(result, null, 2),
       );
 
       if (!result.success) {
@@ -205,8 +198,7 @@ export function AddSubjectDialog({
       enqueueSnackbar(`เพิ่มวิชา ${subjects.length} รายการสำเร็จ`, {
         variant: "success",
       });
-      console.log("[AddSubjectDialog] Calling onSuccess and onClose");
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (error) {
       enqueueSnackbar(

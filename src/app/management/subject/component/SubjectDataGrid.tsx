@@ -153,7 +153,7 @@ export function SubjectDataGrid({
         if (result.success) {
           enqueueSnackbar("ลบวิชาสำเร็จ", { variant: "success" });
           setRows((prev) => prev.filter((row) => row.SubjectCode !== id));
-          onMutate();
+          await onMutate();
         } else {
           enqueueSnackbar("ลบวิชาไม่สำเร็จ", { variant: "error" });
         }
@@ -184,7 +184,7 @@ export function SubjectDataGrid({
           prev.filter((row) => !selectedIds.includes(row.SubjectCode)),
         );
         setRowSelectionModel({ type: "include", ids: new Set<GridRowId>() });
-        onMutate();
+        await onMutate();
       } else {
         enqueueSnackbar("ลบวิชาไม่สำเร็จ", { variant: "error" });
       }
@@ -194,7 +194,7 @@ export function SubjectDataGrid({
   // ==================== Update Handler with MOE Validation ====================
 
   const processRowUpdate = useCallback(
-    async (newRow: GridRowModel, oldRow: GridRowModel): Promise<subject> => {
+    async (newRow: GridRowModel, _oldRow: GridRowModel): Promise<subject> => {
       const updated = newRow as subject;
 
       // Validate required fields
@@ -241,7 +241,7 @@ export function SubjectDataGrid({
       }
 
       enqueueSnackbar("บันทึกวิชาสำเร็จ", { variant: "success" });
-      onMutate();
+      await onMutate();
       return updated;
     },
     [onMutate],
