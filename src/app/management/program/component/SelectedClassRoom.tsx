@@ -2,26 +2,17 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 import { useGradeLevels } from "@/hooks";
-
-// GradeLevel selection type
-type GradeSelection = Array<{ GradeID: string; Year?: number; Number?: number }>;
-
-// Classroom type for the callback
-type ClassroomValue = {
-  GradeID: string;
-  [key: string]: unknown;
-};
+import type { gradelevel } from "@/prisma/generated/client";
 
 type Props = {
-  Grade: GradeSelection;
-  classRoomHandleChange: (classroom: ClassroomValue) => void;
+  Grade: gradelevel[];
+  classRoomHandleChange: (classroom: gradelevel) => void;
   required: boolean;
 };
 
 function SelectedClassRoom(props: Props) {
   const { data } = useGradeLevels();
-  const gradeLevels =
-    (data ?? []) as Array<{ GradeID: string; Year: number; Number: number }>;
+  const gradeLevels = data ?? [];
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">
