@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { waitForAppReady } from "../helpers/wait-for-app-ready";
 
 // Admin password from environment, defaulting to seeded value for dev/CI
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
@@ -178,7 +179,7 @@ test.describe("Visual UI Checks", () => {
     for (const pagePath of pages) {
       await page.goto(pagePath, { waitUntil: "domcontentloaded" });
       // Wait for main content to be visible instead of networkidle - Context7 best practice
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+      await waitForAppReady(page);
     }
 
     const criticalErrors = consoleErrors.filter(
@@ -202,7 +203,7 @@ test.describe("Visual UI Checks", () => {
     for (const { path, name } of pages) {
       await page.goto(path, { waitUntil: "domcontentloaded" });
       // Wait for main content visibility - Context7: specific waits over networkidle
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+      await waitForAppReady(page);
       await page.screenshot({
         path: `test-results/screenshots/${name}.png`,
         fullPage: true,

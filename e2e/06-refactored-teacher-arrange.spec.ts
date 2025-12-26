@@ -51,7 +51,7 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
         try {
           console.log(`Trying teacher at dropdown index ${i}...`);
           await teacherSelect.selectOption({ index: i });
-          await page.waitForURL(/TeacherID=\d+/, { timeout: 5000 });
+          await page.waitForURL(/TeacherID=\\d+/, { timeout: 15000 });
 
           const url = page.url();
           const match = url.match(/TeacherID=(\d+)/);
@@ -121,7 +121,7 @@ async function fetchValidTeacherIDFromUI(page: Page): Promise<string> {
           await currentOptions[i].click();
 
           // Wait for URL to update with TeacherID parameter
-          await page.waitForURL(/TeacherID=\d+/, { timeout: 5000 });
+          await page.waitForURL(/TeacherID=\\d+/, { timeout: 15000 });
 
           const url = page.url();
           const match = url.match(/TeacherID=(\d+)/);

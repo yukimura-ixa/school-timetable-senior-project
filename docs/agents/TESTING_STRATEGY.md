@@ -173,7 +173,10 @@ When an E2E test flakes:
 
 1. Re-run it with trace/video enabled.
 2. Fix root causes (locators, incorrect waits, timing) before increasing retries.
-3. Use retries in CI (e.g. `retries: 1–2`) **only** as a backup, not as a band-aid.
+3. If failures show a persistent loading state ("กำลังโหลด…" / "กำลังโหลดข้อมูล..."),
+   verify semester/config data is available and wait for loading indicators to disappear
+   before asserting tables or page structure.
+4. Use retries in CI (e.g. `retries: 1–2`) **only** as a backup, not as a band-aid.
 
 Long-term flaky tests:
 

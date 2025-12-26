@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import { waitForAppReady } from "./helpers/wait-for-app-ready";
 import {
   testSemester,
   testTeacher,
@@ -29,7 +30,7 @@ test.describe("Subject Assignment - Page Load", () => {
     await page.waitForLoadState("networkidle");
 
     // Verify page structure is visible
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Should have teacher search/selection area
     const teacherAutocomplete = page.locator('[role="combobox"]').first();

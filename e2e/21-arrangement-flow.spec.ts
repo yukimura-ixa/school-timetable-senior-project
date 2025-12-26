@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import { waitForAppReady } from "./helpers/wait-for-app-ready";
 import { testSemester, testTimeslots } from "./fixtures/seed-data.fixture";
 
 /**
@@ -30,7 +31,7 @@ test.describe("Schedule Arrangement - Page Load", () => {
     await page.waitForLoadState("networkidle");
 
     // Verify page loads
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Should have teacher selection
     const teacherSelect = page.locator('select, [role="combobox"]').first();

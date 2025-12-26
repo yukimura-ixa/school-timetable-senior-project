@@ -1,4 +1,5 @@
 import { Page } from "@playwright/test";
+import { waitForAppReady } from "./wait-for-app-ready";
 
 /**
  * Navigation helpers for E2E tests
@@ -40,9 +41,7 @@ export class NavigationHelper {
       timeout: 60_000,
     });
     // Light readiness check; avoid networkidle which stalls on streaming/WS
-    await this.page
-      .waitForSelector("main,[role='main'],table", { timeout: 20_000 })
-      .catch(() => {});
+    await waitForAppReady(this.page);
   }
 
   /**

@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
 /**
  * TC-011, TC-012, TC-013: Conflict Detection During Scheduling
@@ -25,7 +26,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Verify teacher selection is available
     await expect(page.getByText("เลือกคุณครู")).toBeVisible();
@@ -45,7 +46,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Wait for teacher table to load
     await page.waitForTimeout(2000);
@@ -81,7 +82,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Wait for data to load
     await page.waitForTimeout(2000);
@@ -111,7 +112,7 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Wait for the grid to load
     await page.waitForTimeout(2000);
@@ -144,7 +145,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Verify grade/class selection is available
     await expect(page.locator("body")).toContainText(/เลือก|ชั้น|grade|class/i);
@@ -164,7 +165,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Wait for data load
     await page.waitForTimeout(2000);
@@ -190,7 +191,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -209,7 +210,7 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -241,7 +242,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -269,7 +270,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -289,7 +290,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -313,7 +314,7 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -348,7 +349,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -375,13 +376,13 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
     // Reload the page
     await page.reload();
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     await page.waitForTimeout(2000);
 
@@ -400,7 +401,7 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     await page.goto(
       `/schedule/${testSemester}/arrange`,
     );
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
 
     // Look for a link/button to view conflicts
     const conflictLink = page

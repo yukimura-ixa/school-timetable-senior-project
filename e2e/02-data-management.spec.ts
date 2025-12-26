@@ -1,6 +1,7 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import type { Page } from "@playwright/test";
 import { NavigationHelper } from "./helpers/navigation";
+import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
 /**
  * TC-003 to TC-006: Data Management Tests
@@ -52,7 +53,7 @@ test.describe("Data Management - Teacher CRUD", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+    await waitForAppReady(page);
     expect(page.url()).toContain("/management/teacher");
   });
 

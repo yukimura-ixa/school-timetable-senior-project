@@ -16,6 +16,7 @@
  */
 
 import { test, expect } from "../fixtures/admin.fixture";
+import { waitForAppReady } from "../helpers/wait-for-app-ready";
 import type { Page } from "@playwright/test";
 import {
   testSemester,
@@ -116,7 +117,7 @@ test.describe("Teaching Assignment CRUD", () => {
       await page.waitForTimeout(1000);
 
       // Verify page loaded
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+      await waitForAppReady(page);
 
       // Should have teacher autocomplete - wait for it with extended timeout
       const teacherAutocomplete = page.locator('[role="combobox"]').first();

@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
 /**
  * TC-018: All Timeslot Page UX
@@ -19,7 +20,7 @@ test.describe("All Timeslot Page UX", () => {
 
     await page.goto(`/dashboard/${testSemester}/all-timeslot`);
     await page.waitForLoadState("networkidle");
-    await expect(page.locator("main, body")).toBeVisible({ timeout: 20000 });
+    await waitForAppReady(page, { timeout: 30000 });
 
     // Read-only banner (always shown)
     await expect(page.getByText("มุมมองอ่านอย่างเดียว")).toBeVisible({

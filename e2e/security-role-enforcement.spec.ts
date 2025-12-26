@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
 /**
  * Security Role Enforcement Tests
@@ -48,7 +49,7 @@ test.describe("Security Role Enforcement", () => {
       await page.goto("/dashboard/2567/1/teacher-table");
 
       // Wait for page to load
-      await expect(page.locator("main, body")).toBeVisible({ timeout: 15000 });
+      await waitForAppReady(page);
 
       // Admin should not be redirected to signin.
       expect(page.url()).toContain("/dashboard/2567/1/teacher-table");
