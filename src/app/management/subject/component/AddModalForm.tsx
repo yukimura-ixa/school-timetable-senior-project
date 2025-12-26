@@ -161,7 +161,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
               <React.Fragment key={`AddData${index + 1}`}>
                 <div
                   className={`flex flex-row gap-3 items-center ${
-                    index == subjects.length - 1 ? "" : "mt-8"
+                    index === subjects.length - 1 ? "" : "mt-8"
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
@@ -176,7 +176,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                       label="รหัสวิชา (SubjectCode) :"
                       value={subject.SubjectCode}
                       borderColor={
-                        isEmptyData && subject.SubjectCode.length == 0
+                        isEmptyData && subject.SubjectCode.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -193,7 +193,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                         );
                       }}
                     />
-                    {isEmptyData && subject.SubjectCode.length == 0 ? (
+                    {isEmptyData && subject.SubjectCode.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -208,7 +208,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                       label="ชื่อวิชา (SubjectName) :"
                       value={subject.SubjectName}
                       borderColor={
-                        isEmptyData && subject.SubjectName.length == 0
+                        isEmptyData && subject.SubjectName.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -225,7 +225,7 @@ function AddModalForm({ closeModal, mutate }: Props) {
                         );
                       }}
                     />
-                    {isEmptyData && subject.SubjectName.length == 0 ? (
+                    {isEmptyData && subject.SubjectName.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

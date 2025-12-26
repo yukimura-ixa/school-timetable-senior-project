@@ -14,11 +14,11 @@ type TableRowProps = {
 
 function TableRow({
   item,
-  index,
+  index: _index,
   clickToSelect,
   checkedList,
   setEditModalActive,
-  pageOfData,
+  pageOfData: _pageOfData,
   searchTerm,
 }: TableRowProps) {
   const matchesSearchTerm =
@@ -55,7 +55,8 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              (setEditModalActive(true), clickToSelect(item.RoomID));
+              setEditModalActive(true);
+              clickToSelect(item.RoomID);
             }}
           />
           {/* Delete action removed - use top toolbar button with multi-select */}

@@ -124,8 +124,6 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     disabled={false}
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
-                      const floorValue =
-                        value === "" ? undefined : Number(value);
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, RoomName: value } : item,
@@ -153,8 +151,6 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     disabled={false}
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
-                      const floorValue =
-                        value === "" ? undefined : Number(value);
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Building: value } : item,
