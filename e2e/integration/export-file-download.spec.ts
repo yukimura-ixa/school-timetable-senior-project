@@ -15,7 +15,7 @@ import { test, expect } from "../fixtures/admin.fixture";
 import * as path from "path";
 import * as fs from "fs";
 
-const TEST_SEMESTER = "1-2567";
+const TEST_SEMESTER = "2567/1";
 
 test.describe("Export File Download Validation", () => {
   // Run export tests sequentially to avoid file system race conditions

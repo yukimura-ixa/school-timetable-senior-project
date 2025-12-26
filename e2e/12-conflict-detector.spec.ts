@@ -19,7 +19,7 @@ test.describe("Conflict Detector", () => {
     const { page } = authenticatedAdmin;
 
     // Start from dashboard (already authenticated via fixture)
-    await page.goto("/dashboard/1-2567");
+    await page.goto("/dashboard/2567/1");
 
     // ✅ Web-first assertion: Wait for dashboard to load (use specific heading)
     await expect(page.getByRole("heading", { name: /Dashboard/i }).first()).toBeVisible({ timeout: 15000 });
@@ -32,7 +32,7 @@ test.describe("Conflict Detector", () => {
     await conflictButton.first().click();
 
     // ✅ Web-first assertion: Wait for URL change
-    await expect(page).toHaveURL(/\/dashboard\/1-2567\/conflicts/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/dashboard\/2567\/1\/conflicts/, { timeout: 15000 });
 
     // ✅ Web-first assertion: Verify page loaded (matches actual title "ตรวจสอบ Conflict ตารางสอน")
     await expect(
@@ -187,7 +187,7 @@ test.describe("Conflict Detector", () => {
     ).toBeVisible({ timeout: 15000 });
 
     // Navigate away
-    await page.goto("/dashboard/1-2567");
+    await page.goto("/dashboard/2567/1");
     await expect(page.locator("h1, h2").first()).toBeVisible({ timeout: 15000 });
 
     // Navigate back

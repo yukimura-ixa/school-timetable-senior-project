@@ -21,7 +21,7 @@ import { expect, test, type Page } from "@playwright/test";
  *   pnpm test:prod:visual -- --project=public-desktop
  */
 
-const semester = process.env.SEMESTER_ID ?? "1-2567";
+const semester = process.env.SEMESTER_ID ?? "2567/1";
 const screenshotDir = "test-results/prod-visual";
 
 /** Trace logger for debugging fallback scenarios in CI */

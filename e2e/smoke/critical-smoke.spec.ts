@@ -22,7 +22,7 @@ import { test, expect } from "../fixtures/admin.fixture";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
 // Use first seeded semester for all tests
-const TEST_SEMESTER = "1-2567";
+const TEST_SEMESTER = "2567/1";
 
 test.describe("Critical Path Smoke Tests", () => {
   test.describe("1. Authentication Flow", () => {
@@ -366,9 +366,9 @@ test.describe("Critical Path Smoke Tests", () => {
 
     test("Navigation between semesters works", async ({ page }) => {
       // Start at first semester
-      await page.goto(`/schedule/1-2567/config`);
+      await page.goto(`/schedule/2567/1/config`);
       await page.waitForLoadState("networkidle");
-      await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
+      await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
       await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
         timeout: 15000,
       });

@@ -16,7 +16,7 @@ import type { Page } from "@playwright/test";
  */
 
 test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
-  const testSemester = "1-2567"; // Semester 1, Year 2567
+  const testSemester = "2567/1"; // Semester 1, Year 2567
 
   test("TC-017-01: Admin navigates to teacher schedule page", async ({
     authenticatedAdmin,
@@ -207,7 +207,7 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
 });
 
 test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
-  const testSemester = "1-2567";
+  const testSemester = "2567/1";
 
   test("TC-017-07: Teacher sees own schedule automatically", async ({
     page,
@@ -267,7 +267,7 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
 });
 
 test.describe("TC-017: Schedule Display and Navigation", () => {
-  const testSemester = "1-2567";
+  const testSemester = "2567/1";
 
   test.setTimeout(120_000);
 
@@ -450,7 +450,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 });
 
 test.describe("TC-017: Export Functionality", () => {
-  const testSemester = "1-2567";
+  const testSemester = "2567/1";
 
   test.setTimeout(120_000);
 

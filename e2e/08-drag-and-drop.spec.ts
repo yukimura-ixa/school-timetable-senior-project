@@ -28,7 +28,7 @@ import { Page } from "@playwright/test";
 import { NavigationHelper } from "./helpers/navigation";
 
 // Test data setup
-const TEST_SEMESTER = "1-2567";
+const TEST_SEMESTER = "2567/1";
 const SCREENSHOT_DIR = "test-results/screenshots/drag-drop";
 
 /**

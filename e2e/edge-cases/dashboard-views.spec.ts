@@ -12,7 +12,7 @@
 
 import { test, expect } from "../fixtures/admin.fixture";
 
-const TEST_SEMESTER = "1-2567";
+const TEST_SEMESTER = "2567/1";
 
 test.describe.skip("Dashboard - Teacher Table View", () => {
   test("TC-DASH-T01: Teacher table page loads with data", async ({
@@ -260,7 +260,7 @@ test.describe.skip("Dashboard - Cross-Semester Navigation", () => {
     const { page } = authenticatedAdmin;
 
     // Start at teacher-table for 1-2567
-    await page.goto(`/dashboard/1-2567/teacher-table`);
+    await page.goto(`/dashboard/2567/1/teacher-table`);
     await page.waitForSelector("table, [class*='Skeleton']", { timeout: 15000 });
 
     // Look for semester switcher/selector

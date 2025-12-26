@@ -26,7 +26,7 @@ import {
  * are taken. No mutations are performed.
  */
 
-const semester = process.env.SEMESTER_ID ?? "1-2567";
+const semester = process.env.SEMESTER_ID ?? "2567/1";
 const screenshotDir = "test-results/prod-visual";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@school.local";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";

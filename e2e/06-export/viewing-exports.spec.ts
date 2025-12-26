@@ -22,7 +22,7 @@ test.describe("Dashboard Viewing", () => {
   });
 
   test("[journey] teacher table view loads", async ({ page }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToTeacherTable(semester);
     await expect(page).toHaveURL(/teacher-table/, { timeout: 60_000 });
     // Wait for page to load - bulk export section OR main content
@@ -39,7 +39,7 @@ test.describe("Dashboard Viewing", () => {
 
   // Re-enabled: Use main content check - student table should show main or selector
   test("[journey] student table view loads", async ({ page }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToStudentTable(semester);
     await expect(page).toHaveURL(/student-table/, { timeout: 60_000 });
     // Wait for main content to appear - more resilient than specific elements
@@ -52,7 +52,7 @@ test.describe("Dashboard Viewing", () => {
   });
 
   test("[journey] all programs view loads", async ({ page }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToAllPrograms(semester);
     await expect(page).toHaveURL(/all-program/, { timeout: 60_000 });
     // Wait for main content to appear
@@ -65,7 +65,7 @@ test.describe("Dashboard Viewing", () => {
   });
 
   test("[journey] all timeslots view loads", async ({ page }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToAllTimeslots(semester);
     await expect(page).toHaveURL(/all-timeslot/, { timeout: 60_000 });
     // Wait for main content to appear
@@ -89,7 +89,7 @@ test.describe("Export & Print Controls", () => {
   test("[journey] export buttons visible on teacher table", async ({
     page,
   }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToTeacherTable(semester);
     // Wait for main content to load first
     // Note: App uses <span> wrappers instead of <main>, so use fallback selectors
@@ -115,7 +115,7 @@ test.describe("Export & Print Controls", () => {
   test("[journey] export buttons visible on student table", async ({
     page,
   }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToStudentTable(semester);
     // First, wait for the page to load and look for bulk export section
     // The export buttons may be in a collapsed panel, so look for the panel or filter button
@@ -135,7 +135,7 @@ test.describe("Export & Print Controls", () => {
   test("[journey] print functionality available on teacher table", async ({
     page,
   }) => {
-    const semester = "1-2567";
+    const semester = "2567/1";
     await nav.goToTeacherTable(semester);
     // Wait for main content first
     // Note: App uses <span> wrappers instead of <main>, so use fallback selectors

@@ -10,7 +10,7 @@ import { test, expect } from "./fixtures/admin.fixture";
  */
 
 test.describe("All Timeslot Page UX", () => {
-  const testSemester = "1-2567";
+  const testSemester = "2567/1";
 
   test("TC-018-01: Admin sees export controls and banner", async ({
     authenticatedAdmin,

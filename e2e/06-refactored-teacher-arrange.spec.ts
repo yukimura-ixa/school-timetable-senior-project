@@ -2,7 +2,7 @@ import { test, expect } from "./fixtures/admin.fixture";
 import { Page, ConsoleMessage, Browser } from "@playwright/test";
 
 // Shared semester constant
-const SEMESTER = "1-2567";
+const SEMESTER = "2567/1";
 
 const DRAGGABLE_SELECTOR =
   '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]';

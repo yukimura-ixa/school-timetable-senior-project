@@ -13,7 +13,7 @@ import { test, expect } from "./fixtures/admin.fixture";
  */
 
 test.describe("TC-007: Semester Configuration", () => {
-  const testSemester = "1-2567";
+  const testSemester = "2567/1";
 
   test("TC-007-01: Navigate to configuration page", async ({
     authenticatedAdmin,
@@ -188,7 +188,7 @@ test.describe("TC-007: Semester Configuration", () => {
 });
 
 test.describe("TC-009: Schedule Assignment Interface", () => {
-  const testSemester = "1-2567";
+  const testSemester = "2567/1";
 
   test("TC-009-01: Assignment page loads", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
