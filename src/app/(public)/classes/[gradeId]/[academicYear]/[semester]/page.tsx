@@ -62,9 +62,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   const academicYear = parseInt(yearStr, 10);
   const semNum = parseInt(semStr, 10);
   const semesterEnum = semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
-  const parsed = semesterEnum && !isNaN(academicYear) ? { academicYear, semesterEnum } : null;
-  if (!parsed) notFound();
-  const { academicYear, semesterEnum } = parsed;
+  if (!semesterEnum || isNaN(academicYear)) notFound();
 
   // Fetch grade level info - support both GradeID (M1-1) and numeric (101) formats
   let gradeLevel = await prisma.gradelevel.findFirst({

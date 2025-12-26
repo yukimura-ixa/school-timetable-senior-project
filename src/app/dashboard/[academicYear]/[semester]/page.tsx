@@ -26,27 +26,13 @@ export const metadata: Metadata = {
 export default async function DashboardPage({
   params,
 }: {
-  params: Promise<{ semesterAndyear: string }>;
+  params: Promise<{ academicYear: string; semester: string }>;
 }) {
-  const { semesterAndyear } = await params;
+  const { academicYear: yearStr, semester: semStr } = await params;
 
-  // Validate and parse semester and year
-  const [semester, academicYear] = semesterAndyear.split("-");
-
-  if (!semester || !academicYear) {
-    return (
-      <div className="p-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
-          <p className="text-red-600">
-            รูปแบบข้อมูลภาคเรียนและปีการศึกษาไม่ถูกต้อง
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const year = parseInt(academicYear, 10);
+  const year = parseInt(yearStr, 10);
+  const semester = parseInt(semStr, 10) as 1 | 2;
+  const semesterAndyear = `${semester}-${year}`;
 
   // Validate that year is a valid number
   if (isNaN(year) || year < 2500 || year > 2600) {
@@ -54,10 +40,22 @@ export default async function DashboardPage({
       <div className="p-8">
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
-          <p className="text-red-600">ปีการศึกษาไม่ถูกต้อง ({academicYear})</p>
+          <p className="text-red-600">ปีการศึกษาไม่ถูกต้อง ({yearStr})</p>
           <p className="mt-2 text-sm text-red-500">
             กรุณาเลือกภาคเรียนจากหน้าหลัก
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Validate semester
+  if (semester !== 1 && semester !== 2) {
+    return (
+      <div className="p-8">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
+          <p className="text-red-600">ภาคเรียนไม่ถูกต้อง ({semStr})</p>
         </div>
       </div>
     );
@@ -488,7 +486,10 @@ async function SummaryInfo({
         <InfoItem label="วิชา" value={quickStats.subjectCount} />
         <InfoItem label="คาบเรียน" value={quickStats.timeslotCount} />
         <InfoItem label="ตารางที่จัด" value={quickStats.scheduleCount} />
-        <InfoItem label="ความรับผิดชอบ" value={quickStats.responsibilityCount} />
+        <InfoItem
+          label="ความรับผิดชอบ"
+          value={quickStats.responsibilityCount}
+        />
       </div>
     </div>
   );

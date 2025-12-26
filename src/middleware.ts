@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Uses 301 (Permanent Redirect) to signal this is the new canonical URL.
  * Preserves query parameters and hash fragments.
  */
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Pattern 1: /schedule or /dashboard routes

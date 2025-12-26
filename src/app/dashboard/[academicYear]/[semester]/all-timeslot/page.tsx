@@ -8,21 +8,7 @@ import type { semester } from "@/prisma/generated/client";
 import { headers } from "next/headers";
 import AllTimeslotClient from "./AllTimeslotClient";
 
-type PageParams = Promise<{ semesterAndyear: string }>;
-
-const parseSemesterParam = (
-  param: string,
-): { semester: 1 | 2; year: number } => {
-  const [semStr, yearStr] = (param || "").split("-");
-  const semesterNum = Number(semStr);
-  const yearNum = Number(yearStr);
-
-  if ((semesterNum !== 1 && semesterNum !== 2) || !Number.isInteger(yearNum)) {
-    throw new Error("Invalid semester path segment");
-  }
-
-  return { semester: semesterNum, year: yearNum };
-};
+type PageParams = Promise<{ academicYear: string; semester: string }>;
 
 export default async function AllTimeslotPage({
   params,
@@ -30,8 +16,12 @@ export default async function AllTimeslotPage({
   params: PageParams;
 }) {
   const headerList = await headers();
-  const { semesterAndyear } = await params;
-  const { semester, year } = parseSemesterParam(semesterAndyear);
+  const { academicYear: yearStr, semester: semStr } = await params;
+
+  const year = parseInt(yearStr, 10);
+  const semester = parseInt(semStr, 10) as 1 | 2;
+  const semesterAndyear = `${semester}-${year}`;
+
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
   const [timeslots, classSchedules, teachers, session] = await Promise.all([

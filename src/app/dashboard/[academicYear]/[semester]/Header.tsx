@@ -2,17 +2,16 @@ import Link from "next/link";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 type Props = {
-  params: Promise<{ semesterAndyear: string }>;
+  params: Promise<{ academicYear: string; semester: string }>;
 };
 
 export default async function Header({ params }: Props) {
-  const { semesterAndyear } = await params;
-  const semesterSplit = semesterAndyear.split("-"); //from "1-2566" to ["1", "2566"]
+  const { academicYear, semester } = await params;
 
   return (
     <div className="w-full flex justify-between items-center py-6">
       <h1 className="text-xl font-bold">
-        ภาคเรียนที่ {semesterSplit[0]} ปีการศึกษา {semesterSplit[1]}
+        ภาคเรียนที่ {semester} ปีการศึกษา {academicYear}
       </h1>
       <Link
         className="flex gap-3 items-center justify-between cursor-pointer"

@@ -17,17 +17,21 @@ export const metadata: Metadata = {
 export default async function AnalyticsPage({
   params,
 }: {
-  params: Promise<{ semesterAndyear: string }>;
+  params: Promise<{ academicYear: string; semester: string }>;
 }) {
-  const { semesterAndyear } = await params;
+  const { academicYear, semester } = await params;
+  const semesterAndyear = `${semester}-${academicYear}`;
 
   // Fetch analytics data
-  const [periodDistributionResult, dayDistributionResult, programComplianceResult] =
-    await Promise.all([
-      getPeriodDistribution({ configId: semesterAndyear }),
-      getDayDistribution({ configId: semesterAndyear }),
-      getProgramCompliance({ configId: semesterAndyear }),
-    ]);
+  const [
+    periodDistributionResult,
+    dayDistributionResult,
+    programComplianceResult,
+  ] = await Promise.all([
+    getPeriodDistribution({ configId: semesterAndyear }),
+    getDayDistribution({ configId: semesterAndyear }),
+    getProgramCompliance({ configId: semesterAndyear }),
+  ]);
 
   return (
     <Box sx={{ p: 3 }}>

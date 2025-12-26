@@ -25,8 +25,8 @@ function SelectMultipleTimeSlot(props: Props) {
   const semester = params.semester ? parseInt(params.semester as string, 10) : null;
 
   const timeSlotData = useTimeslots(
-    parseInt(academicYear || "0"),
-    parseInt(semester || "0"),
+    academicYear ?? 0,
+    semester ?? 0,
   );
   const [timeSlot, setTimeSlot] = useState<string[]>([]);
   useEffect(() => {

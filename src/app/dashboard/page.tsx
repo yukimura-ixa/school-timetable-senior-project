@@ -108,7 +108,7 @@ export default function SelectSemesterPage() {
 
     // Navigate to student table
     router.push(
-      `/dashboard/${semester.semester}-${semester.academicYear}/student-table`,
+      `/dashboard/${semester.academicYear}/${semester.semester}/student-table`,
     );
   };
 
