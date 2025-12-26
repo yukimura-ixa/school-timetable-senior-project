@@ -6,7 +6,6 @@ import NumberField from "@/components/elements/input/field/NumberField";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
 import { createRoomsAction } from "@/features/room/application/actions/room.actions";
-import type { room } from "@/prisma/generated/client";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -22,8 +21,8 @@ type RoomFormState = {
 
 type props = {
   closeModal: () => void;
-  mutate: () => void;
-  openSnackBar?: (message: string, options?: any) => void;
+  mutate: () => void | Promise<void>;
+  openSnackBar?: (message: string, options?: Record<string, unknown>) => void;
 };
 function AddModalForm({ closeModal, mutate }: props) {
   const addData = async (data: RoomFormState[]) => {
@@ -53,7 +52,7 @@ function AddModalForm({ closeModal, mutate }: props) {
       enqueueSnackbar("เพิ่มข้อมูลสถานที่เรียนสำเร็จ", {
         variant: "success",
       });
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
       const message = error instanceof Error ? error.message : "Unknown error";
@@ -89,16 +88,16 @@ function AddModalForm({ closeModal, mutate }: props) {
   const isValidData = (): boolean => {
     let isValid = true;
     rooms.forEach((data) => {
-      if (data.RoomName == "" || data.Building == "" || !data.Floor) {
+      if (data.RoomName === "" || data.Building === "" || !data.Floor) {
         setIsEmptyData(true);
         isValid = false;
       }
     });
     return isValid;
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isValidData()) {
-      addData(rooms);
+      await addData(rooms);
       closeModal();
     }
   };
@@ -141,7 +140,7 @@ function AddModalForm({ closeModal, mutate }: props) {
               <React.Fragment key={`AddData${index + 1}`}>
                 <div
                   className={`flex flex-row gap-3 items-center ${
-                    index == rooms.length - 1 ? "" : "mt-8"
+                    index === rooms.length - 1 ? "" : "mt-8"
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
@@ -156,7 +155,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder="ex. คอม1"
                       value={room.RoomName}
                       borderColor={
-                        isEmptyData && room.RoomName.length == 0
+                        isEmptyData && room.RoomName.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -172,7 +171,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && room.RoomName.length == 0 ? (
+                    {isEmptyData && room.RoomName.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -187,7 +186,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       label={`อาคาร (Building):`}
                       value={room.Building}
                       borderColor={
-                        isEmptyData && room.Building.length == 0
+                        isEmptyData && room.Building.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -203,7 +202,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && room.Building.length == 0 ? (
+                    {isEmptyData && room.Building.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>

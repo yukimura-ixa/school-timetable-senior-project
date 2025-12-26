@@ -13,7 +13,7 @@ import {
 // Fetch program counts per year
 async function getProgramCountsByYear() {
   await connection();
-  const counts = await (prisma.program as any).groupBy({
+  const counts = await prisma.program.groupBy({
     by: ["Year"],
     _count: { ProgramID: true },
     where: { IsActive: true },

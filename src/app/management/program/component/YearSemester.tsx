@@ -1,10 +1,11 @@
-import { MenuItem, Select } from "@mui/material";
+import { MenuItem } from "@mui/material";
+import Select, { type SelectChangeEvent } from "@mui/material/Select";
 import { semester } from "@/prisma/generated/client";
 import { BsInfo } from "react-icons/bs";
 
 type Props = {
   required: boolean;
-  semester: semester | string;
+  semester: semester | "";
   year?: number;
   handleSemesterChange: (semester: semester) => void;
   handleYearChange?: (year: number) => void;
@@ -35,7 +36,9 @@ const YearSemester = (props: Props) => {
       hover:bg-slate-100
       duration-300"
           value={props.semester ? props.semester : ""}
-          onChange={(e: any) => props.handleSemesterChange(e.target.value)}
+          onChange={(e: SelectChangeEvent) =>
+            props.handleSemesterChange(e.target.value as semester)
+          }
           variant="standard"
         >
           <MenuItem value={semester["SEMESTER_1"]}>เทอม 1</MenuItem>
