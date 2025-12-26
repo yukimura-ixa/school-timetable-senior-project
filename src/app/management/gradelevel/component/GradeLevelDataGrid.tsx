@@ -172,7 +172,7 @@ export function GradeLevelDataGrid({
         if (result.success) {
           enqueueSnackbar("ลบระดับชั้นสำเร็จ", { variant: "success" });
           setRows((prev) => prev.filter((row) => row.GradeID !== id));
-          onMutate();
+          await onMutate();
         } else {
           enqueueSnackbar("ลบระดับชั้นไม่สำเร็จ", { variant: "error" });
         }
@@ -203,7 +203,7 @@ export function GradeLevelDataGrid({
           prev.filter((row) => !selectedIds.includes(row.GradeID)),
         );
         setRowSelectionModel({ type: "include", ids: new Set<GridRowId>() });
-        onMutate();
+        await onMutate();
       } else {
         enqueueSnackbar("ลบระดับชั้นไม่สำเร็จ", { variant: "error" });
       }
@@ -213,7 +213,10 @@ export function GradeLevelDataGrid({
   // ==================== Update Handler ====================
 
   const processRowUpdate = useCallback(
-    async (newRow: GridRowModel, oldRow: GridRowModel): Promise<gradelevel> => {
+    async (
+      newRow: GridRowModel,
+      _oldRow: GridRowModel,
+    ): Promise<gradelevel> => {
       const updated = newRow as gradelevel;
 
       // Validate
@@ -258,7 +261,7 @@ export function GradeLevelDataGrid({
       }
 
       enqueueSnackbar("บันทึกระดับชั้นสำเร็จ", { variant: "success" });
-      onMutate();
+      await onMutate();
       return updated;
     },
     [onMutate, programsByYear],

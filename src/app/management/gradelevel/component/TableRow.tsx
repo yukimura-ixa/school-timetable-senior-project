@@ -19,14 +19,13 @@ type TableRowProps = {
 
 function TableRow({
   item,
-  index,
+  index: _index,
   clickToSelect,
   checkedList,
   setEditModalActive,
-  pageOfData,
+  pageOfData: _pageOfData,
   searchTerm,
 }: TableRowProps) {
-  console.log(item);
   const matchesSearchTerm = item.GradeID.toLowerCase().includes(
     searchTerm.toLowerCase(),
   );
@@ -68,7 +67,8 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              (setEditModalActive(true), clickToSelect(item.GradeID));
+              setEditModalActive(true);
+              clickToSelect(item.GradeID);
             }}
           />
           {/* Delete action removed - use top toolbar button with multi-select */}

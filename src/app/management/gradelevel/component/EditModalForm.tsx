@@ -41,9 +41,9 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     });
     return isValid;
   };
-  const confirmed = () => {
+  const confirmed = async () => {
     if (isValidData()) {
-      editMultiData(editData);
+      await editMultiData(editData);
       closeModal();
     }
   };
