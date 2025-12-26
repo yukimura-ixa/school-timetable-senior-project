@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
@@ -19,68 +19,37 @@ type Props = {
 };
 
 function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
-  const [subject, setSubject] = useState<subject[]>([]);
-  const [subjectFilter, setSubjectFilter] = useState<subject[]>([]);
   const [programData, setProgramData] = useState(data);
   const [isEmptyData, setIsEmptyData] = useState({
     ProgramName: false,
     gradelevel: false,
     subject: false,
   });
-  const [searchText, setSearchText] = useState("");
-  const searchName = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    const res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} ${item.SubjectName}`.match(name),
-    );
-    setSubject(res);
-  };
-  const searchHandle = (event: any) => {
-    const text = event.target.value;
-    setSearchText(text);
-    searchName(text);
-  };
-  const [searchTextSubject, setSearchTextSubject] = useState("");
-  const searchSubject = (name: string) => {
-    //อันนี้แค่ทดสอบเท่านั่น ยังคนหาได้ไม่สุด เช่น ค้นหาแบบตัด case sensitive ยังไม่ได้
-    const res = subjectFilter.filter((item) =>
-      `${item.SubjectCode} - ${item.SubjectName}`.match(name),
-    );
-    setSubject(res);
-  };
-  const searchHandleSubject = (event: any) => {
-    const text = event.target.value;
-    setSearchTextSubject(text);
-    searchSubject(text);
-  };
-  const classRoomHandleChange = (value: any) => {
+  const classRoomHandleChange = (value: { GradeID: string }) => {
     const gradelevelArr = programData.gradelevel || [];
     const removeDulpItem = gradelevelArr.filter(
-      (item: any) => item.GradeID != value.GradeID,
+      (item) => item.GradeID !== value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setProgramData(() => ({
       ...programData,
       gradelevel:
         gradelevelArr.filter(
-          (item: any) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
+          (item) => item.GradeID === value.GradeID, //เช็คเงื่อนไขว่าถ้ากดเพิ่มเข้ามาแล้วยังไม่เคยเพิ่มห้องเรียนนี้มาก่อนจะเพิ่มเข้าไปใหม่ ถ้ามีแล้วก็ลบห้องนั้นออก
         ).length === 0
           ? [...gradelevelArr, value]
           : [...removeDulpItem],
     }));
   };
-  const validateData = () => {
+  const validateData = React.useCallback(() => {
     setIsEmptyData(() => ({
-      ProgramName: programData.ProgramName.length == 0,
-      gradelevel: (programData.gradelevel || []).length == 0,
-      subject: (programData.subject || []).length == 0,
+      ProgramName: programData.ProgramName.length === 0,
+      gradelevel: (programData.gradelevel || []).length === 0,
+      subject: (programData.subject || []).length === 0,
     }));
-  };
+  }, [programData]);
   useEffect(() => {
-    const validate = () => {
-      validateData();
-    };
-    return validate();
-  }, [programData.ProgramName, programData.gradelevel, programData.subject]);
+    validateData();
+  }, [validateData]);
   const editProgram = async (program: program) => {
     try {
       const result = await updateProgramAction({ programs: [program] });
@@ -93,22 +62,20 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
         throw new Error(errorMessage);
       }
 
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       console.error("Failed to update program:", error);
       throw error;
     }
   };
-  const editItemAndCloseModal = () => {
+  const editItemAndCloseModal = async () => {
     const cond =
       isEmptyData.ProgramName || isEmptyData.gradelevel || isEmptyData.subject;
     if (cond) {
       validateData();
     } else {
-      editProgram(data);
+      await editProgram(programData);
       closeModal();
-      mutate();
-      console.log(programData);
     }
   };
   const removeSubjectFromList = (index: number) => {
@@ -116,7 +83,7 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
       ...programData,
       subject: [
         ...(programData.subject || []).filter(
-          (_item: any, ind: number) => ind != index,
+          (_item, ind) => ind !== index,
         ),
       ],
     }));
@@ -126,7 +93,6 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
       ...programData,
       subject: [...(programData.subject || []), subject],
     }));
-    setSearchTextSubject("");
   };
   return (
     <>
@@ -146,7 +112,7 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
             <StudyProgramLabel
               required={false}
               title={programData.ProgramName}
-              handleChange={(e: any) => {
+              handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const value: string = e.target.value;
                 setProgramData(() => ({
                   ...programData,
@@ -169,7 +135,7 @@ function EditStudyProgramModal({ data, closeModal, mutate }: Props) {
           <span className="flex w-full justify-end">
             <button
               onClick={() => {
-                editItemAndCloseModal();
+                void editItemAndCloseModal();
               }}
               className="w-[75px] h-[45px] bg-blue-100 hover:bg-blue-200 duration-300 p-3 rounded text-blue-600 text-sm"
             >
