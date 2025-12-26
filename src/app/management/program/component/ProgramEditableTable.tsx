@@ -81,7 +81,7 @@ const columnsForYear = (_year: number): ColumnDef<program>[] => [
 ];
 
 const validateProgram: (year: number) => ValidationFn<program> =
-  (year: number) => (_id, data, all) => {
+  (_year: number) => (_id, data, all) => {
     // Basic required
     if (!data.ProgramCode || String(data.ProgramCode).trim() === "") {
       return "รหัสหลักสูตรห้ามว่าง";

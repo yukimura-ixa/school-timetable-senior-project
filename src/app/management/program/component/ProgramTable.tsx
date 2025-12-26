@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ProgramTrack, type program } from "@/prisma/generated/client";
 
 // Program rows include related gradelevel and subject arrays
@@ -39,7 +39,6 @@ import {
 } from "@/features/program/application/actions/program.actions";
 import AddStudyProgramModal from "./AddStudyProgramModal";
 import EditStudyProgramModal from "./EditStudyProgramModal";
-import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 // Thai translations for ProgramTrack enum
 const programTrackThai: Record<ProgramTrack, string> = {
@@ -52,7 +51,7 @@ const programTrackThai: Record<ProgramTrack, string> = {
 interface ProgramTableProps {
   year: number;
   rows: ProgramRow[];
-  mutate: () => Promise<any> | void;
+  mutate: () => Promise<void> | void;
 }
 
 export default function ProgramTable({
@@ -72,21 +71,6 @@ export default function ProgramTable({
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const { confirm, dialog } = useConfirmDialog();
-
-  // Extract unique academic years from rows
-  const availableAcademicYears = useMemo(() => {
-    const years = new Set<number>();
-    rows.forEach((r) => {
-      if ((r as any).AcademicYear) {
-        years.add((r as any).AcademicYear);
-      }
-    });
-    // If no years in data, add current Thai year
-    if (years.size === 0) {
-      years.add(getBangkokThaiBuddhistYear());
-    }
-    return Array.from(years).sort((a, b) => b - a);
-  }, [rows]);
 
   const filtered = useMemo(() => {
     let result = rows;

@@ -17,7 +17,6 @@ import {
   DataGrid,
   GridColDef,
   GridRowId,
-  GridRowModel,
   GridRowSelectionModel,
   GridActionsCellItem,
   GridRowModes,
@@ -131,7 +130,7 @@ export function ProgramDataGrid({
         if (result.success) {
           enqueueSnackbar("ลบหลักสูตรสำเร็จ", { variant: "success" });
           setRows((prev) => prev.filter((row) => row.ProgramID !== id));
-          onMutate();
+          await onMutate();
         } else {
           enqueueSnackbar("ลบหลักสูตรไม่สำเร็จ", { variant: "error" });
         }
@@ -164,7 +163,7 @@ export function ProgramDataGrid({
           prev.filter((row) => !selectedIds.includes(row.ProgramID)),
         );
         setRowSelectionModel({ type: "include", ids: new Set<GridRowId>() });
-        onMutate();
+        await onMutate();
       } catch {
         enqueueSnackbar("ลบหลักสูตรไม่สำเร็จ", { variant: "error" });
       }
@@ -174,7 +173,7 @@ export function ProgramDataGrid({
   // ==================== Update Handler ====================
 
   const processRowUpdate = useCallback(
-    async (newRow: program, oldRow: program): Promise<program> => {
+    async (newRow: program, _oldRow: program): Promise<program> => {
       const updated = newRow;
 
       // Validate
@@ -204,7 +203,7 @@ export function ProgramDataGrid({
       }
 
       enqueueSnackbar("บันทึกหลักสูตรสำเร็จ", { variant: "success" });
-      onMutate();
+      await onMutate();
       return updated;
     },
     [onMutate],
