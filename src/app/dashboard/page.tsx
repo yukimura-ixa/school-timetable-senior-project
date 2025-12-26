@@ -94,7 +94,7 @@ export default function SelectSemesterPage() {
     } finally {
       setLoading(false);
     }
-  }, [filters, router]);
+  }, [filters]);
 
   // Load initial data
   useEffect(() => {

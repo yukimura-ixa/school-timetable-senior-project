@@ -41,7 +41,6 @@ const formatGrade = (gradeId?: string) => {
 
 function TimeSlot({ timeSlotData }: Props) {
   const theme = useTheme();
-  const slotCount = timeSlotData.SlotAmount.length;
 
   return (
     <Box

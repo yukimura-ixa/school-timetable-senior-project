@@ -26,10 +26,12 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     let isValid = true;
     editData.forEach((data) => {
       if (
-        data.Year == null ||
-        data.Number == null ||
-        data.Number == 0 ||
-        data.Year == 0 ||
+        data.Year === null ||
+        data.Year === undefined ||
+        data.Number === null ||
+        data.Number === undefined ||
+        data.Number === 0 ||
+        data.Year === 0 ||
         data.Year < 1 ||
         data.Year > 6
       ) {
@@ -51,7 +53,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     }
     closeModal();
   };
-  const editMultiData = async (data: any) => {
+  const editMultiData = async (data: gradelevel[]) => {
     const loadbar = enqueueSnackbar("กำลังแก้ไขข้อมูลชั้นเรียน", {
       variant: "info",
       persist: true,
@@ -99,11 +101,11 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
             <p className="text-lg select-none">แก้ไขข้อมูล</p>
             <AiOutlineClose className="cursor-pointer" onClick={cancelEdit} />
           </div>
-          {editData.map((item: any, index: number) => (
+          {editData.map((item, index) => (
             <React.Fragment key={`Edit${index}`}>
               <div
                 className={`flex flex-row gap-3 items-center ${
-                  index == 0 ? "" : "mt-2"
+                  index === 0 ? "" : "mt-2"
                 }`}
               >
                 <div className="flex flex-col items-center justify-center mr-5">
@@ -118,7 +120,8 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     placeHolder="ex. 101"
                     value={item.GradeID}
                     borderColor={
-                      isEmptyData && (item.GradeID == 0 || item.GradeID == null)
+                      isEmptyData &&
+                      (item.GradeID === 0 || item.GradeID === null)
                         ? "#F96161"
                         : ""
                     }
@@ -132,7 +135,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     }}
                   />
                   {isEmptyData &&
-                  (item.GradeID == 0 || item.GradeID == null) ? (
+                  (item.GradeID === 0 || item.GradeID === null) ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -171,13 +174,18 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     placeHolder="ex. 1"
                     value={item.Number}
                     borderColor={
-                      isEmptyData && (item.Number == 0 || item.Number == null)
+                      isEmptyData &&
+                      (item.Number === 0 ||
+                        item.Number === null ||
+                        item.Number === undefined)
                         ? "#F96161"
                         : ""
                     }
                     disabled={false}
-                    handleChange={(e: any) => {
-                      const value: string = e.target.value;
+                    handleChange={(
+                      e: React.ChangeEvent<HTMLInputElement>,
+                    ) => {
+                      const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
@@ -187,7 +195,10 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && (item.Number == 0 || item.Number == null) ? (
+                  {isEmptyData &&
+                  (item.Number === 0 ||
+                    item.Number === null ||
+                    item.Number === undefined) ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -202,7 +213,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     placeHolder="ex. Com-sci"
                     value={item.GradeProgram}
                     borderColor={
-                      isEmptyData && item.GradeProgram.length == 0
+                      isEmptyData && item.GradeProgram.length === 0
                         ? "#F96161"
                         : ""
                     }
@@ -217,7 +228,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && item.GradeProgram.length == 0 ? (
+                  {isEmptyData && item.GradeProgram.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>

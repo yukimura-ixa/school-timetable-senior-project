@@ -2,13 +2,13 @@ import { AiOutlineClose } from "react-icons/ai";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
-import { gradelevel } from "@/prisma/generated/client";
+import type { gradelevel } from "@/prisma/generated/client";
 import { deleteGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type props = {
-  closeModal: any;
-  deleteData: any;
-  clearCheckList: any;
+  closeModal: () => void;
+  deleteData: gradelevel[];
+  clearCheckList: () => void;
   dataAmount: number;
   checkedList: string[];
   mutate: () => void;
@@ -23,7 +23,7 @@ function ConfirmDeleteModal({
   mutate,
 }: props) {
   const confirmed = () => {
-    removeMultiData(deleteData, checkedList);
+    void removeMultiData(deleteData, checkedList);
     closeModal();
   };
   const cancel = () => {
@@ -39,7 +39,7 @@ function ConfirmDeleteModal({
     });
 
     const deleteData = data
-      .filter((item, index) => checkedList.includes(item.GradeID))
+      .filter((item) => checkedList.includes(item.GradeID))
       .map((item) => item.GradeID);
 
     try {

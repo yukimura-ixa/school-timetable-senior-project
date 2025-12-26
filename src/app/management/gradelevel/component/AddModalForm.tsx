@@ -9,7 +9,6 @@ import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { createGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
-import type { gradelevel } from "@/prisma/generated/client";
 import type { CreateGradeLevelsInput } from "@/features/gradelevel/application/schemas/gradelevel.schemas";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 type Props = {

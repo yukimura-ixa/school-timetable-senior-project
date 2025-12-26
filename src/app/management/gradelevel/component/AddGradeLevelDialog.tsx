@@ -167,7 +167,7 @@ export function AddGradeLevelDialog({
       enqueueSnackbar(`เพิ่มระดับชั้น ${gradeLevels.length} รายการสำเร็จ`, {
         variant: "success",
       });
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (error) {
       enqueueSnackbar(
