@@ -3,7 +3,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { gradelevel, subject } from "@/prisma/generated/client";
+import type { subject } from "@/prisma/generated/client";
 import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -21,8 +21,16 @@ type ProgramData = {
   ProgramName: string;
   Semester: semester | "";
   AcademicYear: number;
-  gradelevel: gradelevel[];
+  gradelevel: GradeSelectionItem[];
   subject: subject[];
+};
+
+type GradeSelectionItem = {
+  GradeID: string;
+  Year?: number;
+  Number?: number;
+  StudentCount?: number;
+  ProgramID?: number | null;
 };
 
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
@@ -98,7 +106,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
       subject: newProgramData.subject.length === 0,
     }));
   }, [newProgramData]);
-  const classRoomHandleChange = (value: gradelevel) => {
+  const classRoomHandleChange = (value: GradeSelectionItem) => {
     const removeDulpItem = newProgramData.gradelevel.filter(
       (item) => item.GradeID !== value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก

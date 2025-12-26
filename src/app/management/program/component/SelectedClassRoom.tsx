@@ -2,11 +2,18 @@ import MiniButton from "@/components/elements/static/MiniButton";
 import { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 import { useGradeLevels } from "@/hooks";
-import type { gradelevel } from "@/prisma/generated/client";
+
+type GradeSelectionItem = {
+  GradeID: string;
+  Year?: number;
+  Number?: number;
+  StudentCount?: number;
+  ProgramID?: number | null;
+};
 
 type Props = {
-  Grade: gradelevel[];
-  classRoomHandleChange: (classroom: gradelevel) => void;
+  Grade: GradeSelectionItem[];
+  classRoomHandleChange: (classroom: GradeSelectionItem) => void;
   required: boolean;
 };
 
