@@ -45,8 +45,8 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     closeModal();
 
     try {
-      // TODO: This form is missing required MOE fields (ProgramCode, Track, MinTotalCredits, Year).
-      // Also, gradelevel and subject associations are not supported by createProgramAction.
+      // NOTE: This form is missing required MOE fields (ProgramCode, Track, MinTotalCredits, Year).
+      // gradelevel and subject associations are not supported by createProgramAction.
       // Using placeholders to pass typecheck.
       const result = await createProgramAction({
         ProgramCode: `PROG-${Date.now()}`, // Placeholder
@@ -71,7 +71,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
         throw new Error(errorMessage);
       }
 
-      mutate();
+      await mutate();
       enqueueSnackbar("เพิ่มข้อมูลสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
     } catch (error: unknown) {
@@ -90,17 +90,17 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     subject: false,
   });
 
-  const validateData = () => {
+  const validateData = React.useCallback(() => {
     setIsEmptyData(() => ({
-      ProgramName: newProgramData.ProgramName.length == 0,
-      Semester: newProgramData.Semester == "",
-      gradelevel: newProgramData.gradelevel.length == 0,
-      subject: newProgramData.subject.length == 0,
+      ProgramName: newProgramData.ProgramName.length === 0,
+      Semester: newProgramData.Semester === "",
+      gradelevel: newProgramData.gradelevel.length === 0,
+      subject: newProgramData.subject.length === 0,
     }));
-  };
+  }, [newProgramData]);
   const classRoomHandleChange = (value: gradelevel) => {
     const removeDulpItem = newProgramData.gradelevel.filter(
-      (item) => item.GradeID != value.GradeID,
+      (item) => item.GradeID !== value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
       ...newProgramData,
@@ -113,16 +113,8 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     }));
   };
   useEffect(() => {
-    const validate = () => {
-      validateData();
-    };
-    return validate();
-  }, [
-    newProgramData.ProgramName,
-    newProgramData.Semester,
-    newProgramData.gradelevel,
-    newProgramData.subject,
-  ]);
+    validateData();
+  }, [validateData]);
 
   const handleSelectSemester = (value: unknown) => {
     const semesterKey = value as keyof typeof semester;
@@ -141,10 +133,10 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
   const removeSubjectFromList = (index: number) => {
     setNewProgramData(() => ({
       ...newProgramData,
-      subject: [...newProgramData.subject.filter((item, ind) => ind != index)],
+      subject: [...newProgramData.subject.filter((item, ind) => ind !== index)],
     }));
   };
-  const addItemAndCloseModal = () => {
+  const addItemAndCloseModal = async () => {
     const cond =
       isEmptyData.ProgramName ||
       isEmptyData.gradelevel ||
@@ -153,7 +145,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     if (cond) {
       validateData();
     } else {
-      addProgram(newProgramData);
+      await addProgram(newProgramData);
     }
   };
   return (
