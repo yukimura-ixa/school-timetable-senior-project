@@ -65,14 +65,14 @@
 
 ### Modified Files (3 total)
 
-1. **src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx**
+1. **src/app/dashboard/[academicYear]/[semester]/teacher-table/page.tsx**
    - Removed `useReactToPrint` import
    - Removed hidden print div
    - Removed browser print styles
    - Added `handleExportPDF` with fetch to `/api/export/teacher-timetable/pdf`
    - Data transformation for API payload
 
-2. **src/app/dashboard/[semesterAndyear]/student-table/page.tsx**
+2. **src/app/dashboard/[academicYear]/[semester]/student-table/page.tsx**
    - Removed `useReactToPrint` placeholder
    - Added `handleExportPDF` with fetch to `/api/export/student-timetable/pdf`
    - Data transformation for student API payload
@@ -104,7 +104,7 @@
 
 ### User Flow (Admin Only)
 
-1. Admin navigates to [/dashboard/1-2567/teacher-table](http://localhost:3000/dashboard/1-2567/teacher-table)
+1. Admin navigates to [/dashboard/2567/1/teacher-table](http://localhost:3000/dashboard/2567/1/teacher-table)
 2. Selects a teacher from dropdown
 3. Clicks "นำออก PDF" button
 4. Client calls `/api/export/teacher-timetable/pdf` with:
@@ -250,7 +250,7 @@ If critical issues arise:
 
 2. **Revert teacher-table/page.tsx**:
    ```bash
-   git checkout HEAD~1 -- src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx
+   git checkout HEAD~1 -- src/app/dashboard/[academicYear]/[semester]/teacher-table/page.tsx
    ```
 
 3. **Remove new files**:

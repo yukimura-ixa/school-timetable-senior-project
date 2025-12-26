@@ -40,8 +40,12 @@ function AddSubjectModal(props: Props) {
   ); //รายวิชาของชั้นเรียนทีส่งมา
   const params = useParams();
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
 
   const { data, isLoading } = useSWR(
     props.classRoomData?.GradeID
@@ -156,11 +160,12 @@ function AddSubjectModal(props: Props) {
             <div className="flex flex-col gap-3">
               <u
                 className="text-sm text-blue-500 cursor-pointer"
-                onClick={() =>
+                onClick={() => {
+                  if (!academicYear || !semester) return;
                   addSubjectToList(
                     //Add default value to array
                     {
-                      AcademicYear: parseInt(academicYear),
+                      AcademicYear: academicYear,
                       GradeID: props.classRoomData.GradeID,
                       Semester: `SEMESTER_${semester}` as any,
                       SubjectCode: "",
@@ -175,8 +180,8 @@ function AddSubjectModal(props: Props) {
                       IsGraded: true,
                       Description: "",
                     },
-                  )
-                }
+                  );
+                }}
               >
                 เพิ่มวิชา
               </u>

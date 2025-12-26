@@ -150,7 +150,6 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   // Extract year and semester from new route params
   const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
   const semester = params.semester ? parseInt(params.semester as string, 10) : null;
-  const semesterAndyear = academicYear && semester ? `${semester}-${academicYear}` : undefined; // pattern e.g. 1-2567
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     lockScheduleData: {
@@ -164,15 +163,11 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
 
   // Derive academic year / semester from route param for fetching locked schedules
   const derivedTerm = useMemo(() => {
-    if (!semesterAndyear) return null;
-    const parts = semesterAndyear.split("-");
-    if (parts.length !== 2) return null;
-    const semPart = parts[0];
-    const yearNum = Number(parts[1]);
-    if (!yearNum || (semPart !== "1" && semPart !== "2")) return null;
-    const semEnum: semester = semPart === "1" ? "SEMESTER_1" : "SEMESTER_2";
-    return { academicYear: yearNum, semester: semEnum };
-  }, [semesterAndyear]);
+    if (!academicYear || !semester) return null;
+    if (semester !== 1 && semester !== 2) return null;
+    const semEnum: semester = semester === 1 ? "SEMESTER_1" : "SEMESTER_2";
+    return { academicYear, semester: semEnum };
+  }, [academicYear, semester]);
 
   // Shared availability hook (centralized logic)
   const { availabilityMap } = useRoomAvailability({

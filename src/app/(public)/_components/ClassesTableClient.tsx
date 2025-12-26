@@ -44,12 +44,23 @@ const toNumericGradeId = (gradeId: string): string => {
   return `${year}${section.toString().padStart(2, "0")}`;
 };
 
+const parseConfigId = (
+  configId?: string,
+): { academicYear: string; semester: string } | null => {
+  if (!configId) return null;
+  const match = /^(1|2)-(\d{4})$/.exec(configId);
+  if (!match) return null;
+  const [, semester, academicYear] = match;
+  return { academicYear, semester };
+};
+
 export function ClassesTableClient({
   data,
   search,
   "data-testid": testId,
   configId,
 }: Props) {
+  const term = parseConfigId(configId);
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-12">
@@ -114,8 +125,8 @@ export function ClassesTableClient({
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={
-                      configId
-                        ? `/classes/${toNumericGradeId(cls.gradeId)}/${configId}`
+                      term
+                        ? `/classes/${toNumericGradeId(cls.gradeId)}/${term.academicYear}/${term.semester}`
                         : `/dashboard`
                     }
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"

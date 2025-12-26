@@ -11,8 +11,8 @@ import type { ModalCloseHandler } from "@/types/events";
 
 type props = {
   closeModal: ModalCloseHandler;
-  academicYear: string;
-  semester: string;
+  academicYear: number;
+  semester: number;
   mutate: () => void;
 };
 
@@ -38,7 +38,7 @@ function ConfirmDeleteModal({
 
     try {
       const result = await deleteTimeslotsByTermAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
 

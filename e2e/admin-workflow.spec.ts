@@ -18,7 +18,7 @@ import { test, expect } from "./fixtures/admin.fixture";
 import { NavigationHelper } from "./helpers/navigation";
 
 // Test constants
-const TEST_SEMESTER = "2-2567";
+const TEST_SEMESTER = "2567/2";
 
 // Visual comparison options - allow some tolerance for dynamic content
 const VISUAL_OPTIONS = {

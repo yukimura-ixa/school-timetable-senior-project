@@ -10,7 +10,7 @@ import { auth } from "@/lib/auth";
  * Redirects unauthenticated users to the signin page.
  *
  * Note: Semester-specific schedule pages have additional validation
- * in their nested layout (schedule/[semesterAndyear]/layout.tsx)
+ * in their nested layout (schedule/[academicYear]/[semester]/layout.tsx)
  */
 export default async function ScheduleLayout({
   children,

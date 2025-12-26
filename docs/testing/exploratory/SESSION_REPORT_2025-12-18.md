@@ -17,11 +17,11 @@ Consolidated report (includes bug details + evidence + automation candidates):
 - Subject management: add E2E subject (validation enforced English-only codes and learning area required), saved then deleted.
 - Room management: add E2E room (name/building/floor), saved then deleted.
 - Logout control (authenticated): attempted via header button.
-- Schedule arrange page `/schedule/1-2568/arrange`: load/selector tabs; no drag/drop performed (read-only observation).
-- Dashboard semester-scoped views: `/dashboard/1-2567/all-timeslot`, `/dashboard/1-2567/teacher-table`, `/dashboard/1-2567/student-table`, `/dashboard/1-2567/all-program`.
-- Schedule config: `/schedule/1-2567/config` (timeslot settings visible).
-- Teacher arrange: `/schedule/1-2567/arrange` (selected E2E teacher to load grid/time row).
-- Lock overview: `/schedule/1-2567/lock` (empty state).
+- Schedule arrange page `/schedule/2568/1/arrange`: load/selector tabs; no drag/drop performed (read-only observation).
+- Dashboard semester-scoped views: `/dashboard/2567/1/all-timeslot`, `/dashboard/2567/1/teacher-table`, `/dashboard/2567/1/student-table`, `/dashboard/2567/1/all-program`.
+- Schedule config: `/schedule/2567/1/config` (timeslot settings visible).
+- Teacher arrange: `/schedule/2567/1/arrange` (selected E2E teacher to load grid/time row).
+- Lock overview: `/schedule/2567/1/lock` (empty state).
 
 ## Notes & Observations
 - Landing shows pre-seeded stats and teacher rows; duplicate teacher names appear (e.g., “นางมาลี สุขใจ” rendered twice) — may be sample data duplication, not confirmed bug.

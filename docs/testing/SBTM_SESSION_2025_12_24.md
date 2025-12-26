@@ -62,7 +62,7 @@
 1. Homepage link shows: `/teachers/1-2567` (404)
 2. **Code Review:**
    - `src/app/(public)/page.tsx` line 110: `href={/teachers/607/${currentConfigId}}`
-   - Expected URL: `/teachers/607/1-2567`
+   - Expected URL: `/teachers/607/2567/1`
    - Production URL: `/teachers/1-2567` (missing teacher ID `607`)
 
 **Diagnosis:** **Production deployment is stale.** The fix to include teacher ID `607` in the URL was made in the codebase but not deployed.

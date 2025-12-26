@@ -3,7 +3,7 @@
 import ExcelJS from "exceljs";
 import type { teacher } from "@/prisma/generated/client";
 import type { ClassScheduleWithSummary } from "@/features/class/infrastructure/repositories/class.repository";
-import type { TimeSlotTableData } from "@/app/dashboard/[semesterAndyear]/shared/timeSlot";
+import type { TimeSlotTableData } from "@/app/dashboard/[academicYear]/[semester]/shared/timeSlot";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 

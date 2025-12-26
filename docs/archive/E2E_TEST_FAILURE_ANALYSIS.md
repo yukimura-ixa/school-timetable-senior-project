@@ -348,7 +348,7 @@ After applying fixes:
   ```bash
   # Manual verification
   pnpm dev
-  # Navigate to /dashboard/1-2567/teacher-table
+  # Navigate to /dashboard/2567/1/teacher-table
   # Verify teacher schedules display correctly
   # Check export buttons are visible
   ```

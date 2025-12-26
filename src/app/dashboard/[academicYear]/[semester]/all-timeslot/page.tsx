@@ -20,7 +20,6 @@ export default async function AllTimeslotPage({
 
   const year = parseInt(yearStr, 10);
   const semester = parseInt(semStr, 10) as 1 | 2;
-  const semesterAndyear = `${semester}-${year}`;
 
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
@@ -44,7 +43,7 @@ export default async function AllTimeslotPage({
       semester={semester}
       academicYear={year}
       isAdmin={isAdmin}
-      configManageHref={`/schedule/${semesterAndyear}/config`}
+      configManageHref={`/schedule/${year}/${semester}/config`}
     />
   );
 }

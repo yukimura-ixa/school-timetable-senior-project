@@ -155,7 +155,7 @@ const groupBy = (option: RoomSelectOption) => {
 
 ### Files Refactored
 
-1. **`src/app/schedule/[semesterAndyear]/lock/component/SelectRoomName.tsx`**
+1. **`src/app/schedule/[academicYear]/[semester]/lock/component/SelectRoomName.tsx`**
    - **Before:** 57 lines with custom Dropdown and manual search
    - **After:** 44 lines using RoomAutocomplete
    - **Removed:** Manual useState for filtering, case-sensitive regex search
@@ -425,7 +425,7 @@ describe("RoomAutocomplete", () => {
 
 ```typescript
 test("should select room with building/floor info", async ({ page }) => {
-  await page.goto("/schedule/1-2567/lock");
+  await page.goto("/schedule/2567/1/lock");
 
   // Open autocomplete
   await page.click('label:has-text("สถานที่เรียน")');

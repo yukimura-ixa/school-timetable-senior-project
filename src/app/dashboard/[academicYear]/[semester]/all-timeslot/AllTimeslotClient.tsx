@@ -87,8 +87,10 @@ type AllTimeslotClientProps = {
   configManageHref: string;
 };
 
+import type { TimeslotWithSubject } from "../shared/timeSlot";
+
 type TimeSlotData = {
-  AllData: (timeslot & { subject: Record<string, never> })[];
+  AllData: TimeslotWithSubject[];
 
   SlotAmount: number[];
 
@@ -179,7 +181,7 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
     : 50;
 
   return {
-    AllData: data.map((item) => ({ ...item, subject: {} })),
+    AllData: data.map((item) => ({ ...item, subject: null })),
 
     SlotAmount: slotAmount,
 

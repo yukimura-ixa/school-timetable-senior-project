@@ -72,8 +72,12 @@ function ClassroomResponsibility() {
 
   // Use useSemesterSync to extract and sync semester with global store
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
 
   const searchTeacherID = useSearchParams().get("TeacherID");
 
@@ -106,13 +110,13 @@ function ClassroomResponsibility() {
           เลือกครูจากหน้ามอบหมายวิชาเรียนเพื่อดูชั้นเรียนที่รับผิดชอบ
         </p>
         <div className="mt-4">
-          <MiniButton
-            title="ย้อนกลับ"
-            border
-            handleClick={() =>
-              router.replace(`/schedule/${semester}-${academicYear}/assign`)
-            }
-          />
+            <MiniButton
+              title="ย้อนกลับ"
+              border
+              handleClick={() =>
+                router.replace(`/schedule/${academicYear}/${semester}/assign`)
+              }
+            />
         </div>
       </div>
     );
@@ -121,15 +125,15 @@ function ClassroomResponsibility() {
   // Fetch teacher responsibilities using Server Action
   const responsibilityData = useSWR<AssignmentWithRelations[] | null>(
     () =>
-      searchTeacherID
+      searchTeacherID && academicYear && semester
         ? `assign-${searchTeacherID}-${academicYear}-${semester}`
         : null,
     async () => {
-      if (!searchTeacherID) return null;
+      if (!searchTeacherID || !academicYear || !semester) return null;
       try {
         const result = await getAssignmentsAction({
           TeacherID: parseInt(searchTeacherID),
-          AcademicYear: parseInt(academicYear),
+          AcademicYear: academicYear,
           Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         });
         // result is AssignmentWithRelations[] (inferred from action)
@@ -158,8 +162,9 @@ function ClassroomResponsibility() {
           })); //ทำให้ข้อมูลได้ตาม format แต่จะได้ GradeID ซ้ำๆกันอยู่
           const removeDulpicateGradeID = mapGradeIDOnly.filter(
             (obj, index) =>
-              mapGradeIDOnly.findIndex((item) => item.GradeID == obj.GradeID) ===
-              index,
+              mapGradeIDOnly.findIndex(
+                (item) => item.GradeID == obj.GradeID,
+              ) === index,
           ); //เอาตัวซ้ำออก จาก [101, 101, 102] เป็น [101, 102] (array นี่แค่ตัวอย่างเสยๆ)
           return removeDulpicateGradeID;
         };
@@ -330,10 +335,11 @@ function ClassroomResponsibility() {
     const filterSubject = data.Subjects.filter((item) =>
       spreadClassRoom.map((item) => item.GradeID).includes(item.GradeID),
     );
+    if (!academicYear || !semester) return;
     const postData = {
       TeacherID: data.Teacher.TeacherID,
       Resp: filterSubject,
-      AcademicYear: parseInt(academicYear),
+      AcademicYear: academicYear,
       Semester: `SEMESTER_${semester}`,
     };
     const findEmptySubjectInClassRoom = spreadClassRoom.filter((item) =>

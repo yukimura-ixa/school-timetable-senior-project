@@ -119,8 +119,12 @@ export default function ArrangementPage() {
 
   // Use useSemesterSync to extract and sync semester with global store
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
   const { data: session, isPending: isSessionLoading } =
     authClient.useSession();
   const canFetch = Boolean(session?.user) && !isSessionLoading;
@@ -146,7 +150,7 @@ export default function ArrangementPage() {
 
     const fetchConfig = async () => {
       const result = await getTimetableConfigAction({
-        academicYear: parseInt(academicYear),
+        academicYear: academicYear,
         semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
       if (result.success && result.data) {
@@ -275,7 +279,7 @@ export default function ArrangementPage() {
     async () => {
       if (!currentTeacherID) return [];
       const result = await getAvailableRespsAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
       });
@@ -298,7 +302,7 @@ export default function ArrangementPage() {
     canFetch ? `timeslots-${academicYear}-${semester}` : null,
     async () => {
       const result = await getTimeslotsByTermAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
       if (!result || !result.success) return [];
@@ -316,7 +320,7 @@ export default function ArrangementPage() {
     async () => {
       if (!currentTeacherID) return [];
       const result = await getConflictsAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherID: parseInt(currentTeacherID),
       });
@@ -339,7 +343,7 @@ export default function ArrangementPage() {
     canFetch ? `locked-schedules-${academicYear}-${semester}` : null,
     async () => {
       const result = await getRawLockedSchedulesAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
       });
       if (!result || !result.success) return [];
@@ -406,7 +410,7 @@ export default function ArrangementPage() {
     async () => {
       if (!selectedGradeLevel) return [];
       const result = await getClassSchedulesAction({
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         GradeID: undefined, // Will fetch by Year instead
       });
@@ -570,7 +574,7 @@ export default function ArrangementPage() {
     (teacherID: string) => {
       setCurrentTeacherID(teacherID);
       router.push(
-        `/schedule/${semester}-${academicYear}/arrange?TeacherID=${teacherID}`,
+        `/schedule/${academicYear}/${semester}/arrange?TeacherID=${teacherID}`,
       );
     },
     [semester, academicYear, router, setCurrentTeacherID],
@@ -867,7 +871,7 @@ export default function ArrangementPage() {
         // Clear all schedules
         const result = await syncTeacherScheduleAction({
           TeacherID: parseInt(currentTeacherID),
-          AcademicYear: parseInt(academicYear),
+          AcademicYear: academicYear,
           Semester: semester,
           Schedule: [],
         });
@@ -970,7 +974,7 @@ export default function ArrangementPage() {
 
           const result = await syncTeacherScheduleAction({
             TeacherID: parseInt(currentTeacherID),
-            AcademicYear: parseInt(academicYear),
+            AcademicYear: academicYear,
             Semester: semester,
             Schedule: scheduleData,
           });
@@ -1150,7 +1154,7 @@ export default function ArrangementPage() {
           // Sync updated schedule
           const result = await syncTeacherScheduleAction({
             TeacherID: parseInt(currentTeacherID),
-            AcademicYear: parseInt(academicYear),
+            AcademicYear: academicYear,
             Semester: semester,
             Schedule: newScheduleData,
           });
@@ -1449,8 +1453,8 @@ export default function ArrangementPage() {
             onSave={() => void handleSave()}
             isSaving={isSaving}
             isDirty={isDirty}
-            semester={semester}
-            academicYear={academicYear}
+            semester={String(semester)}
+            academicYear={String(academicYear)}
           />
 
           {/* Tabs */}

@@ -129,7 +129,7 @@ setup("authenticate as admin", async ({ page }) => {
     console.log("[AUTH SETUP] Already authenticated, skipping login");
 
     // Navigate to semester-specific dashboard
-    await page.goto("/dashboard/1-2567", {
+    await page.goto("/dashboard/2567/1", {
       waitUntil: "domcontentloaded",
       timeout: 60000,
     });
@@ -153,7 +153,7 @@ setup("authenticate as admin", async ({ page }) => {
       )
       .toBe("admin");
 
-    // Set localStorage directly - /dashboard/1-2567 is a Server Component,
+    // Set localStorage directly - /dashboard/2567/1 is a Server Component,
     // so useSemesterSync hook never runs. Direct localStorage is faster and reliable.
     console.log(
       "[AUTH SETUP] Setting semester-selection directly (already authenticated path)...",
@@ -299,7 +299,7 @@ setup("authenticate as admin", async ({ page }) => {
       // Navigation failed - Fast Refresh likely interfered
       // Manually navigate using Playwright
       log.info("Client-side navigation failed (Fast Refresh interference), using manual navigation");
-      await page.goto("/dashboard/1-2567", { timeout: 60000 });
+      await page.goto("/dashboard/2567/1", { timeout: 60000 });
       await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
       navigatedToDashboard = true;
       break;
@@ -312,7 +312,7 @@ setup("authenticate as admin", async ({ page }) => {
     // Last resort: Try manual navigation anyway
     log.info("Timeout waiting for auth, attempting manual navigation as last resort...");
     try {
-      await page.goto("/dashboard/1-2567", { timeout: 60000 });
+      await page.goto("/dashboard/2567/1", { timeout: 60000 });
       await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
       
       // Check if we're actually authenticated
@@ -409,9 +409,9 @@ setup("authenticate as admin", async ({ page }) => {
   // Pre-select semester by navigating to a semester-specific dashboard URL
   // The useSemesterSync hook will parse the URL and save to localStorage
   console.log(
-    "[AUTH SETUP] Pre-selecting semester (1-2567) via URL navigation...",
+    "[AUTH SETUP] Pre-selecting semester (2567/1) via URL navigation...",
   );
-  await page.goto("/dashboard/1-2567", {
+  await page.goto("/dashboard/2567/1", {
     waitUntil: "domcontentloaded",
     timeout: 60000,
   });
@@ -419,7 +419,7 @@ setup("authenticate as admin", async ({ page }) => {
   // Wait for page to finish loading and semester to sync
   await page.waitForLoadState("domcontentloaded", { timeout: 20000 });
 
-  // Set localStorage directly - /dashboard/1-2567 is a Server Component,
+  // Set localStorage directly - /dashboard/2567/1 is a Server Component,
   // so useSemesterSync hook never runs. Direct localStorage is faster and reliable.
   console.log("[AUTH SETUP] Setting semester-selection directly...");
   await page.evaluate(() => {

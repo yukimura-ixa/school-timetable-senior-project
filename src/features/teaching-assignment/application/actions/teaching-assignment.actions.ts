@@ -89,9 +89,8 @@ export const assignTeacherAction = createAction(
 
     // Revalidate relevant pages
     revalidatePath("/management/teacher-assignment");
-    revalidatePath(
-      `/schedule/${input.GradeID}-${input.Semester}-${input.AcademicYear}`,
-    );
+    const semesterNum = input.Semester === "SEMESTER_1" ? "1" : "2";
+    revalidatePath(`/schedule/${input.AcademicYear}/${semesterNum}`);
 
     return {
       assignment,

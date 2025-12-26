@@ -6,8 +6,8 @@
 
 **Files Modified**:
 
-- `src/app/schedule/[semesterAndyear]/arrange/component/SelectTeacher.tsx`
-- `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
+- `src/app/schedule/[academicYear]/[semester]/arrange/component/SelectTeacher.tsx`
+- `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx`
 
 **Test IDs Added**:
 
@@ -59,7 +59,7 @@ import {
 } from "@/e2e/fixtures/seed-data.fixture";
 
 test("should assign subject", async ({ scheduleAssignmentPage }) => {
-  await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+  await scheduleAssignmentPage.goto(`${testSemester.Year}/${testSemester.Semester}`);
   await scheduleAssignmentPage.selectTeacher(testTeacher.TeacherID.toString());
   await scheduleAssignmentPage.dragSubjectToTimeslot(
     testSubject.SubjectCode,
@@ -130,7 +130,7 @@ test("should work", async () => {
 import { test, expect } from "@/e2e/fixtures/admin.fixture";
 import { testTeacher } from "@/e2e/fixtures/seed-data.fixture";
 test.beforeEach(async ({ scheduleAssignmentPage }) => {
-  await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+  await scheduleAssignmentPage.goto(`${testSemester.Year}/${testSemester.Semester}`);
 });
 test("should work", async ({ scheduleAssignmentPage }) => {
   await scheduleAssignmentPage.selectTeacher(testTeacher.TeacherID.toString());
@@ -235,7 +235,7 @@ import {
 
 test.describe("Schedule Assignment", () => {
   test.beforeEach(async ({ scheduleAssignmentPage }) => {
-    await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+    await scheduleAssignmentPage.goto(`${testSemester.Year}/${testSemester.Semester}`);
     await scheduleAssignmentPage.waitForPageReady();
   });
 
@@ -317,8 +317,8 @@ test.describe("Schedule Assignment", () => {
 
 ### Modified
 
-1. `src/app/schedule/[semesterAndyear]/arrange/component/SelectTeacher.tsx`
-2. `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
+1. `src/app/schedule/[academicYear]/[semester]/arrange/component/SelectTeacher.tsx`
+2. `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx`
 3. `e2e/tests/admin/schedule-assignment.spec.ts` (partial)
 
 ### Created

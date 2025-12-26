@@ -8,8 +8,8 @@ import { expect, test, type Page } from "@playwright/test";
  *
  * Public Routes:
  * - / (home page)
- * - /teachers/[id]/[semesterAndyear] (teacher schedule)
- * - /classes/[gradeId]/[semesterAndyear] (class schedule)
+ * - /teachers/[id]/[academicYear]/[semester] (teacher schedule)
+ * - /classes/[gradeId]/[academicYear]/[semester] (class schedule)
  *
  * How to run:
  *   # All viewports
@@ -21,7 +21,18 @@ import { expect, test, type Page } from "@playwright/test";
  *   pnpm test:prod:visual -- --project=public-desktop
  */
 
-const semester = process.env.SEMESTER_ID ?? "2567/1";
+const normalizeSemesterPath = (value: string): string => {
+  if (value.includes("/")) return value;
+  if (value.includes("-")) {
+    const [semesterNum, year] = value.split("-");
+    return `${year}/${semesterNum}`;
+  }
+  return value;
+};
+
+const semester = normalizeSemesterPath(
+  process.env.SEMESTER_ID ?? "2567/1",
+);
 const screenshotDir = "test-results/prod-visual";
 
 /** Trace logger for debugging fallback scenarios in CI */

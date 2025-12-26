@@ -68,7 +68,7 @@ export const test = base.extend<AdminFixtures>({
     // Page is already authenticated via storageState from auth.setup.ts
     // Just verify we're not on the signin page
     // Increased timeout for dev server slow compilation
-    await page.goto("/dashboard/1-2567", { timeout: 60000 });
+    await page.goto("/dashboard/2567/1", { timeout: 60000 });
     await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
 
     // Use the authenticated page
@@ -131,7 +131,7 @@ export { expect };
  * File: `e2e/auth.setup.ts`
  * - Runs ONCE before all tests (configured in playwright.config.ts)
  * - Navigates to /signin and logs in with credentials (admin@school.local / admin123)
- * - Pre-selects semester 1-2567 via URL navigation (/dashboard/1-2567)
+ * - Pre-selects semester 2567/1 via URL navigation (/dashboard/2567/1)
  * - Saves authenticated state + localStorage to `playwright/.auth/admin.json`
  * - Total runtime: ~3-5 seconds
  *
@@ -184,7 +184,9 @@ export { expect };
  * test.describe('Schedule Assignment', () => {
  *   test('should assign subject to timeslot', async ({ scheduleAssignmentPage }) => {
  *     // Navigate to schedule page
- *     await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+ *     await scheduleAssignmentPage.goto(
+ *       `${testSemester.Year}/${testSemester.Semester}`,
+ *     );
  *
  *     // Select teacher
  *     await scheduleAssignmentPage.selectTeacher(testTeacher.TeacherID.toString());

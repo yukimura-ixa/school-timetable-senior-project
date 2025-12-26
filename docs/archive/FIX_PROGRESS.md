@@ -16,7 +16,7 @@
    - Status: COMMITTED
 
 2. **✅ FIXED: Unterminated string literal in TeacherList**
-   - File: `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx`
+   - File: `src/app/dashboard/[academicYear]/[semester]/all-timeslot/component/TeacherList.tsx`
    - Change: Removed extra quote from line 1
    - Impact: Fixes syntax error blocking compilation
    - Status: COMMITTED
@@ -45,8 +45,8 @@ Full typecheck results saved to: `typecheck-errors.log`
    - Example: `(t) => ...` should be `(t: Timeslot) => ...`
 
 2. **Public pages** - 35+ errors
-   - `src/app/(public)/classes/[gradeId]/[semesterAndyear]/page.tsx`
-   - `src/app/(public)/teachers/[id]/[semesterAndyear]/*.tsx`
+   - `src/app/(public)/classes/[gradeId]/[academicYear]/[semester]/page.tsx`
+   - `src/app/(public)/teachers/[id]/[academicYear]/[semester]/*.tsx`
    - Pattern: `unknown` types from Prisma queries need type assertions
 
 3. **Feature repositories** - 30+ errors
@@ -188,7 +188,7 @@ Then fix new errors revealed (unused imports, unused variables).
 ## 📝 Files Modified This Session
 
 1. ✅ `tsconfig.json` - Added baseUrl
-2. ✅ `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx` - Fixed import
+2. ✅ `src/app/dashboard/[academicYear]/[semester]/all-timeslot/component/TeacherList.tsx` - Fixed import
 3. ✅ `DOCS/CODE_REVIEW_2025-11-20.md` - Comprehensive review document
 4. ✅ `typecheck-errors.log` - Full error catalog for reference
 

@@ -2,7 +2,7 @@
  * ArrangePage - Page Object for Schedule Arrangement (Issues #83-85, #89)
  *
  * Tests drag-drop room selection flow and schedule deletion
- * URL: /schedule/[semesterAndyear]/arrange
+ * URL: /schedule/[academicYear]/[semester]/arrange
  *
  * Features tested:
  * - Issue #83: Room selection dialog logic
@@ -132,7 +132,7 @@ export class ArrangePage extends BasePage {
    * Navigate to arrange page for a specific semester
    */
   async navigateTo(semester: string, year: string) {
-    await this.goto(`/schedule/${semester}-${year}/arrange`);
+    await this.goto(`/schedule/${year}/${semester}/arrange`);
     await this.waitForPageLoad();
 
     // Wait for semester to sync with global state

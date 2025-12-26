@@ -42,8 +42,8 @@ const getProgramSubjects = (
 export default function ExportAllProgram(
   programData: ProgramData | ActionResult<ProgramData> | null | undefined,
   GradeID: string,
-  semester: string,
-  academicYear: string,
+  semester: string | number,
+  academicYear: string | number,
 ) {
   const log = createClientLogger("ExportAllProgram");
   const workbook = new ExcelJS.Workbook();

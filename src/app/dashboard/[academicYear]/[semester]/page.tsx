@@ -14,9 +14,9 @@ import type { semester } from "@/prisma/generated/client";
 import {
   PublishReadinessCard,
   ReadinessIssues,
-} from "../_components/PublishReadiness";
-import TeacherWorkloadChart from "../_components/TeacherWorkloadChart";
-import SubjectDistributionChart from "../_components/SubjectDistributionChart";
+} from "../../_components/PublishReadiness";
+import TeacherWorkloadChart from "../../_components/TeacherWorkloadChart";
+import SubjectDistributionChart from "../../_components/SubjectDistributionChart";
 
 export const metadata: Metadata = {
   title: "Dashboard - ภาพรวมภาคเรียน",
@@ -89,7 +89,7 @@ export default async function DashboardPage({
       </Suspense>
 
       {/* Quick Actions - renders immediately (no data needed) */}
-      <QuickActions semesterAndyear={semesterAndyear} />
+      <QuickActions year={year} semester={semester} />
 
       {/* Charts - loads independently */}
       <Suspense fallback={<ChartsSkeleton />}>
@@ -186,7 +186,7 @@ async function DashboardHeader({
   year,
   semesterAndyear,
 }: {
-  semester: string;
+  semester: number;
   year: number;
   semesterAndyear: string;
 }) {
@@ -288,43 +288,50 @@ async function QuickStats({
   );
 }
 
-function QuickActions({ semesterAndyear }: { semesterAndyear: string }) {
+function QuickActions({
+  year,
+  semester,
+}: {
+  year: number;
+  semester: number;
+}) {
+  const basePath = `/dashboard/${year}/${semester}`;
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-semibold text-gray-900">เมนูด่วน</h2>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <QuickActionButton
-          href={`/dashboard/${semesterAndyear}/teacher-table`}
+          href={`${basePath}/teacher-table`}
           icon="👨‍🏫"
           label="ตารางสอนครู"
         />
         <QuickActionButton
-          href={`/dashboard/${semesterAndyear}/student-table`}
+          href={`${basePath}/student-table`}
           icon="🎓"
           label="ตารางเรียนนักเรียน"
         />
         <QuickActionButton
-          href={`/dashboard/${semesterAndyear}/all-timeslot`}
+          href={`${basePath}/all-timeslot`}
           icon="⏰"
           label="จัดการคาบเรียน"
         />
         <QuickActionButton
-          href={`/dashboard/${semesterAndyear}/all-program`}
+          href={`${basePath}/all-program`}
           icon="📚"
           label="หลักสูตร"
         />
         <QuickActionButton
-          href={`/dashboard/${semesterAndyear}/conflicts`}
+          href={`${basePath}/conflicts`}
           icon="⚠️"
           label="ตรวจสอบความซ้ำซ้อน"
         />
         <QuickActionButton
-          href={`/schedule/${semesterAndyear}/lock`}
+          href={`/schedule/${year}/${semester}/lock`}
           icon="🔒"
           label="ล็อกคาบเรียน"
         />
         <QuickActionButton
-          href={`/dashboard/${semesterAndyear}/analytics`}
+          href={`${basePath}/analytics`}
           icon="📊"
           label="วิเคราะห์ข้อมูล"
         />

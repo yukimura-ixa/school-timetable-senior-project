@@ -42,7 +42,7 @@
 
 ### Category 1: Remove parseInt() Calls ✅ (4 errors)
 
-**File**: `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
+**File**: `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx`
 
 Lines 534, 734, 787: Remove `parseInt()` wrapper since ClassID is now number
 
@@ -307,7 +307,7 @@ const dayOrder: Record<day_of_week, number> = { /* ... */ };
 4. `src/features/arrange/domain/services/arrange-validation.service.ts` (2 calls: lines 233, 257)
    - Remove `generateClassID()` calls in validation logic
 
-5. `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 767)
+5. `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx` (line 767)
    - Remove import and call
 
 6. `src/features/schedule-arrangement/presentation/components/examples/DraggableSubjectCard.tsx` (lines 224-235)
@@ -404,7 +404,7 @@ After completing Phase 2:
    ```
 
 3. **POST-DEPLOYMENT**:
-   - [ ] Verify production seed: Check /dashboard/1-2567/teacher-table
+   - [ ] Verify production seed: Check /dashboard/2567/1/teacher-table
    - [ ] Run production E2E tests: `pnpm test:vercel`
    - [ ] Monitor Sentry for errors
 

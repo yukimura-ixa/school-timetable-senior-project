@@ -9,7 +9,7 @@ import { test, expect } from "./fixtures/admin.fixture";
  * 3. Program compliance reports in Analytics dashboard
  */
 
-const SEMESTER_ID = "1-2568";
+const SEMESTER_ID = "2568/1";
 const TEACHER_CODE = "COMP-T1"; // Math Department
 const THAI_SUBJECT = "ท21101"; // Thai Learning Area
 const UPPER_SEC_SUBJECT = "ท41101"; // Level 4-6: ม.4-ม.6 (Thai for Upper Secondary)

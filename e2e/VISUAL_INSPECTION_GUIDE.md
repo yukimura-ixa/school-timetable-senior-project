@@ -8,22 +8,22 @@ These should have **green outlines** in the browser:
 
 1. **`data-testid="teacher-selector"`**
    - Location: SelectTeacher dropdown
-   - File: `src/app/schedule/[semesterAndyear]/arrange/component/SelectTeacher.tsx`
+   - File: `src/app/schedule/[academicYear]/[semester]/arrange/component/SelectTeacher.tsx`
    - Function: Select teacher to arrange schedule for
 
 2. **`data-testid="subject-list"`**
    - Location: SearchableSubjectPalette component
-   - File: `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 1307)
+   - File: `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx` (line 1307)
    - Function: List of subjects to drag to timeslots
 
 3. **`data-testid="timeslot-grid"`**
    - Location: TimeSlot grid component
-   - File: `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 1363)
+   - File: `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx` (line 1363)
    - Function: Weekly timetable grid (MON-FRI, periods 1-8)
 
 4. **`data-testid="save-button"`**
    - Location: PrimaryButton for saving
-   - File: `src/app/schedule/[semesterAndyear]/arrange/page.tsx` (line 1354)
+   - File: `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx` (line 1354)
    - Function: Save schedule changes
 
 ---
@@ -67,7 +67,7 @@ These should have **green outlines** in the browser:
 - Subject groups correct
 - CRUD operations work
 
-### 5. Schedule Configuration (`/schedule/1-2567/config`)
+### 5. Schedule Configuration (`/schedule/2567/1/config`)
 
 **What to check**:
 
@@ -76,7 +76,7 @@ These should have **green outlines** in the browser:
 - Break time configuration
 - Copy from previous semester
 
-### 6. Teacher Arrangement (`/schedule/1-2567/arrange`)
+### 6. Teacher Arrangement (`/schedule/2567/1/arrange`)
 
 **⭐ MAIN INSPECTION AREA** - This is where we added test IDs!
 

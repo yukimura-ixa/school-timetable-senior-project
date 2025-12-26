@@ -112,8 +112,8 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 **Remaining Work**:
 
 1. Add server-side role checks to:
-   - `src/app/dashboard/[semesterAndyear]/student-table/page.tsx`
-   - `src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx`
+   - `src/app/dashboard/[academicYear]/[semester]/student-table/page.tsx`
+   - `src/app/dashboard/[academicYear]/[semester]/teacher-table/page.tsx`
 2. Create role-scoped repository methods:
    - `findTimetableForTeacher(teacherId)`
    - `findTimetableForStudent(studentClassId)`
@@ -132,7 +132,7 @@ Out of 11 GitHub issues reviewed, several are already implemented or partially c
 
 **Next Steps**:
 
-- Review `src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx`
+- Review `src/app/dashboard/[academicYear]/[semester]/all-timeslot/page.tsx`
 - Check for SWR usage vs server actions
 - Determine if legacy patterns exist
 

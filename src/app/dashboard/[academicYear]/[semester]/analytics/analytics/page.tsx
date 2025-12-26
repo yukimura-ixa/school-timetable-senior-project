@@ -17,16 +17,17 @@ export const metadata: Metadata = {
 export default async function AnalyticsPage({
   params,
 }: {
-  params: Promise<{ semesterAndyear: string }>;
+  params: Promise<{ academicYear: string; semester: string }>;
 }) {
-  const { semesterAndyear } = await params;
+  const { academicYear, semester } = await params;
+  const configId = `${semester}-${academicYear}`;
 
   // Fetch analytics data
   const [periodDistributionResult, dayDistributionResult, programComplianceResult] =
     await Promise.all([
-      getPeriodDistribution({ configId: semesterAndyear }),
-      getDayDistribution({ configId: semesterAndyear }),
-      getProgramCompliance({ configId: semesterAndyear }),
+      getPeriodDistribution({ configId }),
+      getDayDistribution({ configId }),
+      getProgramCompliance({ configId }),
     ]);
 
   return (
@@ -37,7 +38,8 @@ export default async function AnalyticsPage({
           📊 วิเคราะห์ข้อมูลตารางเรียน
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          การกระจายช่วงเวลาและความสอดคล้องหลักสูตร ภาคเรียนที่ {semesterAndyear}
+          การกระจายช่วงเวลาและความสอดคล้องหลักสูตร ภาคเรียนที่ {semester}/
+          {academicYear}
         </Typography>
       </Box>
 

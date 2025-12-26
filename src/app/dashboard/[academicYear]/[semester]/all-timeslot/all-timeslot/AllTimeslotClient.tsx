@@ -39,6 +39,7 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 
 import FilterListIcon from "@mui/icons-material/FilterList";
+import type { TimeslotWithSubject } from "../../shared/timeSlot";
 
 import PrintIcon from "@mui/icons-material/Print";
 
@@ -88,7 +89,7 @@ type AllTimeslotClientProps = {
 };
 
 type TimeSlotData = {
-  AllData: (timeslot & { subject: Record<string, never> })[];
+  AllData: TimeslotWithSubject[];
 
   SlotAmount: number[];
 
@@ -179,7 +180,7 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
     : 50;
 
   return {
-    AllData: data.map((item) => ({ ...item, subject: {} })),
+    AllData: data.map((item) => ({ ...item, subject: null })),
 
     SlotAmount: slotAmount,
 

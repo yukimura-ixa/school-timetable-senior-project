@@ -187,7 +187,7 @@ const allResponses = responseBodies.join(" ");
 // - Async data fetching without 'use cache'
 
 // Example fix:
-// src/app/dashboard/[semesterAndYear]/page.tsx
+// src/app/dashboard/[academicYear]/[semester]/page.tsx
 import { Suspense } from 'react'
 
 export default function DashboardPage() {
@@ -307,7 +307,7 @@ const apiCalls = [];
 page.on("request", (req) => {
   if (req.url().includes("/api/")) apiCalls.push(req.url());
 });
-await page.goto("/dashboard/1-2567/teacher-table");
+await page.goto("/dashboard/2567/1/teacher-table");
 expect(apiCalls.length).toBe(0); // All data server-rendered
 ```
 

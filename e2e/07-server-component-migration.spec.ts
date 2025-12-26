@@ -270,7 +270,7 @@ test.describe("Server Component Migration - Dashboard Header", () => {
     // Navigate to dashboard (semester selection page)
     await page.goto("/dashboard");
 
-    // Select a semester to navigate to a dashboard page with [semesterAndyear] param - Context7: auto-wait
+    // Select a semester to navigate to a dashboard page with [academicYear]/[semester] param - Context7: auto-wait
     const semesterLink = page.locator('a[href*="/dashboard/"]').first();
 
     if ((await semesterLink.count()) > 0) {

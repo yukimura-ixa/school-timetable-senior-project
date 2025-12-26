@@ -60,7 +60,7 @@ test("example", async ({ page }) => {
 // ✅ AFTER - Web-first pattern
 test("example", async ({ authenticatedAdmin }) => {
   const { page } = authenticatedAdmin;
-  await page.goto("/dashboard/1-2567/conflicts");
+  await page.goto("/dashboard/2567/1/conflicts");
   await expect(page.locator("h1, h2")).toBeVisible();
   // Automatic auth, web-first assertions
 });

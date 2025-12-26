@@ -18,7 +18,7 @@ We need to decide between two approaches to fix the broken `schedule-assignment.
 
 ### Existing Page Structure
 
-- **Page**: `/schedule/[semesterAndyear]/arrange`
+- **Page**: `/schedule/[academicYear]/[semester]/arrange`
 - **Component**: Complex 1425-line React component with Zustand state management
 - **Tech Stack**: @dnd-kit for drag-and-drop, MUI components, Server Actions
 
@@ -76,7 +76,7 @@ Use existing ArrangePage methods with minimal changes to the page components.
 test("should successfully assign subject to empty timeslot", async ({
   scheduleAssignmentPage,
 }) => {
-  await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+  await scheduleAssignmentPage.goto(`${testSemester.Year}/${testSemester.Semester}`);
   await scheduleAssignmentPage.selectTeacher(testTeacher.TeacherID.toString());
   await scheduleAssignmentPage.dragSubjectToTimeslot(
     testSubject.SubjectCode,
@@ -393,7 +393,7 @@ ArrangePage is **actively used** in 4 test suites:
 test('...', async ({ arrangePage }) => {
 
 // Update navigation
-- scheduleAssignmentPage.goto(testSemester.SemesterAndyear)
+- scheduleAssignmentPage.goto(`${testSemester.Year}/${testSemester.Semester}`)
 + arrangePage.navigateTo('1', '2567')
 
 // Update teacher selection

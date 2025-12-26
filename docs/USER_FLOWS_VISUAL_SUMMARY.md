@@ -431,7 +431,7 @@ describe("validateTeacherWorkload", () => {
 
 ```typescript
 test("Admin can assign subject to class", async ({ page }) => {
-  await page.goto("/schedule/1-2567/assign");
+  await page.goto("/schedule/2567/1/assign");
   await page.click("text=+ มอบหมายวิชา");
   await page.selectOption('[name="GradeID"]', "1-1");
   await page.selectOption('[name="SubjectID"]', "ท21101");

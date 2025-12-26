@@ -421,14 +421,15 @@ export function useCreateTeacher() {
 **For read-heavy pages**:
 
 ```typescript
-// app/dashboard/[semesterAndyear]/all-timeslot/page.tsx
+// app/dashboard/[academicYear]/[semester]/all-timeslot/page.tsx
 export const revalidate = 300; // Revalidate every 5 minutes
 
 export default async function AllTimeslotPage({ params }: PageProps) {
-  const { semesterAndyear } = await params;
+  const { academicYear, semester } = await params;
+  const configId = `${semester}-${academicYear}`;
 
   // Fetch data server-side
-  const data = await getTimeslotData(semesterAndyear);
+  const data = await getTimeslotData(configId);
 
   return <AllTimeslotView data={data} />;
 }

@@ -68,7 +68,7 @@ const onSelectSubject = useCallback(() => {
 **Test Output:**
 
 ```
-POST /schedule/1-2567/arrange?TeacherID=1  (65 requests in single page load)
+POST /schedule/2567/1/arrange?TeacherID=1  (65 requests in single page load)
 ```
 
 **Server Logs:**

@@ -563,7 +563,7 @@ const subjectData: SubjectData = {
 ```typescript
 // ✅ Assign page approach
 async function ClassifySubject({ params }: Props) {
-  const { semesterAndyear } = await params;
+  const { academicYear, semester } = await params;
   // Direct async/await, no client state
   const subjects = await getSubjectsByGradeAction({...});
   return <div>...</div>;

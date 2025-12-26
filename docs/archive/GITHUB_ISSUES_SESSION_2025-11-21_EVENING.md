@@ -282,8 +282,8 @@ We fixed different type safety issues (SelectTeacher props) but didn't address t
 
 **Bug Fixes:**
 
-- `src/app/schedule/[semesterAndyear]/arrange/component/SelectTeacher.tsx`
-- `src/app/dashboard/[semesterAndyear]/teacher-table/component/SelectTeacher.tsx`
+- `src/app/schedule/[academicYear]/[semester]/arrange/component/SelectTeacher.tsx`
+- `src/app/dashboard/[academicYear]/[semester]/teacher-table/component/SelectTeacher.tsx`
 
 ---
 

@@ -28,7 +28,7 @@ Successfully removed the development bypass authentication mechanism and enforce
 - **Updated** admin indicator to look for "System Administrator" instead of "E2E Admin"
 - **Maintained** all localStorage and semester sync logic
 
-### 4. All Timeslot Page (`src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx`)
+### 4. All Timeslot Page (`src/app/dashboard/[academicYear]/[semester]/all-timeslot/page.tsx`)
 
 - **Replaced** `authWithDevBypass()` with `auth()`
 - **Updated** import statement
@@ -65,7 +65,7 @@ Successfully removed the development bypass authentication mechanism and enforce
 1. `src/lib/auth.ts` - Removed dev bypass provider and logic
 2. `src/app/signin/page.tsx` - Removed dev bypass UI
 3. `e2e/auth.setup.ts` - Updated to use credentials
-4. `src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx` - Use auth() instead
+4. `src/app/dashboard/[academicYear]/[semester]/all-timeslot/page.tsx` - Use auth() instead
 5. `e2e/17-all-timeslot-ux.spec.ts` - Re-enabled guest test
 6. `src/shared/lib/action-wrapper.ts` - Replaced authWithDevBypass with auth
 7. `src/app/(public)/page.tsx` - Replaced authWithDevBypass with auth

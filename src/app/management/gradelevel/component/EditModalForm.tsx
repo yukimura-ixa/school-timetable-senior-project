@@ -154,7 +154,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     }}
                     width={150}
                     height={40}
-                    currentValue={item.Year}
+                    currentValue={String(item.Year)}
                     placeHolder={"ตัวเลือก"}
                     handleChange={(value: unknown) => {
                       const year = value as number;
@@ -182,9 +182,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                         : ""
                     }
                     disabled={false}
-                    handleChange={(
-                      e: React.ChangeEvent<HTMLInputElement>,
-                    ) => {
+                    handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
                       setEditData(() =>
                         editData.map((item, ind) =>

@@ -18,6 +18,16 @@ type Props = {
   configId?: string; // e.g. "1-2567" for building term-specific public schedule links
 };
 
+const parseConfigId = (
+  configId?: string,
+): { academicYear: string; semester: string } | null => {
+  if (!configId) return null;
+  const match = /^(1|2)-(\d{4})$/.exec(configId);
+  if (!match) return null;
+  const [, semester, academicYear] = match;
+  return { academicYear, semester };
+};
+
 export function TeachersTableClient({
   data,
   search,
@@ -26,6 +36,7 @@ export function TeachersTableClient({
   "data-testid": testId,
   configId,
 }: Props) {
+  const term = parseConfigId(configId);
   // Map sortOrder to aria-sort values
   const getAriaSort = (column: string): "ascending" | "descending" | "none" => {
     if (sortBy !== column) return "none";
@@ -133,8 +144,8 @@ export function TeachersTableClient({
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={
-                      configId
-                        ? `/teachers/${teacher.teacherId}/${configId}`
+                      term
+                        ? `/teachers/${teacher.teacherId}/${term.academicYear}/${term.semester}`
                         : `/teachers/${teacher.teacherId}`
                     }
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"

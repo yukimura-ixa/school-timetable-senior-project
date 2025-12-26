@@ -26,8 +26,8 @@ type TableConfigItem = {
 
 type props = {
   closeModal: ModalCloseHandler;
-  academicYear: string;
-  semester: string;
+  academicYear: number;
+  semester: number;
   mutate: () => void;
   setIsCopying: (copying: boolean) => void;
 };
@@ -95,7 +95,7 @@ function CloneTimetableDataModal({
     try {
       const result = await copyConfigAction({
         fromConfigId: selectedCloneData,
-        toAcademicYear: parseInt(academicYear),
+        toAcademicYear: academicYear,
         toSemester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         copyAssignments: cloneList.assign,
         copyLocks: cloneList.lock,

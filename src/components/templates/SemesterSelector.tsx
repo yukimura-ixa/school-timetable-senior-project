@@ -63,7 +63,7 @@ export function SemesterSelector() {
     handleClose();
 
     // Navigate to dashboard with selected semester
-    router.push(`/dashboard/${configId}`);
+    router.push(`/dashboard/${year}/${sem}`);
   };
 
   const handleManageSemesters = () => {

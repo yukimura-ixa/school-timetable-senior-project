@@ -2,7 +2,7 @@
  * ProgramViewPage - Page Object for Program View (Issue #87)
  *
  * Tests teacher data display in program view dashboard
- * URL: /dashboard/[semesterAndyear]/all-program
+ * URL: /dashboard/[academicYear]/[semester]/all-program
  *
  * @module page-objects/ProgramViewPage
  */
@@ -39,7 +39,7 @@ export class ProgramViewPage extends BasePage {
    * Navigate to program view for specific semester/year
    */
   async navigateTo(semester: string, year: string) {
-    await this.goto(`/dashboard/${semester}-${year}/all-program`);
+    await this.goto(`/dashboard/${year}/${semester}/all-program`);
     await this.waitForPageLoad();
 
     // Wait for semester to sync with global state

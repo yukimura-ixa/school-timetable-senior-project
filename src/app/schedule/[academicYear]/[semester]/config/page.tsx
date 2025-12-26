@@ -31,8 +31,13 @@ function TimetableConfigValue() {
 
   // Sync URL params with global store
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
+  const hasTerm = Boolean(academicYear && semester);
   const [isCopying, setIsCopying] = useState(false);
   const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
   const [isCloneDataModal, setIsCloneDataModal] = useState<boolean>(false);
@@ -40,7 +45,7 @@ function TimetableConfigValue() {
   const [addMiniBreak, setAddMiniBreak] = useState<boolean>(false);
   const [configData, setConfigData] = useState({
     Days: ["MON", "TUE", "WED", "THU", "FRI"],
-    AcademicYear: parseInt(academicYear),
+    AcademicYear: academicYear,
     Semester: `SEMESTER_${semester}`,
     StartTime: "08:30",
     BreakDuration: 50,
@@ -57,16 +62,21 @@ function TimetableConfigValue() {
     HasMinibreak: false,
   });
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
-  const tableConfig = useSWR(`config-${academicYear}-${semester}`, async () => {
-    const result = await getConfigByTermAction({
-      AcademicYear: parseInt(academicYear),
-      Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
-    });
-    return result.success ? result.data : null;
-  });
+  const tableConfig = useSWR(
+    hasTerm ? `config-${academicYear}-${semester}` : null,
+    async () => {
+      if (!academicYear || !semester) return null;
+      const result = await getConfigByTermAction({
+        AcademicYear: academicYear,
+        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
+      });
+      return result.success ? result.data : null;
+    },
+  );
 
   useEffect(() => {
     if (tableConfig.isValidating) return;
+    if (!hasTerm) return;
 
     const hasConfig = Boolean(tableConfig.data && tableConfig.data.Config);
     setIsSetTimeslot(hasConfig);
@@ -101,9 +111,11 @@ function TimetableConfigValue() {
     }
 
     if (tableConfig.data === null) {
+      if (!academicYear || !semester) return;
+
       setConfigData({
         Days: ["MON", "TUE", "WED", "THU", "FRI"],
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}`,
         StartTime: "08:30",
         BreakDuration: 50,
@@ -120,7 +132,13 @@ function TimetableConfigValue() {
         HasMinibreak: false,
       });
     }
-  }, [tableConfig.data, tableConfig.isValidating, academicYear, semester]);
+  }, [
+    tableConfig.data,
+    tableConfig.isValidating,
+    academicYear,
+    semester,
+    hasTerm,
+  ]);
   const handleChangeStartTime = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setConfigData(() => ({ ...configData, StartTime: value }));
@@ -192,9 +210,10 @@ function TimetableConfigValue() {
     }));
   };
   const reset = () => {
+    if (!academicYear || !semester) return;
     setConfigData(() => ({
       Days: ["MON", "TUE", "WED", "THU", "FRI"],
-      AcademicYear: parseInt(academicYear),
+      AcademicYear: academicYear,
       Semester: `SEMESTER_${semester}`,
       StartTime: "08:30",
       BreakDuration: 50,
@@ -214,6 +233,7 @@ function TimetableConfigValue() {
   };
 
   const saved = async () => {
+    if (!academicYear || !semester) return;
     setIsSetTimeslot(true);
     const saving = enqueueSnackbar("กำลังตั้งค่าตาราง", {
       variant: "info",
@@ -222,7 +242,7 @@ function TimetableConfigValue() {
     try {
       const result = await createConfigAction({
         ConfigID: `${semester}-${academicYear}`,
-        AcademicYear: parseInt(academicYear),
+        AcademicYear: academicYear,
         Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
         Config: {
           ...configData,
@@ -252,11 +272,14 @@ function TimetableConfigValue() {
   if (tableConfig.error) {
     return <NetworkErrorEmptyState onRetry={() => tableConfig.mutate()} />;
   }
+  if (!academicYear || !semester) {
+    return <PageLoadingSkeleton />;
+  }
 
   return (
     <>
       {isCopying ? <Loading /> : null}
-      {isActiveModal ? (
+      {isActiveModal && hasTerm ? (
         <ConfirmDeleteModal
           closeModal={() => setIsActiveModal(false)}
           mutate={tableConfig.mutate}
@@ -264,7 +287,7 @@ function TimetableConfigValue() {
           semester={semester}
         />
       ) : null}
-      {isCloneDataModal ? (
+      {isCloneDataModal && hasTerm ? (
         <CloneTimetableDataModal
           setIsCopying={setIsCopying}
           closeModal={() => setIsCloneDataModal(false)}

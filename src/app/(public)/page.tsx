@@ -53,6 +53,7 @@ export default async function HomePage() {
   // Derive current configId (semester-year) for public navigation
   const stats = await getQuickStats();
   let currentConfigId: string | null = null;
+  let currentTerm: { academicYear: string; semester: string } | null = null;
   if (stats.currentTerm && stats.currentTerm !== "N/A") {
     const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
@@ -60,6 +61,7 @@ export default async function HomePage() {
       const academicYear = termMatch[1];
       const semesterNumeric = semesterMatch[1];
       currentConfigId = `${semesterNumeric}-${academicYear}`; // e.g. 1-2567
+      currentTerm = { academicYear, semester: semesterNumeric };
     }
   }
 
@@ -115,9 +117,9 @@ export default async function HomePage() {
                   เข้าสู่ระบบ Admin
                 </span>
               </Link>
-              {currentConfigId && (
+              {currentTerm && (
                 <Link
-                  href={`/teachers/607/${currentConfigId}`}
+                  href={`/teachers/607/${currentTerm.academicYear}/${currentTerm.semester}`}
                   prefetch={false}
                   className="group relative inline-flex items-center justify-center rounded-2xl border-2 border-white/20 backdrop-blur-md px-10 py-5 text-lg font-bold text-white transition-all duration-500 hover:bg-white/10 hover:border-white/40 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden"
                 >

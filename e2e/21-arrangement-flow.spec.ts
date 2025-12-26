@@ -14,7 +14,7 @@ import { testSemester, testTimeslots } from "./fixtures/seed-data.fixture";
  * Uses local PostgreSQL database (localhost:5433)
  */
 
-const SEMESTER = testSemester.SemesterAndyear;
+const SEMESTER = `${testSemester.Year}/${testSemester.Semester}`;
 
 // Selectors for draggable subjects
 const DRAGGABLE_SELECTOR =

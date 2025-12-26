@@ -79,7 +79,7 @@
 
 ### BUG-24 Fix: Duplicate React Keys in Class Dropdown
 
-**File:** `src/app/schedule/[semesterAndyear]/assign/component/QuickAssignmentPanel.tsx`
+**File:** `src/app/schedule/[academicYear]/[semester]/assign/component/QuickAssignmentPanel.tsx`
 
 **Root Cause:** The Autocomplete component used `GradeID.toString()[0]` and `[2]` to extract year/section, which failed for non-numeric or short GradeIDs, causing all options to render as "ม.M/-" with duplicate keys.
 

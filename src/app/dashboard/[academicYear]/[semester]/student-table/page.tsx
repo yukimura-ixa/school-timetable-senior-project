@@ -84,8 +84,12 @@ const getGradeLabel = (gradeId: string | null) => {
 function StudentTablePage() {
   const params = useParams();
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
   const { data: session, isPending } = authClient.useSession();
   const isSessionLoading = isPending;
   const canFetch = Boolean(session?.user) && !isSessionLoading;
@@ -352,7 +356,13 @@ function StudentTablePage() {
   };
 
   const handleBulkExportExcel = () => {
-    if (selectedGradeIds.length === 0 || !gradeLevelData.data) return;
+    if (
+      selectedGradeIds.length === 0 ||
+      !gradeLevelData.data ||
+      !semester ||
+      !academicYear
+    )
+      return;
 
     const selectedGrades = gradeLevelData.data.filter((g) =>
       selectedGradeIds.includes(g.GradeID),
@@ -363,8 +373,8 @@ function StudentTablePage() {
       timeSlotData as unknown as ExportTimeslotData,
       selectedGrades,
       classData as unknown as ClassScheduleWithSummary[],
-      semester,
-      academicYear,
+      String(semester),
+      String(academicYear),
     );
     handleExportMenuClose();
   };
@@ -646,8 +656,8 @@ function StudentTablePage() {
                             timeSlotData as unknown as ExportTimeslotData,
                             selectedGradeInfo,
                             classData as unknown as ClassScheduleWithSummary[],
-                            semester,
-                            academicYear,
+                            String(semester),
+                            String(academicYear),
                           )
                         }
                         sx={{

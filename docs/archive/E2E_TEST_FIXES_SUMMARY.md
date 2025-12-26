@@ -8,7 +8,7 @@ Fixed **144 failing E2E tests** across 6 major phases plus additional targeted f
 
 ## ✅ Phase 1: Prisma Query Validation
 
-**File:** `src/app/dashboard/[semesterAndyear]/page.tsx`
+**File:** `src/app/dashboard/[academicYear]/[semester]/page.tsx`
 
 ### Changes:
 
@@ -91,7 +91,7 @@ Fixed **144 failing E2E tests** across 6 major phases plus additional targeted f
 
 ## ✅ Phase 5: Error Boundary Verification
 
-**File:** `src/app/dashboard/[semesterAndyear]/error.tsx`
+**File:** `src/app/dashboard/[academicYear]/[semester]/error.tsx`
 
 ### Verification:
 
@@ -207,7 +207,7 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 | #   | File Path                                                                   | Phase | Type   |
 | --- | --------------------------------------------------------------------------- | ----- | ------ |
-| 1   | `src/app/dashboard/[semesterAndyear]/page.tsx`                              | 1     | Fix    |
+| 1   | `src/app/dashboard/[academicYear]/[semester]/page.tsx`                              | 1     | Fix    |
 | 2   | `src/app/management/teacher/page.tsx`                                       | 2     | Fix    |
 | 3   | `src/app/management/subject/page.tsx`                                       | 2+    | Fix    |
 | 4   | `src/app/management/rooms/page.tsx`                                         | 2+    | Fix    |

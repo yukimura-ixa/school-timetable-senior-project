@@ -64,7 +64,7 @@ The `arrangement-ui.store.ts` expects `SubjectData[]` but receives `ClassSchedul
 ## 📍 Location
 
 - **Store:** `src/features/schedule-arrangement/presentation/stores/arrangement-ui.store.ts`
-- **Usage:** `src/app/schedule/[semesterAndyear]/arrange/page.tsx` lines 568-569
+- **Usage:** `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx` lines 568-569
 
 ## 🔨 Solution
 

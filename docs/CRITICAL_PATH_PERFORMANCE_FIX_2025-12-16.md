@@ -6,7 +6,7 @@ CP-03 lock integration tests were timing out at 30s, then 60s. Root cause analys
 
 ## Root Cause
 
-The lock page (`/schedule/[semesterAndyear]/lock`) was implemented as a **Client Component** that:
+The lock page (`/schedule/[academicYear]/[semester]/lock`) was implemented as a **Client Component** that:
 1. Rendered with no data (hydration delay)
 2. Called `useParams()` to parse route parameters client-side
 3. Fetched locked schedules via SWR **after** hydration
@@ -30,8 +30,7 @@ export default function LockPage() { ... }
 
 // AFTER: Server Component
 export default async function LockPage({ params }: PageProps) {
-  const { semesterAndyear } = await params;
-  const [semester, academicYear] = parseSemesterAndYear(semesterAndyear);
+  const { academicYear, semester } = await params;
   
   // Server-side data fetch
   const lockedSchedulesResult = await getLockedSchedulesAction(semester, academicYear);
@@ -148,8 +147,8 @@ Background revalidation (optional)
 
 ## Related Files
 
-- [src/app/schedule/[semesterAndyear]/lock/page.tsx](../src/app/schedule/[semesterAndyear]/lock/page.tsx)
-- [src/app/schedule/[semesterAndyear]/lock/component/LockSchedule.tsx](../src/app/schedule/[semesterAndyear]/lock/component/LockSchedule.tsx)
+- [src/app/schedule/[academicYear]/[semester]/lock/page.tsx](../src/app/schedule/[academicYear]/[semester]/lock/page.tsx)
+- [src/app/schedule/[academicYear]/[semester]/lock/component/LockSchedule.tsx](../src/app/schedule/[academicYear]/[semester]/lock/component/LockSchedule.tsx)
 - [src/hooks/use-locked-schedules.ts](../src/hooks/use-locked-schedules.ts)
 - [e2e/critical-path/cp-03-lock-integration.spec.ts](../e2e/critical-path/cp-03-lock-integration.spec.ts)
 
@@ -184,7 +183,7 @@ Background revalidation (optional)
 
 When a lock template is applied, the system follows this sequence:
 
-1. **Template Selection** ([LockTemplatesModal.tsx](../src/app/schedule/[semesterAndyear]/lock/component/LockTemplatesModal.tsx#L100-L143))
+1. **Template Selection** ([LockTemplatesModal.tsx](../src/app/schedule/[academicYear]/[semester]/lock/component/LockTemplatesModal.tsx#L100-L143))
    - User selects template (e.g., "Junior Lunch" or "Senior Lunch")
    - Calls `applyLockTemplateAction` with `templateId`, `academicYear`, `semester`, `configId`
 

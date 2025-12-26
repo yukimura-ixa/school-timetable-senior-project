@@ -29,8 +29,12 @@ const DEFAULT_CLASS_ROOMS = [
 function SelectedClassRoom(props: Props) {
   const params = useParams();
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
   const teacherIDs = props.teachers?.map((teacher) => teacher.TeacherID) || [];
 
   const { data, isValidating } = useSWR(
@@ -46,7 +50,7 @@ function SelectedClassRoom(props: Props) {
     async ([, subjectCode, sem, year, ...ids]) => {
       return await getGradeLevelsForLockAction({
         SubjectCode: subjectCode,
-        AcademicYear: parseInt(year),
+        AcademicYear: year,
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
         TeacherIDs: ids.map((id) => Number(id)),
       });

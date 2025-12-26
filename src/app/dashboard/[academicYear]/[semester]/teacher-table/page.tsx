@@ -89,8 +89,12 @@ const TimeSlot = dynamic(() => import("./component/Timeslot"), {
 function TeacherTablePage() {
   const params = useParams();
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
   const { data: session, isPending } = authClient.useSession();
   const isSessionLoading = isPending;
   const canFetch = Boolean(session?.user) && !isSessionLoading;
@@ -376,9 +380,7 @@ function TeacherTablePage() {
       );
 
       // Download the PDF
-      pdf.save(
-        `teacher-${effectiveTeacherId}-${semester}-${academicYear}.pdf`,
-      );
+      pdf.save(`teacher-${effectiveTeacherId}-${semester}-${academicYear}.pdf`);
     } catch (error) {
       console.error("PDF export error:", error);
       alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
@@ -395,7 +397,13 @@ function TeacherTablePage() {
   };
 
   const handleBulkExportExcel = () => {
-    if (selectedTeacherIds.length === 0 || !allTeachers.data) return;
+    if (
+      selectedTeacherIds.length === 0 ||
+      !allTeachers.data ||
+      !semester ||
+      !academicYear
+    )
+      return;
 
     const selectedTeachers = allTeachers.data.filter((t) =>
       selectedTeacherIds.includes(t.TeacherID),
@@ -407,8 +415,8 @@ function TeacherTablePage() {
       timeSlotData as ExportTimeslotData,
       selectedTeachers,
       classData as ClassScheduleWithSummary[],
-      semester,
-      academicYear,
+      String(semester),
+      String(academicYear),
     );
     handleExportMenuClose();
   };
@@ -740,12 +748,12 @@ function TeacherTablePage() {
                             teacherResponse.success &&
                             teacherResponse.data
                           ) {
-              void ExportTeacherTable(
-                timeSlotData as ExportTimeslotData,
+                            void ExportTeacherTable(
+                              timeSlotData as ExportTimeslotData,
                               [teacherResponse.data],
                               classData as ClassScheduleWithSummary[],
-                              semester,
-                              academicYear,
+                              String(semester),
+                              String(academicYear),
                             );
                           }
                         }}

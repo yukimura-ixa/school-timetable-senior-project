@@ -46,7 +46,7 @@
 |----|-----|--------|--------|
 | BUG-1 | **"ดูตารางสอนตัวอย่าง" sample link leads to 404** | Home page CTA broken - `/teachers/1-2567` returns 404. Bad first impression. | NEW |
 | BUG-2 | **Management sidebar links visible to Guest users** | All admin menu items (ข้อมูลครู, ข้อมูลวิชา, etc.) shown to unauthenticated users. Security/UX concern. | NEW |
-| BUG-3 | **All class schedule routes return 404** | `/classes/101/1-2568` linked from home page returns 404. Core feature broken. | NEW |
+| BUG-3 | **All class schedule routes return 404** | `/classes/101/2568/1` linked from home page returns 404. Core feature broken. | NEW |
 | BUG-5 | **Negative period numbers in schedule grid** | Schedule shows คาบ -8, คาบ -7, etc. Confusing/incorrect period numbering. | NEW |
 
 ### 🟡 P2 - Medium

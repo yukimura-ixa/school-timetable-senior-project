@@ -259,13 +259,13 @@ test.describe.skip("Dashboard - Cross-Semester Navigation", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    // Start at teacher-table for 1-2567
+    // Start at teacher-table for 2567/1
     await page.goto(`/dashboard/2567/1/teacher-table`);
     await page.waitForSelector("table, [class*='Skeleton']", { timeout: 15000 });
 
     // Look for semester switcher/selector
     const semesterSelector = page
-      .locator("text=/2-2567|ภาคเรียน/")
+      .locator("text=/2\\s*\\/\\s*2567|ภาคเรียน/")
       .or(page.locator('[role="combobox"]'))
       .or(page.locator("select"));
 
@@ -273,13 +273,13 @@ test.describe.skip("Dashboard - Cross-Semester Navigation", () => {
       // Try clicking to open dropdown
       await semesterSelector.first().click({ timeout: 5000 }).catch(() => {});
 
-      // Try to select 2-2567
-      const semesterOption = page.locator("text=2-2567");
+      // Try to select 2567/2
+      const semesterOption = page.locator("text=/2\\s*\\/\\s*2567/");
       if ((await semesterOption.count()) > 0) {
         await semesterOption.first().click();
 
-        // Verify URL changed to 2-2567 but still teacher-table
-        await expect(page).toHaveURL(/2-2567.*teacher-table|teacher-table.*2-2567/, {
+        // Verify URL changed to 2567/2 but still teacher-table
+        await expect(page).toHaveURL(/2567\\/2.*teacher-table|teacher-table.*2567\\/2/, {
           timeout: 10000,
         });
       }

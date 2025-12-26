@@ -60,7 +60,7 @@ The Page Object Model relies on `data-testid` attributes for reliable element se
 **Example: Add to arrange page components**
 
 ```tsx
-// src/app/schedule/[semesterAndyear]/arrange/page.tsx
+// src/app/schedule/[academicYear]/[semester]/arrange/page.tsx
 
 // Semester selector
 <Select data-testid="semester-selector">

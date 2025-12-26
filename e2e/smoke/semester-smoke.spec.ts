@@ -16,11 +16,11 @@
 import { test, expect } from "../fixtures/admin.fixture";
 
 // Both semesters are seeded by prisma/seed.ts (db:seed:clean)
-// 1-2567: PUBLISHED semester with full data
-// 2-2567: DRAFT semester with timeslots and config
+// 2567/1: PUBLISHED semester with full data
+// 2567/2: DRAFT semester with timeslots and config
 const SEEDED_TERMS = [
-  { semester: 1, year: 2567, label: "1-2567", status: "PUBLISHED" },
-  { semester: 2, year: 2567, label: "2-2567", status: "DRAFT" },
+  { semester: 1, year: 2567, label: "2567/1", status: "PUBLISHED" },
+  { semester: 2, year: 2567, label: "2567/2", status: "DRAFT" },
 ];
 
 test.describe("Semester Smoke Tests - Schedule Config", () => {
@@ -151,8 +151,8 @@ test.describe("Semester Smoke Tests - Dashboard All-Timeslot", () => {
 test.describe("Semester Route Validation", () => {
   test("Invalid semester route is handled gracefully", async ({ page }) => {
     // Try accessing a non-existent term (99 is not a valid semester number)
-    // The layout validates format: semester must be 1 or 2, so 99-9999 is invalid
-    const response = await page.goto("/dashboard/99-9999/all-timeslot");
+    // The layout validates format: semester must be 1 or 2, so 9999/99 is invalid
+    const response = await page.goto("/dashboard/9999/99/all-timeslot");
 
     const status = response?.status();
 

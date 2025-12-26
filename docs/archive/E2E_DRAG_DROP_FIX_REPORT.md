@@ -22,7 +22,7 @@
 
 ### Issue #1: Missing data-sortable-id Attribute (FIXED ✅)
 
-**File:** `src/app/schedule/[semesterAndyear]/arrange/component/SubjectItem.tsx`
+**File:** `src/app/schedule/[academicYear]/[semester]/arrange/component/SubjectItem.tsx`
 
 **Problem:**
 ```tsx
@@ -72,8 +72,8 @@ return (
 **Problem:**
 ```typescript
 // BEFORE
-async goToTeacherArrange(semesterAndYear: string) {
-  await this.gotoAndReady(`/schedule/${semesterAndYear}/arrange`);
+async goToTeacherArrange(academicYear: string, semester: string) {
+  await this.gotoAndReady(`/schedule/${academicYear}/${semester}/arrange`);
 }
 ```
 
@@ -82,9 +82,13 @@ Tests navigated to teacher-arrange page without `?TeacherID=X`, causing page to 
 **Solution:**
 ```typescript
 // AFTER
-async goToTeacherArrange(semesterAndYear: string, teacherId = "1") {
+async goToTeacherArrange(
+  academicYear: string,
+  semester: string,
+  teacherId = "1"
+) {
   await this.gotoAndReady(
-    `/schedule/${semesterAndYear}/arrange?TeacherID=${teacherId}`
+    `/schedule/${academicYear}/${semester}/arrange?TeacherID=${teacherId}`
   );
 }
 ```
@@ -134,7 +138,7 @@ await page.waitForSelector('main, [role="main"], [data-sortable-id]', {
 
 1. **Server Logs:** Page renders successfully (200 OK)
    ```
-   GET /schedule/1-2567/arrange?TeacherID=1 200 in 15.7s
+   GET /schedule/2567/1/arrange?TeacherID=1 200 in 15.7s
    ```
 
 2. **Seed Data:** Confirms semester exists
@@ -162,7 +166,7 @@ The teacher-arrange page performs a **client-side semester lookup** that fails d
 
 ### Investigation Needed
 
-**File:** `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
+**File:** `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx`
 
 Check these areas:
 1. **Line 277-295:** `conflictSWR` fetching logic
@@ -206,7 +210,7 @@ Reason: Page shows error screen instead of content
 **Message:** fix(e2e): Add data-sortable-id to SubjectItem for drag-and-drop tests
 
 **Changed Files:**
-- `src/app/schedule/[semesterAndyear]/arrange/component/SubjectItem.tsx` (+3, -0)
+- `src/app/schedule/[academicYear]/[semester]/arrange/component/SubjectItem.tsx` (+3, -0)
 - `e2e/helpers/navigation.ts` (+2, -2)
 - `e2e/08-drag-and-drop.spec.ts` (+10, -5)
 

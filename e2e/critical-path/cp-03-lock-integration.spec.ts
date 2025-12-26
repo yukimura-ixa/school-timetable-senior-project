@@ -15,7 +15,7 @@ import { test, expect } from "@playwright/test";
  * - Admin authentication available (Playwright setup stores admin state)
  * - Uses Playwright baseURL (local dev server by default)
  */
-const TEST_SEMESTER = "1-2568";
+const TEST_SEMESTER = "2568/1";
 
 test.describe.serial("CP-03: Timeslot Locking Integration", () => {
   test.beforeEach(async ({ page }, testInfo) => {

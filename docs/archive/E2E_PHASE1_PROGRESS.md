@@ -179,13 +179,13 @@ Based on failing tests (Issues #65, #67, #70), these components need test IDs:
 - [ ] `data-testid="add-subject-button"`
 - [ ] `data-testid="subject-table"`
 
-**File: `src/app/schedule/[semesterAndyear]/config/**` - Schedule Config\*\*
+**File: `src/app/schedule/[academicYear]/[semester]/config/**` - Schedule Config\*\*
 
 - [ ] `data-testid="timeslot-config-form"`
 - [ ] `data-testid="save-config-button"`
 - [ ] `data-testid="periods-per-day-input"`
 
-**File: `src/app/schedule/[semesterAndyear]/arrange/**` - Arrangement\*\*
+**File: `src/app/schedule/[academicYear]/[semester]/arrange/**` - Arrangement\*\*
 
 - [ ] `data-testid="timetable-grid"`
 - [ ] `data-testid="subject-list"`

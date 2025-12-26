@@ -27,7 +27,7 @@ Successfully removed **all** development bypass authentication code from the ent
 - `src/shared/lib/action-wrapper.ts` - Replaced `authWithDevBypass()` with `auth()`
 - `src/app/(public)/page.tsx` - Replaced `authWithDevBypass()` with `auth()`
 - `src/app/layout.tsx` - Replaced `authWithDevBypass()` with `auth()`
-- `src/app/dashboard/[semesterAndyear]/all-timeslot/page.tsx` - Replaced `authWithDevBypass()` with `auth()`
+- `src/app/dashboard/[academicYear]/[semester]/all-timeslot/page.tsx` - Replaced `authWithDevBypass()` with `auth()`
 
 ### Phase 3: E2E Test Updates
 

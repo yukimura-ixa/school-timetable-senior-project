@@ -24,7 +24,7 @@ import {
   testGradeLevels,
 } from "../fixtures/seed-data.fixture";
 
-const SEMESTER = testSemester.SemesterAndyear;
+const SEMESTER = `${testSemester.Year}/${testSemester.Semester}`;
 
 /**
  * Helper function to select a teacher from the autocomplete with retry logic.

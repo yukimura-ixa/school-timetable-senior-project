@@ -17,7 +17,7 @@ import {
  * Uses local PostgreSQL database (localhost:5433)
  */
 
-const SEMESTER = testSemester.SemesterAndyear;
+const SEMESTER = `${testSemester.Year}/${testSemester.Semester}`;
 
 test.describe("Subject Assignment - Page Load", () => {
   test("AS-01: Assignment page loads successfully", async ({

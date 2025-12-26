@@ -529,7 +529,7 @@ curl -X POST http://localhost:3000/api/export/teacher-timetable/pdf \
 
 #### Update Teacher Table Page
 
-**File**: `src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx`
+**File**: `src/app/dashboard/[academicYear]/[semester]/teacher-table/page.tsx`
 
 **Change 1**: Add PDF export function
 ```typescript
@@ -660,7 +660,7 @@ test.describe('PDF Export (Admin Only)', () => {
     await page.click('[type="submit"]');
     
     // Navigate to teacher table
-    await page.goto('/dashboard/1-2567/teacher-table');
+    await page.goto('/dashboard/2567/1/teacher-table');
     
     // Select teacher
     await page.selectOption('[data-testid="teacher-select"]', '1');
@@ -851,7 +851,7 @@ pnpm remove @react-pdf/renderer
   - Proper Content-Disposition headers for file downloads
 
 #### Phase 7: UI Integration ✅
-- Updated `src/app/dashboard/[semesterAndyear]/teacher-table/page.tsx`
+- Updated `src/app/dashboard/[academicYear]/[semester]/teacher-table/page.tsx`
 - Replaced `useReactToPrint` with fetch call to PDF API
 - Removed browser print dependencies and hidden div
 - Added data transformation logic (timeslots, scheduleEntries, totals)

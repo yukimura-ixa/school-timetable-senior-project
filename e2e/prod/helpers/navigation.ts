@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { getSemesterId } from "./env";
+import { getSemesterRouteParts } from "./env";
 
 async function gotoAndReady(page: Page, pathname: string) {
   await page.goto(pathname, { waitUntil: "domcontentloaded", timeout: 60_000 });
@@ -16,8 +16,11 @@ async function gotoAndReady(page: Page, pathname: string) {
 }
 
 export async function goToDashboardAllTimeslots(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/dashboard/${semester}/all-timeslot`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/dashboard/${term.academicYear}/${term.semester}/all-timeslot`,
+  );
 }
 
 export async function goToTeachers(page: Page) {
@@ -41,33 +44,51 @@ export async function goToPrograms(page: Page) {
 }
 
 export async function goToScheduleConfig(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/schedule/${semester}/config`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/schedule/${term.academicYear}/${term.semester}/config`,
+  );
 }
 
 export async function goToScheduleAssign(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/schedule/${semester}/assign`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/schedule/${term.academicYear}/${term.semester}/assign`,
+  );
 }
 
 export async function goToTeacherArrange(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/schedule/${semester}/arrange`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/schedule/${term.academicYear}/${term.semester}/arrange`,
+  );
 }
 
 export async function goToLockOverview(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/schedule/${semester}/lock`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/schedule/${term.academicYear}/${term.semester}/lock`,
+  );
 }
 
 export async function goToConflictDetector(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/dashboard/${semester}/conflicts`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/dashboard/${term.academicYear}/${term.semester}/conflicts`,
+  );
 }
 
 export async function goToExportEntry(page: Page) {
-  const semester = getSemesterId();
-  await gotoAndReady(page, `/dashboard/${semester}/all-program`);
+  const term = getSemesterRouteParts();
+  await gotoAndReady(
+    page,
+    `/dashboard/${term.academicYear}/${term.semester}/all-program`,
+  );
 }
 
 

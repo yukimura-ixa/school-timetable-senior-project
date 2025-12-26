@@ -8,8 +8,8 @@
  * - No authentication required
  *
  * Related Files:
- * - src/app/(public)/teachers/[id]/[semesterAndyear]/page.tsx
- * - src/app/(public)/classes/[gradeId]/[semesterAndyear]/page.tsx
+ * - src/app/(public)/teachers/[id]/[academicYear]/[semester]/page.tsx
+ * - src/app/(public)/classes/[gradeId]/[academicYear]/[semester]/page.tsx
  */
 
 import { test, expect } from "./fixtures/admin.fixture";
@@ -18,6 +18,8 @@ import {
   testSemester,
   testTeacher,
 } from "./fixtures/seed-data.fixture";
+
+const termPath = `${testSemester.Year}/${testSemester.Semester}`;
 
 // Public schedule pages should be accessible without authentication.
 // Use the dedicated `guestPage` fixture instead of `authenticatedAdmin`.
@@ -280,7 +282,7 @@ test.describe("Public Teacher Schedule Page", () => {
   test("should handle no schedule data gracefully", async ({ guestPage }) => {
     const page = guestPage;
     // Try accessing a teacher with no schedules (using high ID unlikely to exist)
-    await page.goto(`/teachers/99999/${testSemester.SemesterAndyear}`);
+    await page.goto(`/teachers/99999/${termPath}`);
 
     // Should either show "not found" or empty schedule message
     const noDataMessage = page.locator(
@@ -356,7 +358,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
   test("should handle invalid semester format", async ({ guestPage }) => {
     const page = guestPage;
-    // Invalid semester format (should be "1-2567")
+    // Invalid semester format (should be "2567/1")
     await page.goto(`/teachers/${testTeacher.TeacherID}/invalid-semester`, {
       waitUntil: "domcontentloaded",
     });
@@ -516,7 +518,7 @@ test.describe("Public Class Schedule Page", () => {
   }) => {
     const page = guestPage;
     await page.goto(
-      `/classes/${testGradeLevel.GradeID}/${testSemester.SemesterAndyear}`,
+      `/classes/${testGradeLevel.GradeID}/${termPath}`,
     );
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -538,7 +540,7 @@ test.describe("Public Class Schedule Page", () => {
   }) => {
     const page = guestPage;
     await page.goto(
-      `/classes/${testGradeLevel.GradeID}/${testSemester.SemesterAndyear}`,
+      `/classes/${testGradeLevel.GradeID}/${termPath}`,
     );
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -726,7 +728,7 @@ test.describe("Public Schedule Pages - Error Handling", () => {
 
   test("should handle invalid teacher ID", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(`/teachers/invalid-id/${testSemester.SemesterAndyear}`, {
+    await page.goto(`/teachers/invalid-id/${termPath}`, {
       waitUntil: "domcontentloaded",
     });
     await expectNotFound(page);
@@ -734,7 +736,7 @@ test.describe("Public Schedule Pages - Error Handling", () => {
 
   test("should handle invalid class ID", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(`/classes/999999/${testSemester.SemesterAndyear}`, {
+    await page.goto(`/classes/999999/${termPath}`, {
       waitUntil: "domcontentloaded",
     });
     await expectNotFound(page);
@@ -756,9 +758,9 @@ test.describe("Public Schedule Pages - Error Handling", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    const year = testSemester.SemesterAndyear.split("-")[1];
+    const year = String(testSemester.Year);
     // Try accessing semester that doesn't exist (e.g., semester 5)
-    await page.goto(`/teachers/${testTeacher.TeacherID}/5-${year}`, {
+    await page.goto(`/teachers/${testTeacher.TeacherID}/${year}/5`, {
       waitUntil: "domcontentloaded",
     });
     await expectNotFound(page);

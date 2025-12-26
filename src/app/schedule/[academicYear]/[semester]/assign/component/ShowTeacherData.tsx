@@ -77,8 +77,12 @@ function ShowTeacherData({
 
   // Sync URL params with global store
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
 
   const [manualTeacherId, setManualTeacherId] = useState<number | null>(null);
 
@@ -133,7 +137,7 @@ function ShowTeacherData({
       return await getAssignmentsAction({
         TeacherID: teacherId,
         Semester: `SEMESTER_${sem}` as "SEMESTER_1" | "SEMESTER_2",
-        AcademicYear: parseInt(year),
+        AcademicYear: year,
       });
     },
   );
@@ -141,8 +145,8 @@ function ShowTeacherData({
   const { lockedSchedules, isLoading: isLockedLoading } =
     useTeacherLockedSchedules(
       teacher?.TeacherID,
-      academicYear ? parseInt(academicYear) : undefined,
-      semester,
+      academicYear ?? undefined,
+      semester?.toString(),
     );
 
   const teachHour = useMemo(() => {
@@ -497,8 +501,8 @@ function ShowTeacherData({
               return (
                 <QuickAssignmentPanel
                   teacher={teacher}
-                  semester={parseInt(semester)}
-                  academicYear={parseInt(academicYear)}
+                  semester={semester}
+                  academicYear={academicYear}
                   subjects={subjects}
                   grades={grades}
                   currentAssignments={currentAssignments}

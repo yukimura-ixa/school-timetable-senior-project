@@ -418,14 +418,14 @@ test.describe.skip(
       await arrangePage.waitForPageReady();
 
       // Verify we're on semester 1 by checking the page URL
-      expect(arrangePage.page.url()).toContain("1-2567");
+      expect(arrangePage.page.url()).toContain("2567/1");
 
       // Semester 2
       await arrangePage.navigateTo("2", "2567");
       await arrangePage.waitForPageReady();
 
       // Verify we're on semester 2
-      expect(arrangePage.page.url()).toContain("2-2567");
+      expect(arrangePage.page.url()).toContain("2567/2");
     });
 
     test("should maintain schedule data per semester", async ({

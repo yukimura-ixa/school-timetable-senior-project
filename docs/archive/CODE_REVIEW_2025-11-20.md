@@ -33,7 +33,7 @@ This is a well-architected Next.js 16 timetable management system with strong fo
 **Issue**: Unterminated string literal in TeacherList.tsx  
 **Fix**: Removed extra quote from import statement (line 1)
 
-- **File**: `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx`
+- **File**: `src/app/dashboard/[academicYear]/[semester]/all-timeslot/component/TeacherList.tsx`
 - **Change**: `import type { teacher } from '@/prisma/generated/client';'` → `'@/prisma/generated/client';`
 - **Status**: ✅ FIXED
 
@@ -273,7 +273,7 @@ ented
 **Repro**:
 
 1. Run typecheck
-2. Error in `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx:1`
+2. Error in `src/app/dashboard/[academicYear]/[semester]/all-timeslot/component/TeacherList.tsx:1`
 
 **Root Cause**: Extra quote character at end of import statement  
 **Fix Applied**: Removed trailing `'`  

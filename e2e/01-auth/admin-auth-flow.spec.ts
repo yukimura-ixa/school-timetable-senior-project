@@ -15,8 +15,8 @@ test.use({ storageState: { cookies: [], origins: [] } });
  *
  * URL Structure Reference:
  * - /dashboard - Semester selection page (root)
- * - /dashboard/[semesterAndYear]/student-table - Student timetables
- * - /dashboard/[semesterAndYear]/teacher-table - Teacher timetables
+ * - /dashboard/[academicYear]/[semester]/student-table - Student timetables
+ * - /dashboard/[academicYear]/[semester]/teacher-table - Teacher timetables
  * - /management/teacher - Teacher management (CRUD)
  * - /management/subject - Subject management (CRUD)
  * - /management/rooms - Room management (CRUD)

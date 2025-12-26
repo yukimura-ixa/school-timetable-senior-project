@@ -374,9 +374,9 @@ test.describe("Critical Path Smoke Tests", () => {
       });
 
       // Navigate to second semester
-      await page.goto(`/schedule/2-2567/config`);
+      await page.goto(`/schedule/2567/2/config`);
       await page.waitForLoadState("networkidle");
-      await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
+      await expect(page).toHaveURL(/\/schedule\/2567\/2\/config/);
       await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
         timeout: 15000,
       });

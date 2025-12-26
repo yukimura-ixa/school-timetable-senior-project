@@ -5,7 +5,7 @@
  * Used by lock schedule components and server actions.
  *
  * Created: Week 8 - Type Safety Improvements
- * Related: src/app/schedule/[semesterAndyear]/lock/
+ * Related: src/app/schedule/[academicYear]/[semester]/lock/
  */
 
 import type {

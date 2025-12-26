@@ -18,8 +18,8 @@ Evidence bundle:
 - Total timebox: ~75 minutes (Session 1 earlier + Session 2 follow-up)
 - Recon: `/signin`, `/dashboard`, semester switcher, navbar/sidebars
 - Admin “Day-0 Setup” mapping (read-only): `/management`, `/management/teacher`, `/management/subject`, `/management/rooms`, `/management/gradelevel`, `/management/program`, `/management/program/year/1`
-- Scheduling surfaces (read-only): `/schedule/1-2567/config`, `/schedule/1-2567/arrange`, `/schedule/1-2567/lock`
-- Dashboard timetable views: `/dashboard/1-2567/all-timeslot`, `/dashboard/1-2567/teacher-table`, `/dashboard/1-2567/student-table`, `/dashboard/1-2567/all-program`
+- Scheduling surfaces (read-only): `/schedule/2567/1/config`, `/schedule/2567/1/arrange`, `/schedule/2567/1/lock`
+- Dashboard timetable views: `/dashboard/2567/1/all-timeslot`, `/dashboard/2567/1/teacher-table`, `/dashboard/2567/1/student-table`, `/dashboard/2567/1/all-program`
 
 ### Notes (Learning)
 - Production has seeded “E2E-*” teachers visible in `/management/teacher`, which is helpful for deterministic test selection.
@@ -50,9 +50,9 @@ Full details: see the “Bugs” section below.
 ### P0 — Timetable times render in UTC (timezone shift)
 - Impact: Schedules show incorrect period times (e.g., `01:30–02:20` instead of expected local morning times like `08:30–09:20`), undermining trust and potentially causing operational mistakes.
 - Environment/URLs:
-  - `/schedule/1-2567/arrange?TeacherID=620`
-  - `/dashboard/1-2567/teacher-table` (after selecting a teacher)
-  - `/dashboard/1-2567/student-table` (after selecting a class)
+  - `/schedule/2567/1/arrange?TeacherID=620`
+  - `/dashboard/2567/1/teacher-table` (after selecting a teacher)
+  - `/dashboard/2567/1/student-table` (after selecting a class)
 - Repro:
   1. Go to the teacher arrange board and select a teacher (example: `TeacherID=620`).
   2. Observe the “เวลา” row.
@@ -66,12 +66,12 @@ Full details: see the “Bugs” section below.
 
 ### P1 — Semester-scoped dashboard sidebar links drop semester context
 - Impact: From a semester dashboard (e.g., `1-2567`), clicking sidebar links sends the user back to `/dashboard` (semester picker) instead of the intended semester-scoped page. This breaks admin flow and feels like data loss.
-- Environment/URL: `/dashboard/1-2567` → sidebar “แสดงตารางรวมครู” (and similar) → navigates to `/dashboard`
+- Environment/URL: `/dashboard/2567/1` → sidebar “แสดงตารางรวมครู” (and similar) → navigates to `/dashboard`
 - Repro:
-  1. Open `/dashboard/1-2567`.
+  1. Open `/dashboard/2567/1`.
   2. Click “แสดงตารางรวมครู” in the left sidebar.
-  3. Observe URL becomes `/dashboard` (not `/dashboard/1-2567/all-timeslot`).
-- Expected: `/dashboard/1-2567/all-timeslot` (and other semester-scoped routes).
+  3. Observe URL becomes `/dashboard` (not `/dashboard/2567/1/all-timeslot`).
+- Expected: `/dashboard/2567/1/all-timeslot` (and other semester-scoped routes).
 - Actual: navigates to `/dashboard` (semester picker view).
 - Evidence:
   - `docs/testing/exploratory/artifacts/bugbash-2025-12-18/dashboard-1-2567-overview.png`
@@ -79,9 +79,9 @@ Full details: see the “Bugs” section below.
 
 ### P1 — Student table grade selector labels are malformed and triggers 500s
 - Impact: Admin cannot reliably view student timetables; dropdown options are confusing/invalid (e.g., `ม.1/0`, `ม.7/-1`), and selecting options triggers server 500 responses.
-- Environment/URL: `/dashboard/1-2567/student-table`
+- Environment/URL: `/dashboard/2567/1/student-table`
 - Repro:
-  1. Open `/dashboard/1-2567/student-table`.
+  1. Open `/dashboard/2567/1/student-table`.
   2. Open the class selector dropdown.
   3. Observe invalid labels like `ม.1/0`, `ม.7/-1`.
   4. Select one option (example: `ม.1/0`) and observe console/network errors.
@@ -94,9 +94,9 @@ Full details: see the “Bugs” section below.
 
 ### P1 — Intermittent teacher table load error + hydration error #418
 - Impact: Admin sees “ไม่สามารถโหลดข้อมูลคาบเรียนได้” and React hydration errors; this can hide real defects and makes key dashboard views unreliable.
-- Environment/URL: `/dashboard/1-2567/teacher-table`
+- Environment/URL: `/dashboard/2567/1/teacher-table`
 - Repro:
-  1. Navigate to `/dashboard/1-2567/teacher-table`.
+  1. Navigate to `/dashboard/2567/1/teacher-table`.
   2. Observe intermittent error banner and console error #418.
 - Expected: stable render and no hydration/runtime errors.
 - Actual: intermittent UI error and console logs: `Minified React error #418`.
@@ -119,7 +119,7 @@ Full details: see the “Bugs” section below.
 Top journeys to automate (Playwright):
 1) Auth: invalid credentials → Thai error toast; no redirect; console must be clean.
 2) Auth: admin login → dashboard → semester switch to `1-2567` → refresh persists session.
-3) Dashboard sidebar routing: from `/dashboard/1-2567` click “แสดงตารางรวมครู” → assert URL stays semester-scoped.
+3) Dashboard sidebar routing: from `/dashboard/2567/1` click “แสดงตารางรวมครู” → assert URL stays semester-scoped.
 4) Timetable timezone sanity: teacher-table and teacher-arrange should show `08:30` start (or match configured start time), not `01:30`.
 5) Student table: dropdown options should be valid (no `/0` or negative) and selecting a class should not trigger 500s.
 6) Management lists smoke: teacher/subject/rooms/gradelevel/program pages load and tables render without console errors.
@@ -128,8 +128,8 @@ Top journeys to automate (Playwright):
 Visual snapshots to add (stable/deterministic):
 - `/signin` form (layout + error toast style)
 - `/dashboard` semester picker tiles
-- `/dashboard/1-2567/all-timeslot` “read-only” banner + export buttons
+- `/dashboard/2567/1/all-timeslot` “read-only” banner + export buttons
 - `/management/teacher` table first page (mask dynamic values if needed)
-- `/schedule/1-2567/arrange` “เลือกครูเพื่อเริ่มจัดตาราง” prompt + grid header
+- `/schedule/2567/1/arrange` “เลือกครูเพื่อเริ่มจัดตาราง” prompt + grid header
 
 

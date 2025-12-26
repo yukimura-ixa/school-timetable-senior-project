@@ -40,7 +40,7 @@ Successfully migrated student timetable PDF export from placeholder to productio
 ## Files Modified (2 files)
 
 ### UI Integration
-1. **src/app/dashboard/[semesterAndyear]/student-table/page.tsx**
+1. **src/app/dashboard/[academicYear]/[semester]/student-table/page.tsx**
    - Removed placeholder alert
    - Added `handleExportPDF` with server-side fetch
    - Data transformation:
@@ -65,7 +65,7 @@ Successfully migrated student timetable PDF export from placeholder to productio
 
 ### User Flow (Admin Only)
 
-1. Admin navigates to `/dashboard/1-2567/student-table`
+1. Admin navigates to `/dashboard/2567/1/student-table`
 2. Selects a grade (e.g., ม.1, ม.2, etc.)
 3. Clicks "นำออก PDF" button
 4. Client calls `/api/export/student-timetable/pdf` with:
@@ -244,7 +244,7 @@ If issues arise with student PDF:
 
 1. **Revert student-table UI**:
    ```bash
-   git checkout HEAD~1 -- src/app/dashboard/[semesterAndyear]/student-table/page.tsx
+   git checkout HEAD~1 -- src/app/dashboard/[academicYear]/[semester]/student-table/page.tsx
    ```
 
 2. **Remove new files**:

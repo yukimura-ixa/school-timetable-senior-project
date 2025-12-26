@@ -8,33 +8,25 @@ import prisma from "@/lib/prisma";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
-// Utility: Parse configId (e.g. 1-2567) into academicYear + semester enum
-function parseConfigId(
-  configId: string,
-): { academicYear: number; semesterEnum: "SEMESTER_1" | "SEMESTER_2" } | null {
-  const match = /^(1|2)-(\d{4})$/.exec(configId);
-  if (!match) return null;
-  const [, sem, year] = match;
-  const semesterEnum = sem === "1" ? "SEMESTER_1" : "SEMESTER_2";
-  return { academicYear: parseInt(year!, 10), semesterEnum };
-}
-
 type PageProps = {
-  params: Promise<{ id: string; semesterAndyear: string }>;
+  params: Promise<{ id: string; academicYear: string; semester: string }>;
 };
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { id, semesterAndyear } = await params;
+  const { id, academicYear: yearStr, semester: semStr } = await params;
   const teacherId = parseInt(id, 10);
   if (isNaN(teacherId)) return { title: "ไม่พบข้อมูล" };
-  const parsed = parseConfigId(semesterAndyear);
-  if (!parsed) return { title: "ไม่พบข้อมูล" };
+  const academicYear = parseInt(yearStr, 10);
+  const semNum = parseInt(semStr, 10);
+  const semesterEnum =
+    semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
+  if (!semesterEnum || isNaN(academicYear)) return { title: "ไม่พบข้อมูล" };
   const teacher = await publicDataRepository.findPublicTeacherById(
     teacherId,
-    parsed.academicYear,
-    parsed.semesterEnum,
+    academicYear,
+    semesterEnum,
   );
   if (!teacher) return { title: "ไม่พบข้อมูล" };
   return {
@@ -62,12 +54,14 @@ const dayNames: Record<string, string> = {
 const dayOrder = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 
 export default async function TeacherScheduleByTermPage({ params }: PageProps) {
-  const { id, semesterAndyear } = await params;
+  const { id, academicYear: yearStr, semester: semStr } = await params;
   const teacherId = parseInt(id, 10);
   if (isNaN(teacherId)) notFound();
-  const parsed = parseConfigId(semesterAndyear);
-  if (!parsed) notFound();
-  const { academicYear, semesterEnum } = parsed;
+  const academicYear = parseInt(yearStr, 10);
+  const semNum = parseInt(semStr, 10);
+  const semesterEnum =
+    semNum === 1 ? "SEMESTER_1" : semNum === 2 ? "SEMESTER_2" : null;
+  if (!semesterEnum || isNaN(academicYear)) notFound();
 
   // Fetch teacher info and schedule data
   const teacher = await publicDataRepository.findPublicTeacherById(
@@ -174,8 +168,7 @@ export default async function TeacherScheduleByTermPage({ params }: PageProps) {
             ภาควิชา{teacher.department || "-"}
           </p>
           <p className="text-xs md:text-sm text-gray-500 mt-2">
-            ภาคเรียนที่ {semesterAndyear.split("-")[0]} ปีการศึกษา{" "}
-            {semesterAndyear.split("-")[1]}
+            ภาคเรียนที่ {semNum} ปีการศึกษา {academicYear}
           </p>
         </div>
 

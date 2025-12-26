@@ -11,7 +11,7 @@
    - Status: ✅ COMMITTED
 
 2. **Fixed Import Syntax Error** (HIGH)
-   - File: `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx`
+   - File: `src/app/dashboard/[academicYear]/[semester]/all-timeslot/component/TeacherList.tsx`
    - Change: Removed extra quote from import on line 1
    - Before: `import type { teacher } from '@/prisma/generated/client';'`
    - After: `import type { teacher } from '@/prisma/generated/client';`
@@ -145,7 +145,7 @@
 ## Files Modified This Session
 
 ✅ `tsconfig.json` - Added baseUrl  
-✅ `src/app/dashboard/[semesterAndyear]/all-timeslot/component/TeacherList.tsx` - Fixed import  
+✅ `src/app/dashboard/[academicYear]/[semester]/all-timeslot/component/TeacherList.tsx` - Fixed import  
 ✅ `src/features/teaching-assignment/application/actions/teaching-assignment.actions.ts` - Removed unused directives  
 ✅ `DOCS/CODE_REVIEW_2025-11-20.md` - Created  
 ✅ `DOCS/FIX_PROGRESS.md` - Created  

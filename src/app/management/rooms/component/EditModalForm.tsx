@@ -176,13 +176,10 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     disabled={false}
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
-                      const floorValue =
-                        value === "" ? undefined : Number(value);
+                      const floorValue = value;
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind
-                            ? { ...item, Floor: floorValue }
-                            : item,
+                          index === ind ? { ...item, Floor: floorValue } : item,
                         ),
                       );
                     }}

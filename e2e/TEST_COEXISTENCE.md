@@ -47,7 +47,7 @@ import { test, expect } from "@/e2e/fixtures/admin.fixture";
 import { testSemester, testTeacher } from "@/e2e/fixtures/seed-data.fixture";
 
 test("should do something", async ({ scheduleAssignmentPage }) => {
-  await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+  await scheduleAssignmentPage.goto(`${testSemester.Year}/${testSemester.Semester}`);
   // ... clean, maintainable test
 });
 ```

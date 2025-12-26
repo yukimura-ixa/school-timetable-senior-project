@@ -19,11 +19,12 @@ function Menubar() {
 
   const [linkSelected, setLinkSelected] = useState<string>(pathName);
 
-  // Extract current semester from URL if present
-  const currentSemester = useMemo(() => {
-    // Match patterns like /schedule/1-2567/* or /dashboard/1-2567/*
-    const match = pathName.match(/\/(schedule|dashboard)\/(\d-\d{4})/);
-    return match ? match[2] : null;
+  // Extract current term from URL if present
+  const currentTerm = useMemo(() => {
+    // Match patterns like /schedule/2567/1/* or /dashboard/2567/1/*
+    const match = pathName.match(/\/(schedule|dashboard)\/(25\d{2})\/(\d)/);
+    if (!match) return null;
+    return { year: match[2], semester: match[3] };
   }, [pathName]);
   return (
     <>
@@ -82,8 +83,8 @@ function Menubar() {
             {scheduleMenu.map((item: any, index: number) => {
               // For dynamic links (จัดตารางสอน), use current semester if available
               const linkHref =
-                item.dynamicLink && currentSemester
-                  ? `/schedule/${currentSemester}/arrange`
+                item.dynamicLink && currentTerm
+                  ? `/schedule/${currentTerm.year}/${currentTerm.semester}/arrange`
                   : item.link || "/dashboard";
 
               const isSelected = linkHref === linkSelected;

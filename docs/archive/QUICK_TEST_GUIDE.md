@@ -11,11 +11,11 @@ The "จัดตารางสอน" (Arrange Timetable) sidebar button was r
 ### Test 1: Main Fix (2 minutes)
 
 ```
-1. Open: http://localhost:3000/schedule/1-2567/arrange
+1. Open: http://localhost:3000/schedule/2567/1/arrange
 2. Look at left sidebar
 3. Find "จัดตารางสอน" button
 4. Click it
-5. Check URL bar - should show: /schedule/1-2567/arrange
+5. Check URL bar - should show: /schedule/2567/1/arrange
 ```
 
 **✅ PASS:** URL stays on schedule page with semester 1-2567  
@@ -56,8 +56,8 @@ Click "จัดตารางสอน" → Goes to /schedule/{current-semeste
 
 | Starting Page              | Click Button | Expected URL                               |
 | -------------------------- | ------------ | ------------------------------------------ |
-| `/schedule/1-2567/arrange` | จัดตารางสอน  | `/schedule/1-2567/arrange` |
-| `/schedule/2-2567/arrange` | จัดตารางสอน  | `/schedule/2-2567/arrange` |
+| `/schedule/2567/1/arrange` | จัดตารางสอน  | `/schedule/2567/1/arrange` |
+| `/schedule/2567/2/arrange` | จัดตารางสอน  | `/schedule/2567/2/arrange` |
 | `/management/teacher`      | จัดตารางสอน  | `/dashboard/select-semester`               |
 
 ---

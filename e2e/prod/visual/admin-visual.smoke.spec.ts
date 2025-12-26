@@ -16,7 +16,7 @@ import {
   goToTeacherArrange,
   goToTeachers,
 } from "../helpers/navigation";
-import { getSemesterId } from "../helpers/env";
+import { getSemesterRouteParts } from "../helpers/env";
 
 test.describe.configure({ mode: "serial", timeout: 90_000 });
 
@@ -133,8 +133,8 @@ test("export entry point exists (optional modal)", async ({ page }) => {
 });
 
 test("semester-scoped routes do not loop (sanity)", async ({ page }) => {
-  const semester = getSemesterId();
-  await page.goto(`/dashboard/${semester}/teacher-table`, {
+  const term = getSemesterRouteParts();
+  await page.goto(`/dashboard/${term.academicYear}/${term.semester}/teacher-table`, {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
   });

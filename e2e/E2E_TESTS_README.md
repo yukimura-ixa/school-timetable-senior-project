@@ -112,7 +112,7 @@ Common utilities for all page objects:
 
 ### ProgramViewPage
 
-Page object for `/dashboard/[semester-year]/all-program`:
+Page object for `/dashboard/[academicYear]/[semester]/all-program`:
 
 - `navigateTo(semester, year)` - Navigate to program view
 - `selectGrade(gradeText)` - Select grade from dropdown
@@ -122,7 +122,7 @@ Page object for `/dashboard/[semester-year]/all-program`:
 
 ### ComplianceAnalyticsPage
 
-Page object for `/dashboard/[semester-year]/analytics`:
+Page object for `/dashboard/[academicYear]/[semester]/analytics`:
 
 - `navigateTo(semester, year)` - Navigate to analytics
 - `getSubjectNames()` - Get all subject names
@@ -131,7 +131,7 @@ Page object for `/dashboard/[semester-year]/analytics`:
 
 ### ArrangePage
 
-Page object for `/schedule/[semester-year]/arrange`:
+Page object for `/schedule/[academicYear]/[semester]/arrange`:
 
 - `navigateTo(semester, year)` - Navigate to arrange page
 - `selectTeacher(name)` - Select teacher from dropdown

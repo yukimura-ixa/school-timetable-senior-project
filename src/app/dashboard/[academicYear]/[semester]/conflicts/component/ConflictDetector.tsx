@@ -68,8 +68,12 @@ export default function ConflictDetector() {
   const theme = useTheme();
   const params = useParams();
   // Extract academicYear and semester from route params
-  const academicYear = params.academicYear ? parseInt(params.academicYear as string, 10) : null;
-  const semester = params.semester ? parseInt(params.semester as string, 10) : null;
+  const academicYear = params.academicYear
+    ? parseInt(params.academicYear as string, 10)
+    : null;
+  const semester = params.semester
+    ? parseInt(params.semester as string, 10)
+    : null;
   const [tabValue, setTabValue] = React.useState(0);
 
   // Fetch conflicts
@@ -81,7 +85,7 @@ export default function ConflictDetector() {
     semester && academicYear ? ["conflicts", academicYear, semester] : null,
     async ([, year, sem]) => {
       return await getConflictsAction({
-        AcademicYear: parseInt(year),
+        AcademicYear: year,
         Semester: `SEMESTER_${sem}` as
           | "SEMESTER_1"
           | "SEMESTER_2"

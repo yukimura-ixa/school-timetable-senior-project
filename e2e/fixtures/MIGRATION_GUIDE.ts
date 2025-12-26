@@ -37,13 +37,15 @@
  *
  *   test.beforeEach(async ({ page }) => {
  *     schedulePage = new ScheduleAssignmentPage(page);
- *     await schedulePage.goto('1-2567');
+ *     await schedulePage.goto('2567/1');
  *     await schedulePage.waitForPageReady();
  *   });
  *
  * AFTER:
  *   test.beforeEach(async ({ scheduleAssignmentPage }) => {
- *     await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+ *     await scheduleAssignmentPage.goto(
+ *       `${testSemester.Year}/${testSemester.Semester}`,
+ *     );
  *     await scheduleAssignmentPage.waitForPageReady();
  *   });
  */
@@ -66,7 +68,7 @@
  * STEP 4: Replace hardcoded values with fixture constants
  *
  * Replacements:
- *   '1-2567' → testSemester.SemesterAndyear
+ *   '2567/1' → `${testSemester.Year}/${testSemester.Semester}`
  *   'TCH001' → testTeacher.TeacherID.toString()
  *   'TH101' → testSubject.SubjectCode
  *   'TH21101' → testSubject.SubjectCode (Math 1)
@@ -96,7 +98,9 @@
  *
  * 3. Update all test.describe beforeEach hooks:
  *    test.beforeEach(async ({ scheduleAssignmentPage }) => {
- *      await scheduleAssignmentPage.goto(testSemester.SemesterAndyear);
+ *      await scheduleAssignmentPage.goto(
+ *        `${testSemester.Year}/${testSemester.Semester}`,
+ *      );
  *      await scheduleAssignmentPage.waitForPageReady();
  *    });
  */
@@ -121,7 +125,10 @@ export const searchReplacePatterns = [
   { search: /'MA201'/g, replace: "testSubjects.science101.SubjectCode" },
 
   // Semester
-  { search: /'1-2567'/g, replace: "testSemester.SemesterAndyear" },
+  {
+    search: /'2567\\/1'/g,
+    replace: "`${testSemester.Year}/${testSemester.Semester}`",
+  },
 
   // Test signatures - this needs manual update per line
   // { search: /test\('([^']+)', async \(\) => \{/g, replace: 'test(\'$1\', async ({ scheduleAssignmentPage }) => {' },

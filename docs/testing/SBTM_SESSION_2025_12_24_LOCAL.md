@@ -15,8 +15,8 @@
 | Page                                  | Status   | Notes                                            |
 | ------------------------------------- | -------- | ------------------------------------------------ |
 | Homepage                              | ✅ OK    | Heat map loads, semester stats display correctly |
-| Teacher Schedule `/teachers/1/1-2567` | ✅ OK    | Empty schedule shows (no assignments in test DB) |
-| Class Schedule `/classes/M1-1/1-2567` | ✅ OK    | Route is `/classes` (plural), not `/class`       |
+| Teacher Schedule `/teachers/1/2567/1` | ✅ OK    | Empty schedule shows (no assignments in test DB) |
+| Class Schedule `/classes/M1-1/2567/1` | ✅ OK    | Route is `/classes` (plural), not `/class`       |
 | Dashboard                             | ✅ OK    | BUG-13 hydration fix verified                    |
 | Lock Schedule                         | ✅ OK    | BUG-12 localStorage hydration fix verified       |
 | Teacher Management                    | ✅ OK    | DataGrid renders, CRUD actions work              |
@@ -33,7 +33,7 @@
 
 ### 1. Example Schedule Link Issue
 
-- **URL Generated**: `/teachers/607/1-2568`
+- **URL Generated**: `/teachers/607/2568/1`
 - **Result**: 404 (TeacherID 607 doesn't exist in test DB)
 - **Not a bug**: Test DB uses different teacher IDs (1-40), production uses 607+
 - **Recommendation**: Make example link use first available teacher from DB

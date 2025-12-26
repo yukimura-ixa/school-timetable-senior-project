@@ -21,7 +21,7 @@
 | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ---------------- | ---------- | ----------------------------------------------------------- |
 | [ConfirmDialog.tsx](file:///b:/Dev/school-timetable-senior-project/src/components/dialogs/ConfirmDialog.tsx)                                             | Generic confirmation             | 0 (message only) | Simple     | ✅ Has `aria-labelledby`, `aria-describedby`, loading state |
 | [ConfigureTimeslotsDialog.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/dashboard/_components/ConfigureTimeslotsDialog.tsx)                | Configure timeslots for semester | 3+               | Medium     | ✅ Uses MUI Dialog properly                                 |
-| [RoomSelectionDialog.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/arrange/_components/RoomSelectionDialog.tsx) | Select room for timeslot         | 1-2              | Simple     | ✅ Uses MUI Dialog                                          |
+| [RoomSelectionDialog.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/arrange/_components/RoomSelectionDialog.tsx) | Select room for timeslot         | 1-2              | Simple     | ✅ Uses MUI Dialog                                          |
 
 ---
 
@@ -75,30 +75,30 @@ These use `<div className="fixed left-0 top-0">` with rgba backdrop. **Missing**
 
 | File                                                                                                                                                    | Purpose              | Fields | Complexity | Issues               |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ------ | ---------- | -------------------- |
-| [AddSubjectModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/assign/component/AddSubjectModal.tsx)           | Add subject to class | 3 × N  | Complex    | ❌ Multi-row, search |
-| [SelectClassRoomModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/assign/component/SelectClassRoomModal.tsx) | Select classroom     | 1-2    | Simple     | ❌                   |
+| [AddSubjectModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/assign/component/AddSubjectModal.tsx)           | Add subject to class | 3 × N  | Complex    | ❌ Multi-row, search |
+| [SelectClassRoomModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/assign/component/SelectClassRoomModal.tsx) | Select classroom     | 1-2    | Simple     | ❌                   |
 
 #### Schedule - Arrange
 
 | File                                                                                                                                                               | Purpose             | Fields | Complexity | Issues |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------- | ------ | ---------- | ------ |
-| [SelectRoomToTimeslotModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/arrange/component/SelectRoomToTimeslotModal.tsx) | Assign room to slot | 1      | Simple     | ❌     |
+| [SelectRoomToTimeslotModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/arrange/component/SelectRoomToTimeslotModal.tsx) | Assign room to slot | 1      | Simple     | ❌     |
 
 #### Schedule - Config
 
 | File                                                                                                                                                          | Purpose                   | Fields | Complexity | Issues |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ------ | ---------- | ------ |
-| [CloneTimetableDataModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/config/component/CloneTimetableDataModal.tsx) | Clone from other semester | 2      | Medium     | ❌     |
-| [ConfirmDeleteModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/config/component/ConfirmDeleteModal.tsx)           | Delete semester config    | 0      | Simple     | ❌     |
+| [CloneTimetableDataModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/config/component/CloneTimetableDataModal.tsx) | Clone from other semester | 2      | Medium     | ❌     |
+| [ConfirmDeleteModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/config/component/ConfirmDeleteModal.tsx)           | Delete semester config    | 0      | Simple     | ❌     |
 
 #### Schedule - Lock
 
 | File                                                                                                                                                        | Purpose             | Fields | Complexity | Issues |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------ | ---------- | ------ |
-| [AddLockScheduleModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/lock/component/AddLockScheduleModal.tsx)       | Add locked slot     | 4+     | Medium     | ❌     |
-| [BulkLockModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/lock/component/BulkLockModal.tsx)                     | Bulk lock slots     | 3+     | Medium     | ❌     |
-| [DeleteLockScheduleModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/lock/component/DeleteLockScheduleModal.tsx) | Delete lock         | 0      | Simple     | ❌     |
-| [LockTemplatesModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/lock/component/LockTemplatesModal.tsx)           | Apply lock template | 2      | Medium     | ❌     |
+| [AddLockScheduleModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/AddLockScheduleModal.tsx)       | Add locked slot     | 4+     | Medium     | ❌     |
+| [BulkLockModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/BulkLockModal.tsx)                     | Bulk lock slots     | 3+     | Medium     | ❌     |
+| [DeleteLockScheduleModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/DeleteLockScheduleModal.tsx) | Delete lock         | 0      | Simple     | ❌     |
+| [LockTemplatesModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/lock/component/LockTemplatesModal.tsx)           | Apply lock template | 2      | Medium     | ❌     |
 
 #### Dashboard
 
@@ -110,7 +110,7 @@ These use `<div className="fixed left-0 top-0">` with rgba backdrop. **Missing**
 
 | File                                                                                                                                      | Purpose      | Fields | Complexity | Issues |
 | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------ | ---------- | ------ |
-| [SelectClassModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[semesterAndyear]/components/SelectClassModal.tsx) | Select class | 1      | Simple     | ❌     |
+| [SelectClassModal.tsx](file:///b:/Dev/school-timetable-senior-project/src/app/schedule/[academicYear]/[semester]/components/SelectClassModal.tsx) | Select class | 1      | Simple     | ❌     |
 
 ---
 

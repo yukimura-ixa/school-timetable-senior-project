@@ -86,8 +86,8 @@ $ pnpm typecheck
 ### E2E Test Results
 
 ```
-Before: 65 POST /schedule/1-2567/arrange?TeacherID=1
-After:  12 POST /schedule/1-2567/arrange?TeacherID=1
+Before: 65 POST /schedule/2567/1/arrange?TeacherID=1
+After:  12 POST /schedule/2567/1/arrange?TeacherID=1
 ```
 
 ### Performance Impact

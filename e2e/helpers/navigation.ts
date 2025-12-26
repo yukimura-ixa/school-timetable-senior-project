@@ -10,6 +10,30 @@ import { Page } from "@playwright/test";
 export class NavigationHelper {
   constructor(private page: Page) {}
 
+  private normalizeTerm(
+    academicYearOrTerm: number | string,
+    semester?: number | string,
+  ): { academicYear: string; semester: string } {
+    if (semester !== undefined) {
+      return {
+        academicYear: String(academicYearOrTerm),
+        semester: String(semester),
+      };
+    }
+
+    const term = String(academicYearOrTerm);
+    if (term.includes("/")) {
+      const [year, sem] = term.split("/");
+      return { academicYear: year, semester: sem };
+    }
+    if (term.includes("-")) {
+      const [sem, year] = term.split("-");
+      return { academicYear: year, semester: sem };
+    }
+
+    throw new Error(`[NavigationHelper] Invalid term format: ${term}`);
+  }
+
   private async gotoAndReady(path: string) {
     await this.page.goto(path, {
       waitUntil: "domcontentloaded",
@@ -64,32 +88,59 @@ export class NavigationHelper {
   }
 
   async goToSchedule(academicYear: number | string, semester: number | string) {
-    await this.gotoAndReady(`/schedule/${academicYear}/${semester}`);
+    const term = this.normalizeTerm(academicYear, semester);
+    await this.gotoAndReady(`/schedule/${term.academicYear}/${term.semester}`);
   }
 
-  async goToConfig(academicYear: number | string, semester: number | string) {
-    await this.gotoAndReady(`/schedule/${academicYear}/${semester}/config`);
+  async goToConfig(academicYear: number | string, semester?: number | string) {
+    const term = this.normalizeTerm(academicYear, semester);
+    await this.gotoAndReady(
+      `/schedule/${term.academicYear}/${term.semester}/config`,
+    );
   }
 
-  async goToAssign(academicYear: number | string, semester: number | string) {
-    await this.gotoAndReady(`/schedule/${academicYear}/${semester}/assign`);
+  async goToAssign(academicYear: number | string, semester?: number | string) {
+    const term = this.normalizeTerm(academicYear, semester);
+    await this.gotoAndReady(
+      `/schedule/${term.academicYear}/${term.semester}/assign`,
+    );
   }
 
   async goToTeacherArrange(
-    academicYear: number | string,
-    semester: number | string,
+    academicYearOrTerm: number | string,
+    semesterOrTeacherId?: number | string,
     teacherId = "1",
   ) {
+    if (typeof academicYearOrTerm === "string") {
+      const hasDelimiter =
+        academicYearOrTerm.includes("/") || academicYearOrTerm.includes("-");
+      if (hasDelimiter) {
+        const term = this.normalizeTerm(academicYearOrTerm);
+        const resolvedTeacherId =
+          semesterOrTeacherId !== undefined
+            ? String(semesterOrTeacherId)
+            : teacherId;
+        await this.gotoAndReady(
+          `/schedule/${term.academicYear}/${term.semester}/arrange?TeacherID=${resolvedTeacherId}`,
+        );
+        return;
+      }
+    }
+
+    const term = this.normalizeTerm(academicYearOrTerm, semesterOrTeacherId);
     await this.gotoAndReady(
-      `/schedule/${academicYear}/${semester}/arrange?TeacherID=${teacherId}`,
+      `/schedule/${term.academicYear}/${term.semester}/arrange?TeacherID=${teacherId}`,
     );
   }
 
   async goToLockTimeslots(
     academicYear: number | string,
-    semester: number | string,
+    semester?: number | string,
   ) {
-    await this.gotoAndReady(`/schedule/${academicYear}/${semester}/lock`);
+    const term = this.normalizeTerm(academicYear, semester);
+    await this.gotoAndReady(
+      `/schedule/${term.academicYear}/${term.semester}/lock`,
+    );
   }
 
   /**
@@ -101,37 +152,41 @@ export class NavigationHelper {
 
   async goToTeacherTable(
     academicYear: number | string,
-    semester: number | string,
+    semester?: number | string,
   ) {
+    const term = this.normalizeTerm(academicYear, semester);
     await this.gotoAndReady(
-      `/dashboard/${academicYear}/${semester}/teacher-table`,
+      `/dashboard/${term.academicYear}/${term.semester}/teacher-table`,
     );
   }
 
   async goToStudentTable(
     academicYear: number | string,
-    semester: number | string,
+    semester?: number | string,
   ) {
+    const term = this.normalizeTerm(academicYear, semester);
     await this.gotoAndReady(
-      `/dashboard/${academicYear}/${semester}/student-table`,
+      `/dashboard/${term.academicYear}/${term.semester}/student-table`,
     );
   }
 
   async goToAllPrograms(
     academicYear: number | string,
-    semester: number | string,
+    semester?: number | string,
   ) {
+    const term = this.normalizeTerm(academicYear, semester);
     await this.gotoAndReady(
-      `/dashboard/${academicYear}/${semester}/all-program`,
+      `/dashboard/${term.academicYear}/${term.semester}/all-program`,
     );
   }
 
   async goToAllTimeslots(
     academicYear: number | string,
-    semester: number | string,
+    semester?: number | string,
   ) {
+    const term = this.normalizeTerm(academicYear, semester);
     await this.gotoAndReady(
-      `/dashboard/${academicYear}/${semester}/all-timeslot`,
+      `/dashboard/${term.academicYear}/${term.semester}/all-timeslot`,
     );
   }
 

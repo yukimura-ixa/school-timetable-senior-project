@@ -46,18 +46,18 @@ Behavior: Completes and stops gracefully
 #### Request Breakdown
 
 ```
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 115ms (compile: 35ms, render: 81ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 37ms (compile: 11ms, render: 25ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 53ms (compile: 11ms, render: 42ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 73ms (compile: 17ms, render: 55ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 155ms (compile: 110ms, render: 45ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 33ms (compile: 11ms, render: 22ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 69ms (compile: 8ms, render: 61ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 45ms (compile: 6ms, render: 39ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 47ms (compile: 8ms, render: 39ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 50ms (compile: 15ms, render: 34ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 40ms (compile: 6ms, render: 35ms)
-[WebServer]  POST /schedule/1-2567/arrange?TeacherID=1 200 in 65ms (compile: 6ms, render: 59ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 115ms (compile: 35ms, render: 81ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 37ms (compile: 11ms, render: 25ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 53ms (compile: 11ms, render: 42ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 73ms (compile: 17ms, render: 55ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 155ms (compile: 110ms, render: 45ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 33ms (compile: 11ms, render: 22ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 69ms (compile: 8ms, render: 61ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 45ms (compile: 6ms, render: 39ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 47ms (compile: 8ms, render: 39ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 50ms (compile: 15ms, render: 34ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 40ms (compile: 6ms, render: 35ms)
+[WebServer]  POST /schedule/2567/1/arrange?TeacherID=1 200 in 65ms (compile: 6ms, render: 59ms)
 ```
 
 **Key Observations**:
@@ -130,7 +130,7 @@ useEffect(() => {
 
 ### Files Modified
 
-**File**: `src/app/schedule/[semesterAndyear]/arrange/page.tsx`
+**File**: `src/app/schedule/[academicYear]/[semester]/arrange/page.tsx`
 
 **Changes**: Removed `actions` from 6 dependency arrays
 
@@ -379,7 +379,7 @@ pnpm test:e2e -- e2e/tests/admin/schedule-assignment.spec.ts:71 --project=chromi
 
 ```
 [Initial Navigation]
-GET /schedule/1-2567/arrange?TeacherID=1 200 in 1311ms
+GET /schedule/2567/1/arrange?TeacherID=1 200 in 1311ms
 
 [Server Component Re-renders - 12 POST requests]
 POST ...?TeacherID=1 200 in 115ms  (1st - likely initial render)

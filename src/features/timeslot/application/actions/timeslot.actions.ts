@@ -166,7 +166,7 @@ export const createTimeslotsAction = createAction(
 
     // Revalidate paths to ensure UI sees fresh data (Next.js 16 cache invalidation)
     revalidatePath("/dashboard");
-    revalidatePath(`/schedule/${configId}`);
+    revalidatePath(`/schedule/${input.AcademicYear}/${semesterNum}`);
 
     return {
       message: "สร้างตารางเวลาสำเร็จ",

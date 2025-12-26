@@ -2,7 +2,7 @@
  * ComplianceAnalyticsPage - Page Object for Compliance Analytics (Issue #86)
  *
  * Tests subject name display in compliance reports
- * URL: /dashboard/[semesterAndyear]/analytics
+ * URL: /dashboard/[academicYear]/[semester]/analytics
  *
  * @module page-objects/ComplianceAnalyticsPage
  */
@@ -49,7 +49,7 @@ export class ComplianceAnalyticsPage extends BasePage {
    * Navigate to compliance analytics for specific semester/year
    */
   async navigateTo(semester: string, year: string) {
-    await this.goto(`/dashboard/${semester}-${year}/analytics`);
+    await this.goto(`/dashboard/${year}/${semester}/analytics`);
     await this.waitForPageLoad();
 
     // Wait for semester to sync with global state

@@ -46,7 +46,7 @@
 - **BUG-15**: Navbar hydration mismatch (admin role/links) › Fixed by delaying session/role-dependent Navbar UI until after hydration in `src/components/templates/Navbar.tsx`
 - **BUG-16**: `/management/program` runtime error “Functions cannot be passed directly to Client Components…” › Fixed by removing `component={Link}` usage from Server Components (wrap card with Next `<Link>` and use `href` on MUI `Button` for the back link)
 - **BUG-17**: Teacher arrange page hydration mismatch (Dropdown className whitespace) › Fixed by replacing multi-line template-literal `className` strings with deterministic className construction in `src/components/elements/input/selected_input/Dropdown.tsx`
-- **BUG-18**: `/schedule/{semesterAndyear}` MUI Tabs invalid value spam (empty route segment) › Fixed by defaulting to `assign` and redirecting `/schedule/{semesterAndyear}` → `/schedule/{semesterAndyear}/assign` in `src/app/schedule/[semesterAndyear]/page.tsx`
+- **BUG-18**: `/schedule/{academicYear}/{semester}` MUI Tabs invalid value spam (empty route segment) › Fixed by defaulting to `assign` and redirecting `/schedule/{academicYear}/{semester}` → `/schedule/{academicYear}/{semester}/assign` in `src/app/schedule/[academicYear]/[semester]/page.tsx`
 
 ---
 
