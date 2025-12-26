@@ -1,6 +1,5 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { BiEdit } from "react-icons/bi";
-import { TbTrash } from "react-icons/tb";
 import { subjectCreditTitles } from "@/models/credit-titles";
 import type { subject } from "@/prisma/generated/client";
 
@@ -16,11 +15,11 @@ type TableRowProps = {
 
 function TableRow({
   item,
-  index,
+  index: _index,
   clickToSelect,
   checkedList,
   setEditModalActive,
-  pageOfData,
+  pageOfData: _pageOfData,
   searchTerm,
 }: TableRowProps) {
   const matchesSearchTerm =
@@ -59,7 +58,8 @@ function TableRow({
             className="fill-[#A16207]"
             size={18}
             onClick={() => {
-              (setEditModalActive(true), clickToSelect(item.SubjectCode));
+              setEditModalActive(true);
+              clickToSelect(item.SubjectCode);
             }}
           />
           {/* Delete action removed - use top toolbar button with multi-select */}

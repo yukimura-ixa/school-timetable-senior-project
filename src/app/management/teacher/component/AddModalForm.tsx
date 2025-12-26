@@ -5,7 +5,6 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import MiniButton from "@/components/elements/static/MiniButton";
 import { TbTrash } from "react-icons/tb";
 import { BsInfo } from "react-icons/bs";
-import type { teacher } from "@/prisma/generated/client";
 import PrimaryButton from "@/components/mui/PrimaryButton";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
@@ -90,7 +89,7 @@ function AddModalForm({ closeModal, mutate }: props) {
 
       closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", { variant: "success" });
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
       const errorMessage =
@@ -98,7 +97,7 @@ function AddModalForm({ closeModal, mutate }: props) {
       enqueueSnackbar("เพิ่มข้อมูลครูไม่สำเร็จ: " + errorMessage, {
         variant: "error",
       });
-      console.log(error);
+      console.error(error);
     }
   };
   const addList = () => {
@@ -122,11 +121,11 @@ function AddModalForm({ closeModal, mutate }: props) {
     let isValid = true;
     teachers.forEach((data) => {
       if (
-        data.Prefix == "" ||
-        data.Firstname == "" ||
-        data.Lastname == "" ||
-        data.Department == "" ||
-        data.Email == ""
+        data.Prefix === "" ||
+        data.Firstname === "" ||
+        data.Lastname === "" ||
+        data.Department === "" ||
+        data.Email === ""
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -184,7 +183,7 @@ function AddModalForm({ closeModal, mutate }: props) {
               <Fragment key={`${index + 1}`}>
                 <div
                   className={`flex flex-row gap-3 items-center ${
-                    index == teachers.length - 1 ? "" : "mt-8"
+                    index === teachers.length - 1 ? "" : "mt-8"
                   }`}
                 >
                   <div className="flex flex-col items-center justify-center mr-5">
@@ -204,7 +203,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       width={150}
                       height={40}
                       borderColor={
-                        isEmptyData && teacher.Prefix.length == 0
+                        isEmptyData && teacher.Prefix.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -218,7 +217,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && teacher.Prefix.length == 0 ? (
+                    {isEmptyData && teacher.Prefix.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -234,7 +233,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       value={teacher.Firstname}
                       inputProps={{ "data-testid": `firstname-${index}` }}
                       borderColor={
-                        isEmptyData && teacher.Firstname.length == 0
+                        isEmptyData && teacher.Firstname.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -252,7 +251,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }}
                       disabled={false}
                     />
-                    {isEmptyData && teacher.Firstname.length == 0 ? (
+                    {isEmptyData && teacher.Firstname.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -268,7 +267,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       value={teacher.Lastname}
                       inputProps={{ "data-testid": `lastname-${index}` }}
                       borderColor={
-                        isEmptyData && teacher.Lastname.length == 0
+                        isEmptyData && teacher.Lastname.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -284,7 +283,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }}
                       disabled={false}
                     />
-                    {isEmptyData && teacher.Lastname.length == 0 ? (
+                    {isEmptyData && teacher.Lastname.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -316,7 +315,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       placeHolder={"ตัวเลือก"}
                       // #F96161 --red
                       borderColor={
-                        isEmptyData && teacher.Department.length == 0
+                        isEmptyData && teacher.Department.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -330,7 +329,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                         );
                       }}
                     />
-                    {isEmptyData && teacher.Department.length == 0 ? (
+                    {isEmptyData && teacher.Department.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
@@ -346,7 +345,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       value={teacher.Email}
                       inputProps={{ "data-testid": `email-${index}` }}
                       borderColor={
-                        isEmptyData && teacher.Email.length == 0
+                        isEmptyData && teacher.Email.length === 0
                           ? "#F96161"
                           : ""
                       }
@@ -362,7 +361,7 @@ function AddModalForm({ closeModal, mutate }: props) {
                       }}
                       disabled={false}
                     />
-                    {isEmptyData && teacher.Email.length == 0 ? (
+                    {isEmptyData && teacher.Email.length === 0 ? (
                       <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                         <BsInfo className="bg-red-500 rounded-full fill-white" />
                         <p className="text-red-500 text-sm">ต้องการ</p>
