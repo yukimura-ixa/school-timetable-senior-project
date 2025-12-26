@@ -32,7 +32,7 @@ import {
 import { useTheme, alpha } from "@mui/material/styles";
 import DownloadIcon from "@mui/icons-material/Download";
 import SchoolIcon from "@mui/icons-material/School";
-import { colors, pageHeaderSx } from "@/shared/design-system";
+import { colors } from "@/shared/design-system";
 
 type Props = Record<string, never>;
 
@@ -43,6 +43,22 @@ type SubjectRow = {
   Credit: keyof typeof subjectCreditValues;
   Category: CategoryType;
   teachers?: Array<{ TeacherFullName: string }>;
+};
+
+type ProgramTeacher = {
+  teacher: {
+    Prefix: string;
+    Firstname: string;
+    Lastname: string;
+  };
+};
+
+type ProgramSubject = {
+  SubjectCode: string;
+  SubjectName: string;
+  Credit: number;
+  Category: SubjectCategory;
+  teachers_responsibility?: ProgramTeacher[] | null;
 };
 
 // Map Prisma enum to Thai display strings
@@ -92,9 +108,9 @@ const Page = (_props: Props) => {
     !programOfGrade.isLoading &&
     programOfGrade.data?.success &&
     programOfGrade.data.data
-      ? programOfGrade.data.data.subjects.map((subject: any) => {
+      ? programOfGrade.data.data.subjects.map((subject: ProgramSubject) => {
           const teachers = Array.isArray(subject.teachers_responsibility)
-            ? subject.teachers_responsibility.map((tr: any) => ({
+            ? subject.teachers_responsibility.map((tr: ProgramTeacher) => ({
                 TeacherFullName: `${tr.teacher.Prefix} ${tr.teacher.Firstname} ${tr.teacher.Lastname}`,
               }))
             : [];

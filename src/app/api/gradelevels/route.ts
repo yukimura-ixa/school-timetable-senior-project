@@ -14,12 +14,9 @@ import { prisma } from "@/lib/prisma";
  * Response format matches Server Action:
  * { success: true, data: GradeLevel[] }
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   await connection();
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const _year = searchParams.get("year");
-    const _semester = searchParams.get("semester");
 
     const gradeLevels = await prisma.gradelevel.findMany({
       orderBy: [{ Year: "asc" }, { Number: "asc" }],

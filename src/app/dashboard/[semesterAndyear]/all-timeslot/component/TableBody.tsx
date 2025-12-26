@@ -7,7 +7,6 @@ import {
   alpha,
   useTheme,
   Tooltip,
-  Paper,
 } from "@mui/material";
 import { colors } from "@/shared/design-system";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
@@ -21,13 +20,13 @@ type ClassData = {
   GradeID: string;
   IsLocked?: boolean;
   SubjectCode?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 type DayData = {
   Day: string;
   BgColor: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 type Props = {

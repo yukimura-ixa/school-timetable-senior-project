@@ -302,9 +302,6 @@ const AllTimeslotClient = ({
     null,
   );
 
-  const readOnlyTooltip =
-    "หน้าจอนี้ใช้สำหรับดูตารางภาพรวมเท่านั้น ไม่สามารถแก้ไขได้จากที่นี่";
-
   const exportDisabledTooltip = "การส่งออกสงวนไว้สำหรับผู้ดูแลระบบเท่านั้น";
 
   const timeSlotData = useMemo(
@@ -338,7 +335,7 @@ const AllTimeslotClient = ({
   const handleExportExcel = () => {
     if (!isAdmin) return;
 
-    ExportTeacherTable(
+    void ExportTeacherTable(
       timeSlotData,
 
       teachers,
@@ -356,7 +353,7 @@ const AllTimeslotClient = ({
   const handleExportSummary = () => {
     if (!isAdmin) return;
 
-    ExportTeacherSummary(
+    void ExportTeacherSummary(
       timeSlotData,
 
       teachers,
