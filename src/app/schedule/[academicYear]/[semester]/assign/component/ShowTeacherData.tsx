@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   useParams,
   usePathname,
@@ -106,17 +106,13 @@ function ShowTeacherData({
     return Number.isNaN(tId) ? null : tId;
   }, [searchParams]);
 
-  const prevParamTeacherIdRef = useRef<number | null>(paramTeacherId);
-  const manualOverrideRef = useRef(false);
+  const [manualOverride, setManualOverride] = useState(false);
 
-  if (paramTeacherId !== prevParamTeacherIdRef.current) {
-    prevParamTeacherIdRef.current = paramTeacherId;
-    manualOverrideRef.current = false;
-  }
+  useEffect(() => {
+    setManualOverride(false);
+  }, [paramTeacherId]);
 
-  const effectiveTeacherId = manualOverrideRef.current
-    ? manualTeacherId
-    : paramTeacherId;
+  const effectiveTeacherId = manualOverride ? manualTeacherId : paramTeacherId;
 
   const teacher = useMemo(() => {
     if (!effectiveTeacherId) return null;
@@ -203,7 +199,7 @@ function ShowTeacherData({
     value: teacher | null,
   ) => {
     setManualTeacherId(value?.TeacherID ?? null);
-    manualOverrideRef.current = true;
+    setManualOverride(true);
     if (value) {
       const newUrl = `${pathName}?TeacherID=${value.TeacherID}`;
       // Use history.pushState to update URL without triggering server component refresh

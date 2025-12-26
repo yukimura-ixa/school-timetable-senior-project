@@ -49,8 +49,9 @@ const parseConfigId = (
 ): { academicYear: string; semester: string } | null => {
   if (!configId) return null;
   const match = /^(1|2)-(\d{4})$/.exec(configId);
-  if (!match) return null;
-  const [, semester, academicYear] = match;
+  const semester = match?.[1];
+  const academicYear = match?.[2];
+  if (!semester || !academicYear) return null;
   return { academicYear, semester };
 };
 
