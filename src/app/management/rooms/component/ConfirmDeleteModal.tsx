@@ -12,8 +12,8 @@ type props = {
   clearCheckList: () => void;
   dataAmount: number;
   checkedList: number[];
-  mutate: () => void;
-  openSnackBar?: (message: string, options?: any) => void;
+  mutate: () => void | Promise<void>;
+  openSnackBar?: (message: string, options?: Record<string, unknown>) => void;
 };
 
 function ConfirmDeleteModal({
@@ -24,8 +24,8 @@ function ConfirmDeleteModal({
   checkedList,
   mutate,
 }: props) {
-  const confirmed = () => {
-    removeMultiData(deleteData, checkedList);
+  const confirmed = async () => {
+    await removeMultiData(deleteData, checkedList);
     closeModal();
   };
   const cancel = () => {
@@ -58,7 +58,7 @@ function ConfirmDeleteModal({
 
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสถานที่เรียนสำเร็จ", { variant: "success" });
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
       const message = error instanceof Error ? error.message : "Unknown error";

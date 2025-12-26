@@ -14,8 +14,8 @@ type props = {
   closeModal: () => void;
   data: room[];
   clearCheckList: () => void;
-  mutate: () => void;
-  openSnackBar?: (message: string, options?: any) => void;
+  mutate: () => void | Promise<void>;
+  openSnackBar?: (message: string, options?: Record<string, unknown>) => void;
 };
 
 function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
@@ -24,16 +24,16 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
   const isValidData = (): boolean => {
     let isValid = true;
     editData.forEach((data) => {
-      if (data.RoomName == "" || data.Building == "" || !data.Floor) {
+      if (data.RoomName === "" || data.Building === "" || !data.Floor) {
         setIsEmptyData(true);
         isValid = false;
       }
     });
     return isValid;
   };
-  const confirmed = () => {
+  const confirmed = async () => {
     if (isValidData()) {
-      editMultiData(editData);
+      await editMultiData(editData);
       closeModal();
     }
   };
@@ -71,7 +71,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
       enqueueSnackbar("แก้ไขข้อมูลสถานที่เรียนสำเร็จ", {
         variant: "success",
       });
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
       const message = error instanceof Error ? error.message : "Unknown error";
@@ -104,7 +104,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
             <React.Fragment key={`Edit${index}`}>
               <div
                 className={`flex flex-row gap-3 items-center ${
-                  index == 0 ? "" : "mt-2"
+                  index === 0 ? "" : "mt-2"
                 }`}
               >
                 <div className="flex flex-col items-center justify-center mr-5">
@@ -119,11 +119,13 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     placeHolder="ex. คอม1"
                     value={item.RoomName}
                     borderColor={
-                      isEmptyData && item.RoomName.length == 0 ? "#F96161" : ""
+                      isEmptyData && item.RoomName.length === 0 ? "#F96161" : ""
                     }
                     disabled={false}
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
+                      const floorValue =
+                        value === "" ? undefined : Number(value);
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, RoomName: value } : item,
@@ -131,7 +133,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && item.RoomName.length == 0 ? (
+                  {isEmptyData && item.RoomName.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -146,11 +148,13 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     placeHolder="ex. 3"
                     value={item.Building}
                     borderColor={
-                      isEmptyData && item.Building.length == 0 ? "#F96161" : ""
+                      isEmptyData && item.Building.length === 0 ? "#F96161" : ""
                     }
                     disabled={false}
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
+                      const floorValue =
+                        value === "" ? undefined : Number(value);
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind ? { ...item, Building: value } : item,
@@ -158,7 +162,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && item.Building.length == 0 ? (
+                  {isEmptyData && item.Building.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -176,10 +180,12 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     disabled={false}
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value: string = e.target.value;
+                      const floorValue =
+                        value === "" ? undefined : Number(value);
                       setEditData(() =>
                         editData.map((item, ind) =>
                           index === ind
-                            ? { ...item, Floor: value as any }
+                            ? { ...item, Floor: floorValue }
                             : item,
                         ),
                       );
