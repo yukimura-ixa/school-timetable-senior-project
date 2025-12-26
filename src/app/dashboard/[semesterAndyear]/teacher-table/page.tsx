@@ -403,7 +403,7 @@ function TeacherTablePage() {
 
     // Note: This requires fetching class data for all selected teachers
     // For now, we'll use the export function from all-timeslot page
-    ExportTeacherTable(
+    void ExportTeacherTable(
       timeSlotData as ExportTimeslotData,
       selectedTeachers,
       classData as ClassScheduleWithSummary[],
@@ -740,8 +740,8 @@ function TeacherTablePage() {
                             teacherResponse.success &&
                             teacherResponse.data
                           ) {
-                            ExportTeacherTable(
-                              timeSlotData as ExportTimeslotData,
+              void ExportTeacherTable(
+                timeSlotData as ExportTimeslotData,
                               [teacherResponse.data],
                               classData as ClassScheduleWithSummary[],
                               semester,

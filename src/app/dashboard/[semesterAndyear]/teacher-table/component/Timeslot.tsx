@@ -1,6 +1,6 @@
 "use client";
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
-import React, { Fragment } from "react";
+import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
 import {
   Box,
@@ -42,9 +42,6 @@ const formatGrade = (gradeId?: string) => {
 function TimeSlot({ timeSlotData }: Props) {
   const theme = useTheme();
   const slotCount = timeSlotData.SlotAmount.length;
-
-  // Calculate width percentage for slots
-  const slotWidth = `calc((100% - 90px) / ${slotCount})`;
 
   return (
     <Box
@@ -139,7 +136,7 @@ function TimeSlot({ timeSlotData }: Props) {
           {timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map(
             (item) => (
               <Box
-                key={`time-${item.StartTime}${item.EndTime}`}
+                key={`time-${item.TimeslotID}`}
                 sx={{
                   flex: 1,
                   minWidth: 80,

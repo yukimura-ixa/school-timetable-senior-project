@@ -39,7 +39,7 @@ type Props = {
 
 export function SemesterExportButton({
   semesters,
-  title = "Semester Export",
+  title: _title = "Semester Export",
 }: Props) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -147,7 +147,7 @@ export function SemesterExportButton({
 <html>
 <head>
   <meta charset="utf-8">
-  <title>สรุปภาคเรียน</title>
+  <title>สรุปภาคเรียน - ${timestamp}</title>
   <style>
     body {
       font-family: 'Sarabun', Arial, sans-serif;

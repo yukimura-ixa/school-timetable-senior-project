@@ -18,8 +18,11 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from "@mui/material";
-import { Search as SearchIcon, Sort as SortIcon } from "@mui/icons-material";
-import type { SemesterFilterSchema } from "@/features/semester/application/schemas/semester.schemas";
+import { Search as SearchIcon } from "@mui/icons-material";
+import {
+  SemesterFilterSchema,
+  type SemesterStatus,
+} from "@/features/semester/application/schemas/semester.schemas";
 import type { InferOutput } from "valibot";
 
 type Props = {
@@ -28,6 +31,7 @@ type Props = {
 };
 
 export function SemesterFilters({ filters, onFiltersChange }: Props) {
+  type FilterState = InferOutput<typeof SemesterFilterSchema>;
   const status = filters.status || "ALL";
   const search = filters.search || "";
   const year = filters.year;
@@ -35,11 +39,17 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
   const sortOrder = filters.sortOrder || "desc";
 
   const availableYears = [2566, 2567, 2568, 2569, 2570];
-  const statusOptions: Array<
-    "ALL" | "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED"
-  > = ["ALL", "DRAFT", "PUBLISHED", "LOCKED", "ARCHIVED"];
+  const statusOptions: SemesterStatus[] = [
+    "DRAFT",
+    "PUBLISHED",
+    "LOCKED",
+    "ARCHIVED",
+  ];
 
-  const sortOptions = [
+  const sortOptions: Array<{
+    value: NonNullable<FilterState["sortBy"]>;
+    label: string;
+  }> = [
     { value: "recent", label: "ล่าสุด" },
     { value: "name", label: "ชื่อ" },
     { value: "status", label: "สถานะ" },
@@ -75,25 +85,23 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
           color={status === "ALL" ? "primary" : "default"}
           variant={status === "ALL" ? "filled" : "outlined"}
         />
-        {statusOptions
-          .filter((s) => s !== "ALL")
-          .map((s) => (
-            <Chip
-              key={s}
-              label={
-                s === "DRAFT"
-                  ? "แบบร่าง"
-                  : s === "PUBLISHED"
-                    ? "เผยแพร่"
-                    : s === "LOCKED"
-                      ? "ล็อก"
-                      : "เก็บถาวร"
-              }
-              onClick={() => onFiltersChange({ ...filters, status: s as any })}
-              color={status === s ? "primary" : "default"}
-              variant={status === s ? "filled" : "outlined"}
-            />
-          ))}
+        {statusOptions.map((s) => (
+          <Chip
+            key={s}
+            label={
+              s === "DRAFT"
+                ? "แบบร่าง"
+                : s === "PUBLISHED"
+                  ? "เผยแพร่"
+                  : s === "LOCKED"
+                    ? "ล็อก"
+                    : "เก็บถาวร"
+            }
+            onClick={() => onFiltersChange({ ...filters, status: s })}
+            color={status === s ? "primary" : "default"}
+            variant={status === s ? "filled" : "outlined"}
+          />
+        ))}
       </Box>
 
       {/* Filters Row */}
@@ -134,7 +142,10 @@ export function SemesterFilters({ filters, onFiltersChange }: Props) {
             value={sortBy}
             label="เรียงตาม"
             onChange={(e) =>
-              onFiltersChange({ ...filters, sortBy: e.target.value as any })
+              onFiltersChange({
+                ...filters,
+                sortBy: e.target.value as NonNullable<FilterState["sortBy"]>,
+              })
             }
           >
             {sortOptions.map((option) => (
