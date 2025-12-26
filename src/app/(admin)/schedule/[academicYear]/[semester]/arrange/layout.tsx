@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * Arrange Editor Layout - Parallel Routes Container
  *

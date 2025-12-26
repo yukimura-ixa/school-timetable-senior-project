@@ -16,8 +16,6 @@ import { createLogger } from "@/lib/logger";
 
 const log = createLogger("HealthDb");
 
-export const dynamic = "force-dynamic";
-
 interface HealthCheckResponse {
   ready: boolean;
   counts: {
@@ -52,6 +50,39 @@ interface ErrorResponse {
 export async function GET(): Promise<
   NextResponse<HealthCheckResponse | ErrorResponse>
 > {
+  const dbUrl = process.env.DATABASE_URL ?? "";
+  const isPrismaAccelerate =
+    dbUrl.startsWith("prisma+postgres://") || dbUrl.startsWith("prisma://");
+
+  if (isPrismaAccelerate) {
+    const skippedResponse: HealthCheckResponse = {
+      ready: true,
+      counts: {
+        teachers: 0,
+        schedules: 0,
+        timeslots: 0,
+        grades: 0,
+        subjects: 0,
+      },
+      minExpected: {
+        teachers: 0,
+        schedules: 0,
+        timeslots: 0,
+        grades: 0,
+        subjects: 0,
+      },
+      timestamp: new Date().toISOString(),
+    };
+
+    return NextResponse.json<HealthCheckResponse>(skippedResponse, {
+      status: 200,
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+        "X-Healthcheck-Skipped": "prisma-accelerate",
+      },
+    });
+  }
+
   try {
     // Check database connectivity and seed status with parallel queries
     const [

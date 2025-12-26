@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { dashboardRepository } from "@/features/dashboard/infrastructure/repositories/dashboard.repository";
 import {
   calculateTotalScheduledHours,
-  calculateCompletionRate,
   countTeachersWithSchedules,
   countClassCompletion,
   calculateTeacherWorkload,
@@ -17,7 +16,8 @@ import {
   PublishReadinessCard,
   ReadinessIssues,
 } from "@/app/dashboard/_components/PublishReadiness";
-import { CircularProgress, Box } from "@mui/material";
+import TeacherWorkloadChart from "@/app/dashboard/_components/TeacherWorkloadChart";
+import SubjectDistributionChart from "@/app/dashboard/_components/SubjectDistributionChart";
 
 export const metadata: Metadata = {
   title: "Dashboard - ภาพรวมภาคเรียน",
@@ -80,11 +80,7 @@ export default async function DashboardPage({
 
       {/* Charts - loads independently */}
       <Suspense fallback={<ChartsSkeleton />}>
-        <ChartsSection
-          semesterAndyear={semesterAndyear}
-          year={year}
-          semesterEnum={semesterEnum}
-        />
+        <ChartsSection year={year} semesterEnum={semesterEnum} />
       </Suspense>
 
       {/* Health Indicators - loads independently */}
@@ -233,36 +229,36 @@ async function QuickStats({
   year: number;
   semesterEnum: semester;
 }) {
-  const [dashboardData, readiness] = await Promise.all([
-    dashboardRepository.getDashboardData(semesterAndyear, year, semesterEnum),
+  const [schedules, grades, quickStats, readiness] = await Promise.all([
+    dashboardRepository.getScheduleStatsData(year, semesterEnum),
+    dashboardRepository.getGradesBasic(),
+    dashboardRepository.getQuickStats(semesterAndyear, year, semesterEnum),
     getPublishReadiness(semesterAndyear),
   ]);
-
-  const { schedules, teachers, grades, timeslots } = dashboardData;
 
   const totalScheduledHours = calculateTotalScheduledHours(schedules);
   const { withSchedules, withoutSchedules } = countTeachersWithSchedules(
     schedules,
-    teachers,
+    quickStats.teacherCount,
   );
   const classCompletion = countClassCompletion(
     schedules,
     grades,
-    timeslots.length,
+    quickStats.timeslotCount,
   );
 
   return (
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="จำนวนครู"
-        value={teachers.length}
+        value={quickStats.teacherCount}
         subtitle={`สอน: ${withSchedules} | ยังไม่มีตาราง: ${withoutSchedules}`}
         icon="👨‍🏫"
         color="blue"
       />
       <StatCard
         title="จำนวนชั้นเรียน"
-        value={grades.length}
+        value={quickStats.gradeCount}
         subtitle={`เต็ม: ${classCompletion.full} | บางส่วน: ${classCompletion.partial}`}
         icon="🎓"
         color="green"
@@ -270,7 +266,7 @@ async function QuickStats({
       <StatCard
         title="คาบสอนที่จัดแล้ว"
         value={totalScheduledHours}
-        subtitle={`จาก ${grades.length * timeslots.length} คาบทั้งหมด`}
+        subtitle={`จาก ${quickStats.gradeCount * quickStats.timeslotCount} คาบทั้งหมด`}
         icon="📅"
         color="purple"
       />
@@ -325,105 +321,26 @@ function QuickActions({ semesterAndyear }: { semesterAndyear: string }) {
 }
 
 async function ChartsSection({
-  semesterAndyear,
   year,
   semesterEnum,
 }: {
-  semesterAndyear: string;
   year: number;
   semesterEnum: semester;
 }) {
-  const dashboardData = await dashboardRepository.getDashboardData(
-    semesterAndyear,
-    year,
-    semesterEnum,
-  );
-
-  const { schedules, teachers, subjects } = dashboardData;
+  const [schedules, teachers, subjects] = await Promise.all([
+    dashboardRepository.getScheduleStatsData(year, semesterEnum),
+    dashboardRepository.getTeachersBasic(),
+    dashboardRepository.getSubjectsBasic(),
+  ]);
   const teacherWorkload = calculateTeacherWorkload(schedules, teachers);
   const subjectDistribution = calculateSubjectDistribution(schedules, subjects);
+  const topTeacherWorkload = teacherWorkload.slice(0, 10);
+  const topSubjectDistribution = subjectDistribution.slice(0, 10);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* Teacher Workload Chart */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          ภาระงานสอน (Top 10 ครู)
-        </h2>
-        <div className="space-y-3">
-          {teacherWorkload.slice(0, 10).map((workload) => (
-            <div key={workload.teacherId} className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900">
-                  {workload.teacherName}
-                </p>
-                <p className="text-xs text-gray-500">{workload.department}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {workload.scheduledHours}
-                  </p>
-                  <p className="text-xs text-gray-500">คาบ</p>
-                </div>
-                <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
-                  <div
-                    className="h-full bg-blue-600"
-                    style={{
-                      width: `${Math.min(workload.utilizationRate, 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        {teacherWorkload.length === 0 && (
-          <p className="text-center text-sm text-gray-500">
-            ยังไม่มีข้อมูลตารางสอน
-          </p>
-        )}
-      </div>
-
-      {/* Subject Distribution Chart */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          การกระจายวิชา (Top 10 วิชา)
-        </h2>
-        <div className="space-y-3">
-          {subjectDistribution.slice(0, 10).map((subject) => (
-            <div key={subject.subjectCode} className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-900">
-                  {subject.subjectName}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {subject.subjectCode} • {subject.classCount} ชั้นเรียน
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {subject.totalHours}
-                  </p>
-                  <p className="text-xs text-gray-500">{subject.percentage}%</p>
-                </div>
-                <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
-                  <div
-                    className="h-full bg-green-600"
-                    style={{ width: `${Math.min(subject.percentage, 100)}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        {subjectDistribution.length === 0 && (
-          <p className="text-center text-sm text-gray-500">
-            ยังไม่มีข้อมูลตารางเรียน
-          </p>
-        )}
-      </div>
+      <TeacherWorkloadChart workload={topTeacherWorkload} />
+      <SubjectDistributionChart distribution={topSubjectDistribution} />
     </div>
   );
 }
@@ -437,18 +354,19 @@ async function HealthIndicators({
   year: number;
   semesterEnum: semester;
 }) {
-  const dashboardData = await dashboardRepository.getDashboardData(
-    semesterAndyear,
-    year,
-    semesterEnum,
+  const [schedules, grades, quickStats] = await Promise.all([
+    dashboardRepository.getScheduleStatsData(year, semesterEnum),
+    dashboardRepository.getGradesBasic(),
+    dashboardRepository.getQuickStats(semesterAndyear, year, semesterEnum),
+  ]);
+  const { withoutSchedules } = countTeachersWithSchedules(
+    schedules,
+    quickStats.teacherCount,
   );
-
-  const { schedules, teachers, grades, timeslots } = dashboardData;
-  const { withoutSchedules } = countTeachersWithSchedules(schedules, teachers);
   const classCompletion = countClassCompletion(
     schedules,
     grades,
-    timeslots.length,
+    quickStats.timeslotCount,
   );
   const conflicts = detectConflicts(schedules);
   const totalConflicts =
@@ -540,25 +458,22 @@ async function SummaryInfo({
   year: number;
   semesterEnum: semester;
 }) {
-  const dashboardData = await dashboardRepository.getDashboardData(
+  const quickStats = await dashboardRepository.getQuickStats(
     semesterAndyear,
     year,
     semesterEnum,
   );
 
-  const { teachers, grades, subjects, timeslots, schedules, responsibilities } =
-    dashboardData;
-
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
       <h2 className="mb-4 text-lg font-semibold text-gray-900">ข้อมูลสรุป</h2>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        <InfoItem label="ครูทั้งหมด" value={teachers.length} />
-        <InfoItem label="ชั้นเรียน" value={grades.length} />
-        <InfoItem label="วิชา" value={subjects.length} />
-        <InfoItem label="คาบเรียน" value={timeslots.length} />
-        <InfoItem label="ตารางที่จัด" value={schedules.length} />
-        <InfoItem label="ความรับผิดชอบ" value={responsibilities.length} />
+        <InfoItem label="ครูทั้งหมด" value={quickStats.teacherCount} />
+        <InfoItem label="ชั้นเรียน" value={quickStats.gradeCount} />
+        <InfoItem label="วิชา" value={quickStats.subjectCount} />
+        <InfoItem label="คาบเรียน" value={quickStats.timeslotCount} />
+        <InfoItem label="ตารางที่จัด" value={quickStats.scheduleCount} />
+        <InfoItem label="ความรับผิดชอบ" value={quickStats.responsibilityCount} />
       </div>
     </div>
   );

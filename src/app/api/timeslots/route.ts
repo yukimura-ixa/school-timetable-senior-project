@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
@@ -17,6 +17,7 @@ import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
  * { success: true, data: Timeslot[] }
  */
 export async function GET(request: NextRequest) {
+  await connection();
   try {
     const searchParams = request.nextUrl.searchParams;
     const year = searchParams.get("year");

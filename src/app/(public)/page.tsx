@@ -9,6 +9,7 @@ import { DataTableSection } from "./_components/DataTableSection";
 import { CurrentSemesterBadge } from "./_components/CurrentSemesterBadge";
 import { AnimatedHeroBackground } from "./_components/AnimatedHeroBackground";
 import Link from "next/link";
+import { connection } from "next/server";
 import { getQuickStats } from "@/lib/public/stats";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 // No search params needed, all state managed in DataTableSection
 
 export default async function HomePage() {
+  await connection();
   // Import data fetching functions
   const { getTeacherCount, getPaginatedTeachers } =
     await import("@/lib/public/teachers");

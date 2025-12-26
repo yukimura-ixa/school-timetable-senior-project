@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -21,6 +21,7 @@ import { prisma } from "@/lib/prisma";
  * }
  */
 export async function GET(request: NextRequest) {
+  await connection();
   try {
     const searchParams = request.nextUrl.searchParams;
     const timeslotId = searchParams.get("timeslot");

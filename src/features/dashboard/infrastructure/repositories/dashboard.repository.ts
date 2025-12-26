@@ -210,6 +210,70 @@ export const getQuickStats = cache(async function getQuickStats(
 });
 
 /**
+ * Get schedules with minimal fields for dashboard stats/health/charts
+ */
+export const getScheduleStatsData = cache(
+  async function getScheduleStatsData(academicYear: number, sem: semester) {
+    return prisma.class_schedule.findMany({
+      where: {
+        timeslot: {
+          AcademicYear: academicYear,
+          Semester: sem,
+        },
+      },
+      include: {
+        teachers_responsibility: {
+          select: {
+            TeacherID: true,
+          },
+        },
+      },
+    });
+  },
+);
+
+/**
+ * Get basic teacher identity fields for dashboard charts
+ */
+export const getTeachersBasic = cache(async function getTeachersBasic() {
+  return prisma.teacher.findMany({
+    select: {
+      TeacherID: true,
+      Prefix: true,
+      Firstname: true,
+      Lastname: true,
+      Department: true,
+    },
+    orderBy: { Firstname: "asc" },
+  });
+});
+
+/**
+ * Get basic grade fields for dashboard stats
+ */
+export const getGradesBasic = cache(async function getGradesBasic() {
+  return prisma.gradelevel.findMany({
+    select: {
+      GradeID: true,
+    },
+    orderBy: { GradeID: "asc" },
+  });
+});
+
+/**
+ * Get basic subject fields for dashboard charts
+ */
+export const getSubjectsBasic = cache(async function getSubjectsBasic() {
+  return prisma.subject.findMany({
+    select: {
+      SubjectCode: true,
+      SubjectName: true,
+    },
+    orderBy: { SubjectCode: "asc" },
+  });
+});
+
+/**
  * Get teachers with their schedule counts for the semester
  * Note: teacher doesn't have direct class_schedule relation - goes through teachers_responsibility
  */
@@ -337,6 +401,10 @@ export const getConfig = cache(async function getConfig(configId: string) {
 export const dashboardRepository = {
   getDashboardData,
   getQuickStats,
+  getScheduleStatsData,
+  getTeachersBasic,
+  getGradesBasic,
+  getSubjectsBasic,
   getTeachersWithScheduleCounts,
   getGradesWithScheduleCounts,
   getSubjectDistribution,

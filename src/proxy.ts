@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Middleware for redirecting old [semesterAndyear] URLs to new [academicYear]/[semester] structure
+ * Proxy for redirecting old [semesterAndyear] URLs to new [academicYear]/[semester] structure
  *
  * Redirects:
  * - /schedule/1-2567/arrange → /schedule/2567/1/arrange
@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  * Uses 301 (Permanent Redirect) to signal this is the new canonical URL.
  * Preserves query parameters and hash fragments.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, search, hash } = request.nextUrl;
 
   // Match old pattern: /{base}/{semester}-{year}/{...rest}
@@ -30,7 +30,7 @@ export function middleware(request: NextRequest) {
     url.pathname = newPath;
     // search and hash are automatically preserved
 
-    console.log(`[Middleware] Redirecting: ${pathname} → ${newPath}`);
+    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
 
     // 301 Permanent Redirect
     // - Tells browsers to update bookmarks
@@ -45,7 +45,7 @@ export function middleware(request: NextRequest) {
 
 /**
  * Matcher configuration
- * Only run middleware on schedule and dashboard routes for performance
+ * Only run proxy on schedule and dashboard routes for performance
  */
 export const config = {
   matcher: ["/schedule/:path*", "/dashboard/:path*"],

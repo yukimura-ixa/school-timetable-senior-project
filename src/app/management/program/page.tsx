@@ -1,5 +1,6 @@
 import { Box, Grid } from "@mui/material";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import prisma from "@/lib/prisma";
 import { GRADE_LEVELS } from "./constants";
 import {
@@ -9,12 +10,9 @@ import {
   ProgramPageHeader,
 } from "./component/ProgramPageComponents";
 
-// Force dynamic rendering to avoid database queries at build time
-// This prevents Prisma Accelerate rate limit errors during static generation
-export const dynamic = "force-dynamic";
-
 // Fetch program counts per year
 async function getProgramCountsByYear() {
+  await connection();
   const counts = await (prisma.program as any).groupBy({
     by: ["Year"],
     _count: { ProgramID: true },

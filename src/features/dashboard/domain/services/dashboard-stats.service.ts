@@ -97,7 +97,7 @@ export function calculateCompletionRate(
  */
 export function countTeachersWithSchedules(
   schedules: ScheduleWithTeachers[], // Schedules with teachers_responsibility included
-  allTeachers: teacher[],
+  totalTeachers: number,
 ): { withSchedules: number; withoutSchedules: number } {
   const teacherIds = new Set<number>();
 
@@ -118,7 +118,7 @@ export function countTeachersWithSchedules(
   });
 
   const withSchedules = teacherIds.size;
-  const withoutSchedules = allTeachers.length - withSchedules;
+  const withoutSchedules = totalTeachers - withSchedules;
 
   return { withSchedules, withoutSchedules };
 }
@@ -128,9 +128,11 @@ export function countTeachersWithSchedules(
  * Full = has schedules for all timeslots
  * Partial = has some but not all schedules
  */
+type GradeSummary = Pick<gradelevel, "GradeID">;
+
 export function countClassCompletion(
   schedules: class_schedule[],
-  allGrades: gradelevel[],
+  allGrades: GradeSummary[],
   totalTimeslots: number,
 ): { full: number; partial: number; none: number } {
   const gradeScheduleCounts = new Map<string, number>();
@@ -164,9 +166,14 @@ export function countClassCompletion(
  * Calculate teacher workload for charts and analysis
  * Schedules relate to teachers through teachers_responsibility
  */
+type TeacherSummary = Pick<
+  teacher,
+  "TeacherID" | "Prefix" | "Firstname" | "Lastname" | "Department"
+>;
+
 export function calculateTeacherWorkload(
   schedules: ScheduleWithTeachers[], // Schedules with teachers_responsibility included
-  teachers: teacher[],
+  teachers: TeacherSummary[],
 ): TeacherWorkload[] {
   const workloadMap = new Map<
     number,

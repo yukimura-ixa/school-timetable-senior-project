@@ -1,9 +1,8 @@
-//
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { dashboardRepository } from "@/features/dashboard/infrastructure/repositories/dashboard.repository";
 import {
   calculateTotalScheduledHours,
-  calculateCompletionRate,
   countTeachersWithSchedules,
   countClassCompletion,
   calculateTeacherWorkload,
@@ -16,6 +15,8 @@ import {
   PublishReadinessCard,
   ReadinessIssues,
 } from "../_components/PublishReadiness";
+import TeacherWorkloadChart from "../_components/TeacherWorkloadChart";
+import SubjectDistributionChart from "../_components/SubjectDistributionChart";
 
 export const metadata: Metadata = {
   title: "Dashboard - ภาพรวมภาคเรียน",
@@ -35,7 +36,7 @@ export default async function DashboardPage({
   if (!semester || !academicYear) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
           <p className="text-red-600">
             รูปแบบข้อมูลภาคเรียนและปีการศึกษาไม่ถูกต้อง
@@ -51,7 +52,7 @@ export default async function DashboardPage({
   if (isNaN(year) || year < 2500 || year > 2600) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <h2 className="text-red-800 font-semibold">ข้อผิดพลาด</h2>
           <p className="text-red-600">ปีการศึกษาไม่ถูกต้อง ({academicYear})</p>
           <p className="mt-2 text-sm text-red-500">
@@ -64,37 +65,323 @@ export default async function DashboardPage({
 
   const semesterEnum = `SEMESTER_${semester}` as semester;
 
-  // Fetch all dashboard data in parallel
-  const [dashboardData, readiness] = await Promise.all([
-    dashboardRepository.getDashboardData(semesterAndyear, year, semesterEnum),
+  return (
+    <div className="flex flex-col gap-6 p-6">
+      {/* Header - loads immediately */}
+      <Suspense fallback={<HeaderSkeleton />}>
+        <DashboardHeader
+          semester={semester}
+          year={year}
+          semesterAndyear={semesterAndyear}
+        />
+      </Suspense>
+
+      {/* Readiness Issues - loads independently */}
+      <Suspense fallback={null}>
+        <ReadinessSection semesterAndyear={semesterAndyear} />
+      </Suspense>
+
+      {/* Quick Stats - loads independently */}
+      <Suspense fallback={<StatsSkeleton />}>
+        <QuickStats
+          semesterAndyear={semesterAndyear}
+          year={year}
+          semesterEnum={semesterEnum}
+        />
+      </Suspense>
+
+      {/* Quick Actions - renders immediately (no data needed) */}
+      <QuickActions semesterAndyear={semesterAndyear} />
+
+      {/* Charts - loads independently */}
+      <Suspense fallback={<ChartsSkeleton />}>
+        <ChartsSection year={year} semesterEnum={semesterEnum} />
+      </Suspense>
+
+      {/* Health Indicators - loads independently */}
+      <Suspense fallback={null}>
+        <HealthIndicators
+          semesterAndyear={semesterAndyear}
+          year={year}
+          semesterEnum={semesterEnum}
+        />
+      </Suspense>
+
+      {/* Summary Info - loads independently */}
+      <Suspense fallback={<SummarySkeleton />}>
+        <SummaryInfo
+          semesterAndyear={semesterAndyear}
+          year={year}
+          semesterEnum={semesterEnum}
+        />
+      </Suspense>
+    </div>
+  );
+}
+
+// Loading Skeletons
+function HeaderSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-8 w-64 bg-gray-200 rounded" />
+      <div className="h-4 w-32 bg-gray-200 rounded mt-2" />
+    </div>
+  );
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm animate-pulse"
+        >
+          <div className="h-4 w-20 bg-gray-200 rounded" />
+          <div className="h-8 w-16 bg-gray-200 rounded mt-2" />
+          <div className="h-3 w-32 bg-gray-200 rounded mt-1" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ChartsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {[1, 2].map((i) => (
+        <div
+          key={i}
+          className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm animate-pulse"
+        >
+          <div className="h-6 w-40 bg-gray-200 rounded mb-4" />
+          <div className="space-y-3">
+            {[1, 2, 3].map((j) => (
+              <div key={j} className="h-12 bg-gray-100 rounded" />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SummarySkeleton() {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm animate-pulse">
+      <div className="h-6 w-32 bg-gray-200 rounded mb-4" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="text-center">
+            <div className="h-8 w-12 bg-gray-200 rounded mx-auto" />
+            <div className="h-3 w-16 bg-gray-200 rounded mx-auto mt-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Server Component sections loaded with Suspense
+async function DashboardHeader({
+  semester,
+  year,
+  semesterAndyear,
+}: {
+  semester: string;
+  year: number;
+  semesterAndyear: string;
+}) {
+  // Fetch only config for status
+  const config = await dashboardRepository.getConfig(semesterAndyear);
+
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Dashboard - ภาพรวมภาคเรียน
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          ภาคเรียนที่ {semester}/{year}
+        </p>
+      </div>
+      {config && (
+        <div className="rounded-lg bg-blue-50 px-4 py-2">
+          <span className="text-sm font-medium text-blue-700">
+            สถานะ:{" "}
+            {config.status === "DRAFT"
+              ? "ร่าง"
+              : config.status === "PUBLISHED"
+                ? "เผยแพร่แล้ว"
+                : config.status === "LOCKED"
+                  ? "ล็อค"
+                  : "เก็บถาวร"}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+async function ReadinessSection({
+  semesterAndyear,
+}: {
+  semesterAndyear: string;
+}) {
+  const readiness = await getPublishReadiness(semesterAndyear);
+
+  if (!readiness || readiness.status === "ready") return null;
+
+  return <ReadinessIssues issues={readiness.issues} />;
+}
+
+async function QuickStats({
+  semesterAndyear,
+  year,
+  semesterEnum,
+}: {
+  semesterAndyear: string;
+  year: number;
+  semesterEnum: semester;
+}) {
+  const [schedules, grades, quickStats, readiness] = await Promise.all([
+    dashboardRepository.getScheduleStatsData(year, semesterEnum),
+    dashboardRepository.getGradesBasic(),
+    dashboardRepository.getQuickStats(semesterAndyear, year, semesterEnum),
     getPublishReadiness(semesterAndyear),
   ]);
 
-  const {
-    config,
-    schedules,
-    teachers,
-    grades,
-    timeslots,
-    subjects,
-    responsibilities,
-  } = dashboardData;
-
-  // Calculate statistics
   const totalScheduledHours = calculateTotalScheduledHours(schedules);
-  const completionRate = calculateCompletionRate(
-    schedules,
-    grades.length,
-    timeslots.length,
-  );
   const { withSchedules, withoutSchedules } = countTeachersWithSchedules(
     schedules,
-    teachers,
+    quickStats.teacherCount,
   );
   const classCompletion = countClassCompletion(
     schedules,
     grades,
-    timeslots.length,
+    quickStats.timeslotCount,
+  );
+
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <StatCard
+        title="จำนวนครู"
+        value={quickStats.teacherCount}
+        subtitle={`สอน: ${withSchedules} | ยังไม่มีตาราง: ${withoutSchedules}`}
+        icon="👨‍🏫"
+        color="blue"
+      />
+      <StatCard
+        title="จำนวนชั้นเรียน"
+        value={quickStats.gradeCount}
+        subtitle={`เต็ม: ${classCompletion.full} | บางส่วน: ${classCompletion.partial}`}
+        icon="🎓"
+        color="green"
+      />
+      <StatCard
+        title="คาบสอนที่จัดแล้ว"
+        value={totalScheduledHours}
+        subtitle={`จาก ${quickStats.gradeCount * quickStats.timeslotCount} คาบทั้งหมด`}
+        icon="📅"
+        color="purple"
+      />
+      {readiness && <PublishReadinessCard readiness={readiness} />}
+    </div>
+  );
+}
+
+function QuickActions({ semesterAndyear }: { semesterAndyear: string }) {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">เมนูด่วน</h2>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <QuickActionButton
+          href={`/dashboard/${semesterAndyear}/teacher-table`}
+          icon="👨‍🏫"
+          label="ตารางสอนครู"
+        />
+        <QuickActionButton
+          href={`/dashboard/${semesterAndyear}/student-table`}
+          icon="🎓"
+          label="ตารางเรียนนักเรียน"
+        />
+        <QuickActionButton
+          href={`/dashboard/${semesterAndyear}/all-timeslot`}
+          icon="⏰"
+          label="จัดการคาบเรียน"
+        />
+        <QuickActionButton
+          href={`/dashboard/${semesterAndyear}/all-program`}
+          icon="📚"
+          label="หลักสูตร"
+        />
+        <QuickActionButton
+          href={`/dashboard/${semesterAndyear}/conflicts`}
+          icon="⚠️"
+          label="ตรวจสอบความซ้ำซ้อน"
+        />
+        <QuickActionButton
+          href={`/schedule/${semesterAndyear}/lock`}
+          icon="🔒"
+          label="ล็อกคาบเรียน"
+        />
+        <QuickActionButton
+          href={`/dashboard/${semesterAndyear}/analytics`}
+          icon="📊"
+          label="วิเคราะห์ข้อมูล"
+        />
+      </div>
+    </div>
+  );
+}
+
+async function ChartsSection({
+  year,
+  semesterEnum,
+}: {
+  year: number;
+  semesterEnum: semester;
+}) {
+  const [schedules, teachers, subjects] = await Promise.all([
+    dashboardRepository.getScheduleStatsData(year, semesterEnum),
+    dashboardRepository.getTeachersBasic(),
+    dashboardRepository.getSubjectsBasic(),
+  ]);
+  const teacherWorkload = calculateTeacherWorkload(schedules, teachers);
+  const subjectDistribution = calculateSubjectDistribution(schedules, subjects);
+  const topTeacherWorkload = teacherWorkload.slice(0, 10);
+  const topSubjectDistribution = subjectDistribution.slice(0, 10);
+
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <TeacherWorkloadChart workload={topTeacherWorkload} />
+      <SubjectDistributionChart distribution={topSubjectDistribution} />
+    </div>
+  );
+}
+
+async function HealthIndicators({
+  semesterAndyear,
+  year,
+  semesterEnum,
+}: {
+  semesterAndyear: string;
+  year: number;
+  semesterEnum: semester;
+}) {
+  const [schedules, grades, quickStats] = await Promise.all([
+    dashboardRepository.getScheduleStatsData(year, semesterEnum),
+    dashboardRepository.getGradesBasic(),
+    dashboardRepository.getQuickStats(semesterAndyear, year, semesterEnum),
+  ]);
+  const { withoutSchedules } = countTeachersWithSchedules(
+    schedules,
+    quickStats.teacherCount,
+  );
+  const classCompletion = countClassCompletion(
+    schedules,
+    grades,
+    quickStats.timeslotCount,
   );
   const conflicts = detectConflicts(schedules);
   const totalConflicts =
@@ -102,283 +389,112 @@ export default async function DashboardPage({
     conflicts.classConflicts +
     conflicts.roomConflicts;
 
-  const teacherWorkload = calculateTeacherWorkload(schedules, teachers);
-  const subjectDistribution = calculateSubjectDistribution(schedules, subjects);
+  // Only show if there are issues
+  if (
+    withoutSchedules === 0 &&
+    classCompletion.partial === 0 &&
+    classCompletion.none === 0 &&
+    totalConflicts === 0
+  ) {
+    return null;
+  }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Dashboard - ภาพรวมภาคเรียน
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            ภาคเรียนที่ {semester}/{year}
-          </p>
-        </div>
-        {config && (
-          <div className="rounded-lg bg-blue-50 px-4 py-2">
-            <span className="text-sm font-medium text-blue-700">
-              สถานะ:{" "}
-              {config.status === "DRAFT"
-                ? "ร่าง"
-                : config.status === "PUBLISHED"
-                  ? "เผยแพร่แล้ว"
-                  : config.status === "LOCKED"
-                    ? "ล็อค"
-                    : "เก็บถาวร"}
-            </span>
+    <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-yellow-900">
+        ⚠️ ประเด็นที่ต้องดำเนินการ
+      </h2>
+      <div className="space-y-2">
+        {withoutSchedules > 0 && (
+          <div className="flex items-start gap-2 rounded-lg bg-white p-3">
+            <span className="text-lg">👨‍🏫</span>
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                มีครู {withoutSchedules} คน ที่ยังไม่มีตารางสอน
+              </p>
+              <p className="text-xs text-gray-600">
+                ควรจัดตารางให้ครูทุกคนมีภาระงานสอน
+              </p>
+            </div>
           </div>
         )}
-      </div>
-
-      {readiness && readiness.status !== "ready" && (
-        <ReadinessIssues issues={readiness.issues} />
-      )}
-
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="จำนวนครู"
-          value={teachers.length}
-          subtitle={`สอน: ${withSchedules} | ยังไม่มีตาราง: ${withoutSchedules}`}
-          icon="👨‍🏫"
-          color="blue"
-        />
-        <StatCard
-          title="จำนวนชั้นเรียน"
-          value={grades.length}
-          subtitle={`เต็ม: ${classCompletion.full} | บางส่วน: ${classCompletion.partial}`}
-          icon="🎓"
-          color="green"
-        />
-        <StatCard
-          title="คาบสอนที่จัดแล้ว"
-          value={totalScheduledHours}
-          subtitle={`จาก ${grades.length * timeslots.length} คาบทั้งหมด`}
-          icon="📅"
-          color="purple"
-        />
-        {readiness && <PublishReadinessCard readiness={readiness} />}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">เมนูด่วน</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <QuickActionButton
-            href={`/dashboard/${semesterAndyear}/teacher-table`}
-            icon="👨‍🏫"
-            label="ตารางสอนครู"
-          />
-          <QuickActionButton
-            href={`/dashboard/${semesterAndyear}/student-table`}
-            icon="🎓"
-            label="ตารางเรียนนักเรียน"
-          />
-          <QuickActionButton
-            href={`/dashboard/${semesterAndyear}/all-timeslot`}
-            icon="⏰"
-            label="จัดการคาบเรียน"
-          />
-          <QuickActionButton
-            href={`/dashboard/${semesterAndyear}/all-program`}
-            icon="📚"
-            label="หลักสูตร"
-          />
-          <QuickActionButton
-            href={`/dashboard/${semesterAndyear}/conflicts`}
-            icon="⚠️"
-            label="ตรวจสอบความซ้ำซ้อน"
-          />
-          <QuickActionButton
-            href={`/schedule/${semesterAndyear}/lock`}
-            icon="🔒"
-            label="ล็อกคาบเรียน"
-          />
-          <QuickActionButton
-            href={`/dashboard/${semesterAndyear}/analytics`}
-            icon="📊"
-            label="วิเคราะห์ข้อมูล"
-          />
-        </div>
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Teacher Workload Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            ภาระงานสอน (Top 10 ครู)
-          </h2>
-          <div className="space-y-3">
-            {teacherWorkload.slice(0, 10).map((workload) => (
-              <div key={workload.teacherId} className="flex items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">
-                    {workload.teacherName}
-                  </p>
-                  <p className="text-xs text-gray-500">{workload.department}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">
-                      {workload.scheduledHours}
-                    </p>
-                    <p className="text-xs text-gray-500">คาบ</p>
-                  </div>
-                  <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
-                    <div
-                      className="h-full bg-blue-600"
-                      style={{
-                        width: `${Math.min(workload.utilizationRate, 100)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+        {classCompletion.none > 0 && (
+          <div className="flex items-start gap-2 rounded-lg bg-white p-3">
+            <span className="text-lg">🎓</span>
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                มีชั้นเรียน {classCompletion.none} ชั้น ที่ยังไม่มีตารางเลย
+              </p>
+              <p className="text-xs text-gray-600">
+                ควรเริ่มจัดตารางให้ชั้นเรียนเหล่านี้
+              </p>
+            </div>
           </div>
-          {teacherWorkload.length === 0 && (
-            <p className="text-center text-sm text-gray-500">
-              ยังไม่มีข้อมูลตารางสอน
-            </p>
-          )}
-        </div>
-
-        {/* Subject Distribution Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            การกระจายวิชา (Top 10 วิชา)
-          </h2>
-          <div className="space-y-3">
-            {subjectDistribution.slice(0, 10).map((subject) => (
-              <div
-                key={subject.subjectCode}
-                className="flex items-center gap-3"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">
-                    {subject.subjectName}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {subject.subjectCode} • {subject.classCount} ชั้นเรียน
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <p className="text-sm font-semibold text-gray-900">
-                      {subject.totalHours}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {subject.percentage}%
-                    </p>
-                  </div>
-                  <div className="h-2 w-20 overflow-hidden rounded-full bg-gray-200">
-                    <div
-                      className="h-full bg-green-600"
-                      style={{ width: `${Math.min(subject.percentage, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+        )}
+        {classCompletion.partial > 0 && (
+          <div className="flex items-start gap-2 rounded-lg bg-white p-3">
+            <span className="text-lg">📋</span>
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                มีชั้นเรียน {classCompletion.partial} ชั้น ที่ตารางยังไม่เต็ม
+              </p>
+              <p className="text-xs text-gray-600">
+                ควรจัดตารางให้ครบทุกคาบเรียน
+              </p>
+            </div>
           </div>
-          {subjectDistribution.length === 0 && (
-            <p className="text-center text-sm text-gray-500">
-              ยังไม่มีข้อมูลตารางเรียน
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Health Indicators */}
-      {(withoutSchedules > 0 ||
-        classCompletion.partial > 0 ||
-        classCompletion.none > 0 ||
-        totalConflicts > 0) && (
-        <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-yellow-900">
-            ⚠️ ประเด็นที่ต้องดำเนินการ
-          </h2>
-          <div className="space-y-2">
-            {withoutSchedules > 0 && (
-              <div className="flex items-start gap-2 rounded-lg bg-white p-3">
-                <span className="text-lg">👨‍🏫</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    มีครู {withoutSchedules} คน ที่ยังไม่มีตารางสอน
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    ควรจัดตารางให้ครูทุกคนมีภาระงานสอน
-                  </p>
-                </div>
-              </div>
-            )}
-            {classCompletion.none > 0 && (
-              <div className="flex items-start gap-2 rounded-lg bg-white p-3">
-                <span className="text-lg">🎓</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    มีชั้นเรียน {classCompletion.none} ชั้น ที่ยังไม่มีตารางเลย
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    ควรเริ่มจัดตารางให้ชั้นเรียนเหล่านี้
-                  </p>
-                </div>
-              </div>
-            )}
-            {classCompletion.partial > 0 && (
-              <div className="flex items-start gap-2 rounded-lg bg-white p-3">
-                <span className="text-lg">📋</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    มีชั้นเรียน {classCompletion.partial} ชั้น
-                    ที่ตารางยังไม่เต็ม
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    ควรจัดตารางให้ครบทุกคาบเรียน
-                  </p>
-                </div>
-              </div>
-            )}
-            {totalConflicts > 0 && (
-              <div className="flex items-start gap-2 rounded-lg bg-white p-3">
-                <span className="text-lg">⚠️</span>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    พบข้อขัดแย้ง {totalConflicts} รายการ
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    ครู: {conflicts.teacherConflicts} • ชั้นเรียน:{" "}
-                    {conflicts.classConflicts} • ห้องเรียน:{" "}
-                    {conflicts.roomConflicts}
-                  </p>
-                </div>
-              </div>
-            )}
+        )}
+        {totalConflicts > 0 && (
+          <div className="flex items-start gap-2 rounded-lg bg-white p-3">
+            <span className="text-lg">⚠️</span>
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                พบข้อขัดแย้ง {totalConflicts} รายการ
+              </p>
+              <p className="text-xs text-gray-600">
+                ครู: {conflicts.teacherConflicts} • ชั้นเรียน:{" "}
+                {conflicts.classConflicts} • ห้องเรียน:{" "}
+                {conflicts.roomConflicts}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* Summary Info */}
-      <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">ข้อมูลสรุป</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          <InfoItem label="ครูทั้งหมด" value={teachers.length} />
-          <InfoItem label="ชั้นเรียน" value={grades.length} />
-          <InfoItem label="วิชา" value={subjects.length} />
-          <InfoItem label="คาบเรียน" value={timeslots.length} />
-          <InfoItem label="ตารางที่จัด" value={schedules.length} />
-          <InfoItem label="ความรับผิดชอบ" value={responsibilities.length} />
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-// Stat Card Component
+async function SummaryInfo({
+  semesterAndyear,
+  year,
+  semesterEnum,
+}: {
+  semesterAndyear: string;
+  year: number;
+  semesterEnum: semester;
+}) {
+  const quickStats = await dashboardRepository.getQuickStats(
+    semesterAndyear,
+    year,
+    semesterEnum,
+  );
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 text-lg font-semibold text-gray-900">ข้อมูลสรุป</h2>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <InfoItem label="ครูทั้งหมด" value={quickStats.teacherCount} />
+        <InfoItem label="ชั้นเรียน" value={quickStats.gradeCount} />
+        <InfoItem label="วิชา" value={quickStats.subjectCount} />
+        <InfoItem label="คาบเรียน" value={quickStats.timeslotCount} />
+        <InfoItem label="ตารางที่จัด" value={quickStats.scheduleCount} />
+        <InfoItem label="ความรับผิดชอบ" value={quickStats.responsibilityCount} />
+      </div>
+    </div>
+  );
+}
+
+// Reusable components
 function StatCard({
   title,
   value,
@@ -417,7 +533,6 @@ function StatCard({
   );
 }
 
-// Quick Action Button Component
 function QuickActionButton({
   href,
   icon,
@@ -440,7 +555,6 @@ function QuickActionButton({
   );
 }
 
-// Info Item Component
 function InfoItem({ label, value }: { label: string; value: number }) {
   return (
     <div className="text-center">
