@@ -166,6 +166,12 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.waitForTimeout(2000);
       await waitForNavbarStable(page);
 
+      const timeslotGrid = page
+        .locator('[data-testid="timeslot-grid"], table')
+        .first();
+      const subjectList = page.locator('[data-testid="subject-list"]').first();
+      await expect(timeslotGrid).toBeVisible();
+
       await expect(page).toHaveScreenshot("arrange-page.png", {
         maxDiffPixels: 500, // Higher tolerance due to dynamic teacher data
         animations: "disabled",
@@ -173,6 +179,8 @@ test.describe("Critical Admin UI - Visual Tests", () => {
           // Mask teacher-specific content
           page.locator('[data-testid="teacher-name"]'),
           page.locator("header, nav"),
+          timeslotGrid,
+          subjectList,
         ],
       });
     });
