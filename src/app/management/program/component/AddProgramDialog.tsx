@@ -13,7 +13,6 @@ import { FormDialog, FormDialogActions } from "@/components/dialogs/FormDialog";
 import { SubmitButton } from "@/components/buttons/SubmitButton";
 import { createProgramAction } from "@/features/program/application/actions/program.actions";
 import type { $Enums } from "@/prisma/generated/client";
-import { getBangkokThaiBuddhistYear } from "@/utils/datetime";
 
 // ==================== Types ====================
 
@@ -49,10 +48,10 @@ export function AddProgramDialog({
   onSuccess,
   year,
 }: AddProgramDialogProps) {
-  const currentThaiYear = getBangkokThaiBuddhistYear();
-
-  const getDefaultCode = (trackVal: $Enums.ProgramTrack) =>
-    `M${year}-${trackVal.replace("_", "-")}`;
+  const getDefaultCode = useCallback(
+    (trackVal: $Enums.ProgramTrack) => `M${year}-${trackVal.replace("_", "-")}`,
+    [year],
+  );
 
   const [formData, setFormData] = useState<ProgramFormData>({
     programCode: getDefaultCode("GENERAL"),
@@ -87,7 +86,7 @@ export function AddProgramDialog({
         return newErrors;
       });
     },
-    [year, currentThaiYear],
+    [getDefaultCode],
   );
 
   // Validate
@@ -131,7 +130,7 @@ export function AddProgramDialog({
       }
 
       enqueueSnackbar("เพิ่มหลักสูตรสำเร็จ", { variant: "success" });
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (error) {
       enqueueSnackbar(
@@ -155,7 +154,7 @@ export function AddProgramDialog({
       });
       setErrors({});
     }
-  }, [open, year]);
+  }, [open, getDefaultCode]);
 
   return (
     <FormDialog

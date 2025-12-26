@@ -1,9 +1,9 @@
-import React, { Fragment, use, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { program, subject } from "@/prisma/generated/client";
+import type { gradelevel, subject } from "@/prisma/generated/client";
 import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -17,17 +17,19 @@ type Props = {
   mutate: () => void | Promise<void>;
 };
 
+type ProgramData = {
+  ProgramName: string;
+  Semester: semester | "";
+  AcademicYear: number;
+  gradelevel: gradelevel[];
+  subject: subject[];
+};
+
 function AddStudyProgramModal({ closeModal, mutate }: Props) {
   // Get current Thai Buddhist year as default
   const currentThaiYear = getBangkokThaiBuddhistYear();
 
-  const [newProgramData, setNewProgramData] = useState<{
-    ProgramName: string;
-    Semester: semester | string;
-    AcademicYear: number;
-    gradelevel: any[];
-    subject: any[];
-  }>({
+  const [newProgramData, setNewProgramData] = useState<ProgramData>({
     ProgramName: "",
     Semester: "",
     AcademicYear: currentThaiYear,
@@ -35,20 +37,11 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
     subject: [],
   });
 
-  type ProgramData = {
-    ProgramName: string;
-    Semester: semester | string;
-    AcademicYear: number;
-    gradelevel: any[];
-    subject: any[];
-  };
-
   const addProgram = async (program: ProgramData) => {
     const loadbar = enqueueSnackbar("กำลังเพิ่มข้อมูล", {
       variant: "info",
       persist: true,
     });
-    console.log(program);
     closeModal();
 
     try {
@@ -105,7 +98,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
       subject: newProgramData.subject.length == 0,
     }));
   };
-  const classRoomHandleChange = (value: any) => {
+  const classRoomHandleChange = (value: gradelevel) => {
     const removeDulpItem = newProgramData.gradelevel.filter(
       (item) => item.GradeID != value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
@@ -157,7 +150,6 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
       isEmptyData.gradelevel ||
       isEmptyData.subject ||
       isEmptyData.Semester;
-    console.log(cond);
     if (cond) {
       validateData();
     } else {
@@ -182,7 +174,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
             <StudyProgramLabel
               required={isEmptyData.ProgramName}
               title={newProgramData.ProgramName}
-              handleChange={(e: any) => {
+              handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const value: string = e.target.value;
                 setNewProgramData(() => ({
                   ...newProgramData,
