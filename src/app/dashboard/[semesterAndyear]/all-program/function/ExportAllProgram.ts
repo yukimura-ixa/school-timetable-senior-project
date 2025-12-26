@@ -264,7 +264,8 @@ export default function ExportAllProgram(
       });
       const url = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
-      ((anchor.href = url), (anchor.download = "หลักสูตร.xlsx"));
+      anchor.href = url;
+      anchor.download = "หลักสูตร.xlsx";
       anchor.click();
       window.URL.revokeObjectURL(url);
     })

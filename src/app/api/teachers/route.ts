@@ -12,7 +12,7 @@ import { prisma } from "@/lib/prisma";
  * Response format matches Server Action for backwards compatibility:
  * { success: true, data: Teacher[] }
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const teachers = await prisma.teacher.findMany({
       orderBy: [{ Firstname: "asc" }, { Lastname: "asc" }],

@@ -55,7 +55,7 @@ type Props = {
 
 export function HeaderClient({
   teachers,
-  gradeLevels,
+  gradeLevels: _gradeLevels,
   gradeCounts,
   selectedTeacher,
   currentTab,
@@ -69,7 +69,10 @@ export function HeaderClient({
     (t) => t.TeacherID === Number(selectedTeacher),
   );
 
-  const handleTeacherChange = (_: any, value: Teacher | null) => {
+  const handleTeacherChange = (
+    _: React.SyntheticEvent,
+    value: Teacher | null,
+  ) => {
     if (value) {
       router.push(
         `/schedule/${academicYear}/${semester}/arrange?teacher=${value.TeacherID}&tab=${currentTab}`,
@@ -77,7 +80,7 @@ export function HeaderClient({
     }
   };
 
-  const handleTabChange = (_: any, newTab: string) => {
+  const handleTabChange = (_: React.SyntheticEvent, newTab: string) => {
     const queryParams = new URLSearchParams();
     if (selectedTeacher) queryParams.set("teacher", selectedTeacher);
     queryParams.set("tab", newTab);

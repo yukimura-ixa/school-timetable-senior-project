@@ -58,6 +58,11 @@ type ScheduleEntry = {
   };
 };
 
+type SubjectDragData = {
+  SubjectCode: string;
+  GradeID: string;
+};
+
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
 
 function DroppableCell({
@@ -178,9 +183,9 @@ export default function GridSlot() {
     if (!over || !teacher) return;
 
     const timeslotId = over.id as string;
-    const subjectData = active.data.current as any;
+    const subjectData = active.data.current as SubjectDragData | undefined;
 
-    if (!subjectData) {
+    if (!subjectData?.SubjectCode || !subjectData.GradeID) {
       enqueueSnackbar("ข้อมูลไม่ครบถ้วน", { variant: "warning" });
       return;
     }
@@ -220,7 +225,9 @@ export default function GridSlot() {
       );
 
       // Refresh schedule data after modal closes
-      setTimeout(() => mutate(), 1000);
+      setTimeout(() => {
+        void mutate();
+      }, 1000);
     } catch (error) {
       console.error("Validation error:", error);
       enqueueSnackbar("เกิดข้อผิดพลาดในการตรวจสอบ", { variant: "error" });

@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
   await connection();
   try {
     const searchParams = request.nextUrl.searchParams;
-    const year = searchParams.get("year");
-    const semester = searchParams.get("semester");
+    const _year = searchParams.get("year");
+    const _semester = searchParams.get("semester");
 
     const gradeLevels = await prisma.gradelevel.findMany({
       orderBy: [{ Year: "asc" }, { Number: "asc" }],

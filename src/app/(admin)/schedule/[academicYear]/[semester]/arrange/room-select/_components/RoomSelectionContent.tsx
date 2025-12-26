@@ -43,7 +43,7 @@ export function RoomSelectionContent({
   timeslot,
   subject,
   grade,
-  teacher,
+  teacher: _teacher,
 }: Props) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();

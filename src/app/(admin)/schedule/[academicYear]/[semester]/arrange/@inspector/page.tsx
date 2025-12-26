@@ -23,8 +23,7 @@ export default async function InspectorSlot({
     );
   }
 
-  // TODO: Fetch conflicts and progress from database
-  // For now, show placeholder
+  // Placeholder: conflicts and progress will be fetched from the database.
 
   return (
     <div>
