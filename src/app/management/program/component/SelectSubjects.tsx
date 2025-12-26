@@ -45,7 +45,7 @@ function SelectSubjects(props: Props) {
 
   useEffect(() => {
     const propsSubjectCodes = props.subjectSelected.map(
-      (item: any) => item.SubjectCode,
+      (item) => item.SubjectCode,
     );
     if (!subjectData.isValidating && subjectData.data) {
       const notDuplicate = subjectData.data.filter(
@@ -87,7 +87,7 @@ function SelectSubjects(props: Props) {
             ) : (
               <Dropdown
                 data={subjectFilter}
-                renderItem={({ data }: { data: any }) => (
+                renderItem={({ data }: { data: subject }) => (
                   <li className="w-full text-sm">
                     {data.SubjectCode} - {data.SubjectName}
                   </li>
@@ -95,7 +95,7 @@ function SelectSubjects(props: Props) {
                 width={276}
                 height="45"
                 currentValue={""}
-                handleChange={(data: any) => {
+                handleChange={(data: subject) => {
                   props.addSubjectFunction(data);
                 }}
                 placeHolder="เลือกวิชา"
@@ -107,7 +107,7 @@ function SelectSubjects(props: Props) {
         </div>
         <div className="max-h-20 overflow-y-scroll">
           <div className="flex flex-wrap gap-3 justify-end">
-            {props.subjectSelected.map((item: any, index: number) => (
+            {props.subjectSelected.map((item, index) => (
               <Fragment key={`subjectSelected${item.SubjectCode}`}>
                 <MiniButton
                   handleClick={() => props.removeSubjectFunction(index)}

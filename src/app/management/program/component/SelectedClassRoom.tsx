@@ -1,5 +1,5 @@
 import MiniButton from "@/components/elements/static/MiniButton";
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 import { BsInfo } from "react-icons/bs";
 import { useGradeLevels } from "@/hooks";
 
@@ -19,17 +19,15 @@ type Props = {
 };
 
 function SelectedClassRoom(props: Props) {
-  const { data, isLoading, error, mutate } = useGradeLevels();
-  const asdas = () => {
-    const a = data.filter((item) => item.Year == 1).map((item) => item);
-    console.log(props.Grade);
-  };
+  const { data } = useGradeLevels();
+  const gradeLevels =
+    (data ?? []) as Array<{ GradeID: string; Year: number; Number: number }>;
   return (
     <>
       <div className="flex flex-col gap-3 justify-between w-full">
         <div className="text-sm flex gap-2 items-center">
           <div className="text-sm flex gap-1">
-            <p onClick={() => asdas()}>เลือกชั้นเรียน</p>
+            <p>เลือกชั้นเรียน</p>
             <p className="text-red-500">*</p>
           </div>
           <p className="text-blue-500">(คลิกที่ชั้นเรียนเพื่อเลือก)</p>
@@ -46,28 +44,28 @@ function SelectedClassRoom(props: Props) {
               <p>{`ม.${grade}`}</p>
               {/* <CheckBox label={`ม.${grade}`} /> */}
               <div className="flex flex-wrap w-1/2 justify-end gap-3">
-                {data
-                  .filter((item) => item.Year == grade)
-                  .map((classroom: any) => (
+                {gradeLevels
+                  .filter((item) => item.Year === grade)
+                  .map((classroom) => (
                     <Fragment key={`${classroom.GradeID}`}>
                       <MiniButton
                         titleColor={
                           props.Grade.filter(
-                            (item: any) => item.GradeID === classroom.GradeID,
+                            (item) => item.GradeID === classroom.GradeID,
                           ).length > 0
                             ? "#008022"
                             : "#222222"
                         }
                         borderColor={
                           props.Grade.filter(
-                            (item: any) => item.GradeID === classroom.GradeID,
+                            (item) => item.GradeID === classroom.GradeID,
                           ).length > 0
                             ? "#abffc1"
                             : "#888888"
                         }
                         buttonColor={
                           props.Grade.filter(
-                            (item: any) => item.GradeID === classroom.GradeID,
+                            (item) => item.GradeID === classroom.GradeID,
                           ).length > 0
                             ? "#abffc1"
                             : "#ffffff"
