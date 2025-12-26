@@ -1,9 +1,9 @@
-import React, { Fragment, use, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import SelectedClassRoom from "./SelectedClassRoom";
 import SelectSubjects from "./SelectSubjects";
 import StudyProgramLabel from "./StudyProgramLabel";
-import type { program, subject } from "@/prisma/generated/client";
+import type { subject } from "@/prisma/generated/client";
 import { semester } from "@/prisma/generated/client";
 import YearSemester from "./YearSemester";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
@@ -47,7 +47,6 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
       variant: "info",
       persist: true,
     });
-    console.log(program);
     closeModal();
 
     try {
@@ -71,7 +70,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
         throw new Error(errorMessage);
       }
 
-      mutate();
+      await mutate();
       enqueueSnackbar("แก้ไขหลักสูตรสำเร็จ", { variant: "success" });
       closeSnackbar(loadbar);
     } catch (error: unknown) {
@@ -90,22 +89,22 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     subject: false,
   });
 
-  const validateData = () => {
+  const validateData = React.useCallback(() => {
     setIsEmptyData(() => ({
-      ProgramName: newProgramData.ProgramName.length == 0,
+      ProgramName: newProgramData.ProgramName.length === 0,
       // Semester is always valid in edit mode (comes from existing program data)
       Semester: false,
-      gradelevel: newProgramData.gradelevel.length == 0,
-      subject: newProgramData.subject.length == 0,
+      gradelevel: newProgramData.gradelevel.length === 0,
+      subject: newProgramData.subject.length === 0,
     }));
-  };
+  }, [newProgramData]);
   const classRoomHandleChange = (value: {
     GradeID: string | number;
     [key: string]: unknown;
   }) => {
     const removeDulpItem = newProgramData.gradelevel.filter(
       (item: { GradeID: string | number; [key: string]: unknown }) =>
-        item.GradeID != value.GradeID,
+        item.GradeID !== value.GradeID,
     ); //ตัวนี้ไว้ใช้กับเงื่อนไขตอนกดเลือกห้องเรียน ถ้ากดห้องที่เลือกแล้วจะลบออก
     setNewProgramData(() => ({
       ...newProgramData,
@@ -119,16 +118,8 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
     }));
   };
   useEffect(() => {
-    const validate = () => {
-      validateData();
-    };
-    return validate();
-  }, [
-    newProgramData.ProgramName,
-    newProgramData.Semester,
-    newProgramData.gradelevel,
-    newProgramData.subject,
-  ]);
+    validateData();
+  }, [validateData]);
 
   const handleSelectSemester = (value: keyof typeof semester) => {
     setNewProgramData(() => ({
@@ -146,20 +137,19 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
   const removeSubjectFromList = (index: number) => {
     setNewProgramData(() => ({
       ...newProgramData,
-      subject: [...newProgramData.subject.filter((_item, ind) => ind != index)],
+      subject: [...newProgramData.subject.filter((_item, ind) => ind !== index)],
     }));
   };
-  const addItemAndCloseModal = () => {
+  const addItemAndCloseModal = async () => {
     const cond =
       isEmptyData.ProgramName ||
       isEmptyData.gradelevel ||
       isEmptyData.subject ||
       isEmptyData.Semester;
-    console.log(cond);
     if (cond) {
       validateData();
     } else {
-      editProgram(newProgramData);
+      await editProgram(newProgramData);
     }
   };
   return (
@@ -180,7 +170,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
             <StudyProgramLabel
               required={isEmptyData.ProgramName}
               title={newProgramData.ProgramName}
-              handleChange={(e: any) => {
+              handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const value: string = e.target.value;
                 setNewProgramData(() => ({
                   ...newProgramData,
@@ -212,7 +202,7 @@ function EditStudyProgramModal({ closeModal, mutate, editData }: Props) {
           <span className="flex w-full justify-end">
             <button
               onClick={() => {
-                addItemAndCloseModal();
+                void addItemAndCloseModal();
               }}
               className="w-[75px] h-[45px] bg-blue-100 hover:bg-blue-200 duration-300 p-3 rounded text-blue-600 text-sm"
             >

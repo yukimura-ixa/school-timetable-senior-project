@@ -3,21 +3,22 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import { deleteProgramAction } from "@/features/program/application/actions/program.actions";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
+import type { program } from "@/prisma/generated/client";
 type props = {
   closeModal: () => void;
-  deleteData: any; // Keep any for now as it comes from a complex grid row
-  mutate: () => void;
+  deleteData: Pick<program, "ProgramID" | "ProgramName">;
+  mutate: () => void | Promise<void>;
 };
 
 function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
-  const confirmed = () => {
-    removeData(deleteData);
+  const confirmed = async () => {
+    await removeData(deleteData.ProgramID);
     closeModal();
   };
   const cancel = () => {
     closeModal();
   };
-  const removeData = async (ProgramID: string) => {
+  const removeData = async (ProgramID: number) => {
     const loadbar = enqueueSnackbar("กำลังลบข้อมูล", {
       variant: "info",
       persist: true,
@@ -36,7 +37,7 @@ function DeleteProgramModal({ closeModal, deleteData, mutate }: props) {
 
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
-      mutate();
+      await mutate();
     } catch (error: unknown) {
       closeSnackbar(loadbar);
       const message = error instanceof Error ? error.message : "Unknown error";

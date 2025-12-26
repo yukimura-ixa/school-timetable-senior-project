@@ -195,7 +195,7 @@ function AddStudyProgramModal({ closeModal, mutate }: Props) {
           <span className="flex w-full justify-end">
             <button
               onClick={() => {
-                addItemAndCloseModal();
+                void addItemAndCloseModal();
               }}
               className="w-[75px] h-[45px] bg-blue-100 hover:bg-blue-200 duration-300 p-3 rounded text-blue-600 text-sm"
             >
