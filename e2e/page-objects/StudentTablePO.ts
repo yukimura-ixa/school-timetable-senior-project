@@ -60,14 +60,12 @@ export class StudentTablePO extends BasePage {
   /**
    * Navigate to student table for specific semester
    */
-  async goto(semesterAndYear: string) {
-    await super.goto(`/dashboard/${semesterAndYear}/student-table`);
+  async goto(academicYear: number | string, semester: number | string) {
+    await super.goto(`/dashboard/${academicYear}/${semester}/student-table`);
     await this.waitForPageLoad();
 
     // Wait for semester to sync with global store
-    // Convert "1-2567" to "1/2567" for display format
-    const [semester, year] = semesterAndYear.split("-");
-    await this.waitForSemesterSync(`${semester}/${year}`);
+    await this.waitForSemesterSync(`${semester}/${academicYear}`);
   }
 
   /**

@@ -199,7 +199,7 @@ test.describe("Cross-Term Navigation", () => {
   }) => {
     // Navigate to schedule config
     await page.goto("/schedule/2567/1/config");
-    await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
+    await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
 
     // Verify config page renders (config form, not table)
     await expect(page.locator("text=/กำหนดคาบต่อวัน/")).toBeVisible({
@@ -208,7 +208,7 @@ test.describe("Cross-Term Navigation", () => {
 
     // Navigate to dashboard
     await page.goto("/dashboard/2567/1/all-timeslot");
-    await expect(page).toHaveURL(/\/dashboard\/1-2567\/all-timeslot/);
+    await expect(page).toHaveURL(/\/dashboard\/2567\/1\/all-timeslot/);
   });
 
   test("Term-specific data loads correctly", async ({ page }) => {
@@ -230,7 +230,7 @@ test.describe("Multi-Semester Scenarios", () => {
   test("TC-MS-01: Can navigate between semesters via URL", async ({ page }) => {
     // Navigate to semester 1
     await page.goto("/schedule/2567/1/config");
-    await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
+    await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
     // Config page has config form, not table
     const configLocator1 = page
       .locator("text=/กำหนดคาบต่อวัน/")
@@ -239,7 +239,7 @@ test.describe("Multi-Semester Scenarios", () => {
 
     // Navigate to semester 2
     await page.goto("/schedule/2567/2/config");
-    await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
+    await expect(page).toHaveURL(/\/schedule\/2567\/2\/config/);
     const configLocator2 = page
       .locator("text=/กำหนดคาบต่อวัน/")
       .or(page.locator('[class*="Skeleton"]'));
@@ -282,17 +282,17 @@ test.describe("Multi-Semester Scenarios", () => {
   }) => {
     // Schedule config URL pattern
     await page.goto("/schedule/2567/1/config");
-    await expect(page).toHaveURL(/\/schedule\/1-2567\/config/);
+    await expect(page).toHaveURL(/\/schedule\/2567\/1\/config/);
 
     await page.goto("/schedule/2567/2/config");
-    await expect(page).toHaveURL(/\/schedule\/2-2567\/config/);
+    await expect(page).toHaveURL(/\/schedule\/2567\/2\/config/);
 
     // Dashboard URL pattern
     await page.goto("/dashboard/2567/1/all-timeslot");
-    await expect(page).toHaveURL(/\/dashboard\/1-2567\/all-timeslot/);
+    await expect(page).toHaveURL(/\/dashboard\/2567\/1\/all-timeslot/);
 
     await page.goto("/dashboard/2567/2/all-timeslot");
-    await expect(page).toHaveURL(/\/dashboard\/2-2567\/all-timeslot/);
+    await expect(page).toHaveURL(/\/dashboard\/2567\/2\/all-timeslot/);
   });
 
   test("TC-MS-05: Cross-semester navigation preserves page structure", async ({

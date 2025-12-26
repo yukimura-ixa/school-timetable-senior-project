@@ -2,6 +2,9 @@ import { Page } from "@playwright/test";
 
 /**
  * Navigation helpers for E2E tests
+ *
+ * URL format: /schedule/{academicYear}/{semester}/...
+ * Example: /schedule/2567/1/arrange
  */
 
 export class NavigationHelper {
@@ -60,26 +63,33 @@ export class NavigationHelper {
     await this.gotoAndReady("/dashboard");
   }
 
-  async goToSchedule(semesterAndYear: string) {
-    await this.gotoAndReady(`/schedule/${semesterAndYear}`);
+  async goToSchedule(academicYear: number | string, semester: number | string) {
+    await this.gotoAndReady(`/schedule/${academicYear}/${semester}`);
   }
 
-  async goToConfig(semesterAndYear: string) {
-    await this.gotoAndReady(`/schedule/${semesterAndYear}/config`);
+  async goToConfig(academicYear: number | string, semester: number | string) {
+    await this.gotoAndReady(`/schedule/${academicYear}/${semester}/config`);
   }
 
-  async goToAssign(semesterAndYear: string) {
-    await this.gotoAndReady(`/schedule/${semesterAndYear}/assign`);
+  async goToAssign(academicYear: number | string, semester: number | string) {
+    await this.gotoAndReady(`/schedule/${academicYear}/${semester}/assign`);
   }
 
-  async goToTeacherArrange(semesterAndYear: string, teacherId = "1") {
+  async goToTeacherArrange(
+    academicYear: number | string,
+    semester: number | string,
+    teacherId = "1",
+  ) {
     await this.gotoAndReady(
-      `/schedule/${semesterAndYear}/arrange?TeacherID=${teacherId}`,
+      `/schedule/${academicYear}/${semester}/arrange?TeacherID=${teacherId}`,
     );
   }
 
-  async goToLockTimeslots(semesterAndYear: string) {
-    await this.gotoAndReady(`/schedule/${semesterAndYear}/lock`);
+  async goToLockTimeslots(
+    academicYear: number | string,
+    semester: number | string,
+  ) {
+    await this.gotoAndReady(`/schedule/${academicYear}/${semester}/lock`);
   }
 
   /**
@@ -89,20 +99,40 @@ export class NavigationHelper {
     await this.gotoAndReady("/dashboard");
   }
 
-  async goToTeacherTable(semesterAndYear: string) {
-    await this.gotoAndReady(`/dashboard/${semesterAndYear}/teacher-table`);
+  async goToTeacherTable(
+    academicYear: number | string,
+    semester: number | string,
+  ) {
+    await this.gotoAndReady(
+      `/dashboard/${academicYear}/${semester}/teacher-table`,
+    );
   }
 
-  async goToStudentTable(semesterAndYear: string) {
-    await this.gotoAndReady(`/dashboard/${semesterAndYear}/student-table`);
+  async goToStudentTable(
+    academicYear: number | string,
+    semester: number | string,
+  ) {
+    await this.gotoAndReady(
+      `/dashboard/${academicYear}/${semester}/student-table`,
+    );
   }
 
-  async goToAllPrograms(semesterAndYear: string) {
-    await this.gotoAndReady(`/dashboard/${semesterAndYear}/all-program`);
+  async goToAllPrograms(
+    academicYear: number | string,
+    semester: number | string,
+  ) {
+    await this.gotoAndReady(
+      `/dashboard/${academicYear}/${semester}/all-program`,
+    );
   }
 
-  async goToAllTimeslots(semesterAndYear: string) {
-    await this.gotoAndReady(`/dashboard/${semesterAndYear}/all-timeslot`);
+  async goToAllTimeslots(
+    academicYear: number | string,
+    semester: number | string,
+  ) {
+    await this.gotoAndReady(
+      `/dashboard/${academicYear}/${semester}/all-timeslot`,
+    );
   }
 
   /**
@@ -112,4 +142,3 @@ export class NavigationHelper {
     await this.page.waitForLoadState("domcontentloaded");
   }
 }
-
