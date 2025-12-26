@@ -63,8 +63,8 @@ const TableBody = (props: Props) => {
         item.teachers_responsibility
           .map((tid) => tid.TeacherID)
           .includes(TeacherID) &&
-        dayOfWeekThai[item.timeslot.DayOfWeek] == Day &&
-        extractPeriodFromTimeslotId(item.timeslot.TimeslotID) == SlotNumber,
+        dayOfWeekThai[item.timeslot.DayOfWeek] === Day &&
+        extractPeriodFromTimeslotId(item.timeslot.TimeslotID) === SlotNumber,
     );
 
     if (filterClass.length === 0) {
@@ -114,7 +114,7 @@ const TableBody = (props: Props) => {
 
   return (
     <Stack spacing={0.25} sx={{ width: "100%" }}>
-      {props.teachers.map((tch, tchIdx) => (
+      {props.teachers.map((tch, _tchIdx) => (
         <Stack
           key={`tch-${tch.TeacherID}`}
           direction="row"
@@ -134,7 +134,7 @@ const TableBody = (props: Props) => {
               spacing={0.5}
               sx={{ flex: 1, minWidth: props.slotAmount.length * 56 }}
             >
-              {props.slotAmount.map((slot, slotIdx) => {
+              {props.slotAmount.map((slot, _slotIdx) => {
                 const content = getClassDataByTeacherID(
                   tch.TeacherID,
                   day.Day,

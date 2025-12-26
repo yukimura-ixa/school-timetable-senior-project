@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
-import { Box, Typography, Stack, alpha, useTheme } from "@mui/material";
+import { Box, Typography, Stack, alpha } from "@mui/material";
 import { colors } from "@/shared/design-system";
 
 type DayData = {
   Day: string;
   BgColor: string;
   TextColor: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 type Props = {
@@ -16,15 +16,13 @@ type Props = {
 };
 
 const TableHead = (props: Props) => {
-  const theme = useTheme();
-
   return (
     <Stack
       direction="row"
       spacing={0.5}
       sx={{ height: "64px", userSelect: "none" }}
     >
-      {props.days.map((item, index) => (
+      {props.days.map((item) => (
         <Stack
           key={item.Day}
           spacing={0.5}

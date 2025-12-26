@@ -56,7 +56,7 @@ type ProgramTeacher = {
 type ProgramSubject = {
   SubjectCode: string;
   SubjectName: string;
-  Credit: number;
+  Credit: keyof typeof subjectCreditValues;
   Category: SubjectCategory;
   teachers_responsibility?: ProgramTeacher[] | null;
 };
@@ -118,7 +118,7 @@ const Page = (_props: Props) => {
           return {
             SubjectCode: subject.SubjectCode,
             SubjectName: subject.SubjectName,
-            Credit: subject.Credit as keyof typeof subjectCreditValues,
+            Credit: subject.Credit,
             Category: categoryMap[subject.Category as SubjectCategory],
             teachers,
           };

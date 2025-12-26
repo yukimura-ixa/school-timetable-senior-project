@@ -3,7 +3,7 @@ import type { teacher } from "@/prisma/generated/client";
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
   TimeslotID: string;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 type Props = {
@@ -18,7 +18,8 @@ const TableResult = (props: Props) => {
     );
     const filter2 = filter1.filter(
       (cid, index) =>
-        filter1.findIndex((item) => item.TimeslotID == cid.TimeslotID) == index,
+        filter1.findIndex((item) => item.TimeslotID === cid.TimeslotID) ===
+          index,
     );
     return filter2.length;
   };
@@ -34,7 +35,7 @@ const TableResult = (props: Props) => {
         </tr>
       </thead>
       <tbody>
-        {props.teachers.map((tch, index) => (
+        {props.teachers.map((tch) => (
           <tr
             key={tch.TeacherID}
             className="flex items-center gap-2 h-fit mt-1 select-none"
