@@ -202,7 +202,7 @@ export function AddTeacherDialog({
       enqueueSnackbar(`เพิ่มครู ${teachers.length} คนสำเร็จ`, {
         variant: "success",
       });
-      onSuccess();
+      void onSuccess();
       onClose();
     } catch (error) {
       enqueueSnackbar(

@@ -72,11 +72,11 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
     let isValid = true;
     editData.forEach((data) => {
       if (
-        data.Prefix == "" ||
-        data.Firstname == "" ||
-        data.Lastname == "" ||
-        data.Department == "" ||
-        data.Email == ""
+        data.Prefix === "" ||
+        data.Firstname === "" ||
+        data.Lastname === "" ||
+        data.Department === "" ||
+        data.Email === ""
       ) {
         setIsEmptyData(true);
         isValid = false;
@@ -121,7 +121,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
             <React.Fragment key={`Edit${index}`}>
               <div
                 className={`flex flex-row gap-3 items-center ${
-                  index == 0 ? "" : "mt-1"
+                  index === 0 ? "" : "mt-1"
                 }`}
               >
                 <div className="flex flex-col items-center justify-center mr-5">
@@ -141,20 +141,18 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     height={40}
                     currentValue={item.Prefix}
                     borderColor={
-                      isEmptyData && item.Prefix.length == 0 ? "#F96161" : ""
+                      isEmptyData && item.Prefix.length === 0 ? "#F96161" : ""
                     }
                     placeHolder={"ตัวเลือก"}
                     handleChange={(value) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind
-                            ? { ...item, Prefix: value }
-                            : item,
+                          index === ind ? { ...item, Prefix: value } : item,
                         ),
                       );
                     }}
                   />
-                  {isEmptyData && item.Prefix.length == 0 ? (
+                  {isEmptyData && item.Prefix.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -168,7 +166,9 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     label={`ชื่อ (Firstname):`}
                     value={item.Firstname}
                     borderColor={
-                      isEmptyData && item.Firstname.length == 0 ? "#F96161" : ""
+                      isEmptyData && item.Firstname.length === 0
+                        ? "#F96161"
+                        : ""
                     }
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
@@ -179,7 +179,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && item.Firstname.length == 0 ? (
+                  {isEmptyData && item.Firstname.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -193,7 +193,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     label={`นามสกุล (Lastname):`}
                     value={item.Lastname}
                     borderColor={
-                      isEmptyData && item.Lastname.length == 0 ? "#F96161" : ""
+                      isEmptyData && item.Lastname.length === 0 ? "#F96161" : ""
                     }
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
@@ -204,7 +204,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                       );
                     }}
                   />
-                  {isEmptyData && item.Lastname.length == 0 ? (
+                  {isEmptyData && item.Lastname.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -233,7 +233,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     height={40}
                     currentValue={item.Department}
                     borderColor={
-                      isEmptyData && item.Department.length == 0
+                      isEmptyData && item.Department.length === 0
                         ? "#F96161"
                         : ""
                     }
@@ -241,14 +241,12 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     handleChange={(value) => {
                       setEditData(() =>
                         editData.map((item, ind) =>
-                          index === ind
-                            ? { ...item, Department: value }
-                            : item,
+                          index === ind ? { ...item, Department: value } : item,
                         ),
                       );
                     }}
                   />
-                  {isEmptyData && item.Department.length == 0 ? (
+                  {isEmptyData && item.Department.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
@@ -263,7 +261,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     label="อีเมล (Email) :"
                     value={item.Email}
                     borderColor={
-                      isEmptyData && item.Email.length == 0 ? "#F96161" : ""
+                      isEmptyData && item.Email.length === 0 ? "#F96161" : ""
                     }
                     handleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       const value = e.target.value;
@@ -275,7 +273,7 @@ function EditModalForm({ closeModal, data, clearCheckList, mutate }: props) {
                     }}
                     disabled={false}
                   />
-                  {isEmptyData && item.Email.length == 0 ? (
+                  {isEmptyData && item.Email.length === 0 ? (
                     <div className="absolute left-0 bottom-[-35px] flex gap-2 px-2 py-1 w-fit items-center bg-red-100 rounded">
                       <BsInfo className="bg-red-500 rounded-full fill-white" />
                       <p className="text-red-500 text-sm">ต้องการ</p>
