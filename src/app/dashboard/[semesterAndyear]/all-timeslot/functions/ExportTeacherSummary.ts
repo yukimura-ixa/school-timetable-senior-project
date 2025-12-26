@@ -20,6 +20,8 @@ interface TimeslotData {
   DayOfWeek: Array<{ Day: string; TextColor: string; BgColor: string }>;
 }
 
+type ExportRow = Record<string, string | number>;
+
 export const ExportTeacherSummary = (
   timeSlotData: TimeslotData,
   teachers: teacher[],
@@ -113,7 +115,7 @@ export const ExportTeacherSummary = (
     );
     return filter2.length;
   };
-  const jsonData: any[] = [
+  const jsonData: ExportRow[] = [
     ...teachers.map((tch: teacher, index: number) => {
       const mapKey = timeSlotData.DayOfWeek.flatMap((day) =>
         timeSlotData.SlotAmount.map((num: number) => {

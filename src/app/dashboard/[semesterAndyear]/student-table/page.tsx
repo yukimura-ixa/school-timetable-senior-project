@@ -220,7 +220,7 @@ function StudentTablePage() {
   }
 
   const ref = useRef<HTMLDivElement>(null);
-  const [isPDFExport, setIsPDFExport] = useState(false);
+  const [isPDFExport] = useState(false);
 
   // Server-side PDF export handler (admin only)
   const handleExportPDF = async () => {
@@ -246,12 +246,12 @@ function StudentTablePage() {
 
       // Calculate totals from classData
       const totalCredits = classData.reduce((sum, cls) => {
-        const credits = (cls as any).subject?.Credit ?? 0;
+        const credits = cls.subject?.Credit ?? 0;
         return sum + credits;
       }, 0);
 
       const totalHours = classData.reduce((sum, cls) => {
-        const hours = (cls as any).subject?.TotalHours ?? 0;
+        const hours = cls.subject?.TotalHours ?? 0;
         return sum + hours;
       }, 0);
 
@@ -264,13 +264,13 @@ function StudentTablePage() {
         timeslots,
         scheduleEntries: classData.map((entry) => ({
           timeslotId: entry.TimeslotID,
-          subjectCode: (entry as any).subject?.SubjectCode ?? "",
-          subjectName: (entry as any).subject?.SubjectName ?? "",
+          subjectCode: entry.subject?.SubjectCode ?? "",
+          subjectName: entry.subject?.SubjectName ?? "",
           teacherName:
-            (entry as any).teacher?.Prefix ||
-            (entry as any).teacher?.Firstname ||
-            (entry as any).teacher?.Lastname
-              ? `${(entry as any).teacher?.Prefix ?? ""} ${(entry as any).teacher?.Firstname ?? ""} ${(entry as any).teacher?.Lastname ?? ""}`.trim()
+            entry.teacher?.Prefix ||
+            entry.teacher?.Firstname ||
+            entry.teacher?.Lastname
+              ? `${entry.teacher?.Prefix ?? ""} ${entry.teacher?.Firstname ?? ""} ${entry.teacher?.Lastname ?? ""}`.trim()
               : undefined,
           roomName: entry.room?.RoomName ?? "",
         })),

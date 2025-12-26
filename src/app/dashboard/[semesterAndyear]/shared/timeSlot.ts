@@ -24,8 +24,38 @@ export type BreakSlot = {
   SlotNumber: number;
 };
 
+export type SubjectSummary = {
+  SubjectCode?: string;
+  SubjectName?: string;
+  Credit?: number;
+  TotalHours?: number;
+};
+
+export type TeacherSummary = {
+  Prefix?: string;
+  Firstname?: string;
+  Lastname?: string;
+};
+
+export type RoomSummary = {
+  RoomName?: string;
+};
+
+export type ScheduleEntry = {
+  TimeslotID: string;
+  SubjectCode?: string;
+  SubjectName?: string;
+  GradeID?: string;
+  IsLocked?: boolean;
+  subject?: SubjectSummary | null;
+  teacher?: TeacherSummary | null;
+  teachers?: TeacherSummary[] | null;
+  room?: RoomSummary | null;
+  [key: string]: unknown;
+};
+
 export type TimeslotWithSubject = timeslot & {
-  subject: Record<string, any>;
+  subject: ScheduleEntry | null;
 };
 
 export type TimeSlotTableData = {
@@ -40,11 +70,6 @@ export const emptyTimeSlotTableData: TimeSlotTableData = {
   SlotAmount: [],
   DayOfWeek: [],
   BreakSlot: [],
-};
-
-export type ScheduleEntry = {
-  TimeslotID: string;
-  [key: string]: any;
 };
 
 const parseSlotNumber = extractPeriodFromTimeslotId;
@@ -100,7 +125,7 @@ export const createTimeSlotTableData = (
 
   const allData = sortedTimeslots.map((slot) => ({
     ...slot,
-    subject: scheduleMap.get(slot.TimeslotID) ?? {},
+    subject: scheduleMap.get(slot.TimeslotID) ?? null,
   }));
 
   return {

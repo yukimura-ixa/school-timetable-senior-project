@@ -72,7 +72,7 @@ function TimeSlot({ timeSlotData, searchGradeID }: Props) {
           </td>
           {timeSlotData.AllData.filter((item) => item.DayOfWeek === "MON").map(
             (item) => (
-              <Fragment key={`time-${item.StartTime}${item.EndTime}`}>
+            <Fragment key={`time-${item.TimeslotID}`}>
                 <td
                   style={{
                     width: `${1062 / timeSlotData.SlotAmount.length - 10}px`,

@@ -119,7 +119,7 @@ const Page = (_props: Props) => {
             SubjectCode: subject.SubjectCode,
             SubjectName: subject.SubjectName,
             Credit: subject.Credit,
-            Category: categoryMap[subject.Category as SubjectCategory],
+            Category: categoryMap[subject.Category],
             teachers,
           };
         })
