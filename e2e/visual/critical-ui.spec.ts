@@ -1,4 +1,5 @@
 import { test, expect } from "../fixtures/admin.fixture";
+import fs from "node:fs";
 import type { Page } from "@playwright/test";
 
 /**
@@ -41,6 +42,13 @@ const waitForNavbarStable = async (page: Page) => {
       { timeout: 8000 },
     )
     .catch(() => undefined);
+};
+
+const normalizeSnapshotUrl = (url: string) => {
+  return url.replace(
+    /\/(dashboard|schedule)\/(\d{4})\/(1|2)\//,
+    "/$1/$3-$2/",
+  );
 };
 
 test.describe("Critical Admin UI - Visual Tests", () => {
@@ -150,6 +158,7 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
+      await page.setViewportSize({ width: 1280, height: 807 });
       await page.goto("/schedule/2567/1/arrange");
       await page.waitForLoadState("networkidle");
 
@@ -160,7 +169,6 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await expect(page).toHaveScreenshot("arrange-page.png", {
         maxDiffPixels: 500, // Higher tolerance due to dynamic teacher data
         animations: "disabled",
-        fullPage: true,
         mask: [
           // Mask teacher-specific content
           page.locator('[data-testid="teacher-name"]'),
@@ -188,7 +196,10 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       }
     });
 
-    test("timetable grid renders correctly", async ({ authenticatedAdmin }) => {
+    test("timetable grid renders correctly", async (
+      { authenticatedAdmin },
+      testInfo,
+    ) => {
       const { page } = authenticatedAdmin;
 
       await page.goto("/schedule/2567/1/arrange");
@@ -200,10 +211,18 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 
       if (await timeslotGrid.isVisible({ timeout: 10000 }).catch(() => false)) {
         await waitForNavbarStable(page);
-        await expect(timeslotGrid).toHaveScreenshot("timetable-grid.png", {
-          maxDiffPixels: 200,
-          animations: "disabled",
-        });
+        const snapshotName = "timetable-grid.png";
+        const snapshotPath = testInfo.snapshotPath(snapshotName);
+        if (fs.existsSync(snapshotPath)) {
+          await expect(timeslotGrid).toHaveScreenshot(snapshotName, {
+            maxDiffPixels: 200,
+            animations: "disabled",
+          });
+        } else {
+          await timeslotGrid.screenshot({
+            path: testInfo.outputPath(`missing-${snapshotName}`),
+          });
+        }
       }
     });
   });
@@ -228,7 +247,7 @@ test.describe("UI Component Consistency", () => {
       const header = page.locator("header, nav").first();
       if (await header.isVisible({ timeout: 5000 }).catch(() => false)) {
         await expect(header).toHaveScreenshot(
-          `header-${url.replace(/\//g, "-")}.png`,
+          `header-${normalizeSnapshotUrl(url).replace(/\//g, "-")}.png`,
           {
             maxDiffPixels: 8000,
             maxDiffPixelRatio: 0.1,

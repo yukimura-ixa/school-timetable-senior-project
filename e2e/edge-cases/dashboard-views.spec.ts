@@ -279,7 +279,7 @@ test.describe.skip("Dashboard - Cross-Semester Navigation", () => {
         await semesterOption.first().click();
 
         // Verify URL changed to 2567/2 but still teacher-table
-        await expect(page).toHaveURL(/2567\\/2.*teacher-table|teacher-table.*2567\\/2/, {
+        await expect(page).toHaveURL(/2567\/2.*teacher-table|teacher-table.*2567\/2/, {
           timeout: 10000,
         });
       }

@@ -112,7 +112,8 @@ test.describe("Visual Inspection - Admin User Journey", () => {
   });
 
   test("08. Analytics Dashboard", async ({ page }) => {
-    await page.goto("/dashboard/analytics");
+    const semester = "2567/1";
+    await page.goto(`/dashboard/${semester}/analytics`);
     await page.waitForLoadState("networkidle");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
