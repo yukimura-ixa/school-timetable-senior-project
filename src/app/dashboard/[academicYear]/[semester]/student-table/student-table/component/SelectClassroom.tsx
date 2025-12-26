@@ -1,0 +1,75 @@
+import Loading from "@/app/loading";
+import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import ErrorState from "@/components/mui/ErrorState";
+import type { gradelevel } from "@/prisma/generated/client";
+import React, { useEffect, useState } from "react";
+
+type Props = {
+  setGradeID: (gradeId: string | null) => void;
+  currentGrade: string | null;
+  gradeLevels: gradelevel[];
+  isLoading: boolean;
+  error?: unknown;
+};
+
+const formatGradeLabel = (gradeId: string | null) => {
+  if (!gradeId) {
+    return "";
+  }
+
+  const roomNumber = Number.parseInt(gradeId.substring(1), 10);
+  return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
+};
+
+function SelectClassRoom({
+  setGradeID,
+  currentGrade,
+  gradeLevels,
+  isLoading,
+  error,
+}: Props) {
+  const [classRoom, setClassRoom] = useState<string>(
+    formatGradeLabel(currentGrade),
+  );
+
+  useEffect(() => {
+    setClassRoom(formatGradeLabel(currentGrade));
+  }, [currentGrade]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <ErrorState message="ไม่สามารถโหลดข้อมูลระดับชั้นได้" />;
+  }
+
+  return (
+    <div className="flex w-full items-center justify-between h-fit rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <p>เลือกชั้นเรียน</p>
+      <Dropdown
+        width={300}
+        data={gradeLevels}
+        placeHolder="ตัวเลือก"
+        renderItem={({ data }: { data: unknown }) => {
+          const g = data as gradelevel;
+          return (
+            <li>
+              <p>{formatGradeLabel(g.GradeID)}</p>
+            </li>
+          );
+        }}
+        currentValue={classRoom}
+        handleChange={(data: unknown) => {
+          const g = data as gradelevel;
+          const gradeId = g.GradeID;
+          setClassRoom(formatGradeLabel(gradeId));
+          setGradeID(gradeId);
+        }}
+        searchFunction={undefined}
+      />
+    </div>
+  );
+}
+
+export default SelectClassRoom;

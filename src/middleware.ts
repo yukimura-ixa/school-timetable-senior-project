@@ -1,46 +1,82 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Next.js Middleware - Route Compatibility Layer
+ * Next.js Middleware (proxy) for redirecting old [semesterAndyear] URLs
+ * to new [academicYear]/[semester] structure
  *
- * Redirects new [academicYear]/[semester] URL format to existing [semesterAndyear] routes.
- * This allows users to use either URL format while routes remain in legacy structure.
+ * Redirects (OLD → NEW):
+ * - /schedule/1-2567/arrange → /schedule/2567/1/arrange
+ * - /dashboard/2-2568/analytics → /dashboard/2568/2/analytics
+ * - /classes/M1-1/1-2567 → /classes/M1-1/2567/1
+ * - /teachers/1/1-2567 → /teachers/1/2567/1
  *
- * Examples:
- *   /schedule/2567/1/arrange → /schedule/1-2567/arrange
- *   /dashboard/2568/2/analytics → /dashboard/2-2568/analytics
- *
- * When the full migration is complete, this middleware can be removed.
+ * Uses 301 (Permanent Redirect) to signal this is the new canonical URL.
+ * Preserves query parameters and hash fragments.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Match new pattern: /{base}/{year}/{semester}/{...rest}
-  // where year is 4 digits (Buddhist year 2500-2599) and semester is 1 or 2
-  const newPattern = /^\/(schedule|dashboard)\/(25\d{2})\/([12])(\/.*)?$/;
-  const match = pathname.match(newPattern);
+  // Pattern 1: /schedule or /dashboard routes
+  // Match: /{base}/{semester}-{year}/{...rest}
+  const mainPattern = /^\/(schedule|dashboard)\/(\d)-(25\d{2})(\/.*)?$/;
+  let match = pathname.match(mainPattern);
 
   if (match) {
-    const [, base, year, semester, rest = ""] = match;
-
-    // Construct old URL format: /{base}/{semester}-{year}/{rest}
-    const oldPath = `/${base}/${semester}-${year}${rest}`;
+    const [, base, semester, year, rest = ""] = match;
+    const newPath = `/${base}/${year}/${semester}${rest}`;
 
     const url = request.nextUrl.clone();
-    url.pathname = oldPath;
+    url.pathname = newPath;
 
-    // Use 307 Temporary Redirect (preserves method, doesn't cache)
-    // This allows us to change behavior later without browser cache issues
-    return NextResponse.redirect(url, 307);
+    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
+    return NextResponse.redirect(url, 301);
   }
 
+  // Pattern 2: Public class routes
+  // Match: /classes/{gradeId}/{semester}-{year}
+  const classPattern = /^\/classes\/([^/]+)\/(\d)-(25\d{2})$/;
+  match = pathname.match(classPattern);
+
+  if (match) {
+    const [, gradeId, semester, year] = match;
+    const newPath = `/classes/${gradeId}/${year}/${semester}`;
+
+    const url = request.nextUrl.clone();
+    url.pathname = newPath;
+
+    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
+    return NextResponse.redirect(url, 301);
+  }
+
+  // Pattern 3: Public teacher routes
+  // Match: /teachers/{id}/{semester}-{year}
+  const teacherPattern = /^\/teachers\/(\d+)\/(\d)-(25\d{2})$/;
+  match = pathname.match(teacherPattern);
+
+  if (match) {
+    const [, id, semester, year] = match;
+    const newPath = `/teachers/${id}/${year}/${semester}`;
+
+    const url = request.nextUrl.clone();
+    url.pathname = newPath;
+
+    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
+    return NextResponse.redirect(url, 301);
+  }
+
+  // No redirect needed, continue to route
   return NextResponse.next();
 }
 
+/**
+ * Matcher configuration
+ * Run proxy on schedule, dashboard, classes, and teachers routes
+ */
 export const config = {
   matcher: [
-    // Only run on schedule and dashboard routes for performance
     "/schedule/:path*",
     "/dashboard/:path*",
+    "/classes/:path*",
+    "/teachers/:path*",
   ],
 };
