@@ -6,7 +6,6 @@ import React, { Fragment, useMemo } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
-// useSemesterSync removed - now using direct route params
 import { getGradeLevelsForLockAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import type { teacher } from "@/prisma/generated/client";
 

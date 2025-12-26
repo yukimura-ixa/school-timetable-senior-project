@@ -57,7 +57,6 @@ import ClassIcon from "@mui/icons-material/Class";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-// useSemesterSync removed - now using direct route params
 
 // Props for server-side data passing
 export interface ShowTeacherDataProps {

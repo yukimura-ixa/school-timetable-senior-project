@@ -18,7 +18,6 @@ import {
   type SubjectCreditValues,
 } from "@/models/credit-value";
 import { enqueueSnackbar } from "notistack";
-// useSemesterSync removed - now using direct route params
 
 // Server Actions (Clean Architecture)
 import {

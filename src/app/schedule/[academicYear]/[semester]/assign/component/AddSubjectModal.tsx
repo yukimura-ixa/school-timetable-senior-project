@@ -10,7 +10,6 @@ import { useParams, useSearchParams } from "next/navigation";
 import { subjectCreditValues } from "@/models/credit-value";
 import useSWR from "swr";
 
-// useSemesterSync removed - now using direct route params
 import { getSubjectsByGradeAction } from "@/features/subject/application/actions/subject.actions";
 import type { ModalCloseHandler, InputChangeHandler } from "@/types/events";
 

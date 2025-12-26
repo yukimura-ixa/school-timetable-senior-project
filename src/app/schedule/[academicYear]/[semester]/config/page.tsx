@@ -25,7 +25,6 @@ import {
   PageLoadingSkeleton,
   NetworkErrorEmptyState,
 } from "@/components/feedback";
-// useSemesterSync removed - now using direct route params
 
 function TimetableConfigValue() {
   const params = useParams();

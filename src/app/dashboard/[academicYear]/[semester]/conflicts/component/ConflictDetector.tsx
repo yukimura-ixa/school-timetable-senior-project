@@ -29,7 +29,6 @@ import {
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import { useParams } from "next/navigation";
-// useSemesterSync removed - now using direct route params
 import { getConflictsAction } from "@/features/conflict/application/actions/conflict.actions";
 import type { ConflictSummary } from "@/features/conflict/infrastructure/repositories/conflict.repository";
 

@@ -5,7 +5,6 @@ import React, { useMemo, useState, type JSX } from "react";
 import { BsInfo } from "react-icons/bs";
 import useSWR from "swr";
 
-// useSemesterSync removed - now using direct route params
 import { getLockedRespsAction } from "@/features/assign/application/actions/assign.actions";
 import type { InputChangeHandler } from "@/types/events";
 import type { SubjectWithResponsibilities } from "@/types/lock-schedule";

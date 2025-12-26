@@ -18,7 +18,6 @@ import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { enqueueSnackbar } from "notistack";
-// useSemesterSync removed - now using direct route params
 import { Box, Container, Paper, Stack, Alert, AlertTitle } from "@mui/material";
 import { authClient } from "@/lib/auth-client";
 
