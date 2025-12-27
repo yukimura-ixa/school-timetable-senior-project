@@ -46,6 +46,7 @@
     "test:prod:scheduling": "playwright test --config=playwright.config.prod.ts e2e/prod/scheduling",
     "test:prod:crud": "playwright test --config=playwright.config.prod.ts --project=prod-desktop-admin-crud",
     "test:prod:visual:report": "playwright show-report playwright-report-prod",
+    "test:moe": "vitest run --config vitest.moe.config.ts __test__/moe-standards/moe-standards.test.ts",
     "test:report": "playwright show-report",
     "test:e2e:ci-mode": "pnpm build && CI=true pnpm test:e2e:manual",
     "ci:show-trace": "pnpm exec playwright show-trace",
