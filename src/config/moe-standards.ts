@@ -235,7 +235,7 @@ const LOWER_SECONDARY_ELECTIVES: SubjectWeeklyStandard[] = [
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
     category: "ELECTIVE",
-    group: "การงานอาชีพ",
+    group: "วิทยาศาสตร์",
   },
 ];
 
@@ -286,7 +286,7 @@ const SCIENCE_MATH_ELECTIVES: SubjectWeeklyStandard[] = [
     minWeeklyLessons: 1,
     maxWeeklyLessons: 2,
     category: "ELECTIVE",
-    group: "การงานอาชีพ",
+    group: "วิทยาศาสตร์",
   },
 ];
 

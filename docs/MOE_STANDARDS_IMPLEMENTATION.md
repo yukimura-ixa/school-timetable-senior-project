@@ -102,6 +102,16 @@ formatValidationResult(result: ValidationResult): string
 ✅ **Activity requirements** — Homeroom recommended  
 ✅ **Thai error messages** — User-friendly validation feedback
 
+### 4. Seed Data Alignment (Updated) ✓
+
+**File**: `prisma/seed.ts`
+
+- **`SEED_MOE_FULL_SEMESTER=true`** seeds a full MOE-compliant semester for **M.1–M.6**.
+- Generates **program subjects**, **teacher responsibilities**, and **class schedules** with deterministic data.
+- **Subject codes in seed** use Thai MOE style (e.g., `ท21101`, `ค21101`, `ว21101`).
+- **Standards config** uses concise English identifiers (e.g., `TH`, `MA`, `SC`) for validation logic.
+  Both formats are supported; see `docs/agents/THAI_MOE_CURRICULUM_RULES.md`.
+
 #### Example Validation Result
 
 ```typescript
@@ -323,6 +333,9 @@ Generate compliance reports:
 
 ## 📊 Sample Data Structures
 
+> Note: The examples below use **standards identifiers** (TH/MA/SC/etc).
+> Seed data uses **Thai MOE codes** (ท/ค/ว/ส/พ/ศ/ง/อ) per `THAI_MOE_CURRICULUM_RULES.md`.
+
 ### Example M1 Compliant Program
 
 ```typescript
@@ -392,10 +405,10 @@ const m4ScienceMath = {
    - Add validation to `updateProgramAction`
    - Show validation results in modals
 
-2. **Add to Seed Data**
-   - Update program seed to meet MOE standards
-   - Include compliant subject assignments
-   - Demonstrate all three tracks
+2. **Seed Data (MOE Full Semester)** ✓
+   - `SEED_MOE_FULL_SEMESTER=true` seeds M.1–M.6 with compliant subjects
+   - Includes program-subject links, responsibilities, and schedules
+   - Uses Thai MOE subject codes and the canonical TimeslotID format
 
 3. **Create Validation UI**
    - Display validation results in Program modal

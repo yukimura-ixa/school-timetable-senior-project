@@ -2,7 +2,7 @@
 
 This document details how the Phrasongsa Timetable must align with
 **Thailand’s Basic Education Core Curriculum B.E. 2551 (A.D. 2008)
-and its 2560 revision**.:contentReference[oaicite:1]{index=1}
+and its 2560 revision**.
 
 It expands the short rules in `AGENTS.md` into more precise guidance
 for SubjectCode structure, credits/hours, and validation.
@@ -15,12 +15,12 @@ The MOE curriculum defines 8 main learning areas:
 
 1. ภาษาไทย (Thai language)
 2. คณิตศาสตร์ (Mathematics)
-3. วิทยาศาสตร์ (Science)
+3. วิทยาศาสตร์และเทคโนโลยี (Science & Technology)
 4. สังคมศึกษา ศาสนา และวัฒนธรรม (Social studies, religion, culture)
 5. สุขศึกษาและพลศึกษา (Health & PE)
 6. ศิลปะ (Arts)
 7. การงานอาชีพและเทคโนโลยี (Work & technology)
-8. ภาษาต่างประเทศ (Foreign languages):contentReference[oaicite:2]{index=2}
+8. ภาษาต่างประเทศ (Foreign languages)
 
 Most schools implement subject codes with a pattern such as:
 
@@ -28,9 +28,9 @@ Most schools implement subject codes with a pattern such as:
 - `ค21101` คณิตศาสตร์พื้นฐาน 1
 - `ว21101` วิทยาศาสตร์ 1
 - `ส21101` สังคมศึกษา 1
-- `อ21101` ภาษาอังกฤษพื้นฐาน 1:contentReference[oaicite:3]{index=3}
+- `อ21101` ภาษาอังกฤษพื้นฐาน 1
 
-A common structure table for **พื้นฐาน** (core) subjects:​:contentReference[oaicite:4]{index=4}
+A common structure table for **พื้นฐาน** (core) subjects:
 
 - ป.1: `ท11101`, `ค11101`, `ว11101`, `ส11101`, `พ11101`, `ศ11101`, `ง11101`, `อ11101`
 - ม.1: `ท21101`, `ค21101`, `ว21101`, `ส21101`, `พ21101`, `ศ21101`, `ง21101`, `อ21101`  
@@ -45,7 +45,7 @@ A common structure table for **พื้นฐาน** (core) subjects:​:conte
 - สุขศึกษาและพลศึกษา → `พ`
 - ศิลปะ → `ศ`
 - การงานอาชีพและเทคโนโลยี → `ง`
-- ภาษาต่างประเทศ → `อ`:contentReference[oaicite:5]{index=5}
+- ภาษาต่างประเทศ → `อ` (English), `จ` (Chinese), `ญ` (Japanese)
 
 ### 1.2 Level digit
 
@@ -53,14 +53,14 @@ The second digit typically encodes level:
 
 - `1` = ประถมศึกษา (primary)
 - `2` = มัธยมศึกษาตอนต้น (lower secondary)
-- `3` = มัธยมศึกษาตอนปลาย (upper secondary):contentReference[oaicite:6]{index=6}
+- `3` = มัธยมศึกษาตอนปลาย (upper secondary)
 
 The remaining digits encode year/sequence according to school/OBEC conventions.
 
 ### 1.3 Agent rules for SubjectCode
 
 - SubjectCode type must at least enforce a **structural pattern**:
-  - Regex example: `^[ก-ฮ][1-3]\d{3,4}$` (adjust for your exact 5–6 digit form).
+  - Regex example: `^[ก-ฮ][1-3]\d{4}$` (Thai letter + 5 digits for secondary).
 - When adding subjects:
   - Validate leading letter vs learning area.
   - Validate level digit vs grade.
@@ -76,13 +76,13 @@ above and leave room for local overrides via configuration.
 The Basic Education Core Curriculum defines:
 
 - Total **time allocation per learning area** by grade band.
-- Aggregate **annual hours** over lower and upper secondary.:contentReference[oaicite:7]{index=7}
+- Aggregate **annual hours** over lower and upper secondary.
 
 Schools implement this as:
 
 - Each subject having:
   - hours per week (e.g. 60 hours/semester)
-  - credits (e.g. 1.0 or 1.5 units):contentReference[oaicite:8]{index=8}
+  - credits (e.g. 1.0 or 1.5 units)
 
 ### 2.1 System rules
 
@@ -179,3 +179,16 @@ Add example subject seed data per grade matching real-world codes.
 Add a “compliance report” UI summarizing per-grade status before publish.
 
 Keep this doc in sync when MOE issues official updates.
+
+---
+
+## 5. Seed Data Rules (MOE Full Semester)
+
+**Canonical entrypoint**: `prisma/seed.ts`
+
+- Use `SEED_MOE_FULL_SEMESTER=true` to seed a full MOE-compliant semester (M.1–M.6).
+- Program tracks in seed data: `SCIENCE_MATH`, `LANGUAGE_MATH`, `LANGUAGE_ARTS`, `GENERAL`.
+- Seed data must use **Thai MOE subject codes** (e.g., `ท21101`, `ค21101`, `ว21101`).
+- Additional foreign languages should map to `FOREIGN_LANGUAGE` and may use `จ`/`ญ` prefixes.
+- Computing in MOE seed data is modeled under **Science & Technology** (e.g., `ว30204`) and should not be placed under Career.
+- For timetable IDs, always use `generateTimeslotId()` from `src/utils/timeslot-id.ts` and the canonical `{SEM}-{YEAR}-{DAY}{PERIOD}` format.
