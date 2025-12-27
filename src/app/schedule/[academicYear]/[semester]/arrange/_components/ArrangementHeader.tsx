@@ -138,6 +138,7 @@ export function ArrangementHeader({
             isOptionEqualToValue={(option, value) =>
               option.TeacherID === value?.TeacherID
             }
+            data-testid="teacher-autocomplete"
             renderOption={(props, option) => (
               <li {...props} key={option.TeacherID}>
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -156,6 +157,10 @@ export function ArrangementHeader({
                 {...params}
                 label="เลือกครูผู้สอน"
                 data-testid="teacher-select"
+                inputProps={{
+                  ...params.inputProps,
+                  "data-testid": "teacher-select-input",
+                }}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (

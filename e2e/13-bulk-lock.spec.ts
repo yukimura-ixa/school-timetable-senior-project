@@ -8,6 +8,9 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import type { Page } from "@playwright/test";
 
+const RUN_BULK_LOCK_E2E = process.env.E2E_BULK_LOCK === "true";
+const ALLOW_BULK_LOCK_MUTATIONS = process.env.E2E_BULK_LOCK_MUTATE === "true";
+
 // Helper: get bulk lock modal by data-testid for stability
 const getBulkLockModal = (page: Page) =>
   page.locator('[data-testid="bulk-lock-modal"]');
@@ -24,6 +27,10 @@ const openBulkLockModal = async (page: Page) => {
 };
 
 test.describe("Bulk Lock Operations", () => {
+  test.skip(
+    !RUN_BULK_LOCK_E2E,
+    "Set E2E_BULK_LOCK=true to run bulk lock E2E tests",
+  );
   test("should display bulk lock button on lock page", async ({
     authenticatedAdmin,
   }) => {
@@ -285,10 +292,15 @@ test.describe("Bulk Lock Operations", () => {
 });
 
 test.describe("Bulk Lock - Complete Flow", () => {
-  test.skip("should complete full bulk lock creation flow", async ({
-    page,
-  }) => {
-    // Skip in CI/automated tests as it modifies database
+  test.skip(
+    !RUN_BULK_LOCK_E2E,
+    "Set E2E_BULK_LOCK=true to run bulk lock E2E tests",
+  );
+  test("should complete full bulk lock creation flow", async ({ page }) => {
+    test.skip(
+      !ALLOW_BULK_LOCK_MUTATIONS,
+      "Set E2E_BULK_LOCK_MUTATE=true to allow DB mutations",
+    );
     await page.goto("/schedule/2567/1/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 

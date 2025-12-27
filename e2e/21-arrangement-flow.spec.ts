@@ -1,401 +1,129 @@
 import { test, expect } from "./fixtures/admin.fixture";
+import type { Page, Locator } from "@playwright/test";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
-import { testSemester, testTimeslots } from "./fixtures/seed-data.fixture";
+import { testSemester, testTeacher } from "./fixtures/seed-data.fixture";
 
 /**
- * E2E Tests: Schedule Arrangement Flow
+ * E2E Tests: Schedule Arrangement Core Flow
  *
- * Tests the `/schedule/[term]/arrange` page functionality:
- * - Teacher selection and timetable rendering
- * - Drag-and-drop subject placement
+ * Focuses on critical workflow:
+ * - Teacher selection
+ * - Drag subject to empty timeslot
  * - Room selection modal
- * - Conflict detection
- * - Schedule persistence
- *
- * Uses local PostgreSQL database (localhost:5433)
+ * - Save schedule
  */
 
 const SEMESTER = `${testSemester.Year}/${testSemester.Semester}`;
 
-// Selectors for draggable subjects
-const DRAGGABLE_SELECTOR =
-  '[data-testid="subject-item"], [data-testid^="subject-card-"], [data-sortable-id]';
+const SELECTORS = {
+  teacherInput: '[data-testid="teacher-select-input"]',
+  subjectList: '[data-testid="subject-list"]',
+  timetableGrid: '[data-testid="timetable-grid"]',
+  timeslotCard: '[data-testid="timeslot-card"]',
+  roomDialog: '[data-testid="room-selection-dialog"]',
+  roomOption: '[data-testid^="room-option-"]',
+  roomConfirm: '[data-testid="room-confirm"]',
+  saveButton: '[data-testid="save-button"]',
+};
 
-test.describe("Schedule Arrangement - Page Load", () => {
-  test("AR-01: Arrangement page loads with timetable grid", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
+const SUBJECT_ITEM_NAME = /หน่วยกิต/;
 
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
+async function selectTeacherWithSubjects(page: Page) {
+  await page.goto(
+    `/schedule/${SEMESTER}/arrange?teacher=${testTeacher.TeacherID}&tab=teacher`,
+  );
+  await waitForAppReady(page);
+  await page.waitForLoadState("domcontentloaded");
 
-    // Verify page loads
-    await waitForAppReady(page);
+  await page
+    .getByRole("heading", { name: "รายวิชาที่สอน" })
+    .waitFor({ state: "visible", timeout: 10000 })
+    .catch(() => {});
 
-    // Should have teacher selection
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await expect(teacherSelect).toBeVisible({ timeout: 10000 });
+  const subjectItems = page.getByRole("button", { name: SUBJECT_ITEM_NAME });
+  const subjectCount = await subjectItems.count();
+  if (subjectCount === 0) {
+    return null;
+  }
 
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-01-page-load.png",
-      fullPage: true,
-    });
-  });
+  return {
+    teacherLabel: `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`,
+    subjectCount,
+  };
+}
 
-  test("AR-02: Timetable grid renders after teacher selection", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
+async function findEmptyTimeslot(page: Page) {
+  const emptySlots = page
+    .locator(`${SELECTORS.timeslotCard}:not([data-subject-code])`)
+    .filter({ hasText: /คาบว่าง/ });
+  const count = await emptySlots.count();
+  if (count === 0) {
+    return null;
+  }
+  return emptySlots.first();
+}
 
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
+async function confirmRoomSelection(page: Page, roomDialog: Locator) {
+  const roomOptions = page.locator(SELECTORS.roomOption);
+  const optionCount = await roomOptions.count();
 
-    // Select first teacher from dropdown
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await expect(teacherSelect).toBeVisible({ timeout: 10000 });
+  for (let index = 0; index < optionCount; index += 1) {
+    const option = roomOptions.nth(index);
+    const isDisabled = await option.isDisabled().catch(() => false);
+    if (isDisabled) continue;
 
-    const isNativeSelect =
-      (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
-      "select";
-
-    if (isNativeSelect) {
-      await teacherSelect.selectOption({ index: 1 });
-    } else {
-      await teacherSelect.click();
-      const listbox = page.locator('[role="listbox"]');
-      await listbox.waitFor({ state: "visible", timeout: 5000 });
-      const firstOption = listbox.locator('[role="option"]').first();
-      await firstOption.click();
-    }
-
-    // Wait for timetable to render
-    await page.waitForLoadState("networkidle");
-
-    // Verify timetable appears
-    const table = page.locator("table").first();
-    await expect(table).toBeVisible({ timeout: 10000 });
-
-    // Count rows (days)
-    const rows = await page.locator("tbody tr").count();
-    console.log(`Timetable has ${rows} rows (days)`);
-    expect(rows).toBeGreaterThan(0);
-
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-02-timetable-grid.png",
-      fullPage: true,
-    });
-  });
-});
-
-test.describe("Schedule Arrangement - Subject Palette", () => {
-  test("AR-03: Subject palette shows assigned subjects", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
-
-    // Select a teacher
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await expect(teacherSelect).toBeVisible();
-
-    const isNativeSelect =
-      (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
-      "select";
-
-    if (isNativeSelect) {
-      await teacherSelect.selectOption({ index: 1 });
-    } else {
-      await teacherSelect.click();
-      const listbox = page.locator('[role="listbox"]');
-      await listbox.waitFor({ state: "visible", timeout: 5000 });
-      const firstOption = listbox.locator('[role="option"]').first();
-      await firstOption.click();
-    }
-
-    await page.waitForLoadState("networkidle");
-
-    // Look for draggable subject items
-    const subjects = page.locator(DRAGGABLE_SELECTOR);
-    const subjectCount = await subjects.count();
-
-    console.log(`Found ${subjectCount} subjects in palette`);
-
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-03-subject-palette.png",
-      fullPage: true,
-    });
-
-    // May have 0 subjects if teacher has no assignments
-    // This is valid - we just want to verify the palette renders
-  });
-});
-
-test.describe("Schedule Arrangement - Drag and Drop", () => {
-  test("AR-04: Can drag subject to empty timeslot", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
-
-    // Select a teacher with subjects
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await teacherSelect.click();
-
-    const listbox = page.locator('[role="listbox"]');
-    await listbox.waitFor({ state: "visible", timeout: 5000 }).catch(() => {});
-
-    if (await listbox.isVisible()) {
-      const firstOption = listbox.locator('[role="option"]').first();
-      await firstOption.click();
-    } else {
-      // Native select
-      const nativeSelect = page.locator("select").first();
-      await nativeSelect.selectOption({ index: 1 });
-    }
-
-    await page.waitForLoadState("networkidle");
-
-    // Wait for subjects to appear
-    const subject = page.locator(DRAGGABLE_SELECTOR).first();
-    const subjectVisible = await subject.isVisible().catch(() => false);
-
-    if (!subjectVisible) {
-      console.log("No draggable subjects found - skipping drag test");
-      test.skip();
-      return;
-    }
-
-    // Find a drop target (empty td cell)
-    const dropTarget = page.locator("td").nth(5);
-    await expect(dropTarget).toBeVisible({ timeout: 5000 });
-
-    // Screenshot before drag
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-04a-before-drag.png",
-      fullPage: true,
-    });
-
-    // Perform drag
-    await subject.dragTo(dropTarget, {
-      sourcePosition: { x: 10, y: 10 },
-      targetPosition: { x: 10, y: 10 },
-    });
-
-    // Wait for UI to update
+    await option.click();
+    await page.locator(SELECTORS.roomConfirm).click();
     await page.waitForTimeout(500);
 
-    // Screenshot after drag
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-04b-after-drag.png",
-      fullPage: true,
-    });
+    const closed = await roomDialog.isHidden().catch(() => false);
+    if (closed) {
+      return true;
+    }
+  }
 
-    console.log("Drag operation completed");
-  });
+  return false;
+}
 
-  test("AR-05: Room selection modal appears after drop", async ({
-    authenticatedAdmin,
-  }) => {
+test.describe("Schedule Arrangement - Core Flow", () => {
+  test("AR-CORE: drag subject, choose room, save", async ({ authenticatedAdmin }) => {
+    test.setTimeout(120000);
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
+    const teacherResult = await selectTeacherWithSubjects(page);
+    expect(
+      teacherResult,
+      "Expected at least one teacher with available subjects",
+    ).not.toBeNull();
 
-    // Select teacher
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await teacherSelect.click().catch(() => {});
+    await expect(page.locator(SELECTORS.timetableGrid)).toBeVisible({
+      timeout: 15000,
+    });
 
-    const listbox = page.locator('[role="listbox"]');
-    const listboxVisible = await listbox.isVisible().catch(() => false);
+    const subject = page.getByRole("button", { name: SUBJECT_ITEM_NAME }).first();
+    await expect(subject).toBeVisible({ timeout: 10000 });
 
-    if (listboxVisible) {
-      const firstOption = listbox.locator('[role="option"]').first();
-      await firstOption.click();
-    } else {
-      await page.locator("select").first().selectOption({ index: 1 });
-    }
+    const emptySlot = await findEmptyTimeslot(page);
+    expect(emptySlot, "Expected at least one empty non-break timeslot").not.toBeNull();
 
-    await page.waitForLoadState("networkidle");
-
-    // Wait for subjects
-    const subject = page.locator(DRAGGABLE_SELECTOR).first();
-    const subjectVisible = await subject.isVisible().catch(() => false);
-
-    if (!subjectVisible) {
-      console.log("No subjects available - skipping room modal test");
-      test.skip();
-      return;
-    }
-
-    // Drag to empty slot
-    const dropTarget = page.locator("td").nth(8);
-    await expect(dropTarget).toBeVisible({ timeout: 5000 });
-
-    await subject.dragTo(dropTarget, {
+    await subject.dragTo(emptySlot!, {
       sourcePosition: { x: 10, y: 10 },
       targetPosition: { x: 10, y: 10 },
     });
 
-    // Wait for modal
-    await page.waitForTimeout(1000);
+    const roomDialog = page.locator(SELECTORS.roomDialog);
+    await expect(roomDialog).toBeVisible({ timeout: 15000 });
 
-    // Check for room selection dialog
-    const modal = page
-      .locator(
-        '[role="dialog"], .MuiDialog-root, text=/เลือกห้องเรียน/i, text=/Select Room/i',
-      )
-      .first();
+    const roomConfirmed = await confirmRoomSelection(page, roomDialog);
+    expect(roomConfirmed, "Expected at least one available room").toBe(true);
+    await expect(roomDialog).toBeHidden({ timeout: 15000 });
 
-    const modalVisible = await modal.isVisible().catch(() => false);
+    const saveButton = page.locator(SELECTORS.saveButton);
+    await expect(saveButton).toBeEnabled({ timeout: 15000 });
+    await saveButton.click();
 
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-05-room-modal.png",
-      fullPage: true,
-    });
-
-    console.log(`Room selection modal visible: ${modalVisible}`);
-  });
-});
-
-test.describe("Schedule Arrangement - Conflict Detection", () => {
-  test("AR-06: Locked timeslots are visually marked", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
-
-    // Select a teacher
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await expect(teacherSelect).toBeVisible();
-
-    const isNativeSelect =
-      (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
-      "select";
-
-    if (isNativeSelect) {
-      await teacherSelect.selectOption({ index: 1 });
-    } else {
-      await teacherSelect.click();
-      const listbox = page.locator('[role="listbox"]');
-      await listbox.waitFor({ state: "visible", timeout: 5000 });
-      await listbox.locator('[role="option"]').first().click();
-    }
-
-    await page.waitForLoadState("networkidle");
-
-    // Wait for table
-    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
-
-    // Look for locked indicators
-    const lockedSlots = page.locator(
-      '[data-locked="true"], .locked, [data-testid*="locked"]',
-    );
-    const lockedCount = await lockedSlots.count();
-
-    console.log(`Found ${lockedCount} locked timeslots`);
-
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-06-locked-slots.png",
-      fullPage: true,
-    });
-  });
-
-  test("AR-07: Conflict indicators are displayed", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
-
-    // Select teacher
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await expect(teacherSelect).toBeVisible();
-
-    const isNativeSelect =
-      (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
-      "select";
-
-    if (isNativeSelect) {
-      await teacherSelect.selectOption({ index: 1 });
-    } else {
-      await teacherSelect.click();
-      const listbox = page.locator('[role="listbox"]');
-      await listbox.waitFor({ state: "visible", timeout: 5000 });
-      await listbox.locator('[role="option"]').first().click();
-    }
-
-    await page.waitForLoadState("networkidle");
-
-    // Wait for table
-    await expect(page.locator("table").first()).toBeVisible({ timeout: 10000 });
-
-    // Look for conflict indicators
-    const conflictIndicators = page.locator(
-      '[data-testid="conflict"], .conflict, .error, svg[color="error"], [data-conflict="true"]',
-    );
-    const conflictCount = await conflictIndicators.count();
-
-    console.log(`Found ${conflictCount} conflict indicators`);
-
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-07-conflicts.png",
-      fullPage: true,
-    });
-  });
-});
-
-test.describe("Schedule Arrangement - Save Operations", () => {
-  test("AR-08: Save button is visible and functional", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-
-    await page.goto(`/schedule/${SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
-
-    // Select teacher
-    const teacherSelect = page.locator('select, [role="combobox"]').first();
-    await expect(teacherSelect).toBeVisible();
-
-    const isNativeSelect =
-      (await teacherSelect.evaluate((el) => el.tagName.toLowerCase())) ===
-      "select";
-
-    if (isNativeSelect) {
-      await teacherSelect.selectOption({ index: 1 });
-    } else {
-      await teacherSelect.click();
-      const listbox = page.locator('[role="listbox"]');
-      await listbox.waitFor({ state: "visible", timeout: 5000 });
-      await listbox.locator('[role="option"]').first().click();
-    }
-
-    await page.waitForLoadState("networkidle");
-
-    // Look for save button
-    const saveButton = page
-      .locator('button:has-text("บันทึก"), button:has-text("Save")')
-      .first();
-    const saveVisible = await saveButton.isVisible().catch(() => false);
-
-    console.log(`Save button visible: ${saveVisible}`);
-
-    if (saveVisible) {
-      const isDisabled = await saveButton.isDisabled();
-      console.log(`Save button disabled: ${isDisabled}`);
-    }
-
-    await page.screenshot({
-      path: "test-results/screenshots/arrange-08-save-button.png",
-      fullPage: true,
-    });
+    await expect(
+      page.getByText(/บันทึกตารางสอนสำเร็จ/),
+    ).toBeVisible({ timeout: 15000 });
   });
 });

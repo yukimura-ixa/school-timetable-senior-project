@@ -1,5 +1,7 @@
 import { test, expect } from "./fixtures/admin.fixture";
 
+const RUN_PROGRAM_ASSIGNMENT_E2E = process.env.E2E_PROGRAM_ASSIGNMENT === "true";
+
 /**
  * E2E Tests for MOE-Compliant Program Management Workflow
  *
@@ -80,132 +82,39 @@ test.describe("Program Management Workflow", () => {
    * The UI uses EditableTable with inline editing, not forms.
    * Reference: e2e/11-activity-management.spec.ts for EditableTable patterns.
    */
-  test.skip("should assign program to gradelevel", async ({
-    authenticatedAdmin,
-  }) => {
+  test("should assign program to gradelevel", async ({ authenticatedAdmin }) => {
+    test.skip(
+      !RUN_PROGRAM_ASSIGNMENT_E2E,
+      "Set E2E_PROGRAM_ASSIGNMENT=true to run program assignment E2E tests",
+    );
     const { page } = authenticatedAdmin;
     await page.goto("/management/gradelevel");
     // Test stub: requires full implementation matching actual EditableTable UI
   });
 
-  test.skip("should validate subject assignment with invalid credits", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-    await page.goto("/management/program");
-    // Test stub: requires full implementation matching actual EditableTable UI
-  });
+  test(
+    "should validate subject assignment with invalid credits",
+    async ({ authenticatedAdmin }) => {
+      test.skip(
+        !RUN_PROGRAM_ASSIGNMENT_E2E,
+        "Set E2E_PROGRAM_ASSIGNMENT=true to run program assignment E2E tests",
+      );
+      const { page } = authenticatedAdmin;
+      await page.goto("/management/program");
+      // Test stub: requires full implementation matching actual EditableTable UI
+    },
+  );
 
-  test.skip("should update existing subject assignments", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-    await page.goto("/management/program");
-    // Test stub: requires full implementation matching actual EditableTable UI
-  });
-});
-
-/**
- * Activity Management tests are SKIPPED because the ActivityTable component
- * exists but is not integrated into the app's routes yet.
- * Re-enable when /management/subject page includes Activity management tab/section.
- */
-test.describe.skip("Activity Management Workflow", () => {
-  test("should create and manage activity subjects", async ({
-    authenticatedAdmin,
-  }) => {
-    const { page } = authenticatedAdmin;
-    await page.goto("/management/subject");
-    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 15000,
-    });
-    
-    await test.step("Navigate to activity management", async () => {
-      // Look for activity management section or tab
-      const activitySection = page.getByText(/activity management/i);
-      if (await activitySection.isVisible()) {
-        await activitySection.click();
-      }
-    });
-
-    await test.step("Create new activity", async () => {
-      const addButton = page.getByRole("button", { name: /add activity/i });
-      await addButton.click();
-
-      // Fill in activity details
-      await page.getByLabel(/subject code/i).fill("ACT-CLUB01");
-      await page.getByLabel(/subject name/i).fill("Science Club");
-
-      // Select activity type
-      await page.getByLabel(/activity type/i).click();
-      await page.getByRole("option", { name: /club/i }).click();
-
-      // Ensure not graded
-      const gradedCheckbox = page.getByLabel(/is graded/i);
-      await gradedCheckbox.uncheck();
-
-      // Submit
-      await page.getByRole("button", { name: /create|save/i }).click();
-
-      // Verify creation
-      await expect(page.getByText("ACT-CLUB01")).toBeVisible();
-      await expect(page.getByText("Science Club")).toBeVisible();
-    });
-
-    await test.step("Edit activity", async () => {
-      // Find the activity row
-      const activityRow = page.locator('tr:has-text("ACT-CLUB01")');
-
-      // Click edit button
-      const editButton = activityRow.getByRole("button", { name: /edit/i });
-      await editButton.click();
-
-      // Modify name
-      const nameInput = page.getByLabel(/subject name/i);
-      await nameInput.fill("Advanced Science Club");
-
-      // Save
-      await page.getByRole("button", { name: /update|save/i }).click();
-
-      // Verify update
-      await expect(page.getByText("Advanced Science Club")).toBeVisible();
-    });
-
-    await test.step("Delete activity", async () => {
-      const activityRow = page.locator('tr:has-text("ACT-CLUB01")');
-
-      // Click delete button
-      const deleteButton = activityRow.getByRole("button", { name: /delete/i });
-      await deleteButton.click();
-
-      // Confirm deletion
-      const confirmButton = page
-        .getByRole("button", { name: /delete|confirm/i })
-        .last();
-      await confirmButton.click();
-
-      // Verify deletion
-      await expect(page.getByText("ACT-CLUB01")).not.toBeVisible();
-    });
-  });
-
-  test("should validate activity creation", async ({ authenticatedAdmin }) => {
-    const { page } = authenticatedAdmin;
-    await page.goto("/management/subject");
-    await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
-      timeout: 15000,
-    });
-    
-    await test.step("Attempt to create activity without required fields", async () => {
-      const addButton = page.getByRole("button", { name: /add activity/i });
-      await addButton.click();
-
-      // Leave subject code empty and try to submit
-      await page.getByLabel(/subject name/i).fill("Invalid Activity");
-      await page.getByRole("button", { name: /create|save/i }).click();
-
-      // Should show validation error
-      await expect(page.getByText(/required|ห้ามว่าง/i)).toBeVisible();
-    });
-  });
+  test(
+    "should update existing subject assignments",
+    async ({ authenticatedAdmin }) => {
+      test.skip(
+        !RUN_PROGRAM_ASSIGNMENT_E2E,
+        "Set E2E_PROGRAM_ASSIGNMENT=true to run program assignment E2E tests",
+      );
+      const { page } = authenticatedAdmin;
+      await page.goto("/management/program");
+      // Test stub: requires full implementation matching actual EditableTable UI
+    },
+  );
 });

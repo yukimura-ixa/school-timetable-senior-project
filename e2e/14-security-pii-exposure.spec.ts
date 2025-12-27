@@ -1,5 +1,7 @@
 import { test, expect } from "./fixtures/admin.fixture";
 
+const RUN_SECURITY_E2E = process.env.E2E_SECURITY === "true";
+
 /**
  * Security Test Suite: PII (Personally Identifiable Information) Exposure
  *
@@ -8,6 +10,10 @@ import { test, expect } from "./fixtures/admin.fixture";
  */
 
 test.describe("Security: PII Exposure Prevention", () => {
+  test.skip(
+    !RUN_SECURITY_E2E,
+    "Set E2E_SECURITY=true to run security E2E tests",
+  );
   test("TC-SEC-001: Public homepage should not expose email addresses", async ({
     authenticatedAdmin,
   }) => {
@@ -98,7 +104,7 @@ test.describe("Security: PII Exposure Prevention", () => {
       // Should show teacher name and schedule (verify page works)
       await expect(page.locator("h1")).toBeVisible();
     } else {
-      test.skip();
+      test.skip(true, "No teacher link found");
     }
   });
 

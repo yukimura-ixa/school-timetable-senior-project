@@ -24,6 +24,11 @@
  * 4. SEED_FOR_TESTS=true (pnpm test:db:seed):
  *    - Same as SEED_CLEAN_DATA + auth session cleanup
  *    - Used by CI/CD pipeline
+ *
+ * 5. SEED_MOE_FULL_SEMESTER=true:
+ *    - Full MOE-compliant semester seed (M.1-M.6, 3 sections each)
+ *    - Generates program subjects, responsibilities, and full class schedules
+ *    - Destructive (uses clean/test cleanup path)
  * ==============================================================================
  *
  * Data Scale (Full Test Mode):
@@ -69,6 +74,7 @@ import {
 import { PrismaPg } from "@prisma/adapter-pg";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import "dotenv/config";
+import { generateTimeslotId } from "../src/utils/timeslot-id";
 
 const connectionString = process.env.DATABASE_URL!;
 const isAccelerate = connectionString.startsWith("prisma+");
@@ -180,7 +186,7 @@ const MOE_LEARNING_AREAS = {
  * Format: [Thai Letter][Level 1-3][Year 0-3][Type 1-2][Sequence 01-99]
  * Matches: ท21101, ค31201, ว22101, etc.
  */
-const MOE_SUBJECT_CODE_PATTERN = /^[ทควสพศงอ][1-3][0-3][12]\d{2}$/;
+const MOE_SUBJECT_CODE_PATTERN = /^[ทควสพศงอจญ][1-3][0-3][12]\d{2}$/;
 
 /**
  * Validate subject code against MOE pattern
@@ -203,9 +209,13 @@ const DEPT_TO_LEARNING_AREA: Record<string, LearningArea> = Object.fromEntries(
 );
 
 // Subject code prefix → department name (derived from MOE_LEARNING_AREAS)
-const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = Object.fromEntries(
-  Object.entries(MOE_LEARNING_AREAS).map(([letter, v]) => [letter, v.name]),
-);
+const SUBJECT_PREFIX_TO_DEPT: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.entries(MOE_LEARNING_AREAS).map(([letter, v]) => [letter, v.name]),
+  ),
+  จ: "ภาษาต่างประเทศ",
+  ญ: "ภาษาต่างประเทศ",
+};
 
 // ============================================================================
 // DEMO DATA SEEDING FUNCTION
@@ -531,6 +541,13 @@ async function seedDemoData() {
       lastname: "สมิธ",
       dept: "ภาษาต่างประเทศ",
       email: "teacher8@school.ac.th",
+    },
+    {
+      prefix: "ครู",
+      firstname: "E2E",
+      lastname: "ทดสอบ",
+      dept: "คณิตศาสตร์",
+      email: "e2e.teacher@school.ac.th",
     },
   ];
 
@@ -1104,7 +1121,12 @@ async function main() {
   // ===== SEEDING MODE SELECTION =====
   const isDemoMode = process.env.SEED_DEMO_DATA === "true";
   const isTestMode = process.env.SEED_FOR_TESTS === "true";
-  const shouldCleanData = process.env.SEED_CLEAN_DATA === "true" || isTestMode;
+  const isMoeFullSemesterMode =
+    process.env.SEED_MOE_FULL_SEMESTER === "true";
+  const shouldCleanData =
+    process.env.SEED_CLEAN_DATA === "true" ||
+    isTestMode ||
+    isMoeFullSemesterMode;
 
   if (!shouldCleanData && !isDemoMode) {
     console.log(
@@ -1122,6 +1144,9 @@ async function main() {
 
   if (isTestMode) {
     console.log("🧪 Test mode enabled - Seeding E2E test data...");
+  }
+  if (isMoeFullSemesterMode) {
+    console.log("📘 MOE full semester mode enabled - Seeding full timetable...");
   } else {
     console.log(
       "⚠️  SEED_CLEAN_DATA=true - Cleaning existing timetable data...",
@@ -1736,6 +1761,84 @@ async function main() {
     },
   ];
 
+  if (isMoeFullSemesterMode) {
+    // MOE full semester: year-agnostic electives for upper secondary (Year=0)
+    additionalSubjects.push(
+      {
+        code: "ค30201",
+        name: "คณิตศาสตร์เพิ่มเติม (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "MATHEMATICS" as LearningArea,
+      },
+      {
+        code: "ว30201",
+        name: "ฟิสิกส์เพิ่มเติม (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "SCIENCE" as LearningArea,
+      },
+      {
+        code: "ว30202",
+        name: "เคมีเพิ่มเติม (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "SCIENCE" as LearningArea,
+      },
+      {
+        code: "ว30203",
+        name: "ชีววิทยาเพิ่มเติม (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "SCIENCE" as LearningArea,
+      },
+      {
+        code: "อ30201",
+        name: "ภาษาอังกฤษเพื่อการสื่อสาร (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "FOREIGN_LANGUAGE" as LearningArea,
+      },
+      {
+        code: "จ30201",
+        name: "ภาษาจีน (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "FOREIGN_LANGUAGE" as LearningArea,
+      },
+      {
+        code: "ส30201",
+        name: "ประวัติศาสตร์สากล (ม.4-6)",
+        credit: "CREDIT_10" as subject_credit,
+        learningArea: "SOCIAL" as LearningArea,
+      },
+      {
+        code: "ส30202",
+        name: "เศรษฐศาสตร์เบื้องต้น (ม.4-6)",
+        credit: "CREDIT_10" as subject_credit,
+        learningArea: "SOCIAL" as LearningArea,
+      },
+      {
+        code: "ท30201",
+        name: "วรรณคดีไทย (ม.4-6)",
+        credit: "CREDIT_10" as subject_credit,
+        learningArea: "THAI" as LearningArea,
+      },
+      {
+        code: "ศ30201",
+        name: "ศิลปะเพิ่มเติม (ม.4-6)",
+        credit: "CREDIT_10" as subject_credit,
+        learningArea: "ARTS" as LearningArea,
+      },
+      {
+        code: "ว30204",
+        name: "วิทยาการคำนวณ (ม.4-6)",
+        credit: "CREDIT_10" as subject_credit,
+        learningArea: "SCIENCE" as LearningArea,
+      },
+      {
+        code: "ญ30201",
+        name: "ภาษาญี่ปุ่น (ม.4-6)",
+        credit: "CREDIT_15" as subject_credit,
+        learningArea: "FOREIGN_LANGUAGE" as LearningArea,
+      },
+    );
+  }
+
   // ========================================================================
   // กิจกรรมพัฒนาผู้เรียน (Student Development Activities)
   // ========================================================================
@@ -2259,7 +2362,7 @@ async function main() {
   );
 
   // ===== TEACHERS =====
-  console.log("👨‍🏫 Creating teachers (target: 40)...");
+  console.log("👨‍🏫 Creating teachers (target: 40 + 1 E2E)...");
   const teachers: any[] = [];
   let teacherEmailCount = 1;
   const TOTAL_TEACHERS = 40;
@@ -2269,9 +2372,29 @@ async function main() {
   // Tests and fixtures rely on predictable teacher names across runs.
   const deterministicSeed =
     process.env.SEED_FOR_TESTS === "true" ||
-    process.env.SEED_CLEAN_DATA === "true";
+    process.env.SEED_CLEAN_DATA === "true" ||
+    process.env.SEED_MOE_FULL_SEMESTER === "true";
   const pick = <T>(values: T[], index: number) =>
     values[((index % values.length) + values.length) % values.length];
+
+  const e2eTeacher = await withRetry(
+    () =>
+      prisma.teacher.upsert({
+        where: { Email: "e2e.teacher@school.ac.th" },
+        update: {},
+        create: {
+          Prefix: "ครู",
+          Firstname: "E2E",
+          Lastname: "ทดสอบ",
+          Department: "คณิตศาสตร์",
+          Email: "e2e.teacher@school.ac.th",
+          Role: "teacher",
+        },
+      }),
+    "Upsert E2E teacher",
+  );
+  teachers.push(e2eTeacher);
+  console.log(`✅ Created E2E teacher (${e2eTeacher.Email})`);
 
   for (const dept of DEPARTMENTS) {
     for (let i = 0; i < teachersPerDept; i++) {
@@ -2508,15 +2631,6 @@ async function main() {
   );
   console.log("✅ Created timetable configuration for 1-2568");
 
-  // ===== PROGRAM-SUBJECT ASSIGNMENTS (Example for M.1 programs) =====
-  console.log("🔗 Assigning subjects to M.1 programs...");
-
-  const m1SciProgram = programs.find((p) => p.ProgramCode === "M1-SCI")!;
-  const m1LangMathProgram = programs.find(
-    (p) => p.ProgramCode === "M1-LANG-MATH",
-  )!;
-  const m1LangProgram = programs.find((p) => p.ProgramCode === "M1-LANG")!;
-
   // Helper to convert credit to number
   const creditToNumber = (credit: string): number => {
     switch (credit) {
@@ -2532,6 +2646,430 @@ async function main() {
         return 1.0;
     }
   };
+
+  const creditToWeeklyLessons = (credit: subject_credit): number => {
+    switch (credit) {
+      case "CREDIT_05":
+        return 1;
+      case "CREDIT_10":
+        return 2;
+      case "CREDIT_15":
+        return 3;
+      case "CREDIT_20":
+        return 4;
+      default:
+        return 2;
+    }
+  };
+
+  const responsibilities: any[] = [];
+  const classSchedules: any[] = [];
+
+  if (isMoeFullSemesterMode) {
+    console.log("🔗 Assigning subjects to all programs (MOE full semester)...");
+
+    const targetAcademicYear = 2567;
+    const targetSemester: semester = "SEMESTER_1";
+    const targetSemesterNumber = 1;
+    const periodsPerDay = 8;
+    const scheduleDays: day_of_week[] = ["MON", "TUE", "WED", "THU", "FRI"];
+
+    const corePrefixByArea: Record<LearningArea, string> = {
+      THAI: "ท",
+      MATHEMATICS: "ค",
+      SCIENCE: "ว",
+      SOCIAL: "ส",
+      HEALTH_PE: "พ",
+      ARTS: "ศ",
+      CAREER: "ง",
+      FOREIGN_LANGUAGE: "อ",
+    };
+
+    const lowerCoreWeeklyLessons: Record<LearningArea, number> = {
+      THAI: 4,
+      MATHEMATICS: 4,
+      SCIENCE: 3,
+      SOCIAL: 3,
+      HEALTH_PE: 2,
+      ARTS: 2,
+      CAREER: 2,
+      FOREIGN_LANGUAGE: 2,
+    };
+
+    const upperCoreWeeklyLessons: Record<LearningArea, number> = {
+      THAI: 3,
+      MATHEMATICS: 3,
+      SCIENCE: 2,
+      SOCIAL: 2,
+      HEALTH_PE: 2,
+      ARTS: 0,
+      CAREER: 0,
+      FOREIGN_LANGUAGE: 2,
+    };
+
+    const subjectCatalog = [
+      ...coreSubjects,
+      ...additionalSubjects,
+      ...activitySubjects,
+    ];
+    const subjectByCode = new Map(
+      subjectCatalog.map((subject) => [subject.code, subject]),
+    );
+
+    type ProgramPlanItem = {
+      code: string;
+      category: SubjectCategory;
+      weeklyLessons: number;
+    };
+
+    const gradeIndicatorForYear = (year: number) =>
+      year <= 3 ? `2${year}` : `3${year - 3}`;
+
+    const buildCorePlan = (year: number): ProgramPlanItem[] => {
+      const gradeIndicator = gradeIndicatorForYear(year);
+      const weeklyLessons =
+        year <= 3 ? lowerCoreWeeklyLessons : upperCoreWeeklyLessons;
+      const plan: ProgramPlanItem[] = [];
+
+      for (const [areaKey, lessons] of Object.entries(weeklyLessons)) {
+        if (!lessons) continue;
+        const area = areaKey as LearningArea;
+        const prefix = corePrefixByArea[area];
+        const code = `${prefix}${gradeIndicator}101`;
+        plan.push({ code, category: "CORE", weeklyLessons: lessons });
+      }
+
+      return plan;
+    };
+
+    const buildLowerElectives = (
+      year: number,
+      track: ProgramTrack,
+    ): ProgramPlanItem[] => {
+      const mathExtra = `ค2${year}201`;
+      const scienceExtra = `ว2${year}201`;
+      const englishExtra = `อ2${year}201`;
+      const thaiExtra = "ท20201";
+
+      const electivesByTrack: Record<ProgramTrack, Record<string, number>> = {
+        SCIENCE_MATH: {
+          [mathExtra]: 2,
+          [scienceExtra]: 2,
+        },
+        LANGUAGE_MATH: {
+          [mathExtra]: 2,
+          [englishExtra]: 2,
+        },
+        LANGUAGE_ARTS: {
+          [thaiExtra]: 2,
+          [englishExtra]: 2,
+        },
+        GENERAL: {
+          [englishExtra]: 2,
+        },
+      };
+
+      const electives = electivesByTrack[track] ?? {};
+      return Object.entries(electives).map(([code, weeklyLessons]) => {
+        const subject = subjectByCode.get(code);
+        if (!subject || !("credit" in subject)) {
+          throw new Error(`Missing elective subject for MOE seed: ${code}`);
+        }
+        return {
+          code,
+          category: "ADDITIONAL",
+          weeklyLessons,
+        };
+      });
+    };
+
+    const buildUpperElectives = (track: ProgramTrack): ProgramPlanItem[] => {
+      const electivesByTrack: Record<ProgramTrack, Record<string, number>> = {
+        SCIENCE_MATH: {
+          ค30201: 4,
+          ว30201: 3,
+          ว30202: 3,
+          ว30203: 3,
+          ว30204: 2,
+        },
+        LANGUAGE_MATH: {
+          ค30201: 3,
+          อ30201: 3,
+          ส30201: 2,
+          ท30201: 2,
+          ศ30201: 2,
+        },
+        LANGUAGE_ARTS: {
+          อ30201: 3,
+          จ30201: 3,
+          ญ30201: 3,
+          ส30201: 2,
+          ศ30201: 2,
+        },
+        GENERAL: {
+          อ30201: 3,
+          ส30201: 2,
+          ส30202: 2,
+        },
+      };
+
+      const electives = electivesByTrack[track] ?? {};
+      return Object.entries(electives).map(([code, weeklyLessons]) => {
+        const subject = subjectByCode.get(code);
+        if (!subject || !("credit" in subject)) {
+          throw new Error(`Missing elective subject for MOE seed: ${code}`);
+        }
+        return {
+          code,
+          category: "ADDITIONAL",
+          weeklyLessons,
+        };
+      });
+    };
+
+    const buildActivityPlan = (year: number): ProgramPlanItem[] => {
+      const activityCodes = [
+        "ACT-HOMEROOM",
+        "ACT-CLUB",
+        `ACT-SCOUT-M${year}`,
+        `ACT-GUIDE-M${year}`,
+      ];
+
+      return activityCodes.map((code) => ({
+        code,
+        category: "ACTIVITY",
+        weeklyLessons: 1,
+      }));
+    };
+
+    const buildProgramPlan = (
+      year: number,
+      track: ProgramTrack,
+    ): ProgramPlanItem[] => {
+      const corePlan = buildCorePlan(year);
+      const electivePlan =
+        year <= 3
+          ? buildLowerElectives(year, track)
+          : buildUpperElectives(track);
+      const activityPlan = buildActivityPlan(year);
+      return [...corePlan, ...electivePlan, ...activityPlan];
+    };
+
+    const programPlans = new Map<number, ProgramPlanItem[]>();
+
+    for (const program of programs) {
+      const plan = buildProgramPlan(program.Year, program.Track);
+      programPlans.set(program.ProgramID, plan);
+
+      let sortOrder = 1;
+      for (const item of plan) {
+        const subject = subjectByCode.get(item.code);
+        if (!subject) {
+          throw new Error(`Missing subject in catalog: ${item.code}`);
+        }
+        const minCredits =
+          "credit" in subject ? creditToNumber(subject.credit) : 0.5;
+
+        await withRetry(
+          () =>
+            prisma.program_subject.upsert({
+              where: {
+                ProgramID_SubjectCode: {
+                  ProgramID: program.ProgramID,
+                  SubjectCode: item.code,
+                },
+              },
+              update: {
+                Category: item.category,
+                IsMandatory: item.category !== "ADDITIONAL",
+                MinCredits: minCredits,
+                SortOrder: sortOrder++,
+              },
+              create: {
+                ProgramID: program.ProgramID,
+                SubjectCode: item.code,
+                Category: item.category,
+                IsMandatory: item.category !== "ADDITIONAL",
+                MinCredits: minCredits,
+                SortOrder: sortOrder++,
+              },
+            }),
+          `Upsert program-subject ${program.ProgramCode} ${item.code}`,
+        );
+      }
+    }
+
+    console.log(
+      `✅ Assigned MOE program subjects for ${programs.length} programs`,
+    );
+
+    const teachersByDept = new Map<string, typeof teachers>();
+    for (const teacher of teachers) {
+      const bucket = teachersByDept.get(teacher.Department) ?? [];
+      bucket.push(teacher);
+      teachersByDept.set(teacher.Department, bucket);
+    }
+    const activityTeacherPool =
+      teachersByDept.get("การงานอาชีพ") ?? teachers;
+
+    const getTeacherForSubject = (
+      code: string,
+      gradeIndex: number,
+      subjectIndex: number,
+    ) => {
+      if (code.startsWith("ACT")) {
+        return activityTeacherPool[
+          (gradeIndex + subjectIndex) % activityTeacherPool.length
+        ];
+      }
+      const dept = SUBJECT_PREFIX_TO_DEPT[code.charAt(0)];
+      const pool = teachersByDept.get(dept) ?? teachers;
+      return pool[(gradeIndex + subjectIndex) % pool.length];
+    };
+
+    const responsibilityByGradeSubject = new Map<string, any>();
+
+    for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
+      const gradeLevel = gradeLevels[gradeIndex];
+      const plan = programPlans.get(gradeLevel.ProgramID ?? -1);
+      if (!plan) {
+        throw new Error(
+          `Missing program plan for grade ${gradeLevel.GradeID}`,
+        );
+      }
+
+      for (let subjectIndex = 0; subjectIndex < plan.length; subjectIndex++) {
+        const item = plan[subjectIndex];
+        const teacher = getTeacherForSubject(
+          item.code,
+          gradeIndex,
+          subjectIndex,
+        );
+
+        const resp = await withRetry(
+          () =>
+            prisma.teachers_responsibility.upsert({
+              where: {
+                TeacherID_GradeID_SubjectCode_AcademicYear_Semester: {
+                  TeacherID: teacher.TeacherID,
+                  GradeID: gradeLevel.GradeID,
+                  SubjectCode: item.code,
+                  AcademicYear: targetAcademicYear,
+                  Semester: targetSemester,
+                },
+              },
+              update: {
+                TeachHour: item.weeklyLessons,
+              },
+              create: {
+                TeacherID: teacher.TeacherID,
+                GradeID: gradeLevel.GradeID,
+                SubjectCode: item.code,
+                AcademicYear: targetAcademicYear,
+                Semester: targetSemester,
+                TeachHour: item.weeklyLessons,
+              },
+            }),
+          `Assign ${item.code} to ${gradeLevel.GradeID}`,
+        );
+
+        responsibilities.push(resp);
+        responsibilityByGradeSubject.set(
+          `${gradeLevel.GradeID}:${item.code}`,
+          resp,
+        );
+      }
+    }
+
+    console.log(
+      `✅ Created ${responsibilities.length} teacher responsibilities (full semester)`,
+    );
+
+    const buildWeeklySlots = (plan: ProgramPlanItem[]) => {
+      const queue = plan.map((item) => ({
+        code: item.code,
+        remaining: item.weeklyLessons,
+      }));
+      const slots: string[] = [];
+      let remainingTotal = queue.reduce((sum, item) => sum + item.remaining, 0);
+
+      while (remainingTotal > 0) {
+        for (const entry of queue) {
+          if (entry.remaining <= 0) continue;
+          slots.push(entry.code);
+          entry.remaining -= 1;
+          remainingTotal -= 1;
+        }
+      }
+
+      return slots;
+    };
+
+    for (let gradeIndex = 0; gradeIndex < gradeLevels.length; gradeIndex++) {
+      const gradeLevel = gradeLevels[gradeIndex];
+      const plan = programPlans.get(gradeLevel.ProgramID ?? -1);
+      if (!plan) continue;
+
+      const slots = buildWeeklySlots(plan);
+      if (slots.length > scheduleDays.length * periodsPerDay) {
+        throw new Error(
+          `Weekly lessons exceed available slots for ${gradeLevel.GradeID}`,
+        );
+      }
+
+      const room = rooms[gradeIndex] ?? rooms[gradeIndex % rooms.length];
+
+      for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
+        const day = scheduleDays[Math.floor(slotIndex / periodsPerDay)];
+        if (!day) break;
+        const period = (slotIndex % periodsPerDay) + 1;
+        const subjectCode = slots[slotIndex];
+        const timeslotId = generateTimeslotId(
+          targetSemesterNumber,
+          targetAcademicYear,
+          day,
+          period,
+        );
+
+        const resp = responsibilityByGradeSubject.get(
+          `${gradeLevel.GradeID}:${subjectCode}`,
+        );
+        if (!resp) continue;
+
+        const isActivity = subjectCode.startsWith("ACT");
+        classSchedules.push(
+          await withRetry(
+            () =>
+              prisma.class_schedule.create({
+                data: {
+                  TimeslotID: timeslotId,
+                  SubjectCode: subjectCode,
+                  GradeID: gradeLevel.GradeID,
+                  RoomID: isActivity ? null : room.RoomID,
+                  IsLocked: isActivity,
+                  teachers_responsibility: {
+                    connect: [{ RespID: resp.RespID }],
+                  },
+                },
+              }),
+            `Create schedule ${gradeLevel.GradeID} ${subjectCode}`,
+          ),
+        );
+      }
+    }
+
+    console.log(
+      `✅ Created ${classSchedules.length} MOE class schedules (full semester)`,
+    );
+  } else {
+    // ===== PROGRAM-SUBJECT ASSIGNMENTS (Example for M.1 programs) =====
+    console.log("🔗 Assigning subjects to M.1 programs...");
+
+  const m1SciProgram = programs.find((p) => p.ProgramCode === "M1-SCI")!;
+  const m1LangMathProgram = programs.find(
+    (p) => p.ProgramCode === "M1-LANG-MATH",
+  )!;
+  const m1LangProgram = programs.find((p) => p.ProgramCode === "M1-LANG")!;
 
   // M.1 Science-Math program subjects using MOE codes
   const m1SciSubjects = [
@@ -2591,7 +3129,6 @@ async function main() {
   const getTeachersByDept = (dept: string) =>
     teachers.filter((t) => t.Department === dept);
 
-  const responsibilities: any[] = [];
   const teacherWorkload = new Map<number, number>();
 
   const assignResponsibility = async (
@@ -2715,7 +3252,6 @@ async function main() {
 
   // ===== SAMPLE CLASS SCHEDULES =====
   console.log("📅 Creating sample class schedules...");
-  const classSchedules: any[] = [];
 
   // Create regular class schedules for M.1 grades (first 3 grades)
   // This ensures teacher timetables show populated data for visual tests
@@ -2830,6 +3366,7 @@ async function main() {
   console.log(
     `✅ Created ${classSchedules.length} sample class schedules (including locked activities)`,
   );
+  }
 
   // ===== SUMMARY =====
   console.log("\n" + "=".repeat(70));
@@ -2871,10 +3408,14 @@ async function main() {
   console.log(
     "   - ✅ Three program tracks (วิทย์-คณิต, ศิลป์-คำนวณ, ศิลป์-ภาษา)",
   );
-  console.log(
-    "   - ✅ Realistic teacher workload (1-3 subjects per Ministry standard)",
-  );
-  console.log("   - ✅ Sample class schedules for visual testing");
+  if (isMoeFullSemesterMode) {
+    console.log("   - ✅ Full semester schedules for M.1-M.6");
+  } else {
+    console.log(
+      "   - ✅ Realistic teacher workload (1-3 subjects per Ministry standard)",
+    );
+    console.log("   - ✅ Sample class schedules for visual testing");
+  }
   console.log("   - ✅ Locked timeslots for school-wide activities");
   console.log("   - ✅ Grade-program assignments");
   console.log("   - ✅ 3 semesters: 1-2567, 2-2567, 1-2568");

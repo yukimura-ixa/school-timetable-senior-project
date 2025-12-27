@@ -12,7 +12,13 @@
 
 import { test, expect } from "../fixtures/admin.fixture";
 
-test.describe.skip("Auth Edge Cases", () => {
+const RUN_ADMIN_EDGE_CASES_E2E = process.env.E2E_ADMIN_EDGE_CASES === "true";
+
+test.describe("Auth Edge Cases", () => {
+  test.skip(
+    !RUN_ADMIN_EDGE_CASES_E2E,
+    "Set E2E_ADMIN_EDGE_CASES=true to run admin edge-case E2E tests",
+  );
   test("TC-AUTH-E01: Invalid password shows error message", async ({
     browser,
   }) => {
@@ -122,7 +128,11 @@ test.describe.skip("Auth Edge Cases", () => {
   });
 });
 
-test.describe.skip("CRUD Validation Edge Cases", () => {
+test.describe("CRUD Validation Edge Cases", () => {
+  test.skip(
+    !RUN_ADMIN_EDGE_CASES_E2E,
+    "Set E2E_ADMIN_EDGE_CASES=true to run admin edge-case E2E tests",
+  );
   test("TC-CRUD-E01: Create teacher with missing required field shows error", async ({
     authenticatedAdmin,
   }) => {
@@ -266,7 +276,11 @@ test.describe.skip("CRUD Validation Edge Cases", () => {
   });
 });
 
-test.describe.skip("Navigation Edge Cases", () => {
+test.describe("Navigation Edge Cases", () => {
+  test.skip(
+    !RUN_ADMIN_EDGE_CASES_E2E,
+    "Set E2E_ADMIN_EDGE_CASES=true to run admin edge-case E2E tests",
+  );
   test("TC-NAV-E01: Invalid semester format shows error or redirects", async ({
     authenticatedAdmin,
   }) => {
@@ -345,7 +359,11 @@ test.describe.skip("Navigation Edge Cases", () => {
   });
 });
 
-test.describe.skip("Table View Edge Cases", () => {
+test.describe("Table View Edge Cases", () => {
+  test.skip(
+    !RUN_ADMIN_EDGE_CASES_E2E,
+    "Set E2E_ADMIN_EDGE_CASES=true to run admin edge-case E2E tests",
+  );
   test("TC-TABLE-E01: Student table page loads correctly", async ({
     authenticatedAdmin,
   }) => {
@@ -408,7 +426,11 @@ test.describe.skip("Table View Edge Cases", () => {
   });
 });
 
-test.describe.skip("Conflict Detection Edge Cases", () => {
+test.describe("Conflict Detection Edge Cases", () => {
+  test.skip(
+    !RUN_ADMIN_EDGE_CASES_E2E,
+    "Set E2E_ADMIN_EDGE_CASES=true to run admin edge-case E2E tests",
+  );
   test("TC-CONF-E01: Arrange page shows conflict legend", async ({
     authenticatedAdmin,
   }) => {

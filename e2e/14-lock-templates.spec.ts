@@ -9,6 +9,10 @@
 
 import { test, expect } from "./fixtures/admin.fixture";
 
+const RUN_LOCK_TEMPLATES_E2E = process.env.E2E_LOCK_TEMPLATES === "true";
+const ALLOW_LOCK_TEMPLATE_MUTATIONS =
+  process.env.E2E_LOCK_TEMPLATES_MUTATE === "true";
+
 // Helpers: get lock template modals by data-testid for stability
 const getLockTemplatesModal = (page: import("@playwright/test").Page) =>
   page.locator('[data-testid="lock-templates-modal"]');
@@ -16,7 +20,11 @@ const getLockTemplatesModal = (page: import("@playwright/test").Page) =>
 const getLockTemplatePreviewModal = (page: import("@playwright/test").Page) =>
   page.locator('[data-testid="lock-template-preview-modal"]');
 
-test.describe.skip("Lock Templates", () => {
+test.describe("Lock Templates", () => {
+  test.skip(
+    !RUN_LOCK_TEMPLATES_E2E,
+    "Set E2E_LOCK_TEMPLATES=true to run lock template E2E tests",
+  );
   test("should display templates button on lock page", async ({
     authenticatedAdmin,
   }) => {
@@ -409,7 +417,11 @@ test.describe.skip("Lock Templates", () => {
   });
 });
 
-test.describe.skip("Lock Templates - Template Coverage", () => {
+test.describe("Lock Templates - Template Coverage", () => {
+  test.skip(
+    !RUN_LOCK_TEMPLATES_E2E,
+    "Set E2E_LOCK_TEMPLATES=true to run lock template E2E tests",
+  );
   test("should have all 8 templates available", async ({
     authenticatedAdmin,
   }) => {
@@ -507,11 +519,16 @@ test.describe.skip("Lock Templates - Template Coverage", () => {
   });
 });
 
-test.describe.skip("Lock Templates - Complete Flow", () => {
-  test.skip("should complete full template application flow", async ({
-    page,
-  }) => {
-    // Skip in CI/automated tests as it modifies database
+test.describe("Lock Templates - Complete Flow", () => {
+  test.skip(
+    !RUN_LOCK_TEMPLATES_E2E,
+    "Set E2E_LOCK_TEMPLATES=true to run lock template E2E tests",
+  );
+  test("should complete full template application flow", async ({ page }) => {
+    test.skip(
+      !ALLOW_LOCK_TEMPLATE_MUTATIONS,
+      "Set E2E_LOCK_TEMPLATES_MUTATE=true to allow DB mutations",
+    );
     await page.goto("/schedule/2567/1/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
@@ -547,7 +564,11 @@ test.describe.skip("Lock Templates - Complete Flow", () => {
     expect(modalVisible).toBe(false);
   });
 
-  test.skip("should handle template with warnings", async ({ page }) => {
+  test("should handle template with warnings", async ({ page }) => {
+    test.skip(
+      !ALLOW_LOCK_TEMPLATE_MUTATIONS,
+      "Set E2E_LOCK_TEMPLATES_MUTATE=true to allow DB mutations",
+    );
     await page.goto("/schedule/2567/1/lock");
     // ⚠️ TODO: Replace with web-first assertion: await expect(page.locator("selector")).toBeVisible();
 
@@ -579,7 +600,11 @@ test.describe.skip("Lock Templates - Complete Flow", () => {
   });
 });
 
-test.describe.skip("Lock Templates - Error Handling", () => {
+test.describe("Lock Templates - Error Handling", () => {
+  test.skip(
+    !RUN_LOCK_TEMPLATES_E2E,
+    "Set E2E_LOCK_TEMPLATES=true to run lock template E2E tests",
+  );
   test("should handle template resolution errors", async ({
     authenticatedAdmin,
   }) => {
@@ -662,7 +687,11 @@ test.describe.skip("Lock Templates - Error Handling", () => {
   });
 });
 
-test.describe.skip("Lock Templates - Accessibility", () => {
+test.describe("Lock Templates - Accessibility", () => {
+  test.skip(
+    !RUN_LOCK_TEMPLATES_E2E,
+    "Set E2E_LOCK_TEMPLATES=true to run lock template E2E tests",
+  );
   test("should have proper ARIA labels", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
     await page.goto("/schedule/2567/1/lock");

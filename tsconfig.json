@@ -58,6 +58,8 @@
     "proxy.ts",
     "playwright.config.ts",
     "prisma.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts",
     "jest.config.ts",
     "jest.setup.ts",
     "types/**/*.d.ts",

@@ -171,7 +171,7 @@ export function SearchableSubjectPalette({
   // ============================================================================
 
   return (
-    <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
+    <Paper elevation={2} sx={{ p: 2, mt: 2 }} data-testid="subject-palette">
       <Stack spacing={2}>
         {/* Header */}
         <Stack
@@ -339,6 +339,7 @@ export function SearchableSubjectPalette({
             overflowY: "auto",
             bgcolor: "background.default",
           }}
+          data-testid="subject-list"
         >
           {filteredSubjects.length === 0 ? (
             <Stack

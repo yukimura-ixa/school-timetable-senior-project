@@ -1,5 +1,7 @@
 import { test, expect } from "./fixtures/admin.fixture";
 
+const RUN_ACTIVITY_MANAGEMENT_E2E = process.env.E2E_ACTIVITY_MANAGEMENT === "true";
+
 /**
  * E2E Tests for Activity Subject Management (ชุมนุม, ลูกเสือ, กิจกรรม)
  *
@@ -23,7 +25,11 @@ import { test, expect } from "./fixtures/admin.fixture";
  * If flakiness persists, add page.waitForLoadState('networkidle') after saves.
  */
 
-test.describe.skip("Activity Management - CRUD Operations", () => {
+test.describe("Activity Management - CRUD Operations", () => {
+  test.skip(
+    !RUN_ACTIVITY_MANAGEMENT_E2E,
+    "Set E2E_ACTIVITY_MANAGEMENT=true to run activity management E2E tests",
+  );
   const TEST_ACTIVITY = {
     code: "ACTE2E001",
     name: "E2E Test Science Club",

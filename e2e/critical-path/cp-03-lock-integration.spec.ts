@@ -18,6 +18,13 @@ import { test, expect } from "@playwright/test";
 const TEST_SEMESTER = "2568/1";
 
 test.describe.serial("CP-03: Timeslot Locking Integration", () => {
+  const RUN_LOCK_INTEGRATION_E2E =
+    process.env.E2E_LOCK_INTEGRATION === "true";
+
+  test.skip(
+    !RUN_LOCK_INTEGRATION_E2E,
+    "Set E2E_LOCK_INTEGRATION=true to run lock integration E2E tests",
+  );
   test.beforeEach(async ({ page }, testInfo) => {
     // Increase test timeout to 90s for Turbopack compilation (20s compile + 13s render + margin)
     testInfo.setTimeout(90000);

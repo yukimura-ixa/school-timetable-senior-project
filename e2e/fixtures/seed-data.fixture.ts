@@ -48,34 +48,44 @@ export const testSemester = testSemesters.semester1_2567;
 
 /**
  * Test Teacher Data
- * From seed.ts - Real teachers created during seeding
+ * From seed.ts - Deterministic teachers created during clean/test seeding
  */
 export const testTeachers = {
-  // Math teacher - likely to have multiple sections
+  // Deterministic E2E teacher (seeded first in test/clean mode)
+  e2eTeacher: {
+    TeacherID: 1,
+    Prefix: "ครู",
+    Firstname: "E2E",
+    Lastname: "ทดสอบ",
+    Department: "คณิตศาสตร์",
+    SubjectGroup: "คณิตศาสตร์",
+    Email: "e2e.teacher@school.ac.th",
+  },
+  // Math teacher (first math dept teacher in clean/test seed after E2E + Thai)
   mathTeacher: {
-    TeacherID: 1, // First teacher in seed
+    TeacherID: 7,
     Prefix: "นาย",
-    Firstname: "สมชาย",
-    Lastname: "สมบูรณ์",
+    Firstname: "อนุชา",
+    Lastname: "มั่นคง",
     Department: "คณิตศาสตร์",
     SubjectGroup: "คณิตศาสตร์",
   },
-  // Science teacher
+  // Science teacher (first science dept teacher in clean/test seed)
   scienceTeacher: {
-    TeacherID: 11, // Typically 11th teacher (after ~10 math teachers)
-    Prefix: "นางสาว",
-    Firstname: "สุดารัตน์",
-    Lastname: "เลิศล้ำ",
-    Department: "วิทยาศาสตร์",
+    TeacherID: 12,
+    Prefix: "นาย",
+    Firstname: "นิภา",
+    Lastname: "สุขเจริญ",
+    Department: "วิทยาศาสตร์และเทคโนโลยี",
     SubjectGroup: "วิทยาศาสตร์",
   },
-  // English teacher
+  // Foreign language teacher (first foreign languages dept teacher)
   englishTeacher: {
-    TeacherID: 31, // Typically 31st teacher (after math, science, thai depts)
-    Prefix: "นางสาว",
-    Firstname: "กนกวรรณ",
-    Lastname: "วรวัฒน์",
-    Department: "ภาษาอังกฤษ",
+    TeacherID: 22,
+    Prefix: "นาย",
+    Firstname: "นันทวัน",
+    Lastname: "ภูมิใจ",
+    Department: "ภาษาต่างประเทศ",
     SubjectGroup: "ภาษาต่างประเทศ",
   },
 };
@@ -83,7 +93,7 @@ export const testTeachers = {
 /**
  * Default teacher for most tests
  */
-export const testTeacher = testTeachers.mathTeacher;
+export const testTeacher = testTeachers.e2eTeacher;
 
 /**
  * Test Subject Data

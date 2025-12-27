@@ -1,5 +1,8 @@
 import { test, expect } from "../fixtures/admin.fixture";
 
+const RUN_ANALYTICS_DASHBOARD_E2E =
+  process.env.E2E_ANALYTICS_DASHBOARD === "true";
+
 /**
  * Analytics Dashboard E2E Tests
  *
@@ -13,7 +16,11 @@ import { test, expect } from "../fixtures/admin.fixture";
  * Uses admin fixture for authentication (no dev bypass).
  */
 
-test.describe.skip("Analytics Dashboard", () => {
+test.describe("Analytics Dashboard", () => {
+  test.skip(
+    !RUN_ANALYTICS_DASHBOARD_E2E,
+    "Set E2E_ANALYTICS_DASHBOARD=true to run analytics dashboard E2E tests",
+  );
   test.beforeEach(async ({ page }) => {
     // Navigate to semester selection page
     await page.goto("/dashboard", {

@@ -1,6 +1,9 @@
 import { test, expect } from "../../fixtures/admin.fixture";
 import { testSemester, testTeacher } from "../../fixtures/seed-data.fixture";
 
+const RUN_SCHEDULE_ASSIGNMENT_EXTENDED =
+  process.env.E2E_SCHEDULE_ASSIGNMENT_EXTENDED === "true";
+
 /**
  * E2E Tests for Admin Schedule Assignment Flow
  *
@@ -173,9 +176,11 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
   });
 });
 
-test.describe.skip(
-  "Admin: Schedule Assignment - Cross-Semester Navigation",
-  () => {
+test.describe("Admin: Schedule Assignment - Cross-Semester Navigation", () => {
+  test.skip(
+    !RUN_SCHEDULE_ASSIGNMENT_EXTENDED,
+    "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
+  );
     test.beforeEach(async ({ arrangePage }) => {
       await arrangePage.navigateTo("1", "2567");
       // Don't wait for page ready yet - tests will select teacher first
@@ -275,7 +280,11 @@ test.describe.skip(
   },
 );
 
-test.describe.skip("Admin: Schedule Assignment - Timeslot Locking", () => {
+test.describe("Admin: Schedule Assignment - Timeslot Locking", () => {
+  test.skip(
+    !RUN_SCHEDULE_ASSIGNMENT_EXTENDED,
+    "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
+  );
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo("1", "2567");
     // Don't wait for page ready yet - tests will select teacher first
@@ -326,7 +335,11 @@ test.describe.skip("Admin: Schedule Assignment - Timeslot Locking", () => {
   });
 });
 
-test.describe.skip("Admin: Schedule Assignment - Export Functionality", () => {
+test.describe("Admin: Schedule Assignment - Export Functionality", () => {
+  test.skip(
+    !RUN_SCHEDULE_ASSIGNMENT_EXTENDED,
+    "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
+  );
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo("1", "2567");
     // Don't wait for page ready yet - tests will select teacher first
@@ -409,9 +422,13 @@ test.describe.skip("Admin: Schedule Assignment - Export Functionality", () => {
   });
 });
 
-test.describe.skip(
+test.describe(
   "Admin: Schedule Assignment - Cross-Semester Navigation (advanced)",
   () => {
+    test.skip(
+      !RUN_SCHEDULE_ASSIGNMENT_EXTENDED,
+      "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
+    );
     test("should navigate between semesters", async ({ arrangePage }) => {
       // Semester 1
       await arrangePage.navigateTo("1", "2567");
@@ -464,7 +481,11 @@ test.describe.skip(
  * These tests ensure that the UI remains responsive even with
  * complex schedules and multiple assignments.
  */
-test.describe.skip("Admin: Schedule Assignment - Performance", () => {
+test.describe("Admin: Schedule Assignment - Performance", () => {
+  test.skip(
+    !RUN_SCHEDULE_ASSIGNMENT_EXTENDED,
+    "Set E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true to run extended schedule assignment tests",
+  );
   test.beforeEach(async ({ arrangePage }) => {
     await arrangePage.navigateTo("1", "2567");
     // Don't wait for page ready yet - tests will select teacher first

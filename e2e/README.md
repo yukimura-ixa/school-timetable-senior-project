@@ -4,7 +4,7 @@
 
 This directory contains end-to-end (E2E) tests for the School Timetable Management System using Playwright.
 
-**Test Suite Size:** 33 E2E test files (updated Dec 2025)  
+**Test Suite Size:** 32 E2E test files (updated Dec 2025)  
 **Estimated Runtime:** 30-40 minutes (full suite)  
 **Last Updated:** 2025-12-21
 
@@ -69,11 +69,10 @@ The test suite is organized into **3 tiers** for optimal coverage and performanc
 
 #### Scheduling & Arrangement
 
-- `06-refactored-teacher-arrange.spec.ts` - Teacher scheduling (primary)
 - `08-drag-and-drop.spec.ts` - Comprehensive drag-drop scenarios
 - `05-view-teacher-schedule.spec.ts` - Schedule viewing
 - `20-subject-assignment.spec.ts` - Subject assignment flow **(NEW - Dec 2025)**
-- `21-arrangement-flow.spec.ts` - Arrangement workflow **(NEW - Dec 2025)**
+- `21-arrangement-flow.spec.ts` - Arrangement core workflow (drag-drop, room, save)
 
 #### Conflicts & Validation
 
@@ -153,10 +152,35 @@ pnpm playwright test e2e/api/ e2e/integration/ e2e/dashboard/
 pnpm playwright test e2e/01-auth/ e2e/security-role-enforcement.spec.ts
 
 # Drag-and-drop only
-pnpm playwright test e2e/08-drag-and-drop.spec.ts e2e/06-refactored-teacher-arrange.spec.ts
+pnpm playwright test e2e/08-drag-and-drop.spec.ts e2e/21-arrangement-flow.spec.ts
 
 # Conflict detection
 pnpm playwright test e2e/04-conflict-prevention.spec.ts e2e/12-conflict-detector.spec.ts
+```
+
+### Optional Suites (Env Flags)
+
+Some suites are opt-in to keep CI stable while UIs or data requirements are in flux.
+Enable them by setting env flags:
+
+```bash
+# Feature suites
+E2E_ACTIVITY_MANAGEMENT=true
+E2E_LOCK_TEMPLATES=true
+E2E_PDF_EXPORT=true
+E2E_ANALYTICS_DASHBOARD=true
+E2E_ADMIN_EDGE_CASES=true
+E2E_DASHBOARD_VIEWS=true
+E2E_LOCK_INTEGRATION=true
+E2E_COMPLIANCE_UI=true
+E2E_PROGRAM_ASSIGNMENT=true
+E2E_SCHEDULE_ASSIGNMENT_EXTENDED=true
+UNIT_ANALYTICS_OVERVIEW=true
+
+# Mutation-heavy suites
+E2E_LOCK_TEMPLATES_MUTATE=true
+E2E_BULK_LOCK=true
+E2E_BULK_LOCK_MUTATE=true
 ```
 
 ### Interactive Mode

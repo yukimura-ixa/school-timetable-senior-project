@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
-import { complianceRepository } from "./compliance.repository";
-import prisma from "@/lib/prisma";
+import { describe, it, expect, vi, beforeAll } from "vitest";
 
-// Unmock prisma for integration tests
-vi.unmock("@/lib/prisma");
+const hasDatabase = Boolean(process.env.DATABASE_URL);
+
+let complianceRepository!: typeof import("./compliance.repository").complianceRepository;
+let prisma!: typeof import("@/lib/prisma").default;
 
 /**
  * Integration Tests for Compliance Repository
@@ -11,12 +11,19 @@ vi.unmock("@/lib/prisma");
  *
  * @vitest-environment node
  */
-describe("Compliance Repository Integration", () => {
+describe.skipIf(!hasDatabase)("Compliance Repository Integration", () => {
   const TEST_CONFIG_ID = "1-2568";
 
   // These should match the IDs created by scripts/seed-compliance.ts
   const TEST_PROGRAM_CODE = "COMP-P1";
   const MANDATORY_SUBJECT_CODE = "ค21101";
+
+  beforeAll(async () => {
+    // Unmock prisma for integration tests only when DATABASE_URL is available.
+    vi.unmock("@/lib/prisma");
+    prisma = (await import("@/lib/prisma")).default;
+    complianceRepository = (await import("./compliance.repository")).complianceRepository;
+  });
 
   it("should connect to the database", async () => {
     // Debug info

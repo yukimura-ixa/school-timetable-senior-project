@@ -14,6 +14,7 @@ const TEACHER_CODE = "COMP-T1"; // Math Department
 const THAI_SUBJECT = "ท21101"; // Thai Learning Area
 const UPPER_SEC_SUBJECT = "ท41101"; // Level 4-6: ม.4-ม.6 (Thai for Upper Secondary)
 const MANDATORY_MATH = "ค21101"; // Mandatory Math for COMP-P1
+const RUN_COMPLIANCE_UI_E2E = process.env.E2E_COMPLIANCE_UI === "true";
 
 test.describe("Compliance UI Checks", () => {
   test.beforeEach(async ({ authenticatedAdmin }) => {
@@ -69,9 +70,13 @@ test.describe("Compliance UI Checks", () => {
   // ✅ Context7-documented pattern: waitForResponse with POST method check
   // ❌ Still fails: Server Action completion doesn't guarantee snackbar render timing
   // Core validation logic verified via unit tests (teacher-validation.service.test.ts)
-  test.skip("COMP-02: Should show specialization warning (Department mismatch)", async ({
+  test("COMP-02: Should show specialization warning (Department mismatch)", async ({
     authenticatedAdmin,
   }) => {
+    test.skip(
+      !RUN_COMPLIANCE_UI_E2E,
+      "Set E2E_COMPLIANCE_UI=true to run flaky compliance UI tests",
+    );
     const { page } = authenticatedAdmin;
 
     // 1. Select Teacher COMP-T1 (Math Dept)
@@ -135,9 +140,13 @@ test.describe("Compliance Analytics Checks", () => {
   // ✅ Context7 pattern: waitForResponse with POST + response.ok
   // ❌ Still fails: Analytics Server Components have complex async rendering
   // Core compliance logic verified via integration tests (compliance.repository.test.ts)
-  test.skip("COMP-03: Should show program compliance errors in Analytics", async ({
+  test("COMP-03: Should show program compliance errors in Analytics", async ({
     authenticatedAdmin,
   }) => {
+    test.skip(
+      !RUN_COMPLIANCE_UI_E2E,
+      "Set E2E_COMPLIANCE_UI=true to run flaky compliance UI tests",
+    );
     const { page } = authenticatedAdmin;
 
     // 1. Navigate to Analytics and wait for Server Component data loading

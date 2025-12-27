@@ -1,7 +1,13 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 
-test.describe.skip("PDF Export - Admin Only", () => {
+const RUN_PDF_EXPORT_E2E = process.env.E2E_PDF_EXPORT === "true";
+
+test.describe("PDF Export - Admin Only", () => {
+  test.skip(
+    !RUN_PDF_EXPORT_E2E,
+    "Set E2E_PDF_EXPORT=true to run PDF export E2E tests",
+  );
   test.beforeEach(async ({ page }) => {
     // Navigate to sign in page
     await page.goto("/signin");
@@ -131,7 +137,11 @@ test.describe.skip("PDF Export - Admin Only", () => {
   });
 });
 
-test.describe.skip("Student PDF Export - Admin Only", () => {
+test.describe("Student PDF Export - Admin Only", () => {
+  test.skip(
+    !RUN_PDF_EXPORT_E2E,
+    "Set E2E_PDF_EXPORT=true to run PDF export E2E tests",
+  );
   test.beforeEach(async ({ page }) => {
     // Navigate to sign in page
     await page.goto("/signin");
@@ -229,7 +239,11 @@ test.describe.skip("Student PDF Export - Admin Only", () => {
   });
 });
 
-test.describe.skip("PDF Export - Non-Admin Access Control", () => {
+test.describe("PDF Export - Non-Admin Access Control", () => {
+  test.skip(
+    !RUN_PDF_EXPORT_E2E,
+    "Set E2E_PDF_EXPORT=true to run PDF export E2E tests",
+  );
   test("should return 403 for non-admin API access", async ({ page, request }) => {
     // Navigate to sign in page
     await page.goto("/signin");

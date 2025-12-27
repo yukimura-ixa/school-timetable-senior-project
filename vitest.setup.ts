@@ -3,6 +3,10 @@
 import { vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import React from "react";
+import dotenv from "dotenv";
+
+// Load test env files if present (local overrides standard test env)
+dotenv.config({ path: [".env.test.local", ".env.test"] });
 
 // Set required environment variables for tests
 process.env.AUTH_SECRET = "test-secret-at-least-32-characters-long-for-testing";
