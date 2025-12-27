@@ -16,6 +16,20 @@ type ScheduleWithResponsibility = {
   teachers_responsibility: { TeacherID: number }[];
 };
 
+const safeCacheTag = (...tags: string[]) => {
+  try {
+    cacheTag(...tags);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes("cacheComponents")
+    ) {
+      return;
+    }
+    throw error;
+  }
+};
+
 export const overviewRepository = {
   /**
    * Get overview statistics for dashboard
@@ -23,7 +37,7 @@ export const overviewRepository = {
    * @returns Overview stats including completion rate, active teachers, conflicts
    */
   async getOverviewStats(configId: string): Promise<OverviewStats> {
-    cacheTag(`stats:${configId}`);
+    safeCacheTag(`stats:${configId}`);
     const config = parseConfigId(configId);
 
     // Step 1: Get all timeslot IDs for this semester
@@ -120,7 +134,7 @@ export const overviewRepository = {
    * @returns Stats specific to the grade
    */
   async getGradeStats(configId: string, gradeId: string) {
-    cacheTag(`stats:${configId}`, `stats:${configId}:grade:${gradeId}`);
+    safeCacheTag(`stats:${configId}`, `stats:${configId}:grade:${gradeId}`);
     const config = parseConfigId(configId);
 
     // Get timeslot IDs for this semester
@@ -180,7 +194,7 @@ export const overviewRepository = {
    * @returns Count of locked and unlocked schedules
    */
   async getLockStatusSummary(configId: string) {
-    cacheTag(`stats:${configId}`, `stats:${configId}:locks`);
+    safeCacheTag(`stats:${configId}`, `stats:${configId}:locks`);
     const config = parseConfigId(configId);
 
     // Get timeslot IDs for this semester
@@ -233,7 +247,7 @@ export const overviewRepository = {
    * @returns Detailed completion metrics
    */
   async getCompletionMetrics(configId: string) {
-    cacheTag(`stats:${configId}`, `stats:${configId}:completion`);
+    safeCacheTag(`stats:${configId}`, `stats:${configId}:completion`);
     const config = parseConfigId(configId);
 
     // Get timeslot IDs for this semester

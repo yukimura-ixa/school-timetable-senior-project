@@ -112,7 +112,7 @@ describe("Analytics Overview Repository - Issue #107", () => {
       // Verify conflict repository was called with correct parameters
       expect(mockFindAllConflicts).toHaveBeenCalledWith(
         2567, // academicYear
-        "1", // semester
+        "SEMESTER_1", // semester
       );
       expect(mockFindAllConflicts).toHaveBeenCalledTimes(1);
     });
@@ -151,7 +151,7 @@ describe("Analytics Overview Repository - Issue #107", () => {
 
       // Assert
       expect(result.scheduleConflicts).toBe(0);
-      expect(mockFindAllConflicts).toHaveBeenCalledWith(2567, "2");
+      expect(mockFindAllConflicts).toHaveBeenCalledWith(2567, "SEMESTER_2");
     });
 
     it("should handle high conflict count correctly", async () => {
