@@ -142,7 +142,6 @@ function AddSubjectModal(props: Props) {
               <div className="flex justify-between">
                 <p
                   className="text-lg select-none"
-                  onClick={() => console.log(subjectList)}
                 >
                   เลือกวิชาที่รับผิดชอบ
                 </p>

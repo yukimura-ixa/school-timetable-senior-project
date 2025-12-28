@@ -179,7 +179,6 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
 
   const timeSlotHandleChange: InputChangeHandler = (e) => {
     const value = e.target.value;
-    console.log(value);
     const timeSlot = [...lockScheduleData.timeslots];
     dispatch({
       type: "SET_TIME_SLOT",
@@ -266,7 +265,6 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const setTeacherList = (value: teacher[]) => {
-    console.log(value);
     dispatch({ type: "SET_TEACHERS", payload: value });
   };
 
@@ -338,7 +336,7 @@ function LockScheduleForm({ closeModal, data, mutate }: Props) {
   };
 
   const editLockSchedule = (data: LockScheduleData) => {
-    console.log(data);
+    void data;
   };
 
   return (

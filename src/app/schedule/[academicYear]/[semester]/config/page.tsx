@@ -311,7 +311,7 @@ function TimetableConfigValue() {
         <div className="flex w-full h-[65px] justify-between py-4 items-center">
           <div className="flex items-center gap-4">
             <BsTable size={25} className="fill-gray-500" />
-            <p onClick={() => console.log(configData)} className="text-md">
+            <p className="text-md">
               กำหนดคาบต่อวัน
             </p>
           </div>

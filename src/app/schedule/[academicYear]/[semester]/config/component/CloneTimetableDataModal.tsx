@@ -59,7 +59,6 @@ function CloneTimetableDataModal({
 
   useEffect(() => {
     validateData();
-    console.log(validate);
   }, [cloneList]);
 
   const tableConfig = useSWR("all-configs", async () => {
@@ -113,7 +112,6 @@ function CloneTimetableDataModal({
       enqueueSnackbar("เรียกข้อมูลสำเร็จ", { variant: "success" });
       mutate();
     } catch (error: unknown) {
-      console.log(error);
       enqueueSnackbar(
         "เกิดข้อผิดพลาดในการเรียกข้อมูล: " +
           (error instanceof Error ? error.message : "Unknown error"),
@@ -144,7 +142,7 @@ function CloneTimetableDataModal({
             </div>
             <div className="flex flex-col w-full justify-center items-center">
               <div className="flex w-full justify-between items-center">
-                <b className="text-sm" onClick={() => console.log(cloneList)}>
+                <b className="text-sm">
                   เลือกเทอมที่ต้องการคัดลอก
                 </b>
                 <div className="flex gap-3">

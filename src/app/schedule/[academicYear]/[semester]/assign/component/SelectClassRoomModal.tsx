@@ -88,15 +88,6 @@ function SelectClassRoomModal({
               <div className="flex justify-between">
                 <p
                   className="text-lg select-none"
-                  onClick={() =>
-                    console.log(
-                      classRoomList
-                        .filter((item) => item.isSelected)
-                        .map((classRoom) => ({
-                          GradeID: classRoom.GradeID,
-                        })),
-                    )
-                  }
                 >
                   เลือกชั้นเรียน
                 </p>

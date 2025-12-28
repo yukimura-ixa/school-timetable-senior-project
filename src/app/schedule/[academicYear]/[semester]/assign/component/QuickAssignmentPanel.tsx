@@ -146,7 +146,6 @@ function QuickAssignmentPanel({
     }
 
     setIsSubmitting(true);
-    console.log("QuickAssignmentPanel: Starting handleSubmit...");
 
     try {
       // Build new assignments to add

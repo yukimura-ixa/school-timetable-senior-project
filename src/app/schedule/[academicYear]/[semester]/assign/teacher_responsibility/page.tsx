@@ -353,7 +353,6 @@ function ClassroomResponsibility() {
       );
     } else {
       setValidateStatus(false);
-      console.log(postData);
       saveApi(postData);
     }
   };
@@ -434,9 +433,6 @@ function ClassroomResponsibility() {
             <div className="flex items-center gap-2">
               <p
                 className="text-md"
-                onClick={() => {
-                  console.log(data);
-                }}
               >
                 ชั้นเรียนที่รับผิดชอบ
               </p>

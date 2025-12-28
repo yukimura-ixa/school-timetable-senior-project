@@ -83,7 +83,6 @@ function SelectSubjectToTimeslotModal(props: Props): JSX.Element {
               <div className="flex gap-3 items-center">
                 <b
                   className="text-lg select-none"
-                  onClick={() => console.log(payload)}
                 >
                   จัดวิชาเรียนลงในคาบ
                 </b>

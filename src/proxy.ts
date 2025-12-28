@@ -28,7 +28,6 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = newPath;
 
-    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
     return NextResponse.redirect(url, 301);
   }
 
@@ -44,7 +43,6 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = newPath;
 
-    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
     return NextResponse.redirect(url, 301);
   }
 
@@ -60,7 +58,6 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = newPath;
 
-    console.log(`[Proxy] Redirecting: ${pathname} → ${newPath}`);
     return NextResponse.redirect(url, 301);
   }
 

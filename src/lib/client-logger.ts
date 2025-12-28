@@ -38,12 +38,14 @@ export function createClientLogger(component: string): ClientLogger {
   return {
     debug: (message: string, context?: ClientLogContext) => {
       if (process.env.NODE_ENV !== "production") {
-        console.debug(prefix, message, context ?? "");
+        console.warn(prefix, "[debug]", message, context ?? "");
       }
     },
 
     info: (message: string, context?: ClientLogContext) => {
-      console.info(prefix, message, context ?? "");
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(prefix, "[info]", message, context ?? "");
+      }
     },
 
     warn: (message: string, context?: ClientLogContext) => {
