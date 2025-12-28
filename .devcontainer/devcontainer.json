@@ -41,6 +41,6 @@
         5432,
         5433
     ],
-    "postCreateCommand": "pnpm install && pnpm prisma generate",
+    "postCreateCommand": "chmod +x .devcontainer/setup-env.sh && ./.devcontainer/setup-env.sh && pnpm install && pnpm prisma generate",
     "remoteUser": "node"
 }
