@@ -46,6 +46,7 @@ import {
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import CloseIcon from "@mui/icons-material/Close";
 import { enqueueSnackbar } from "notistack";
+import { toErrorMessage } from "@/shared/lib/error-message";
 
 // Import Zustand store hooks
 import {
@@ -261,7 +262,7 @@ export function DraggableSubjectCard({
               result.error &&
               typeof result.error === "object" &&
               "message" in result.error
-                ? String((result.error as { message?: unknown }).message ?? "")
+                ? toErrorMessage(result.error, "เกิดข้อผิดพลาด")
                 : "เกิดข้อผิดพลาด";
             enqueueSnackbar("ไม่สามารถลบตารางสอนได้: " + errorMsg, {
               variant: "error",

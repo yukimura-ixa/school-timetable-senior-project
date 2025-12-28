@@ -19,14 +19,22 @@ export default async function TeacherManagePage() {
 
   // Error state
   if (!result.success) {
-    return <NetworkErrorEmptyState />;
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold">จัดการข้อมูลครู</h1>
+        <NetworkErrorEmptyState />
+      </div>
+    );
   }
 
   return (
-    <Suspense fallback={<TeacherListSkeleton count={6} />}>
-      <TeacherManageClient
-        initialData={result.success ? (result.data ?? []) : []}
-      />
-    </Suspense>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">จัดการข้อมูลครู</h1>
+      <Suspense fallback={<TeacherListSkeleton count={6} />}>
+        <TeacherManageClient
+          initialData={result.success ? (result.data ?? []) : []}
+        />
+      </Suspense>
+    </div>
   );
 }

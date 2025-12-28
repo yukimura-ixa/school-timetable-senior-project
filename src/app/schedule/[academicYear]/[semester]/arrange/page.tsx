@@ -18,6 +18,7 @@ import React, { useEffect, useCallback, useMemo, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { enqueueSnackbar } from "notistack";
+import { toErrorMessage } from "@/shared/lib/error-message";
 import { Box, Container, Paper, Stack, Alert, AlertTitle } from "@mui/material";
 import { authClient } from "@/lib/auth-client";
 
@@ -825,7 +826,7 @@ export default function ArrangementPage() {
               result.error &&
               typeof result.error === "object" &&
               "message" in result.error
-                ? String((result.error as { message?: unknown }).message ?? "")
+                ? toErrorMessage(result.error, "ไม่ทราบสาเหตุ")
                 : "ไม่ทราบสาเหตุ";
 
             enqueueSnackbar(`❌ จัดตารางสอนไม่สำเร็จ: ${errorMsg}`, {

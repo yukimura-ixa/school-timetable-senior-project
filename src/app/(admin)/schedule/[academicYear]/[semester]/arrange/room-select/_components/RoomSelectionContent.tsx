@@ -11,6 +11,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { useSnackbar } from "notistack";
+import { toErrorMessage } from "@/shared/lib/error-message";
 import {
   Box,
   Typography,
@@ -81,7 +82,7 @@ export function RoomSelectionContent({
           result.error &&
           typeof result.error === "object" &&
           "message" in result.error
-            ? String((result.error as { message?: unknown }).message ?? "")
+            ? toErrorMessage(result.error)
             : "";
 
         enqueueSnackbar(
