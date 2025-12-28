@@ -244,26 +244,29 @@ export function DraggableSubjectCard({
       });
 
       // Type guard for result
-      if (result && typeof result === "object" && "success" in result) {
-        if (result.success) {
-          // Clear selected subject from UI state
-          clearSelectedSubject();
+        if (result && typeof result === "object" && "success" in result) {
+          if (result.success) {
+            // Clear selected subject from UI state
+            clearSelectedSubject();
 
           // Trigger parent revalidation if callback provided
           onDelete?.();
 
           // Show success notification
           enqueueSnackbar("ลบตารางสอนสำเร็จ", { variant: "success" });
-        } else {
-          // Show error notification
-          const errorMsg =
-            "error" in result && typeof result.error === "string"
-              ? result.error
-              : "เกิดข้อผิดพลาด";
-          enqueueSnackbar("ไม่สามารถลบตารางสอนได้: " + errorMsg, {
-            variant: "error",
-          });
-        }
+          } else {
+            // Show error notification
+            const errorMsg =
+              "error" in result &&
+              result.error &&
+              typeof result.error === "object" &&
+              "message" in result.error
+                ? String((result.error as { message?: unknown }).message ?? "")
+                : "เกิดข้อผิดพลาด";
+            enqueueSnackbar("ไม่สามารถลบตารางสอนได้: " + errorMsg, {
+              variant: "error",
+            });
+          }
       } else {
         enqueueSnackbar("เกิดข้อผิดพลาดในการลบตารางสอน", { variant: "error" });
       }

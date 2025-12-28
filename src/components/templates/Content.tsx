@@ -11,7 +11,7 @@ type Props = {
 
 function Content(props: Props) {
   const pathName = usePathname();
-  const { sidebarOpen } = useUIStore();
+  const { sidebarOpen, isHydrated } = useUIStore();
   const { data: session } = authClient.useSession();
 
   // /dashboard is the semester selection page (full width)
@@ -37,7 +37,10 @@ function Content(props: Props) {
     pathName.match("/config") ||
     pathName.startsWith("/management");
 
-  const showSidebar = !!session && !isNoSidebarPage && !isSemesterSelectionPage;
+  // Hydration-safe: avoid SSR/client mismatch by only rendering the sidebar
+  // after Zustand has rehydrated on the client.
+  const showSidebar =
+    isHydrated && !!session && !isNoSidebarPage && !isSemesterSelectionPage;
   const sidebarComponent = isDashboardSubPage ? (
     <DashboardMenubar />
   ) : isManagementPage ? (

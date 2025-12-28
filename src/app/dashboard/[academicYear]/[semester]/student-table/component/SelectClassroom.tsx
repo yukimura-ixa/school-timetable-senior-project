@@ -3,6 +3,7 @@ import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import type { gradelevel } from "@/prisma/generated/client";
 import React, { useEffect, useState } from "react";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 
 type Props = {
   setGradeID: (gradeId: string | null) => void;
@@ -17,8 +18,11 @@ const formatGradeLabel = (gradeId: string | null) => {
     return "";
   }
 
-  const roomNumber = Number.parseInt(gradeId.substring(1), 10);
-  return `ม.${gradeId[0]}/${Number.isNaN(roomNumber) ? "" : roomNumber}`;
+  try {
+    return formatGradeIdDisplay(gradeId);
+  } catch {
+    return gradeId;
+  }
 };
 
 function SelectClassRoom({

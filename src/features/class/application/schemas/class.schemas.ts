@@ -15,7 +15,7 @@ export const getClassSchedulesSchema = v.object({
   AcademicYear: v.pipe(v.number(), v.integer(), v.minValue(2500)),
   Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
   TeacherID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
-  GradeID: v.optional(v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/))), // e.g., "10/2566"
+  GradeID: v.optional(v.pipe(v.string(), v.regex(/^M\d+-\d+$/))), // e.g., "M1-1"
 });
 
 export type GetClassSchedulesInput = v.InferInput<
@@ -60,7 +60,7 @@ export const createClassScheduleSchema = v.object({
   TimeslotID: v.pipe(v.string(), v.minLength(1)),
   SubjectCode: v.pipe(v.string(), v.minLength(1), v.maxLength(20)),
   RoomID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
-  GradeID: v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/)),
+  GradeID: v.pipe(v.string(), v.regex(/^M\d+-\d+$/)),
   IsLocked: v.optional(v.boolean()),
   ResponsibilityIDs: v.optional(
     v.array(v.pipe(v.number(), v.integer(), v.minValue(1))),
@@ -83,7 +83,7 @@ export const updateClassScheduleSchema = v.object({
   TimeslotID: v.optional(v.pipe(v.string(), v.minLength(1))),
   SubjectCode: v.optional(v.pipe(v.string(), v.minLength(1), v.maxLength(20))),
   RoomID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
-  GradeID: v.optional(v.pipe(v.string(), v.regex(/^\d{1,2}\/\d{4}$/))),
+  GradeID: v.optional(v.pipe(v.string(), v.regex(/^M\d+-\d+$/))),
   IsLocked: v.optional(v.boolean()),
   ResponsibilityIDs: v.optional(
     v.array(v.pipe(v.number(), v.integer(), v.minValue(1))),

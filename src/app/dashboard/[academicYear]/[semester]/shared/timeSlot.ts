@@ -27,8 +27,8 @@ export type BreakSlot = {
 export type SubjectSummary = {
   SubjectCode?: string;
   SubjectName?: string;
-  Credit?: number;
-  TotalHours?: number;
+  Credit?: number | string;
+  TotalHours?: number | string;
 };
 
 export type TeacherSummary = {

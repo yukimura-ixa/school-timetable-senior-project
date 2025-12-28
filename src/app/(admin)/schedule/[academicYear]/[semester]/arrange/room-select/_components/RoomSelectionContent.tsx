@@ -69,12 +69,25 @@ export function RoomSelectionContent({
         ResponsibilityIDs: [], // Populated by server action
       });
 
-      if (result) {
+      if (result && typeof result === "object" && "success" in result && result.success) {
         enqueueSnackbar("✅ จัดตารางสอนสำเร็จ", { variant: "success" });
         router.back(); // Close modal
         router.refresh(); // Refresh grid data
       } else {
-        enqueueSnackbar("❌ ไม่สามารถจัดตารางได้", { variant: "error" });
+        const errorMsg =
+          result &&
+          typeof result === "object" &&
+          "error" in result &&
+          result.error &&
+          typeof result.error === "object" &&
+          "message" in result.error
+            ? String((result.error as { message?: unknown }).message ?? "")
+            : "";
+
+        enqueueSnackbar(
+          `❌ ไม่สามารถจัดตารางได้${errorMsg ? `: ${errorMsg}` : ""}`,
+          { variant: "error" },
+        );
       }
     } catch (error) {
       console.error("Create schedule error:", error);

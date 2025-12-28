@@ -52,9 +52,9 @@ export function validateScheduleParams(params: {
 
   // Validate GradeID format if provided
   if (params.GradeID) {
-    const gradeIdPattern = /^\d{1,2}\/\d{4}$/;
+    const gradeIdPattern = /^M\d+-\d+$/;
     if (!gradeIdPattern.test(params.GradeID)) {
-      errors.push('GradeID must be in format "Grade/Year" (e.g., "10/2566")');
+      errors.push('GradeID must be in format "M{year}-{section}" (e.g., "M1-1")');
     }
   }
 

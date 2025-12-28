@@ -9,6 +9,7 @@
 
 import { semester } from "@/prisma/generated/client";
 import * as v from "valibot";
+import { createAction } from "@/shared/lib/action-wrapper";
 
 // Schemas
 import {
@@ -34,31 +35,6 @@ import { addTeachersToSchedules } from "../../domain/services/class-validation.s
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
-
-/**
- * Helper: Create server action with validation
- */
-function createAction<TInput, TOutput>(
-  schema: v.GenericSchema<TInput, TOutput> | undefined,
-  handler: (input: TOutput) => Promise<unknown>,
-) {
-  return async (input: TInput) => {
-    try {
-      const validated = schema
-        ? v.parse(schema, input)
-        : (input as unknown as TOutput);
-      return await handler(validated);
-    } catch (error) {
-      if (error instanceof v.ValiError) {
-        const errorMessages = error.issues
-          .map((issue) => issue.message)
-          .join(", ");
-        throw new Error(`Validation failed: ${errorMessages}`);
-      }
-      throw error;
-    }
-  };
-}
 
 /**
  * Get class schedules with flexible filtering
@@ -264,10 +240,13 @@ export const deleteClassScheduleAction = createAction(
 /**
  * Get count of all class schedules
  */
-export const getClassScheduleCountAction = createAction(undefined, async () => {
-  const count = await classRepository.count();
-  return { count };
-});
+export const getClassScheduleCountAction = createAction(
+  v.optional(v.unknown()),
+  async () => {
+    const count = await classRepository.count();
+    return { count };
+  },
+);
 
 /**
  * Get a single class schedule by ClassID

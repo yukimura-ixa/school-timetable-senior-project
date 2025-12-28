@@ -818,7 +818,22 @@ export default function ArrangementPage() {
           ResponsibilityIDs: [respId],
         });
 
-        if (result) {
+        if (result && typeof result === "object" && "success" in result) {
+          if (!result.success) {
+            const errorMsg =
+              "error" in result &&
+              result.error &&
+              typeof result.error === "object" &&
+              "message" in result.error
+                ? String((result.error as { message?: unknown }).message ?? "")
+                : "ไม่ทราบสาเหตุ";
+
+            enqueueSnackbar(`❌ จัดตารางสอนไม่สำเร็จ: ${errorMsg}`, {
+              variant: "error",
+            });
+            return;
+          }
+
           // Revalidate caches to reflect new schedule
           await Promise.all([mutateTeacherSchedule(), mutateConflicts()]);
 
@@ -829,6 +844,10 @@ export default function ArrangementPage() {
           setIsDirty(true);
 
           enqueueSnackbar("✅ จัดตารางสอนสำเร็จ", { variant: "success" });
+        } else {
+          enqueueSnackbar("❌ เกิดข้อผิดพลาด: รูปแบบผลลัพธ์ไม่ถูกต้อง", {
+            variant: "error",
+          });
         }
       } catch (error) {
         log.logError(error, { action: "scheduleCreation" });

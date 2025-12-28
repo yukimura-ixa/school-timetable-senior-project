@@ -82,10 +82,10 @@ export function validateResponsibilityInput(input: ResponsibilityOutput): {
     errors.push("SubjectCode must be at most 20 characters");
   }
 
-  // Validate GradeID format (e.g., "10/2566")
-  const gradeIdPattern = /^\d{1,2}\/\d{4}$/;
+  // Validate GradeID format (canonical: "M{year}-{section}", e.g., "M1-1")
+  const gradeIdPattern = /^M\d+-\d+$/;
   if (!gradeIdPattern.test(input.GradeID)) {
-    errors.push('GradeID must be in format "Grade/Year" (e.g., "10/2566")');
+    errors.push('GradeID must be in format "M{year}-{section}" (e.g., "M1-1")');
   }
 
   // Validate Credit - input.Credit is string from picklist

@@ -45,6 +45,7 @@ import { useGradeLevels } from "@/hooks";
 import { useUIStore } from "@/stores/uiStore";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { getClassSchedulesAction } from "@/features/class/application/actions/class.actions";
+import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 
 import TimeSlot from "./component/Timeslot";
 import SelectClassRoom from "./component/SelectClassroom";
@@ -250,12 +251,18 @@ function StudentTablePage() {
 
       // Calculate totals from classData
       const totalCredits = classData.reduce((sum, cls) => {
-        const credits = cls.subject?.Credit ?? 0;
+        const creditRaw = cls.subject?.Credit;
+        const credits = subjectCreditToNumber(
+          creditRaw == null ? "0" : String(creditRaw),
+        );
         return sum + credits;
       }, 0);
 
       const totalHours = classData.reduce((sum, cls) => {
-        const hours = cls.subject?.TotalHours ?? 0;
+        const hoursRaw = cls.subject?.TotalHours;
+        const hoursParsed =
+          hoursRaw == null ? 0 : parseFloat(String(hoursRaw));
+        const hours = Number.isFinite(hoursParsed) ? hoursParsed : 0;
         return sum + hours;
       }, 0);
 
@@ -506,37 +513,43 @@ function StudentTablePage() {
                     </Button>
                   )}
                   <Tooltip title="ส่งออกห้องเรียนที่เลือก">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      disabled={
-                        selectedGradeIds.length === 0 || hasTimeslotError
-                      }
-                      onClick={handleBulkExportExcel}
-                      startIcon={<GridOnIcon />}
-                    >
-                      {isMobile ? "Excel" : "ส่งออก Excel"}
-                    </Button>
+                    <span>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={
+                          selectedGradeIds.length === 0 || hasTimeslotError
+                        }
+                        onClick={handleBulkExportExcel}
+                        startIcon={<GridOnIcon />}
+                      >
+                        {isMobile ? "Excel" : "ส่งออก Excel"}
+                      </Button>
+                    </span>
                   </Tooltip>
                   <Tooltip title="พิมพ์ห้องเรียนที่เลือก">
-                    <IconButton
-                      color="primary"
-                      disabled={
-                        selectedGradeIds.length === 0 || hasTimeslotError
-                      }
-                      onClick={handleBulkPrint}
-                    >
-                      <PrintIcon />
-                    </IconButton>
+                    <span>
+                      <IconButton
+                        color="primary"
+                        disabled={
+                          selectedGradeIds.length === 0 || hasTimeslotError
+                        }
+                        onClick={handleBulkPrint}
+                      >
+                        <PrintIcon />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                   <Tooltip title="ตัวเลือกเพิ่มเติม">
-                    <IconButton
-                      onClick={handleExportMenuOpen}
-                      disabled={selectedGradeIds.length === 0}
-                      data-testid="student-export-menu-button"
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
+                    <span>
+                      <IconButton
+                        onClick={handleExportMenuOpen}
+                        disabled={selectedGradeIds.length === 0}
+                        data-testid="student-export-menu-button"
+                      >
+                        <MoreVertIcon />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                 </Stack>
               </Stack>
