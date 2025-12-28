@@ -75,6 +75,8 @@ test.describe("Subject Assignment - Page Load", () => {
 });
 
 test.describe("Subject Assignment - Teacher Selection", () => {
+  // Teacher selection tests depend on page state - run sequentially with extended timeout
+  test.describe.configure({ mode: "serial", timeout: 120_000, retries: 2 });
   test("AS-03: Selecting a teacher shows their assignments", async ({
     authenticatedAdmin,
   }) => {

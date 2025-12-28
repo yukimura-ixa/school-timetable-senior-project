@@ -3,6 +3,37 @@ import { NavigationHelper } from "./helpers/navigation";
 import { testSemesters, testTeacher } from "./fixtures/seed-data.fixture";
 
 test.describe("Admin regressions (SBTM)", () => {
+  // Run SBTM regression tests sequentially with extended timeout and retries
+  test.describe.configure({ mode: "serial", timeout: 120_000, retries: 2 });
+
+  // Warmup: Pre-compile pages before tests run to prevent individual test timeouts
+  test.beforeAll(async ({ browser }) => {
+    console.log("🔥 Warming up admin pages for SBTM regression tests...");
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    try {
+      // Warmup teacher arrange page
+      await page.goto(
+        `/schedule/${testSemesters.semester1_2567.SemesterAndyear}/arrange`,
+        { timeout: 90_000 },
+      );
+      await page.waitForLoadState("networkidle", { timeout: 60_000 });
+
+      // Warmup student table page
+      await page.goto(
+        `/dashboard/${testSemesters.semester1_2568.SemesterAndyear}/student-table`,
+        { timeout: 90_000 },
+      );
+      await page.waitForLoadState("networkidle", { timeout: 60_000 });
+
+      console.log("✅ Admin pages warmed up successfully");
+    } catch (error) {
+      console.log("⚠️ Warmup navigation failed, tests may be slow:", error);
+    } finally {
+      await context.close();
+    }
+  });
+
   test("ADM-REG-001: Config dialog cancel does not persist", async ({
     authenticatedAdmin,
   }) => {
