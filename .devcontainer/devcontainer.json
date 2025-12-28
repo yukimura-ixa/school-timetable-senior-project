@@ -1,0 +1,46 @@
+{
+    "name": "Phrasongsa Timetable",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "prisma.prisma",
+                "bradlc.vscode-tailwindcss",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "christian-kohler.path-intellisense",
+                "yzhang.markdown-all-in-one"
+            ],
+            "settings": {
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll.eslint": "explicit"
+                },
+                "tailwindCSS.experimental.classRegex": [
+                    [
+                        "cva\\(([^)]*)\\)",
+                        "[\"'`]([^\"'`]*)[\"'`]"
+                    ],
+                    [
+                        "cx\\(([^)]*)\\)",
+                        "[\"'`]([^\"'`]*)[\"'`]"
+                    ],
+                    [
+                        "cn\\(([^)]*)\\)",
+                        "[\"'`]([^\"'`]*)[\"'`]"
+                    ]
+                ]
+            }
+        }
+    },
+    "forwardPorts": [
+        3000,
+        5432,
+        5433
+    ],
+    "postCreateCommand": "pnpm install && pnpm prisma generate",
+    "remoteUser": "node"
+}

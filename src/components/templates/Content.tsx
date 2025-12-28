@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import Menubar from "./Menubar";
 import DashboardMenubar from "./DashboardMenubar";
 import { useUIStore } from "@/stores/uiStore";
+import { authClient } from "@/lib/auth-client";
 
 type Props = {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ type Props = {
 function Content(props: Props) {
   const pathName = usePathname();
   const { sidebarOpen } = useUIStore();
+  const { data: session } = authClient.useSession();
 
   // /dashboard is the semester selection page (full width)
   const isSemesterSelectionPage = pathName === "/dashboard";
@@ -35,7 +37,7 @@ function Content(props: Props) {
     pathName.match("/config") ||
     pathName.startsWith("/management");
 
-  const showSidebar = !isNoSidebarPage && !isSemesterSelectionPage;
+  const showSidebar = !!session && !isNoSidebarPage && !isSemesterSelectionPage;
   const sidebarComponent = isDashboardSubPage ? (
     <DashboardMenubar />
   ) : isManagementPage ? (
