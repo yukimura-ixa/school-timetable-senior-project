@@ -37,8 +37,36 @@ const prismaClientSingleton = () => {
       log: ["error"],
     });
   } else {
-    // Development/Test: Use Driver Adapter (pg) for local Docker/Postgres compatibility
+    // Development/Test: Prefer Accelerate when an Accelerate URL is provided.
     const connectionString = process.env.DATABASE_URL;
+    const accelerateUrl =
+      process.env.ACCELERATE_URL ||
+      (connectionString &&
+      (connectionString.startsWith("prisma://") ||
+        connectionString.startsWith("prisma+postgres://"))
+        ? connectionString
+        : undefined);
+
+    if (accelerateUrl) {
+      if (
+        !accelerateUrl.startsWith("prisma://") &&
+        !accelerateUrl.startsWith("prisma+postgres://")
+      ) {
+        throw new Error(
+          "ACCELERATE_URL must start with prisma:// or prisma+postgres://",
+        );
+      }
+
+      return new PrismaClient({
+        accelerateUrl,
+        log: ["query", "info", "warn", "error"],
+      }).$extends(withAccelerate()) as unknown as PrismaClient;
+    }
+
+    // Fallback: use direct database connection (pg adapter).
+    if (!connectionString) {
+      throw new Error("Missing DATABASE_URL in development");
+    }
     const pool = new Pool({ connectionString });
     const adapter = new PrismaPg(pool);
     return new PrismaClient({
