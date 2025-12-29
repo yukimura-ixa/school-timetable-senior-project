@@ -303,7 +303,8 @@ export function AddTeacherDialog({
                   SelectProps={{
                     SelectDisplayProps: {
                       "data-testid": `prefix-${index}`,
-                    },
+                    } as React.HTMLAttributes<HTMLDivElement> &
+                      Record<`data-${string}`, string>,
                   }}
                 >
                   {PREFIX_OPTIONS.map((opt) => (
@@ -325,7 +326,8 @@ export function AddTeacherDialog({
                   SelectProps={{
                     SelectDisplayProps: {
                       "data-testid": `department-${index}`,
-                    },
+                    } as React.HTMLAttributes<HTMLDivElement> &
+                      Record<`data-${string}`, string>,
                   }}
                 >
                   {DEPARTMENT_OPTIONS.map((dept) => (
