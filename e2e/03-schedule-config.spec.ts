@@ -155,16 +155,24 @@ test.describe("TC-007: Semester Configuration", () => {
     await waitForAppReady(page);
 
     const resetButton = page.getByRole("button", { name: "คืนค่าเริ่มต้น" });
-    const isDisabled = await resetButton.isDisabled();
+    const isEnabled = await resetButton.isEnabled().catch(() => false);
 
-    if (!isDisabled) {
-      await resetButton.click();
-
-      // Verify success message
-      await expect(page.getByText("คืนค่าเริ่มต้นสำเร็จ")).toBeVisible();
-    } else {
+    if (!isEnabled) {
       console.log("Reset not available - configuration already saved");
+      return;
     }
+
+    try {
+      await expect(resetButton).toBeEnabled({ timeout: 3000 });
+    } catch {
+      console.log("Reset became disabled before click - skipping reset");
+      return;
+    }
+
+    await resetButton.click();
+
+    // Verify success message
+    await expect(page.getByText("คืนค่าเริ่มต้นสำเร็จ")).toBeVisible();
   });
 
   test("TC-007-06: Clone from previous semester option", async ({

@@ -344,7 +344,7 @@ test.describe("Server Component Migration - Regression Tests", () => {
       await expect(
         page.locator(
           '[role="grid"], .MuiDataGrid-root, table, [role="table"], main',
-        ),
+        ).first(),
       ).toBeVisible({ timeout: 15000 });
 
       expect(page.url()).toContain(pageInfo.url);
