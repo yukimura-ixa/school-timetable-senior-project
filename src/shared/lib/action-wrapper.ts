@@ -23,6 +23,7 @@ import * as v from "valibot";
 // Use auth for session retrieval
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { normalizeAppRole, type AppRole } from "@/lib/authz";
 import {
   isConflictError,
   isValidationError,
@@ -62,6 +63,17 @@ export const ActionErrorCode = {
 export type ActionErrorCodeType =
   (typeof ActionErrorCode)[keyof typeof ActionErrorCode];
 
+export type CreateActionOptions = {
+  /**
+   * Allowed application roles for this action.
+   *
+   * Defaults to admin-only to avoid broken access control. Use createPublicAction
+   * for truly public actions (no auth), or pass explicit roles if you introduce
+   * teacher/student authenticated flows in the future.
+   */
+  allowedRoles?: AppRole[];
+};
+
 /**
  * Create a type-safe Server Action with automatic error handling
  *
@@ -83,6 +95,7 @@ export type ActionErrorCodeType =
 export function createAction<TInput, TOutput>(
   schema: v.GenericSchema<TInput>,
   handler: (input: TInput, userId: string) => Promise<TOutput>,
+  options?: CreateActionOptions,
 ) {
   return async (input: unknown): Promise<ActionResult<TOutput>> => {
     try {
@@ -98,6 +111,19 @@ export function createAction<TInput, TOutput>(
           error: {
             message: "You must be logged in to perform this action",
             code: ActionErrorCode.UNAUTHORIZED,
+          },
+        };
+      }
+
+      // 1b. Authorization check (RBAC)
+      const role = normalizeAppRole(session.user.role);
+      const allowedRoles = options?.allowedRoles ?? (["admin"] as const);
+      if (!allowedRoles.includes(role)) {
+        return {
+          success: false,
+          error: {
+            message: "You do not have permission to perform this action",
+            code: ActionErrorCode.FORBIDDEN,
           },
         };
       }

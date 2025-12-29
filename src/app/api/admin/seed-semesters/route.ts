@@ -140,9 +140,43 @@ async function seedTableConfig(
 export async function POST(req: Request) {
   try {
     const url = new URL(req.url);
-    const secret = url.searchParams.get("secret") || undefined;
     const yearsParam = url.searchParams.get("years") || undefined; // e.g., 2567,2568
     const seedData = url.searchParams.get("seedData") === "true"; // If true, also create timeslots + config
+
+    // Do not accept secrets in URLs (they leak via logs, proxies, browser history).
+    if (url.searchParams.has("secret")) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Do not provide secret in URL. Use x-seed-secret header or JSON body.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const headerSecret = req.headers.get("x-seed-secret") || undefined;
+    let bodySecret: string | undefined;
+    if (!headerSecret) {
+      const contentType = req.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        try {
+          const body = (await req.json()) as unknown;
+          if (
+            typeof body === "object" &&
+            body !== null &&
+            "secret" in body &&
+            typeof (body as { secret?: unknown }).secret === "string"
+          ) {
+            bodySecret = (body as { secret: string }).secret;
+          }
+        } catch {
+          // Ignore invalid JSON; secret will be treated as missing.
+        }
+      }
+    }
+
+    const secret = headerSecret ?? bodySecret ?? undefined;
 
     // AuthZ: require secret token
     const expected = process.env.SEED_SECRET;
@@ -245,6 +279,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
-  // Allow GET for convenience (same behavior as POST)
-  return POST(req);
+  return NextResponse.json(
+    { ok: false, error: "Method Not Allowed" },
+    { status: 405 },
+  );
 }

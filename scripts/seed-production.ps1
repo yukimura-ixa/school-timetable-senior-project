@@ -11,7 +11,13 @@ param(
 $ErrorActionPreference = "Stop"
 
 $PRODUCTION_URL = "https://phrasongsa-timetable.vercel.app"
-$SEED_SECRET = "df83c9b4a1e2f5d6c3a8b9e0f1d2c3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0"
+$SEED_SECRET = $env:SEED_SECRET
+if (-not $SEED_SECRET) {
+    Write-Host "Missing SEED_SECRET env var." -ForegroundColor Red
+    Write-Host "Set it and re-run:" -ForegroundColor Yellow
+    Write-Host '  $env:SEED_SECRET="..."; .\scripts\seed-production.ps1' -ForegroundColor Yellow
+    exit 1
+}
 
 Write-Host "🌱 Seeding production database..." -ForegroundColor Cyan
 Write-Host "URL: $PRODUCTION_URL"
@@ -23,13 +29,13 @@ if ($SeedData) {
 }
 Write-Host ""
 
-$uri = "$PRODUCTION_URL/api/admin/seed-semesters?secret=$SEED_SECRET&years=2567,2568"
+$uri = "$PRODUCTION_URL/api/admin/seed-semesters?years=2567,2568"
 if ($SeedData) {
     $uri += "&seedData=true"
 }
 
 try {
-    $response = Invoke-RestMethod -Uri $uri -Method GET -UseBasicParsing
+    $response = Invoke-RestMethod -Uri $uri -Method POST -Headers @{ "x-seed-secret" = $SEED_SECRET } -UseBasicParsing        
     
     if ($response.ok) {
         Write-Host "✓ Seed successful!" -ForegroundColor Green

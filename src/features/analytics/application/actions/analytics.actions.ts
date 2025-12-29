@@ -7,7 +7,10 @@
 
 import { safeParse } from "valibot";
 import { cache } from "react";
+import { headers } from "next/headers";
 import { createLogger } from "@/lib/logger";
+import { auth } from "@/lib/auth";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 
 const log = createLogger("AnalyticsActions");
 
@@ -66,6 +69,19 @@ type ActionResult<T> =
   | { success: true; data: T }
   | { success: false; error: string };
 
+async function requireAdminAccess(): Promise<{ success: false; error: string } | null> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  const role = normalizeAppRole(session.user?.role);
+  if (!isAdminRole(role)) return { success: false, error: "Forbidden" };
+
+  return null;
+}
+
 /**
  * Helper to wrap repository calls with error handling
  */
@@ -92,6 +108,9 @@ async function handleAction<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
  */
 export const getOverviewStats = cache(
   async (input: unknown): Promise<ActionResult<OverviewStats>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetOverviewStatsSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -123,6 +142,9 @@ export const getGradeStats = cache(
       completionRate: number;
     }>
   > => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetGradeStatsSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -149,6 +171,9 @@ export async function getLockStatusSummary(input: unknown): Promise<
     unlockedPercentage: number;
   }>
 > {
+  const authzError = await requireAdminAccess();
+  if (authzError) return authzError;
+
   const validation = safeParse(GetOverviewStatsSchema, input);
   if (!validation.success) {
     return { success: false, error: validation.issues[0].message };
@@ -164,6 +189,9 @@ export async function getLockStatusSummary(input: unknown): Promise<
  */
 export const getCompletionMetrics = cache(
   async (input: unknown): Promise<ActionResult<CompletionMetrics>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetOverviewStatsSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -184,6 +212,9 @@ export const getCompletionMetrics = cache(
  */
 export const getTeacherWorkloads = cache(
   async (input: unknown): Promise<ActionResult<TeacherWorkload[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetTeacherWorkloadsSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -200,6 +231,9 @@ export const getTeacherWorkloads = cache(
  */
 export const getDepartmentWorkloads = cache(
   async (input: unknown): Promise<ActionResult<DepartmentWorkload[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetTeacherWorkloadsSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -216,6 +250,9 @@ export const getDepartmentWorkloads = cache(
  */
 export const getTeacherWorkloadById = cache(
   async (input: unknown): Promise<ActionResult<TeacherWorkload | null>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetTeacherWorkloadByIdSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -235,7 +272,10 @@ export const getTeacherWorkloadById = cache(
  */
 export const getTeachersByWorkloadStatus = cache(
   async (input: unknown): Promise<ActionResult<TeacherWorkload[]>> => {
-    const validation = safeParse(GetTeachersByWorkloadStatusSchema, input);
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
+    const validation = safeParse(GetTeachersByWorkloadStatusSchema, input);     
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
     }
@@ -254,6 +294,9 @@ export const getTeachersByWorkloadStatus = cache(
  */
 export const getTopTeachersByHours = cache(
   async (input: unknown): Promise<ActionResult<TeacherWorkload[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetTopTeachersByHoursSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -277,6 +320,9 @@ export const getTopTeachersByHours = cache(
  */
 export const getRoomOccupancy = cache(
   async (input: unknown): Promise<ActionResult<RoomOccupancy[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetRoomOccupancySchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -292,7 +338,10 @@ export const getRoomOccupancy = cache(
  * Get room occupancy by ID
  */
 export const getRoomOccupancyById = cache(
-  async (input: unknown): Promise<ActionResult<RoomOccupancy | null>> => {
+  async (input: unknown): Promise<ActionResult<RoomOccupancy | null>> => {      
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetRoomOccupancyByIdSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -312,7 +361,10 @@ export const getRoomOccupancyById = cache(
  */
 export const getRoomsByUtilizationStatus = cache(
   async (input: unknown): Promise<ActionResult<RoomOccupancy[]>> => {
-    const validation = safeParse(GetRoomsByUtilizationStatusSchema, input);
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
+    const validation = safeParse(GetRoomsByUtilizationStatusSchema, input);     
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
     }
@@ -331,6 +383,9 @@ export const getRoomsByUtilizationStatus = cache(
  */
 export const getTopRoomsByOccupancy = cache(
   async (input: unknown): Promise<ActionResult<RoomOccupancy[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetTopRoomsByOccupancySchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -350,6 +405,9 @@ export const getTopRoomsByOccupancy = cache(
  */
 export const getLowUtilizationRooms = cache(
   async (input: unknown): Promise<ActionResult<RoomOccupancy[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetRoomOccupancySchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -369,7 +427,10 @@ export const getLowUtilizationRooms = cache(
  * Get subject distribution
  */
 export const getSubjectDistribution = cache(
-  async (input: unknown): Promise<ActionResult<SubjectDistribution[]>> => {
+  async (input: unknown): Promise<ActionResult<SubjectDistribution[]>> => {     
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetSubjectDistributionSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -385,7 +446,10 @@ export const getSubjectDistribution = cache(
  * Get subject distribution by category
  */
 export const getSubjectDistributionByCategory = cache(
-  async (input: unknown): Promise<ActionResult<SubjectDistribution[]>> => {
+  async (input: unknown): Promise<ActionResult<SubjectDistribution[]>> => {     
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetSubjectDistributionByCategorySchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -404,7 +468,10 @@ export const getSubjectDistributionByCategory = cache(
  * Get top categories by hours
  */
 export const getTopCategoriesByHours = cache(
-  async (input: unknown): Promise<ActionResult<SubjectDistribution[]>> => {
+  async (input: unknown): Promise<ActionResult<SubjectDistribution[]>> => {     
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetTopTeachersByHoursSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -428,6 +495,9 @@ export const getTopCategoriesByHours = cache(
  */
 export const getQualityMetrics = cache(
   async (input: unknown): Promise<ActionResult<QualityMetrics>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetQualityMetricsSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -447,6 +517,9 @@ export async function getGapAnalysis(
 ): Promise<
   ActionResult<{ totalGaps: number; gapsByGrade: Map<string, number> }>
 > {
+  const authzError = await requireAdminAccess();
+  if (authzError) return authzError;
+
   const validation = safeParse(GetQualityMetricsSchema, input);
   if (!validation.success) {
     return { success: false, error: validation.issues[0].message };
@@ -462,7 +535,10 @@ export async function getGapAnalysis(
  */
 export async function isQualityAcceptable(
   input: unknown,
-): Promise<ActionResult<{ isAcceptable: boolean; reasons: string[] }>> {
+): Promise<ActionResult<{ isAcceptable: boolean; reasons: string[] }>> {        
+  const authzError = await requireAdminAccess();
+  if (authzError) return authzError;
+
   const validation = safeParse(GetQualityMetricsSchema, input);
   if (!validation.success) {
     return { success: false, error: validation.issues[0].message };
@@ -481,7 +557,10 @@ export async function isQualityAcceptable(
  * Get period distribution
  */
 export const getPeriodDistribution = cache(
-  async (input: unknown): Promise<ActionResult<PeriodDistribution[]>> => {
+  async (input: unknown): Promise<ActionResult<PeriodDistribution[]>> => {      
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetPeriodDistributionSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -498,6 +577,9 @@ export const getPeriodDistribution = cache(
  */
 export const getDayDistribution = cache(
   async (input: unknown): Promise<ActionResult<DayDistribution[]>> => {
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetDayDistributionSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -513,7 +595,10 @@ export const getDayDistribution = cache(
  * Get peak hours
  */
 export const getPeakHours = cache(
-  async (input: unknown): Promise<ActionResult<PeriodDistribution[]>> => {
+  async (input: unknown): Promise<ActionResult<PeriodDistribution[]>> => {      
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetPeakHoursSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -532,7 +617,10 @@ export const getPeakHours = cache(
  * Get least utilized periods
  */
 export const getLeastUtilizedPeriods = cache(
-  async (input: unknown): Promise<ActionResult<PeriodDistribution[]>> => {
+  async (input: unknown): Promise<ActionResult<PeriodDistribution[]>> => {      
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetPeakHoursSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -555,7 +643,10 @@ export const getLeastUtilizedPeriods = cache(
  * Get program compliance
  */
 export const getProgramCompliance = cache(
-  async (input: unknown): Promise<ActionResult<ProgramCompliance[]>> => {
+  async (input: unknown): Promise<ActionResult<ProgramCompliance[]>> => {       
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetProgramComplianceSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
@@ -571,8 +662,11 @@ export const getProgramCompliance = cache(
  * Get program compliance by ID
  */
 export const getProgramComplianceById = cache(
-  async (input: unknown): Promise<ActionResult<ProgramCompliance | null>> => {
-    const validation = safeParse(GetProgramComplianceByIdSchema, input);
+  async (input: unknown): Promise<ActionResult<ProgramCompliance | null>> => {  
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
+    const validation = safeParse(GetProgramComplianceByIdSchema, input);        
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
     }
@@ -590,8 +684,11 @@ export const getProgramComplianceById = cache(
  * Get programs below threshold
  */
 export const getProgramsBelowThreshold = cache(
-  async (input: unknown): Promise<ActionResult<ProgramCompliance[]>> => {
-    const validation = safeParse(GetProgramsBelowThresholdSchema, input);
+  async (input: unknown): Promise<ActionResult<ProgramCompliance[]>> => {       
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
+    const validation = safeParse(GetProgramsBelowThresholdSchema, input);       
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };
     }
@@ -609,7 +706,10 @@ export const getProgramsBelowThreshold = cache(
  * Get programs with missing subjects
  */
 export const getProgramsWithMissingSubjects = cache(
-  async (input: unknown): Promise<ActionResult<ProgramCompliance[]>> => {
+  async (input: unknown): Promise<ActionResult<ProgramCompliance[]>> => {       
+    const authzError = await requireAdminAccess();
+    if (authzError) return authzError;
+
     const validation = safeParse(GetProgramComplianceSchema, input);
     if (!validation.success) {
       return { success: false, error: validation.issues[0].message };

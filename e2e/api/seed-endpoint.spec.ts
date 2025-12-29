@@ -24,7 +24,7 @@ test.describe("Seed Semesters API (E2E)", () => {
 
   test("should require authentication", async ({ request }) => {
     // Call API without secret
-    const response = await request.get("/api/admin/seed-semesters", {
+    const response = await request.post("/api/admin/seed-semesters", {
       params: { years: "2567" },
     });
     const data = await response.json();
@@ -36,11 +36,11 @@ test.describe("Seed Semesters API (E2E)", () => {
 
   test("should create semesters when authenticated", async ({ request }) => {
     // Call API with valid secret
-    const response = await request.get("/api/admin/seed-semesters", {
+    const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        secret: SEED_SECRET,
         years: "2567",
       },
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data = await response.json();
 
@@ -63,11 +63,11 @@ test.describe("Seed Semesters API (E2E)", () => {
 
   test("should be idempotent (can run multiple times)", async ({ request }) => {
     // First call
-    const response1 = await request.get("/api/admin/seed-semesters", {
+    const response1 = await request.post("/api/admin/seed-semesters", {
       params: {
-        secret: SEED_SECRET,
         years: "2567",
       },
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data1 = await response1.json();
 
@@ -75,11 +75,11 @@ test.describe("Seed Semesters API (E2E)", () => {
     expect(data1.ok).toBe(true);
 
     // Second call - should succeed without errors
-    const response2 = await request.get("/api/admin/seed-semesters", {
+    const response2 = await request.post("/api/admin/seed-semesters", {
       params: {
-        secret: SEED_SECRET,
         years: "2567",
       },
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data2 = await response2.json();
 
@@ -90,11 +90,11 @@ test.describe("Seed Semesters API (E2E)", () => {
 
   test("should seed multiple years", async ({ request }) => {
     // Seed years 2567 and 2568
-    const response = await request.get("/api/admin/seed-semesters", {
+    const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        secret: SEED_SECRET,
         years: "2567,2568",
       },
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data = await response.json();
 
@@ -111,12 +111,12 @@ test.describe("Seed Semesters API (E2E)", () => {
   test("should seed timeslots and config when seedData=true", async ({
     request,
   }) => {
-    const response = await request.get("/api/admin/seed-semesters", {
+    const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        secret: SEED_SECRET,
         years: "2569",
         seedData: "true",
       },
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data = await response.json();
 
@@ -135,8 +135,8 @@ test.describe("Seed Semesters API (E2E)", () => {
   test("should default to years 2567,2568 if not specified", async ({
     request,
   }) => {
-    const response = await request.get("/api/admin/seed-semesters", {
-      params: { secret: SEED_SECRET },
+    const response = await request.post("/api/admin/seed-semesters", {
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data = await response.json();
 
@@ -152,11 +152,11 @@ test.describe("Seed Semesters API (E2E)", () => {
   test("should validate ConfigID format (SEMESTER-YEAR)", async ({
     request,
   }) => {
-    const response = await request.get("/api/admin/seed-semesters", {
+    const response = await request.post("/api/admin/seed-semesters", {
       params: {
-        secret: SEED_SECRET,
         years: "2567",
       },
+      headers: { "x-seed-secret": SEED_SECRET },
     });
     const data = await response.json();
 
@@ -173,30 +173,8 @@ test.describe("Seed Semesters API (E2E)", () => {
     });
   });
 
-  test("should handle GET and POST methods identically", async ({
-    request,
-  }) => {
-    // GET request
-    const getResponse = await request.get("/api/admin/seed-semesters", {
-      params: {
-        secret: SEED_SECRET,
-        years: "2567",
-      },
-    });
-    const getData = await getResponse.json();
-
-    // POST request
-    const postResponse = await request.post("/api/admin/seed-semesters", {
-      params: {
-        secret: SEED_SECRET,
-        years: "2567",
-      },
-    });
-    const postData = await postResponse.json();
-
-    expect(getResponse.status()).toBe(200);
-    expect(postResponse.status()).toBe(200);
-    expect(getData.ok).toBe(postData.ok);
-    expect(getData.results.length).toBe(postData.results.length);
+  test("GET method should not be allowed", async ({ request }) => {
+    const response = await request.get("/api/admin/seed-semesters");
+    expect(response.status()).toBe(405);
   });
 });

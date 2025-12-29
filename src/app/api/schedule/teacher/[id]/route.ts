@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { semester } from "@/prisma/generated/client";
 
@@ -23,6 +26,25 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: { message: "Unauthorized" } },
+        { status: 401 },
+      );
+    }
+
+    const role = normalizeAppRole(session.user?.role);
+    if (!isAdminRole(role)) {
+      return NextResponse.json(
+        { success: false, error: { message: "Forbidden" } },
+        { status: 403 },
+      );
+    }
+
     const { id } = await params;
     const teacherId = parseInt(id);
     const searchParams = request.nextUrl.searchParams;
@@ -53,16 +75,15 @@ export async function GET(
           },
         },
       },
-      include: {
-        subject: true,
-        gradelevel: true,
-        room: true,
-        timeslot: true,
-        teachers_responsibility: {
-          include: {
-            teacher: true,
-          },
-        },
+      select: {
+        ClassID: true,
+        TimeslotID: true,
+        SubjectCode: true,
+        GradeID: true,
+        RoomID: true,
+        subject: { select: { SubjectName: true } },
+        gradelevel: { select: { Year: true, Number: true } },
+        room: { select: { RoomName: true } },
       },
       orderBy: [
         { timeslot: { DayOfWeek: "asc" } },
@@ -72,7 +93,12 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: schedule,
+      data: schedule.map((entry) => ({
+        ...entry,
+        gradelevel: {
+          GradeName: `M.${entry.gradelevel.Year}/${entry.gradelevel.Number}`,
+        },
+      })),
     });
   } catch (error) {
     console.error("[API] GET /api/schedule/teacher/[id] error:", error);

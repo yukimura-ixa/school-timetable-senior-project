@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -14,6 +17,25 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET(_request: NextRequest) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: { message: "Unauthorized" } },
+        { status: 401 },
+      );
+    }
+
+    const role = normalizeAppRole(session.user?.role);
+    if (!isAdminRole(role)) {
+      return NextResponse.json(
+        { success: false, error: { message: "Forbidden" } },
+        { status: 403 },
+      );
+    }
+
     const teachers = await prisma.teacher.findMany({
       orderBy: [{ Firstname: "asc" }, { Lastname: "asc" }],
       select: {

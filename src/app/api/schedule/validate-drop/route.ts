@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -36,6 +39,33 @@ import { prisma } from "@/lib/prisma";
  */
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        {
+          allowed: false,
+          reason: "unauthorized",
+          message: "กรุณาเข้าสู่ระบบ",
+        },
+        { status: 401 },
+      );
+    }
+
+    const role = normalizeAppRole(session.user?.role);
+    if (!isAdminRole(role)) {
+      return NextResponse.json(
+        {
+          allowed: false,
+          reason: "forbidden",
+          message: "ไม่มีสิทธิ์เข้าถึง",
+        },
+        { status: 403 },
+      );
+    }
+
     const body = await request.json();
     const { timeslot, subject, grade, teacher } = body;
 

@@ -5,6 +5,16 @@ import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { generateStudentTimetablePDF } from "@/features/export/pdf/generators/student-pdf-generator";
 import type { StudentTimetableData } from "@/features/export/pdf/templates/student-timetable-pdf";
 
+function safeFilenamePart(value: unknown): string {
+  const text = String(value ?? "");
+  const sanitized = text
+    .replace(/[\r\n"]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return sanitized.length > 0 ? sanitized.slice(0, 80) : "unknown";
+}
+
 /**
  * POST /api/export/student-timetable/pdf
  * 
@@ -50,10 +60,13 @@ export async function POST(req: NextRequest) {
     const buffer = await pdfBlob.arrayBuffer();
 
     // Return PDF with download headers
+    const filename = `student-${safeFilenamePart(data.gradeId)}-${safeFilenamePart(
+      data.semester,
+    )}-${safeFilenamePart(data.academicYear)}.pdf`;
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="student-${data.gradeId}-${data.semester}-${data.academicYear}.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename}"`,
       },
     });
   } catch (error) {

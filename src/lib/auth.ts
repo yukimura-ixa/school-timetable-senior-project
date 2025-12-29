@@ -31,6 +31,27 @@ const vercelUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : undefined;
 
+function redactVerificationUrlForOutbox(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.username = "";
+    parsed.password = "";
+    parsed.hash = "";
+
+    // Redact tokens in query params.
+    for (const key of parsed.searchParams.keys()) {
+      parsed.searchParams.set(key, "<redacted>");
+    }
+
+    // Defensive: also redact long token-like segments in the path.
+    parsed.pathname = parsed.pathname.replace(/[A-Za-z0-9_-]{20,}/g, "<redacted>");
+
+    return parsed.toString();
+  } catch {
+    return "<redacted>";
+  }
+}
+
 export const auth = betterAuth({
   secret: authSecret,
   // Keep a strict, explicit origin list to avoid "Invalid origin" errors
@@ -68,13 +89,18 @@ export const auth = betterAuth({
       // Persist to outbox for admin-only visibility (do not log URL/token).
       let outbox;
       try {
+        const verificationUrlForOutbox =
+          process.env.NODE_ENV === "production"
+            ? redactVerificationUrlForOutbox(url)
+            : url;
+
         outbox = await prisma.emailOutbox.create({
           data: {
             kind: "EMAIL_VERIFICATION",
             userId: user.id,
             toEmail: user.email,
             subject: "ยืนยันอีเมลของคุณ",
-            verificationUrl: url,
+            verificationUrl: verificationUrlForOutbox,
             expiresAt,
           },
         });

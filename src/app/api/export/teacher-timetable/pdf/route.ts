@@ -9,6 +9,16 @@ import {
   extractPeriodFromTimeslotId,
 } from "@/utils/timeslot-id";
 
+function safeFilenamePart(value: unknown): string {
+  const text = String(value ?? "");
+  const sanitized = text
+    .replace(/[\r\n"]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return sanitized.length > 0 ? sanitized.slice(0, 80) : "unknown";
+}
+
 // Client-side request payload format
 interface ClientPayload {
   teacherId: number;
@@ -147,11 +157,14 @@ export async function POST(req: NextRequest) {
     // Convert Blob to Buffer for Response
     const buffer = await pdfBlob.arrayBuffer();
 
+    const filename = `teacher-${safeFilenamePart(clientData.teacherId)}-${safeFilenamePart(
+      clientData.semester,
+    )}-${safeFilenamePart(clientData.academicYear)}.pdf`;
     return new NextResponse(buffer, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="teacher-${clientData.teacherId}-${clientData.semester}-${clientData.academicYear}.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename}"`,
       },
     });
   } catch (error) {
