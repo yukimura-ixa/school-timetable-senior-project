@@ -81,14 +81,21 @@ test.describe("Data Management - Teacher CRUD", () => {
       .locator('[role="row"]')
       .filter({ hasText: teacher.firstname })
       .first();
+    const rowId = await row.getAttribute("data-id");
+    expect(rowId).toBeTruthy();
     await row.getByLabel("แก้ไข").click();
 
     // In row edit mode, find the firstname input and change it
     const newName = `${teacher.firstname}_Edited`;
-    await row.locator("input").first().fill(newName);
+    const editRow = page.locator(`[data-id="${rowId}"]`);
+    const firstNameInput = editRow
+      .locator('[data-field="Firstname"] input')
+      .first();
+    await expect(firstNameInput).toBeVisible({ timeout: 15000 });
+    await firstNameInput.fill(newName);
 
     // Click Save action
-    await row.getByLabel("บันทึก").click();
+    await editRow.getByLabel("บันทึก").click();
 
     // Verify success snackbar
     await expect(page.getByText("บันทึกข้อมูลสำเร็จ")).toBeVisible({

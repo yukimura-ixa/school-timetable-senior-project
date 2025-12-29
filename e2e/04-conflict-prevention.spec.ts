@@ -29,7 +29,9 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await waitForAppReady(page);
 
     // Verify teacher selection is available
-    await expect(page.getByText("เลือกคุณครู")).toBeVisible();
+    await expect(
+      page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }),
+    ).toBeVisible();
 
     // Take screenshot
     await page.screenshot({
@@ -52,7 +54,9 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     await page.waitForTimeout(2000);
 
     // Look for teacher selector (might be a dropdown or autocomplete)
-    const teacherSelector = page.locator("text=เลือกคุณครู").first();
+    const teacherSelector = page
+      .getByRole("combobox", { name: /เลือก(คุณ)?ครู/ })
+      .first();
 
     if (await teacherSelector.isVisible()) {
       console.log("Teacher selector found - ready for conflict testing");
@@ -390,7 +394,9 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     console.log("Conflict detection persists after reload");
 
     // Verify the arrange interface is still functional
-    await expect(page.getByText("เลือกคุณครู")).toBeVisible();
+    await expect(
+      page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }),
+    ).toBeVisible();
   });
 
   test("TC-013-07: Navigate to conflict report from arrange page", async ({

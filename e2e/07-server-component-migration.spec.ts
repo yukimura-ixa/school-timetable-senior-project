@@ -25,7 +25,9 @@ test.describe("Server Component Migration - Teacher Management", () => {
     // because data is fetched on the server
 
     // Check for table content (should be present immediately) - Context7 best practice
-    const table = page.locator('table, [role="table"]').first();
+    const table = page
+      .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
+      .first();
     await expect(table).toBeVisible({ timeout: 15000 });
 
     // Take screenshot
@@ -66,14 +68,20 @@ test.describe("Server Component Migration - Teacher Management", () => {
 
     await nav.goToTeacherManagement();
     // Wait for table to be visible (server-rendered content)
-    await expect(page.locator('table, [role="table"]').first()).toBeVisible({
+    await expect(
+      page
+        .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
+        .first(),
+    ).toBeVisible({
       timeout: 15000,
     });
 
     // The initial HTML should contain table elements
     // (This proves data was rendered on the server)
     const hasTableInHTML =
-      initialHTML.includes("<table") || initialHTML.includes('role="table"');
+      initialHTML.includes("<table") ||
+      initialHTML.includes('role="table"') ||
+      initialHTML.includes('role="grid"');
 
     console.log("✓ Initial HTML contains table structure:", hasTableInHTML);
 
@@ -154,7 +162,9 @@ test.describe("Server Component Migration - Other Management Pages", () => {
     await nav.goToSubjectManagement();
 
     // Check for table/list - Context7: web-first assertion auto-waits
-    const table = page.locator('table, [role="table"], .table').first();
+    const table = page
+      .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
+      .first();
     await expect(table).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({
@@ -174,7 +184,9 @@ test.describe("Server Component Migration - Other Management Pages", () => {
     await nav.goToGradeLevelManagement();
 
     // Check for table/list - Context7: web-first assertion auto-waits
-    const table = page.locator('table, [role="table"], .table').first();
+    const table = page
+      .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
+      .first();
     await expect(table).toBeVisible({ timeout: 15000 });
 
     await page.screenshot({
@@ -200,7 +212,7 @@ test.describe("Server Component Migration - Performance", () => {
 
     // Wait for table to be visible (server-rendered data)
     await page
-      .locator('table, [role="table"]')
+      .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
       .first()
       .waitFor({ state: "visible", timeout: 15000 });
 
@@ -240,7 +252,11 @@ test.describe("Server Component Migration - Performance", () => {
     await nav.goToTeacherManagement();
 
     // Wait for table to ensure page is ready - Context7: use specific waits
-    await expect(page.locator('table, [role="table"]').first()).toBeVisible({
+    await expect(
+      page
+        .locator('[role="grid"], .MuiDataGrid-root, table, [role="table"], .table')
+        .first(),
+    ).toBeVisible({
       timeout: 15000,
     });
 
@@ -325,9 +341,11 @@ test.describe("Server Component Migration - Regression Tests", () => {
       await pageInfo.navigate();
 
       // Wait for page content to be visible - Context7: specific waits over networkidle
-      await expect(page.locator('table, [role="table"], main')).toBeVisible({
-        timeout: 15000,
-      });
+      await expect(
+        page.locator(
+          '[role="grid"], .MuiDataGrid-root, table, [role="table"], main',
+        ),
+      ).toBeVisible({ timeout: 15000 });
 
       expect(page.url()).toContain(pageInfo.url);
 

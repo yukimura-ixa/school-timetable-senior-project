@@ -101,6 +101,7 @@ jobs:
           BASE_URL=http://localhost:3005
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
+          SEED_SECRET=${{ secrets.SEED_SECRET }}
           SEED_FOR_TESTS=true
           SEED_CLEAN_DATA=true
           NEXT_TELEMETRY_DISABLED=1
@@ -114,6 +115,7 @@ jobs:
           BASE_URL=http://localhost:3005
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
+          SEED_SECRET=${{ secrets.SEED_SECRET }}
           SEED_FOR_TESTS=true
           SEED_CLEAN_DATA=true
           NEXT_TELEMETRY_DISABLED=1
