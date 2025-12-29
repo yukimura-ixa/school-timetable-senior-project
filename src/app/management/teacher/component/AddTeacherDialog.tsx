@@ -199,14 +199,14 @@ export function AddTeacherDialog({
         throw new Error(errorMessage);
       }
 
-      enqueueSnackbar(`เพิ่มครู ${teachers.length} คนสำเร็จ`, {
+      enqueueSnackbar("เพิ่มข้อมูลครูสำเร็จ", {
         variant: "success",
       });
       void onSuccess();
       onClose();
     } catch (error) {
       enqueueSnackbar(
-        `เพิ่มครูไม่สำเร็จ: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `เพิ่มข้อมูลครูไม่สำเร็จ: ${error instanceof Error ? error.message : "Unknown error"}`,
         { variant: "error" },
       );
     } finally {
@@ -300,6 +300,11 @@ export function AddTeacherDialog({
                   }
                   size="small"
                   required
+                  SelectProps={{
+                    SelectDisplayProps: {
+                      "data-testid": `prefix-${index}`,
+                    },
+                  }}
                 >
                   {PREFIX_OPTIONS.map((opt) => (
                     <MenuItem key={opt.value} value={opt.value}>
@@ -317,6 +322,11 @@ export function AddTeacherDialog({
                     handleFieldChange(teacher.id, "department", e.target.value)
                   }
                   size="small"
+                  SelectProps={{
+                    SelectDisplayProps: {
+                      "data-testid": `department-${index}`,
+                    },
+                  }}
                 >
                   {DEPARTMENT_OPTIONS.map((dept) => (
                     <MenuItem key={dept} value={dept}>

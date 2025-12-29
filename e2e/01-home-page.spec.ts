@@ -18,8 +18,6 @@ test.describe("Home Page Tests", () => {
       path: "test-results/screenshots/01-homepage.png",
       fullPage: true,
     });
-
-    console.log("Homepage loaded successfully");
   });
 
   test("TC-HOME-002: Navigation menu is visible", async ({
@@ -32,13 +30,13 @@ test.describe("Home Page Tests", () => {
     const nav = page.locator('nav, [role="navigation"]').first();
     await expect(nav).toBeVisible({ timeout: 15000 });
 
-    console.log("Navigation menu found");
   });
 
-  test("TC-HOME-003: Protected routes redirect to signin", async ({ page }) => {
-    // Test without authentication (clear any existing state)
-    await page.context().clearCookies();
-    
+  test("TC-HOME-003: Protected routes redirect to signin", async ({
+    guestPage,
+  }) => {
+    const page = guestPage;
+
     const protectedRoutes = ["/dashboard", "/management/teacher"];
 
     for (const route of protectedRoutes) {
@@ -50,9 +48,11 @@ test.describe("Home Page Tests", () => {
       await expect(async () => {
         const url = page.url();
         const pathname = new URL(url).pathname;
-        // Check if redirected to signin page
+        // Protected routes are handled by the proxy guard. Unauthenticated users
+        // are redirected to the public landing page (or /signin in some flows).
+        const isPublicLanding = pathname === "/";
         const isSignin = pathname === "/signin" || pathname.includes("signin");
-        expect(isSignin).toBe(true);
+        expect(isPublicLanding || isSignin).toBe(true);
       }).toPass({ timeout: 15000 });
 
       // Take screenshot
@@ -61,8 +61,6 @@ test.describe("Home Page Tests", () => {
         fullPage: true,
       });
 
-      // Document the actual behavior
-      console.log(`Route ${route} -> ${page.url()}`);
     }
   });
 });
