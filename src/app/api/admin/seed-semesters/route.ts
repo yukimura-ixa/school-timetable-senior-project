@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { semesterRepository } from "@/features/semester/infrastructure/repositories/semester.repository";
 import prisma from "@/lib/prisma";
-import { day_of_week, semester, breaktime } from "@/prisma/generated/client";
+import { day_of_week, semester, breaktime } from "@/prisma/generated/client";   
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { createLogger } from "@/lib/logger";
 
 const log = createLogger("SeedSemesters");
@@ -191,7 +190,7 @@ export async function POST(req: Request) {
     // In production, require both secret AND admin session for extra security
     if (process.env.NODE_ENV === "production") {
       const session = await auth.api.getSession({
-        headers: await headers(),
+        headers: req.headers,
       });
 
       if (!session?.user || session.user.role !== "admin") {

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { generateStudentTimetablePDF } from "@/features/export/pdf/generators/student-pdf-generator";
 import type { StudentTimetableData } from "@/features/export/pdf/templates/student-timetable-pdf";
 
 function safeFilenamePart(value: unknown): string {
-  const text = String(value ?? "");
+  const text =
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+      ? String(value)
+      : "";
   const sanitized = text
     .replace(/[\r\n"]/g, "")
     .replace(/[^a-zA-Z0-9._-]+/g, "-")
@@ -30,7 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     // Auth check - admin only
     const session = await auth.api.getSession({
-      headers: await headers(),
+      headers: req.headers,
     });
 
     const userRole = normalizeAppRole(session?.user?.role);

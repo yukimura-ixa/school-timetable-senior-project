@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { generateTeacherTimetablePDF } from "@/features/export/pdf/generators/teacher-pdf-generator";
@@ -10,7 +9,12 @@ import {
 } from "@/utils/timeslot-id";
 
 function safeFilenamePart(value: unknown): string {
-  const text = String(value ?? "");
+  const text =
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+      ? String(value)
+      : "";
   const sanitized = text
     .replace(/[\r\n"]/g, "")
     .replace(/[^a-zA-Z0-9._-]+/g, "-")
@@ -68,7 +72,7 @@ const DAY_MAP: Record<string, string> = {
 export async function POST(req: NextRequest) {
   // Admin-only RBAC enforcement
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: req.headers,
   });
 
   const userRole = normalizeAppRole(session?.user?.role);
