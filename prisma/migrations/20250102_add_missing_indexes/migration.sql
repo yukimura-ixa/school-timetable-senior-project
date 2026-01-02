@@ -9,7 +9,16 @@ CREATE INDEX IF NOT EXISTS "table_config_year_semester_idx" ON "table_config"("A
 
 -- 2. Add index on User.createdAt for user analytics and sorting
 -- Improves: Admin dashboards, user history reports
-CREATE INDEX IF NOT EXISTS "user_created_at_idx" ON "User"("createdAt");
+DO $$
+BEGIN
+	IF EXISTS (
+		SELECT 1 FROM pg_class c
+		JOIN pg_namespace n ON n.oid = c.relnamespace
+		WHERE c.relname = 'User' AND n.nspname = current_schema()
+	) THEN
+		CREATE INDEX IF NOT EXISTS "user_created_at_idx" ON "User"("createdAt");
+	END IF;
+END $$;
 
 -- 3. Add single-field index on timeslot.AcademicYear for year-wide queries
 -- Improves: Queries filtering by academic year only (not semester)

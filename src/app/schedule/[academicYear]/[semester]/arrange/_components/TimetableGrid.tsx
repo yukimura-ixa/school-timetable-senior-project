@@ -74,6 +74,9 @@ export function TimetableGrid({
     });
 
     timeslots.forEach((slot) => {
+      // Skip malformed entries without required identifiers to avoid runtime errors
+      if (!slot?.TimeslotID || !slot?.DayOfWeek) return;
+
       if (organized[slot.DayOfWeek]) {
         organized[slot.DayOfWeek]?.push(slot);
       }
@@ -82,12 +85,10 @@ export function TimetableGrid({
     // Sort by slot number within each day
     Object.keys(organized).forEach((day) => {
       organized[day]?.sort((a, b) => {
-        const aNum = parseInt(
-          a.TimeslotID.split("-").pop()?.replace(/[^\d]/g, "") || "0",
-        );
-        const bNum = parseInt(
-          b.TimeslotID.split("-").pop()?.replace(/[^\d]/g, "") || "0",
-        );
+        const aId = a?.TimeslotID || "";
+        const bId = b?.TimeslotID || "";
+        const aNum = parseInt(aId.split("-").pop()?.replace(/[^\d]/g, "") || "0");
+        const bNum = parseInt(bId.split("-").pop()?.replace(/[^\d]/g, "") || "0");
         return aNum - bNum;
       });
     });
