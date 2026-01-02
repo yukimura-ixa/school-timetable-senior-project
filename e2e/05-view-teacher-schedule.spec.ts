@@ -290,7 +290,7 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
           `visitTeacherTable attempt ${attempt} failed, retrying...`,
           error,
         );
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState("domcontentloaded").catch(() => {});
       }
     }
     throw lastError;
@@ -304,7 +304,8 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    await page.waitForTimeout(2000);
+    // Wait for schedule grid to be visible
+    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 10000 });
 
     // Look for day labels (MON, TUE, WED, THU, FRI or Thai equivalents)
     const days = [
@@ -344,7 +345,8 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 
     await visitTeacherTable(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for schedule content to be visible
+    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 10000 });
 
     // Look for time labels (08:30, 09:20, etc.)
     const timePattern = /\d{1,2}:\d{2}|\d{1,2}\.\d{2}/;
@@ -369,7 +371,8 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 
     await visitTeacherTable(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for schedule content to be visible
+    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 10000 });
 
     // Empty slots might be shown with:
     // - Empty cells
@@ -403,8 +406,6 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 
     await visitTeacherTable(page);
 
-    await page.waitForTimeout(3000); // Increased from 2000ms for mobile rendering
-
     // Soft check - page loads on mobile, element may take time to render
     const mainContent = page.getByTestId("app-content-wrapper");
     await expect(mainContent).toBeVisible({ timeout: 15000 });
@@ -431,7 +432,8 @@ test.describe("TC-017: Schedule Display and Navigation", () => {
 
     await visitTeacherTable(page);
 
-    await page.waitForTimeout(1000);
+    // Wait for bulk export section
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({ timeout: 10000 });
 
     // Look for print button
     const printButton = page
@@ -473,7 +475,7 @@ test.describe("TC-017: Export Functionality", () => {
           `visitTeacherTable attempt ${attempt} failed, retrying...`,
           error,
         );
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState("domcontentloaded").catch(() => {});
       }
     }
     throw lastError;
@@ -486,7 +488,8 @@ test.describe("TC-017: Export Functionality", () => {
 
     await visitTeacherTable(page);
 
-    await page.waitForTimeout(1000);
+    // Wait for bulk export section
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({ timeout: 10000 });
 
     // Look for Excel export button (might have Excel icon or text)
     const excelButton = page
@@ -517,7 +520,8 @@ test.describe("TC-017: Export Functionality", () => {
 
     await visitTeacherTable(page);
 
-    await page.waitForTimeout(1000);
+    // Wait for bulk export section
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({ timeout: 10000 });
 
     // Look for PDF export button
     const pdfButton = page
@@ -549,7 +553,8 @@ test.describe("TC-017: Export Functionality", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    await page.waitForTimeout(1000);
+    // Wait for bulk export section
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({ timeout: 10000 });
 
     // Look for export menu button (might be a dropdown or menu icon)
     const exportMenuButton = page
@@ -568,8 +573,8 @@ test.describe("TC-017: Export Functionality", () => {
       // Click the first export button
       await exportMenuButton.first().click();
 
-      // Wait for menu to appear
-      await page.waitForTimeout(500);
+      // Wait for menu to appear (listbox or menu role)
+      await expect(page.locator('[role="listbox"], [role="menu"]').first()).toBeVisible({ timeout: 5000 }).catch(() => {});
 
       // Take screenshot of open menu
       await page.screenshot({

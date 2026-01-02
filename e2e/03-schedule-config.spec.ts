@@ -47,11 +47,11 @@ test.describe("TC-007: Semester Configuration", () => {
     await page.goto(`/schedule/${testSemester}/config`);
     await waitForAppReady(page);
 
-    // Wait for data to load
-    await page.waitForTimeout(1000);
-
-    // Check if already configured - use exact match to avoid matching "ตั้งค่าตาราง" buttons
+    // Wait for save button to be visible (data loaded)
     const saveButton = page.getByRole("button", { name: "ตั้งค่า", exact: true });
+    await expect(saveButton).toBeVisible({ timeout: 10000 });
+    
+    // Check if already configured - use exact match to avoid matching "ตั้งค่าตาราง" buttons
     const isConfigured = await saveButton.isDisabled();
 
     if (!isConfigured) {
@@ -77,11 +77,9 @@ test.describe("TC-007: Semester Configuration", () => {
     await page.goto(`/schedule/${testSemester}/config`);
     await waitForAppReady(page);
 
-    // Wait for loading
-    await page.waitForTimeout(1000);
-
-    // Use exact match to avoid matching "ตั้งค่าตาราง" buttons
+    // Wait for save button to be visible (data loaded)
     const saveButton = page.getByRole("button", { name: "ตั้งค่า", exact: true });
+    await expect(saveButton).toBeVisible({ timeout: 10000 });
     const isConfigured = await saveButton.isDisabled();
 
     if (isConfigured) {
@@ -127,8 +125,8 @@ test.describe("TC-007: Semester Configuration", () => {
     await page.goto(`/schedule/${testSemester}/config`);
     await waitForAppReady(page);
 
-    // Wait for data load
-    await page.waitForTimeout(1000);
+    // Wait for configuration UI to load
+    await expect(page.getByRole("button", { name: "ตั้งค่า", exact: true })).toBeVisible({ timeout: 10000 });
 
     // Configuration should be displayed as read-only
     // When configured, the save/reset buttons are disabled - use exact match
@@ -225,8 +223,8 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
     await page.goto(`/schedule/${testSemester}/assign`);
     await waitForAppReady(page);
 
-    // Wait for content to load
-    await page.waitForTimeout(1000);
+    // Wait for main content to be visible
+    await expect(page.locator("main, body").first()).toBeVisible({ timeout: 10000 });
 
     // Look for key assignment elements
     // The page should have teacher selection, grade selection, subject assignment
