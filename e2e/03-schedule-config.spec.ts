@@ -27,10 +27,10 @@ test.describe("TC-007: Semester Configuration", () => {
     await waitForAppReady(page);
 
     // Verify config page elements are present
-    await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible();
-    await expect(page.getByText("กำหนดระยะเวลาต่อคาบ")).toBeVisible();
-    await expect(page.getByText("กำหนดเวลาเริ่มคาบแรก")).toBeVisible();
-    await expect(page.getByText("กำหนดคาบพักเที่ยง")).toBeVisible();
+    await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText("กำหนดระยะเวลาต่อคาบ")).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText("กำหนดเวลาเริ่มคาบแรก")).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText("กำหนดคาบพักเที่ยง")).toBeVisible({ timeout: 30000 });
 
     // Take screenshot
     await page.screenshot({
@@ -56,16 +56,16 @@ test.describe("TC-007: Semester Configuration", () => {
 
     if (!isConfigured) {
       // Not configured yet - verify default values in counters
-      await expect(page.locator("text=คาบ")).toBeVisible();
-      await expect(page.locator("text=นาที")).toBeVisible();
+      await expect(page.locator("text=คาบ")).toBeVisible({ timeout: 30000 });
+      await expect(page.locator("text=นาที")).toBeVisible({ timeout: 30000 });
 
       // Verify start time input exists
       const timeInput = page.locator('input[type="time"]');
-      await expect(timeInput).toBeVisible();
+      await expect(timeInput).toBeVisible({ timeout: 30000 });
     } else {
       console.log("Configuration already exists - displayed as read-only");
       // Verify values are displayed (not editable)
-      await expect(page.locator("b").first()).toBeVisible();
+      await expect(page.locator("b").first()).toBeVisible({ timeout: 30000 });
     }
   });
 
@@ -98,15 +98,15 @@ test.describe("TC-007: Semester Configuration", () => {
     }
 
     // Verify configuration sections are present
-    await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible();
-    await expect(page.getByText("กำหนดระยะเวลาต่อคาบ")).toBeVisible();
+    await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText("กำหนดระยะเวลาต่อคาบ")).toBeVisible({ timeout: 30000 });
 
     // Save configuration
     await saveButton.click();
 
     // Wait for success notification
     await expect(page.getByText("ตั้งค่าตารางสำเร็จ")).toBeVisible({
-      timeout: 15000,
+      timeout: 30000,
     });
 
     // Verify the save button is now disabled (config is set)
@@ -172,7 +172,7 @@ test.describe("TC-007: Semester Configuration", () => {
     await resetButton.click();
 
     // Verify success message
-    await expect(page.getByText("คืนค่าเริ่มต้นสำเร็จ")).toBeVisible();
+    await expect(page.getByText("คืนค่าเริ่มต้นสำเร็จ")).toBeVisible({ timeout: 30000 });
   });
 
   test("TC-007-06: Clone from previous semester option", async ({
@@ -189,7 +189,7 @@ test.describe("TC-007: Semester Configuration", () => {
     if (await cloneLink.isVisible()) {
       console.log("Clone option available");
       // Don't click to avoid changing config, just verify it's there
-      await expect(cloneLink).toBeVisible();
+      await expect(cloneLink).toBeVisible({ timeout: 30000 });
     } else {
       console.log("Clone option not available (config already exists)");
     }

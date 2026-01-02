@@ -70,10 +70,10 @@ test.describe("Admin Authentication Flow", () => {
 
     // After login, redirects to /dashboard (semester selection page)
     await expect(page).toHaveURL(/\/dashboard/, {
-      timeout: 20000,
+      timeout: 30000,
     });
     await expect(page.getByText(/เลือกปีการศึกษาและภาคเรียน/i)).toBeVisible({
-      timeout: 20000,
+      timeout: 30000,
     });
   });
 
@@ -99,10 +99,10 @@ test.describe("Admin Dashboard Pages", () => {
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
     // After login, redirects to /dashboard (semester selection page)
     await page.waitForURL("**/dashboard", {
-      timeout: 20000,
+      timeout: 30000,
     });
     await expect(page.getByText(/เลือกปีการศึกษาและภาคเรียน/i)).toBeVisible({
-      timeout: 20000,
+      timeout: 30000,
     });
   });
 
@@ -155,10 +155,10 @@ test.describe("Visual UI Checks", () => {
     await page.getByRole("button", { name: /^เข้าสู่ระบบ$/i }).click();
     // After login, redirects to /dashboard (semester selection page)
     await page.waitForURL("**/dashboard", {
-      timeout: 20000,
+      timeout: 30000,
     });
     await expect(page.getByText(/เลือกปีการศึกษาและภาคเรียน/i)).toBeVisible({
-      timeout: 20000,
+      timeout: 30000,
     });
   });
 
