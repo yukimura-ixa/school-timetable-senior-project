@@ -31,6 +31,33 @@ const vercelUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : undefined;
 
+const publicVercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  : undefined;
+
+const authUrlCandidates = [
+  process.env.AUTH_URL,
+  process.env.BETTER_AUTH_URL,
+  process.env.NEXTAUTH_URL,
+  process.env.NEXT_PUBLIC_APP_URL,
+  vercelUrl,
+  publicVercelUrl,
+  "http://localhost:3000",
+];
+
+function normalizeOrigin(value?: string): string | undefined {
+  if (!value) return undefined;
+  try {
+    return new URL(value).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+const trustedOrigins = Array.from(
+  new Set(authUrlCandidates.map(normalizeOrigin).filter(Boolean)),
+) as string[];
+
 function redactVerificationUrlForOutbox(url: string): string {
   try {
     const parsed = new URL(url);
@@ -67,6 +94,7 @@ export const auth = betterAuth({
     process.env.NEXTAUTH_URL ||
     vercelUrl ||
     "http://localhost:3000",
+  trustedOrigins,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

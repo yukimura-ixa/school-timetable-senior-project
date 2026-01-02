@@ -13,6 +13,7 @@ import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import type { teacher } from "@/prisma/generated/client";
 import LockIcon from "@mui/icons-material/Lock";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 
 type ClassData = {
   teachers_responsibility: Array<{ TeacherID: number }>;
@@ -39,19 +40,7 @@ type Props = {
 const TableBody = (props: Props) => {
   const theme = useTheme();
 
-  const formatGradeLabel = (gradeId: string) => {
-    const canonicalMatch = /^M(\d+)-(\d+)$/.exec(gradeId);
-    if (canonicalMatch) {
-      return `ม.${canonicalMatch[1]}/${canonicalMatch[2]}`;
-    }
-
-    const legacyMatch = /^ม\.(\d+)\/(\d+)$/.exec(gradeId);
-    if (legacyMatch) {
-      return `ม.${legacyMatch[1]}/${legacyMatch[2]}`;
-    }
-
-    return gradeId;
-  };
+  const formatGradeLabel = (gradeId: string) => formatGradeIdDisplay(gradeId);
 
   function getClassDataByTeacherID(
     TeacherID: number,

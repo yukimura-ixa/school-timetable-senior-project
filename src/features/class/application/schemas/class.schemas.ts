@@ -15,7 +15,8 @@ export const getClassSchedulesSchema = v.object({
   AcademicYear: v.pipe(v.number(), v.integer(), v.minValue(2500)),
   Semester: v.picklist(["SEMESTER_1", "SEMESTER_2"]),
   TeacherID: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
-  GradeID: v.optional(v.pipe(v.string(), v.regex(/^M\d+-\d+$/))), // e.g., "M1-1"
+  // Accept multiple GradeID formats for read-only queries (legacy data compatibility)
+  GradeID: v.optional(v.pipe(v.string(), v.minLength(1))),
 });
 
 export type GetClassSchedulesInput = v.InferInput<

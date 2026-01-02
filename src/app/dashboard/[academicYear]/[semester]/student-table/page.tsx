@@ -63,23 +63,13 @@ import type { ActionResult } from "@/shared/lib/action-wrapper";
 import type { timeslot } from "@/prisma/generated/client";
 import { NoTimetableEmptyState } from "@/components/feedback";
 import { colors } from "@/shared/design-system";
+import { formatGradeIdDisplay } from "@/utils/grade-display";
 
 const getGradeLabel = (gradeId: string | null) => {
   if (!gradeId) {
     return "";
   }
-
-  const canonicalMatch = /^M(\d+)-(\d+)$/.exec(gradeId);
-  if (canonicalMatch) {
-    return `ม.${canonicalMatch[1]}/${canonicalMatch[2]}`;
-  }
-
-  const legacyMatch = /^ม\.(\d+)\/(\d+)$/.exec(gradeId);
-  if (legacyMatch) {
-    return `ม.${legacyMatch[1]}/${legacyMatch[2]}`;
-  }
-
-  return gradeId;
+  return formatGradeIdDisplay(gradeId);
 };
 
 function StudentTablePage() {

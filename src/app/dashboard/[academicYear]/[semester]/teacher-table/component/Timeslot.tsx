@@ -2,6 +2,7 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
+import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import {
   Box,
   Typography,
@@ -17,16 +18,7 @@ type Props = {
   timeSlotData: TimeSlotTableData;
 };
 
-const formatTime = (time: string | Date) => {
-  const date = new Date(time);
-  const hour = date.getHours() - 7;
-  const minutes = date.getMinutes();
-
-  const hoursText = hour < 10 ? `0${hour}` : hour.toString();
-  const minutesText = minutes === 0 ? `0${minutes}` : minutes.toString();
-
-  return `${hoursText}:${minutesText}`;
-};
+const formatTime = formatTimeslotTimeUtc;
 
 const isBreakSlot = (breaktime: string) => breaktime !== "NOT_BREAK";
 

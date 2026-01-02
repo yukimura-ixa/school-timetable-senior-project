@@ -2,22 +2,14 @@
 import { dayOfWeekThai } from "@/models/dayofweek-thai";
 import React, { Fragment, useMemo } from "react";
 import type { TimeSlotTableData } from "../../shared/timeSlot";
+import { formatTimeslotTimeUtc } from "@/utils/datetime";
 
 type Props = {
   timeSlotData: TimeSlotTableData;
   searchGradeID: string | null;
 };
 
-const formatTime = (time: string | Date) => {
-  const date = new Date(time);
-  const hour = date.getHours() - 7;
-  const minutes = date.getMinutes();
-
-  const hoursText = hour < 10 ? `0${hour}` : hour.toString();
-  const minutesText = minutes === 0 ? `0${minutes}` : minutes.toString();
-
-  return `${hoursText}:${minutesText}`;
-};
+const formatTime = formatTimeslotTimeUtc;
 
 const getGradeLevel = (gradeId: string | null) => {
   if (!gradeId) {

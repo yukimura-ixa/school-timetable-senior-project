@@ -2,8 +2,8 @@ import Loading from "@/app/loading";
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
 import ErrorState from "@/components/mui/ErrorState";
 import type { gradelevel } from "@/prisma/generated/client";
-import React, { useEffect, useState } from "react";
-import { formatGradeIdDisplay } from "@/utils/grade-display";
+import React, { useEffect, useMemo, useState } from "react";
+import { formatGradeDisplay, formatGradeIdDisplay } from "@/utils/grade-display";
 
 type Props = {
   setGradeID: (gradeId: string | null) => void;
@@ -25,6 +25,24 @@ const formatGradeLabel = (gradeId: string | null) => {
   }
 };
 
+const formatGradeFromLevel = (grade: gradelevel) => {
+  const formatted = formatGradeLabel(grade.GradeID);
+  if (formatted !== grade.GradeID) {
+    return formatted;
+  }
+
+  const rawYear = grade.Year;
+  const section = grade.Number;
+  if (Number.isFinite(rawYear) && Number.isFinite(section) && section >= 1) {
+    const thaiYear = rawYear >= 7 && rawYear <= 12 ? rawYear - 6 : rawYear;
+    if (thaiYear >= 1 && thaiYear <= 6) {
+      return formatGradeDisplay(thaiYear, section);
+    }
+  }
+
+  return grade.GradeID;
+};
+
 function SelectClassRoom({
   setGradeID,
   currentGrade,
@@ -32,6 +50,17 @@ function SelectClassRoom({
   isLoading,
   error,
 }: Props) {
+  const validGradeLevels = useMemo(
+    () =>
+      gradeLevels.filter(
+        (grade) =>
+          Number.isFinite(grade.Year) &&
+          grade.Year >= 1 &&
+          Number.isFinite(grade.Number) &&
+          grade.Number >= 1,
+      ),
+    [gradeLevels],
+  );
   const [classRoom, setClassRoom] = useState<string>(
     formatGradeLabel(currentGrade),
   );
@@ -53,13 +82,13 @@ function SelectClassRoom({
       <p>เลือกชั้นเรียน</p>
       <Dropdown
         width={300}
-        data={gradeLevels}
+        data={validGradeLevels}
         placeHolder="ตัวเลือก"
         renderItem={({ data }: { data: unknown }) => {
           const g = data as gradelevel;
           return (
             <li>
-              <p>{formatGradeLabel(g.GradeID)}</p>
+              <p>{formatGradeFromLevel(g)}</p>
             </li>
           );
         }}
@@ -67,7 +96,7 @@ function SelectClassRoom({
         handleChange={(data: unknown) => {
           const g = data as gradelevel;
           const gradeId = g.GradeID;
-          setClassRoom(formatGradeLabel(gradeId));
+          setClassRoom(formatGradeFromLevel(g));
           setGradeID(gradeId);
         }}
         searchFunction={undefined}

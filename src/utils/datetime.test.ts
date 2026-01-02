@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   formatBangkokDateTime,
   formatBangkokTime,
+  formatTimeslotTimeUtc,
   getBangkokGregorianYear,
   getBangkokThaiBuddhistYear,
 } from "@/utils/datetime";
@@ -21,6 +22,14 @@ describe("datetime utils", () => {
     expect(formatBangkokTime(new Date("2025-01-01T12:34:00.000Z"))).toBe(
       "19:34",
     );
+  });
+
+  it("formats timeslot time from ISO using UTC hours", () => {
+    expect(formatTimeslotTimeUtc("2025-01-01T08:30:00.000Z")).toBe("08:30");
+  });
+
+  it("formats timeslot time from time-only string", () => {
+    expect(formatTimeslotTimeUtc("8:05")).toBe("08:05");
   });
 
   it("calculates Bangkok year independent of runtime timezone", () => {

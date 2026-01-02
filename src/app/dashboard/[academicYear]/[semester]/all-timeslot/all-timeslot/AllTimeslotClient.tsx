@@ -163,14 +163,15 @@ const buildTimeSlotData = (data: timeslot[]): TimeSlotData => {
     }));
 
   const firstSlot = data[0];
+  const firstSlotDate = firstSlot ? new Date(firstSlot.StartTime) : null;
 
-  const startTime = firstSlot
-    ? {
-        Hours: new Date(firstSlot.StartTime).getHours() - 7,
-
-        Minutes: new Date(firstSlot.StartTime).getMinutes(),
-      }
-    : { Hours: 8, Minutes: 0 };
+  const startTime =
+    firstSlotDate && !Number.isNaN(firstSlotDate.getTime())
+      ? {
+          Hours: firstSlotDate.getUTCHours(),
+          Minutes: firstSlotDate.getUTCMinutes(),
+        }
+      : { Hours: 8, Minutes: 0 };
 
   const duration = firstSlot
     ? getMinutes(

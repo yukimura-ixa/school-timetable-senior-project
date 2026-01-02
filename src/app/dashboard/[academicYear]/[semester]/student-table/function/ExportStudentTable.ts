@@ -1,5 +1,6 @@
 import type { gradelevel, timeslot } from "@/prisma/generated/client";
 import type { Prisma } from "@/prisma/generated/client";
+import { formatTimeslotTimeUtc } from "@/utils/datetime";
 import ExcelJS from "exceljs";
 
 // Type matching ClassScheduleWithSummary from repository
@@ -32,16 +33,7 @@ export const ExportStudentTable = (
   academicYear: string,
 ) => {
   const grades = [...gradeLevel];
-  function formatTime(time: Date | string): string {
-    const date = new Date(time);
-    const hours =
-      date.getHours() - 7 < 10
-        ? `0${date.getHours() - 7}`
-        : date.getHours() - 7;
-    const minutes =
-      date.getMinutes() === 0 ? `0${date.getMinutes()}` : date.getMinutes();
-    return `${hours}:${minutes}`;
-  }
+  const formatTime = formatTimeslotTimeUtc;
 
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("นักเรียน", {

@@ -3,18 +3,30 @@ import React, { useState } from "react";
 import Link from "next/link";
 // @ts-expect-error - JS module without types
 import { showTimetableMenu } from "@/raw-data/menubar-data";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useUIStore } from "@/stores/uiStore";
 
 function DashboardMenubar() {
   const { sidebarOpen } = useUIStore();
   const pathName = usePathname();
-  // State placeholders removed: component no longer depends on semester params
+  const params = useParams();
 
-  const [linkSelected, setLinkSelected] = useState<string>(pathName);
+  const academicYear =
+    typeof params.academicYear === "string" ? params.academicYear : null;
+  const semester = typeof params.semester === "string" ? params.semester : null;
+  const basePath =
+    academicYear && semester
+      ? `/dashboard/${academicYear}/${semester}`
+      : "/dashboard";
+
+  const extractSlug = (link: string): string =>
+    link.replace(/^\/*dashboard\/?/, "").replace(/^\//, "");
+
+  const currentSlug = pathName.split("/").filter(Boolean).pop() ?? pathName;
+  const [linkSelected, setLinkSelected] = useState<string>(currentSlug);
   const makePath = (link: string): string => {
-    const splitLink = link.split("/");
-    return `${splitLink[1]}`;
+    const slug = extractSlug(link);
+    return `${basePath}/${slug}`;
   };
   return (
     <>
@@ -68,12 +80,15 @@ function DashboardMenubar() {
               แสดงข้อมูล
             </p>
             {showTimetableMenu.map((item: any, index: number) => {
+              const slug = extractSlug(item.link);
+              const href = makePath(item.link);
+              const isActive = slug === linkSelected;
               return (
                 <React.Fragment key={item.id}>
-                  {makePath(item.link) === linkSelected ? (
+                  {isActive ? (
                     <Link
-                      href={makePath(item.link)}
-                      onClick={() => setLinkSelected(makePath(item.link))}
+                      href={href}
+                      onClick={() => setLinkSelected(slug)}
                       className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-md transform scale-105 transition-all duration-300`}
                       style={{
                         marginBottom:
@@ -85,8 +100,8 @@ function DashboardMenubar() {
                     </Link>
                   ) : (
                     <Link
-                      href={makePath(item.link)}
-                      onClick={() => setLinkSelected(makePath(item.link))}
+                      href={href}
+                      onClick={() => setLinkSelected(slug)}
                       className={`group flex items-center w-full gap-3 h-[45px] px-4 rounded-lg cursor-pointer text-gray-600 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-600 hover:shadow-sm transition-all duration-300`}
                       style={{
                         marginBottom:

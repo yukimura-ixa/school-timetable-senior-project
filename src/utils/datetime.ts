@@ -53,6 +53,8 @@ const THAI_DATE_NUMERIC_FORMATTER = new Intl.DateTimeFormat("th-TH", {
   day: "numeric",
 });
 
+const TIME_ONLY_PATTERN = /^(\d{1,2}):(\d{2})/;
+
 function toDate(input: DateInput): Date | null {
   const date = typeof input === "string" ? new Date(input) : input;
   return Number.isNaN(date.getTime()) ? null : date;
@@ -91,6 +93,24 @@ export function formatBangkokTime(input: DateInput): string {
   if (!hour || !minute) return "";
 
   return `${hour}:${minute}`;
+}
+
+export function formatTimeslotTimeUtc(input: DateInput): string {
+  if (typeof input === "string") {
+    const match = input.match(TIME_ONLY_PATTERN);
+    if (match) {
+      const hours = (match[1] ?? "").padStart(2, "0");
+      const minutes = match[2] ?? "00";
+      return `${hours}:${minutes}`;
+    }
+  }
+
+  const date = toDate(input);
+  if (!date) return "";
+
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
 }
 
 export function getBangkokGregorianYear(input: DateInput = new Date()): number {
