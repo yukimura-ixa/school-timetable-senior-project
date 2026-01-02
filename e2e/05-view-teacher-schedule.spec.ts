@@ -50,13 +50,13 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    // Wait for data to load
-    await page.waitForTimeout(2000);
-
     // Verify teacher selector is enabled (not disabled for admin)
     const teacherSelectorContainer = page
       .getByTestId("teacher-multi-select")
       .first();
+    
+    // Wait for selector to be visible (data loaded)
+    await expect(teacherSelectorContainer).toBeVisible({ timeout: 10000 });
 
     // Check if the selector is interactive (not disabled via opacity/pointer-events)
     const opacity = await teacherSelectorContainer.evaluate(
@@ -81,13 +81,12 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    // Wait for schedule to load
-    await page.waitForTimeout(2000);
-
     // Look for timetable structure (table, grid, or timeslot containers)
     const scheduleGrid = page.locator(
       'table, [role="grid"], [class*="timetable"], [class*="schedule"]',
     );
+    
+    // Wait for schedule grid to load
     const hasGrid = await scheduleGrid
       .first()
       .isVisible()
@@ -121,7 +120,8 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    await page.waitForTimeout(2000);
+    // Wait for schedule grid to be visible
+    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 10000 });
 
     // Look for subject names, codes, or class information in the schedule
     // These might be displayed in various formats
@@ -153,7 +153,8 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    await page.waitForTimeout(1000);
+    // Wait for bulk export section (admin feature)
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({ timeout: 10000 });
 
     // Look for export buttons (Excel, PDF, Print)
     const exportButtons = page.locator("button").filter({
@@ -182,7 +183,8 @@ test.describe("TC-017: View Teacher Schedule - Admin Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    await page.waitForTimeout(1000);
+    // Wait for bulk export section (admin feature)
+    await expect(page.getByTestId("bulk-export-section")).toBeVisible({ timeout: 10000 });
 
     // Look for bulk operation UI (admin-only feature)
     const bulkUI = page.locator("text=/กลุ่ม|bulk|เลือกหลาย|multiple/i");
@@ -246,11 +248,12 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
-    await page.waitForTimeout(2000);
-
     // For a teacher user, the selector should be disabled
     // We can verify this by checking the disabled prop implementation
     const teacherSelector = page.getByTestId("teacher-multi-select").first();
+    
+    // Wait for selector to be visible
+    await expect(teacherSelector).toBeVisible({ timeout: 10000 });
 
     // Check visual disabled state (opacity 0.6, pointer-events none)
     const styles = await teacherSelector.evaluate((el) => ({

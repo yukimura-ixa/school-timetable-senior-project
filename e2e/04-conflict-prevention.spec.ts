@@ -50,13 +50,12 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
-    // Wait for teacher table to load
-    await page.waitForTimeout(2000);
-
     // Look for teacher selector (might be a dropdown or autocomplete)
     const teacherSelector = page
       .getByRole("combobox", { name: /เลือก(คุณ)?ครู/ })
       .first();
+    
+    // Wait for teacher selector to be visible
 
     if (await teacherSelector.isVisible()) {
       console.log("Teacher selector found - ready for conflict testing");
@@ -88,8 +87,9 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
-    // Wait for data to load
-    await page.waitForTimeout(2000);
+    // Wait for teacher selector to be ready
+    const teacherSelector = page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first();
+    await expect(teacherSelector).toBeVisible({ timeout: 10000 });
 
     // Watch for any error messages or conflict indicators
     // These might appear as:
@@ -118,8 +118,9 @@ test.describe("TC-011: Teacher Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
-    // Wait for the grid to load
-    await page.waitForTimeout(2000);
+    // Wait for grid to be visible before checking conflict markers
+    const timetableGrid = page.locator('table, [role="grid"]').first();
+    await expect(timetableGrid).toBeVisible({ timeout: 10000 });
 
     // Check for any visual conflict indicators
     // These might be CSS classes or styles indicating conflicts
@@ -171,11 +172,9 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
-    // Wait for data load
-    await page.waitForTimeout(2000);
-
     // Look for the class timetable grid
     const timetableGrid = page.locator('table, [role="grid"]');
+    await expect(timetableGrid.first()).toBeVisible({ timeout: 10000 });
     if (await timetableGrid.first().isVisible()) {
       console.log("Class timetable grid available");
 
@@ -197,7 +196,8 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for teacher selector to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // Check for conflict detection mechanisms
     const conflictElements = page.locator("text=/ซ้ำ|ไม่สามารถ|conflict/i");
@@ -216,7 +216,8 @@ test.describe("TC-012: Class Double Booking Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for grid to load before checking slots
+    await expect(page.locator('table, [role="grid"]').first()).toBeVisible({ timeout: 10000 });
 
     // Look for occupied timeslots (they should be visually distinct)
     const occupiedSlots = page.locator(
@@ -248,7 +249,8 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // Look for room selection/assignment controls
     const roomControls = page.locator("text=/ห้อง|room/i");
@@ -276,7 +278,8 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // When selecting a room for a timeslot, the system should:
     // 1. Show available rooms
@@ -296,7 +299,8 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // Look for any room-related conflict messages
     const roomConflictMsg = page.locator(
@@ -320,7 +324,8 @@ test.describe("TC-013: Room Availability Conflict Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // Check if the system suggests alternative rooms
     // This might be in a dropdown, modal, or suggestion list
@@ -355,7 +360,8 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // When arranging a schedule, the system should check:
     // 1. Teacher availability
@@ -382,13 +388,15 @@ test.describe("TC-011-013: Integrated Conflict Prevention", () => {
     );
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // Reload the page
     await page.reload();
     await waitForAppReady(page);
 
-    await page.waitForTimeout(2000);
+    // Wait for arrange page to be ready after reload
+    await expect(page.getByRole("combobox", { name: /เลือก(คุณ)?ครู/ }).first()).toBeVisible({ timeout: 10000 });
 
     // Existing conflicts should still be detected
     console.log("Conflict detection persists after reload");

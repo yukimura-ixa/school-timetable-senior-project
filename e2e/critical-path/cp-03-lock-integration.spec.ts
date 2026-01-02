@@ -93,11 +93,9 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
       const applyButton = page.getByRole("button", { name: /ใช้|apply|ตกลง|confirm/i });
       await applyButton.click();
       
-      // Wait for template application
-      await page.waitForTimeout(2000);
-      
-      // Verify lock icons appear
+      // Wait for lock icons to appear (template application)
       const lockIcons = page.locator('[class*="lock"], [data-locked="true"]');
+      await expect(lockIcons.first()).toBeVisible({ timeout: 10000 });
       const lockedCount = await lockIcons.count();
       
       // Should have 5 locked slots (MON-FRI at 10:40)
@@ -128,10 +126,9 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
       const applyButton = page.getByRole("button", { name: /ใช้|apply|ตกลง|confirm/i });
       await applyButton.click();
       
-      await page.waitForTimeout(2000);
-      
-      // Verify additional locks (should now have 10 total: 5 junior + 5 senior)
+      // Wait for additional locks to appear
       const lockIcons = page.locator('[class*="lock"], [data-locked="true"]');
+      await expect(lockIcons.nth(9)).toBeVisible({ timeout: 10000 }); // Wait for 10th lock
       const lockedCount = await lockIcons.count();
       
       expect(lockedCount).toBeGreaterThanOrEqual(10);
@@ -207,8 +204,8 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
       
       if (await firstOption.isVisible({ timeout: 2000 })) {
         await firstOption.click();
-        await page.waitForTimeout(2000);
         
+        // Wait for subject palette to load after teacher selection
         // Look for subject palette
         const subjectPalette = page.locator('[class*="palette"], [class*="subject"]');
         
@@ -229,8 +226,6 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
               if (lockedBox) {
                 await page.mouse.move(lockedBox.x + 5, lockedBox.y + 5);
                 await page.mouse.up();
-                
-                await page.waitForTimeout(1000);
                 
                 // Verify drop was prevented (check for error message or no schedule created)
                 const errorMessage = page.getByText(/ล็อก|locked|ไม่สามารถ/i);
@@ -277,7 +272,9 @@ test.describe.serial("CP-03: Timeslot Locking Integration", () => {
     if (unlockedCell) {
       // Click to lock
       await unlockedCell.click();
-      await page.waitForTimeout(1000);
+      
+      // Wait for lock state to update
+      await expect(unlockedCell).toHaveAttribute('data-locked', 'true', { timeout: 5000 });
       
       // Verify cell is now locked
       const afterClick = await unlockedCell.getAttribute('data-locked');
