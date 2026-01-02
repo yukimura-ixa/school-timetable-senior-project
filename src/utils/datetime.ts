@@ -108,9 +108,10 @@ export function formatTimeslotTimeUtc(input: DateInput): string {
   const date = toDate(input);
   if (!date) return "";
 
-  const hours = String(date.getUTCHours()).padStart(2, "0");
-  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
+  const { hour, minute } = getDateParts(BANGKOK_TIME_FORMATTER, date);
+  if (!hour || !minute) return "";
+
+  return `${hour}:${minute}`;
 }
 
 export function getBangkokGregorianYear(input: DateInput = new Date()): number {

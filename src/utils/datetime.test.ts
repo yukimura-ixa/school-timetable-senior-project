@@ -24,8 +24,9 @@ describe("datetime utils", () => {
     );
   });
 
-  it("formats timeslot time from ISO using UTC hours", () => {
-    expect(formatTimeslotTimeUtc("2025-01-01T08:30:00.000Z")).toBe("08:30");
+  it("formats timeslot time from ISO using Bangkok timezone", () => {
+    // 08:30 UTC = 15:30 Bangkok (UTC+7)
+    expect(formatTimeslotTimeUtc("2025-01-01T08:30:00.000Z")).toBe("15:30");
   });
 
   it("formats timeslot time from time-only string", () => {
