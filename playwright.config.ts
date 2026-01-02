@@ -29,7 +29,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined, // Sequential (1 worker) in CI for stability, all cores locally
   // Increase test timeout for dev mode (default 30s isn't enough for slow page compilation)
-  timeout: process.env.CI ? 90000 : 60000,
+  // Use 150s in CI (webServer needs 120s to start, plus test overhead)
+  // Use 120s locally (still enough for dev compilation with HMR)
+  timeout: process.env.CI ? 150000 : 120000,
 
   /* Global setup/teardown - manages test database lifecycle */
   globalSetup: path.resolve(__dirname, "playwright.global-setup.ts"),

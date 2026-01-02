@@ -40,7 +40,8 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
 // Increase setup timeout to accommodate initial compile/HMR and seeding
 // Dev server compilation can take 20-30s each time in dev mode
-setup.setTimeout(180_000);
+// Reduced from 180s to 120s with optimizations to auth polling and buffer waits
+setup.setTimeout(120_000);
 
 /**
  * Ensures database is fully seeded before proceeding with tests
@@ -254,7 +255,7 @@ setup("authenticate as admin", async ({ page }) => {
   // Strategy: Wait for either URL change OR auth cookies to be set
   // Note: In dev mode, API endpoints need compilation (can take 25-30s each)
   const startTime = Date.now();
-  const maxWaitTime = 180000; // 180 seconds max (API compilation can take a while)
+  const maxWaitTime = 120000; // 120 seconds max (reduced from 180s; better timeout handling)
   let navigatedToDashboard = false;
   let authCookieSet = false;
   let lastLog = 0;
@@ -284,9 +285,9 @@ setup("authenticate as admin", async ({ page }) => {
     
     if (hasAuthCookie && !authCookieSet) {
       authCookieSet = true;
-      log.info("Auth cookies detected, waiting a bit more for navigation...");
-      // Give client-side navigation a chance to complete
-      await page.waitForTimeout(5000);
+      log.info("Auth cookies detected, waiting for navigation...");
+      // Give client-side navigation a chance to complete (reduced from 5s to 2s)
+      await page.waitForTimeout(2000);
       
       // Check URL again
       const urlAfterWait = page.url();
@@ -305,7 +306,8 @@ setup("authenticate as admin", async ({ page }) => {
       break;
     }
     
-    await page.waitForTimeout(500);
+    // Poll more frequently (every 100ms instead of 500ms)
+    await page.waitForTimeout(100);
   }
   
   if (!navigatedToDashboard) {
@@ -358,8 +360,8 @@ setup("authenticate as admin", async ({ page }) => {
 
   // ===== CI DEBUGGING: Step 4 - Add timing buffer =====
   // CI is slower than local; give session time to propagate
-  console.log("[DEBUG] Waiting 2s for session to propagate...");
-  await page.waitForTimeout(2000);
+  console.log("[DEBUG] Waiting 1s for session to propagate...");
+  await page.waitForTimeout(1000);
 
   // Verify authentication via session API (less flaky than UI visibility checks)
   // INCREASED TIMEOUT: 15s → 30s for CI slowness

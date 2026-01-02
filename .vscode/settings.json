@@ -33,4 +33,5 @@
             "allowedModels": []
         }
     },
+    "terminal.integrated.stickyScroll.enabled": false,
 }

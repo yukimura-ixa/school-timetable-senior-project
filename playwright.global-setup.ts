@@ -197,6 +197,39 @@ async function globalSetup() {
     );
     return; // Exit early; tests rely on dev bypass/mock session
   }
+
+  // Wait for dev server to be ready before seeding
+  // This ensures the server has compiled and is ready to accept requests
+  const maxServerAttempts = 10;
+  let serverReady = false;
+  const baseUrl = process.env.BASE_URL ?? "http://localhost:3005";
+
+  console.log("⏳ Waiting for dev server to be ready...\n");
+
+  for (let attempt = 1; attempt <= maxServerAttempts; attempt++) {
+    try {
+      const response = await fetch(`${baseUrl}/api/health/db`);
+      if (response.ok) {
+        serverReady = true;
+        console.log("✅ Dev server is ready!\n");
+        break;
+      }
+    } catch {
+      if (attempt < maxServerAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (attempt % 3 === 0) {
+          console.log(`   Still waiting... (${attempt}/${maxServerAttempts})`);
+        }
+      }
+    }
+  }
+
+  if (!serverReady) {
+    console.warn(
+      "⚠️  Dev server did not respond to health check - attempting to seed anyway\n",
+    );
+  }
+
   console.log("🌱 Seeding test database...\n");
 
   // Clear any residual auth/session cookies between prior runs to avoid mismatched JWT secrets.
