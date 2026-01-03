@@ -3246,6 +3246,39 @@ async function main() {
     }
   }
 
+  // ===== E2E TEACHER RESPONSIBILITIES =====
+  // Explicitly assign math subjects to E2E teacher (TeacherID typically 1)
+  // This ensures E2E tests have a teacher with draggable subjects
+  console.log("📝 Creating E2E teacher responsibilities...");
+  const e2eTeacherInList = teachers.find(
+    (t) => t.Email === "e2e.teacher@school.ac.th",
+  );
+  if (e2eTeacherInList) {
+    // Assign math additional subject (ค21201) for first M.1 grade level only
+    // Using additional subject so it doesn't conflict with other math teachers
+    const firstGrade = gradeLevels[0]; // M.1/1
+    if (firstGrade) {
+      const resp = await withRetry(
+        () =>
+          prisma.teachers_responsibility.create({
+            data: {
+              TeacherID: e2eTeacherInList.TeacherID,
+              GradeID: firstGrade.GradeID,
+              SubjectCode: "ค21201", // Math additional subject (คณิตศาสตร์เพิ่มเติม)
+              AcademicYear: 2567,
+              Semester: "SEMESTER_1",
+              TeachHour: 2,
+            },
+          }),
+        `Assign ค21201 to E2E teacher for ${firstGrade.GradeID}`,
+      );
+      responsibilities.push(resp);
+      console.log(
+        `✅ Created E2E teacher responsibility (TeacherID: ${e2eTeacherInList.TeacherID}, Subject: ค21201, Grade: ${firstGrade.GradeID})`,
+      );
+    }
+  }
+
   console.log(
     `✅ Created ${responsibilities.length} sample teacher responsibilities`,
   );
