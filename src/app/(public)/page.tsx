@@ -54,6 +54,8 @@ export default async function HomePage() {
   const stats = await getQuickStats();
   let currentConfigId: string | null = null;
   let currentTerm: { academicYear: string; semester: string } | null = null;
+  // Get first teacher ID for sample timetable link (with defensive null check)
+  const firstTeacherId = teachersData?.data?.[0]?.teacherId ?? 1;
   if (stats.currentTerm && stats.currentTerm !== "N/A") {
     const termMatch = stats.currentTerm.match(/ปีการศึกษา (\d+)/);
     const semesterMatch = stats.currentTerm.match(/ภาคเรียนที่ (\d+)/);
@@ -119,7 +121,7 @@ export default async function HomePage() {
               </Link>
               {currentTerm && (
                 <Link
-                  href={`/teachers/607/${currentTerm.academicYear}/${currentTerm.semester}`}
+                  href={`/teachers/${firstTeacherId}/${currentTerm.academicYear}/${currentTerm.semester}`}
                   prefetch={false}
                   className="group relative inline-flex items-center justify-center rounded-2xl border-2 border-white/20 backdrop-blur-md px-10 py-5 text-lg font-bold text-white transition-all duration-500 hover:bg-white/10 hover:border-white/40 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden"
                 >
