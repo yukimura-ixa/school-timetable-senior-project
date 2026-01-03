@@ -1,6 +1,6 @@
 import { PrismaClient } from "../prisma/generated/client";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({});
 
 async function main() {
   console.log("Checking for admin users...");

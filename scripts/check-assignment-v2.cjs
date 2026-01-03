@@ -2,7 +2,7 @@ const {
   PrismaClient,
 } = require("b:/Dev/school-timetable-senior-project/prisma/generated");
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({});
 
 async function main() {
   console.log("Checking assignments (CJS)...");
