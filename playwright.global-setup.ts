@@ -162,18 +162,21 @@ async function globalSetup() {
       }
     }
 
-
-    // Run migrations regardless of whether DB was already running
-    console.log("?? Running database migrations...");
-    execSync("pnpm prisma migrate deploy", {
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        DATABASE_URL:
-          "postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public",
-      },
-    });
-    console.log("? Migrations completed\n");
+    // Run migrations unless explicitly skipped (e.g., when using db push locally)
+    if (process.env.SKIP_MIGRATIONS === "true") {
+      console.log("⏭️  Skipping migrations (SKIP_MIGRATIONS=true)");
+    } else {
+      console.log("?? Running database migrations...");
+      execSync("pnpm prisma migrate deploy", {
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          DATABASE_URL:
+            "postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public",
+        },
+      });
+      console.log("? Migrations completed\n");
+    }
   } else if (!isDocker) {
     console.log("⚠️  Docker not available - assuming external database");
     console.log("ℹ️  Skipping automatic database lifecycle management\n");
