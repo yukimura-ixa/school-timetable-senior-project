@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 require("dotenv").config();
 
-const prisma = new PrismaClient({});
+const prisma = new PrismaClient(/** @type {any} */ ({}));
 
 /**
  * Seed teachers_responsibility (Subject-Teacher Assignment)
