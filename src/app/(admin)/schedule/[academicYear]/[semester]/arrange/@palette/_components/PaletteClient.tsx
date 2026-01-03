@@ -61,7 +61,7 @@ function DraggableSubject({ subject }: { subject: Subject }) {
       <ListItemText
         primary={subject.SubjectName}
         secondary={
-          <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
+          <Box component="span" sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
             <Chip label={subject.SubjectCode} size="small" />
             <Chip label={subject.GradeName} size="small" color="primary" />
             <Chip
@@ -71,6 +71,7 @@ function DraggableSubject({ subject }: { subject: Subject }) {
             />
           </Box>
         }
+        secondaryTypographyProps={{ component: "div" }}
       />
     </ListItem>
   );
