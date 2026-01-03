@@ -11,6 +11,7 @@
  */
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { createClientLogger } from "@/lib/client-logger";
 import {
@@ -302,6 +303,18 @@ export default function SignInForm() {
                 </Typography>
               }
             />
+
+            <Box display="flex" justifyContent="flex-end">
+              <Link href="/forgot-password" style={{ textDecoration: "none" }}>
+                <Typography
+                  variant="body2"
+                  color="primary"
+                  sx={{ fontWeight: 600, "&:hover": { textDecoration: "underline" } }}
+                >
+                  ลืมรหัสผ่าน?
+                </Typography>
+              </Link>
+            </Box>
 
             {/* Submit Button */}
             <Button

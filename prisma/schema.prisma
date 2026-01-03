@@ -330,6 +330,7 @@ enum ActivityType {
 enum EmailOutboxKind {
   EMAIL_VERIFICATION
   CHANGE_EMAIL
+  PASSWORD_RESET
 }
 
 enum EmailOutboxStatus {

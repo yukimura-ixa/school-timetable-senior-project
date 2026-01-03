@@ -100,7 +100,99 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
     // Using better-auth's default scrypt hashing
+    sendResetPassword: async ({ user, url }, request) => {
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+      let outbox;
+      try {
+        const resetUrlForOutbox =
+          process.env.NODE_ENV === "production"
+            ? redactVerificationUrlForOutbox(url)
+            : url;
+
+        outbox = await prisma.emailOutbox.create({
+          data: {
+            kind: "PASSWORD_RESET",
+            userId: user.id,
+            toEmail: user.email,
+            subject: "รีเซ็ตรหัสผ่าน",
+            verificationUrl: resetUrlForOutbox,
+            expiresAt,
+          },
+        });
+      } catch (err) {
+        console.error("[Auth] Failed to create password reset outbox entry:", err);
+      }
+
+      const text =
+        `มีคำขอรีเซ็ตรหัสผ่านสำหรับบัญชีของคุณ\n\n` +
+        `หากคุณเป็นผู้ร้องขอ โปรดคลิกลิงก์เพื่อรีเซ็ตรหัสผ่าน:\n${url}\n\n` +
+        `ลิงก์จะหมดอายุภายใน 1 ชั่วโมง`;
+
+      const html =
+        `<p>มีคำขอรีเซ็ตรหัสผ่านสำหรับบัญชีของคุณ</p>` +
+        `<p><a href="${url}">คลิกที่นี่เพื่อรีเซ็ตรหัสผ่าน</a></p>` +
+        `<p>ลิงก์จะหมดอายุภายใน 1 ชั่วโมง</p>`;
+
+      const sendPromise = (async () => {
+        if (!outbox) return;
+
+        const res = await sendEmail({
+          to: user.email,
+          subject: "รีเซ็ตรหัสผ่าน",
+          text,
+          html,
+        });
+
+        if (res.success) {
+          try {
+            await prisma.emailOutbox.update({
+              where: { id: outbox.id },
+              data: {
+                status: "SENT",
+                providerMessageId: res.messageId ?? null,
+                lastError: null,
+              },
+            });
+          } catch (err) {
+            console.error(
+              "[Auth] Failed to update password reset outbox status (SENT):",
+              err,
+            );
+          }
+          return;
+        }
+
+        const status = res.error.includes("not configured")
+          ? "SKIPPED"
+          : "FAILED";
+        try {
+          await prisma.emailOutbox.update({
+            where: { id: outbox.id },
+            data: {
+              status,
+              lastError: res.error.slice(0, 500),
+            },
+          });
+        } catch (err) {
+          console.error(
+            "[Auth] Failed to update password reset outbox status (FAILED/SKIPPED):",
+            err,
+          );
+        }
+      })();
+
+      const maybeWaitUntil = (
+        request as unknown as { waitUntil?: (p: Promise<unknown>) => void }
+      )?.waitUntil;
+      if (typeof maybeWaitUntil === "function") {
+        maybeWaitUntil(sendPromise);
+      } else {
+        void sendPromise;
+      }
+    },
   },
   // User profile configuration
   user: {
