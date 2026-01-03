@@ -24,8 +24,16 @@ function DashboardMenubar() {
 
   const currentSlug = pathName.split("/").filter(Boolean).pop() ?? pathName;
   const [linkSelected, setLinkSelected] = useState<string>(currentSlug);
-  const makePath = (link: string): string => {
-    const slug = extractSlug(link);
+
+  const makePath = (item: any): string => {
+    if (item?.dynamicLink) {
+      if (!academicYear || !semester) {
+        return pathName; // prevent broken navigation when context missing
+      }
+      return `${basePath}/${item.link}`;
+    }
+
+    const slug = extractSlug(item.link);
     return `${basePath}/${slug}`;
   };
   return (
@@ -81,7 +89,7 @@ function DashboardMenubar() {
             </p>
             {showTimetableMenu.map((item: any, index: number) => {
               const slug = extractSlug(item.link);
-              const href = makePath(item.link);
+              const href = makePath(item);
               const isActive = slug === linkSelected;
               return (
                 <React.Fragment key={item.id}>

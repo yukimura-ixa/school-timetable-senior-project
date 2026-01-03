@@ -114,7 +114,8 @@ export const showTimetableMenu = [
       Icon: BsDisplay,
     },
     title: "แสดงตารางครู",
-    link: "dashboard/teacher-table",
+    link: "teacher-table",
+    dynamicLink: true, // Flag to indicate this needs semester context
     roles: ["admin", "teacher"],
   },
   {
@@ -123,7 +124,8 @@ export const showTimetableMenu = [
       Icon: BsDisplay,
     },
     title: "แสดงตารางนักเรียน",
-    link: "dashboard/student-table",
+    link: "student-table",
+    dynamicLink: true, // Flag to indicate this needs semester context
     roles: ["admin", "teacher", "student"],
   },
   {
@@ -132,7 +134,8 @@ export const showTimetableMenu = [
       Icon: BsDisplay,
     },
     title: "แสดงตารางรวมครู",
-    link: "dashboard/all-timeslot",
+    link: "all-timeslot",
+    dynamicLink: true, // Flag to indicate this needs semester context
     roles: ["admin", "teacher", "student"],
   },
   {
@@ -141,7 +144,8 @@ export const showTimetableMenu = [
       Icon: BsDisplay,
     },
     title: "แสดงข้อมูลหลักสูตร",
-    link: "dashboard/all-program",
+    link: "all-program",
+    dynamicLink: true, // Flag to indicate this needs semester context
     roles: ["admin", "teacher", "student"],
   },
 ];
