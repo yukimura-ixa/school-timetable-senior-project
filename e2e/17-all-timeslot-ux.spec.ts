@@ -1,6 +1,9 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
+// Read-only UX tests can run in parallel
+test.describe.configure({ mode: "parallel" });
+
 /**
  * TC-018: All Timeslot Page UX
  *

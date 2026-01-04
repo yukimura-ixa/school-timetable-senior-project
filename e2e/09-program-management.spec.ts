@@ -18,9 +18,13 @@ import { test, expect } from "./fixtures/admin.fixture";
  * - Database seeded with test programs (run seed with SEED_CLEAN_DATA=true)
  * - Dev server running on http://localhost:3000
  * - Authentication bypassed or admin user logged in
+ * 
+ * IMPORTANT: Navigation tests can run in parallel, but CRUD tests need serial mode
  */
 
+// Navigation tests are read-only and can run in parallel
 test.describe("Program Management - Navigation by Year", () => {
+  test.describe.configure({ mode: "parallel" });
   test("TC-PROG-001: Navigate to M.1 programs", async ({
     authenticatedAdmin,
   }) => {
@@ -352,6 +356,9 @@ test.describe("Program Management - Filtering", () => {
 });
 
 test.describe("Program Management - CRUD Operations", () => {
+  // CRUD operations must run serially to avoid data race conditions
+  test.describe.configure({ mode: "serial", timeout: 90_000 });
+
   test("TC-PROG-020: Open Add Program modal", async ({
     authenticatedAdmin,
   }) => {

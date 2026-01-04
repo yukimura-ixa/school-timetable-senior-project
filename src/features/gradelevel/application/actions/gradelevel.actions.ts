@@ -11,7 +11,10 @@
 
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
 import { gradeLevelRepository } from "../../infrastructure/repositories/gradelevel.repository";
+
+const log = createLogger("GradeLevelActions");
 import {
   validateNoDuplicateGradeLevel,
   validateBulkGradeLevels,

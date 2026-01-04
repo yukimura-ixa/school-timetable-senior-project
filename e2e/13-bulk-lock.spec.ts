@@ -8,6 +8,9 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import type { Page } from "@playwright/test";
 
+// Bulk lock operations mutate state - must run serially
+test.describe.configure({ mode: "serial", timeout: 120_000 });
+
 const RUN_BULK_LOCK_E2E = process.env.E2E_BULK_LOCK === "true";
 const ALLOW_BULK_LOCK_MUTATIONS = process.env.E2E_BULK_LOCK_MUTATE === "true";
 

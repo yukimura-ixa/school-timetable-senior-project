@@ -11,7 +11,12 @@ import { waitForAppReady } from "./helpers/wait-for-app-ready";
  * - Subjects
  * - Rooms
  * - Grade Levels
+ * 
+ * IMPORTANT: These tests MUST run serially as they mutate shared data
  */
+
+// Serial mode required: CRUD tests mutate database state
+test.describe.configure({ mode: "serial", timeout: 90_000 });
 
 test.describe("Data Management - Teacher CRUD", () => {
   let nav: NavigationHelper;

@@ -62,13 +62,17 @@ export function calculateBreaktime(
  * Generate all timeslots based on configuration
  * Complex algorithm that calculates StartTime and EndTime for each slot
  * Handles mini breaks and regular breaks
+ *
+ * Note: Times are stored as local time (no UTC conversion) to match
+ * how seed data works and ensure consistent display in Thailand timezone.
  */
 export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
   const timeslots: timeslot[] = [];
 
   for (const day of config.Days) {
-    // Start time for the day (UTC format)
-    let slotStart = new Date(`1970-01-01T${config.StartTime}:00Z`);
+    // Start time for the day (local time, no "Z" suffix)
+    // Using 2024-01-01 as reference date for consistency with seed data
+    let slotStart = new Date(`2024-01-01T${config.StartTime}:00`);
 
     for (let index = 0; index < config.TimeslotPerDay; index++) {
       const currentSlotNumber = index + 1;
@@ -78,9 +82,7 @@ export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
         config.HasMinibreak &&
         config.MiniBreak.SlotNumber === currentSlotNumber
       ) {
-        slotStart.setUTCMinutes(
-          slotStart.getUTCMinutes() + config.MiniBreak.Duration,
-        );
+        slotStart.setMinutes(slotStart.getMinutes() + config.MiniBreak.Duration);
       }
 
       // Determine if this slot is a break period
@@ -92,9 +94,9 @@ export function generateTimeslots(config: CreateTimeslotsInput): timeslot[] {
       // Calculate end time based on break status
       const endTime = new Date(slotStart);
       if (isBreak !== breaktimeEnum.NOT_BREAK) {
-        endTime.setUTCMinutes(endTime.getUTCMinutes() + config.BreakDuration);
+        endTime.setMinutes(endTime.getMinutes() + config.BreakDuration);
       } else {
-        endTime.setUTCMinutes(endTime.getUTCMinutes() + config.Duration);
+        endTime.setMinutes(endTime.getMinutes() + config.Duration);
       }
 
       // Create timeslot record

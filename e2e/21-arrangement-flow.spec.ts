@@ -3,6 +3,9 @@ import type { Page, Locator } from "@playwright/test";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
 import { testSemester, testTeacher } from "./fixtures/seed-data.fixture";
 
+// Arrangement flow mutates schedule state - must run serially
+test.describe.configure({ mode: "serial", timeout: 120_000 });
+
 /**
  * E2E Tests: Schedule Arrangement Core Flow
  *

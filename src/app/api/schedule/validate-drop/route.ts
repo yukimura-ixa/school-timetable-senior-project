@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("API:ValidateDrop");
 
 /**
  * POST /api/schedule/validate-drop
@@ -38,6 +41,8 @@ import { prisma } from "@/lib/prisma";
  */
 export async function POST(request: NextRequest) {
   try {
+    log.debug("Validate drop request received");
+    
     const session = await auth.api.getSession({
       headers: request.headers,
     });
@@ -246,6 +251,8 @@ export async function POST(request: NextRequest) {
     const available = allRooms.filter((room) => !occupiedIds.has(room.RoomID));
     const occupied = allRooms.filter((room) => occupiedIds.has(room.RoomID));
 
+    log.info("Validation passed", { timeslot, subject, grade, teacher, availableRooms: available.length });
+
     return NextResponse.json({
       allowed: true,
       rooms: {
@@ -254,7 +261,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[API] POST /api/schedule/validate-drop error:", error);
+    log.logError(error, { route: "/api/schedule/validate-drop" });
     return NextResponse.json(
       {
         allowed: false,

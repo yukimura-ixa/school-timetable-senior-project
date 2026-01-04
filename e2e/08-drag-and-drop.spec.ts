@@ -27,6 +27,9 @@ import { test, expect } from "./fixtures/admin.fixture";
 import { Page } from "@playwright/test";
 import { NavigationHelper } from "./helpers/navigation";
 
+// Drag-and-drop tests mutate state - must run serially
+test.describe.configure({ mode: "serial", timeout: 120_000 });
+
 // Test data setup
 const TEST_SEMESTER = "2567/1";
 const SCREENSHOT_DIR = "test-results/screenshots/drag-drop";

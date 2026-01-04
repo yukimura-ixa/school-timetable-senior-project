@@ -1,6 +1,9 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import { waitForAppReady } from "./helpers/wait-for-app-ready";
 
+// Conflict prevention tests mutate state - must run serially
+test.describe.configure({ mode: "serial", timeout: 90_000 });
+
 /**
  * TC-011, TC-012, TC-013: Conflict Detection During Scheduling
  *

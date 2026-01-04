@@ -6,6 +6,9 @@
 
 import { test, expect } from "./fixtures/admin.fixture";
 
+// Read-only status checks can run in parallel
+test.describe.configure({ mode: "parallel" });
+
 test.describe("Publish Gate", () => {
   test("should prevent publishing of an incomplete semester", async ({
     authenticatedAdmin,

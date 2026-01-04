@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { generateStudentTimetablePDF } from "@/features/export/pdf/generators/student-pdf-generator";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("API:StudentPdfExport");
 import type { StudentTimetableData } from "@/features/export/pdf/templates/student-timetable-pdf";
 
 function safeFilenamePart(value: unknown): string {
@@ -31,6 +34,8 @@ function safeFilenamePart(value: unknown): string {
  * Response: application/pdf with Content-Disposition attachment
  */
 export async function POST(req: NextRequest) {
+  log.debug("Student timetable PDF export request");
+  
   try {
     // Auth check - admin only
     const session = await auth.api.getSession({
@@ -74,7 +79,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Student PDF generation error:", error);
+    log.logError(error, { route: "/api/export/student-timetable/pdf" });
     return NextResponse.json(
       { error: "Failed to generate PDF" },
       { status: 500 }

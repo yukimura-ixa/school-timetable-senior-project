@@ -1,6 +1,9 @@
 import { test, expect } from "./fixtures/admin.fixture";
 import type { Page } from "@playwright/test";
 
+// Read-only viewing tests can run in parallel
+test.describe.configure({ mode: "parallel" });
+
 /**
  * TC-017: View Teacher Schedule
  *

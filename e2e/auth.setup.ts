@@ -203,17 +203,11 @@ setup("authenticate as admin", async ({ page }) => {
   
   // Wait for Fast Refresh cycles to complete
   // Dev server triggers 2-3 Fast Refresh cycles that can clear form inputs
-  // We must wait for ALL cycles to finish before filling the form
+  // Reduced from 3s to 1.5s - most Fast Refresh cycles complete within 1s
   log.info("Waiting for Fast Refresh cycles to complete...");
-  await page.waitForTimeout(3000); // Wait 3 seconds for Fast Refresh to settle
+  await page.waitForTimeout(1500);
   
-  // Check if there are any pending Fast Refresh cycles by looking for network activity
-  try {
-    await page.waitForLoadState("networkidle", { timeout: 5000 });
-  } catch {
-    // Network may not become idle if HMR connection stays open, that's OK
-    log.debug("Network not fully idle, continuing anyway...");
-  }
+  // Skip networkidle check - HMR keeps network active, this just wastes 5s
   log.info("Form ready for interaction");
 
   log.info("Filling in credentials...");

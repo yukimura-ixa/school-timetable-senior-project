@@ -10,6 +10,9 @@
 
 import { test, expect } from "./fixtures/admin.fixture";
 
+// Read-only navigation tests can run in parallel
+test.describe.configure({ mode: "parallel" });
+
 test.describe("Conflict Detector", () => {
   // ✅ Using authenticatedAdmin fixture - no manual auth needed
 

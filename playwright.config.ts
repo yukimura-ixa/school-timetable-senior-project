@@ -24,14 +24,17 @@ export default defineConfig({
   // Without this, *.setup.ts files under e2e/prod can be picked up by the default 'setup' project,
   // breaking CI smoke/visual runs that don't provide E2E_* secrets.
   testIgnore: ["**/prod/**"],
-  fullyParallel: !process.env.CI, // Sequential in CI for stability, parallel locally
+  // CI: Sequential for stability (source of truth).
+  // Local: Parallel with limited workers to avoid resource contention.
+  fullyParallel: !process.env.CI,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined, // Sequential (1 worker) in CI for stability, all cores locally
-  // Increase test timeout for dev mode (default 30s isn't enough for slow page compilation)
-  // Use 150s in CI (webServer needs 120s to start, plus test overhead)
-  // Use 120s locally (still enough for dev compilation with HMR)
-  timeout: process.env.CI ? 150000 : 120000,
+  // CI: 1 worker (stable, sequential - source of truth)
+  // Local: 4 workers max to balance speed vs dev server load
+  workers: process.env.CI ? 1 : Math.min(4, require("os").cpus().length),
+  // Reduce local timeout since dev server should be warm after first test
+  // CI uses longer timeout for cold start + retries
+  timeout: process.env.CI ? 150000 : 60000,
 
   /* Global setup/teardown - manages test database lifecycle */
   globalSetup: path.resolve(__dirname, "playwright.global-setup.ts"),
@@ -60,12 +63,20 @@ export default defineConfig({
 
   use: {
     baseURL: process.env.BASE_URL || "http://localhost:3005",
+    // Reduce trace overhead: only on retry for debugging
     trace: "on-first-retry",
-    // Optimize CI artifacts: disable videos in CI, keep screenshots only on failure
-    screenshot: process.env.CI ? "only-on-failure" : "only-on-failure",
-    video: process.env.CI ? "off" : "retain-on-failure",
-    actionTimeout: 15000, // Allow more time for actions in dev mode
-    navigationTimeout: 60000, // Increased for dev server slow compilation (20s wasn't enough)
+    // Optimize artifacts: screenshots only on failure, no videos locally
+    screenshot: "only-on-failure",
+    video: process.env.CI ? "off" : "off", // Disable video locally for speed
+    // Reduce action timeout locally (dev server should be warm)
+    actionTimeout: process.env.CI ? 15000 : 10000,
+    // Navigation timeout: shorter locally after warmup
+    navigationTimeout: process.env.CI ? 60000 : 30000,
+    // Reuse browser context state for faster test isolation
+    launchOptions: {
+      // Disable GPU for faster headless mode
+      args: ["--disable-gpu", "--disable-dev-shm-usage"],
+    },
   },
 
   projects: [

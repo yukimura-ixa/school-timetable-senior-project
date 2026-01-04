@@ -139,8 +139,8 @@ export function ArrangementHeader({
               option.TeacherID === value?.TeacherID
             }
             data-testid="teacher-autocomplete"
-            renderOption={(props, option) => (
-              <li {...props} key={option.TeacherID}>
+            renderOption={({ key, ...props }, option) => (
+              <li key={key ?? option.TeacherID} {...props}>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Typography>{getTeacherFullName(option)}</Typography>
                   <Chip

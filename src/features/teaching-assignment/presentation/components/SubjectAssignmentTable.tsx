@@ -206,7 +206,7 @@ export function SubjectAssignmentTable({
             <TableRow key={subject.SubjectCode}>
               <TableCell>{subject.SubjectCode}</TableCell>
               <TableCell>{subject.SubjectName}</TableCell>
-              <TableCell align="center">{subject.Credit}</TableCell>
+              <TableCell align="center">{subjectCreditToNumber(subject.Credit)} หน่วยกิต</TableCell>
               <TableCell>
                 {subject.assignedTeacher ? (
                   <Box>

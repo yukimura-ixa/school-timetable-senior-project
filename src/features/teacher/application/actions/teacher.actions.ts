@@ -11,7 +11,10 @@
 
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
 import { auth } from "@/lib/auth";
+
+const log = createLogger("TeacherActions");
 import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import type { teacher } from "@/prisma/generated/client";
@@ -143,7 +146,9 @@ export const createTeacherAction = createAction(
     }
 
     // 3. Create teacher
+    log.debug("Creating teacher", { email: input.Email, department: input.Department });
     const newTeacher = await teacherRepository.create(input);
+    log.info("Teacher created", { teacherId: newTeacher.TeacherID, email: input.Email });
 
     // 4. Revalidate cache
     revalidateTag("teachers", "max");
@@ -432,7 +437,9 @@ export const updateTeachersAction = createAction(
 export const deleteTeachersAction = createAction(
   deleteTeachersSchema,
   async (input: DeleteTeachersInput) => {
+    log.debug("Deleting teachers", { count: input.length, ids: input });
     const result = await teacherRepository.deleteMany(input);
+    log.info("Teachers deleted", { count: result.count });
 
     // Revalidate cache
     revalidateTag("teachers", "max");

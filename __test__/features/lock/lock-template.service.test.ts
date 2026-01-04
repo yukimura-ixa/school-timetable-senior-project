@@ -27,16 +27,27 @@ describe("Lock Template Service", () => {
     { GradeID: "6-1", GradeName: "ม.6/1", Level: 6 },
   ];
 
+  // Helper to create Date with specific time (HH:mm:ss)
+  const createTime = (timeStr: string): Date => {
+    const [hours, minutes, seconds = 0] = timeStr.split(":").map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes, seconds, 0);
+    return date;
+  };
+
+  // Mock timeslots with StartTime as Date objects matching template config
   const mockTimeslots = [
-    { TimeslotID: "1-MON-1", Day: "MON", PeriodStart: 1 },
-    { TimeslotID: "1-MON-4", Day: "MON", PeriodStart: 4 },
-    { TimeslotID: "1-MON-5", Day: "MON", PeriodStart: 5 },
-    { TimeslotID: "1-TUE-4", Day: "TUE", PeriodStart: 4 },
-    { TimeslotID: "1-WED-4", Day: "WED", PeriodStart: 4 },
-    { TimeslotID: "1-THU-4", Day: "THU", PeriodStart: 4 },
-    { TimeslotID: "1-FRI-4", Day: "FRI", PeriodStart: 4 },
-    { TimeslotID: "1-FRI-8", Day: "FRI", PeriodStart: 8 },
-    { TimeslotID: "1-FRI-9", Day: "FRI", PeriodStart: 9 },
+    { TimeslotID: "1-MON-1", Day: "MON", StartTime: createTime("08:00:00") },
+    { TimeslotID: "1-MON-4", Day: "MON", StartTime: createTime("10:40:00") },
+    { TimeslotID: "1-MON-5", Day: "MON", StartTime: createTime("10:55:00") },
+    { TimeslotID: "1-TUE-4", Day: "TUE", StartTime: createTime("10:40:00") },
+    { TimeslotID: "1-WED-4", Day: "WED", StartTime: createTime("10:40:00") },
+    { TimeslotID: "1-WED-7", Day: "WED", StartTime: createTime("12:00:00") },
+    { TimeslotID: "1-WED-8", Day: "WED", StartTime: createTime("12:50:00") },
+    { TimeslotID: "1-THU-4", Day: "THU", StartTime: createTime("10:40:00") },
+    { TimeslotID: "1-FRI-4", Day: "FRI", StartTime: createTime("10:40:00") },
+    { TimeslotID: "1-FRI-8", Day: "FRI", StartTime: createTime("12:50:00") },
+    { TimeslotID: "1-FRI-9", Day: "FRI", StartTime: createTime("13:40:00") },
   ];
 
   const mockRooms = [
@@ -187,8 +198,9 @@ describe("Lock Template Service", () => {
 
     it("should return empty locks when no matching timeslots", () => {
       const template = getTemplateById("lunch-junior")!;
+      // Use a day (SAT) that doesn't exist in the template's days filter
       const wrongTimeslots = [
-        { TimeslotID: "1-SAT-1", Day: "SAT", PeriodStart: 1 },
+        { TimeslotID: "1-SAT-1", Day: "SAT", StartTime: createTime("08:00:00") },
       ];
 
       const result = resolveTemplate(
@@ -405,7 +417,8 @@ describe("Lock Template Service", () => {
 
     it("should handle multiple periods in timeslot filter", () => {
       const template = getTemplateById("activity-club")!;
-      expect(template.config.timeslotFilter.periods.length).toBe(2); // Periods 8-9
+      // Template uses startTimes array for multiple periods
+      expect(template.config.timeslotFilter.startTimes?.length).toBe(2); // 12:50:00 and 13:40:00
 
       const result = resolveTemplate(
         createTestInput(template, {

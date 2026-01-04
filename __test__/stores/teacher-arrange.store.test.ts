@@ -910,8 +910,8 @@ describe("Filter Persistence", () => {
     expect(parsed.state.filters.semester).toBe("1");
   });
 
-  it("should hydrate filters from localStorage", () => {
-    // Manually set localStorage
+  it("should hydrate filters from localStorage", async () => {
+    // Manually set localStorage BEFORE triggering rehydration
     const mockState = {
       state: {
         filters: {
@@ -924,7 +924,12 @@ describe("Filter Persistence", () => {
     };
     localStorage.setItem("teacher-arrange-filters", JSON.stringify(mockState));
 
-    // Create new hook instance (simulates page refresh)
+    // Manually trigger rehydration (simulates page refresh with existing localStorage)
+    await act(async () => {
+      await useTeacherArrangeStore.persist.rehydrate();
+    });
+
+    // Create hook instance
     const { result } = renderHook(() => useFilters());
 
     // Filters should be hydrated from localStorage

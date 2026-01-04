@@ -12,7 +12,10 @@ import { semester } from "@/prisma/generated/client";
 import type { teachers_responsibility } from "@/prisma/generated/client";
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
 import type { SubjectData } from "@/types/schedule.types";
+
+const log = createLogger("AssignActions");
 import { subjectCreditValues } from "@/models/credit-value";
 
 // Schemas
@@ -131,6 +134,8 @@ export const getLockedRespsAction = createAction(
 export const syncAssignmentsAction = createAction(
   syncAssignmentsSchema,
   async (input: SyncAssignmentsInput) => {
+    log.debug("Syncing teacher assignments", { teacherId: input.TeacherID, year: input.AcademicYear, semester: input.Semester });
+    
     const sem = semester[input.Semester];
     const semesterNum = input.Semester === "SEMESTER_1" ? "1" : "2";
     const configId = generateConfigID(semesterNum, input.AcademicYear);
@@ -217,6 +222,12 @@ export const syncAssignmentsAction = createAction(
       };
     });
 
+    log.info("Teacher assignments synced", { 
+      teacherId: input.TeacherID, 
+      created: result.summary.created, 
+      deleted: result.summary.deleted 
+    });
+
     await Promise.all([
       revalidateTag(`stats:${configId}`, "max"),
       revalidateTag(`conflicts:${conflictsKey}`, "max"),
@@ -233,6 +244,8 @@ export const syncAssignmentsAction = createAction(
 export const deleteAssignmentAction = createAction(
   deleteAssignmentSchema,
   async (input: DeleteAssignmentInput) => {
+    log.debug("Deleting assignment", { respId: input.RespID });
+    
     // Get the responsibility to find its teacher/term for cascade delete
     const resp = await assignRepository.findByRespId(input.RespID);
 

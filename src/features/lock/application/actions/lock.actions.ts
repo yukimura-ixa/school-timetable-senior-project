@@ -8,7 +8,10 @@
 "use server";
 
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
 import * as v from "valibot";
+
+const log = createLogger("LockActions");
 import * as lockRepository from "../../infrastructure/repositories/lock.repository";
 import { semester } from "@/prisma/generated/client";
 import type { Prisma, class_schedule } from "@/prisma/generated/client";
@@ -54,6 +57,12 @@ export const getLockedSchedulesAction = createAction(
 export const createLockAction = createAction(
   createLockSchema,
   async (input: CreateLockInput) => {
+    log.debug("Creating locked schedules", { 
+      subjectCode: input.SubjectCode, 
+      timeslotCount: input.timeslots.length, 
+      gradeCount: input.GradeIDs.length 
+    });
+    
     // Validate input using domain service
     const validationError = validateLockInput({
       timeslots: input.timeslots,

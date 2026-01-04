@@ -11,7 +11,10 @@
 
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
 import { roomRepository } from "../../infrastructure/repositories/room.repository";
+
+const log = createLogger("RoomActions");
 import { checkDuplicateRoom } from "../../domain/services/room-validation.service";
 import {
   createRoomSchema,
@@ -162,7 +165,9 @@ export const createRoomAction = createAction(
     }
 
     // 2. Create room
+    log.debug("Creating room", { roomName: input.RoomName, building: input.Building });
     const newRoom = await roomRepository.create(input);
+    log.info("Room created", { roomId: newRoom.RoomID, roomName: input.RoomName });
 
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');

@@ -10,6 +10,9 @@
 import { semester } from "@/prisma/generated/client";
 import * as v from "valibot";
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("ClassActions");
 
 // Schemas
 import {
@@ -157,6 +160,8 @@ export const getSummaryAction = createAction(
 export const createClassScheduleAction = createAction(
   createClassScheduleSchema,
   async (input: CreateClassScheduleInput) => {
+    log.debug("Creating class schedule", { timeslot: input.TimeslotID, subject: input.SubjectCode, grade: input.GradeID });
+    
     const schedule = await classRepository.create({
       IsLocked: input.IsLocked ?? false,
       timeslot: {
@@ -180,6 +185,7 @@ export const createClassScheduleAction = createAction(
         : undefined,
     });
 
+    log.info("Class schedule created", { classId: schedule.ClassID });
     return schedule;
   },
 );
@@ -232,7 +238,9 @@ export const updateClassScheduleAction = createAction(
 export const deleteClassScheduleAction = createAction(
   deleteClassScheduleSchema,
   async (input: DeleteClassScheduleInput) => {
+    log.debug("Deleting class schedule", { classId: input.ClassID });
     const schedule = await classRepository.deleteById(input.ClassID);
+    log.info("Class schedule deleted", { classId: input.ClassID });
     return schedule;
   },
 );

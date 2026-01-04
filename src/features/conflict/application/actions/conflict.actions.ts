@@ -7,7 +7,10 @@
 "use server";
 
 import { createAction } from "@/shared/lib/action-wrapper";
+import { createLogger } from "@/lib/logger";
 import { conflictRepository } from "../../infrastructure/repositories/conflict.repository";
+
+const log = createLogger("ConflictActions");
 import {
   getConflictsSchema,
   checkTeacherConflictSchema,
@@ -49,6 +52,8 @@ export const getConflictsAction = createAction(
 export const checkTeacherConflictAction = createAction(
   checkTeacherConflictSchema,
   async (input: CheckTeacherConflictInput) => {
+    log.debug("Checking teacher conflict", { teacherId: input.teacherId, timeslotId: input.timeslotId });
+    
     const result = await conflictRepository.checkTeacherConflict(
       input.teacherId,
       input.timeslotId,

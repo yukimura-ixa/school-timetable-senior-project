@@ -271,8 +271,8 @@ function ShowTeacherData({
                 }}
               />
             )}
-            renderOption={(props, option) => (
-              <li {...props} key={option.TeacherID}>
+            renderOption={({ key, ...props }, option) => (
+              <li key={key ?? option.TeacherID} {...props}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <Avatar sx={{ width: 32, height: 32, fontSize: 14 }}>
                     {option.Firstname?.charAt(0) || "?"}

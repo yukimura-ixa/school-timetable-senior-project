@@ -10,6 +10,8 @@
  * Related Files:
  * - src/app/(public)/teachers/[id]/[academicYear]/[semester]/page.tsx
  * - src/app/(public)/classes/[gradeId]/[academicYear]/[semester]/page.tsx
+ * 
+ * Optimization: These tests are read-only and can run in parallel
  */
 
 import { test, expect } from "./fixtures/admin.fixture";
@@ -18,6 +20,9 @@ import {
   testSemester,
   testTeacher,
 } from "./fixtures/seed-data.fixture";
+
+// Enable parallel execution for read-only public page tests
+test.describe.configure({ mode: "parallel" });
 
 const termPath = `${testSemester.Year}/${testSemester.Semester}`;
 

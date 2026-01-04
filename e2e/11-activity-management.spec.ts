@@ -1,5 +1,8 @@
 import { test, expect } from "./fixtures/admin.fixture";
 
+// Activity management CRUD operations must run serially
+test.describe.configure({ mode: "serial", timeout: 120_000 });
+
 const RUN_ACTIVITY_MANAGEMENT_E2E = process.env.E2E_ACTIVITY_MANAGEMENT === "true";
 
 /**

@@ -1,5 +1,8 @@
 import { test, expect } from "./fixtures/admin.fixture";
 
+// Read-only navigation tests can run in parallel
+test.describe.configure({ mode: "parallel" });
+
 test.describe("Home Page Tests", () => {
   test("TC-HOME-001: Homepage loads successfully", async ({
     authenticatedAdmin,

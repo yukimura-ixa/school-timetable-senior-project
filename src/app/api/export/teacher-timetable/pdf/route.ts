@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 import { generateTeacherTimetablePDF } from "@/features/export/pdf/generators/teacher-pdf-generator";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("API:TeacherPdfExport");
 import type { TeacherTimetableData } from "@/features/export/pdf/templates/teacher-timetable-pdf";
 import {
   extractDayFromTimeslotId,
@@ -70,6 +73,8 @@ const DAY_MAP: Record<string, string> = {
  * Generates PDF server-side using @react-pdf/renderer
  */
 export async function POST(req: NextRequest) {
+  log.debug("Teacher timetable PDF export request");
+  
   // Admin-only RBAC enforcement
   const session = await auth.api.getSession({
     headers: req.headers,
@@ -157,6 +162,7 @@ export async function POST(req: NextRequest) {
 
     // Generate PDF
     const pdfBlob = await generateTeacherTimetablePDF(pdfData);
+    log.info("Teacher PDF generated", { teacherId: clientData.teacherId, semester: clientData.semester });
 
     // Convert Blob to Buffer for Response
     const buffer = await pdfBlob.arrayBuffer();
@@ -172,7 +178,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[PDF Export] Teacher timetable generation error:", error);
+    log.logError(error, { route: "/api/export/teacher-timetable/pdf" });
     return NextResponse.json(
       { error: "Failed to generate PDF" },
       { status: 500 },

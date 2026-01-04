@@ -5,7 +5,7 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   "**/node_modules/**",
   "**/.next/**",
   "**/e2e/**",
-  "**/__test__/stores/**", // Skip until React 19 + Testing Library compatible (Issue #53)
+  // "__test__/stores/**" - RE-ENABLED: Fixed async hydration test (Issue #53 resolved)
   "**/__test__/integration/**", // Skip until converted to E2E tests (Issue #55)
   "**/__test__/features/teaching-assignment/teaching-assignment.repository.test.ts", // Covered by heavy Playwright regression workflow
   "**/__test__/features/teaching-assignment/teacher-validation.service.test.ts", // Duplicated by dedicated heavy suite run
@@ -14,7 +14,9 @@ export const TEST_PATH_IGNORE_PATTERNS = [
   // Note: src/features/schedule-arrangement tests are now included
   "**/__test__/moe-standards/**",
   "**/__test__/features/dashboard/**",
-  "**/__test__/features/lock/**",
+  // "__test__/features/lock/**" - RE-ENABLED: Lock template tests working (2026-01-04)
+  "**/__test__/features/lock/lock.repository.test.ts", // Integration test requiring DB
+  "**/__test__/features/lock/bulk-lock.test.ts", // Integration test requiring DB
   "**/__test__/lib/feature-flags.test.ts",
   "**/__test__/seed-validation.test.ts",
   "**/__test__/management-server-actions.test.ts",
