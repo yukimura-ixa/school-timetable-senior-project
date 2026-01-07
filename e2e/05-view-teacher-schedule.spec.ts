@@ -278,11 +278,16 @@ test.describe("TC-017: View Teacher Schedule - Teacher Role", () => {
     await page.goto(`/dashboard/${testSemester}/teacher-table`);
     await expect(page.getByTestId("app-content-wrapper")).toBeVisible({ timeout: 15000 });
 
+    // The teacher selector is inside a Collapse component; expand it first
+    const filterButton = page.getByRole("button", { name: /แสดงตัวกรอง/i });
+    await expect(filterButton).toBeVisible({ timeout: 10000 });
+    await filterButton.click();
+
     // For a teacher user, the selector should be disabled
     // We can verify this by checking the disabled prop implementation
     const teacherSelector = page.getByTestId("teacher-multi-select").first();
     
-    // Wait for selector to be visible
+    // Wait for selector to be visible (Collapse animation completes)
     await expect(teacherSelector).toBeVisible({ timeout: 10000 });
 
     // Check visual disabled state (opacity 0.6, pointer-events none)

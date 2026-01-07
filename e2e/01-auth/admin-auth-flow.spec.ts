@@ -188,6 +188,15 @@ test.describe("Visual UI Checks", () => {
         !err.includes("DevTools") &&
         !err.includes("404 (Not Found)"),
     );
+    
+    // Log errors for debugging
+    if (criticalErrors.length > 0) {
+      console.log("Critical console errors found:");
+      criticalErrors.forEach((err, idx) => {
+        console.log(`  ${idx + 1}. ${err}`);
+      });
+    }
+    
     expect(criticalErrors.length).toBe(0);
   });
 
