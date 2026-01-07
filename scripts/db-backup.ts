@@ -5,7 +5,11 @@
  * Run this before `pnpm db:migrate:deploy` in production.
  *
  * Usage:
+ *   # Local (with .env.local):
  *   pnpm tsx scripts/db-backup.ts
+ *
+ *   # Production (with explicit URL):
+ *   DATABASE_URL="postgresql://..." pnpm tsx scripts/db-backup.ts
  *
  * Output:
  *   ./backups/backup-{timestamp}.json
@@ -13,19 +17,61 @@
 
 /* eslint-disable no-console */
 
-import prisma from "../src/lib/prisma";
 import * as fs from "fs";
 import * as path from "path";
+import dotenv from "dotenv";
 
-interface BackupData {
-  timestamp: string;
-  version: string;
-  tables: {
-    [tableName: string]: unknown[];
-  };
+// Load environment files in priority order
+const root = process.cwd();
+const envPaths = [
+  path.join(root, ".env.local"),
+  path.join(root, ".env.vercel.local"),
+  path.join(root, ".env.vercel"),
+];
+for (const p of envPaths) {
+  if (fs.existsSync(p)) dotenv.config({ path: p });
 }
 
-async function createBackup(): Promise<void> {
+// Map common Vercel Postgres vars to DATABASE_URL if needed
+if (!process.env.DATABASE_URL) {
+  const candidates = [
+    process.env.POSTGRES_PRISMA_URL,
+    process.env.POSTGRES_URL,
+    process.env.POSTGRES_URL_NON_POOLING,
+  ].filter(Boolean) as string[];
+  if (candidates.length > 0) {
+    process.env.DATABASE_URL = candidates[0];
+  }
+}
+
+// Check for DATABASE_URL before importing prisma
+if (!process.env.DATABASE_URL) {
+  console.error("❌ No database connection string found.\n");
+  console.error("Checked: .env.local, .env.vercel.local, .env.vercel");
+  console.error("Looked for: DATABASE_URL, POSTGRES_PRISMA_URL, POSTGRES_URL");
+  console.error("Options:");
+  console.error("  1. Add DATABASE_URL to .env.local (gitignored)");
+  console.error(
+    '  2. Run with: DATABASE_URL="postgresql://..." pnpm tsx scripts/db-backup.ts'
+  );
+  console.error(
+    "  3. Use Vercel Postgres dashboard → copy POSTGRES_PRISMA_URL\n"
+  );
+  process.exit(1);
+}
+
+// Dynamic import after env check to avoid prisma initialization error
+const runBackup = async () => {
+  const { default: prisma } = await import("../src/lib/prisma");
+
+  interface BackupData {
+    timestamp: string;
+    version: string;
+    tables: {
+      [tableName: string]: unknown[];
+    };
+  }
+
   console.log("🔄 Starting database backup...\n");
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -128,7 +174,7 @@ async function createBackup(): Promise<void> {
   } finally {
     await prisma.$disconnect();
   }
-}
+};
 
 // Run backup
-createBackup().catch(console.error);
+runBackup().catch(console.error);
