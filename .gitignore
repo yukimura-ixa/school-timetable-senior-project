@@ -111,6 +111,9 @@ tmp/
 .tmp/
 .gemini_security/
 
+# Database backups (contain sensitive data)
+/backups/
+
 *.png
 .artifacts/*
 

@@ -746,7 +746,157 @@ pnpm db:studio
 
 ---
 
-## 📋 Final Checklist
+## � Emergency Rollback Runbook
+
+### Overview
+
+This section documents procedures for reverting to a previous stable state when issues are detected in production. Keep this runbook accessible during and after deployment.
+
+### Rollback Decision Tree
+
+```
+Issue Detected
+     │
+     ├─ UI/Code bug only? ──────────────────> App Rollback (< 5 min)
+     │
+     ├─ Data corruption? ───────────────────> Database Restore (15-30 min)
+     │
+     └─ Code + DB schema change together? ──> Full Revert (30-60 min)
+```
+
+---
+
+### Option A: Application Rollback (< 5 minutes)
+
+**When**: Code-only issues, no database schema changes involved.
+
+**Via Vercel Dashboard** (Recommended):
+1. Go to: https://vercel.com/oberghub/school-timetable-senior-project/deployments
+2. Find the last known good deployment (green checkmark)
+3. Click the deployment → **"Promote to Production"**
+4. Wait ~30 seconds for propagation
+5. Verify: `curl https://phrasongsa-timetable.vercel.app/api/health`
+
+**Via Vercel CLI**:
+```bash
+# List recent deployments
+vercel ls school-timetable-senior-project
+
+# Rollback to specific deployment
+vercel rollback <deployment-url>
+
+# Verify
+curl https://phrasongsa-timetable.vercel.app/api/health
+```
+
+---
+
+### Option B: Database Restore (15-30 minutes)
+
+**When**: Data corruption, accidental deletion, or migration failure.
+
+**Pre-requisite**: Vercel Postgres automated backups must be enabled.
+
+**Steps**:
+1. **Pause traffic** (optional): Set maintenance mode if available
+2. **Access Prisma Console**: https://console.prisma.io
+3. Navigate to: **Database → Backups**
+4. Select the backup from before the incident
+5. Click **"Restore"** and confirm
+6. Wait for restore to complete (~5-15 min depending on size)
+7. Verify data integrity:
+   ```bash
+   curl https://phrasongsa-timetable.vercel.app/api/health/full
+   ```
+8. **Redeploy app** if schema was reverted:
+   ```bash
+   vercel --prod --force
+   ```
+
+**⚠️ Important**: Database restore will affect ALL connected environments (preview deployments). Coordinate with team before restoring.
+
+---
+
+### Option C: Full Revert (30-60 minutes)
+
+**When**: Code and database schema changes need to be reverted together.
+
+**Steps**:
+
+1. **Revert code changes**:
+   ```bash
+   # Find the commit to revert to
+   git log --oneline -10
+
+   # Create revert commit
+   git revert <bad-commit-hash>
+
+   # Or revert multiple commits
+   git revert <oldest-bad>^..<newest-bad>
+   ```
+
+2. **Coordinate database restore** (if schema changed):
+   - Follow Option B to restore database backup
+   - Time the restore to complete BEFORE code redeploy
+
+3. **Redeploy reverted code**:
+   ```bash
+   git push origin main
+   # Wait for CI to pass
+   # Vercel auto-deploys on green
+   ```
+
+4. **Verify full stack**:
+   ```bash
+   # Health check
+   curl https://phrasongsa-timetable.vercel.app/api/health/full
+
+   # Smoke test critical flows
+   # - Login works
+   # - Timetable loads
+   # - Data displays correctly
+   ```
+
+---
+
+### Pre-Deployment Backup Procedure
+
+**Before running destructive migrations**, always create a backup:
+
+```bash
+# Create database export
+pnpm tsx scripts/db-backup.ts
+
+# Output: ./backups/backup-{timestamp}.json
+# Keep this file until deployment is verified stable
+```
+
+**Backup contents**:
+- All curriculum data (subjects, grades, programs)
+- All schedule data (timeslots, class_schedule, teachers_responsibility)
+- User accounts (excluding sessions)
+- Semester configuration
+
+---
+
+### Escalation Contacts
+
+| Role | Contact | Response Time |
+|------|---------|---------------|
+| **Deployment Owner** | [Dev Team Lead] | < 15 min |
+| **Database Owner** | [DevOps Engineer] | < 30 min |
+| **Security Contact** | [Security Lead] | < 1 hour |
+| **On-Call Engineer** | [Rotating - Check Schedule] | < 15 min |
+
+**Escalation Path**:
+1. Try self-service rollback (Options A/B)
+2. If blocked, contact Deployment Owner
+3. If data at risk, escalate to Database Owner immediately
+4. Security incidents → Security Contact (skip queue)
+
+---
+
+## �📋 Final Checklist
 
 **Before marking "Launch Complete"**, verify:
 
