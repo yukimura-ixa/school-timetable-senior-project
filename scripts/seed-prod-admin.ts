@@ -1,106 +1,114 @@
 /**
  * Production Admin Seeding Script
- * 
- * This script safely initializes the admin user in the production database.
- * It uses Prisma Accelerate for secure connection to prod Postgres.
- * 
- * Usage (from Vercel):
- * 1. Set environment variables:
- *    - POSTGRES_PRISMA_URL (for Accelerate)
- *    - DATABASE_URL (for direct connection)
- * 
- * 2. Run: pnpm exec tsx scripts/seed-prod-admin.ts
- * 
- * This is idempotent - it will:
- * - Create admin user if it doesn't exist
- * - Skip if admin@school.local already exists
- * - NOT delete any existing data
+ *
+ * Safely initializes the admin user in the production database using the
+ * same Better Auth flow as the main seed script (password is properly hashed
+ * and Account records are created automatically).
+ *
+ * Usage (from Vercel or local):
+ *   pnpm exec tsx scripts/seed-prod-admin.ts
+ *
+ * Environment variables (fallbacks match db-backup.ts):
+ *   - DATABASE_URL (or POSTGRES_PRISMA_URL / POSTGRES_URL / POSTGRES_URL_NON_POOLING)
+ *   - SEED_ADMIN_PASSWORD (recommended in production)
  */
 
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
+/* eslint-disable no-console */
 
-const requiredEnv = ["DATABASE_URL"];
+import * as fs from "fs";
+import * as path from "path";
+import dotenv from "dotenv";
 
-// Validate environment
-const missingEnv = requiredEnv.filter((e) => !process.env[e]);
-if (missingEnv.length > 0) {
-  console.error(`❌ Missing environment variables: ${missingEnv.join(", ")}`);
-  console.error("\nFor local use, ensure .env.local contains DATABASE_URL");
+const root = process.cwd();
+const envPaths = [
+  path.join(root, ".env.local"),
+  path.join(root, ".env.vercel.local"),
+  path.join(root, ".env.vercel"),
+];
+
+for (const p of envPaths) {
+  if (fs.existsSync(p)) dotenv.config({ path: p });
+}
+
+if (!process.env.DATABASE_URL) {
+  const candidates = [
+    process.env.POSTGRES_PRISMA_URL,
+    process.env.POSTGRES_URL,
+    process.env.POSTGRES_URL_NON_POOLING,
+  ].filter(Boolean) as string[];
+
+  if (candidates.length > 0) {
+    process.env.DATABASE_URL = candidates[0];
+  }
+}
+
+if (!process.env.DATABASE_URL) {
+  console.error("❌ Missing DATABASE_URL. Please set it before running.");
+  process.exit(1);
+}
+
+const adminEmail = process.env.ADMIN_EMAIL || "admin@school.local";
+const adminPassword =
+  process.env.SEED_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || "admin123";
+const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction && (!process.env.SEED_ADMIN_PASSWORD || adminPassword === "admin123")) {
   console.error(
-    "For production, set DATABASE_URL via Vercel environment variables"
+    "🔒 SECURITY: Set SEED_ADMIN_PASSWORD to a strong password before running in production."
   );
   process.exit(1);
 }
 
 async function seedProdAdmin() {
-  let pool: Pool | null = null;
-  let prisma: PrismaClient | null = null;
+  const [{ default: prisma }, { auth }] = await Promise.all([
+    import("../src/lib/prisma"),
+    import("../src/lib/auth.js"),
+  ]);
 
   try {
-    // Create Postgres connection pool
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    });
-
-    // Test connection
-    console.log("🔗 Testing database connection...");
-    const client = await pool.connect();
-    await client.query("SELECT 1");
-    client.release();
-    console.log("✅ Database connection successful");
-
-    // Create Prisma client with adapter
-    const adapter = new PrismaPg(pool);
-    prisma = new PrismaClient({ adapter });
-
-    // Check if admin already exists
     console.log("\n🔍 Checking for existing admin user...");
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: "admin@school.local" },
+    const existing = await prisma.user.findUnique({
+      where: { email: adminEmail },
     });
 
-    if (existingAdmin) {
-      console.log("✅ Admin user already exists (admin@school.local)");
-      console.log(`   - ID: ${existingAdmin.id}`);
+    if (existing) {
+      console.log("✅ Admin user already exists:");
+      console.log(`   - ID: ${existing.id}`);
       console.log(
-        `   - Email verified: ${existingAdmin.emailVerified ? "Yes" : "No"}`
+        `   - Email verified: ${existing.emailVerified ? "Yes" : "No"}`
       );
       return;
     }
 
-    // Create admin user using Better Auth method
-    // Password hash for "admin123" (bcrypt)
-    const passwordHash =
-      "$2b$10$e4sR0cHuDZA7fS4EH1Z0heUGvVLJ6Lg/VXtd3fLZ1Y5YZvbWJ0cZa"; // bcrypt of "admin123"
-
-    console.log("✨ Creating admin user...");
-    const newAdmin = await prisma.user.create({
-      data: {
-        id: "admin-user-001",
-        email: "admin@school.local",
-        emailVerified: true,
+    console.log("✨ Creating admin user via Better Auth...");
+    const signUpResult = await auth.api.signUpEmail({
+      body: {
+        email: adminEmail,
+        password: adminPassword,
         name: "System Administrator",
-        password: passwordHash, // Hashed password for admin123
-        accounts: {},
-        sessions: [],
-        authenticators: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      },
+    });
+
+    if (!signUpResult || !signUpResult.user) {
+      throw new Error("Failed to create admin user via Better Auth API");
+    }
+
+    await prisma.user.update({
+      where: { id: signUpResult.user.id },
+      data: {
+        role: "admin",
+        emailVerified: true,
       },
     });
 
     console.log("✅ Admin user created successfully!");
-    console.log(`   - ID: ${newAdmin.id}`);
-    console.log(`   - Email: ${newAdmin.email}`);
-    console.log(`   - Email verified: Yes`);
-    console.log(`   - Name: ${newAdmin.name}`);
-    console.log("\n🔐 Admin credentials:");
-    console.log("   - Email: admin@school.local");
-    console.log("   - Password: admin123");
+    console.log(`   - ID: ${signUpResult.user.id}`);
+    console.log(`   - Email: ${adminEmail}`);
+    console.log("\n🔐 Credentials:");
+    console.log(`   - Email: ${adminEmail}`);
+    console.log("   - Password: <hidden>");
     console.log(
-      "\n⚠️  IMPORTANT: Change the password immediately in production!"
+      "\n⚠️  IMPORTANT: Store the password securely and rotate after first login."
     );
   } catch (error) {
     console.error("❌ Error seeding admin user:");
@@ -115,16 +123,9 @@ async function seedProdAdmin() {
     }
     process.exit(1);
   } finally {
-    // Cleanup
-    if (prisma) {
-      await prisma.$disconnect();
-    }
-    if (pool) {
-      await pool.end();
-    }
+    await prisma.$disconnect();
     console.log("\n✨ Done!");
   }
 }
 
-// Run the seeding
-seedProdAdmin();
+void seedProdAdmin();

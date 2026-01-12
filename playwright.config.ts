@@ -1,5 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -31,7 +32,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // CI: 1 worker (stable, sequential - source of truth)
   // Local: 4 workers max to balance speed vs dev server load
-  workers: process.env.CI ? 1 : Math.min(4, require("os").cpus().length),
+  workers: process.env.CI ? 1 : Math.min(4, os.cpus().length),
   // Reduce local timeout since dev server should be warm after first test
   // CI uses longer timeout for cold start + retries
   timeout: process.env.CI ? 150000 : 60000,
