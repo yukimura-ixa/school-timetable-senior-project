@@ -341,6 +341,7 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             fullWidth
+            data-testid="current-password-field"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -367,6 +368,7 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             fullWidth
+            data-testid="new-password-field"
             helperText={
               newPassword && newPassword.length < 8
                 ? "รหัสผ่านสั้นเกินไป (ต้องมีอย่างน้อย 8 ตัวอักษร)"
@@ -399,6 +401,7 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             fullWidth
+            data-testid="confirm-password-field"
             helperText={
               confirmPassword && confirmPassword !== newPassword
                 ? "รหัสผ่านไม่ตรงกัน"
