@@ -32,7 +32,7 @@ export default function RoomSelectModal() {
   };
 
   return (
-    <Dialog open onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open onClose={handleClose} maxWidth="md" fullWidth data-testid="room-selection-dialog">
       <DialogTitle
         sx={{
           display: "flex",

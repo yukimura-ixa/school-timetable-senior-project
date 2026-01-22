@@ -134,12 +134,14 @@ export function RoomSelectionContent({
           ไม่มีห้องว่างในช่วงเวลานี้
         </Alert>
       ) : (
-        <List sx={{ mb: 2 }}>
+        <List sx={{ mb: 2 }} data-testid="available-rooms-list">
           {available.map((room) => (
             <ListItemButton
               key={room.RoomID}
               onClick={() => handleRoomSelect(room)}
               disabled={isCreating}
+              data-testid={`room-option-${room.RoomID}`}
+              data-room-name={room.RoomName}
               sx={{
                 border: "1px solid",
                 borderColor: "divider",
