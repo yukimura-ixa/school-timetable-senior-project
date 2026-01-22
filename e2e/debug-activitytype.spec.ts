@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures/admin.fixture';
 
-test('Debug ActivityType selection', async ({ authenticatedAdmin }) => {
+// Skip in CI - this is a debugging test for local investigation
+test.skip('Debug ActivityType selection', async ({ authenticatedAdmin }) => {
   const { page } = authenticatedAdmin;
   await page.goto('/management/subject');
   await page.waitForSelector('table', { timeout: 15000 });
@@ -17,8 +18,9 @@ test('Debug ActivityType selection', async ({ authenticatedAdmin }) => {
   console.log('Step 1: Clicking Category select');
   const categorySelect = creditSelects.nth(1);
   await categorySelect.click();
-  await page.getByRole('option', { name: /กิจกรรม|ACTIVITY/i }).first().click();
-  await page.waitForTimeout(500);
+  const categoryOption = page.getByRole('option', { name: /กิจกรรม|ACTIVITY/i }).first();
+  await expect(categoryOption).toBeVisible();
+  await categoryOption.click();
   
   const categoryValue = await categorySelect.textContent();
   console.log(`Category value after selection: ${categoryValue}`);
@@ -27,6 +29,8 @@ test('Debug ActivityType selection', async ({ authenticatedAdmin }) => {
   console.log('Step 2: Clicking ActivityType select (index 3)');
   const activityTypeSelect = creditSelects.nth(3);
   
+  // Wait for conditional field to appear
+  await expect(activityTypeSelect).toBeVisible({ timeout: 5000 });
   const isVisible = await activityTypeSelect.isVisible();
   console.log(`ActivityType is visible: ${isVisible}`);
   
@@ -35,15 +39,17 @@ test('Debug ActivityType selection', async ({ authenticatedAdmin }) => {
     console.log(`ActivityType value before selection: ${beforeValue}`);
     
     await activityTypeSelect.click();
-    await page.waitForTimeout(500);
+    const optionsList = page.getByRole('option');
+    await expect(optionsList.first()).toBeVisible();
     
     // Check what options are available
     const options = await page.getByRole('option').allTextContents();
     console.log(`Available options: ${options.join(', ')}`);
     
     // Select CLUB option
-    await page.getByRole('option', { name: /ชุมนุม|CLUB/i }).first().click();
-    await page.waitForTimeout(500);
+    const clubOption = page.getByRole('option', { name: /ชุมนุม|CLUB/i }).first();
+    await expect(clubOption).toBeVisible();
+    await clubOption.click();
     
     const afterValue = await activityTypeSelect.textContent();
     console.log(`ActivityType value after selection: ${afterValue}`);

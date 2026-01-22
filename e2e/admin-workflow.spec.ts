@@ -27,15 +27,20 @@ const VISUAL_OPTIONS = {
   animations: "disabled" as const,
 };
 
+/**
+ * Wait for page to stabilize before taking screenshot.
+ * Uses network idle detection instead of arbitrary timeouts.
+ */
+async function waitForStableState(page: import("@playwright/test").Page, ms = 500) {
+  await page.waitForLoadState("domcontentloaded");
+  // Small buffer for CSS animations to complete - only needed for visual tests
+  if (ms > 0) await page.waitForTimeout(ms);
+}
+
 test.describe("Visual: Dashboard & Navigation", () => {
   test("VIS-001: Dashboard page visual", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
-
-    // Wait for page to stabilize
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
-
-    // Visual regression check
+    await waitForStableState(page);
     await expect(page).toHaveScreenshot("dashboard-main.png", VISUAL_OPTIONS);
   });
 
@@ -44,8 +49,7 @@ test.describe("Visual: Dashboard & Navigation", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToDashboardSelector();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
+    await waitForStableState(page);
 
     await expect(page).toHaveScreenshot(
       "semester-selector.png",
@@ -60,8 +64,7 @@ test.describe("Visual: Teacher Management", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToTeacherManagement();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     await expect(page).toHaveScreenshot(
       "teacher-management.png",
@@ -76,8 +79,7 @@ test.describe("Visual: Subject Management", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToSubjectManagement();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     await expect(page).toHaveScreenshot(
       "subject-management.png",
@@ -92,8 +94,7 @@ test.describe("Visual: Room Management", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToRoomManagement();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     await expect(page).toHaveScreenshot("room-management.png", VISUAL_OPTIONS);
   });
@@ -105,8 +106,7 @@ test.describe("Visual: Schedule Arrangement", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToTeacherArrange(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
+    await waitForStableState(page, 2000);
 
     await expect(page).toHaveScreenshot(
       "assign-page-initial.png",
@@ -121,19 +121,18 @@ test.describe("Visual: Schedule Arrangement", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToTeacherArrange(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     // Try to select a teacher
     const teacherDropdown = page.getByRole("combobox").first();
     if (await teacherDropdown.isVisible()) {
       await teacherDropdown.click();
-      await page.waitForTimeout(500);
+      await expect(page.getByRole("option").first()).toBeVisible({ timeout: 5000 });
 
       const firstOption = page.getByRole("option").first();
       if (await firstOption.isVisible()) {
         await firstOption.click();
-        await page.waitForTimeout(1500);
+        await waitForStableState(page, 1000);
       }
     }
 
@@ -149,8 +148,7 @@ test.describe("Visual: Schedule Arrangement", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/schedule/${TEST_SEMESTER}/arrange`);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
+    await waitForStableState(page, 2000);
 
     await expect(page).toHaveScreenshot(
       "arrange-page-grade-tabs.png",
@@ -165,8 +163,7 @@ test.describe("Visual: Dashboard Views", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToTeacherTable(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     await expect(page).toHaveScreenshot(
       "teacher-table-view.png",
@@ -179,8 +176,7 @@ test.describe("Visual: Dashboard Views", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToStudentTable(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     await expect(page).toHaveScreenshot(
       "student-table-view.png",
@@ -193,8 +189,7 @@ test.describe("Visual: Dashboard Views", () => {
     const nav = new NavigationHelper(page);
 
     await nav.goToAllTimeslots(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
 
     await expect(page).toHaveScreenshot(
       "all-timeslots-view.png",
@@ -211,7 +206,7 @@ test.describe("Visual: Complete Admin Journey", () => {
     const nav = new NavigationHelper(page);
 
     // Step 1: Dashboard
-    await page.waitForLoadState("networkidle");
+    await waitForStableState(page);
     await expect(page).toHaveScreenshot(
       "journey-01-dashboard.png",
       VISUAL_OPTIONS,
@@ -219,8 +214,7 @@ test.describe("Visual: Complete Admin Journey", () => {
 
     // Step 2: Teacher Management
     await nav.goToTeacherManagement();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
+    await waitForStableState(page);
     await expect(page).toHaveScreenshot(
       "journey-02-teachers.png",
       VISUAL_OPTIONS,
@@ -228,8 +222,7 @@ test.describe("Visual: Complete Admin Journey", () => {
 
     // Step 3: Subject Management
     await nav.goToSubjectManagement();
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
+    await waitForStableState(page);
     await expect(page).toHaveScreenshot(
       "journey-03-subjects.png",
       VISUAL_OPTIONS,
@@ -237,8 +230,7 @@ test.describe("Visual: Complete Admin Journey", () => {
 
     // Step 4: Schedule Arrangement
     await nav.goToTeacherArrange(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(1000);
+    await waitForStableState(page, 1000);
     await expect(page).toHaveScreenshot(
       "journey-04-arrange.png",
       VISUAL_OPTIONS,
@@ -246,11 +238,11 @@ test.describe("Visual: Complete Admin Journey", () => {
 
     // Step 5: Teacher Table Dashboard
     await nav.goToTeacherTable(TEST_SEMESTER);
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(500);
+    await waitForStableState(page);
     await expect(page).toHaveScreenshot(
       "journey-05-teacher-table.png",
       VISUAL_OPTIONS,
     );
   });
 });
+

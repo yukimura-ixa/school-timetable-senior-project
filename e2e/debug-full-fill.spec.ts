@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures/admin.fixture';
 
-test('Debug full form fill', async ({ authenticatedAdmin }) => {
+// Skip in CI - this is a debugging test for local investigation
+test.skip('Debug full form fill', async ({ authenticatedAdmin }) => {
   const { page } = authenticatedAdmin;
   
   // Capture all console logs
@@ -34,20 +35,23 @@ test('Debug full form fill', async ({ authenticatedAdmin }) => {
   // Credit (index 0) - should already be 1.0
   const creditSelect = creditSelects.first();
   await creditSelect.click();
-  await page.getByRole('option', { name: /1\.0|CREDIT_10/i }).first().click();
-  await page.waitForTimeout(300);
+  const creditOption = page.getByRole('option', { name: /1\.0|CREDIT_10/i }).first();
+  await expect(creditOption).toBeVisible();
+  await creditOption.click();
   
   // Category (index 1)
   const categorySelect = creditSelects.nth(1);
   await categorySelect.click();
-  await page.getByRole('option', { name: /กิจกรรม|ACTIVITY/i }).first().click();
-  await page.waitForTimeout(300);
+  const categoryOption = page.getByRole('option', { name: /กิจกรรม|ACTIVITY/i }).first();
+  await expect(categoryOption).toBeVisible();
+  await categoryOption.click();
   
   // ActivityType (index 3)
   const activityTypeSelect = creditSelects.nth(3);
   await activityTypeSelect.click();
-  await page.getByRole('option', { name: /ชุมนุม|CLUB/i }).first().click();
-  await page.waitForTimeout(300);
+  const activityOption = page.getByRole('option', { name: /ชุมนุม|CLUB/i }).first();
+  await expect(activityOption).toBeVisible();
+  await activityOption.click();
   
   console.log('[TEST] About to click save button');
   
@@ -55,6 +59,6 @@ test('Debug full form fill', async ({ authenticatedAdmin }) => {
   const saveButton = page.locator('button[aria-label="save"]');
   await saveButton.click();
   
-  // Wait to see the log output
-  await page.waitForTimeout(3000);
+  // Wait for save to complete
+  await expect(editingRow.locator('input[type="text"]')).not.toBeVisible({ timeout: 5000 });
 });

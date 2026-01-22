@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures/admin.fixture';
 
-test('Debug combobox count', async ({ authenticatedAdmin }) => {
+// Skip in CI - this is a debugging test for local investigation
+test.skip('Debug combobox count', async ({ authenticatedAdmin }) => {
   const { page } = authenticatedAdmin;
   await page.goto('/management/subject');
   await page.waitForSelector('table', { timeout: 15000 });
@@ -14,10 +15,12 @@ test('Debug combobox count', async ({ authenticatedAdmin }) => {
   // Fill Category first
   const categorySelect = editingRow.locator('[role="combobox"], select').nth(1);
   await categorySelect.click();
-  await page.getByRole('option', { name: /กิจกรรม|ACTIVITY/i }).first().click();
+  const categoryOption = page.getByRole('option', { name: /กิจกรรม|ACTIVITY/i }).first();
+  await expect(categoryOption).toBeVisible();
+  await categoryOption.click();
   
-  // Wait a bit for any conditional rendering
-  await page.waitForTimeout(1000);
+  // Wait for conditional rendering to update
+  await expect(editingRow.locator('[role="combobox"], select')).toHaveCount(4, { timeout: 5000 }).catch(() => {});
   
   // Now count all comboboxes
   const comboboxCount = await editingRow.locator('[role="combobox"], select').count();

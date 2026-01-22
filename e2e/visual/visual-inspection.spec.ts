@@ -3,13 +3,24 @@ import { test, expect } from "@playwright/test";
 /**
  * [visual] Visual Inspection - Admin User Journey
  * Run with: pnpm playwright test e2e/visual/visual-inspection.spec.ts --headed --debug
+ * 
+ * These tests are for manual visual inspection, not automated CI validation.
+ * Use waitForLoadState instead of arbitrary timeouts where possible.
  */
+
+// Visual inspection pause - only pauses in headed/debug mode
+const visualPause = async (page: import("@playwright/test").Page) => {
+  // Only pause if running in headed mode for human inspection
+  if (process.env.PWDEBUG || process.env.HEADED) {
+    await page.waitForTimeout(2000);
+  }
+};
 
 test.describe("Visual Inspection - Admin User Journey", () => {
   test("01. Home page and sign-in", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
+    await page.waitForLoadState("domcontentloaded");
+    await visualPause(page);
     const signInButton = page.locator("text=/sign in/i").first();
     if (await signInButton.isVisible().catch(() => false)) {
       console.log("✅ Sign-in button found");
@@ -18,19 +29,19 @@ test.describe("Visual Inspection - Admin User Journey", () => {
 
   test("02. Navigate to dashboard (requires auth)", async ({ page }) => {
     await page.goto("/dashboard");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       console.log("⚠️ Waiting for manual sign-in...");
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
       });
     }
-    await page.waitForTimeout(3000);
+    await visualPause(page);
   });
 
   test("03. Semester selection", async ({ page }) => {
     await page.goto("/dashboard");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -46,12 +57,12 @@ test.describe("Visual Inspection - Admin User Journey", () => {
     if (await semesterSelector.isVisible().catch(() => false)) {
       console.log("✅ Semester selector found");
     }
-    await page.waitForTimeout(3000);
+    await visualPause(page);
   });
 
   test("04. Management - Teachers", async ({ page }) => {
     await page.goto("/management/teacher");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -61,12 +72,12 @@ test.describe("Visual Inspection - Admin User Journey", () => {
       path: "test-results/screenshots/admin-teacher-management.png",
       fullPage: true,
     });
-    await page.waitForTimeout(3000);
+    await visualPause(page);
   });
 
   test("05. Management - Subjects", async ({ page }) => {
     await page.goto("/management/subject");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -76,13 +87,13 @@ test.describe("Visual Inspection - Admin User Journey", () => {
       path: "test-results/screenshots/admin-subject-management.png",
       fullPage: true,
     });
-    await page.waitForTimeout(3000);
+    await visualPause(page);
   });
 
   test("06. Schedule Configuration", async ({ page }) => {
     const semester = "2567/1";
     await page.goto(`/schedule/${semester}/config`);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -92,13 +103,13 @@ test.describe("Visual Inspection - Admin User Journey", () => {
       path: "test-results/screenshots/admin-schedule-config.png",
       fullPage: true,
     });
-    await page.waitForTimeout(3000);
+    await visualPause(page);
   });
 
   test("07. Teacher Arrangement Interface", async ({ page }) => {
     const semester = "2567/1";
     await page.goto(`/schedule/${semester}/arrange`);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -108,13 +119,13 @@ test.describe("Visual Inspection - Admin User Journey", () => {
       path: "test-results/screenshots/admin-teacher-arrange.png",
       fullPage: true,
     });
-    await page.waitForTimeout(5000);
+    await visualPause(page);
   });
 
   test("08. Analytics Dashboard", async ({ page }) => {
     const semester = "2567/1";
     await page.goto(`/dashboard/${semester}/analytics`);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -124,7 +135,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
       path: "test-results/screenshots/admin-analytics.png",
       fullPage: true,
     });
-    await page.waitForTimeout(3000);
+    await visualPause(page);
   });
 });
 
@@ -132,7 +143,7 @@ test.describe("Visual Inspection - Component Test IDs", () => {
   test("Verify presence of key test IDs", async ({ page }) => {
     const semester = "2567/1";
     await page.goto(`/schedule/${semester}/arrange`);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {
         timeout: 120000,
@@ -157,7 +168,8 @@ test.describe("Visual Inspection - Component Test IDs", () => {
         });
       }
     }
-    await page.waitForTimeout(5000);
+    await visualPause(page);
   });
 });
+
 
