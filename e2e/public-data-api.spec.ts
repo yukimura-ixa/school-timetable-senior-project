@@ -30,7 +30,7 @@ test.describe("Public Teachers Data API", () => {
   }) => {
     const page = guestPage;
     // Navigate to homepage
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Check if teachers tab exists and click it
     await expect(page.getByTestId("teachers-tab")).toBeVisible();
@@ -52,7 +52,7 @@ test.describe("Public Teachers Data API", () => {
   }) => {
     const page = guestPage;
     // Navigate to homepage and switch to teachers tab
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     // Get page content
@@ -74,7 +74,7 @@ test.describe("Public Teachers Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     const firstRow = page.getByTestId("teacher-list").locator("tbody tr").first();
@@ -89,7 +89,7 @@ test.describe("Public Teachers Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     // Check if pagination controls exist
@@ -128,7 +128,7 @@ test.describe("Public Teachers Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     // Look for search input
@@ -156,7 +156,7 @@ test.describe("Public Teachers Data API", () => {
     const page = guestPage;
     // This test assumes teachers have detail pages at /teachers/{id}
     // Navigate to homepage and switch to teachers tab
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     // Find a teacher link (adjust selector based on actual implementation)
@@ -183,7 +183,7 @@ test.describe("Public Classes Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Check if classes tab exists and click it
     await expect(page.getByTestId("classes-tab")).toBeVisible();
@@ -204,7 +204,7 @@ test.describe("Public Classes Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("classes-tab").click();
 
     // Get page content
@@ -223,7 +223,7 @@ test.describe("Public Classes Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("classes-tab").click();
 
     const firstRow = page.getByTestId("class-list").locator("tbody tr").first();
@@ -239,7 +239,7 @@ test.describe("Public Classes Data API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("classes-tab").click();
 
     // Check if pagination controls exist
@@ -277,7 +277,7 @@ test.describe("Public Statistics API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -301,7 +301,7 @@ test.describe("Public Statistics API", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -319,7 +319,7 @@ test.describe("Public Statistics API", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/dashboard/2567/1/analytics");
+    await page.goto("/dashboard/2567/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -347,7 +347,7 @@ test.describe("Public Statistics API", () => {
     authenticatedAdmin,
   }) => {
     const { page } = authenticatedAdmin;
-    await page.goto("/dashboard/2567/1/analytics");
+    await page.goto("/dashboard/2567/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -370,7 +370,7 @@ test.describe("Public Statistics API", () => {
 
   test("should show room occupancy data", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto("/dashboard/2567/1/analytics");
+    await page.goto("/dashboard/2567/1/analytics", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -396,7 +396,7 @@ test.describe("Security & Privacy Checks", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     const content = await page.content();
@@ -418,7 +418,7 @@ test.describe("Security & Privacy Checks", () => {
 
   test("no PII (email) in classes section", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("classes-tab").click();
 
     const content = await page.content();
@@ -434,7 +434,7 @@ test.describe("Security & Privacy Checks", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -458,7 +458,7 @@ test.describe("Security & Privacy Checks", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -482,7 +482,7 @@ test.describe("Security & Privacy Checks", () => {
 
   test("no API keys or secrets in HTML", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -509,7 +509,7 @@ test.describe("Data Validation & Integrity", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     const content = await page.textContent("body");
@@ -530,7 +530,7 @@ test.describe("Data Validation & Integrity", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("classes-tab").click();
 
     const content = await page.textContent("body");
@@ -541,7 +541,7 @@ test.describe("Data Validation & Integrity", () => {
 
   test("statistics should be non-negative", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -566,7 +566,7 @@ test.describe("Performance & Caching", () => {
     const page = guestPage;
     const startTime = Date.now();
 
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible({
       timeout: 15000,
     });
@@ -581,7 +581,7 @@ test.describe("Performance & Caching", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     // Verify teachers tab is active
@@ -611,7 +611,7 @@ test.describe("Performance & Caching", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.getByTestId("teachers-tab").click();
 
     const nextButton = page

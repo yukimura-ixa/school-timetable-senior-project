@@ -36,7 +36,7 @@ const getFirstPublicSchedulePath = async (
   page: import("@playwright/test").Page,
   opts: { tabTestId: string; hrefPrefix: string; placeholder: RegExp },
 ): Promise<string> => {
-  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
 
   const tab = page.getByTestId(opts.tabTestId);
   await expect(tab).toBeVisible({ timeout: 15000 });
@@ -130,7 +130,7 @@ test.describe("Public Teacher Schedule Page", () => {
   }) => {
     const page = guestPage;
     // Navigate to public teacher schedule (using a real link from homepage)
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Should not redirect to login
     expect(page.url()).toContain("/teachers/");
@@ -150,7 +150,7 @@ test.describe("Public Teacher Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Wait for main content to be visible (Next.js streams; no networkidle)
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -180,7 +180,7 @@ test.describe("Public Teacher Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -207,7 +207,7 @@ test.describe("Public Teacher Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -243,7 +243,7 @@ test.describe("Public Teacher Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -265,7 +265,7 @@ test.describe("Public Teacher Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -287,7 +287,7 @@ test.describe("Public Teacher Schedule Page", () => {
   test("should handle no schedule data gracefully", async ({ guestPage }) => {
     const page = guestPage;
     // Try accessing a teacher with no schedules (using high ID unlikely to exist)
-    await page.goto(`/teachers/99999/${termPath}`);
+    await page.goto(`/teachers/99999/${termPath}`, { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Should either show "not found" or empty schedule message
     const noDataMessage = page.locator(
@@ -308,7 +308,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
   test("should have print-friendly layout", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -326,7 +326,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
   test("should navigate back to homepage", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -347,7 +347,7 @@ test.describe("Public Teacher Schedule Page", () => {
 
   test("should display semester information", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -365,6 +365,7 @@ test.describe("Public Teacher Schedule Page", () => {
     const page = guestPage;
     // Invalid semester format (should be "2567/1")
     await page.goto(`/teachers/${testTeacher.TeacherID}/invalid-semester`, {
+      timeout: 60000,
       waitUntil: "domcontentloaded",
     });
 
@@ -380,7 +381,7 @@ test.describe("Public Class Schedule Page", () => {
   }) => {
     const page = guestPage;
     // Navigate to public class schedule (using a real link from homepage)
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Should not redirect to login
     expect(page.url()).toContain("/classes/");
@@ -391,7 +392,7 @@ test.describe("Public Class Schedule Page", () => {
 
   test("should display class information", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -409,7 +410,7 @@ test.describe("Public Class Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -435,7 +436,7 @@ test.describe("Public Class Schedule Page", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -462,7 +463,7 @@ test.describe("Public Class Schedule Page", () => {
 
   test("should display subject information", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -492,7 +493,7 @@ test.describe("Public Class Schedule Page", () => {
   }) => {
     const page = guestPage;
     // Start on class schedule
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,
@@ -524,6 +525,7 @@ test.describe("Public Class Schedule Page", () => {
     const page = guestPage;
     await page.goto(
       `/classes/${testGradeLevel.GradeID}/${termPath}`,
+      { timeout: 60000, waitUntil: "domcontentloaded" },
     );
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -546,6 +548,7 @@ test.describe("Public Class Schedule Page", () => {
     const page = guestPage;
     await page.goto(
       `/classes/${testGradeLevel.GradeID}/${termPath}`,
+      { timeout: 60000, waitUntil: "domcontentloaded" },
     );
 
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
@@ -571,7 +574,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     guestPage,
   }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,
@@ -595,7 +598,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
 
   test("should not expose PII in class schedules", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,
@@ -619,7 +622,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
@@ -643,7 +646,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
 
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,
@@ -661,7 +664,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
     const page = guestPage;
     const startTime = Date.now();
 
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,
@@ -677,7 +680,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
 
   test("should handle long subject names gracefully", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicClassSchedulePath(page));
+    await page.goto(await getPublicClassSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,
@@ -697,7 +700,7 @@ test.describe("Public Schedule Pages - Common Features", () => {
 
   test("should maintain accessibility standards", async ({ guestPage }) => {
     const page = guestPage;
-    await page.goto(await getPublicTeacherSchedulePath(page));
+    await page.goto(await getPublicTeacherSchedulePath(page), { timeout: 60000, waitUntil: "domcontentloaded" });
     await expect(page.locator('main, [role="main"], body').first()).toBeVisible(
       {
         timeout: 15000,

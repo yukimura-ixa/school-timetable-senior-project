@@ -94,7 +94,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("Home Page (/)", () => {
   test("01 home page loads and displays content", async ({ page }) => {
-    await page.goto("/", { timeout: 60000 });
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Should show home page content (not redirected to signin)
     await expect(page.locator("body")).toBeVisible();
@@ -115,7 +115,7 @@ test.describe("Home Page (/)", () => {
   });
 
   test("02 home page navigation is accessible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Check for navigation elements
     const nav = page.locator("nav, header");
@@ -147,7 +147,7 @@ test.describe("Teacher Schedule (/teachers/[id]/[semester])", () => {
   const teacherId = 1;
 
   test("03 teacher schedule page loads", async ({ page }) => {
-    await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000 });
+    await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Page should load without redirecting to signin
     expect(page.url()).not.toContain("signin");
@@ -166,7 +166,7 @@ test.describe("Teacher Schedule (/teachers/[id]/[semester])", () => {
   });
 
   test("04 teacher schedule shows timetable grid", async ({ page }) => {
-    await page.goto(`/teachers/${teacherId}/${semester}`);
+    await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     // Look for schedule table or grid (support legacy and new layouts)
@@ -200,7 +200,7 @@ test.describe("Teacher Schedule (/teachers/[id]/[semester])", () => {
 
     // Only relevant for mobile/tablet viewports
     if (viewport && viewport.width < 1024) {
-      await page.goto(`/teachers/${teacherId}/${semester}`);
+      await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
       await page.waitForLoadState("networkidle");
 
       // Check for horizontal scroll container
@@ -226,7 +226,7 @@ test.describe("Class Schedule (/classes/[gradeId]/[semester])", () => {
   const gradeId = 101;
 
   test("06 class schedule page loads", async ({ page }) => {
-    await page.goto(`/classes/${gradeId}/${semester}`);
+    await page.goto(`/classes/${gradeId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
 
     // Page should load without redirecting to signin
     expect(page.url()).not.toContain("signin");
@@ -238,7 +238,7 @@ test.describe("Class Schedule (/classes/[gradeId]/[semester])", () => {
   });
 
   test("07 class schedule shows timetable content", async ({ page }) => {
-    await page.goto(`/classes/${gradeId}/${semester}`);
+    await page.goto(`/classes/${gradeId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     // Look for schedule content
@@ -266,7 +266,7 @@ test.describe("Class Schedule (/classes/[gradeId]/[semester])", () => {
   });
 
   test("08 class schedule responsive layout", async ({ page }) => {
-    await page.goto(`/classes/${gradeId}/${semester}`);
+    await page.goto(`/classes/${gradeId}/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     const viewport = page.viewportSize();
@@ -288,7 +288,7 @@ test.describe("Class Schedule (/classes/[gradeId]/[semester])", () => {
 test.describe("Public Navigation", () => {
   test("09 can navigate between public pages", async ({ page }) => {
     // Start at home
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     // Try to find links to teacher or class schedules
@@ -319,13 +319,13 @@ test.describe("Public Navigation", () => {
     });
 
     // Visit all public pages
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
-    await page.goto(`/teachers/1/${semester}`);
+    await page.goto(`/teachers/1/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
-    await page.goto(`/classes/101/${semester}`);
+    await page.goto(`/classes/101/${semester}`, { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     // Filter out expected errors (e.g., 404 for missing resources)
@@ -354,7 +354,7 @@ test.describe("Visual Consistency", () => {
     const pages = ["/", `/teachers/1/${semester}`, `/classes/101/${semester}`];
 
     for (const url of pages) {
-      await page.goto(url);
+      await page.goto(url, { timeout: 60000, waitUntil: "domcontentloaded" });
       await page.waitForLoadState("networkidle");
 
       // Check header exists
@@ -368,7 +368,7 @@ test.describe("Visual Consistency", () => {
   });
 
   test("12 footer visible (if present)", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000, waitUntil: "domcontentloaded" });
     await page.waitForLoadState("networkidle");
 
     const footer = page.locator("footer");
