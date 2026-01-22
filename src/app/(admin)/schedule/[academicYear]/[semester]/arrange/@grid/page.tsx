@@ -82,6 +82,10 @@ function DroppableCell({
   return (
     <Box
       ref={setNodeRef}
+      data-testid="timeslot-card"
+      data-timeslot-id={timeslot.TimeslotID}
+      data-is-break={isBreak}
+      data-subject-code={entry?.SubjectCode}
       sx={{
         border: "1px solid",
         borderColor: isOver
@@ -122,7 +126,7 @@ function DroppableCell({
         </Box>
       ) : (
         <Typography variant="caption" color="text.secondary">
-          ว่าง
+          คาบว่าง
         </Typography>
       )}
     </Box>
@@ -294,6 +298,7 @@ export default function GridSlot() {
         {/* Grid */}
         <Box sx={{ overflowX: "auto" }}>
           <table
+            data-testid="timetable-grid"
             style={{
               width: "100%",
               borderCollapse: "separate",
