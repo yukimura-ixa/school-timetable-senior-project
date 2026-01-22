@@ -185,7 +185,7 @@ jobs:
         run: pnpm exec playwright install-deps chromium
 
       - name: Run E2E tests (Shard ${{ matrix.shard }}/4)
-        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
+        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --timeout=90000
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}

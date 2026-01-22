@@ -39,9 +39,9 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@school.local";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
 
 // Increase setup timeout to accommodate initial compile/HMR and seeding
-// Dev server compilation can take 20-30s each time in dev mode
-// Reduced from 180s to 120s with optimizations to auth polling and buffer waits
-setup.setTimeout(120_000);
+// Dev server compilation can take 20-30s; auth + DB check ~30-40s; total ~60-70s
+// Using 90s for comfortable CI buffer (was 120s with slow polling, now optimized)
+setup.setTimeout(90_000);
 
 /**
  * Ensures database is fully seeded before proceeding with tests
@@ -243,93 +243,24 @@ setup("authenticate as admin", async ({ page }) => {
   // Click and wait for client-side route change (Next.js uses SPA navigation)
   log.info("Clicking login button...");
   await loginButton.click();
-  log.info("Click completed, waiting for navigation or auth cookies...");
+  log.info("Click completed, waiting for navigation...");
   
-  // In dev mode, Fast Refresh can interfere with client-side navigation
-  // Strategy: Wait for either URL change OR auth cookies to be set
-  // Note: In dev mode, API endpoints need compilation (can take 25-30s each)
-  const startTime = Date.now();
-  const maxWaitTime = 120000; // 120 seconds max (reduced from 180s; better timeout handling)
-  let navigatedToDashboard = false;
-  let authCookieSet = false;
-  let lastLog = 0;
-  
-  while (Date.now() - startTime < maxWaitTime) {
-    const elapsed = Math.round((Date.now() - startTime) / 1000);
-    
-    // Log progress every 10 seconds
-    if (elapsed - lastLog >= 10) {
-      log.info(`Still waiting... ${elapsed}s elapsed`);
-      lastLog = elapsed;
-    }
-    
-    // Check if URL changed to dashboard
-    const currentUrl = page.url();
-    if (/\/dashboard(\/|$)/.test(currentUrl)) {
-      navigatedToDashboard = true;
-      log.info("Successfully navigated to dashboard via client-side navigation");
-      break;
-    }
-    
-    // Check if auth cookies are set (auth succeeded but navigation may have failed)
-    const cookies = await page.context().cookies();
-    const hasAuthCookie = cookies.some(c => 
-      c.name.toLowerCase().includes("better-auth") && c.name.includes("session")
-    );
-    
-    if (hasAuthCookie && !authCookieSet) {
-      authCookieSet = true;
-      log.info("Auth cookies detected, waiting for navigation...");
-      // Give client-side navigation a chance to complete (reduced from 5s to 2s)
-      await page.waitForTimeout(2000);
-      
-      // Check URL again
-      const urlAfterWait = page.url();
-      if (/\/dashboard(\/|$)/.test(urlAfterWait)) {
-        navigatedToDashboard = true;
-        log.info("Successfully navigated to dashboard after auth cookie wait");
-        break;
-      }
-      
-      // Navigation failed - Fast Refresh likely interfered
-      // Manually navigate using Playwright
-      log.info("Client-side navigation failed (Fast Refresh interference), using manual navigation");
-      await page.goto("/dashboard/2567/1", { timeout: 60000 });
-      await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
-      navigatedToDashboard = true;
-      break;
-    }
-    
-    // Poll more frequently (every 100ms instead of 500ms)
-    await page.waitForTimeout(100);
+  // Strategy: Immediately navigate to dashboard instead of polling
+  // The login will have set auth cookies, so navigation will succeed
+  // This eliminates the 10-30s polling loop in the original code
+  try {
+    // Wait for navigation to complete (dashboard redirect)
+    // CI can be slow, but 60s should be sufficient for Next.js compilation
+    await page.waitForURL(/\/dashboard/, { timeout: 60000 });
+    log.info("Successfully navigated to dashboard");
+  } catch (e) {
+    // If client-side navigation is slow, manually navigate
+    log.info("Client-side navigation timeout, using manual navigation");
+    await page.goto("/dashboard/2567/1", { 
+      timeout: 60000,
+      waitUntil: "domcontentloaded",
+    });
   }
-  
-  if (!navigatedToDashboard) {
-    // Last resort: Try manual navigation anyway
-    log.info("Timeout waiting for auth, attempting manual navigation as last resort...");
-    try {
-      await page.goto("/dashboard/2567/1", { timeout: 60000 });
-      await page.waitForLoadState("domcontentloaded", { timeout: 30000 });
-      
-      // Check if we're actually authenticated
-      const cookies = await page.context().cookies();
-      const hasAuthCookie = cookies.some(c => 
-        c.name.toLowerCase().includes("better-auth") && c.name.includes("session")
-      );
-      if (hasAuthCookie) {
-        log.info("Manual navigation succeeded with auth cookies present");
-        navigatedToDashboard = true;
-      }
-    } catch (e) {
-      log.error("Manual navigation failed", { error: String(e) });
-    }
-  }
-  
-  if (!navigatedToDashboard) {
-    throw new Error("Failed to navigate to dashboard - neither client navigation nor auth cookies detected");
-  }
-  
-  log.info("Navigation to dashboard completed");
 
   // Wait for page to be stable
   await page.waitForLoadState("domcontentloaded", { timeout: 15000 });

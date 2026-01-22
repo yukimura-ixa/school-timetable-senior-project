@@ -41,6 +41,11 @@ export default defineConfig({
   globalSetup: path.resolve(__dirname, "playwright.global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "playwright.global-teardown.ts"),
 
+  /* Expect timeout for assertions (visibility, etc.) */
+  expect: {
+    timeout: process.env.CI ? 90000 : 30000,
+  },
+
   reporter: process.env.CI
     ? [
         ["list"],
@@ -70,9 +75,9 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: process.env.CI ? "off" : "off", // Disable video locally for speed
     // Reduce action timeout locally (dev server should be warm)
-    actionTimeout: process.env.CI ? 15000 : 10000,
-    // Navigation timeout: shorter locally after warmup
-    navigationTimeout: process.env.CI ? 60000 : 30000,
+    actionTimeout: process.env.CI ? 30000 : 10000,
+    // Navigation timeout: increased for CI compilation overhead
+    navigationTimeout: process.env.CI ? 90000 : 30000,
     // Reuse browser context state for faster test isolation
     launchOptions: {
       // Disable GPU for faster headless mode
