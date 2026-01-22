@@ -30,6 +30,7 @@
     "test:db:reset": "dotenv -e .env.test -- prisma migrate reset --force",
     "test:db:seed": "dotenv -e .env.test -- tsx prisma/seed.ts",
     "test:e2e": "node scripts/run-e2e-tests.mjs",
+    "test:e2e:prod": "pnpm build && PROD_BUILD=true node scripts/run-e2e-tests.mjs",
     "test:e2e:manual": "playwright test --timeout=150000",
     "test:e2e:ui": "node scripts/run-e2e-tests.mjs --ui",
     "test:e2e:headed": "node scripts/run-e2e-tests.mjs --headed",

@@ -118,14 +118,24 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
+  /* 
+   * Issue #5 (HIGH-02): Configure E2E tests to use prod build locally
+   * 
+   * Use PROD_BUILD=true to test against production build instead of dev server:
+   *   PROD_BUILD=true pnpm test:e2e
+   * 
+   * This avoids slow dev compilation timeouts and tests the actual build output.
+   * Before running, ensure you've built the project:
+   *   pnpm build
+   */
   webServer: process.env.SKIP_WEBSERVER
     ? undefined
     : {
-        // In CI, reuse the production build to avoid dev compile latency
-        // and HMR stalls that were causing widespread selector timeouts.
+        // CI: always use production build
+        // Local: use prod build if PROD_BUILD=true, otherwise dev server
         command:
-          process.env.CI === "true"
-            ? "pnpm exec next start -p 3005"
+          process.env.CI === "true" || process.env.PROD_BUILD === "true"
+            ? "pnpm exec dotenv -e .env.test.local -- next start -p 3005"
             : "pnpm exec dotenv -e .env.test.local -- next dev -p 3005",
         url: "http://localhost:3005",
         reuseExistingServer: false,
@@ -134,7 +144,8 @@ export default defineConfig({
         stderr: "pipe",
         env: {
           ...process.env,
-          ...(process.env.CI === "true"
+          // Use separate build directory for tests to avoid conflicts with dev .next
+          ...(process.env.CI === "true" || process.env.PROD_BUILD === "true"
             ? {}
             : { NEXT_DIST_DIR: process.env.NEXT_DIST_DIR ?? ".next-test" }),
           // ✅ CRITICAL: Force dev server to use test database
@@ -143,7 +154,7 @@ export default defineConfig({
             process.env.DATABASE_URL ||
             "postgresql://test_user:test_password@localhost:5433/test_timetable?schema=public&connection_limit=10",
           NODE_ENV:
-            process.env.CI === "true"
+            process.env.CI === "true" || process.env.PROD_BUILD === "true"
               ? "production"
               : (process.env.NODE_ENV ?? "development"),
         },

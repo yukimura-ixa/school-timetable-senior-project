@@ -34,6 +34,29 @@ if (!process.env.DATABASE_URL) {
 }
 
 /**
+ * Validate auth URL configuration (Issue #4 - HIGH-01)
+ * Auth URLs must match the E2E test port (3005) to avoid session persistence issues
+ */
+function validateAuthUrls(): { valid: boolean; warnings: string[] } {
+  const warnings: string[] = [];
+  const expectedPort = "3005";
+  const authUrls = [
+    { name: "BETTER_AUTH_URL", value: process.env.BETTER_AUTH_URL },
+    { name: "NEXTAUTH_URL", value: process.env.NEXTAUTH_URL },
+    { name: "AUTH_URL", value: process.env.AUTH_URL },
+    { name: "BASE_URL", value: process.env.BASE_URL },
+  ];
+
+  for (const { name, value } of authUrls) {
+    if (value && !value.includes(`:${expectedPort}`)) {
+      warnings.push(`${name}=${value} (should use port ${expectedPort})`);
+    }
+  }
+
+  return { valid: warnings.length === 0, warnings };
+}
+
+/**
  * Check if Docker is available
  */
 function isDockerAvailable(): boolean {
@@ -94,6 +117,15 @@ async function waitForDatabase(maxAttempts = 30): Promise<boolean> {
  */
 async function globalSetup() {
   console.log("\n🔧 E2E Test Setup: Initializing test environment...\n");
+
+  // ✅ Issue #4 (HIGH-01): Validate auth URLs match E2E test port
+  const { valid, warnings } = validateAuthUrls();
+  if (!valid) {
+    console.warn("⚠️  Auth URL port mismatch detected (Issue #4):");
+    warnings.forEach((w) => console.warn(`   - ${w}`));
+    console.warn("   Fix: Ensure .env.test.local uses port 3005 for all auth URLs");
+    console.warn("   Run: node scripts/prepare-e2e-env.js to sync env files\n");
+  }
 
   // Verify .env.local was created by prepare-e2e-env script
   const envLocalPath = path.resolve(__dirname, ".env.local");
