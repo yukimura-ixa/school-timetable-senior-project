@@ -192,6 +192,7 @@ function LockCalendarView({
 
         {/* Calendar Grid */}
         <Box
+          data-testid="lock-grid"
           sx={{
             display: "grid",
             gridTemplateColumns: `80px repeat(${days.length}, 1fr)`,

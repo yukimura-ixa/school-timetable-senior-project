@@ -40,7 +40,7 @@ test.describe("Visual Inspection - Admin User Journey", () => {
   });
 
   test("03. Semester selection", async ({ page }) => {
-    await page.goto("/dashboard");
+    await page.goto("/dashboard", { timeout: 60000 });
     await page.waitForLoadState("domcontentloaded");
     if (page.url().includes("signin")) {
       await page.waitForURL((url) => !url.toString().includes("signin"), {

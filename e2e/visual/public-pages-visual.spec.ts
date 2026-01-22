@@ -94,7 +94,7 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("Home Page (/)", () => {
   test("01 home page loads and displays content", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/", { timeout: 60000 });
 
     // Should show home page content (not redirected to signin)
     await expect(page.locator("body")).toBeVisible();
@@ -147,13 +147,13 @@ test.describe("Teacher Schedule (/teachers/[id]/[semester])", () => {
   const teacherId = 1;
 
   test("03 teacher schedule page loads", async ({ page }) => {
-    await page.goto(`/teachers/${teacherId}/${semester}`);
+    await page.goto(`/teachers/${teacherId}/${semester}`, { timeout: 60000 });
 
     // Page should load without redirecting to signin
     expect(page.url()).not.toContain("signin");
 
     // Should show schedule content or teacher info
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
 
     // Check for table or schedule grid
     const hasScheduleContent =

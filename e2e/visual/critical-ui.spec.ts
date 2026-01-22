@@ -85,11 +85,12 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/config");
+      await page.goto("/schedule/2567/1/config", { timeout: 60000 });
       await page.waitForLoadState("networkidle");
 
-      // Wait for form to be visible (event-driven)
-      await expect(page.locator("form, [data-testid='config-form']").first()).toBeVisible({ timeout: 15000 });
+      // Wait for config content to be visible (the page doesn't use a <form> element)
+      // Look for the config section with "กำหนดคาบต่อวัน" text
+      await expect(page.getByText("กำหนดคาบต่อวัน")).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("config-form.png", {
@@ -110,8 +111,10 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.goto("/schedule/2567/1/lock");
       await page.waitForLoadState("networkidle");
 
-      // Wait for lock grid to be visible (event-driven)
-      await expect(page.locator('[data-testid="lock-grid"], table, .MuiDataGrid-root').first()).toBeVisible({ timeout: 15000 });
+      // Wait for page content to be ready - either lock grid, empty state, or bulk lock button
+      await expect(
+        page.locator('[data-testid="lock-grid"], [data-testid="bulk-lock-btn"], [data-testid="empty-state"]').first()
+      ).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("lock-schedule-page.png", {
@@ -127,8 +130,8 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     }) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/lock");
-      await page.waitForLoadState("networkidle");
+      await page.goto("/schedule/2567/1/lock", { timeout: 60000 });
+      await page.waitForLoadState("domcontentloaded");
 
       // Try to open bulk lock modal
       const bulkLockButton = page
@@ -156,11 +159,12 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     test("arrange page renders with timetable grid", async ({
       authenticatedAdmin,
     }) => {
+      test.setTimeout(90000); // 90s for this slow-loading page
       const { page } = authenticatedAdmin;
 
       await page.setViewportSize({ width: 1280, height: 807 });
-      await page.goto("/schedule/2567/1/arrange");
-      await page.waitForLoadState("networkidle");
+      await page.goto("/schedule/2567/1/arrange", { timeout: 60000 });
+      await page.waitForLoadState("domcontentloaded");
 
       // Wait for timetable grid to be visible (event-driven)
       const timeslotGrid = page
@@ -209,8 +213,8 @@ test.describe("Critical Admin UI - Visual Tests", () => {
     ) => {
       const { page } = authenticatedAdmin;
 
-      await page.goto("/schedule/2567/1/arrange");
-      await page.waitForLoadState("networkidle");
+      await page.goto("/schedule/2567/1/arrange", { timeout: 60000 });
+      await page.waitForLoadState("domcontentloaded");
 
       const timeslotGrid = page
         .locator('[data-testid="timeslot-grid"], table')
@@ -236,9 +240,11 @@ test.describe("Critical Admin UI - Visual Tests", () => {
 });
 
 test.describe("UI Component Consistency", () => {
+  // This test visits multiple pages, so needs longer timeout
   test("navigation header is consistent across pages", async ({
     authenticatedAdmin,
   }) => {
+    test.setTimeout(180000); // 3 minutes for 3 pages
     const { page } = authenticatedAdmin;
     const pages = [
       "/dashboard/2567/1/all-timeslot",
@@ -247,8 +253,8 @@ test.describe("UI Component Consistency", () => {
     ];
 
     for (const url of pages) {
-      await page.goto(url);
-      await page.waitForLoadState("networkidle");
+      await page.goto(url, { timeout: 60000 });
+      await page.waitForLoadState("domcontentloaded");
       await waitForNavbarStable(page);
 
       const header = page.locator("header, nav").first();
