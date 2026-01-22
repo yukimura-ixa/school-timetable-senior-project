@@ -30,13 +30,21 @@ pnpm install
 
 # Install Playwright browsers
 pnpm exec playwright install
+
+# Prepare environment files (sync .env.test to .env.local and .env.test.local)
+node scripts/prepare-e2e-env.js
 ```
 
 ### Commands
 
 ```bash
-# Run all E2E tests
+# Run all E2E tests (dev server - faster iteration, slower compilation)
 pnpm test:e2e
+
+# Run all E2E tests against production build (Issue #5 - recommended for full testing)
+# This builds the project first, then runs tests against the production server
+# Avoids dev compilation timeouts and tests actual production behavior
+pnpm test:e2e:prod
 
 # Run tests in UI mode (interactive)
 pnpm test:e2e:ui
@@ -53,6 +61,25 @@ pnpm exec playwright test --debug
 # View test report
 pnpm exec playwright show-report
 ```
+
+### Production Build Testing (Issue #5)
+
+For more reliable test results that match production behavior:
+
+```bash
+# Option 1: Use the convenience script (builds + runs tests)
+pnpm test:e2e:prod
+
+# Option 2: Build separately, then run tests
+pnpm build
+PROD_BUILD=true pnpm test:e2e
+```
+
+**Benefits of production build testing:**
+- Avoids slow dev compilation timeouts
+- Tests actual minified/optimized production code
+- No HMR/hot-reload interference
+- More realistic performance characteristics
 
 ## Test Coverage
 
@@ -253,6 +280,41 @@ Tests run automatically on:
 Environment: Vercel production deployment (see `playwright.vercel.config.ts`)
 
 ## Troubleshooting
+
+### Auth Session Issues (Issue #4 - HIGH-01)
+
+**Symptoms:**
+- Health check failures (10/10 attempts)
+- Session API returns `{ hasUser: false, role: null }` after login
+- Tests fail before reaching actual test logic
+- Login works but session doesn't persist
+
+**Root Causes:**
+1. Auth URLs using wrong port (3000 instead of 3005)
+2. Stale `.env.test.local` with mismatched configuration
+3. Cached auth storage state with expired/wrong secrets
+
+**Solutions:**
+
+```bash
+# 1. Sync environment files (recommended first step)
+node scripts/prepare-e2e-env.js
+
+# 2. Re-seed database (clears stale session data)
+pnpm test:db:seed
+
+# 3. Clear cached auth state
+rm -rf playwright/.auth
+
+# 4. Verify env URLs use port 3005
+# Check these files:
+# - .env.test (should have BETTER_AUTH_URL=http://localhost:3005)
+# - .env.test.local (should have BETTER_AUTH_URL=http://localhost:3005)
+```
+
+**Prevention:**
+- Always run `node scripts/prepare-e2e-env.js` before E2E tests
+- The global setup now validates auth URLs and warns about mismatches
 
 ### Test Timeouts
 

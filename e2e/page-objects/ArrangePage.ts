@@ -68,9 +68,18 @@ export class ArrangePage extends BasePage {
     this.timetableGrid = page.getByTestId("timetable-grid");
 
     // Locate a timeslot card by (period row, day column).
-    // We scope to the timetable grid and find the Grid row via its period-number Chip,
-    // then pick the Nth Card within that row (Cards correspond to MON..FRI).
+    // Supports both:
+    // - New: HTML table structure with data-testid="timeslot-card"
+    // - Legacy: MUI Grid with Cards
     this.timeslotCell = (row: number, col: number) => {
+      // New table structure: row is 1-indexed (period), col is 1-indexed (day: 1=MON, 2=TUE, etc.)
+      // The table has header row at tbody position 0, so data rows start at nth(row-1)
+      // Each row has period column + 5 day columns, so day columns start at nth(col) (1-indexed)
+      const tableRow = this.timetableGrid.locator('tbody > tr').nth(row - 1);
+      const tableCell = tableRow.locator('td').nth(col); // col 0 is period label, col 1-5 are MON-FRI
+      const newCell = tableCell.locator('[data-testid="timeslot-card"]');
+      
+      // Legacy MUI Grid structure (fallback)
       const rowChip = this.timetableGrid
         .locator(".MuiChip-root")
         .filter({ hasText: new RegExp(`^${row}$`) })
@@ -78,7 +87,9 @@ export class ArrangePage extends BasePage {
       const rowContainer = rowChip.locator(
         'xpath=ancestor::div[contains(@class,\"MuiGrid-container\")]',
       );
-      return rowContainer.locator(".MuiCard-root").nth(Math.max(0, col - 1));
+      const legacyCell = rowContainer.locator(".MuiCard-root").nth(Math.max(0, col - 1));
+      
+      return newCell.or(legacyCell);
     };
 
     this.roomSelectionDialog = page
@@ -342,6 +353,9 @@ export class ArrangePage extends BasePage {
 
   /**
    * Select room from dialog (Issue #83)
+   * 
+   * Supports both legacy (with confirm button) and new parallel route modal
+   * (clicking room directly creates schedule and closes dialog)
    */
   async selectRoom(roomName: string) {
     const dialogVisible = await this.roomSelectionDialog
@@ -352,8 +366,12 @@ export class ArrangePage extends BasePage {
     // Some arrange flows no longer require explicit room selection.
     if (!dialogVisible) return;
 
+    // New parallel route modal uses a list of room options - clicking directly creates schedule
+    const availableRoomsList = this.roomSelectionDialog.locator('[data-testid="available-rooms-list"]');
+    const isNewModal = await availableRoomsList.isVisible().catch(() => false);
+    
     const enabledRoomOptions = this.roomSelectionDialog.locator(
-      '[data-testid^="room-option-"]:not([aria-disabled="true"])',
+      '[data-testid^="room-option-"]:not([aria-disabled="true"]):not([disabled])',
     );
     const optionCount = await enabledRoomOptions.count();
 
@@ -373,50 +391,79 @@ export class ArrangePage extends BasePage {
       if (!visible) continue;
 
       await option.scrollIntoViewIfNeeded().catch(() => undefined);
-      await option.click({ timeout: 5000 });
-
-      // Wait for validation/state update
-      await expect(this.confirmRoomButton).toBeEnabled({ timeout: 5000 });
-
-      // Use waitForResponse to wait for API completion instead of unreliable snackbar
-      // This follows Playwright best practice from Context7: wait for network events, not UI
-      const [response] = await Promise.all([
-        this.page
-          .waitForResponse(
-            (resp) =>
-              resp.url().includes("/api/") &&
-              resp.request().method() === "POST" &&
-              resp.status() >= 200 &&
-              resp.status() < 400,
-            { timeout: 15000 },
-          )
-          .catch(() => null),
-        this.confirmRoomButton.click({ timeout: 5000 }),
-      ]);
-
-      const closed = await this.roomSelectionDialog
-        .waitFor({ state: "hidden", timeout: 5000 })
-        .then(() => true)
-        .catch(() => false);
-
-      // Room conflict keeps dialog open; retry another enabled room.
-      if (closed) {
-        // If we got an API response, wait briefly for SWR cache + React to update
-        if (response) {
-          // Use expect.poll to verify DOM updated (Context7: retry assertions)
-          await expect
-            .poll(
-              async () => {
-                return await this.page
-                  .locator('[data-testid="timeslot-remove"]')
-                  .count();
-              },
-              { timeout: 5000, intervals: [100, 250, 500, 1000] },
+      
+      if (isNewModal) {
+        // New modal: clicking room directly triggers server action and closes dialog
+        const [response] = await Promise.all([
+          this.page
+            .waitForResponse(
+              (resp) =>
+                (resp.url().includes("/api/") || resp.url().includes("_rsc")) &&
+                resp.request().method() === "POST" &&
+                resp.status() >= 200 &&
+                resp.status() < 400,
+              { timeout: 15000 },
             )
-            .toBeGreaterThan(0)
-            .catch(() => {}); // Non-blocking - just helps stabilize
+            .catch(() => null),
+          option.click({ timeout: 5000 }),
+        ]);
+
+        const closed = await this.roomSelectionDialog
+          .waitFor({ state: "hidden", timeout: 8000 })
+          .then(() => true)
+          .catch(() => false);
+
+        if (closed) {
+          // Wait for page refresh after router.refresh()
+          await this.page.waitForLoadState("domcontentloaded", { timeout: 5000 }).catch(() => {});
+          return;
         }
-        return;
+      } else {
+        // Legacy flow: select room, then confirm
+        await option.click({ timeout: 5000 });
+
+        // Wait for validation/state update
+        await expect(this.confirmRoomButton).toBeEnabled({ timeout: 5000 });
+
+        // Use waitForResponse to wait for API completion instead of unreliable snackbar
+        const [response] = await Promise.all([
+          this.page
+            .waitForResponse(
+              (resp) =>
+                resp.url().includes("/api/") &&
+                resp.request().method() === "POST" &&
+                resp.status() >= 200 &&
+                resp.status() < 400,
+              { timeout: 15000 },
+            )
+            .catch(() => null),
+          this.confirmRoomButton.click({ timeout: 5000 }),
+        ]);
+
+        const closed = await this.roomSelectionDialog
+          .waitFor({ state: "hidden", timeout: 5000 })
+          .then(() => true)
+          .catch(() => false);
+
+        // Room conflict keeps dialog open; retry another enabled room.
+        if (closed) {
+          // If we got an API response, wait briefly for SWR cache + React to update
+          if (response) {
+            // Use expect.poll to verify DOM updated (Context7: retry assertions)
+            await expect
+              .poll(
+                async () => {
+                  return await this.page
+                    .locator('[data-testid="timeslot-remove"]')
+                    .count();
+                },
+                { timeout: 5000, intervals: [100, 250, 500, 1000] },
+              )
+              .toBeGreaterThan(0)
+              .catch(() => {}); // Non-blocking - just helps stabilize
+          }
+          return;
+        }
       }
     }
 

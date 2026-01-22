@@ -52,6 +52,7 @@ export const testSemester = testSemesters.semester1_2567;
  */
 export const testTeachers = {
   // Deterministic E2E teacher (seeded first in test/clean mode)
+  // Has responsibility for subject ค21201 (คณิตศาสตร์เพิ่มเติม) for grade M1-1
   e2eTeacher: {
     TeacherID: 1,
     Prefix: "ครู",
@@ -60,6 +61,9 @@ export const testTeachers = {
     Department: "คณิตศาสตร์",
     SubjectGroup: "คณิตศาสตร์",
     Email: "e2e.teacher@school.ac.th",
+    // E2E teacher's assigned subject (from seed.ts)
+    SubjectCode: "ค21201", // คณิตศาสตร์เพิ่มเติม ม.1
+    GradeID: "M1-1", // Grade assigned for responsibility
   },
   // Math teacher (first math dept teacher in clean/test seed after E2E + Thai)
   mathTeacher: {
