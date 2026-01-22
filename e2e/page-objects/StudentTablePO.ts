@@ -100,7 +100,8 @@ export class StudentTablePO extends BasePage {
       const toggleBtn = this.filterToggleButton;
       if (await toggleBtn.isVisible()) {
         await toggleBtn.click();
-        await this.page.waitForTimeout(300); // Wait for animation
+        // Wait for filter section to become visible (event-driven)
+        await expect(this.bulkExportSection).toBeVisible({ timeout: 5000 }).catch(() => {});
       }
     }
   }
@@ -126,7 +127,8 @@ export class StudentTablePO extends BasePage {
 
     // Close dropdown by pressing Escape
     await this.page.keyboard.press("Escape");
-    await this.page.waitForTimeout(300);
+    // Wait for dropdown to close
+    await expect(this.page.locator('[role="listbox"]')).toBeHidden({ timeout: 3000 }).catch(() => {});
   }
 
   /**
@@ -146,13 +148,15 @@ export class StudentTablePO extends BasePage {
       const option = options.nth(index);
       if (await option.isVisible({ timeout: 1000 }).catch(() => false)) {
         await option.click();
-        await this.page.waitForTimeout(100); // Small delay between selections
+        // MUI multi-select has brief animation between selections
+        await this.page.waitForTimeout(50);
       }
     }
 
     // Close dropdown
     await this.page.keyboard.press("Escape");
-    await this.page.waitForTimeout(300);
+    // Wait for dropdown to close
+    await expect(this.page.locator('[role="listbox"]')).toBeHidden({ timeout: 3000 }).catch(() => {});
   }
 
   /**

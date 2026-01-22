@@ -1,14 +1,31 @@
 # Track Plan: Comprehensive Bug Hunting and Exploratory Testing
 
-## Phase 1: Baseline Establishment & Automated Regression
-- [ ] Task: Execute Full E2E Test Suite
-    - [ ] Subtask: Run `pnpm test:e2e` (or equivalent) to execute all Playwright tests.
-    - [ ] Subtask: Analyze the test report and identify any immediate regressions.
-    - [ ] Subtask: Save the test report as a baseline artifact.
-- [ ] Task: Execute Unit Test Suite
-    - [ ] Subtask: Run `pnpm test:unit` to verify domain logic and validation rules.
-    - [ ] Subtask: Identify any failures in MOE compliance logic.
-- [ ] Task: Conductor - User Manual Verification 'Baseline Establishment & Automated Regression' (Protocol in workflow.md)
+## Phase 1: Baseline Establishment & Automated Regression ✅ COMPLETED 2025-01-07
+- [x] Task: Execute Full E2E Test Suite
+    - [x] Subtask: Run `pnpm test:e2e` (or equivalent) to execute all Playwright tests.
+    - [x] Subtask: Analyze the test report and identify any immediate regressions.
+    - [x] Subtask: Save the test report as a baseline artifact.
+    
+    **Results (2025-01-07):**
+    - 339 passed, 66 failed, 170 skipped, 1 flaky
+    - Total duration: 30.6 minutes
+    - Auth setup: FIXED (session persistence now working)
+    - Saved to: `e2e-full-run.txt`
+    
+    **Failure Categories:**
+    - Visual/Screenshot tests (~12 failures) - screenshot baseline drift
+    - Profile page tests (~5 failures) - profile page functionality issues
+    - Public schedule pages (~20 failures) - route/rendering issues
+    - Performance tests (~7 failures) - timing thresholds (env-specific)
+    - Other specific tests (~22 failures) - individual test issues
+    
+- [x] Task: Execute Unit Test Suite
+    - [x] Subtask: Run `pnpm test:unit` to verify domain logic and validation rules.
+    - [x] Subtask: Identify any failures in MOE compliance logic.
+    
+    **Results:** 361 passed, 1 skipped, 26.05s duration - ALL GREEN ✅
+    
+- [x] Task: Conductor - User Manual Verification 'Baseline Establishment & Automated Regression' (Protocol in workflow.md)
 
 ## Phase 2: Exploratory Testing - Core Workflows
 - [ ] Task: Test "Subject Assignment" Flow

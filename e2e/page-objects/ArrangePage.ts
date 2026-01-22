@@ -169,8 +169,8 @@ export class ArrangePage extends BasePage {
       await skeleton.waitFor({ state: "hidden", timeout: 30000 });
     }
 
-    // Give a small buffer for React to re-render with data
-    await this.page.waitForTimeout(500);
+    // Wait for the timetable grid to be visible and stable (event-driven)
+    await expect(this.timetableGrid).toBeVisible({ timeout: 15000 });
   }
 
   /**
@@ -205,7 +205,8 @@ export class ArrangePage extends BasePage {
         opened = true;
         break;
       } catch {
-        await this.page.waitForTimeout(300);
+        // Brief delay before retry - animation time for MUI dropdown
+        await this.page.waitForTimeout(150);
       }
     }
     if (!opened) {
@@ -306,7 +307,8 @@ export class ArrangePage extends BasePage {
       .then(() => true)
       .catch(() => false);
     if (dragged) {
-      await this.page.waitForTimeout(250);
+      // Wait for drop animation to complete (CSS transition ~200ms)
+      await this.page.waitForTimeout(200);
       return;
     }
     const subjectBox = await subject.boundingBox();
@@ -334,7 +336,7 @@ export class ArrangePage extends BasePage {
       { steps: 12 },
     );
     // Give dnd-kit time to register "over" before dropping (minimal delay for drag activation).
-    await this.page.waitForTimeout(100);
+    await this.page.waitForTimeout(80);
     await this.page.mouse.up();
   }
 
@@ -563,14 +565,18 @@ export class ArrangePage extends BasePage {
 
     // Right-click to open context menu
     await cell.click({ button: "right" });
-    await this.page.waitForTimeout(300);
-
-    // Click lock option
+    
+    // Wait for context menu to appear (MUI uses a Popover)
     const lockOption = this.page
       .locator("text=Lock")
       .or(this.page.locator("text=ล็อก"));
+    await expect(lockOption.first()).toBeVisible({ timeout: 5000 });
+    
+    // Click lock option
     await lockOption.first().click();
-    await this.page.waitForTimeout(500);
+    
+    // Wait for lock indicator to appear (confirms action completed)
+    await expect(cell.locator('[data-locked="true"]')).toBeVisible({ timeout: 5000 }).catch(() => {});
   }
 
   /**
@@ -581,14 +587,18 @@ export class ArrangePage extends BasePage {
 
     // Right-click to open context menu
     await cell.click({ button: "right" });
-    await this.page.waitForTimeout(300);
-
-    // Click unlock option
+    
+    // Wait for context menu to appear
     const unlockOption = this.page
       .locator("text=Unlock")
       .or(this.page.locator("text=ปลดล็อก"));
+    await expect(unlockOption.first()).toBeVisible({ timeout: 5000 });
+    
+    // Click unlock option
     await unlockOption.first().click();
-    await this.page.waitForTimeout(500);
+    
+    // Wait for lock indicator to disappear (confirms action completed)
+    await expect(cell.locator('[data-locked="true"]')).toBeHidden({ timeout: 5000 }).catch(() => {});
   }
 
   /**
@@ -605,14 +615,16 @@ export class ArrangePage extends BasePage {
    */
   async exportSchedule(format: "excel" | "pdf") {
     await this.exportButton.click();
-    await this.page.waitForTimeout(300);
-
-    // Click the format option
+    
+    // Wait for export menu to appear
     const formatOption = this.page.locator(`text=${format.toUpperCase()}`).or(
       this.page.locator(`button`, {
         hasText: format === "excel" ? "Excel" : "PDF",
       }),
     );
+    await expect(formatOption.first()).toBeVisible({ timeout: 5000 });
+    
+    // Click the format option
     await formatOption.first().click();
   }
 
@@ -723,7 +735,9 @@ export class ArrangePage extends BasePage {
       .or(cell.locator('button[aria-label*="ลบ"]'))
       .or(cell.locator('button[aria-label*="remove"]'));
     await removeButton.click();
-    await this.page.waitForTimeout(500);
+    
+    // Wait for the subject to be removed from the cell (event-driven)
+    await expect(removeButton).toBeHidden({ timeout: 5000 }).catch(() => {});
   }
 
   /**

@@ -34,13 +34,10 @@ test.describe("PDF Export - Admin Only", () => {
     await teacherSelect.click();
     await page.locator('li[role="option"]').first().click();
 
-    // Wait for teacher data to load
-    await page.waitForTimeout(2000);
-
-    // Click PDF export button
+    // Wait for PDF button to be enabled (indicates teacher data loaded)
     const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
-    await expect(pdfButton).toBeVisible();
-    await expect(pdfButton).toBeEnabled();
+    await expect(pdfButton).toBeVisible({ timeout: 10000 });
+    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
 
     // Set up download listener
     const downloadPromise = page.waitForEvent("download");
@@ -80,7 +77,9 @@ test.describe("PDF Export - Admin Only", () => {
     const teacherSelect = page.locator('[data-testid="teacher-select"]').first();
     await teacherSelect.click();
     await page.locator('li[role="option"]').first().click();
-    await page.waitForTimeout(2000);
+    // Wait for teacher data to load (PDF button becomes enabled)
+    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
+    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
 
     // Intercept API call and make it fail
     await page.route("/api/export/teacher-timetable/pdf", (route) => {
@@ -96,12 +95,8 @@ test.describe("PDF Export - Admin Only", () => {
       await dialog.accept();
     });
 
-    // Click PDF export button
-    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
+    // Click PDF export button - dialog handler already set up
     await pdfButton.click();
-
-    // Wait for error alert
-    await page.waitForTimeout(1000);
   });
 
   test("should render Thai fonts correctly in PDF", async ({ page, context }) => {
@@ -115,11 +110,13 @@ test.describe("PDF Export - Admin Only", () => {
     const teacherSelect = page.locator('[data-testid="teacher-select"]').first();
     await teacherSelect.click();
     await page.locator('li[role="option"]').first().click();
-    await page.waitForTimeout(2000);
+
+    // Wait for PDF button to be enabled (teacher data loaded)
+    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
+    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
 
     // Export PDF
     const downloadPromise = page.waitForEvent("download");
-    const pdfButton = page.locator('[data-testid="teacher-export-pdf-button"]');
     await pdfButton.click();
 
     const download = await downloadPromise;
@@ -168,13 +165,10 @@ test.describe("Student PDF Export - Admin Only", () => {
     await gradeSelect.click();
     await page.locator('li[role="option"]').first().click();
 
-    // Wait for grade data to load
-    await page.waitForTimeout(2000);
-
-    // Click PDF export button
+    // Wait for PDF button to be enabled (grade data loaded)
     const pdfButton = page.locator('[data-testid="student-export-pdf-button"]');
-    await expect(pdfButton).toBeVisible();
-    await expect(pdfButton).toBeEnabled();
+    await expect(pdfButton).toBeVisible({ timeout: 10000 });
+    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
 
     // Set up download listener
     const downloadPromise = page.waitForEvent("download");
@@ -214,7 +208,10 @@ test.describe("Student PDF Export - Admin Only", () => {
     const gradeSelect = page.locator('[data-testid="grade-select"]').first();
     await gradeSelect.click();
     await page.locator('li[role="option"]').first().click();
-    await page.waitForTimeout(2000);
+    
+    // Wait for PDF button to be enabled
+    const pdfButton = page.locator('[data-testid="student-export-pdf-button"]');
+    await expect(pdfButton).toBeEnabled({ timeout: 10000 });
 
     // Intercept API call and make it fail
     await page.route("/api/export/student-timetable/pdf", (route) => {
@@ -230,12 +227,8 @@ test.describe("Student PDF Export - Admin Only", () => {
       await dialog.accept();
     });
 
-    // Click PDF export button
-    const pdfButton = page.locator('[data-testid="student-export-pdf-button"]');
+    // Click PDF export button - dialog handler already set up
     await pdfButton.click();
-
-    // Wait for error alert
-    await page.waitForTimeout(1000);
   });
 });
 
@@ -253,8 +246,8 @@ test.describe("PDF Export - Non-Admin Access Control", () => {
     await page.fill('input[name="password"]', process.env.TEACHER_PASSWORD || "teacher123");
     await page.click('button[type="submit"]');
 
-    // Wait for redirect
-    await page.waitForTimeout(2000);
+    // Wait for redirect after login
+    await page.waitForURL("/dashboard/**", { timeout: 15000 }).catch(() => {});
 
     // Try to call teacher PDF API directly
     const teacherResponse = await page.request.post("/api/export/teacher-timetable/pdf", {
@@ -301,7 +294,9 @@ test.describe("PDF Export - Non-Admin Access Control", () => {
     await page.fill('input[name="username"]', process.env.TEACHER_USERNAME || "teacher");
     await page.fill('input[name="password"]', process.env.TEACHER_PASSWORD || "teacher123");
     await page.click('button[type="submit"]');
-    await page.waitForTimeout(2000);
+    
+    // Wait for redirect after login
+    await page.waitForURL("/dashboard/**", { timeout: 15000 }).catch(() => {});
 
     // Check teacher table - PDF button should not be visible
     await page.goto("/dashboard/2567/1/teacher-table");

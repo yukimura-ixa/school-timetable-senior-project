@@ -88,8 +88,8 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.goto("/schedule/2567/1/config");
       await page.waitForLoadState("networkidle");
 
-      // Wait for page body to be ready
-      await page.waitForTimeout(1000);
+      // Wait for form to be visible (event-driven)
+      await expect(page.locator("form, [data-testid='config-form']").first()).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("config-form.png", {
@@ -110,8 +110,8 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.goto("/schedule/2567/1/lock");
       await page.waitForLoadState("networkidle");
 
-      // Wait for page to fully render
-      await page.waitForTimeout(1000);
+      // Wait for lock grid to be visible (event-driven)
+      await expect(page.locator('[data-testid="lock-grid"], table, .MuiDataGrid-root').first()).toBeVisible({ timeout: 15000 });
       await waitForNavbarStable(page);
 
       await expect(page).toHaveScreenshot("lock-schedule-page.png", {
@@ -139,9 +139,9 @@ test.describe("Critical Admin UI - Visual Tests", () => {
         await bulkLockButton.isVisible({ timeout: 5000 }).catch(() => false)
       ) {
         await bulkLockButton.click();
-        await page.waitForTimeout(500);
 
         const modal = page.locator('[role="dialog"], .MuiDialog-root').first();
+        // Wait for modal to become visible (event-driven)
         if (await modal.isVisible({ timeout: 3000 }).catch(() => false)) {
           await expect(modal).toHaveScreenshot("bulk-lock-modal.png", {
             maxDiffPixels: 100,
@@ -162,15 +162,14 @@ test.describe("Critical Admin UI - Visual Tests", () => {
       await page.goto("/schedule/2567/1/arrange");
       await page.waitForLoadState("networkidle");
 
-      // Wait for page to fully render
-      await page.waitForTimeout(2000);
-      await waitForNavbarStable(page);
-
+      // Wait for timetable grid to be visible (event-driven)
       const timeslotGrid = page
         .locator('[data-testid="timeslot-grid"], table')
         .first();
+      await expect(timeslotGrid).toBeVisible({ timeout: 15000 });
+      await waitForNavbarStable(page);
+
       const subjectList = page.locator('[data-testid="subject-list"]').first();
-      await expect(timeslotGrid).toBeVisible();
 
       await expect(page).toHaveScreenshot("arrange-page.png", {
         maxDiffPixels: 500, // Higher tolerance due to dynamic teacher data
