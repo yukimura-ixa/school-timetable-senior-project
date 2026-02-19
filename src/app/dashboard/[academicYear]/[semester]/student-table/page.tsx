@@ -100,7 +100,7 @@ function StudentTablePage() {
 
   // Responsive hooks
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
 
   type TimeslotKey = readonly ["timeslots-by-term", string, string];
   type ClassScheduleKey = readonly [
@@ -250,8 +250,7 @@ function StudentTablePage() {
 
       const totalHours = classData.reduce((sum, cls) => {
         const hoursRaw = cls.subject?.TotalHours;
-        const hoursParsed =
-          hoursRaw == null ? 0 : parseFloat(String(hoursRaw));
+        const hoursParsed = hoursRaw == null ? 0 : parseFloat(String(hoursRaw));
         const hours = Number.isFinite(hoursParsed) ? hoursParsed : 0;
         return sum + hours;
       }, 0);

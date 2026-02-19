@@ -122,7 +122,7 @@ function TeacherTablePage() {
 
   // Responsive hooks
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
 
   type TimeslotKey = readonly ["timeslots-by-term", string, string];
   type ClassScheduleKey = readonly [

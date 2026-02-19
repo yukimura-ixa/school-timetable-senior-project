@@ -88,7 +88,7 @@ export function FormDialog({
   className,
 }: FormDialogProps) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"), { noSsr: true });
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   // Generate unique IDs for accessibility

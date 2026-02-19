@@ -28,7 +28,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="th" className={`${sarabun.variable} ${inter.variable}`}>
+    <html
+      lang="th"
+      className={`${sarabun.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
       <body className={`font-sans min-h-screen bg-ds-slate-50`}>
         <Suspense fallback={<RootLayoutFallback />}>
           <LayoutContent>{children}</LayoutContent>

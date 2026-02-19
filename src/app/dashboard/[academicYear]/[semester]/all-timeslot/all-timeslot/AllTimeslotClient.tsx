@@ -212,9 +212,9 @@ const AllTimeslotClient = ({
 }: AllTimeslotClientProps) => {
   const theme = useTheme();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
 
-  const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("lg"), { noSsr: true });
 
   useEffect(() => {
     const styleId = "all-timeslot-print-styles";

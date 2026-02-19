@@ -41,9 +41,13 @@ export default defineConfig({
   globalSetup: path.resolve(__dirname, "playwright.global-setup.ts"),
   globalTeardown: path.resolve(__dirname, "playwright.global-teardown.ts"),
 
-  /* Expect timeout for assertions (visibility, etc.) */
+  /* Expect timeout & visual testing configuration */
   expect: {
     timeout: process.env.CI ? 90000 : 30000,
+    toHaveScreenshot: {
+      animations: "disabled",
+      maxDiffPixels: 200,
+    },
   },
 
   reporter: process.env.CI
@@ -58,14 +62,6 @@ export default defineConfig({
         ["json", { outputFile: "test-results/results.json" }],
         ["html", { open: "on-failure" }],
       ],
-
-  /* Visual testing configuration */
-  expect: {
-    toHaveScreenshot: {
-      animations: "disabled",
-      maxDiffPixels: 200,
-    },
-  },
 
   use: {
     baseURL: process.env.BASE_URL || "http://localhost:3005",
@@ -118,12 +114,12 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  /* 
+  /*
    * Issue #5 (HIGH-02): Configure E2E tests to use prod build locally
-   * 
+   *
    * Use PROD_BUILD=true to test against production build instead of dev server:
    *   PROD_BUILD=true pnpm test:e2e
-   * 
+   *
    * This avoids slow dev compilation timeouts and tests the actual build output.
    * Before running, ensure you've built the project:
    *   pnpm build
