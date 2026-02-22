@@ -12,7 +12,6 @@ import type {
   PeriodLoad,
   RoomOccupancy,
 } from "@/lib/infrastructure/repositories/public-data.repository";
-import { formatThaiDateShortBangkok } from "@/utils/datetime";
 
 // Re-export types for backward compatibility
 export type { QuickStats, PeriodLoad, RoomOccupancy };

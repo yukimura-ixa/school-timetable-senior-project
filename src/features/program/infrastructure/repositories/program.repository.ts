@@ -132,6 +132,7 @@ export const programRepository = {
    * Returns program associated with a specific grade level including subjects
    */
   async findByGrade(gradeId: string, semester?: string, academicYear?: number) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
     const gradelevel: any = await prisma.gradelevel.findUnique({
       where: { GradeID: gradeId },
       include: {
@@ -179,6 +180,7 @@ export const programRepository = {
     // Transform program_subject to subjects array for easier consumption
     const program = {
       ...gradelevel.program,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
       subjects: gradelevel.program.program_subject.map((ps: any) => ({
         ...ps.subject,
         MinCredits: ps.MinCredits,

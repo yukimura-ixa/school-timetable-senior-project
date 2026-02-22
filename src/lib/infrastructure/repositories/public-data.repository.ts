@@ -11,7 +11,6 @@
  */
 
 import { cache } from "react";
-import { cacheLife, cacheTag } from "next/cache";
 import prisma from "@/lib/prisma";
 import type { Prisma, semester } from "@/prisma/generated/client";
 import { formatThaiDateShortBangkok } from "@/utils/datetime";

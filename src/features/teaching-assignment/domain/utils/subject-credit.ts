@@ -3,7 +3,7 @@ import type { subject_credit } from "@/prisma/generated/client";
 /**
  * Convert subject_credit enum to numeric value
  */
-export function subjectCreditToNumber(credit: subject_credit | string): number {
+export function subjectCreditToNumber(credit: subject_credit): number {
   switch (credit) {
     case "CREDIT_05":
       return 0.5;

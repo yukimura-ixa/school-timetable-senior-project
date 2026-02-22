@@ -7,7 +7,6 @@
  */
 
 import prisma from "@/lib/prisma";
-import type { gradelevel } from "@/prisma/generated/client";
 import { parseConfigId } from "../../domain/services/calculation.service";
 import { overviewRepository } from "./overview.repository";
 

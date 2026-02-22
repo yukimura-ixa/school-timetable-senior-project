@@ -24,13 +24,7 @@ export type LevelRange = {
 export function getSubjectLevelRange(subjectCode: string): LevelRange | null {
   if (!subjectCode || subjectCode.length < 5) return null;
 
-  // Regex to capture LevelCode (digit 2) and YearCode (digit 3)
-  // Assumes mostly standard format with Thai char start
-  const match = subjectCode.match(/^[ก-ฮA-Z] \.?(\d)(\d)\d{3}$/);
-  // Note: Some codes might not strictly follow this, checking simpler char checks
-
-  // Try simpler extraction by index since codes are fixed width usually
-  // But safest is regex: Thai char followed by digits
+  // Try extraction with regex: non-digit chars followed by fixed-width digits
   const cleanerMatch = subjectCode.match(/^[^0-9]+(\d)(\d)\d{3}$/);
 
   if (!cleanerMatch) return null;

@@ -33,11 +33,13 @@ const findTimeslotId = (
 
 const describeSchedule = (schedule: ClassScheduleWithSummary): string => {
   const grade = schedule.gradelevel?.GradeID ?? schedule.GradeID ?? "";
+  /* eslint-disable @typescript-eslint/no-explicit-any -- ClassScheduleWithSummary doesn't always include subject relation */
   const subject =
     (schedule as any).subject?.SubjectName ??
     (schedule as any).subject?.SubjectCode ??
     (schedule as any).SubjectCode ??
     "";
+  /* eslint-enable @typescript-eslint/no-explicit-any */
   const room = schedule.room?.RoomName ?? "";
   const base = `${grade} ${subject}`.trim();
   return room ? `${base} (${room})` : base;
@@ -58,7 +60,10 @@ export async function ExportTeacherTable(
 
   const dayCodes = Array.from(
     new Set(timeSlotData.AllData.map((t) => t.DayOfWeek)),
-  ).sort((a, b) => DAY_ORDER.indexOf(a as any) - DAY_ORDER.indexOf(b as any));
+  ).sort(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- DAY_ORDER literal type narrowing
+    (a, b) => DAY_ORDER.indexOf(a as any) - DAY_ORDER.indexOf(b as any),
+  );
   const days = dayCodes.map((code) => dayOfWeekThai[code] ?? code);
   const slots = timeSlotData.SlotAmount;
 

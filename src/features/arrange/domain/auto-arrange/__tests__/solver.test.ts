@@ -30,7 +30,6 @@ function makeInput(overrides: Partial<SolverInput> = {}): SolverInput {
 function makeTimeslots(count: number): AvailableTimeslot[] {
   const days = ["MON", "TUE", "WED", "THU", "FRI"];
   const slots: AvailableTimeslot[] = [];
-  let id = 0;
   for (const day of days) {
     for (let p = 1; p <= count; p++) {
       slots.push({
@@ -39,7 +38,6 @@ function makeTimeslots(count: number): AvailableTimeslot[] {
         period: p,
         isBreak: false,
       });
-      id++;
     }
   }
   return slots;

@@ -212,25 +212,26 @@ export const getQuickStats = cache(async function getQuickStats(
 /**
  * Get schedules with minimal fields for dashboard stats/health/charts
  */
-export const getScheduleStatsData = cache(
-  async function getScheduleStatsData(academicYear: number, sem: semester) {
-    return prisma.class_schedule.findMany({
-      where: {
-        timeslot: {
-          AcademicYear: academicYear,
-          Semester: sem,
+export const getScheduleStatsData = cache(async function getScheduleStatsData(
+  academicYear: number,
+  sem: semester,
+) {
+  return prisma.class_schedule.findMany({
+    where: {
+      timeslot: {
+        AcademicYear: academicYear,
+        Semester: sem,
+      },
+    },
+    include: {
+      teachers_responsibility: {
+        select: {
+          TeacherID: true,
         },
       },
-      include: {
-        teachers_responsibility: {
-          select: {
-            TeacherID: true,
-          },
-        },
-      },
-    });
-  },
-);
+    },
+  });
+});
 
 /**
  * Get basic teacher identity fields for dashboard charts
@@ -345,23 +346,25 @@ export const getSubjectDistribution = cache(
       };
     };
 
-    const schedules = (await (prisma.class_schedule as any).groupBy({
-      by: ["SubjectCode"],
-      where: {
-        timeslot: {
-          AcademicYear: academicYear,
-          Semester: sem,
+    const schedules =
+      (await // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma groupBy not typed on delegate
+      (prisma.class_schedule as any).groupBy({
+        by: ["SubjectCode"],
+        where: {
+          timeslot: {
+            AcademicYear: academicYear,
+            Semester: sem,
+          },
         },
-      },
-      _count: {
-        ClassID: true,
-      },
-      orderBy: {
         _count: {
-          ClassID: "desc",
+          ClassID: true,
         },
-      },
-    })) as ScheduleGroup[];
+        orderBy: {
+          _count: {
+            ClassID: "desc",
+          },
+        },
+      })) as ScheduleGroup[];
 
     // Enrich with subject details
     const subjectCodes = schedules.map((s) => s.SubjectCode);
@@ -375,7 +378,7 @@ export const getSubjectDistribution = cache(
 
     return schedules.map((schedule) => {
       const subject = subjects.find(
-        (s: any) => s.SubjectCode === schedule.SubjectCode,
+        (s) => s.SubjectCode === schedule.SubjectCode,
       );
       return {
         subjectCode: schedule.SubjectCode,

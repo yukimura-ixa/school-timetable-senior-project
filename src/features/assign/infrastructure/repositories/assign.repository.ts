@@ -101,15 +101,15 @@ export async function findLockedSubjectsByTerm(
   sem: semester,
 ): Promise<SubjectWithResponsibilities[]> {
   // First, group by SubjectCode to get distinct subjects
-  const groupedSubjects = (await (
-    prisma.teachers_responsibility as any
-  ).groupBy({
-    by: ["SubjectCode"],
-    where: {
-      AcademicYear: academicYear,
-      Semester: sem,
-    },
-  })) as SubjectCodeRecord[];
+  const groupedSubjects =
+    (await // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma groupBy not typed on delegate
+    (prisma.teachers_responsibility as any).groupBy({
+      by: ["SubjectCode"],
+      where: {
+        AcademicYear: academicYear,
+        Semester: sem,
+      },
+    })) as SubjectCodeRecord[];
 
   const subjectCodes = groupedSubjects
     .map((item) => item.SubjectCode)

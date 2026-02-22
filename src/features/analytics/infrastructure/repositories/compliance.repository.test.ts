@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { describe, it, expect, vi, beforeAll } from "vitest";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
@@ -22,7 +23,8 @@ describe.skipIf(!hasDatabase)("Compliance Repository Integration", () => {
     // Unmock prisma for integration tests only when DATABASE_URL is available.
     vi.unmock("@/lib/prisma");
     prisma = (await import("@/lib/prisma")).default;
-    complianceRepository = (await import("./compliance.repository")).complianceRepository;
+    complianceRepository = (await import("./compliance.repository"))
+      .complianceRepository;
   });
 
   it("should connect to the database", async () => {

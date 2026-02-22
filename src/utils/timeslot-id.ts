@@ -29,7 +29,15 @@ export interface ParsedTimeslotId {
 /**
  * Valid day codes in TimeslotID
  */
-const VALID_DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
+export const VALID_DAYS = [
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+  "SUN",
+] as const;
 
 /**
  * Extract period number from TimeslotID

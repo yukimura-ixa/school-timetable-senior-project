@@ -41,11 +41,7 @@ import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 // Import Zustand store hooks
-import {
-  useArrangementUIStore,
-  useTimeslotData,
-  useSaveState,
-} from "../../stores/arrangement-ui.store";
+import { useSaveState } from "../../stores/arrangement-ui.store";
 
 /**
  * Props interface for DroppableTimeslot
@@ -132,12 +128,7 @@ export function DroppableTimeslot({
    * - isSaving: Save operation state
    * - Store actions: setShowErrorMsg, setIsSaving
    */
-  const _timeSlotData = useTimeslotData(); // Selector hook - available for future use
   const isSaving = useSaveState(); // Returns boolean directly
-  const _setShowErrorMsg = useArrangementUIStore(
-    (state) => state.setShowErrorMsg,
-  );
-  const _setIsSaving = useArrangementUIStore((state) => state.setIsSaving);
 
   /**
    * Check if this specific timeslot has conflicts

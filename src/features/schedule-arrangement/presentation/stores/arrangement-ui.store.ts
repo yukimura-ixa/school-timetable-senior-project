@@ -462,6 +462,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
         set(
           (state) => {
             const { past, present, future } = state.history;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zustand no-op return requires full state cast
             if (past.length === 0) return state as any;
 
             const previous = past[past.length - 1];
@@ -484,6 +485,7 @@ export const useArrangementUIStore = create<ArrangementUIStore>()(
         set(
           (state) => {
             const { past, present, future } = state.history;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zustand no-op return requires full state cast
             if (future.length === 0) return state as any;
 
             const next = future[0];

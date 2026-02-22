@@ -79,6 +79,7 @@ export const subjectRepository = {
 
     // Extract subjects from program_subject relation
     const subjects = gradelevel.program.program_subject.map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma nested include type not inferred
       (ps: any) => ps.subject,
     );
 

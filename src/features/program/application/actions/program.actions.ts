@@ -20,8 +20,6 @@ import {
   validateUniqueProgramCodeForUpdate,
 } from "../../domain/services/program-validation.service";
 import { validateProgramMOECredits } from "../../domain/services/moe-validation.service";
-import type { program_subject, subject } from "@/prisma/generated/client";
-import type { ProgramSubjectWithSubject } from "../../domain/types/program.types";
 import {
   createProgramSchema,
   updateProgramSchema,

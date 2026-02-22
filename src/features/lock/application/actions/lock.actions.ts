@@ -57,12 +57,12 @@ export const getLockedSchedulesAction = createAction(
 export const createLockAction = createAction(
   createLockSchema,
   async (input: CreateLockInput) => {
-    log.debug("Creating locked schedules", { 
-      subjectCode: input.SubjectCode, 
-      timeslotCount: input.timeslots.length, 
-      gradeCount: input.GradeIDs.length 
+    log.debug("Creating locked schedules", {
+      subjectCode: input.SubjectCode,
+      timeslotCount: input.timeslots.length,
+      gradeCount: input.GradeIDs.length,
     });
-    
+
     // Validate input using domain service
     const validationError = validateLockInput({
       timeslots: input.timeslots,
@@ -198,9 +198,8 @@ export const getLockTemplatesAction = createAction(
   async (input?: {
     category?: "lunch" | "activity" | "assembly" | "exam" | "other";
   }) => {
-    const { LOCK_TEMPLATES, getTemplatesByCategory } = await import(
-      "../../domain/models/lock-template.model"
-    );
+    const { LOCK_TEMPLATES, getTemplatesByCategory } =
+      await import("../../domain/models/lock-template.model");
 
     if (input?.category) {
       return getTemplatesByCategory(input.category);
@@ -227,15 +226,12 @@ export const applyLockTemplateAction = createAction(
     Semester: string;
     ConfigID: string;
   }) => {
-    const { getTemplateById } = await import(
-      "../../domain/models/lock-template.model"
-    );
-    const { resolveTemplate } = await import(
-      "../../domain/services/lock-template.service"
-    );
-    const lockRepo = await import(
-      "../../infrastructure/repositories/lock.repository"
-    );
+    const { getTemplateById } =
+      await import("../../domain/models/lock-template.model");
+    const { resolveTemplate } =
+      await import("../../domain/services/lock-template.service");
+    const lockRepo =
+      await import("../../infrastructure/repositories/lock.repository");
 
     // Get template
     const template = getTemplateById(input.templateId);
@@ -260,23 +256,27 @@ export const applyLockTemplateAction = createAction(
       ]);
 
     // Transform data to match expected format
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma model shape varies by query
     const transformedGrades = grades.map((g: any) => ({
       GradeID: g.GradeID,
       GradeName: `ม.${g.Year}/${g.Number}`,
       Level: g.Number,
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma model shape varies by query
     const transformedTimeslots = timeslots.map((t: any) => ({
       TimeslotID: t.TimeslotID,
       Day: t.DayOfWeek,
       StartTime: t.StartTime, // Pass DateTime directly for time comparison
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma model shape varies by query
     const transformedRooms = rooms.map((r: any) => ({
       RoomID: r.RoomID,
       Name: r.RoomName,
     }));
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Prisma model shape varies by query
     const transformedSubjects = subjects.map((s: any) => ({
       SubjectID: s.SubjectCode,
       Name_TH: s.SubjectName,
