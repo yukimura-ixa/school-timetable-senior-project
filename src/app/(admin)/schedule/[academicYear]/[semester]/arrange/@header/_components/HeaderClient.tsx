@@ -9,7 +9,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -20,11 +20,15 @@ import {
   Tab,
   Button,
   ButtonGroup,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import {
   Save as SaveIcon,
   Undo as UndoIcon,
   Redo as RedoIcon,
+  AutoFixHigh as AutoFixHighIcon,
 } from "@mui/icons-material";
 
 type Teacher = {
@@ -63,6 +67,68 @@ export function HeaderClient({
   semester,
 }: Props) {
   const router = useRouter();
+  const [autoArrangeLoading, setAutoArrangeLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "info" | "warning";
+  }>({ open: false, message: "", severity: "info" });
+
+  const handleAutoArrange = useCallback(async () => {
+    if (!selectedTeacher) {
+      setSnackbar({
+        open: true,
+        message: "กรุณาเลือกครูก่อนจัดตารางอัตโนมัติ",
+        severity: "warning",
+      });
+      return;
+    }
+
+    setAutoArrangeLoading(true);
+    try {
+      const res = await fetch("/api/schedule/auto-arrange", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          academicYear: Number(academicYear),
+          semester,
+          teacherId: Number(selectedTeacher),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        const failureMsg = data.failures?.length
+          ? `\n${data.failures.map((f: { subjectCode: string; reason: string }) => `- ${f.subjectCode}: ${f.reason}`).join("\n")}`
+          : "";
+        setSnackbar({
+          open: true,
+          message: `จัดตารางไม่สำเร็จ: ${data.message || "เกิดข้อผิดพลาด"}${failureMsg}`,
+          severity: "error",
+        });
+        return;
+      }
+
+      const { stats } = data;
+      setSnackbar({
+        open: true,
+        message: `✅ จัดตารางสำเร็จ ${stats.successfullyPlaced} คาบ${stats.failed > 0 ? ` (ไม่สำเร็จ ${stats.failed} คาบ)` : ""} (${stats.durationMs}ms)`,
+        severity: stats.failed > 0 ? "warning" : "success",
+      });
+
+      // Refresh the page to show new placements
+      router.refresh();
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: `เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : "Unknown"}`,
+        severity: "error",
+      });
+    } finally {
+      setAutoArrangeLoading(false);
+    }
+  }, [selectedTeacher, academicYear, semester, router]);
 
   // Find selected teacher object
   const teacherObj = teachers.find(
@@ -127,18 +193,51 @@ export function HeaderClient({
         </Tabs>
 
         {/* Action Buttons */}
-        <ButtonGroup variant="contained">
-          <Button startIcon={<UndoIcon />} disabled>
-            Undo
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={
+              autoArrangeLoading ? (
+                <CircularProgress size={18} color="inherit" />
+              ) : (
+                <AutoFixHighIcon />
+              )
+            }
+            onClick={handleAutoArrange}
+            disabled={autoArrangeLoading || !selectedTeacher}
+          >
+            {autoArrangeLoading ? "กำลังจัด..." : "จัดอัตโนมัติ"}
           </Button>
-          <Button startIcon={<RedoIcon />} disabled>
-            Redo
-          </Button>
-          <Button startIcon={<SaveIcon />} color="primary">
-            Save
-          </Button>
-        </ButtonGroup>
+          <ButtonGroup variant="contained">
+            <Button startIcon={<UndoIcon />} disabled>
+              Undo
+            </Button>
+            <Button startIcon={<RedoIcon />} disabled>
+              Redo
+            </Button>
+            <Button startIcon={<SaveIcon />} color="primary">
+              Save
+            </Button>
+          </ButtonGroup>
+        </Stack>
       </Box>
+
+      {/* Auto-arrange feedback */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar((s) => ({ ...s, open: false }))}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 }
