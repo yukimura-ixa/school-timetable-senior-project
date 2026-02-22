@@ -51,7 +51,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             <Navbar />
             <div className="flex justify-center w-full h-auto">
               <Content>{children}</Content>
-              <SpeedInsights />
+              {process.env.VERCEL === "1" && <SpeedInsights />}
             </div>
           </ErrorBoundary>
         </SnackbarProvider>
