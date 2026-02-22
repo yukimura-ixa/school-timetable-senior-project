@@ -3,7 +3,8 @@ import type { subject_credit } from "@/prisma/generated/client";
 /**
  * Convert subject_credit enum to numeric value
  */
-export function subjectCreditToNumber(credit: subject_credit): number {
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+export function subjectCreditToNumber(credit: subject_credit | string): number {
   switch (credit) {
     case "CREDIT_05":
       return 0.5;
