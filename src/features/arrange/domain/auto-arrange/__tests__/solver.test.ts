@@ -353,7 +353,7 @@ describe("solve", () => {
       subjectCode: "ส21101",
       gradeId: "M2-1", // different grade so no grade conflict
       teacherId: 999, // different teacher so no teacher conflict
-      roomId: rooms[0].roomId,
+      roomId: rooms[0]!.roomId,
       isLocked: true,
     };
 
@@ -369,6 +369,6 @@ describe("solve", () => {
     expect(result.placements).toHaveLength(1);
 
     // Should NOT be placed in the locked timeslot
-    expect(result.placements[0].timeslotId).not.toBe("1-2567-MON1");
+    expect(result.placements[0]!.timeslotId).not.toBe("1-2567-MON1");
   });
 });

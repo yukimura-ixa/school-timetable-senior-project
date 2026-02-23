@@ -39,7 +39,7 @@ export default function NotFound() {
         </Typography>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Link
-            href="/schedule"
+            href="/dashboard"
             style={{
               display: "inline-flex",
               alignItems: "center",
