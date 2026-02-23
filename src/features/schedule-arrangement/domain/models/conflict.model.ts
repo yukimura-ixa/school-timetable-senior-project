@@ -108,8 +108,13 @@ export interface ScheduleArrangementInput {
 }
 
 /**
- * Existing schedule data for conflict checking
- * This represents schedules already in the database
+ * Existing schedule data for conflict checking (manual arrangement).
+ * This represents schedules already in the database.
+ *
+ * NOTE: A separate `ExistingSchedule` interface exists in
+ * `arrange/domain/auto-arrange/types.ts` for the auto-arrange solver.
+ * That version omits display fields and has required teacherId.
+ * The two are NOT interchangeable.
  */
 export interface ExistingSchedule {
   classId: number;

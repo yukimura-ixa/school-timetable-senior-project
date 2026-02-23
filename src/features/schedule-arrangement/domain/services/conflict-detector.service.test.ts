@@ -343,6 +343,41 @@ describe("Conflict Detection Service", () => {
       expect(result.hasConflict).toBe(false);
     });
 
+    it("should detect locked timeslot at same grade level (M1-2 blocked by M1-1 lock)", () => {
+      const input: ScheduleArrangementInput = {
+        classId: 99,
+        timeslotId: "T3", // Locked by M1-1
+        subjectCode: "ENG101",
+        roomId: 103,
+        gradeId: "M1-2", // same grade level (M1) as locked schedule
+        teacherId: 2,
+        academicYear: 2566,
+        semester: "SEMESTER_1",
+      };
+
+      const result = checkLockedTimeslot(input, mockExistingSchedules);
+
+      expect(result.hasConflict).toBe(true);
+      expect(result.conflictType).toBe(ConflictType.LOCKED_TIMESLOT);
+    });
+
+    it("should allow scheduling at different grade level (M2 not blocked by M1 lock)", () => {
+      const input: ScheduleArrangementInput = {
+        classId: 99,
+        timeslotId: "T3", // Locked by M1-1
+        subjectCode: "MATH201",
+        roomId: 103,
+        gradeId: "M2-1", // different grade level (M2) — should NOT be blocked
+        teacherId: 3,
+        academicYear: 2566,
+        semester: "SEMESTER_1",
+      };
+
+      const result = checkLockedTimeslot(input, mockExistingSchedules);
+
+      expect(result.hasConflict).toBe(false);
+    });
+
     it("should allow updating same locked schedule", () => {
       const input: ScheduleArrangementInput = {
         classId: 3, // Same locked schedule

@@ -32,7 +32,15 @@ export interface AvailableTimeslot {
   isBreak: boolean;
 }
 
-/** An existing schedule entry (already placed) */
+/**
+ * An existing schedule entry (already placed) — solver-only shape.
+ *
+ * NOTE: A separate `ExistingSchedule` interface exists in
+ * `schedule-arrangement/domain/models/conflict.model.ts` for the manual
+ * arrangement conflict detector. That version includes display fields
+ * (subjectName, teacherName, roomName) and has optional teacherId.
+ * The two are NOT interchangeable.
+ */
 export interface ExistingSchedule {
   classId: number;
   timeslotId: string;

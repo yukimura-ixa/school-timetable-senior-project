@@ -66,28 +66,43 @@ describe("checkBreakConstraint", () => {
 
 describe("checkLockedSlot", () => {
   it("returns null when no locked schedules at timeslot", () => {
-    const result = checkLockedSlot("1-2567-MON1", [
+    const result = checkLockedSlot("1-2567-MON1", "M1-1", [
       makeExisting({ isLocked: false }),
     ]);
     expect(result).toBeNull();
   });
 
   it("returns null for empty schedules", () => {
-    const result = checkLockedSlot("1-2567-MON1", []);
+    const result = checkLockedSlot("1-2567-MON1", "M1-1", []);
     expect(result).toBeNull();
   });
 
-  it("detects locked schedule at same timeslot", () => {
-    const result = checkLockedSlot("1-2567-MON1", [
-      makeExisting({ isLocked: true, timeslotId: "1-2567-MON1" }),
+  it("detects locked schedule at same timeslot and same grade", () => {
+    const result = checkLockedSlot("1-2567-MON1", "M1-1", [
+      makeExisting({ isLocked: true, timeslotId: "1-2567-MON1", gradeId: "M1-1" }),
     ]);
     expect(result).not.toBeNull();
     expect(result?.type).toBe("LOCKED_SLOT");
     expect(result?.message).toContain("ล็อก");
   });
 
+  it("blocks same grade level (M1-2 blocked by M1-1 lock)", () => {
+    const result = checkLockedSlot("1-2567-MON1", "M1-2", [
+      makeExisting({ isLocked: true, timeslotId: "1-2567-MON1", gradeId: "M1-1" }),
+    ]);
+    expect(result).not.toBeNull();
+    expect(result?.type).toBe("LOCKED_SLOT");
+  });
+
+  it("allows different grade level (M2-1 not blocked by M1-1 lock)", () => {
+    const result = checkLockedSlot("1-2567-MON1", "M2-1", [
+      makeExisting({ isLocked: true, timeslotId: "1-2567-MON1", gradeId: "M1-1" }),
+    ]);
+    expect(result).toBeNull();
+  });
+
   it("ignores locked schedule at different timeslot", () => {
-    const result = checkLockedSlot("1-2567-MON2", [
+    const result = checkLockedSlot("1-2567-MON2", "M1-1", [
       makeExisting({ isLocked: true, timeslotId: "1-2567-MON1" }),
     ]);
     expect(result).toBeNull();
@@ -225,17 +240,31 @@ describe("checkAllHardConstraints", () => {
     expect(result?.type).toBe("TEACHER_CONFLICT");
   });
 
-  it("catches locked slot after break but before teacher", () => {
+  it("catches locked slot after break but before teacher (same grade level)", () => {
     const ts = makeTimeslot({ timeslotId: "1-2567-MON1" });
     const result = checkAllHardConstraints(
       200, // different teacher — no teacher conflict
-      "M2-1", // different grade — no grade conflict
+      "M1-2", // same grade LEVEL as locked (M1) — triggers lock
       2, // different room — no room conflict
       ts,
-      [makeExisting({ isLocked: true, timeslotId: "1-2567-MON1" })],
+      [makeExisting({ isLocked: true, timeslotId: "1-2567-MON1", gradeId: "M1-1" })],
       [],
     );
     expect(result?.type).toBe("LOCKED_SLOT");
+  });
+
+  it("does not catch locked slot for different grade level", () => {
+    const ts = makeTimeslot({ timeslotId: "1-2567-MON1" });
+    const result = checkAllHardConstraints(
+      200, // different teacher — no teacher conflict
+      "M2-1", // different grade LEVEL (M2 vs M1) — lock should NOT trigger
+      2, // different room — no room conflict
+      ts,
+      [makeExisting({ isLocked: true, timeslotId: "1-2567-MON1", gradeId: "M1-1" })],
+      [],
+    );
+    // No locked slot since M2 ≠ M1, and no other conflicts (different teacher, grade, room)
+    expect(result).toBeNull();
   });
 });
 

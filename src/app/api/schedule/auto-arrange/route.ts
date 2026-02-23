@@ -137,8 +137,23 @@ export async function POST(request: NextRequest) {
     });
 
     // Existing schedules (flat, one per teacher-schedule combo)
-    const existingSchedules: ExistingSchedule[] = allSchedules.flatMap((s) =>
-      s.teachers_responsibility.map((r) => ({
+    // If a schedule has no teacher (e.g., locked assembly slot), include it
+    // with teacherId=0 sentinel so the solver still sees it for lock/room checks.
+    const existingSchedules: ExistingSchedule[] = allSchedules.flatMap((s) => {
+      if (s.teachers_responsibility.length === 0) {
+        return [
+          {
+            classId: s.ClassID,
+            timeslotId: s.TimeslotID,
+            subjectCode: s.SubjectCode,
+            gradeId: s.GradeID,
+            teacherId: 0,
+            roomId: s.RoomID,
+            isLocked: s.IsLocked,
+          },
+        ];
+      }
+      return s.teachers_responsibility.map((r) => ({
         classId: s.ClassID,
         timeslotId: s.TimeslotID,
         subjectCode: s.SubjectCode,
@@ -146,8 +161,8 @@ export async function POST(request: NextRequest) {
         teacherId: r.TeacherID,
         roomId: s.RoomID,
         isLocked: s.IsLocked,
-      })),
-    );
+      }));
+    });
 
     // Rooms
     const availableRooms: AvailableRoom[] = rooms.map((r) => ({

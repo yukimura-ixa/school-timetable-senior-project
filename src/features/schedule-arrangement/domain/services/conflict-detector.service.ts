@@ -14,6 +14,7 @@ import {
   ScheduleArrangementInput,
   TeacherResponsibility,
 } from "../models/conflict.model";
+import { extractGradeLevel } from "@/utils/grade-display";
 
 /**
  * Check if a teacher has a conflict at the proposed timeslot
@@ -208,10 +209,12 @@ export function checkLockedTimeslot(
   input: ScheduleArrangementInput,
   existingSchedules: ExistingSchedule[],
 ): ConflictResult {
-  // Find if there's a locked schedule for this grade at this timeslot
+  // Find if there's a locked schedule at the same grade LEVEL at this timeslot
+  // Grade-level wide: a lock on M1-1 also blocks M1-2, M1-3 (same "M1")
+  const inputLevel = extractGradeLevel(input.gradeId);
   const lockedSchedule = existingSchedules.find(
     (schedule) =>
-      schedule.gradeId === input.gradeId &&
+      extractGradeLevel(schedule.gradeId) === inputLevel &&
       schedule.timeslotId === input.timeslotId &&
       schedule.isLocked &&
       schedule.classId !== input.classId, // Allow updating the same locked schedule

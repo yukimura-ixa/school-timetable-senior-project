@@ -5,6 +5,8 @@
  * No database access — fully unit-testable.
  */
 
+import { extractDayFromTimeslotId } from "@/utils/timeslot-id";
+import { extractGradeLevel } from "@/utils/grade-display";
 import type {
   AvailableTimeslot,
   ConstraintViolation,
@@ -16,14 +18,20 @@ import type {
 
 /**
  * Check if a timeslot has a locked schedule that cannot be overwritten.
- * Locked timeslots are protected from auto-arrange.
+ * Locked timeslots are protected from auto-arrange at the grade LEVEL
+ * (e.g., a lock on M1-1 also blocks M1-2, M1-3 — same grade level "M1").
  */
 export function checkLockedSlot(
   timeslotId: string,
+  gradeId: string,
   existingSchedules: ExistingSchedule[],
 ): ConstraintViolation | null {
+  const targetLevel = extractGradeLevel(gradeId);
   const locked = existingSchedules.find(
-    (s) => s.timeslotId === timeslotId && s.isLocked,
+    (s) =>
+      s.timeslotId === timeslotId &&
+      s.isLocked &&
+      extractGradeLevel(s.gradeId) === targetLevel,
   );
   if (locked) {
     return {
@@ -162,7 +170,7 @@ export function checkAllHardConstraints(
 ): ConstraintViolation | null {
   return (
     checkBreakConstraint(timeslot) ??
-    checkLockedSlot(timeslot.timeslotId, existingSchedules) ??
+    checkLockedSlot(timeslot.timeslotId, gradeId, existingSchedules) ??
     checkTeacherConflict(
       teacherId,
       timeslot.timeslotId,
@@ -205,13 +213,13 @@ export function scoreSoftConstraints(
       (s) =>
         s.subjectCode === subjectCode &&
         s.gradeId === gradeId &&
-        extractDay(s.timeslotId) === timeslot.day,
+        extractDayFromTimeslotId(s.timeslotId) === timeslot.day,
     ),
     ...pendingPlacements.filter(
       (p) =>
         p.subjectCode === subjectCode &&
         p.gradeId === gradeId &&
-        extractDay(p.timeslotId) === timeslot.day,
+        extractDayFromTimeslotId(p.timeslotId) === timeslot.day,
     ),
   ];
   // Penalty for same subject on same day (students don't want double math)
@@ -228,10 +236,10 @@ export function scoreSoftConstraints(
   const day = timeslot.day;
   const placementsOnDay = [
     ...existingSchedules.filter(
-      (s) => s.gradeId === gradeId && extractDay(s.timeslotId) === day,
+      (s) => s.gradeId === gradeId && extractDayFromTimeslotId(s.timeslotId) === day,
     ),
     ...pendingPlacements.filter(
-      (p) => p.gradeId === gradeId && extractDay(p.timeslotId) === day,
+      (p) => p.gradeId === gradeId && extractDayFromTimeslotId(p.timeslotId) === day,
     ),
   ];
   // Penalty for overloaded days
@@ -240,16 +248,4 @@ export function scoreSoftConstraints(
   }
 
   return Math.max(0, Math.min(100, score));
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────
-
-/**
- * Extract day code from a TimeslotID (e.g., "1-2567-MON1" → "MON").
- * Uses simple regex to avoid importing the full timeslot-id utils
- * (keeping this module dependency-free for testing).
- */
-function extractDay(timeslotId: string): string {
-  const match = timeslotId.match(/([A-Z]{3})\d+$/);
-  return match?.[1] ?? "";
 }

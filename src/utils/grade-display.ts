@@ -111,3 +111,21 @@ export function parseGradeId(gradeId: string): { year: number; section: number }
 export function generateGradeId(year: number, section: number): string {
   return `M${year}-${section}`;
 }
+
+/**
+ * Extract grade level prefix from a GradeID (e.g., "M1-1" → "M1", "M2-5" → "M2")
+ * Used for grade-level-wide operations like locking timeslots.
+ * 
+ * @param gradeId Grade ID string (e.g., "M1-1", "M2-5")
+ * @returns Grade level string (e.g., "M1", "M2"), or the original gradeId if format is unexpected
+ * 
+ * @example
+ * extractGradeLevel("M1-1") // "M1"
+ * extractGradeLevel("M1-3") // "M1"
+ * extractGradeLevel("M2-5") // "M2"
+ * extractGradeLevel("M6-15") // "M6"
+ */
+export function extractGradeLevel(gradeId: string): string {
+  const match = gradeId.match(/^(M\d+)-/);
+  return match?.[1] ?? gradeId;
+}

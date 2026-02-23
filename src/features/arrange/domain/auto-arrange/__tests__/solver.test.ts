@@ -346,12 +346,12 @@ describe("solve", () => {
     const timeslots = makeTimeslots(2); // MON1, MON2, TUE1, TUE2, etc.
     const rooms = makeRooms(1);
 
-    // Lock MON1 with an existing schedule from another teacher
+    // Lock MON1 with an existing schedule at same grade level (M1)
     const lockedSchedule: ExistingSchedule = {
       classId: 99,
       timeslotId: "1-2567-MON1",
       subjectCode: "ส21101",
-      gradeId: "M2-1", // different grade so no grade conflict
+      gradeId: "M1-3", // same grade level M1 → blocks M1-1
       teacherId: 999, // different teacher so no teacher conflict
       roomId: rooms[0]!.roomId,
       isLocked: true,
@@ -370,5 +370,35 @@ describe("solve", () => {
 
     // Should NOT be placed in the locked timeslot
     expect(result.placements[0]!.timeslotId).not.toBe("1-2567-MON1");
+  });
+
+  it("allows placement when lock is at different grade level", () => {
+    const rooms = makeRooms(1);
+
+    // Lock MON1 at grade level M2 — should NOT block M1-1
+    const lockedSchedule: ExistingSchedule = {
+      classId: 99,
+      timeslotId: "1-2567-MON1",
+      subjectCode: "ส21101",
+      gradeId: "M2-1", // different grade level M2
+      teacherId: 999,
+      roomId: 50, // different room
+      isLocked: true,
+    };
+
+    const input = makeInput({
+      unplacedSubjects: [makeSubject({ periodsPerWeek: 1, gradeId: "M1-1" })],
+      timeslots: [
+        { timeslotId: "1-2567-MON1", day: "MON", period: 1, isBreak: false },
+      ],
+      existingSchedules: [lockedSchedule],
+      rooms,
+    });
+
+    const result = solve(input);
+    expect(result.success).toBe(true);
+    expect(result.placements).toHaveLength(1);
+    // CAN be placed in MON1 because lock is at M2, not M1
+    expect(result.placements[0]!.timeslotId).toBe("1-2567-MON1");
   });
 });

@@ -9,6 +9,7 @@ export {
   checkAllHardConstraints,
   checkBreakConstraint,
   checkGradeConflict,
+  checkLockedSlot,
   checkRoomConflict,
   checkTeacherConflict,
   scoreSoftConstraints,
