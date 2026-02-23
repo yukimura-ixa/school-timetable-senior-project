@@ -1,0 +1,129 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Conflict Detector Snapshots > checkAllConflicts > full check with conflicts snapshot 1`] = `
+{
+  "conflictType": "TEACHER_NOT_ASSIGNED",
+  "hasConflict": true,
+  "message": "Teacher ID 1 is not assigned to teach SCI101 for class M1-1",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkAllConflicts > full check without conflicts snapshot 1`] = `
+{
+  "conflictType": "TEACHER_NOT_ASSIGNED",
+  "hasConflict": true,
+  "message": "Teacher ID 1 is not assigned to teach MATH101 for class M2-1",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkClassConflict > detected conflict snapshot 1`] = `
+{
+  "conflictType": "CLASS_CONFLICT",
+  "conflictingSchedule": {
+    "classId": 1,
+    "gradeId": "M1-1",
+    "subjectCode": "MATH101",
+    "subjectName": "Mathematics 101",
+    "timeslotId": "T1",
+  },
+  "hasConflict": true,
+  "message": "Class M1-1 already has Mathematics 101 (MATH101) scheduled at this time",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkClassConflict > no conflict snapshot 1`] = `
+{
+  "conflictType": "NONE",
+  "hasConflict": false,
+  "message": "No class conflict",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkLockedTimeslot > locked timeslot detected snapshot 1`] = `
+{
+  "conflictType": "LOCKED_TIMESLOT",
+  "conflictingSchedule": {
+    "classId": 3,
+    "gradeId": "M1-1",
+    "subjectCode": "ASSEMBLY",
+    "subjectName": "School Assembly",
+    "timeslotId": "T3",
+  },
+  "hasConflict": true,
+  "message": "This timeslot is locked for class M1-1 (School Assembly)",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkLockedTimeslot > unlocked timeslot snapshot 1`] = `
+{
+  "conflictType": "NONE",
+  "hasConflict": false,
+  "message": "Timeslot is not locked",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkRoomConflict > detected conflict snapshot 1`] = `
+{
+  "conflictType": "ROOM_CONFLICT",
+  "conflictingSchedule": {
+    "classId": 1,
+    "gradeId": "M1-1",
+    "roomId": 101,
+    "roomName": "Room 101",
+    "subjectCode": "MATH101",
+    "subjectName": "Mathematics 101",
+    "timeslotId": "T1",
+  },
+  "hasConflict": true,
+  "message": "Room Room 101 is already being used by class M1-1 for Mathematics 101 at this time",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkRoomConflict > no room assigned (no conflict) 1`] = `
+{
+  "conflictType": "NONE",
+  "hasConflict": false,
+  "message": "No room assigned",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkTeacherAssignment > unassigned teacher snapshot 1`] = `
+{
+  "conflictType": "TEACHER_NOT_ASSIGNED",
+  "hasConflict": true,
+  "message": "Teacher ID 5 is not assigned to teach PHY101 for class M1-1",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkTeacherAssignment > valid assignment snapshot 1`] = `
+{
+  "conflictType": "NONE",
+  "hasConflict": false,
+  "message": "Teacher is properly assigned",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkTeacherConflict > detected conflict snapshot 1`] = `
+{
+  "conflictType": "TEACHER_CONFLICT",
+  "conflictingSchedule": {
+    "classId": 1,
+    "gradeId": "M1-1",
+    "subjectCode": "MATH101",
+    "subjectName": "Mathematics 101",
+    "teacherId": 1,
+    "teacherName": "John Doe",
+    "timeslotId": "T1",
+  },
+  "hasConflict": true,
+  "message": "Teacher John Doe is already teaching Mathematics 101 (MATH101) for class M1-1 at this time",
+}
+`;
+
+exports[`Conflict Detector Snapshots > checkTeacherConflict > no conflict snapshot 1`] = `
+{
+  "conflictType": "NONE",
+  "hasConflict": false,
+  "message": "No teacher conflict",
+}
+`;

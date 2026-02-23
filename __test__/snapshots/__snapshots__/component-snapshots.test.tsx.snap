@@ -1,0 +1,185 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Button Component Snapshots > renders React element icon 1`] = `
+<div>
+  <button
+    aria-label="Element Icon"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded cursor-pointer duration-300 select-none"
+    style="background-color: rgb(47, 128, 237); color: rgb(255, 255, 255); width: fit-content; height: 45px; opacity: 1;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center"
+    >
+      <span
+        data-testid="star-icon"
+      >
+        ★
+      </span>
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Element Icon
+      </p>
+    </div>
+  </button>
+</div>
+`;
+
+exports[`Button Component Snapshots > renders default state 1`] = `
+<div>
+  <button
+    aria-label="Default Button"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded cursor-pointer duration-300 select-none"
+    style="background-color: rgb(47, 128, 237); color: rgb(255, 255, 255); width: fit-content; height: 45px; opacity: 1;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center"
+    >
+      <img
+        alt="Default Button"
+        src="/icon.svg"
+      />
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Default Button
+      </p>
+    </div>
+  </button>
+</div>
+`;
+
+exports[`Button Component Snapshots > renders disabled state 1`] = `
+<div>
+  <button
+    aria-label="Disabled"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded select-none"
+    disabled=""
+    style="background-color: rgb(47, 128, 237); color: rgb(255, 255, 255); width: fit-content; height: 45px; opacity: 0.5;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center"
+    >
+      <img
+        alt="Disabled"
+        src="/icon.svg"
+      />
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Disabled
+      </p>
+    </div>
+  </button>
+</div>
+`;
+
+exports[`Button Component Snapshots > renders with custom colors 1`] = `
+<div>
+  <button
+    aria-label="Colored"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded cursor-pointer duration-300 select-none"
+    style="background-color: rgb(76, 175, 80); color: rgb(255, 255, 255); width: fit-content; height: 45px; opacity: 1;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center"
+    >
+      <img
+        alt="Colored"
+        src="/icon.svg"
+      />
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Colored
+      </p>
+    </div>
+  </button>
+</div>
+`;
+
+exports[`Button Component Snapshots > renders with custom dimensions 1`] = `
+<div>
+  <button
+    aria-label="Sized"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded cursor-pointer duration-300 select-none"
+    style="background-color: rgb(47, 128, 237); color: rgb(255, 255, 255); width: 200px; height: 50px; opacity: 1;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center"
+    >
+      <img
+        alt="Sized"
+        src="/icon.svg"
+      />
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Sized
+      </p>
+    </div>
+  </button>
+</div>
+`;
+
+exports[`Button Component Snapshots > renders with icon on the right 1`] = `
+<div>
+  <button
+    aria-label="Right Icon"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded cursor-pointer duration-300 select-none"
+    style="background-color: rgb(47, 128, 237); color: rgb(255, 255, 255); width: fit-content; height: 45px; opacity: 1;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center flex-row-reverse"
+    >
+      <img
+        alt="Right Icon"
+        src="/icon.svg"
+      />
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Right Icon
+      </p>
+    </div>
+  </button>
+</div>
+`;
+
+exports[`Button Component Snapshots > renders without title (icon only) 1`] = `
+<div>
+  <button
+    aria-label="Button"
+    class="flex items-center justify-center px-[15px] py-[10px] rounded cursor-pointer duration-300 select-none"
+    style="background-color: rgb(47, 128, 237); color: rgb(255, 255, 255); width: fit-content; height: 45px; opacity: 1;"
+    type="button"
+  >
+    <div
+      class="flex gap-[10px] items-center"
+    >
+      <img
+        alt="Button"
+        src="/icon.svg"
+      />
+      <p
+        class="text-sm"
+        style="color: rgb(255, 255, 255); font-size: 16px; font-weight: 300;"
+      >
+        Button
+      </p>
+    </div>
+  </button>
+</div>
+`;
