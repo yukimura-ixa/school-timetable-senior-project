@@ -341,4 +341,34 @@ describe("solve", () => {
     expect(duration).toBeLessThan(10_000);
     expect(result.stats.durationMs).toBeLessThan(10_000);
   });
+
+  it("does not place subjects into locked timeslots", () => {
+    const timeslots = makeTimeslots(2); // MON1, MON2, TUE1, TUE2, etc.
+    const rooms = makeRooms(1);
+
+    // Lock MON1 with an existing schedule from another teacher
+    const lockedSchedule: ExistingSchedule = {
+      classId: 99,
+      timeslotId: "1-2567-MON1",
+      subjectCode: "ส21101",
+      gradeId: "M2-1", // different grade so no grade conflict
+      teacherId: 999, // different teacher so no teacher conflict
+      roomId: rooms[0].roomId,
+      isLocked: true,
+    };
+
+    const input = makeInput({
+      unplacedSubjects: [makeSubject({ periodsPerWeek: 1 })],
+      timeslots,
+      existingSchedules: [lockedSchedule],
+      rooms,
+    });
+
+    const result = solve(input);
+    expect(result.success).toBe(true);
+    expect(result.placements).toHaveLength(1);
+
+    // Should NOT be placed in the locked timeslot
+    expect(result.placements[0].timeslotId).not.toBe("1-2567-MON1");
+  });
 });

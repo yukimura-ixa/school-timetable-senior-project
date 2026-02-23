@@ -7,6 +7,7 @@ import {
   checkAllHardConstraints,
   checkBreakConstraint,
   checkGradeConflict,
+  checkLockedSlot,
   checkRoomConflict,
   checkTeacherConflict,
   scoreSoftConstraints,
@@ -58,6 +59,38 @@ describe("checkBreakConstraint", () => {
     const result = checkBreakConstraint(makeTimeslot({ isBreak: true }));
     expect(result).not.toBeNull();
     expect(result?.type).toBe("BREAK_SLOT");
+  });
+});
+
+// ─── Locked Slot Constraint ─────────────────────────────────────
+
+describe("checkLockedSlot", () => {
+  it("returns null when no locked schedules at timeslot", () => {
+    const result = checkLockedSlot("1-2567-MON1", [
+      makeExisting({ isLocked: false }),
+    ]);
+    expect(result).toBeNull();
+  });
+
+  it("returns null for empty schedules", () => {
+    const result = checkLockedSlot("1-2567-MON1", []);
+    expect(result).toBeNull();
+  });
+
+  it("detects locked schedule at same timeslot", () => {
+    const result = checkLockedSlot("1-2567-MON1", [
+      makeExisting({ isLocked: true, timeslotId: "1-2567-MON1" }),
+    ]);
+    expect(result).not.toBeNull();
+    expect(result?.type).toBe("LOCKED_SLOT");
+    expect(result?.message).toContain("ล็อก");
+  });
+
+  it("ignores locked schedule at different timeslot", () => {
+    const result = checkLockedSlot("1-2567-MON2", [
+      makeExisting({ isLocked: true, timeslotId: "1-2567-MON1" }),
+    ]);
+    expect(result).toBeNull();
   });
 });
 
@@ -190,6 +223,19 @@ describe("checkAllHardConstraints", () => {
       [],
     );
     expect(result?.type).toBe("TEACHER_CONFLICT");
+  });
+
+  it("catches locked slot after break but before teacher", () => {
+    const ts = makeTimeslot({ timeslotId: "1-2567-MON1" });
+    const result = checkAllHardConstraints(
+      200, // different teacher — no teacher conflict
+      "M2-1", // different grade — no grade conflict
+      2, // different room — no room conflict
+      ts,
+      [makeExisting({ isLocked: true, timeslotId: "1-2567-MON1" })],
+      [],
+    );
+    expect(result?.type).toBe("LOCKED_SLOT");
   });
 });
 

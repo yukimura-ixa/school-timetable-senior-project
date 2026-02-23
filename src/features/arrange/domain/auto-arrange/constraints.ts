@@ -15,6 +15,26 @@ import type {
 // ─── Hard Constraints (must pass 100%) ───────────────────────────
 
 /**
+ * Check if a timeslot has a locked schedule that cannot be overwritten.
+ * Locked timeslots are protected from auto-arrange.
+ */
+export function checkLockedSlot(
+  timeslotId: string,
+  existingSchedules: ExistingSchedule[],
+): ConstraintViolation | null {
+  const locked = existingSchedules.find(
+    (s) => s.timeslotId === timeslotId && s.isLocked,
+  );
+  if (locked) {
+    return {
+      type: "LOCKED_SLOT",
+      message: `ช่วงเวลานี้ถูกล็อกไว้ (วิชา ${locked.subjectCode})`,
+    };
+  }
+  return null;
+}
+
+/**
  * Check if a timeslot is a break period.
  * Break slots cannot receive any placements.
  */
@@ -142,6 +162,7 @@ export function checkAllHardConstraints(
 ): ConstraintViolation | null {
   return (
     checkBreakConstraint(timeslot) ??
+    checkLockedSlot(timeslot.timeslotId, existingSchedules) ??
     checkTeacherConflict(
       teacherId,
       timeslot.timeslotId,

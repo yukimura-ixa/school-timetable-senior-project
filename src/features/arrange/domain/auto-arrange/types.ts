@@ -109,6 +109,7 @@ export type ConstraintViolationType =
   | "ROOM_CONFLICT"
   | "GRADE_CONFLICT"
   | "BREAK_SLOT"
+  | "LOCKED_SLOT"
   | "ALREADY_OCCUPIED";
 
 export interface ConstraintViolation {

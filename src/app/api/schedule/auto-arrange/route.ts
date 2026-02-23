@@ -4,6 +4,7 @@ import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
 import { solve } from "@/features/arrange/domain/auto-arrange";
+import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 import type {
   AvailableRoom,
   AvailableTimeslot,
@@ -167,9 +168,10 @@ export async function POST(request: NextRequest) {
             ),
         ).length;
 
-        // Derive periodsPerWeek from credit value
+        // Derive periodsPerWeek from credit enum value
         // Thai MOE: 1 credit ≈ 1 period/week, 1.5 credits ≈ 2 periods
-        const credit = Number(resp.subject?.Credit ?? 1);
+        // Credit is a Prisma enum (e.g. "CREDIT_15"), not a number
+        const credit = subjectCreditToNumber(resp.subject?.Credit ?? "CREDIT_10");
         const periodsPerWeek = Math.ceil(credit);
 
         return {
