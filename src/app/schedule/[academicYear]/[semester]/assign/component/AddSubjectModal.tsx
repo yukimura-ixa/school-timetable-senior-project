@@ -87,7 +87,7 @@ function AddSubjectModal(props: Props) {
       return filteredByList;
     }
     return filteredByList.filter((item) =>
-      `${item.SubjectCode} - ${item.SubjectName}`.match(searchText),
+      `${item.SubjectCode} - ${item.SubjectName}`.toLowerCase().includes(searchText.toLowerCase()),
     );
   }, [subjects, subjectByGradeID, subjectList, searchText]);
   const addSubjectToList = (item: SubjectAssignment) => {
