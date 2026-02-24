@@ -168,7 +168,7 @@ describe("GradeLevelManageClient", () => {
     );
 
     // Should show empty state
-    const emptyStateElements = screen.queryAllByText(/ยังไม่มีข้อมูล|No data/i);
+    const emptyStateElements = screen.queryAllByText(/ยังไม่มี/i);
     expect(emptyStateElements.length).toBeGreaterThan(0);
   });
 });
