@@ -1,13 +1,16 @@
 import { ReactNode } from "react";
-import { redirect } from "next/navigation";
+import { redirect, forbidden } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { normalizeAppRole, isAdminRole } from "@/lib/authz";
 
 /**
  * Schedule Layout - Server Component
  *
- * Protects all schedule routes with server-side authentication.
+ * Protects all schedule routes with server-side authentication
+ * and admin-only authorization.
  * Redirects unauthenticated users to the signin page.
+ * Returns 403 for non-admin authenticated users.
  *
  * Note: Semester-specific schedule pages have additional validation
  * in their nested layout (schedule/[academicYear]/[semester]/layout.tsx)
@@ -24,6 +27,12 @@ export default async function ScheduleLayout({
 
   if (!session) {
     redirect("/signin");
+  }
+
+  // Admin-only access
+  const userRole = normalizeAppRole(session.user?.role);
+  if (!isAdminRole(userRole)) {
+    forbidden();
   }
 
   return <>{children}</>;
