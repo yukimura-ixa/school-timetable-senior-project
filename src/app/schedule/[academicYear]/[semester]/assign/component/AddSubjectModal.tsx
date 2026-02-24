@@ -1,4 +1,5 @@
 import Dropdown from "@/components/elements/input/selected_input/Dropdown";
+import FocusTrap from "@mui/material/Unstable_TrapFocus";
 import React, { Fragment, useMemo, useState, type JSX } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { TbTrash } from "react-icons/tb";
@@ -127,28 +128,44 @@ function AddSubjectModal(props: Props) {
     const text = event.target.value;
     setSearchText(text);
   };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      props.closeModal();
+    }
+  };
+
   return (
     <>
       {isLoading ? (
         <Loading />
       ) : (
-        <div
-          style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
-          className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
-        >
-          <div className="flex flex-col w-[550px] h-auto p-[50px] gap-8 bg-white rounded">
-            {/* Content */}
-            <div className="flex flex-col w-full gap-3 h-auto">
-              <div className="flex justify-between">
-                <p
-                  className="text-lg select-none"
-                >
-                  เลือกวิชาที่รับผิดชอบ
-                </p>
-                <AiOutlineClose
-                  className="cursor-pointer"
-                  onClick={props.closeModal}
-                />
+        <FocusTrap open>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-subject-modal-title"
+            onKeyDown={handleKeyDown}
+            style={{ backgroundColor: "rgba(0,0,0,0.75)" }}
+            className="z-40 flex w-full h-screen items-center justify-center fixed left-0 top-0"
+          >
+            <div className="flex flex-col w-[550px] h-auto p-[50px] gap-8 bg-white rounded">
+              {/* Content */}
+              <div className="flex flex-col w-full gap-3 h-auto">
+                <div className="flex justify-between">
+                  <p
+                    id="add-subject-modal-title"
+                    className="text-lg select-none"
+                  >
+                    เลือกวิชาที่รับผิดชอบ
+                  </p>
+                  <button
+                    type="button"
+                    aria-label="ปิดหน้าต่าง"
+                    onClick={props.closeModal}
+                    className="cursor-pointer bg-transparent border-none p-0"
+                  >
+                    <AiOutlineClose />
+                  </button>
               </div>
               <p className="text-xs text-gray-300">
                 เลือกวิชาเรียนที่ต้องสอนในห้อง ม.{props.classRoomData.Year}/
@@ -295,6 +312,7 @@ function AddSubjectModal(props: Props) {
             </span>
           </div>
         </div>
+        </FocusTrap>
       )}
     </>
   );
