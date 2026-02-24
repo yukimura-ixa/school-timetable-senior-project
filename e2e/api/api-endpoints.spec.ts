@@ -51,10 +51,13 @@ test.describe("PDF Export Endpoints", () => {
       {
         data: {
           teacherId: 1,
-          teacherName: "Test Teacher",
-          semester: 1,
-          academicYear: 2567,
-          schedule: [],
+          teacherName: "E2E ทดสอบ",
+          semester: "1",
+          academicYear: "2567",
+          timeslots: [],
+          scheduleEntries: [],
+          totalCredits: 0,
+          totalHours: 0,
         },
       },
     );
@@ -73,10 +76,13 @@ test.describe("PDF Export Endpoints", () => {
       {
         data: {
           teacherId: 1,
-          teacherName: "Test Teacher",
-          semester: 1,
-          academicYear: 2567,
-          schedule: [],
+          teacherName: "E2E ทดสอบ",
+          semester: "1",
+          academicYear: "2567",
+          timeslots: [],
+          scheduleEntries: [],
+          totalCredits: 0,
+          totalHours: 0,
         },
       },
     );

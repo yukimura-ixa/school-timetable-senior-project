@@ -9,7 +9,9 @@ test.describe("Admin regressions (SBTM)", () => {
   // Warmup: Pre-compile pages before tests run to prevent individual test timeouts
   test.beforeAll(async ({ browser }) => {
     console.log("🔥 Warming up admin pages for SBTM regression tests...");
-    const context = await browser.newContext();
+    const context = await browser.newContext({
+      storageState: "playwright/.auth/admin.json",
+    });
     const page = await context.newPage();
     try {
       // Warmup teacher arrange page

@@ -11,6 +11,12 @@ on:
       - "LICENSE"
       - ".gitignore"
   workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: "Update Playwright visual baselines"
+        required: false
+        default: "false"
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -125,7 +131,12 @@ jobs:
         run: pnpm exec playwright install-deps chromium
 
       - name: Run E2E tests
-        run: pnpm exec playwright test --timeout=90000
+        run: |
+          EXTRA_ARGS=""
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            EXTRA_ARGS="--update-snapshots"
+          fi
+          pnpm exec playwright test --timeout=90000 $EXTRA_ARGS
         env:
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           AUTH_GOOGLE_ID: dummy-client-id
@@ -164,3 +175,13 @@ jobs:
           path: test-results/**/*.xml
           retention-days: 14
           if-no-files-found: ignore
+
+      - name: Upload updated snapshots
+        if: inputs.update_snapshots == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: updated-snapshots
+          path: |
+            e2e/**/*-snapshots/*.png
+            e2e/visual/**/*.png
+          retention-days: 30

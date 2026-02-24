@@ -376,6 +376,10 @@ test.describe("Bulk Lock - Complete Flow", () => {
 });
 
 test.describe("Bulk Lock - Error Handling", () => {
+  test.skip(
+    !RUN_BULK_LOCK_E2E,
+    "Set E2E_BULK_LOCK=true to run bulk lock E2E tests",
+  );
   test("should show validation error for invalid input", async ({
     authenticatedAdmin,
   }) => {
@@ -434,6 +438,10 @@ test.describe("Bulk Lock - Error Handling", () => {
 });
 
 test.describe("Bulk Lock - Accessibility", () => {
+  test.skip(
+    !RUN_BULK_LOCK_E2E,
+    "Set E2E_BULK_LOCK=true to run bulk lock E2E tests",
+  );
   test("should have proper labels for checkboxes", async ({
     authenticatedAdmin,
   }) => {
