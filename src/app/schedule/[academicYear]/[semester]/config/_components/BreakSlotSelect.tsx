@@ -50,17 +50,17 @@ export function BreakSlotSelect({
   disabled = false,
   fullWidth = true,
 }: BreakSlotSelectProps) {
-  const handleChange = (event: SelectChangeEvent<unknown>) => {
+  const handleChange = (event: SelectChangeEvent<number>) => {
     onChange(Number(event.target.value));
   };
 
   return (
     <FormControl fullWidth={fullWidth} error={!!error} disabled={disabled}>
       <InputLabel id={`break-slot-${label}`}>{label}</InputLabel>
-      <Select
+      <Select<number>
         labelId={`break-slot-${label}`}
         value={value}
-        onChange={handleChange as any}
+        onChange={handleChange}
         label={label}
         startAdornment={<LunchIcon sx={{ mr: 1, color: "action.active" }} />}
       >

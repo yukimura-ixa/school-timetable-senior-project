@@ -367,7 +367,8 @@ export function EditableTable<T extends Record<string, any>>({
 
     // Use custom render if provided and not editing
     if (!isEditing && column.render) {
-      return (column.render as any)(value, row);
+      // ColumnDef<T> is a mapped union — TypeScript can't narrow K here
+      return (column.render as (value: T[keyof T], row: T) => ReactNode)(value, row);
     }
 
     // Check if field should be editable
@@ -388,11 +389,18 @@ export function EditableTable<T extends Record<string, any>>({
 
     // Row-aware custom edit renderer
     if (column.renderEdit) {
-      return (column.renderEdit as any)({
-        value: draftValue,
+      // ColumnDef<T> is a mapped union — TypeScript can't narrow K here
+      const editRenderer = column.renderEdit as (params: {
+        value: T[keyof T];
+        row: T;
+        onChange: (v: T[keyof T]) => void;
+        hasError: boolean;
+      }) => ReactNode;
+      return editRenderer({
+        value: draftValue as T[keyof T],
         row,
         hasError,
-        onChange: (newValue: any) => {
+        onChange: (newValue: T[keyof T]) => {
           setDrafts((d) => {
             const updated = { ...d };
             updated[id] = {

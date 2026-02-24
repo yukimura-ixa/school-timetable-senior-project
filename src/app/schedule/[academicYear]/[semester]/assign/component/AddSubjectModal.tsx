@@ -166,7 +166,7 @@ function AddSubjectModal(props: Props) {
                     {
                       AcademicYear: academicYear,
                       GradeID: props.classRoomData.GradeID,
-                      Semester: `SEMESTER_${semester}` as any,
+                      Semester: `SEMESTER_${semester}`,
                       SubjectCode: "",
                       SubjectName: "",
                       Credit: "CREDIT_10" as subject_credit,
