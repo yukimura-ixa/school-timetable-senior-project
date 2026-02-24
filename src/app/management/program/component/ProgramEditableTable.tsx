@@ -10,7 +10,7 @@ import {
   updateProgramAction,
   deleteProgramAction,
 } from "@/features/program/application/actions/program.actions";
-import { enqueueSnackbar } from "notistack";
+import { enqueueSnackbar, closeSnackbar } from "notistack";
 
 export type ProgramEditableTableProps = {
   year: number;
@@ -124,7 +124,7 @@ export default function ProgramEditableTable({
   const validate = validateProgram(year);
 
   const onCreate = async (row: Partial<program>) => {
-    enqueueSnackbar("กำลังเพิ่มหลักสูตร", { variant: "info", persist: true });
+    const loadbar = enqueueSnackbar("กำลังเพิ่มหลักสูตร", { variant: "info", persist: true });
     try {
       const res = await createProgramAction({
         ProgramCode: String(row.ProgramCode),
@@ -134,20 +134,20 @@ export default function ProgramEditableTable({
         MinTotalCredits: Number(row.MinTotalCredits ?? 0),
         IsActive: String(row.IsActive) === "true" || row.IsActive === true,
       });
+      closeSnackbar(loadbar);
       enqueueSnackbar("เพิ่มหลักสูตรสำเร็จ", { variant: "success" });
       return { success: true as const, data: res.data };
     } catch (err: unknown) {
+      closeSnackbar(loadbar);
       const message =
         err instanceof Error ? err.message : "เพิ่มหลักสูตรไม่สำเร็จ";
       enqueueSnackbar(message, { variant: "error" });
       return { success: false as const, error: message };
-    } finally {
-      enqueueSnackbar("", { variant: "default" });
     }
   };
 
   const onUpdate = async (rows: Partial<program>[]) => {
-    enqueueSnackbar("กำลังบันทึกการแก้ไข", { variant: "info", persist: true });
+    const loadbar = enqueueSnackbar("กำลังบันทึกการแก้ไข", { variant: "info", persist: true });
     try {
       for (const r of rows) {
         if (r.ProgramID == null) continue;
@@ -161,10 +161,12 @@ export default function ProgramEditableTable({
             typeof r.IsActive === "string" ? r.IsActive === "true" : r.IsActive,
         });
       }
+      closeSnackbar(loadbar);
       enqueueSnackbar("บันทึกสำเร็จ", { variant: "success" });
       await mutate();
       return { success: true as const };
     } catch (err: unknown) {
+      closeSnackbar(loadbar);
       const message = err instanceof Error ? err.message : "บันทึกไม่สำเร็จ";
       enqueueSnackbar(message, { variant: "error" });
       return { success: false as const, error: message };
@@ -172,15 +174,17 @@ export default function ProgramEditableTable({
   };
 
   const onDelete = async (ids: (string | number)[]) => {
-    enqueueSnackbar("กำลังลบหลักสูตร", { variant: "info", persist: true });
+    const loadbar = enqueueSnackbar("กำลังลบหลักสูตร", { variant: "info", persist: true });
     try {
       for (const id of ids) {
         await deleteProgramAction({ ProgramID: Number(id) });
       }
+      closeSnackbar(loadbar);
       enqueueSnackbar("ลบสำเร็จ", { variant: "success" });
       await mutate();
       return { success: true as const };
     } catch (err: unknown) {
+      closeSnackbar(loadbar);
       const message = err instanceof Error ? err.message : "ลบไม่สำเร็จ";
       enqueueSnackbar(message, { variant: "error" });
       return { success: false as const, error: message };
