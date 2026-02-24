@@ -126,22 +126,3 @@ export const updateScheduleLockSchema = v.object({
 export type UpdateScheduleLockInput = v.InferOutput<
   typeof updateScheduleLockSchema
 >;
-
-/**
- * Schema for batch arranging schedules
- * Used when arranging multiple schedules at once
- */
-export const batchArrangeSchedulesSchema = v.object({
-  schedules: v.pipe(
-    v.array(arrangeScheduleSchema),
-    v.minLength(1, "At least one schedule is required"),
-    v.maxLength(100, "Cannot arrange more than 100 schedules at once"),
-  ),
-});
-
-/**
- * Inferred TypeScript type from batchArrangeSchedulesSchema
- */
-export type BatchArrangeSchedulesInput = v.InferOutput<
-  typeof batchArrangeSchedulesSchema
->;
