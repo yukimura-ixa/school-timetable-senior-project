@@ -40,11 +40,14 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
 
   // Success state
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative" }} aria-live="polite">
       {isRefreshing && (
-        <LinearProgress
-          sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
-        />
+        <>
+          <LinearProgress
+            sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
+          />
+          <span className="sr-only">กำลังโหลดข้อมูล...</span>
+        </>
       )}
       <RoomsTable tableData={rooms} mutate={handleMutate} />
     </Box>

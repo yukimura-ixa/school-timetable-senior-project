@@ -106,7 +106,10 @@ export function PaletteClient({ subjects }: Props) {
       />
 
       {/* Subject List */}
-      <Box sx={{ maxHeight: "calc(100vh - 300px)", overflow: "auto" }}>
+      <Box
+        sx={{ maxHeight: "calc(100vh - 300px)", overflow: "auto" }}
+        aria-live="polite"
+      >
         {filteredSubjects.length === 0 ? (
           <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
             {searchQuery ? "ไม่พบรายวิชา" : "ไม่มีรายวิชา"}

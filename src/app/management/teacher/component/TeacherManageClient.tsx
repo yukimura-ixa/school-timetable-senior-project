@@ -43,11 +43,14 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
 
   // Success state - now using DataGrid
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative" }} aria-live="polite">
       {isRefreshing && (
-        <LinearProgress
-          sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
-        />
+        <>
+          <LinearProgress
+            sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
+          />
+          <span className="sr-only">กำลังโหลดข้อมูล...</span>
+        </>
       )}
       <TeacherDataGrid initialData={teachers} onMutate={handleMutate} />
     </Box>

@@ -281,17 +281,19 @@ export default function GridSlot() {
           ตารางสอน
         </Typography>
 
-        {!teacher && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            เลือกครูเพื่อดูตารางสอน
-          </Alert>
-        )}
+        <div aria-live="polite">
+          {!teacher && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              เลือกครูเพื่อดูตารางสอน
+            </Alert>
+          )}
 
-        {teacher && scheduleEntries.length > 0 && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            จัดแล้ว {scheduleEntries.length} คาบ
-          </Alert>
-        )}
+          {teacher && scheduleEntries.length > 0 && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              จัดแล้ว {scheduleEntries.length} คาบ
+            </Alert>
+          )}
+        </div>
 
         {/* Grid */}
         <Box sx={{ overflowX: "auto" }}>
