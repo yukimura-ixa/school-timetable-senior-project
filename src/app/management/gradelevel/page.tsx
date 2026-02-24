@@ -18,7 +18,7 @@ export default async function GradeLevelManagePage() {
 
   // Error state
   if (!result.success) {
-    return <NetworkErrorEmptyState onRetry={() => window.location.reload()} />;
+    return <NetworkErrorEmptyState />;
   }
 
   return (
