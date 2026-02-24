@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import prisma from "@/lib/prisma";
+import { emailRepository } from "@/features/email/infrastructure/repositories/email.repository";
+import type {
+  EmailOutboxKind,
+  EmailOutboxStatus,
+} from "@/prisma/generated/client";
 import { Box, Container, Typography } from "@mui/material";
 import EmailOutboxTable, {
   type EmailOutboxRow,
@@ -27,21 +31,10 @@ export default async function EmailOutboxPage({
   const status = params?.status?.trim() || undefined;
   const kind = params?.kind?.trim() || undefined;
 
-  const rows = await prisma.emailOutbox.findMany({
-    where: {
-      ...(q
-        ? {
-            OR: [
-              { toEmail: { contains: q, mode: "insensitive" } },
-              { subject: { contains: q, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-      ...(status ? { status: status as never } : {}),
-      ...(kind ? { kind: kind as never } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
+  const rows = await emailRepository.findOutboxEmails({
+    q,
+    status: status as EmailOutboxStatus | undefined,
+    kind: kind as EmailOutboxKind | undefined,
   });
 
   const data: EmailOutboxRow[] = rows.map((r) => ({

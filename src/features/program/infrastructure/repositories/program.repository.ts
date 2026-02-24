@@ -382,4 +382,31 @@ export const programRepository = {
 
     return grouped;
   },
+
+  /**
+   * Get program counts grouped by year (for overview page)
+   */
+  async getCountsByYear() {
+    const counts = await prisma.program.groupBy({
+      by: ["Year"],
+      _count: { ProgramID: true },
+      where: { IsActive: true },
+    });
+
+    const result: Record<number, number> = {};
+    for (const item of counts) {
+      result[item.Year] = item._count.ProgramID;
+    }
+    return result;
+  },
+
+  /**
+   * Find programs for a specific year, ordered by name
+   */
+  async findByYear(year: number) {
+    return prisma.program.findMany({
+      where: { Year: year },
+      orderBy: { ProgramName: "asc" },
+    });
+  },
 };

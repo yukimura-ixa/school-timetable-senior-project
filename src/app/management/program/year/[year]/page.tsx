@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import prisma from "@/lib/prisma";
+import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 import { notFound } from "next/navigation";
 import { ProgramYearPageClient } from "./ProgramYearPageClient";
 import { YearPageHeader } from "./YearPageHeader";
@@ -12,11 +12,7 @@ interface PageProps {
 
 // Fetch programs for a specific year
 async function getProgramsByYear(year: number): Promise<program[]> {
-  const programs = await prisma.program.findMany({
-    where: { Year: year },
-    orderBy: { ProgramName: "asc" },
-  });
-  return programs;
+  return programRepository.findByYear(year);
 }
 
 // Loading skeleton with shimmer

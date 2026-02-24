@@ -1,7 +1,7 @@
 import { Box, Grid } from "@mui/material";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import prisma from "@/lib/prisma";
+import { programRepository } from "@/features/program/infrastructure/repositories/program.repository";
 import { GRADE_LEVELS } from "./constants";
 import {
   ProgramYearCard,
@@ -13,17 +13,7 @@ import {
 // Fetch program counts per year
 async function getProgramCountsByYear() {
   await connection();
-  const counts = await prisma.program.groupBy({
-    by: ["Year"],
-    _count: { ProgramID: true },
-    where: { IsActive: true },
-  });
-
-  const result: Record<number, number> = {};
-  for (const item of counts) {
-    result[item.Year] = item._count.ProgramID;
-  }
-  return result;
+  return programRepository.getCountsByYear();
 }
 
 // Stats summary component (server version)
