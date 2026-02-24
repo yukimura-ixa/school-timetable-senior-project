@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
 import { emailRepository } from "@/features/email/infrastructure/repositories/email.repository";
-import type {
-  EmailOutboxKind,
-  EmailOutboxStatus,
-} from "@/prisma/generated/client";
 import { Box, Container, Typography } from "@mui/material";
 import EmailOutboxTable, {
   type EmailOutboxRow,
 } from "./_components/EmailOutboxTable";
+import * as v from "valibot";
 
 export const metadata: Metadata = {
   title: "Email Outbox - Phrasongsa Timetable",
   description: "Admin-only email outbox for verification links",
 };
+
+const statusSchema = v.optional(
+  v.picklist(["PENDING", "SENT", "FAILED", "SKIPPED"]),
+);
+const kindSchema = v.optional(
+  v.picklist(["EMAIL_VERIFICATION", "CHANGE_EMAIL", "PASSWORD_RESET"]),
+);
 
 type SearchParams = Promise<{
   q?: string;
@@ -28,13 +32,13 @@ export default async function EmailOutboxPage({
   // Next.js 16+: searchParams is now a Promise
   const params = await searchParams;
   const q = params?.q?.trim() || undefined;
-  const status = params?.status?.trim() || undefined;
-  const kind = params?.kind?.trim() || undefined;
+  const statusResult = v.safeParse(statusSchema, params?.status?.trim());
+  const kindResult = v.safeParse(kindSchema, params?.kind?.trim());
 
   const rows = await emailRepository.findOutboxEmails({
     q,
-    status: status as EmailOutboxStatus | undefined,
-    kind: kind as EmailOutboxKind | undefined,
+    status: statusResult.success ? statusResult.output : undefined,
+    kind: kindResult.success ? kindResult.output : undefined,
   });
 
   const data: EmailOutboxRow[] = rows.map((r) => ({
