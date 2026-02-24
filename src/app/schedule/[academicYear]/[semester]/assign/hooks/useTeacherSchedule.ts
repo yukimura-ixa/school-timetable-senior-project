@@ -48,7 +48,7 @@ import type {
 // Server Actions
 import { getTeacherScheduleAction } from "@/features/arrange/application/actions/arrange.actions";
 import { getConflictsAction } from "@/features/class/application/actions/class.actions";
-import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+import { getTeacherByIdAction } from "@/features/teacher/application/actions/teacher.actions";
 import { getAvailableRespsAction } from "@/features/assign/application/actions/assign.actions";
 import { getTimeslotsByTermAction } from "@/features/timeslot/application/actions/timeslot.actions";
 
@@ -143,16 +143,14 @@ export function useTeacherSchedule({
   const teacherQuery = useSWR<teacher | null>(
     teacherID ? `teacher-${teacherID}` : null,
     async () => {
-      if (!teacherID) return null;
+      if (!teacherID || !teacherIDNum) return null;
 
-      const result = await getTeachersAction({});
+      const result = await getTeacherByIdAction({ TeacherID: teacherIDNum });
       if (!result || !result.success || !result.data) {
         return null;
       }
 
-      const teachers = result.data;
-      const foundTeacher = teachers.find((t) => t.TeacherID === teacherIDNum);
-      return foundTeacher || null;
+      return result.data;
     },
     { revalidateOnFocus: false },
   );
