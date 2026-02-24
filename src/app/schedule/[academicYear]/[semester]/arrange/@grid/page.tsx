@@ -228,10 +228,8 @@ export default function GridSlot() {
         `/schedule/${academicYear}/${semester}/arrange/room-select?${queryParams.toString()}`,
       );
 
-      // Refresh schedule data after modal closes
-      setTimeout(() => {
-        void mutate();
-      }, 1000);
+      // SWR will revalidate when component refocuses after navigation
+      void mutate();
     } catch (error) {
       console.error("Validation error:", error);
       enqueueSnackbar("เกิดข้อผิดพลาดในการตรวจสอบ", { variant: "error" });
