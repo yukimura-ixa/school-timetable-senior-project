@@ -4,11 +4,11 @@ import { useState } from "react";
 import type { teacher } from "@/prisma/generated/client";
 import { TeacherDataGrid } from "@/app/management/teacher/component/TeacherDataGrid";
 import {
-  TeacherListSkeleton,
   NoTeachersEmptyState,
 } from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getTeachersAction } from "@/features/teacher/application/actions/teacher.actions";
+import { Box, LinearProgress } from "@mui/material";
 
 type TeacherManageClientProps = {
   initialData: teacher[];
@@ -41,11 +41,15 @@ export function TeacherManageClient({ initialData }: TeacherManageClientProps) {
     );
   }
 
-  // Show skeleton during refresh
-  if (isRefreshing) {
-    return <TeacherListSkeleton count={6} />;
-  }
-
   // Success state - now using DataGrid
-  return <TeacherDataGrid initialData={teachers} onMutate={handleMutate} />;
+  return (
+    <Box sx={{ position: "relative" }}>
+      {isRefreshing && (
+        <LinearProgress
+          sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
+        />
+      )}
+      <TeacherDataGrid initialData={teachers} onMutate={handleMutate} />
+    </Box>
+  );
 }

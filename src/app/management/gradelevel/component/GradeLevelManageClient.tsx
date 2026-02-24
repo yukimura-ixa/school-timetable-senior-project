@@ -3,9 +3,10 @@
 import { useState } from "react";
 import type { gradelevel, program } from "@/prisma/generated/client";
 import { GradeLevelDataGrid } from "@/app/management/gradelevel/component/GradeLevelDataGrid";
-import { TableSkeleton, NoDataEmptyState } from "@/components/feedback";
+import { NoDataEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getGradeLevelsAction } from "@/features/gradelevel/application/actions/gradelevel.actions";
+import { Box, LinearProgress } from "@mui/material";
 
 type GradeLevelManageClientProps = {
   initialData: gradelevel[];
@@ -42,17 +43,19 @@ export function GradeLevelManageClient({
     return <NoDataEmptyState />;
   }
 
-  // Show skeleton during refresh
-  if (isRefreshing) {
-    return <TableSkeleton rows={6} />;
-  }
-
   // Success state - now using DataGrid
   return (
-    <GradeLevelDataGrid
-      initialData={gradelevels}
-      onMutate={handleMutate}
-      programsByYear={programsByYear}
-    />
+    <Box sx={{ position: "relative" }}>
+      {isRefreshing && (
+        <LinearProgress
+          sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
+        />
+      )}
+      <GradeLevelDataGrid
+        initialData={gradelevels}
+        onMutate={handleMutate}
+        programsByYear={programsByYear}
+      />
+    </Box>
   );
 }

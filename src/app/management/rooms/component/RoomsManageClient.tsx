@@ -3,9 +3,10 @@
 import { useState } from "react";
 import type { room } from "@/prisma/generated/client";
 import RoomsTable from "@/app/management/rooms/component/RoomsTable";
-import { TableSkeleton, NoRoomsEmptyState } from "@/components/feedback";
+import { NoRoomsEmptyState } from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getRoomsAction } from "@/features/room/application/actions/room.actions";
+import { Box, LinearProgress } from "@mui/material";
 
 type RoomsManageClientProps = {
   initialData: room[];
@@ -36,11 +37,15 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
     return <NoRoomsEmptyState />;
   }
 
-  // Show skeleton during refresh
-  if (isRefreshing) {
-    return <TableSkeleton rows={6} />;
-  }
-
   // Success state
-  return <RoomsTable tableData={rooms} mutate={handleMutate} />;
+  return (
+    <Box sx={{ position: "relative" }}>
+      {isRefreshing && (
+        <LinearProgress
+          sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
+        />
+      )}
+      <RoomsTable tableData={rooms} mutate={handleMutate} />
+    </Box>
+  );
 }

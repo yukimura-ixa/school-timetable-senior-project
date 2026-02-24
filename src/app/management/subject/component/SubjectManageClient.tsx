@@ -4,11 +4,11 @@ import { useState } from "react";
 import type { subject } from "@/prisma/generated/client";
 import { SubjectDataGrid } from "@/app/management/subject/component/SubjectDataGrid";
 import {
-  SubjectListSkeleton,
   NoSubjectsEmptyState,
 } from "@/components/feedback";
 import { useRouter } from "next/navigation";
 import { getSubjectsAction } from "@/features/subject/application/actions/subject.actions";
+import { Box, LinearProgress } from "@mui/material";
 
 type SubjectManageClientProps = {
   initialData: subject[];
@@ -41,11 +41,15 @@ export function SubjectManageClient({ initialData }: SubjectManageClientProps) {
     );
   }
 
-  // Show skeleton during refresh
-  if (isRefreshing) {
-    return <SubjectListSkeleton count={8} />;
-  }
-
   // Success state - now using DataGrid
-  return <SubjectDataGrid initialData={subjects} onMutate={handleMutate} />;
+  return (
+    <Box sx={{ position: "relative" }}>
+      {isRefreshing && (
+        <LinearProgress
+          sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 1 }}
+        />
+      )}
+      <SubjectDataGrid initialData={subjects} onMutate={handleMutate} />
+    </Box>
+  );
 }
