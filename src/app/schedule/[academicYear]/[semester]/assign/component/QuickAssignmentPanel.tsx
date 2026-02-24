@@ -421,6 +421,10 @@ function QuickAssignmentPanel({
                       label="วิชา"
                       placeholder="ค้นหาวิชา..."
                       size="small"
+                      inputProps={{
+                        ...params.inputProps,
+                        "aria-label": "ค้นหาวิชา",
+                      }}
                     />
                   )}
                   disabled={isSubmitting}

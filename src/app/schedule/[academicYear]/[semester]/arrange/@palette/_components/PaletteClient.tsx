@@ -102,6 +102,7 @@ export function PaletteClient({ subjects }: Props) {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         sx={{ mb: 2 }}
+        inputProps={{ "aria-label": "ค้นหารายวิชา" }}
       />
 
       {/* Subject List */}

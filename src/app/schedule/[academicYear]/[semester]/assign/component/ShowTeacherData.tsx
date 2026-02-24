@@ -243,6 +243,10 @@ function ShowTeacherData({
               <TextField
                 {...params}
                 placeholder="ค้นหาครูผู้สอน"
+                inputProps={{
+                  ...params.inputProps,
+                  "aria-label": "ค้นหาครูผู้สอน",
+                }}
                 InputProps={{
                   ...params.InputProps,
                   startAdornment: (

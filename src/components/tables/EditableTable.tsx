@@ -477,13 +477,10 @@ export function EditableTable<T extends Record<string, any>>({
             value={searchTerm}
             onChange={handleSearch}
             sx={{ mr: 2, width: 300 }}
-            inputProps={
-              searchTestId
-                ? {
-                    "data-testid": searchTestId,
-                  }
-                : undefined
-            }
+            inputProps={{
+              "aria-label": searchPlaceholder,
+              ...(searchTestId ? { "data-testid": searchTestId } : {}),
+            }}
           />
         )}
         {onCreate && (
