@@ -11,44 +11,26 @@ on:
       - "LICENSE"
       - ".gitignore"
   workflow_dispatch:
-    inputs:
-      shard_count:
-        description: "Number of test shards (1-8)"
-        required: false
-        default: "4"
-        type: choice
-        options:
-          - "1"
-          - "2"
-          - "4"
-          - "8"
 
-# Cancel in-progress runs when a new commit is pushed
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
+  BETTER_AUTH_URL: http://localhost:3005
+  BASE_URL: http://localhost:3005
+  AUTO_MANAGE_TEST_DB: "false"
+  NEXT_TELEMETRY_DISABLED: "1"
+
 jobs:
   test:
+    name: E2E
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
       contents: read
-      pull-requests: write
-      checks: write
 
-    env:
-      DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-      # Disable Playwright global-setup Docker compose in CI; we use GitHub service container
-      AUTO_MANAGE_TEST_DB: "false"
-
-    # Test sharding: Disabled for sequential stability - run all tests in single job
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1] # Single shard for stability (was [1, 2, 3, 4])
-
-    # Temporary PostgreSQL service container
     services:
       postgres:
         image: postgres:16
@@ -65,35 +47,25 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm"
+          cache: pnpm
 
-      - name: Cache pnpm store, Next.js & Prisma
+      - name: Cache Next.js build & Prisma
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pnpm-store
             .next/cache
             node_modules/.prisma
           key: ${{ runner.os }}-e2e-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('prisma/schema.prisma') }}
-          restore-keys: |
-            ${{ runner.os }}-e2e-${{ hashFiles('**/pnpm-lock.yaml') }}-
-            ${{ runner.os }}-e2e-
+          restore-keys: ${{ runner.os }}-e2e-
 
-      # Setup environment variables for E2E testing
-      - name: Setup environment variables
+      - name: Setup env files
         run: |
-          # Write all required env files so dev server + build share the same config
-          cat > .env.test << EOF
+          cat > .env.test << 'ENVEOF'
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL=http://localhost:3005
@@ -106,228 +78,89 @@ jobs:
           NEXT_TELEMETRY_DISABLED=1
           NODE_ENV=test
           CI=true
-          EOF
-          cat > .env.test.local << EOF
-          DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
-          BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL=http://localhost:3005
-          BASE_URL=http://localhost:3005
-          AUTH_GOOGLE_ID=dummy-client-id
-          AUTH_GOOGLE_SECRET=dummy-client-secret
-          SEED_SECRET=${{ secrets.SEED_SECRET }}
-          SEED_FOR_TESTS=true
-          SEED_CLEAN_DATA=true
-          NEXT_TELEMETRY_DISABLED=1
-          NODE_ENV=test
-          CI=true
-          EOF
-          echo ".env.test contents:" && sed -e 's/=.*/=[REDACTED]/' .env.test
-          echo ".env.test.local contents:" && sed -e 's/=.*/=[REDACTED]/' .env.test.local
+          ENVEOF
+          cp .env.test .env.test.local
           cp .env.test .env.local
           cp .env.test .env.production
-          echo "Synced .env.test -> .env.local & .env.production"
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install & generate
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm prisma generate
 
-      - name: Generate Prisma Client
-        run: pnpm prisma generate
-
-      - name: Apply database migrations
-        run: pnpm prisma migrate deploy
-
-      # Seed test database with MOE-compliant data
-      # SEED_FOR_TESTS=true triggers:
-      # - E2E test data seeding (56 teachers, 82 subjects, etc.)
-      # - Auth session cleanup (prevents stale session conflicts)
-      # - Verification token cleanup
-      - name: Seed test database
-        run: pnpm db:seed:clean
+      - name: Migrate & seed
+        run: |
+          pnpm prisma migrate deploy
+          pnpm db:seed:clean
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: http://localhost:3005
           SEED_FOR_TESTS: "true"
           SEED_CLEAN_DATA: "true"
 
       - name: Verify database seed
         run: pnpm exec tsx scripts/verify-test-db.ts
-        env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-      - name: Project build flow (Next.js production build)
+
+      - name: Build
         run: pnpm build
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: http://localhost:3005
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
           SEED_FOR_TESTS: "true"
-          SEED_CLEAN_DATA: "true"
-          NEXT_TELEMETRY_DISABLED: "1"
           NODE_ENV: production
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
-        id: playwright-cache
+        id: pw-cache
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
 
       - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.pw-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Install Playwright dependencies only
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
+      - name: Install Playwright deps (cached)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
 
-      - name: Run E2E tests (Shard ${{ matrix.shard }}/4)
-        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --timeout=90000
+      - name: Run E2E tests
+        run: pnpm exec playwright test --timeout=90000
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: http://localhost:3005
           AUTH_GOOGLE_ID: dummy-client-id
           AUTH_GOOGLE_SECRET: dummy-client-secret
-          NEXT_TELEMETRY_DISABLED: "1"
           CI: "true"
-          PLAYWRIGHT_JUNIT_OUTPUT_FILE: test-results/results-${{ matrix.shard }}.xml
-          # Ensure global-setup respects CI-provided Postgres service
-          AUTO_MANAGE_TEST_DB: "false"
-          # Skip Playwright global-setup seed; database already seeded by workflow
           SKIP_DB_SEED: "true"
 
-      - name: Display server logs on failure
+      - name: Server logs (on failure)
         if: failure()
         run: |
-          echo "=== Server Logs (Last 200 lines) ==="
-          if [ -f server.log ]; then
-            tail -200 server.log
-          else
-            echo "No server.log file found"
-          fi
+          if [ -f server.log ]; then tail -200 server.log; else echo "No server.log"; fi
 
-      - name: Upload Playwright JSON results and artifacts
+      - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-shard-${{ matrix.shard }}
+          name: playwright-results
           path: |
             test-results/
             artifacts/
           retention-days: 14
 
-      - name: Upload Playwright HTML report (per shard)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-html-shard-${{ matrix.shard }}
-          path: playwright-report/
-          retention-days: 14
-
-  # Merge reports from all shards
-  merge-reports:
-    # Skip if test job was cancelled (no artifacts to merge)
-    if: always() && needs.test.result != 'cancelled'
-    needs: [test]
-    runs-on: ubuntu-latest
-
-    env:
-      DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Download shard artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: merged-results
-          pattern: test-results-shard-*
-
-      - name: Download HTML report shards
-        uses: actions/download-artifact@v4
-        with:
-          path: html-shards
-          pattern: playwright-html-shard-*
-
-      - name: Install Playwright for report merge
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Merge HTML reports
-        run: |
-          mkdir -p playwright-report
-          # Merge all shard blob reports into a single HTML report
-          # The merge-reports command expects blob files (.zip), not HTML folders
-          # First, check if we have any blob files to merge
-          if ls html-shards/*/report.zip 1> /dev/null 2>&1; then
-            pnpm exec playwright merge-reports --reporter=html "html-shards/*"
-          elif [ -d "html-shards" ] && [ "$(ls -A html-shards)" ]; then
-            # Fallback: copy first shard's HTML report if no blobs
-            cp -r html-shards/playwright-html-shard-1/* playwright-report/ 2>/dev/null || true
-          fi
-
-      - name: Combine JSON results (simple concat)
-        run: |
-          mkdir -p playwright-report
-          # Gracefully handle missing/empty directories (e.g., when tests were canceled)
-          if [ ! -d "merged-results" ] || [ -z "$(ls -A merged-results 2>/dev/null)" ]; then
-            echo "No test results found (tests may have been canceled)"
-            echo '[]' > playwright-report/merged-results.json
-            exit 0
-          fi
-          node -e "const fs=require('fs');const path='merged-results';const files=fs.readdirSync(path).flatMap(d=>{const p=path+'/'+d+'/test-results/results.json';return fs.existsSync(p)?[p]:[]});const all=files.map(f=>JSON.parse(fs.readFileSync(f,'utf8')));fs.writeFileSync('playwright-report/merged-results.json', JSON.stringify(all,null,2));"
-
-      - name: Collect Playwright JUnit XML results
-        run: |
-          mkdir -p playwright-report/junit
-          shopt -s globstar nullglob
-          files=(merged-results/**/results-*.xml)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No Playwright JUnit XML files found"
-          else
-            for file in "${files[@]}"; do
-              cp "$file" "playwright-report/junit/$(basename "$file")"
-            done
-          fi
-
-      - name: Upload merged JSON results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-merged-json
-          path: playwright-report/merged-results.json
-          retention-days: 30
-
-      - name: Upload merged Playwright JUnit results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-junit
-          path: playwright-report/junit
-          retention-days: 30
-
-      - name: Upload merged HTML report
+      - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-html-report
           path: playwright-report/
-          retention-days: 30
-# Temporary database is automatically destroyed after job completes
-# Test sharding: 4 parallel jobs by default, customizable via workflow_dispatch
+          retention-days: 14
+
+      - name: Upload JUnit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-junit
+          path: test-results/**/*.xml
+          retention-days: 14
+          if-no-files-found: ignore
