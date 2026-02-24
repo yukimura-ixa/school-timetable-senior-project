@@ -19,6 +19,7 @@ type RoomsManageClientProps = {
 export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
   const [rooms, setRooms] = useState<room[]>(initialData ?? []);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showTable, setShowTable] = useState(false);
   const router = useRouter();
 
   // Mutation callback - refetch data after mutations
@@ -33,8 +34,8 @@ export function RoomsManageClient({ initialData }: RoomsManageClientProps) {
   };
 
   // Empty state
-  if (!rooms || rooms.length === 0) {
-    return <NoRoomsEmptyState />;
+  if ((!rooms || rooms.length === 0) && !showTable) {
+    return <NoRoomsEmptyState onAdd={() => setShowTable(true)} />;
   }
 
   // Success state

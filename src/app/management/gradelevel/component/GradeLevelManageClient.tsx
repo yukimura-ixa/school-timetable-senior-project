@@ -25,6 +25,7 @@ export function GradeLevelManageClient({
     initialData ?? [],
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showTable, setShowTable] = useState(false);
   const router = useRouter();
 
   // Mutation callback - refetch data after mutations
@@ -39,8 +40,8 @@ export function GradeLevelManageClient({
   };
 
   // Empty state
-  if (!gradelevels || gradelevels.length === 0) {
-    return <NoDataEmptyState />;
+  if ((!gradelevels || gradelevels.length === 0) && !showTable) {
+    return <NoDataEmptyState entityName="ระดับชั้น" onAdd={() => setShowTable(true)} />;
   }
 
   // Success state - now using DataGrid
