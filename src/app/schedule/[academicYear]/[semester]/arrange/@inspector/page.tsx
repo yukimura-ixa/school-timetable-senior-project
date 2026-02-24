@@ -1,41 +1,30 @@
 /**
  * Inspector Slot - Server Component
  *
- * Fetches conflicts and progress data for the selected teacher.
+ * Shows teacher schedule inspection info.
+ * Conflict detection is under development.
  */
 
-import { Alert, AlertTitle } from "@mui/material";
+import { Alert, Stack, Typography } from "@mui/material";
 
 export default async function InspectorSlot({
   searchParams,
 }: {
   searchParams: Promise<{ teacher?: string }>;
 }) {
-  const { teacher } = await searchParams;
-
-  // No teacher selected - show empty state
-  if (!teacher) {
-    return (
-      <Alert severity="info">
-        <AlertTitle>เลือกครู</AlertTitle>
-        เลือกครูเพื่อดูข้อมูลความขัดแย้งและความคืบหน้า
-      </Alert>
-    );
-  }
-
-  // Placeholder: conflicts and progress will be fetched from the database.
+  const params = await searchParams;
+  const teacherParam = params.teacher;
 
   return (
-    <div>
-      <Alert severity="success" sx={{ mb: 2 }}>
-        <AlertTitle>ไม่มีความขัดแย้ง</AlertTitle>
-        ตารางสอนไม่มีความขัดแย้ง
+    <Stack spacing={1} sx={{ p: 2, height: "100%" }}>
+      <Typography variant="subtitle2" color="text.secondary">
+        ตรวจสอบตารางสอน
+      </Typography>
+      <Alert severity="info" variant="outlined">
+        {teacherParam
+          ? "กำลังพัฒนาระบบตรวจสอบความขัดแย้ง"
+          : "เลือกครูเพื่อดูข้อมูล"}
       </Alert>
-
-      <Alert severity="info">
-        <AlertTitle>ความคืบหน้า</AlertTitle>
-        จัดแล้ว 0 คาบ / คาบที่ต้องจัด 0 คาบ
-      </Alert>
-    </div>
+    </Stack>
   );
 }
