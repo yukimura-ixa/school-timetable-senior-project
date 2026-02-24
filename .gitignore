@@ -52,6 +52,7 @@ tsconfig.tsbuildinfo
 .env.production
 .env.development
 .env*.local
+.env.local.disabled
 
 # Allow example/template files
 !.env.example
