@@ -499,7 +499,7 @@ export function EditableTable<T extends Record<string, any>>({
         )}
         {onUpdate && (
           <IconButton
-            aria-label="edit"
+            aria-label="แก้ไข"
             onClick={handleEnterEdit}
             disabled={selected.length === 0 || editMode || addMode}
           >
@@ -509,14 +509,14 @@ export function EditableTable<T extends Record<string, any>>({
         {(editMode || addMode) && (
           <>
             <IconButton
-              aria-label="save"
+              aria-label="บันทึก"
               color="success"
               onClick={addMode ? handleSaveNew : handleSave}
             >
               <SaveIcon />
             </IconButton>
             <IconButton
-              aria-label="cancel"
+              aria-label="ยกเลิก"
               color="inherit"
               onClick={addMode ? handleCancelAdd : handleCancelEdit}
             >
@@ -526,7 +526,7 @@ export function EditableTable<T extends Record<string, any>>({
         )}
         {onDelete && (
           <IconButton
-            aria-label="delete"
+            aria-label="ลบ"
             color="error"
             onClick={handleDelete}
             disabled={selected.length === 0 || editMode || addMode}
@@ -549,7 +549,7 @@ export function EditableTable<T extends Record<string, any>>({
                     filtered.length > 0 && selected.length === filtered.length
                   }
                   onChange={(e) => toggleAll(e.target.checked)}
-                  inputProps={{ "aria-label": "select all" }}
+                  inputProps={{ "aria-label": "เลือกทั้งหมด" }}
                   disabled={addMode && disableSelectionDuringCreate}
                 />
               </TableCell>
