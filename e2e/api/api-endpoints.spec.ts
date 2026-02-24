@@ -130,11 +130,11 @@ test.describe("API Response Structure", () => {
   });
 
   test("API error responses have consistent format", async ({ guestPage }) => {
-    // Request a non-existent resource
+    // Request a non-existent resource (unauthenticated)
     const response = await guestPage.request.get("/api/nonexistent");
 
-    // Should return 404, not 500
-    expect(response.status()).toBe(404);
+    // Should return 401 (auth proxy blocks unauthenticated) or 404
+    expect([401, 404]).toContain(response.status());
   });
 });
 
