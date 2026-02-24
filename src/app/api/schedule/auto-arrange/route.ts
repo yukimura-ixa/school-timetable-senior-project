@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
+import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";
 import { solve } from "@/features/arrange/domain/auto-arrange";
 import { subjectCreditToNumber } from "@/features/teaching-assignment/domain/utils/subject-credit";
 import type {
@@ -287,7 +288,7 @@ export async function POST(request: NextRequest) {
         success: false,
         message: "เกิดข้อผิดพลาดในระบบจัดตารางอัตโนมัติ",
         error: {
-          message: error instanceof Error ? error.message : "Unknown error",
+          message: sanitizeErrorMessage(error),
         },
       },
       { status: 500 },

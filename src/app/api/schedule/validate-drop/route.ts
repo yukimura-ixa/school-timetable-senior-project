@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { createLogger } from "@/lib/logger";
+import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";
 
 const log = createLogger("API:ValidateDrop");
 
@@ -268,7 +269,7 @@ export async function POST(request: NextRequest) {
         reason: "server_error",
         message: "เกิดข้อผิดพลาดในการตรวจสอบ",
         error: {
-          message: error instanceof Error ? error.message : "Unknown error",
+          message: sanitizeErrorMessage(error),
         },
       },
       { status: 500 },

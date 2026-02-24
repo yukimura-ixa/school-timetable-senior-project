@@ -31,6 +31,7 @@ import {
   type ServerActionError,
 } from "@/types";
 import { createLogger } from "@/lib/logger";
+import { sanitizeErrorMessage } from "@/shared/lib/error-sanitizer";
 
 const log = createLogger("ActionWrapper");
 
@@ -236,11 +237,11 @@ export function createAction<TInput, TOutput>(
           };
         }
 
-        // Generic error
+        // Generic error — sanitize to prevent leaking internals
         return {
           success: false,
           error: {
-            message: error.message,
+            message: sanitizeErrorMessage(error),
             code: ActionErrorCode.INTERNAL_ERROR,
           },
         };
@@ -301,20 +302,11 @@ export function createPublicAction<TInput, TOutput>(
       // 4. Error handling (same as createAction)
       log.logError(error, { action: "publicAction" });
 
-      if (error instanceof Error) {
-        return {
-          success: false,
-          error: {
-            message: error.message,
-            code: ActionErrorCode.INTERNAL_ERROR,
-          },
-        };
-      }
-
+      // Sanitize to prevent leaking internals
       return {
         success: false,
         error: {
-          message: "An unexpected error occurred",
+          message: sanitizeErrorMessage(error),
           code: ActionErrorCode.INTERNAL_ERROR,
         },
       };
