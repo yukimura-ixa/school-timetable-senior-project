@@ -53,7 +53,7 @@ export default function ActivityModal({
     setSubmitting(true);
     setError(null);
     if (!form.SubjectCode || !form.SubjectName) {
-      setError("Subject code and name are required.");
+      setError("กรุณากรอกรหัสวิชาและชื่อวิชา");
       setSubmitting(false);
       return;
     }
@@ -83,7 +83,7 @@ export default function ActivityModal({
       }
       onClose(true); // true = should refresh
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ";
       setError(errorMessage);
     }
     setSubmitting(false);
@@ -92,11 +92,11 @@ export default function ActivityModal({
   return (
     <Dialog open={open} onClose={() => onClose(false)}>
       <DialogTitle>
-        {editActivity ? "Edit Activity" : "Add Activity"}
+        {editActivity ? "แก้ไขกิจกรรม" : "เพิ่มกิจกรรม"}
       </DialogTitle>
       <DialogContent>
         <TextField
-          label="Subject Code"
+          label="รหัสวิชา"
           name="SubjectCode"
           value={form.SubjectCode}
           onChange={handleChange}
@@ -104,7 +104,7 @@ export default function ActivityModal({
           margin="normal"
         />
         <TextField
-          label="Subject Name"
+          label="ชื่อวิชา"
           name="SubjectName"
           value={form.SubjectName}
           onChange={handleChange}
@@ -113,7 +113,7 @@ export default function ActivityModal({
         />
         <TextField
           select
-          label="Activity Type"
+          label="ประเภทกิจกรรม"
           name="ActivityType"
           value={form.ActivityType}
           onChange={handleChange}
@@ -130,13 +130,13 @@ export default function ActivityModal({
           control={
             <Checkbox checked={form.IsGraded} onChange={handleCheckbox} />
           }
-          label="Is Graded"
+          label="มีเกรด"
         />
         {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onClose(false)} disabled={submitting}>
-          Cancel
+          ยกเลิก
         </Button>
         <Button
           onClick={() => void handleSubmit()}
@@ -144,7 +144,7 @@ export default function ActivityModal({
           variant="contained"
           color="primary"
         >
-          {editActivity ? "Update" : "Create"}
+          {editActivity ? "บันทึก" : "เพิ่ม"}
         </Button>
       </DialogActions>
     </Dialog>
