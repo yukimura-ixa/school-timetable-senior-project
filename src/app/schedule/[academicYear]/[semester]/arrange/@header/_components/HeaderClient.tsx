@@ -19,17 +19,11 @@ import {
   Tabs,
   Tab,
   Button,
-  ButtonGroup,
   Snackbar,
   Alert,
   CircularProgress,
 } from "@mui/material";
-import {
-  Save as SaveIcon,
-  Undo as UndoIcon,
-  Redo as RedoIcon,
-  AutoFixHigh as AutoFixHighIcon,
-} from "@mui/icons-material";
+import { AutoFixHigh as AutoFixHighIcon } from "@mui/icons-material";
 
 type Teacher = {
   TeacherID: number;
@@ -209,17 +203,7 @@ export function HeaderClient({
           >
             {autoArrangeLoading ? "กำลังจัด..." : "จัดอัตโนมัติ"}
           </Button>
-          <ButtonGroup variant="contained">
-            <Button startIcon={<UndoIcon />} disabled>
-              Undo
-            </Button>
-            <Button startIcon={<RedoIcon />} disabled>
-              Redo
-            </Button>
-            <Button startIcon={<SaveIcon />} color="primary">
-              Save
-            </Button>
-          </ButtonGroup>
+          {/* TODO: Re-enable when arrangement store supports undo/redo/save */}
         </Stack>
       </Box>
 
