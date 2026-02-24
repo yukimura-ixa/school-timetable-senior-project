@@ -22,8 +22,8 @@ function ConfirmDeleteModal({
   checkedList,
   mutate,
 }: props) {
-  const confirmed = () => {
-    void removeMultiData(deleteData, checkedList);
+  const confirmed = async () => {
+    await removeMultiData(deleteData, checkedList);
     closeModal();
   };
   const cancel = () => {
