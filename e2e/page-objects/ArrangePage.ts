@@ -264,8 +264,9 @@ export class ArrangePage extends BasePage {
     await expect(listbox).toBeHidden({ timeout: 15000 });
 
     // Ensure the selected value is reflected in the combobox.
+    // Use toHaveValue (not toContainText) because <input> textContent is always "".
     if (!teacherIdRegex.test(raw)) {
-      await expect(dropdownByRole).toContainText(
+      await expect(dropdownByRole).toHaveValue(
         new RegExp(escapeRegex(normalized), "i"),
         {
           timeout: 15000,
