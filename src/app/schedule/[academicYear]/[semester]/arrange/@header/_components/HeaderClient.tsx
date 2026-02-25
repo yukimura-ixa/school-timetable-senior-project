@@ -160,6 +160,15 @@ export function HeaderClient({
           getOptionLabel={(teacher) =>
             `${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`
           }
+          renderOption={(props, teacher) => (
+            <li
+              {...props}
+              key={teacher.TeacherID}
+              data-testid={`teacher-option-${teacher.TeacherID}`}
+            >
+              {`${teacher.Prefix}${teacher.Firstname} ${teacher.Lastname} (${teacher.Department || "ไม่ระบุ"})`}
+            </li>
+          )}
           renderInput={(params) => (
             <TextField {...params} label="เลือกครู" placeholder="ค้นหาครู..." />
           )}
