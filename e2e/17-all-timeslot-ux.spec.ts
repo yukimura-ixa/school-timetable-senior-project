@@ -39,8 +39,9 @@ test.describe("All Timeslot Page UX", () => {
     // Read-only banner verified by skip guard above
 
     // Admin link shown only for admin users
+    // MUI Button with component={Link} renders as <a> (role=link), not <button>
     await expect(
-      page.getByRole("button", { name: "ไปยังหน้าตั้งค่าตาราง" }),
+      page.getByRole("link", { name: "ไปยังหน้าตั้งค่าตาราง" }),
     ).toBeVisible();
 
     // Export button enabled for admins

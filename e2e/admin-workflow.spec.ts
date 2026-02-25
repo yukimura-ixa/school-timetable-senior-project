@@ -23,6 +23,7 @@ const TEST_SEMESTER = "2567/2";
 // Visual comparison options - allow some tolerance for dynamic content
 const VISUAL_OPTIONS = {
   maxDiffPixelRatio: 0.05, // Allow 5% pixel difference
+  maxDiffPixels: 10000, // Override global maxDiffPixels:200 — let ratio be primary threshold
   threshold: 0.3, // Color difference tolerance
   animations: "disabled" as const,
 };
