@@ -1,0 +1,22 @@
+# Tests that mutate database state — must run sequentially (1 worker).
+# All other test files run in the parallel shard (3 workers).
+# When adding a new E2E test, classify it here if it creates/updates/deletes data.
+
+02-data-management.spec.ts
+03-schedule-config.spec.ts
+08-drag-and-drop.spec.ts
+09-program-management.spec.ts
+10-program-subject-assignment.spec.ts
+11-activity-management.spec.ts
+13-bulk-lock.spec.ts
+14-lock-templates.spec.ts
+16-publish-gate.spec.ts
+20-subject-assignment.spec.ts
+21-arrangement-flow.spec.ts
+critical-path/cp-03-lock-integration.spec.ts
+edge-cases/admin-edge-cases.spec.ts
+profile/profile-management.spec.ts
+smoke/crud-smoke.spec.ts
+smoke/critical-smoke.spec.ts
+tests/admin/schedule-assignment.spec.ts
+debug-full-fill.spec.ts
