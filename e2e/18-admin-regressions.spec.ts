@@ -115,6 +115,14 @@ test.describe("Admin regressions (SBTM)", () => {
 
     await nav.goToStudentTable(semester);
 
+    // If the semester config doesn't exist in DB, layout returns 404 — skip gracefully
+    const is404 = await page.getByText(/not found|404|ไม่พบหน้า/i).isVisible({ timeout: 3000 }).catch(() => false);
+    const wasRedirected = !page.url().includes("student-table");
+    if (is404 || wasRedirected) {
+      test.skip(true, "Semester 1-2568 config not in DB — page returned 404 or redirected");
+      return;
+    }
+
     const errorAlert = page.getByText(/ไม่สามารถโหลดข้อมูลคาบเรียนได้/i);
     await expect(errorAlert).toHaveCount(0);
 

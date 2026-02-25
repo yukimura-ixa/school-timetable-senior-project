@@ -22,7 +22,6 @@ test.describe("All Timeslot Page UX", () => {
     const { page } = authenticatedAdmin;
 
     await page.goto(`/dashboard/${testSemester}/all-timeslot`);
-    await page.waitForLoadState("networkidle");
     await waitForAppReady(page, { timeout: 60000 });
 
     // Wait for the read-only banner — this is the primary content indicator.
