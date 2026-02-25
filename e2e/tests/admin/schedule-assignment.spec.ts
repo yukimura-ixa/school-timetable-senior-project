@@ -119,14 +119,10 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
       .toBeGreaterThan(0);
   });
 
-  // TODO(e2e-known-issue): Teacher combobox text format mismatch.
-  // Test expects teacher name in "Prefix+Firstname Lastname" format but combobox may show
-  // a different format (e.g., with TeacherID or different spacing).
-  // Fix: Align test selector with actual teacher display format in the combobox.
   test("should display available subjects for selected teacher", async ({
     arrangePage,
   }) => {
-    // Arrange & Act
+    // Arrange & Act — use full display format including department
     const teacherName = `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`;
     await arrangePage.selectTeacher(teacherName);
 

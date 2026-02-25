@@ -233,6 +233,11 @@ export class ArrangePage extends BasePage {
 
     const escapeRegex = (value: string) =>
       value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const locateByTestId = () =>
+      listbox
+        .locator('[data-testid^="teacher-option-"]')
+        .filter({ hasText: normalized })
+        .first();
     const locateByName = () =>
       this.page
         .getByRole("option", { name: new RegExp(escapeRegex(normalized), "i") })
@@ -246,6 +251,9 @@ export class ArrangePage extends BasePage {
     let option: Locator | null = null;
     if (teacherIdRegex.test(raw)) {
       option = locateById();
+    }
+    if (!option || !(await option.isVisible().catch(() => false))) {
+      option = locateByTestId();
     }
     if (!option || !(await option.isVisible().catch(() => false))) {
       option = locateByName();
