@@ -148,11 +148,8 @@ test.describe("CRUD Smoke Tests - Create Operations", () => {
       await floorInput.fill(floor);
     }
 
-    // TODO(e2e-known-issue): Save button aria-label changed after UI update.
-    // MUI DataGrid inline editing toolbar may no longer use button[aria-label="save"].
-    // Fix: Update selector to match current MUI DataGrid save button pattern.
-    // Save using toolbar save button - IconButton with aria-label="save"
-    const saveButton = page.locator('button[aria-label="save"]');
+    // Save using toolbar save button - IconButton with Thai aria-label
+    const saveButton = page.locator('button[aria-label="บันทึก"]');
     await expect(saveButton).toBeVisible({ timeout: 5000 });
     await saveButton.click();
 
