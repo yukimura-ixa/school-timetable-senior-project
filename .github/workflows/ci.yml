@@ -138,3 +138,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next/
+            node_modules/.prisma/
+          retention-days: 1
