@@ -19,10 +19,11 @@ test.describe("All Timeslot Page UX", () => {
   test("TC-018-01: Admin sees export controls and banner", async ({
     authenticatedAdmin,
   }) => {
+    test.setTimeout(180000); // 3 min — server component data loading is slow on cold CI
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/dashboard/${testSemester}/all-timeslot`);
-    await waitForAppReady(page, { timeout: 60000 });
+    await page.goto(`/dashboard/${testSemester}/all-timeslot`, { timeout: 90000 });
+    await waitForAppReady(page, { timeout: 30000 });
 
     // Wait for the read-only banner — this is the primary content indicator.
     // On slow CI, the server-side data fetch may time out or the page may not render.

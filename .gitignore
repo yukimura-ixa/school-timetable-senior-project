@@ -116,5 +116,7 @@ tmp/
 /backups/
 
 *.png
+# But keep Playwright visual snapshot baselines
+!e2e/**/*-snapshots/*.png
 .artifacts/*
 
