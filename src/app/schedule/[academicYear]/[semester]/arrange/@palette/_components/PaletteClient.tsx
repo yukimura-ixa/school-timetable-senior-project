@@ -45,6 +45,7 @@ function DraggableSubject({ subject }: { subject: Subject }) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      data-testid="subject-item"
       sx={{
         border: "1px solid",
         borderColor: "divider",
@@ -89,7 +90,7 @@ export function PaletteClient({ subjects }: Props) {
   );
 
   return (
-    <Paper sx={{ p: 2, height: "100%" }}>
+    <Paper sx={{ p: 2, height: "100%" }} data-testid="subject-palette">
       <Typography variant="h6" gutterBottom>
         รายวิชาที่สอน
       </Typography>
