@@ -201,11 +201,9 @@ function ShowTeacherData({
     setManualTeacherId(value?.TeacherID ?? null);
     setManualOverride(true);
     if (value) {
-      const newUrl = `${pathName}?TeacherID=${value.TeacherID}`;
-      // Use history.pushState to update URL without triggering server component refresh
-      window.history.pushState(null, "", newUrl);
+      router.push(`${pathName}?TeacherID=${value.TeacherID}`, { scroll: false });
     } else {
-      window.history.pushState(null, "", pathName);
+      router.push(pathName, { scroll: false });
     }
   };
 
