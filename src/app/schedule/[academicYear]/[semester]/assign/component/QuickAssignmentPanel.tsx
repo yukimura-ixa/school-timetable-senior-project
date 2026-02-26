@@ -33,6 +33,7 @@ import {
 } from "@mui/icons-material";
 import type { teacher, subject, gradelevel } from "@/prisma/generated/client";
 import { enqueueSnackbar } from "notistack";
+import { useConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
   syncAssignmentsAction,
   deleteAssignmentAction,
@@ -82,6 +83,7 @@ function QuickAssignmentPanel({
   const [selectedGrades, setSelectedGrades] = useState<gradelevel[]>([]);
   const [weeklyHours, setWeeklyHours] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   // Auto-fill weekly hours based on subject credit
   useEffect(() => {
@@ -332,11 +334,12 @@ function QuickAssignmentPanel({
   };
 
   const handleDelete = async (assignment: (typeof currentAssignments)[0]) => {
-    if (
-      !confirm(
-        `ต้องการลบวิชา ${assignment.SubjectCode} - ${assignment.SubjectName} ใช่หรือไม่?`,
-      )
-    ) {
+    const confirmed = await confirm({
+      title: "ลบวิชา",
+      message: `ต้องการลบวิชา ${assignment.SubjectCode} - ${assignment.SubjectName} ใช่หรือไม่?`,
+      variant: "danger",
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -665,6 +668,7 @@ function QuickAssignmentPanel({
           )}
         </Box>
       </Collapse>
+      {dialog}
     </Paper>
   );
 }
