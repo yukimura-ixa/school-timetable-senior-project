@@ -142,7 +142,7 @@ export function DataTableSection({
             aria-selected={activeTab === "teachers"}
             aria-controls="teachers-panel"
           >
-            <span>ครู (Teachers)</span>
+            <span>ครู</span>
             {activeTab === "teachers" && (
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
             )}
@@ -163,7 +163,7 @@ export function DataTableSection({
             aria-selected={activeTab === "classes"}
             aria-controls="classes-panel"
           >
-            <span>ชั้นเรียน (Classes)</span>
+            <span>ชั้นเรียน</span>
             {activeTab === "classes" && (
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full" />
             )}
@@ -273,7 +273,7 @@ function ClientPagination({
     <div
       className="flex items-center justify-between bg-white px-4 py-3 sm:px-6 rounded-lg border border-gray-200"
       role="navigation"
-      aria-label="Pagination"
+      aria-label="การแบ่งหน้า"
     >
       <div className="flex-1 flex justify-between sm:hidden">
         <button
@@ -281,14 +281,14 @@ function ClientPagination({
           disabled={currentPage === 1}
           className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Previous
+          ก่อนหน้า
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Next
+          ถัดไป
         </button>
       </div>
       <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -309,7 +309,7 @@ function ClientPagination({
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Previous page"
+              aria-label="หน้าก่อนหน้า"
             >
               {chevronLeftIcon}
             </button>
@@ -324,7 +324,7 @@ function ClientPagination({
                       ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
                       : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
                   }`}
-                  aria-label={`Page ${page}`}
+                  aria-label={`หน้า ${page}`}
                   aria-current={currentPage === page ? "page" : undefined}
                 >
                   {page}
@@ -335,7 +335,7 @@ function ClientPagination({
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Next page"
+              aria-label="หน้าถัดไป"
             >
               {chevronRightIcon}
             </button>
