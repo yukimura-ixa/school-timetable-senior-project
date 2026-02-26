@@ -24,6 +24,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { AutoFixHigh as AutoFixHighIcon } from "@mui/icons-material";
+import { autoArrangeAction } from "@/features/arrange/application/actions/auto-arrange.action";
 
 type Teacher = {
   TeacherID: number;
@@ -80,31 +81,25 @@ export function HeaderClient({
 
     setAutoArrangeLoading(true);
     try {
-      const res = await fetch("/api/schedule/auto-arrange", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          academicYear: Number(academicYear),
-          semester,
-          teacherId: Number(selectedTeacher),
-        }),
+      const result = await autoArrangeAction({
+        academicYear: Number(academicYear),
+        semester,
+        teacherId: Number(selectedTeacher),
       });
 
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        const failureMsg = data.failures?.length
-          ? `\n${data.failures.map((f: { subjectCode: string; reason: string }) => `- ${f.subjectCode}: ${f.reason}`).join("\n")}`
+      if (!result.success) {
+        const failureMsg = result.failures?.length
+          ? `\n${result.failures.map((f) => `- ${f.subjectCode}: ${f.reason}`).join("\n")}`
           : "";
         setSnackbar({
           open: true,
-          message: `จัดตารางไม่สำเร็จ: ${data.message || "เกิดข้อผิดพลาด"}${failureMsg}`,
+          message: `จัดตารางไม่สำเร็จ: ${result.message || "เกิดข้อผิดพลาด"}${failureMsg}`,
           severity: "error",
         });
         return;
       }
 
-      const { stats } = data;
+      const { stats } = result;
       setSnackbar({
         open: true,
         message: `✅ จัดตารางสำเร็จ ${stats.successfullyPlaced} คาบ${stats.failed > 0 ? ` (ไม่สำเร็จ ${stats.failed} คาบ)` : ""} (${stats.durationMs}ms)`,
