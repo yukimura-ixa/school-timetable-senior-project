@@ -12,7 +12,10 @@ import {
 } from "@/utils/timeslot-id";
 import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
+import { createLogger } from "@/lib/logger";
 import type { PublicGradeLevel } from "@/lib/infrastructure/repositories/public-data.repository";
+
+const logger = createLogger("PublicClasses");
 
 // Legacy type for backward compatibility
 export type PublicClass = {
@@ -56,10 +59,7 @@ async function getCurrentTermInfo(): Promise<{
 
     return { academicYear, semester: semesterValue };
   } catch (err) {
-    console.warn(
-      "[PublicClasses] getCurrentTermInfo error:",
-      (err as Error).message,
-    );
+    logger.warn("getCurrentTermInfo error", { error: (err as Error).message });
     return null;
   }
 }
@@ -137,10 +137,7 @@ export async function getPublicClasses(
 
     return results;
   } catch (err) {
-    console.warn(
-      "[PublicClasses] getPublicClasses error:",
-      (err as Error).message,
-    );
+    logger.warn("getPublicClasses error", { error: (err as Error).message });
     return [];
   }
 }
@@ -188,10 +185,9 @@ export async function getClassCount() {
   try {
     return await publicDataRepository.countGradeLevels();
   } catch (err) {
-    console.warn(
-      "[PublicClasses] getClassCount fallback to 0:",
-      (err as Error).message,
-    );
+    logger.warn("getClassCount fallback to 0", {
+      error: (err as Error).message,
+    });
     return 0;
   }
 }
@@ -236,10 +232,7 @@ export async function getClassSchedule(gradeId: string) {
       return getSortKey(a.TimeslotID) - getSortKey(b.TimeslotID);
     });
   } catch (err) {
-    console.warn(
-      "[PublicClasses] getClassSchedule error:",
-      (err as Error).message,
-    );
+    logger.warn("getClassSchedule error", { error: (err as Error).message });
     return [];
   }
 }

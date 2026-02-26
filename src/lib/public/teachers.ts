@@ -8,6 +8,9 @@
 
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import type { PublicTeacher } from "@/lib/infrastructure/repositories/public-data.repository";
+import { createLogger } from "@/lib/logger";
+
+const logger = createLogger("PublicTeachers");
 
 // Re-export type for backward compatibility
 export type { PublicTeacher };
@@ -44,10 +47,9 @@ async function getCurrentTermInfo(): Promise<{
 
     return { academicYear, semester };
   } catch (err) {
-    console.warn(
-      "[PublicTeachers] getCurrentTermInfo error:",
-      (err as Error).message,
-    );
+    logger.warn("getCurrentTermInfo error", {
+      error: (err as Error).message,
+    });
     return null;
   }
 }
@@ -83,10 +85,7 @@ export async function getPublicTeachers(
       sortOrder,
     });
   } catch (err) {
-    console.warn(
-      "[PublicTeachers] getPublicTeachers error:",
-      (err as Error).message,
-    );
+    logger.warn("getPublicTeachers error", { error: (err as Error).message });
     return [];
   }
 }
@@ -140,10 +139,9 @@ export async function getTeacherCount(): Promise<number> {
   try {
     return await publicDataRepository.countTeachers();
   } catch (err) {
-    console.warn(
-      "[PublicTeachers] getTeacherCount fallback to 0:",
-      (err as Error).message,
-    );
+    logger.warn("getTeacherCount fallback to 0", {
+      error: (err as Error).message,
+    });
     return 0;
   }
 }
@@ -200,10 +198,9 @@ export async function getPublicTeacherById(teacherId: number): Promise<{
       department: teacher.department || null,
     };
   } catch (err) {
-    console.warn(
-      "[PublicTeachers] getPublicTeacherById error:",
-      (err as Error).message,
-    );
+    logger.warn("getPublicTeacherById error", {
+      error: (err as Error).message,
+    });
     return null;
   }
 }
@@ -252,10 +249,9 @@ export async function getTeacherSchedule(teacherId: number) {
       return a.timeslot.StartTime < b.timeslot.StartTime ? -1 : 1;
     });
   } catch (err) {
-    console.warn(
-      "[PublicTeachers] getTeacherSchedule error:",
-      (err as Error).message,
-    );
+    logger.warn("getTeacherSchedule error", {
+      error: (err as Error).message,
+    });
     return [];
   }
 }

@@ -7,11 +7,14 @@
 
 import { semester } from "@/prisma/generated/client";
 import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
+import { createLogger } from "@/lib/logger";
 import type {
   QuickStats,
   PeriodLoad,
   RoomOccupancy,
 } from "@/lib/infrastructure/repositories/public-data.repository";
+
+const logger = createLogger("PublicStats");
 
 // Re-export types for backward compatibility
 export type { QuickStats, PeriodLoad, RoomOccupancy };
@@ -26,7 +29,7 @@ export async function getQuickStats(): Promise<QuickStats> {
   try {
     return await publicDataRepository.getQuickStats();
   } catch (err) {
-    console.warn("[PublicStats] getQuickStats error:", (err as Error).message);
+    logger.warn("getQuickStats error", { error: (err as Error).message });
     return {
       totalTeachers: 0,
       totalClasses: 0,
@@ -72,10 +75,9 @@ export async function getPeriodLoadPerDay(): Promise<PeriodLoad[]> {
       semesterValue,
     );
   } catch (err) {
-    console.warn(
-      "[PublicStats] getPeriodLoadPerDay error:",
-      (err as Error).message,
-    );
+    logger.warn("getPeriodLoadPerDay error", {
+      error: (err as Error).message,
+    });
     return [];
   }
 }
@@ -112,10 +114,7 @@ export async function getRoomOccupancy(): Promise<RoomOccupancy[]> {
       semesterValue,
     );
   } catch (err) {
-    console.warn(
-      "[PublicStats] getRoomOccupancy error:",
-      (err as Error).message,
-    );
+    logger.warn("getRoomOccupancy error", { error: (err as Error).message });
     return [];
   }
 }

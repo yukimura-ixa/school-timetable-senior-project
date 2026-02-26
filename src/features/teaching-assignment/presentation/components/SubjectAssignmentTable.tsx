@@ -64,11 +64,6 @@ export function SubjectAssignmentTable({
   // Fetch subjects and assignments
   useEffect(() => {
     const fetchData = async () => {
-      console.warn("[SubjectAssignmentTable] Starting fetch with:", {
-        gradeId,
-        semester,
-        academicYear,
-      });
       setIsLoading(true);
       setError(null);
 
@@ -84,9 +79,6 @@ export function SubjectAssignmentTable({
           throw new Error(result.error?.message ?? "Failed to fetch data");
         }
 
-        console.warn(
-          `[SubjectAssignmentTable] Received ${result.data.length} subjects`,
-        );
         setSubjects(result.data);
       } catch (err) {
         console.error("Failed to fetch assignment data:", err);
@@ -95,13 +87,6 @@ export function SubjectAssignmentTable({
         setIsLoading(false);
       }
     };
-
-    console.warn("[SubjectAssignmentTable] useEffect triggered:", {
-      gradeId,
-      semester,
-      academicYear,
-      shouldFetch: !!(gradeId && semester && academicYear),
-    });
 
     if (gradeId && semester && academicYear) {
       void fetchData();
