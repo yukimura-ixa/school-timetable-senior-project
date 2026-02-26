@@ -17,6 +17,7 @@ import {
 import type { semester } from "@/prisma/generated/client";
 import { AssignmentFilters } from "./AssignmentFilters";
 import { SubjectAssignmentTable } from "./SubjectAssignmentTable";
+import { useConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
   copyAssignmentsAction,
   clearAllAssignmentsAction,
@@ -33,6 +34,7 @@ export function TeacherAssignmentPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const { confirm, dialog } = useConfirmDialog();
 
   const handleCopyFromPrevious = async () => {
     if (!gradeId) {
@@ -40,9 +42,11 @@ export function TeacherAssignmentPage() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `คัดลอกการมอบหมายครูจากภาคเรียนก่อนหน้าไปยัง ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้จะเพิ่มการมอบหมายใหม่โดยไม่ลบข้อมูลเดิม`,
-    );
+    const confirmed = await confirm({
+      title: "คัดลอกการมอบหมายครู",
+      message: `คัดลอกการมอบหมายครูจากภาคเรียนก่อนหน้าไปยัง ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้จะเพิ่มการมอบหมายใหม่โดยไม่ลบข้อมูลเดิม`,
+      variant: "info",
+    });
 
     if (!confirmed) return;
 
@@ -88,9 +92,11 @@ export function TeacherAssignmentPage() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `⚠️ ต้องการลบการมอบหมายครูทั้งหมดใน ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้!`,
-    );
+    const confirmed = await confirm({
+      title: "ลบการมอบหมายครูทั้งหมด",
+      message: `ต้องการลบการมอบหมายครูทั้งหมดใน ${gradeId} - ${semester === "SEMESTER_1" ? "ภาคเรียนที่ 1" : "ภาคเรียนที่ 2"}/${academicYear}?\n\nการดำเนินการนี้ไม่สามารถย้อนกลับได้!`,
+      variant: "danger",
+    });
 
     if (!confirmed) return;
 
@@ -202,6 +208,7 @@ export function TeacherAssignmentPage() {
           </Typography>
         </Paper>
       )}
+      {dialog}
     </Container>
   );
 }
