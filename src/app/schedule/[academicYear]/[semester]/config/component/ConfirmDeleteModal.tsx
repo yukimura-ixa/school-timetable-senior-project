@@ -23,8 +23,7 @@ function ConfirmDeleteModal({
   mutate,
 }: props) {
   const confirmed = () => {
-    removeMultiData();
-    closeModal();
+    void removeMultiData();
   };
   const cancel = () => {
     closeModal();
@@ -53,7 +52,7 @@ function ConfirmDeleteModal({
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       mutate();
-      window.location.reload();
+      closeModal("success");
     } catch (err: unknown) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
