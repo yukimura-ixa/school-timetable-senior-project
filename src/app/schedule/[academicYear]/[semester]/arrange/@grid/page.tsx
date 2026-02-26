@@ -31,6 +31,7 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useSnackbar } from "notistack";
+import { validateDropAction } from "@/features/arrange/application/actions/validate-drop.action";
 
 type Timeslot = {
   TimeslotID: string;
@@ -206,18 +207,12 @@ export default function GridSlot() {
 
     // Validate drop via consolidated endpoint
     try {
-      const response = await fetch("/api/schedule/validate-drop", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          timeslot: timeslotId,
-          subject: subjectData.SubjectCode,
-          grade: subjectData.GradeID,
-          teacher: teacher,
-        }),
+      const result = await validateDropAction({
+        timeslot: timeslotId,
+        subject: subjectData.SubjectCode,
+        grade: subjectData.GradeID,
+        teacher: teacher,
       });
-
-      const result = await response.json();
 
       if (!result.allowed) {
         enqueueSnackbar(result.message || "ไม่สามารถจัดตารางได้", {
