@@ -8,7 +8,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import {
@@ -180,6 +180,15 @@ export default function GridSlot() {
       refreshInterval: 0, // Only refresh on demand
     },
   );
+
+  // Re-fetch schedule when room-select creates an entry.
+  // The @modal parallel route keeps GridSlot mounted, so SWR's
+  // revalidateOnFocus won't fire after router.back().
+  useEffect(() => {
+    const handler = () => { void mutate(); };
+    window.addEventListener('schedule-updated', handler);
+    return () => window.removeEventListener('schedule-updated', handler);
+  }, [mutate]);
 
   // Handle drag end - validate and navigate to room selection
   const handleDragEnd = async (event: DragEndEvent) => {

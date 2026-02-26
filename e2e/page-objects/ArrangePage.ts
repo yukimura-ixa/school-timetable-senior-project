@@ -425,6 +425,8 @@ export class ArrangePage extends BasePage {
         if (closed) {
           // Wait for page refresh after router.refresh()
           await this.page.waitForLoadState("domcontentloaded", { timeout: 5000 }).catch(() => {});
+          // Trigger focus event as fallback for SWR revalidateOnFocus
+          await this.page.evaluate(() => window.dispatchEvent(new Event('focus'))).catch(() => {});
           return;
         }
       } else {

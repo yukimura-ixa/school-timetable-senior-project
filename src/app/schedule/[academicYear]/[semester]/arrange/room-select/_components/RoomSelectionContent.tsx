@@ -72,8 +72,11 @@ export function RoomSelectionContent({
 
       if (result && typeof result === "object" && "success" in result && result.success) {
         enqueueSnackbar("✅ จัดตารางสอนสำเร็จ", { variant: "success" });
+        // Notify GridSlot to revalidate SWR before closing modal.
+        // router.refresh() only refreshes RSC; client SWR caches stay stale.
+        window.dispatchEvent(new CustomEvent('schedule-updated'));
         router.back(); // Close modal
-        router.refresh(); // Refresh grid data
+        router.refresh(); // Refresh grid data (server components)
       } else {
         const errorMsg =
           result &&
