@@ -19,6 +19,7 @@ import { Delete as DeleteIcon } from "@mui/icons-material";
 import type { semester } from "@/prisma/generated/client";
 import { subjectCreditToNumber } from "../../domain/utils/subject-credit";
 import { TeacherSelector } from "./TeacherSelector";
+import { useConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import {
   assignTeacherAction,
   unassignTeacherAction,
@@ -55,6 +56,7 @@ export function SubjectAssignmentTable({
   const [subjects, setSubjects] = useState<SubjectData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { confirm, dialog } = useConfirmDialog();
 
   // Fetch subjects and assignments
   useEffect(() => {
@@ -132,7 +134,11 @@ export function SubjectAssignmentTable({
   };
 
   const handleUnassign = async (respId: number) => {
-    const confirmed = window.confirm("ต้องการยกเลิกการมอบหมายครูนี้?");
+    const confirmed = await confirm({
+      title: "ยกเลิกการมอบหมายครู",
+      message: "ต้องการยกเลิกการมอบหมายครูนี้?",
+      variant: "warning",
+    });
     if (!confirmed) return;
 
     try {
@@ -177,82 +183,87 @@ export function SubjectAssignmentTable({
   }
 
   return (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>
-              <strong>รหัสวิชา</strong>
-            </TableCell>
-            <TableCell>
-              <strong>ชื่อวิชา</strong>
-            </TableCell>
-            <TableCell align="center">
-              <strong>หน่วยกิต</strong>
-            </TableCell>
-            <TableCell>
-              <strong>ครูผู้สอน</strong>
-            </TableCell>
-            <TableCell align="center">
-              <strong>จำนวนชั่วโมง</strong>
-            </TableCell>
-            <TableCell align="center">
-              <strong>จัดการ</strong>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {subjects.map((subject) => (
-            <TableRow key={subject.SubjectCode}>
-              <TableCell>{subject.SubjectCode}</TableCell>
-              <TableCell>{subject.SubjectName}</TableCell>
-              <TableCell align="center">{subjectCreditToNumber(subject.Credit)} หน่วยกิต</TableCell>
+    <>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
               <TableCell>
-                {subject.assignedTeacher ? (
-                  <Box>
-                    <Typography variant="body2">
-                      {subject.assignedTeacher.TeacherName}
-                    </Typography>
-                  </Box>
-                ) : (
-                  <TeacherSelector
-                    subjectCode={subject.SubjectCode}
-                    gradeId={gradeId}
-                    semester={semester}
-                    academicYear={academicYear}
-                    defaultHours={subjectCreditToNumber(subject.Credit) * 2}
-                    onAssign={handleAssign}
-                  />
-                )}
+                <strong>รหัสวิชา</strong>
+              </TableCell>
+              <TableCell>
+                <strong>ชื่อวิชา</strong>
               </TableCell>
               <TableCell align="center">
-                {subject.assignedTeacher ? (
-                  <Chip
-                    label={`${subject.assignedTeacher.TeachHour} ชม./สัปดาห์`}
-                    size="small"
-                    color="primary"
-                  />
-                ) : (
-                  "-"
-                )}
+                <strong>หน่วยกิต</strong>
+              </TableCell>
+              <TableCell>
+                <strong>ครูผู้สอน</strong>
               </TableCell>
               <TableCell align="center">
-                {subject.assignedTeacher && (
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() =>
-                      void handleUnassign(subject.assignedTeacher!.RespID)
-                    }
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                )}
+                <strong>จำนวนชั่วโมง</strong>
+              </TableCell>
+              <TableCell align="center">
+                <strong>จัดการ</strong>
               </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {subjects.map((subject) => (
+              <TableRow key={subject.SubjectCode}>
+                <TableCell>{subject.SubjectCode}</TableCell>
+                <TableCell>{subject.SubjectName}</TableCell>
+                <TableCell align="center">
+                  {subjectCreditToNumber(subject.Credit)} หน่วยกิต
+                </TableCell>
+                <TableCell>
+                  {subject.assignedTeacher ? (
+                    <Box>
+                      <Typography variant="body2">
+                        {subject.assignedTeacher.TeacherName}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <TeacherSelector
+                      subjectCode={subject.SubjectCode}
+                      gradeId={gradeId}
+                      semester={semester}
+                      academicYear={academicYear}
+                      defaultHours={subjectCreditToNumber(subject.Credit) * 2}
+                      onAssign={handleAssign}
+                    />
+                  )}
+                </TableCell>
+                <TableCell align="center">
+                  {subject.assignedTeacher ? (
+                    <Chip
+                      label={`${subject.assignedTeacher.TeachHour} ชม./สัปดาห์`}
+                      size="small"
+                      color="primary"
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+                <TableCell align="center">
+                  {subject.assignedTeacher && (
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() =>
+                        void handleUnassign(subject.assignedTeacher!.RespID)
+                      }
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      {dialog}
+    </>
   );
 }
