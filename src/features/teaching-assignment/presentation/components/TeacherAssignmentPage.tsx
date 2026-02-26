@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Container,
@@ -35,6 +36,7 @@ export function TeacherAssignmentPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const { confirm, dialog } = useConfirmDialog();
+  const router = useRouter();
 
   const handleCopyFromPrevious = async () => {
     if (!gradeId) {
@@ -75,7 +77,7 @@ export function TeacherAssignmentPage() {
           `คัดลอกสำเร็จ ${result.data?.count || 0} รายการ จากภาคเรียนก่อนหน้า`,
         );
         // Force refresh table
-        window.location.reload();
+        router.refresh();
       } else {
         setError(result.error?.message || "เกิดข้อผิดพลาดในการคัดลอก");
       }
@@ -116,7 +118,7 @@ export function TeacherAssignmentPage() {
           typeof result.data.count === "number" ? result.data.count : 0;
         setSuccess(`ลบสำเร็จ ${count} รายการ`);
         // Force refresh table
-        window.location.reload();
+        router.refresh();
       } else {
         setError(result.error?.message || "เกิดข้อผิดพลาดในการลบ");
       }
