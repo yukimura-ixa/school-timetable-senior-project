@@ -2,6 +2,8 @@
 const nextConfig = {
   // Next.js 16 optimizations
   reactCompiler: true,
+  // cacheComponents: false — intentionally disabled while React Compiler cache
+  // behaviour is being monitored in production. Re-enable once stable.
   cacheComponents: false,
 
   // Allow custom distDir for parallel dev servers
@@ -46,11 +48,12 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
+              // 'unsafe-eval' is required by Next.js React Compiler in dev and by MUI Emotion SSR
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https://*.googleusercontent.com",
               "font-src 'self'",
-              "connect-src 'self'",
+              "connect-src 'self' https://vitals.vercel-insights.com",
               "frame-ancestors 'none'",
             ].join("; "),
           },
