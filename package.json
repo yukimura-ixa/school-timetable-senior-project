@@ -15,7 +15,7 @@
     "typecheck": "tsc -p tsconfig.typecheck.json",
     "typecheck:watch": "tsc -w -p tsconfig.typecheck.json",
     "lint": "pnpm run lint:eslint",
-    "lint:eslint": "eslint \"src/features/**\" \"src/lib/**\" \"src/types/**\" \"src/utils/**\" --ext .ts,.tsx --report-unused-disable-directives",
+    "lint:eslint": "eslint \"src/**\" --ext .ts,.tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
     "test": "vitest run",
