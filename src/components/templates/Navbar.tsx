@@ -160,7 +160,7 @@ function Navbar() {
                         width={36}
                         height={36}
                         src={hydratedSession?.user?.image ?? FALLBACK_USER_ICON}
-                        alt="profile_pic"
+                        alt="รูปโปรไฟล์"
                         priority
                       />
                     </div>

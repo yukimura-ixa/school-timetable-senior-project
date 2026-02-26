@@ -148,7 +148,7 @@ const SearchBar = React.forwardRef<HTMLDivElement, SearchBarProps>(
           endAdornment: hasValue ? (
             <InputAdornment position="end">
               <IconButton
-                aria-label="clear search"
+                aria-label="ล้างการค้นหา"
                 onClick={handleClear}
                 edge="end"
                 size="small"

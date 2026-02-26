@@ -191,14 +191,14 @@ function LockSchedule({ initialData, semester, academicYear }: LockScheduleProps
           value={viewMode}
           exclusive
           onChange={handleViewModeChange}
-          aria-label="view mode"
+          aria-label="โหมดมุมมอง"
           size="small"
         >
-          <ToggleButton value="calendar" aria-label="calendar view">
+          <ToggleButton value="calendar" aria-label="มุมมองปฏิทิน">
             <CalendarIcon sx={{ mr: 1 }} fontSize="small" />
             <Typography variant="body2">ปฏิทิน</Typography>
           </ToggleButton>
-          <ToggleButton value="list" aria-label="list view">
+          <ToggleButton value="list" aria-label="มุมมองรายการ">
             <ViewListIcon sx={{ mr: 1 }} fontSize="small" />
             <Typography variant="body2">รายการ</Typography>
           </ToggleButton>
