@@ -52,7 +52,7 @@ function ConfirmDeleteModal({
       closeSnackbar(loadbar);
       enqueueSnackbar("ลบข้อมูลสำเร็จ", { variant: "success" });
       mutate();
-      closeModal("success");
+      closeModal();
     } catch (err: unknown) {
       closeSnackbar(loadbar);
       enqueueSnackbar(
