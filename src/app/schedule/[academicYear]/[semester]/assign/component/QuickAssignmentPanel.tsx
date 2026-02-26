@@ -197,7 +197,7 @@ function QuickAssignmentPanel({
 
       if (!actionResult?.success) {
         throw new Error(
-          actionResult?.error?.message || "Failed to sync assignments",
+          actionResult?.error?.message || "ซิงค์การมอบหมายไม่สำเร็จ",
         );
       }
 
@@ -308,7 +308,7 @@ function QuickAssignmentPanel({
 
       if (!result?.success) {
         throw new Error(
-          result?.error?.message || "Failed to update assignment",
+          result?.error?.message || "แก้ไขการมอบหมายไม่สำเร็จ",
         );
       }
 

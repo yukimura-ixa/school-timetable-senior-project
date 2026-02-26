@@ -236,7 +236,7 @@ export function SubjectDataGrid({
         throw new Error(
           typeof result.error === "string"
             ? result.error
-            : result.error?.message || "Update failed",
+            : result.error?.message || "บันทึกไม่สำเร็จ",
         );
       }
 
