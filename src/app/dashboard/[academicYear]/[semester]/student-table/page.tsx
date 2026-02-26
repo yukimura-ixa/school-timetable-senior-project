@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useState, useEffect } from "react";
 import useSWR from "swr";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
+import { useSnackbar } from "notistack";
 // Removed react-to-print - using server-side PDF generation
 import {
   Container,
@@ -101,6 +102,7 @@ function StudentTablePage() {
   // Responsive hooks
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"), { noSsr: true });
+  const { enqueueSnackbar } = useSnackbar();
 
   type TimeslotKey = readonly ["timeslots-by-term", string, string];
   type ClassScheduleKey = readonly [
@@ -288,7 +290,7 @@ function StudentTablePage() {
       });
 
       if (!response.ok) {
-        throw new Error(`PDF generation failed: ${response.statusText}`);
+        throw new Error("ส่งออก PDF ไม่สำเร็จ");
       }
 
       // Download the PDF
@@ -303,7 +305,9 @@ function StudentTablePage() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("PDF export error:", error);
-      alert("เกิดข้อผิดพลาดในการส่งออก PDF กรุณาลองใหม่อีกครั้ง");
+      enqueueSnackbar("ส่งออก PDF ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", {
+        variant: "error",
+      });
     }
   };
 

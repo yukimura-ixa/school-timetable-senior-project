@@ -165,6 +165,14 @@ export default function GridSlot() {
   } = useSWR(
     `/api/timeslots?year=${academicYear}&semester=${semester}`,
     (url) => fetch(url).then((r) => r.json()),
+    {
+      onError: (err) => {
+        console.error("Failed to load timeslots:", err);
+        enqueueSnackbar("ไม่สามารถโหลดข้อมูลช่วงเวลาได้ กรุณาลองใหม่อีกครั้ง", {
+          variant: "error",
+        });
+      },
+    },
   );
 
   // Fetch teacher's schedule
@@ -180,6 +188,12 @@ export default function GridSlot() {
     (url) => fetch(url).then((r) => r.json()),
     {
       refreshInterval: 0, // Only refresh on demand
+      onError: (err) => {
+        console.error("Failed to load teacher schedule:", err);
+        enqueueSnackbar("ไม่สามารถโหลดตารางสอนของครูได้ กรุณาลองใหม่อีกครั้ง", {
+          variant: "error",
+        });
+      },
     },
   );
 
