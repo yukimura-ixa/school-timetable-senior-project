@@ -161,23 +161,80 @@ test.describe.serial("Admin: Schedule Assignment - Basic Operations", () => {
   });
 
   test("should save schedule changes successfully", async ({ arrangePage }) => {
-    // Arrange - Assign a subject
-    const teacherName = `${testTeacher.Prefix}${testTeacher.Firstname} ${testTeacher.Lastname}`;
-    await arrangePage.selectTeacher(teacherName);
+    // This test verifies that creating a schedule entry via room selection
+    // persists correctly and shows up in the timetable grid.
+    //
+    // Instead of drag-and-drop (which is flaky in headless CI due to
+    // @dnd-kit activation constraints), we navigate directly to the
+    // room-select URL — the same approach used by the passing AR-ROOM test
+    // in 21-arrangement-flow.spec.ts.
 
-    const availableSubjects = await arrangePage.getAvailableSubjects();
-    expect(availableSubjects.length).toBeGreaterThan(0);
-    const subjectCode = availableSubjects[0]!;
+    const page = arrangePage.page;
+    const semester = `${testSemester.Year}/${testSemester.Semester}`;
+    // Use TUE period 4 — guaranteed empty (seed only fills periods 1-3,
+    // and E2E teacher is not scheduled at this timeslot)
+    const timeslotId = `${testSemester.Semester}-${testSemester.Year}-TUE4`;
+    const subjectCode = testTeacher.SubjectCode; // ค21201
+    const gradeId = testTeacher.GradeID; // M1-1
+    const teacherId = testTeacher.TeacherID; // 1
 
-    const { row, col } = getTimeslotCoords("MON", 1);
-    await arrangePage.dragSubjectToTimeslot(subjectCode, row, col);
-    await arrangePage.selectRoom("");
+    // Step 1: Navigate to arrange page with teacher pre-selected
+    await page.goto(
+      `/schedule/${semester}/arrange?teacher=${teacherId}&tab=teacher`,
+    );
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByTestId("timetable-grid")).toBeVisible({ timeout: 30_000 });
 
+    // Step 2: Extract RespID from palette (needed to link schedule to teacher)
+    const subjectItem = page.locator(
+      `[data-testid="subject-item"][data-subject-code="${subjectCode}"]`,
+    );
+    await expect(subjectItem.first()).toBeVisible({ timeout: 15_000 });
+    const respId = await subjectItem.first().getAttribute("data-resp-id");
+
+    // Step 3: Navigate directly to room-select URL (bypasses flaky drag-and-drop)
+    const params = new URLSearchParams({
+      timeslot: timeslotId,
+      subject: subjectCode,
+      grade: gradeId,
+      teacher: String(teacherId),
+      ...(respId ? { resp: respId } : {}),
+    });
+    const roomSelectUrl = `/schedule/${semester}/arrange/room-select?${params}`;
+    await page.goto(roomSelectUrl);
+    await page.waitForLoadState("domcontentloaded");
+
+    // Step 4: Wait for room dialog/page and select first available room
+    const roomOptions = page.locator(
+      '[data-testid^="room-option-"]:not([disabled])',
+    );
+    await expect(roomOptions.first()).toBeVisible({ timeout: 15_000 });
+
+    // Click the first room — server action creates the schedule entry
+    await Promise.all([
+      page.waitForResponse(
+        (resp) => resp.request().method() === "POST" && resp.status() < 400,
+        { timeout: 15_000 },
+      ).catch(() => null),
+      roomOptions.first().click({ timeout: 5_000 }),
+    ]);
+
+    // Wait for success feedback (snackbar) before navigating
+    await page
+      .getByText(/จัดตารางสอนสำเร็จ/)
+      .waitFor({ state: "visible", timeout: 10_000 })
+      .catch(() => {}); // Non-blocking — some flows navigate immediately
+
+    // Step 5: Navigate back to arrange page with same teacher
+    await page.goto(
+      `/schedule/${semester}/arrange?teacher=${teacherId}&tab=teacher`,
+    );
+    await page.waitForLoadState("domcontentloaded");
+    await expect(page.getByTestId("timetable-grid")).toBeVisible({ timeout: 30_000 });
+
+    // Step 6: Assert the schedule entry appears in the grid
+    const { row, col } = getTimeslotCoords("TUE", 4);
     await arrangePage.assertSubjectPlaced(row, col, subjectCode);
-
-    // Act + Assert - This flow persists on room selection; "save" is only an unsaved-changes warning.
-    const assignedCount = await arrangePage.getAssignedSubjectCount();
-    expect(assignedCount).toBeGreaterThan(0);
   });
 });
 

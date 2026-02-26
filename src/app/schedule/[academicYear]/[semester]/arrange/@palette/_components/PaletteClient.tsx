@@ -46,6 +46,8 @@ function DraggableSubject({ subject }: { subject: Subject }) {
       {...attributes}
       {...listeners}
       data-testid="subject-item"
+      data-subject-code={subject.SubjectCode}
+      data-resp-id={subject.RespID}
       sx={{
         border: "1px solid",
         borderColor: "divider",
