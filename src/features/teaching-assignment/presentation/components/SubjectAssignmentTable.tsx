@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Paper,
   Table,
@@ -17,6 +18,7 @@ import {
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
 import type { semester } from "@/prisma/generated/client";
+import { enqueueSnackbar } from "notistack";
 import { subjectCreditToNumber } from "../../domain/utils/subject-credit";
 import { TeacherSelector } from "./TeacherSelector";
 import { useConfirmDialog } from "@/components/dialogs/ConfirmDialog";
@@ -57,6 +59,7 @@ export function SubjectAssignmentTable({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { confirm, dialog } = useConfirmDialog();
+  const router = useRouter();
 
   // Fetch subjects and assignments
   useEffect(() => {
@@ -123,12 +126,16 @@ export function SubjectAssignmentTable({
 
         if (result.success) {
           // Refresh data
-          window.location.reload();
+          router.refresh();
         } else {
-          alert(result.error?.message || "เกิดข้อผิดพลาดในการมอบหมาย");
+          enqueueSnackbar(result.error?.message || "เกิดข้อผิดพลาดในการมอบหมาย", {
+            variant: "error",
+          });
         }
       } catch (err) {
-        alert(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
+        enqueueSnackbar(err instanceof Error ? err.message : "เกิดข้อผิดพลาด", {
+          variant: "error",
+        });
       }
     })();
   };
@@ -146,12 +153,16 @@ export function SubjectAssignmentTable({
 
       if (result.success) {
         // Refresh data
-        window.location.reload();
+        router.refresh();
       } else {
-        alert(result.error?.message || "เกิดข้อผิดพลาดในการยกเลิก");
+        enqueueSnackbar(result.error?.message || "เกิดข้อผิดพลาดในการยกเลิก", {
+          variant: "error",
+        });
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
+      enqueueSnackbar(err instanceof Error ? err.message : "เกิดข้อผิดพลาด", {
+        variant: "error",
+      });
     }
   };
 
