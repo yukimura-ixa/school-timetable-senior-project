@@ -26,6 +26,7 @@ export default function RoomSelectModal() {
   const subject = searchParams.get("subject") || "";
   const grade = searchParams.get("grade") || "";
   const teacher = searchParams.get("teacher") || "";
+  const resp = searchParams.get("resp") || "";
 
   const handleClose = () => {
     router.back(); // Close modal by going back
@@ -51,6 +52,7 @@ export default function RoomSelectModal() {
           subject={subject}
           grade={grade}
           teacher={teacher}
+          resp={resp}
         />
       </DialogContent>
     </Dialog>

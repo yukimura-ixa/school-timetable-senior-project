@@ -25,10 +25,11 @@ export default async function RoomSelectPage({
     subject?: string;
     grade?: string;
     teacher?: string;
+    resp?: string;
   }>;
 }) {
   const params = await searchParams;
-  const { timeslot, subject, grade, teacher } = params;
+  const { timeslot, subject, grade, teacher, resp } = params;
 
   if (!timeslot || !subject || !grade || !teacher) {
     return (
@@ -61,6 +62,7 @@ export default async function RoomSelectPage({
             subject={subject}
             grade={grade}
             teacher={teacher}
+            resp={resp || ""}
           />
         </Suspense>
       </Paper>

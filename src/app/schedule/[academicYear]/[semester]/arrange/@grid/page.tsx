@@ -61,6 +61,7 @@ type ScheduleEntry = {
 type SubjectDragData = {
   SubjectCode: string;
   GradeID: string;
+  RespID?: number;
 };
 
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI"] as const;
@@ -231,6 +232,7 @@ export default function GridSlot() {
         subject: subjectData.SubjectCode,
         grade: subjectData.GradeID,
         teacher: teacher,
+        ...(subjectData.RespID ? { resp: String(subjectData.RespID) } : {}),
       });
 
       router.push(

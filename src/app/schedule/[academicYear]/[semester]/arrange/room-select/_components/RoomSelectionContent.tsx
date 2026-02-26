@@ -38,6 +38,7 @@ type Props = {
   subject: string;
   grade: string;
   teacher: string;
+  resp: string;
 };
 
 export function RoomSelectionContent({
@@ -45,6 +46,7 @@ export function RoomSelectionContent({
   subject,
   grade,
   teacher: _teacher,
+  resp,
 }: Props) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -67,7 +69,7 @@ export function RoomSelectionContent({
         GradeID: grade,
         RoomID: room.RoomID,
         IsLocked: false,
-        ResponsibilityIDs: [], // Populated by server action
+        ResponsibilityIDs: resp ? [parseInt(resp, 10)] : [],
       });
 
       if (result && typeof result === "object" && "success" in result && result.success) {
