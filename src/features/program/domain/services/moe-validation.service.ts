@@ -310,9 +310,9 @@ export function validateTrackElectives(
     }
   }
 
-  // Enforce track-specific minimums
-  const minimumRequired = track === "SCIENCE_MATH" ? 3 : 2;
+  // Enforce: student must cover ALL unique learning areas from track config
   const totalRequired = requiredLearningAreas.size;
+  const minimumRequired = totalRequired;
   const trackNameThai = getTrackNameThai(track);
 
   if (coveredLearningAreas.size < minimumRequired) {

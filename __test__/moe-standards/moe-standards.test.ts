@@ -146,10 +146,42 @@ describe("MOE Standards Configuration", () => {
     });
 
     it("should return arts-language electives for arts track", () => {
-      const electives = getTrackElectives("M4", "ARTS_LANGUAGE");
+      const electives = getTrackElectives("M4", "LANGUAGE_ARTS");
       const codes = electives.map((e) => e.subjectCode);
       expect(codes).toContain("SS_ADV"); // Advanced Social Studies
       expect(codes).toContain("EN_ADV"); // Advanced English
+    });
+
+    it("should return language-math electives for LANGUAGE_MATH track", () => {
+      const electives = getTrackElectives("M4", "LANGUAGE_MATH");
+      const codes = electives.map((e) => e.subjectCode);
+      expect(codes).toContain("MA_ADV"); // Advanced Mathematics
+      expect(codes).toContain("EN_ADV"); // Advanced English
+      expect(codes).toContain("CP_ADV"); // Computer Science
+      expect(electives.length).toBe(5);
+    });
+
+    it("should return general electives for GENERAL track", () => {
+      const electives = getTrackElectives("M4", "GENERAL");
+      // GENERAL returns the standard electiveSubjects from the year config
+      expect(electives.length).toBeGreaterThan(0);
+    });
+
+    it("should have distinct electives per track for upper secondary", () => {
+      const sciMath = getTrackElectives("M4", "SCIENCE_MATH");
+      const langArts = getTrackElectives("M4", "LANGUAGE_ARTS");
+      const langMath = getTrackElectives("M4", "LANGUAGE_MATH");
+
+      // Science-math should have physics, arts-language should not
+      const sciCodes = sciMath.map((e) => e.subjectCode);
+      const artsCodes = langArts.map((e) => e.subjectCode);
+      expect(sciCodes).toContain("PH");
+      expect(artsCodes).not.toContain("PH");
+
+      // Language-math should share MA_ADV with science-math
+      const langMathCodes = langMath.map((e) => e.subjectCode);
+      expect(langMathCodes).toContain("MA_ADV");
+      expect(sciCodes).toContain("MA_ADV");
     });
   });
 });

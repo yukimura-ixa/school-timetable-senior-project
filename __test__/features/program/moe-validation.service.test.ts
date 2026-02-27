@@ -2,6 +2,7 @@
 import {
   validateProgramMOECredits,
   calculateLearningAreaCredits,
+  validateTrackElectives,
 } from "@/features/program/domain/services/moe-validation.service";
 import { SubjectCategory, LearningArea } from "@/prisma/generated/client";
 import type { program_subject, subject } from "@/prisma/generated/client";
@@ -631,6 +632,404 @@ describe("MOE Validation Service", () => {
       );
 
       expect(mathCredits).toBe(2); // Only MATH01, ACT01 excluded
+    });
+  });
+
+  // ─── Track Validation Tests ───────────────────────────────────────────────
+
+  /**
+   * Helper: Create a mock program_subject with subject
+   */
+  function createMockProgramSubject(
+    overrides: {
+      code?: string;
+      name?: string;
+      category?: SubjectCategory;
+      learningArea?: LearningArea | null;
+      minCredits?: number;
+      programId?: number;
+      sortOrder?: number;
+    } = {},
+  ): program_subject & { subject: subject } {
+    const code = overrides.code ?? "TEST01";
+    const cat = overrides.category ?? SubjectCategory.CORE;
+    return {
+      ProgramSubjectID: Math.floor(Math.random() * 100000),
+      ProgramID: overrides.programId ?? 1,
+      SubjectCode: code,
+      Category: cat,
+      IsMandatory: cat === SubjectCategory.CORE,
+      MinCredits: overrides.minCredits ?? 2,
+      MaxCredits: overrides.minCredits ?? 2,
+      SortOrder: overrides.sortOrder ?? 1,
+      subject: {
+        SubjectCode: code,
+        SubjectName: overrides.name ?? "Test Subject",
+        Credit: "CREDIT_10",
+        Category: cat,
+        LearningArea: overrides.learningArea ?? null,
+        ActivityType: cat === SubjectCategory.ACTIVITY ? "CLUB" : null,
+        IsGraded: cat !== SubjectCategory.ACTIVITY,
+        Description: "",
+      },
+    };
+  }
+
+  /**
+   * Create a standard senior program with 8 core subjects (17 credits)
+   * This is the baseline for all track validation tests.
+   */
+  function createSeniorCoreSubjects(): Array<
+    program_subject & { subject: subject }
+  > {
+    return [
+      createMockProgramSubject({
+        code: "THAI04",
+        name: "ภาษาไทย",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.THAI,
+        minCredits: 3,
+      }),
+      createMockProgramSubject({
+        code: "MATH04",
+        name: "คณิตศาสตร์",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.MATHEMATICS,
+        minCredits: 3,
+      }),
+      createMockProgramSubject({
+        code: "SCI04",
+        name: "วิทยาศาสตร์",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.SCIENCE,
+        minCredits: 3,
+      }),
+      createMockProgramSubject({
+        code: "SOC04",
+        name: "สังคมศึกษา",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.SOCIAL,
+        minCredits: 2,
+      }),
+      createMockProgramSubject({
+        code: "HEALTH04",
+        name: "สุขศึกษา",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.HEALTH_PE,
+        minCredits: 2,
+      }),
+      createMockProgramSubject({
+        code: "ART04",
+        name: "ศิลปะ",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.ARTS,
+        minCredits: 1,
+      }),
+      createMockProgramSubject({
+        code: "CAREER04",
+        name: "การงานอาชีพ",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.CAREER,
+        minCredits: 1,
+      }),
+      createMockProgramSubject({
+        code: "ENG04",
+        name: "ภาษาอังกฤษ",
+        category: SubjectCategory.CORE,
+        learningArea: LearningArea.FOREIGN_LANGUAGE,
+        minCredits: 2,
+      }),
+      createMockProgramSubject({
+        code: "ACT04",
+        name: "ชุมนุม",
+        category: SubjectCategory.ACTIVITY,
+        learningArea: null,
+        minCredits: 1,
+      }),
+    ];
+  }
+
+  describe("validateTrackElectives", () => {
+    describe("SCIENCE_MATH track", () => {
+      it("should error when zero science/math electives present", () => {
+        // Senior program with only core subjects, no ADDITIONAL
+        const subjects = createSeniorCoreSubjects();
+        const result = validateTrackElectives("SCIENCE_MATH", 4, subjects);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0]).toContain("แผนวิทย์-คณิต");
+        expect(result.errors[0]).toContain("ขาดวิชาเพิ่มเติม");
+      });
+
+      it("should pass when student has both MATH and SCIENCE electives", () => {
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          // ADDITIONAL: Advanced Math (covers MATHEMATICS area)
+          createMockProgramSubject({
+            code: "MA_ADV",
+            name: "คณิตศาสตร์เพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.MATHEMATICS,
+            minCredits: 3,
+          }),
+          // ADDITIONAL: Physics (covers SCIENCE area)
+          createMockProgramSubject({
+            code: "PH01",
+            name: "ฟิสิกส์",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SCIENCE,
+            minCredits: 3,
+          }),
+        ];
+        const result = validateTrackElectives("SCIENCE_MATH", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings).toHaveLength(0);
+      });
+
+      it("should warn when only one of MATH/SCIENCE is covered", () => {
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          // Only SCIENCE elective, no MATH elective
+          createMockProgramSubject({
+            code: "PH01",
+            name: "ฟิสิกส์",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SCIENCE,
+            minCredits: 3,
+          }),
+        ];
+        const result = validateTrackElectives("SCIENCE_MATH", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings.length).toBeGreaterThan(0);
+        expect(result.warnings[0]).toContain("แผนวิทย์-คณิต");
+      });
+
+      it("should work for year 5 and 6 as well", () => {
+        const subjects = createSeniorCoreSubjects();
+        const resultY5 = validateTrackElectives("SCIENCE_MATH", 5, subjects);
+        const resultY6 = validateTrackElectives("SCIENCE_MATH", 6, subjects);
+
+        expect(resultY5.errors.length).toBeGreaterThan(0);
+        expect(resultY6.errors.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("LANGUAGE_ARTS track", () => {
+      it("should error when zero language/arts electives present", () => {
+        const subjects = createSeniorCoreSubjects();
+        const result = validateTrackElectives("LANGUAGE_ARTS", 4, subjects);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0]).toContain("แผนศิลป์-ภาษา");
+      });
+
+      it("should pass when all 3 required learning areas covered", () => {
+        // LANGUAGE_ARTS requires: SOCIAL, FOREIGN_LANGUAGE, ARTS
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          createMockProgramSubject({
+            code: "SS_ADV",
+            name: "สังคมศึกษาเพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SOCIAL,
+            minCredits: 2,
+          }),
+          createMockProgramSubject({
+            code: "EN_ADV",
+            name: "ภาษาอังกฤษเพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.FOREIGN_LANGUAGE,
+            minCredits: 2,
+          }),
+          createMockProgramSubject({
+            code: "AR_ADV",
+            name: "ศิลปะเพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.ARTS,
+            minCredits: 2,
+          }),
+        ];
+        const result = validateTrackElectives("LANGUAGE_ARTS", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings).toHaveLength(0);
+      });
+
+      it("should warn when only 2 of 3 required areas covered", () => {
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          createMockProgramSubject({
+            code: "SS_ADV",
+            name: "สังคมศึกษาเพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SOCIAL,
+            minCredits: 2,
+          }),
+          createMockProgramSubject({
+            code: "EN_ADV",
+            name: "ภาษาอังกฤษเพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.FOREIGN_LANGUAGE,
+            minCredits: 2,
+          }),
+          // Missing ARTS elective
+        ];
+        const result = validateTrackElectives("LANGUAGE_ARTS", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings.length).toBeGreaterThan(0);
+        expect(result.warnings[0]).toContain("2/3");
+      });
+    });
+
+    describe("LANGUAGE_MATH track", () => {
+      it("should error when zero relevant electives present", () => {
+        const subjects = createSeniorCoreSubjects();
+        const result = validateTrackElectives("LANGUAGE_MATH", 4, subjects);
+
+        expect(result.errors.length).toBeGreaterThan(0);
+        expect(result.errors[0]).toContain("แผนศิลป์-คำนวณ");
+      });
+
+      it("should pass when all 3 required learning areas covered", () => {
+        // LANGUAGE_MATH requires: MATHEMATICS, FOREIGN_LANGUAGE, SCIENCE
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          createMockProgramSubject({
+            code: "MA_ADV",
+            name: "คณิตศาสตร์เพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.MATHEMATICS,
+            minCredits: 3,
+          }),
+          createMockProgramSubject({
+            code: "EN_ADV",
+            name: "ภาษาอังกฤษเพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.FOREIGN_LANGUAGE,
+            minCredits: 2,
+          }),
+          createMockProgramSubject({
+            code: "CP_ADV",
+            name: "วิทยาการคำนวณ",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SCIENCE,
+            minCredits: 2,
+          }),
+        ];
+        const result = validateTrackElectives("LANGUAGE_MATH", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings).toHaveLength(0);
+      });
+
+      it("should warn when only 1 of 3 required areas covered", () => {
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          // Only MATH, missing FOREIGN_LANGUAGE and SCIENCE
+          createMockProgramSubject({
+            code: "MA_ADV",
+            name: "คณิตศาสตร์เพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.MATHEMATICS,
+            minCredits: 3,
+          }),
+        ];
+        const result = validateTrackElectives("LANGUAGE_MATH", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings.length).toBeGreaterThan(0);
+        expect(result.warnings[0]).toContain("1/3");
+      });
+    });
+
+    describe("GENERAL track", () => {
+      it("should have no track-specific errors or warnings", () => {
+        const subjects = createSeniorCoreSubjects();
+        const result = validateTrackElectives("GENERAL", 4, subjects);
+
+        expect(result.errors).toHaveLength(0);
+        expect(result.warnings).toHaveLength(0);
+      });
+    });
+
+    describe("Lower secondary with track", () => {
+      it("should skip track validation via validateProgramMOECredits for M.1-M.3", () => {
+        // Even with a track, year 1-3 should not get track errors
+        const subjects = createSeniorCoreSubjects(); // reuse structure
+        const result = validateProgramMOECredits(1, subjects, "SCIENCE_MATH");
+
+        // Should have credit errors (wrong credits for junior) but NOT track errors
+        const trackErrors = result.errors.filter((e) =>
+          e.includes("แผนวิทย์-คณิต"),
+        );
+        expect(trackErrors).toHaveLength(0);
+      });
+    });
+
+    describe("Integration: validateProgramMOECredits with track", () => {
+      it("should include track errors in overall result for senior SCIENCE_MATH", () => {
+        const subjects = createSeniorCoreSubjects();
+        const result = validateProgramMOECredits(4, subjects, "SCIENCE_MATH");
+
+        // Should have track-related error (no ADDITIONAL subjects)
+        const trackErrors = result.errors.filter((e) =>
+          e.includes("แผนวิทย์-คณิต"),
+        );
+        expect(trackErrors.length).toBeGreaterThan(0);
+        expect(result.isValid).toBe(false);
+      });
+
+      it("should pass with valid senior SCIENCE_MATH program", () => {
+        const subjects = [
+          ...createSeniorCoreSubjects(),
+          createMockProgramSubject({
+            code: "MA_ADV",
+            name: "คณิตศาสตร์เพิ่มเติม",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.MATHEMATICS,
+            minCredits: 3,
+          }),
+          createMockProgramSubject({
+            code: "PH01",
+            name: "ฟิสิกส์",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SCIENCE,
+            minCredits: 3,
+          }),
+          createMockProgramSubject({
+            code: "CH01",
+            name: "เคมี",
+            category: SubjectCategory.ADDITIONAL,
+            learningArea: LearningArea.SCIENCE,
+            minCredits: 3,
+          }),
+        ];
+        const result = validateProgramMOECredits(4, subjects, "SCIENCE_MATH");
+
+        // Should have no track errors
+        const trackErrors = result.errors.filter((e) =>
+          e.includes("แผนวิทย์-คณิต"),
+        );
+        expect(trackErrors).toHaveLength(0);
+      });
+
+      it("should not add track errors when track is undefined", () => {
+        const subjects = createSeniorCoreSubjects();
+        // No track passed (backward compatible)
+        const result = validateProgramMOECredits(4, subjects);
+
+        const trackErrors = result.errors.filter(
+          (e) =>
+            e.includes("แผน") &&
+            (e.includes("วิทย์") ||
+              e.includes("ศิลป์") ||
+              e.includes("ทั่วไป")),
+        );
+        expect(trackErrors).toHaveLength(0);
+      });
     });
   });
 });
