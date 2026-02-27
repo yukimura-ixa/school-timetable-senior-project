@@ -11,5 +11,13 @@
     "src/**/*.tsx",
     "scripts/**/*.ts"
   ],
-  "exclude": ["node_modules", "__test__/**/*", "e2e/**/*", "prisma/**/*"]
+  "exclude": [
+    "node_modules",
+    "__test__/**/*",
+    "e2e/**/*",
+    "prisma/**/*",
+    ".next/**/*",
+    "dist/**/*",
+    "coverage/**/*"
+  ]
 }

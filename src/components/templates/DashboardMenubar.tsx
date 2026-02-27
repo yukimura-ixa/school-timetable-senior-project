@@ -40,9 +40,10 @@ function DashboardMenubar() {
     <>
       {pathName === "/signin" ? null : (
         <aside
-          className={`flex flex-col gap-8 flex-shrink-0 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${
-            sidebarOpen ? "w-[270px] px-5 py-8" : "w-0 px-0 py-8 border-none"
-          }`}
+          className={`flex flex-col gap-8 flex-shrink-0 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 border-r border-gray-200 shadow-lg transition-all duration-300 ease-in-out overflow-hidden
+            ${sidebarOpen ? "w-[270px] px-5 py-8" : "w-0 px-0 py-8 border-none"}
+            ${sidebarOpen ? "fixed inset-y-0 left-0 z-40 md:relative md:z-auto" : ""}
+          `}
         >
           {/* management */}
           {/* <div className="flex flex-col w-full gap-1 h-fit border-b border-[#C8C9CD]">

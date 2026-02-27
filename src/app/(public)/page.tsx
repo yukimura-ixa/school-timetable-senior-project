@@ -106,12 +106,12 @@ export default async function HomePage() {
             </div>
 
             {/* CTA Buttons with premium glassmorphism */}
-            <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full lg:w-auto">
               <Link
                 href="/signin"
                 prefetch={false}
                 data-testid="sign-in-button"
-                className="group relative inline-flex items-center justify-center rounded-2xl px-6 py-4 md:px-10 md:py-5 text-base md:text-lg font-bold transition-all duration-500 bg-white text-slate-900 shadow-[0_20px_40px_rgba(255,255,255,0.2)] hover:shadow-[0_25px_50px_rgba(255,255,255,0.3)] hover:scale-105 hover:-translate-y-1 active:scale-95"
+                className="group relative inline-flex items-center justify-center rounded-2xl px-4 py-4 sm:px-6 md:px-10 md:py-5 text-base md:text-lg font-bold transition-all duration-500 bg-white text-slate-900 shadow-[0_20px_40px_rgba(255,255,255,0.2)] hover:shadow-[0_25px_50px_rgba(255,255,255,0.3)] hover:scale-105 hover:-translate-y-1 active:scale-95 w-full sm:w-auto"
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <span className="relative flex items-center">
@@ -123,7 +123,7 @@ export default async function HomePage() {
                 <Link
                   href={`/teachers/${firstTeacherId}/${currentTerm.academicYear}/${currentTerm.semester}`}
                   prefetch={false}
-                  className="group relative inline-flex items-center justify-center rounded-2xl border-2 border-white/20 backdrop-blur-md px-6 py-4 md:px-10 md:py-5 text-base md:text-lg font-bold text-white transition-all duration-500 hover:bg-white/10 hover:border-white/40 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden"
+                  className="group relative inline-flex items-center justify-center rounded-2xl border-2 border-white/20 backdrop-blur-md px-4 py-4 sm:px-6 md:px-10 md:py-5 text-base md:text-lg font-bold text-white transition-all duration-500 hover:bg-white/10 hover:border-white/40 hover:scale-105 hover:-translate-y-1 active:scale-95 overflow-hidden w-full sm:w-auto"
                 >
                   <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   <span className="relative flex items-center">
