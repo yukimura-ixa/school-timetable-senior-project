@@ -9,6 +9,11 @@
 
 import { LearningArea, SubjectCategory } from "@/prisma/generated/client";
 import type { program_subject, subject } from "@/prisma/generated/client";
+import {
+  getTrackElectives,
+  type ProgramTrack,
+  type YearKey,
+} from "@/config/moe-standards";
 
 /**
  * MOE minimum credit requirements per learning area (hours per week)
@@ -102,6 +107,7 @@ export function calculateLearningAreaCredits(
 export function validateProgramMOECredits(
   year: number,
   programSubjects: Array<program_subject & { subject: subject }>,
+  track?: ProgramTrack,
 ): ProgramValidationResult {
   const isJunior = year >= 1 && year <= 3;
   const isSenior = year >= 4 && year <= 6;
@@ -173,6 +179,13 @@ export function validateProgramMOECredits(
     );
   }
 
+  // Check track-specific electives for upper secondary
+  if (track && isSenior && track !== "GENERAL") {
+    const trackResult = validateTrackElectives(track, year, programSubjects);
+    errors.push(...trackResult.errors);
+    warnings.push(...trackResult.warnings);
+  }
+
   return {
     isValid: errors.length === 0,
     totalCredits: totalCurrent,
@@ -221,6 +234,100 @@ export function validateMandatorySubjects(
     isValid: errors.length === 0,
     errors,
   };
+}
+
+/**
+ * Map subject group name to LearningArea for matching track electives
+ */
+function mapGroupToLearningArea(group: string): LearningArea {
+  const mapping: Record<string, LearningArea> = {
+    "คณิตศาสตร์": LearningArea.MATHEMATICS,
+    "วิทยาศาสตร์": LearningArea.SCIENCE,
+    "ภาษาอังกฤษ": LearningArea.FOREIGN_LANGUAGE,
+    "ภาษาต่างประเทศ": LearningArea.FOREIGN_LANGUAGE,
+    "สังคมศึกษา": LearningArea.SOCIAL,
+    "ศิลปะ": LearningArea.ARTS,
+  };
+  return mapping[group] || LearningArea.SCIENCE;
+}
+
+/**
+ * Get Thai name for program track
+ */
+function getTrackNameThai(track: ProgramTrack): string {
+  const names: Record<ProgramTrack, string> = {
+    SCIENCE_MATH: "แผนวิทย์-คณิต",
+    LANGUAGE_MATH: "แผนศิลป์-คำนวณ",
+    LANGUAGE_ARTS: "แผนศิลป์-ภาษา",
+    GENERAL: "แผนทั่วไป",
+  };
+  return names[track];
+}
+
+/**
+ * Validate track-specific elective requirements for upper secondary
+ *
+ * Rules per Thai MOE 2551:
+ * - SCIENCE_MATH: Must have ≥3 of (Math Adv, Physics, Chemistry, Biology) learning area groups
+ * - LANGUAGE_MATH: Must have ≥2 of (Math, Foreign Language, Science) learning area groups
+ * - LANGUAGE_ARTS: Must have ≥2 of (Social, Foreign Language, Arts) learning area groups
+ * - GENERAL: No specific requirement
+ */
+export function validateTrackElectives(
+  track: ProgramTrack,
+  year: number,
+  programSubjects: Array<program_subject & { subject: subject }>,
+): { errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (track === "GENERAL") {
+    return { errors, warnings }; // No track-specific requirements
+  }
+
+  // Convert numeric year to YearKey
+  const yearKey = `M${year}` as YearKey;
+
+  // Get required elective groups for this track
+  const trackElectives = getTrackElectives(yearKey, track);
+
+  // Collect unique required learning areas from track electives
+  const requiredLearningAreas = new Set<LearningArea>();
+  trackElectives.forEach((e) => {
+    requiredLearningAreas.add(mapGroupToLearningArea(e.group));
+  });
+
+  // Check which required learning areas are covered by student electives
+  const studentElectives = programSubjects.filter(
+    (ps) => ps.Category === SubjectCategory.ADDITIONAL,
+  );
+
+  const coveredLearningAreas = new Set<LearningArea>();
+  for (const studentElective of studentElectives) {
+    const la = studentElective.subject.LearningArea;
+    if (requiredLearningAreas.has(la)) {
+      coveredLearningAreas.add(la);
+    }
+  }
+
+  // Enforce track-specific minimums
+  const minimumRequired = track === "SCIENCE_MATH" ? 3 : 2;
+  const totalRequired = requiredLearningAreas.size;
+  const trackNameThai = getTrackNameThai(track);
+
+  if (coveredLearningAreas.size < minimumRequired) {
+    if (coveredLearningAreas.size === 0) {
+      errors.push(
+        `${trackNameThai}: ขาดวิชาเพิ่มเติมตามแผนการเรียน (ต้องมีอย่างน้อย ${minimumRequired}/${totalRequired} กลุ่มสาระ)`,
+      );
+    } else {
+      warnings.push(
+        `${trackNameThai}: มีวิชาเพิ่มเติมตามแผนเพียง ${coveredLearningAreas.size}/${totalRequired} กลุ่มสาระ (แนะนำอย่างน้อย ${minimumRequired})`,
+      );
+    }
+  }
+
+  return { errors, warnings };
 }
 
 /**
