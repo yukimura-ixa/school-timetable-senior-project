@@ -342,6 +342,57 @@ const ARTS_LANGUAGE_ELECTIVES: SubjectWeeklyStandard[] = [
 ];
 
 /**
+ * Arts-Math track electives for upper secondary (ศิลป์-คำนวณ)
+ */
+const LANGUAGE_MATH_ELECTIVES: SubjectWeeklyStandard[] = [
+  {
+    subjectCode: "MA_ADV",
+    subjectNameTh: "คณิตศาสตร์เพิ่มเติม",
+    subjectNameEn: "Advanced Mathematics",
+    minWeeklyLessons: 2,
+    maxWeeklyLessons: 4,
+    category: "ELECTIVE",
+    group: "คณิตศาสตร์",
+  },
+  {
+    subjectCode: "EN_ADV",
+    subjectNameTh: "ภาษาอังกฤษเพิ่มเติม",
+    subjectNameEn: "Advanced English",
+    minWeeklyLessons: 2,
+    maxWeeklyLessons: 3,
+    category: "ELECTIVE",
+    group: "ภาษาอังกฤษ",
+  },
+  {
+    subjectCode: "CH",
+    subjectNameTh: "ภาษาจีน",
+    subjectNameEn: "Chinese",
+    minWeeklyLessons: 2,
+    maxWeeklyLessons: 3,
+    category: "ELECTIVE",
+    group: "ภาษาต่างประเทศ",
+  },
+  {
+    subjectCode: "JP",
+    subjectNameTh: "ภาษาญี่ปุ่น",
+    subjectNameEn: "Japanese",
+    minWeeklyLessons: 2,
+    maxWeeklyLessons: 3,
+    category: "ELECTIVE",
+    group: "ภาษาต่างประเทศ",
+  },
+  {
+    subjectCode: "CP_ADV",
+    subjectNameTh: "วิทยาการคำนวณ",
+    subjectNameEn: "Computer Science",
+    minWeeklyLessons: 1,
+    maxWeeklyLessons: 2,
+    category: "ELECTIVE",
+    group: "วิทยาศาสตร์",
+  },
+];
+
+/**
  * Required activities for all grade levels
  */
 const COMMON_ACTIVITIES: SubjectWeeklyStandard[] = [
@@ -499,8 +550,13 @@ export function getSubjectGroups(year: YearKey): string[] {
 
 /**
  * Program track types for upper secondary
+ * Must match Prisma ProgramTrack enum exactly
  */
-export type ProgramTrack = "GENERAL" | "SCIENCE_MATH" | "ARTS_LANGUAGE";
+export type ProgramTrack =
+  | "GENERAL"
+  | "SCIENCE_MATH"
+  | "LANGUAGE_MATH"
+  | "LANGUAGE_ARTS";
 
 /**
  * Helper: Get recommended electives for a program track
@@ -520,7 +576,9 @@ export function getTrackElectives(
   switch (track) {
     case "SCIENCE_MATH":
       return SCIENCE_MATH_ELECTIVES;
-    case "ARTS_LANGUAGE":
+    case "LANGUAGE_MATH":
+      return LANGUAGE_MATH_ELECTIVES;
+    case "LANGUAGE_ARTS":
       return ARTS_LANGUAGE_ELECTIVES;
     case "GENERAL":
     default:
