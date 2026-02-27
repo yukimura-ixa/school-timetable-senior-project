@@ -11,6 +11,7 @@ import {
   getMOEStandards,
   validateTotalLessons,
   getMinCoreLessons,
+  getTrackElectives,
 } from "@/config/moe-standards";
 
 /**
@@ -139,6 +140,33 @@ export function validateProgramStandards(
     warnings.push("ควรมีคาบชั้นเรียน (Homeroom) อย่างน้อย 1 คาบ/สัปดาห์");
   }
 
+  // Check track-specific electives for upper secondary
+  if (input.track && isUpperSecondary(input.year) && input.track !== "GENERAL") {
+    const trackElectives = getTrackElectives(input.year, input.track);
+    const trackElectiveGroups = new Set<string>();
+
+    trackElectives.forEach((e) => {
+      trackElectiveGroups.add(e.group);
+    });
+
+    const studentElectiveGroups = new Set(
+      input.subjects
+        .filter((s) => s.category === "ELECTIVE")
+        .map((s) => s.group),
+    );
+
+    const minimumRequired = input.track === "SCIENCE_MATH" ? 3 : 2;
+    const coveredCount = Array.from(studentElectiveGroups).filter((g) =>
+      trackElectiveGroups.has(g),
+    ).length;
+
+    if (coveredCount < minimumRequired) {
+      errors.push(
+        `${getTrackNameThai(input.track)}: ขาดวิชาเพิ่มเติมตามแผนการเรียน`,
+      );
+    }
+  }
+
   return {
     valid: errors.length === 0,
     errors,
@@ -234,4 +262,17 @@ export function formatValidationResult(result: ValidationResult): string {
   }
 
   return lines.join("\n");
+}
+
+/**
+ * Get Thai name for program track
+ */
+function getTrackNameThai(track: ProgramTrack): string {
+  const names: Record<ProgramTrack, string> = {
+    SCIENCE_MATH: "แผนวิทย์-คณิต",
+    LANGUAGE_MATH: "แผนศิลป์-คำนวณ",
+    LANGUAGE_ARTS: "แผนศิลป์-ภาษา",
+    GENERAL: "แผนทั่วไป",
+  };
+  return names[track];
 }
