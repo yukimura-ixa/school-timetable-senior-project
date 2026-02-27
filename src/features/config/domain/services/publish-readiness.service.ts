@@ -52,6 +52,7 @@ export function checkPublishReadiness(
     const result = validateProgramMOECredits(
       program.Year,
       program.program_subject,
+      program.Track,
     );
     if (!result.isValid) {
       issues.push(
