@@ -7,8 +7,11 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 const prismaClientSingleton = () => {
   if (process.env.NODE_ENV === "production") {
-    // Production: Use Accelerate only when a valid Accelerate URL is provided.
-    const accelerateUrl = process.env.ACCELERATE_URL;
+    // Production: Use Accelerate when an Accelerate URL is provided.
+    // Supports both ACCELERATE_URL (custom) and PRISMA_DATABASE_URL
+    // (automatically injected by the Vercel Prisma Postgres integration).
+    const accelerateUrl =
+      process.env.ACCELERATE_URL ?? process.env.PRISMA_DATABASE_URL;
     if (accelerateUrl) {
       if (
         !accelerateUrl.startsWith("prisma://") &&
@@ -40,7 +43,8 @@ const prismaClientSingleton = () => {
     // Development/Test: Prefer Accelerate when an Accelerate URL is provided.
     const connectionString = process.env.DATABASE_URL;
     const accelerateUrl =
-      process.env.ACCELERATE_URL ||
+      process.env.ACCELERATE_URL ??
+      process.env.PRISMA_DATABASE_URL ??
       (connectionString &&
       (connectionString.startsWith("prisma://") ||
         connectionString.startsWith("prisma+postgres://"))

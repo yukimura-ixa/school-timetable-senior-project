@@ -17,7 +17,10 @@ export type CacheTier = keyof typeof CACHE_TIERS;
  * Check whether Prisma Accelerate is active in the current environment.
  */
 export function isAccelerateEnabled(): boolean {
-  const accelerateUrl = process.env.ACCELERATE_URL;
+  // ACCELERATE_URL is our custom variable; PRISMA_DATABASE_URL is auto-injected
+  // by the Vercel Prisma Postgres integration — both activate Accelerate.
+  const accelerateUrl =
+    process.env.ACCELERATE_URL ?? process.env.PRISMA_DATABASE_URL;
   if (accelerateUrl) return true;
 
   const dbUrl = process.env.DATABASE_URL;
