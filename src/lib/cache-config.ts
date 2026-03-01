@@ -42,7 +42,7 @@ export function isAccelerateEnabled(): boolean {
 export function cacheStrategy(
   tier: CacheTier,
   tags?: string[],
-): { cacheStrategy?: { ttl: number; swr: number; tags?: string[] } } {
+): object {
   if (!isAccelerateEnabled()) return {};
   const config = CACHE_TIERS[tier];
   return {
