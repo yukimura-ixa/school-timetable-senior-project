@@ -305,7 +305,7 @@ export function validateTrackElectives(
   const coveredLearningAreas = new Set<LearningArea>();
   for (const studentElective of studentElectives) {
     const la = studentElective.subject.LearningArea;
-    if (requiredLearningAreas.has(la)) {
+    if (la && requiredLearningAreas.has(la)) {
       coveredLearningAreas.add(la);
     }
   }
