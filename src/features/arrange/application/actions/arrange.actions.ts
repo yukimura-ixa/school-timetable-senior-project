@@ -24,6 +24,7 @@ import {
   countChanges,
 } from "../../domain/services/arrange-validation.service";
 import { createLogger } from "@/lib/logger";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 const log = createLogger("ArrangeActions");
 
@@ -197,6 +198,7 @@ export const syncTeacherScheduleAction = createAction<
       added: successfulAdds.length,
     });
 
+    await invalidatePublicCache(["stats", "classes", "teachers"]);
     return {
       success: true,
       data: {

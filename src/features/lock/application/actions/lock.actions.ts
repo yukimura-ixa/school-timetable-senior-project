@@ -27,6 +27,7 @@ import {
   type CreateLockInput,
   type DeleteLocksInput,
 } from "../schemas/lock.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get all locked schedules for a given academic year and semester
@@ -96,6 +97,7 @@ export const createLockAction = createAction(
       }
     }
 
+    await invalidatePublicCache(["classes", "teachers", "stats"]);
     return created;
   },
 );
@@ -110,6 +112,7 @@ export const deleteLocksAction = createAction(
     const result: Prisma.BatchPayload =
       await lockRepository.deleteMany(classIds);
 
+    await invalidatePublicCache(["classes", "teachers", "stats"]);
     return {
       count: result.count,
       deletedClassIds: classIds,
@@ -176,6 +179,7 @@ export const createBulkLocksAction = createAction(
       created.push(schedule);
     }
 
+    await invalidatePublicCache(["classes", "teachers", "stats"]);
     return {
       count: created.length,
       created,
@@ -314,6 +318,7 @@ export const applyLockTemplateAction = createAction(
       created.push(schedule);
     }
 
+    await invalidatePublicCache(["classes", "teachers", "stats"]);
     return {
       templateName: template.name,
       count: created.length,

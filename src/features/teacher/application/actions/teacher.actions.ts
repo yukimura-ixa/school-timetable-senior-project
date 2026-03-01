@@ -39,6 +39,7 @@ import {
   type DeleteTeachersInput,
   type GetTeacherByIdInput,
 } from "../schemas/teacher.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get all teachers ordered by firstname
@@ -153,6 +154,7 @@ export const createTeacherAction = createAction(
     // 4. Revalidate cache
     revalidateTag("teachers", "max");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return newTeacher;
   },
 );
@@ -185,7 +187,7 @@ export const createTeachersAction = createAction(
   createTeachersSchema,
   async (input: CreateTeachersInput) => {
     // Use transaction for atomicity - all succeed or all fail
-    return await withPrismaTransaction(async (tx) => {
+    const createdTeacherIds = await withPrismaTransaction(async (tx) => {
       // Phase 1: Validate ALL teachers before creating any
       const validationErrors: string[] = [];
       const emailsInBatch = new Set<string>();
@@ -259,6 +261,8 @@ export const createTeachersAction = createAction(
       // Return array of IDs
       return createdTeachers.map((t: teacher) => t.TeacherID);
     });
+    await invalidatePublicCache(["teachers", "stats"]);
+    return createdTeacherIds;
   },
 );
 
@@ -322,6 +326,7 @@ export const updateTeacherAction = createAction(
     // 4. Revalidate cache
     revalidateTag("teachers", "max");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return updatedTeacher;
   },
 );
@@ -346,8 +351,7 @@ export const updateTeachersAction = createAction(
   updateTeachersSchema,
   async (input: UpdateTeachersInput) => {
     // Use transaction for atomicity - all succeed or all fail
-    return await withPrismaTransaction(async (tx) => {
-      // Phase 1: Validate ALL teachers before updating any
+    const updatedTeacherIds = await withPrismaTransaction(async (tx) => {
       const validationErrors: string[] = [];
       const emailsInBatch = new Map<string, number>(); // email -> TeacherID using it
 
@@ -417,6 +421,8 @@ export const updateTeachersAction = createAction(
       // Return array of IDs
       return updatedTeachers.map((t: teacher) => t.TeacherID);
     });
+    await invalidatePublicCache(["teachers", "stats"]);
+    return updatedTeacherIds;
   },
 );
 
@@ -444,6 +450,7 @@ export const deleteTeachersAction = createAction(
     // Revalidate cache
     revalidateTag("teachers", "max");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return result;
   },
 );

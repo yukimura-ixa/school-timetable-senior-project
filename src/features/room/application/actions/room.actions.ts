@@ -34,6 +34,7 @@ import {
   type GetAvailableRoomsInput,
   type GetOccupiedRoomsInput,
 } from "../schemas/room.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get all rooms ordered by RoomID
@@ -172,6 +173,7 @@ export const createRoomAction = createAction(
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
+    await invalidatePublicCache(["stats"]);
     return newRoom;
   },
 );
@@ -219,6 +221,7 @@ export const createRoomsAction = createAction(
     // revalidateTag('rooms');
 
     // Return array of IDs
+    await invalidatePublicCache(["stats"]);
     return createdRooms.map((r) => r.RoomID);
   },
 );
@@ -266,6 +269,7 @@ export const updateRoomAction = createAction(
     // 3. Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
+    await invalidatePublicCache(["stats"]);
     return updatedRoom;
   },
 );
@@ -309,6 +313,7 @@ export const updateRoomsAction = createAction(
     // revalidateTag('rooms');
 
     // Return array of IDs
+    await invalidatePublicCache(["stats"]);
     return updatedRooms.map((r) => r.RoomID);
   },
 );
@@ -335,6 +340,7 @@ export const deleteRoomsAction = createAction(
     // Revalidate cache (optional - for future cache optimization)
     // revalidateTag('rooms');
 
+    await invalidatePublicCache(["stats"]);
     return result;
   },
 );

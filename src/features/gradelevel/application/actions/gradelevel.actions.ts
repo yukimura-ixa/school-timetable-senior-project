@@ -32,6 +32,7 @@ import {
   type DeleteGradeLevelsInput,
   type GetGradeLevelsForLockInput,
 } from "../schemas/gradelevel.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get all gradelevels ordered by GradeID with program relation
@@ -85,6 +86,7 @@ export const createGradeLevelAction = createAction(
     // Revalidate cache
     revalidateTag("classes", "max");
 
+    await invalidatePublicCache(["classes", "stats"]);
     return gradelevel;
   },
 );
@@ -118,6 +120,7 @@ export const createGradeLevelsAction = createAction(
       input.map((data) => gradeLevelRepository.create(data)),
     );
 
+    await invalidatePublicCache(["classes", "stats"]);
     return created;
   },
 );
@@ -152,6 +155,7 @@ export const updateGradeLevelAction = createAction(
     // Revalidate cache
     revalidateTag("classes", "max");
 
+    await invalidatePublicCache(["classes", "stats"]);
     return gradelevel;
   },
 );
@@ -184,6 +188,7 @@ export const updateGradeLevelsAction = createAction(
       ),
     );
 
+    await invalidatePublicCache(["classes", "stats"]);
     return updated;
   },
 );
@@ -207,6 +212,7 @@ export const deleteGradeLevelsAction = createAction(
     // Revalidate cache
     revalidateTag("classes", "max");
 
+    await invalidatePublicCache(["classes", "stats"]);
     return {
       count: result.count,
       message: `ลบข้อมูล ${result.count} ชั้นเรียนสำเร็จ`,

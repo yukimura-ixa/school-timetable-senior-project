@@ -33,6 +33,7 @@ import {
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { generateTimeslots } from "@/features/timeslot/domain/services/timeslot.service";
 import { createLogger } from "@/lib/logger";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 const log = createLogger("SemesterActions");
 
@@ -152,6 +153,7 @@ export const createSemesterAction = createAction(
       }
     }
 
+    await invalidatePublicCache(["static_data"]);
     return await enrichSemester(newSemester);
   },
 );
@@ -327,6 +329,7 @@ export async function createSemesterWithTimeslotsAction(input: {
     // 5. Get statistics
     const stats = await semesterRepository.getStatistics(newSemester.ConfigID);
 
+    await invalidatePublicCache(["static_data"]);
     return {
       success: true,
       data: {
@@ -369,6 +372,7 @@ export const updateSemesterStatusAction = createAction(
   UpdateSemesterStatusSchema,
   async (input: UpdateSemesterStatus) => {
     await semesterRepository.updateStatus(input.configId, input.status);
+    await invalidatePublicCache(["static_data"]);
     return { success: true };
   },
 );
@@ -380,6 +384,7 @@ export const pinSemesterAction = createAction(
   PinSemesterSchema,
   async (input: PinSemester) => {
     await semesterRepository.togglePin(input.configId, input.isPinned);
+    await invalidatePublicCache(["static_data"]);
     return { success: true };
   },
 );
@@ -391,6 +396,7 @@ export const trackSemesterAccessAction = createAction(
   TrackSemesterAccessSchema,
   async (input: TrackSemesterAccess) => {
     await semesterRepository.trackAccess(input.configId);
+    await invalidatePublicCache(["static_data"]);
     return { success: true };
   },
 );
@@ -444,6 +450,7 @@ export const copySemesterAction = createAction(
       );
     }
 
+    await invalidatePublicCache(["static_data"]);
     return await enrichSemester(newSemester);
   },
 );

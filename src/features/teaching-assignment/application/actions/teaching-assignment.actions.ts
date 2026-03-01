@@ -31,6 +31,7 @@ import {
   type ClearAssignmentsInput,
 } from "../schemas/teaching-assignment.schemas";
 import { createLogger } from "@/lib/logger";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 const log = createLogger("TeachingAssignment");
 
@@ -92,6 +93,7 @@ export const assignTeacherAction = createAction(
     const semesterNum = input.Semester === "SEMESTER_1" ? "1" : "2";
     revalidatePath(`/schedule/${input.AcademicYear}/${semesterNum}`);
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return {
       assignment,
       warnings: validation.warnings,
@@ -127,6 +129,7 @@ export const unassignTeacherAction = createAction(
     // Revalidate all teacher assignment pages
     revalidatePath("/management/teacher-assignment");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return { success: true };
   },
 );
@@ -183,6 +186,7 @@ export const bulkAssignTeachersAction = createAction(
     // Revalidate pages
     revalidatePath("/management/teacher-assignment");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return {
       successCount: results.length,
       warnings: validation.warnings,
@@ -229,6 +233,7 @@ export const copyAssignmentsAction = createAction(
     // Revalidate pages
     revalidatePath("/management/teacher-assignment");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return {
       count: copiedAssignments.length,
       assignments: copiedAssignments,
@@ -267,6 +272,7 @@ export const clearAllAssignmentsAction = createAction(
     // Revalidate pages
     revalidatePath("/management/teacher-assignment");
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return {
       count: deletedCount,
     };

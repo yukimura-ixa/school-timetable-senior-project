@@ -38,6 +38,7 @@ import { addTeachersToSchedules } from "../../domain/services/class-validation.s
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get class schedules with flexible filtering
@@ -186,6 +187,7 @@ export const createClassScheduleAction = createAction(
     });
 
     log.info("Class schedule created", { classId: schedule.ClassID });
+    await invalidatePublicCache(["classes", "stats"]);
     return schedule;
   },
 );
@@ -228,6 +230,7 @@ export const updateClassScheduleAction = createAction(
 
     const schedule = await classRepository.update(input.ClassID, updateData);
 
+    await invalidatePublicCache(["classes", "stats"]);
     return schedule;
   },
 );
@@ -241,6 +244,7 @@ export const deleteClassScheduleAction = createAction(
     log.debug("Deleting class schedule", { classId: input.ClassID });
     const schedule = await classRepository.deleteById(input.ClassID);
     log.info("Class schedule deleted", { classId: input.ClassID });
+    await invalidatePublicCache(["classes", "stats"]);
     return schedule;
   },
 );

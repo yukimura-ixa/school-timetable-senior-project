@@ -37,6 +37,7 @@ import {
   type AssignSubjectsToProgramInput,
 } from "../schemas/program.schemas";
 import { createLogger } from "@/lib/logger";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 const log = createLogger("ProgramActions");
 
@@ -177,6 +178,7 @@ export const createProgramAction = createAction(
     // Create program
     const program = await programRepository.create(input);
 
+    await invalidatePublicCache(["stats"]);
     return program;
   },
 );
@@ -247,6 +249,7 @@ export const updateProgramAction = createAction(
       IsActive: input.IsActive,
     });
 
+    await invalidatePublicCache(["stats"]);
     return program;
   },
 );
@@ -300,6 +303,7 @@ export const assignSubjectsToProgramAction = createAction(
       });
     }
 
+    await invalidatePublicCache(["stats"]);
     return {
       program: updatedProgram,
       moeValidation: validationResult,
@@ -335,6 +339,7 @@ export const deleteProgramAction = createAction(
     // Delete program
     const program = await programRepository.delete(input.ProgramID);
 
+    await invalidatePublicCache(["stats"]);
     return program;
   },
 );

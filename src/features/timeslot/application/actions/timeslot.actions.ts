@@ -29,6 +29,7 @@ import {
   type DeleteTimeslotsByTermInput,
   type GetTimeslotByIdInput,
 } from "../schemas/timeslot.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get timeslots for a specific academic year and semester
@@ -168,6 +169,7 @@ export const createTimeslotsAction = createAction(
     revalidatePath("/dashboard");
     revalidatePath(`/schedule/${input.AcademicYear}/${semesterNum}`);
 
+    await invalidatePublicCache(["static_data"]);
     return {
       message: "สร้างตารางเวลาสำเร็จ",
       count: timeslots.length,
@@ -237,6 +239,7 @@ export const deleteTimeslotsByTermAction = createAction(
       });
     });
 
+    await invalidatePublicCache(["static_data"]);
     return {
       message: "ลบตารางเวลาสำเร็จ",
     };

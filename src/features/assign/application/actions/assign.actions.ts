@@ -43,6 +43,7 @@ import {
   computeResponsibilitiesDiff,
   expandAvailableSlots,
 } from "../../domain/services/assign-validation.service";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get assignments by teacher and term
@@ -233,6 +234,7 @@ export const syncAssignmentsAction = createAction(
       revalidateTag(`conflicts:${conflictsKey}`, "max"),
     ]);
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return result;
   },
 );
@@ -288,6 +290,7 @@ export const deleteAssignmentAction = createAction(
       revalidateTag(`conflicts:${conflictsKey}`, "max"),
     ]);
 
+    await invalidatePublicCache(["teachers", "stats"]);
     return result;
   },
 );

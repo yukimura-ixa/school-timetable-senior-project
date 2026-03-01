@@ -15,6 +15,7 @@ import {
 import { generateConfigID } from "@/features/config/domain/services/config-validation.service";
 import { getPublishReadiness } from "../services/publish-readiness-query.service";
 import * as v from "valibot";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 type ConfigStatus = "DRAFT" | "PUBLISHED" | "LOCKED" | "ARCHIVED";
 
@@ -73,6 +74,7 @@ export const updateConfigStatusAction = createAction(
         : config.publishedAt || undefined,
     );
 
+    await invalidatePublicCache(["static_data", "stats"]);
     return updated;
   },
 );
@@ -118,6 +120,7 @@ export const updateConfigCompletenessAction = createAction(
     // Update config using repository
     await configRepository.updateCompleteness(configId, completeness);
 
+    await invalidatePublicCache(["static_data", "stats"]);
     return {
       completeness,
       counts: {

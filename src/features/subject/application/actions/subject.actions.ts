@@ -38,6 +38,7 @@ import {
   type GetSubjectByCodeInput,
   type GetSubjectsByGradeInput,
 } from "../schemas/subject.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get all subjects ordered by SubjectCode
@@ -169,6 +170,7 @@ export const createSubjectAction = createAction(
       category: subject.Category,
     });
 
+    await invalidatePublicCache(["stats"]);
     return subject;
   },
 );
@@ -193,7 +195,7 @@ export const createSubjectsAction = createAction(
   createSubjectsSchema,
   async (input: CreateSubjectsInput) => {
     // Use transaction for atomicity - all succeed or all fail
-    return await withPrismaTransaction(async (tx) => {
+    const createdSubjects = await withPrismaTransaction(async (tx) => {
       // Phase 1: Validate ALL subjects before creating any
       const errors: string[] = [];
       const seenCodes = new Map<string, number>();
@@ -277,6 +279,8 @@ export const createSubjectsAction = createAction(
 
       return created;
     });
+    await invalidatePublicCache(["stats"]);
+    return createdSubjects;
   },
 );
 
@@ -316,6 +320,7 @@ export const updateSubjectAction = createAction(
       SubjectCode: trimmedCode,
     });
 
+    await invalidatePublicCache(["stats"]);
     return subject;
   },
 );
@@ -340,7 +345,7 @@ export const updateSubjectsAction = createAction(
   updateSubjectsSchema,
   async (input: UpdateSubjectsInput) => {
     // Use transaction for atomicity - all succeed or all fail
-    return await withPrismaTransaction(async (tx) => {
+    const updatedSubjects = await withPrismaTransaction(async (tx) => {
       // Phase 1: Validate ALL subjects exist before updating any
       const errors: string[] = [];
 
@@ -384,6 +389,8 @@ export const updateSubjectsAction = createAction(
 
       return updated;
     });
+    await invalidatePublicCache(["stats"]);
+    return updatedSubjects;
   },
 );
 
@@ -406,6 +413,7 @@ export const deleteSubjectsAction = createAction(
   async (input: DeleteSubjectsInput) => {
     const result = await subjectRepository.deleteMany(input.subjectCodes);
 
+    await invalidatePublicCache(["stats"]);
     return {
       count: result.count,
       message: `ลบข้อมูล ${result.count} วิชาสำเร็จ`,

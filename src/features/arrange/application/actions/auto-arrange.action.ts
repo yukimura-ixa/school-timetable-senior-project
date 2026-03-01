@@ -20,6 +20,7 @@ import type {
   SolverInput,
   UnplacedSubject,
 } from "@/features/arrange/domain/auto-arrange";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 const log = createLogger("AutoArrangeAction");
 
@@ -287,6 +288,7 @@ export async function autoArrangeAction(
     }
 
     // Return success result
+    await invalidatePublicCache(["stats", "classes", "teachers"]);
     return {
       success: true,
       placements: result.placements,

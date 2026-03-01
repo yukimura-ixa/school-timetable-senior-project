@@ -26,6 +26,7 @@ import {
 import type { ConflictResult } from "../../domain/models/conflict.model";
 import { createConflictError, createNotFoundError } from "@/types";
 import type { class_schedule } from "@/prisma/generated/client";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Arrange (create or update) a class schedule
@@ -160,6 +161,7 @@ export const arrangeScheduleAction = createAction(
     }
 
     // Return data directly - action wrapper will wrap in { success: true, data }
+    await invalidatePublicCache(["stats", "classes"]);
     return {
       classId: scheduleId,
       created: !existingSchedule,
@@ -197,6 +199,7 @@ export const deleteScheduleAction = createAction(
     // Delete the schedule
     await scheduleRepository.deleteSchedule(input.classId);
 
+    await invalidatePublicCache(["stats", "classes"]);
     return {
       classId: input.classId,
       deleted: true,
@@ -258,6 +261,7 @@ export const updateScheduleLockAction = createAction(
       IsLocked: input.isLocked,
     });
 
+    await invalidatePublicCache(["stats", "classes"]);
     return {
       classId: input.classId,
       locked: input.isLocked,

@@ -32,6 +32,7 @@ import {
   type DeleteConfigInput,
   type CopyConfigInput,
 } from "../schemas/config.schemas";
+import { invalidatePublicCache } from "@/lib/cache-invalidation";
 
 /**
  * Get all configs ordered by ConfigID
@@ -83,6 +84,7 @@ export const createConfigAction = createAction(
       Config: input.Config as ConfigData,
     });
 
+    await invalidatePublicCache(["static_data"]);
     return config;
   },
 );
@@ -124,6 +126,7 @@ export const updateConfigAction = createAction(
       Config: input.Config as ConfigData,
     });
 
+    await invalidatePublicCache(["static_data"]);
     return config;
   },
 );
@@ -142,6 +145,7 @@ export const deleteConfigAction = createAction(
 
     const config = await configRepository.deleteById(configId);
 
+    await invalidatePublicCache(["static_data"]);
     return config;
   },
 );
@@ -181,6 +185,7 @@ export const copyConfigAction = createAction(
       );
     });
 
+    await invalidatePublicCache(["static_data"]);
     return result;
   },
 );
@@ -296,6 +301,7 @@ export const updateConfigWithTimeslotsAction = createAction(
       };
     });
 
+    await invalidatePublicCache(["static_data"]);
     return result;
   },
 );
