@@ -7,6 +7,7 @@
 
 import prisma from "@/lib/prisma";
 import { semester, Prisma } from "@/prisma/generated/client";
+import { cacheStrategy } from "@/lib/cache-config";
 
 /**
  * Type: Class schedule with full relations
@@ -142,6 +143,7 @@ export async function findByGrade(
       timeslot: true,
       room: true,
     },
+    ...cacheStrategy("fresh", [`class_${gradeId}`]),
   });
 }
 

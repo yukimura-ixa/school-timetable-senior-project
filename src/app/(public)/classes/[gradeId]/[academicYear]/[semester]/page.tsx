@@ -4,7 +4,7 @@ import Link from "next/link";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import type { timeslot, semester } from "@/prisma/generated/client";
 import { PrintButton } from "@/app/(public)/_components/PrintButton";
-import prisma from "@/lib/prisma";
+import { publicDataRepository } from "@/lib/infrastructure/repositories/public-data.repository";
 import * as classRepository from "@/features/class/infrastructure/repositories/class.repository";
 import { extractPeriodFromTimeslotId } from "@/utils/timeslot-id";
 
@@ -33,12 +33,8 @@ export async function generateMetadata({
   const parsed = semesterEnum && !isNaN(academicYear) ? { academicYear, semesterEnum } : null;
   if (!parsed) return { title: "ไม่พบข้อมูล" };
 
-  // Support both GradeID (M1-1) format
-  const gradeLevel = await prisma.gradelevel.findFirst({
-    where: {
-      GradeID: gradeId,
-    },
-  });
+  // Support both GradeID (M1-1) and numeric (101) formats
+  const gradeLevel = await publicDataRepository.findGradeByIdOrNumeric(gradeId);
   if (!gradeLevel) return { title: "ไม่พบข้อมูล" };
 
   return {
@@ -65,26 +61,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   if (!semesterEnum || isNaN(academicYear)) notFound();
 
   // Fetch grade level info - support both GradeID (M1-1) and numeric (101) formats
-  let gradeLevel = await prisma.gradelevel.findFirst({
-    where: {
-      GradeID: gradeId,
-    },
-  });
-
-  // If not found, try converting numeric ID to GradeID format
-  if (!gradeLevel && /^\d{3}$/.test(gradeId)) {
-    // Convert numeric format (e.g., "101") to GradeID (e.g., "M1-1")
-    const year = Math.floor(parseInt(gradeId, 10) / 100);
-    const section = parseInt(gradeId, 10) % 100;
-    const convertedGradeId = `M${year}-${section}`;
-
-    gradeLevel = await prisma.gradelevel.findFirst({
-      where: {
-        GradeID: convertedGradeId,
-      },
-    });
-  }
-
+  const gradeLevel = await publicDataRepository.findGradeByIdOrNumeric(gradeId);
   if (!gradeLevel) notFound();
 
   // Fetch class schedules for this grade and term
@@ -97,13 +74,7 @@ export default async function ClassScheduleByTermPage({ params }: PageProps) {
   );
 
   // Get all timeslots for this term to build grid structure
-  const timeslots = await prisma.timeslot.findMany({
-    where: {
-      AcademicYear: academicYear,
-      Semester: semesterValue,
-    },
-    orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
-  });
+  const timeslots = await publicDataRepository.findTimeslotsByTerm(academicYear, semesterValue);
 
   // Extract slot numbers and create mapping
   const parseSlotNumber = extractPeriodFromTimeslotId;

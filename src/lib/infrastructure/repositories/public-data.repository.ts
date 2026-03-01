@@ -14,6 +14,7 @@ import { cache } from "react";
 import prisma from "@/lib/prisma";
 import type { Prisma, semester } from "@/prisma/generated/client";
 import { formatThaiDateShortBangkok } from "@/utils/datetime";
+import { cacheStrategy } from "@/lib/cache-config";
 
 // ============================================================================
 // Type Definitions
@@ -205,6 +206,7 @@ const getCurrentTerm = cache(async () => {
       Config: true,
       updatedAt: true,
     },
+    ...cacheStrategy("static", ["static_data"]),
   });
 });
 
@@ -301,6 +303,7 @@ export const publicDataRepository = {
         },
       },
       orderBy: { Firstname: "asc" },
+      ...cacheStrategy("warm", ["teachers"]),
     })) as unknown as PublicTeacherData[];
 
     // Transform to public format
@@ -331,7 +334,9 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async countTeachers(): Promise<number> {
-    return await prisma.teacher.count();
+    return await prisma.teacher.count({
+      ...cacheStrategy("warm", ["teachers"]),
+    });
   },
 
   /**
@@ -363,6 +368,7 @@ export const publicDataRepository = {
           },
         },
       },
+      ...cacheStrategy("fresh", ["teachers", `teacher_${teacherId}`]),
     });
 
     if (!teacher) return null;
@@ -383,6 +389,7 @@ export const publicDataRepository = {
       },
       include: teacherResponsibilityInclude,
       orderBy: [{ gradelevel: { Year: "asc" } }, { SubjectCode: "asc" }],
+      ...cacheStrategy("fresh", [`teacher_${teacherId}`]),
     });
 
     return responsibilities as ResponsibilityWithSchedules[];
@@ -442,6 +449,7 @@ export const publicDataRepository = {
         { timeslot: { DayOfWeek: "asc" } },
         { timeslot: { StartTime: "asc" } },
       ],
+      ...cacheStrategy("fresh", [`class_${gradeId}`]),
     });
   },
 
@@ -479,17 +487,18 @@ export const publicDataRepository = {
       programCount,
       periodsPerDay,
     ] = await Promise.all([
-      prisma.teacher.count(),
-      prisma.gradelevel.count(),
-      prisma.room.count(),
-      prisma.subject.count(),
-      prisma.program.count(),
+      prisma.teacher.count({ ...cacheStrategy("warm", ["stats"]) }),
+      prisma.gradelevel.count({ ...cacheStrategy("warm", ["stats"]) }),
+      prisma.room.count({ ...cacheStrategy("warm", ["stats"]) }),
+      prisma.subject.count({ ...cacheStrategy("warm", ["stats"]) }),
+      prisma.program.count({ ...cacheStrategy("warm", ["stats"]) }),
       prisma.timeslot.count({
         where: {
           DayOfWeek: "MON",
           AcademicYear: config.AcademicYear,
           Semester: config.Semester,
         },
+        ...cacheStrategy("warm", ["stats"]),
       }),
     ]);
 
@@ -524,6 +533,7 @@ export const publicDataRepository = {
         Semester: semester,
       },
       select: { AcademicYear: true, Semester: true },
+      ...cacheStrategy("static", ["static_data"]),
     });
 
     if (!config) return [];
@@ -540,6 +550,7 @@ export const publicDataRepository = {
             Semester: semester,
           },
         },
+        ...cacheStrategy("warm", ["stats"]),
       });
 
       periodLoads.push({ day, periods: count });
@@ -560,12 +571,13 @@ export const publicDataRepository = {
         AcademicYear: academicYear,
         Semester: semester,
       },
+      ...cacheStrategy("static", ["static_data"]),
     });
 
     if (!config) return [];
 
     const [totalRooms, timeslots] = await Promise.all([
-      prisma.room.count(),
+      prisma.room.count({ ...cacheStrategy("warm", ["stats"]) }),
       prisma.timeslot.findMany({
         where: {
           AcademicYear: academicYear,
@@ -576,6 +588,7 @@ export const publicDataRepository = {
           DayOfWeek: true,
         },
         orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
+        ...cacheStrategy("static", ["static_data"]),
       }),
     ]);
 
@@ -596,6 +609,7 @@ export const publicDataRepository = {
         where: {
           TimeslotID: slot.TimeslotID,
         },
+        ...cacheStrategy("warm", ["stats"]),
       });
 
       const occupancyPercent =
@@ -653,6 +667,7 @@ export const publicDataRepository = {
         },
       },
       orderBy: [{ Year: "asc" }, { Number: "asc" }],
+      ...cacheStrategy("warm", ["classes"]),
     });
 
     // Transform to public format
@@ -685,6 +700,50 @@ export const publicDataRepository = {
    * Cached per request using React cache()
    */
   async countGradeLevels(): Promise<number> {
-    return await prisma.gradelevel.count();
+    return await prisma.gradelevel.count({
+      ...cacheStrategy("warm", ["classes"]),
+    });
+  },
+
+  // ==========================================================================
+  // Schedule Utilities (used by public schedule pages)
+  // ==========================================================================
+
+  /**
+   * Find all timeslots for a given academic year and semester.
+   * Used by teacher and class schedule pages to build the grid structure.
+   */
+  async findTimeslotsByTerm(academicYear: number, semesterValue: semester) {
+    return prisma.timeslot.findMany({
+      where: {
+        AcademicYear: academicYear,
+        Semester: semesterValue,
+      },
+      orderBy: [{ DayOfWeek: "asc" }, { StartTime: "asc" }],
+      ...cacheStrategy("static", ["static_data"]),
+    });
+  },
+
+  /**
+   * Find a grade level by GradeID, with optional numeric-ID fallback.
+   * Supports both GradeID ("M1-1") and numeric ("101") formats.
+   */
+  async findGradeByIdOrNumeric(gradeId: string) {
+    let gradeLevel = await prisma.gradelevel.findFirst({
+      where: { GradeID: gradeId },
+      ...cacheStrategy("static", ["static_data"]),
+    });
+
+    if (!gradeLevel && /^\d{3}$/.test(gradeId)) {
+      const year = Math.floor(parseInt(gradeId, 10) / 100);
+      const section = parseInt(gradeId, 10) % 100;
+      const convertedGradeId = `M${year}-${section}`;
+      gradeLevel = await prisma.gradelevel.findFirst({
+        where: { GradeID: convertedGradeId },
+        ...cacheStrategy("static", ["static_data"]),
+      });
+    }
+
+    return gradeLevel;
   },
 };
