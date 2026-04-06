@@ -44,8 +44,8 @@
     },
     "forceConsistentCasingInFileNames": true,
     // TypeScript strict mode enabled - incrementally enable additional checks
-    "noUnusedLocals": false, // TODO: Enable after cleanup
-    "noUnusedParameters": false, // TODO: Enable after cleanup
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true
