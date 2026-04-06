@@ -1039,20 +1039,23 @@ async function main() {
   // ===== BETTER-AUTH USERS =====
   console.log("👤 Creating admin user...");
 
+  // Dev-only default password (NEVER used in production)
+  const DEV_DEFAULT_PASSWORD = "admin123";
+
   // Admin password configuration:
-  // - Default: "admin123" for development/testing convenience
+  // - Development: Falls back to DEV_DEFAULT_PASSWORD for convenience
   // - Production: MUST set SEED_ADMIN_PASSWORD to a strong password
-  const adminPassword = process.env.SEED_ADMIN_PASSWORD || "admin123";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || DEV_DEFAULT_PASSWORD;
   const isProduction = process.env.NODE_ENV === "production";
 
   // Security guard: Block weak passwords in production seeding
   if (
     isProduction &&
-    (!process.env.SEED_ADMIN_PASSWORD || adminPassword === "admin123")
+    (!process.env.SEED_ADMIN_PASSWORD || adminPassword === DEV_DEFAULT_PASSWORD)
   ) {
     throw new Error(
       "🔒 SECURITY: SEED_ADMIN_PASSWORD must be set to a strong password in production. " +
-        "Do not use the default 'admin123' password in production environments.",
+        "Do not use the default password in production environments."
     );
   }
 

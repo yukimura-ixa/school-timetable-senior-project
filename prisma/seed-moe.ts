@@ -33,8 +33,25 @@ async function hashPassword(password: string): Promise<string> {
 
 const prisma = new PrismaClient();
 
+// Dev-only default password (NEVER used in production)
+const DEV_DEFAULT_PASSWORD = "admin123";
+
 async function main() {
   console.log("🌱 Starting MOE-compliant seed...");
+
+  // Production guard: Require SEED_ADMIN_PASSWORD in production
+  const isProduction = process.env.NODE_ENV === "production";
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || DEV_DEFAULT_PASSWORD;
+
+  if (
+    isProduction &&
+    (!process.env.SEED_ADMIN_PASSWORD || adminPassword === DEV_DEFAULT_PASSWORD)
+  ) {
+    throw new Error(
+      "🔒 SECURITY: SEED_ADMIN_PASSWORD must be set to a strong password in production. " +
+        "Do not use the default password in production environments."
+    );
+  }
 
   // ===== CLEAN DATA =====
   console.log("🧹 Cleaning existing data...");
@@ -55,17 +72,22 @@ async function main() {
   });
 
   if (!existingAdmin) {
-    const adminPassword = await hashPassword("admin123");
+    const hashedPassword = await hashPassword(adminPassword);
     await prisma.user.create({
       data: {
         email: "admin@school.local",
         name: "System Administrator",
-        password: adminPassword,
+        password: hashedPassword,
         role: "admin",
         emailVerified: new Date(),
       },
     });
-    console.log("✅ Admin user created");
+    // Don't log password in production
+    if (isProduction) {
+      console.log("✅ Admin user created (email: admin@school.local)");
+    } else {
+      console.log(`✅ Admin user created (email: admin@school.local, password: ${adminPassword})`);
+    }
   }
 
   // ===== CORE SUBJECTS (พื้นฐาน) =====

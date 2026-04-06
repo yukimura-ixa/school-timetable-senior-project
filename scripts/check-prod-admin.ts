@@ -58,7 +58,7 @@ const checkAdmin = async () => {
 
     console.log("\n📝 Try logging in with:");
     console.log("   Email: admin@school.local");
-    console.log("   Password: (from SEED_ADMIN_PASSWORD or 'admin123' if using default)");
+    console.log("   Password: (from SEED_ADMIN_PASSWORD env var)");
   } catch (error) {
     console.error("❌ Error checking admin:", error);
   } finally {
