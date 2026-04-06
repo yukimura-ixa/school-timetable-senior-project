@@ -122,10 +122,10 @@ export function DataTableSection({
   };
 
   return (
-    <div className="bg-white/40 backdrop-blur-xl rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white/60 overflow-hidden transition-all duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.05)]">
+    <div className="bg-white/40 backdrop-blur-xl rounded-2xl sm:rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.03)] border border-white/60 overflow-hidden transition-all duration-500 hover:shadow-[0_20px_80px_rgba(0,0,0,0.05)]">
       {/* Tab Navigation */}
-      <div className="border-b border-slate-200/50 bg-white/30 px-8 pt-6">
-        <nav className="-mb-px flex space-x-12" role="tablist">
+      <div className="border-b border-slate-200/50 bg-white/30 px-4 sm:px-6 md:px-8 pt-4 sm:pt-6">
+        <nav className="-mb-px flex space-x-6 sm:space-x-12" role="tablist">
           <button
             onClick={() => handleTabChange("teachers")}
             data-testid="teachers-tab"
@@ -172,8 +172,8 @@ export function DataTableSection({
       </div>
 
       {/* Search Bar - Modern styled area */}
-      <div className="px-8 py-8 bg-white/20">
-        <div className="max-w-2xl">
+      <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 bg-white/20">
+        <div className="max-w-2xl w-full">
           <TableSearch
             key={activeTab} // Reset search when tab changes
             initialValue={searchQuery}
@@ -188,8 +188,8 @@ export function DataTableSection({
       </div>
 
       {/* Table Content */}
-      <div className="px-8 pb-8 min-h-[400px]">
-        <div className="bg-white/50 backdrop-blur-sm rounded-2xl border border-white/60 shadow-sm overflow-hidden">
+      <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
+        <div className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden">
           {activeTab === "teachers" ? (
             <TeachersTableClient
               data={currentTeachers}
@@ -210,7 +210,7 @@ export function DataTableSection({
 
       {/* Pagination */}
       {actualTotalPages > 1 && (
-        <div className="px-8 py-6 bg-white/30 border-t border-slate-100">
+        <div className="px-4 sm:px-6 md:px-8 py-4 sm:py-6 bg-white/30 border-t border-slate-100">
           <ClientPagination
             currentPage={currentPage}
             totalPages={actualTotalPages}

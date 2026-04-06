@@ -65,38 +65,39 @@ export function TeachersTableClient({
             <tr>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 aria-sort={getAriaSort("name")}
               >
                 ชื่อ-นามสกุล
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 ภาควิชา
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 วิชาที่สอน
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 aria-sort={getAriaSort("hours")}
               >
-                ชั่วโมง/สัปดาห์
+                <span className="hidden sm:inline">ชั่วโมง/สัปดาห์</span>
+                <span className="sm:hidden">ชม.</span>
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="hidden lg:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                 aria-sort={getAriaSort("utilization")}
               >
                 อัตราการใช้งาน
               </th>
-              <th scope="col" className="px-6 py-3 relative">
+              <th scope="col" className="px-3 sm:px-6 py-2 sm:py-3 relative">
                 <span className="sr-only">Actions</span>
               </th>
             </tr>
@@ -107,30 +108,30 @@ export function TeachersTableClient({
                 key={teacher.teacherId}
                 className="hover:bg-gray-50 transition-colors"
               >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-none">
                     {teacher.name}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-700">
+                <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-700 truncate max-w-[100px] md:max-w-none">
                     {teacher.department}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     {teacher.subjectCount} วิชา
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                   <div className="text-sm font-semibold text-gray-900">
-                    {teacher.weeklyHours} ชม.
+                    {teacher.weeklyHours} <span className="hidden sm:inline">ชม.</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
+                <td className="hidden lg:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                   <div className="flex items-center justify-center">
                     <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium ${
                         teacher.utilization > 80
                           ? "bg-red-100 text-red-800"
                           : teacher.utilization > 60
@@ -142,7 +143,7 @@ export function TeachersTableClient({
                     </span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={
                       term
@@ -151,7 +152,7 @@ export function TeachersTableClient({
                     }
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                   >
-                    ดูตาราง
+                    <span className="hidden sm:inline">ดูตาราง</span>
                     <ArrowForward className="w-4 h-4" />
                   </Link>
                 </td>

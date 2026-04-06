@@ -39,30 +39,30 @@ export async function MiniCharts() {
   const days = ["จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์"];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {/* Teacher Utilization */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-slate-200/60 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
           ครูที่มีภาระสอนสูงสุด (Top 5)
         </h3>
-        <div className="w-full h-[200px]">
+        <div className="w-full h-[180px] sm:h-[200px]">
           <TeacherUtilizationChart data={teacherChartData} />
         </div>
       </div>
 
       {/* Period Load Sparkline */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-slate-200/60 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
           จำนวนคาบเรียนต่อวัน
         </h3>
-        <div className="w-full h-[80px]">
+        <div className="w-full h-[70px] sm:h-[80px]">
           <PeriodLoadChart data={periodChartData} />
         </div>
       </div>
 
       {/* Room Occupancy Mini Heatmap */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50">
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">
+      <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-slate-200/60 p-4 sm:p-6 transition-all duration-300 hover:shadow-lg hover:shadow-slate-200/50 sm:col-span-2 lg:col-span-1">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
           อัตราการใช้ห้องเรียน (%)
         </h3>
         <RoomOccupancyGrid data={roomGridData} days={days} />
@@ -80,14 +80,14 @@ export async function MiniCharts() {
  */
 export function MiniChartsSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
-          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse"
+          className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 animate-pulse ${i === 2 ? "sm:col-span-2 lg:col-span-1" : ""}`}
         >
-          <div className="h-5 bg-gray-200 rounded w-40 mb-4"></div>
-          <div className="h-40 bg-gray-100 rounded"></div>
+          <div className="h-4 sm:h-5 bg-gray-200 rounded w-32 sm:w-40 mb-3 sm:mb-4"></div>
+          <div className="h-32 sm:h-40 bg-gray-100 rounded"></div>
         </div>
       ))}
     </div>

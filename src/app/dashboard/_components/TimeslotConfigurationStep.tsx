@@ -4,7 +4,9 @@
  * Timeslot Configuration Step Component
  * Form for configuring timeslots during semester creation
  *
- * Used in CreateSemesterWizard as Step 3
+ * Used in CreateSemesterWizard as Step 3.
+ * Reads academicYear/semester from CreateSemesterContext and pushes
+ * config changes back via setTimeslotConfig / setIsTimeslotConfigValid.
  */
 
 import React, { useMemo, useState, useEffect } from "react";
@@ -25,14 +27,7 @@ import {
 import { AccessTime, CalendarMonth, Schedule } from "@mui/icons-material";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import type { day_of_week } from "@/prisma/generated/client";
-
-type Props = {
-  academicYear: number;
-  semester: 1 | 2;
-  initialConfig?: Partial<CreateTimeslotsInput>;
-  onChange: (config: CreateTimeslotsInput) => void;
-  onValidationChange?: (isValid: boolean) => void;
-};
+import { useCreateSemester } from "./CreateSemesterWizard/CreateSemesterContext";
 
 const DAYS: { value: day_of_week; label: string }[] = [
   { value: "MON", label: "จันทร์" },
@@ -44,24 +39,25 @@ const DAYS: { value: day_of_week; label: string }[] = [
   { value: "SUN", label: "อาทิตย์" },
 ];
 
-export function TimeslotConfigurationStep({
-  academicYear,
-  semester,
-  initialConfig,
-  onChange,
-  onValidationChange,
-}: Props) {
+export function TimeslotConfigurationStep() {
+  const {
+    academicYear,
+    semester,
+    setTimeslotConfig,
+    setIsTimeslotConfigValid,
+  } = useCreateSemester();
+
   const [config, setConfig] = useState<CreateTimeslotsInput>({
     AcademicYear: academicYear,
     Semester: semester === 1 ? "SEMESTER_1" : "SEMESTER_2",
-    Days: initialConfig?.Days || ["MON", "TUE", "WED", "THU", "FRI"],
-    StartTime: initialConfig?.StartTime || "08:30",
-    Duration: initialConfig?.Duration || 50,
-    BreakDuration: initialConfig?.BreakDuration || 15,
-    TimeslotPerDay: initialConfig?.TimeslotPerDay || 8,
-    HasMinibreak: initialConfig?.HasMinibreak ?? true,
-    MiniBreak: initialConfig?.MiniBreak || { SlotNumber: 3, Duration: 10 },
-    BreakTimeslots: initialConfig?.BreakTimeslots || { Junior: 4, Senior: 5 },
+    Days: ["MON", "TUE", "WED", "THU", "FRI"],
+    StartTime: "08:30",
+    Duration: 50,
+    BreakDuration: 15,
+    TimeslotPerDay: 8,
+    HasMinibreak: true,
+    MiniBreak: { SlotNumber: 3, Duration: 10 },
+    BreakTimeslots: { Junior: 4, Senior: 5 },
   });
 
   const errors = useMemo(() => {
@@ -120,12 +116,12 @@ export function TimeslotConfigurationStep({
   const isValid = Object.keys(errors).length === 0;
 
   useEffect(() => {
-    onValidationChange?.(isValid);
+    setIsTimeslotConfigValid(isValid);
 
     if (isValid) {
-      onChange(config);
+      setTimeslotConfig(config);
     }
-  }, [config, isValid, onChange, onValidationChange]);
+  }, [config, isValid, setTimeslotConfig, setIsTimeslotConfigValid]);
 
   const handleDayToggle = (day: day_of_week) => {
     setConfig((prev) => ({
