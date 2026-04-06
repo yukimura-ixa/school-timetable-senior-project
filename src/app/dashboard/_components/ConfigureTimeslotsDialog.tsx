@@ -2,7 +2,10 @@
 
 /**
  * Configure Timeslots Dialog
- * Allows configuring timeslots for existing semesters
+ * Allows configuring timeslots for existing semesters.
+ *
+ * Wraps TimeslotConfigurationStep in a CreateSemesterProvider so the
+ * context-based step can function outside the wizard.
  */
 
 import React, { useEffect, useState } from "react";
@@ -19,6 +22,10 @@ import { enqueueSnackbar } from "notistack";
 import type { CreateTimeslotsInput } from "@/features/timeslot/application/schemas/timeslot.schemas";
 import { createTimeslotsAction } from "@/features/timeslot/application/actions/timeslot.actions";
 import { TimeslotConfigurationStep } from "./TimeslotConfigurationStep";
+import {
+  CreateSemesterProvider,
+  useCreateSemester,
+} from "./CreateSemesterWizard/CreateSemesterContext";
 
 type Props = {
   open: boolean;
@@ -29,26 +36,29 @@ type Props = {
   configId: string;
 };
 
-export function ConfigureTimeslotsDialog({
-  open,
+/**
+ * Inner content that lives inside the CreateSemesterProvider so it can
+ * read timeslotConfig / isTimeslotConfigValid from context.
+ */
+function ConfigureTimeslotsContent({
   onClose,
   onSuccess,
   academicYear,
   semester,
-  configId,
-}: Props) {
+}: Pick<Props, "onClose" | "onSuccess" | "academicYear" | "semester">) {
+  const {
+    timeslotConfig,
+    isTimeslotConfigValid,
+    setAcademicYear,
+    setSemester,
+  } = useCreateSemester();
   const [loading, setLoading] = useState(false);
-  const [timeslotConfig, setTimeslotConfig] =
-    useState<CreateTimeslotsInput | null>(null);
-  const [isValid, setIsValid] = useState(false);
 
+  // Sync the parent-provided academicYear/semester into the context
   useEffect(() => {
-    if (!open) {
-      setLoading(false);
-      setTimeslotConfig(null);
-      setIsValid(false);
-    }
-  }, [open]);
+    setAcademicYear(academicYear);
+    setSemester(semester);
+  }, [academicYear, semester, setAcademicYear, setSemester]);
 
   const handleCreate = async () => {
     if (!timeslotConfig) {
@@ -83,19 +93,13 @@ export function ConfigureTimeslotsDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>ตั้งค่าตารางเรียน - {configId}</DialogTitle>
+    <>
       <DialogContent>
         <Alert severity="info" sx={{ mb: 2 }}>
           ภาคเรียนนี้ยังไม่มีการตั้งค่าตารางเรียน กรุณากำหนดค่าช่วงเวลาเรียน
         </Alert>
 
-        <TimeslotConfigurationStep
-          academicYear={academicYear}
-          semester={semester}
-          onChange={setTimeslotConfig}
-          onValidationChange={setIsValid}
-        />
+        <TimeslotConfigurationStep />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={loading}>
@@ -104,12 +108,36 @@ export function ConfigureTimeslotsDialog({
         <Button
           onClick={() => void handleCreate()}
           variant="contained"
-          disabled={loading || !isValid}
+          disabled={loading || !isTimeslotConfigValid}
           startIcon={loading && <CircularProgress size={20} />}
         >
           {loading ? "กำลังสร้าง..." : "ตั้งค่าตารางเรียน"}
         </Button>
       </DialogActions>
+    </>
+  );
+}
+
+export function ConfigureTimeslotsDialog({
+  open,
+  onClose,
+  onSuccess,
+  academicYear,
+  semester,
+  configId,
+}: Props) {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>ตั้งค่าตารางเรียน - {configId}</DialogTitle>
+
+      <CreateSemesterProvider>
+        <ConfigureTimeslotsContent
+          onClose={onClose}
+          onSuccess={onSuccess}
+          academicYear={academicYear}
+          semester={semester}
+        />
+      </CreateSemesterProvider>
     </Dialog>
   );
 }
