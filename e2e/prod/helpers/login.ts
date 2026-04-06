@@ -10,6 +10,21 @@ export async function loginAsAdmin(
 
   console.log(`[PROD E2E] Attempting login with email: ${email}`);
   
+  // Enable request/response logging
+  page.on('request', request => {
+    if (request.url().includes('/api/auth/sign-in')) {
+      console.log(`[PROD E2E] Request headers:`, JSON.stringify(request.headers()));
+    }
+  });
+  page.on('response', response => {
+    if (response.url().includes('/api/auth/')) {
+      console.log(`[PROD E2E] Auth API response: ${response.url()} -> ${response.status()}`);
+      response.text().then(text => {
+        console.log(`[PROD E2E] Response body: ${text.substring(0, 500)}`);
+      }).catch(() => {});
+    }
+  });
+  
   await page.goto("/signin", { waitUntil: "domcontentloaded", timeout: 60_000 });
   await expect(page).toHaveURL(/\/signin/i);
 

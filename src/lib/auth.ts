@@ -40,8 +40,11 @@ const authUrlCandidates = [
   process.env.BETTER_AUTH_URL,
   process.env.NEXTAUTH_URL,
   process.env.NEXT_PUBLIC_APP_URL,
+  process.env.NEXT_PUBLIC_AUTH_URL, // Production auth URL
   vercelUrl,
   publicVercelUrl,
+  // Production domain fallback
+  "https://phrasongsa-timetable.vercel.app",
   "http://localhost:3000",
 ];
 
