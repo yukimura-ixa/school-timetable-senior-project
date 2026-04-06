@@ -83,19 +83,20 @@ export function ClassesTableClient({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 ชั้นเรียน
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+              <th className="hidden sm:table-cell px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">
                 ครูประจำชั้น
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+              <th className="hidden md:table-cell px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
                 วิชาเรียน
               </th>
-              <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                ชั่วโมง/สัปดาห์
+              <th className="px-3 sm:px-6 py-2 sm:py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                <span className="hidden sm:inline">ชั่วโมง/สัปดาห์</span>
+                <span className="sm:hidden">ชม.</span>
               </th>
-              <th className="px-6 py-3 relative">
+              <th className="px-3 sm:px-6 py-2 sm:py-3 relative">
                 <span className="sr-only">Actions</span>
               </th>
             </tr>
@@ -103,27 +104,27 @@ export function ClassesTableClient({
           <tbody className="bg-white divide-y divide-gray-200">
             {data.map((cls) => (
               <tr key={cls.gradeId} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {cls.gradeId}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-700">
+                <td className="hidden sm:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-700 truncate max-w-[120px] md:max-w-none">
                     {cls.homeroomTeacher || "-"}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                <td className="hidden md:table-cell px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                     {cls.subjectCount} วิชา
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
                   <div className="text-sm font-semibold text-gray-900">
-                    {cls.weeklyHours} ชม.
+                    {cls.weeklyHours} <span className="hidden sm:inline">ชม.</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-sm font-medium">
                   <Link
                     href={
                       term
@@ -132,7 +133,7 @@ export function ClassesTableClient({
                     }
                     className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                   >
-                    ดูตารางเรียน
+                    <span className="hidden sm:inline">ดูตารางเรียน</span>
                     <ArrowForward className="w-4 h-4" />
                   </Link>
                 </td>
