@@ -80,9 +80,6 @@ const CheckBox = React.forwardRef<HTMLButtonElement, CheckBoxProps>(
     },
     ref,
   ) {
-    // Determine which API is being used
-    const useLegacyAPI = handleClick !== undefined;
-
     // Map legacy props to MUI props
     const handleChangeEvent = handleClick || onChange;
 
