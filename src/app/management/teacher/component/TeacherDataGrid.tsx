@@ -166,7 +166,7 @@ export function TeacherDataGrid({
   // ==================== Update Handler ====================
 
   const processRowUpdate = useCallback(
-    async (newRow: GridRowModel, oldRow: GridRowModel): Promise<teacher> => {
+    async (newRow: GridRowModel, _oldRow: GridRowModel): Promise<teacher> => {
       const updatedTeacher = newRow as teacher;
 
       // Validate
