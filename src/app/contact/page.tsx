@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail, Globe, Facebook, MapPin, Phone } from "lucide-react";
+import { createMetadataWithCanonical } from "@/utils/canonical-url";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createMetadataWithCanonical({
   title: "ติดต่อเรา - โรงเรียนพระซองสามัคคีวิทยา",
   description:
     "ติดต่อโรงเรียนพระซองสามัคคีวิทยา จังหวัดนครพนม - ช่องทางการติดต่อ ที่อยู่ เว็บไซต์ และโซเชียลมีเดีย",
-  robots: { index: true, follow: true },
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

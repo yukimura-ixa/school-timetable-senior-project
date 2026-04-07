@@ -11,12 +11,14 @@ import { AnimatedHeroBackground } from "./_components/AnimatedHeroBackground";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getQuickStats } from "@/lib/public/stats";
+import { createMetadataWithCanonical } from "@/utils/canonical-url";
 
-export const metadata: Metadata = {
-  title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
+export const metadata: Metadata = createMetadataWithCanonical({
+  title: "ระบบตารางเรียนตารางสอน - โรงเรียนพระซองสามัคคีวิทยา",
   description:
     "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
-};
+  path: "/",
+});
 
 // NOTE: Static page - all interactivity handled client-side
 // No search params needed, all state managed in DataTableSection

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { createMetadataWithCanonical } from "@/utils/canonical-url";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createMetadataWithCanonical({
   title: "นโยบายความเป็นส่วนตัว - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
   description:
     "นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)",
-  robots: { index: true, follow: true },
-};
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (

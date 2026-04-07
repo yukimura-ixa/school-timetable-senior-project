@@ -2,8 +2,12 @@ import ProfilePage from "./ProfilePage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "โปรไฟล์ | ระบบจัดตารางเรียนตารางสอน",
-  description: "จัดการข้อมูลส่วนตัว รหัสผ่าน และอีเมล",
+  title: "โปรไฟล์ - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
+  description: "จัดการข้อมูลส่วนตัว รหัสผ่าน และอีเมล ของบัญชีผู้ใช้งานในระบบตารางเรียนตารางสอน",
+  robots: { index: false, follow: false },
+  alternates: {
+    canonical: "/dashboard/profile",
+  },
 };
 
 /**

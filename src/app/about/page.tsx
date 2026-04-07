@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Lightbulb, School, Users, Calendar } from "lucide-react";
+import { createMetadataWithCanonical } from "@/utils/canonical-url";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createMetadataWithCanonical({
   title: "เกี่ยวกับโรงเรียน - โรงเรียนพระซองสามัคคีวิทยา",
   description:
     "เรียนรู้เกี่ยวกับโรงเรียนพระซองสามัคคีวิทยา จังหวัดนครพนม สถาบันการศึกษาที่อนุรักษ์วัฒนธรรมไทกะเลิง และระบบตารางเรียนตารางสอนออนไลน์ของเรา",
-  robots: { index: true, follow: true },
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
