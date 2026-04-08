@@ -71,7 +71,7 @@ export default async function HomePage() {
 
   return (
     // Responsive width layout: container with max-width, centered
-    <main className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-slate-50/50">
       {/* Premium Hero Section with Animated Background */}
       <section className="relative overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center">
         {/* Animated gradient mesh background */}
@@ -172,6 +172,6 @@ export default async function HomePage() {
           <p>© 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma</p>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }
