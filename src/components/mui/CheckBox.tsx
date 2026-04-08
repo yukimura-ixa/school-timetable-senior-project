@@ -97,7 +97,8 @@ const CheckBox = React.forwardRef<HTMLButtonElement, CheckBoxProps>(
             size={size}
             sx={{
               "&.Mui-focusVisible": {
-                outline: "none", // Match original outline-none
+                outline: "none",
+                boxShadow: `0 0 0 3px ${alpha(colors.blue.main, 0.3)}`,
               },
             }}
             {...rest}
