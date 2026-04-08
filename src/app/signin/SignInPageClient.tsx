@@ -37,25 +37,25 @@ export default function SignInPageClient() {
           py: 4,
         }}
       >
-      {/* Decorative grid pattern */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(${alpha(colors.slate[300], 0.3)} 1px, transparent 1px),
-            linear-gradient(90deg, ${alpha(colors.slate[300], 0.3)} 1px, transparent 1px)
-          `,
-          backgroundSize: "60px 60px",
-          maskImage:
-            "radial-gradient(circle at center, black 0%, transparent 70%)",
-          WebkitMaskImage:
-            "radial-gradient(circle at center, black 0%, transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
+        {/* Decorative grid pattern */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `
+              linear-gradient(${alpha(colors.slate[300], 0.3)} 1px, transparent 1px),
+              linear-gradient(90deg, ${alpha(colors.slate[300], 0.3)} 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
+            maskImage:
+              "radial-gradient(circle at center, black 0%, transparent 70%)",
+            WebkitMaskImage:
+              "radial-gradient(circle at center, black 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
 
-      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
         <Stack
           direction={{ xs: "column", md: "row" }}
           spacing={{ xs: 3, md: 4 }}
@@ -72,20 +72,21 @@ export default function SignInPageClient() {
             <SignInForm />
           </Box>
         </Stack>
-      </Container>
+        </Container>
 
-      {/* Bottom gradient fade */}
-      <Box
-        sx={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 120,
-          background: `linear-gradient(to top, ${alpha(colors.slate[200], 0.5)} 0%, transparent 100%)`,
-          pointerEvents: "none",
-        }}
-      />
-    </Box>
+        {/* Bottom gradient fade */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 120,
+            background: `linear-gradient(to top, ${alpha(colors.slate[200], 0.5)} 0%, transparent 100%)`,
+            pointerEvents: "none",
+          }}
+        />
+      </Box>
+    </>
   );
 }
