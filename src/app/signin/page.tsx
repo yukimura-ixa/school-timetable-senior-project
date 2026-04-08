@@ -3,13 +3,14 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import SignInPageClient from "./SignInPageClient";
-import { createMetadataWithCanonical } from "@/utils/canonical-url";
+import { createMetadataWithSocial } from "@/utils/canonical-url";
 
-export const metadata: Metadata = createMetadataWithCanonical({
+export const metadata: Metadata = createMetadataWithSocial({
   title: "เข้าสู่ระบบ - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
   description:
-    "เข้าสู่ระบบตารางเรียนตารางสอนออนไลน์ โรงเรียนพระซองสามัคคีวิทยา สำหรับครู นักเรียน และผู้ดูแลระบบ",
+    "เข้าสู่ระบบตารางเรียนตารางสอนออนไลน์ โรงเรียนพระซองสามัคคีวิทยา สำหรับครู นักเรียน และผู้ดูแลระบบ รองรับ Google OAuth และอีเมล/รหัสผ่าน",
   path: "/signin",
+  robots: { index: true, follow: true },
 });
 
 /**

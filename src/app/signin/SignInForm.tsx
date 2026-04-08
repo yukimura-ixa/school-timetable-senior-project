@@ -202,6 +202,7 @@ export default function SignInForm() {
               </Box>
               <Box sx={{ textAlign: "center" }}>
                 <Typography
+                  component="h1"
                   variant="h5"
                   sx={{
                     fontWeight: 700,

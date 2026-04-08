@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Lightbulb, School, Users, Calendar } from "lucide-react";
-import { createMetadataWithCanonical } from "@/utils/canonical-url";
+import { createMetadataWithSocial } from "@/utils/canonical-url";
 
-export const metadata: Metadata = createMetadataWithCanonical({
+export const metadata: Metadata = createMetadataWithSocial({
   title: "เกี่ยวกับโรงเรียน - โรงเรียนพระซองสามัคคีวิทยา",
   description:
-    "เรียนรู้เกี่ยวกับโรงเรียนพระซองสามัคคีวิทยา จังหวัดนครพนม สถาบันการศึกษาที่อนุรักษ์วัฒนธรรมไทกะเลิง และระบบตารางเรียนตารางสอนออนไลน์ของเรา",
+    "โรงเรียนพระซองสามัคคีวิทยา จังหวัดนครพนม สถาบันการศึกษาที่อนุรักษ์วัฒนธรรมไทกะเลิง ระบำหมากเบ็ง พัฒนาผู้เรียนตามมาตรฐาน PISA พร้อมระบบตารางเรียนตารางสอนออนไลน์ที่ทันสมัย",
   path: "/about",
 });
 

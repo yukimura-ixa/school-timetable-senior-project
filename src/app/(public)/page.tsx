@@ -11,12 +11,12 @@ import { AnimatedHeroBackground } from "./_components/AnimatedHeroBackground";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getQuickStats } from "@/lib/public/stats";
-import { createMetadataWithCanonical } from "@/utils/canonical-url";
+import { createMetadataWithSocial } from "@/utils/canonical-url";
 
-export const metadata: Metadata = createMetadataWithCanonical({
+export const metadata: Metadata = createMetadataWithSocial({
   title: "ระบบตารางเรียนตารางสอน - โรงเรียนพระซองสามัคคีวิทยา",
   description:
-    "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
+    "ระบบจัดการตารางเรียนตารางสอนออนไลน์ โรงเรียนพระซองสามัคคีวิทยา จังหวัดนครพนม ค้นหาตารางครูผู้สอน ตารางเรียนนักเรียน และข้อมูลชั้นเรียนได้ง่ายและรวดเร็ว รองรับการจัดการตามหลักสูตร MOE",
   path: "/",
 });
 

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createMetadataWithCanonical } from "@/utils/canonical-url";
+import { createMetadataWithSocial } from "@/utils/canonical-url";
 
-export const metadata: Metadata = createMetadataWithCanonical({
+export const metadata: Metadata = createMetadataWithSocial({
   title: "นโยบายความเป็นส่วนตัว - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
   description:
-    "นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)",
+    "นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลส่วนบุคคล ตามพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) โรงเรียนพระซองสามัคคีวิทยา ระบุสิทธิผู้ใช้ การเก็บรักษาข้อมูล และมาตรการรักษาความปลอดภัย",
   path: "/privacy-policy",
 });
 

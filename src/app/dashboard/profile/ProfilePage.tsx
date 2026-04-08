@@ -85,7 +85,7 @@ export default function ProfilePage() {
           <IconButton onClick={() => router.back()} aria-label="กลับ">
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h4" fontWeight={600}>
+          <Typography variant="h4" component="h1" fontWeight={600}>
             โปรไฟล์ของฉัน
           </Typography>
         </Box>
