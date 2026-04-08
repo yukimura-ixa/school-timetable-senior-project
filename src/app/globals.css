@@ -1,9 +1,7 @@
 @import "tailwindcss";
 
 /* Configure Tailwind to scan source files */
-@source "../pages/**/*.{js,ts,jsx,tsx,mdx}";
-@source "../components/**/*.{js,ts,jsx,tsx,mdx}";
-@source "../app/**/*.{js,ts,jsx,tsx,mdx}";
+@source "../src/**/*.{js,ts,jsx,tsx,mdx}";
 
 /* Tailwind CSS v4 Theme Configuration */
 @theme {
@@ -75,6 +73,17 @@
   --shadow-ds-amber: 0 6px 18px rgba(245, 158, 11, 0.15);
   --shadow-ds-red: 0 6px 18px rgba(239, 68, 68, 0.15);
   --shadow-ds-cyan: 0 6px 18px rgba(6, 182, 212, 0.15);
+
+  /* ============================================
+   * DESIGN SYSTEM SPACING
+   * Common spacing values for consistent layouts
+   * Usage: min-h-hero, h-icon-sm, etc.
+   * ============================================ */
+  --spacing-hero-sm: 25rem;   /* 400px - min-h-[400px] */
+  --spacing-hero-md: 31.25rem; /* 500px - min-h-[500px] */
+  --spacing-icon-sm: 2.5rem;   /* 40px - common icon box size */
+  --spacing-icon-md: 3rem;     /* 48px - common icon box size */
+  --spacing-icon-lg: 3.5rem;   /* 56px - common icon box size */
 }
 
 /* Design System Keyframe Animations */
