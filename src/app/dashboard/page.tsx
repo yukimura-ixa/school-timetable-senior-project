@@ -33,6 +33,7 @@ import { SemesterSectionSkeleton } from "./_components/SemesterSectionSkeleton";
 import { SemesterFiltersSkeleton } from "./_components/SemesterFiltersSkeleton";
 import { SemesterAnalyticsDashboard } from "./_components/SemesterAnalyticsDashboard";
 import { SemesterAnalyticsDashboardSkeleton } from "./_components/SemesterAnalyticsDashboardSkeleton";
+import { SkipLink } from "@/components/elements/SkipLink";
 import {
   getSemestersAction,
   getRecentSemestersAction,
@@ -119,8 +120,10 @@ export default function SelectSemesterPage() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <SkipLink />
       {/* Header */}
       <Box
+        id="main-content"
         sx={{
           display: "flex",
           justifyContent: "space-between",

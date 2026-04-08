@@ -40,7 +40,9 @@ export function SubmitButton({
       variant="contained"
       disabled={pending}
       startIcon={
-        pending ? <CircularProgress size={16} color="inherit" /> : undefined
+        pending ? (
+          <CircularProgress size={16} color="inherit" aria-label="กำลังโหลด" />
+        ) : undefined
       }
       {...props}
     >

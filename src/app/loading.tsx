@@ -61,7 +61,12 @@ export default function Loading() {
           sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.modal + 1 }}
         >
           <Stack spacing={2} alignItems="center">
-            <CircularProgress color="inherit" thickness={4} size={56} />
+            <CircularProgress
+              color="inherit"
+              thickness={4}
+              size={56}
+              aria-label="กำลังโหลดข้อมูล"
+            />
             <Typography
               variant="body2"
               sx={{ opacity: 0.9, textAlign: "center" }}
