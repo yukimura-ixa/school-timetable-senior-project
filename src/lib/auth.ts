@@ -43,8 +43,9 @@ const authUrlCandidates = [
   process.env.NEXT_PUBLIC_AUTH_URL, // Production auth URL
   vercelUrl,
   publicVercelUrl,
-  // Production domain fallback
-  "https://phrasongsa-timetable.vercel.app",
+  // Optional explicit production origin (used when VERCEL_URL is unavailable,
+  // e.g. self-hosted deployments). Set NEXT_PUBLIC_PRODUCTION_URL in your env.
+  process.env.NEXT_PUBLIC_PRODUCTION_URL,
   "http://localhost:3000",
 ];
 
