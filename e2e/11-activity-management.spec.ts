@@ -128,11 +128,8 @@ test.describe("Activity Management - CRUD Operations", () => {
         console.log("[E2E_TEST] Success message not found, continuing...");
       });
 
-      // Add extra wait for persistence
-      await page.waitForTimeout(1000);
-      console.log("[E2E_TEST] Waited for persistence, verifying...");
-
-      // Verify activity appears in table
+      // Verify activity appears in table (web-first assertion handles persistence wait)
+      console.log("[E2E_TEST] Verifying activity appears in table...");
       await expect(page.getByText(TEST_ACTIVITY.code)).toBeVisible({ timeout: 15000 });
       console.log("[E2E_TEST] Subject verified in table");
     });

@@ -160,7 +160,7 @@ test.describe("Security: PII Exposure Prevention", () => {
     // Check teachers tab if it exists
     const teachersTab = page
       .locator(
-        '[data-testid="tab-teachers"], button:has-text("ครู"), a:has-text("ครู")',
+        '[data-testid="teachers-tab"], button:has-text("ครู"), a:has-text("ครู")',
       )
       .first();
     if ((await teachersTab.count()) > 0) {

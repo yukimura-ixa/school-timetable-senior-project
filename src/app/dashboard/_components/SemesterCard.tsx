@@ -91,6 +91,7 @@ export function SemesterCard({
 
   return (
     <Card
+      data-testid="semester-card"
       elevation={isSelected ? 8 : 1}
       sx={{
         height: "100%",

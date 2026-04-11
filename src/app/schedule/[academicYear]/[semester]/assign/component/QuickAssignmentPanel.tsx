@@ -365,7 +365,7 @@ function QuickAssignmentPanel({
   };
 
   return (
-    <Paper sx={{ mt: 3 }}>
+    <Paper sx={{ mt: 3 }} data-testid="quick-assignment">
       {/* Header */}
       <Box
         sx={{
@@ -377,6 +377,7 @@ function QuickAssignmentPanel({
           cursor: "pointer",
         }}
         onClick={() => setIsExpanded(!isExpanded)}
+        data-testid="assignment-panel"
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <AssignmentIcon color="primary" />
