@@ -85,8 +85,8 @@ export async function waitForVercelDeployment(
       }
     } catch (error) {
       lastError = error as Error;
-      // Wait before retry
-      await page.waitForTimeout(2000);
+      // Retry backoff before next attempt against Vercel deployment
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
 
@@ -260,7 +260,8 @@ export async function checkVercelDeploymentIssues(
       errors.push(error.message);
     });
 
-    await page.waitForTimeout(2000);
+    // Explicit observation window to collect async page errors
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     if (errors.length > 0) {
       issues.push(`JavaScript errors: ${errors.join(", ")}`);
@@ -272,7 +273,8 @@ export async function checkVercelDeploymentIssues(
       failedRequests.push(request.url());
     });
 
-    await page.waitForTimeout(2000);
+    // Explicit observation window to collect async failed requests
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     if (failedRequests.length > 0) {
       issues.push(`Failed requests: ${failedRequests.length}`);

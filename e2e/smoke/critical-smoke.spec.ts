@@ -509,11 +509,13 @@ test.describe("Critical Path Smoke Tests", () => {
             .or(page.locator('button:has-text("เลือกครู")').first());
           if (await combobox.isVisible({ timeout: 2000 }).catch(() => false)) {
             await combobox.click();
-            await page.waitForTimeout(500);
-            // Click first option
+            // Wait for the listbox options to render after opening the combobox
             const firstOption = page.locator('[role="option"]').first();
             if (
-              await firstOption.isVisible({ timeout: 2000 }).catch(() => false)
+              await firstOption
+                .waitFor({ state: "visible", timeout: 5000 })
+                .then(() => true)
+                .catch(() => false)
             ) {
               await firstOption.click();
             }
@@ -521,12 +523,8 @@ test.describe("Critical Path Smoke Tests", () => {
         }
       }
 
-      // Wait for content update
-      await page.waitForTimeout(1000);
-
-      // Verify page renders without error
-      const content = await page.textContent("body");
-      expect(content).toBeTruthy();
+      // Verify page renders without error (body content reflects latest state)
+      await expect(page.locator("body")).not.toBeEmpty();
     });
 
     test("Page renders header content (visual verification)", async ({

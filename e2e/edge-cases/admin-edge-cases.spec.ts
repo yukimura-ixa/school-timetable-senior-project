@@ -257,9 +257,11 @@ test.describe("CRUD Validation Edge Cases", () => {
       page.locator("text=/สำเร็จ/").first(),
     ).toBeVisible({ timeout: 15000 });
 
-    // Search for the teacher
+    // Search for the teacher and wait for filtered row to appear (absorbs debounce)
     await page.getByTestId("teacher-search").fill(`Delete${uniqueId}`);
-    await page.waitForTimeout(500);
+    await expect(
+      page.locator("tbody tr").filter({ hasText: `Delete${uniqueId}` }).first(),
+    ).toBeVisible({ timeout: 10000 });
 
     // Select and delete
     await page.locator('tbody input[type="checkbox"]').first().check();

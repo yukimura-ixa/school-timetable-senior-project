@@ -210,8 +210,9 @@ test.describe("Large Dataset Performance", () => {
 
       await nextButton.click();
 
-      // Wait for new data to appear
-      await guestPage.waitForTimeout(100);
+      // Wait for pagination data to refresh - network settles or list is visible
+      await guestPage.waitForLoadState("networkidle", { timeout: 5000 }).catch(() => {});
+      await expect(guestPage.getByTestId("teacher-list")).toBeVisible();
 
       const paginationTime = Date.now() - startTime;
 

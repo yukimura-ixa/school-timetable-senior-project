@@ -51,13 +51,12 @@ export class ProgramViewPage extends BasePage {
    */
   async selectGrade(gradeText: string) {
     await this.gradeDropdown.click();
-    // Dropdown has CSS animation with scale-y-0 initially - wait for it to expand
-    await this.page.waitForTimeout(800);
-    // Find the paragraph containing the grade text (inside listitem)
-    // Using locator with paragraph inside list to match the actual structure
+    // Dropdown has CSS animation with scale-y-0 initially - wait for target option
+    // to become visible instead of using an arbitrary timeout.
     const gradeOption = this.page
       .locator(`li p:has-text("${gradeText}")`)
       .first();
+    await gradeOption.waitFor({ state: "visible", timeout: 5000 });
     // Use dispatchEvent to click through CSS transform issues
     await gradeOption.evaluate((el) => el.click());
     await this.waitForPageLoad();

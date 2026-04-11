@@ -95,7 +95,8 @@ async function fillSearch(page: Page, value: string) {
   const input = await findFirstVisibleLocator(candidates);
   await input.fill(value);
   await expect(input).toHaveValue(value);
-  await page.waitForTimeout(300);
+  // Debounced search settling is handled by callers' web-first assertions
+  // on the resulting row (e.g. selectRowByText).
 }
 
 test.describe("CRUD (mutating) – Teachers", () => {
@@ -127,8 +128,8 @@ test.describe("CRUD (mutating) – Teachers", () => {
     const search = page.getByTestId("teacher-search");
     if (await search.isVisible({ timeout: 2000 }).catch(() => false)) {
       await search.fill(firstName);
-      await page.waitForTimeout(300);
     }
+    // selectRowByText polls for the row to be visible, so it absorbs debounce.
     await selectRowByText(page, firstName);
     const editButton = page.locator('button[aria-label="edit"]').first();
     if (await editButton.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -154,8 +155,8 @@ test.describe("CRUD (mutating) – Teachers", () => {
     // Delete
     if (await search.isVisible({ timeout: 2000 }).catch(() => false)) {
       await search.fill(currentFirstName);
-      await page.waitForTimeout(300);
     }
+    // selectRowByText polls for the row to be visible, so it absorbs debounce.
     await selectRowByText(page, currentFirstName);
     await page.locator('button[aria-label="delete"]').first().click();
     await confirmDialogIfPresent(page);

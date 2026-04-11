@@ -42,10 +42,7 @@ async function selectTeacherFromAutocomplete(
       await expect(teacherInput).toBeVisible({ timeout: 15000 });
       await teacherInput.click();
 
-      // Wait a moment for dropdown animation
-      await page.waitForTimeout(500);
-
-      // Wait for listbox to appear with increased timeout
+      // Wait for listbox to appear (web-first assertion absorbs dropdown animation)
       const listbox = page.locator('[role="listbox"]');
       await expect(listbox).toBeVisible({ timeout: 15000 });
 
@@ -67,9 +64,11 @@ async function selectTeacherFromAutocomplete(
       );
       if (attempt === maxRetries) throw error;
 
-      // Close any open dropdowns and retry
+      // Close any open dropdowns and confirm closure before retrying
       await page.keyboard.press("Escape");
-      await page.waitForTimeout(1000);
+      await expect(page.locator('[role="listbox"]')).toHaveCount(0, {
+        timeout: 5000,
+      });
     }
   }
   return null;
@@ -113,10 +112,7 @@ test.describe("Teaching Assignment CRUD", () => {
       await page.goto(`/schedule/${SEMESTER}/assign`);
       await page.waitForLoadState("networkidle");
 
-      // Wait for Next.js hydration to complete
-      await page.waitForTimeout(1000);
-
-      // Verify page loaded
+      // Verify page loaded (waitForAppReady absorbs hydration wait)
       await waitForAppReady(page);
 
       // Should have teacher autocomplete - wait for it with extended timeout

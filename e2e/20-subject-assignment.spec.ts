@@ -100,18 +100,14 @@ test.describe("Subject Assignment - Teacher Selection", () => {
     // Wait for data to load
     await page.waitForLoadState("networkidle");
 
-    // Should show teacher information or assignment panel
-    // Look for any content indicating teacher is selected
-    await page.waitForTimeout(1000); // Allow UI to update
+    // Verify body has non-empty content after selection (web-first assertion
+    // absorbs the UI update time)
+    await expect(page.locator("body")).not.toBeEmpty();
 
     await page.screenshot({
       path: "test-results/screenshots/assign-03-teacher-selected.png",
       fullPage: true,
     });
-
-    // Verify URL updated or content appeared
-    const pageContent = await page.textContent("body");
-    expect(pageContent).toBeTruthy();
   });
 
   test("AS-04: Teacher card shows workload summary", async ({

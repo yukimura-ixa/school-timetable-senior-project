@@ -51,11 +51,9 @@ async function waitForDndReady(page: Page) {
     console.log("⚠️ Basic content selector not found, checking for body content");
   });
 
-  // Wait for page to be interactive
+  // Wait for page to be interactive (networkidle absorbs hydration wait)
   await page.waitForLoadState('domcontentloaded').catch(() => {});
-  
-  // Give React hydration time
-  await page.waitForTimeout(1000);
+  await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
   // Try to wait for DndContext to be ready, but don't fail if no draggables
   try {
