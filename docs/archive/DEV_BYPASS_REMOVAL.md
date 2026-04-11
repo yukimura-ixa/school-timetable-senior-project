@@ -70,7 +70,7 @@ Successfully removed the development bypass authentication mechanism and enforce
 6. `src/shared/lib/action-wrapper.ts` - Replaced authWithDevBypass with auth
 7. `src/app/(public)/page.tsx` - Replaced authWithDevBypass with auth
 8. `src/app/layout.tsx` - Replaced authWithDevBypass with auth
-9. `src/app/api/auth/[...nextauth]/route.ts` - Simplified handler
+9. `src/app/api/auth/[...all]/route.ts` - Simplified handler
 
 ## Files Deleted
 

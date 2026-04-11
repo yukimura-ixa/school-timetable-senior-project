@@ -24,6 +24,16 @@ interface QuickStatsCardsClientProps {
 }
 
 export function QuickStatsCardsClient({ stats }: QuickStatsCardsClientProps) {
+  const isDataUnavailable =
+    stats.currentTerm === "N/A" &&
+    stats.lastUpdated === "N/A" &&
+    stats.totalTeachers === 0 &&
+    stats.totalClasses === 0 &&
+    stats.totalRooms === 0 &&
+    stats.totalSubjects === 0 &&
+    stats.totalPrograms === 0 &&
+    stats.periodsPerDay === 0;
+
   const statItems = [
     {
       label: "ครูทั้งหมด",
@@ -145,6 +155,15 @@ export function QuickStatsCardsClient({ stats }: QuickStatsCardsClientProps) {
             </div>
           </div>
         </div>
+
+        {isDataUnavailable && (
+          <div
+            role="status"
+            className="relative mt-4 rounded-xl border border-amber-300/20 bg-amber-400/10 px-3 py-2 text-sm text-amber-100"
+          >
+            ข้อมูลสาธารณะยังไม่พร้อมใช้งาน
+          </div>
+        )}
       </div>
     </div>
   );

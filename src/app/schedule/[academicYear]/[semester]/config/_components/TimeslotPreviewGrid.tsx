@@ -24,100 +24,23 @@ import {
   AccessTime as ClockIcon,
 } from "@mui/icons-material";
 import { ConfigData } from "@/features/config/domain/constants/config.constants";
+import {
+  calculateSchoolDayEndTime,
+  calculateSchoolDayMinutes,
+  generatePreviewSlots,
+} from "@/features/timeslot/domain/services/timeslot-config.service";
 
 interface TimeslotPreviewProps {
   /** Configuration data to generate preview from */
   config: ConfigData;
 }
 
-interface PreviewSlot {
-  period: number;
-  label: string;
-  startTime: string;
-  endTime: string;
-  type: "class" | "lunch-junior" | "lunch-senior" | "mini-break";
-  duration: number;
-}
-
-/**
- * Generate preview timeslots from config
- */
-function generatePreviewSlots(config: ConfigData): PreviewSlot[] {
-  const slots: PreviewSlot[] = [];
-  const [startHour, startMinute] = config.StartTime.split(":").map(Number);
-  if (startHour === undefined || startMinute === undefined) {
-    return [];
-  }
-  let currentMinute = startHour * 60 + startMinute; // Convert to minutes from midnight
-
-  for (let period = 1; period <= config.TimeslotPerDay; period++) {
-    const startTime = formatTime(currentMinute);
-
-    // Check if this is a break period
-    const isJuniorLunch = period === config.BreakTimeslots.Junior;
-    const isSeniorLunch = period === config.BreakTimeslots.Senior;
-    const isMiniBreak =
-      config.HasMinibreak && period === config.MiniBreak.SlotNumber;
-
-    let duration: number;
-    let type: PreviewSlot["type"];
-    let label: string;
-
-    if (isJuniorLunch && isSeniorLunch) {
-      // Both levels have lunch at same time
-      type = "lunch-junior"; // Treat as shared
-      duration = config.BreakDuration;
-      label = `คาบที่ ${period} - พักเที่ยง (ทุกระดับ)`;
-    } else if (isJuniorLunch) {
-      type = "lunch-junior";
-      duration = config.BreakDuration;
-      label = `คาบที่ ${period} - พักเที่ยง ม.ต้น`;
-    } else if (isSeniorLunch) {
-      type = "lunch-senior";
-      duration = config.BreakDuration;
-      label = `คาบที่ ${period} - พักเที่ยง ม.ปลาย`;
-    } else if (isMiniBreak) {
-      type = "mini-break";
-      duration = config.MiniBreak.Duration;
-      label = `พักเบรก ${config.MiniBreak.Duration} นาที`;
-    } else {
-      type = "class";
-      duration = config.Duration;
-      label = `คาบที่ ${period}`;
-    }
-
-    const endMinute = currentMinute + duration;
-    const endTime = formatTime(endMinute);
-
-    slots.push({
-      period,
-      label,
-      startTime,
-      endTime,
-      type,
-      duration,
-    });
-
-    currentMinute = endMinute;
-  }
-
-  return slots;
-}
-
-/**
- * Format minutes from midnight to HH:MM
- */
-function formatTime(minutes: number): string {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
-}
-
 /**
  * Get chip color and icon based on slot type
  */
-function getSlotStyle(type: PreviewSlot["type"]) {
+function getSlotStyle(type: string) {
   switch (type) {
+    case "lunch-both":
     case "lunch-junior":
     case "lunch-senior":
       return {
@@ -141,24 +64,12 @@ function getSlotStyle(type: PreviewSlot["type"]) {
 }
 
 /**
- * Calculate end time of school day
- */
-function calculateEndTime(slots: PreviewSlot[]): string {
-  if (slots.length === 0) return "--:--";
-  const lastSlot = slots[slots.length - 1];
-  if (!lastSlot) return "--:--";
-  return lastSlot.endTime;
-}
-
-/**
  * Timeslot preview grid component
  */
 export function TimeslotPreviewGrid({ config }: TimeslotPreviewProps) {
   const slots = useMemo(() => generatePreviewSlots(config), [config]);
-  const endTime = useMemo(() => calculateEndTime(slots), [slots]);
-  const totalMinutes = useMemo(() => {
-    return slots.reduce((sum, slot) => sum + slot.duration, 0);
-  }, [slots]);
+  const endTime = useMemo(() => calculateSchoolDayEndTime(slots), [slots]);
+  const totalMinutes = useMemo(() => calculateSchoolDayMinutes(slots), [slots]);
 
   return (
     <Paper elevation={2} sx={{ p: 3 }}>

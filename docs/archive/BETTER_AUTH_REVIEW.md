@@ -9,7 +9,7 @@ After extensive debugging, I've identified the root causes and recommend a clean
 1. **E2E Auth Test Consistently Fails** - Login never redirects to dashboard
 2. **Database Configuration Chaos** - Test DB vs Production DB mismatch
 3. **Missing baseURL** - Fixed but may not resolve all issues
-4. **Complex Migration** - NextAuth → better-auth, bcrypt → scrypt
+4. **Complex Migration** - Legacy auth stack → better-auth, bcrypt → scrypt
 
 ## Root Causes (from Context7 docs)
 

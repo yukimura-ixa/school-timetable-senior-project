@@ -151,7 +151,7 @@ The current tests do not fully implement Google OAuth authentication due to comp
    - Implement proper OAuth flow in `helpers/auth.ts`
 
 3. **Option C: Bypass Authentication**
-   - Configure Next-Auth for test environment
+   - Configure Better Auth for test environment
    - Allow test-mode bypass with special credentials
 
 ## Interpreting Test Results
@@ -219,7 +219,7 @@ For CI/CD pipelines:
 ### Authentication Failures
 
 - Ensure `.env` file is configured
-- Check NextAuth configuration
+- Check Better Auth configuration
 - Review middleware redirects
 
 ### Database Errors

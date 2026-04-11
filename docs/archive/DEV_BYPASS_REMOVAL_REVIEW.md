@@ -56,7 +56,7 @@ src/app/login/page.tsx
 Core Auth:
   src/lib/auth.ts                    - Removed dev-bypass provider
   src/app/signin/page.tsx            - Removed bypass button
-  src/app/api/auth/[...nextauth]/route.ts - Simplified handler
+  src/app/api/auth/[...all]/route.ts - Simplified handler
 
 Components:
   src/shared/lib/action-wrapper.ts   - Use auth()

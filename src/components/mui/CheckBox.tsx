@@ -33,6 +33,8 @@ import {
   type CheckboxProps as MuiCheckboxProps,
   type FormControlLabelProps,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import { colors } from "@/shared/design-system";
 
 // Legacy API types (backward compatibility)
 interface LegacyCheckBoxProps {

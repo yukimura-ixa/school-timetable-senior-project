@@ -65,8 +65,6 @@ export default defineConfig({
     server: {
       deps: {
         inline: [
-          "next-auth",
-          "@auth/core",
           "@prisma/client",
           "@mui/x-data-grid", // Has CSS imports
           // Inline all CSS to avoid extension errors

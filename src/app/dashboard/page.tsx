@@ -9,6 +9,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { authClient } from "@/lib/auth-client";
 import { isAdminRole, normalizeAppRole } from "@/lib/authz";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
   Box,
   Container,
@@ -26,12 +27,9 @@ import {
 } from "@mui/icons-material";
 import { SemesterCard } from "./_components/SemesterCard";
 import { SemesterFilters } from "./_components/SemesterFilters";
-import { CreateSemesterWizard } from "./_components/CreateSemesterWizard";
-import { CopySemesterModal } from "./_components/CopySemesterModal";
 import { SemesterExportButton } from "./_components/SemesterExportButton";
 import { SemesterSectionSkeleton } from "./_components/SemesterSectionSkeleton";
 import { SemesterFiltersSkeleton } from "./_components/SemesterFiltersSkeleton";
-import { SemesterAnalyticsDashboard } from "./_components/SemesterAnalyticsDashboard";
 import { SemesterAnalyticsDashboardSkeleton } from "./_components/SemesterAnalyticsDashboardSkeleton";
 import { SkipLink } from "@/components/elements/SkipLink";
 import {
@@ -45,6 +43,30 @@ import type {
   SemesterFilterSchema,
 } from "@/features/semester/application/schemas/semester.schemas";
 import type { InferOutput } from "valibot";
+
+const SemesterAnalyticsDashboard = dynamic(
+  () =>
+    import("./_components/SemesterAnalyticsDashboard").then(
+      (mod) => mod.SemesterAnalyticsDashboard,
+    ),
+  {
+    loading: () => <SemesterAnalyticsDashboardSkeleton />,
+  },
+);
+
+const CreateSemesterWizard = dynamic(
+  () =>
+    import("./_components/CreateSemesterWizard").then(
+      (mod) => mod.CreateSemesterWizard,
+    ),
+);
+
+const CopySemesterModal = dynamic(
+  () =>
+    import("./_components/CopySemesterModal").then(
+      (mod) => mod.CopySemesterModal,
+    ),
+);
 
 export default function SelectSemesterPage() {
   const router = useRouter();
@@ -104,12 +126,12 @@ export default function SelectSemesterPage() {
   }, [loadData]);
 
   const handleSelectSemester = async (semester: SemesterDTO) => {
-    // Track access
-    await trackSemesterAccessAction({ configId: semester.configId });
-
-    // Navigate to student table
+    // Navigate first for instant UX, track access in the background.
     router.push(
       `/dashboard/${semester.academicYear}/${semester.semester}/student-table`,
+    );
+    void trackSemesterAccessAction({ configId: semester.configId }).catch(
+      () => undefined,
     );
   };
 

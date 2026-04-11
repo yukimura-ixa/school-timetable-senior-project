@@ -1,0 +1,79 @@
+- generic [active] [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e12]:
+      - generic [ref=e17]:
+        - generic [ref=e19]:
+          - heading "ระบบตารางเรียน ตารางสอน" [level=1] [ref=e20]:
+            - text: ระบบตารางเรียน
+            - text: ตารางสอน
+          - paragraph [ref=e21]: จัดการตารางสอนอย่างมืออาชีพด้วยเทคโนโลยีทันสมัย รวดเร็ว ถูกต้อง และตรวจสอบได้ทันที
+        - link "🔐 เข้าสู่ระบบ Admin" [ref=e23] [cursor=pointer]:
+          - /url: /signin
+          - generic [ref=e25]:
+            - generic [ref=e26]: 🔐
+            - text: เข้าสู่ระบบ Admin
+      - generic [ref=e29]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - paragraph [ref=e35]: ครูทั้งหมด
+            - paragraph [ref=e36]: "0"
+          - img [ref=e39]
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - paragraph [ref=e46]: ห้องเรียน
+            - paragraph [ref=e47]: "0"
+          - img [ref=e50]
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - paragraph [ref=e57]: ห้องพัก
+            - paragraph [ref=e58]: "0"
+          - img [ref=e61]
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - paragraph [ref=e68]: วิชาทั้งหมด
+            - paragraph [ref=e69]: "0"
+          - img [ref=e72]
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - paragraph [ref=e79]: โปรแกรม
+            - paragraph [ref=e80]: "0"
+          - img [ref=e83]
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - paragraph [ref=e90]: คาบ/วัน
+            - paragraph [ref=e91]: "0"
+          - img [ref=e94]
+        - generic [ref=e99]:
+          - generic [ref=e100]:
+            - generic [ref=e101]: 🗓️
+            - generic [ref=e102]:
+              - paragraph [ref=e103]: ภาคเรียนปัจจุบัน
+              - paragraph [ref=e104]: N/A
+          - generic [ref=e105]:
+            - paragraph [ref=e106]: อัปเดตล่าสุด
+            - paragraph [ref=e109]: N/A
+      - generic [ref=e111]:
+        - tablist [ref=e113]:
+          - tab "ครู" [selected] [ref=e114]: ครู
+          - tab "ชั้นเรียน" [ref=e116]
+        - generic [ref=e119]:
+          - generic:
+            - img
+          - textbox "ค้นหา" [ref=e120]:
+            - /placeholder: ค้นหาครูที่ต้องการ เช่น ชื่อจริง, ภาควิชา...
+        - tabpanel "ครู" [ref=e122]:
+          - paragraph [ref=e124]: ไม่มีข้อมูลครู
+      - generic [ref=e125]:
+        - heading "ภาพรวมการใช้งาน" [level=2] [ref=e126]
+        - generic [ref=e127]:
+          - heading "ครูที่มีภาระสอนสูงสุด (Top 5)" [level=3] [ref=e129]
+          - heading "จำนวนคาบเรียนต่อวัน" [level=3] [ref=e133]
+          - generic [ref=e136]:
+            - heading "อัตราการใช้ห้องเรียน (%)" [level=3] [ref=e137]
+            - generic [ref=e138]:
+              - generic [ref=e139]: ต่ำ
+              - generic [ref=e140]: สูง
+      - paragraph [ref=e143]: © 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma
+  - button "Open Next.js Dev Tools" [ref=e149] [cursor=pointer]:
+    - img [ref=e150]
+  - alert [ref=e153]

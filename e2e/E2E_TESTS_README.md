@@ -290,7 +290,7 @@ Environment: Vercel production deployment (see `playwright.vercel.config.ts`)
 - Login works but session doesn't persist
 
 **Root Causes:**
-1. Auth URLs using wrong port (3000 instead of 3005)
+1. Auth URLs not aligned with the default test port (3000)
 2. Stale `.env.test.local` with mismatched configuration
 3. Cached auth storage state with expired/wrong secrets
 
@@ -306,10 +306,10 @@ pnpm test:db:seed
 # 3. Clear cached auth state
 rm -rf playwright/.auth
 
-# 4. Verify env URLs use port 3005
+# 4. Verify env URLs use port 3000
 # Check these files:
-# - .env.test (should have BETTER_AUTH_URL=http://localhost:3005)
-# - .env.test.local (should have BETTER_AUTH_URL=http://localhost:3005)
+# - .env.test (should have BETTER_AUTH_URL=http://localhost:3000)
+# - .env.test.local (should have BETTER_AUTH_URL=http://localhost:3000)
 ```
 
 **Prevention:**

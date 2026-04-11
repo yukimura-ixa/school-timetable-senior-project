@@ -493,7 +493,8 @@ test.describe("Security & Privacy Checks", () => {
     const secretPatterns = [
       /API[_-]?KEY/i,
       /SECRET[_-]?KEY/i,
-      /NEXTAUTH[_-]?SECRET/i,
+      /AUTH[_-]?SECRET/i,
+      /BETTER[_-]?AUTH[_-]?SECRET/i,
       /GOOGLE[_-]?CLIENT[_-]?SECRET/i,
     ];
 

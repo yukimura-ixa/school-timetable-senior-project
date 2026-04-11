@@ -6,12 +6,16 @@
  * Playwright starts the Next.js dev server, ensuring the test environment
  * variables are loaded correctly by Next.js (which prioritizes .env.local over .env).
  *
- * IMPORTANT: All auth URLs must use port 3005 to match the E2E test server.
+ * IMPORTANT: Keep auth URLs aligned with the default local test port (3000).
  */
 
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const envTestPath = path.resolve(__dirname, "../.env.test");
 const envLocalPath = path.resolve(__dirname, "../.env.local");
@@ -38,30 +42,30 @@ try {
     fs.copyFileSync(envTestPath, envLocalPath);
     console.log("✅ Copied .env.test to .env.local for E2E tests");
 
-    // Also sync .env.test.local to ensure port 3005 consistency
+    // Also sync .env.test.local to ensure port consistency
     fs.copyFileSync(envTestPath, envTestLocalPath);
-    console.log("✅ Copied .env.test to .env.test.local (ensuring port 3005)");
+    console.log("✅ Copied .env.test to .env.test.local (ensuring default port)");
   } else {
     console.warn("⚠️  .env.test not found - tests may fail");
   }
 
-  // Validate port 3005 is used in auth URLs
+  // Validate default port (3000) is used in auth URLs
   const envContent = fs.readFileSync(envTestPath, "utf8");
   const urlPatterns = [
-    /BETTER_AUTH_URL=.*:(\d+)/,
-    /NEXTAUTH_URL=.*:(\d+)/,
-    /BASE_URL=.*:(\d+)/,
+    /^BETTER_AUTH_URL=.*:(\d+)/m,
+    /^AUTH_URL=.*:(\d+)/m,
+    /^BASE_URL=.*:(\d+)/m,
   ];
   let hasWrongPort = false;
   urlPatterns.forEach((pattern) => {
     const match = envContent.match(pattern);
-    if (match && match[1] !== "3005") {
-      console.warn(`⚠️  Found port ${match[1]} instead of 3005 in .env.test`);
+    if (match && match[1] !== "3000") {
+      console.warn(`⚠️  Found port ${match[1]} instead of 3000 in .env.test`);
       hasWrongPort = true;
     }
   });
   if (!hasWrongPort) {
-    console.log("✅ All auth URLs use port 3005");
+    console.log("✅ All auth URLs use port 3000");
   }
 } catch (error) {
   console.error("❌ Failed to prepare E2E environment:", error);

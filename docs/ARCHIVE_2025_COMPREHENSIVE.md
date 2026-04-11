@@ -117,7 +117,7 @@
 - **Date:** October 26, 2024
 - **Scope:** Authentication system
 - **Key Changes:**
-  - NextAuth v5.0.0-beta.29
+  - Auth.js v5.0.0-beta.29
   - Prisma adapter integration
   - Custom dev-bypass provider for testing
   - Session management updates

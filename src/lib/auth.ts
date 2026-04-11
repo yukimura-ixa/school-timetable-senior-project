@@ -38,7 +38,6 @@ const publicVercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL
 const authUrlCandidates = [
   process.env.AUTH_URL,
   process.env.BETTER_AUTH_URL,
-  process.env.NEXTAUTH_URL,
   process.env.NEXT_PUBLIC_APP_URL,
   process.env.NEXT_PUBLIC_AUTH_URL, // Production auth URL
   vercelUrl,
@@ -88,13 +87,11 @@ export const auth = betterAuth({
   // in Vercel preview/production. Order of precedence:
   // 1) AUTH_URL (manual override)
   // 2) BETTER_AUTH_URL (better-auth recommended env)
-  // 3) NEXTAUTH_URL (legacy env used elsewhere)
-  // 4) VERCEL_URL (auto-set by Vercel, needs https:// prefix)
-  // 5) localhost fallback for local dev
+  // 3) VERCEL_URL (auto-set by Vercel, needs https:// prefix)
+  // 4) localhost fallback for local dev
   baseURL:
     process.env.AUTH_URL ||
     process.env.BETTER_AUTH_URL ||
-    process.env.NEXTAUTH_URL ||
     vercelUrl ||
     "http://localhost:3000",
   trustedOrigins,

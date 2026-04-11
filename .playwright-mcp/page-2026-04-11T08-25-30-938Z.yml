@@ -1,0 +1,72 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - button "เมนู" [ref=e6] [cursor=pointer]:
+            - img [ref=e7]
+          - link "PT Phrasongsa Timetable" [ref=e9] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e11]: PT
+            - generic [ref=e12]: Phrasongsa Timetable
+        - list [ref=e13]:
+          - listitem [ref=e14]:
+            - link "จัดการ" [ref=e15] [cursor=pointer]:
+              - /url: /management
+          - listitem [ref=e16]:
+            - link "สรุปข้อมูล" [ref=e17] [cursor=pointer]:
+              - /url: /dashboard
+      - generic [ref=e18]:
+        - button "ภาคเรียน 1/2568" [ref=e21] [cursor=pointer]:
+          - img [ref=e23]
+          - generic [ref=e25]:
+            - generic [ref=e26]: ภาคเรียน
+            - paragraph [ref=e27]: 1/2568
+          - img [ref=e29]
+        - generic [ref=e32]:
+          - link "System Administrator ผู้ดูแลระบบ รูปโปรไฟล์" [ref=e33] [cursor=pointer]:
+            - /url: /dashboard/profile
+            - generic [ref=e34]:
+              - paragraph [ref=e35]: System Administrator
+              - paragraph [ref=e36]: ผู้ดูแลระบบ
+            - img "รูปโปรไฟล์" [ref=e39]
+          - button "ออกจากระบบ" [ref=e40] [cursor=pointer]:
+            - img [ref=e41]
+  - generic [ref=e44]:
+    - complementary [ref=e45]:
+      - generic [ref=e46]:
+        - paragraph [ref=e47]: การจัดการข้อมูล
+        - link "ข้อมูลครู" [ref=e48] [cursor=pointer]:
+          - /url: /management/teacher
+          - img [ref=e49]
+          - paragraph [ref=e51]: ข้อมูลครู
+        - link "ข้อมูลวิชา" [ref=e52] [cursor=pointer]:
+          - /url: /management/subject
+          - img [ref=e53]
+          - paragraph [ref=e55]: ข้อมูลวิชา
+        - link "ข้อมูลสถานที่เรียน" [ref=e56] [cursor=pointer]:
+          - /url: /management/rooms
+          - img [ref=e57]
+          - paragraph [ref=e60]: ข้อมูลสถานที่เรียน
+        - link "ข้อมูลชั้นเรียน" [ref=e61] [cursor=pointer]:
+          - /url: /management/gradelevel
+          - img [ref=e62]
+          - paragraph [ref=e64]: ข้อมูลชั้นเรียน
+        - link "ข้อมูลหลักสูตร" [ref=e65] [cursor=pointer]:
+          - /url: /management/program
+          - img [ref=e66]
+          - paragraph [ref=e70]: ข้อมูลหลักสูตร
+        - link "Email Outbox" [ref=e71] [cursor=pointer]:
+          - /url: /management/email-outbox
+          - img [ref=e72]
+          - paragraph [ref=e75]: Email Outbox
+      - generic [ref=e76]:
+        - paragraph [ref=e77]: ตารางสอน
+        - link "จัดตารางสอน" [ref=e78] [cursor=pointer]:
+          - /url: /schedule/2567/1/arrange
+          - img [ref=e79]
+          - paragraph [ref=e81]: จัดตารางสอน
+    - main [ref=e82]
+  - button "Open Next.js Dev Tools" [ref=e103] [cursor=pointer]:
+    - img [ref=e104]
+  - alert [ref=e107]

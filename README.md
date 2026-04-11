@@ -97,7 +97,7 @@ A comprehensive web application designed to streamline the process of creating a
 
 - Next.js Server Actions & API Routes
 - Prisma ORM 6.18
-- NextAuth.js v5 (Authentication with Google OAuth)
+- Better Auth (Authentication with email/password and Google OAuth)
 - Valibot (Runtime Validation)
 
 **Database:**
@@ -141,7 +141,7 @@ The system uses a relational database with the following main entities:
 - **TimeslotID**: `{SEMESTER}-{YEAR}-{DAY}{PERIOD}` (e.g., `1-2567-MON1`)
 - **ConfigID**: `{SEMESTER}-{YEAR}` (e.g., `1-2567`)
 
-For detailed format specifications and utility functions, see [AGENTS.md Section 4.3](AGENTS.md#43-standard-id-formats).
+For detailed format specifications and utility functions, see [MOE And Identifier Rules](docs/agents/instructions/moe-and-identifiers.md).
 
 ---
 
@@ -224,9 +224,9 @@ DEV_USER_ROLE="admin"
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/school-timetable-db-dev"
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-here"
+# Better Auth
+BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="your-secret-key-here"
 ```
 
 **For production or Google OAuth:**
@@ -236,8 +236,8 @@ NEXTAUTH_SECRET="your-secret-key-here"
 ENABLE_DEV_BYPASS="false"
 
 # Google OAuth credentials
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
+AUTH_GOOGLE_ID="your-google-client-id"
+AUTH_GOOGLE_SECRET="your-google-client-secret"
 ```
 
 📖 See [Development Guide](docs/DEVELOPMENT_GUIDE.md) for complete OAuth bypass setup
@@ -605,7 +605,7 @@ school-timetable-senior-project/
 
 ## 🔒 Authentication
 
-The system uses NextAuth.js with Google OAuth for authentication:
+The system uses Better Auth with email/password and Google OAuth for authentication:
 
 - **Admin**: Full system access including all management features
 - **Teacher**: Can view their teaching schedule and student timetables

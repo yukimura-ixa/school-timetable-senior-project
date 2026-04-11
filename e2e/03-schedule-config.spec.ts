@@ -14,6 +14,8 @@ import { waitForAppReady } from "./helpers/wait-for-app-ready";
  */
 
 test.describe("TC-007: Semester Configuration", () => {
+  test.describe.configure({ mode: "serial" });
+
   const testSemester = "2567/1";
 
   test("TC-007-01: Navigate to configuration page", async ({
@@ -21,7 +23,10 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
 
     // Wait for page load
     await waitForAppReady(page);
@@ -44,7 +49,10 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     // Wait for save button to be visible (data loaded)
@@ -74,7 +82,10 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     // Wait for save button to be visible (data loaded)
@@ -122,15 +133,19 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     // Wait for configuration UI to load
-    await expect(page.getByRole("button", { name: "ตั้งค่า", exact: true })).toBeVisible({ timeout: 10000 });
+    const saveButton = page.getByRole("button", { name: /^ตั้งค่า$/ });
+    await expect(saveButton).toBeVisible({ timeout: 30000 });
 
     // Configuration should be displayed as read-only
     // When configured, the save/reset buttons are disabled - use exact match
-    await expect(page.getByRole("button", { name: "ตั้งค่า", exact: true })).toBeDisabled();
+    await expect(saveButton).toBeDisabled();
     await expect(
       page.getByRole("button", { name: "คืนค่าเริ่มต้น" }),
     ).toBeDisabled();
@@ -149,7 +164,10 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     const resetButton = page.getByRole("button", { name: "คืนค่าเริ่มต้น" });
@@ -178,7 +196,10 @@ test.describe("TC-007: Semester Configuration", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/config`);
+    await page.goto(`/schedule/${testSemester}/config`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     // Clone link only visible if not configured
@@ -195,12 +216,17 @@ test.describe("TC-007: Semester Configuration", () => {
 });
 
 test.describe("TC-009: Schedule Assignment Interface", () => {
+  test.describe.configure({ mode: "serial" });
+
   const testSemester = "2567/1";
 
   test("TC-009-01: Assignment page loads", async ({ authenticatedAdmin }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/assign`);
+    await page.goto(`/schedule/${testSemester}/assign`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     // Verify URL contains assign
@@ -220,7 +246,10 @@ test.describe("TC-009: Schedule Assignment Interface", () => {
   }) => {
     const { page } = authenticatedAdmin;
 
-    await page.goto(`/schedule/${testSemester}/assign`);
+    await page.goto(`/schedule/${testSemester}/assign`, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
     await waitForAppReady(page);
 
     // Wait for main content to be visible

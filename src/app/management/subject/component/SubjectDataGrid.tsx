@@ -25,7 +25,7 @@ import {
   GridEventListener,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-import { Box, Button, Stack } from "@mui/material";
+import { alpha, Box, Button, Stack } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -38,6 +38,7 @@ import {
   deleteSubjectsAction,
 } from "@/features/subject/application/actions/subject.actions";
 import { useConfirmDialog } from "@/components/dialogs";
+import { colors } from "@/shared/design-system";
 import { AddSubjectDialog } from "./AddSubjectDialog";
 
 // ==================== Types ====================

@@ -240,6 +240,7 @@ export default function SignInForm() {
             <TextField
               label="อีเมล"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => validate()}
@@ -264,6 +265,7 @@ export default function SignInForm() {
             <TextField
               label="รหัสผ่าน"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onBlur={() => validate()}

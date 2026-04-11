@@ -31,29 +31,32 @@ export default async function HomePage() {
   const { getClassCount, getPaginatedClasses } =
     await import("@/lib/public/classes");
 
-  // Fetch counts for pagination
-  const totalTeachers = await getTeacherCount();
-  const totalClasses = await getClassCount();
+  // Fetch independent homepage data in parallel to avoid server waterfalls
+  const [totalTeachers, totalClasses, stats] = await Promise.all([
+    getTeacherCount(),
+    getClassCount(),
+    getQuickStats(),
+  ]);
 
   // Fetch ALL data for client-side filtering and pagination
-  const teachersData = await getPaginatedTeachers({
-    page: 1,
-    search: "",
-    sortBy: "name",
-    sortOrder: "asc",
-    perPage: totalTeachers, // Fetch all teachers
-  });
-
-  const classesData = await getPaginatedClasses({
-    page: 1,
-    search: "",
-    sortBy: "grade",
-    sortOrder: "asc",
-    perPage: totalClasses, // Fetch all classes
-  });
+  const [teachersData, classesData] = await Promise.all([
+    getPaginatedTeachers({
+      page: 1,
+      search: "",
+      sortBy: "name",
+      sortOrder: "asc",
+      perPage: totalTeachers, // Fetch all teachers
+    }),
+    getPaginatedClasses({
+      page: 1,
+      search: "",
+      sortBy: "grade",
+      sortOrder: "asc",
+      perPage: totalClasses, // Fetch all classes
+    }),
+  ]);
 
   // Derive current configId (semester-year) for public navigation
-  const stats = await getQuickStats();
   let currentConfigId: string | null = null;
   let currentTerm: { academicYear: string; semester: string } | null = null;
   // Get first teacher ID for sample timetable link (with defensive null check)
