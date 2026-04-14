@@ -373,9 +373,9 @@ test.describe("Visual Consistency", () => {
 
     const footer = page.locator("footer");
     if ((await footer.count()) > 0) {
-      // Scroll to bottom to make footer visible
+      // Scroll to bottom to make footer visible. The toBeVisible() assertion
+      // below auto-retries, so no fixed sleep is needed after the scroll.
       await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await page.waitForTimeout(300);
       await expect(footer).toBeVisible();
     }
 
