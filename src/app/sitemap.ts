@@ -1,20 +1,21 @@
 import { MetadataRoute } from "next";
 import { connection } from "next/server";
+import { getBaseUrl } from "@/utils/canonical-url";
 
 /**
  * Dynamic Sitemap Generator
- * 
+ *
  * Generates sitemap.xml with:
  * 1. Static pages (homepage, legal pages, etc.)
  * 2. Dynamic teacher profile pages from database
- * 
+ *
  * Uses Next.js 16 sitemap.ts convention
  * Updates automatically when teachers are added/removed
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await connection();
-  
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://phrasongsa-timetable.vercel.app";
+
+  const baseUrl = getBaseUrl();
   const now = new Date();
 
   // Static pages - public and indexable

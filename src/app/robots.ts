@@ -1,17 +1,18 @@
 import { MetadataRoute } from "next";
+import { getBaseUrl } from "@/utils/canonical-url";
 
 /**
  * Robots.txt Generator
- * 
+ *
  * Configures web crawler behavior:
  * - Allow all crawlers to access public pages
  * - Block protected routes (dashboard, management, schedule management)
  * - Point to sitemap.xml for efficient crawling
- * 
+ *
  * Uses Next.js 16 robots.ts convention
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://phrasongsa-timetable.vercel.app";
+  const baseUrl = getBaseUrl();
 
   return {
     rules: [
