@@ -43,7 +43,7 @@
         "${workspaceFolder}"
       ]
     },
-    "upstash/context7": {
+    "context7": {
       "type": "stdio",
       "command": "npx",
       "args": [
