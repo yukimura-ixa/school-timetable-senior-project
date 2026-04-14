@@ -10,6 +10,14 @@ on:
       - "screenshots/**"
       - "LICENSE"
       - ".gitignore"
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "screenshots/**"
+      - "LICENSE"
+      - ".gitignore"
   workflow_dispatch:
     inputs:
       update_snapshots:
