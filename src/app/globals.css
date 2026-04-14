@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
-/* Configure Tailwind to scan source files */
-@source "../src/**/*.{js,ts,jsx,tsx,mdx}";
+/* Configure Tailwind to scan source files.
+ * Path is relative to this CSS file (src/app/globals.css), so `..` resolves
+ * to `src/` and the glob scans every source file under it. */
+@source "../**/*.{js,ts,jsx,tsx,mdx}";
 
 /* Tailwind CSS v4 Theme Configuration */
 @theme {

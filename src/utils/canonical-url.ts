@@ -12,14 +12,18 @@
 export function getBaseUrl(): string {
   // For server-side
   if (typeof window === "undefined") {
+    // Precedence:
+    //   1) NEXT_PUBLIC_BASE_URL (custom domain override)
+    //   2) VERCEL_URL           (auto-set by Vercel; needs https:// prefix)
+    //   3) hardcoded production fallback
     return (
       process.env.NEXT_PUBLIC_BASE_URL ||
-      process.env.VERCEL_URL
+      (process.env.VERCEL_URL
         ? `https://${process.env.VERCEL_URL}`
-        : "https://phrasongsa-timetable.vercel.app"
+        : "https://phrasongsa-timetable.vercel.app")
     );
   }
-  
+
   // For client-side (if ever needed)
   return window.location.origin;
 }
