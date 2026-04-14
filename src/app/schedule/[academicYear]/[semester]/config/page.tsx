@@ -15,7 +15,6 @@ import ConfirmDeleteModal from "./component/ConfirmDeleteModal";
 import CloneTimetableDataModal from "./component/CloneTimetableDataModal";
 import { closeSnackbar, enqueueSnackbar } from "notistack";
 import {
-  getConfigByTermAction,
   createConfigAction,
 } from "@/features/config/application/actions/config.actions";
 import useSWR from "swr";
@@ -23,7 +22,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Loading from "@/app/loading";
 import {
   PageLoadingSkeleton,
-  NetworkErrorEmptyState,
 } from "@/components/feedback";
 
 function TimetableConfigValue() {
@@ -61,15 +59,33 @@ function TimetableConfigValue() {
     },
     HasMinibreak: false,
   });
+  type TableConfigResponse = {
+    ConfigID: string;
+    AcademicYear: number;
+    Semester: string;
+    Config: unknown;
+  } | null;
   const [isSetTimeslot, setIsSetTimeslot] = useState(false); //ตั้งค่าไปแล้วจะ = true
   const tableConfig = useSWR(
     hasTerm ? `config-${academicYear}-${semester}` : null,
     async () => {
       if (!academicYear || !semester) return null;
-      const result = await getConfigByTermAction({
-        AcademicYear: academicYear,
-        Semester: `SEMESTER_${semester}` as "SEMESTER_1" | "SEMESTER_2",
-      });
+      const response = await fetch(
+        `/api/schedule-config/${academicYear}/${semester}`,
+        {
+          credentials: "include",
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load timetable config");
+      }
+
+      const result = (await response.json()) as {
+        success: boolean;
+        data: TableConfigResponse;
+      };
+
       return result.success ? result.data : null;
     },
   );
@@ -268,10 +284,6 @@ function TimetableConfigValue() {
   if (tableConfig.isLoading && !isCopying) {
     return <PageLoadingSkeleton />;
   }
-
-  if (tableConfig.error) {
-    return <NetworkErrorEmptyState onRetry={() => tableConfig.mutate()} />;
-  }
   if (!academicYear || !semester) {
     return <PageLoadingSkeleton />;
   }
@@ -279,6 +291,11 @@ function TimetableConfigValue() {
   return (
     <>
       {isCopying ? <Loading /> : null}
+      {tableConfig.error ? (
+        <div className="mx-3 mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          โหลดข้อมูลตั้งค่าตารางไม่สำเร็จ แสดงค่าเริ่มต้นให้ก่อน
+        </div>
+      ) : null}
       {isActiveModal && hasTerm ? (
         <ConfirmDeleteModal
           closeModal={() => setIsActiveModal(false)}

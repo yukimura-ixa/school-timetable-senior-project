@@ -188,7 +188,7 @@ export default function SignInForm() {
           }}
         />
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} noValidate id="signin-form">
           <Stack spacing={3}>
             {/* Header */}
             <Stack spacing={2} alignItems="center" sx={{ mb: 1 }}>
@@ -202,6 +202,7 @@ export default function SignInForm() {
               </Box>
               <Box sx={{ textAlign: "center" }}>
                 <Typography
+                  component="h1"
                   variant="h5"
                   sx={{
                     fontWeight: 700,
@@ -239,6 +240,7 @@ export default function SignInForm() {
             <TextField
               label="อีเมล"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onBlur={() => validate()}
@@ -263,6 +265,7 @@ export default function SignInForm() {
             <TextField
               label="รหัสผ่าน"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onBlur={() => validate()}
@@ -324,7 +327,11 @@ export default function SignInForm() {
               disabled={submitting}
               startIcon={
                 submitting ? (
-                  <CircularProgress size={20} color="inherit" />
+                  <CircularProgress
+                    size={20}
+                    color="inherit"
+                    aria-label="กำลังเข้าสู่ระบบ"
+                  />
                 ) : (
                   <LoginIcon />
                 )

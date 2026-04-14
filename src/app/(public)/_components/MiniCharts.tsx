@@ -37,6 +37,9 @@ export async function MiniCharts() {
   const roomGridData = roomOccupancy;
 
   const days = ["จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์"];
+  const hasTeacherData = teacherChartData.length > 0;
+  const hasPeriodData = periodChartData.length > 0;
+  const hasRoomData = roomGridData.length > 0;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -46,7 +49,16 @@ export async function MiniCharts() {
           ครูที่มีภาระสอนสูงสุด (Top 5)
         </h3>
         <div className="w-full h-[180px] sm:h-[200px]">
-          <TeacherUtilizationChart data={teacherChartData} />
+          {hasTeacherData ? (
+            <TeacherUtilizationChart data={teacherChartData} />
+          ) : (
+            <div
+              role="status"
+              className="h-full flex items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-500"
+            >
+              ยังไม่มีข้อมูลครูสำหรับแสดงผล
+            </div>
+          )}
         </div>
       </div>
 
@@ -56,7 +68,16 @@ export async function MiniCharts() {
           จำนวนคาบเรียนต่อวัน
         </h3>
         <div className="w-full h-[70px] sm:h-[80px]">
-          <PeriodLoadChart data={periodChartData} />
+          {hasPeriodData ? (
+            <PeriodLoadChart data={periodChartData} />
+          ) : (
+            <div
+              role="status"
+              className="h-full flex items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-500"
+            >
+              ยังไม่มีข้อมูลคาบเรียนสำหรับแสดงผล
+            </div>
+          )}
         </div>
       </div>
 
@@ -65,7 +86,16 @@ export async function MiniCharts() {
         <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
           อัตราการใช้ห้องเรียน (%)
         </h3>
-        <RoomOccupancyGrid data={roomGridData} days={days} />
+        {hasRoomData ? (
+          <RoomOccupancyGrid data={roomGridData} days={days} />
+        ) : (
+          <div
+            role="status"
+            className="h-[120px] flex items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-500"
+          >
+            ยังไม่มีข้อมูลการใช้ห้องเรียนสำหรับแสดงผล
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
           <span>ต่ำ</span>
           <span>สูง</span>

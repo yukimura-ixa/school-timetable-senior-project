@@ -368,9 +368,11 @@ export function TeacherDataGrid({
         sx={{
           "& .MuiDataGrid-cell:focus": {
             outline: "none",
+            boxShadow: `inset 0 0 0 2px ${alpha(colors.blue.main, 0.4)}`,
           },
           "& .MuiDataGrid-columnHeader:focus-within": {
             outline: "none",
+            boxShadow: `inset 0 0 0 2px ${alpha(colors.blue.main, 0.4)}`,
           },
           "& .MuiDataGrid-row:hover": {
             bgcolor: alpha(colors.emerald.main, 0.04),

@@ -28,6 +28,7 @@ import {
   useGridApiContext,
 } from "@mui/x-data-grid";
 import {
+  alpha,
   Box,
   Button,
   Stack,
@@ -47,6 +48,7 @@ import {
   deleteGradeLevelsAction,
 } from "@/features/gradelevel/application/actions/gradelevel.actions";
 import { useConfirmDialog } from "@/components/dialogs";
+import { colors } from "@/shared/design-system";
 import { AddGradeLevelDialog } from "./AddGradeLevelDialog";
 
 // ==================== Types ====================
@@ -428,6 +430,7 @@ export function GradeLevelDataGrid({
         sx={{
           "& .MuiDataGrid-cell:focus": {
             outline: "none",
+            boxShadow: `inset 0 0 0 2px ${alpha(colors.blue.main, 0.4)}`,
           },
         }}
         localeText={{

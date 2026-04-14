@@ -127,11 +127,11 @@ E2E test infrastructure has been successfully implemented for the School Timetab
   - APIs return 404 for timeslots, grade levels
   - Solution: Run database migrations and seed data
 - **Authentication**: OAuth configuration needed
-  - NextAuth warnings in console
+   - Legacy auth warnings in console
   - Solution: Configure Google OAuth or implement test auth bypass
 
 - **API Endpoints**: Some returning errors
-  - Need to verify Prisma schema is migrated
+   - Need to verify Prisma schema is migrated
   - Database connection needs validation
 
 ---
@@ -193,7 +193,7 @@ pnpm prisma db seed
 
 **Option B**: Test authentication bypass
 
-- Modify NextAuth config for test environment
+- Modify Better Auth config for test environment
 - Use session mocking
 
 ### 3. Run Full Test Suite

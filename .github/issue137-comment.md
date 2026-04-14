@@ -18,7 +18,7 @@ Removed all development bypass authentication mechanisms from the codebase, enfo
 
 - `src/lib/auth.ts` - Removed dev-bypass provider
 - `src/app/signin/page.tsx` - Removed bypass button
-- `src/app/api/auth/[...nextauth]/route.ts` - Simplified handler
+- `src/app/api/auth/[...all]/route.ts` - Simplified handler
 - `src/shared/lib/action-wrapper.ts` - Use auth() only
 - `src/app/layout.tsx` - Use auth() only
 - `proxy.ts` - Removed bypass injection logic

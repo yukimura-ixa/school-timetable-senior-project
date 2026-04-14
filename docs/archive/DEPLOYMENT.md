@@ -90,14 +90,14 @@ Add these variables (for **Production** environment):
 DATABASE_URL=postgresql://your-connection-string-from-prisma
 ```
 
-#### **NextAuth**
+#### **Authentication**
 
 ```bash
-NEXTAUTH_URL=https://your-app.vercel.app
-NEXTAUTH_SECRET=your-generated-secret-here
+AUTH_URL=https://your-app.vercel.app
+AUTH_SECRET=your-generated-secret-here
 ```
 
-**Generate NEXTAUTH_SECRET:**
+**Generate AUTH_SECRET:**
 
 ```bash
 openssl rand -base64 32
@@ -183,8 +183,8 @@ Create `vercel.json` in your project root:
   "regions": ["sin1"],
   "env": {
     "DATABASE_URL": "@database-url",
-    "NEXTAUTH_URL": "@nextauth-url",
-    "NEXTAUTH_SECRET": "@nextauth-secret",
+    "AUTH_URL": "@auth-url",
+    "AUTH_SECRET": "@auth-secret",
     "NEXT_GOOGLE_AUTH_CLIENT_ID": "@google-client-id",
     "NEXT_GOOGLE_AUTH_CLIENT_SECRET": "@google-client-secret"
   }
@@ -225,7 +225,7 @@ pg_dump -h host -U user -d database > backup.sql
 ## 🔐 Security Checklist
 
 - ✅ `ENABLE_DEV_BYPASS` is NOT set in production
-- ✅ `NEXTAUTH_SECRET` is a strong random value
+- ✅ `AUTH_SECRET` is a strong random value
 - ✅ Google OAuth credentials are production credentials
 - ✅ Database connection string uses SSL (`sslmode=require`)
 - ✅ Environment variables are set in Vercel Dashboard (not in code)
@@ -260,7 +260,7 @@ pg_dump -h host -U user -d database > backup.sql
 
 **Check**:
 
-1. NEXTAUTH_URL matches your Vercel domain exactly
+1. AUTH_URL matches your Vercel domain exactly
 2. Google OAuth redirect URI includes your Vercel domain
 3. No trailing slashes in URLs
 

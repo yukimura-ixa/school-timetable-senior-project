@@ -120,7 +120,7 @@ export default function ForgotPasswordPageClient() {
                 <MailLockIcon />
               </Box>
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                <Typography variant="h6" component="h1" sx={{ fontWeight: 700 }}>
                   ลืมรหัสผ่าน?
                 </Typography>
                 <Typography variant="body2" color="text.secondary">

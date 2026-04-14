@@ -128,6 +128,7 @@ export function DataTableSection({
         <nav className="-mb-px flex space-x-6 sm:space-x-12" role="tablist">
           <button
             onClick={() => handleTabChange("teachers")}
+            id="teachers-tab"
             data-testid="teachers-tab"
             className={`
               relative whitespace-nowrap pb-6 px-1 font-bold text-base
@@ -149,6 +150,7 @@ export function DataTableSection({
           </button>
           <button
             onClick={() => handleTabChange("classes")}
+            id="classes-tab"
             data-testid="classes-tab"
             className={`
               relative whitespace-nowrap pb-6 px-1 font-bold text-base
@@ -189,7 +191,12 @@ export function DataTableSection({
 
       {/* Table Content */}
       <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
-        <div className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden">
+        <div
+          id={activeTab === "teachers" ? "teachers-panel" : "classes-panel"}
+          role="tabpanel"
+          aria-labelledby={`${activeTab}-tab`}
+          className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden"
+        >
           {activeTab === "teachers" ? (
             <TeachersTableClient
               data={currentTeachers}

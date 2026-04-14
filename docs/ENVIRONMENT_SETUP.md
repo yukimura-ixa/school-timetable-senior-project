@@ -142,7 +142,7 @@ pnpm test:e2e
 
 | Variable             | Description                | Required |
 | -------------------- | -------------------------- | -------- |
-| `AUTH_SECRET`        | NextAuth.js secret key     | ✅ Yes   |
+| `AUTH_SECRET`        | Better Auth secret key     | ✅ Yes   |
 | `AUTH_URL`           | Application base URL       | ✅ Yes   |
 | `AUTH_GOOGLE_ID`     | Google OAuth client ID     | Optional |
 | `AUTH_GOOGLE_SECRET` | Google OAuth client secret | Optional |
@@ -385,7 +385,7 @@ Restart dev server after changing.
 
 - [Next.js Environment Variables](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables)
 - [Prisma Connection Management](https://www.prisma.io/docs/guides/performance-and-optimization/connection-management)
-- [NextAuth.js Configuration](https://next-auth.js.org/configuration/options)
+- [Better Auth Configuration](../src/lib/auth.ts)
 
 ---
 

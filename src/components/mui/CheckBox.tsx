@@ -33,6 +33,8 @@ import {
   type CheckboxProps as MuiCheckboxProps,
   type FormControlLabelProps,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
+import { colors } from "@/shared/design-system";
 
 // Legacy API types (backward compatibility)
 interface LegacyCheckBoxProps {
@@ -97,7 +99,8 @@ const CheckBox = React.forwardRef<HTMLButtonElement, CheckBoxProps>(
             size={size}
             sx={{
               "&.Mui-focusVisible": {
-                outline: "none", // Match original outline-none
+                outline: "none",
+                boxShadow: `0 0 0 3px ${alpha(colors.blue.main, 0.3)}`,
               },
             }}
             {...rest}

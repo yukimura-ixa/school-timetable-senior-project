@@ -12,7 +12,7 @@ Successfully removed **all** development bypass authentication code from the ent
 
 - `src/lib/auth.ts` - Removed dev-bypass provider, session injection, and authWithDevBypass logic
 - `src/app/signin/page.tsx` - Removed dev bypass button and related UI state
-- `src/app/api/auth/[...nextauth]/route.ts` - Simplified to standard NextAuth handler
+- `src/app/api/auth/[...all]/route.ts` - Simplified to standard auth handler
 
 **Files Deleted:**
 

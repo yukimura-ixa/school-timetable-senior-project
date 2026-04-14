@@ -1,8 +1,19 @@
 import { ReactNode } from "react";
 import { redirect, forbidden } from "next/navigation";
 import { headers } from "next/headers";
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { normalizeAppRole, isAdminRole } from "@/lib/authz";
+
+export const metadata: Metadata = {
+  title: "แดชบอร์ด - ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา",
+  description:
+    "จัดการตารางเรียนตารางสอน เลือกภาคเรียน และจัดการข้อมูลระบบ สำหรับผู้ดูแลระบบโรงเรียนพระซองสามัคคีวิทยา",
+  robots: { index: false, follow: false },
+  alternates: {
+    canonical: "/dashboard",
+  },
+};
 
 /**
  * Dashboard Layout - Server Component

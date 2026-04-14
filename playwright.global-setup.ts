@@ -35,14 +35,13 @@ if (!process.env.DATABASE_URL) {
 
 /**
  * Validate auth URL configuration (Issue #4 - HIGH-01)
- * Auth URLs must match the E2E test port (3005) to avoid session persistence issues
+ * Auth URLs must match the E2E test port (3000) to avoid session persistence issues
  */
 function validateAuthUrls(): { valid: boolean; warnings: string[] } {
   const warnings: string[] = [];
-  const expectedPort = "3005";
+  const expectedPort = "3000";
   const authUrls = [
     { name: "BETTER_AUTH_URL", value: process.env.BETTER_AUTH_URL },
-    { name: "NEXTAUTH_URL", value: process.env.NEXTAUTH_URL },
     { name: "AUTH_URL", value: process.env.AUTH_URL },
     { name: "BASE_URL", value: process.env.BASE_URL },
   ];
@@ -123,7 +122,7 @@ async function globalSetup() {
   if (!valid) {
     console.warn("⚠️  Auth URL port mismatch detected (Issue #4):");
     warnings.forEach((w) => console.warn(`   - ${w}`));
-    console.warn("   Fix: Ensure .env.test.local uses port 3005 for all auth URLs");
+    console.warn("   Fix: Ensure .env.test.local uses port 3000 for all auth URLs");
     console.warn("   Run: node scripts/prepare-e2e-env.js to sync env files\n");
   }
 
@@ -237,7 +236,7 @@ async function globalSetup() {
   // This ensures the server has compiled and is ready to accept requests
   const maxServerAttempts = 10;
   let serverReady = false;
-  const baseUrl = process.env.BASE_URL ?? "http://localhost:3005";
+  const baseUrl = process.env.BASE_URL ?? "http://localhost:3000";
 
   console.log("⏳ Waiting for dev server to be ready...\n");
 

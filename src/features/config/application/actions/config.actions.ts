@@ -52,11 +52,6 @@ export const getConfigByTermAction = createAction(
       input.AcademicYear,
       input.Semester,
     );
-
-    if (!config) {
-      throw new Error("ไม่พบการตั้งค่าสำหรับปีการศึกษาและภาคเรียนนี้");
-    }
-
     return config;
   },
 );

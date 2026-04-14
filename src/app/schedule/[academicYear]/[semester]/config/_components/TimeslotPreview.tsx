@@ -12,114 +12,20 @@ import {
   LunchDining as LunchIcon,
   Coffee as CoffeeIcon,
 } from "@mui/icons-material";
-
-type ConfigData = {
-  StartTime: string;
-  Duration: number;
-  TimeslotPerDay: number;
-  BreakDuration: number;
-  BreakTimeslots: {
-    Junior: number;
-    Senior: number;
-  };
-  HasMinibreak: boolean;
-  MiniBreak?: {
-    Duration: number;
-    SlotNumber: number;
-  };
-};
+import {
+  calculateSchoolDayEndTime,
+  calculateSchoolDayMinutes,
+  generatePreviewSlots,
+} from "@/features/timeslot/domain/services/timeslot-config.service";
+import type { ConfigData } from "@/features/config/domain/constants/config.constants";
 
 type Props = {
   config: ConfigData;
 };
 
-type SlotItem = {
-  number: number;
-  start: string;
-  end: string;
-  type: "class" | "break" | "minibreak";
-  breakFor?: "junior" | "senior" | "both";
-};
-
 export function TimeslotPreview({ config }: Props) {
-  const calculateTimeslots = (): SlotItem[] => {
-    const timeslots: SlotItem[] = [];
-
-    // Parse start time
-    const [hours, minutes] = config.StartTime.split(":").map(Number);
-    if (hours === undefined || minutes === undefined) {
-      return [];
-    }
-    let currentTime = hours * 60 + minutes; // Convert to minutes
-
-    for (let i = 1; i <= config.TimeslotPerDay; i++) {
-      const start = formatTime(currentTime);
-      currentTime += config.Duration;
-      const end = formatTime(currentTime);
-
-      timeslots.push({
-        number: i,
-        start,
-        end,
-        type: "class",
-      });
-
-      // Check for lunch break
-      if (
-        i === config.BreakTimeslots.Junior ||
-        i === config.BreakTimeslots.Senior
-      ) {
-        const breakFor =
-          i === config.BreakTimeslots.Junior &&
-          i === config.BreakTimeslots.Senior
-            ? "both"
-            : i === config.BreakTimeslots.Junior
-              ? "junior"
-              : "senior";
-
-        const breakStart = formatTime(currentTime);
-        currentTime += config.BreakDuration;
-        const breakEnd = formatTime(currentTime);
-
-        timeslots.push({
-          number: i,
-          start: breakStart,
-          end: breakEnd,
-          type: "break",
-          breakFor,
-        });
-      }
-
-      // Check for mini break
-      if (
-        config.HasMinibreak &&
-        config.MiniBreak &&
-        i === config.MiniBreak.SlotNumber
-      ) {
-        const miniStart = formatTime(currentTime);
-        currentTime += config.MiniBreak.Duration;
-        const miniEnd = formatTime(currentTime);
-
-        timeslots.push({
-          number: i,
-          start: miniStart,
-          end: miniEnd,
-          type: "minibreak",
-        });
-      }
-    }
-
-    return timeslots;
-  };
-
-  const formatTime = (totalMinutes: number): string => {
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-  };
-
-  const slots = calculateTimeslots();
-  const endTime = slots[slots.length - 1]?.end || config.StartTime;
+  const slots = generatePreviewSlots(config);
+  const endTime = calculateSchoolDayEndTime(slots);
 
   return (
     <Paper elevation={0} sx={{ p: 3, border: 1, borderColor: "divider" }}>
@@ -163,19 +69,21 @@ export function TimeslotPreview({ config }: Props) {
             {slot.type === "class" ? (
               <>
                 <Chip
-                  label={`คาบที่ ${slot.number}`}
+                  label={`คาบที่ ${slot.period}`}
                   size="small"
                   color="primary"
                   sx={{ minWidth: 80 }}
                 />
                 <Typography variant="body2" fontWeight="medium">
-                  {slot.start} - {slot.end}
+                  {slot.startTime} - {slot.endTime}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   ({config.Duration} นาที)
                 </Typography>
               </>
-            ) : slot.type === "break" ? (
+            ) : slot.type === "lunch-both" ||
+              slot.type === "lunch-junior" ||
+              slot.type === "lunch-senior" ? (
               <>
                 <LunchIcon sx={{ color: "warning.dark" }} />
                 <Typography
@@ -186,13 +94,13 @@ export function TimeslotPreview({ config }: Props) {
                   พักเที่ยง
                 </Typography>
                 <Typography variant="body2">
-                  {slot.start} - {slot.end}
+                  {slot.startTime} - {slot.endTime}
                 </Typography>
                 <Chip
                   label={
-                    slot.breakFor === "both"
+                    slot.type === "lunch-both"
                       ? "ม.ต้น + ม.ปลาย"
-                      : slot.breakFor === "junior"
+                      : slot.type === "lunch-junior"
                         ? "ม.ต้น"
                         : "ม.ปลาย"
                   }
@@ -208,10 +116,10 @@ export function TimeslotPreview({ config }: Props) {
                   พักเล็ก
                 </Typography>
                 <Typography variant="body2">
-                  {slot.start} - {slot.end}
+                  {slot.startTime} - {slot.endTime}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  ({config.MiniBreak?.Duration} นาที)
+                  ({slot.duration} นาที)
                 </Typography>
               </>
             )}
@@ -224,34 +132,14 @@ export function TimeslotPreview({ config }: Props) {
         <Typography variant="caption" color="text.secondary">
           <strong>สรุป:</strong> {config.TimeslotPerDay} คาบเรียน • เริ่ม{" "}
           {config.StartTime} • จบ {endTime} • รวมเวลาประมาณ{" "}
-          {calculateTotalDuration(slots)} ชั่วโมง
+          {formatTotalDuration(calculateSchoolDayMinutes(slots))} ชั่วโมง
         </Typography>
       </Box>
     </Paper>
   );
 }
 
-function calculateTotalDuration(slots: SlotItem[]): string {
-  if (slots.length === 0) return "0";
-  const firstSlot = slots[0];
-  const lastSlot = slots[slots.length - 1];
-
-  if (!firstSlot || !lastSlot) return "0";
-
-  const firstStart = firstSlot.start;
-  const lastEnd = lastSlot.end;
-
-  const startParts = firstStart.split(":").map(Number);
-  const endParts = lastEnd.split(":").map(Number);
-
-  if (startParts.length < 2 || endParts.length < 2) return "0";
-
-  const startH = startParts[0]!;
-  const startM = startParts[1]!;
-  const endH = endParts[0]!;
-  const endM = endParts[1]!;
-
-  const totalMinutes = endH * 60 + endM - (startH * 60 + startM);
+function formatTotalDuration(totalMinutes: number): string {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 

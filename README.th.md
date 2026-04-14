@@ -95,7 +95,7 @@
 
 - Next.js Server Actions & API Routes
 - Prisma ORM 6.18
-- NextAuth.js v5 (Authentication with Google OAuth)
+- Better Auth (Authentication with email/password and Google OAuth)
 - Valibot (Runtime Validation)
 
 **ฐานข้อมูล (Database):**
@@ -216,9 +216,9 @@ DEV_USER_ROLE="admin"
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/school-timetable-db-dev"
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-here"
+# Better Auth
+BETTER_AUTH_URL="http://localhost:3000"
+BETTER_AUTH_SECRET="your-secret-key-here"
 ```
 
 **สำหรับ production หรือ Google OAuth:**
@@ -228,8 +228,8 @@ NEXTAUTH_SECRET="your-secret-key-here"
 ENABLE_DEV_BYPASS="false"
 
 # Google OAuth credentials
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
+AUTH_GOOGLE_ID="your-google-client-id"
+AUTH_GOOGLE_SECRET="your-google-client-secret"
 ```
 
 📖 ดู [คู่มือการพัฒนา](docs/DEVELOPMENT_GUIDE.md) สำหรับคำแนะนำ OAuth bypass แบบสมบูรณ์
@@ -426,7 +426,7 @@ school-timetable-senior-project/
 
 ## 🔒 การยืนยันตัวตน
 
-ระบบใช้ NextAuth.js กับ Google OAuth สำหรับการยืนยันตัวตน:
+ระบบใช้ Better Auth ร่วมกับ email/password และ Google OAuth สำหรับการยืนยันตัวตน:
 
 - **ผู้ดูแลระบบ (Admin)**: เข้าถึงระบบได้เต็มรูปแบบรวมถึงฟีเจอร์การจัดการทั้งหมด
 - **ครู (Teacher)**: สามารถดูตารางสอนของตนเองและตารางเรียนของนักเรียน

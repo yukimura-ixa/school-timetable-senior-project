@@ -24,8 +24,8 @@ concurrency:
 
 env:
   DATABASE_URL: postgresql://test_user:test_password@localhost:5433/test_timetable
-  BETTER_AUTH_URL: http://localhost:3005
-  BASE_URL: http://localhost:3005
+  BETTER_AUTH_URL: http://localhost:3000
+  BASE_URL: http://localhost:3000
   AUTO_MANAGE_TEST_DB: "false"
   NEXT_TELEMETRY_DISABLED: "1"
 
@@ -71,8 +71,8 @@ jobs:
           cat > .env.test << 'ENVEOF'
           DATABASE_URL=postgresql://test_user:test_password@localhost:5433/test_timetable
           BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL=http://localhost:3005
-          BASE_URL=http://localhost:3005
+          BETTER_AUTH_URL=http://localhost:3000
+          BASE_URL=http://localhost:3000
           AUTH_GOOGLE_ID=dummy-client-id
           AUTH_GOOGLE_SECRET=dummy-client-secret
           SEED_SECRET=${{ secrets.SEED_SECRET }}

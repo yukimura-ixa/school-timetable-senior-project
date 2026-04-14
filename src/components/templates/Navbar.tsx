@@ -62,13 +62,13 @@ function Navbar() {
                 </IconButton>
                 <Link href={"/"} className="group flex items-center gap-2">
                   <div className="p-1 px-2 rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 shadow-sm group-hover:shadow-md transition-all duration-300">
-                    <h1 className="text-sm md:text-base font-bold text-white tracking-tight">
+                    <div className="text-sm md:text-base font-bold text-white tracking-tight">
                       PT
-                    </h1>
+                    </div>
                   </div>
-                  <h1 className="hidden sm:block text-lg font-extrabold cursor-pointer bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-cyan-600 transition-all duration-300">
+                  <div className="hidden sm:block text-lg font-extrabold cursor-pointer bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-cyan-600 transition-all duration-300">
                     Phrasongsa Timetable
-                  </h1>
+                  </div>
                 </Link>
               </div>
 

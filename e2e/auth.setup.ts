@@ -56,7 +56,7 @@ async function ensureDatabaseReady(): Promise<void> {
   const baseUrl =
     process.env.BASE_URL ??
     process.env.PLAYWRIGHT_TEST_BASE_URL ??
-    "http://localhost:3005";
+    "http://localhost:3000";
 
   log.info("Verifying database is ready...");
 
@@ -213,6 +213,13 @@ setup("authenticate as admin", async ({ page }) => {
   log.info("Filling in credentials...");
   const emailInput = page.locator('input[type="email"]');
   const passwordInput = page.locator('input[type="password"]');
+  const waitForCredentialSignInResponse = () =>
+    page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.url().includes("/api/auth/sign-in/email"),
+      { timeout: 30000 },
+    );
   
   // Fill and verify email
   await emailInput.fill(ADMIN_EMAIL);
@@ -240,10 +247,65 @@ setup("authenticate as admin", async ({ page }) => {
   await expect(loginButton).toBeEnabled({ timeout: 5000 });
   log.info("Found login button");
 
-  // Click and wait for client-side route change (Next.js uses SPA navigation)
-  log.info("Clicking login button...");
-  await loginButton.click();
-  log.info("Click completed, waiting for navigation...");
+  // Submit sign-in form and require a real credential sign-in response.
+  // This avoids false positives where navigation continues without an authenticated session.
+  let signInResponse;
+  let signInObserved = false;
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const usingEnter = attempt === 1;
+    try {
+      if (!usingEnter) {
+        log.info("Re-filling credentials after submit drift before retry...");
+        await emailInput.fill(ADMIN_EMAIL);
+        await expect(emailInput).toHaveValue(ADMIN_EMAIL, { timeout: 5000 });
+        await passwordInput.fill(ADMIN_PASSWORD);
+        await expect(passwordInput).toHaveValue(ADMIN_PASSWORD, { timeout: 5000 });
+      }
+
+      const responsePromise = waitForCredentialSignInResponse();
+      if (usingEnter) {
+        log.info("Submitting sign-in via Enter key...");
+        await passwordInput.press("Enter");
+      } else {
+        log.info("Retrying sign-in via button click...");
+        await loginButton.click();
+      }
+
+      signInResponse = await responsePromise;
+      signInObserved = true;
+      log.info(
+        usingEnter
+          ? "Sign-in request observed via Enter key"
+          : "Sign-in request observed via button click",
+      );
+      break;
+    } catch {
+      if (attempt === 1) {
+        log.info(
+          "Initial submit did not reach sign-in API, preparing credential refill retry",
+        );
+      }
+    }
+  }
+
+  if (!signInObserved || !signInResponse) {
+    throw new Error(
+      "[AUTH SETUP] Sign-in request was not observed after retry",
+    );
+  }
+
+  log.debug("Sign-in response", {
+    status: signInResponse.status(),
+    ok: signInResponse.ok(),
+    url: signInResponse.url(),
+  });
+
+  if (!signInResponse.ok()) {
+    throw new Error(
+      `[AUTH SETUP] Sign-in API failed with status ${signInResponse.status()}`,
+    );
+  }
   
   // Strategy: Immediately navigate to dashboard instead of polling
   // The login will have set auth cookies, so navigation will succeed

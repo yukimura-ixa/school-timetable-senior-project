@@ -64,7 +64,7 @@ export default defineConfig({
       ],
 
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3005",
+    baseURL: process.env.BASE_URL || "http://localhost:3000",
     // Reduce trace overhead: only on retry for debugging
     trace: "on-first-retry",
     // Optimize artifacts: screenshots only on failure, no videos locally
@@ -131,9 +131,9 @@ export default defineConfig({
         // Local: use prod build if PROD_BUILD=true, otherwise dev server
         command:
           process.env.CI === "true" || process.env.PROD_BUILD === "true"
-            ? "pnpm exec dotenv -e .env.test.local -- next start -p 3005"
-            : "pnpm exec dotenv -e .env.test.local -- next dev -p 3005",
-        url: "http://localhost:3005",
+            ? "pnpm exec dotenv -e .env.test.local -- next start -p 3000"
+            : "pnpm exec dotenv -e .env.test.local -- next dev -p 3000",
+        url: "http://localhost:3000",
         reuseExistingServer: false,
         timeout: 120 * 1000,
         stdout: "pipe", // Changed from 'ignore' to see startup logs

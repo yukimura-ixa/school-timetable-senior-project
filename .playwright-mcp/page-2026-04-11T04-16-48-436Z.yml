@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - link "ข้ามไปยังเนื้อหาหลัก" [ref=e6] [cursor=pointer]:
+        - /url: "#signin-form"
+      - generic [ref=e9]:
+        - generic [ref=e11]:
+          - generic [ref=e12]:
+            - img [ref=e14]
+            - img [ref=e17]
+          - generic [ref=e19]:
+            - img [ref=e21]
+            - generic [ref=e23]:
+              - heading "Phrasongsa" [level=3] [ref=e24]
+              - heading "Timetable Management" [level=5] [ref=e25]
+              - paragraph [ref=e26]: ระบบจัดตารางเรียนตารางสอนอัจฉริยะสำหรับโรงเรียนมัธยมศึกษา
+            - generic [ref=e27]:
+              - paragraph [ref=e30]: จัดตารางอัตโนมัติ ลดภาระงาน
+              - paragraph [ref=e33]: ตรวจสอบความขัดแย้งแบบ Real-time
+              - paragraph [ref=e36]: รองรับมาตรฐาน กระทรวงศึกษาธิการ
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - img [ref=e44]
+            - generic [ref=e46]:
+              - heading "เข้าสู่ระบบ" [level=1] [ref=e47]
+              - paragraph [ref=e48]: ระบบจัดตารางเรียนสำหรับผู้ดูแล
+          - generic [ref=e49]:
+            - generic: อีเมล
+            - generic [ref=e50]:
+              - textbox "อีเมล" [ref=e51]
+              - group:
+                - generic: อีเมล
+          - generic [ref=e52]:
+            - generic: รหัสผ่าน
+            - generic [ref=e53]:
+              - textbox "รหัสผ่าน" [ref=e54]
+              - group:
+                - generic: รหัสผ่าน
+          - generic [ref=e55] [cursor=pointer]:
+            - generic [ref=e56]:
+              - checkbox "จำฉันไว้ในระบบ" [ref=e57]
+              - img [ref=e58]
+            - paragraph [ref=e60]: จำฉันไว้ในระบบ
+          - link "ลืมรหัสผ่าน?" [ref=e62] [cursor=pointer]:
+            - /url: /forgot-password
+            - paragraph [ref=e63]: ลืมรหัสผ่าน?
+          - button "เข้าสู่ระบบ" [ref=e64] [cursor=pointer]:
+            - img [ref=e66]
+            - text: เข้าสู่ระบบ
+          - separator [ref=e68]:
+            - generic [ref=e69]: หรือ
+          - button "เข้าสู่ระบบด้วย Google" [ref=e70] [cursor=pointer]:
+            - img [ref=e72]
+            - text: เข้าสู่ระบบด้วย Google
+  - button "Open Next.js Dev Tools" [ref=e79] [cursor=pointer]:
+    - img [ref=e80]
+  - alert [ref=e83]

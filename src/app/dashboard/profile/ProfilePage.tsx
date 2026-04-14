@@ -30,6 +30,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { authClient } from "@/lib/auth-client";
+import { SkipLink } from "@/components/elements/SkipLink";
 
 /**
  * ProfilePage - Client Component
@@ -66,7 +67,7 @@ export default function ProfilePage() {
           alignItems="center"
           minHeight="50vh"
         >
-          <CircularProgress />
+          <CircularProgress aria-label="กำลังโหลด" />
         </Box>
       </Container>
     );
@@ -79,13 +80,14 @@ export default function ProfilePage() {
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
+      <SkipLink />
       <Stack spacing={3}>
         {/* Header */}
-        <Box display="flex" alignItems="center" gap={2}>
+        <Box id="main-content" display="flex" alignItems="center" gap={2}>
           <IconButton onClick={() => router.back()} aria-label="กลับ">
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h4" fontWeight={600}>
+          <Typography variant="h4" component="h1" fontWeight={600}>
             โปรไฟล์ของฉัน
           </Typography>
         </Box>
@@ -235,7 +237,13 @@ function ProfileSection({
           <Box display="flex" justifyContent="flex-end">
             <Button
               variant="contained"
-              startIcon={saving ? <CircularProgress size={20} /> : <SaveIcon />}
+              startIcon={
+                saving ? (
+                  <CircularProgress size={20} aria-label="กำลังบันทึก" />
+                ) : (
+                  <SaveIcon />
+                )
+              }
               onClick={handleSave}
               disabled={saving || !hasChanges}
             >
@@ -422,7 +430,13 @@ function PasswordSection({ onSuccess, onError }: PasswordSectionProps) {
             <Button
               variant="contained"
               color="warning"
-              startIcon={saving ? <CircularProgress size={20} /> : <LockIcon />}
+              startIcon={
+                saving ? (
+                  <CircularProgress size={20} aria-label="กำลังเปลี่ยนรหัสผ่าน" />
+                ) : (
+                  <LockIcon />
+                )
+              }
               onClick={handleChangePassword}
               disabled={saving || !canSubmit}
             >
@@ -524,7 +538,11 @@ function EmailSection({ currentEmail, onSuccess, onError }: EmailSectionProps) {
               variant="contained"
               color="info"
               startIcon={
-                saving ? <CircularProgress size={20} /> : <EmailIcon />
+                saving ? (
+                  <CircularProgress size={20} aria-label="กำลังเปลี่ยนอีเมล" />
+                ) : (
+                  <EmailIcon />
+                )
               }
               onClick={handleChangeEmail}
               disabled={saving || !newEmail}

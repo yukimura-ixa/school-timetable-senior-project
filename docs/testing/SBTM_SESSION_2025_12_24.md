@@ -82,7 +82,7 @@
 2. **[IMMEDIATE] Verify Env Vars:**
    - `BETTER_AUTH_SECRET` or `AUTH_SECRET`
    - `DATABASE_URL` (Vercel Postgres connection string)
-   - `AUTH_URL` or `NEXTAUTH_URL`
+   - `AUTH_URL` or `BETTER_AUTH_URL`
 
 3. **[FIX] Redeploy for BUG-27:**
    Push latest code to trigger Vercel deployment. The fix for the homepage link already exists in codebase.

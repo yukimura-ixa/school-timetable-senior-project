@@ -11,12 +11,14 @@ import { AnimatedHeroBackground } from "./_components/AnimatedHeroBackground";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getQuickStats } from "@/lib/public/stats";
+import { createMetadataWithSocial } from "@/utils/canonical-url";
 
-export const metadata: Metadata = {
-  title: "ระบบตารางเรียนตารางสอน - หน้าแรก",
+export const metadata: Metadata = createMetadataWithSocial({
+  title: "ระบบตารางเรียนตารางสอน - โรงเรียนพระซองสามัคคีวิทยา",
   description:
-    "ดูตารางเรียนตารางสอนของครูและนักเรียน สามารถค้นหาและดูข้อมูลครูผู้สอนและชั้นเรียนได้ทันที",
-};
+    "ระบบจัดการตารางเรียนตารางสอนออนไลน์ โรงเรียนพระซองสามัคคีวิทยา จังหวัดนครพนม ค้นหาตารางครูผู้สอน ตารางเรียนนักเรียน และข้อมูลชั้นเรียนได้ง่ายและรวดเร็ว รองรับการจัดการตามหลักสูตร MOE",
+  path: "/",
+});
 
 // NOTE: Static page - all interactivity handled client-side
 // No search params needed, all state managed in DataTableSection
@@ -29,29 +31,32 @@ export default async function HomePage() {
   const { getClassCount, getPaginatedClasses } =
     await import("@/lib/public/classes");
 
-  // Fetch counts for pagination
-  const totalTeachers = await getTeacherCount();
-  const totalClasses = await getClassCount();
+  // Fetch independent homepage data in parallel to avoid server waterfalls
+  const [totalTeachers, totalClasses, stats] = await Promise.all([
+    getTeacherCount(),
+    getClassCount(),
+    getQuickStats(),
+  ]);
 
   // Fetch ALL data for client-side filtering and pagination
-  const teachersData = await getPaginatedTeachers({
-    page: 1,
-    search: "",
-    sortBy: "name",
-    sortOrder: "asc",
-    perPage: totalTeachers, // Fetch all teachers
-  });
-
-  const classesData = await getPaginatedClasses({
-    page: 1,
-    search: "",
-    sortBy: "grade",
-    sortOrder: "asc",
-    perPage: totalClasses, // Fetch all classes
-  });
+  const [teachersData, classesData] = await Promise.all([
+    getPaginatedTeachers({
+      page: 1,
+      search: "",
+      sortBy: "name",
+      sortOrder: "asc",
+      perPage: totalTeachers, // Fetch all teachers
+    }),
+    getPaginatedClasses({
+      page: 1,
+      search: "",
+      sortBy: "grade",
+      sortOrder: "asc",
+      perPage: totalClasses, // Fetch all classes
+    }),
+  ]);
 
   // Derive current configId (semester-year) for public navigation
-  const stats = await getQuickStats();
   let currentConfigId: string | null = null;
   let currentTerm: { academicYear: string; semester: string } | null = null;
   // Get first teacher ID for sample timetable link (with defensive null check)
@@ -69,7 +74,7 @@ export default async function HomePage() {
 
   return (
     // Responsive width layout: container with max-width, centered
-    <main className="min-h-screen bg-slate-50/50">
+    <div className="min-h-screen bg-slate-50/50">
       {/* Premium Hero Section with Animated Background */}
       <section className="relative overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center">
         {/* Animated gradient mesh background */}
@@ -170,6 +175,6 @@ export default async function HomePage() {
           <p>© 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma</p>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }
