@@ -172,7 +172,7 @@ export default async function HomePage() {
 
       <footer className="bg-white border-t border-gray-200 py-6 md:py-8 mt-8 md:mt-12">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl text-center text-sm md:text-base text-gray-600">
-          <p>© 2024 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma</p>
+          <p>© 2026 ระบบตารางเรียนตารางสอน - สร้างด้วย Next.js และ Prisma</p>
         </div>
       </footer>
     </div>

@@ -7,7 +7,7 @@
  * entirely on the client side without page refreshes or URL changes.
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { TableSearch } from "./TableSearch";
 import { TeachersTableClient } from "./TeachersTableClient";
 import { ClassesTableClient } from "./ClassesTableClient";
@@ -101,12 +101,27 @@ export function DataTableSection({
     activeTab === "teachers" ? filteredTeachers.length : filteredClasses.length;
   const actualTotalPages = Math.ceil(actualTotalItems / 25);
 
+  // Refs for keyboard navigation between tabs (WAI-ARIA tabs pattern)
+  const teachersTabRef = useRef<HTMLButtonElement>(null);
+  const classesTabRef = useRef<HTMLButtonElement>(null);
+
   // Tab change handler - instant, no URL changes
   const handleTabChange = (tab: TabValue) => {
     if (tab === activeTab) return;
     setActiveTab(tab);
     setCurrentPage(1); // Reset to first page
     setSearchQuery(""); // Clear search when switching tabs
+  };
+
+  // Left/Right arrow keys move focus between tabs and activate the focused tab
+  // (ARIA "automatic activation" pattern).
+  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const nextTab: TabValue = activeTab === "teachers" ? "classes" : "teachers";
+    handleTabChange(nextTab);
+    const nextRef = nextTab === "teachers" ? teachersTabRef : classesTabRef;
+    nextRef.current?.focus();
   };
 
   // Page change handler - no URL changes
@@ -127,7 +142,9 @@ export function DataTableSection({
       <div className="border-b border-slate-200/50 bg-white/30 px-4 sm:px-6 md:px-8 pt-4 sm:pt-6">
         <nav className="-mb-px flex space-x-6 sm:space-x-12" role="tablist">
           <button
+            ref={teachersTabRef}
             onClick={() => handleTabChange("teachers")}
+            onKeyDown={handleTabKeyDown}
             id="teachers-tab"
             data-testid="teachers-tab"
             className={`
@@ -142,6 +159,7 @@ export function DataTableSection({
             role="tab"
             aria-selected={activeTab === "teachers"}
             aria-controls="teachers-panel"
+            tabIndex={activeTab === "teachers" ? 0 : -1}
           >
             <span>ครู</span>
             {activeTab === "teachers" && (
@@ -149,7 +167,9 @@ export function DataTableSection({
             )}
           </button>
           <button
+            ref={classesTabRef}
             onClick={() => handleTabChange("classes")}
+            onKeyDown={handleTabKeyDown}
             id="classes-tab"
             data-testid="classes-tab"
             className={`
@@ -164,6 +184,7 @@ export function DataTableSection({
             role="tab"
             aria-selected={activeTab === "classes"}
             aria-controls="classes-panel"
+            tabIndex={activeTab === "classes" ? 0 : -1}
           >
             <span>ชั้นเรียน</span>
             {activeTab === "classes" && (
@@ -189,22 +210,35 @@ export function DataTableSection({
         </div>
       </div>
 
-      {/* Table Content */}
+      {/* Table Content - both tabpanels are rendered so aria-controls always
+          points to an element in the DOM; the inactive one is hidden. */}
       <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6 md:pb-8 min-h-[300px] sm:min-h-[400px]">
         <div
-          id={activeTab === "teachers" ? "teachers-panel" : "classes-panel"}
+          id="teachers-panel"
           role="tabpanel"
-          aria-labelledby={`${activeTab}-tab`}
+          aria-labelledby="teachers-tab"
+          tabIndex={0}
+          hidden={activeTab !== "teachers"}
           className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden"
         >
-          {activeTab === "teachers" ? (
+          {activeTab === "teachers" && (
             <TeachersTableClient
               data={currentTeachers}
               search={searchQuery}
               data-testid="teacher-list"
               configId={currentConfigId}
             />
-          ) : (
+          )}
+        </div>
+        <div
+          id="classes-panel"
+          role="tabpanel"
+          aria-labelledby="classes-tab"
+          tabIndex={0}
+          hidden={activeTab !== "classes"}
+          className="bg-white/50 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-white/60 shadow-sm overflow-hidden"
+        >
+          {activeTab === "classes" && (
             <ClassesTableClient
               data={currentClasses}
               search={searchQuery}

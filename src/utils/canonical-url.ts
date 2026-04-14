@@ -81,12 +81,27 @@ export function createMetadataWithSocial({
   robots?: { index: boolean; follow: boolean };
   image?: string;
 }) {
-  const baseUrl = getBaseUrl();
   const canonicalUrl = getCanonicalUrl(path);
   const siteName = "ระบบตารางเรียนโรงเรียนพระซองสามัคคีวิทยา";
-  
-  // Default OG image if none provided
-  const ogImage = image || `${baseUrl}/og-image.png`;
+
+  // Only attach image metadata when the caller supplies an image.
+  // Previously defaulted to `${baseUrl}/og-image.png`, which 404s because
+  // no such asset ships in /public.
+  const imagesBlock = image
+    ? {
+        openGraph: {
+          images: [
+            {
+              url: image,
+              width: 1200,
+              height: 630,
+              alt: title,
+            },
+          ],
+        },
+        twitter: { images: [image] },
+      }
+    : { openGraph: {}, twitter: {} };
 
   return {
     title,
@@ -102,20 +117,13 @@ export function createMetadataWithSocial({
       siteName,
       locale: "th_TH",
       type: "website",
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
+      ...imagesBlock.openGraph,
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [ogImage],
+      ...imagesBlock.twitter,
     },
   };
 }
