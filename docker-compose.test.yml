@@ -60,6 +60,41 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # ====================================================================
+  # Mailpit — SMTP capture for local dev & E2E tests
+  # ====================================================================
+  # Captures every outbound email without relaying anywhere. Point the
+  # app at it via SMTP_HOST=localhost SMTP_PORT=1025 (no auth required).
+  # View captured messages at http://localhost:8025.
+  #
+  # Used to satisfy acceptance criterion #6 of issue #203 (E2E coverage
+  # for email flows) without burning a real provider's quota. See
+  # docs/SMTP_SETUP.md for configuration details.
+  # ====================================================================
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: timetable-test-mailpit
+    network_mode: bridge
+    ports:
+      - "1025:1025" # SMTP (plain, no auth — dev only)
+      - "8025:8025" # Web UI
+    environment:
+      MP_MAX_MESSAGES: 500
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -O
+        - "-"
+        - http://localhost:8025/api/v1/info
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   test_db_data:
   test_db_data_host:
